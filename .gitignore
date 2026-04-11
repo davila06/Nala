@@ -1,0 +1,79 @@
+# ===========================
+# .NET / ASP.NET Core
+# ===========================
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/settings.json
+*.DotSettings.user
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.nupkg
+*.snupkg
+**/TestResults/
+*.coverage
+*.coveragexml
+
+# Entity Framework migrations temp
+ScaffoldingReadMe.txt
+
+# Publish output
+**/publish/
+**/PublishOutput/
+
+# ===========================
+# Node / Frontend
+# ===========================
+node_modules/
+dist/
+dev-dist/
+.pnp
+.pnp.js
+*.local
+
+# Vite
+*.vite/
+
+# ===========================
+# Secrets & sensitive files
+# ===========================
+secrets/
+*.pfx
+*.p12
+.env
+.env.*
+!.env.example
+appsettings.Testing.json
+
+# User secrets (local dev only)
+**/secrets.json
+
+# ===========================
+# OS / Editor
+# ===========================
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+
+# ===========================
+# Docker local overrides
+# ===========================
+docker-compose.override.yml
+
+# ===========================
+# Azurite local emulator data
+# ===========================
+.azurite/
+
+# ===========================
+# Azure
+# ===========================
+.azure/
+*.azurePubxml

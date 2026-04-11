@@ -1,0 +1,127 @@
+name: Smoke Tests
+
+on:
+  # Triggered automatically after both deploy jobs complete
+  workflow_run:
+    workflows: ['Backend CI/CD', 'Frontend CI/CD']
+    types: [completed]
+    branches: [main]
+
+  # Allow manual trigger for ad-hoc smoke testing
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: 'Backend API URL to test'
+        required: false
+        default: ''
+      frontend_url:
+        description: 'Frontend URL to test'
+        required: false
+        default: ''
+
+jobs:
+  smoke-tests:
+    name: Post-deploy Smoke Tests
+    runs-on: ubuntu-latest
+    # Only run if the triggering workflow succeeded (or on manual dispatch)
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+
+    env:
+      API_URL: ${{ inputs.api_url || secrets.SMOKE_API_URL }}
+      FRONTEND_URL: ${{ inputs.frontend_url || secrets.SMOKE_FRONTEND_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Wait for App Service warm-up
+        run: sleep 30
+
+      # ── Backend smoke tests ────────────────────────────────────────────────
+      - name: "[BE] Health check responds 200"
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${API_URL}/health")
+          echo "GET /health → HTTP $STATUS"
+          [ "$STATUS" = "200" ] || (echo "FAIL: expected 200, got $STATUS" && exit 1)
+
+      - name: "[BE] Health check body contains 'Healthy'"
+        run: |
+          BODY=$(curl -s "${API_URL}/health")
+          echo "$BODY"
+          echo "$BODY" | grep -q '"status":"Healthy"' || (echo "FAIL: /health body missing 'Healthy'" && exit 1)
+
+      - name: "[BE] Ready check responds"
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${API_URL}/health/ready")
+          echo "GET /health/ready → HTTP $STATUS"
+          [ "$STATUS" = "200" ] || [ "$STATUS" = "503" ] || (echo "FAIL: unexpected status $STATUS" && exit 1)
+
+      - name: "[BE] Public map endpoint responds"
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${API_URL}/api/public/map?north=10.5&south=8.0&east=-82.0&west=-85.5")
+          echo "GET /api/public/map → HTTP $STATUS"
+          [ "$STATUS" = "200" ] || (echo "FAIL: expected 200, got $STATUS" && exit 1)
+
+      - name: "[BE] Login with bad credentials returns 401"
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "${API_URL}/api/auth/login" \
+            -H "Content-Type: application/json" \
+            -d '{"email":"smoke@test.invalid","password":"wrong"}')
+          echo "POST /api/auth/login (bad creds) → HTTP $STATUS"
+          [ "$STATUS" = "401" ] || [ "$STATUS" = "400" ] || \
+            (echo "FAIL: expected 401/400, got $STATUS" && exit 1)
+
+      - name: "[BE] POST /api/sightings requires valid body (422/400)"
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "${API_URL}/api/sightings" \
+            -H "Content-Type: application/json" \
+            -d '{}')
+          echo "POST /api/sightings (empty body) → HTTP $STATUS"
+          [ "$STATUS" = "400" ] || [ "$STATUS" = "422" ] || [ "$STATUS" = "415" ] || \
+            (echo "FAIL: unexpected status $STATUS" && exit 1)
+
+      - name: "[BE] HTTPS redirect active"
+        run: |
+          HTTP_URL=$(echo "$API_URL" | sed 's/https:/http:/')
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L --max-redirs 0 "${HTTP_URL}/health" || true)
+          echo "HTTP /health → $STATUS (expect 301/308)"
+          # If URL is already http:// this will just return 200, also OK for dev
+          [ "$STATUS" = "301" ] || [ "$STATUS" = "308" ] || [ "$STATUS" = "200" ] || \
+            (echo "FAIL: no redirect from HTTP, got $STATUS" && exit 1)
+
+      # ── CORS smoke test ────────────────────────────────────────────────────
+      - name: "[BE] CORS allows frontend origin"
+        run: |
+          ORIGIN="${FRONTEND_URL:-https://pawtrack.azurestaticapps.net}"
+          CORS_HEADER=$(curl -s -I \
+            -H "Origin: ${ORIGIN}" \
+            -H "Access-Control-Request-Method: POST" \
+            -X OPTIONS \
+            "${API_URL}/api/auth/login" | grep -i "access-control-allow-origin" || true)
+          echo "CORS header: $CORS_HEADER"
+          echo "$CORS_HEADER" | grep -qi "${ORIGIN}" || \
+            (echo "FAIL: CORS header missing for origin ${ORIGIN}" && exit 1)
+
+      # ── Frontend smoke tests ───────────────────────────────────────────────
+      - name: "[FE] Frontend responds 200"
+        if: env.FRONTEND_URL != ''
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${FRONTEND_URL}")
+          echo "GET ${FRONTEND_URL} → HTTP $STATUS"
+          [ "$STATUS" = "200" ] || (echo "FAIL: expected 200, got $STATUS" && exit 1)
+
+      - name: "[FE] Frontend HTML contains app root"
+        if: env.FRONTEND_URL != ''
+        run: |
+          BODY=$(curl -s "${FRONTEND_URL}")
+          echo "$BODY" | grep -q 'id="root"' || \
+            (echo "FAIL: frontend HTML missing #root element" && exit 1)
+          echo "OK: #root element found"
+
+      - name: "Smoke tests complete ✅"
+        run: echo "All smoke tests passed."

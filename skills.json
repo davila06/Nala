@@ -1,0 +1,139 @@
+{
+  "manifestVersion": "1.0",
+  "project": {
+    "name": "pawtrack-cr",
+    "description": "Skills manifest (propuesto) para estandarizar los Agent Skills usados por el equipo PawTrack CR por sprint.",
+    "primaryStack": {
+      "backend": ".NET 8 (Clean Architecture + CQRS)",
+      "frontend": "React PWA (TypeScript)",
+      "cloud": "Azure (App Service, Azure SQL, Blob Storage, Notification Hubs, Key Vault, Application Insights)"
+    }
+  },
+  "installPolicy": {
+    "principle": "Instalar solo skills relevantes por sprint para evitar 'context rot'.",
+    "preferredScope": "project",
+    "preferredAgents": [
+      "github-copilot",
+      "claude-code",
+      "cursor"
+    ],
+    "maxActiveSkillsGuideline": "4-8 skills activos por sprint (orientativo)"
+  },
+  "sources": {
+    "dotnet": {
+      "repo": "Aaronontheweb/dotnet-skills",
+      "notes": "Skills y sub-agentes para .NET. Instalar solo los skills necesarios."
+    },
+    "frontend": {
+      "repo": "vercel-labs/agent-skills",
+      "notes": "Buenas prácticas de React y guías UI/UX. Instalar por necesidad."
+    },
+    "azure": {
+      "repo": "microsoft/skills",
+      "notes": "Catálogo amplio de skills para Azure. Seleccionar subset por trabajo del sprint."
+    }
+  },
+  "sprints": {
+    "sprint1_fundamentos_auth": {
+      "focus": [
+        "Backend base",
+        "Auth",
+        "EF Core base",
+        "Frontend Auth UI",
+        "Errores globales"
+      ],
+      "skills": {
+        "Aaronontheweb/dotnet-skills": [
+          "project-structure",
+          "csharp-coding-standards",
+          "efcore-patterns",
+          "package-management"
+        ],
+        "vercel-labs/agent-skills": [
+          "web-design-guidelines",
+          "vercel-react-best-practices"
+        ],
+        "microsoft/skills": [
+          "(seleccionar solo lo necesario para App Service/SQL/Key Vault/Insights)"
+        ]
+      }
+    },
+    "sprint2_mascotas_qr": {
+      "focus": [
+        "CRUD Pets",
+        "Upload imágenes",
+        "QR",
+        "Perfil público QR",
+        "Dashboard dueño"
+      ],
+      "skills": {
+        "Aaronontheweb/dotnet-skills": [
+          "csharp-api-design",
+          "serialization",
+          "database-performance"
+        ],
+        "vercel-labs/agent-skills": [
+          "vercel-composition-patterns",
+          "web-design-guidelines"
+        ]
+      }
+    },
+    "sprint3_lostpets_notificaciones": {
+      "focus": [
+        "LostPetEvents",
+        "Cambio de estado",
+        "Notificaciones (push/email)",
+        "Centro de notificaciones"
+      ],
+      "skills": {
+        "Aaronontheweb/dotnet-skills": [
+          "opentelementry-dotnet-instrumentation",
+          "microsoft-extensions-dependency-injection"
+        ],
+        "vercel-labs/agent-skills": [
+          "web-design-guidelines",
+          "vercel-react-best-practices"
+        ],
+        "microsoft/skills": [
+          "(seleccionar skills de monitoring/messaging según implementación)"
+        ]
+      }
+    },
+    "sprint4_avistamientos_mapa_golive": {
+      "focus": [
+        "Sightings",
+        "Mapa público (bbox)",
+        "Rate limiting",
+        "Health checks",
+        "CD/Go-Live",
+        "E2E"
+      ],
+      "skills": {
+        "Aaronontheweb/dotnet-skills": [
+          "playwright-ci-caching",
+          "snapshot-testing",
+          "database-performance"
+        ],
+        "vercel-labs/agent-skills": [
+          "web-design-guidelines"
+        ],
+        "microsoft/skills": [
+          "(seleccionar skills de deploy/validate/monitoring según pipeline)"
+        ]
+      }
+    }
+  },
+  "commands": {
+    "examples": {
+      "list_repo_skills": "npx skills add <owner/repo> --list",
+      "install_specific_skills": "npx skills add <owner/repo> --skill <skill-name> --skill <skill-name>",
+      "install_repo": "npx skills add <owner/repo>",
+      "target_agents": "npx skills add <owner/repo> -a claude-code -a opencode"
+    },
+    "team_onboarding": [
+      "1) Copiar este skills.json a la raíz del repo.",
+      "2) Instalar solo los skills del sprint vigente usando los comandos de ejemplo.",
+      "3) Repetir por sprint (rotar skills para mantener contexto limpio)."
+    ]
+  }
+}

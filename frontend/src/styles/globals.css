@@ -1,0 +1,227 @@
+/* ── Google Fonts (must precede @import "tailwindcss") ───────────────────── */
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+
+@import "tailwindcss";
+
+/* ── Design Tokens ───────────────────────────────────────────────────────── */
+@theme {
+  /* Fonts */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+
+  /* === Brand: Terracota cálido (primario emocional) === */
+  --color-brand-50:  #fff8f4;
+  --color-brand-100: #ffe8d9;
+  --color-brand-200: #ffd0b4;
+  --color-brand-300: #ffb088;
+  --color-brand-400: #f98050;
+  --color-brand-500: #e8521e;  /* primaryemotional */
+  --color-brand-600: #c43f10;
+  --color-brand-700: #9e300c;
+  --color-brand-800: #7a240a;
+  --color-brand-900: #581908;
+
+  /* === Verde rescate === */
+  --color-rescue-50:  #f0fdf6;
+  --color-rescue-100: #d0f5e4;
+  --color-rescue-200: #a4e9cb;
+  --color-rescue-300: #6fd7ae;
+  --color-rescue-400: #3cbd8e;
+  --color-rescue-500: #17a26d;  /* success */
+  --color-rescue-600: #108253;
+  --color-rescue-700: #0c6341;
+  --color-rescue-800: #094a31;
+  --color-rescue-900: #063523;
+
+  /* === Azul institucional/confianza === */
+  --color-trust-50:  #f0f4fc;
+  --color-trust-100: #d6e2f8;
+  --color-trust-200: #afc4f2;
+  --color-trust-300: #80a0e8;
+  --color-trust-400: #527ad8;
+  --color-trust-500: #3056c2;
+  --color-trust-600: #2244a4;
+  --color-trust-700: #1a3484;
+  --color-trust-800: #122466;
+  --color-trust-900: #0c1a4e;
+
+  /* === Alerta/peligro real === */
+  --color-danger-50:  #fff4f4;
+  --color-danger-100: #ffe4e4;
+  --color-danger-200: #ffc8c8;
+  --color-danger-300: #ff9898;
+  --color-danger-400: #f05858;
+  --color-danger-500: #d42020;
+  --color-danger-600: #b01818;
+  --color-danger-700: #8c1212;
+  --color-danger-800: #680e0e;
+  --color-danger-900: #450b0b;
+
+  /* === Advertencia === */
+  --color-warn-50:  #fffbf0;
+  --color-warn-100: #fff3cc;
+  --color-warn-200: #ffe799;
+  --color-warn-300: #ffd44d;
+  --color-warn-400: #f0b800;
+  --color-warn-500: #c89000;
+  --color-warn-600: #a07000;
+  --color-warn-700: #7a5400;
+  --color-warn-800: #543a00;
+  --color-warn-900: #382600;
+
+  /* === Fondos cálidos (neutros de marca) === */
+  --color-sand-50:  #fdfcf9;
+  --color-sand-100: #f9f5ef;
+  --color-sand-200: #f0e9de;
+  --color-sand-300: #e2d3c4;
+  --color-sand-400: #c9b49e;
+  --color-sand-500: #ae9077;
+  --color-sand-600: #8e7059;
+  --color-sand-700: #6e5244;
+  --color-sand-800: #503c32;
+  --color-sand-900: #352823;
+
+  /* === Grises neutros fríos === */
+  --color-zinc-50:  #fafafa;
+  --color-zinc-100: #f4f4f5;
+  --color-zinc-200: #e4e4e7;
+  --color-zinc-300: #d1d1d6;
+  --color-zinc-400: #a0a0ab;
+  --color-zinc-500: #71717d;
+  --color-zinc-600: #52525e;
+  --color-zinc-700: #3f3f49;
+  --color-zinc-800: #27272f;
+  --color-zinc-900: #18181c;
+
+  /* Semantic aliases */
+  --color-bg:           var(--color-sand-100);
+  --color-surface:      #ffffff;
+  --color-surface-warm: var(--color-sand-50);
+  --color-ink:          var(--color-sand-900);
+  --color-ink-secondary: var(--color-sand-700);
+  --color-ink-tertiary: var(--color-sand-500);
+  --color-border:       var(--color-sand-200);
+  --color-border-strong: var(--color-sand-300);
+
+  /* Radii */
+  --radius-sm:  0.375rem;
+  --radius-md:  0.625rem;
+  --radius-lg:  0.875rem;
+  --radius-xl:  1.25rem;
+  --radius-2xl: 1.75rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-xs:  0 1px 2px 0 rgb(26 21 18 / 0.06);
+  --shadow-sm:  0 1px 3px 0 rgb(26 21 18 / 0.08), 0 1px 2px -1px rgb(26 21 18 / 0.04);
+  --shadow-md:  0 4px 6px -1px rgb(26 21 18 / 0.08), 0 2px 4px -2px rgb(26 21 18 / 0.04);
+  --shadow-lg:  0 10px 15px -3px rgb(26 21 18 / 0.08), 0 4px 6px -4px rgb(26 21 18 / 0.04);
+  --shadow-xl:  0 20px 25px -5px rgb(26 21 18 / 0.08), 0 8px 10px -6px rgb(26 21 18 / 0.04);
+
+  /* Motion */
+  --duration-fast:   120ms;
+  --duration-normal: 200ms;
+  --duration-slow:   350ms;
+  --ease-smooth:     cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Breakpoints */
+  --breakpoint-sm:  480px;
+  --breakpoint-md:  768px;
+  --breakpoint-lg:  1024px;
+  --breakpoint-xl:  1280px;
+  --breakpoint-2xl: 1440px;
+}
+
+/* ── Base Reset & Defaults ───────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100dvh;
+  line-height: 1.6;
+}
+
+/* Improve default focus ring */
+:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Reduce motion when preferred */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Headings use display font */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+/* ── Utility layer ───────────────────────────────────────────────────────── */
+@layer utilities {
+  .font-display { font-family: var(--font-display); }
+  .font-body    { font-family: var(--font-body); }
+
+  /* Topographic pattern for brand panels */
+  .bg-topo {
+    background-image:
+      radial-gradient(ellipse at 30% 60%, rgb(30 60 100 / 0.35) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 20%, rgb(200 70 25 / 0.18) 0%, transparent 45%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cpath d='M0 200 Q100 120 200 200 Q300 280 400 200' fill='none' stroke='white' stroke-width='0.5' opacity='0.12'/%3E%3Cpath d='M0 240 Q100 160 200 240 Q300 320 400 240' fill='none' stroke='white' stroke-width='0.5' opacity='0.08'/%3E%3Cpath d='M0 160 Q100 80 200 160 Q300 240 400 160' fill='none' stroke='white' stroke-width='0.5' opacity='0.08'/%3E%3Cpath d='M50 0 Q100 100 150 0 Q200 100 250 0' fill='none' stroke='white' stroke-width='0.5' opacity='0.1'/%3E%3Cpath d='M0 280 Q150 200 300 280 Q350 310 400 280' fill='none' stroke='white' stroke-width='0.5' opacity='0.06'/%3E%3C/svg%3E");
+  }
+
+  /* Text balance for short headings */
+  .text-balance { text-wrap: balance; }
+
+  /* Smooth hover transitions */
+  .transition-base {
+    transition-property: color, background-color, border-color, opacity, box-shadow, transform;
+    transition-duration: var(--duration-normal);
+    transition-timing-function: var(--ease-smooth);
+  }
+}
+
+/* ── Animations ──────────────────────────────────────────────────────────── */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-fade-in-up { animation: fade-in-up var(--duration-slow) var(--ease-smooth) both; }
+.animate-fade-in    { animation: fade-in var(--duration-normal) var(--ease-smooth) both; }
+.animate-pulse-soft { animation: pulse-soft 1.6s var(--ease-smooth) infinite; }
+.animate-spin       { animation: spin 0.75s linear infinite; }

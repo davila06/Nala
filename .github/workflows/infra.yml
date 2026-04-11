@@ -1,0 +1,69 @@
+name: Infrastructure Deploy
+
+on:
+  # Manual trigger only — infra changes require intentional deployment
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'prod'
+        type: choice
+        options: [dev, staging, prod]
+      what_if:
+        description: 'Run what-if analysis only (no actual changes)'
+        required: false
+        default: 'true'
+        type: boolean
+
+  # Also trigger on changes to infra/ on main — but only what-if
+  push:
+    branches: [main]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/infra.yml'
+
+jobs:
+  validate-and-deploy:
+    name: Validate & Deploy Bicep
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'prod' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Lint Bicep
+        run: az bicep build --file infra/main.bicep
+
+      - name: What-if analysis
+        run: >
+          az deployment group what-if
+          --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}
+          --template-file infra/main.bicep
+          --parameters infra/parameters.prod.bicepparam
+          --parameters sqlAdminPassword="${{ secrets.SQL_ADMIN_PASSWORD }}"
+          --parameters alertEmailAddress="${{ secrets.ALERT_EMAIL_ADDRESS }}"
+          --parameters frontendUrl="${{ secrets.SMOKE_FRONTEND_URL }}"
+
+      - name: Deploy infrastructure
+        # Skip actual deploy if: triggered by push (what-if only) OR inputs.what_if == true
+        if: >
+          github.event_name == 'workflow_dispatch' &&
+          inputs.what_if == false
+        run: >
+          az deployment group create
+          --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}
+          --template-file infra/main.bicep
+          --parameters infra/parameters.prod.bicepparam
+          --parameters sqlAdminPassword="${{ secrets.SQL_ADMIN_PASSWORD }}"
+          --parameters alertEmailAddress="${{ secrets.ALERT_EMAIL_ADDRESS }}"
+          --parameters frontendUrl="${{ secrets.SMOKE_FRONTEND_URL }}"
+          --mode Incremental

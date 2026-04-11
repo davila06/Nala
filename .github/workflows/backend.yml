@@ -1,0 +1,132 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: PawTrack_CI!2026
+          MSSQL_PID: Developer
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'PawTrack_CI!2026' -Q 'SELECT 1' -C"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run Unit Tests
+        run: >
+          dotnet test backend/tests/PawTrack.UnitTests/PawTrack.UnitTests.csproj
+          --no-build --configuration Release
+          --logger "trx;LogFileName=unit-test-results.xml"
+          --collect:"XPlat Code Coverage"
+
+      - name: Run Integration Tests
+        env:
+          ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=PawTrackCI;User Id=sa;Password=PawTrack_CI!2026;TrustServerCertificate=True;"
+          Jwt__Key: "ci-test-jwt-signing-key-minimum-32-chars!"
+        run: >
+          dotnet test backend/tests/PawTrack.IntegrationTests/PawTrack.IntegrationTests.csproj
+          --no-build --configuration Release
+          --logger "trx;LogFileName=integration-test-results.xml"
+
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: .NET Tests
+          path: '**/*-test-results.xml'
+          reporter: dotnet-trx
+
+  deploy:
+    name: Deploy to Azure App Service
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    # Only deploy on push to main (not PRs)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.webapp-url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Publish API
+        run: >
+          dotnet publish backend/src/PawTrack.API/PawTrack.API.csproj
+          --configuration Release
+          --no-restore
+          --output ./publish
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Run EF Core migrations
+        env:
+          ConnectionStrings__DefaultConnection: ${{ secrets.SQL_CONNECTION_STRING }}
+        run: >
+          dotnet tool install --global dotnet-ef &&
+          dotnet ef database update
+          --project backend/src/PawTrack.Infrastructure/PawTrack.Infrastructure.csproj
+          --startup-project backend/src/PawTrack.API/PawTrack.API.csproj
+          --configuration Release
+
+      - name: Deploy to App Service
+        id: deploy
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_APP_SERVICE_NAME }}
+          package: ./publish
