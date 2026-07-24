@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, lazy, Suspense } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
 import { FraudReportButton } from '@/features/safety/components/FraudReportButton'
 import { OwnerHandoverPanel, RescuerHandoverPanel } from '@/features/safety/components/HandoverCodePanel'
 import { useAuthStore } from '@/features/auth/store/authStore'
@@ -8,6 +9,11 @@ import { CaseTimeline } from '../components/CaseTimeline'
 import { SightingHeatMap } from '../components/SightingHeatMap'
 import { useCaseRoom } from '../hooks/useCaseRoom'
 import { EmptyState } from '@/shared/ui/Card'
+
+// Lazy-load the 3D radar (heavy WebGL — load only for map tab)
+const SearchRadar3D = lazy(() =>
+  import('../components/SearchRadar3D').then((m) => ({ default: m.SearchRadar3D }))
+)
 
 // ── Tab definitions ───────────────────────────────────────────────────────────
 
@@ -147,21 +153,54 @@ export default function CaseRoomPage() {
         ))}
       </div>
 
-      {/* ── Tab panels ──────────────────────────────────────────────────────── */}
+      {/* ── Tab panels with Framer Motion transitions ─────────────────────── */}
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -10 }}
+          transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
+        >
       <div id={`panel-timeline`} role="tabpanel" hidden={activeTab !== 'timeline'}>
         <CaseTimeline event={event} sightings={sightings} nearbyAlerts={nearbyAlerts} />
       </div>
 
       <div id={`panel-map`} role="tabpanel" hidden={activeTab !== 'map'}>
         {activeTab === 'map' && (
-          <SightingHeatMap
-            sightings={sightings}
-            defaultCenter={
-              event.lastSeenLat && event.lastSeenLng
-                ? [event.lastSeenLat, event.lastSeenLng]
-                : undefined
-            }
-          />
+          <>
+            {/* 3D radar overlay above the 2D map */}
+            <div className="mb-4 rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900 shadow-xl">
+              <div className="px-3 py-2 flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-widest text-rescue-400">
+                  📡 Zona de búsqueda activa
+                </span>
+                <span className="ml-auto text-xs text-zinc-500">
+                  {sightings.length} avistamiento{sightings.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+              <Suspense fallback={
+                <div className="flex h-64 items-center justify-center text-zinc-600 text-xs">Cargando radar…</div>
+              }>
+                <SearchRadar3D
+                  isLost
+                  height={260}
+                  sightingDots={sightings.slice(0, 8).map((s) => ({
+                    x: ((s.lng - (event.lastSeenLng ?? s.lng)) * 60),
+                    y: ((s.lat - (event.lastSeenLat ?? s.lat)) * 60),
+                  }))}
+                />
+              </Suspense>
+            </div>
+            <SightingHeatMap
+              sightings={sightings}
+              defaultCenter={
+                event.lastSeenLat && event.lastSeenLng
+                  ? [event.lastSeenLat, event.lastSeenLng]
+                  : undefined
+              }
+            />
+          </>
         )}
         {sightings.length === 0 && (
           <EmptyState
@@ -235,6 +274,8 @@ export default function CaseRoomPage() {
           {totalNearbyAlertsDispatched} alerta(s) enviadas en total
         </p>
       </div>
+        </motion.div>
+      </AnimatePresence>
     </div>
   )
 }

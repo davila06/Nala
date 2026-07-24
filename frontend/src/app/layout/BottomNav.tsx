@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface NavItem {
   to: string
@@ -107,6 +108,8 @@ const NAV_ITEMS: NavItem[] = [
 
 /** Mobile-only bottom navigation bar. Hidden on md+ screens. */
 export function BottomNav() {
+  const location = useLocation()
+
   return (
     <nav
       aria-label="Navegación inferior"
@@ -114,26 +117,47 @@ export function BottomNav() {
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="flex h-16 items-center justify-around">
-        {NAV_ITEMS.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            aria-label={item.label}
-            className={({ isActive }) =>
-              [
-                'flex flex-1 flex-col items-center justify-center gap-0.5 py-1 text-[10px] font-semibold transition-colors',
-                isActive ? 'text-brand-600' : 'text-sand-500 hover:text-sand-800',
-              ].join(' ')
-            }
-          >
-            {({ isActive }) => (
-              <>
+        {NAV_ITEMS.map((item) => {
+          const isActive = location.pathname === item.to ||
+            (item.to !== '/' && location.pathname.startsWith(item.to))
+
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              aria-label={item.label}
+              aria-current={isActive ? 'page' : undefined}
+              className="relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1"
+            >
+              {/* Sliding pill indicator */}
+              <AnimatePresence>
+                {isActive && (
+                  <motion.span
+                    layoutId="bottom-nav-indicator"
+                    className="absolute inset-x-2 top-0 h-0.5 rounded-full bg-brand-500"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+                  />
+                )}
+              </AnimatePresence>
+
+              {/* Icon with scale spring on active */}
+              <motion.span
+                animate={{ scale: isActive ? 1.15 : 1 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                className={isActive ? 'text-brand-600' : 'text-sand-500'}
+              >
                 {item.icon(isActive)}
-                <span className="leading-none">{item.label}</span>
-              </>
-            )}
-          </NavLink>
-        ))}
+              </motion.span>
+
+              <span className={['text-[10px] font-semibold leading-none transition-colors', isActive ? 'text-brand-600' : 'text-sand-400'].join(' ')}>
+                {item.label}
+              </span>
+            </NavLink>
+          )
+        })}
       </div>
     </nav>
   )

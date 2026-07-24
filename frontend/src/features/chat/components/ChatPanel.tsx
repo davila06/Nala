@@ -1,32 +1,87 @@
 import { useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useChatMessages, useSendChatMessage } from '../hooks/useChatThread'
 import type { ChatMessage } from '../api/chatApi'
 import { Alert } from '@/shared/ui/Alert'
+import { useHaptic } from '@/shared/hooks/useHaptic'
+
+// ── Relative time formatter ───────────────────────────────────────────────────
+
+function relativeTime(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60_000)
+  if (mins < 1) return 'ahora'
+  if (mins < 60) return `${mins}m`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs}h`
+  return new Date(dateStr).toLocaleDateString('es-CR', { day: 'numeric', month: 'short' })
+}
 
 // ── Message bubble ────────────────────────────────────────────────────────────
 
-function MessageBubble({ msg }: { msg: ChatMessage }) {
-  const time = new Date(msg.sentAt).toLocaleTimeString('es-CR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+function MessageBubble({ msg, isLatest }: { msg: ChatMessage; isLatest: boolean }) {
+  const mine = msg.isFromMe
 
   return (
-    <div className={`flex ${msg.isFromMe ? 'justify-end' : 'justify-start'} mb-2`}>
-      <div
-        className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${
-          msg.isFromMe
-            ? 'rounded-br-sm bg-sand-900 text-white'
-            : 'rounded-bl-sm bg-sand-100 text-sand-800'
-        }`}
-      >
-        <p className="whitespace-pre-wrap break-words">{msg.body}</p>
-        <p className={`mt-1 text-right text-[10px] ${msg.isFromMe ? 'text-sand-400' : 'text-sand-400'}`}>
-          {time}
-          {msg.isFromMe && (
-            <span className="ml-1">{msg.isReadByRecipient ? '✓✓' : '✓'}</span>
+    <motion.div
+      layout
+      initial={isLatest ? { opacity: 0, y: 10, scale: 0.96 } : false}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+      className={`flex mb-3 ${mine ? 'justify-end' : 'justify-start'}`}
+    >
+      {/* Avatar — other party */}
+      {!mine && (
+        <div className="mr-2 flex-shrink-0 self-end">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-sand-800 text-xs font-bold text-white">
+            ?
+          </div>
+        </div>
+      )}
+
+      <div className={`flex max-w-[78%] flex-col ${mine ? 'items-end' : 'items-start'}`}>
+        {/* Bubble */}
+        <div
+          className={[
+            'relative rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm',
+            mine
+              ? 'rounded-br-sm bg-brand-500 text-white'
+              : 'rounded-bl-sm bg-white border border-sand-200 text-sand-800',
+          ].join(' ')}
+        >
+          <p className="whitespace-pre-wrap break-words">{msg.body}</p>
+        </div>
+
+        {/* Meta — time + read receipt */}
+        <div className={`mt-1 flex items-center gap-1 ${mine ? 'flex-row-reverse' : ''}`}>
+          <span className="text-[10px] text-sand-400">{relativeTime(msg.sentAt)}</span>
+          {mine && (
+            <span className={`text-[10px] ${msg.isReadByRecipient ? 'text-brand-400' : 'text-sand-300'}`}>
+              {msg.isReadByRecipient ? '✓✓' : '✓'}
+            </span>
           )}
-        </p>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+// ── Typing indicator ──────────────────────────────────────────────────────────
+
+function TypingIndicator() {
+  return (
+    <div className="flex items-end gap-2 mb-3 justify-start">
+      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-sand-800 text-xs font-bold text-white flex-shrink-0">?</div>
+      <div className="rounded-2xl rounded-bl-sm bg-white border border-sand-200 px-4 py-3 shadow-sm">
+        <div className="flex gap-1">
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className="h-1.5 w-1.5 rounded-full bg-sand-400 inline-block"
+              style={{ animation: `pulse-soft 1.2s ease-in-out ${i * 0.2}s infinite` }}
+            />
+          ))}
+        </div>
       </div>
     </div>
   )
@@ -44,6 +99,7 @@ export function ChatPanel({ threadId, lostPetEventId, otherPartyName }: ChatPane
   const [text, setText] = useState('')
   const [sendError, setSendError] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const { tap, error: hapticError } = useHaptic()
 
   const { data: messages = [], isFetching } = useChatMessages(threadId)
   const { mutateAsync: sendMessage, isPending } = useSendChatMessage(threadId, lostPetEventId)
@@ -58,11 +114,13 @@ export function ChatPanel({ threadId, lostPetEventId, otherPartyName }: ChatPane
     const body = text.trim()
     if (!body) return
     setSendError(null)
+    tap()
 
     try {
       await sendMessage({ body })
       setText('')
     } catch (err: unknown) {
+      hapticError()
       const msg =
         err instanceof Error
           ? err.message
@@ -72,10 +130,10 @@ export function ChatPanel({ threadId, lostPetEventId, otherPartyName }: ChatPane
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-sand-50">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-sand-200 px-4 py-3">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sand-900 text-xs font-bold text-white">
+      <div className="flex items-center gap-3 border-b border-sand-200 bg-white px-4 py-3 shadow-sm">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sand-900 text-xs font-bold text-white ring-2 ring-sand-200">
           {otherPartyName[0]?.toUpperCase() ?? '?'}
         </div>
         <div>
@@ -89,20 +147,26 @@ export function ChatPanel({ threadId, lostPetEventId, otherPartyName }: ChatPane
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4">
-        {messages.length === 0 && (
-          <p className="text-center text-sm text-sand-400">
-            Inicia la conversación de forma segura.
-          </p>
+        {messages.length === 0 && !isPending && (
+          <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
+            <div className="text-4xl" aria-hidden="true">💬</div>
+            <p className="text-sm text-sand-500 max-w-xs leading-relaxed">
+              Esta conversación es cifrada y anónima. Coordina la entrega de forma segura.
+            </p>
+          </div>
         )}
-        {messages.map((m) => (
-          <MessageBubble key={m.messageId} msg={m} />
-        ))}
+        <AnimatePresence initial={false}>
+          {messages.map((m, i) => (
+            <MessageBubble key={m.messageId} msg={m} isLatest={i === messages.length - 1} />
+          ))}
+        </AnimatePresence>
+        {isPending && <TypingIndicator />}
         <div ref={bottomRef} />
       </div>
 
       {/* Privacy reminder */}
-      <div className="mx-4 mb-1 rounded-lg bg-brand-50 px-3 py-2 text-[11px] text-brand-700">
-        Por seguridad, no compartas tu número de teléfono ni correo en el chat.
+      <div className="mx-4 mb-2 rounded-xl bg-trust-50 border border-trust-100 px-3 py-2 text-[11px] text-trust-700 leading-snug">
+        🔒 Por seguridad, no compartas tu número ni correo en el chat.
       </div>
 
       {/* Error */}

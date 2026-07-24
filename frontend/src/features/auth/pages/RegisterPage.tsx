@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useRegister } from '../hooks/useAuth'
 import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator'
@@ -6,43 +6,96 @@ import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/Input'
 import { Alert } from '@/shared/ui/Alert'
 
+// ── Ambient floating paw prints ───────────────────────────────────────────────
+const PAWS = [
+  { left: '7%',  dur: '6s',  size: '1.3rem', delay: '0s',   opacity: 0.10 },
+  { left: '25%', dur: '9s',  size: '0.9rem', delay: '1.4s', opacity: 0.07 },
+  { left: '55%', dur: '8s',  size: '1.6rem', delay: '0.6s', opacity: 0.09 },
+  { left: '75%', dur: '7s',  size: '1.1rem', delay: '2.2s', opacity: 0.08 },
+  { left: '90%', dur: '10s', size: '1.4rem', delay: '3.1s', opacity: 0.06 },
+]
+
+// ── Count-up hook ─────────────────────────────────────────────────────────────
+function useCountUp(target: number, duration = 1400, start = false) {
+  const [value, setValue] = useState(0)
+  useEffect(() => {
+    if (!start) return
+    const t0 = performance.now()
+    const tick = (now: number) => {
+      const p = Math.min((now - t0) / duration, 1)
+      const e = 1 - Math.pow(1 - p, 3)
+      setValue(Math.round(e * target))
+      if (p < 1) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }, [target, duration, start])
+  return value
+}
+
+function StatItem({ end, suffix, label, started }: { end: number; suffix: string; label: string; started: boolean }) {
+  const count = useCountUp(end, 1400, started)
+  return (
+    <div>
+      <p className="font-display text-2xl font-semibold text-rescue-400">{count.toLocaleString('es-CR')}{suffix}</p>
+      <p className="text-xs text-trust-300 mt-0.5">{label}</p>
+    </div>
+  )
+}
+
 export default function RegisterPage() {
   const { mutate: register, isPending, error } = useRegister()
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' })
   const [validationError, setValidationError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const [statsStarted, setStatsStarted] = useState(false)
+
+  useEffect(() => {
+    const el = panelRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setStatsStarted(true) }, { threshold: 0.3 })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setValidationError('')
-
-    if (form.password !== form.confirm) {
-      setValidationError('Las contraseñas no coinciden.')
-      return
-    }
-    if (form.password.length < 8) {
-      setValidationError('La contraseña debe tener al menos 8 caracteres.')
-      return
-    }
-
+    if (form.password !== form.confirm) { setValidationError('Las contraseñas no coinciden.'); return }
+    if (form.password.length < 8) { setValidationError('La contraseña debe tener al menos 8 caracteres.'); return }
     register({ name: form.name, email: form.email, password: form.password })
   }
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[1fr_560px]">
-      {/* Brand panel */}
+      {/* Animated Brand panel */}
       <div
-        className="hidden lg:flex flex-col justify-between bg-trust-900 bg-topo px-12 py-14 text-white"
+        ref={panelRef}
+        className="hidden lg:flex flex-col justify-between bg-trust-900 bg-topo px-12 py-14 text-white overflow-hidden"
         aria-hidden="true"
+        style={{ position: 'relative' }}
       >
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 text-xl">
-            🐾
-          </span>
+        {/* Ambient paws */}
+        {PAWS.map((p, i) => (
+          <span
+            key={i}
+            style={{
+              position: 'absolute', left: p.left, bottom: '-2rem',
+              fontSize: p.size, opacity: p.opacity,
+              animation: `float-bob ${p.dur} ease-in-out ${p.delay} infinite`,
+              userSelect: 'none', pointerEvents: 'none',
+            }}
+          >🐾</span>
+        ))}
+
+        {/* Logo */}
+        <div className="flex items-center gap-3 relative z-10">
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 text-xl">🐾</span>
           <span className="font-display text-2xl font-semibold tracking-tight">PawTrack CR</span>
         </div>
 
-        <div className="space-y-6">
+        {/* Hero copy */}
+        <div className="space-y-6 relative z-10">
           <p className="font-display text-4xl leading-snug font-medium text-balance">
             Protege a tu mascota<br />
             <em className="not-italic text-rescue-400">desde hoy.</em>
@@ -55,16 +108,19 @@ export default function RegisterPage() {
               'Historial de avistamientos con geolocalización',
             ].map((feat) => (
               <li key={feat} className="flex items-start gap-2.5">
-                <span className="mt-0.5 text-rescue-400 text-base" aria-hidden="true">✓</span>
+                <span className="mt-0.5 text-rescue-400 text-base">✓</span>
                 {feat}
               </li>
             ))}
           </ul>
         </div>
 
-        <p className="text-xs text-trust-400">
-          Completamente gratuito · Hecho para Costa Rica
-        </p>
+        {/* Animated stats */}
+        <div className="flex gap-8 relative z-10">
+          <StatItem end={12000} suffix="+" label="mascotas registradas" started={statsStarted} />
+          <StatItem end={94}    suffix=" %" label="tasa de recuperación"  started={statsStarted} />
+          <StatItem end={480}   suffix="+"  label="aliados verificados"   started={statsStarted} />
+        </div>
       </div>
 
       {/* Form panel */}

@@ -54,28 +54,38 @@ interface EmptyStateProps {
   description?: string
   action?: ReactNode
   className?: string
+  /** Subtle: smaller, less padding — for inline sections */
+  subtle?: boolean
 }
 
-export function EmptyState({ icon, title, description, action, className = '' }: EmptyStateProps) {
+export function EmptyState({ icon, title, description, action, className = '', subtle = false }: EmptyStateProps) {
   return (
     <div
       className={[
-        'flex flex-col items-center gap-4 rounded-2xl border-2 border-dashed border-sand-200',
-        'py-16 px-6 text-center',
+        'flex flex-col items-center gap-4 rounded-2xl border-2 border-dashed border-sand-200 text-center',
+        subtle ? 'py-8 px-4' : 'py-16 px-6',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
     >
       {icon && (
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-sand-100 text-brand-500">
+        <div
+          className={[
+            'flex items-center justify-center rounded-2xl bg-sand-100',
+            subtle ? 'h-12 w-12' : 'h-16 w-16',
+          ].join(' ')}
+          style={{ animation: 'float-bob 4s ease-in-out infinite' }}
+        >
           {icon}
         </div>
       )}
       <div>
-        <p className="text-lg font-semibold text-sand-800">{title}</p>
+        <p className={subtle ? 'text-base font-semibold text-sand-700' : 'text-lg font-semibold text-sand-800'}>
+          {title}
+        </p>
         {description && (
-          <p className="mt-1 text-sm text-sand-500">{description}</p>
+          <p className="mt-1 max-w-xs text-sm text-sand-500 leading-relaxed">{description}</p>
         )}
       </div>
       {action && <div className="mt-2">{action}</div>}

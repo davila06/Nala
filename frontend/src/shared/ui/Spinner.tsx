@@ -44,7 +44,7 @@ export function Skeleton({ height = 'h-5', className = '', ...props }: SkeletonP
     <div
       aria-hidden="true"
       className={[
-        'animate-pulse-soft rounded-xl bg-sand-200',
+        'skeleton-shimmer rounded-xl bg-sand-200',
         height,
         className,
       ]

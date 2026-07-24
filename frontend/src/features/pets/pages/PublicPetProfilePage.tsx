@@ -1,12 +1,125 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { LostPetBanner } from '@/features/lost-pets/components/LostPetBanner'
 import { SharePetButton } from '@/features/lost-pets/components/SharePetButton'
 import { useGetLostPetContact } from '@/features/lost-pets/hooks/useLostPets'
 import { FraudReportButton } from '@/features/safety/components/FraudReportButton'
 import { PetStatusBadge } from '../components/PetStatusBadge'
 import { usePublicPetProfile } from '../hooks/usePets'
 import { useAuthStore } from '@/features/auth/store/authStore'
+
+// Lazy-load the 3D tag (Three.js is heavy — only load when needed)
+const PetTag3D = lazy(() =>
+  import('../components/PetTag3D').then((m) => ({ default: m.PetTag3D }))
+)
+
+const SPECIES_EMOJI: Record<string, string> = {
+  Dog: '🐶', Cat: '🐱', Bird: '🐦', Rabbit: '🐰', Other: '🐾',
+}
+
+const SPECIES_LABEL: Record<string, string> = {
+  Dog: 'Perro', Cat: 'Gato', Bird: 'Ave', Rabbit: 'Conejo', Other: 'Otra',
+}
+
+/** Parallax hero photo — layers move at different rates on scroll */
+function ParallaxHero({
+  photoUrl,
+  petName,
+  species,
+  isLost,
+}: {
+  photoUrl?: string | null
+  petName: string
+  species: string
+  isLost: boolean
+}) {
+  const heroRef = useRef<HTMLDivElement>(null)
+  const imgRef = useRef<HTMLImageElement | HTMLDivElement>(null)
+
+  const handleScroll = useCallback(() => {
+    const hero = heroRef.current
+    if (!hero) return
+    const rect = hero.getBoundingClientRect()
+    const scrolled = -rect.top
+    if (scrolled < 0) return
+    const rate = scrolled * 0.35
+    if (imgRef.current) {
+      (imgRef.current as HTMLElement).style.transform = `translateY(${rate}px) scale(1.15)`
+    }
+  }, [])
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [handleScroll])
+
+  return (
+    <div
+      ref={heroRef}
+      className="relative h-80 overflow-hidden"
+      style={{ isolation: 'isolate' }}
+    >
+      {/* Background layer (blurred duplicate) */}
+      {photoUrl && (
+        <div
+          className="absolute inset-0 scale-110 blur-2xl opacity-40"
+          style={{
+            backgroundImage: `url(${photoUrl})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            transform: 'scale(1.2)',
+          }}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Main photo */}
+      {photoUrl ? (
+        <img
+          ref={imgRef as React.Ref<HTMLImageElement>}
+          src={photoUrl}
+          alt={petName}
+          loading="eager"
+          className="absolute inset-0 h-full w-full object-cover will-change-transform"
+          style={{ transform: 'translateY(0) scale(1.15)', transition: 'none' }}
+        />
+      ) : (
+        <div
+          className="flex h-full w-full items-center justify-center text-9xl"
+          style={{
+            background: isLost
+              ? 'linear-gradient(135deg, #fff4f4 0%, #ffe4e4 100%)'
+              : 'linear-gradient(135deg, #fff8f4 0%, #ffe8d9 100%)',
+          }}
+        >
+          {SPECIES_EMOJI[species] ?? '🐾'}
+        </div>
+      )}
+
+      {/* Gradient scrim bottom */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-48 pointer-events-none"
+        style={{
+          background: 'linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0.6) 40%, transparent 100%)',
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Lost alert overlay */}
+      {isLost && (
+        <div className="absolute inset-x-0 top-0 flex items-center justify-center gap-2 bg-danger-600/90 py-2.5 backdrop-blur-sm">
+          {/* Pulsing dot */}
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
+          </span>
+          <span className="text-sm font-bold uppercase tracking-widest text-white">
+            Mascota perdida — Necesita ayuda
+          </span>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function PublicPetProfilePage() {
   const { id } = useParams<{ id: string }>()
@@ -31,10 +144,13 @@ export default function PublicPetProfilePage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="animate-pulse space-y-3 p-4">
-          <div className="h-72 rounded-2xl bg-sand-100" />
-          <div className="h-7 w-36 rounded bg-sand-100" />
-          <div className="h-5 w-24 rounded bg-sand-100" />
+        <div className="animate-pulse">
+          <div className="h-80 bg-sand-100" />
+          <div className="p-5 space-y-3">
+            <div className="h-8 w-40 rounded-xl bg-sand-100" />
+            <div className="h-5 w-28 rounded bg-sand-100" />
+            <div className="h-14 rounded-2xl bg-sand-100 mt-6" />
+          </div>
         </div>
       </div>
     )
@@ -48,6 +164,9 @@ export default function PublicPetProfilePage() {
         <p className="text-sm text-sand-500">
           Este código QR puede ya no estar activo o la mascota fue eliminada.
         </p>
+        <Link to="/" className="mt-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-600">
+          Ir a PawTrack CR
+        </Link>
       </div>
     )
   }
@@ -56,48 +175,71 @@ export default function PublicPetProfilePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Lost banner */}
-      {isLost && <LostPetBanner petName={pet.name} publicMessage={pet.publicMessage} />}
+      {/* Cinematic parallax hero */}
+      <ParallaxHero
+        photoUrl={pet.photoUrl}
+        petName={pet.name}
+        species={pet.species}
+        isLost={isLost}
+      />
 
-      {/* Photo */}
-      <div className="relative overflow-hidden">
-        {pet.photoUrl ? (
-          <img
-            src={pet.photoUrl}
-            alt={pet.name}
-            loading="lazy"
-            className="h-72 w-full object-cover"
-          />
-        ) : (
-          <div aria-hidden="true" className="flex h-72 w-full items-center justify-center bg-brand-50 text-8xl">
-            {pet.species === 'Dog' ? '🐶' : pet.species === 'Cat' ? '🐱' : '🐾'}
+      {/* Content floats over the hero gradient */}
+      <div className="relative -mt-12 px-5 pb-12">
+        {/* Name + badge floating card */}
+        <div className={[
+          'mb-5 rounded-2xl border p-4 shadow-lg backdrop-blur-sm',
+          isLost
+            ? 'border-danger-200 bg-white/95'
+            : 'border-sand-200 bg-white/95',
+        ].join(' ')}>
+          <div className="mb-1 flex items-center gap-2.5">
+            <h1 className="font-display text-3xl font-semibold text-sand-900">{pet.name}</h1>
+            <PetStatusBadge status={pet.status} />
           </div>
-        )}
-      </div>
+          <p className="text-sm text-sand-500">
+            {SPECIES_LABEL[pet.species] ?? pet.species}
+            {pet.breed ? ` · ${pet.breed}` : ''}
+          </p>
 
-      {/* Content */}
-      <div className="px-5 pb-10 pt-5">
-        {/* Name + badge */}
-        <div className="mb-1 flex items-center gap-2.5">
-          <h1 className="text-3xl font-display font-semibold text-sand-900">{pet.name}</h1>
-          <PetStatusBadge status={pet.status} />
+          {/* Lost public message */}
+          {isLost && pet.publicMessage && (
+            <p className="mt-3 rounded-xl bg-danger-50 px-3 py-2.5 text-sm text-danger-800 leading-relaxed border border-danger-100">
+              {pet.publicMessage}
+            </p>
+          )}
         </div>
 
-        {/* Species / breed */}
-        <p className="mb-5 text-base text-sand-500">
-          {{ Dog: 'Perro', Cat: 'Gato', Bird: 'Ave', Rabbit: 'Conejo', Other: 'Otra' }[pet.species] ?? pet.species}
-          {pet.breed ? ` · ${pet.breed}` : ''}
-        </p>
+        {/* 3D floating pet tag — the hero differentiator */}
+        <div className="mb-5">
+          <Suspense fallback={
+            <div className="flex h-60 items-center justify-center text-sand-300 text-xs">
+              Cargando placa 3D…
+            </div>
+          }>
+            <PetTag3D
+              petName={pet.name}
+              isLost={isLost}
+              species={pet.species}
+              height={220}
+            />
+          </Suspense>
+        </div>
 
-        {/* Report sighting CTA */}
+        {/* Primary CTA: Report sighting */}
         <Link
           to={`/p/${pet.id}/report-sighting`}
-          className="mb-3 block w-full rounded-2xl bg-brand-500 py-4 text-center text-base font-bold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          className={[
+            'mb-3 flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-base font-bold text-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+            isLost
+              ? 'bg-danger-500 hover:bg-danger-600 focus-visible:ring-danger-400 shadow-danger-200'
+              : 'bg-brand-500 hover:bg-brand-600 focus-visible:ring-brand-400',
+          ].join(' ')}
         >
-          <span aria-hidden="true">🐾</span> Reportar avistamiento
+          <span aria-hidden="true" className="text-xl">🐾</span>
+          {isLost ? 'Vi a esta mascota — Reportar avistamiento' : 'Reportar avistamiento'}
         </Link>
 
-        {/* Share profile — so anyone who finds the pet can spread the word */}
+        {/* Share */}
         <SharePetButton
           petId={pet.id}
           petName={pet.name}
@@ -105,7 +247,7 @@ export default function PublicPetProfilePage() {
           className="mb-4"
         />
 
-        {/* Safe masked chat CTA — only while the pet is lost */}
+        {/* Safe chat CTA */}
         {isLost && pet.activeLostEventId && pet.ownerId && (
           <Link
             to={`/chat/${pet.activeLostEventId}/${pet.ownerId}`}
@@ -115,16 +257,15 @@ export default function PublicPetProfilePage() {
           </Link>
         )}
 
-        {/* Contact card — visible when pet is lost and a contact exists */}
+        {/* Contact card */}
         {isLost && pet.activeLostEventId && (pet.contactName ?? contact?.contactName) && (
-          <div className="mb-4 rounded-2xl border border-brand-200 bg-brand-50 p-4">
+          <div className="mb-4 rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50 to-white p-4 shadow-sm">
             <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-brand-700">
               Contacto del dueño
             </p>
             <p className="mb-3 text-sm font-semibold text-sand-800">
               {pet.contactName ?? contact?.contactName}
             </p>
-
             {contact?.contactPhone ? (
               <a
                 href={`tel:${contact.contactPhone}`}
@@ -151,7 +292,6 @@ export default function PublicPetProfilePage() {
 
         {/* PawTrack attribution */}
         <div className="mt-8 flex flex-col items-center gap-3">
-          {/* Fraud report — always visible but compact */}
           <FraudReportButton
             context="PublicProfile"
             relatedEntityId={pet.activeLostEventId}

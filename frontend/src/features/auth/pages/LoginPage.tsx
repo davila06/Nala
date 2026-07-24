@@ -1,20 +1,116 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useLogin } from '../hooks/useAuth'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/Input'
 import { Alert } from '@/shared/ui/Alert'
 
-// ── Brand panel (left column on desktop) ────────────────────────────────────
+// ── Count-up hook ─────────────────────────────────────────────────────────────
+
+function useCountUp(target: number, duration = 1800, start = false) {
+  const [value, setValue] = useState(0)
+  useEffect(() => {
+    if (!start) return
+    const startTime = performance.now()
+    const tick = (now: number) => {
+      const elapsed = now - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      // Ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setValue(Math.round(eased * target))
+      if (progress < 1) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }, [target, duration, start])
+  return value
+}
+
+// ── Ambient floating paw prints ───────────────────────────────────────────────
+
+const PAWS = [
+  { left: '8%',  animDur: '7s',  size: '1.4rem', delay: '0s',    opacity: 0.12 },
+  { left: '22%', animDur: '9s',  size: '1rem',   delay: '1.2s',  opacity: 0.08 },
+  { left: '50%', animDur: '11s', size: '1.8rem', delay: '0.5s',  opacity: 0.10 },
+  { left: '70%', animDur: '8s',  size: '1.2rem', delay: '2.1s',  opacity: 0.09 },
+  { left: '88%', animDur: '10s', size: '1.5rem', delay: '3.4s',  opacity: 0.07 },
+]
+
+function AmbientPaws() {
+  return (
+    <>
+      {PAWS.map((p, i) => (
+        <span
+          key={i}
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            left: p.left,
+            bottom: '-2rem',
+            fontSize: p.size,
+            opacity: p.opacity,
+            animation: `float-bob ${p.animDur} ease-in-out ${p.delay} infinite`,
+            userSelect: 'none',
+            pointerEvents: 'none',
+          }}
+        >
+          🐾
+        </span>
+      ))}
+    </>
+  )
+}
+
+// ── Animated stat item ────────────────────────────────────────────────────────
+
+interface StatItemProps {
+  end: number
+  suffix: string
+  label: string
+  started: boolean
+}
+
+function StatItem({ end, suffix, label, started }: StatItemProps) {
+  const count = useCountUp(end, 1600, started)
+  return (
+    <div>
+      <p className="font-display text-2xl font-semibold text-brand-400">
+        {count.toLocaleString('es-CR')}{suffix}
+      </p>
+      <p className="text-xs text-trust-300 mt-0.5">{label}</p>
+    </div>
+  )
+}
+
+// ── Brand panel ───────────────────────────────────────────────────────────────
 
 function BrandPanel() {
+  const panelRef = useRef<HTMLDivElement>(null)
+  const [statsStarted, setStatsStarted] = useState(false)
+
+  // Start count-up when the panel becomes visible
+  useEffect(() => {
+    const el = panelRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setStatsStarted(true) },
+      { threshold: 0.3 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div
-      className="hidden lg:flex flex-col justify-between bg-trust-900 bg-topo px-12 py-14 text-white"
+      ref={panelRef}
+      className="hidden lg:flex flex-col justify-between bg-trust-900 bg-topo px-12 py-14 text-white overflow-hidden"
       aria-hidden="true"
+      style={{ position: 'relative' }}
     >
+      {/* Ambient paw prints */}
+      <AmbientPaws />
+
       {/* Logo */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 relative z-10">
         <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 text-xl">
           🐾
         </span>
@@ -22,7 +118,7 @@ function BrandPanel() {
       </div>
 
       {/* Central copy */}
-      <div className="space-y-6">
+      <div className="space-y-6 relative z-10">
         <p className="font-display text-4xl leading-snug font-medium text-balance">
           Cada mascota merece volver<br />
           <em className="not-italic text-brand-400">a casa.</em>
@@ -33,18 +129,11 @@ function BrandPanel() {
         </p>
       </div>
 
-      {/* Bottom stat row */}
-      <div className="flex gap-8">
-        {[
-          { number: '12 000+', label: 'mascotas registradas' },
-          { number: '94 %',    label: 'tasa de recuperación' },
-          { number: '480+',    label: 'aliados verificados' },
-        ].map(({ number, label }) => (
-          <div key={label}>
-            <p className="font-display text-2xl font-semibold text-brand-400">{number}</p>
-            <p className="text-xs text-trust-300 mt-0.5">{label}</p>
-          </div>
-        ))}
+      {/* Animated stats */}
+      <div className="flex gap-8 relative z-10">
+        <StatItem end={12000} suffix="+"  label="mascotas registradas" started={statsStarted} />
+        <StatItem end={94}    suffix=" %" label="tasa de recuperación"  started={statsStarted} />
+        <StatItem end={480}   suffix="+"  label="aliados verificados"   started={statsStarted} />
       </div>
     </div>
   )

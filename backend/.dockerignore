@@ -1,0 +1,19 @@
+# Exclude test projects and development-only tools
+tests/
+HashGen/
+scripts/
+
+# Exclude build output (will be built inside Docker)
+**/bin/
+**/obj/
+
+# Exclude git and IDE files
+.git/
+.gitignore
+.vs/
+*.user
+*.suo
+
+# Exclude local development settings that should not be in the image
+src/**/appsettings.Development.json
+src/**/appsettings.Testing.json

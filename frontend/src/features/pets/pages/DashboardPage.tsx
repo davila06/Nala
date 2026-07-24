@@ -1,17 +1,41 @@
+import { useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { PetCard } from '../components/PetCard'
+import { HolographicPetCard } from '../components/HolographicPetCard'
 import { usePets } from '../hooks/usePets'
 import { AlertPreferencesToggle } from '@/features/locations/components/AlertPreferencesToggle'
 import { LeaderboardWidget } from '@/features/incentives/components/LeaderboardWidget'
 import { Alert } from '@/shared/ui/Alert'
 import { Skeleton } from '@/shared/ui/Spinner'
 import { EmptyState } from '@/shared/ui/Card'
+import { usePullToRefresh } from '@/shared/hooks/usePullToRefresh'
 
 export default function DashboardPage() {
-  const { data: pets, isLoading, isError } = usePets()
+  const { data: pets, isLoading, isError, refetch } = usePets()
+
+  const handleRefresh = useCallback(async () => {
+    await refetch()
+  }, [refetch])
+
+  const { containerRef, pullProgress, isRefreshing } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    enabled: !isLoading,
+  })
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 animate-fade-in-up">
+    <div ref={containerRef} className="mx-auto max-w-5xl px-4 py-8 animate-fade-in-up overflow-auto">
+      {/* Pull-to-refresh indicator */}
+      {(pullProgress > 0 || isRefreshing) && (
+        <div
+          className="flex items-center justify-center gap-2 overflow-hidden transition-all"
+          style={{ height: `${Math.max(pullProgress, isRefreshing ? 1 : 0) * 44}px`, opacity: Math.max(pullProgress, isRefreshing ? 1 : 0) }}
+        >
+          <div
+            className={`h-5 w-5 rounded-full border-2 border-brand-300 border-t-brand-500 ${isRefreshing ? 'animate-spin' : ''}`}
+            style={{ transform: `rotate(${pullProgress * 360}deg)` }}
+          />
+          <span className="text-xs text-sand-400">{isRefreshing ? 'Actualizando…' : 'Suelta para actualizar'}</span>
+        </div>
+      )}
       {/* Header */}
       <div className="mb-8 flex items-center justify-between gap-4">
         <div>
@@ -89,9 +113,9 @@ export default function DashboardPage() {
       )}
 
       {!isLoading && !isError && pets && pets.length > 0 && (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {pets.map((pet) => (
-            <PetCard key={pet.id} pet={pet} />
+        <div className="stagger-grid grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {pets.map((pet, i) => (
+            <HolographicPetCard key={pet.id} pet={pet} index={i} />
           ))}
         </div>
       )}

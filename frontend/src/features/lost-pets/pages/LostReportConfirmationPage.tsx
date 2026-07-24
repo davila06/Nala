@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { BroadcastPanel } from '../components/BroadcastPanel'
 import { EmergencyModeButton } from '../components/EmergencyModeButton'
 import { SearchChecklist } from '../components/SearchChecklist'
@@ -293,14 +294,52 @@ export default function LostReportConfirmationPage() {
   return (
     <div className="mx-auto max-w-lg px-4 py-8">
 
-      {/* ── Success header ────────────────────────────────────────────────── */}
-      <div className="mb-6 rounded-2xl border border-rescue-200 bg-rescue-50 p-5 text-center">
-        <div className="mb-2 text-4xl" aria-hidden="true">✅</div>
-        <h1 className="text-lg font-bold text-rescue-800">Reporte enviado correctamente</h1>
-        <p className="mt-1 text-sm text-rescue-700">
-          {pet.name} ha sido marcado como perdido. Te notificaremos cuando alguien reporte un avistamiento.
-        </p>
-      </div>
+      {/* ── Command Center header — emotional, impactful ───────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+        className="mb-6 overflow-hidden rounded-2xl border-2 border-danger-300 bg-gradient-to-br from-danger-600 to-danger-700 shadow-xl shadow-danger-900/20"
+      >
+        {/* Pulsing top bar */}
+        <div className="flex items-center justify-center gap-2 bg-danger-800/50 py-2">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
+          </span>
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-white">
+            Alerta activa
+          </span>
+        </div>
+
+        <div className="p-6 text-center">
+          <p className="font-display text-3xl font-bold text-white drop-shadow">
+            🚨 {pet.name} está perdido
+          </p>
+          <p className="mt-2 text-sm text-danger-200 leading-relaxed">
+            La alerta fue enviada. Cuanto antes actúes, mayor es la probabilidad de encontrarlo.
+          </p>
+
+          {/* Quick action checklist */}
+          <div className="mt-5 rounded-xl bg-white/10 backdrop-blur-sm p-4 text-left space-y-2.5">
+            {[
+              { done: true,  label: 'Reporte enviado y alerta activada' },
+              { done: false, label: 'Comparte el flyer con vecinos y grupos' },
+              { done: false, label: 'Revisa el mapa de avistamientos' },
+              { done: false, label: 'Coloca carteles en el radio de búsqueda' },
+            ].map((item) => (
+              <div key={item.label} className="flex items-start gap-2.5">
+                <span className={`flex-shrink-0 text-sm ${item.done ? 'text-rescue-300' : 'text-white/50'}`}>
+                  {item.done ? '✓' : '○'}
+                </span>
+                <span className={`text-xs leading-snug ${item.done ? 'text-rescue-200 line-through decoration-rescue-400' : 'text-white'}`}>
+                  {item.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
 
       {/* ── Emergency mode CTA ───────────────────────────────────────────── */}
       <EmergencyModeButton emergencyMode={emergencyMode} className="mb-6" />

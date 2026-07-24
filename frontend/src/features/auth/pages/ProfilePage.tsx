@@ -99,8 +99,14 @@ export default function ProfilePage() {
       {/* ── Identity card ────────────────────────────────────────────── */}
       <div className="rounded-2xl border border-sand-200 bg-white p-5">
         <div className="flex items-center gap-4">
-          {/* Avatar placeholder with initials */}
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xl font-bold text-brand-700 select-none">
+          {/* Gradient avatar with initials */}
+          <div
+            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-xl font-bold text-white select-none shadow-md"
+            style={{
+              background: `linear-gradient(135deg, var(--color-brand-500) 0%, var(--color-trust-600) 100%)`,
+            }}
+            aria-hidden="true"
+          >
             {initials || '?'}
           </div>
 

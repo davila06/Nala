@@ -6,6 +6,8 @@ import { router } from './app/routes'
 import { queryClient } from './app/providers'
 import { useTrackLocation } from '@/features/locations/hooks/useTrackLocation'
 import { useAlertPreference } from '@/features/locations/hooks/useAlertPreference'
+import { PWAInstallBanner } from '@/shared/ui/PWAInstallBanner'
+import { OfflineIndicator } from '@/shared/ui/OfflineIndicator'
 
 function LocationTracker() {
   const { receiveNearbyAlerts } = useAlertPreference()
@@ -32,6 +34,8 @@ export default function App() {
         }}
       />
       <ReactQueryDevtools initialIsOpen={false} />
+      <PWAInstallBanner />
+      <OfflineIndicator />
     </QueryClientProvider>
   )
 }

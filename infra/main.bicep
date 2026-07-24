@@ -1,5 +1,4 @@
-@description('PawTrack CR — Azure Infrastructure (MVP)')
-@description('Región de despliegue')
+@description('PawTrack CR — Azure Infrastructure (MVP) — Región de despliegue')
 param location string = resourceGroup().location
 
 @description('Entorno: dev, staging, prod')
@@ -71,7 +70,7 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-08-01-preview' = {
   }
   properties: {
     autoPauseDelay: 60  // Minutos hasta auto-pause (serverless)
-    minCapacity: '0.5'
+    minCapacity: json('0.5')
     collation: 'SQL_Latin1_General_CP1_CI_AS'
   }
 }
@@ -129,77 +128,116 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   }
 }
 
-// ── App Service Plan ──────────────────────────────────────────────────────────
-resource appServicePlan 'Microsoft.Web/serverfarms@2023-12-01' = {
-  name: '${resourcePrefix}-plan'
+// ── Container Registry (ACR) ─────────────────────────────────────────────────
+var acrName = replace('${appName}acr${environment}', '-', '')
+
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
+  name: acrName
   location: location
   sku: {
-    name: environment == 'prod' ? 'B3' : 'B2'
-    tier: 'Basic'
+    name: 'Basic'
   }
-  kind: 'linux'
   properties: {
-    reserved: true  // Linux
+    adminUserEnabled: false
   }
 }
 
-// ── App Service (API Backend) ─────────────────────────────────────────────────
-resource appService 'Microsoft.Web/sites@2023-12-01' = {
+// ── Container Apps Environment ────────────────────────────────────────────────
+resource containerAppsEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
+  name: '${resourcePrefix}-env'
+  location: location
+  properties: {
+    appLogsConfiguration: {
+      destination: 'log-analytics'
+      logAnalyticsConfiguration: {
+        customerId: logAnalytics.properties.customerId
+        sharedKey: logAnalytics.listKeys().primarySharedKey
+      }
+    }
+  }
+}
+
+// ── Container App (API Backend) ───────────────────────────────────────────────
+resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
   name: '${resourcePrefix}-api'
   location: location
   identity: {
     type: 'SystemAssigned'
   }
   properties: {
-    serverFarmId: appServicePlan.id
-    httpsOnly: true
-    siteConfig: {
-      linuxFxVersion: 'DOTNETCORE|9.0'
-      minTlsVersion: '1.2'
-      ftpsState: 'Disabled'
-      appSettings: [
+    environmentId: containerAppsEnv.id
+    configuration: {
+      ingress: {
+        external: true
+        targetPort: 8080
+        transport: 'http'
+      }
+      registries: [
         {
-          name: 'APPINSIGHTS_CONNECTIONSTRING'
-          value: '@Microsoft.KeyVault(VaultName=${keyVaultName};SecretName=appinsights-connection-string)'
-        }
-        {
-          name: 'ConnectionStrings__DefaultConnection'
-          value: '@Microsoft.KeyVault(VaultName=${keyVaultName};SecretName=sql-connection-string)'
-        }
-        {
-          name: 'Azure__Storage__ConnectionString'
-          value: '@Microsoft.KeyVault(VaultName=${keyVaultName};SecretName=storage-connection-string)'
-        }
-        {
-          name: 'Jwt__Key'
-          value: '@Microsoft.KeyVault(VaultName=${keyVaultName};SecretName=jwt-signing-key)'
-        }
-        {
-          name: 'Azure__KeyVaultUri'
-          value: keyVault.properties.vaultUri
-        }
-        {
-          name: 'Cors__AllowedOrigins__0'
-          value: frontendUrl
-        }
-        {
-          name: 'ASPNETCORE_ENVIRONMENT'
-          value: environment == 'prod' ? 'Production' : 'Staging'
+          server: containerRegistry.properties.loginServer
+          identity: 'system'
         }
       ]
+    }
+    template: {
+      containers: [
+        {
+          name: 'api'
+          // Imagen placeholder — actualizar con imagen real tras el primer push a ACR:
+          // az containerapp update --name ${resourcePrefix}-api --resource-group PawnTrackBeta --image <acr>.azurecr.io/pawtrack-api:<tag>
+          image: 'mcr.microsoft.com/dotnet/samples:aspnetapp'
+          resources: {
+            cpu: json('0.5')
+            memory: '1Gi'
+          }
+          env: [
+            {
+              name: 'ASPNETCORE_ENVIRONMENT'
+              value: environment == 'prod' ? 'Production' : 'Staging'
+            }
+            {
+              name: 'Azure__KeyVaultUri'
+              value: keyVault.properties.vaultUri
+            }
+            {
+              name: 'Cors__AllowedOrigins__0'
+              value: frontendUrl
+            }
+            // Secrets adicionales (AppInsights, SQL, Storage, JWT) se configuran
+            // DESPUÉS de poblar Key Vault — ver docs/PENDIENTES_BETA.md
+          ]
+        }
+      ]
+      scale: {
+        minReplicas: 0
+        maxReplicas: 3
+      }
     }
   }
 }
 
-// ── RBAC: App Service → Key Vault (Key Vault Secrets User) ────────────────────
+// ── RBAC: Container App → Key Vault (Key Vault Secrets User) ──────────────────
 var keyVaultSecretsUserRoleId = '4633458b-17de-408a-b874-0445c86b69e6'
 
-resource appServiceKeyVaultAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(keyVault.id, appService.id, keyVaultSecretsUserRoleId)
+resource containerAppKeyVaultAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(keyVault.id, containerApp.id, keyVaultSecretsUserRoleId)
   scope: keyVault
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', keyVaultSecretsUserRoleId)
-    principalId: appService.identity.principalId
+    principalId: containerApp.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// ── RBAC: Container App → ACR (AcrPull) ───────────────────────────────────
+var acrPullRoleId = '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+
+resource containerAppAcrPull 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(containerRegistry.id, containerApp.id, acrPullRoleId)
+  scope: containerRegistry
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', acrPullRoleId)
+    principalId: containerApp.identity.principalId
     principalType: 'ServicePrincipal'
   }
 }
@@ -226,21 +264,21 @@ resource alertHttp5xx 'Microsoft.Insights/metricAlerts@2018-03-01' = {
   name: '${resourcePrefix}-alert-5xx'
   location: 'global'
   properties: {
-    description: 'HTTP 5xx error rate exceeded 1% over 5 minutes'
+    description: 'Failed requests exceeded 5 over 5 minutes'
     severity: 1
     enabled: true
-    scopes: [appService.id]
+    scopes: [appInsights.id]
     evaluationFrequency: 'PT1M'
     windowSize: 'PT5M'
     criteria: {
       'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
       allOf: [
         {
-          name: 'Http5xx'
-          metricName: 'Http5xx'
+          name: 'FailedRequests'
+          metricName: 'requests/failed'
           operator: 'GreaterThan'
-          threshold: 5   // > 5 errors in 5-minute window (proxy for > 1% on low traffic)
-          timeAggregation: 'Total'
+          threshold: 5
+          timeAggregation: 'Count'
           criterionType: 'StaticThresholdCriterion'
         }
       ]
@@ -296,6 +334,7 @@ resource availabilityTest 'Microsoft.Insights/webtests@2022-06-15' = {
     'hidden-link:${appInsights.id}': 'Resource'
   }
   properties: {
+    SyntheticMonitorId: '${resourcePrefix}-availability'
     Name: 'PawTrack Health Check'
     Description: 'Pings /health endpoint every 5 minutes from multiple regions'
     Enabled: true
@@ -308,7 +347,7 @@ resource availabilityTest 'Microsoft.Insights/webtests@2022-06-15' = {
       { Id: 'us-tx-sn1-azr' }   // South Central US
     ]
     Configuration: {
-      WebTest: '<WebTest Name="${resourcePrefix}-availability" Enabled="True" Timeout="30" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"><Items><Request Method="GET" Guid="health-check" Version="1.1" Url="https://${appService.properties.defaultHostName}/health" ThinkTime="0" /></Items></WebTest>'
+      WebTest: '<WebTest Name="${resourcePrefix}-availability" Enabled="True" Timeout="30" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"><Items><Request Method="GET" Guid="health-check" Version="1.1" Url="https://${containerApp.properties.configuration.ingress.fqdn}/health" ThinkTime="0" /></Items></WebTest>'
     }
   }
 }
@@ -321,7 +360,7 @@ resource availabilityAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
     description: 'API availability dropped below 100% (any location failing)'
     severity: 1
     enabled: true
-    scopes: [appInsights.id]
+    scopes: [availabilityTest.id, appInsights.id]
     evaluationFrequency: 'PT1M'
     windowSize: 'PT5M'
     criteria: {
@@ -356,7 +395,9 @@ resource staticWebApp 'Microsoft.Web/staticSites@2023-12-01' = {
 }
 
 // ── Outputs ───────────────────────────────────────────────────────────────────
-output appServiceUrl string = 'https://${appService.properties.defaultHostName}'
+output appServiceUrl string = 'https://${containerApp.properties.configuration.ingress.fqdn}'
+output containerAppName string = containerApp.name
+output acrLoginServer string = containerRegistry.properties.loginServer
 output keyVaultUri string = keyVault.properties.vaultUri
 output appInsightsConnectionString string = appInsights.properties.ConnectionString
 output storageAccountName string = storageAccount.name

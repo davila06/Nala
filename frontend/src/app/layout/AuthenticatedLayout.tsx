@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
-import { Outlet, Navigate, NavLink, Link, useNavigate } from 'react-router-dom'
+import { Outlet, Navigate, NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useScrollToTop } from '@/shared/hooks/useScrollToTop'
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
 import { OfflineQueueBanner } from '@/features/lost-pets/components/OfflineQueueBanner'
 import { useAuthStore } from '@/features/auth/store/authStore'
@@ -34,6 +36,8 @@ export default function AuthenticatedLayout() {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { mutate: logout } = useLogout()
   const navigate = useNavigate()
+  const location = useLocation()
+  useScrollToTop()
 
   // Close desktop dropdown on outside click
   useEffect(() => {
@@ -285,9 +289,18 @@ export default function AuthenticatedLayout() {
       <OfflineQueueBanner />
 
       {/* ── Main content ───────────────────────────────────────────────── */}
-      <main className="mx-auto max-w-6xl px-4 py-6 pb-24 md:pb-6">
-        <Outlet />
-      </main>
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.main
+          key={location.pathname}
+          className="mx-auto max-w-6xl px-4 py-6 pb-24 md:pb-6"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+        >
+          <Outlet />
+        </motion.main>
+      </AnimatePresence>
 
       {/* ── Mobile bottom navigation ────────────────────────────────── */}
       <BottomNav />

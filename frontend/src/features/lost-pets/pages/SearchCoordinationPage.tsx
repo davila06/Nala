@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { MapContainer, TileLayer } from 'react-leaflet'
 import { useQuery } from '@tanstack/react-query'
+import { motion } from 'framer-motion'
 import { useAuthStore } from '@/features/auth/store/authStore'
 import { searchCoordinationApi, type SearchZone } from '../api/searchCoordinationApi'
 import { useSearchCoordinationHub } from '../hooks/useSearchCoordinationHub'
@@ -93,16 +94,21 @@ export default function SearchCoordinationPage() {
   })()
 
   return (
-    <div className="flex h-screen flex-col bg-sand-50">
-      {/* ── Header ── */}
-      <header className="flex items-center justify-between border-b border-sand-200 bg-white px-4 py-3">
-        <div>
-          <h1 className="text-lg font-extrabold text-sand-900">Búsqueda coordinada</h1>
-          <p className="text-xs text-sand-500">
-            {isConnected
-              ? '🟢 Conectado en tiempo real'
-              : '🔴 Sin conexión en tiempo real'}
-          </p>
+    <div className="flex h-screen flex-col bg-zinc-900">
+      {/* ── War Room Header ── */}
+      <header className="flex items-center justify-between border-b border-zinc-700 bg-zinc-950 px-4 py-3">
+        <div className="flex items-center gap-3">
+          {/* Live indicator */}
+          <span className="relative flex h-2.5 w-2.5">
+            <span className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${isConnected ? 'animate-ping bg-rescue-400' : 'bg-sand-600'}`} />
+            <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${isConnected ? 'bg-rescue-400' : 'bg-sand-600'}`} />
+          </span>
+          <div>
+            <h1 className="text-sm font-extrabold text-white tracking-tight">⚡ Centro de Búsqueda</h1>
+            <p className="text-xs text-zinc-400">
+              {isConnected ? '🟢 Tiempo real activo' : '🔴 Sin conexión en tiempo real'}
+            </p>
+          </div>
         </div>
 
         {total === 0 && (
@@ -112,7 +118,7 @@ export default function SearchCoordinationPage() {
             disabled={activating}
             className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
           >
-            {activating ? 'Activando…' : 'Activar modo coordinación'}
+            {activating ? 'Activando…' : '⚡ Activar coordinación'}
           </button>
         )}
       </header>
@@ -121,13 +127,24 @@ export default function SearchCoordinationPage() {
         <Alert variant="error">{activateError}</Alert>
       )}
 
-      {/* ── Stats bar ── */}
+      {/* ── War Room Stats Bar ── */}
       {total > 0 && (
-        <div className="flex gap-4 border-b border-sand-200 bg-white px-4 py-2 text-xs font-semibold">
-          <span className="text-sand-500">Total: {total}</span>
-          <span className="text-brand-600">🟡 Libre: {free}</span>
-          <span className="text-danger-600">🔴 Tomada: {taken}</span>
-          <span className="text-rescue-600">✅ Limpia: {clear}</span>
+        <div className="flex gap-1 border-b border-zinc-700 bg-zinc-900 px-3 py-2">
+          {[
+            { label: 'Total', value: total, color: 'text-zinc-300' },
+            { label: 'Libre', value: free,  color: 'text-warn-400' },
+            { label: 'Activa', value: taken, color: 'text-danger-400' },
+            { label: 'Limpia', value: clear, color: 'text-rescue-400' },
+          ].map((stat) => (
+            <motion.div
+              key={stat.label}
+              layout
+              className="flex flex-1 flex-col items-center rounded-lg bg-zinc-800/60 px-2 py-1.5"
+            >
+              <span className={`text-base font-black tabular-nums ${stat.color}`}>{stat.value}</span>
+              <span className="text-[10px] text-zinc-500 uppercase tracking-wide">{stat.label}</span>
+            </motion.div>
+          ))}
         </div>
       )}
 

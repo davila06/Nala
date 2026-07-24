@@ -9,11 +9,12 @@ import { SharePetButton } from '@/features/lost-pets/components/SharePetButton'
 import { useActiveLostReport } from '@/features/lost-pets/hooks/useLostPets'
 import { SightingList } from '@/features/sightings/components/SightingList'
 import { PetStatusBadge } from '../components/PetStatusBadge'
-import { QRCodeDisplay } from '../components/QRCodeDisplay'
+import { QRFlipCard } from '../components/QRFlipCard'
 import { usePetDetail, usePetScanHistory } from '../hooks/usePets'
 import { petsApi } from '../api/petsApi'
 import { Alert } from '@/shared/ui/Alert'
 import { Skeleton } from '@/shared/ui/Spinner'
+import { ProgressiveImg } from '@/shared/hooks/useProgressiveImage'
 
 export default function PetDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -120,10 +121,15 @@ export default function PetDetailPage() {
         ← Mis mascotas
       </Link>
 
-      {/* Photo */}
+      {/* Photo — progressive loading with blur-to-sharp */}
       <div className="mb-6 overflow-hidden rounded-2xl border border-sand-200 bg-sand-100">
         {pet.photoUrl ? (
-          <img src={pet.photoUrl} alt={pet.name} loading="lazy" className="h-64 w-full object-cover" />
+          <ProgressiveImg
+            src={pet.photoUrl}
+            alt={pet.name}
+            loading="lazy"
+            className="h-64 w-full object-cover"
+          />
         ) : (
           <div aria-hidden="true" className="flex h-64 items-center justify-center text-7xl">
             {pet.species === 'Dog' ? '🐶' : pet.species === 'Cat' ? '🐱' : '🐾'}
@@ -213,7 +219,7 @@ export default function PetDetailPage() {
           aria-expanded={showQr}
           className="flex-1 rounded-xl bg-brand-500 py-3 text-sm font-semibold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
         >
-          {showQr ? 'Ocultar QR' : <><span aria-hidden="true">📷</span> Código QR</>}
+          {showQr ? 'Ocultar placa' : <><span aria-hidden="true">🏷️</span> Placa QR 3D</>}
         </button>
         {confirmDelete ? (
           <div className="flex flex-1 items-center gap-2 rounded-xl border border-danger-200 bg-danger-50 px-3 py-2">
@@ -277,13 +283,18 @@ export default function PetDetailPage() {
         </Link>
       )}
 
-      {/* QR Panel */}
+      {/* QR Panel — 3D flip card */}
       {showQr && (
-        <div className="rounded-2xl border border-sand-200 bg-white p-6">
-          <h2 className="mb-4 text-center text-sm font-semibold text-sand-700">
-            Código QR de {pet.name}
+        <div className="mb-6 rounded-2xl border border-sand-200 bg-gradient-to-br from-sand-50 to-white p-6 shadow-sm">
+          <h2 className="mb-3 text-center font-display text-base font-semibold text-sand-700">
+            Placa digital de {pet.name}
           </h2>
-          <QRCodeDisplay petId={pet.id} petName={pet.name} />
+          <QRFlipCard
+            petId={pet.id}
+            petName={pet.name}
+            petPhotoUrl={pet.photoUrl}
+            petSpecies={pet.species}
+          />
         </div>
       )}
 

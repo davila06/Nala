@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import type { AllyType } from '../api/alliesApi'
 import { CoverageMapPicker } from '../components/CoverageMapPicker'
 import {
@@ -8,6 +9,21 @@ import {
   useMyAllyProfile,
   useSubmitAllyApplication,
 } from '../hooks/useAllies'
+
+// ── Animated KPI counter ──────────────────────────────────────────────────────
+function KPICard({ icon, label, value, color }: { icon: string; label: string; value: number | string; color: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`rounded-2xl border p-4 bg-white ${color}`}
+    >
+      <p className="text-2xl" aria-hidden="true">{icon}</p>
+      <p className="mt-2 text-2xl font-black tabular-nums text-sand-900">{value}</p>
+      <p className="text-xs text-sand-500 mt-0.5">{label}</p>
+    </motion.div>
+  )
+}
 
 const allyTypeOptions: Array<{ value: AllyType; label: string }> = [
   { value: 'VeterinaryClinic', label: 'Veterinaria' },
@@ -56,6 +72,15 @@ export default function AllyPanelPage() {
           Volver al dashboard
         </Link>
       </div>
+
+      {/* KPI bar for verified allies */}
+      {isVerified && alerts && (
+        <div className="mb-8 grid grid-cols-3 gap-3">
+          <KPICard icon="🔔" label="Alertas totales" value={alerts.length} color="border-sand-200" />
+          <KPICard icon="✅" label="Casos respondidos" value={alerts.length} color="border-rescue-200" />
+          <KPICard icon="📍" label="Zonas cubiertas" value={1} color="border-trust-200" />
+        </div>
+      )}
 
       {isProfileLoading && <div className="h-40 animate-pulse rounded-3xl bg-sand-100" />}
 

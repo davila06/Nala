@@ -1,9 +1,15 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useRecoveryOverview, useRecoveryRates } from '../hooks/useRecoveryStats'
 import { CantonChoroplethMap } from '../components/CantonChoroplethMap'
 import type { PetSpecies } from '@/features/pets/api/petsApi'
 import { BREEDS_BY_SPECIES } from '@/features/pets/data/breeds'
+
+// Lazy-load 3D chart (heavy — only render when visible)
+const RecoveryChart3D = lazy(() =>
+  import('../components/RecoveryChart3D').then((m) => ({ default: m.RecoveryChart3D }))
+)
 
 const speciesOptions: Array<{ label: string; value: PetSpecies | '' }> = [
   { label: 'Todas', value: '' },
@@ -130,8 +136,16 @@ export default function RecoveryStatsPage() {
         <p className="text-sm text-sand-500">Cargando estadísticas…</p>
       )}
 
+      <AnimatePresence mode="wait">
       {!isLoading && data && (
-        <>
+        <motion.div
+          key={`${species}-${breed}-${canton}`}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 0.2 }}
+        >
+          <>
           {/* Metric cards */}
           <section className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
@@ -139,11 +153,17 @@ export default function RecoveryStatsPage() {
               { label: 'Tiempo mediano',        value: formatHours(data.medianRecoveryHours) },
               { label: 'Distancia mediana',     value: formatMeters(data.medianDistanceMeters) },
               { label: 'P90 distancia',         value: formatMeters(data.p90DistanceMeters) },
-            ].map(({ label, value }) => (
-              <article key={label} className="rounded-2xl border border-sand-200 bg-white p-4">
+            ].map(({ label, value }, i) => (
+              <motion.article
+                key={label}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.05, duration: 0.18 }}
+                className="rounded-2xl border border-sand-200 bg-white p-4"
+              >
                 <p className="text-[0.75rem] text-sand-500">{label}</p>
                 <p className="mt-1 text-2xl font-bold text-sand-900">{value}</p>
-              </article>
+              </motion.article>
             ))}
           </section>
 
@@ -159,11 +179,15 @@ export default function RecoveryStatsPage() {
               <p className="mt-2 text-xs text-sand-400">Actualizando datos…</p>
             )}
           </section>
+          </>
+        </motion.div>
+      )}
+      </AnimatePresence>
 
-          {overview && (
-            <>
-              {/* Canton heatmap */}
-              <section className="mb-5 rounded-2xl border border-sand-200 bg-white p-5">
+      {overview && (
+        <>
+          {/* Canton heatmap */}
+          <section className="mb-5 rounded-2xl border border-sand-200 bg-white p-5">
                 <h2 className="mb-1 text-base font-semibold text-sand-900">Mapa de calor por cantón</h2>
                 <p className="mb-4 text-sm text-sand-500">
                   Intensidad proporcional a la tasa de recuperación local. Pase el cursor sobre un cantón para ver detalles.
@@ -173,6 +197,36 @@ export default function RecoveryStatsPage() {
                   maxRecoveryRate={maxRecoveryRate}
                 />
               </section>
+
+              {/* 3D recovery chart — top cantons */}
+              {overview.cantonRecovery.length > 0 && (
+                <section className="mb-5 rounded-2xl border border-sand-200 bg-gradient-to-br from-zinc-900 to-zinc-800 p-5 shadow-lg">
+                  <h2 className="mb-1 text-base font-semibold text-white">
+                    Tasa de recuperación 3D — top cantones
+                  </h2>
+                  <p className="mb-3 text-xs text-zinc-400">
+                    Barras animadas · la cámara orbita suavemente · color = intensidad
+                  </p>
+                  <Suspense fallback={
+                    <div className="flex h-64 items-center justify-center text-zinc-600 text-xs">
+                      Cargando gráfico 3D…
+                    </div>
+                  }>
+                    <RecoveryChart3D
+                      height={300}
+                      bars={overview.cantonRecovery
+                        .slice()
+                        .sort((a, b) => b.recoveryRate - a.recoveryRate)
+                        .slice(0, 8)
+                        .map((c) => ({
+                          label: c.canton.length > 10 ? c.canton.slice(0, 9) + '.' : c.canton,
+                          value: c.recoveryRate,
+                          displayValue: `${(c.recoveryRate * 100).toFixed(0)}%`,
+                        }))}
+                    />
+                  </Suspense>
+                </section>
+              )}
 
               {/* Species bar chart */}
               <section className="rounded-2xl border border-sand-200 bg-white p-5">
@@ -204,8 +258,7 @@ export default function RecoveryStatsPage() {
               </section>
             </>
           )}
-        </>
-      )}
+
     </main>
   )
 }
