@@ -1,10 +1,27 @@
-import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { VisualMatchPanel } from '../components/VisualMatchPanel'
+import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import { motion } from "framer-motion";
+import { VisualMatchPanel } from "../components/VisualMatchPanel";
 
 export default function VisualMatchPage() {
   return (
     <div className="min-h-screen bg-sand-50 animate-fade-in-up">
+      <Helmet>
+        <title>Buscar mascota por foto — PawTrack CR</title>
+        <meta
+          name="description"
+          content="Sube una foto de la mascota que encontraste y busca si está reportada como perdida en Costa Rica."
+        />
+        <meta
+          property="og:title"
+          content="¿Encontraste una mascota? Búscala en PawTrack CR"
+        />
+        <meta
+          property="og:description"
+          content="Usa reconocimiento visual con IA para encontrar al dueño de la mascota que hallaste."
+        />
+        <meta property="og:type" content="website" />
+      </Helmet>
       {/* Header */}
       <div className="border-b border-sand-200 bg-white/95 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex items-center justify-between px-4 py-3 max-w-2xl mx-auto">
@@ -26,15 +43,17 @@ export default function VisualMatchPage() {
         animate={{ opacity: 1, y: 0 }}
         className="border-b border-sand-200 bg-gradient-to-r from-trust-900 to-trust-800 px-4 py-6 text-center text-white"
       >
-        <p className="text-3xl mb-2" aria-hidden="true">🔍</p>
+        <p className="text-3xl mb-2" aria-hidden="true">
+          🔍
+        </p>
         <h1 className="font-display text-xl font-bold">Buscar por foto</h1>
         <p className="mt-1 text-sm text-trust-200 max-w-xs mx-auto leading-snug">
-          Sube una foto de la mascota que encontraste y la IA buscará coincidencias entre los reportes de mascotas perdidas.
+          Sube una foto de la mascota que encontraste y la IA buscará
+          coincidencias entre los reportes de mascotas perdidas.
         </p>
       </motion.div>
 
       <VisualMatchPanel />
     </div>
-  )
+  );
 }
-

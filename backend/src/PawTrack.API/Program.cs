@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
+using System.Globalization;
 using System.Net;  // IPAddress
 using System.Text;
 using System.Text.Json;
@@ -16,6 +17,10 @@ using PawTrack.Application.Sightings.VisualMatch;
 using PawTrack.Infrastructure;
 using PawTrack.API.Middleware;
 using HO = Microsoft.AspNetCore.HttpOverrides;
+
+// Force invariant culture so decimal separators (.) work regardless of OS locale
+CultureInfo.DefaultThreadCurrentCulture   = CultureInfo.InvariantCulture;
+CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
 var builder = WebApplication.CreateBuilder(args);
 

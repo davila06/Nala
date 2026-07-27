@@ -38,6 +38,16 @@ public interface IChatRepository
 
     Task<IReadOnlyList<ChatMessage>> GetMessagesByThreadAsync(
         Guid threadId,
+        Guid? beforeMessageId,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Bulk-marks a set of messages as read in a single SQL UPDATE.
+    /// Uses ExecuteUpdateAsync — no change tracking overhead.
+    /// </summary>
+    Task MarkMessagesAsReadAsync(
+        IReadOnlyList<Guid> messageIds,
         CancellationToken cancellationToken = default);
 
     Task<int> CountUnreadMessagesAsync(

@@ -10,11 +10,11 @@ public sealed class NotificationRepository(PawTrackDbContext dbContext) : INotif
     public async Task<IReadOnlyList<Notification>> GetByUserIdAsync(
         Guid userId, int skip, int take, CancellationToken cancellationToken = default) =>
         await dbContext.Notifications
+            .AsNoTracking()
             .Where(n => n.UserId == userId)
             .OrderByDescending(n => n.CreatedAt)
             .Skip(skip)
             .Take(take)
-            .AsTracking()
             .ToListAsync(cancellationToken);
 
     public async Task<int> CountUnreadAsync(Guid userId, CancellationToken cancellationToken = default) =>
@@ -39,6 +39,7 @@ public sealed class NotificationRepository(PawTrackDbContext dbContext) : INotif
     {
         var idString = lostPetEventId.ToString();
         var results = await dbContext.Notifications
+            .AsNoTracking()
             .Where(n => n.RelatedEntityId == idString)
             .OrderByDescending(n => n.CreatedAt)
             .ToListAsync(cancellationToken);
@@ -52,9 +53,9 @@ public sealed class NotificationRepository(PawTrackDbContext dbContext) : INotif
         CancellationToken cancellationToken = default)
     {
         var results = await dbContext.Notifications
+            .AsNoTracking()
             .Where(n => n.UserId == userId && n.Type == type)
             .OrderByDescending(n => n.CreatedAt)
-            .AsTracking()
             .ToListAsync(cancellationToken);
 
         return results.AsReadOnly();

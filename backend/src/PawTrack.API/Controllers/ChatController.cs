@@ -42,7 +42,7 @@ public sealed class ChatController(ISender sender) : ControllerBase
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails
             {
-                Title  = "No se pudo abrir el hilo",
+                Title = "No se pudo abrir el hilo",
                 Status = 422,
                 Extensions = { ["errors"] = result.Errors },
             });
@@ -91,7 +91,7 @@ public sealed class ChatController(ISender sender) : ControllerBase
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails
             {
-                Title  = "No se pudo enviar el mensaje",
+                Title = "No se pudo enviar el mensaje",
                 Status = 422,
                 Extensions = { ["errors"] = result.Errors },
             });
@@ -101,19 +101,21 @@ public sealed class ChatController(ISender sender) : ControllerBase
 
     // ── GET /api/chat/threads/{threadId}/messages ─────────────────────────────
 
-    /// <summary>Returns all messages in the thread and marks unread ones as read.</summary>
+    /// <summary>Returns a page of messages in the thread and marks unread ones as read.</summary>
     [HttpGet("threads/{threadId:guid}/messages")]
     [EnableRateLimiting("chat-message")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetMessages(
         Guid threadId,
-        CancellationToken cancellationToken)
+        [FromQuery] Guid? beforeMessageId,
+        [FromQuery] int pageSize = 50,
+        CancellationToken cancellationToken = default)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
 
         var result = await sender.Send(
-            new GetChatMessagesQuery(threadId, userId),
+            new GetChatMessagesQuery(threadId, userId, beforeMessageId, pageSize),
             cancellationToken);
 
         if (result.IsFailure)

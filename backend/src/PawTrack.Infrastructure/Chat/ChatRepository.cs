@@ -76,15 +76,47 @@ public sealed class ChatRepository(PawTrackDbContext dbContext) : IChatRepositor
 
     public async Task<IReadOnlyList<ChatMessage>> GetMessagesByThreadAsync(
         Guid threadId,
+        Guid? beforeMessageId,
+        int pageSize,
         CancellationToken cancellationToken = default)
     {
-        var messages = await dbContext.ChatMessages
-            .Where(m => m.ThreadId == threadId)
-            .OrderBy(m => m.SentAt)
+        IQueryable<ChatMessage> query = dbContext.ChatMessages
+            .AsNoTracking()
+            .Where(m => m.ThreadId == threadId);
+
+        // When a cursor is provided, restrict to messages sent BEFORE that message's
+        // timestamp so the client can page backward (infinite scroll upward).
+        if (beforeMessageId.HasValue)
+        {
+            var cursorTime = await dbContext.ChatMessages
+                .AsNoTracking()
+                .Where(m => m.Id == beforeMessageId.Value)
+                .Select(m => m.SentAt)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (cursorTime != default)
+                query = query.Where(m => m.SentAt < cursorTime);
+        }
+
+        // Fetch the most recent `pageSize` messages, then reverse for ascending
+        // chronological render order (oldest first within the returned page).
+        var messages = await query
+            .OrderByDescending(m => m.SentAt)
+            .Take(pageSize)
             .ToListAsync(cancellationToken);
 
+        messages.Reverse();
         return messages.AsReadOnly();
     }
+
+    public Task MarkMessagesAsReadAsync(
+        IReadOnlyList<Guid> messageIds,
+        CancellationToken cancellationToken = default) =>
+        dbContext.ChatMessages
+            .Where(m => messageIds.Contains(m.Id))
+            .ExecuteUpdateAsync(
+                s => s.SetProperty(m => m.IsReadByRecipient, true),
+                cancellationToken);
 
     public Task<int> CountUnreadMessagesAsync(
         Guid threadId,

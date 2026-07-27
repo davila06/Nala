@@ -25,6 +25,7 @@ ScaffoldingReadMe.txt
 # Publish output
 **/publish/
 **/PublishOutput/
+backend/out/
 
 # ===========================
 # Node / Frontend

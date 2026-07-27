@@ -65,7 +65,7 @@ export const foundPetsApi = {
     if (payload.photo) form.append('Photo', payload.photo)
 
     return apiClient
-      .post<ReportFoundPetResult>('/api/found-pets', form, {
+      .post<ReportFoundPetResult>('/found-pets', form, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       .then((r) => r.data)
@@ -73,6 +73,6 @@ export const foundPetsApi = {
 
   getActiveFoundPets: (maxResults = 50): Promise<FoundPetReportDto[]> =>
     apiClient
-      .get<FoundPetReportDto[]>('/api/found-pets/active', { params: { maxResults } })
+      .get<FoundPetReportDto[]>('/found-pets/active', { params: { maxResults } })
       .then((r) => r.data),
 }

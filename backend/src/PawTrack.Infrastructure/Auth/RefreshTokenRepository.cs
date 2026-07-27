@@ -21,6 +21,7 @@ public sealed class RefreshTokenRepository(PawTrackDbContext dbContext) : IRefre
 
     public async Task<IReadOnlyList<RefreshToken>> GetActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken = default) =>
         await dbContext.RefreshTokens
+            .AsNoTracking()
             .Where(rt => rt.UserId == userId && !rt.IsRevoked && rt.ExpiresAt > DateTimeOffset.UtcNow)
             .ToListAsync(cancellationToken);
 

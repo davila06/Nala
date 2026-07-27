@@ -7,34 +7,39 @@ namespace PawTrack.Application.Chat.Queries.GetChatMessages;
 // ── DTOs ──────────────────────────────────────────────────────────────────────
 
 public sealed record ChatMessageDto(
-    string         MessageId,
+    string MessageId,
     /// <summary><c>true</c> when the requesting user sent this message.</summary>
-    bool           IsFromMe,
-    string         Body,
+    bool IsFromMe,
+    string Body,
     DateTimeOffset SentAt,
-    bool           IsReadByRecipient);
+    bool IsReadByRecipient);
 
 // ── Query ─────────────────────────────────────────────────────────────────────
 
 /// <summary>
-/// Returns all messages in a chat thread for a participant.
-/// Marks unread messages as read so the sender sees delivery confirmation.
+/// Returns a page of messages in a chat thread for a participant.
+/// Marks the returned unread messages as read so the sender sees delivery confirmation.
+/// Pass <paramref name="BeforeMessageId"/> to page backward (cursor pagination).
 /// </summary>
 public sealed record GetChatMessagesQuery(
     Guid ThreadId,
-    Guid RequestingUserId)
+    Guid RequestingUserId,
+    Guid? BeforeMessageId = null,
+    int PageSize = 50)
     : IRequest<Result<IReadOnlyList<ChatMessageDto>>>;
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 public sealed class GetChatMessagesQueryHandler(
     IChatRepository chatRepository,
-    IUnitOfWork     unitOfWork)
+    IUnitOfWork unitOfWork)
     : IRequestHandler<GetChatMessagesQuery, Result<IReadOnlyList<ChatMessageDto>>>
 {
+    private const int MaxPageSize = 100;
+
     public async Task<Result<IReadOnlyList<ChatMessageDto>>> Handle(
         GetChatMessagesQuery query,
-        CancellationToken    cancellationToken)
+        CancellationToken cancellationToken)
     {
         var thread = await chatRepository.GetThreadByIdAsync(query.ThreadId, cancellationToken);
         if (thread is null)
@@ -45,18 +50,19 @@ public sealed class GetChatMessagesQueryHandler(
         if (!isParticipant)
             return Result.Failure<IReadOnlyList<ChatMessageDto>>("Acceso denegado.");
 
-        var messages = await chatRepository.GetMessagesByThreadAsync(query.ThreadId, cancellationToken);
+        var pageSize = Math.Clamp(query.PageSize, 1, MaxPageSize);
+        var messages = await chatRepository.GetMessagesByThreadAsync(
+            query.ThreadId, query.BeforeMessageId, pageSize, cancellationToken);
 
-        // Mark incoming messages as read (side-effect on GET is acceptable here for UX).
-        var unread = messages
+        // Bulk-mark incoming messages on this page as read via a single SQL UPDATE.
+        // ExecuteUpdateAsync bypasses change tracking, so no UoW.SaveChanges needed.
+        var unreadIds = messages
             .Where(m => m.SenderUserId != query.RequestingUserId && !m.IsReadByRecipient)
+            .Select(m => m.Id)
             .ToList();
 
-        if (unread.Count > 0)
-        {
-            foreach (var m in unread) m.MarkAsRead();
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-        }
+        if (unreadIds.Count > 0)
+            await chatRepository.MarkMessagesAsReadAsync(unreadIds, cancellationToken);
 
         var dtos = messages
             .Select(m => new ChatMessageDto(

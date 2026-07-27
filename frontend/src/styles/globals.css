@@ -10,31 +10,31 @@
   --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
 
   /* === Brand: Terracota cálido (primario emocional) === */
-  --color-brand-50:  #fff8f4;
+  --color-brand-50: #fff8f4;
   --color-brand-100: #ffe8d9;
   --color-brand-200: #ffd0b4;
   --color-brand-300: #ffb088;
   --color-brand-400: #f98050;
-  --color-brand-500: #e8521e;  /* primaryemotional */
+  --color-brand-500: #e8521e; /* primaryemotional */
   --color-brand-600: #c43f10;
   --color-brand-700: #9e300c;
   --color-brand-800: #7a240a;
   --color-brand-900: #581908;
 
   /* === Verde rescate === */
-  --color-rescue-50:  #f0fdf6;
+  --color-rescue-50: #f0fdf6;
   --color-rescue-100: #d0f5e4;
   --color-rescue-200: #a4e9cb;
   --color-rescue-300: #6fd7ae;
   --color-rescue-400: #3cbd8e;
-  --color-rescue-500: #17a26d;  /* success */
+  --color-rescue-500: #17a26d; /* success */
   --color-rescue-600: #108253;
   --color-rescue-700: #0c6341;
   --color-rescue-800: #094a31;
   --color-rescue-900: #063523;
 
   /* === Azul institucional/confianza === */
-  --color-trust-50:  #f0f4fc;
+  --color-trust-50: #f0f4fc;
   --color-trust-100: #d6e2f8;
   --color-trust-200: #afc4f2;
   --color-trust-300: #80a0e8;
@@ -46,7 +46,7 @@
   --color-trust-900: #0c1a4e;
 
   /* === Alerta/peligro real === */
-  --color-danger-50:  #fff4f4;
+  --color-danger-50: #fff4f4;
   --color-danger-100: #ffe4e4;
   --color-danger-200: #ffc8c8;
   --color-danger-300: #ff9898;
@@ -58,7 +58,7 @@
   --color-danger-900: #450b0b;
 
   /* === Advertencia === */
-  --color-warn-50:  #fffbf0;
+  --color-warn-50: #fffbf0;
   --color-warn-100: #fff3cc;
   --color-warn-200: #ffe799;
   --color-warn-300: #ffd44d;
@@ -70,7 +70,7 @@
   --color-warn-900: #382600;
 
   /* === Fondos cálidos (neutros de marca) === */
-  --color-sand-50:  #fdfcf9;
+  --color-sand-50: #fdfcf9;
   --color-sand-100: #f9f5ef;
   --color-sand-200: #f0e9de;
   --color-sand-300: #e2d3c4;
@@ -82,7 +82,7 @@
   --color-sand-900: #352823;
 
   /* === Grises neutros fríos === */
-  --color-zinc-50:  #fafafa;
+  --color-zinc-50: #fafafa;
   --color-zinc-100: #f4f4f5;
   --color-zinc-200: #e4e4e7;
   --color-zinc-300: #d1d1d6;
@@ -94,47 +94,53 @@
   --color-zinc-900: #18181c;
 
   /* Semantic aliases */
-  --color-bg:           var(--color-sand-100);
-  --color-surface:      #ffffff;
+  --color-bg: var(--color-sand-100);
+  --color-surface: #ffffff;
   --color-surface-warm: var(--color-sand-50);
-  --color-ink:          var(--color-sand-900);
+  --color-ink: var(--color-sand-900);
   --color-ink-secondary: var(--color-sand-700);
   --color-ink-tertiary: var(--color-sand-500);
-  --color-border:       var(--color-sand-200);
+  --color-border: var(--color-sand-200);
   --color-border-strong: var(--color-sand-300);
 
   /* Radii */
-  --radius-sm:  0.375rem;
-  --radius-md:  0.625rem;
-  --radius-lg:  0.875rem;
-  --radius-xl:  1.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
   --radius-2xl: 1.75rem;
   --radius-full: 9999px;
 
   /* Shadows */
-  --shadow-xs:  0 1px 2px 0 rgb(26 21 18 / 0.06);
-  --shadow-sm:  0 1px 3px 0 rgb(26 21 18 / 0.08), 0 1px 2px -1px rgb(26 21 18 / 0.04);
-  --shadow-md:  0 4px 6px -1px rgb(26 21 18 / 0.08), 0 2px 4px -2px rgb(26 21 18 / 0.04);
-  --shadow-lg:  0 10px 15px -3px rgb(26 21 18 / 0.08), 0 4px 6px -4px rgb(26 21 18 / 0.04);
-  --shadow-xl:  0 20px 25px -5px rgb(26 21 18 / 0.08), 0 8px 10px -6px rgb(26 21 18 / 0.04);
+  --shadow-xs: 0 1px 2px 0 rgb(26 21 18 / 0.06);
+  --shadow-sm:
+    0 1px 3px 0 rgb(26 21 18 / 0.08), 0 1px 2px -1px rgb(26 21 18 / 0.04);
+  --shadow-md:
+    0 4px 6px -1px rgb(26 21 18 / 0.08), 0 2px 4px -2px rgb(26 21 18 / 0.04);
+  --shadow-lg:
+    0 10px 15px -3px rgb(26 21 18 / 0.08), 0 4px 6px -4px rgb(26 21 18 / 0.04);
+  --shadow-xl:
+    0 20px 25px -5px rgb(26 21 18 / 0.08), 0 8px 10px -6px rgb(26 21 18 / 0.04);
 
   /* Motion */
-  --duration-fast:   120ms;
+  --duration-fast: 120ms;
   --duration-normal: 200ms;
-  --duration-slow:   350ms;
-  --ease-smooth:     cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-slow: 350ms;
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Breakpoints */
-  --breakpoint-sm:  480px;
-  --breakpoint-md:  768px;
-  --breakpoint-lg:  1024px;
-  --breakpoint-xl:  1280px;
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1440px;
 }
 
 /* ── Base Reset & Defaults ───────────────────────────────────────────────── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -162,7 +168,9 @@ body {
 
 /* Reduce motion when preferred */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -171,31 +179,77 @@ body {
 }
 
 /* Headings use display font */
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: var(--font-display);
   line-height: 1.2;
   letter-spacing: -0.02em;
 }
 
+/* ── Select / dropdown — always light so options are readable ────────────── */
+/* The native popup inherits the OS color scheme; forcing light here ensures
+   options are always readable regardless of dark mode.                        */
+select {
+  color-scheme: light;
+  background-color: #ffffff;
+  color: #352823;
+}
+
+select option {
+  background-color: #ffffff;
+  color: #352823;
+}
+
+/* Dark-mode variant: keep the field itself styled dark but still force
+   the popup (which the browser controls) to light.                          */
+@media (prefers-color-scheme: dark) {
+  select {
+    color-scheme: light;
+    background-color: #ffffff;
+    color: #352823;
+  }
+  select option {
+    background-color: #ffffff;
+    color: #352823;
+  }
+}
+
 /* ── Utility layer ───────────────────────────────────────────────────────── */
 @layer utilities {
-  .font-display { font-family: var(--font-display); }
-  .font-body    { font-family: var(--font-body); }
+  .font-display {
+    font-family: var(--font-display);
+  }
+  .font-body {
+    font-family: var(--font-body);
+  }
 
   /* Topographic pattern for brand panels */
   .bg-topo {
     background-image:
-      radial-gradient(ellipse at 30% 60%, rgb(30 60 100 / 0.35) 0%, transparent 55%),
-      radial-gradient(ellipse at 80% 20%, rgb(200 70 25 / 0.18) 0%, transparent 45%),
+      radial-gradient(
+        ellipse at 30% 60%,
+        rgb(30 60 100 / 0.35) 0%,
+        transparent 55%
+      ),
+      radial-gradient(
+        ellipse at 80% 20%,
+        rgb(200 70 25 / 0.18) 0%,
+        transparent 45%
+      ),
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cpath d='M0 200 Q100 120 200 200 Q300 280 400 200' fill='none' stroke='white' stroke-width='0.5' opacity='0.12'/%3E%3Cpath d='M0 240 Q100 160 200 240 Q300 320 400 240' fill='none' stroke='white' stroke-width='0.5' opacity='0.08'/%3E%3Cpath d='M0 160 Q100 80 200 160 Q300 240 400 160' fill='none' stroke='white' stroke-width='0.5' opacity='0.08'/%3E%3Cpath d='M50 0 Q100 100 150 0 Q200 100 250 0' fill='none' stroke='white' stroke-width='0.5' opacity='0.1'/%3E%3Cpath d='M0 280 Q150 200 300 280 Q350 310 400 280' fill='none' stroke='white' stroke-width='0.5' opacity='0.06'/%3E%3C/svg%3E");
   }
 
   /* Text balance for short headings */
-  .text-balance { text-wrap: balance; }
+  .text-balance {
+    text-wrap: balance;
+  }
 
   /* Smooth hover transitions */
   .transition-base {
-    transition-property: color, background-color, border-color, opacity, box-shadow, transform;
+    transition-property:
+      color, background-color, border-color, opacity, box-shadow, transform;
     transition-duration: var(--duration-normal);
     transition-timing-function: var(--ease-smooth);
   }
@@ -203,77 +257,156 @@ h1, h2, h3, h4 {
 
 /* ── Animations ──────────────────────────────────────────────────────────── */
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes pulse-soft {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.animate-fade-in-up { animation: fade-in-up var(--duration-slow) var(--ease-smooth) both; }
-.animate-fade-in    { animation: fade-in var(--duration-normal) var(--ease-smooth) both; }
-.animate-pulse-soft { animation: pulse-soft 1.6s var(--ease-smooth) infinite; }
-.animate-spin       { animation: spin 0.75s linear infinite; }
+.animate-fade-in-up {
+  animation: fade-in-up var(--duration-slow) var(--ease-smooth) both;
+}
+.animate-fade-in {
+  animation: fade-in var(--duration-normal) var(--ease-smooth) both;
+}
+.animate-pulse-soft {
+  animation: pulse-soft 1.6s var(--ease-smooth) infinite;
+}
+.animate-spin {
+  animation: spin 0.75s linear infinite;
+}
 
 /* ── 3D Engine ───────────────────────────────────────────────────────────── */
 
 /* Holographic shimmer — trading card effect */
 @keyframes holographic-shift {
-  0%   { background-position: 0% 50%; opacity: 0; }
-  25%  { opacity: 0.6; }
-  50%  { background-position: 100% 50%; opacity: 0.8; }
-  75%  { opacity: 0.5; }
-  100% { background-position: 0% 50%; opacity: 0; }
+  0% {
+    background-position: 0% 50%;
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.6;
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 0.8;
+  }
+  75% {
+    opacity: 0.5;
+  }
+  100% {
+    background-position: 0% 50%;
+    opacity: 0;
+  }
 }
 
 /* Floating bob — for 3D pet tag */
 @keyframes float-bob {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33%       { transform: translateY(-8px) rotate(1deg); }
-  66%       { transform: translateY(-4px) rotate(-0.5deg); }
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+  66% {
+    transform: translateY(-4px) rotate(-0.5deg);
+  }
 }
 
 /* Lost pulse ring — red expanding ring for lost pets */
 @keyframes lost-ring {
-  0%   { transform: scale(1);    opacity: 0.8; }
-  100% { transform: scale(2.4);  opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
 }
 
 /* Paw burst — celebration on reunite */
 @keyframes paw-burst {
-  0%   { transform: scale(0) rotate(0deg);   opacity: 1; }
-  60%  { transform: scale(1.3) rotate(20deg); opacity: 0.9; }
-  100% { transform: scale(1.8) rotate(40deg); opacity: 0; }
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 1;
+  }
+  60% {
+    transform: scale(1.3) rotate(20deg);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.8) rotate(40deg);
+    opacity: 0;
+  }
 }
 
 /* Card shine sweep */
 @keyframes card-shine {
-  0%   { transform: translateX(-120%) skewX(-20deg); }
-  100% { transform: translateX(220%) skewX(-20deg); }
+  0% {
+    transform: translateX(-120%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(220%) skewX(-20deg);
+  }
 }
 
 /* Radar pulse — expanding circle for search area */
 @keyframes radar-pulse {
-  0%   { transform: scale(0.8); opacity: 0.7; }
-  50%  { transform: scale(1.1); opacity: 0.3; }
-  100% { transform: scale(0.8); opacity: 0.7; }
+  0% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
 }
 
 /* Stagger delays for grid children */
 @keyframes stagger-in {
-  from { opacity: 0; transform: translateY(16px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* ── 3D Flip Card ────────────────────────────────────────────────────────── */
@@ -286,7 +419,7 @@ h1, h2, h3, h4 {
 .flip-card {
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.65s cubic-bezier(0.34, 1.20, 0.64, 1);
+  transition: transform 0.65s cubic-bezier(0.34, 1.2, 0.64, 1);
   will-change: transform;
 }
 
@@ -314,11 +447,13 @@ h1, h2, h3, h4 {
   transform-style: preserve-3d;
   will-change: transform;
   transform: perspective(900px) rotateX(0deg) rotateY(0deg);
-  transition: transform 0.1s linear, box-shadow 0.1s linear;
+  transition:
+    transform 0.1s linear,
+    box-shadow 0.1s linear;
 }
 
 .holo-card::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -344,7 +479,7 @@ h1, h2, h3, h4 {
 }
 
 .holo-card::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -391,14 +526,30 @@ h1, h2, h3, h4 {
   animation: stagger-in 0.4s var(--ease-spring) both;
 }
 
-.stagger-grid > *:nth-child(1) { animation-delay: 0ms; }
-.stagger-grid > *:nth-child(2) { animation-delay: 60ms; }
-.stagger-grid > *:nth-child(3) { animation-delay: 120ms; }
-.stagger-grid > *:nth-child(4) { animation-delay: 180ms; }
-.stagger-grid > *:nth-child(5) { animation-delay: 240ms; }
-.stagger-grid > *:nth-child(6) { animation-delay: 300ms; }
-.stagger-grid > *:nth-child(7) { animation-delay: 360ms; }
-.stagger-grid > *:nth-child(8) { animation-delay: 420ms; }
+.stagger-grid > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+.stagger-grid > *:nth-child(2) {
+  animation-delay: 60ms;
+}
+.stagger-grid > *:nth-child(3) {
+  animation-delay: 120ms;
+}
+.stagger-grid > *:nth-child(4) {
+  animation-delay: 180ms;
+}
+.stagger-grid > *:nth-child(5) {
+  animation-delay: 240ms;
+}
+.stagger-grid > *:nth-child(6) {
+  animation-delay: 300ms;
+}
+.stagger-grid > *:nth-child(7) {
+  animation-delay: 360ms;
+}
+.stagger-grid > *:nth-child(8) {
+  animation-delay: 420ms;
+}
 
 /* ── Parallax host ───────────────────────────────────────────────────────── */
 .parallax-host {
@@ -407,9 +558,15 @@ h1, h2, h3, h4 {
   transform-style: preserve-3d;
 }
 
-.parallax-layer-back   { transform: translateZ(-2px) scale(1.2); }
-.parallax-layer-mid    { transform: translateZ(-1px) scale(1.1); }
-.parallax-layer-front  { transform: translateZ(0); }
+.parallax-layer-back {
+  transform: translateZ(-2px) scale(1.2);
+}
+.parallax-layer-mid {
+  transform: translateZ(-1px) scale(1.1);
+}
+.parallax-layer-front {
+  transform: translateZ(0);
+}
 
 /* ── Radar (search area) ─────────────────────────────────────────────────── */
 .radar-pulse {
@@ -418,23 +575,43 @@ h1, h2, h3, h4 {
 
 /* ── Page transition ─────────────────────────────────────────────────────── */
 @keyframes page-enter {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes page-exit {
-  from { opacity: 1; transform: translateY(0); }
-  to   { opacity: 0; transform: translateY(-6px); }
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
 }
 
-.page-enter { animation: page-enter 0.28s var(--ease-smooth) both; }
-.page-exit  { animation: page-exit  0.18s var(--ease-smooth) both; }
+.page-enter {
+  animation: page-enter 0.28s var(--ease-smooth) both;
+}
+.page-exit {
+  animation: page-exit 0.18s var(--ease-smooth) both;
+}
 
 /* ── Skeleton shimmer (sweep gradient) ───────────────────────────────────── */
 
 @keyframes skeleton-sweep {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
 }
 
 .skeleton-shimmer {
@@ -452,13 +629,13 @@ h1, h2, h3, h4 {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-bg:            #1a1512;
-    --color-surface:       #231e1a;
-    --color-surface-warm:  #1f1b18;
-    --color-ink:           #f0ece6;
+    --color-bg: #1a1512;
+    --color-surface: #231e1a;
+    --color-surface-warm: #1f1b18;
+    --color-ink: #f0ece6;
     --color-ink-secondary: #c8b9a8;
-    --color-ink-tertiary:  #8e7059;
-    --color-border:        #3a3028;
+    --color-ink-tertiary: #8e7059;
+    --color-border: #3a3028;
     --color-border-strong: #4a3f35;
 
     /* Adjusted sand neutrals for dark */
@@ -470,16 +647,16 @@ h1, h2, h3, h4 {
     --color-sand-900: #f0ece6;
 
     /* Skeleton shimmer dark */
-    --skeleton-base:  #2a2520;
+    --skeleton-base: #2a2520;
     --skeleton-shine: #332d28;
   }
 
   .skeleton-shimmer {
     background: linear-gradient(
       90deg,
-      var(--skeleton-base)  25%,
+      var(--skeleton-base) 25%,
       var(--skeleton-shine) 50%,
-      var(--skeleton-base)  75%
+      var(--skeleton-base) 75%
     );
     background-size: 200% 100%;
   }

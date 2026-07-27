@@ -29,11 +29,12 @@ public sealed class LostPetRepository(PawTrackDbContext dbContext) : ILostPetRep
     {
         // No-tracking read — map endpoint is public and read-only
         var results = await dbContext.LostPetEvents
+            .AsNoTracking()
             .Where(e =>
                 e.Status == LostPetStatus.Active &&
                 e.LastSeenLat != null && e.LastSeenLng != null &&
                 e.LastSeenLat >= south && e.LastSeenLat <= north &&
-                e.LastSeenLng >= west  && e.LastSeenLng <= east)
+                e.LastSeenLng >= west && e.LastSeenLng <= east)
             .OrderByDescending(e => e.ReportedAt)
             .ToListAsync(cancellationToken);
 
@@ -45,6 +46,7 @@ public sealed class LostPetRepository(PawTrackDbContext dbContext) : ILostPetRep
         CancellationToken cancellationToken = default)
     {
         var results = await dbContext.LostPetEvents
+            .AsNoTracking()
             .Where(e =>
                 e.Status == LostPetStatus.Active
                 && e.ReportedAt <= reportedBefore)
@@ -68,7 +70,7 @@ public sealed class LostPetRepository(PawTrackDbContext dbContext) : ILostPetRep
         CancellationToken cancellationToken = default)
     {
         var rows = await (
-            from lost in dbContext.LostPetEvents
+            from lost in dbContext.LostPetEvents.AsNoTracking()
             join pet in dbContext.Pets on lost.PetId equals pet.Id
             where lost.Status == LostPetStatus.Active
                   && lost.LastSeenLat != null

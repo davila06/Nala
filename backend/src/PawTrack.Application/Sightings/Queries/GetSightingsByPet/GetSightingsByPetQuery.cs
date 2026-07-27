@@ -7,7 +7,9 @@ namespace PawTrack.Application.Sightings.Queries.GetSightingsByPet;
 
 public sealed record GetSightingsByPetQuery(
     Guid PetId,
-    Guid RequestingUserId) : IRequest<Result<IReadOnlyList<SightingDto>>>;
+    Guid RequestingUserId,
+    int Page = 1,
+    int PageSize = 50) : IRequest<Result<IReadOnlyList<SightingDto>>>;
 
 public sealed class GetSightingsByPetQueryHandler(
     ISightingRepository sightingRepository,
@@ -16,6 +18,8 @@ public sealed class GetSightingsByPetQueryHandler(
     ISightingPriorityScorer sightingPriorityScorer)
     : IRequestHandler<GetSightingsByPetQuery, Result<IReadOnlyList<SightingDto>>>
 {
+    private const int MaxPageSize = 100;
+
     public async Task<Result<IReadOnlyList<SightingDto>>> Handle(
         GetSightingsByPetQuery request, CancellationToken cancellationToken)
     {
@@ -32,6 +36,9 @@ public sealed class GetSightingsByPetQueryHandler(
         var activeLostReport = await lostPetRepository.GetActiveByPetIdAsync(
             request.PetId, cancellationToken);
 
+        var pageSize = Math.Clamp(request.PageSize, 1, MaxPageSize);
+        var page = Math.Max(1, request.Page);
+
         var prioritizedSightings = sightings
             .Select(sighting =>
             {
@@ -45,6 +52,8 @@ public sealed class GetSightingsByPetQueryHandler(
             })
             .OrderByDescending(item => item.Priority.Score)
             .ThenByDescending(item => item.Sighting.SightedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(item => item.Dto)
             .ToList()
             .AsReadOnly();

@@ -16,6 +16,7 @@ public sealed class SightingRepository(PawTrackDbContext dbContext) : ISightingR
         Guid petId, CancellationToken cancellationToken = default)
     {
         var results = await dbContext.Sightings
+            .AsNoTracking()
             .Where(s => s.PetId == petId)
             .OrderByDescending(s => s.SightedAt)
             .ToListAsync(cancellationToken);
@@ -28,6 +29,7 @@ public sealed class SightingRepository(PawTrackDbContext dbContext) : ISightingR
         Guid lostPetEventId, CancellationToken cancellationToken = default)
     {
         var results = await dbContext.Sightings
+            .AsNoTracking()
             .Where(s => s.LostPetEventId == lostPetEventId)
             .OrderByDescending(s => s.SightedAt)
             .ToListAsync(cancellationToken);
@@ -44,9 +46,10 @@ public sealed class SightingRepository(PawTrackDbContext dbContext) : ISightingR
     {
         // No-tracking read — public map endpoint
         var results = await dbContext.Sightings
+            .AsNoTracking()
             .Where(s =>
                 s.Lat >= south && s.Lat <= north &&
-                s.Lng >= west  && s.Lng <= east)
+                s.Lng >= west && s.Lng <= east)
             .OrderByDescending(s => s.ReportedAt)
             .ToListAsync(cancellationToken);
 

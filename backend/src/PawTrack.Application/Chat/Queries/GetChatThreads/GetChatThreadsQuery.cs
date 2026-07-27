@@ -8,14 +8,14 @@ namespace PawTrack.Application.Chat.Queries.GetChatThreads;
 // ── DTOs ──────────────────────────────────────────────────────────────────────
 
 public sealed record ChatThreadDto(
-    string            ThreadId,
-    string            LostPetEventId,
+    string ThreadId,
+    string LostPetEventId,
     /// <summary>Display name of the other party, first-name only for privacy.</summary>
-    string            OtherPartyName,
-    ChatThreadStatus  Status,
-    DateTimeOffset    CreatedAt,
-    DateTimeOffset    LastMessageAt,
-    int               UnreadCount);
+    string OtherPartyName,
+    ChatThreadStatus Status,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset LastMessageAt,
+    int UnreadCount);
 
 // ── Query ─────────────────────────────────────────────────────────────────────
 
@@ -35,9 +35,10 @@ public sealed class GetChatThreadsQueryHandler(
     IUserRepository userRepository)
     : IRequestHandler<GetChatThreadsQuery, Result<IReadOnlyList<ChatThreadDto>>>
 {
+    private const int MaxThreads = 200;
     public async Task<Result<IReadOnlyList<ChatThreadDto>>> Handle(
         GetChatThreadsQuery query,
-        CancellationToken   cancellationToken)
+        CancellationToken cancellationToken)
     {
         // Participant filter is pushed to the database layer to prevent timing-based BOLA:
         // any authenticated user could previously trigger DB lookups for threads they do not
@@ -46,14 +47,14 @@ public sealed class GetChatThreadsQueryHandler(
         var visible = await chatRepository.GetThreadsByLostPetEventAndParticipantAsync(
             query.LostPetEventId, query.RequestingUserId, cancellationToken);
 
-        var dtos = new List<ChatThreadDto>(visible.Count);
+        var dtos = new List<ChatThreadDto>(Math.Min(visible.Count, MaxThreads));
 
-        foreach (var thread in visible)
+        foreach (var thread in visible.Take(MaxThreads))
         {
-            var isOwner     = query.RequestingUserId == thread.OwnerUserId;
+            var isOwner = query.RequestingUserId == thread.OwnerUserId;
             var otherUserId = isOwner ? thread.InitiatorUserId : thread.OwnerUserId;
 
-            var otherUser   = await userRepository.GetByIdAsync(otherUserId, cancellationToken);
+            var otherUser = await userRepository.GetByIdAsync(otherUserId, cancellationToken);
             // Show first name only — never surname, email, or phone.
             var displayName = GetFirstName(otherUser?.Name) ?? (isOwner ? "Rescatista" : "Dueño");
 

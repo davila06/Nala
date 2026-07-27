@@ -20,20 +20,19 @@ public sealed class GetPublicMapEventsQueryHandler(
     public async Task<Result<IReadOnlyList<PublicMapEventDto>>> Handle(
         GetPublicMapEventsQuery request, CancellationToken cancellationToken)
     {
-        // Parallel fetch — sightings and active lost pets are independent reads
-        var sightingsTask = sightingRepository.GetInBBoxAsync(
+        // Sequential fetch — both repositories share the same scoped DbContext,
+        // which is not thread-safe; parallel Task.WhenAll causes a concurrency exception.
+        var sightings = await sightingRepository.GetInBBoxAsync(
             request.North, request.South, request.East, request.West, cancellationToken);
 
-        var lostPetsTask = lostPetRepository.GetActiveLostPetsInBBoxAsync(
+        var lostPets = await lostPetRepository.GetActiveLostPetsInBBoxAsync(
             request.North, request.South, request.East, request.West, cancellationToken);
-
-        await Task.WhenAll(sightingsTask, lostPetsTask);
 
         var events = new List<PublicMapEventDto>(
-            sightingsTask.Result.Count + lostPetsTask.Result.Count);
+            sightings.Count + lostPets.Count);
 
-        events.AddRange(sightingsTask.Result.Select(PublicMapEventDto.FromSighting));
-        events.AddRange(lostPetsTask.Result
+        events.AddRange(sightings.Select(PublicMapEventDto.FromSighting));
+        events.AddRange(lostPets
             .Where(lpe => lpe.LastSeenLat is not null && lpe.LastSeenLng is not null)
             .Select(PublicMapEventDto.FromLostPet));
 

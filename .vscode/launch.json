@@ -1,0 +1,84 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    // ── Backend: PawTrack.API ─────────────────────────────────────────────────
+    {
+      "name": "🐾 Backend — PawTrack.API",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/out/PawTrack.API.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/backend/src/PawTrack.API",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5199"
+      },
+      "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on\\b.+http://localhost:([0-9]+)",
+        "uriFormat": "http://localhost:%s"
+      },
+      "preLaunchTask": "build-backend"
+    },
+
+    // ── Frontend: Vite dev server ─────────────────────────────────────────────
+    {
+      "name": "🖥️  Frontend — Vite dev",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/frontend",
+      "console": "integratedTerminal",
+      "noDebug": true,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "Local:\\s+(http://localhost:[0-9]+)",
+        "uriFormat": "%s"
+      }
+    },
+
+    // ── Azurite: Azure Storage emulator ───────────────────────────────────────
+    {
+      "name": "🗄️  Azurite — Storage emulator",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "azurite",
+      "runtimeArgs": [
+        "--blobHost",
+        "0.0.0.0",
+        "--queueHost",
+        "0.0.0.0",
+        "--tableHost",
+        "0.0.0.0",
+        "--loose",
+        "--location",
+        "${workspaceFolder}/.azurite"
+      ],
+      "console": "integratedTerminal",
+      "noDebug": true
+    }
+  ],
+
+  // ── Compound: arranque completo del entorno local ─────────────────────────
+  "compounds": [
+    {
+      "name": "🚀 PawTrack CR — Entorno completo",
+      "configurations": [
+        "🗄️  Azurite — Storage emulator",
+        "🐾 Backend — PawTrack.API",
+        "🖥️  Frontend — Vite dev"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "⚡ Backend + Frontend (sin Azurite)",
+      "configurations": [
+        "🐾 Backend — PawTrack.API",
+        "🖥️  Frontend — Vite dev"
+      ],
+      "stopAll": true
+    }
+  ]
+}

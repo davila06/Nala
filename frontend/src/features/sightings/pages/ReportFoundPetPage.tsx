@@ -101,8 +101,13 @@ export default function ReportFoundPetPage() {
       setSubmitError(null)
       const result = await mutateAsync(payload)
       navigate('/encontre-mascota/resultados', { state: { result } })
-    } catch {
-      setSubmitError('Ocurrió un error. Por favor intenta de nuevo.')
+    } catch (err: unknown) {
+      // Extract validation message from backend 400 response
+      const axiosErr = err as { response?: { data?: { errors?: string[]; title?: string } } }
+      const detail = axiosErr?.response?.data?.errors?.[0]
+        ?? axiosErr?.response?.data?.title
+        ?? 'Ocurrió un error. Por favor intenta de nuevo.'
+      setSubmitError(detail)
     }
   }
 
@@ -382,7 +387,7 @@ export default function ReportFoundPetPage() {
             </button>
             <button
               onClick={handleSubmit}
-              disabled={!contactName.trim() || !contactPhone.trim() || isPending}
+              disabled={!contactName.trim() || contactPhone.trim().length < 7 || isPending}
               className="flex-1 rounded-xl bg-rescue-500 py-3 text-sm font-semibold text-white transition hover:bg-rescue-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isPending ? (

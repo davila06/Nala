@@ -1,0 +1,80 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    // ── Build backend (preLaunchTask del debug config) ────────────────────────
+    {
+      "label": "build-backend",
+      "type": "shell",
+      "command": "dotnet build \"${workspaceFolder}/backend/src/PawTrack.API\" -o \"${workspaceFolder}/backend/out\" --no-restore --verbosity minimal",
+      "group": "build",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": "$msCompile"
+    },
+
+    // ── Restore NuGet packages ────────────────────────────────────────────────
+    {
+      "label": "restore-backend",
+      "type": "shell",
+      "command": "dotnet restore \"${workspaceFolder}/backend\"",
+      "group": "build",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+
+    // ── npm install frontend ──────────────────────────────────────────────────
+    {
+      "label": "install-frontend",
+      "type": "shell",
+      "command": "npm install",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "group": "build",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+
+    // ── Run seed script (usuarios de prueba) ─────────────────────────────────
+    {
+      "label": "seed-test-users",
+      "type": "shell",
+      "command": "sqllocaldb start MSSQLLocalDB; sqlcmd -S \"(localdb)\\MSSQLLocalDB\" -d PawTrackDev -i \"${workspaceFolder}/backend/scripts/seed-test-users.sql\"",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+
+    // ── Backend tests ─────────────────────────────────────────────────────────
+    {
+      "label": "test-backend",
+      "type": "shell",
+      "command": "dotnet test \"${workspaceFolder}/backend\" --verbosity minimal",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": "$msCompile"
+    },
+
+    // ── Frontend tests ────────────────────────────────────────────────────────
+    {
+      "label": "test-frontend",
+      "type": "shell",
+      "command": "npm test",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    }
+  ]
+}

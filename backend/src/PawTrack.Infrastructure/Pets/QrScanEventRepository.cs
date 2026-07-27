@@ -16,6 +16,7 @@ public sealed class QrScanEventRepository(PawTrackDbContext dbContext) : IQrScan
         CancellationToken cancellationToken = default)
     {
         var rows = await dbContext.Set<QrScanEvent>()
+            .AsNoTracking()
             .Where(e => e.PetId == petId)
             .OrderByDescending(e => e.ScannedAt)
             .Take(take)
