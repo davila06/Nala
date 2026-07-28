@@ -13,12 +13,31 @@ export default function PublicMapPage() {
   const [locateTrigger, setLocateTrigger] = useState(0);
   const [locating, setLocating] = useState(false);
   const [legendOpen, setLegendOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [flyTarget, setFlyTarget] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
   const { debounce } = useDebouncedBBox(150);
   const { data: events = [], isFetching, isError } = usePublicMapEvents(bbox);
 
+  const filteredEvents = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return events;
+    return events.filter((e) => e.petName?.toLowerCase().includes(q));
+  }, [events, searchQuery]);
+
+  // When exactly one result matches, fly to it
+  const handleSearchChange = (q: string) => {
+    setSearchQuery(q);
+    const trimmed = q.trim().toLowerCase();
+    if (!trimmed) { setFlyTarget(null); return; }
+    const matches = events.filter((e) => e.petName?.toLowerCase().includes(trimmed));
+    if (matches.length === 1 && matches[0]!.lat != null && matches[0]!.lng != null) {
+      setFlyTarget({ lat: matches[0]!.lat, lng: matches[0]!.lng, zoom: 14 });
+    }
+  };
+
   const lostPetEventIds = useMemo(
-    () => events.filter((e) => e.eventType === "LostPet").map((e) => e.id),
-    [events],
+    () => filteredEvents.filter((e) => e.eventType === "LostPet").map((e) => e.id),
+    [filteredEvents],
   );
   const predictions = useMovementPredictions(lostPetEventIds);
 
@@ -43,26 +62,52 @@ export default function PublicMapPage() {
         <meta property="og:type" content="website" />
       </Helmet>
       {/* Glassmorphism header strip */}
-      <div className="absolute left-0 right-0 top-0 z-[1000] flex items-center justify-between border-b border-white/10 bg-zinc-900/70 px-4 py-2.5 backdrop-blur-md">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rescue-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-rescue-400" />
-          </span>
-          <span className="text-sm font-bold text-white tracking-tight">
-            PawTrack — Mapa en vivo
+      <div className="absolute left-0 right-0 top-0 z-[1000] flex flex-col border-b border-white/10 bg-zinc-900/70 px-4 pt-2.5 backdrop-blur-md">
+        <div className="flex items-center justify-between pb-2.5">
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rescue-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-rescue-400" />
+            </span>
+            <span className="text-sm font-bold text-white tracking-tight">
+              PawTrack — Mapa en vivo
+            </span>
+          </div>
+          <span className="text-xs text-zinc-300">
+            <span className="font-semibold text-white">
+              {searchQuery ? filteredEvents.length : events.length}
+            </span>{" "}
+            eventos
+            {isFetching && (
+              <span className="ml-1.5 text-brand-400">• actualizando…</span>
+            )}
+            {isError && (
+              <span className="ml-1.5 text-danger-400">• error al cargar</span>
+            )}
           </span>
         </div>
-        <span className="text-xs text-zinc-300">
-          <span className="font-semibold text-white">{events.length}</span>{" "}
-          eventos
-          {isFetching && (
-            <span className="ml-1.5 text-brand-400">• actualizando…</span>
+        {/* Search bar */}
+        <div className="relative pb-2.5">
+          <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-zinc-400 text-sm" aria-hidden="true">🔍</span>
+          <input
+            type="search"
+            placeholder="Buscar mascota por nombre…"
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="w-full rounded-xl border border-white/10 bg-white/10 py-2 pl-9 pr-4 text-sm text-white placeholder:text-zinc-400 outline-none focus:border-brand-400 focus:bg-white/15 transition"
+            aria-label="Filtrar mascotas en el mapa por nombre"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => { setSearchQuery(""); setFlyTarget(null); }}
+              className="absolute inset-y-0 right-2 flex items-center px-2 text-zinc-400 hover:text-white"
+              aria-label="Limpiar búsqueda"
+            >
+              ✕
+            </button>
           )}
-          {isError && (
-            <span className="ml-1.5 text-danger-400">• error al cargar</span>
-          )}
-        </span>
+        </div>
       </div>
 
       {/* Legend — collapsible on mobile, always visible on sm+ */}
@@ -159,9 +204,10 @@ export default function PublicMapPage() {
       </div>
 
       <MapContainer
-        events={events}
+        events={filteredEvents}
         predictions={predictions}
         locateTrigger={locateTrigger}
+        flyTarget={flyTarget}
         onLocated={() => setLocating(false)}
         onBBoxChange={handleBBoxChange}
         className="h-full w-full"

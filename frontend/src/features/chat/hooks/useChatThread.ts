@@ -12,6 +12,7 @@ const keys = {
     ["chat", "threads", lostPetEventId] as const,
   thread: (threadId: string) => ["chat", "thread", threadId] as const,
   messages: (threadId: string) => ["chat", "messages", threadId] as const,
+  typing: (threadId: string) => ["chat", "typing", threadId] as const,
 };
 
 // ── Hooks ─────────────────────────────────────────────────────────────────────
@@ -70,5 +71,24 @@ export function useSendChatMessage(threadId: string, lostPetEventId: string) {
         queryKey: keys.threads(lostPetEventId),
       });
     },
+  });
+}
+
+/** Polls the typing state of the other participant every 3 s. */
+export function useOtherPartyTyping(threadId: string) {
+  return useQuery({
+    queryKey: keys.typing(threadId),
+    queryFn: () => chatApi.getTypingState(threadId),
+    enabled: !!threadId,
+    refetchInterval: 3_000,
+    staleTime: 0,
+    select: (data) => data.isTyping,
+  });
+}
+
+/** Fires POST typing signal — call on textarea onChange (debounced externally). */
+export function useNotifyTyping(threadId: string) {
+  return useMutation({
+    mutationFn: () => chatApi.notifyTyping(threadId),
   });
 }

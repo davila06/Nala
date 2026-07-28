@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using PawTrack.API.Services;
 using PawTrack.Application.Chat.Commands.OpenChatThread;
 using PawTrack.Application.Chat.Commands.SendChatMessage;
 using PawTrack.Application.Chat.Queries.GetChatMessages;
@@ -18,7 +19,7 @@ namespace PawTrack.API.Controllers;
 [ApiController]
 [Route("api/chat")]
 [Authorize]
-public sealed class ChatController(ISender sender) : ControllerBase
+public sealed class ChatController(ISender sender, ITypingStateService typingState) : ControllerBase
 {
     // ── POST /api/chat/threads — open (or retrieve) a thread ─────────────────
 
@@ -147,6 +148,31 @@ public sealed class ChatController(ISender sender) : ControllerBase
         }
 
         return Ok(result.Value);
+    }
+
+    // ── POST /api/chat/threads/{threadId}/typing ──────────────────────────────
+
+    /// <summary>Signals that the authenticated user is currently typing in this thread.</summary>
+    [HttpPost("threads/{threadId:guid}/typing")]
+    [EnableRateLimiting("chat-message")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public IActionResult NotifyTyping(Guid threadId)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        typingState.SetTyping(threadId, userId);
+        return NoContent();
+    }
+
+    // ── GET /api/chat/threads/{threadId}/typing ───────────────────────────────
+
+    /// <summary>Returns whether the other participant typed in the last 5 seconds.</summary>
+    [HttpGet("threads/{threadId:guid}/typing")]
+    [EnableRateLimiting("chat-message")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public IActionResult GetTypingState(Guid threadId)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        return Ok(new { isTyping = typingState.IsOtherPartyTyping(threadId, userId) });
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
-﻿import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useChatMessages, useSendChatMessage } from "../hooks/useChatThread";
+import { useChatMessages, useSendChatMessage, useOtherPartyTyping, useNotifyTyping } from "../hooks/useChatThread";
 import type { ChatMessage } from "../api/chatApi";
 import { Alert } from "@/shared/ui/Alert";
 import { useHaptic } from "@/shared/hooks/useHaptic";
@@ -124,17 +124,33 @@ export function ChatPanel({
   const [text, setText] = useState("");
   const [sendError, setSendError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { tap, error: hapticError } = useHaptic();
 
   const { data: messages = [], isFetching } = useChatMessages(threadId);
-  const { mutateAsync: sendMessage, isPending } = useSendChatMessage(
-    threadId,
-    lostPetEventId,
-  );
+  const { mutateAsync: sendMessage, isPending } = useSendChatMessage(threadId, lostPetEventId);
+  const { data: otherPartyIsTyping = false } = useOtherPartyTyping(threadId);
+  const { mutate: notifyTyping } = useNotifyTyping(threadId);
+
+  const handleTextChange = useCallback((value: string) => {
+    setText(value);
+    notifyTyping();
+    if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+  }, [notifyTyping]);
 
   // Scroll to bottom when new messages arrive.
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages.length]);
+
+  // Haptic tap when new messages arrive from the other party
+  const prevLengthRef = useRef(0);
+  useEffect(() => {
+    if (messages.length > prevLengthRef.current) {
+      const newest = messages[messages.length - 1];
+      if (newest && !newest.isMine) tap();
+    }
+    prevLengthRef.current = messages.length;
   }, [messages.length]);
 
   const handleSend = async (e: React.FormEvent) => {
@@ -197,7 +213,8 @@ export function ChatPanel({
             />
           ))}
         </AnimatePresence>
-        {isPending && <TypingIndicator />}
+        {/* Show typing indicator: isPending = current user sending; otherPartyIsTyping = real polling */}
+        {(isPending || otherPartyIsTyping) && <TypingIndicator />}
         <div ref={bottomRef} />
       </div>
 
@@ -220,7 +237,7 @@ export function ChatPanel({
       >
         <textarea
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => handleTextChange(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();

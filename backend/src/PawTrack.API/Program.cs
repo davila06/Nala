@@ -49,6 +49,8 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddSingleton(new VisualMatchSettings(
     builder.Configuration["VisualMatch:BaseUrl"] ?? "https://pawtrack.cr"));
+builder.Services.AddSingleton<PawTrack.API.Services.ITypingStateService,
+    PawTrack.API.Services.InMemoryTypingStateService>();
 
 // ── OpenAPI ───────────────────────────────────────────────────────────────────
 builder.Services.AddOpenApi();

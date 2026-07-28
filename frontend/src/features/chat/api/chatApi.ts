@@ -63,4 +63,12 @@ export const chatApi = {
         messageId: string;
       }>(`/chat/threads/${threadId}/messages`, payload)
       .then((r) => r.data),
+
+  notifyTyping: (threadId: string): Promise<void> =>
+    apiClient.post(`/chat/threads/${threadId}/typing`).then(() => undefined),
+
+  getTypingState: (threadId: string): Promise<{ isTyping: boolean }> =>
+    apiClient
+      .get<{ isTyping: boolean }>(`/chat/threads/${threadId}/typing`)
+      .then((r) => r.data),
 };

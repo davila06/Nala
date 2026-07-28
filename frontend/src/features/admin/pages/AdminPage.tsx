@@ -1,6 +1,7 @@
 ﻿import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import { useHaptic } from "@/shared/hooks/useHaptic";
 import {
   usePendingAllies,
   usePendingClinics,
@@ -83,6 +84,7 @@ function AlliesTab() {
   const { data, isLoading, isError } = usePendingAllies();
   const { mutateAsync: review, isPending } = useReviewAlly();
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const { tap, warning } = useHaptic();
 
   if (isLoading) return <Loading />;
   if (isError)
@@ -91,6 +93,7 @@ function AlliesTab() {
     return <Empty msg="No hay solicitudes de aliados pendientes." />;
 
   const handle = async (ally: PendingAllyDto, approve: boolean) => {
+    approve ? tap() : warning();
     setProcessingId(ally.userId);
     try {
       await review({ userId: ally.userId, approve });
@@ -144,6 +147,7 @@ function ClinicsTab() {
   const { data, isLoading, isError } = usePendingClinics();
   const { mutateAsync: review, isPending } = useReviewClinic();
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const { tap, warning } = useHaptic();
 
   if (isLoading) return <Loading />;
   if (isError)
@@ -152,6 +156,7 @@ function ClinicsTab() {
     return <Empty msg="No hay clínicas pendientes de aprobación." />;
 
   const handle = async (clinic: PendingClinicDto, approve: boolean) => {
+    approve ? tap() : warning();
     setProcessingId(clinic.id);
     try {
       await review({ clinicId: clinic.id, approve });

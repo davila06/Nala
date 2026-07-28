@@ -31,6 +31,8 @@ interface MapContainerProps {
   locateTrigger?: number;
   /** Called when GPS resolves or errors — used to reset loading state in the parent */
   onLocated?: () => void;
+  /** When set, flies the map to these coordinates at the given zoom */
+  flyTarget?: { lat: number; lng: number; zoom?: number } | null;
   className?: string;
 }
 
@@ -74,6 +76,15 @@ function BBoxListener({
  * On mount (trigger=0) it auto-locates so nearby pets load immediately.
  * Calls `onLocated` once the GPS resolves or errors (used to reset spinner state).
  */
+function FlyToTarget({ target }: { target: { lat: number; lng: number; zoom?: number } | null | undefined }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!target) return;
+    map.flyTo([target.lat, target.lng], target.zoom ?? 14, { duration: 1.0 });
+  }, [map, target?.lat, target?.lng]);
+  return null;
+}
+
 function LocateUser({
   trigger,
   onLocated,
@@ -109,6 +120,7 @@ export function MapContainer({
   predictions = {},
   locateTrigger = 0,
   onLocated,
+  flyTarget,
   className = "h-[60vh] w-full",
 }: MapContainerProps) {
   // Costa Rica center — used as fallback when GPS is unavailable
@@ -132,6 +144,7 @@ export function MapContainer({
         />
         <BBoxListener onBBoxChange={onBBoxChange} />
         <LocateUser trigger={locateTrigger} onLocated={onLocated} />
+        <FlyToTarget target={flyTarget} />
         {/* Prediction trails rendered beneath markers so markers stay clickable */}
         {Object.entries(predictions).map(([id, prediction]) => (
           <PredictionTrail key={`trail-${id}`} prediction={prediction} />

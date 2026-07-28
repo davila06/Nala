@@ -1,44 +1,44 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 const STEPS = [
   {
-    emoji: '🐾',
-    title: '¡Bienvenido a PawTrack CR!',
-    body: 'Tu plataforma para proteger a tus mascotas y reunirte con ellas si alguna vez se pierden. Solo necesitas 3 pasos para estar listo.',
-    cta: 'Comenzar',
+    emoji: "🐾",
+    title: "¡Bienvenido a PawTrack CR!",
+    body: "Tu plataforma para proteger a tus mascotas y reunirte con ellas si alguna vez se pierden. Solo necesitas 3 pasos para estar listo.",
+    cta: "Comenzar",
   },
   {
-    emoji: '📋',
-    title: 'Registra a tu mascota',
-    body: 'Añade foto, nombre, especie y raza. Con esta información, la IA puede reconocerla visualmente en el mapa de avistamientos.',
-    cta: 'Siguiente',
+    emoji: "📋",
+    title: "Registra a tu mascota",
+    body: "Añade foto, nombre, especie y raza. Con esta información, la IA puede reconocerla visualmente en el mapa de avistamientos.",
+    cta: "Siguiente",
   },
   {
-    emoji: '📲',
-    title: 'Genera su placa QR',
-    body: 'Una vez registrada, genera la placa QR de identidad. Imprímela en un collar o en una etiqueta: cualquier persona que la encuentre puede escanearlo para contactarte.',
-    cta: 'Registrar mi primera mascota',
+    emoji: "📲",
+    title: "Genera su placa QR",
+    body: "Una vez registrada, genera la placa QR de identidad. Imprímela en un collar o en una etiqueta: cualquier persona que la encuentre puede escanearlo para contactarte.",
+    cta: "Registrar mi primera mascota",
     finalAction: true,
   },
-]
+];
 
-const STORAGE_KEY = 'pawtrack_onboarding_done'
+const STORAGE_KEY = "pawtrack_onboarding_done";
 
 interface OnboardingWizardProps {
-  onDismiss?: () => void
+  onDismiss?: () => void;
 }
 
 export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
-  const [step, setStep] = useState(0)
+  const [step, setStep] = useState(0);
 
   const dismiss = () => {
-    localStorage.setItem(STORAGE_KEY, '1')
-    onDismiss?.()
-  }
+    localStorage.setItem(STORAGE_KEY, "1");
+    onDismiss?.();
+  };
 
-  const current = STEPS[step]!
+  const current = STEPS[step]!;
 
   return (
     <div
@@ -61,7 +61,7 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
             <motion.span
               initial={{ scale: 0.6 }}
               animate={{ scale: 1 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
               className="block text-6xl"
               aria-hidden="true"
             >
@@ -72,16 +72,22 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
           {/* Content */}
           <div className="px-6 py-5">
             {/* Step dots */}
-            <div className="mb-4 flex justify-center gap-1.5" aria-label={`Paso ${step + 1} de ${STEPS.length}`}>
+            <div
+              className="mb-4 flex justify-center gap-1.5"
+              aria-label={`Paso ${step + 1} de ${STEPS.length}`}
+            >
               {STEPS.map((_, i) => (
                 <span
                   key={i}
-                  className={`h-2 rounded-full transition-all ${i === step ? 'w-6 bg-brand-500' : 'w-2 bg-sand-200'}`}
+                  className={`h-2 rounded-full transition-all ${i === step ? "w-6 bg-brand-500" : "w-2 bg-sand-200"}`}
                 />
               ))}
             </div>
 
-            <h2 id="onboarding-title" className="mb-2 text-center font-display text-xl font-bold text-sand-900">
+            <h2
+              id="onboarding-title"
+              className="mb-2 text-center font-display text-xl font-bold text-sand-900"
+            >
               {current.title}
             </h2>
             <p className="text-center text-sm leading-relaxed text-sand-600">
@@ -118,9 +124,9 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
         </motion.div>
       </AnimatePresence>
     </div>
-  )
+  );
 }
 
 export function shouldShowOnboarding(): boolean {
-  return !localStorage.getItem(STORAGE_KEY)
+  return !localStorage.getItem(STORAGE_KEY);
 }
