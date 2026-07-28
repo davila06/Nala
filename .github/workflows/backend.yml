@@ -60,6 +60,7 @@ jobs:
           --no-build --configuration Release
           --logger "trx;LogFileName=unit-test-results.xml"
           --collect:"XPlat Code Coverage"
+          --results-directory ./coverage
 
       - name: Run Integration Tests
         env:
@@ -69,6 +70,33 @@ jobs:
           dotnet test backend/tests/PawTrack.IntegrationTests/PawTrack.IntegrationTests.csproj
           --no-build --configuration Release
           --logger "trx;LogFileName=integration-test-results.xml"
+          --collect:"XPlat Code Coverage"
+          --results-directory ./coverage
+
+      - name: Generate Coverage Report
+        run: >
+          dotnet tool install --global dotnet-reportgenerator-globaltool --ignore-failed-sources 2>/dev/null || true;
+          reportgenerator
+          -reports:"coverage/**/coverage.cobertura.xml"
+          -targetdir:"coverage/report"
+          -reporttypes:"Cobertura;TextSummary"
+
+      - name: Enforce Coverage Threshold (70%)
+        run: |
+          COVERAGE=$(grep -oP '(?<=line-rate=")[^"]+' coverage/report/Cobertura.xml | head -1)
+          PCT=$(echo "$COVERAGE * 100" | bc -l | cut -d. -f1)
+          echo "Line coverage: ${PCT}%"
+          if [ "$PCT" -lt 70 ]; then
+            echo "::error::Coverage ${PCT}% is below the 70% threshold."
+            exit 1
+          fi
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/report/
 
       - name: Publish Test Results
         uses: dorny/test-reporter@v1

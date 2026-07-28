@@ -14,7 +14,11 @@ export default function PublicMapPage() {
   const [locating, setLocating] = useState(false);
   const [legendOpen, setLegendOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [flyTarget, setFlyTarget] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
+  const [flyTarget, setFlyTarget] = useState<{
+    lat: number;
+    lng: number;
+    zoom?: number;
+  } | null>(null);
   const { debounce } = useDebouncedBBox(150);
   const { data: events = [], isFetching, isError } = usePublicMapEvents(bbox);
 
@@ -28,15 +32,25 @@ export default function PublicMapPage() {
   const handleSearchChange = (q: string) => {
     setSearchQuery(q);
     const trimmed = q.trim().toLowerCase();
-    if (!trimmed) { setFlyTarget(null); return; }
-    const matches = events.filter((e) => e.petName?.toLowerCase().includes(trimmed));
-    if (matches.length === 1 && matches[0]!.lat != null && matches[0]!.lng != null) {
+    if (!trimmed) {
+      setFlyTarget(null);
+      return;
+    }
+    const matches = events.filter((e) =>
+      e.petName?.toLowerCase().includes(trimmed),
+    );
+    if (
+      matches.length === 1 &&
+      matches[0]!.lat != null &&
+      matches[0]!.lng != null
+    ) {
       setFlyTarget({ lat: matches[0]!.lat, lng: matches[0]!.lng, zoom: 14 });
     }
   };
 
   const lostPetEventIds = useMemo(
-    () => filteredEvents.filter((e) => e.eventType === "LostPet").map((e) => e.id),
+    () =>
+      filteredEvents.filter((e) => e.eventType === "LostPet").map((e) => e.id),
     [filteredEvents],
   );
   const predictions = useMovementPredictions(lostPetEventIds);
@@ -88,7 +102,12 @@ export default function PublicMapPage() {
         </div>
         {/* Search bar */}
         <div className="relative pb-2.5">
-          <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-zinc-400 text-sm" aria-hidden="true">🔍</span>
+          <span
+            className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-zinc-400 text-sm"
+            aria-hidden="true"
+          >
+            🔍
+          </span>
           <input
             type="search"
             placeholder="Buscar mascota por nombre…"
@@ -100,7 +119,10 @@ export default function PublicMapPage() {
           {searchQuery && (
             <button
               type="button"
-              onClick={() => { setSearchQuery(""); setFlyTarget(null); }}
+              onClick={() => {
+                setSearchQuery("");
+                setFlyTarget(null);
+              }}
               className="absolute inset-y-0 right-2 flex items-center px-2 text-zinc-400 hover:text-white"
               aria-label="Limpiar búsqueda"
             >

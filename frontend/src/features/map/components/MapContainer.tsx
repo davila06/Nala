@@ -76,7 +76,11 @@ function BBoxListener({
  * On mount (trigger=0) it auto-locates so nearby pets load immediately.
  * Calls `onLocated` once the GPS resolves or errors (used to reset spinner state).
  */
-function FlyToTarget({ target }: { target: { lat: number; lng: number; zoom?: number } | null | undefined }) {
+function FlyToTarget({
+  target,
+}: {
+  target: { lat: number; lng: number; zoom?: number } | null | undefined;
+}) {
   const map = useMap();
   useEffect(() => {
     if (!target) return;

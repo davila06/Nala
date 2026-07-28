@@ -8,6 +8,7 @@ import { useTrackLocation } from "@/features/locations/hooks/useTrackLocation";
 import { useAlertPreference } from "@/features/locations/hooks/useAlertPreference";
 import { PWAInstallBanner } from "@/shared/ui/PWAInstallBanner";
 import { OfflineIndicator } from "@/shared/ui/OfflineIndicator";
+import { CookieConsentBanner } from "@/shared/ui/CookieConsentBanner";
 import { useAuthInit } from "@/features/auth/hooks/useAuthInit";
 
 function LocationTracker() {
@@ -42,6 +43,7 @@ export default function App() {
       <ReactQueryDevtools initialIsOpen={false} />
       <PWAInstallBanner />
       <OfflineIndicator />
+      <CookieConsentBanner />
     </QueryClientProvider>
   );
 }

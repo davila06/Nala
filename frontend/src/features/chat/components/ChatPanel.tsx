@@ -1,6 +1,11 @@
 ﻿import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useChatMessages, useSendChatMessage, useOtherPartyTyping, useNotifyTyping } from "../hooks/useChatThread";
+import {
+  useChatMessages,
+  useSendChatMessage,
+  useOtherPartyTyping,
+  useNotifyTyping,
+} from "../hooks/useChatThread";
 import type { ChatMessage } from "../api/chatApi";
 import { Alert } from "@/shared/ui/Alert";
 import { useHaptic } from "@/shared/hooks/useHaptic";
@@ -128,15 +133,21 @@ export function ChatPanel({
   const { tap, error: hapticError } = useHaptic();
 
   const { data: messages = [], isFetching } = useChatMessages(threadId);
-  const { mutateAsync: sendMessage, isPending } = useSendChatMessage(threadId, lostPetEventId);
+  const { mutateAsync: sendMessage, isPending } = useSendChatMessage(
+    threadId,
+    lostPetEventId,
+  );
   const { data: otherPartyIsTyping = false } = useOtherPartyTyping(threadId);
   const { mutate: notifyTyping } = useNotifyTyping(threadId);
 
-  const handleTextChange = useCallback((value: string) => {
-    setText(value);
-    notifyTyping();
-    if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
-  }, [notifyTyping]);
+  const handleTextChange = useCallback(
+    (value: string) => {
+      setText(value);
+      notifyTyping();
+      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+    },
+    [notifyTyping],
+  );
 
   // Scroll to bottom when new messages arrive.
   useEffect(() => {

@@ -14,6 +14,9 @@ param frontendUrl string = 'https://pawtrack.azurestaticapps.net'
 @description('Email para recibir alertas de Azure Monitor')
 param alertEmailAddress string
 
+@description('Presupuesto mensual en USD para alertas de costo')
+param monthlyBudgetUsd int = 150
+
 // ── Nombres de recursos ────────────────────────────────────────────────────────
 var resourcePrefix = '${appName}-${environment}'
 var keyVaultName = '${appName}-kv-${environment}'
@@ -209,8 +212,10 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
         }
       ]
       scale: {
-        minReplicas: 0
-        maxReplicas: 3
+        // Keep at least 1 replica in prod to eliminate cold-start latency
+        // (QR scans must respond instantly). In non-prod, scale-to-zero saves cost.
+        minReplicas: environment == 'prod' ? 1 : 0
+        maxReplicas: environment == 'prod' ? 10 : 3
       }
     }
   }
@@ -378,6 +383,80 @@ resource availabilityAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
   }
 }
 
+// ── App Insights: Alert — Auth failures spike (JWT rejections) ────────────────
+// Spikes in 401 responses may indicate credential stuffing or token replay attacks.
+resource alertAuthFailures 'Microsoft.Insights/metricAlerts@2018-03-01' = {
+  name: '${resourcePrefix}-alert-auth-failures'
+  location: 'global'
+  properties: {
+    description: 'Auth failures (HTTP 401) exceeded 20 in 5 minutes — possible credential attack'
+    severity: 2
+    enabled: true
+    scopes: [appInsights.id]
+    evaluationFrequency: 'PT1M'
+    windowSize: 'PT5M'
+    criteria: {
+      'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+      allOf: [
+        {
+          name: 'AuthFailures'
+          metricName: 'requests/failed'
+          operator: 'GreaterThan'
+          threshold: 20
+          timeAggregation: 'Count'
+          criterionType: 'StaticThresholdCriterion'
+          dimensions: [
+            {
+              name: 'request/resultCode'
+              operator: 'Include'
+              values: ['401']
+            }
+          ]
+        }
+      ]
+    }
+    actions: [{ actionGroupId: alertActionGroup.id }]
+    autoMitigate: true
+  }
+}
+
+// ── App Insights: Alert — HTTP 429 (Rate limit exhaustion) ───────────────────
+// Sustained 429s can mean a legitimate user is being blocked or a bot attack.
+resource alertRateLimit 'Microsoft.Insights/metricAlerts@2018-03-01' = {
+  name: '${resourcePrefix}-alert-rate-limit'
+  location: 'global'
+  properties: {
+    description: 'Rate limit responses (HTTP 429) exceeded 50 in 5 minutes'
+    severity: 2
+    enabled: true
+    scopes: [appInsights.id]
+    evaluationFrequency: 'PT1M'
+    windowSize: 'PT5M'
+    criteria: {
+      'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+      allOf: [
+        {
+          name: 'RateLimitHits'
+          metricName: 'requests/failed'
+          operator: 'GreaterThan'
+          threshold: 50
+          timeAggregation: 'Count'
+          criterionType: 'StaticThresholdCriterion'
+          dimensions: [
+            {
+              name: 'request/resultCode'
+              operator: 'Include'
+              values: ['429']
+            }
+          ]
+        }
+      ]
+    }
+    actions: [{ actionGroupId: alertActionGroup.id }]
+    autoMitigate: true
+  }
+}
+
 // ── Azure Static Web Apps (Frontend) ─────────────────────────────────────────
 // Crea el recurso del frontend. El primer build del dist/ se hace con az staticwebapp deploy.
 // El deployment token se recupera después con: az staticwebapp secrets list
@@ -393,7 +472,65 @@ resource staticWebApp 'Microsoft.Web/staticSites@2023-12-01' = {
     allowConfigFileUpdates: true
   }
 }
+// ── Cost Budget Alert ───────────────────────────────────────────────────────────────────
+resource budget 'Microsoft.Consumption/budgets@2023-11-01' = {
+  name: '${resourcePrefix}-monthly-budget'
+  properties: {
+    category: 'Cost'
+    amount: monthlyBudgetUsd
+    timeGrain: 'Monthly'
+    timePeriod: {
+      startDate: '2026-01-01'
+    }
+    notifications: {
+      actual80: {
+        enabled: true
+        operator: 'GreaterThan'
+        threshold: 80
+        contactEmails: [alertEmailAddress]
+        thresholdType: 'Actual'
+      }
+      forecast100: {
+        enabled: true
+        operator: 'GreaterThan'
+        threshold: 100
+        contactEmails: [alertEmailAddress]
+        thresholdType: 'Forecasted'
+      }
+    }
+  }
+}
 
+// ── WAF Policy (Azure-managed rule set for Container App / SWA) ─────────────────
+resource wafPolicy 'Microsoft.Network/FrontDoorWebApplicationFirewallPolicies@2022-05-01' = if (environment == 'prod') {
+  name: '${replace(resourcePrefix, '-', '')}waf'
+  location: 'global'
+  sku: {
+    name: 'Classic_AzureFrontDoor'
+  }
+  properties: {
+    policySettings: {
+      enabledState: 'Enabled'
+      mode: 'Prevention'
+      redirectUrl: 'https://pawtrack.cr'
+      customBlockResponseStatusCode: 403
+    }
+    managedRules: {
+      managedRuleSets: [
+        {
+          ruleSetType: 'Microsoft_DefaultRuleSet'
+          ruleSetVersion: '2.1'
+          ruleSetAction: 'Block'
+        }
+        {
+          ruleSetType: 'Microsoft_BotManagerRuleSet'
+          ruleSetVersion: '1.1'
+          ruleSetAction: 'Block'
+        }
+      ]
+    }
+  }
+}
 // ── Outputs ───────────────────────────────────────────────────────────────────
 output appServiceUrl string = 'https://${containerApp.properties.configuration.ingress.fqdn}'
 output containerAppName string = containerApp.name

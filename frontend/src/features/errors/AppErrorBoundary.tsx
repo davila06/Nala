@@ -1,5 +1,6 @@
 ﻿import { Component, type ErrorInfo, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { trackException } from '@/shared/lib/telemetry'
 
 interface Props {
   children?: ReactNode
@@ -24,8 +25,10 @@ export default class AppErrorBoundary extends Component<Props, State> {
   }
 
   override componentDidCatch(error: Error, info: ErrorInfo) {
-    // In production this would pipe to Application Insights / Sentry.
-    console.error('[AppErrorBoundary]', error, info.componentStack)
+    trackException(error, {
+      componentStack: info.componentStack ?? undefined,
+      source: 'AppErrorBoundary',
+    })
   }
 
   override render() {

@@ -21,7 +21,12 @@ public sealed class CorrelationIdMiddleware(RequestDelegate next)
         context.Items[HeaderName] = correlationId;
         context.Response.Headers[HeaderName] = correlationId;
 
-        await next(context);
+        // Push correlationId into the log scope so EVERY log line for this
+        // request automatically carries it in Application Insights / Log Analytics.
+        using (Serilog.Context.LogContext.PushProperty("CorrelationId", correlationId))
+        {
+            await next(context);
+        }
     }
 
     private static string ResolveCorrelationId(HttpContext context)

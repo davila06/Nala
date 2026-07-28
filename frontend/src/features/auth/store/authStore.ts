@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { UserRole } from "../api/authApi";
+import { setAuthenticatedUser, clearAuthenticatedUser } from "@/shared/lib/telemetry";
 
 export interface AuthUser {
   id: string;
@@ -27,14 +28,18 @@ export const useAuthStore = create<AuthState>((set) => ({
   isInitializing: true,
   user: null,
   accessToken: null,
-  setAuth: (user, accessToken) =>
-    set({ isAuthenticated: true, isInitializing: false, user, accessToken }),
-  clearAuth: () =>
+  setAuth: (user, accessToken) => {
+    setAuthenticatedUser(user.id);
+    set({ isAuthenticated: true, isInitializing: false, user, accessToken });
+  },
+  clearAuth: () => {
+    clearAuthenticatedUser();
     set({
       isAuthenticated: false,
       isInitializing: false,
       user: null,
       accessToken: null,
-    }),
+    });
+  },
   setInitialized: () => set({ isInitializing: false }),
 }));

@@ -1,0 +1,61 @@
+version: 2
+updates:
+  # ── npm (frontend) ────────────────────────────────────────────────────────
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: America/Costa_Rica
+    open-pull-requests-limit: 10
+    groups:
+      react-ecosystem:
+        patterns: ["react*", "@types/react*", "react-dom*"]
+      vite-tooling:
+        patterns: ["vite*", "@vitejs/*", "typescript*"]
+      testing:
+        patterns: ["vitest*", "@testing-library/*", "msw*"]
+    labels:
+      - "dependencies"
+      - "frontend"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # ── NuGet (backend) ───────────────────────────────────────────────────────
+  - package-ecosystem: nuget
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: America/Costa_Rica
+    open-pull-requests-limit: 10
+    groups:
+      aspnetcore:
+        patterns: ["Microsoft.AspNetCore.*", "Microsoft.Extensions.*"]
+      efcore:
+        patterns: ["Microsoft.EntityFrameworkCore.*"]
+      azure-sdk:
+        patterns: ["Azure.*"]
+      testing:
+        patterns: ["xunit*", "FluentAssertions*", "Moq*", "NSubstitute*"]
+    labels:
+      - "dependencies"
+      - "backend"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # ── GitHub Actions ────────────────────────────────────────────────────────
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: America/Costa_Rica
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "chore(ci)"

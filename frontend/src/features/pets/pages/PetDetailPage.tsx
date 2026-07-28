@@ -122,10 +122,14 @@ export default function PetDetailPage() {
     : "0 escaneos hoy";
 
   const TABS: TabItem[] = [
-    { id: "info",          label: "Info",           icon: "📋" },
-    { id: "reportes",      label: "Reportes",       icon: pet.status === "Lost" ? "🚨" : "📝" },
-    { id: "qr",            label: "QR",             icon: "🏷️" },
-    { id: "avistamientos", label: "Avistamientos",  icon: "📍" },
+    { id: "info", label: "Info", icon: "📋" },
+    {
+      id: "reportes",
+      label: "Reportes",
+      icon: pet.status === "Lost" ? "🚨" : "📝",
+    },
+    { id: "qr", label: "QR", icon: "🏷️" },
+    { id: "avistamientos", label: "Avistamientos", icon: "📍" },
   ];
 
   return (
@@ -159,7 +163,9 @@ export default function PetDetailPage() {
 
       {/* Name row */}
       <div className="mb-1 flex items-center justify-between gap-2">
-        <h1 className="text-2xl font-display font-semibold text-sand-900">{pet.name}</h1>
+        <h1 className="text-2xl font-display font-semibold text-sand-900">
+          {pet.name}
+        </h1>
         <PetStatusBadge status={pet.status} />
       </div>
       <p className="mb-4 inline-flex rounded-full bg-trust-50 px-3 py-1 text-xs font-semibold text-trust-700">
@@ -183,7 +189,13 @@ export default function PetDetailPage() {
             <div>
               <dt className="text-sand-400">Especie</dt>
               <dd className="font-medium text-sand-800">
-                {{ Dog: "Perro", Cat: "Gato", Bird: "Ave", Rabbit: "Conejo", Other: "Otra" }[pet.species] ?? pet.species}
+                {{
+                  Dog: "Perro",
+                  Cat: "Gato",
+                  Bird: "Ave",
+                  Rabbit: "Conejo",
+                  Other: "Otra",
+                }[pet.species] ?? pet.species}
               </dd>
             </div>
             {pet.breed && (
@@ -200,7 +212,9 @@ export default function PetDetailPage() {
             )}
             <div>
               <dt className="text-sand-400">Registrada</dt>
-              <dd className="font-medium text-sand-800">{formatDate(pet.createdAt)}</dd>
+              <dd className="font-medium text-sand-800">
+                {formatDate(pet.createdAt)}
+              </dd>
             </div>
           </dl>
 
@@ -214,7 +228,9 @@ export default function PetDetailPage() {
             </Link>
             {confirmDelete ? (
               <div className="flex flex-1 items-center gap-2 rounded-xl border border-danger-200 bg-danger-50 px-3 py-2">
-                <span className="flex-1 text-xs font-semibold text-danger-700">¿Eliminar a {pet.name}?</span>
+                <span className="flex-1 text-xs font-semibold text-danger-700">
+                  ¿Eliminar a {pet.name}?
+                </span>
                 <button
                   type="button"
                   onClick={() => void handleDelete()}
@@ -253,7 +269,12 @@ export default function PetDetailPage() {
             <LostPetBanner petName={pet.name} className="mb-0" />
           )}
           {pet.status === "Lost" && (
-            <SharePetButton petId={pet.id} petName={pet.name} variant="primary" className="" />
+            <SharePetButton
+              petId={pet.id}
+              petName={pet.name}
+              variant="primary"
+              className=""
+            />
           )}
           {pet.status === "Lost" && (
             <div className="rounded-2xl border border-rescue-200 bg-rescue-50 p-4">
@@ -263,10 +284,17 @@ export default function PetDetailPage() {
                 disabled={avatarLoading}
                 className="w-full rounded-xl bg-rescue-600 py-3 text-sm font-semibold text-white hover:bg-rescue-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-400"
               >
-                {avatarLoading ? "Generando avatar…" : <><span aria-hidden="true">📱</span> Avatar para WhatsApp</>}
+                {avatarLoading ? (
+                  "Generando avatar…"
+                ) : (
+                  <>
+                    <span aria-hidden="true">📱</span> Avatar para WhatsApp
+                  </>
+                )}
               </button>
               <p className="mt-2 text-xs text-rescue-800">
-                Usa esta imagen como foto de perfil en WhatsApp para que tus contactos puedan escanear el QR.
+                Usa esta imagen como foto de perfil en WhatsApp para que tus
+                contactos puedan escanear el QR.
               </p>
             </div>
           )}
@@ -279,26 +307,41 @@ export default function PetDetailPage() {
             />
           )}
           {activeReport && pet.status === "Lost" && (
-            <SearchChecklist lostEventId={activeReport.id} petName={pet.name} className="" />
+            <SearchChecklist
+              lostEventId={activeReport.id}
+              petName={pet.name}
+              className=""
+            />
           )}
           {pet.status === "Active" && (
             <Link
               to={`/pets/${pet.id}/report-lost`}
               className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl py-4 text-sm font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger-400 focus-visible:ring-offset-2"
               style={{
-                background: "linear-gradient(180deg, #f87171 0%, #dc2626 45%, #b91c1c 100%)",
-                boxShadow: "0 6px 0 #7f1d1d, 0 8px 16px rgba(185,28,28,0.45), inset 0 1px 0 rgba(255,255,255,0.25)",
+                background:
+                  "linear-gradient(180deg, #f87171 0%, #dc2626 45%, #b91c1c 100%)",
+                boxShadow:
+                  "0 6px 0 #7f1d1d, 0 8px 16px rgba(185,28,28,0.45), inset 0 1px 0 rgba(255,255,255,0.25)",
               }}
             >
               <span className="pointer-events-none absolute inset-0 -translate-x-full skew-x-[-20deg] bg-white/15 transition-transform duration-700 group-hover:translate-x-[200%]" />
-              <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5 shrink-0" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="h-5 w-5 shrink-0"
+                aria-hidden="true"
+              >
                 <path d="M12 2a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1ZM4.22 4.22a1 1 0 0 1 1.42 0l.7.7a1 1 0 0 1-1.42 1.42l-.7-.7a1 1 0 0 1 0-1.42ZM18.36 4.22a1 1 0 0 1 1.42 1.42l-.7.7a1 1 0 0 1-1.42-1.42l.7-.7ZM12 6a6 6 0 0 1 6 6v2H6V12a6 6 0 0 1 6-6ZM4 16h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2ZM7 19h10l-1 3H8l-1-3Z" />
               </svg>
-              <span className="tracking-wide drop-shadow-sm">🚨 Reportar a {pet.name} como perdido</span>
+              <span className="tracking-wide drop-shadow-sm">
+                🚨 Reportar a {pet.name} como perdido
+              </span>
             </Link>
           )}
           {!activeReport && pet.status !== "Active" && (
-            <p className="py-4 text-center text-sm text-sand-400">No hay reportes activos para {pet.name}.</p>
+            <p className="py-4 text-center text-sm text-sand-400">
+              No hay reportes activos para {pet.name}.
+            </p>
           )}
         </div>
       )}
@@ -320,17 +363,28 @@ export default function PetDetailPage() {
 
           {/* Scan history */}
           <div className="rounded-2xl border border-sand-200 field-input p-4">
-            <p className="mb-3 text-sm font-semibold text-sand-800">Historial de escaneos</p>
+            <p className="mb-3 text-sm font-semibold text-sand-800">
+              Historial de escaneos
+            </p>
             {scanHistory && scanHistory.events.length > 0 ? (
               <>
                 <ul className="space-y-2">
                   {scanHistory.events.map((event) => {
-                    const location = [event.cityName, event.countryCode].filter(Boolean).join(", ") || "Ubicación desconocida";
+                    const location =
+                      [event.cityName, event.countryCode]
+                        .filter(Boolean)
+                        .join(", ") || "Ubicación desconocida";
                     return (
-                      <li key={`${event.scannedAt}-${event.deviceSummary}`} className="rounded-xl border border-sand-100 bg-sand-50 p-3">
-                        <p className="text-sm font-medium text-sand-800">📍 {location}</p>
+                      <li
+                        key={`${event.scannedAt}-${event.deviceSummary}`}
+                        className="rounded-xl border border-sand-100 bg-sand-50 p-3"
+                      >
+                        <p className="text-sm font-medium text-sand-800">
+                          📍 {location}
+                        </p>
                         <p className="text-xs text-sand-500">
-                          {formatDateTime(event.scannedAt)} · {event.deviceSummary}
+                          {formatDateTime(event.scannedAt)} ·{" "}
+                          {event.deviceSummary}
                         </p>
                       </li>
                     );
@@ -345,16 +399,16 @@ export default function PetDetailPage() {
                 </button>
               </>
             ) : (
-              <p className="text-xs text-sand-500">Todavía no hay escaneos registrados para este QR.</p>
+              <p className="text-xs text-sand-500">
+                Todavía no hay escaneos registrados para este QR.
+              </p>
             )}
           </div>
         </div>
       )}
 
       {/* ── Avistamientos tab ────────────────────────────────────────── */}
-      {activeTab === "avistamientos" && (
-        <SightingList petId={pet.id} />
-      )}
+      {activeTab === "avistamientos" && <SightingList petId={pet.id} />}
     </main>
   );
 }

@@ -33,8 +33,8 @@ public sealed class InMemoryTypingStateService : ITypingStateService
         foreach (var kv in _state)
         {
             if (kv.Key.ThreadId == threadId &&
-                kv.Key.UserId  != currentUserId &&
-                kv.Value        > cutoff)
+                kv.Key.UserId != currentUserId &&
+                kv.Value > cutoff)
             {
                 return true;
             }

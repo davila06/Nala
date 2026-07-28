@@ -5,9 +5,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Events;
 using System.Globalization;
+using System.IO.Compression;
 using System.Net;  // IPAddress
 using System.Text;
 using System.Text.Json;
@@ -18,11 +22,37 @@ using PawTrack.Infrastructure;
 using PawTrack.API.Middleware;
 using HO = Microsoft.AspNetCore.HttpOverrides;
 
+// ── Serilog bootstrap logger (captures startup errors before full config) ─────
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .WriteTo.Console(outputTemplate:
+        "[{Timestamp:HH:mm:ss} {Level:u3}] {CorrelationId} {Message:lj}{NewLine}{Exception}")
+    .CreateBootstrapLogger();
+
 // Force invariant culture so decimal separators (.) work regardless of OS locale
 CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ── Serilog full configuration ────────────────────────────────────────────────
+builder.Host.UseSerilog((ctx, services, config) =>
+{
+    config
+        .ReadFrom.Configuration(ctx.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .Enrich.WithMachineName()
+        .Enrich.WithEnvironmentName()
+        .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
+        .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+        .WriteTo.Console(outputTemplate:
+            "[{Timestamp:HH:mm:ss} {Level:u3}] {CorrelationId} {Message:lj}{NewLine}{Exception}")
+        .WriteTo.ApplicationInsights(
+            services.GetRequiredService<Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration>(),
+            TelemetryConverter.Traces);
+});
 
 // ── Global request body size limit ────────────────────────────────────────────
 // Kestrel's default is 30 MB — far too large for a JSON API.
@@ -386,6 +416,23 @@ builder.Services.AddControllers()
     });
 builder.Services.AddResponseCaching();
 
+// ── Response Compression (Brotli preferred, Gzip fallback) ───────────────────
+// Reduces JSON payload size by 60-80% for API responses over HTTPS.
+// Enabled for all text/json, application/json, and application/problem+json.
+builder.Services.AddResponseCompression(opts =>
+{
+    opts.EnableForHttps = true; // safe: TLS mitigates BREACH when response varies per user
+    opts.Providers.Add<BrotliCompressionProvider>();
+    opts.Providers.Add<GzipCompressionProvider>();
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat([
+        "application/json",
+        "application/problem+json",
+        "text/plain",
+    ]);
+});
+builder.Services.Configure<BrotliCompressionProviderOptions>(o => o.Level = CompressionLevel.Fastest);
+builder.Services.Configure<GzipCompressionProviderOptions>(o => o.Level = CompressionLevel.Fastest);
+
 // ── SignalR ───────────────────────────────────────────────────────────────────
 builder.Services.AddSignalR(options =>
 {
@@ -422,6 +469,13 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Local"))
 // ── Trusted-proxy unwrapping — MUST come before any middleware that reads IP ──
 app.UseForwardedHeaders();
 
+// ── HSTS — redirect HTTP → HTTPS and pin for 1 year (prod only) ─────────────
+if (!app.Environment.IsDevelopment() && !app.Environment.IsEnvironment("Local"))
+{
+    app.UseHsts();
+}
+
+app.UseResponseCompression();
 app.UseHttpsRedirection();
 app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseMiddleware<CorrelationIdMiddleware>();
