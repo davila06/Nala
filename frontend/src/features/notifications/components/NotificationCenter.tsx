@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useMarkAllRead, useNotifications, useRespondResolveCheck } from '../hooks/useNotifications'
@@ -6,7 +6,20 @@ import { NotificationItemCard } from './NotificationItem'
 import { NotificationPreferencesToggle } from './NotificationPreferencesToggle'
 import { usePushSubscription } from '../hooks/usePushSubscription'
 import { EmptyState } from '@/shared/ui/Card'
-import type { NotificationItem } from '../api/notificationsApi'
+import type { NotificationItem, NotificationType } from '../api/notificationsApi'
+
+type FilterTab = 'all' | 'chats' | 'alerts' | 'sightings'
+
+const CHAT_TYPES: NotificationType[] = ['ChatMessage']
+const ALERT_TYPES: NotificationType[] = ['LostPetAlert', 'FraudAlert', 'VerifiedAllyAlert', 'StaleReportReminder', 'ResolveCheck', 'CustodyStarted', 'CustodyClosed']
+const SIGHTING_TYPES: NotificationType[] = ['SightingAlert', 'FoundPetMatch', 'PetReunited']
+
+const FILTER_TABS: { key: FilterTab; label: string }[] = [
+  { key: 'all', label: 'Todos' },
+  { key: 'chats', label: '💬 Chats' },
+  { key: 'alerts', label: '🚨 Alertas' },
+  { key: 'sightings', label: '📍 Avistamientos' },
+]
 
 // ── Date label helper ─────────────────────────────────────────────────────────
 function dateLabel(dateStr: string): string {
@@ -29,6 +42,7 @@ export function NotificationCenter() {
 
   const unreadCount = data?.totalCount ?? 0
   const resolveCheckNotificationId = searchParams.get('resolveCheckNotificationId')
+  const [activeTab, setActiveTab] = useState<FilterTab>('all')
 
   const closeResolveSheet = () => {
     const next = new URLSearchParams(searchParams)
@@ -50,15 +64,21 @@ export function NotificationCenter() {
 
   const groups = useMemo(() => {
     if (!data?.items.length) return []
+    const filtered = data.items.filter((item) => {
+      if (activeTab === 'chats') return CHAT_TYPES.includes(item.type)
+      if (activeTab === 'alerts') return ALERT_TYPES.includes(item.type)
+      if (activeTab === 'sightings') return SIGHTING_TYPES.includes(item.type)
+      return true
+    })
     const map = new Map<string, NotificationItem[]>()
-    for (const item of data.items) {
+    for (const item of filtered) {
       const label = dateLabel(item.createdAt)
       const arr = map.get(label) ?? []
       arr.push(item)
       map.set(label, arr)
     }
     return Array.from(map.entries())
-  }, [data?.items])
+  }, [data?.items, activeTab])
 
   return (
     <div className="mx-auto max-w-lg px-4 py-6">
@@ -92,6 +112,27 @@ export function NotificationCenter() {
             Marcar todo leído
           </button>
         )}
+      </div>
+
+      {/* Filter tabs */}
+      <div className="mb-4 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Filtrar notificaciones">
+        {FILTER_TABS.map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={[
+              'flex-shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400',
+              activeTab === tab.key
+                ? 'bg-brand-500 text-white shadow-sm'
+                : 'bg-sand-100 text-sand-600 hover:bg-sand-200',
+            ].join(' ')}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {isLoading && (

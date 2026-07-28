@@ -110,8 +110,8 @@ export function HolographicPetCard({ pet, index = 0 }: HolographicPetCardProps) 
   return (
     <Link
       ref={cardRef}
-      to={`/pets/${pet.id}`}
-      aria-label={`Ver detalles de ${pet.name}`}
+      to={isLost && pet.activeLostEventId ? `/lost/${pet.activeLostEventId}/case` : `/pets/${pet.id}`}
+      aria-label={isLost ? `Ver sala de búsqueda de ${pet.name}` : `Ver detalles de ${pet.name}`}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
@@ -121,14 +121,23 @@ export function HolographicPetCard({ pet, index = 0 }: HolographicPetCardProps) 
         willChange: 'transform',
       }}
       className={[
-        'holo-card group relative flex flex-col overflow-hidden rounded-2xl border bg-white',
+        'holo-card group relative flex flex-col overflow-hidden rounded-2xl border',
         'focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none',
         'stagger-in',
         isLost
-          ? 'border-danger-300 shadow-danger-100 shadow-lg'
-          : 'border-sand-200 shadow-sm',
+          ? 'border-danger-400 shadow-danger-200 shadow-lg ring-2 ring-danger-400/50'
+          : 'border-sand-200 shadow-sm bg-white',
       ].join(' ')}
     >
+      {/* Animated danger ring when lost */}
+      {isLost && (
+        <span
+          className="pointer-events-none absolute inset-0 rounded-2xl ring-2 ring-danger-500/60"
+          style={{ animation: 'pulse-soft 1.5s ease-in-out infinite' }}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Photo */}
       <div className="relative h-44 overflow-hidden bg-sand-100">
         {pet.photoUrl ? (
@@ -150,7 +159,7 @@ export function HolographicPetCard({ pet, index = 0 }: HolographicPetCardProps) 
             <div className="absolute inset-0 bg-danger-600/10" />
             <div className="absolute inset-x-0 top-0 flex items-center justify-center gap-1.5 bg-danger-600/90 py-1.5 text-xs font-bold uppercase tracking-widest text-white">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-white" style={{ animation: 'pulse-soft 0.8s ease infinite' }} />
-              Perdida
+              🚨 Perdida · Ver búsqueda
             </div>
           </>
         )}

@@ -1,5 +1,6 @@
 ﻿import { useState, useCallback } from 'react'
 import confetti from 'canvas-confetti'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useUpdateLostPetStatus } from '../hooks/useLostPets'
 
 interface ReuniteButtonProps {
@@ -44,56 +45,121 @@ function fireCelebration() {
 
 export function ReuniteButton({ lostEventId, petId, petName, onSuccess }: ReuniteButtonProps) {
   const [confirming, setConfirming] = useState(false)
+  const [celebrating, setCelebrating] = useState(false)
   const mutation = useUpdateLostPetStatus(lostEventId, petId)
 
   const handleReunite = useCallback(async () => {
     await mutation.mutateAsync('Reunited')
     setConfirming(false)
+    setCelebrating(true)
     fireCelebration()
-    setTimeout(() => onSuccess?.(), 800)
+    // Keep celebration screen for 3.5 s then call onSuccess
+    setTimeout(() => {
+      setCelebrating(false)
+      onSuccess?.()
+    }, 3500)
   }, [mutation, onSuccess])
 
-  if (!confirming) {
-    return (
-      <button
-        type="button"
-        onClick={() => setConfirming(true)}
-        className="group relative w-full overflow-hidden rounded-2xl bg-rescue-500 py-3.5 text-sm font-bold text-white shadow-md shadow-rescue-200 transition-all hover:-translate-y-0.5 hover:bg-rescue-600 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-400"
-      >
-        <span className="pointer-events-none absolute inset-0 translate-x-[-120%] skew-x-[-20deg] bg-white/20 group-hover:translate-x-[220%] transition-transform duration-700" aria-hidden="true" />
-        <span aria-hidden="true">🎉</span> ¡{petName} fue encontrado!
-      </button>
-    )
-  }
-
   return (
-    <div className="rounded-2xl border-2 border-rescue-300 bg-gradient-to-br from-rescue-50 to-white p-5 shadow-inner">
-      <div className="mb-3 flex justify-center text-4xl" aria-hidden="true">🐾</div>
-      <p className="mb-1 text-center font-display text-lg font-semibold text-rescue-900">
-        ¿Fue encontrado?
-      </p>
-      <p className="mb-4 text-center text-sm text-rescue-700">
-        Confirma que <strong>{petName}</strong> fue reunificado con su familia.
-      </p>
-      <div className="flex gap-2">
+    <>
+      {/* ── Full-screen celebration overlay ─────────────────────────── */}
+      <AnimatePresence>
+        {celebrating && (
+          <motion.div
+            key="celebration"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-br from-rescue-600 to-rescue-800 px-8 text-center"
+            role="status"
+            aria-live="polite"
+          >
+            <motion.div
+              initial={{ scale: 0.5, rotate: -10 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+              className="mb-6 text-8xl"
+              aria-hidden="true"
+            >
+              🐾
+            </motion.div>
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
+              className="font-display text-4xl font-black text-white drop-shadow-lg"
+            >
+              ¡{petName} fue encontrado!
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.35 }}
+              className="mt-3 text-lg text-rescue-200 font-medium"
+            >
+              Gracias a todos los que ayudaron 💚
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="mt-6 flex gap-3 text-3xl"
+              aria-hidden="true"
+            >
+              {['🎉', '🏠', '🐶', '❤️', '🎊'].map((e, i) => (
+                <motion.span
+                  key={i}
+                  animate={{ y: [0, -12, 0] }}
+                  transition={{ delay: i * 0.15, repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
+                >
+                  {e}
+                </motion.span>
+              ))}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Button states ──────────────────────────────────────────────── */}
+      {!confirming ? (
         <button
           type="button"
-          onClick={() => setConfirming(false)}
-          disabled={mutation.isPending}
-          className="flex-1 rounded-xl border border-sand-300 py-2.5 text-sm font-semibold text-sand-700 hover:bg-sand-50 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400"
+          onClick={() => setConfirming(true)}
+          className="group relative w-full overflow-hidden rounded-2xl bg-rescue-500 py-3.5 text-sm font-bold text-white shadow-md shadow-rescue-200 transition-all hover:-translate-y-0.5 hover:bg-rescue-600 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-400"
         >
-          Cancelar
+          <span className="pointer-events-none absolute inset-0 translate-x-[-120%] skew-x-[-20deg] bg-white/20 group-hover:translate-x-[220%] transition-transform duration-700" aria-hidden="true" />
+          <span aria-hidden="true">🎉</span> ¡{petName} fue encontrado!
         </button>
-        <button
-          type="button"
-          onClick={() => void handleReunite()}
-          disabled={mutation.isPending}
-          className="flex-1 rounded-xl bg-rescue-600 py-2.5 text-sm font-semibold text-white hover:bg-rescue-700 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-400"
-        >
-          {mutation.isPending ? 'Guardando…' : 'Sí, fue reunido 🎉'}
-        </button>
-      </div>
-    </div>
+      ) : (
+        <div className="rounded-2xl border-2 border-rescue-300 bg-gradient-to-br from-rescue-50 to-white p-5 shadow-inner">
+          <div className="mb-3 flex justify-center text-4xl" aria-hidden="true">🐾</div>
+          <p className="mb-1 text-center font-display text-lg font-semibold text-rescue-900">
+            ¿Fue encontrado?
+          </p>
+          <p className="mb-4 text-center text-sm text-rescue-700">
+            Confirma que <strong>{petName}</strong> fue reunificado con su familia.
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setConfirming(false)}
+              disabled={mutation.isPending}
+              className="flex-1 rounded-xl border border-sand-300 py-2.5 text-sm font-semibold text-sand-700 hover:bg-sand-50 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleReunite()}
+              disabled={mutation.isPending}
+              className="flex-1 rounded-xl bg-rescue-600 py-2.5 text-sm font-semibold text-white hover:bg-rescue-700 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-400"
+            >
+              {mutation.isPending ? 'Guardando…' : 'Sí, fue reunido 🎉'}
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
-

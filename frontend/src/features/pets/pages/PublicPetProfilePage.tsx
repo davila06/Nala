@@ -144,6 +144,7 @@ export default function PublicPetProfilePage() {
   const navigate = useNavigate();
   const { data: pet, isLoading, isError } = usePublicPetProfile(id ?? "");
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const currentUserId = useAuthStore((s) => s.user?.id);
 
   const [revealPhone, setRevealPhone] = useState(false);
   const { data: contact, isLoading: contactLoading } = useGetLostPetContact(
@@ -199,6 +200,7 @@ export default function PublicPetProfilePage() {
   }
 
   const isLost = pet.status === "Lost";
+  const isOwner = isAuthenticated && currentUserId === pet.ownerId;
   const speciesLabel = SPECIES_LABEL[pet.species] ?? pet.species;
   const pageTitle = isLost
     ? `¡${pet.name} está perdido/a! — PawTrack CR`
@@ -273,23 +275,35 @@ export default function PublicPetProfilePage() {
           </Suspense>
         </div>
 
-        {/* Primary CTA: Report sighting */}
-        <Link
-          to={`/p/${pet.id}/report-sighting`}
-          className={[
-            "mb-3 flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-base font-bold text-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-            isLost
-              ? "bg-danger-500 hover:bg-danger-600 focus-visible:ring-danger-400 shadow-danger-200"
-              : "bg-brand-500 hover:bg-brand-600 focus-visible:ring-brand-400",
-          ].join(" ")}
-        >
-          <span aria-hidden="true" className="text-xl">
-            🐾
-          </span>
-          {isLost
-            ? "Vi a esta mascota — Reportar avistamiento"
-            : "Reportar avistamiento"}
-        </Link>
+        {/* Primary CTA: Report sighting (hidden for the pet's owner) */}
+        {!isOwner && (
+          <Link
+            to={`/p/${pet.id}/report-sighting`}
+            className={[
+              "mb-3 flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-base font-bold text-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+              isLost
+                ? "bg-danger-500 hover:bg-danger-600 focus-visible:ring-danger-400 shadow-danger-200"
+                : "bg-brand-500 hover:bg-brand-600 focus-visible:ring-brand-400",
+            ].join(" ")}
+          >
+            <span aria-hidden="true" className="text-xl">
+              🐾
+            </span>
+            {isLost
+              ? "Vi a esta mascota — Reportar avistamiento"
+              : "Reportar avistamiento"}
+          </Link>
+        )}
+
+        {/* Owner shortcut */}
+        {isOwner && (
+          <Link
+            to={`/pets/${pet.id}`}
+            className="mb-3 flex w-full items-center justify-center gap-2.5 rounded-2xl border-2 border-brand-400 bg-brand-50 py-3.5 text-base font-bold text-brand-700 shadow-sm transition-all hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          >
+            <span aria-hidden="true">⚙️</span> Administrar esta mascota
+          </Link>
+        )}
 
         {/* Share */}
         <SharePetButton
@@ -299,8 +313,8 @@ export default function PublicPetProfilePage() {
           className="mb-4"
         />
 
-        {/* Safe chat CTA */}
-        {isLost && pet.activeLostEventId && pet.ownerId && (
+        {/* Safe chat CTA (hidden for the pet's owner — no self-chat) */}
+        {!isOwner && isLost && pet.activeLostEventId && pet.ownerId && (
           <Link
             to={`/chat/${pet.activeLostEventId}/${pet.ownerId}`}
             className="mb-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-sand-200 field-input py-3.5 text-sm font-semibold text-sand-700 shadow-sm hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1"
@@ -309,8 +323,9 @@ export default function PublicPetProfilePage() {
           </Link>
         )}
 
-        {/* Contact card */}
-        {isLost &&
+        {/* Contact card (hidden for owner) */}
+        {!isOwner &&
+          isLost &&
           pet.activeLostEventId &&
           (pet.contactName ?? contact?.contactName) && (
             <div className="mb-4 rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50 to-white p-4 shadow-sm">

@@ -1,6 +1,7 @@
-import { useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { HolographicPetCard } from "../components/HolographicPetCard";
+import { OnboardingWizard, shouldShowOnboarding } from "../components/OnboardingWizard";
 import { usePets } from "../hooks/usePets";
 import { AlertPreferencesToggle } from "@/features/locations/components/AlertPreferencesToggle";
 import { LeaderboardWidget } from "@/features/incentives/components/LeaderboardWidget";
@@ -11,6 +12,25 @@ import { usePullToRefresh } from "@/shared/hooks/usePullToRefresh";
 
 export default function DashboardPage() {
   const { data: pets, isLoading, isError, refetch } = usePets();
+  const [search, setSearch] = useState('');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'Lost' | 'Active'>('all');
+  const [filterSpecies, setFilterSpecies] = useState<string>('all');
+  const [onboardingDismissed, setOnboardingDismissed] = useState(false);
+
+  const filteredPets = useMemo(() => {
+    if (!pets) return [];
+    return pets.filter((p) => {
+      const matchesSearch = search === '' || p.name.toLowerCase().includes(search.toLowerCase());
+      const matchesStatus = filterStatus === 'all' || p.status === filterStatus;
+      const matchesSpecies = filterSpecies === 'all' || p.species === filterSpecies;
+      return matchesSearch && matchesStatus && matchesSpecies;
+    });
+  }, [pets, search, filterStatus, filterSpecies]);
+
+  const species = useMemo(
+    () => [...new Set((pets ?? []).map((p) => p.species))],
+    [pets],
+  );
 
   const handleRefresh = useCallback(async () => {
     await refetch();
@@ -22,6 +42,12 @@ export default function DashboardPage() {
   });
 
   return (
+    <>
+      {/* Onboarding wizard — only for users with no pets who haven't dismissed it */}
+      {!isLoading && !isError && pets?.length === 0 && !onboardingDismissed && shouldShowOnboarding() && (
+        <OnboardingWizard onDismiss={() => setOnboardingDismissed(true)} />
+      )}
+
     <div
       ref={containerRef}
       className="mx-auto max-w-5xl px-4 py-8 animate-fade-in-up overflow-auto"
@@ -141,11 +167,67 @@ export default function DashboardPage() {
       )}
 
       {!isLoading && !isError && pets && pets.length > 0 && (
-        <div className="stagger-grid grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {pets.map((pet, i) => (
-            <HolographicPetCard key={pet.id} pet={pet} index={i} />
-          ))}
-        </div>
+        <>
+          {/* Search + filter chips */}
+          <div className="mb-5 flex flex-col gap-3">
+            <div className="relative">
+              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sand-400" aria-hidden="true">
+                🔍
+              </span>
+              <input
+                type="search"
+                placeholder="Buscar mascota…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full rounded-xl border border-sand-200 py-2.5 pl-9 pr-4 text-sm field-input placeholder:text-sand-400 outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400"
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(['all', 'Active', 'Lost'] as const).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setFilterStatus(s)}
+                  className={[
+                    'rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all',
+                    filterStatus === s
+                      ? s === 'Lost'
+                        ? 'bg-danger-500 text-white shadow-sm'
+                        : 'bg-brand-500 text-white shadow-sm'
+                      : 'bg-sand-100 text-sand-600 hover:bg-sand-200',
+                  ].join(' ')}
+                >
+                  {s === 'all' ? 'Todos' : s === 'Lost' ? '🚨 Perdidos' : '✅ Activos'}
+                </button>
+              ))}
+              {species.map((sp) => (
+                <button
+                  key={sp}
+                  type="button"
+                  onClick={() => setFilterSpecies(filterSpecies === sp ? 'all' : sp)}
+                  className={[
+                    'rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all',
+                    filterSpecies === sp
+                      ? 'bg-trust-500 text-white shadow-sm'
+                      : 'bg-sand-100 text-sand-600 hover:bg-sand-200',
+                  ].join(' ')}
+                >
+                  {sp === 'Dog' ? '🐶 Perros' : sp === 'Cat' ? '🐱 Gatos' : sp === 'Bird' ? '🐦 Aves' : sp === 'Rabbit' ? '🐰 Conejos' : `🐾 ${sp}`}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {filteredPets.length === 0 ? (
+            <p className="py-8 text-center text-sm text-sand-400">No hay mascotas que coincidan con la búsqueda.</p>
+          ) : (
+            <div className="stagger-grid grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {filteredPets.map((pet, i) => (
+                <HolographicPetCard key={pet.id} pet={pet} index={i} />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Alert preferences */}
@@ -165,5 +247,6 @@ export default function DashboardPage() {
         </div>
       )}
     </div>
+    </>
   );
 }
