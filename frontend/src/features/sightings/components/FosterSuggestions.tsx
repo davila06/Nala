@@ -1,4 +1,4 @@
-import { Skeleton } from '@/shared/ui/Spinner'
+﻿import { Skeleton } from '@/shared/ui/Spinner'
 import { useFosterSuggestions } from '../hooks/useFosters'
 
 export function FosterSuggestions({ foundReportId }: { foundReportId: string }) {
@@ -31,7 +31,7 @@ export function FosterSuggestions({ foundReportId }: { foundReportId: string }) 
 
       <ul className="mt-3 space-y-2">
         {data.map((item) => (
-          <li key={item.userId} className="rounded-xl border border-rescue-100 bg-white p-3">
+          <li key={item.userId} className="rounded-xl border border-rescue-100 field-input p-3">
             <p className="text-sm font-semibold text-sand-800">{item.volunteerName}</p>
             <p className="text-xs text-sand-500">
               Distancia: {item.distanceLabel} · Cupo: {item.maxDays} días

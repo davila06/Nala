@@ -14,7 +14,8 @@ public sealed record GetPublicMapEventsQuery(
 
 public sealed class GetPublicMapEventsQueryHandler(
     ISightingRepository sightingRepository,
-    ILostPetRepository lostPetRepository)
+    ILostPetRepository lostPetRepository,
+    IPetRepository petRepository)
     : IRequestHandler<GetPublicMapEventsQuery, Result<IReadOnlyList<PublicMapEventDto>>>
 {
     public async Task<Result<IReadOnlyList<PublicMapEventDto>>> Handle(
@@ -28,13 +29,29 @@ public sealed class GetPublicMapEventsQueryHandler(
         var lostPets = await lostPetRepository.GetActiveLostPetsInBBoxAsync(
             request.North, request.South, request.East, request.West, cancellationToken);
 
-        var events = new List<PublicMapEventDto>(
-            sightings.Count + lostPets.Count);
+        // Collect all unique pet IDs and batch-fetch in one query to avoid N+1.
+        var allPetIds = sightings.Select(s => s.PetId)
+            .Concat(lostPets.Select(lpe => lpe.PetId))
+            .Distinct();
 
-        events.AddRange(sightings.Select(PublicMapEventDto.FromSighting));
+        var pets = await petRepository.GetByIdsAsync(allPetIds, cancellationToken);
+        var petMap = pets.ToDictionary(p => p.Id);
+
+        var events = new List<PublicMapEventDto>(sightings.Count + lostPets.Count);
+
+        events.AddRange(sightings.Select(s =>
+        {
+            petMap.TryGetValue(s.PetId, out var pet);
+            return PublicMapEventDto.FromSighting(s, pet?.Name, pet?.Species.ToString().ToLowerInvariant());
+        }));
+
         events.AddRange(lostPets
             .Where(lpe => lpe.LastSeenLat is not null && lpe.LastSeenLng is not null)
-            .Select(PublicMapEventDto.FromLostPet));
+            .Select(lpe =>
+            {
+                petMap.TryGetValue(lpe.PetId, out var pet);
+                return PublicMapEventDto.FromLostPet(lpe, pet?.Name, pet?.Species.ToString().ToLowerInvariant());
+            }));
 
         // Chronological descending for consistent map rendering
         events.Sort((a, b) => b.OccurredAt.CompareTo(a.OccurredAt));

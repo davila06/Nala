@@ -19,7 +19,7 @@ using PawTrack.API.Middleware;
 using HO = Microsoft.AspNetCore.HttpOverrides;
 
 // Force invariant culture so decimal separators (.) work regardless of OS locale
-CultureInfo.DefaultThreadCurrentCulture   = CultureInfo.InvariantCulture;
+CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -68,10 +68,10 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();
 
     // RFC-1918 private ranges — matches Azure internal forwarding infrastructure
-    options.KnownNetworks.Add(new HO.IPNetwork(IPAddress.Parse("10.0.0.0"),     8));  // Azure VNET
-    options.KnownNetworks.Add(new HO.IPNetwork(IPAddress.Parse("172.16.0.0"),  12));  // Docker / infra
+    options.KnownNetworks.Add(new HO.IPNetwork(IPAddress.Parse("10.0.0.0"), 8));  // Azure VNET
+    options.KnownNetworks.Add(new HO.IPNetwork(IPAddress.Parse("172.16.0.0"), 12));  // Docker / infra
     options.KnownNetworks.Add(new HO.IPNetwork(IPAddress.Parse("192.168.0.0"), 16));  // local dev
-    options.KnownNetworks.Add(new HO.IPNetwork(IPAddress.Parse("::ffff:0:0"),  96));  // IPv4-mapped IPv6
+    options.KnownNetworks.Add(new HO.IPNetwork(IPAddress.Parse("::ffff:0:0"), 96));  // IPv4-mapped IPv6
 
     // Only propagate the first (outermost) "real" IP hop to prevent
     // X-Forwarded-For chain spoofing: client→proxy→AppService.
@@ -166,10 +166,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: RateLimiterIpKey.Get(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit          = builder.Configuration.GetValue("RateLimiting:Login:PermitLimit", 5),
-                Window               = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:Login:WindowSeconds", 60)),
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:Login:PermitLimit", 5),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:Login:WindowSeconds", 60)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit           = 0,
+                QueueLimit = 0,
             }));
 
     // ── Auth: register — 5 new accounts per 10 min per IP (email-bomb protection) ──
@@ -178,10 +178,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: RateLimiterIpKey.Get(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit          = builder.Configuration.GetValue("RateLimiting:Register:PermitLimit", 5),
-                Window               = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:Register:WindowSeconds", 600)),
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:Register:PermitLimit", 5),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:Register:WindowSeconds", 600)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit           = 0,
+                QueueLimit = 0,
             }));
 
     // ── Auth: refresh — 20 rotations/min per IP (protects token-rotation endpoint) ──
@@ -190,10 +190,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: RateLimiterIpKey.Get(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit          = builder.Configuration.GetValue("RateLimiting:Refresh:PermitLimit", 20),
-                Window               = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:Refresh:WindowSeconds", 60)),
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:Refresh:PermitLimit", 20),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:Refresh:WindowSeconds", 60)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit           = 0,
+                QueueLimit = 0,
             }));
 
     // ── Auth: forgot-password — anti-abuse mail flood protection ─────────────
@@ -202,10 +202,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: RateLimiterIpKey.Get(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit          = builder.Configuration.GetValue("RateLimiting:ForgotPassword:PermitLimit", 5),
-                Window               = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:ForgotPassword:WindowSeconds", 600)),
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:ForgotPassword:PermitLimit", 5),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:ForgotPassword:WindowSeconds", 600)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit           = 0,
+                QueueLimit = 0,
             }));
 
     // ── Auth: reset-password — token brute-force protection ─────────────────
@@ -214,10 +214,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: RateLimiterIpKey.Get(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit          = builder.Configuration.GetValue("RateLimiting:ResetPassword:PermitLimit", 10),
-                Window               = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:ResetPassword:WindowSeconds", 600)),
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:ResetPassword:PermitLimit", 10),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:ResetPassword:WindowSeconds", 600)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit           = 0,
+                QueueLimit = 0,
             }));
 
     // ── Auth: verify-email — 10 attempts/hour per IP (enumeration/replay protection) ──
@@ -226,10 +226,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: RateLimiterIpKey.Get(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit          = builder.Configuration.GetValue("RateLimiting:VerifyEmail:PermitLimit", 10),
-                Window               = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:VerifyEmail:WindowSeconds", 3600)),
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:VerifyEmail:PermitLimit", 10),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:VerifyEmail:WindowSeconds", 3600)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit           = 0,
+                QueueLimit = 0,
             }));
 
     // ── Sightings public submission — 5 req/min per IP ───────────────────────
@@ -238,10 +238,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: RateLimiterIpKey.Get(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit          = builder.Configuration.GetValue("RateLimiting:Sightings:PermitLimit", 5),
-                Window               = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:Sightings:WindowSeconds", 60)),
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:Sightings:PermitLimit", 5),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:Sightings:WindowSeconds", 60)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit           = 0,
+                QueueLimit = 0,
             }));
 
     // ── WhatsApp avatar — public endpoint, heavier image generation: 10 req/min per IP ──
@@ -250,10 +250,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: RateLimiterIpKey.Get(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit          = builder.Configuration.GetValue("RateLimiting:WhatsAppAvatar:PermitLimit", 10),
-                Window               = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:WhatsAppAvatar:WindowSeconds", 60)),
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:WhatsAppAvatar:PermitLimit", 10),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:WhatsAppAvatar:WindowSeconds", 60)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit           = 0,
+                QueueLimit = 0,
             }));
 
     // ── Public read-only API — map, stats, pet profiles, leaderboard ─────────
@@ -263,10 +263,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: RateLimiterIpKey.Get(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit          = builder.Configuration.GetValue("RateLimiting:PublicApi:PermitLimit", 30),
-                Window               = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:PublicApi:WindowSeconds", 60)),
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:PublicApi:PermitLimit", 30),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:PublicApi:WindowSeconds", 60)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit           = 0,
+                QueueLimit = 0,
             }));
 
     // ── Handover code verify — brute-force protection ─────────────────────────
@@ -276,10 +276,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: RateLimiterIpKey.Get(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit          = builder.Configuration.GetValue("RateLimiting:HandoverVerify:PermitLimit", 5),
-                Window               = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:HandoverVerify:WindowSeconds", 60)),
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:HandoverVerify:PermitLimit", 5),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:HandoverVerify:WindowSeconds", 60)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit           = 0,
+                QueueLimit = 0,
             }));
 
     // ── Authenticated location update — caps GPS spam from mobile clients ─────
@@ -288,10 +288,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: RateLimiterIpKey.Get(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit          = builder.Configuration.GetValue("RateLimiting:LocationUpdate:PermitLimit", 60),
-                Window               = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:LocationUpdate:WindowSeconds", 60)),
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:LocationUpdate:PermitLimit", 60),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:LocationUpdate:WindowSeconds", 60)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit           = 0,
+                QueueLimit = 0,
             }));
 
     // ── Chat messages — authenticated, 30 msg/min per IP ─────────────────────
@@ -300,10 +300,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: RateLimiterIpKey.Get(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit          = builder.Configuration.GetValue("RateLimiting:ChatMessage:PermitLimit", 30),
-                Window               = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:ChatMessage:WindowSeconds", 60)),
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:ChatMessage:PermitLimit", 30),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:ChatMessage:WindowSeconds", 60)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit           = 0,
+                QueueLimit = 0,
             }));
 
     // ── Broadcast — 3 external notifications per 10-min window per IP ────────
@@ -312,10 +312,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: RateLimiterIpKey.Get(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit          = builder.Configuration.GetValue("RateLimiting:Broadcast:PermitLimit", 3),
-                Window               = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:Broadcast:WindowSeconds", 600)),
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:Broadcast:PermitLimit", 3),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:Broadcast:WindowSeconds", 600)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit           = 0,
+                QueueLimit = 0,
             }));
 
     // ── Clinic scan — 30 scans/min per IP ────────────────────────────────────
@@ -324,10 +324,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: RateLimiterIpKey.Get(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit          = builder.Configuration.GetValue("RateLimiting:ClinicScan:PermitLimit", 30),
-                Window               = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:ClinicScan:WindowSeconds", 60)),
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:ClinicScan:PermitLimit", 30),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:ClinicScan:WindowSeconds", 60)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit           = 0,
+                QueueLimit = 0,
             }));
 
     // ── Notifications write — authenticated write endpoints ───────────────────
@@ -336,10 +336,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: RateLimiterIpKey.Get(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit          = builder.Configuration.GetValue("RateLimiting:NotificationsWrite:PermitLimit", 20),
-                Window               = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:NotificationsWrite:WindowSeconds", 60)),
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:NotificationsWrite:PermitLimit", 20),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:NotificationsWrite:WindowSeconds", 60)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit           = 0,
+                QueueLimit = 0,
             }));
 
     // ── Contact lookup — returns owner ContactPhone; limited to 10 req/min per IP ──
@@ -348,10 +348,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: RateLimiterIpKey.Get(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit          = builder.Configuration.GetValue("RateLimiting:ContactLookup:PermitLimit", 10),
-                Window               = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:ContactLookup:WindowSeconds", 60)),
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:ContactLookup:PermitLimit", 10),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:ContactLookup:WindowSeconds", 60)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit           = 0,
+                QueueLimit = 0,
             }));
 
     options.RejectionStatusCode = 429;
@@ -399,7 +399,20 @@ var app = builder.Build();
 // (UseEnvironment + ConfigureAppConfiguration) are visible to the check.
 StartupGuards.EnsureJwtKeyStrength(app.Configuration, app.Environment);
 
-if (app.Environment.IsDevelopment())
+// ── Local environment: auto-create schema via EnsureCreated ──────────────────
+// Runs only when ASPNETCORE_ENVIRONMENT=Local AND Database:EnsureCreated=true.
+// EnsureCreated is idempotent — safe to run on every startup.
+// Never runs in Development (uses LocalDB seeded manually) or Production.
+if (app.Environment.IsEnvironment("Local")
+    && app.Configuration.GetValue<bool>("Database:EnsureCreated"))
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+    await db.Database.EnsureCreatedAsync();
+    app.Logger.LogInformation("EnsureCreated completado — esquema listo en SQL Express.");
+}
+
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Local"))
 {
     app.MapOpenApi();
 }

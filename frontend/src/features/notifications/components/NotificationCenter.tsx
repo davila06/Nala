@@ -115,7 +115,7 @@ export function NotificationCenter() {
           {groups.map(([label, items], gIdx) => (
             <div key={label}>
               <p className="mb-2 text-xs font-bold uppercase tracking-wider text-sand-400 px-1">{label}</p>
-              <ul role="list" className="list-none divide-y divide-sand-100 rounded-2xl border border-sand-200 bg-white p-0 m-0 overflow-hidden">
+              <ul role="list" className="list-none divide-y divide-sand-100 rounded-2xl border border-sand-200 field-input p-0 m-0 overflow-hidden">
                 {items.map((n, i) => (
                   <motion.li
                     key={n.id}
@@ -141,7 +141,7 @@ export function NotificationCenter() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="resolve-title"
-            className="w-full max-w-md rounded-3xl bg-white p-5 shadow-2xl max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-md rounded-3xl field-input p-5 shadow-2xl max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 id="resolve-title" className="mt-1 text-lg font-extrabold text-sand-900">¿Encontraste a tu mascota?</h2>
@@ -161,7 +161,7 @@ export function NotificationCenter() {
                 type="button"
                 onClick={() => handleResolveSheetAction(false)}
                 disabled={isRespondingResolveCheck}
-                className="rounded-2xl border border-sand-300 bg-white px-4 py-2.5 text-sm font-semibold text-sand-700 hover:bg-sand-50 disabled:opacity-50"
+                className="rounded-2xl border border-sand-300 field-input px-4 py-2.5 text-sm font-semibold text-sand-700 hover:bg-sand-50 disabled:opacity-50"
               >
                 No, sigue perdido
               </button>

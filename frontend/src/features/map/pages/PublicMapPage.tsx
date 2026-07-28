@@ -11,8 +11,10 @@ export default function PublicMapPage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const [bbox, setBbox] = useState<MapBBox | null>(null);
   const [locateTrigger, setLocateTrigger] = useState(0);
-  const { debounce } = useDebouncedBBox(500);
-  const { data: events = [], isFetching } = usePublicMapEvents(bbox);
+  const [locating, setLocating] = useState(false);
+  const [legendOpen, setLegendOpen] = useState(false);
+  const { debounce } = useDebouncedBBox(150);
+  const { data: events = [], isFetching, isError } = usePublicMapEvents(bbox);
 
   const lostPetEventIds = useMemo(
     () => events.filter((e) => e.eventType === "LostPet").map((e) => e.id),
@@ -57,39 +59,58 @@ export default function PublicMapPage() {
           {isFetching && (
             <span className="ml-1.5 text-brand-400">• actualizando…</span>
           )}
+          {isError && (
+            <span className="ml-1.5 text-danger-400">• error al cargar</span>
+          )}
         </span>
       </div>
 
-      {/* Glassmorphism legend */}
-      <div className="absolute bottom-6 left-3 z-[1000] rounded-2xl border border-white/10 bg-zinc-900/70 px-3.5 py-3 text-xs shadow-xl backdrop-blur-md">
-        <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+      {/* Legend — collapsible on mobile, always visible on sm+ */}
+      <div className="absolute bottom-6 left-3 z-[1000] rounded-2xl border border-white/10 bg-zinc-900/70 shadow-xl backdrop-blur-md">
+        {/* Toggle button visible only on mobile */}
+        <button
+          type="button"
+          onClick={() => setLegendOpen((o) => !o)}
+          className="flex w-full items-center justify-between gap-2 px-3.5 py-3 text-xs font-bold uppercase tracking-widest text-zinc-400 sm:cursor-default sm:pointer-events-none"
+          aria-expanded={legendOpen}
+          aria-controls="map-legend-items"
+        >
           Leyenda
-        </p>
-        {[
-          { color: "bg-danger-500", label: "Mascota perdida", pulse: true },
-          { color: "bg-brand-500", label: "Avistamiento", pulse: false },
-          {
-            color: "border-2 border-dashed border-trust-400 bg-transparent",
-            label: "Trayectoria",
-            pulse: false,
-          },
-          {
-            color: "border-2 border-rescue-400 bg-rescue-200/40",
-            label: "Zona proyectada",
-            pulse: false,
-          },
-        ].map(({ color, label, pulse }) => (
-          <div key={label} className="mb-1.5 flex items-center gap-2 last:mb-0">
-            <span
-              className={`relative inline-flex h-3 w-3 rounded-full flex-shrink-0 ${color}`}
+          <span className="sm:hidden">{legendOpen ? "▲" : "▼"}</span>
+        </button>
+        <div
+          id="map-legend-items"
+          className={`px-3.5 pb-3 text-xs ${legendOpen ? "block" : "hidden"} sm:block`}
+        >
+          {[
+            { color: "bg-danger-500", label: "Mascota perdida", pulse: true },
+            { color: "bg-brand-500", label: "Avistamiento", pulse: false },
+            {
+              color: "border-2 border-dashed border-trust-400 bg-transparent",
+              label: "Trayectoria",
+              pulse: false,
+            },
+            {
+              color: "border-2 border-rescue-400 bg-rescue-200/40",
+              label: "Zona proyectada",
+              pulse: false,
+            },
+          ].map(({ color, label, pulse }) => (
+            <div
+              key={label}
+              className="mb-1.5 flex items-center gap-2 last:mb-0"
             >
-              {pulse && (
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-danger-400 opacity-60" />
-              )}
-            </span>
-            <span className="text-zinc-200">{label}</span>
-          </div>
-        ))}
+              <span
+                className={`relative inline-flex h-3 w-3 flex-shrink-0 rounded-full ${color}`}
+              >
+                {pulse && (
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-danger-400 opacity-60" />
+                )}
+              </span>
+              <span className="text-zinc-200">{label}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Controls panel */}
@@ -116,11 +137,24 @@ export default function PublicMapPage() {
         </Link>
         <button
           type="button"
-          onClick={() => setLocateTrigger((t) => t + 1)}
-          className="flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/70 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-colors hover:bg-zinc-800/80"
+          onClick={() => {
+            setLocating(true);
+            setLocateTrigger((t) => t + 1);
+            // Reset spinner after 8 s (matches GPS timeout in LocateUser)
+            setTimeout(() => setLocating(false), 8_000);
+          }}
+          disabled={locating}
+          className="flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/70 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-colors hover:bg-zinc-800/80 disabled:opacity-60"
           aria-label="Centrar mapa en mi ubicación"
         >
-          📍 Mi ubicación
+          {locating ? (
+            <>
+              <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              Buscando…
+            </>
+          ) : (
+            <>📍 Mi ubicación</>
+          )}
         </button>
       </div>
 
@@ -128,6 +162,7 @@ export default function PublicMapPage() {
         events={events}
         predictions={predictions}
         locateTrigger={locateTrigger}
+        onLocated={() => setLocating(false)}
         onBBoxChange={handleBBoxChange}
         className="h-full w-full"
       />

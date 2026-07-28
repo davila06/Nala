@@ -25,6 +25,17 @@ public sealed class PetRepository(PawTrackDbContext dbContext) : IPetRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.MicrochipId == microchipId, cancellationToken);
 
+    public async Task<IReadOnlyList<Pet>> GetByIdsAsync(
+        IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        var idSet = ids.ToHashSet();
+        if (idSet.Count == 0) return [];
+        return await dbContext.Pets
+            .AsNoTracking()
+            .Where(p => idSet.Contains(p.Id))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AddAsync(Pet pet, CancellationToken cancellationToken = default) =>
         await dbContext.Pets.AddAsync(pet, cancellationToken);
 

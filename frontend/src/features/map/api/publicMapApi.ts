@@ -1,31 +1,35 @@
-import { apiClient } from '@/shared/lib/apiClient'
+import { apiClient } from "@/shared/lib/apiClient";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface PublicMapEvent {
-  id: string
+  id: string;
   /** "LostPet" | "Sighting" */
-  eventType: 'LostPet' | 'Sighting'
-  petId: string
-  lat: number
-  lng: number
-  photoUrl: string | null
-  occurredAt: string
+  eventType: "LostPet" | "Sighting";
+  petId: string;
+  /** Display name of the pet — null when the pet record was not found. */
+  petName: string | null;
+  /** Species as a lowercase string, e.g. "dog", "cat". Null when not found. */
+  species: string | null;
+  lat: number;
+  lng: number;
+  photoUrl: string | null;
+  occurredAt: string;
 }
 
 export interface MapBBox {
-  north: number
-  south: number
-  east: number
-  west: number
+  north: number;
+  south: number;
+  east: number;
+  west: number;
 }
 
 /** A single point along a pet's chronological sighting trail. */
 export interface SightingPoint {
-  lat: number
-  lng: number
-  occurredAt: string
-  sequenceIndex: number
+  lat: number;
+  lng: number;
+  occurredAt: string;
+  sequenceIndex: number;
 }
 
 /**
@@ -34,16 +38,16 @@ export interface SightingPoint {
  * `trailPoints` (if any sightings exist) and `explanationText` are populated.
  */
 export interface MovementPrediction {
-  hasEnoughData: boolean
-  projectedLat: number | null
-  projectedLng: number | null
+  hasEnoughData: boolean;
+  projectedLat: number | null;
+  projectedLng: number | null;
   /** Uncertainty circle radius in metres. */
-  radiusMeters: number | null
+  radiusMeters: number | null;
   /** 5–80 % confidence estimate. */
-  confidencePercent: number | null
-  trailPoints: SightingPoint[]
+  confidencePercent: number | null;
+  trailPoints: SightingPoint[];
   /** Human-readable explanation in Spanish. */
-  explanationText: string
+  explanationText: string;
 }
 
 // ── API client ─────────────────────────────────────────────────────────────────
@@ -51,12 +55,11 @@ export interface MovementPrediction {
 export const publicMapApi = {
   getMapEvents: (bbox: MapBBox) =>
     apiClient
-      .get<PublicMapEvent[]>('/public/map', { params: bbox })
+      .get<PublicMapEvent[]>("/public/map", { params: bbox })
       .then((r) => r.data),
 
   getMovementPrediction: (lostPetEventId: string) =>
     apiClient
       .get<MovementPrediction>(`/public/movement/${lostPetEventId}`)
       .then((r) => r.data),
-}
-
+};

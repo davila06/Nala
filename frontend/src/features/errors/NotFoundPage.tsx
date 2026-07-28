@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 
 // Floating paw prints scattered around
 const PAW_POSITIONS = [
@@ -92,7 +92,7 @@ export default function NotFoundPage() {
         </Link>
         <Link
           to="/map"
-          className="rounded-xl border border-sand-200 bg-white px-5 py-2.5 text-sm font-semibold text-sand-700 hover:bg-sand-50 transition-colors"
+          className="rounded-xl border border-sand-200 field-input px-5 py-2.5 text-sm font-semibold text-sand-700 hover:bg-sand-50 transition-colors"
         >
           Ver mapa público
         </Link>

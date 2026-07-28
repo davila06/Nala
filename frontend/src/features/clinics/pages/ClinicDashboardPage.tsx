@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import {
   clinicsApi,
@@ -34,7 +34,7 @@ export default function ClinicDashboardPage() {
   if (clinicLoading) {
     return (
       <div className="min-h-screen bg-sand-50">
-        <div className="border-b border-sand-200 bg-white px-4 py-4">
+        <div className="border-b border-sand-200 field-input px-4 py-4">
           <div className="mx-auto max-w-lg">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
@@ -75,7 +75,7 @@ export default function ClinicDashboardPage() {
   return (
     <div className="min-h-screen bg-sand-50">
       {/* ── Header ── */}
-      <header className="border-b border-sand-200 bg-white px-4 py-4">
+      <header className="border-b border-sand-200 field-input px-4 py-4">
         <div className="mx-auto max-w-lg">
           <div className="flex items-start justify-between">
             <div>

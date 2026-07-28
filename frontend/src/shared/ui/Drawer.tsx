@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+﻿import { useEffect, useRef, type ReactNode } from 'react'
 import { AnimatePresence, motion, type TargetAndTransition } from 'framer-motion'
 import { createPortal } from 'react-dom'
 
@@ -208,7 +208,7 @@ export function Modal({ isOpen, onClose, title, description, children, maxWidth 
               aria-modal="true"
               aria-label={title}
               tabIndex={-1}
-              className="w-full rounded-3xl bg-white shadow-2xl flex flex-col max-h-[90dvh] overflow-hidden"
+              className="w-full rounded-3xl field-input shadow-2xl flex flex-col max-h-[90dvh] overflow-hidden"
               style={{ maxWidth }}
               initial={{ opacity: 0, scale: 0.94, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

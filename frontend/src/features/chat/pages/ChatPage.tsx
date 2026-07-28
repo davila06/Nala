@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useChatMessages, useChatThreads, useOpenChatThread } from '../hooks/useChatThread'
 import { ChatPanel } from '../components/ChatPanel'
@@ -65,9 +65,9 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex h-dvh flex-col bg-white pb-[env(safe-area-inset-bottom,0px)]">
+    <div className="flex h-dvh flex-col field-input pb-[env(safe-area-inset-bottom,0px)]">
       {/* Topbar */}
-      <div className="flex items-center gap-3 border-b border-sand-200 bg-white px-4 py-3">
+      <div className="flex items-center gap-3 border-b border-sand-200 field-input px-4 py-3">
         <button
           type="button"
           onClick={() => navigate(-1)}

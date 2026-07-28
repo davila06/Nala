@@ -1,4 +1,4 @@
-interface LostPetBannerProps {
+﻿interface LostPetBannerProps {
   petName: string
   publicMessage?: string | null
   onReportLost?: () => void
@@ -18,7 +18,7 @@ export function LostPetBanner({ petName, publicMessage, onReportLost, className 
             Comparte el perfil público para ayudar a encontrarlo.
           </p>
           {publicMessage && (
-            <blockquote className="mt-3 rounded-xl border border-danger-200 bg-white px-4 py-3">
+            <blockquote className="mt-3 rounded-xl border border-danger-200 field-input px-4 py-3">
               <p className="text-sm font-medium text-danger-800 leading-relaxed">
                 <span aria-hidden="true">💬</span> {publicMessage}
               </p>

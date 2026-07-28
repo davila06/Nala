@@ -1,10 +1,11 @@
-import { divIcon } from 'leaflet'
-import { Marker, Popup } from 'react-leaflet'
-import { formatDate } from '@/shared/lib/formatDate'
-import type { PublicMapEvent } from '../api/publicMapApi'
+import { divIcon } from "leaflet";
+import { Marker, Popup } from "react-leaflet";
+import { Link } from "react-router-dom";
+import { formatDate } from "@/shared/lib/formatDate";
+import type { PublicMapEvent } from "../api/publicMapApi";
 
 const orangeIcon = divIcon({
-  className: '',
+  className: "",
   html: `<div style="
     width:22px;height:22px;border-radius:50%;
     background:#e8521e;border:2px solid #fff;
@@ -13,10 +14,10 @@ const orangeIcon = divIcon({
   iconSize: [22, 22],
   iconAnchor: [11, 11],
   popupAnchor: [0, -14],
-})
+});
 
 interface SightingMarkerProps {
-  event: PublicMapEvent
+  event: PublicMapEvent;
 }
 
 export function SightingMarker({ event }: SightingMarkerProps) {
@@ -35,9 +36,14 @@ export function SightingMarker({ event }: SightingMarkerProps) {
           <p className="text-xs text-sand-500">
             {formatDate(event.occurredAt)}
           </p>
+          <Link
+            to={`/p/${event.petId}`}
+            className="mt-1 block text-xs font-semibold text-brand-600 hover:underline"
+          >
+            Ver perfil de la mascota →
+          </Link>
         </div>
       </Popup>
     </Marker>
-  )
+  );
 }
-

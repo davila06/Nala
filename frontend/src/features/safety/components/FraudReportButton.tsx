@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useReportFraud } from '../hooks/useSafety'
 import type { FraudContext } from '../api/fraudApi'
 
@@ -81,10 +81,10 @@ export function FraudReportButton({
           placeholder="Describe brevemente lo que ocurrió (opcional)…"
           maxLength={500}
           rows={3}
-          className="w-full resize-none rounded-xl border border-danger-200 bg-white px-3 py-2 text-xs text-sand-800 outline-none transition focus:border-danger-400"
+          className="w-full resize-none rounded-xl border border-danger-200 field-input px-3 py-2 text-xs text-sand-800 outline-none transition focus:border-danger-400"
         />
         {serverMessage && (
-          <p className="rounded-lg bg-white px-3 py-1.5 text-xs text-danger-600">{serverMessage}</p>
+          <p className="rounded-lg field-input px-3 py-1.5 text-xs text-danger-600">{serverMessage}</p>
         )}
         <div className="flex gap-2">
           <button

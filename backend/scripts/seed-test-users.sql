@@ -35,7 +35,7 @@ INSERT INTO [dbo].[Users] (
     'D73FC5EA-6F8F-4ADF-9756-07480962EAF3',
     'owner@pawtrack.test',
     '$2a$12$S7/AoW/NeL4KIvhZO6p6TuWsgBuZQ6kymMD96.3.ALIKR/W51wAES',
-    'Ana Pérez (Owner)',
+    N'Ana P' + NCHAR(233) + N'rez (Owner)',
     'Owner',
     1, NULL, NULL, NULL, NULL,
     0, NULL, GETUTCDATE()
@@ -86,7 +86,7 @@ INSERT INTO [dbo].[Users] (
     '2B9B9F17-39DD-42A7-B138-A00632ABE55A',
     'clinic@pawtrack.test',
     '$2a$12$Zc2bzcB9S7nfYbiB8Gq6QePRRlhy6tVgs1jeRm2SejAhwxWn3IY3W',
-    'Clínica VetCare CR',
+    N'Cl' + NCHAR(237) + N'nica VetCare CR',
     'Clinic',
     1, NULL, NULL, NULL, NULL,
     0, NULL, GETUTCDATE()
@@ -107,7 +107,7 @@ INSERT INTO [dbo].[Clinics] (
 ) VALUES (
     NEWID(),
     '2B9B9F17-39DD-42A7-B138-A00632ABE55A',
-    'Clínica VetCare CR',
+    N'Cl' + NCHAR(237) + N'nica VetCare CR',
     'VET-2024-TEST',
     'San José, Costa Rica',
     9.928100,

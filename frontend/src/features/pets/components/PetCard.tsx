@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 import type { PetSummary } from '../api/petsApi'
 import { PetStatusBadge } from './PetStatusBadge'
 
@@ -26,7 +26,7 @@ export const PetCard = ({ pet }: PetCardProps) => (
   <Link
     to={`/pets/${pet.id}`}
     aria-label={`Ver detalles de ${pet.name}`}
-    className="group relative flex flex-col overflow-hidden rounded-2xl border border-sand-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
+    className="group relative flex flex-col overflow-hidden rounded-2xl border border-sand-200 field-input shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
   >
     {/* Photo area */}
     <div className="relative h-44 overflow-hidden bg-sand-100">

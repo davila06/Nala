@@ -1,4 +1,4 @@
-import type { ClinicScanResultDto } from '../api/clinicsApi'
+﻿import type { ClinicScanResultDto } from '../api/clinicsApi'
 
 interface MatchResultCardProps {
   result: ClinicScanResultDto
@@ -59,7 +59,7 @@ export function MatchResultCard({ result, onReset }: MatchResultCardProps) {
         </div>
 
         {/* Owner info */}
-        <div className="mt-4 rounded-xl bg-white p-4 shadow-sm">
+        <div className="mt-4 rounded-xl field-input p-4 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-wide text-sand-400">
             Datos del dueño
           </p>

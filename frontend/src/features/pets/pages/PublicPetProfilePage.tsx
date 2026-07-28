@@ -1,4 +1,4 @@
-import {
+﻿import {
   useState,
   useRef,
   useEffect,
@@ -127,7 +127,7 @@ function ParallaxHero({
         <div className="absolute inset-x-0 top-0 flex items-center justify-center gap-2 bg-danger-600/90 py-2.5 backdrop-blur-sm">
           {/* Pulsing dot */}
           <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full field-input opacity-75" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
           </span>
           <span className="text-sm font-bold uppercase tracking-widest text-white">
@@ -177,7 +177,7 @@ export default function PublicPetProfilePage() {
     return (
       <div
         role="alert"
-        className="flex min-h-screen flex-col items-center justify-center gap-4 bg-white px-6 text-center"
+        className="flex min-h-screen flex-col items-center justify-center gap-4 field-input px-6 text-center"
       >
         <span className="text-6xl" aria-hidden="true">
           🔍
@@ -303,7 +303,7 @@ export default function PublicPetProfilePage() {
         {isLost && pet.activeLostEventId && pet.ownerId && (
           <Link
             to={`/chat/${pet.activeLostEventId}/${pet.ownerId}`}
-            className="mb-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-sand-200 bg-white py-3.5 text-sm font-semibold text-sand-700 shadow-sm hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1"
+            className="mb-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-sand-200 field-input py-3.5 text-sm font-semibold text-sand-700 shadow-sm hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1"
           >
             <span aria-hidden="true">💬</span> Contactar al dueño (chat seguro)
           </Link>
@@ -332,7 +332,7 @@ export default function PublicPetProfilePage() {
                   type="button"
                   onClick={handleRevealPhone}
                   disabled={contactLoading}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-400 bg-white px-4 py-2.5 text-sm font-semibold text-brand-700 hover:bg-brand-50 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-400 field-input px-4 py-2.5 text-sm font-semibold text-brand-700 hover:bg-brand-50 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
                 >
                   {contactLoading ? (
                     <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-brand-400 border-t-transparent" />

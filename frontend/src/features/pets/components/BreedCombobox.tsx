@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { BREEDS_BY_SPECIES } from '../data/breeds'
 import type { PetSpecies } from '../api/petsApi'
 
@@ -178,7 +178,7 @@ export const BreedCombobox = ({ species, defaultValue = '', disabled, id }: Bree
           id={listboxId}
           role="listbox"
           aria-label="Razas"
-          className="absolute z-50 mt-1.5 max-h-56 w-full overflow-auto rounded-xl border border-sand-200 bg-white py-1 shadow-lg ring-1 ring-black/5 text-sm"
+          className="absolute z-50 mt-1.5 max-h-56 w-full overflow-auto rounded-xl border border-sand-200 field-input py-1 shadow-lg ring-1 ring-black/5 text-sm"
         >
           {filtered.length === 0 ? (
             <li

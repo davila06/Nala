@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react'
+﻿import { useState, lazy, Suspense } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FraudReportButton } from '@/features/safety/components/FraudReportButton'
@@ -121,7 +121,7 @@ export default function CaseRoomPage() {
           type="button"
           onClick={() => void refetch()}
           aria-label="Actualizar datos"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-sand-200 bg-white text-base hover:bg-sand-50 active:scale-95 transition-base"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-sand-200 field-input text-base hover:bg-sand-50 active:scale-95 transition-base"
         >
           <span aria-hidden="true" className={isFetching ? 'animate-spin inline-block' : 'inline-block'}>🔄</span>
         </button>

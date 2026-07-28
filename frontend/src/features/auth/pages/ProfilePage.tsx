@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { useMyFosterProfile, useUpsertMyFosterProfile } from '@/features/sightings/hooks/useFosters'
 import { useMyProfile, useUpdateProfile } from '../hooks/useProfile'
 import { useAuthStore } from '../store/authStore'
@@ -97,7 +97,7 @@ export default function ProfilePage() {
       <h1 className="text-2xl font-bold text-sand-900">Mi perfil</h1>
 
       {/* ── Identity card ────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-sand-200 bg-white p-5">
+      <div className="rounded-2xl border border-sand-200 field-input p-5">
         <div className="flex items-center gap-4">
           {/* Gradient avatar with initials */}
           <div
@@ -157,7 +157,7 @@ export default function ProfilePage() {
       </div>
 
       {/* ── Foster section ────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-sand-200 bg-white p-5">
+      <div className="rounded-2xl border border-sand-200 field-input p-5">
         <h2 className="text-base font-semibold text-sand-800">Voluntariado</h2>
         <p className="mt-1 text-sm text-sand-500">
           Activa esta opción para ofrecer custodia temporal a mascotas encontradas.

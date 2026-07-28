@@ -69,6 +69,9 @@ const RecoveryStatsPage = lazy(
 
 // Chat
 const ChatPage = lazy(() => import("@/features/chat/pages/ChatPage"));
+const ChatThreadPage = lazy(
+  () => import("@/features/chat/pages/ChatThreadPage"),
+);
 
 // Case Room
 const CaseRoomPage = lazy(
@@ -336,6 +339,15 @@ export const router = createBrowserRouter([
             element: (
               <S>
                 <ChatPage />
+              </S>
+            ),
+          },
+          {
+            // Direct thread access — used from notification deep-links
+            path: "/chat/t/:threadId",
+            element: (
+              <S>
+                <ChatThreadPage />
               </S>
             ),
           },

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface BeforeInstallPromptEvent extends Event {
@@ -63,7 +63,7 @@ export function PWAInstallBanner() {
           exit={{ opacity: 0, y: 16, scale: 0.97 }}
           transition={{ type: 'spring', stiffness: 380, damping: 36 }}
         >
-          <div className="flex items-start gap-3.5 rounded-2xl border border-sand-200 bg-white p-4 shadow-xl shadow-sand-900/10">
+          <div className="flex items-start gap-3.5 rounded-2xl border border-sand-200 field-input p-4 shadow-xl shadow-sand-900/10">
             {/* App icon */}
             <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-brand-500 text-2xl shadow-md shadow-brand-500/30">
               🐾

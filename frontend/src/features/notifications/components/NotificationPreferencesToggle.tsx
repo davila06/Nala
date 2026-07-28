@@ -1,4 +1,4 @@
-import {
+﻿import {
   useNotificationPreferences,
   useUpdateNotificationPreferences,
 } from '../hooks/useNotificationPreferences'
@@ -15,7 +15,7 @@ export function NotificationPreferencesToggle() {
   }
 
   return (
-    <div className="mt-6 rounded-2xl border border-sand-200 bg-white px-4 py-4">
+    <div className="mt-6 rounded-2xl border border-sand-200 field-input px-4 py-4">
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-sand-900">

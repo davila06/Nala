@@ -22,7 +22,26 @@
       "preLaunchTask": "build-backend"
     },
 
-    // ── Frontend: Vite dev server ─────────────────────────────────────────────
+    // ── Backend: Local (SQL Express + SendGrid real) ──────────────────────────
+    {
+      "name": "🐾 Backend — Local (SQL Express)",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/out/PawTrack.API.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/backend/src/PawTrack.API",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Local",
+        "ASPNETCORE_URLS": "http://localhost:5199"
+      },
+      "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on\\b.+http://localhost:([0-9]+)",
+        "uriFormat": "http://localhost:%s"
+      },
+      "preLaunchTask": "build-backend"
+    }
     {
       "name": "🖥️  Frontend — Vite dev",
       "type": "node",
@@ -76,6 +95,15 @@
       "name": "⚡ Backend + Frontend (sin Azurite)",
       "configurations": [
         "🐾 Backend — PawTrack.API",
+        "🖥️  Frontend — Vite dev"
+      ],
+      "stopAll": true
+    }
+    {
+      "name": "🚀 Local — SQL Express + SendGrid real",
+      "configurations": [
+        "🗄️  Azurite — Storage emulator",
+        "🐾 Backend — Local (SQL Express)",
         "🖥️  Frontend — Vite dev"
       ],
       "stopAll": true

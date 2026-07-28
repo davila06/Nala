@@ -1,4 +1,4 @@
-import type { LostPetEvent } from '../api/lostPetsApi'
+﻿import type { LostPetEvent } from '../api/lostPetsApi'
 import type { NearbyAlertSummary } from '../api/caseRoomApi'
 import type { SightingDetail } from '@/features/sightings/api/sightingsApi'
 
@@ -120,7 +120,7 @@ export function CaseTimeline({ event, sightings, nearbyAlerts }: CaseTimelinePro
           {/* Icon dot */}
           <span
             aria-hidden="true"
-            className="shrink-0 z-[1] flex h-10 w-10 items-center justify-center rounded-full bg-white text-lg shadow-sm"
+            className="shrink-0 z-[1] flex h-10 w-10 items-center justify-center rounded-full field-input text-lg shadow-sm"
             style={{ border: `2px solid ${KIND_COLOR[entry.kind]}` }}
           >
             {KIND_ICON[entry.kind]}

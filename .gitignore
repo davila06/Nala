@@ -22,6 +22,10 @@ artifacts/
 # Entity Framework migrations temp
 ScaffoldingReadMe.txt
 
+# Local environment config — contains real secrets (SendGrid key, etc.)
+# Each developer keeps their own copy; never committed.
+**/appsettings.Local.json
+
 # Publish output
 **/publish/
 **/PublishOutput/

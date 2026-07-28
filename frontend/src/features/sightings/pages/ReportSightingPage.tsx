@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback } from "react";
+﻿import { useRef, useState, useEffect, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Alert } from "@/shared/ui/Alert";
 import { useReportSighting } from "../hooks/useSightings";
@@ -100,7 +100,7 @@ function SightingAutoMatchPanel({
           onClick={() =>
             setVisibleCount((prev) => Math.min(prev + 10, matches.length))
           }
-          className="mt-3 w-full rounded-xl border border-sand-200 bg-white py-2 text-sm font-medium text-sand-600 hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          className="mt-3 w-full rounded-xl border border-sand-200 field-input py-2 text-sm font-medium text-sand-600 hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
         >
           Mostrar más ({matches.length - visibleCount} restantes)
         </button>
@@ -189,7 +189,7 @@ export default function ReportSightingPage() {
 
   if (submittedSightingId) {
     return (
-      <div className="flex min-h-screen flex-col items-center bg-white px-6 py-12">
+      <div className="flex min-h-screen flex-col items-center field-input px-6 py-12">
         <span className="text-6xl" aria-hidden="true">
           🐾
         </span>
@@ -355,3 +355,5 @@ export default function ReportSightingPage() {
     </div>
   );
 }
+
+

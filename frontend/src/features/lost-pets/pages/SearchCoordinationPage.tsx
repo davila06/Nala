@@ -1,4 +1,4 @@
-import 'leaflet/dist/leaflet.css'
+﻿import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -188,7 +188,7 @@ export default function SearchCoordinationPage() {
 
       {/* ── No zones empty state ── */}
       {!isLoading && total === 0 && (
-        <div className="absolute inset-x-0 bottom-24 mx-auto max-w-sm rounded-2xl bg-white p-5 shadow-lg text-center">
+        <div className="absolute inset-x-0 bottom-24 mx-auto max-w-sm rounded-2xl field-input p-5 shadow-lg text-center">
           <p className="text-3xl">🗺️</p>
           <p className="mt-2 text-sm font-semibold text-sand-700">
             Aún no hay zonas de búsqueda

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import type { AllyType } from '../api/alliesApi'
@@ -85,7 +85,7 @@ export default function AllyPanelPage() {
       {isProfileLoading && <div className="h-40 animate-pulse rounded-3xl bg-sand-100" />}
 
       {!isProfileLoading && profile && (
-        <section className="mb-8 rounded-3xl border border-sand-200 bg-white p-6 shadow-sm">
+        <section className="mb-8 rounded-3xl border border-sand-200 field-input p-6 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.25em] text-sand-500">Estado actual</p>
@@ -115,7 +115,7 @@ export default function AllyPanelPage() {
 
       {!isProfileLoading && !isVerified && (
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <form onSubmit={handleSubmit} className="rounded-3xl border border-sand-200 bg-white p-6 shadow-sm">
+          <form onSubmit={handleSubmit} className="rounded-3xl border border-sand-200 field-input p-6 shadow-sm">
             <div className="mb-6">
               <h2 className="text-xl font-bold text-sand-900">Solicitud de verificación</h2>
               <p className="mt-2 text-sm text-sand-600">
@@ -192,7 +192,7 @@ export default function AllyPanelPage() {
       )}
 
       {!isProfileLoading && isVerified && (
-        <section className="rounded-3xl border border-sand-200 bg-white p-6 shadow-sm">
+        <section className="rounded-3xl border border-sand-200 field-input p-6 shadow-sm">
           <div className="mb-6 flex items-center justify-between gap-4">
             <div>
               <h2 className="text-xl font-bold text-sand-900">Bandeja operativa</h2>

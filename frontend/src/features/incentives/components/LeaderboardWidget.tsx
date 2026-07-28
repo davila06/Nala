@@ -16,7 +16,7 @@ export function LeaderboardWidget() {
   const { data: entries, isLoading, isError } = useLeaderboard(10)
 
   return (
-    <section className="rounded-2xl border border-trust-100 bg-white shadow-sm overflow-hidden">
+    <section className="rounded-2xl border border-trust-100 field-input shadow-sm overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-2 border-b border-trust-100 px-5 py-4">
         <span className="text-xl" aria-hidden="true">🏆</span>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { BroadcastPanel } from '../components/BroadcastPanel'
@@ -304,7 +304,7 @@ export default function LostReportConfirmationPage() {
         {/* Pulsing top bar */}
         <div className="flex items-center justify-center gap-2 bg-danger-800/50 py-2">
           <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full field-input opacity-75" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
           </span>
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-white">
@@ -345,7 +345,7 @@ export default function LostReportConfirmationPage() {
       <EmergencyModeButton emergencyMode={emergencyMode} className="mb-6" />
 
       {/* ── Pet summary card ──────────────────────────────────────────────── */}
-      <div className="mb-6 flex items-center gap-4 rounded-2xl border border-sand-200 bg-white p-4">
+      <div className="mb-6 flex items-center gap-4 rounded-2xl border border-sand-200 field-input p-4">
         {pet.photoUrl ? (
           <img
             src={pet.photoUrl}
@@ -431,7 +431,7 @@ export default function LostReportConfirmationPage() {
             type="button"
             onClick={handleShare}
             disabled={isCapturing}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-sand-300 bg-white px-4 py-3 text-sm font-semibold text-sand-700 hover:bg-sand-50 disabled:opacity-60"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-sand-300 field-input px-4 py-3 text-sm font-semibold text-sand-700 hover:bg-sand-50 disabled:opacity-60"
             aria-label="Compartir flyer por WhatsApp u otras aplicaciones"
           >
             {isCapturing && captureIntent === 'share' ? (
@@ -482,7 +482,7 @@ export default function LostReportConfirmationPage() {
             type="button"
             onClick={handleSocialShare}
             disabled={isCapturing}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-white px-4 py-3 text-sm font-semibold text-indigo-700 hover:bg-indigo-50 disabled:opacity-60"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-indigo-200 field-input px-4 py-3 text-sm font-semibold text-indigo-700 hover:bg-indigo-50 disabled:opacity-60"
             aria-label="Compartir imagen para redes sociales directamente"
           >
             {isCapturing && captureIntent === 'social-share' ? (
@@ -508,13 +508,13 @@ export default function LostReportConfirmationPage() {
       <div className="mb-6 grid grid-cols-2 gap-3">
         <Link
           to={`/pets/${pet.id}`}
-          className="flex items-center justify-center rounded-xl border border-sand-200 bg-white px-4 py-3 text-center text-sm font-medium text-sand-700 hover:bg-sand-50"
+          className="flex items-center justify-center rounded-xl border border-sand-200 field-input px-4 py-3 text-center text-sm font-medium text-sand-700 hover:bg-sand-50"
         >
           Ver perfil de {pet.name}
         </Link>
         <Link
           to="/dashboard"
-          className="flex items-center justify-center rounded-xl border border-sand-200 bg-white px-4 py-3 text-sm font-medium text-sand-700 hover:bg-sand-50"
+          className="flex items-center justify-center rounded-xl border border-sand-200 field-input px-4 py-3 text-sm font-medium text-sand-700 hover:bg-sand-50"
         >
           ← Mis mascotas
         </Link>
@@ -545,4 +545,6 @@ export default function LostReportConfirmationPage() {
     </div>
   )
 }
+
+
 

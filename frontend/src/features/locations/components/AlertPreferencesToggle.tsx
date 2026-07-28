@@ -1,4 +1,4 @@
-import { useAlertPreference } from '../hooks/useAlertPreference'
+﻿import { useAlertPreference } from '../hooks/useAlertPreference'
 import { QuietHoursForm } from './QuietHoursForm'
 
 /**
@@ -10,7 +10,7 @@ export function AlertPreferencesToggle() {
     useAlertPreference()
 
   return (
-    <div className="rounded-2xl border border-sand-200 bg-white p-4">
+    <div className="rounded-2xl border border-sand-200 field-input p-4">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-sand-800">

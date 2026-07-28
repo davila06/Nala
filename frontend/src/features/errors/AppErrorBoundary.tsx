@@ -81,7 +81,7 @@ export default class AppErrorBoundary extends Component<Props, State> {
             <button
               type="button"
               onClick={() => this.setState({ hasError: false })}
-              className="w-full rounded-xl border-2 border-brand-200 bg-white px-5 py-3 text-sm font-semibold text-brand-700 hover:bg-brand-50 transition-all hover:-translate-y-0.5"
+              className="w-full rounded-xl border-2 border-brand-200 field-input px-5 py-3 text-sm font-semibold text-brand-700 hover:bg-brand-50 transition-all hover:-translate-y-0.5"
             >
               🔄 Reintentar
             </button>

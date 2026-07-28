@@ -1,4 +1,4 @@
-import { Polygon, Popup } from 'react-leaflet'
+﻿import { Polygon, Popup } from 'react-leaflet'
 import type { SearchZone, SearchZoneStatus } from '../api/searchCoordinationApi'
 
 interface SearchZonePolygonProps {
@@ -96,7 +96,7 @@ export function SearchZonePolygon({
               <button
                 type="button"
                 onClick={() => onRelease(zone.id)}
-                className="w-full rounded-lg border border-sand-300 bg-white px-3 py-1.5 text-xs font-semibold text-sand-700 hover:bg-sand-50"
+                className="w-full rounded-lg border border-sand-300 field-input px-3 py-1.5 text-xs font-semibold text-sand-700 hover:bg-sand-50"
               >
                 Liberar zona
               </button>

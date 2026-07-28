@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+﻿import { useEffect, useState, useRef, useCallback } from 'react'
 import { petsApi } from '../api/petsApi'
 import { useHaptic } from '@/shared/hooks/useHaptic'
 
@@ -125,7 +125,7 @@ export function QRFlipCard({ petId, petName, petPhotoUrl, petSpecies = 'Other' }
           </div>
 
           {/* ── BACK: QR code ─────────────────────────────────────────────── */}
-          <div className="flip-card__face flip-card__face--back rounded-2xl border border-sand-200 bg-white shadow-md cursor-pointer flex flex-col items-center justify-center gap-3 p-4">
+          <div className="flip-card__face flip-card__face--back rounded-2xl border border-sand-200 field-input shadow-md cursor-pointer flex flex-col items-center justify-center gap-3 p-4">
             {loading && (
               <div className="flex flex-col items-center gap-2">
                 <div className="h-5 w-5 rounded-full border-2 border-brand-300 border-t-brand-500 animate-spin" />

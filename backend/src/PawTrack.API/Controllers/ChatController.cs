@@ -69,6 +69,27 @@ public sealed class ChatController(ISender sender) : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : Forbid();
     }
 
+    // ── GET /api/chat/threads/{threadId} — single thread metadata ────────────
+
+    /// <summary>Returns metadata for a single thread (both participants may access).</summary>
+    [HttpGet("threads/{threadId:guid}")]
+    [EnableRateLimiting("chat-message")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetThreadById(
+        Guid threadId,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
+        var result = await sender.Send(new GetThreadByIdQuery(threadId, userId), cancellationToken);
+
+        if (result.IsFailure)
+            return NotFound(new ProblemDetails { Title = "Thread not found", Status = 404 });
+
+        return Ok(result.Value);
+    }
+
     // ── POST /api/chat/threads/{threadId}/messages ────────────────────────────
 
     /// <summary>Appends a masked message to an existing thread.</summary>

@@ -1,4 +1,4 @@
-import { toast } from 'sonner'
+﻿import { toast } from 'sonner'
 
 interface PetToastOptions {
   petName: string
@@ -25,7 +25,7 @@ export function usePetToast() {
     zone,
   }: PetToastOptions & { zone?: string }) => {
     toast.custom(() => (
-      <div className="flex items-center gap-3 rounded-2xl border border-trust-200 bg-white px-4 py-3 shadow-xl w-full">
+      <div className="flex items-center gap-3 rounded-2xl border border-trust-200 field-input px-4 py-3 shadow-xl w-full">
         {/* Photo or emoji */}
         <div className="flex-shrink-0">
           {petPhotoUrl ? (

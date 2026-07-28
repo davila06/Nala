@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback } from "react";
+﻿import { useRef, useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useVisualMatch } from "../hooks/useVisualMatch";
 import type { VisualMatchResult } from "../api/matchingApi";
@@ -26,7 +26,7 @@ function MatchCard({ match }: { match: VisualMatchResult }) {
   const pct = Math.round(match.similarityScore * 100);
 
   return (
-    <div className="flex gap-3 rounded-xl border border-sand-100 bg-white p-3 shadow-sm transition-shadow hover:shadow-md">
+    <div className="flex gap-3 rounded-xl border border-sand-100 field-input p-3 shadow-sm transition-shadow hover:shadow-md">
       {/* Pet photo */}
       <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-sand-100">
         {match.photoUrl ? (
@@ -325,7 +325,7 @@ export function VisualMatchPanel() {
                       Math.min(prev + 10, results.length),
                     )
                   }
-                  className="mt-4 w-full rounded-xl border border-sand-200 bg-white py-2.5 text-sm font-medium text-sand-700 shadow-sm transition-colors hover:bg-sand-50"
+                  className="mt-4 w-full rounded-xl border border-sand-200 field-input py-2.5 text-sm font-medium text-sand-700 shadow-sm transition-colors hover:bg-sand-50"
                 >
                   Mostrar más ({results.length - visibleCount} restantes)
                 </button>

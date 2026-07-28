@@ -243,7 +243,7 @@ export default function CreatePetPage() {
             {step === 3 && (
               <div className="space-y-5">
                 {/* Preview card */}
-                <div className="rounded-2xl border border-sand-200 bg-white overflow-hidden shadow-sm">
+                <div className="rounded-2xl border border-sand-200 field-input overflow-hidden shadow-sm">
                   {/* Photo preview */}
                   <div className="h-48 bg-brand-50 flex items-center justify-center overflow-hidden">
                     {photo ? (
