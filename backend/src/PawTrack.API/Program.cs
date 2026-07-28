@@ -448,17 +448,18 @@ var app = builder.Build();
 // (UseEnvironment + ConfigureAppConfiguration) are visible to the check.
 StartupGuards.EnsureJwtKeyStrength(app.Configuration, app.Environment);
 
-// ── Local environment: auto-create schema via EnsureCreated ──────────────────
-// Runs only when ASPNETCORE_ENVIRONMENT=Local AND Database:EnsureCreated=true.
-// EnsureCreated is idempotent — safe to run on every startup.
-// Never runs in Development (uses LocalDB seeded manually) or Production.
-if (app.Environment.IsEnvironment("Local")
-    && app.Configuration.GetValue<bool>("Database:EnsureCreated"))
+// ── Database migrations ───────────────────────────────────────────────────────
+// Applies all pending EF Core migrations on startup.
+// - Fresh DB:            runs all 28+ migrations in order.
+// - EnsureCreated DB:    fake-applies the baseline so Migrate() doesn't crash
+//                        on existing tables, then applies any new migrations.
+// - Already-migrated DB: no-op (idempotent).
+// Skipped in the Testing environment (integration tests manage their own schema).
+if (!app.Environment.IsEnvironment("Testing"))
 {
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
-    await db.Database.EnsureCreatedAsync();
-    app.Logger.LogInformation("EnsureCreated completado — esquema listo en SQL Express.");
+    var migrationLogger = app.Services.GetRequiredService<ILogger<Program>>();
+    await PawTrack.API.Services.MigrationHelper.ApplyMigrationsAsync(
+        app.Services, migrationLogger);
 }
 
 if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Local"))
