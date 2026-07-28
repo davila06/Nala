@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import type { UserRole } from "../api/authApi";
-import { setAuthenticatedUser, clearAuthenticatedUser } from "@/shared/lib/telemetry";
+import {
+  setAuthenticatedUser,
+  clearAuthenticatedUser,
+} from "@/shared/lib/telemetry";
 
 export interface AuthUser {
   id: string;

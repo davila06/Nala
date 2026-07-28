@@ -1,32 +1,32 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
-const STORAGE_KEY = 'pawtrack_cookie_consent'
+const STORAGE_KEY = "pawtrack_cookie_consent";
 
-type ConsentState = 'accepted' | 'rejected' | null
+type ConsentState = "accepted" | "rejected" | null;
 
 export function CookieConsentBanner() {
   const [consent, setConsent] = useState<ConsentState>(() => {
     try {
-      return (localStorage.getItem(STORAGE_KEY) as ConsentState) ?? null
+      return (localStorage.getItem(STORAGE_KEY) as ConsentState) ?? null;
     } catch {
-      return null
+      return null;
     }
-  })
+  });
 
   const handleAccept = () => {
-    localStorage.setItem(STORAGE_KEY, 'accepted')
-    setConsent('accepted')
-  }
+    localStorage.setItem(STORAGE_KEY, "accepted");
+    setConsent("accepted");
+  };
 
   const handleReject = () => {
-    localStorage.setItem(STORAGE_KEY, 'rejected')
-    setConsent('rejected')
-  }
+    localStorage.setItem(STORAGE_KEY, "rejected");
+    setConsent("rejected");
+  };
 
   // If already decided, don't render
-  if (consent !== null) return null
+  if (consent !== null) return null;
 
   return (
     <AnimatePresence>
@@ -34,16 +34,18 @@ export function CookieConsentBanner() {
         initial={{ y: 80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 80, opacity: 0 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
         role="dialog"
         aria-modal="false"
         aria-label="Aviso de cookies y privacidad"
         className="fixed bottom-0 left-0 right-0 z-[9000] border-t border-sand-200 bg-white/95 px-4 py-4 shadow-2xl backdrop-blur-sm sm:bottom-4 sm:left-4 sm:right-auto sm:max-w-sm sm:rounded-2xl sm:border"
       >
         <p className="mb-3 text-sm leading-relaxed text-sand-700">
-          <span className="mr-1" aria-hidden="true">🍪</span>
-          Usamos cookies esenciales para el funcionamiento de la app y cookies de
-          analítica (Application Insights) para mejorar el servicio.{' '}
+          <span className="mr-1" aria-hidden="true">
+            🍪
+          </span>
+          Usamos cookies esenciales para el funcionamiento de la app y cookies
+          de analítica (Application Insights) para mejorar el servicio.{" "}
           <Link
             to="/legal/politica-de-privacidad"
             className="font-semibold text-brand-600 underline underline-offset-2 hover:text-brand-700"
@@ -70,14 +72,14 @@ export function CookieConsentBanner() {
         </div>
       </motion.div>
     </AnimatePresence>
-  )
+  );
 }
 
 /** Returns the stored consent value without causing a re-render. */
 export function getCookieConsent(): ConsentState {
   try {
-    return (localStorage.getItem(STORAGE_KEY) as ConsentState) ?? null
+    return (localStorage.getItem(STORAGE_KEY) as ConsentState) ?? null;
   } catch {
-    return null
+    return null;
   }
 }

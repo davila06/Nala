@@ -4,12 +4,12 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'backend/**'
-      - '.github/workflows/backend.yml'
+      - "backend/**"
+      - ".github/workflows/backend.yml"
   pull_request:
     branches: [main]
     paths:
-      - 'backend/**'
+      - "backend/**"
 
 jobs:
   build-and-test:
@@ -38,7 +38,7 @@ jobs:
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: "9.0.x"
 
       - name: Cache NuGet packages
         uses: actions/cache@v4
@@ -103,7 +103,7 @@ jobs:
         if: always()
         with:
           name: .NET Tests
-          path: '**/*-test-results.xml'
+          path: "**/*-test-results.xml"
           reporter: dotnet-trx
 
   deploy:
@@ -123,7 +123,7 @@ jobs:
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: "9.0.x"
 
       - name: Restore
         run: dotnet restore

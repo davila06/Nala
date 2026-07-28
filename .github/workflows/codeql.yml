@@ -7,7 +7,7 @@ on:
     branches: [main]
   schedule:
     # Run every Monday at 08:00 UTC (04:00 Costa Rica)
-    - cron: '0 8 * * 1'
+    - cron: "0 8 * * 1"
 
 jobs:
   analyze:
@@ -43,7 +43,7 @@ jobs:
         if: matrix.language == 'csharp'
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: "9.0.x"
 
       - name: Build .NET
         if: matrix.language == 'csharp'
@@ -54,5 +54,5 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: '/language:${{ matrix.language }}'
+          category: "/language:${{ matrix.language }}"
           upload: always
