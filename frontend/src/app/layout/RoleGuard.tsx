@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/features/auth/store/authStore'
 import type { AuthUser } from '@/features/auth/store/authStore'
 
@@ -22,9 +22,11 @@ export function RoleGuard({
   unauthorized = '/dashboard',
 }: RoleGuardProps) {
   const { isAuthenticated, user } = useAuthStore()
+  const location = useLocation()
 
   if (!isAuthenticated || !user) {
-    return <Navigate to={unauthenticated} replace />
+    const returnTo = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`${unauthenticated}?return=${returnTo}`} replace />
   }
 
   if (!roles.includes(user.role)) {

@@ -212,7 +212,8 @@ export default function AuthenticatedLayout() {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    const returnTo = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`/login?return=${returnTo}`} replace />;
   }
 
   const extraNav =

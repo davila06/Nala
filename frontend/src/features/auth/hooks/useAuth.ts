@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { authApi, decodeRoleFromJwt } from '../api/authApi'
 import { useAuthStore } from '../store/authStore'
 
-export function useLogin() {
+export function useLogin(returnTo?: string) {
   const setAuth = useAuthStore((s) => s.setAuth)
   const navigate = useNavigate()
 
@@ -21,7 +21,11 @@ export function useLogin() {
         },
         data.accessToken,
       )
-      navigate(role === 'Ally' ? '/allies/panel' : '/dashboard')
+      // Honour the ?return= param; fall back to role-based default
+      const destination = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('/login')
+        ? returnTo
+        : role === 'Ally' ? '/allies/panel' : '/dashboard'
+      navigate(destination, { replace: true })
     },
   })
 }

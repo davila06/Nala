@@ -86,16 +86,35 @@ function StatItem({ end, suffix, label, started }: StatItemProps) {
 
 function EyeIcon({ open }: { open: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className="h-4 w-4"
+      aria-hidden="true"
+    >
       {open ? (
         <>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"
+          />
           <line x1="1" y1="1" x2="23" y2="23" />
         </>
       ) : (
         <>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+          />
           <circle cx="12" cy="12" r="3" />
         </>
       )}
@@ -107,13 +126,18 @@ function EyeIcon({ open }: { open: boolean }) {
 
 function extractLoginError(err: unknown): string {
   if (!err) return "";
-  const axiosErr = err as { response?: { data?: { detail?: string; title?: string }; status?: number } };
+  const axiosErr = err as {
+    response?: { data?: { detail?: string; title?: string }; status?: number };
+  };
   const status = axiosErr.response?.status;
   const detail = axiosErr.response?.data?.detail;
 
-  if (status === 423) return "Cuenta bloqueada temporalmente por múltiples intentos fallidos. Intenta en 15 minutos.";
-  if (detail?.toLowerCase().includes("locked")) return "Cuenta bloqueada temporalmente. Intenta en 15 minutos.";
-  if (detail?.toLowerCase().includes("verified")) return "Debes verificar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada.";
+  if (status === 423)
+    return "Cuenta bloqueada temporalmente por múltiples intentos fallidos. Intenta en 15 minutos.";
+  if (detail?.toLowerCase().includes("locked"))
+    return "Cuenta bloqueada temporalmente. Intenta en 15 minutos.";
+  if (detail?.toLowerCase().includes("verified"))
+    return "Debes verificar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada.";
   if (status === 401) return "Correo o contraseña incorrectos.";
   return "No se pudo iniciar sesión. Intenta de nuevo.";
 }
@@ -127,14 +151,18 @@ function BrandPanel() {
 
   // Real stats when available, fallback to seed values while loading
   const totalReunited = overview?.recoveredCount ?? 0;
-  const recoveryPct   = overview ? Math.round(overview.overallRecoveryRate * 100) : 0;
-  const totalReports  = overview?.totalReports ?? 0;
+  const recoveryPct = overview
+    ? Math.round(overview.overallRecoveryRate * 100)
+    : 0;
+  const totalReports = overview?.totalReports ?? 0;
 
   useEffect(() => {
     const el = panelRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setStatsStarted(true); },
+      ([entry]) => {
+        if (entry.isIntersecting) setStatsStarted(true);
+      },
       { threshold: 0.3 },
     );
     observer.observe(el);
@@ -151,8 +179,12 @@ function BrandPanel() {
       <AmbientPaws />
 
       <div className="flex items-center gap-3 relative z-10">
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 text-xl">🐾</span>
-        <span className="font-display text-2xl font-semibold tracking-tight">PawTrack CR</span>
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 text-xl">
+          🐾
+        </span>
+        <span className="font-display text-2xl font-semibold tracking-tight">
+          PawTrack CR
+        </span>
       </div>
 
       <div className="space-y-6 relative z-10">
@@ -162,22 +194,53 @@ function BrandPanel() {
           <em className="not-italic text-brand-400">a casa.</em>
         </p>
         <p className="text-trust-200 text-base leading-relaxed max-w-sm">
-          Identidad digital, seguimiento en tiempo real y una red comunitaria de rescate para mascotas.
+          Identidad digital, seguimiento en tiempo real y una red comunitaria de
+          rescate para mascotas.
         </p>
       </div>
 
       <div className="flex gap-8 relative z-10">
         {totalReports > 0 ? (
           <>
-            <StatItem end={totalReports}  suffix="+"  label="casos atendidos"       started={statsStarted} />
-            <StatItem end={recoveryPct}   suffix=" %" label="tasa de recuperación"  started={statsStarted} />
-            <StatItem end={totalReunited} suffix="+"  label="mascotas reunidas"      started={statsStarted} />
+            <StatItem
+              end={totalReports}
+              suffix="+"
+              label="casos atendidos"
+              started={statsStarted}
+            />
+            <StatItem
+              end={recoveryPct}
+              suffix=" %"
+              label="tasa de recuperación"
+              started={statsStarted}
+            />
+            <StatItem
+              end={totalReunited}
+              suffix="+"
+              label="mascotas reunidas"
+              started={statsStarted}
+            />
           </>
         ) : (
           <>
-            <StatItem end={12000} suffix="+"  label="mascotas registradas"  started={statsStarted} />
-            <StatItem end={94}    suffix=" %" label="tasa de recuperación"  started={statsStarted} />
-            <StatItem end={480}   suffix="+"  label="aliados verificados"   started={statsStarted} />
+            <StatItem
+              end={12000}
+              suffix="+"
+              label="mascotas registradas"
+              started={statsStarted}
+            />
+            <StatItem
+              end={94}
+              suffix=" %"
+              label="tasa de recuperación"
+              started={statsStarted}
+            />
+            <StatItem
+              end={480}
+              suffix="+"
+              label="aliados verificados"
+              started={statsStarted}
+            />
           </>
         )}
       </div>
@@ -188,19 +251,45 @@ function BrandPanel() {
 // ── Login form ───────────────────────────────────────────────────────────────
 
 export default function LoginPage() {
-  const { mutate: login, isPending, error } = useLogin();
   const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get("return") ?? undefined;
   const justRegistered = searchParams.get("registered") === "true";
 
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [showPassword, setShowPassword] = useState(false);
-  const [emailTouched, setEmailTouched] = useState(false);
+  const { mutate: login, isPending, error } = useLogin(returnTo);
 
-  const emailInvalid = emailTouched && form.email.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
+  // J — Restore remembered email from last session
+  const [form, setForm] = useState(() => ({
+    email: localStorage.getItem("pawtrack:lastEmail") ?? "",
+    password: "",
+  }));
+  const [showPassword, setShowPassword] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(() => !!localStorage.getItem("pawtrack:lastEmail"));
+  // M — Debounce validation: only show error after 400ms of inactivity post-blur
+  const emailDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [emailValidNow, setEmailValidNow] = useState(false);
+
+  const emailInvalid =
+    emailValidNow &&
+    emailTouched &&
+    form.email.length > 0 &&
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
   const errorMsg = extractLoginError(error);
+
+  const handleEmailBlur = () => {
+    setEmailTouched(true);
+    if (emailDebounceRef.current) clearTimeout(emailDebounceRef.current);
+    emailDebounceRef.current = setTimeout(() => setEmailValidNow(true), 400);
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, email: e.target.value });
+    setEmailValidNow(false); // reset until debounce fires again
+  };
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    // J — Persist email for next visit
+    localStorage.setItem("pawtrack:lastEmail", form.email);
     login({ email: form.email, password: form.password });
   }
 
@@ -240,7 +329,12 @@ export default function LoginPage() {
           )}
 
           {error && (
-            <Alert variant="error" className="mb-6" id="login-error" role="alert">
+            <Alert
+              variant="error"
+              className="mb-6"
+              id="login-error"
+              role="alert"
+            >
               {errorMsg}
             </Alert>
           )}
@@ -253,24 +347,40 @@ export default function LoginPage() {
                 id="email"
                 autoComplete="email"
                 inputMode="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 required
                 autoFocus
                 placeholder="tu@correo.com"
                 value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                onBlur={() => setEmailTouched(true)}
-                aria-describedby={emailInvalid ? "email-error" : error ? "login-error" : undefined}
+                onChange={handleEmailChange}
+                onBlur={handleEmailBlur}
+                aria-describedby={
+                  emailInvalid
+                    ? "email-error"
+                    : error
+                      ? "login-error"
+                      : undefined
+                }
                 aria-invalid={emailInvalid || undefined}
               />
               {emailInvalid && (
-                <p id="email-error" className="mt-1.5 text-xs text-danger-600" role="alert">
+                <p
+                  id="email-error"
+                  className="mt-1.5 text-xs text-danger-600"
+                  role="alert"
+                >
                   Ingresa un correo electrónico válido.
                 </p>
               )}
             </div>
 
             <div>
-              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-sand-700">
+              <label
+                htmlFor="password"
+                className="mb-1.5 block text-sm font-medium text-sand-700"
+              >
                 Contraseña
               </label>
               <div className="relative">
@@ -278,10 +388,15 @@ export default function LoginPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
                   required
                   placeholder="••••••••"
                   value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, password: e.target.value })
+                  }
                   aria-describedby={error ? "login-error" : undefined}
                   className="block w-full rounded-xl border border-sand-300 bg-surface py-2.5 pl-3.5 pr-10 text-sm text-sand-900 shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200 placeholder:text-sand-400"
                 />
@@ -289,7 +404,9 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   tabIndex={-1}
-                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  aria-label={
+                    showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                  }
                   aria-pressed={showPassword}
                   className="absolute inset-y-0 right-0 flex items-center px-3 text-sand-400 hover:text-sand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-inset rounded-r-xl"
                 >
@@ -325,6 +442,16 @@ export default function LoginPage() {
               className="rounded font-semibold text-brand-600 hover:text-brand-700 hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
             >
               Regístrate gratis
+            </Link>
+          </p>
+
+          {/* L — Escape hatch for users who don't want to log in */}
+          <p className="mt-4 text-center">
+            <Link
+              to="/map"
+              className="text-xs text-sand-400 hover:text-sand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
+            >
+              Explorar el mapa público sin cuenta
             </Link>
           </p>
         </div>
