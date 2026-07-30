@@ -41,6 +41,7 @@ ENTRYPOINT ["dotnet", "PawTrack.API.dll"]
 ```
 
 Luego hacer build y push:
+
 ```powershell
 az acr login --name pawtrackacrdev
 docker build -f backend/src/PawTrack.API/Dockerfile -t pawtrackacrdev.azurecr.io/pawtrack-api:v1.0.0 backend/
@@ -260,18 +261,18 @@ az containerapp update \
 
 Ir a `GitHub repo → Settings → Secrets and variables → Actions` y agregar:
 
-| Secret | Valor |
-|--------|-------|
-| `AZURE_CLIENT_ID` | App registration Client ID (Workload Identity Federation) |
-| `AZURE_TENANT_ID` | Azure AD Tenant ID |
-| `AZURE_SUBSCRIPTION_ID` | Subscription ID |
-| `ACR_NAME` | `pawtrackacrdev` |
-| `CONTAINER_APP_NAME` | `pawtrack-dev-api` |
-| `CONTAINER_APP_FQDN` | FQDN del Container App (sin `https://`) |
-| `AZURE_RESOURCE_GROUP` | `PawnTrackBeta` |
-| `SQL_CONNECTION_STRING` | Connection string completo de Azure SQL |
-| `AZURE_STATIC_WEB_APPS_API_TOKEN` | Token del Static Web App |
-| `VITE_API_URL` | `https://<container-app-fqdn>` |
+| Secret                            | Valor                                                     |
+| --------------------------------- | --------------------------------------------------------- |
+| `AZURE_CLIENT_ID`                 | App registration Client ID (Workload Identity Federation) |
+| `AZURE_TENANT_ID`                 | Azure AD Tenant ID                                        |
+| `AZURE_SUBSCRIPTION_ID`           | Subscription ID                                           |
+| `ACR_NAME`                        | `pawtrackacrdev`                                          |
+| `CONTAINER_APP_NAME`              | `pawtrack-dev-api`                                        |
+| `CONTAINER_APP_FQDN`              | FQDN del Container App (sin `https://`)                   |
+| `AZURE_RESOURCE_GROUP`            | `PawnTrackBeta`                                           |
+| `SQL_CONNECTION_STRING`           | Connection string completo de Azure SQL                   |
+| `AZURE_STATIC_WEB_APPS_API_TOKEN` | Token del Static Web App                                  |
+| `VITE_API_URL`                    | `https://<container-app-fqdn>`                            |
 
 ---
 
@@ -294,7 +295,7 @@ Ir a `GitHub repo → Settings → Secrets and variables → Actions` y agregar:
 - [x] **Dockerfile** (`backend/Dockerfile`) — multi-stage .NET 9
 - [x] **Imagen API** `pawtrackacrdev.azurecr.io/pawtrack-api:v1.0.0-beta` — pushed
 - [x] **EF Core migrations** — todas aplicadas en `pawtrack-dev-sql.database.windows.net`
-- [x] **Container App env vars** — KV secrets + Jwt__Issuer/Audience + ASPNETCORE_URLS + CORS
+- [x] **Container App env vars** — KV secrets + Jwt\_\_Issuer/Audience + ASPNETCORE_URLS + CORS
 - [x] **Container App image** — `pawtrackacrdev.azurecr.io/pawtrack-api:v1.0.0-beta` (Running)
 - [x] **Frontend** desplegado en `https://green-mushroom-0156b8c0f.7.azurestaticapps.net`
 - [x] **API health** respondiendo `{"status":"Healthy"}`

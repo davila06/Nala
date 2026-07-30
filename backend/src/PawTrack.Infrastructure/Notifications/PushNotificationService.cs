@@ -1,27 +1,27 @@
-using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PawTrack.Application.Common.Interfaces;
+using WebPush;
 
 namespace PawTrack.Infrastructure.Notifications;
 
 /// <summary>
-/// Push notification integration.
-/// When Notifications:Push:ProviderUrl is configured, sends notifications through
-/// that HTTP provider endpoint using a JSON payload.
-/// Otherwise falls back to structured logs (development-safe).
+/// Delivers Web Push notifications directly to browser push servers via VAPID.
+/// No paid provider required — uses the free RFC 8030 Web Push Protocol.
+/// Set Notifications:Push:VapidPublicKey and Notifications:Push:VapidPrivateKey in config.
 /// </summary>
 public sealed class PushNotificationService(
     IConfiguration configuration,
-    IHttpClientFactory httpClientFactory,
+    IServiceScopeFactory scopeFactory,
     ILogger<PushNotificationService> logger)
     : IPushNotificationService
 {
-    private readonly string? _providerUrl = configuration["Notifications:Push:ProviderUrl"];
-    private readonly string? _apiKey = configuration["Notifications:Push:ApiKey"];
-    private readonly bool _enabled =
-        bool.TryParse(configuration["Notifications:Push:Enabled"], out var enabled)
-        && enabled;
+    private readonly string? _vapidPublicKey = configuration["Notifications:Push:VapidPublicKey"];
+    private readonly string? _vapidPrivateKey = configuration["Notifications:Push:VapidPrivateKey"];
+    private readonly string _vapidSubject = configuration["Notifications:Push:VapidSubject"]
+        ?? "mailto:ops@pawtrack.cr";
 
     public async Task SendAsync(
         Guid userId,
@@ -30,62 +30,59 @@ public sealed class PushNotificationService(
         PushNotificationMetadata? metadata = null,
         CancellationToken cancellationToken = default)
     {
-        if (_enabled && !string.IsNullOrWhiteSpace(_providerUrl))
+        if (string.IsNullOrWhiteSpace(_vapidPublicKey) || string.IsNullOrWhiteSpace(_vapidPrivateKey))
+        {
+            logger.LogInformation(
+                "Push skipped (VAPID not configured). User={UserId} [{Title}] {Body}",
+                userId, title, body);
+            return;
+        }
+
+        using var scope = scopeFactory.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<IPushSubscriptionRepository>();
+
+        var subscriptions = await repo.GetByUserIdAsync(userId, cancellationToken);
+        if (subscriptions.Count == 0) return;
+
+        var payload = JsonSerializer.Serialize(new PushPayload(
+            title, body, metadata?.Url, metadata?.ResolveCheckNotificationId));
+
+        var client = new WebPushClient();
+        client.SetVapidDetails(_vapidSubject, _vapidPublicKey, _vapidPrivateKey);
+
+        foreach (var sub in subscriptions)
         {
             try
             {
-                var client = httpClientFactory.CreateClient("PushProvider");
-                using var request = new HttpRequestMessage(HttpMethod.Post, _providerUrl)
-                {
-                    Content = JsonContent.Create(new PushProviderRequest(
-                        userId,
-                        title,
-                        body,
-                        metadata?.Url,
-                        metadata?.ResolveCheckNotificationId,
-                        metadata?.Category,
-                        metadata?.ActionIds,
-                        DateTimeOffset.UtcNow)),
-                };
+                var keys = JsonSerializer.Deserialize<PushKeys>(sub.KeysJson);
+                if (keys is null) continue;
 
-                if (!string.IsNullOrWhiteSpace(_apiKey))
-                    request.Headers.Add("X-Api-Key", _apiKey);
-
-                var response = await client.SendAsync(request, cancellationToken);
-                if (!response.IsSuccessStatusCode)
-                {
-                    logger.LogWarning(
-                        "Push provider rejected notification for user {UserId}. Status={StatusCode}",
-                        userId,
-                        (int)response.StatusCode);
-                }
-
-                return;
+                var pushSub = new PushSubscription(sub.Endpoint, keys.P256dh, keys.Auth);
+                await client.SendNotificationAsync(pushSub, payload);
+            }
+            catch (WebPushException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Gone
+                                           || ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                // Subscription expired — remove it
+                await repo.DeleteByEndpointAsync(sub.Endpoint, cancellationToken);
+                logger.LogInformation("Removed stale push subscription for user {UserId}", userId);
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Push provider call failed for user {UserId}", userId);
+                logger.LogWarning(ex, "Failed to send push to user {UserId}", userId);
             }
         }
-
-        logger.LogInformation(
-            "Push fallback notification to user {UserId}: [{Title}] {Body}. Url={Url} ResolveCheckNotificationId={ResolveId}",
-            userId,
-            title,
-            body,
-            metadata?.Url,
-            metadata?.ResolveCheckNotificationId);
-
-        await Task.CompletedTask;
     }
 
-    private sealed record PushProviderRequest(
-        Guid UserId,
-        string Title,
-        string Body,
-        string? Url,
-        string? ResolveCheckNotificationId,
-        string? Category,
-        IReadOnlyList<string>? ActionIds,
-        DateTimeOffset SentAtUtc);
+    private sealed record PushPayload(
+        string title,
+        string body,
+        string? url,
+        string? resolveCheckNotificationId);
+
+    private sealed record PushKeys(string? p256dh, string? auth)
+    {
+        public string? P256dh => p256dh;
+        public string? Auth => auth;
+    }
 }

@@ -191,8 +191,8 @@ public sealed class AuthController(ISender sender) : ControllerBase
             return NoContent();
 
         // Extract the access-token jti + expiry so the handler can blocklist it.
-        var jti         = User.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti);
-        var expClaim    = User.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Exp);
+        var jti = User.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti);
+        var expClaim = User.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Exp);
         DateTimeOffset? expiresAt = long.TryParse(expClaim, out var expSeconds)
             ? DateTimeOffset.FromUnixTimeSeconds(expSeconds)
             : null;

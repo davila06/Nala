@@ -218,7 +218,9 @@ export default function PetDetailPage() {
             {pet.microchipId && (
               <div>
                 <dt className="text-sand-400">Microchip</dt>
-                <dd className="font-mono font-medium text-sand-800">{pet.microchipId}</dd>
+                <dd className="font-mono font-medium text-sand-800">
+                  {pet.microchipId}
+                </dd>
               </div>
             )}
             <div>
