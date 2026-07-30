@@ -46,7 +46,7 @@ function MessageBubble({
     >
       {/* Avatar — other party */}
       {!mine && (
-        <div className="mr-2 flex-shrink-0 self-end">
+        <div className="mr-2 shrink-0 self-end">
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-sand-800 text-xs font-bold text-white">
             ?
           </div>
@@ -65,7 +65,7 @@ function MessageBubble({
               : "rounded-bl-sm field-input border border-sand-200",
           ].join(" ")}
         >
-          <p className="whitespace-pre-wrap break-words">{msg.body}</p>
+          <p className="whitespace-pre-wrap wrap-break-word">{msg.body}</p>
         </div>
 
         {/* Meta — time + read receipt */}
@@ -93,7 +93,7 @@ function MessageBubble({
 function TypingIndicator() {
   return (
     <div className="flex items-end gap-2 mb-3 justify-start">
-      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-sand-800 text-xs font-bold text-white flex-shrink-0">
+      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-sand-800 text-xs font-bold text-white shrink-0">
         ?
       </div>
       <div className="rounded-2xl rounded-bl-sm field-input border border-sand-200 px-4 py-3 shadow-sm">
@@ -185,7 +185,7 @@ export function ChatPanel({
   };
 
   return (
-    <div className="flex h-full flex-col bg-sand-50">
+    <div className="flex h-full flex-col bg-surface-warm">
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-sand-200 field-input px-4 py-3 shadow-sm">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sand-900 text-xs font-bold text-white ring-2 ring-sand-200">

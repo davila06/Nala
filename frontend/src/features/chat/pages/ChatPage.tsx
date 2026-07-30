@@ -81,7 +81,7 @@ export default function ChatPage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar: thread list (owner view) */}
         {isOwner && (
-          <aside className="w-64 shrink-0 overflow-y-auto border-r border-sand-100 bg-sand-50">
+          <aside className="w-64 shrink-0 overflow-y-auto border-r border-sand-100 bg-surface-warm">
             <p className="px-4 py-3 text-xs font-semibold uppercase tracking-widest text-sand-500">
               Conversaciones
             </p>

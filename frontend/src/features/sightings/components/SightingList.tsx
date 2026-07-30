@@ -1,29 +1,29 @@
-import { useSightingsByPet } from '../hooks/useSightings'
+import { useSightingsByPet } from "../hooks/useSightings";
 
 interface SightingListProps {
-  petId: string
+  petId: string;
 }
 
 const PRIORITY_STYLES = {
   Urgent: {
-    label: 'Urgente',
-    badgeClassName: 'bg-danger-50 text-danger-700 ring-danger-200',
-    cardClassName: 'border-danger-100',
+    label: "Urgente",
+    badgeClassName: "bg-danger-50 text-danger-700 ring-danger-200",
+    cardClassName: "border-danger-100",
   },
   Validate: {
-    label: 'Validar',
-    badgeClassName: 'bg-brand-50 text-brand-700 ring-brand-200',
-    cardClassName: 'border-brand-100',
+    label: "Validar",
+    badgeClassName: "bg-brand-50 text-brand-700 ring-brand-200",
+    cardClassName: "border-brand-100",
   },
   Observe: {
-    label: 'Observar',
-    badgeClassName: 'bg-trust-50 text-trust-700 ring-trust-200',
-    cardClassName: 'border-trust-100',
+    label: "Observar",
+    badgeClassName: "bg-trust-50 text-trust-700 ring-trust-200",
+    cardClassName: "border-trust-100",
   },
-} as const
+} as const;
 
 export function SightingList({ petId }: SightingListProps) {
-  const { data: sightings, isLoading, isError } = useSightingsByPet(petId)
+  const { data: sightings, isLoading, isError } = useSightingsByPet(petId);
 
   if (isLoading) {
     return (
@@ -32,13 +32,15 @@ export function SightingList({ petId }: SightingListProps) {
           <li key={i} className="h-16 animate-pulse rounded-xl bg-sand-100" />
         ))}
       </ul>
-    )
+    );
   }
 
   if (isError) {
     return (
-      <p className="text-sm text-danger-500">No se pudieron cargar los avistamientos.</p>
-    )
+      <p className="text-sm text-danger-500">
+        No se pudieron cargar los avistamientos.
+      </p>
+    );
   }
 
   if (!sightings || sightings.length === 0) {
@@ -46,7 +48,7 @@ export function SightingList({ petId }: SightingListProps) {
       <p className="rounded-xl bg-sand-50 px-4 py-6 text-center text-sm text-sand-400">
         Sin avistamientos reportados aún.
       </p>
-    )
+    );
   }
 
   return (
@@ -71,15 +73,22 @@ export function SightingList({ petId }: SightingListProps) {
                 >
                   {PRIORITY_STYLES[s.priorityBadge].label}
                 </span>
-                <span className="text-xs font-semibold text-sand-500">{s.priorityScore}/100</span>
+                <span className="text-xs font-semibold text-sand-500">
+                  {s.priorityScore}/100
+                </span>
               </div>
               <p className="mt-2 text-xs font-semibold text-sand-700">
-                <span aria-hidden="true">📍</span> {s.lat.toFixed(4)}, {s.lng.toFixed(4)}
+                <span aria-hidden="true">📍</span> {s.lat.toFixed(4)},{" "}
+                {s.lng.toFixed(4)}
               </p>
               {s.note && (
-                <p className="mt-0.5 line-clamp-2 text-xs text-sand-500">{s.note}</p>
+                <p className="mt-0.5 line-clamp-2 text-xs text-sand-500">
+                  {s.note}
+                </p>
               )}
-              <p className="mt-2 text-xs text-sand-600">{s.recommendedAction}</p>
+              <p className="mt-2 text-xs text-sand-600">
+                {s.recommendedAction}
+              </p>
               <p className="mt-1 text-xs text-sand-400">
                 {new Date(s.sightedAt).toLocaleString()}
               </p>
@@ -88,6 +97,5 @@ export function SightingList({ petId }: SightingListProps) {
         </li>
       ))}
     </ul>
-  )
+  );
 }
-

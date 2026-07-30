@@ -226,7 +226,7 @@ export default function ReportLostPage() {
       ) : (
         <>
           {/* ── Wizard header ───────────────────────────────────────── */}
-          <div className="mb-6 rounded-2xl border border-danger-200 bg-gradient-to-br from-danger-50 to-warn-50 p-5">
+          <div className="mb-6 rounded-2xl border border-danger-200 bg-linear-to-br from-danger-50 to-warn-50 p-5">
             <h1 className="text-lg font-bold text-danger-700">
               🚨 Reportar a {pet.name} como perdido
             </h1>
@@ -496,7 +496,7 @@ export default function ReportLostPage() {
                   {/* ══ STEP 3: Contacto ════════════════════════════════════ */}
                   {step === 3 && (
                     <div className="space-y-5">
-                      <div className="rounded-2xl border border-sand-200 bg-sand-50 p-5">
+                      <div className="rounded-2xl border border-sand-200 bg-surface-warm p-5">
                         <p className="mb-1 text-sm font-semibold text-sand-700">
                           📞 Contacto de emergencia
                         </p>
@@ -544,7 +544,7 @@ export default function ReportLostPage() {
                       </div>
 
                       {/* Summary card */}
-                      <div className="rounded-2xl border border-danger-200 field-input p-4 space-y-2">
+                      <div className="rounded-2xl border border-danger-200 bg-danger-50/30 p-4 space-y-2">
                         <p className="text-xs font-bold uppercase tracking-wider text-sand-500">
                           Resumen del reporte
                         </p>

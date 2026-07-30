@@ -1,79 +1,79 @@
-import { useState } from 'react'
+import { useState } from "react";
 import {
   CHECKLIST_ITEMS,
   useSearchChecklist,
   type ChecklistPhase,
   type ChecklistItem,
-} from '../hooks/useSearchChecklist'
+} from "../hooks/useSearchChecklist";
 
 // ── Props ──────────────────────────────────────────────────────────────────────
 
 export interface SearchChecklistProps {
   /** ID of the active lost-pet event — used as the localStorage persistence key */
-  lostEventId: string
+  lostEventId: string;
   /** Pet name for contextual copy */
-  petName: string
+  petName: string;
   /** Extra CSS classes for the outer wrapper */
-  className?: string
+  className?: string;
 }
 
 // ── Phase metadata ─────────────────────────────────────────────────────────────
 
 interface PhaseMeta {
-  label: string
-  urgency: string
-  emoji: string
+  label: string;
+  urgency: string;
+  emoji: string;
   /** Tailwind classes for the section border when not done */
-  borderClass: string
+  borderClass: string;
   /** Tailwind classes for the section background when not done */
-  bgClass: string
+  bgClass: string;
   /** Tailwind classes for the header text */
-  headingClass: string
+  headingClass: string;
   /** Tailwind classes for the urgency badge */
-  badgeClass: string
+  badgeClass: string;
 }
 
 const PHASE_META: Readonly<Record<ChecklistPhase, PhaseMeta>> = {
-  '2h': {
-    label: 'Primeras 2 horas',
-    urgency: '¡Crítico!',
-    emoji: '⚡',
-    borderClass: 'border-red-200',
-    bgClass: 'bg-red-50',
-    headingClass: 'text-red-900',
-    badgeClass: 'bg-red-100 text-red-700',
+  "2h": {
+    label: "Primeras 2 horas",
+    urgency: "¡Crítico!",
+    emoji: "⚡",
+    borderClass: "border-red-200",
+    bgClass: "bg-red-50",
+    headingClass: "text-red-900",
+    badgeClass: "bg-red-100 text-red-700",
   },
-  '24h': {
-    label: 'Primeras 24 horas',
-    urgency: 'Amplía la búsqueda',
-    emoji: '🔍',
-    borderClass: 'border-brand-200',
-    bgClass: 'bg-brand-50',
-    headingClass: 'text-brand-900',
-    badgeClass: 'bg-brand-100 text-brand-700',
+  "24h": {
+    label: "Primeras 24 horas",
+    urgency: "Amplía la búsqueda",
+    emoji: "🔍",
+    borderClass: "border-brand-200",
+    bgClass: "bg-brand-50",
+    headingClass: "text-brand-900",
+    badgeClass: "bg-brand-100 text-brand-700",
   },
-  '3d': {
-    label: 'Primeros 3 días',
-    urgency: 'No te rindas',
-    emoji: '💪',
-    borderClass: 'border-sand-200',
-    bgClass: 'bg-sand-50',
-    headingClass: 'text-sand-800',
-    badgeClass: 'bg-sand-200 text-sand-600',
+  "3d": {
+    label: "Primeros 3 días",
+    urgency: "No te rindas",
+    emoji: "💪",
+    borderClass: "border-sand-200",
+    bgClass: "bg-sand-50",
+    headingClass: "text-sand-800",
+    badgeClass: "bg-sand-200 text-sand-600",
   },
-}
+};
 
-const PHASES: readonly ChecklistPhase[] = ['2h', '24h', '3d']
+const PHASES: readonly ChecklistPhase[] = ["2h", "24h", "3d"];
 
 // ── Progress bar ───────────────────────────────────────────────────────────────
 
 interface ProgressBarProps {
-  completed: number
-  total: number
+  completed: number;
+  total: number;
 }
 
 function ProgressBar({ completed, total }: ProgressBarProps) {
-  const pct = total === 0 ? 0 : Math.round((completed / total) * 100)
+  const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
   return (
     <div
       role="progressbar"
@@ -88,21 +88,21 @@ function ProgressBar({ completed, total }: ProgressBarProps) {
         style={{ width: `${pct}%` }}
       />
     </div>
-  )
+  );
 }
 
 // ── Phase section ──────────────────────────────────────────────────────────────
 
 interface PhaseSectionProps {
-  phase: ChecklistPhase
-  items: readonly ChecklistItem[]
-  checkedIds: ReadonlySet<string>
-  onToggle: (id: string) => void
-  isOpen: boolean
-  onToggleOpen: () => void
-  completed: number
-  total: number
-  done: boolean
+  phase: ChecklistPhase;
+  items: readonly ChecklistItem[];
+  checkedIds: ReadonlySet<string>;
+  onToggle: (id: string) => void;
+  isOpen: boolean;
+  onToggleOpen: () => void;
+  completed: number;
+  total: number;
+  done: boolean;
 }
 
 function PhaseSection({
@@ -116,15 +116,15 @@ function PhaseSection({
   total,
   done,
 }: PhaseSectionProps) {
-  const meta = PHASE_META[phase]
-  const sectionId = `sc-section-${phase}`
-  const headerId = `sc-header-${phase}`
+  const meta = PHASE_META[phase];
+  const sectionId = `sc-section-${phase}`;
+  const headerId = `sc-header-${phase}`;
 
   return (
     <div
       className={`overflow-hidden rounded-xl border transition-colors ${
         done
-          ? 'border-rescue-200 bg-rescue-50'
+          ? "border-rescue-200 bg-rescue-50"
           : `${meta.borderClass} ${meta.bgClass}`
       }`}
     >
@@ -139,13 +139,13 @@ function PhaseSection({
       >
         {/* Phase icon / done check */}
         <span className="shrink-0 text-lg" aria-hidden="true">
-          {done ? '✅' : meta.emoji}
+          {done ? "✅" : meta.emoji}
         </span>
 
         {/* Title + urgency */}
         <span className="flex-1 min-w-0">
           <span
-            className={`block text-sm font-bold ${done ? 'text-rescue-800' : meta.headingClass}`}
+            className={`block text-sm font-bold ${done ? "text-rescue-800" : meta.headingClass}`}
           >
             {meta.label}
           </span>
@@ -166,7 +166,7 @@ function PhaseSection({
         {/* Progress count */}
         <span
           className={`shrink-0 text-xs font-medium tabular-nums ${
-            done ? 'text-rescue-700' : 'text-sand-500'
+            done ? "text-rescue-700" : "text-sand-500"
           }`}
           aria-hidden="true"
         >
@@ -176,7 +176,7 @@ function PhaseSection({
         {/* Caret */}
         <span
           className={`shrink-0 text-sand-400 transition-transform duration-200 ${
-            isOpen ? 'rotate-180' : ''
+            isOpen ? "rotate-180" : ""
           }`}
           aria-hidden="true"
         >
@@ -194,12 +194,12 @@ function PhaseSection({
       {isOpen && (
         <ul id={sectionId} role="list" className="px-4 pb-3 pt-1 space-y-2">
           {items.map((item) => {
-            const checked = checkedIds.has(item.id)
+            const checked = checkedIds.has(item.id);
             return (
               <li key={item.id}>
                 <label
                   className={`flex cursor-pointer select-none items-start gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-black/5 ${
-                    checked ? 'opacity-60' : ''
+                    checked ? "opacity-60" : ""
                   }`}
                 >
                   <input
@@ -212,22 +212,22 @@ function PhaseSection({
                   <span
                     className={`text-sm leading-snug ${
                       checked
-                        ? 'line-through text-sand-400'
+                        ? "line-through text-sand-400"
                         : done
-                          ? 'text-rescue-800'
-                          : 'text-sand-800'
+                          ? "text-rescue-800"
+                          : "text-sand-800"
                     }`}
                   >
                     {item.label}
                   </span>
                 </label>
               </li>
-            )
+            );
           })}
         </ul>
       )}
     </div>
-  )
+  );
 }
 
 // ── Main component ─────────────────────────────────────────────────────────────
@@ -241,26 +241,30 @@ function PhaseSection({
  * - When all items complete: celebration state replaces the list.
  * - Zero external dependencies.
  */
-export function SearchChecklist({ lostEventId, petName, className = '' }: SearchChecklistProps) {
+export function SearchChecklist({
+  lostEventId,
+  petName,
+  className = "",
+}: SearchChecklistProps) {
   const { checkedIds, toggleItem, phaseProgress, totalProgress } =
-    useSearchChecklist(lostEventId)
+    useSearchChecklist(lostEventId);
 
   // First phase open by default, others closed until user expands them
   const [openPhases, setOpenPhases] = useState<ReadonlySet<ChecklistPhase>>(
-    () => new Set<ChecklistPhase>(['2h']),
-  )
+    () => new Set<ChecklistPhase>(["2h"]),
+  );
 
   const togglePhase = (phase: ChecklistPhase) => {
     setOpenPhases((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
       if (next.has(phase)) {
-        next.delete(phase)
+        next.delete(phase);
       } else {
-        next.add(phase)
+        next.add(phase);
       }
-      return next
-    })
-  }
+      return next;
+    });
+  };
 
   // ── All done celebration ───────────────────────────────────────────────────
 
@@ -278,23 +282,24 @@ export function SearchChecklist({ lostEventId, petName, className = '' }: Search
           ¡Completaste todos los pasos!
         </p>
         <p className="mt-1 text-xs text-rescue-700">
-          Hiciste todo lo que está en tus manos. Esperamos que {petName} vuelva pronto a casa.
+          Hiciste todo lo que está en tus manos. Esperamos que {petName} vuelva
+          pronto a casa.
         </p>
       </div>
-    )
+    );
   }
 
   // ── Checklist ─────────────────────────────────────────────────────────────
 
   return (
-    <div className={`rounded-2xl border border-sand-200 bg-surface p-4 ${className}`}>
+    <div
+      className={`rounded-2xl border border-sand-200 bg-surface p-4 ${className}`}
+    >
       {/* Header */}
       <div className="mb-3">
-        <h2 className="text-sm font-bold text-sand-900">
-          📋 Qué hacer ahora
-        </h2>
+        <h2 className="text-sm font-bold text-sand-900">📋 Qué hacer ahora</h2>
         <p className="mt-0.5 text-xs text-sand-500">
-          Pasos basados en estudios de recuperación de mascotas.{' '}
+          Pasos basados en estudios de recuperación de mascotas.{" "}
           <span className="font-medium tabular-nums text-sand-700">
             {totalProgress.completed}/{totalProgress.total} completados
           </span>
@@ -310,8 +315,8 @@ export function SearchChecklist({ lostEventId, petName, className = '' }: Search
       {/* Phase sections */}
       <div className="mt-3 space-y-2">
         {PHASES.map((phase) => {
-          const phaseItems = CHECKLIST_ITEMS.filter((i) => i.phase === phase)
-          const progress = phaseProgress[phase]
+          const phaseItems = CHECKLIST_ITEMS.filter((i) => i.phase === phase);
+          const progress = phaseProgress[phase];
           return (
             <PhaseSection
               key={phase}
@@ -325,10 +330,9 @@ export function SearchChecklist({ lostEventId, petName, className = '' }: Search
               total={progress.total}
               done={progress.done}
             />
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }
-

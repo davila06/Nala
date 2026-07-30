@@ -255,7 +255,7 @@ export function NotificationCenter() {
                 type="button"
                 onClick={() => handleResolveSheetAction(false)}
                 disabled={isRespondingResolveCheck}
-                className="rounded-2xl border border-sand-300 field-input px-4 py-2.5 text-sm font-semibold text-sand-700 hover:bg-sand-50 disabled:opacity-50"
+                className="rounded-2xl border border-sand-300 field-input px-4 py-2.5 text-sm font-semibold text-sand-700 hover:bg-surface-warm disabled:opacity-50"
               >
                 No, sigue perdido
               </button>

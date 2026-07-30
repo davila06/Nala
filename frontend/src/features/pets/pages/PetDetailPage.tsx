@@ -191,7 +191,7 @@ export default function PetDetailPage() {
       {/* ── Info tab ──────────────────────────────────────────────────── */}
       {activeTab === "info" && (
         <div className="space-y-5">
-          <dl className="grid grid-cols-2 gap-3 rounded-2xl border border-sand-100 bg-sand-50 p-4 text-sm">
+          <dl className="grid grid-cols-2 gap-3 rounded-2xl border border-sand-100 bg-surface-warm p-4 text-sm">
             <div>
               <dt className="text-sand-400">Especie</dt>
               <dd className="font-medium text-sand-800">
@@ -386,7 +386,7 @@ export default function PetDetailPage() {
       {/* ── QR tab ────────────────────────────────────────────────────── */}
       {activeTab === "qr" && (
         <div className="space-y-5">
-          <div className="rounded-2xl border border-sand-200 bg-linear-to-br from-sand-50 to-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-sand-200 bg-linear-to-br from-sand-50 to-surface p-6 shadow-sm">
             <h2 className="mb-3 text-center font-display text-base font-semibold text-sand-700">
               Placa digital de {pet.name}
             </h2>
@@ -414,7 +414,7 @@ export default function PetDetailPage() {
                     return (
                       <li
                         key={`${event.scannedAt}-${event.deviceSummary}`}
-                        className="rounded-xl border border-sand-100 bg-sand-50 p-3"
+                        className="rounded-xl border border-sand-100 bg-surface-warm p-3"
                       >
                         <p className="text-sm font-medium text-sand-800">
                           📍 {location}
