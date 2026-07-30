@@ -121,6 +121,11 @@ const NAV_EXTRA_CLINIC = {
   icon: null,
 };
 const NAV_EXTRA_ADMIN = { to: "/admin", label: "Administración", icon: null };
+const NAV_EXTRA_ADMIN_STATS = {
+  to: "/estadisticas",
+  label: "Estadísticas",
+  icon: null,
+};
 
 const ROLE_BADGE: Record<string, { label: string; cls: string }> = {
   Owner: { label: "Propietario", cls: "bg-sand-100 text-sand-600" },
@@ -219,6 +224,8 @@ export default function AuthenticatedLayout() {
           ? NAV_EXTRA_ADMIN
           : null;
 
+  const adminStatsNav = user?.role === "Admin" ? NAV_EXTRA_ADMIN_STATS : null;
+
   const pageCtx = resolvePageContext(location.pathname);
 
   return (
@@ -258,6 +265,11 @@ export default function AuthenticatedLayout() {
             {extraNav && (
               <NavLink to={extraNav.to} className={navLinkPlainCls}>
                 {extraNav.label}
+              </NavLink>
+            )}
+            {adminStatsNav && (
+              <NavLink to={adminStatsNav.to} className={navLinkPlainCls}>
+                {adminStatsNav.label}
               </NavLink>
             )}
           </nav>
@@ -528,6 +540,15 @@ export default function AuthenticatedLayout() {
                 className={navLinkPlainCls}
               >
                 {extraNav.label}
+              </NavLink>
+            )}
+            {adminStatsNav && (
+              <NavLink
+                to={adminStatsNav.to}
+                onClick={() => setMenuOpen(false)}
+                className={navLinkPlainCls}
+              >
+                {adminStatsNav.label}
               </NavLink>
             )}
             {user?.role === "Owner" && (

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useLogin } from "../hooks/useAuth";
+import { useRecoveryOverview } from "@/features/lost-pets/hooks/useRecoveryStats";
 import { Button } from "@/shared/ui/Button";
 import { Input } from "@/shared/ui/Input";
 import { Alert } from "@/shared/ui/Alert";
@@ -15,7 +16,6 @@ function useCountUp(target: number, duration = 1800, start = false) {
     const tick = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      // Ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       setValue(Math.round(eased * target));
       if (progress < 1) requestAnimationFrame(tick);
@@ -82,20 +82,59 @@ function StatItem({ end, suffix, label, started }: StatItemProps) {
   );
 }
 
+// ── Eye icon SVG (show/hide password) ────────────────────────────────────────
+
+function EyeIcon({ open }: { open: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4" aria-hidden="true">
+      {open ? (
+        <>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+          <line x1="1" y1="1" x2="23" y2="23" />
+        </>
+      ) : (
+        <>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+          <circle cx="12" cy="12" r="3" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+// ── Error message extractor ───────────────────────────────────────────────────
+
+function extractLoginError(err: unknown): string {
+  if (!err) return "";
+  const axiosErr = err as { response?: { data?: { detail?: string; title?: string }; status?: number } };
+  const status = axiosErr.response?.status;
+  const detail = axiosErr.response?.data?.detail;
+
+  if (status === 423) return "Cuenta bloqueada temporalmente por múltiples intentos fallidos. Intenta en 15 minutos.";
+  if (detail?.toLowerCase().includes("locked")) return "Cuenta bloqueada temporalmente. Intenta en 15 minutos.";
+  if (detail?.toLowerCase().includes("verified")) return "Debes verificar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada.";
+  if (status === 401) return "Correo o contraseña incorrectos.";
+  return "No se pudo iniciar sesión. Intenta de nuevo.";
+}
+
 // ── Brand panel ───────────────────────────────────────────────────────────────
 
 function BrandPanel() {
   const panelRef = useRef<HTMLDivElement>(null);
   const [statsStarted, setStatsStarted] = useState(false);
+  const { data: overview } = useRecoveryOverview();
 
-  // Start count-up when the panel becomes visible
+  // Real stats when available, fallback to seed values while loading
+  const totalReunited = overview?.recoveredCount ?? 0;
+  const recoveryPct   = overview ? Math.round(overview.overallRecoveryRate * 100) : 0;
+  const totalReports  = overview?.totalReports ?? 0;
+
   useEffect(() => {
     const el = panelRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setStatsStarted(true);
-      },
+      ([entry]) => { if (entry.isIntersecting) setStatsStarted(true); },
       { threshold: 0.3 },
     );
     observer.observe(el);
@@ -109,20 +148,13 @@ function BrandPanel() {
       aria-hidden="true"
       style={{ position: "relative" }}
     >
-      {/* Ambient paw prints */}
       <AmbientPaws />
 
-      {/* Logo */}
       <div className="flex items-center gap-3 relative z-10">
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 text-xl">
-          🐾
-        </span>
-        <span className="font-display text-2xl font-semibold tracking-tight">
-          PawTrack CR
-        </span>
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 text-xl">🐾</span>
+        <span className="font-display text-2xl font-semibold tracking-tight">PawTrack CR</span>
       </div>
 
-      {/* Central copy */}
       <div className="space-y-6 relative z-10">
         <p className="font-display text-4xl leading-snug font-medium text-balance">
           Cada mascota merece volver
@@ -130,31 +162,24 @@ function BrandPanel() {
           <em className="not-italic text-brand-400">a casa.</em>
         </p>
         <p className="text-trust-200 text-base leading-relaxed max-w-sm">
-          Identidad digital, seguimiento en tiempo real y una red comunitaria de
-          rescate para mascotas.
+          Identidad digital, seguimiento en tiempo real y una red comunitaria de rescate para mascotas.
         </p>
       </div>
 
-      {/* Animated stats */}
       <div className="flex gap-8 relative z-10">
-        <StatItem
-          end={12000}
-          suffix="+"
-          label="mascotas registradas"
-          started={statsStarted}
-        />
-        <StatItem
-          end={94}
-          suffix=" %"
-          label="tasa de recuperación"
-          started={statsStarted}
-        />
-        <StatItem
-          end={480}
-          suffix="+"
-          label="aliados verificados"
-          started={statsStarted}
-        />
+        {totalReports > 0 ? (
+          <>
+            <StatItem end={totalReports}  suffix="+"  label="casos atendidos"       started={statsStarted} />
+            <StatItem end={recoveryPct}   suffix=" %" label="tasa de recuperación"  started={statsStarted} />
+            <StatItem end={totalReunited} suffix="+"  label="mascotas reunidas"      started={statsStarted} />
+          </>
+        ) : (
+          <>
+            <StatItem end={12000} suffix="+"  label="mascotas registradas"  started={statsStarted} />
+            <StatItem end={94}    suffix=" %" label="tasa de recuperación"  started={statsStarted} />
+            <StatItem end={480}   suffix="+"  label="aliados verificados"   started={statsStarted} />
+          </>
+        )}
       </div>
     </div>
   );
@@ -169,6 +194,10 @@ export default function LoginPage() {
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
+
+  const emailInvalid = emailTouched && form.email.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
+  const errorMsg = extractLoginError(error);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -211,45 +240,62 @@ export default function LoginPage() {
           )}
 
           {error && (
-            <Alert variant="error" className="mb-6">
-              Credenciales incorrectas. Verifica tu correo y contraseña.
+            <Alert variant="error" className="mb-6" id="login-error" role="alert">
+              {errorMsg}
             </Alert>
           )}
 
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
-            <Input
-              label="Correo electrónico"
-              type="email"
-              id="email"
-              autoComplete="email"
-              inputMode="email"
-              required
-              autoFocus
-              placeholder="tu@correo.com"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-            />
-
             <div>
               <Input
-                label="Contraseña"
-                type={showPassword ? "text" : "password"}
-                id="password"
-                autoComplete="current-password"
+                label="Correo electrónico"
+                type="email"
+                id="email"
+                autoComplete="email"
+                inputMode="email"
                 required
-                placeholder="••••••••"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                autoFocus
+                placeholder="tu@correo.com"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                onBlur={() => setEmailTouched(true)}
+                aria-describedby={emailInvalid ? "email-error" : error ? "login-error" : undefined}
+                aria-invalid={emailInvalid || undefined}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                className="mt-1.5 rounded px-1 py-2 text-xs text-sand-500 hover:text-sand-700 transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
-                aria-label="Alternar visibilidad"
-                aria-pressed={showPassword}
-              >
-                {showPassword ? "Ocultar" : "Mostrar"}
-              </button>
+              {emailInvalid && (
+                <p id="email-error" className="mt-1.5 text-xs text-danger-600" role="alert">
+                  Ingresa un correo electrónico válido.
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-sand-700">
+                Contraseña
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  placeholder="••••••••"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  aria-describedby={error ? "login-error" : undefined}
+                  className="block w-full rounded-xl border border-sand-300 bg-surface py-2.5 pl-3.5 pr-10 text-sm text-sand-900 shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200 placeholder:text-sand-400"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  tabIndex={-1}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  aria-pressed={showPassword}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-sand-400 hover:text-sand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-inset rounded-r-xl"
+                >
+                  <EyeIcon open={showPassword} />
+                </button>
+              </div>
             </div>
 
             <div className="flex items-center justify-end">
@@ -261,7 +307,13 @@ export default function LoginPage() {
               </Link>
             </div>
 
-            <Button type="submit" loading={isPending} fullWidth size="lg">
+            <Button
+              type="submit"
+              loading={isPending}
+              disabled={emailInvalid}
+              fullWidth
+              size="lg"
+            >
               {isPending ? "Ingresando…" : "Ingresar"}
             </Button>
           </form>

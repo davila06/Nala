@@ -149,15 +149,17 @@ export default function DashboardPage() {
             </span>
             Mensajes y alertas
           </Link>
-          <Link
-            to="/estadisticas"
-            className="flex items-center gap-3 rounded-xl border border-sand-200 bg-surface-warm px-4 py-3 text-sm font-semibold text-sand-700 transition-base hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400 focus-visible:ring-offset-1"
-          >
-            <span aria-hidden="true" className="text-lg">
-              📊
-            </span>
-            Estadísticas CR
-          </Link>
+          {user?.role === "Admin" && (
+            <Link
+              to="/estadisticas"
+              className="flex items-center gap-3 rounded-xl border border-sand-200 bg-surface-warm px-4 py-3 text-sm font-semibold text-sand-700 transition-base hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400 focus-visible:ring-offset-1"
+            >
+              <span aria-hidden="true" className="text-lg">
+                📊
+              </span>
+              Estadísticas CR
+            </Link>
+          )}
         </div>
 
         {/* Loading skeleton */}
