@@ -1,6 +1,6 @@
 # PawTrack CR — Pendientes Consolidados
 
-> Última actualización: 2026-07-30  
+> Última actualización: 2026-07-30 (sesión de trabajo completa)
 > Fuentes: `PENDIENTES_BETA.md`, `collares.md`, `mejorasUI.md`, `multi-idioma.md`, `pasos para ir live.md`, `pricing.md`, `PawTrack_Documento_Maestro_v3.1.md`, `GUIA_ONBOARDING_DEV.md`
 
 ---
@@ -10,12 +10,13 @@
 | Categoría                 | Total   | ⛔ Pendiente | 🔄 Parcial | ✅ Hecho |
 | ------------------------- | ------- | ------------ | ---------- | -------- |
 | Infraestructura / DevOps  | 6       | 2            | 0          | 4        |
-| Seguridad / Configuración | 2       | 2            | 0          | 0        |
-| Features backend          | 4       | 2            | 1          | 1        |
-| Features frontend         | 5       | 3            | 1          | 1        |
-| Internacionalización      | 4       | 4            | 0          | 0        |
+| Seguridad / Configuración | 2       | 1            | 0          | 1        |
+| Features backend          | 5       | 2            | 0          | 3        |
+| Features frontend         | 7       | 2            | 0          | 5        |
+| Bugs / fixes producción   | 8       | 0            | 0          | 8        |
+| Internacionalización      | 4       | 2            | 0          | 2        |
 | Módulos nuevos (GPS)      | 1       | 1            | 0          | 0        |
-| UI/UX (rediseño)          | 6 fases | 6            | 0          | 0        |
+| UI/UX (rediseño)          | 6 fases | 5            | 1          | 0        |
 | Monetización              | 4       | 4            | 0          | 0        |
 
 ---
@@ -94,16 +95,11 @@
 
 ---
 
-### 2.2 ⛔ Push Notifications — VAPID key + proveedor externo
+### 2.2 ✅ Push Notifications — VAPID directo sin proveedor externo
 
-**Fuente:** `pasos para ir live.md → §6.4`  
-**Impacto:** Las notificaciones push web no llegan a navegadores. El frontend usa `VITE_VAPID_PUBLIC_KEY` pero no hay proveedor configurado.  
-**Pasos:**
-
-1. Elegir proveedor: Azure Notification Hubs, Firebase FCM, o servidor VAPID propio.
-2. Generar VAPID key pair.
-3. Configurar en Container App: `Notifications__Push__ProviderUrl` + `Notifications__Push__ApiKey`.
-4. Agregar `VITE_VAPID_PUBLIC_KEY` como variable de build en el pipeline del frontend.
+**Estado:** ✅ Implementado en commit `93fc3cf` (2026-07-30).  
+`PushNotificationService` reescrito para enviar directamente via Web Push Protocol (RFC 8030) con VAPID. Claves en `appsettings.Local.json` y `frontend/.env.local`.  
+**Para Azure:** agregar `Notifications__Push__VapidPublicKey` + `Notifications__Push__VapidPrivateKey` (en Key Vault) al Container App.
 
 ---
 
@@ -146,32 +142,21 @@
 
 ---
 
-### 3.3 🔄 EF Core migration pendiente para `User.IsDeleted` / `User.DeletedAt`
+### 3.3 ✅ EF Core migration `AddUserSoftDelete`
 
-**Fuente:** `UserConfiguration.cs` — columnas añadidas en código pero sin migración generada.  
-**Impacto:** La DB no tiene las columnas `IsDeleted`/`DeletedAt`, el endpoint `DELETE /api/auth/me` fallará en producción.  
-**Acción:**
-
-```bash
-dotnet ef migrations add AddUserSoftDelete \
-  --project backend/src/PawTrack.Infrastructure \
-  --startup-project backend/src/PawTrack.API
-dotnet ef database update \
-  --project backend/src/PawTrack.Infrastructure \
-  --startup-project backend/src/PawTrack.API
-```
+**Estado:** ✅ Generada y aplicada en DB local (`6ebee07`, 2026-07-30). Pendiente aplicar en Azure SQL de producción via CI/CD.
 
 ---
 
-### 3.4 ⛔ Clínicas — tiers de pago no activados
+### 3.5 ✅ Estadísticas — `RecoveredCount` correcto sin depender de GPS
 
-**Fuente:** `pricing.md → §3`  
-**Impacto:** El portal de clínicas existe pero no hay facturación.  
-**Tiers documentados:**
+**Estado:** ✅ Corregido (sesión 2026-07-30). `RecoveryStatsRawData` ahora tiene campo `RecoveredCount` separado que cuenta todos los `LostPetEvent.Status == Reunited` sin requerir `RecoveryDistanceMeters != null`.
 
-- Afiliada básica: Gratis
-- Clínica Plus: ₡15,000/mes — posición destacada, badge, estadísticas
-- Clínica Partner: ₡35,000/mes — widget embebible, soporte prioritario
+---
+
+### 3.6 ✅ Mascota reactivable desde estado Reunida
+
+**Estado:** ✅ Implementado en commit `d95c530` (2026-07-30). `PATCH /api/pets/{id}/reactivate` + botón "Marcar como activa" en `PetDetailPage`.
 
 ---
 
@@ -189,12 +174,9 @@ dotnet ef database update \
 
 ---
 
-### 4.3 ⛔ Foster — map picker en ProfilePage
+### 4.3 ✅ Foster — map picker en ProfilePage
 
-**Fuente:** Análisis de código  
-**Impacto:** El custodio voluntario registra su ubicación de referencia con campos de lat/lng numéricos. Debería ser un mapa interactivo igual al de `ReportLostPage` (`LastSeenMap`).  
-**Archivo:** `frontend/src/features/auth/pages/ProfilePage.tsx`  
-**Acción:** Reemplazar los inputs numéricos de `homeLat`/`homeLng` por el componente `<LastSeenMap>`.
+**Estado:** ✅ Implementado en commit `6ebee07` (2026-07-30). `LastSeenMap` reemplaza inputs numéricos.
 
 ---
 
@@ -218,23 +200,29 @@ dotnet ef database update \
 
 ---
 
+### 4.6 ✅ ProfilePage — mejoras UX enterprise
+
+**Estado:** ✅ Implementado en commit `81cc944` (2026-07-30).  
+- Rol localizado en español, especies con emoji, "Miembro desde" con fecha  
+- Indicador fortaleza contraseña (4 niveles), validación inline de coincidencia  
+- Botón custodio condicional, resumen colapsado, toggle push nativo
+
+---
+
 ## 5. Internacionalización (multi-país)
 
 **Fuente:** `multi-idioma.md`  
 Todos los ítems siguientes son ⛔ sin implementar.
 
-### 5.1 ⛔ Textos hardcodeados "Costa Rica" en frontend
+### 5.1 ✅ Textos hardcodeados "Costa Rica" eliminados
 
-| Archivo                                                                | Línea | Problema                                                   |
-| ---------------------------------------------------------------------- | ----- | ---------------------------------------------------------- |
-| `frontend/src/features/lost-pets/pages/LostReportConfirmationPage.tsx` | 151   | `"${pet.name} está perdido en Costa Rica. ¿Lo has visto?"` |
-| `frontend/src/features/auth/pages/LoginPage.tsx`                       | 32    | `"una red comunitaria de rescate para Costa Rica."`        |
-
-**Fix:** Reemplazar por texto sin referencia geográfica o usar `import.meta.env.VITE_COUNTRY_NAME`.
+**Estado:** ✅ Eliminados en commit `6ebee07` (2026-07-30). Tres ubicaciones corregidas: share text, WhatsApp message, CSP en `index.html`.
 
 ---
 
-### 5.2 ⛔ Content-Security-Policy hardcodeada con dominio CR
+### 5.2 ✅ Content-Security-Policy actualizada
+
+**Estado:** ✅ Corregida (sesión 2026-07-30). Eliminado `*.pawtrack.cr` hardcodeado; añadidos `raw.githubusercontent.com`, `cdn.jsdelivr.net`, `www.geoboundaries.org`, `github.com` para activos legítimos.
 
 **Archivo:** `frontend/index.html`  
 **Problema:** `connect-src` contiene `https://*.pawtrack.cr` — rompe el frontend en otro dominio.  
@@ -338,12 +326,30 @@ Lista operativa para el go-live en producción:
 - [ ] **1.1** Dominio `pawtrack.cr` registrado y CNAME configurado
 - [ ] **1.2** GitHub Secrets configurados (10 secrets listados en §1.2)
 - [ ] **2.1** WhatsApp webhook registrado en Meta y variables en Container App
-- [ ] **2.2** Push notifications configuradas (VAPID + proveedor)
-- [ ] **3.3** Migración `AddUserSoftDelete` generada y aplicada en Azure SQL
+- [x] **2.2** Push VAPID configurado en local — pendiente Container App vars en Azure
+- [x] **3.3** Migración `AddUserSoftDelete` aplicada en DB local — aplicar en Azure SQL via CI/CD
 - [ ] Smoke tests pasando en `https://pawtrack.cr/health`
 - [ ] `VITE_API_URL` apuntando al dominio definitivo en el build de frontend
 - [ ] `Cors__AllowedOrigins__0` = `https://pawtrack.cr` en Container App
 - [ ] `App__BaseUrl` = `https://pawtrack.cr` en Container App
+
+---
+
+## 10. Fixes resueltos en sesión 2026-07-30
+
+| Fix | Descripción |
+|-----|-------------|
+| ✅ | `CookieConsentBanner` usaba `<Link>` fuera de `<RouterProvider>` → reemplazado con `<a>` |
+| ✅ | `LeaderboardWidget` key warning — clave compuesta para IDs null/duplicados |
+| ✅ | `Tabs.tsx` bg-white en dark mode → `bg-[var(--color-surface)]` |
+| ✅ | Scrollbar visible en tab bar de `PetDetailPage` → `.no-scrollbar` |
+| ✅ | GeoJSON cantones CR cargaba desde Git LFS (404) → archivo local `public/geojson/cantons-cr.geojson` (GADM 4.1, 333 KB) |
+| ✅ | `THREE.Clock` deprecation warning en devtools → filtrado en `main.tsx` solo en DEV |
+| ✅ | CSP bloqueaba `raw.githubusercontent.com`, `cdn.jsdelivr.net` → agregados a `connect-src` |
+| ✅ | `/encontre-mascota` GPS denegado mostraba inputs lat/lng manuales inutilizables → mapa interactivo `LastSeenMap` |
+| ✅ | WebGL context lost en componentes 3D → `e.preventDefault()` en `contextlost`, `dpr` reducido |
+| ✅ | `petsApi.ts` sintaxis rota por formatter (campo sin `;`) → corregido |
+| ✅ | `ReportFoundPetPage` duplicado de `gpsError` por formatter → eliminado |
 
 ---
 

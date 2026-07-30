@@ -75,7 +75,11 @@ export default function ProfilePage() {
   const { mutateAsync: deleteAccountMutation, isPending: deletingAccount } =
     useDeleteAccount();
   const user = useAuthStore((s) => s.user);
-  const { status: pushStatus, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe } = usePushSubscription();
+  const {
+    status: pushStatus,
+    subscribe: pushSubscribe,
+    unsubscribe: pushUnsubscribe,
+  } = usePushSubscription();
 
   const { data: fosterProfile, isLoading: fosterLoading } =
     useMyFosterProfile();
@@ -285,7 +289,8 @@ export default function ProfilePage() {
             </p>
             <div className="mt-1 flex items-center gap-2 flex-wrap">
               <Badge variant="neutral">
-                {ROLE_LABEL[serverProfile?.role ?? user?.role ?? ""] ?? user?.role}
+                {ROLE_LABEL[serverProfile?.role ?? user?.role ?? ""] ??
+                  user?.role}
               </Badge>
               {serverProfile?.createdAt && (
                 <span className="text-xs text-sand-400">
@@ -330,7 +335,11 @@ export default function ProfilePage() {
         {/* Resumen guardado cuando colapsado */}
         {!isVolunteer && fosterProfile?.isAvailable && (
           <p className="mt-2 text-xs text-sand-400">
-            Perfil anterior: {fosterProfile.acceptedSpecies.map((s) => SPECIES_LABEL[s]).join(", ")} · máx. {fosterProfile.maxDays} días
+            Perfil anterior:{" "}
+            {fosterProfile.acceptedSpecies
+              .map((s) => SPECIES_LABEL[s])
+              .join(", ")}{" "}
+            · máx. {fosterProfile.maxDays} días
           </p>
         )}
 
@@ -485,13 +494,17 @@ export default function ProfilePage() {
                       <div
                         key={i}
                         className={`h-1 flex-1 rounded-full transition-colors ${
-                          i <= pwdStrength.score ? pwdStrength.color : "bg-sand-200"
+                          i <= pwdStrength.score
+                            ? pwdStrength.color
+                            : "bg-sand-200"
                         }`}
                       />
                     ))}
                   </div>
                   {pwdStrength.label && (
-                    <p className="text-[0.7rem] text-sand-500">{pwdStrength.label} · Mínimo 8 caracteres</p>
+                    <p className="text-[0.7rem] text-sand-500">
+                      {pwdStrength.label} · Mínimo 8 caracteres
+                    </p>
                   )}
                 </div>
               )}
@@ -507,9 +520,11 @@ export default function ProfilePage() {
                 autoComplete="new-password"
               />
               {confirmNewPwd.length > 0 && (
-                <p className={`mt-1 text-[0.7rem] ${
-                  pwdMatch ? "text-rescue-600" : "text-danger-600"
-                }`}>
+                <p
+                  className={`mt-1 text-[0.7rem] ${
+                    pwdMatch ? "text-rescue-600" : "text-danger-600"
+                  }`}
+                >
                   {pwdMatch ? "✓ Las contraseñas coinciden" : "× No coinciden"}
                 </p>
               )}
@@ -517,7 +532,9 @@ export default function ProfilePage() {
             <Button
               fullWidth
               loading={changingPassword}
-              disabled={!currentPwd || !newPwd || newPwd.length < 8 || !pwdMatch}
+              disabled={
+                !currentPwd || !newPwd || newPwd.length < 8 || !pwdMatch
+              }
               onClick={() => void handleChangePassword()}
             >
               Guardar nueva contraseña
@@ -538,8 +555,8 @@ export default function ProfilePage() {
                 {pushStatus === "subscribed"
                   ? "Recibirás alertas aunque tengas la app cerrada."
                   : pushStatus === "denied"
-                  ? "Bloqueadas en el navegador. Actívalas desde Configuración."
-                  : "Recibe alertas de avistamientos y actualizaciones en tiempo real."}
+                    ? "Bloqueadas en el navegador. Actívalas desde Configuración."
+                    : "Recibe alertas de avistamientos y actualizaciones en tiempo real."}
               </p>
             </div>
             <button
@@ -558,7 +575,9 @@ export default function ProfilePage() {
             >
               <span
                 className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                  pushStatus === "subscribed" ? "translate-x-5" : "translate-x-0.5"
+                  pushStatus === "subscribed"
+                    ? "translate-x-5"
+                    : "translate-x-0.5"
                 }`}
               />
             </button>
