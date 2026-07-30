@@ -126,7 +126,8 @@ public sealed class PetsController(
             request.BirthDate,
             photoBytes,
             contentType,
-            fileName);
+            fileName,
+            request.MicrochipId);
 
         var result = await sender.Send(command, cancellationToken);
 
@@ -341,4 +342,5 @@ public sealed record UpdatePetRequest(
     PetSpecies Species,
     string? Breed,
     DateOnly? BirthDate,
-    IFormFile? Photo);
+    IFormFile? Photo,
+    string? MicrochipId);

@@ -28,6 +28,11 @@ public sealed class UpdatePetCommandValidator : AbstractValidator<UpdatePetComma
             .WithMessage("Birth date cannot be in the future.")
             .When(x => x.BirthDate.HasValue);
 
+        RuleFor(x => x.MicrochipId)
+            .MaximumLength(15).WithMessage("Microchip ID must not exceed 15 characters (ISO 11784).")
+            .Matches(@"^[A-F0-9]+$").WithMessage("Microchip ID must be hexadecimal (ISO 11784).")
+            .When(x => x.MicrochipId is not null);
+
         When(x => x.PhotoBytes is not null, () =>
         {
             RuleFor(x => x.PhotoContentType)

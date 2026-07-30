@@ -17,6 +17,7 @@ export interface PetFormValues {
   breed: string
   birthDate: string
   photo: File | null
+  microchipId: string
 }
 
 interface PetFormProps {
@@ -55,6 +56,7 @@ export const PetForm = ({
       breed: (fd.get('breed') as string).trim() || undefined,
       birthDate: (fd.get('birthDate') as string) || undefined,
       photo,
+      microchipId: ((fd.get('microchipId') as string) || '').trim().toUpperCase() || undefined,
     }
 
     onSubmit(data)
@@ -127,6 +129,25 @@ export const PetForm = ({
           defaultValue={defaultValues?.birthDate}
           className="block w-full rounded-xl border border-sand-300 px-3.5 py-2.5 text-sm shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
         />
+      </div>
+
+      {/* Microchip RFID */}
+      <div className="space-y-1">
+        <label htmlFor="pet-microchip" className="block text-sm font-medium text-sand-700">
+          ID de microchip RFID
+          <span className="ml-1 text-xs font-normal text-sand-400">(ISO 11784 — opcional)</span>
+        </label>
+        <input
+          id="pet-microchip"
+          name="microchipId"
+          type="text"
+          maxLength={15}
+          pattern="[A-Fa-f0-9]{0,15}"
+          defaultValue={defaultValues?.microchipId}
+          placeholder="Ej. 0006000123456"
+          className="block w-full rounded-xl border border-sand-300 px-3.5 py-2.5 font-mono text-sm uppercase shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
+        />
+        <p className="text-xs text-sand-400">Ingresa el código del chip que registró tu veterinario.</p>
       </div>
 
       {/* Photo */}

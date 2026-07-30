@@ -42,6 +42,7 @@ export default function CreatePetPage() {
   const [species, setSpecies] = useState<PetSpecies>(existing?.species ?? 'Dog')
   const [breed, setBreed] = useState(existing?.breed ?? '')
   const [birthDate, setBirthDate] = useState(existing?.birthDate ?? '')
+  const [microchipId, setMicrochipId] = useState(existing?.microchipId ?? '')
   const [photo, setPhoto] = useState<File | null>(null)
 
   const goNext = () => { setDirection(1); tap(); setStep((s) => Math.min(3, s + 1) as 1 | 2 | 3) }
@@ -54,6 +55,7 @@ export default function CreatePetPage() {
       breed: breed.trim() || undefined,
       birthDate: birthDate || undefined,
       photo: photo ?? undefined,
+      microchipId: microchipId.trim().toUpperCase() || undefined,
     }
     try {
       if (isEditMode && id) {
@@ -235,6 +237,23 @@ export default function CreatePetPage() {
                     max={new Date().toISOString().split('T')[0]}
                     className="block w-full rounded-xl border border-sand-300 px-3.5 py-2.5 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
                   />
+                </div>
+
+                <div>
+                  <label htmlFor="pet-microchip" className="mb-1 block text-sm font-semibold text-sand-700">
+                    Microchip RFID
+                    <span className="ml-1 text-xs font-normal text-sand-400">(ISO 11784 — opcional)</span>
+                  </label>
+                  <input
+                    id="pet-microchip"
+                    type="text"
+                    maxLength={15}
+                    value={microchipId}
+                    onChange={(e) => setMicrochipId(e.target.value.toUpperCase().replace(/[^A-F0-9]/g, ''))}
+                    placeholder="Ej. 0006000123456"
+                    className="block w-full rounded-xl border border-sand-300 px-3.5 py-2.5 font-mono text-sm uppercase outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
+                  />
+                  <p className="mt-1 text-xs text-sand-400">El código de 15 dígitos del chip de tu veterinario.</p>
                 </div>
               </div>
             )}

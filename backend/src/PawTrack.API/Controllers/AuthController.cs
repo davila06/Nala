@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using PawTrack.Application.Auth.Commands.ChangePassword;
+using PawTrack.Application.Auth.Commands.DeleteAccount;
 using PawTrack.Application.Auth.Commands.ForgotPassword;
 using PawTrack.Application.Auth.Commands.Login;
 using PawTrack.Application.Auth.Commands.Logout;
@@ -254,6 +256,70 @@ public sealed class AuthController(ISender sender) : ControllerBase
 
         return NoContent();
     }
+    [HttpPatch("me/password")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(1024)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> ChangePassword(
+        [FromBody] ChangePasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue("sub");
+
+        if (userIdClaim is null || !Guid.TryParse(userIdClaim, out var userId))
+            return Unauthorized();
+
+        var result = await sender.Send(
+            new ChangePasswordCommand(userId, request.CurrentPassword, request.NewPassword),
+            cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Password change failed",
+                Detail = string.Join("; ", result.Errors),
+                Status = 400,
+            });
+
+        return NoContent();
+    }
+
+    [HttpDelete("me")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(512)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> DeleteAccount(
+        [FromBody] DeleteAccountRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue("sub");
+
+        if (userIdClaim is null || !Guid.TryParse(userIdClaim, out var userId))
+            return Unauthorized();
+
+        var result = await sender.Send(
+            new DeleteAccountCommand(userId, request.ConfirmPassword),
+            cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Account deletion failed",
+                Detail = string.Join("; ", result.Errors),
+                Status = 400,
+            });
+
+        Response.Cookies.Delete("refreshToken", new CookieOptions { Path = "/api/auth" });
+        return NoContent();
+    }
 }
 
 // Request models — co-located with controller
@@ -262,3 +328,5 @@ public sealed record LoginRequest(string Email, string Password);
 public sealed record ForgotPasswordRequest(string Email);
 public sealed record ResetPasswordRequest(string Token, string NewPassword);
 public sealed record UpdateMyProfileRequest(string Name);
+public sealed record ChangePasswordRequest(string CurrentPassword, string NewPassword);
+public sealed record DeleteAccountRequest(string ConfirmPassword);

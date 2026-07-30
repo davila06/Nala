@@ -222,22 +222,17 @@ export const router = createBrowserRouter([
         ],
       },
 
-      // ── Ally + Admin only ─────────────────────────────────────────────────────
+      // ── Estadísticas: pública para todos ──────────────────────────────────────
       {
-        element: <RoleGuard roles={["Ally", "Admin"]} />,
+        element: <PublicLayout />,
         children: [
           {
-            element: <PublicLayout />,
-            children: [
-              {
-                path: "/estadisticas",
-                element: (
-                  <S>
-                    <RecoveryStatsPage />
-                  </S>
-                ),
-              },
-            ],
+            path: "/estadisticas",
+            element: (
+              <S>
+                <RecoveryStatsPage />
+              </S>
+            ),
           },
         ],
       },

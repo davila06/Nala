@@ -1,6 +1,7 @@
 ﻿import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useMyFosterProfile, useUpsertMyFosterProfile } from '@/features/sightings/hooks/useFosters'
-import { useMyProfile, useUpdateProfile } from '../hooks/useProfile'
+import { useMyProfile, useUpdateProfile, useChangePassword, useDeleteAccount } from '../hooks/useProfile'
 import { useAuthStore } from '../store/authStore'
 import type { PetSpecies } from '@/features/sightings/api/fostersApi'
 import { Button, Input, Badge, PageSpinner } from '@/shared/ui'
@@ -9,8 +10,11 @@ import { toast } from '@/shared/lib/toast'
 const ALL_SPECIES: PetSpecies[] = ['Dog', 'Cat', 'Bird', 'Rabbit', 'Other']
 
 export default function ProfilePage() {
+  const navigate = useNavigate()
   const { data: serverProfile, isLoading: profileLoading } = useMyProfile()
   const { mutateAsync: updateProfileName, isPending: updatingName } = useUpdateProfile()
+  const { mutateAsync: changePasswordMutation, isPending: changingPassword } = useChangePassword()
+  const { mutateAsync: deleteAccountMutation, isPending: deletingAccount } = useDeleteAccount()
   const user = useAuthStore((s) => s.user)
 
   const { data: fosterProfile, isLoading: fosterLoading } = useMyFosterProfile()
@@ -44,6 +48,41 @@ export default function ProfilePage() {
   const [acceptedSpecies, setAcceptedSpecies] = useState<PetSpecies[]>(fosterProfile?.acceptedSpecies ?? ['Dog'])
   const [sizePreference, setSizePreference] = useState<string>(fosterProfile?.sizePreference ?? '')
   const [maxDays, setMaxDays] = useState<number>(fosterProfile?.maxDays ?? 3)
+
+  // Change password state
+  const [showChangePwd, setShowChangePwd] = useState(false)
+  const [currentPwd, setCurrentPwd] = useState('')
+  const [newPwd, setNewPwd] = useState('')
+  const [confirmNewPwd, setConfirmNewPwd] = useState('')
+
+  // Delete account state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
+
+  const handleChangePassword = async () => {
+    if (newPwd !== confirmNewPwd) {
+      toast.error('Las contraseñas nuevas no coinciden.')
+      return
+    }
+    try {
+      await changePasswordMutation({ currentPassword: currentPwd, newPassword: newPwd })
+      toast.success('Contraseña actualizada correctamente.')
+      setShowChangePwd(false)
+      setCurrentPwd(''); setNewPwd(''); setConfirmNewPwd('')
+    } catch {
+      toast.error('No se pudo actualizar la contraseña. Verifica que la contraseña actual sea correcta.')
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    try {
+      await deleteAccountMutation({ confirmPassword: deletePassword })
+      toast.success('Cuenta eliminada.')
+      navigate('/login')
+    } catch {
+      toast.error('No se pudo eliminar la cuenta. Verifica tu contraseña.')
+    }
+  }
 
   const canSaveFoster = useMemo(
     () => isVolunteer && acceptedSpecies.length > 0 && maxDays > 0,
@@ -256,6 +295,109 @@ export default function ProfilePage() {
         >
           Guardar perfil de custodio
         </Button>
+      </div>
+
+      {/* ── Change password ───────────────────────────────────────────── */}
+      <div className="rounded-2xl border border-sand-200 field-input p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-sand-800">Contraseña</h2>
+            <p className="mt-0.5 text-sm text-sand-500">Actualiza tu contraseña de acceso.</p>
+          </div>
+          <Button variant="secondary" size="sm" onClick={() => setShowChangePwd((v) => !v)}>
+            {showChangePwd ? 'Cancelar' : 'Cambiar'}
+          </Button>
+        </div>
+
+        {showChangePwd && (
+          <div className="mt-4 space-y-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-sand-600">Contraseña actual</label>
+              <Input
+                type="password"
+                value={currentPwd}
+                onChange={(e) => setCurrentPwd(e.target.value)}
+                autoComplete="current-password"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-sand-600">Nueva contraseña</label>
+              <Input
+                type="password"
+                value={newPwd}
+                onChange={(e) => setNewPwd(e.target.value)}
+                autoComplete="new-password"
+                minLength={8}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-sand-600">Confirmar nueva contraseña</label>
+              <Input
+                type="password"
+                value={confirmNewPwd}
+                onChange={(e) => setConfirmNewPwd(e.target.value)}
+                autoComplete="new-password"
+              />
+            </div>
+            <Button
+              fullWidth
+              loading={changingPassword}
+              disabled={!currentPwd || !newPwd || newPwd.length < 8}
+              onClick={() => void handleChangePassword()}
+            >
+              Guardar nueva contraseña
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* ── Delete account ────────────────────────────────────────────── */}
+      <div className="rounded-2xl border border-danger-200 bg-danger-50/40 p-5">
+        <h2 className="text-base font-semibold text-danger-700">Zona de peligro</h2>
+        <p className="mt-1 text-sm text-sand-600">
+          Eliminar tu cuenta borrará todos tus datos y mascotas registradas. Esta acción es
+          irreversible.
+        </p>
+
+        {!showDeleteConfirm ? (
+          <Button
+            variant="danger"
+            size="sm"
+            className="mt-4"
+            onClick={() => setShowDeleteConfirm(true)}
+          >
+            Eliminar cuenta
+          </Button>
+        ) : (
+          <div className="mt-4 space-y-3">
+            <p className="text-sm font-medium text-danger-700">
+              Ingresa tu contraseña para confirmar la eliminación:
+            </p>
+            <Input
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              autoComplete="current-password"
+              placeholder="Tu contraseña actual"
+            />
+            <div className="flex gap-2">
+              <Button
+                variant="danger"
+                loading={deletingAccount}
+                disabled={!deletePassword}
+                onClick={() => void handleDeleteAccount()}
+              >
+                Sí, eliminar mi cuenta
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => { setShowDeleteConfirm(false); setDeletePassword('') }}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

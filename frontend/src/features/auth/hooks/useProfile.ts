@@ -19,11 +19,28 @@ export function useUpdateProfile() {
   return useMutation({
     mutationFn: (data: { name: string }) => authApi.updateProfile(data),
     onSuccess: (_data, variables) => {
-      // Keep the auth store in sync
       if (user && accessToken) {
         setAuth({ ...user, name: variables.name }, accessToken)
       }
       void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
+    },
+  })
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: (data: { currentPassword: string; newPassword: string }) =>
+      authApi.changePassword(data),
+  })
+}
+
+export function useDeleteAccount() {
+  const clearAuth = useAuthStore((s) => s.clearAuth)
+
+  return useMutation({
+    mutationFn: (data: { confirmPassword: string }) => authApi.deleteAccount(data),
+    onSuccess: () => {
+      clearAuth()
     },
   })
 }

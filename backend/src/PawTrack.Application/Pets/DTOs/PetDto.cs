@@ -12,6 +12,7 @@ public sealed record PetDto(
     string? BirthDate,
     string? PhotoUrl,
     string Status,
+    string? MicrochipId,
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt)
 {
@@ -24,6 +25,7 @@ public sealed record PetDto(
         pet.BirthDate?.ToString("yyyy-MM-dd"),
         pet.PhotoUrl,
         pet.Status.ToString(),
+        pet.MicrochipId,
         pet.CreatedAt,
         pet.UpdatedAt);
 }

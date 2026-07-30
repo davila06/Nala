@@ -60,6 +60,15 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.LockoutEnd);
 
+        builder.Property(u => u.IsDeleted)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(u => u.DeletedAt);
+
+        // Soft-deleted accounts are excluded from default queries
+        builder.HasQueryFilter(u => !u.IsDeleted);
+
         builder.HasMany(u => u.RefreshTokens)
             .WithOne()
             .HasForeignKey(rt => rt.UserId)

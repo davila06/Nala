@@ -13,7 +13,8 @@ public sealed record UpdatePetCommand(
     DateOnly? BirthDate,
     byte[]? PhotoBytes,
     string? PhotoContentType,
-    string? PhotoFileName) : IRequest<Result<PetId>>;
+    string? PhotoFileName,
+    string? MicrochipId) : IRequest<Result<PetId>>;
 
 // Discriminated ID wrapper to clearly distinguish "updated pet ID" from raw Guid
 public readonly record struct PetId(Guid Value);

@@ -215,6 +215,12 @@ export default function PetDetailPage() {
                 <dd className="font-medium text-sand-800">{pet.birthDate}</dd>
               </div>
             )}
+            {pet.microchipId && (
+              <div>
+                <dt className="text-sand-400">Microchip</dt>
+                <dd className="font-mono font-medium text-sand-800">{pet.microchipId}</dd>
+              </div>
+            )}
             <div>
               <dt className="text-sand-400">Registrada</dt>
               <dd className="font-medium text-sand-800">

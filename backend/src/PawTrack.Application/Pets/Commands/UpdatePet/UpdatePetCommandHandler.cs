@@ -26,6 +26,9 @@ public sealed class UpdatePetCommandHandler(
 
         pet.Update(request.Name, request.Species, request.Breed, request.BirthDate);
 
+        if (request.MicrochipId is not null)
+            pet.SetMicrochip(request.MicrochipId);
+
         if (request.PhotoBytes is { Length: > 0 })
         {
             if (!string.IsNullOrEmpty(pet.PhotoUrl))

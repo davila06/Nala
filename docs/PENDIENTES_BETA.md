@@ -215,6 +215,66 @@ Comprar dominio en Route53/Namecheap/GoDaddy → configurar CNAME apuntando al F
 
 ---
 
+### P-10: Configurar bot de WhatsApp (Meta Cloud API)
+
+**Estado:** ⛔ Pendiente — el backend está implementado, falta configuración en Meta y Container App.
+
+**Pasos:**
+
+1. Crear app en [Meta for Developers](https://developers.facebook.com/) → agregar producto WhatsApp Business.
+2. Obtener `Phone Number ID`, `WhatsApp Business Account ID`, y generar un `Permanent Token`.
+3. Registrar el webhook en Meta apuntando a `https://<container-app-fqdn>/api/whatsapp/webhook`.
+4. Agregar los siguientes secrets al Container App:
+
+```powershell
+$KV = "pawtrack-kv-dev"
+$RG = "PawnTrackBeta"
+$APP = "pawtrack-dev-api"
+
+# Guardar en Key Vault
+az keyvault secret set --vault-name $KV --name "whatsapp-bearer-token" --value "<PERMANENT_TOKEN_DE_META>"
+az keyvault secret set --vault-name $KV --name "whatsapp-verify-token" --value "<TOKEN_ALEATORIO_QUE_TU_DEFINES>"
+
+# Agregar referencias al Container App
+az containerapp secret set \
+  --name $APP --resource-group $RG \
+  --secrets \
+    "whatsapp-bearer-token=keyvaultref:https://$KV.vault.azure.net/secrets/whatsapp-bearer-token,identityref:system" \
+    "whatsapp-verify-token=keyvaultref:https://$KV.vault.azure.net/secrets/whatsapp-verify-token,identityref:system"
+
+az containerapp update \
+  --name $APP --resource-group $RG \
+  --set-env-vars \
+    "WhatsApp__BearerToken=secretref:whatsapp-bearer-token" \
+    "WhatsApp__VerifyToken=secretref:whatsapp-verify-token" \
+    "WhatsApp__PhoneNumberId=<PHONE_NUMBER_ID_DE_META>"
+```
+
+5. Verificar que el webhook responde correctamente con el `hub.challenge` en Meta Developer Console.
+
+---
+
+### P-11: Configurar GitHub Secrets para CI/CD
+
+**Estado:** ⛔ Pendiente — los workflows existen pero los secrets no están en el repo.
+
+Ir a `GitHub repo → Settings → Secrets and variables → Actions` y agregar:
+
+| Secret | Valor |
+|--------|-------|
+| `AZURE_CLIENT_ID` | App registration Client ID (Workload Identity Federation) |
+| `AZURE_TENANT_ID` | Azure AD Tenant ID |
+| `AZURE_SUBSCRIPTION_ID` | Subscription ID |
+| `ACR_NAME` | `pawtrackacrdev` |
+| `CONTAINER_APP_NAME` | `pawtrack-dev-api` |
+| `CONTAINER_APP_FQDN` | FQDN del Container App (sin `https://`) |
+| `AZURE_RESOURCE_GROUP` | `PawnTrackBeta` |
+| `SQL_CONNECTION_STRING` | Connection string completo de Azure SQL |
+| `AZURE_STATIC_WEB_APPS_API_TOKEN` | Token del Static Web App |
+| `VITE_API_URL` | `https://<container-app-fqdn>` |
+
+---
+
 ## 🟢 LISTOS
 
 - [x] Resource Group `PawnTrackBeta` creado

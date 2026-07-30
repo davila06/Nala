@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using PawTrack.Domain.Common;
 
 namespace PawTrack.Domain.Auth;
 
@@ -199,5 +200,29 @@ public sealed class User
     {
         FailedLoginAttempts = 0;
         LockoutEnd = null;
+    }
+
+    /// <summary>Verifies current password then replaces it with the new hash.</summary>
+    public Result<bool> ChangePassword(string currentPasswordHash, string newPasswordHash)
+    {
+        if (PasswordHash != currentPasswordHash)
+            return Result.Failure<bool>("Current password is incorrect.");
+
+        PasswordHash = newPasswordHash;
+        return Result.Success(true);
+    }
+
+    public bool IsDeleted { get; private set; }
+    public DateTimeOffset? DeletedAt { get; private set; }
+
+    /// <summary>Soft-deletes the account. Irreversible via the domain.</summary>
+    public void SoftDelete()
+    {
+        IsDeleted = true;
+        DeletedAt = DateTimeOffset.UtcNow;
+        Email = $"deleted-{Id}@deleted.pawtrack.cr";
+        Name = "Cuenta eliminada";
+        PasswordHash = string.Empty;
+        RevokeAllRefreshTokens();
     }
 }

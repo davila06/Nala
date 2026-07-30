@@ -89,4 +89,10 @@ export const authApi = {
 
   updateProfile: (data: { name: string }) =>
     apiClient.patch<void>('/auth/me', data),
+
+  changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    apiClient.patch<void>('/auth/me/password', data),
+
+  deleteAccount: (data: { confirmPassword: string }) =>
+    apiClient.delete<void>('/auth/me', { data }),
 }
