@@ -117,7 +117,7 @@ function ParallaxHero({
         className="absolute inset-x-0 bottom-0 h-48 pointer-events-none"
         style={{
           background:
-            "linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0.6) 40%, transparent 100%)",
+            "linear-gradient(to top, var(--color-surface) 0%, color-mix(in srgb, var(--color-surface) 60%, transparent) 40%, transparent 100%)",
         }}
         aria-hidden="true"
       />
@@ -161,7 +161,7 @@ export default function PublicPetProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-surface">
         <div className="animate-pulse">
           <div className="h-80 bg-sand-100" />
           <div className="p-5 space-y-3">
@@ -210,7 +210,7 @@ export default function PublicPetProfilePage() {
     : `Perfil público de ${pet.name}, ${speciesLabel.toLowerCase()}. Escanea para ver información de contacto y reportar avistamientos.`;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-surface">
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
@@ -234,8 +234,8 @@ export default function PublicPetProfilePage() {
           className={[
             "mb-5 rounded-2xl border p-4 shadow-lg backdrop-blur-sm",
             isLost
-              ? "border-danger-200 bg-white/95"
-              : "border-sand-200 bg-white/95",
+              ? "border-danger-200 bg-surface/95"
+              : "border-sand-200 bg-surface/95",
           ].join(" ")}
         >
           <div className="mb-1 flex items-center gap-2.5">
@@ -328,7 +328,7 @@ export default function PublicPetProfilePage() {
           isLost &&
           pet.activeLostEventId &&
           (pet.contactName ?? contact?.contactName) && (
-            <div className="mb-4 rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50 to-white p-4 shadow-sm">
+            className="mb-4 rounded-2xl border border-brand-200 bg-linear-to-br from-brand-50 to-surface p-4 shadow-sm">
               <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-brand-700">
                 Contacto del dueño
               </p>

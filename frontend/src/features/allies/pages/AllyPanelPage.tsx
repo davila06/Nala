@@ -16,7 +16,7 @@ function KPICard({ icon, label, value, color }: { icon: string; label: string; v
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`rounded-2xl border p-4 bg-white ${color}`}
+      className={`rounded-2xl border p-4 bg-surface ${color}`}
     >
       <p className="text-2xl" aria-hidden="true">{icon}</p>
       <p className="mt-2 text-2xl font-black tabular-nums text-sand-900">{value}</p>

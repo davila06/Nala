@@ -54,7 +54,7 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -16 }}
           transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
-          className="w-full max-w-sm rounded-3xl bg-white shadow-2xl overflow-hidden"
+          className="w-full max-w-sm rounded-3xl bg-surface shadow-2xl overflow-hidden"
         >
           {/* Top gradient band */}
           <div className="bg-gradient-to-br from-brand-500 to-brand-700 p-8 text-center">

@@ -222,7 +222,7 @@ export default function ReportSightingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-surface">
       {/* Header */}
       <div className="border-b border-sand-100 px-5 py-4">
         <Link

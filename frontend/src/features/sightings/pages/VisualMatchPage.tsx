@@ -23,7 +23,7 @@ export default function VisualMatchPage() {
         <meta property="og:type" content="website" />
       </Helmet>
       {/* Header */}
-      <div className="border-b border-sand-200 bg-white/95 backdrop-blur-sm sticky top-0 z-10">
+      <div className="border-b border-sand-200 bg-surface/95 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex items-center justify-between px-4 py-3 max-w-2xl mx-auto">
           <Link
             to="/map"

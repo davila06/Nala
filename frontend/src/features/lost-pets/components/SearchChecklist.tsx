@@ -287,7 +287,7 @@ export function SearchChecklist({ lostEventId, petName, className = '' }: Search
   // ── Checklist ─────────────────────────────────────────────────────────────
 
   return (
-    <div className={`rounded-2xl border border-sand-200 bg-white p-4 ${className}`}>
+    <div className={`rounded-2xl border border-sand-200 bg-surface p-4 ${className}`}>
       {/* Header */}
       <div className="mb-3">
         <h2 className="text-sm font-bold text-sand-900">

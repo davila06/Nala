@@ -54,7 +54,7 @@ export function SightingList({ petId }: SightingListProps) {
       {sightings.map((s) => (
         <li
           key={s.id}
-          className={`rounded-xl border bg-white p-3 shadow-sm ${PRIORITY_STYLES[s.priorityBadge].cardClassName}`}
+          className={`rounded-xl border bg-surface p-3 shadow-sm ${PRIORITY_STYLES[s.priorityBadge].cardClassName}`}
         >
           <div className="flex items-start gap-3">
             {s.photoUrl && (
