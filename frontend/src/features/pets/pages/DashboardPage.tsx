@@ -6,6 +6,7 @@ import {
   shouldShowOnboarding,
 } from "../components/OnboardingWizard";
 import { usePets } from "../hooks/usePets";
+import { useAuthStore } from "@/features/auth/store/authStore";
 import { AlertPreferencesToggle } from "@/features/locations/components/AlertPreferencesToggle";
 import { LeaderboardWidget } from "@/features/incentives/components/LeaderboardWidget";
 import { Alert } from "@/shared/ui/Alert";
@@ -15,6 +16,8 @@ import { usePullToRefresh } from "@/shared/hooks/usePullToRefresh";
 
 export default function DashboardPage() {
   const { data: pets, isLoading, isError, refetch } = usePets();
+  const user = useAuthStore((s) => s.user);
+  const lostCount = useMemo(() => (pets ?? []).filter((p) => p.status === "Lost").length, [pets]);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "Lost" | "Active">(
     "all",
@@ -84,13 +87,22 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="mb-8 flex items-center justify-between gap-4">
           <div>
-            <h1 className="font-display text-2xl font-semibold text-sand-900">
-              Mis mascotas
-            </h1>
-            <p className="mt-0.5 text-sm text-sand-500">
-              {pets?.length ?? 0} mascota{pets?.length !== 1 ? "s" : ""}{" "}
-              registrada{pets?.length !== 1 ? "s" : ""}
+            <p className="text-xs font-medium text-sand-400 uppercase tracking-wide">
+              {new Date().toLocaleDateString('es-CR', { weekday: 'long', day: 'numeric', month: 'long' })}
             </p>
+            <h1 className="font-display text-2xl font-semibold text-sand-900">
+              {user?.name ? `Hola, ${user.name.split(' ')[0]}` : 'Mis mascotas'}
+            </h1>
+            <div className="mt-1 flex items-center gap-2">
+              <p className="text-sm text-sand-500">
+                {pets?.length ?? 0} mascota{pets?.length !== 1 ? "s" : ""} registrada{pets?.length !== 1 ? "s" : ""}
+              </p>
+              {lostCount > 0 && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-danger-100 px-2 py-0.5 text-xs font-bold text-danger-700">
+                  ⚠️ {lostCount} perdida{lostCount !== 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
           </div>
           <Link
             to="/pets/new"
@@ -101,7 +113,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick actions */}
-        <div className="mb-8 grid gap-3 sm:grid-cols-3">
+        <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Link
             to="/encontre-mascota"
             className="flex items-center gap-3 rounded-xl border border-rescue-200 bg-rescue-50 px-4 py-3 text-sm font-semibold text-rescue-700 transition-base hover:bg-rescue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-400 focus-visible:ring-offset-1"
@@ -128,6 +140,15 @@ export default function DashboardPage() {
               💬
             </span>
             Mensajes y alertas
+          </Link>
+          <Link
+            to="/estadisticas"
+            className="flex items-center gap-3 rounded-xl border border-sand-200 bg-sand-50 px-4 py-3 text-sm font-semibold text-sand-700 transition-base hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400 focus-visible:ring-offset-1"
+          >
+            <span aria-hidden="true" className="text-lg">
+              📊
+            </span>
+            Estadísticas CR
           </Link>
         </div>
 

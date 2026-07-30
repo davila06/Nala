@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   useMyFosterProfile,
@@ -14,6 +14,8 @@ import { useAuthStore } from "../store/authStore";
 import type { PetSpecies } from "@/features/sightings/api/fostersApi";
 import { Button, Input, Badge, PageSpinner } from "@/shared/ui";
 import { toast } from "@/shared/lib/toast";
+import { LastSeenMap } from "@/features/lost-pets/components/LastSeenMap";
+import { useGeolocation } from "@/features/lost-pets/hooks/useGeolocation";
 
 const ALL_SPECIES: PetSpecies[] = ["Dog", "Cat", "Bird", "Rabbit", "Other"];
 
@@ -110,17 +112,24 @@ export default function ProfilePage() {
     }
   };
 
+  const geo = useGeolocation();
+
+  // Auto-center map when geolocation resolves and no pin is set yet
+  useEffect(() => {
+    if (geo.coords && homeLat === 0 && homeLng === 0) {
+      setHomeLat(geo.coords.lat);
+      setHomeLng(geo.coords.lng);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [geo.coords]);
+
   const canSaveFoster = useMemo(
     () => isVolunteer && acceptedSpecies.length > 0 && maxDays > 0,
     [isVolunteer, acceptedSpecies, maxDays],
   );
 
   const requestLocation = () => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition((pos) => {
-      setHomeLat(pos.coords.latitude);
-      setHomeLng(pos.coords.longitude);
-    });
+    geo.request();
   };
 
   const toggleSpecies = (species: PetSpecies) => {
@@ -267,12 +276,24 @@ export default function ProfilePage() {
               <p className="mb-2 text-sm font-medium text-sand-700">
                 Ubicación de referencia
               </p>
-              <Button variant="rescue" size="sm" onClick={requestLocation}>
-                📍 Usar mi ubicación actual
-              </Button>
-              <p className="mt-2 text-xs text-sand-500">
-                Lat: {homeLat.toFixed(5)} · Lng: {homeLng.toFixed(5)}
-              </p>
+              <LastSeenMap
+                value={homeLat !== 0 || homeLng !== 0 ? { lat: homeLat, lng: homeLng } : null}
+                onChange={(coords) => { setHomeLat(coords.lat); setHomeLng(coords.lng); }}
+                userCoords={geo.coords}
+                geoStatus={geo.status}
+                petName="Tu ubicación de referencia"
+                className="h-52 rounded-xl overflow-hidden"
+              />
+              <div className="mt-2 flex items-center gap-2">
+                <Button variant="rescue" size="sm" onClick={requestLocation}>
+                  📍 Centrar en mi ubicación actual
+                </Button>
+                {homeLat !== 0 && (
+                  <p className="text-xs text-sand-500">
+                    {homeLat.toFixed(5)}, {homeLng.toFixed(5)}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div>

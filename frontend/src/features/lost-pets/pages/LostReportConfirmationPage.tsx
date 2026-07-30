@@ -166,7 +166,7 @@ export default function LostReportConfirmationPage() {
           });
           await navigator.share({
             title: `¡Ayuda a encontrar a ${pet.name}!`,
-            text: `${pet.name} está perdido en Costa Rica. ¿Lo has visto?`,
+            text: `${pet.name} está perdido. ¿Lo has visto?`,
             url: `${window.location.origin}/p/${pet.id}`,
             files: [file],
           });
@@ -562,7 +562,7 @@ export default function LostReportConfirmationPage() {
               ? `URGENTE — desapareció hoy`
               : `Por favor ayuda a encontrarlo`;
         const msg = encodeURIComponent(
-          `${urgencyEmoji} ${urgencyText}!\n\n*${pet.name}* (${pet.species === "Dog" ? "perro" : pet.species === "Cat" ? "gato" : pet.species}) está perdido en Costa Rica.\n\nEscanea su perfil QR o entra aquí:\n👉 ${profileUrl}\n\n¿Lo has visto? Por favor contáctame.`,
+          `${urgencyEmoji} ${urgencyText}!\n\n*${pet.name}* (${pet.species === "Dog" ? "perro" : pet.species === "Cat" ? "gato" : pet.species}) está perdido.\n\nEscanea su perfil QR o entra aquí:\n👉 ${profileUrl}\n\n¿Lo has visto? Por favor contáctame.`,
         );
         return (
           <a

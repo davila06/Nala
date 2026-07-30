@@ -97,6 +97,24 @@ export default function ClinicDashboardPage() {
 
       {/* ── Main ── */}
       <main className="mx-auto max-w-lg animate-fade-in-up px-4 py-6 space-y-6">
+        {/* ── Tier upgrade banner ───────────────────────────────────── */}
+        <div className="rounded-2xl border border-trust-200 bg-linear-to-r from-trust-50 to-brand-50 px-4 py-3 flex items-center gap-3">
+          <span className="text-2xl" aria-hidden="true">⭐</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-trust-900">Plan Afiliada básica</p>
+            <p className="text-xs text-trust-600 mt-0.5">
+              Actualiza a <strong>Plus (₡15,000/mes)</strong> para posición destacada en el mapa,
+              badge verificado y estadísticas de escaneos.
+            </p>
+          </div>
+          <a
+            href="mailto:alianzas@pawtrack.cr?subject=Actualizar%20a%20Cl%C3%ADnica%20Plus"
+            className="shrink-0 rounded-xl bg-trust-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-trust-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400"
+          >
+            Mejorar
+          </a>
+        </div>
+
         {scanResult ? (
           <MatchResultCard result={scanResult} onReset={handleReset} />
         ) : (

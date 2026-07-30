@@ -125,7 +125,7 @@ function BrandPanel() {
         </p>
         <p className="text-trust-200 text-base leading-relaxed max-w-sm">
           Identidad digital, seguimiento en tiempo real y
-          una red comunitaria de rescate para Costa Rica.
+          una red comunitaria de rescate para mascotas.
         </p>
       </div>
 
