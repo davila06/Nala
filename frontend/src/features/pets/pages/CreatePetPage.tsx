@@ -8,6 +8,7 @@ import { useUpdatePet } from "../hooks/useUpdatePet";
 import { usePetDetail } from "../hooks/usePets";
 import type { CreatePetRequest, PetSpecies } from "../api/petsApi";
 import { Alert } from "@/shared/ui/Alert";
+import { Card } from "@/shared/ui";
 import { useHaptic } from "@/shared/hooks/useHaptic";
 
 const SPECIES_OPTIONS: { value: PetSpecies; label: string; emoji: string }[] = [
@@ -110,7 +111,7 @@ export default function CreatePetPage() {
       </button>
 
       {/* Page header */}
-      <div className="mb-6 rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50 to-white p-5">
+      <div className="mb-6 rounded-2xl border border-brand-200 bg-linear-to-br from-brand-50 to-white p-5">
         <h1 className="font-display text-xl font-bold text-sand-900">
           {isEditMode
             ? `Editar a ${existing?.name ?? "mascota"}`
@@ -327,7 +328,7 @@ export default function CreatePetPage() {
             {step === 3 && (
               <div className="space-y-5">
                 {/* Preview card */}
-                <div className="rounded-2xl border border-sand-200 field-input overflow-hidden shadow-sm">
+                <Card padding="none" shadow>
                   {/* Photo preview */}
                   <div className="h-48 bg-brand-50 flex items-center justify-center overflow-hidden">
                     {photo ? (
@@ -362,7 +363,7 @@ export default function CreatePetPage() {
                         : ""}
                     </p>
                   </div>
-                </div>
+                </Card>
 
                 <p className="text-xs text-sand-400 text-center">
                   Se generará un código QR único para {name || "tu mascota"} al

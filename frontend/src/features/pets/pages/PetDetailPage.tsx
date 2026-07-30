@@ -17,6 +17,7 @@ import {
 } from "../hooks/usePets";
 import { petsApi } from "../api/petsApi";
 import { Alert } from "@/shared/ui/Alert";
+import { Card } from "@/shared/ui";
 import { Skeleton } from "@/shared/ui/Spinner";
 import { ProgressiveImg } from "@/shared/hooks/useProgressiveImage";
 import { Tabs, type TabItem } from "@/shared/ui/Tabs";
@@ -385,7 +386,7 @@ export default function PetDetailPage() {
       {/* ── QR tab ────────────────────────────────────────────────────── */}
       {activeTab === "qr" && (
         <div className="space-y-5">
-          <div className="rounded-2xl border border-sand-200 bg-gradient-to-br from-sand-50 to-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-sand-200 bg-linear-to-br from-sand-50 to-white p-6 shadow-sm">
             <h2 className="mb-3 text-center font-display text-base font-semibold text-sand-700">
               Placa digital de {pet.name}
             </h2>
@@ -398,7 +399,7 @@ export default function PetDetailPage() {
           </div>
 
           {/* Scan history */}
-          <div className="rounded-2xl border border-sand-200 field-input p-4">
+          <Card padding="sm">
             <p className="mb-3 text-sm font-semibold text-sand-800">
               Historial de escaneos
             </p>
@@ -439,7 +440,7 @@ export default function PetDetailPage() {
                 Todavía no hay escaneos registrados para este QR.
               </p>
             )}
-          </div>
+          </Card>
         </div>
       )}
 

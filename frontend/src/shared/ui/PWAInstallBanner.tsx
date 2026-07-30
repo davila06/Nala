@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Card } from './Card'
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[]
@@ -63,9 +64,9 @@ export function PWAInstallBanner() {
           exit={{ opacity: 0, y: 16, scale: 0.97 }}
           transition={{ type: 'spring', stiffness: 380, damping: 36 }}
         >
-          <div className="flex items-start gap-3.5 rounded-2xl border border-sand-200 field-input p-4 shadow-xl shadow-sand-900/10">
+          <Card padding="sm" shadow className="flex items-start gap-3.5 shadow-sand-900/10">
             {/* App icon */}
-            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-brand-500 text-2xl shadow-md shadow-brand-500/30">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-500 text-2xl shadow-md shadow-brand-500/30">
               🐾
             </div>
 
@@ -102,13 +103,13 @@ export function PWAInstallBanner() {
               type="button"
               onClick={handleDismiss}
               aria-label="Cerrar"
-              className="flex-shrink-0 text-sand-400 hover:text-sand-600 transition-colors mt-0.5"
+              className="shrink-0 text-sand-400 hover:text-sand-600 transition-colors mt-0.5"
             >
               <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4" aria-hidden="true">
                 <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
               </svg>
             </button>
-          </div>
+          </Card>
         </motion.div>
       )}
     </AnimatePresence>

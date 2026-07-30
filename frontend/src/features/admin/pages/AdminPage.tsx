@@ -107,7 +107,7 @@ function AlliesTab() {
       {data.map((ally) => (
         <li
           key={ally.userId}
-          className="rounded-2xl border border-sand-200 dark:border-sand-700 field-input dark:bg-sand-800 p-4"
+          className="rounded-2xl border border-sand-200 bg-surface p-4"
         >
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
@@ -170,7 +170,7 @@ function ClinicsTab() {
       {data.map((clinic) => (
         <li
           key={clinic.id}
-          className="rounded-2xl border border-sand-200 dark:border-sand-700 field-input dark:bg-sand-800 p-4"
+          className="rounded-2xl border border-sand-200 bg-surface p-4"
         >
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">

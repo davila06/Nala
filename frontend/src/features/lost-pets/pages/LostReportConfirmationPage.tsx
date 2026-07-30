@@ -1,6 +1,7 @@
 ﻿import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Card } from "@/shared/ui";
 import { BroadcastPanel } from "../components/BroadcastPanel";
 import { EmergencyModeButton } from "../components/EmergencyModeButton";
 import { SearchChecklist } from "../components/SearchChecklist";
@@ -321,7 +322,7 @@ export default function LostReportConfirmationPage() {
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-        className="mb-6 overflow-hidden rounded-2xl border-2 border-danger-300 bg-gradient-to-br from-danger-600 to-danger-700 shadow-xl shadow-danger-900/20"
+        className="mb-6 overflow-hidden rounded-2xl border-2 border-danger-300 bg-linear-to-br from-danger-600 to-danger-700 shadow-xl shadow-danger-900/20"
       >
         {/* Pulsing top bar */}
         <div className="flex items-center justify-center gap-2 bg-danger-800/50 py-2">
@@ -353,7 +354,7 @@ export default function LostReportConfirmationPage() {
             ].map((item) => (
               <div key={item.label} className="flex items-start gap-2.5">
                 <span
-                  className={`flex-shrink-0 text-sm ${item.done ? "text-rescue-300" : "text-white/50"}`}
+                  className={`shrink-0 text-sm ${item.done ? "text-rescue-300" : "text-white/50"}`}
                 >
                   {item.done ? "✓" : "○"}
                 </span>
@@ -372,7 +373,7 @@ export default function LostReportConfirmationPage() {
       <EmergencyModeButton emergencyMode={emergencyMode} className="mb-6" />
 
       {/* ── Pet summary card ──────────────────────────────────────────────── */}
-      <div className="mb-6 flex items-center gap-4 rounded-2xl border border-sand-200 field-input p-4">
+      <Card padding="sm" className="mb-6 flex items-center gap-4">
         {pet.photoUrl ? (
           <img
             src={pet.photoUrl}
@@ -397,7 +398,7 @@ export default function LostReportConfirmationPage() {
             {pet.breed ? ` · ${pet.breed}` : ""}
           </p>
         </div>
-      </div>
+      </Card>
 
       {/* ── Search radius advisory ─────────────────────────────────────────── */}
       <div
@@ -492,7 +493,7 @@ export default function LostReportConfirmationPage() {
       </div>
 
       {/* ── Social-share image section ───────────────────────────────────── */}
-      <div className="mb-6 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-violet-50 p-5">
+      <div className="mb-6 rounded-2xl border border-indigo-100 bg-linear-to-br from-indigo-50 to-violet-50 p-5">
         <h2 className="mb-1 text-sm font-bold text-indigo-900">
           📲 Imagen para WhatsApp / Redes sociales
         </h2>

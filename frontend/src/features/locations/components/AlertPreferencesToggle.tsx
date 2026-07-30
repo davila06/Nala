@@ -1,6 +1,6 @@
-﻿import { useAlertPreference } from '../hooks/useAlertPreference'
-import { QuietHoursForm } from './QuietHoursForm'
-import { Card } from '@/shared/ui'
+﻿import { useAlertPreference } from "../hooks/useAlertPreference";
+import { QuietHoursForm } from "./QuietHoursForm";
+import { Card } from "@/shared/ui";
 
 /**
  * Settings card that lets the authenticated user opt in or out of
@@ -8,7 +8,7 @@ import { Card } from '@/shared/ui'
  */
 export function AlertPreferencesToggle() {
   const { receiveNearbyAlerts, toggle, isSaving, quietHours, setQuietHours } =
-    useAlertPreference()
+    useAlertPreference();
 
   return (
     <Card padding="sm">
@@ -19,8 +19,8 @@ export function AlertPreferencesToggle() {
           </p>
           <p className="mt-0.5 text-xs text-sand-500">
             Recibirás una notificación cuando una mascota sea reportada como
-            perdida en un radio de 1&thinsp;km de tu última ubicación registrada.
-            Tu ubicación nunca es compartida públicamente.
+            perdida en un radio de 1&thinsp;km de tu última ubicación
+            registrada. Tu ubicación nunca es compartida públicamente.
           </p>
         </div>
 
@@ -33,19 +33,19 @@ export function AlertPreferencesToggle() {
           disabled={isSaving}
           onClick={() => void toggle()}
           className={[
-            'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent',
-            'transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2',
-            'disabled:cursor-not-allowed disabled:opacity-50',
-            receiveNearbyAlerts ? 'bg-brand-500' : 'bg-sand-300',
-          ].join(' ')}
+            "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent",
+            "transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            receiveNearbyAlerts ? "bg-brand-500" : "bg-sand-300",
+          ].join(" ")}
         >
           <span
             aria-hidden="true"
             className={[
-              'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow',
-              'transform transition duration-200 ease-in-out',
-              receiveNearbyAlerts ? 'translate-x-5' : 'translate-x-0',
-            ].join(' ')}
+              "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow",
+              "transform transition duration-200 ease-in-out",
+              receiveNearbyAlerts ? "translate-x-5" : "translate-x-0",
+            ].join(" ")}
           />
         </button>
       </div>
@@ -53,8 +53,8 @@ export function AlertPreferencesToggle() {
       {receiveNearbyAlerts && (
         <>
           <p className="mt-3 rounded-xl bg-brand-50 px-3 py-2 text-xs text-brand-700">
-            ✅ Activo — tu ubicación se actualiza automáticamente en segundo plano
-            mientras usas la app.
+            ✅ Activo — tu ubicación se actualiza automáticamente en segundo
+            plano mientras usas la app.
           </p>
 
           {/* Quiet hours configuration */}
@@ -66,6 +66,5 @@ export function AlertPreferencesToggle() {
         </>
       )}
     </Card>
-  )
+  );
 }
-

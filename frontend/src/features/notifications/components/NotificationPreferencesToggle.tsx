@@ -2,6 +2,7 @@
   useNotificationPreferences,
   useUpdateNotificationPreferences,
 } from '../hooks/useNotificationPreferences'
+import { Card } from '@/shared/ui'
 
 export function NotificationPreferencesToggle() {
   const { data, isLoading } = useNotificationPreferences()
@@ -15,7 +16,7 @@ export function NotificationPreferencesToggle() {
   }
 
   return (
-    <div className="mt-6 rounded-2xl border border-sand-200 field-input px-4 py-4">
+    <Card padding="sm" className="mt-6">
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-sand-900">
@@ -35,7 +36,7 @@ export function NotificationPreferencesToggle() {
           disabled={busy}
           onClick={handleToggle}
           className={[
-            'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent',
+            'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent',
             'transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
             'disabled:opacity-50',
             enabled ? 'bg-brand-500' : 'bg-sand-300',
@@ -51,7 +52,7 @@ export function NotificationPreferencesToggle() {
           />
         </button>
       </div>
-    </div>
+    </Card>
   )
 }
 

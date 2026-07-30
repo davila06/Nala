@@ -9,7 +9,7 @@ import {
 import { NotificationItemCard } from "./NotificationItem";
 import { NotificationPreferencesToggle } from "./NotificationPreferencesToggle";
 import { usePushSubscription } from "../hooks/usePushSubscription";
-import { EmptyState } from "@/shared/ui/Card";
+import { EmptyState, Card } from "@/shared/ui/Card";
 import type {
   NotificationItem,
   NotificationType,
@@ -160,7 +160,7 @@ export function NotificationCenter() {
             aria-selected={activeTab === tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={[
-              "flex-shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
+              "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
               activeTab === tab.key
                 ? "bg-brand-500 text-white shadow-sm"
                 : "bg-sand-100 text-sand-600 hover:bg-sand-200",
@@ -200,7 +200,7 @@ export function NotificationCenter() {
               </p>
               <ul
                 role="list"
-                className="list-none divide-y divide-sand-100 rounded-2xl border border-sand-200 field-input p-0 m-0 overflow-hidden"
+                className="list-none divide-y divide-sand-100 rounded-2xl border border-sand-200 bg-surface overflow-hidden p-0 m-0"
               >
                 {items.map((n, i) => (
                   <motion.li
