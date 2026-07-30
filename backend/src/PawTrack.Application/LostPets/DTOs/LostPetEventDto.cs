@@ -22,7 +22,8 @@ public sealed record LostPetEventDto(
     TimeSpan? RecoveryTime,
     string? CantonName,
     decimal? RewardAmount,
-    string? RewardNote)
+    string? RewardNote,
+    string CurrencyCode)
 {
     public static LostPetEventDto FromDomain(LostPetEvent e) => new(
         e.Id.ToString(),
@@ -44,5 +45,6 @@ public sealed record LostPetEventDto(
         e.RecoveryTime,
         e.CantonName,
         e.RewardAmount,
-        e.RewardNote);
+        e.RewardNote,
+        e.CurrencyCode);
 }

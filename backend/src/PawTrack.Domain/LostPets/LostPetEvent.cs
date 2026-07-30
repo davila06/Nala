@@ -48,6 +48,9 @@ public sealed class LostPetEvent
     /// <summary>Free-text note attached to the reward (max 150 chars). Safe to expose publicly.</summary>
     public string? RewardNote { get; private set; }
 
+    /// <summary>ISO 4217 currency code for the reward. Defaults to CRC.</summary>
+    public string CurrencyCode { get; private set; } = "CRC";
+
     private readonly List<object> _domainEvents = [];
     public IReadOnlyList<object> DomainEvents => _domainEvents.AsReadOnly();
     public void ClearDomainEvents() => _domainEvents.Clear();
@@ -63,7 +66,8 @@ public sealed class LostPetEvent
         string? contactName = null,
         string? contactPhone = null,
         decimal? rewardAmount = null,
-        string? rewardNote = null)
+        string? rewardNote = null,
+        string? currencyCode = null)
     {
         var report = new LostPetEvent
         {
@@ -87,6 +91,7 @@ public sealed class LostPetEvent
             ContactPhone = string.IsNullOrWhiteSpace(contactPhone) ? null : contactPhone.Trim(),
             RewardAmount = rewardAmount > 0 ? rewardAmount : null,
             RewardNote = string.IsNullOrWhiteSpace(rewardNote) ? null : rewardNote.Trim(),
+            CurrencyCode = string.IsNullOrWhiteSpace(currencyCode) ? "CRC" : currencyCode.ToUpperInvariant(),
         };
 
         report._domainEvents.Add(new LostPetReportedDomainEvent(report.Id, petId, ownerId));
@@ -147,10 +152,12 @@ public sealed class LostPetEvent
     /// Allows the owner to set or update the optional reward after report creation.
     /// Passing <c>null</c> clears the reward.
     /// </summary>
-    public void SetReward(decimal? amount, string? note)
+    public void SetReward(decimal? amount, string? note, string? currencyCode = null)
     {
         RewardAmount = amount > 0 ? amount : null;
         RewardNote = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
+        if (!string.IsNullOrWhiteSpace(currencyCode))
+            CurrencyCode = currencyCode.ToUpperInvariant();
     }
 
     private static double HaversineMetres(double lat1, double lng1, double lat2, double lng2)

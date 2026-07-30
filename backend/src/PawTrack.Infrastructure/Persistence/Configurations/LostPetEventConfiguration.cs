@@ -32,6 +32,10 @@ public sealed class LostPetEventConfiguration : IEntityTypeConfiguration<LostPet
         // Reward — declared publicly by the owner; safe to surface in all endpoints
         builder.Property(e => e.RewardAmount).HasColumnType("decimal(12,2)");
         builder.Property(e => e.RewardNote).HasMaxLength(150);
+        builder.Property(e => e.CurrencyCode)
+               .HasMaxLength(3)
+               .IsRequired()
+               .HasDefaultValue("CRC");
 
         builder.Property(e => e.ReportedAt).IsRequired();
         builder.Property(e => e.LastSeenAt).IsRequired();

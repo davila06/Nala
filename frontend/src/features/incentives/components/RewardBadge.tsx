@@ -1,17 +1,18 @@
 interface RewardBadgeProps {
   rewardAmount?: number | null
   rewardNote?: string | null
+  currencyCode?: string
   className?: string
 }
 
-const CRC_FORMAT = new Intl.NumberFormat('es-CR', {
-  style: 'currency',
-  currency: 'CRC',
-  maximumFractionDigits: 0,
-})
-
-export function RewardBadge({ rewardAmount, rewardNote, className = '' }: RewardBadgeProps) {
+export function RewardBadge({ rewardAmount, rewardNote, currencyCode = 'CRC', className = '' }: RewardBadgeProps) {
   if (!rewardAmount) return null
+
+  const formatted = new Intl.NumberFormat('es-CR', {
+    style: 'currency',
+    currency: currencyCode,
+    maximumFractionDigits: 0,
+  }).format(rewardAmount)
 
   return (
     <div
@@ -21,7 +22,7 @@ export function RewardBadge({ rewardAmount, rewardNote, className = '' }: Reward
       <span className="mt-0.5 text-base" aria-hidden="true">🏅</span>
       <div>
         <p className="text-sm font-bold text-warn-800 leading-none">
-          Recompensa: {CRC_FORMAT.format(rewardAmount)}
+          Recompensa: {formatted}
         </p>
         {rewardNote && (
           <p className="mt-0.5 text-xs text-warn-700 leading-snug">{rewardNote}</p>

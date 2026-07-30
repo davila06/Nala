@@ -55,7 +55,7 @@ public sealed class UserLocation
         double lng,
         bool receiveNearbyAlerts,
         TimeOnly? quietHoursStart = null,
-        TimeOnly? quietHoursEnd   = null) =>
+        TimeOnly? quietHoursEnd = null) =>
         new()
         {
             UserId = userId,
@@ -63,8 +63,8 @@ public sealed class UserLocation
             Lng = lng,
             ReceiveNearbyAlerts = receiveNearbyAlerts,
             QuietHoursStart = quietHoursStart,
-            QuietHoursEnd   = quietHoursEnd,
-            TimeZoneId      = "America/Costa_Rica",
+            QuietHoursEnd = quietHoursEnd,
+            TimeZoneId = "America/Costa_Rica",
             UpdatedAt = DateTimeOffset.UtcNow,
         };
 
@@ -85,7 +85,7 @@ public sealed class UserLocation
     public void SetQuietHours(TimeOnly? start, TimeOnly? end)
     {
         QuietHoursStart = start;
-        QuietHoursEnd   = end;
+        QuietHoursEnd = end;
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
@@ -122,7 +122,7 @@ public sealed class UserLocation
         }
 
         var start = QuietHoursStart.Value;
-        var end   = QuietHoursEnd.Value;
+        var end = QuietHoursEnd.Value;
 
         return start <= end
             ? localTime >= start && localTime < end

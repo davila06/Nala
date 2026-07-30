@@ -21,4 +21,5 @@ public sealed record ReportLostPetCommand(
     string? ContactName,
     string? ContactPhone,
     decimal? RewardAmount,
-    string? RewardNote) : IRequest<Result<string>>;
+    string? RewardNote,
+    string? CurrencyCode = "CRC") : IRequest<Result<string>>;

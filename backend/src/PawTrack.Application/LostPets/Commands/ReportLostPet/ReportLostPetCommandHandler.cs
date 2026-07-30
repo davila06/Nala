@@ -45,7 +45,8 @@ public sealed class ReportLostPetCommandHandler(
             contactName: request.ContactName,
             contactPhone: request.ContactPhone,
             rewardAmount: request.RewardAmount,
-            rewardNote: request.RewardNote);
+            rewardNote: request.RewardNote,
+            currencyCode: request.CurrencyCode);
 
         // Upload recent photo to blob storage before persisting (same pattern as CreatePetCommandHandler)
         if (request.PhotoBytes is { Length: > 0 })

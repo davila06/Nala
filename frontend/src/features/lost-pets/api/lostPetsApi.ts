@@ -20,6 +20,7 @@ export interface LostPetEvent {
   contactName: string | null
   rewardAmount: number | null
   rewardNote: string | null
+  currencyCode: string
 }
 
 export interface LostPetContactDto {
@@ -40,6 +41,7 @@ export interface ReportLostPetPayload {
   contactPhone?: string | null
   rewardAmount?: number | null
   rewardNote?: string | null
+  currencyCode?: string
 }
 
 export interface UpdateLostPetStatusPayload {

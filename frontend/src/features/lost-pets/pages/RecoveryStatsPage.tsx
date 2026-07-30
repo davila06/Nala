@@ -90,10 +90,10 @@ export default function RecoveryStatsPage() {
       {/* Header */}
       <header className="mb-6">
         <Link
-          to="/map"
+          to="/dashboard"
           className="inline-flex items-center gap-1 text-sm text-trust-600 hover:text-trust-800 transition-base"
         >
-          ← Volver al mapa público
+          ← Volver al inicio
         </Link>
         <h1 className="mt-2 font-display text-3xl font-semibold leading-tight text-sand-900">
           Estadísticas de Recuperación en Costa Rica
