@@ -10,7 +10,11 @@ import { useActiveLostReport } from "@/features/lost-pets/hooks/useLostPets";
 import { SightingList } from "@/features/sightings/components/SightingList";
 import { PetStatusBadge } from "../components/PetStatusBadge";
 import { QRFlipCard } from "../components/QRFlipCard";
-import { usePetDetail, usePetScanHistory } from "../hooks/usePets";
+import {
+  usePetDetail,
+  usePetScanHistory,
+  useReactivatePet,
+} from "../hooks/usePets";
 import { petsApi } from "../api/petsApi";
 import { Alert } from "@/shared/ui/Alert";
 import { Skeleton } from "@/shared/ui/Spinner";
@@ -23,6 +27,7 @@ export default function PetDetailPage() {
   const { data: pet, isLoading, isError } = usePetDetail(id ?? "");
   const { data: scanHistory } = usePetScanHistory(id ?? "");
   const { data: activeReport } = useActiveLostReport(id ?? "");
+  const reactivateMutation = useReactivatePet(id ?? "");
   const [activeTab, setActiveTab] = useState("info");
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -173,7 +178,7 @@ export default function PetDetailPage() {
       </p>
 
       {/* Tab bar */}
-      <div className="mb-5 overflow-x-auto">
+      <div className="mb-5 overflow-x-auto no-scrollbar">
         <Tabs
           tabs={TABS}
           activeId={activeTab}
@@ -312,6 +317,29 @@ export default function PetDetailPage() {
               petName={pet.name}
               className=""
             />
+          )}
+          {pet.status === "Reunited" && (
+            <div className="rounded-2xl border border-trust-200 bg-trust-50 p-4">
+              <p className="mb-3 text-sm font-semibold text-trust-800">
+                ¡{pet.name} está en casa! Si se vuelve a perder, reactiva su
+                perfil para poder reportarlo nuevamente.
+              </p>
+              {reactivateMutation.isError && (
+                <p className="mb-2 text-xs font-medium text-danger-700">
+                  No se pudo reactivar. Intenta de nuevo.
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={() => reactivateMutation.mutate()}
+                disabled={reactivateMutation.isPending}
+                className="w-full rounded-xl bg-trust-600 py-3 text-sm font-semibold text-white hover:bg-trust-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400"
+              >
+                {reactivateMutation.isPending
+                  ? "Reactivando…"
+                  : "✓ Marcar como activa"}
+              </button>
+            </div>
           )}
           {pet.status === "Active" && (
             <Link

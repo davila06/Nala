@@ -1,3 +1,4 @@
+using PawTrack.Domain.Common;
 using PawTrack.Domain.Pets.Events;
 
 namespace PawTrack.Domain.Pets;
@@ -87,5 +88,20 @@ public sealed class Pet
     {
         Status = PetStatus.Active;
         UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    /// <summary>
+    /// Transitions a reunited pet back to active so the owner can file a new lost report.
+    /// Only valid from <see cref="PetStatus.Reunited"/>; any other source status returns failure.
+    /// </summary>
+    public Result<bool> Reactivate()
+    {
+        if (Status != PetStatus.Reunited)
+            return Result.Failure<bool>("Only reunited pets can be reactivated.");
+
+        Status = PetStatus.Active;
+        UpdatedAt = DateTimeOffset.UtcNow;
+        _domainEvents.Add(new Events.PetReactivatedDomainEvent(Id, OwnerId, Name));
+        return Result.Success(true);
     }
 }

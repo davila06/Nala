@@ -11,11 +11,12 @@ public sealed class GetPublicMapEventsQueryHandlerTests
 {
     private readonly ISightingRepository _sightingRepo = Substitute.For<ISightingRepository>();
     private readonly ILostPetRepository _lostPetRepo = Substitute.For<ILostPetRepository>();
+    private readonly IPetRepository _petRepo = Substitute.For<IPetRepository>();
     private readonly GetPublicMapEventsQueryHandler _sut;
 
     public GetPublicMapEventsQueryHandlerTests()
     {
-        _sut = new GetPublicMapEventsQueryHandler(_sightingRepo, _lostPetRepo);
+        _sut = new GetPublicMapEventsQueryHandler(_sightingRepo, _lostPetRepo, _petRepo);
     }
 
     [Fact]

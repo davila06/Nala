@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const STORAGE_KEY = "pawtrack_cookie_consent";
@@ -46,12 +45,12 @@ export function CookieConsentBanner() {
           </span>
           Usamos cookies esenciales para el funcionamiento de la app y cookies
           de analítica (Application Insights) para mejorar el servicio.{" "}
-          <Link
-            to="/legal/politica-de-privacidad"
+          <a
+            href="/legal/politica-de-privacidad"
             className="font-semibold text-brand-600 underline underline-offset-2 hover:text-brand-700"
           >
             Ver política de privacidad
-          </Link>
+          </a>
           .
         </p>
         <div className="flex gap-2">

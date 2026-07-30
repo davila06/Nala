@@ -84,7 +84,7 @@ public sealed class Round108To111SecurityRegressionTests
         var allyRepo = Substitute.For<IAllyProfileRepository>();
         IReadOnlyList<AllyProfile> oversized = Enumerable.Range(0, 250)
             .Select(_ => AllyProfile.Create(
-                Guid.NewGuid(), "Rescue CR", AllyType.Rescuer,
+                Guid.NewGuid(), "Rescue CR", AllyType.Shelter,
                 "San José", 9.93, -84.08, 5_000))
             .ToList()
             .AsReadOnly();
@@ -137,13 +137,13 @@ public sealed class Round108To111SecurityRegressionTests
     public async Task R111_GetMyAllyAlerts_WhenRepoReturnsMoreThanCap_HandlerReturnsAtMost200()
     {
         // Arrange — 250 notifications exceeds the alert-inbox cap of 200
-        var userId    = Guid.NewGuid();
-        var allyRepo  = Substitute.For<IAllyProfileRepository>();
+        var userId = Guid.NewGuid();
+        var allyRepo = Substitute.For<IAllyProfileRepository>();
         var notifRepo = Substitute.For<INotificationRepository>();
 
         // GetVerifiedByUserIdAsync must return non-null to pass the verified-ally gate
         var verifiedProfile = AllyProfile.Create(
-            userId, "Rescue CR", AllyType.Rescuer, "Heredia", 10.0, -84.1, 3_000);
+            userId, "Rescue CR", AllyType.Shelter, "Heredia", 10.0, -84.1, 3_000);
         allyRepo.GetVerifiedByUserIdAsync(userId, Arg.Any<CancellationToken>())
                 .Returns(verifiedProfile);
 
@@ -172,8 +172,8 @@ public sealed class Round108To111SecurityRegressionTests
     public async Task R111_GetMyAllyAlerts_WhenProfileIsNull_ReturnsForbiddenFailure()
     {
         // Arrange — no verified ally profile → gate blocks access
-        var userId    = Guid.NewGuid();
-        var allyRepo  = Substitute.For<IAllyProfileRepository>();
+        var userId = Guid.NewGuid();
+        var allyRepo = Substitute.For<IAllyProfileRepository>();
         var notifRepo = Substitute.For<INotificationRepository>();
 
         allyRepo.GetVerifiedByUserIdAsync(userId, Arg.Any<CancellationToken>())

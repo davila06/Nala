@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Pets.Commands.CreatePet;
 using PawTrack.Application.Pets.Commands.DeletePet;
+using PawTrack.Application.Pets.Commands.ReactivatePet;
 using PawTrack.Application.Pets.Commands.UpdatePet;
 using PawTrack.Application.Pets.Queries.GetPetScanHistory;
 using PawTrack.Application.Pets.Queries.GetMyPets;
@@ -62,7 +63,8 @@ public sealed class PetsController(
     }
 
     // ── POST /api/pets ────────────────────────────────────────────────────────
-    [HttpPost]    [EnableRateLimiting("public-api")] // 30/min — each call can upload a 5 MB photo to Azure Blob Storage    [Consumes("multipart/form-data")]
+    [HttpPost]
+    [EnableRateLimiting("public-api")] // 30/min — each call can upload a 5 MB photo to Azure Blob Storage    [Consumes("multipart/form-data")]
     [RequestSizeLimit(5_242_880)] // 5 MB
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
@@ -99,7 +101,8 @@ public sealed class PetsController(
     }
 
     // ── PUT /api/pets/{id} ────────────────────────────────────────────────────
-    [HttpPut("{id:guid}")]    [EnableRateLimiting("public-api")] // 30/min — each call overwrites the Blob photo (up to 5 MB)    [Consumes("multipart/form-data")]
+    [HttpPut("{id:guid}")]
+    [EnableRateLimiting("public-api")] // 30/min — each call overwrites the Blob photo (up to 5 MB)    [Consumes("multipart/form-data")]
     [RequestSizeLimit(5_242_880)] // 5 MB
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -138,7 +141,8 @@ public sealed class PetsController(
     }
 
     // ── DELETE /api/pets/{id} ─────────────────────────────────────────────────
-    [HttpDelete("{id:guid}")]    [EnableRateLimiting("public-api")] // 30/min — each call invokes Blob delete + DB write    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [HttpDelete("{id:guid}")]
+    [EnableRateLimiting("public-api")] // 30/min — each call invokes Blob delete + DB write    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeletePet(Guid id, CancellationToken cancellationToken)
@@ -188,7 +192,7 @@ public sealed class PetsController(
     // ── GET /api/pets/{id}/whatsapp-avatar ───────────────────────────────────
     [AllowAnonymous]
     [HttpGet("{id:guid}/whatsapp-avatar")]
-        [EnableRateLimiting("whatsapp-avatar")]
+    [EnableRateLimiting("whatsapp-avatar")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetWhatsAppAvatar(
@@ -268,6 +272,40 @@ public sealed class PetsController(
         }
 
         return Ok(result.Value);
+    }
+
+    // ── POST /api/pets/{id}/reactivate ────────────────────────────────────────
+    [HttpPost("{id:guid}/reactivate")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> ReactivatePet(Guid id, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
+        var result = await sender.Send(new ReactivatePetCommand(id, userId), cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Errors.Contains("Access denied."))
+                return Forbid();
+
+            if (result.Errors.Contains("Pet not found."))
+                return NotFound(new ProblemDetails { Title = "Pet not found", Status = 404 });
+
+            // Domain guard: wrong source status
+            return Conflict(new ProblemDetails
+            {
+                Title = "Cannot reactivate pet",
+                Detail = string.Join("; ", result.Errors),
+                Status = 409,
+            });
+        }
+
+        return NoContent();
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
