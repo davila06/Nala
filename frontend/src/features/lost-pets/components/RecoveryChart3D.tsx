@@ -1,49 +1,57 @@
-import { useRef, useMemo } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { Text, RoundedBox } from '@react-three/drei'
-import * as THREE from 'three'
+import { useRef, useMemo } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Text, RoundedBox } from "@react-three/drei";
+import * as THREE from "three";
 
 // ── Single 3D bar ─────────────────────────────────────────────────────────────
 
 interface Bar3DProps {
-  x: number
-  height: number
-  maxHeight: number
-  color: string
-  label: string
-  value: string
-  index: number
+  x: number;
+  height: number;
+  maxHeight: number;
+  color: string;
+  label: string;
+  value: string;
+  index: number;
 }
 
-function Bar3D({ x, height, maxHeight, color, label, value, index }: Bar3DProps) {
-  const meshRef = useRef<THREE.Mesh>(null)
-  const groupRef = useRef<THREE.Group>(null)
-  const timeRef = useRef(-index * 0.15) // stagger
+function Bar3D({
+  x,
+  height,
+  maxHeight,
+  color,
+  label,
+  value,
+  index,
+}: Bar3DProps) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
+  const timeRef = useRef(-index * 0.15); // stagger
 
   // Animate height on mount + subtle oscillation
-  const targetHeight = (height / maxHeight) * 3.5
-  const currentHeight = useRef(0)
+  const targetHeight = (height / maxHeight) * 3.5;
+  const currentHeight = useRef(0);
 
   useFrame((_, delta) => {
-    timeRef.current += delta
-    if (!meshRef.current || !groupRef.current) return
+    timeRef.current += delta;
+    if (!meshRef.current || !groupRef.current) return;
 
     // Animate height growth on mount
     if (currentHeight.current < targetHeight) {
       currentHeight.current = Math.min(
         targetHeight,
         currentHeight.current + delta * 3.5 * (timeRef.current > 0 ? 1 : 0),
-      )
-      meshRef.current.scale.y = currentHeight.current / targetHeight
-      groupRef.current.position.y = -(targetHeight - currentHeight.current) / 2
+      );
+      meshRef.current.scale.y = currentHeight.current / targetHeight;
+      groupRef.current.position.y = -(targetHeight - currentHeight.current) / 2;
     }
 
     // Gentle idle oscillation after growth
     if (currentHeight.current >= targetHeight * 0.99) {
-      const idle = Math.sin(timeRef.current * 0.8 + index * 0.5) * 0.02
-      groupRef.current.position.y = idle
+      const idle = Math.sin(timeRef.current * 0.8 + index * 0.5) * 0.02;
+      groupRef.current.position.y = idle;
     }
-  })
+  });
 
   return (
     <group position={[x, 0, 0]}>
@@ -89,44 +97,44 @@ function Bar3D({ x, height, maxHeight, color, label, value, index }: Bar3DProps)
         {label}
       </Text>
     </group>
-  )
+  );
 }
 
 // ── Floor grid ────────────────────────────────────────────────────────────────
 
 function FloorGrid({ count }: { count: number }) {
-  const width = count * 0.9 + 0.4
+  const width = count * 0.9 + 0.4;
   return (
     <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[width, 0.02]} />
       <meshBasicMaterial color="#e2d3c4" transparent opacity={0.5} />
     </mesh>
-  )
+  );
 }
 
 // ── Camera slow orbit ─────────────────────────────────────────────────────────
 
 function OrbitCamera() {
   useFrame((state) => {
-    const t = state.clock.elapsedTime
-    state.camera.position.x = Math.sin(t * 0.08) * 0.6
-    state.camera.position.z = 8 + Math.cos(t * 0.08) * 0.4
-    state.camera.lookAt(0, 1.5, 0)
-  })
-  return null
+    const t = state.clock.elapsedTime;
+    state.camera.position.x = Math.sin(t * 0.08) * 0.6;
+    state.camera.position.z = 8 + Math.cos(t * 0.08) * 0.4;
+    state.camera.lookAt(0, 1.5, 0);
+  });
+  return null;
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
 export interface ChartBar {
-  label: string
-  value: number  // e.g. recovery rate 0..1
-  displayValue: string
+  label: string;
+  value: number; // e.g. recovery rate 0..1
+  displayValue: string;
 }
 
 interface RecoveryChart3DProps {
-  bars: ChartBar[]
-  height?: number
+  bars: ChartBar[];
+  height?: number;
 }
 
 /**
@@ -134,28 +142,41 @@ interface RecoveryChart3DProps {
  * Bars grow on mount with stagger, camera slowly orbits for depth effect.
  */
 export function RecoveryChart3D({ bars, height = 320 }: RecoveryChart3DProps) {
-  const maxValue = useMemo(() => Math.max(...bars.map((b) => b.value), 0.01), [bars])
+  const maxValue = useMemo(
+    () => Math.max(...bars.map((b) => b.value), 0.01),
+    [bars],
+  );
 
   // Color scale: low → orange, high → green
   const getColor = (value: number) => {
-    const ratio = value / maxValue
-    if (ratio > 0.75) return '#17a26d'  // rescue-500
-    if (ratio > 0.5)  return '#3056c2'  // trust-500
-    if (ratio > 0.25) return '#f0b800'  // warn-400
-    return '#d42020'                      // danger-500
-  }
+    const ratio = value / maxValue;
+    if (ratio > 0.75) return "#17a26d"; // rescue-500
+    if (ratio > 0.5) return "#3056c2"; // trust-500
+    if (ratio > 0.25) return "#f0b800"; // warn-400
+    return "#d42020"; // danger-500
+  };
 
-  const spacing = 0.85
-  const totalWidth = (bars.length - 1) * spacing
-  const startX = -totalWidth / 2
+  const spacing = 0.85;
+  const totalWidth = (bars.length - 1) * spacing;
+  const startX = -totalWidth / 2;
 
   return (
-    <div style={{ width: '100%', height }} aria-hidden="true">
+    <div style={{ width: "100%", height }} aria-hidden="true">
       <Canvas
         camera={{ position: [0, 3, 8], fov: 40 }}
         dpr={[1, 1.5]}
-        gl={{ antialias: true, alpha: true }}
-        style={{ background: 'transparent' }}
+        gl={{ antialias: true, alpha: true, powerPreference: "default" }}
+        style={{ background: "transparent" }}
+        onCreated={({ gl }) => {
+          // Prevent total context loss from crashing the scene
+          gl.domElement.addEventListener(
+            "webglcontextlost",
+            (e) => {
+              e.preventDefault();
+            },
+            false,
+          );
+        }}
       >
         <ambientLight intensity={0.7} />
         <directionalLight position={[4, 6, 4]} intensity={1.0} />
@@ -178,5 +199,5 @@ export function RecoveryChart3D({ bars, height = 320 }: RecoveryChart3DProps) {
         ))}
       </Canvas>
     </div>
-  )
+  );
 }

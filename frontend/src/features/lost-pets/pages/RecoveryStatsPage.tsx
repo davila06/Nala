@@ -6,6 +6,7 @@ import {
   useRecoveryRates,
 } from "../hooks/useRecoveryStats";
 import { CantonChoroplethMap } from "../components/CantonChoroplethMap";
+import { useCantonChoropleth } from "../hooks/useCantonChoropleth";
 import type { PetSpecies } from "@/features/pets/api/petsApi";
 import { BREEDS_BY_SPECIES } from "@/features/pets/data/breeds";
 
@@ -71,6 +72,9 @@ export default function RecoveryStatsPage() {
     return Math.max(...values);
   }, [overview]);
 
+  const { geoJson: cantonGeoJson, isLoading: cantonLoading } =
+    useCantonChoropleth(overview?.cantonRecovery);
+
   const maxMedianHours = useMemo(() => {
     const values =
       overview?.speciesRecovery
@@ -81,7 +85,7 @@ export default function RecoveryStatsPage() {
   }, [overview]);
 
   return (
-    <main className="mx-auto max-w-[980px] px-4 pb-12 pt-8 animate-fade-in-up">
+    <main className="mx-auto max-w-245 px-4 pb-12 pt-8 animate-fade-in-up">
       {/* Header */}
       <header className="mb-6">
         <Link
@@ -100,7 +104,7 @@ export default function RecoveryStatsPage() {
       </header>
 
       {/* Filters */}
-      <section className="mb-5 grid grid-cols-1 gap-3 rounded-2xl border border-sand-200 bg-gradient-to-br from-sand-50 to-trust-50 p-4 sm:grid-cols-3">
+      <section className="mb-5 grid grid-cols-1 gap-3 rounded-2xl border border-sand-200 bg-linear-to-br from-sand-50 to-trust-50 p-4 sm:grid-cols-3">
         <label
           htmlFor="filter-species"
           className="flex flex-col gap-1.5 text-sm font-medium text-sand-700"
@@ -236,24 +240,27 @@ export default function RecoveryStatsPage() {
 
       {overview && (
         <>
-          {/* Canton heatmap */}
-          <section className="mb-5 rounded-2xl border border-sand-200 field-input p-5">
-            <h2 className="mb-1 text-base font-semibold text-sand-900">
-              Mapa de calor por cantón
-            </h2>
-            <p className="mb-4 text-sm text-sand-500">
-              Intensidad proporcional a la tasa de recuperación local. Pase el
-              cursor sobre un cantón para ver detalles.
-            </p>
-            <CantonChoroplethMap
-              cantonRecovery={overview.cantonRecovery}
-              maxRecoveryRate={maxRecoveryRate}
-            />
-          </section>
+          {/* Canton heatmap — only shown when GeoJSON is available */}
+          {(cantonLoading || cantonGeoJson) &&
+            overview.cantonRecovery.length > 0 && (
+              <section className="mb-5 rounded-2xl border border-sand-200 field-input p-5">
+                <h2 className="mb-1 text-base font-semibold text-sand-900">
+                  Mapa de calor por cantón
+                </h2>
+                <p className="mb-4 text-sm text-sand-500">
+                  Intensidad proporcional a la tasa de recuperación local. Pase
+                  el cursor sobre un cantón para ver detalles.
+                </p>
+                <CantonChoroplethMap
+                  cantonRecovery={overview.cantonRecovery}
+                  maxRecoveryRate={maxRecoveryRate}
+                />
+              </section>
+            )}
 
           {/* 3D recovery chart — top cantons */}
           {overview.cantonRecovery.length > 0 && (
-            <section className="mb-5 rounded-2xl border border-sand-200 bg-gradient-to-br from-zinc-900 to-zinc-800 p-5 shadow-lg">
+            <section className="mb-5 rounded-2xl border border-sand-200 bg-linear-to-br from-zinc-900 to-zinc-800 p-5 shadow-lg">
               <h2 className="mb-1 text-base font-semibold text-white">
                 Tasa de recuperación 3D — top cantones
               </h2>
@@ -312,7 +319,7 @@ export default function RecoveryStatsPage() {
                     </div>
                     <div className="h-2.5 overflow-hidden rounded-full bg-sand-200">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-trust-600 to-trust-400 transition-all duration-500"
+                        className="h-full rounded-full bg-linear-to-r from-trust-600 to-trust-400 transition-all duration-500"
                         style={{ width: pct, minWidth: median > 0 ? 8 : 0 }}
                       />
                     </div>

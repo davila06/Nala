@@ -20,6 +20,7 @@ public interface IRecoveryStatsReadRepository
 /// </summary>
 public sealed record RecoveryStatsRawData(
     int TotalReports,
+    int RecoveredCount,
     IReadOnlyList<double> RecoveredDistancesMeters,
     IReadOnlyList<double> RecoveryDurationsHours);
 

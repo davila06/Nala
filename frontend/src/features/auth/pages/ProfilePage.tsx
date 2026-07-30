@@ -16,8 +16,54 @@ import { Button, Input, Badge, PageSpinner } from "@/shared/ui";
 import { toast } from "@/shared/lib/toast";
 import { LastSeenMap } from "@/features/lost-pets/components/LastSeenMap";
 import { useGeolocation } from "@/features/lost-pets/hooks/useGeolocation";
+import { usePushSubscription } from "@/features/notifications/hooks/usePushSubscription";
+import { formatDate } from "@/shared/lib/formatDate";
+
+// ── Locale maps ───────────────────────────────────────────────────────────────
+
+const ROLE_LABEL: Record<string, string> = {
+  Owner: "Propietario",
+  Ally: "Aliado",
+  Admin: "Administrador",
+  Clinic: "Clínica veterinaria",
+};
+
+const SPECIES_LABEL: Record<PetSpecies, string> = {
+  Dog: "🐶 Perro",
+  Cat: "🐱 Gato",
+  Bird: "🐦 Ave",
+  Rabbit: "🐰 Conejo",
+  Other: "🐾 Otro",
+};
 
 const ALL_SPECIES: PetSpecies[] = ["Dog", "Cat", "Bird", "Rabbit", "Other"];
+
+// ── Password strength ─────────────────────────────────────────────────────────
+
+interface PasswordStrength {
+  score: 0 | 1 | 2 | 3 | 4;
+  label: string;
+  color: string;
+}
+
+function getPasswordStrength(pwd: string): PasswordStrength {
+  if (!pwd) return { score: 0, label: "", color: "" };
+  let score = 0;
+  if (pwd.length >= 8) score++;
+  if (pwd.length >= 12) score++;
+  if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) score++;
+  if (/\d/.test(pwd)) score++;
+  if (/[^A-Za-z0-9]/.test(pwd)) score++;
+  const capped = Math.min(score, 4) as 0 | 1 | 2 | 3 | 4;
+  const levels: PasswordStrength[] = [
+    { score: 0, label: "", color: "" },
+    { score: 1, label: "Muy débil", color: "bg-danger-500" },
+    { score: 2, label: "Débil", color: "bg-warn-400" },
+    { score: 3, label: "Buena", color: "bg-trust-400" },
+    { score: 4, label: "Fuerte", color: "bg-rescue-500" },
+  ];
+  return levels[capped];
+}
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -29,6 +75,7 @@ export default function ProfilePage() {
   const { mutateAsync: deleteAccountMutation, isPending: deletingAccount } =
     useDeleteAccount();
   const user = useAuthStore((s) => s.user);
+  const { status: pushStatus, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe } = usePushSubscription();
 
   const { data: fosterProfile, isLoading: fosterLoading } =
     useMyFosterProfile();
@@ -76,6 +123,9 @@ export default function ProfilePage() {
   const [newPwd, setNewPwd] = useState("");
   const [confirmNewPwd, setConfirmNewPwd] = useState("");
 
+  const pwdStrength = getPasswordStrength(newPwd);
+  const pwdMatch = confirmNewPwd.length > 0 && newPwd === confirmNewPwd;
+
   // Delete account state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
@@ -120,7 +170,7 @@ export default function ProfilePage() {
       setHomeLat(geo.coords.lat);
       setHomeLng(geo.coords.lng);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geo.coords]);
 
   const canSaveFoster = useMemo(
@@ -233,9 +283,16 @@ export default function ProfilePage() {
             <p className="mt-0.5 truncate text-sm text-sand-500">
               {serverProfile?.email ?? user?.email}
             </p>
-            <Badge variant="neutral" className="mt-1">
-              {user?.role}
-            </Badge>
+            <div className="mt-1 flex items-center gap-2 flex-wrap">
+              <Badge variant="neutral">
+                {ROLE_LABEL[serverProfile?.role ?? user?.role ?? ""] ?? user?.role}
+              </Badge>
+              {serverProfile?.createdAt && (
+                <span className="text-xs text-sand-400">
+                  Miembro desde {formatDate(serverProfile.createdAt)}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -270,6 +327,13 @@ export default function ProfilePage() {
           Soy custodio voluntario
         </button>
 
+        {/* Resumen guardado cuando colapsado */}
+        {!isVolunteer && fosterProfile?.isAvailable && (
+          <p className="mt-2 text-xs text-sand-400">
+            Perfil anterior: {fosterProfile.acceptedSpecies.map((s) => SPECIES_LABEL[s]).join(", ")} · máx. {fosterProfile.maxDays} días
+          </p>
+        )}
+
         {isVolunteer && (
           <div className="mt-4 space-y-4">
             <div>
@@ -277,8 +341,15 @@ export default function ProfilePage() {
                 Ubicación de referencia
               </p>
               <LastSeenMap
-                value={homeLat !== 0 || homeLng !== 0 ? { lat: homeLat, lng: homeLng } : null}
-                onChange={(coords) => { setHomeLat(coords.lat); setHomeLng(coords.lng); }}
+                value={
+                  homeLat !== 0 || homeLng !== 0
+                    ? { lat: homeLat, lng: homeLng }
+                    : null
+                }
+                onChange={(coords) => {
+                  setHomeLat(coords.lat);
+                  setHomeLng(coords.lng);
+                }}
                 userCoords={geo.coords}
                 geoStatus={geo.status}
                 petName="Tu ubicación de referencia"
@@ -312,7 +383,7 @@ export default function ProfilePage() {
                         : "bg-sand-100 text-sand-600 hover:bg-sand-200"
                     }`}
                   >
-                    {species}
+                    {SPECIES_LABEL[species]}
                   </button>
                 ))}
               </div>
@@ -349,16 +420,18 @@ export default function ProfilePage() {
           </div>
         )}
 
-        <Button
-          fullWidth
-          variant="primary"
-          loading={savingFoster}
-          disabled={!canSaveFoster}
-          onClick={() => void handleSaveFoster()}
-          className="mt-5"
-        >
-          Guardar perfil de custodio
-        </Button>
+        {isVolunteer && (
+          <Button
+            fullWidth
+            variant="primary"
+            loading={savingFoster}
+            disabled={!canSaveFoster}
+            onClick={() => void handleSaveFoster()}
+            className="mt-5"
+          >
+            Guardar perfil de custodio
+          </Button>
+        )}
       </div>
 
       {/* ── Change password ───────────────────────────────────────────── */}
@@ -405,6 +478,23 @@ export default function ProfilePage() {
                 autoComplete="new-password"
                 minLength={8}
               />
+              {newPwd.length > 0 && (
+                <div className="mt-1.5 space-y-1">
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div
+                        key={i}
+                        className={`h-1 flex-1 rounded-full transition-colors ${
+                          i <= pwdStrength.score ? pwdStrength.color : "bg-sand-200"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  {pwdStrength.label && (
+                    <p className="text-[0.7rem] text-sand-500">{pwdStrength.label} · Mínimo 8 caracteres</p>
+                  )}
+                </div>
+              )}
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-sand-600">
@@ -416,11 +506,18 @@ export default function ProfilePage() {
                 onChange={(e) => setConfirmNewPwd(e.target.value)}
                 autoComplete="new-password"
               />
+              {confirmNewPwd.length > 0 && (
+                <p className={`mt-1 text-[0.7rem] ${
+                  pwdMatch ? "text-rescue-600" : "text-danger-600"
+                }`}>
+                  {pwdMatch ? "✓ Las contraseñas coinciden" : "× No coinciden"}
+                </p>
+              )}
             </div>
             <Button
               fullWidth
               loading={changingPassword}
-              disabled={!currentPwd || !newPwd || newPwd.length < 8}
+              disabled={!currentPwd || !newPwd || newPwd.length < 8 || !pwdMatch}
               onClick={() => void handleChangePassword()}
             >
               Guardar nueva contraseña
@@ -428,6 +525,46 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
+
+      {/* ── Push notifications ───────────────────────────────────────── */}
+      {pushStatus !== "unsupported" && (
+        <div className="rounded-2xl border border-sand-200 field-input p-5">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-base font-semibold text-sand-800">
+                Notificaciones push
+              </h2>
+              <p className="mt-0.5 text-sm text-sand-500">
+                {pushStatus === "subscribed"
+                  ? "Recibirás alertas aunque tengas la app cerrada."
+                  : pushStatus === "denied"
+                  ? "Bloqueadas en el navegador. Actívalas desde Configuración."
+                  : "Recibe alertas de avistamientos y actualizaciones en tiempo real."}
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={pushStatus === "subscribed"}
+              disabled={pushStatus === "loading" || pushStatus === "denied"}
+              onClick={() =>
+                pushStatus === "subscribed"
+                  ? void pushUnsubscribe()
+                  : void pushSubscribe()
+              }
+              className={`relative h-6 w-11 shrink-0 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 disabled:cursor-not-allowed disabled:opacity-50 ${
+                pushStatus === "subscribed" ? "bg-rescue-500" : "bg-sand-300"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                  pushStatus === "subscribed" ? "translate-x-5" : "translate-x-0.5"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Delete account ────────────────────────────────────────────── */}
       <div className="rounded-2xl border border-danger-200 bg-danger-50/40 p-5">

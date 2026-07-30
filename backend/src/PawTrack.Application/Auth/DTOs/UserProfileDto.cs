@@ -5,12 +5,16 @@ public sealed record UserProfileDto(
     string Email,
     string Name,
     bool IsEmailVerified,
-    bool IsAdmin)
+    bool IsAdmin,
+    string Role,
+    DateTimeOffset CreatedAt)
 {
     public static UserProfileDto FromDomain(PawTrack.Domain.Auth.User user) => new(
         user.Id.ToString(),
         user.Email,
         user.Name,
         user.IsEmailVerified,
-        user.Role == PawTrack.Domain.Auth.UserRole.Admin);
+        user.Role == PawTrack.Domain.Auth.UserRole.Admin,
+        user.Role.ToString(),
+        user.CreatedAt);
 }

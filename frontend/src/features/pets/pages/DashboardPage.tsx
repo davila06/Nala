@@ -17,7 +17,10 @@ import { usePullToRefresh } from "@/shared/hooks/usePullToRefresh";
 export default function DashboardPage() {
   const { data: pets, isLoading, isError, refetch } = usePets();
   const user = useAuthStore((s) => s.user);
-  const lostCount = useMemo(() => (pets ?? []).filter((p) => p.status === "Lost").length, [pets]);
+  const lostCount = useMemo(
+    () => (pets ?? []).filter((p) => p.status === "Lost").length,
+    [pets],
+  );
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "Lost" | "Active">(
     "all",
@@ -88,18 +91,23 @@ export default function DashboardPage() {
         <div className="mb-8 flex items-center justify-between gap-4">
           <div>
             <p className="text-xs font-medium text-sand-400 uppercase tracking-wide">
-              {new Date().toLocaleDateString('es-CR', { weekday: 'long', day: 'numeric', month: 'long' })}
+              {new Date().toLocaleDateString("es-CR", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+              })}
             </p>
             <h1 className="font-display text-2xl font-semibold text-sand-900">
-              {user?.name ? `Hola, ${user.name.split(' ')[0]}` : 'Mis mascotas'}
+              {user?.name ? `Hola, ${user.name.split(" ")[0]}` : "Mis mascotas"}
             </h1>
             <div className="mt-1 flex items-center gap-2">
               <p className="text-sm text-sand-500">
-                {pets?.length ?? 0} mascota{pets?.length !== 1 ? "s" : ""} registrada{pets?.length !== 1 ? "s" : ""}
+                {pets?.length ?? 0} mascota{pets?.length !== 1 ? "s" : ""}{" "}
+                registrada{pets?.length !== 1 ? "s" : ""}
               </p>
               {lostCount > 0 && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-danger-100 px-2 py-0.5 text-xs font-bold text-danger-700">
-                  ⚠️ {lostCount} perdida{lostCount !== 1 ? 's' : ''}
+                  ⚠️ {lostCount} perdida{lostCount !== 1 ? "s" : ""}
                 </span>
               )}
             </div>

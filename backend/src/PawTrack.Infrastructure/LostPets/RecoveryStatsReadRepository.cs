@@ -51,6 +51,10 @@ public sealed class RecoveryStatsReadRepository(PawTrackDbContext dbContext) : I
 
         var totalReports = await baseQuery.CountAsync(cancellationToken);
 
+        // Count all reunited events, regardless of whether GPS coordinates were captured
+        var recoveredCount = await baseQuery
+            .CountAsync(x => x.Status == Domain.LostPets.LostPetStatus.Reunited, cancellationToken);
+
         var recoveredRows = await baseQuery
             .Where(x => x.Status == Domain.LostPets.LostPetStatus.Reunited)
             .Where(x => x.RecoveryDistanceMeters != null && x.RecoveryTime != null)
@@ -63,6 +67,7 @@ public sealed class RecoveryStatsReadRepository(PawTrackDbContext dbContext) : I
 
         return new RecoveryStatsRawData(
             TotalReports: totalReports,
+            RecoveredCount: recoveredCount,
             RecoveredDistancesMeters: recoveredRows.Select(x => x.Distance).ToArray(),
             RecoveryDurationsHours: recoveredRows.Select(x => x.Hours).ToArray());
     }

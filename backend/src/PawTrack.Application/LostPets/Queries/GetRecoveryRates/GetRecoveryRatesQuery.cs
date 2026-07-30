@@ -22,7 +22,7 @@ public sealed class GetRecoveryRatesQueryHandler(
             request.Canton,
             cancellationToken);
 
-        var recoveredCount = raw.RecoveredDistancesMeters.Count;
+        var recoveredCount = raw.RecoveredCount;
         var recoveryRate = raw.TotalReports <= 0
             ? 0
             : (double)recoveredCount / raw.TotalReports;

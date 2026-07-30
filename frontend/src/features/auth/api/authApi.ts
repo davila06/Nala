@@ -44,6 +44,8 @@ export interface UserProfile {
   name: string;
   email: string;
   isAdmin: boolean;
+  role: string;
+  createdAt: string;
 }
 
 // ── JWT decode helper (no signature validation — server validates on every request) ──

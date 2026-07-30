@@ -1,20 +1,22 @@
-import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useReportFoundPet } from '../hooks/useFoundPets'
-import type { PetSpecies, ReportFoundPetPayload } from '../api/foundPetsApi'
-import { BREEDS_BY_SPECIES } from '@/features/pets/data/breeds'
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useReportFoundPet } from "../hooks/useFoundPets";
+import type { PetSpecies, ReportFoundPetPayload } from "../api/foundPetsApi";
+import { BREEDS_BY_SPECIES } from "@/features/pets/data/breeds";
+import { LastSeenMap } from "@/features/lost-pets/components/LastSeenMap";
+import { useGeolocation } from "@/features/lost-pets/hooks/useGeolocation";
 
 // ── Step types ────────────────────────────────────────────────────────────────
 
-type Step = 1 | 2 | 3 | 4
+type Step = 1 | 2 | 3 | 4;
 
 const SPECIES_OPTIONS: { value: PetSpecies; label: string; emoji: string }[] = [
-  { value: 'Dog', label: 'Perro', emoji: '🐕' },
-  { value: 'Cat', label: 'Gato', emoji: '🐈' },
-  { value: 'Bird', label: 'Ave', emoji: '🐦' },
-  { value: 'Rabbit', label: 'Conejo', emoji: '🐇' },
-  { value: 'Other', label: 'Otro', emoji: '🐾' },
-]
+  { value: "Dog", label: "Perro", emoji: "🐕" },
+  { value: "Cat", label: "Gato", emoji: "🐈" },
+  { value: "Bird", label: "Ave", emoji: "🐦" },
+  { value: "Rabbit", label: "Conejo", emoji: "🐇" },
+  { value: "Other", label: "Otro", emoji: "🐾" },
+];
 
 // ── Step indicator ────────────────────────────────────────────────────────────
 
@@ -26,63 +28,73 @@ function StepIndicator({ current, total }: { current: Step; total: number }) {
           key={step}
           className={`h-2 w-8 rounded-full transition-colors ${
             step === current
-              ? 'bg-rescue-500'
+              ? "bg-rescue-500"
               : step < current
-                ? 'bg-rescue-200'
-                : 'bg-sand-200'
+                ? "bg-rescue-200"
+                : "bg-sand-200"
           }`}
         />
       ))}
     </div>
-  )
+  );
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function ReportFoundPetPage() {
-  const navigate = useNavigate()
-  const { mutateAsync, isPending } = useReportFoundPet()
+  const navigate = useNavigate();
+  const { mutateAsync, isPending } = useReportFoundPet();
+  const geo = useGeolocation();
 
-  const [step, setStep] = useState<Step>(1)
-  const [photoFile, setPhotoFile] = useState<File | null>(null)
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
-  const [species, setSpecies] = useState<PetSpecies | null>(null)
-  const [breedEstimate, setBreedEstimate] = useState('')
-  const [colorDescription, setColorDescription] = useState('')
-  const [sizeEstimate, setSizeEstimate] = useState('')
-  const [note, setNote] = useState('')
-  const [foundLat, setFoundLat] = useState<number | null>(null)
-  const [foundLng, setFoundLng] = useState<number | null>(null)
-  const [gpsError, setGpsError] = useState<string | null>(null)
-  const [contactName, setContactName] = useState('')
-  const [contactPhone, setContactPhone] = useState('')
-  const [submitError, setSubmitError] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [step, setStep] = useState<Step>(1);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [species, setSpecies] = useState<PetSpecies | null>(null);
+  const [breedEstimate, setBreedEstimate] = useState("");
+  const [colorDescription, setColorDescription] = useState("");
+  const [sizeEstimate, setSizeEstimate] = useState("");
+  const [note, setNote] = useState("");
+  const [foundLat, setFoundLat] = useState<number | null>(null);
+  const [foundLng, setFoundLng] = useState<number | null>(null);
+  const [gpsError, setGpsError] = useState<string | null>(null);
 
-  // Auto-request GPS on step 3
+  // Request GPS when arriving at step 3
   useEffect(() => {
     if (step === 3 && foundLat === null) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setFoundLat(pos.coords.latitude)
-          setFoundLng(pos.coords.longitude)
-          setGpsError(null)
-        },
-        () => setGpsError('No pudimos obtener tu ubicación. Ingresa las coordenadas manualmente.'),
-        { timeout: 10_000 },
-      )
+      geo.request();
     }
-  }, [step, foundLat])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  // Auto-fill map center when GPS resolves
+  useEffect(() => {
+    if (geo.coords && foundLat === null) {
+      setFoundLat(geo.coords.lat);
+      setFoundLng(geo.coords.lng);
+    }
+  }, [geo.coords, foundLat]);
+
+  useEffect(() => {
+    if (geo.status === "denied") {
+      setGpsError(
+        "Permiso de ubicación denegado. Toca el mapa para marcar dónde encontraste la mascota.",
+      );
+    }
+  }, [geo.status]);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [contactName, setContactName] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
 
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setPhotoFile(file)
-    setPhotoPreview(URL.createObjectURL(file))
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
   }
 
   async function handleSubmit() {
-    if (!species || foundLat === null || foundLng === null) return
+    if (!species || foundLat === null || foundLng === null) return;
 
     const payload: ReportFoundPetPayload = {
       foundSpecies: species,
@@ -95,38 +107,47 @@ export default function ReportFoundPetPage() {
       contactPhone: contactPhone.trim(),
       note: note.trim() || null,
       photo: photoFile,
-    }
+    };
 
     try {
-      setSubmitError(null)
-      const result = await mutateAsync(payload)
-      navigate('/encontre-mascota/resultados', { state: { result } })
+      setSubmitError(null);
+      const result = await mutateAsync(payload);
+      navigate("/encontre-mascota/resultados", { state: { result } });
     } catch (err: unknown) {
       // Extract validation message from backend 400 response
-      const axiosErr = err as { response?: { data?: { errors?: string[]; title?: string } } }
-      const detail = axiosErr?.response?.data?.errors?.[0]
-        ?? axiosErr?.response?.data?.title
-        ?? 'Ocurrió un error. Por favor intenta de nuevo.'
-      setSubmitError(detail)
+      const axiosErr = err as {
+        response?: { data?: { errors?: string[]; title?: string } };
+      };
+      const detail =
+        axiosErr?.response?.data?.errors?.[0] ??
+        axiosErr?.response?.data?.title ??
+        "Ocurrió un error. Por favor intenta de nuevo.";
+      setSubmitError(detail);
     }
   }
 
   // ── Step renderers ──────────────────────────────────────────────────────────
 
   const stepTitles: Record<Step, string> = {
-    1: 'Foto de la mascota',
-    2: 'Descripción',
-    3: 'Ubicación del hallazgo',
-    4: 'Tus datos de contacto',
-  }
+    1: "Foto de la mascota",
+    2: "Descripción",
+    3: "Ubicación del hallazgo",
+    4: "Tus datos de contacto",
+  };
 
   return (
     <div className="mx-auto max-w-md px-4 py-8">
       {/* Header */}
       <div className="mb-6 text-center">
-        <p className="text-3xl" aria-hidden="true">🐾</p>
-        <h1 className="mt-2 text-xl font-bold text-sand-900">Encontré una mascota</h1>
-        <p className="mt-1 text-sm text-sand-500">Ayúdanos a reunirla con su familia</p>
+        <p className="text-3xl" aria-hidden="true">
+          🐾
+        </p>
+        <h1 className="mt-2 text-xl font-bold text-sand-900">
+          Encontré una mascota
+        </h1>
+        <p className="mt-1 text-sm text-sand-500">
+          Ayúdanos a reunirla con su familia
+        </p>
       </div>
 
       <StepIndicator current={step} total={4} />
@@ -143,7 +164,10 @@ export default function ReportFoundPetPage() {
             tabIndex={0}
             aria-label="Subir foto de la mascota"
             onClick={() => fileInputRef.current?.click()}
-            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && fileInputRef.current?.click()}
+            onKeyDown={(e) =>
+              (e.key === "Enter" || e.key === " ") &&
+              fileInputRef.current?.click()
+            }
             className="flex h-48 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-sand-300 bg-sand-50 transition hover:border-rescue-400 hover:bg-rescue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-400"
           >
             {photoPreview ? (
@@ -153,9 +177,13 @@ export default function ReportFoundPetPage() {
                 className="h-full w-full rounded-xl object-cover"
               />
             ) : (
-              <>  
-                <span className="text-4xl" aria-hidden="true">📷</span>
-                <p className="mt-2 text-sm text-sand-500">Toca para agregar una foto</p>
+              <>
+                <span className="text-4xl" aria-hidden="true">
+                  📷
+                </span>
+                <p className="mt-2 text-sm text-sand-500">
+                  Toca para agregar una foto
+                </p>
               </>
             )}
           </div>
@@ -166,13 +194,15 @@ export default function ReportFoundPetPage() {
             className="hidden"
             onChange={handlePhotoChange}
           />
-          <p className="text-center text-xs text-sand-400">La foto es opcional pero ayuda mucho</p>
+          <p className="text-center text-xs text-sand-400">
+            La foto es opcional pero ayuda mucho
+          </p>
           <button
             type="button"
             onClick={() => setStep(2)}
             className="w-full rounded-xl bg-rescue-500 py-3 text-sm font-semibold text-white transition hover:bg-rescue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-400"
           >
-            {photoPreview ? 'Continuar con esta foto' : 'Continuar sin foto'}
+            {photoPreview ? "Continuar con esta foto" : "Continuar sin foto"}
           </button>
         </div>
       )}
@@ -191,15 +221,20 @@ export default function ReportFoundPetPage() {
                     key={opt.value}
                     type="button"
                     aria-pressed={species === opt.value}
-                    onClick={() => { setSpecies(opt.value); setBreedEstimate('') }}
+                    onClick={() => {
+                      setSpecies(opt.value);
+                      setBreedEstimate("");
+                    }}
                     className={`flex flex-col items-center rounded-xl border p-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-400 ${
                       species === opt.value
-                        ? 'border-rescue-500 bg-rescue-50'
-                        : 'border-sand-200 bg-white hover:border-sand-300'
+                        ? "border-rescue-500 bg-rescue-50"
+                        : "border-sand-200 bg-white hover:border-sand-300"
                     }`}
                   >
                     <span className="text-xl">{opt.emoji}</span>
-                    <span className="mt-1 text-[10px] text-sand-600">{opt.label}</span>
+                    <span className="mt-1 text-[10px] text-sand-600">
+                      {opt.label}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -208,7 +243,9 @@ export default function ReportFoundPetPage() {
 
           {species && (
             <div>
-              <label className="mb-1 block text-sm font-medium text-sand-700">Raza</label>
+              <label className="mb-1 block text-sm font-medium text-sand-700">
+                Raza
+              </label>
               <select
                 value={breedEstimate}
                 onChange={(e) => setBreedEstimate(e.target.value)}
@@ -216,14 +253,18 @@ export default function ReportFoundPetPage() {
               >
                 <option value="">Selecciona una raza (opcional)</option>
                 {BREEDS_BY_SPECIES[species].map((breed) => (
-                  <option key={breed} value={breed}>{breed}</option>
+                  <option key={breed} value={breed}>
+                    {breed}
+                  </option>
                 ))}
               </select>
             </div>
           )}
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-sand-700">Color / descripción</label>
+            <label className="mb-1 block text-sm font-medium text-sand-700">
+              Color / descripción
+            </label>
             <input
               value={colorDescription}
               onChange={(e) => setColorDescription(e.target.value)}
@@ -234,7 +275,9 @@ export default function ReportFoundPetPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-sand-700">Tamaño aproximado</label>
+            <label className="mb-1 block text-sm font-medium text-sand-700">
+              Tamaño aproximado
+            </label>
             <select
               value={sizeEstimate}
               onChange={(e) => setSizeEstimate(e.target.value)}
@@ -248,7 +291,9 @@ export default function ReportFoundPetPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-sand-700">Nota adicional</label>
+            <label className="mb-1 block text-sm font-medium text-sand-700">
+              Nota adicional
+            </label>
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
@@ -280,44 +325,50 @@ export default function ReportFoundPetPage() {
       {/* ── Step 3: GPS location ── */}
       {step === 3 && (
         <div className="space-y-4">
-          {foundLat === null ? (
-            <div className="flex flex-col items-center gap-3 rounded-xl bg-sand-50 p-6 text-center">
-              <span className="animate-spin text-3xl" aria-hidden="true">📍</span>
-              <p className="text-sm text-sand-600">Obteniendo tu ubicación…</p>
-            </div>
-          ) : (
-            <div className="rounded-xl bg-rescue-50 p-4 text-center">
-              <p className="text-2xl" aria-hidden="true">📍</p>
-              <p className="mt-1 text-sm font-medium text-rescue-700">Ubicación capturada</p>
-              <p className="mt-1 text-xs text-sand-500">
-                {foundLat.toFixed(5)}, {foundLng?.toFixed(5)}
-              </p>
-            </div>
+          {gpsError && (
+            <p className="rounded-xl bg-warn-50 px-3 py-2 text-center text-xs text-warn-700">
+              {gpsError}
+            </p>
           )}
 
-          {gpsError && (
-            <div className="space-y-2">
-              <p className="text-center text-sm text-danger-600">{gpsError}</p>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  placeholder="Latitud"
-                  step="any"
-                  inputMode="decimal"
-                  onChange={(e) => setFoundLat(parseFloat(e.target.value))}
-                  className="flex-1 rounded-lg border border-sand-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-                />
-                <input
-                  type="number"
-                  placeholder="Longitud"
-                  step="any"
-                  inputMode="decimal"
-                  onChange={(e) => setFoundLng(parseFloat(e.target.value))}
-                  className="flex-1 rounded-lg border border-sand-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-                />
-              </div>
-            </div>
-          )}
+          <LastSeenMap
+            value={
+              foundLat !== null && foundLng !== null
+                ? { lat: foundLat, lng: foundLng }
+                : null
+            }
+            onChange={(coords) => {
+              setFoundLat(coords.lat);
+              setFoundLng(coords.lng);
+              setGpsError(null);
+            }}
+            userCoords={geo.coords}
+            geoStatus={geo.status}
+            petName="Mascota encontrada"
+            className="h-64 rounded-xl overflow-hidden"
+          />
+
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-sand-500">
+              {foundLat !== null
+                ? `📍 ${foundLat.toFixed(5)}, ${foundLng?.toFixed(5)}`
+                : geo.status === "requesting"
+                  ? "Obteniendo ubicación…"
+                  : "Toca el mapa para marcar la ubicación"}
+            </p>
+            {(geo.status === "denied" || geo.status === "idle") && (
+              <button
+                type="button"
+                onClick={() => {
+                  setGpsError(null);
+                  geo.request();
+                }}
+                className="text-xs font-medium text-brand-600 hover:underline"
+              >
+                📍 Reintentar GPS
+              </button>
+            )}
+          </div>
 
           <div className="flex gap-3">
             <button
@@ -341,7 +392,8 @@ export default function ReportFoundPetPage() {
       {step === 4 && (
         <div className="space-y-4">
           <p className="text-sm text-sand-500">
-            Tus datos solo se compartirán con el dueño si encontramos una coincidencia.
+            Tus datos solo se compartirán con el dueño si encontramos una
+            coincidencia.
           </p>
 
           <div>
@@ -387,7 +439,11 @@ export default function ReportFoundPetPage() {
             </button>
             <button
               onClick={handleSubmit}
-              disabled={!contactName.trim() || contactPhone.trim().length < 7 || isPending}
+              disabled={
+                !contactName.trim() ||
+                contactPhone.trim().length < 7 ||
+                isPending
+              }
               className="flex-1 rounded-xl bg-rescue-500 py-3 text-sm font-semibold text-white transition hover:bg-rescue-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isPending ? (
@@ -396,13 +452,12 @@ export default function ReportFoundPetPage() {
                   Enviando…
                 </span>
               ) : (
-                'Enviar reporte'
+                "Enviar reporte"
               )}
             </button>
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }
-

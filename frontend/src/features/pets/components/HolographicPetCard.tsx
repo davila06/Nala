@@ -155,7 +155,7 @@ export function HolographicPetCard({
         "stagger-in",
         isLost
           ? "border-danger-400 shadow-danger-200 shadow-lg ring-2 ring-danger-400/50"
-          : "border-sand-200 shadow-sm bg-white",
+          : "border-sand-200 shadow-sm bg-[var(--color-surface)]",
       ].join(" ")}
     >
       {/* Animated danger ring when lost */}
@@ -218,12 +218,12 @@ export function HolographicPetCard({
         style={{ transform: "translateZ(10px)" }}
       >
         <div className="flex items-start justify-between gap-2">
-          <p className="flex-1 truncate font-semibold text-sand-900">
+          <p className="flex-1 truncate text-base font-bold text-sand-900">
             {pet.name}
           </p>
           <PetStatusBadge status={pet.status} />
         </div>
-        <p className="text-sm text-sand-500">
+        <p className="text-sm font-medium text-sand-500">
           {SPECIES_LABEL[pet.species] ?? pet.species}
           {pet.breed ? ` · ${pet.breed}` : ""}
         </p>

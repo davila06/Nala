@@ -1,4 +1,5 @@
 using MediatR;
+using PawTrack.Application.Auth.DTOs;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Auth;
 using PawTrack.Domain.Common;
@@ -18,8 +19,11 @@ public sealed class GetMyProfileQueryHandler(IUserRepository userRepository)
 
         return Result.Success(new UserProfileDto(
             user.Id.ToString(),
-            user.Name,
             user.Email,
-            user.Role == UserRole.Admin));
+            user.Name,
+            user.IsEmailVerified,
+            user.Role == UserRole.Admin,
+            user.Role.ToString(),
+            user.CreatedAt));
     }
 }

@@ -21,7 +21,9 @@ export interface PetDetail {
   breed: string | null;
   birthDate: string | null;
   photoUrl: string | null;
-  status: PetStatus;  microchipId: string | null  createdAt: string;
+  status: PetStatus;
+  microchipId: string | null;
+  createdAt: string;
   updatedAt: string;
 }
 
@@ -56,7 +58,9 @@ export interface CreatePetRequest {
   species: PetSpecies;
   breed?: string;
   birthDate?: string;
-  photo?: File;  microchipId?: string}
+  photo?: File;
+  microchipId?: string;
+}
 
 export interface UpdatePetRequest extends CreatePetRequest {}
 
@@ -126,6 +130,7 @@ function buildFormData(data: CreatePetRequest): FormData {
   if (data.breed) form.append("Breed", data.breed);
   if (data.birthDate) form.append("BirthDate", data.birthDate);
   if (data.photo) form.append("Photo", data.photo);
-  if (data.microchipId) form.append("MicrochipId", data.microchipId.toUpperCase());
+  if (data.microchipId)
+    form.append("MicrochipId", data.microchipId.toUpperCase());
   return form;
 }

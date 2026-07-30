@@ -1,34 +1,45 @@
-﻿import { useState } from 'react'
-import { useMutation, useQuery } from '@tanstack/react-query'
+﻿import { useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   clinicsApi,
   type ClinicScanResultDto,
   type ScanInputType,
-} from '../api/clinicsApi'
-import { ScanInput } from '../components/ScanInput'
-import { MatchResultCard } from '../components/MatchResultCard'
+} from "../api/clinicsApi";
+import { ScanInput } from "../components/ScanInput";
+import { MatchResultCard } from "../components/MatchResultCard";
 
 export default function ClinicDashboardPage() {
-  const [scanResult, setScanResult] = useState<ClinicScanResultDto | null>(null)
+  const [scanResult, setScanResult] = useState<ClinicScanResultDto | null>(
+    null,
+  );
 
   const { data: clinic, isLoading: clinicLoading } = useQuery({
-    queryKey: ['my-clinic'],
+    queryKey: ["my-clinic"],
     queryFn: () => clinicsApi.getMyClinic(),
-  })
+  });
 
-  const { mutate: performScan, isPending: scanning, error: scanError } = useMutation({
-    mutationFn: ({ input, inputType }: { input: string; inputType: ScanInputType }) =>
-      clinicsApi.scan(input, inputType),
+  const {
+    mutate: performScan,
+    isPending: scanning,
+    error: scanError,
+  } = useMutation({
+    mutationFn: ({
+      input,
+      inputType,
+    }: {
+      input: string;
+      inputType: ScanInputType;
+    }) => clinicsApi.scan(input, inputType),
     onSuccess: (data) => setScanResult(data),
-  })
+  });
 
-  function handleScan(value: string, type: 'Qr' | 'RfidChip') {
-    setScanResult(null)
-    performScan({ input: value, inputType: type })
+  function handleScan(value: string, type: "Qr" | "RfidChip") {
+    setScanResult(null);
+    performScan({ input: value, inputType: type });
   }
 
   function handleReset() {
-    setScanResult(null)
+    setScanResult(null);
   }
 
   if (clinicLoading) {
@@ -51,25 +62,27 @@ export default function ClinicDashboardPage() {
           <div className="h-24 animate-pulse rounded-2xl bg-sand-100" />
         </div>
       </div>
-    )
+    );
   }
 
   // ── Suspended/Pending guard ───────────────────────────────────────────────
 
-  if (clinic && clinic.status !== 'Active') {
+  if (clinic && clinic.status !== "Active") {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-sand-50 px-4">
         <p className="text-4xl">🔒</p>
         <h1 className="mt-3 text-lg font-extrabold text-sand-900">
-          {clinic.status === 'Pending' ? 'Cuenta pendiente de activación' : 'Cuenta suspendida'}
+          {clinic.status === "Pending"
+            ? "Cuenta pendiente de activación"
+            : "Cuenta suspendida"}
         </h1>
         <p className="mt-2 max-w-xs text-center text-sm text-sand-500">
-          {clinic.status === 'Pending'
-            ? 'Tu clínica está en revisión. PawTrack activará tu cuenta en 1-2 días hábiles.'
-            : 'Tu cuenta ha sido suspendida. Contacta al equipo de PawTrack para más información.'}
+          {clinic.status === "Pending"
+            ? "Tu clínica está en revisión. PawTrack activará tu cuenta en 1-2 días hábiles."
+            : "Tu cuenta ha sido suspendida. Contacta al equipo de PawTrack para más información."}
         </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -80,7 +93,7 @@ export default function ClinicDashboardPage() {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-lg font-extrabold text-sand-900">
-                🏥 {clinic?.name ?? 'Portal veterinaria'}
+                🏥 {clinic?.name ?? "Portal veterinaria"}
               </h1>
               {clinic && (
                 <p className="text-xs text-sand-400">
@@ -99,12 +112,16 @@ export default function ClinicDashboardPage() {
       <main className="mx-auto max-w-lg animate-fade-in-up px-4 py-6 space-y-6">
         {/* ── Tier upgrade banner ───────────────────────────────────── */}
         <div className="rounded-2xl border border-trust-200 bg-linear-to-r from-trust-50 to-brand-50 px-4 py-3 flex items-center gap-3">
-          <span className="text-2xl" aria-hidden="true">⭐</span>
+          <span className="text-2xl" aria-hidden="true">
+            ⭐
+          </span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-trust-900">Plan Afiliada básica</p>
+            <p className="text-sm font-semibold text-trust-900">
+              Plan Afiliada básica
+            </p>
             <p className="text-xs text-trust-600 mt-0.5">
-              Actualiza a <strong>Plus (₡15,000/mes)</strong> para posición destacada en el mapa,
-              badge verificado y estadísticas de escaneos.
+              Actualiza a <strong>Plus (₡15,000/mes)</strong> para posición
+              destacada en el mapa, badge verificado y estadísticas de escaneos.
             </p>
           </div>
           <a
@@ -120,9 +137,12 @@ export default function ClinicDashboardPage() {
         ) : (
           <>
             <div>
-              <h2 className="text-base font-bold text-sand-800">Escanear mascota</h2>
+              <h2 className="text-base font-bold text-sand-800">
+                Escanear mascota
+              </h2>
               <p className="text-sm text-sand-500">
-                Escanea el código QR del collar o ingresa el número de microchip RFID.
+                Escanea el código QR del collar o ingresa el número de microchip
+                RFID.
               </p>
             </div>
 
@@ -132,13 +152,12 @@ export default function ClinicDashboardPage() {
               <p className="rounded-xl bg-danger-50 px-4 py-3 text-sm text-danger-600">
                 {scanError instanceof Error
                   ? scanError.message
-                  : 'Error al procesar el escaneo. Intenta de nuevo.'}
+                  : "Error al procesar el escaneo. Intenta de nuevo."}
               </p>
             )}
           </>
         )}
       </main>
     </div>
-  )
+  );
 }
-
