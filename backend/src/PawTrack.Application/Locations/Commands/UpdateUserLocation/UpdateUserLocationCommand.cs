@@ -12,7 +12,6 @@ public sealed record UpdateUserLocationCommand(
     double Lat,
     double Lng,
     bool ReceiveNearbyAlerts,
-    /// <summary>Quiet-hours window start in Costa Rica local time (UTC-6). Null = no quiet window.</summary>
     TimeOnly? QuietHoursStart,
-    /// <summary>Quiet-hours window end in Costa Rica local time (UTC-6). Null = no quiet window.</summary>
-    TimeOnly? QuietHoursEnd) : IRequest<Result<bool>>;
+    TimeOnly? QuietHoursEnd,
+    string? TimeZoneId = null) : IRequest<Result<bool>>;

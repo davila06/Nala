@@ -29,6 +29,11 @@ public sealed class UserLocationConfiguration : IEntityTypeConfiguration<UserLoc
                .HasColumnType("time(0)")
                .IsRequired(false);
 
+        builder.Property(u => u.TimeZoneId)
+               .HasMaxLength(64)
+               .IsRequired()
+               .HasDefaultValue("America/Costa_Rica");
+
         // Index to accelerate bounding-box queries in GetNearbyAlertSubscribersAsync.
         builder.HasIndex(u => new { u.ReceiveNearbyAlerts, u.Lat, u.Lng })
                .HasDatabaseName("IX_UserLocations_Alerts_Lat_Lng");

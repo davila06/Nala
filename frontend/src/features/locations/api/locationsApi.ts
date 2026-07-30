@@ -6,10 +6,10 @@ export interface UserLocationPayload {
   lat: number
   lng: number
   receiveNearbyAlerts: boolean
-  /** Quiet-hours window start in Costa Rica local time (HH:mm). Null = no window. */
   quietHoursStart?: string | null
-  /** Quiet-hours window end in Costa Rica local time (HH:mm). Null = no window. */
   quietHoursEnd?: string | null
+  /** IANA timezone ID from the browser (e.g. "America/New_York"). */
+  timeZoneId?: string
 }
 
 export interface UserLocationResponse {

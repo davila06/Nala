@@ -1,20 +1,20 @@
-import { NavLink, useLocation } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { NavLink, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface NavItem {
-  to: string
-  label: string
-  icon: (active: boolean) => React.ReactNode
+  to: string;
+  label: string;
+  icon: (active: boolean) => React.ReactNode;
 }
 
 const NAV_ITEMS: NavItem[] = [
   {
-    to: '/dashboard',
-    label: 'Inicio',
+    to: "/dashboard",
+    label: "Inicio",
     icon: (active) => (
       <svg
         viewBox="0 0 24 24"
-        fill={active ? 'currentColor' : 'none'}
+        fill={active ? "currentColor" : "none"}
         stroke="currentColor"
         strokeWidth="1.8"
         className="h-5 w-5"
@@ -30,12 +30,12 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    to: '/map',
-    label: 'Mapa',
+    to: "/map",
+    label: "Mapa",
     icon: (active) => (
       <svg
         viewBox="0 0 24 24"
-        fill={active ? 'currentColor' : 'none'}
+        fill={active ? "currentColor" : "none"}
         stroke="currentColor"
         strokeWidth="1.8"
         className="h-5 w-5"
@@ -46,31 +46,45 @@ const NAV_ITEMS: NavItem[] = [
           strokeLinejoin="round"
           d="M15 3.5 9 5.5 3 3.5v16l6 2 6-2 6 2v-16l-6-2Z"
         />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5.5v16M15 3.5v16" />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M9 5.5v16M15 3.5v16"
+        />
       </svg>
     ),
   },
   {
-    to: '/pets/new',
-    label: 'Agregar',
+    to: "/pets/new",
+    label: "Agregar",
     icon: (_active) => (
       <span
         className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-500 text-white shadow-lg shadow-brand-500/30"
         aria-hidden="true"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-5 w-5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          className="h-5 w-5"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 5v14M5 12h14"
+          />
         </svg>
       </span>
     ),
   },
   {
-    to: '/notifications',
-    label: 'Alertas',
+    to: "/notifications",
+    label: "Alertas",
     icon: (active) => (
       <svg
         viewBox="0 0 24 24"
-        fill={active ? 'currentColor' : 'none'}
+        fill={active ? "currentColor" : "none"}
         stroke="currentColor"
         strokeWidth="1.8"
         className="h-5 w-5"
@@ -85,12 +99,12 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    to: '/perfil',
-    label: 'Perfil',
+    to: "/perfil",
+    label: "Perfil",
     icon: (active) => (
       <svg
         viewBox="0 0 24 24"
-        fill={active ? 'currentColor' : 'none'}
+        fill={active ? "currentColor" : "none"}
         stroke="currentColor"
         strokeWidth="1.8"
         className="h-5 w-5"
@@ -104,29 +118,30 @@ const NAV_ITEMS: NavItem[] = [
       </svg>
     ),
   },
-]
+];
 
 /** Mobile-only bottom navigation bar. Hidden on md+ screens. */
 export function BottomNav() {
-  const location = useLocation()
+  const location = useLocation();
 
   return (
     <nav
       aria-label="Navegación inferior"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-sand-200 bg-surface/95 backdrop-blur-sm md:hidden"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="flex h-16 items-center justify-around">
         {NAV_ITEMS.map((item) => {
-          const isActive = location.pathname === item.to ||
-            (item.to !== '/' && location.pathname.startsWith(item.to))
+          const isActive =
+            location.pathname === item.to ||
+            (item.to !== "/" && location.pathname.startsWith(item.to));
 
           return (
             <NavLink
               key={item.to}
               to={item.to}
               aria-label={item.label}
-              aria-current={isActive ? 'page' : undefined}
+              aria-current={isActive ? "page" : undefined}
               className="relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1"
             >
               {/* Sliding pill indicator */}
@@ -138,7 +153,7 @@ export function BottomNav() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 40 }}
                   />
                 )}
               </AnimatePresence>
@@ -146,19 +161,24 @@ export function BottomNav() {
               {/* Icon with scale spring on active */}
               <motion.span
                 animate={{ scale: isActive ? 1.15 : 1 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-                className={isActive ? 'text-brand-600' : 'text-sand-500'}
+                transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                className={isActive ? "text-brand-600" : "text-sand-500"}
               >
                 {item.icon(isActive)}
               </motion.span>
 
-              <span className={['text-[10px] font-semibold leading-none transition-colors', isActive ? 'text-brand-600' : 'text-sand-400'].join(' ')}>
+              <span
+                className={[
+                  "text-[10px] font-semibold leading-none transition-colors",
+                  isActive ? "text-brand-600" : "text-sand-400",
+                ].join(" ")}
+              >
                 {item.label}
               </span>
             </NavLink>
-          )
+          );
         })}
       </div>
     </nav>
-  )
+  );
 }

@@ -39,7 +39,8 @@ public sealed class LocationsController(ISender sender) : ControllerBase
             request.Lng,
             request.ReceiveNearbyAlerts,
             request.QuietHoursStart,
-            request.QuietHoursEnd),
+            request.QuietHoursEnd,
+            request.TimeZoneId),
             cancellationToken);
 
         return result.IsSuccess
@@ -67,7 +68,7 @@ public sealed record UpsertLocationRequest(
     double Lat,
     double Lng,
     bool ReceiveNearbyAlerts,
-    /// <summary>Quiet-hours window start in Costa Rica local time (UTC-6). Null = no quiet window.</summary>
     TimeOnly? QuietHoursStart,
-    /// <summary>Quiet-hours window end in Costa Rica local time (UTC-6). Null = no quiet window.</summary>
-    TimeOnly? QuietHoursEnd);
+    TimeOnly? QuietHoursEnd,
+    /// <summary>IANA timezone ID from the browser. Null falls back to America/Costa_Rica.</summary>
+    string? TimeZoneId = null);

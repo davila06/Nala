@@ -328,7 +328,7 @@ export default function RecoveryStatsPage() {
                 );
               })}
             </div>
-          </section>
+          </Card>
         </>
       )}
     </main>

@@ -53,6 +53,7 @@ export function useAlertPreference() {
           receiveNearbyAlerts: enabled,
           quietHoursStart: qh?.start ?? null,
           quietHoursEnd:   qh?.end   ?? null,
+          timeZoneId: Intl.DateTimeFormat().resolvedOptions().timeZone,
         })
         .finally(() => setIsSaving(false))
     },

@@ -25,12 +25,17 @@ public sealed class UpdateUserLocationCommandHandler(
                 request.QuietHoursStart,
                 request.QuietHoursEnd);
 
+            if (request.TimeZoneId is not null)
+                newLocation.SetTimeZone(request.TimeZoneId);
+
             await userLocationRepository.UpsertAsync(newLocation, cancellationToken);
         }
         else
         {
             existing.Update(request.Lat, request.Lng, request.ReceiveNearbyAlerts);
             existing.SetQuietHours(request.QuietHoursStart, request.QuietHoursEnd);
+            if (request.TimeZoneId is not null)
+                existing.SetTimeZone(request.TimeZoneId);
             await userLocationRepository.UpsertAsync(existing, cancellationToken);
         }
 

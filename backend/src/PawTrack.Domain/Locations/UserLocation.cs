@@ -43,6 +43,9 @@ public sealed class UserLocation
     /// </summary>
     public TimeOnly? QuietHoursEnd { get; private set; }
 
+    /// <summary>IANA timezone ID used to evaluate quiet hours. Defaults to America/Costa_Rica.</summary>
+    public string TimeZoneId { get; private set; } = "America/Costa_Rica";
+
     // ── Factory ───────────────────────────────────────────────────────────────
 
     /// <summary>Creates a new <see cref="UserLocation"/> record for first-time opt-in.</summary>
@@ -61,6 +64,7 @@ public sealed class UserLocation
             ReceiveNearbyAlerts = receiveNearbyAlerts,
             QuietHoursStart = quietHoursStart,
             QuietHoursEnd   = quietHoursEnd,
+            TimeZoneId      = "America/Costa_Rica",
             UpdatedAt = DateTimeOffset.UtcNow,
         };
 
@@ -85,6 +89,13 @@ public sealed class UserLocation
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
+    public void SetTimeZone(string timeZoneId)
+    {
+        if (!string.IsNullOrWhiteSpace(timeZoneId))
+            TimeZoneId = timeZoneId;
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
     // ── Domain logic ──────────────────────────────────────────────────────────
 
     /// <summary>
@@ -96,17 +107,25 @@ public sealed class UserLocation
     {
         if (QuietHoursStart is null || QuietHoursEnd is null) return false;
 
-        // Costa Rica does not observe DST — UTC-6 year-round.
-        var crTime = TimeOnly.FromTimeSpan(
-            utcNow.ToOffset(TimeSpan.FromHours(-6)).TimeOfDay);
+        TimeOnly localTime;
+        try
+        {
+            var tz = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
+            localTime = TimeOnly.FromTimeSpan(
+                TimeZoneInfo.ConvertTimeFromUtc(utcNow.UtcDateTime, tz).TimeOfDay);
+        }
+        catch
+        {
+            // Fallback to UTC-6 if the stored timezone ID is unrecognised on this host
+            localTime = TimeOnly.FromTimeSpan(
+                utcNow.ToOffset(TimeSpan.FromHours(-6)).TimeOfDay);
+        }
 
         var start = QuietHoursStart.Value;
         var end   = QuietHoursEnd.Value;
 
         return start <= end
-            // Same-day window  (e.g. 08:00 → 20:00)
-            ? crTime >= start && crTime < end
-            // Overnight window (e.g. 23:00 → 07:00)
-            : crTime >= start || crTime < end;
+            ? localTime >= start && localTime < end
+            : localTime >= start || localTime < end;
     }
 }

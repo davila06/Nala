@@ -18,24 +18,29 @@ import { BottomNav } from "./BottomNav";
 // ── Page context map ─────────────────────────────────────────────────────────
 // Maps route prefixes to { label, description } for the sub-header breadcrumb.
 const PAGE_CONTEXT: Record<string, { label: string; icon: string }> = {
-  "/dashboard":         { label: "Mis mascotas",       icon: "🐾" },
-  "/pets/new":          { label: "Registrar mascota",   icon: "➕" },
-  "/pets":              { label: "Detalle de mascota",  icon: "🐾" },
-  "/perfil":            { label: "Mi perfil",           icon: "👤" },
-  "/notifications":     { label: "Notificaciones",      icon: "🔔" },
-  "/map":               { label: "Mapa público",        icon: "🗺️" },
-  "/estadisticas":      { label: "Estadísticas",        icon: "📊" },
-  "/lost":              { label: "Caso de búsqueda",    icon: "🚨" },
-  "/chat":              { label: "Chat seguro",         icon: "💬" },
-  "/allies/panel":      { label: "Panel de Aliado",     icon: "🤝" },
-  "/clinica/portal":    { label: "Portal Clínica",      icon: "🏥" },
-  "/admin":             { label: "Administración",      icon: "⚙️" },
+  "/dashboard": { label: "Mis mascotas", icon: "🐾" },
+  "/pets/new": { label: "Registrar mascota", icon: "➕" },
+  "/pets": { label: "Detalle de mascota", icon: "🐾" },
+  "/perfil": { label: "Mi perfil", icon: "👤" },
+  "/notifications": { label: "Notificaciones", icon: "🔔" },
+  "/map": { label: "Mapa público", icon: "🗺️" },
+  "/estadisticas": { label: "Estadísticas", icon: "📊" },
+  "/lost": { label: "Caso de búsqueda", icon: "🚨" },
+  "/chat": { label: "Chat seguro", icon: "💬" },
+  "/allies/panel": { label: "Panel de Aliado", icon: "🤝" },
+  "/clinica/portal": { label: "Portal Clínica", icon: "🏥" },
+  "/admin": { label: "Administración", icon: "⚙️" },
 };
 
 function resolvePageContext(pathname: string) {
   // Longest-prefix match
   const match = Object.keys(PAGE_CONTEXT)
-    .filter((prefix) => pathname === prefix || pathname.startsWith(prefix + "/") || pathname.startsWith(prefix))
+    .filter(
+      (prefix) =>
+        pathname === prefix ||
+        pathname.startsWith(prefix + "/") ||
+        pathname.startsWith(prefix),
+    )
     .sort((a, b) => b.length - a.length)[0];
   return match ? PAGE_CONTEXT[match] : null;
 }
@@ -95,7 +100,11 @@ const NAV_MAIN = [
         className="h-4 w-4"
         aria-hidden="true"
       >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 17V9l4-4 4 4 4-6" />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M3 17V9l4-4 4 4 4-6"
+        />
       </svg>
     ),
   },
@@ -554,20 +563,20 @@ export default function AuthenticatedLayout() {
               Mi perfil
             </NavLink>
             <Link
-                  to="/dashboard"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-sand-700 hover:bg-sand-50 hover:text-sand-900 transition-base"
-                >
-                  <svg
-                    className="h-4 w-4 shrink-0 text-sand-400"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path d="M4.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9 3.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zm6 0a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zM2 8.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zM10 7a5 5 0 0 0-4.546 2.916A2.5 2.5 0 0 0 7 14.5h6a2.5 2.5 0 0 0 1.546-4.584A5 5 0 0 0 10 7z" />
-                  </svg>
-                  Mis mascotas
-                </Link>
+              to="/dashboard"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-sand-700 hover:bg-sand-50 hover:text-sand-900 transition-base"
+            >
+              <svg
+                className="h-4 w-4 shrink-0 text-sand-400"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M4.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9 3.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zm6 0a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zM2 8.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zM10 7a5 5 0 0 0-4.546 2.916A2.5 2.5 0 0 0 7 14.5h6a2.5 2.5 0 0 0 1.546-4.584A5 5 0 0 0 10 7z" />
+              </svg>
+              Mis mascotas
+            </Link>
 
             {/* Sobre la app — móvil */}
             <hr className="my-1 border-sand-200" />
@@ -610,8 +619,12 @@ export default function AuthenticatedLayout() {
       {pageCtx && (
         <div className="border-b border-sand-100 bg-surface-warm">
           <div className="mx-auto flex h-9 max-w-6xl items-center gap-2 px-4">
-            <span aria-hidden="true" className="text-sm">{pageCtx.icon}</span>
-            <span className="text-xs font-semibold text-sand-700">{pageCtx.label}</span>
+            <span aria-hidden="true" className="text-sm">
+              {pageCtx.icon}
+            </span>
+            <span className="text-xs font-semibold text-sand-700">
+              {pageCtx.label}
+            </span>
           </div>
         </div>
       )}
