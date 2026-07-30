@@ -1,5 +1,6 @@
 ﻿import { useAlertPreference } from '../hooks/useAlertPreference'
 import { QuietHoursForm } from './QuietHoursForm'
+import { Card } from '@/shared/ui'
 
 /**
  * Settings card that lets the authenticated user opt in or out of
@@ -10,7 +11,7 @@ export function AlertPreferencesToggle() {
     useAlertPreference()
 
   return (
-    <div className="rounded-2xl border border-sand-200 field-input p-4">
+    <Card padding="sm">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-sand-800">
@@ -64,7 +65,7 @@ export function AlertPreferencesToggle() {
           />
         </>
       )}
-    </div>
+    </Card>
   )
 }
 

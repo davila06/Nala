@@ -12,7 +12,7 @@ import {
 } from "../hooks/useProfile";
 import { useAuthStore } from "../store/authStore";
 import type { PetSpecies } from "@/features/sightings/api/fostersApi";
-import { Button, Input, Badge, PageSpinner } from "@/shared/ui";
+import { Button, Input, Badge, PageSpinner, Card } from "@/shared/ui";
 import { toast } from "@/shared/lib/toast";
 import { LastSeenMap } from "@/features/lost-pets/components/LastSeenMap";
 import { useGeolocation } from "@/features/lost-pets/hooks/useGeolocation";
@@ -229,7 +229,7 @@ export default function ProfilePage() {
       <h1 className="text-2xl font-bold text-sand-900">Mi perfil</h1>
 
       {/* ── Identity card ────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-sand-200 field-input p-5">
+      <Card>
         <div className="flex items-center gap-4">
           {/* Gradient avatar with initials */}
           <div
@@ -300,10 +300,10 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* ── Foster section ────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-sand-200 field-input p-5">
+      <Card>
         <h2 className="text-base font-semibold text-sand-800">Voluntariado</h2>
         <p className="mt-1 text-sm text-sand-500">
           Activa esta opción para ofrecer custodia temporal a mascotas
@@ -441,10 +441,10 @@ export default function ProfilePage() {
             Guardar perfil de custodio
           </Button>
         )}
-      </div>
+      </Card>
 
       {/* ── Change password ───────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-sand-200 field-input p-5">
+      <Card>
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-semibold text-sand-800">
@@ -541,11 +541,11 @@ export default function ProfilePage() {
             </Button>
           </div>
         )}
-      </div>
+      </Card>
 
       {/* ── Push notifications ───────────────────────────────────────── */}
       {pushStatus !== "unsupported" && (
-        <div className="rounded-2xl border border-sand-200 field-input p-5">
+        <Card>
           <div className="flex items-center justify-between gap-4">
             <div>
               <h2 className="text-base font-semibold text-sand-800">
@@ -586,7 +586,7 @@ export default function ProfilePage() {
       )}
 
       {/* ── Delete account ────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-danger-200 bg-danger-50/40 p-5">
+      <Card variant="danger">
         <h2 className="text-base font-semibold text-danger-700">
           Zona de peligro
         </h2>
@@ -637,7 +637,7 @@ export default function ProfilePage() {
             </div>
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

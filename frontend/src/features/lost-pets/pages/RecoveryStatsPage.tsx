@@ -1,6 +1,7 @@
 ﻿import { useMemo, useState, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { Card } from "@/shared/ui";
 import {
   useRecoveryOverview,
   useRecoveryRates,
@@ -207,7 +208,7 @@ export default function RecoveryStatsPage() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: i * 0.05, duration: 0.18 }}
-                    className="rounded-2xl border border-sand-200 field-input p-4"
+                    className="rounded-2xl border border-sand-200 bg-surface p-4"
                   >
                     <p className="text-[0.75rem] text-sand-500">{label}</p>
                     <p className="mt-1 text-2xl font-bold text-sand-900">
@@ -218,7 +219,7 @@ export default function RecoveryStatsPage() {
               </section>
 
               {/* Summary */}
-              <section className="mb-5 rounded-2xl border border-sand-200 field-input p-5">
+              <Card as="section" className="mb-5">
                 <h2 className="mb-3 text-base font-semibold text-sand-900">
                   Lectura rápida
                 </h2>
@@ -232,7 +233,7 @@ export default function RecoveryStatsPage() {
                     Actualizando datos…
                   </p>
                 )}
-              </section>
+              </Card>
             </>
           </motion.div>
         )}
@@ -243,7 +244,7 @@ export default function RecoveryStatsPage() {
           {/* Canton heatmap — only shown when GeoJSON is available */}
           {(cantonLoading || cantonGeoJson) &&
             overview.cantonRecovery.length > 0 && (
-              <section className="mb-5 rounded-2xl border border-sand-200 field-input p-5">
+              <Card as="section" className="mb-5">
                 <h2 className="mb-1 text-base font-semibold text-sand-900">
                   Mapa de calor por cantón
                 </h2>
@@ -255,7 +256,7 @@ export default function RecoveryStatsPage() {
                   cantonRecovery={overview.cantonRecovery}
                   maxRecoveryRate={maxRecoveryRate}
                 />
-              </section>
+              </Card>
             )}
 
           {/* 3D recovery chart — top cantons */}
@@ -295,7 +296,7 @@ export default function RecoveryStatsPage() {
           )}
 
           {/* Species bar chart */}
-          <section className="rounded-2xl border border-sand-200 field-input p-5">
+          <Card as="section">
             <h2 className="mb-1 text-base font-semibold text-sand-900">
               Tiempo de recuperación por especie
             </h2>

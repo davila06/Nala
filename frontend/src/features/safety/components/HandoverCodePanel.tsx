@@ -1,6 +1,7 @@
 ﻿import { useState } from 'react'
 import { useGenerateHandoverCode, useVerifyHandoverCode } from '../hooks/useSafety'
 import { Alert } from '@/shared/ui/Alert'
+import { Card } from '@/shared/ui'
 
 // ── Owner panel — generates + displays the code ───────────────────────────────
 
@@ -22,7 +23,7 @@ export function OwnerHandoverPanel({ lostPetEventId }: OwnerHandoverPanelProps) 
   }
 
   return (
-    <div className="rounded-2xl border border-sand-200 field-input p-5 shadow-sm">
+    <Card shadow>
       <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-sand-500">
         Entrega segura
       </p>
@@ -71,7 +72,7 @@ export function OwnerHandoverPanel({ lostPetEventId }: OwnerHandoverPanelProps) 
           </button>
         </>
       )}
-    </div>
+    </Card>
   )
 }
 
@@ -133,7 +134,7 @@ export function RescuerHandoverPanel({ lostPetEventId }: RescuerHandoverPanelPro
   }
 
   return (
-    <div className="rounded-2xl border border-sand-200 field-input p-5 shadow-sm">
+    <Card shadow>
       <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-sand-500">
         Confirmación de entrega
       </p>
@@ -167,7 +168,7 @@ export function RescuerHandoverPanel({ lostPetEventId }: RescuerHandoverPanelPro
           Confirmar entrega
         </button>
       </form>
-    </div>
+    </Card>
   )
 }
 

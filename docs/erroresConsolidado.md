@@ -202,9 +202,10 @@
 
 ### 4.6 ✅ ProfilePage — mejoras UX enterprise
 
-**Estado:** ✅ Implementado en commit `81cc944` (2026-07-30).  
-- Rol localizado en español, especies con emoji, "Miembro desde" con fecha  
-- Indicador fortaleza contraseña (4 niveles), validación inline de coincidencia  
+**Estado:** ✅ Implementado en commit `81cc944` (2026-07-30).
+
+- Rol localizado en español, especies con emoji, "Miembro desde" con fecha
+- Indicador fortaleza contraseña (4 niveles), validación inline de coincidencia
 - Botón custodio condicional, resumen colapsado, toggle push nativo
 
 ---
@@ -337,19 +338,19 @@ Lista operativa para el go-live en producción:
 
 ## 10. Fixes resueltos en sesión 2026-07-30
 
-| Fix | Descripción |
-|-----|-------------|
-| ✅ | `CookieConsentBanner` usaba `<Link>` fuera de `<RouterProvider>` → reemplazado con `<a>` |
-| ✅ | `LeaderboardWidget` key warning — clave compuesta para IDs null/duplicados |
-| ✅ | `Tabs.tsx` bg-white en dark mode → `bg-[var(--color-surface)]` |
-| ✅ | Scrollbar visible en tab bar de `PetDetailPage` → `.no-scrollbar` |
-| ✅ | GeoJSON cantones CR cargaba desde Git LFS (404) → archivo local `public/geojson/cantons-cr.geojson` (GADM 4.1, 333 KB) |
-| ✅ | `THREE.Clock` deprecation warning en devtools → filtrado en `main.tsx` solo en DEV |
-| ✅ | CSP bloqueaba `raw.githubusercontent.com`, `cdn.jsdelivr.net` → agregados a `connect-src` |
-| ✅ | `/encontre-mascota` GPS denegado mostraba inputs lat/lng manuales inutilizables → mapa interactivo `LastSeenMap` |
-| ✅ | WebGL context lost en componentes 3D → `e.preventDefault()` en `contextlost`, `dpr` reducido |
-| ✅ | `petsApi.ts` sintaxis rota por formatter (campo sin `;`) → corregido |
-| ✅ | `ReportFoundPetPage` duplicado de `gpsError` por formatter → eliminado |
+| Fix | Descripción                                                                                                            |
+| --- | ---------------------------------------------------------------------------------------------------------------------- |
+| ✅  | `CookieConsentBanner` usaba `<Link>` fuera de `<RouterProvider>` → reemplazado con `<a>`                               |
+| ✅  | `LeaderboardWidget` key warning — clave compuesta para IDs null/duplicados                                             |
+| ✅  | `Tabs.tsx` bg-white en dark mode → `bg-[var(--color-surface)]`                                                         |
+| ✅  | Scrollbar visible en tab bar de `PetDetailPage` → `.no-scrollbar`                                                      |
+| ✅  | GeoJSON cantones CR cargaba desde Git LFS (404) → archivo local `public/geojson/cantons-cr.geojson` (GADM 4.1, 333 KB) |
+| ✅  | `THREE.Clock` deprecation warning en devtools → filtrado en `main.tsx` solo en DEV                                     |
+| ✅  | CSP bloqueaba `raw.githubusercontent.com`, `cdn.jsdelivr.net` → agregados a `connect-src`                              |
+| ✅  | `/encontre-mascota` GPS denegado mostraba inputs lat/lng manuales inutilizables → mapa interactivo `LastSeenMap`       |
+| ✅  | WebGL context lost en componentes 3D → `e.preventDefault()` en `contextlost`, `dpr` reducido                           |
+| ✅  | `petsApi.ts` sintaxis rota por formatter (campo sin `;`) → corregido                                                   |
+| ✅  | `ReportFoundPetPage` duplicado de `gpsError` por formatter → eliminado                                                 |
 
 ---
 

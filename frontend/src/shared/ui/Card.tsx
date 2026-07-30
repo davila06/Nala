@@ -1,40 +1,52 @@
-import { type HTMLAttributes, type ReactNode } from 'react'
+import { type ElementType, type HTMLAttributes, type ReactNode } from 'react'
 
-interface CardProps extends HTMLAttributes<HTMLDivElement> {
+// ── Card ──────────────────────────────────────────────────────────────────────
+
+type CardVariant = 'default' | 'danger' | 'warn' | 'rescue' | 'trust'
+type CardPadding = 'none' | 'sm' | 'md' | 'lg'
+
+interface CardProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode
-  padding?: 'sm' | 'md' | 'lg' | 'none'
-  shadow?: 'none' | 'sm' | 'md'
+  /** Semantic HTML tag. Defaults to 'div'. */
+  as?: ElementType
+  padding?: CardPadding
+  shadow?: boolean
   border?: boolean
+  variant?: CardVariant
 }
 
-const paddingMap = {
+const paddingMap: Record<CardPadding, string> = {
   none: '',
   sm:   'p-4',
   md:   'p-5',
   lg:   'p-6 sm:p-8',
 }
 
-const shadowMap = {
-  none: '',
-  sm:   'shadow-xs',
-  md:   'shadow-md',
+const variantMap: Record<CardVariant, string> = {
+  default: 'border-sand-200 bg-surface',
+  danger:  'border-danger-200 bg-danger-50/40',
+  warn:    'border-warn-200 bg-warn-50/40',
+  rescue:  'border-rescue-200 bg-rescue-50/40',
+  trust:   'border-trust-200 bg-trust-50/40',
 }
 
 export function Card({
   children,
+  as: Tag = 'div',
   padding = 'md',
-  shadow = 'sm',
+  shadow = false,
   border = true,
+  variant = 'default',
   className = '',
   ...props
 }: CardProps) {
   return (
-    <div
+    <Tag
       className={[
-        'rounded-2xl bg-white',
+        'rounded-2xl',
+        border ? `border ${variantMap[variant]}` : variantMap[variant].split(' ').slice(1).join(' '),
         paddingMap[padding],
-        shadowMap[shadow],
-        border ? 'border border-sand-200' : '',
+        shadow ? 'shadow-sm' : '',
         className,
       ]
         .filter(Boolean)
@@ -42,7 +54,7 @@ export function Card({
       {...props}
     >
       {children}
-    </div>
+    </Tag>
   )
 }
 
