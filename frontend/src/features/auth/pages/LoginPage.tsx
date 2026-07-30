@@ -263,7 +263,9 @@ export default function LoginPage() {
     password: "",
   }));
   const [showPassword, setShowPassword] = useState(false);
-  const [emailTouched, setEmailTouched] = useState(() => !!localStorage.getItem("pawtrack:lastEmail"));
+  const [emailTouched, setEmailTouched] = useState(
+    () => !!localStorage.getItem("pawtrack:lastEmail"),
+  );
   // M — Debounce validation: only show error after 400ms of inactivity post-blur
   const emailDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [emailValidNow, setEmailValidNow] = useState(false);

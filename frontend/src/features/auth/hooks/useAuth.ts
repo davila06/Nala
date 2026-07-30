@@ -1,16 +1,16 @@
-import { useMutation } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
-import { authApi, decodeRoleFromJwt } from '../api/authApi'
-import { useAuthStore } from '../store/authStore'
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { authApi, decodeRoleFromJwt } from "../api/authApi";
+import { useAuthStore } from "../store/authStore";
 
 export function useLogin(returnTo?: string) {
-  const setAuth = useAuthStore((s) => s.setAuth)
-  const navigate = useNavigate()
+  const setAuth = useAuthStore((s) => s.setAuth);
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: authApi.login,
     onSuccess: ({ data }) => {
-      const role = decodeRoleFromJwt(data.accessToken)
+      const role = decodeRoleFromJwt(data.accessToken);
       setAuth(
         {
           id: data.user.id,
@@ -20,48 +20,51 @@ export function useLogin(returnTo?: string) {
           isAdmin: data.user.isAdmin,
         },
         data.accessToken,
-      )
+      );
       // Honour the ?return= param; fall back to role-based default
-      const destination = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('/login')
-        ? returnTo
-        : role === 'Ally' ? '/allies/panel' : '/dashboard'
-      navigate(destination, { replace: true })
+      const destination =
+        returnTo && returnTo.startsWith("/") && !returnTo.startsWith("/login")
+          ? returnTo
+          : role === "Ally"
+            ? "/allies/panel"
+            : "/dashboard";
+      navigate(destination, { replace: true });
     },
-  })
+  });
 }
 
 export function useRegister() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: authApi.register,
     onSuccess: () => {
-      navigate('/login?registered=true')
+      navigate("/login?registered=true");
     },
-  })
+  });
 }
 
 export function useForgotPassword() {
   return useMutation({
     mutationFn: authApi.forgotPassword,
-  })
+  });
 }
 
 export function useResetPassword() {
   return useMutation({
     mutationFn: authApi.resetPassword,
-  })
+  });
 }
 
 export function useLogout() {
-  const clearAuth = useAuthStore((s) => s.clearAuth)
-  const navigate = useNavigate()
+  const clearAuth = useAuthStore((s) => s.clearAuth);
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: authApi.logout,
     onSettled: () => {
-      clearAuth()
-      navigate('/login')
+      clearAuth();
+      navigate("/login");
     },
-  })
+  });
 }

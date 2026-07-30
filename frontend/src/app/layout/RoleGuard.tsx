@@ -1,14 +1,14 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { useAuthStore } from '@/features/auth/store/authStore'
-import type { AuthUser } from '@/features/auth/store/authStore'
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAuthStore } from "@/features/auth/store/authStore";
+import type { AuthUser } from "@/features/auth/store/authStore";
 
 interface RoleGuardProps {
   /** Roles allowed to access this route */
-  roles: AuthUser['role'][]
+  roles: AuthUser["role"][];
   /** Where to redirect unauthenticated users (default: /login) */
-  unauthenticated?: string
+  unauthenticated?: string;
   /** Where to redirect authenticated users without the required role (default: /dashboard) */
-  unauthorized?: string
+  unauthorized?: string;
 }
 
 /**
@@ -18,20 +18,20 @@ interface RoleGuardProps {
  */
 export function RoleGuard({
   roles,
-  unauthenticated = '/login',
-  unauthorized = '/dashboard',
+  unauthenticated = "/login",
+  unauthorized = "/dashboard",
 }: RoleGuardProps) {
-  const { isAuthenticated, user } = useAuthStore()
-  const location = useLocation()
+  const { isAuthenticated, user } = useAuthStore();
+  const location = useLocation();
 
   if (!isAuthenticated || !user) {
     const returnTo = encodeURIComponent(location.pathname + location.search);
-    return <Navigate to={`${unauthenticated}?return=${returnTo}`} replace />
+    return <Navigate to={`${unauthenticated}?return=${returnTo}`} replace />;
   }
 
   if (!roles.includes(user.role)) {
-    return <Navigate to={unauthorized} replace />
+    return <Navigate to={unauthorized} replace />;
   }
 
-  return <Outlet />
+  return <Outlet />;
 }
