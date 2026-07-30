@@ -15,6 +15,31 @@ import { useAuthStore } from "@/features/auth/store/authStore";
 import { useLogout } from "@/features/auth/hooks/useAuth";
 import { BottomNav } from "./BottomNav";
 
+// ── Page context map ─────────────────────────────────────────────────────────
+// Maps route prefixes to { label, description } for the sub-header breadcrumb.
+const PAGE_CONTEXT: Record<string, { label: string; icon: string }> = {
+  "/dashboard":         { label: "Mis mascotas",       icon: "🐾" },
+  "/pets/new":          { label: "Registrar mascota",   icon: "➕" },
+  "/pets":              { label: "Detalle de mascota",  icon: "🐾" },
+  "/perfil":            { label: "Mi perfil",           icon: "👤" },
+  "/notifications":     { label: "Notificaciones",      icon: "🔔" },
+  "/map":               { label: "Mapa público",        icon: "🗺️" },
+  "/estadisticas":      { label: "Estadísticas",        icon: "📊" },
+  "/lost":              { label: "Caso de búsqueda",    icon: "🚨" },
+  "/chat":              { label: "Chat seguro",         icon: "💬" },
+  "/allies/panel":      { label: "Panel de Aliado",     icon: "🤝" },
+  "/clinica/portal":    { label: "Portal Clínica",      icon: "🏥" },
+  "/admin":             { label: "Administración",      icon: "⚙️" },
+};
+
+function resolvePageContext(pathname: string) {
+  // Longest-prefix match
+  const match = Object.keys(PAGE_CONTEXT)
+    .filter((prefix) => pathname === prefix || pathname.startsWith(prefix + "/") || pathname.startsWith(prefix))
+    .sort((a, b) => b.length - a.length)[0];
+  return match ? PAGE_CONTEXT[match] : null;
+}
+
 // ── Nav items by role ────────────────────────────────────────────────────────
 const NAV_MAIN = [
   {
@@ -55,6 +80,22 @@ const NAV_MAIN = [
           d="M10 2a5 5 0 0 1 5 5c0 3.5-5 11-5 11S5 10.5 5 7a5 5 0 0 1 5-5Z"
         />
         <circle cx="10" cy="7" r="1.5" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    to: "/estadisticas",
+    label: "Estadísticas",
+    icon: (active: boolean) => (
+      <svg
+        viewBox="0 0 20 20"
+        fill={active ? "currentColor" : "none"}
+        stroke="currentColor"
+        strokeWidth="1.6"
+        className="h-4 w-4"
+        aria-hidden="true"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 17V9l4-4 4 4 4-6" />
       </svg>
     ),
   },
@@ -169,10 +210,12 @@ export default function AuthenticatedLayout() {
           ? NAV_EXTRA_ADMIN
           : null;
 
+  const pageCtx = resolvePageContext(location.pathname);
+
   return (
     <div className="min-h-dvh bg-sand-100">
       {/* ── Top bar ─────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 border-b border-sand-200 bg-white/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-40 border-b border-sand-200 bg-surface/95 backdrop-blur-sm">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4">
           {/* Logo */}
           <Link
@@ -216,7 +259,7 @@ export default function AuthenticatedLayout() {
           {/* ── Report lost CTA — shown for Owners only ──────────────────── */}
           {user?.role === "Owner" && (
             <Link
-              to="/mis-mascotas"
+              to="/dashboard"
               className="hidden md:flex items-center gap-1.5 rounded-xl bg-danger-500 px-3.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-danger-600 transition-base"
             >
               <svg
@@ -264,7 +307,7 @@ export default function AuthenticatedLayout() {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: -6 }}
                     transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
-                    className="absolute right-0 top-10 z-50 hidden md:block w-60 rounded-2xl border border-sand-200 field-input shadow-xl overflow-hidden origin-top-right"
+                    className="absolute right-0 top-10 z-50 hidden md:block w-60 rounded-2xl border border-sand-200 bg-surface shadow-xl overflow-hidden origin-top-right"
                   >
                     {/* User info header */}
                     <div className="flex items-center gap-3 px-4 py-3.5 border-b border-sand-100">
@@ -309,7 +352,7 @@ export default function AuthenticatedLayout() {
                         Mi perfil
                       </Link>
                       <Link
-                        to="/mis-mascotas"
+                        to="/dashboard"
                         role="menuitem"
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-sand-700 hover:bg-sand-50 hover:text-sand-900 transition-base"
@@ -430,7 +473,7 @@ export default function AuthenticatedLayout() {
         {menuOpen && (
           <nav
             aria-label="Navegación móvil"
-            className="border-t border-sand-200 field-input px-4 py-3 flex flex-col gap-1 md:hidden animate-fade-in"
+            className="border-t border-sand-200 bg-surface px-4 py-3 flex flex-col gap-1 md:hidden animate-fade-in"
           >
             {/* Mobile user header */}
             <div className="flex items-center gap-3 pb-3">
@@ -482,7 +525,7 @@ export default function AuthenticatedLayout() {
               <>
                 <hr className="my-1 border-sand-200" />
                 <Link
-                  to="/mis-mascotas"
+                  to="/dashboard"
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-2 rounded-xl bg-danger-500 px-3 py-2 text-sm font-semibold text-white"
                 >
@@ -510,13 +553,21 @@ export default function AuthenticatedLayout() {
             >
               Mi perfil
             </NavLink>
-            <NavLink
-              to="/mis-mascotas"
-              onClick={() => setMenuOpen(false)}
-              className={navLinkCls}
-            >
-              Mis mascotas
-            </NavLink>
+            <Link
+                  to="/dashboard"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-sand-700 hover:bg-sand-50 hover:text-sand-900 transition-base"
+                >
+                  <svg
+                    className="h-4 w-4 shrink-0 text-sand-400"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M4.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9 3.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zm6 0a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zM2 8.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zM10 7a5 5 0 0 0-4.546 2.916A2.5 2.5 0 0 0 7 14.5h6a2.5 2.5 0 0 0 1.546-4.584A5 5 0 0 0 10 7z" />
+                  </svg>
+                  Mis mascotas
+                </Link>
 
             {/* Sobre la app — móvil */}
             <hr className="my-1 border-sand-200" />
@@ -554,6 +605,16 @@ export default function AuthenticatedLayout() {
       </header>
 
       <OfflineQueueBanner />
+
+      {/* ── Page context breadcrumb ───────────────────────────────────── */}
+      {pageCtx && (
+        <div className="border-b border-sand-100 bg-surface-warm">
+          <div className="mx-auto flex h-9 max-w-6xl items-center gap-2 px-4">
+            <span aria-hidden="true" className="text-sm">{pageCtx.icon}</span>
+            <span className="text-xs font-semibold text-sand-700">{pageCtx.label}</span>
+          </div>
+        </div>
+      )}
 
       {/* ── Main content ───────────────────────────────────────────────── */}
       <AnimatePresence mode="wait" initial={false}>

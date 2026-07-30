@@ -1,18 +1,18 @@
 ﻿import {
   useNotificationPreferences,
   useUpdateNotificationPreferences,
-} from '../hooks/useNotificationPreferences'
-import { Card } from '@/shared/ui'
+} from "../hooks/useNotificationPreferences";
+import { Card } from "@/shared/ui";
 
 export function NotificationPreferencesToggle() {
-  const { data, isLoading } = useNotificationPreferences()
-  const { mutate: update, isPending } = useUpdateNotificationPreferences()
+  const { data, isLoading } = useNotificationPreferences();
+  const { mutate: update, isPending } = useUpdateNotificationPreferences();
 
-  const enabled = data?.enablePreventiveAlerts ?? true
-  const busy = isLoading || isPending
+  const enabled = data?.enablePreventiveAlerts ?? true;
+  const busy = isLoading || isPending;
 
   function handleToggle() {
-    update(!enabled)
+    update(!enabled);
   }
 
   return (
@@ -36,23 +36,22 @@ export function NotificationPreferencesToggle() {
           disabled={busy}
           onClick={handleToggle}
           className={[
-            'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent',
-            'transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
-            'disabled:opacity-50',
-            enabled ? 'bg-brand-500' : 'bg-sand-300',
-          ].join(' ')}
+            "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent",
+            "transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2",
+            "disabled:opacity-50",
+            enabled ? "bg-brand-500" : "bg-sand-300",
+          ].join(" ")}
         >
           <span
             aria-hidden="true"
             className={[
-              'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0',
-              'transition duration-200 ease-in-out',
-              enabled ? 'translate-x-5' : 'translate-x-0',
-            ].join(' ')}
+              "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0",
+              "transition duration-200 ease-in-out",
+              enabled ? "translate-x-5" : "translate-x-0",
+            ].join(" ")}
           />
         </button>
       </div>
     </Card>
-  )
+  );
 }
-

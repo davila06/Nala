@@ -1,14 +1,17 @@
-﻿import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Card } from './Card'
+﻿import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Card } from "./Card";
 
 interface BeforeInstallPromptEvent extends Event {
-  readonly platforms: string[]
-  prompt(): Promise<void>
-  readonly userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>
+  readonly platforms: string[];
+  prompt(): Promise<void>;
+  readonly userChoice: Promise<{
+    outcome: "accepted" | "dismissed";
+    platform: string;
+  }>;
 }
 
-const DISMISSED_KEY = 'pwa-install-dismissed'
+const DISMISSED_KEY = "pwa-install-dismissed";
 
 /**
  * PWAInstallBanner — custom "Add to Home Screen" banner.
@@ -18,38 +21,39 @@ const DISMISSED_KEY = 'pwa-install-dismissed'
  * Render once near the root (e.g. in App.tsx or AuthenticatedLayout).
  */
 export function PWAInstallBanner() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [visible, setVisible] = useState(false)
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     // Don't show if user dismissed in this session
-    if (sessionStorage.getItem(DISMISSED_KEY)) return
+    if (sessionStorage.getItem(DISMISSED_KEY)) return;
 
     const handler = (e: Event) => {
-      e.preventDefault()
-      setDeferredPrompt(e as BeforeInstallPromptEvent)
+      e.preventDefault();
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
       // Small delay so it doesn't pop up immediately on first load
-      setTimeout(() => setVisible(true), 3000)
-    }
+      setTimeout(() => setVisible(true), 3000);
+    };
 
-    window.addEventListener('beforeinstallprompt', handler)
-    return () => window.removeEventListener('beforeinstallprompt', handler)
-  }, [])
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
 
   const handleInstall = async () => {
-    if (!deferredPrompt) return
-    await deferredPrompt.prompt()
-    const choice = await deferredPrompt.userChoice
-    if (choice.outcome === 'accepted') {
-      setDeferredPrompt(null)
-      setVisible(false)
+    if (!deferredPrompt) return;
+    await deferredPrompt.prompt();
+    const choice = await deferredPrompt.userChoice;
+    if (choice.outcome === "accepted") {
+      setDeferredPrompt(null);
+      setVisible(false);
     }
-  }
+  };
 
   const handleDismiss = () => {
-    sessionStorage.setItem(DISMISSED_KEY, '1')
-    setVisible(false)
-  }
+    sessionStorage.setItem(DISMISSED_KEY, "1");
+    setVisible(false);
+  };
 
   return (
     <AnimatePresence>
@@ -62,9 +66,13 @@ export function PWAInstallBanner() {
           initial={{ opacity: 0, y: 24, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 16, scale: 0.97 }}
-          transition={{ type: 'spring', stiffness: 380, damping: 36 }}
+          transition={{ type: "spring", stiffness: 380, damping: 36 }}
         >
-          <Card padding="sm" shadow className="flex items-start gap-3.5 shadow-sand-900/10">
+          <Card
+            padding="sm"
+            shadow
+            className="flex items-start gap-3.5 shadow-sand-900/10"
+          >
             {/* App icon */}
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-500 text-2xl shadow-md shadow-brand-500/30">
               🐾
@@ -105,13 +113,23 @@ export function PWAInstallBanner() {
               aria-label="Cerrar"
               className="shrink-0 text-sand-400 hover:text-sand-600 transition-colors mt-0.5"
             >
-              <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4" aria-hidden="true">
-                <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              <svg
+                viewBox="0 0 16 16"
+                fill="none"
+                className="h-4 w-4"
+                aria-hidden="true"
+              >
+                <path
+                  d="M3 3l10 10M13 3L3 13"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
           </Card>
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
