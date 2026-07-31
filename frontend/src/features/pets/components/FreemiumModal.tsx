@@ -1,95 +1,108 @@
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { SinpePaymentModal } from "./SinpePaymentModal";
+import type { SubscriptionTier } from "../api/subscriptionApi";
 
 interface Tier {
-  id: 'free' | 'plus' | 'familia'
-  name: string
-  price: string
-  period: string
-  color: string
-  badge: string
-  glow?: string
-  features: { label: string; included: boolean }[]
-  cta: string
-  ctaHref?: string
-  current?: boolean
+  id: "free" | "plus" | "familia";
+  subscriptionTier?: SubscriptionTier;
+  name: string;
+  price: string;
+  period: string;
+  color: string;
+  badge: string;
+  glow?: string;
+  features: { label: string; included: boolean }[];
+  cta: string;
+  current?: boolean;
 }
 
 const TIERS: Tier[] = [
   {
-    id: 'free',
-    name: 'Explorador',
-    price: 'Gratis',
-    period: 'siempre',
-    color: 'border-sand-200',
-    badge: 'bg-sand-100 text-sand-600',
+    id: "free",
+    name: "Explorador",
+    price: "Gratis",
+    period: "siempre",
+    color: "border-sand-200",
+    badge: "bg-sand-100 text-sand-600",
     features: [
-      { label: '1 mascota registrada', included: true },
-      { label: 'Placa QR de identidad', included: true },
-      { label: 'Historial: últimos 5 escaneos', included: true },
-      { label: 'Reporte de mascota perdida', included: true },
-      { label: 'Búsqueda IA por foto (3/mes)', included: true },
-      { label: 'Alertas en radio de 3 km', included: false },
-      { label: 'SMS/WhatsApp de alerta instantánea', included: false },
-      { label: 'Predicción de movimiento IA', included: false },
-      { label: 'Historial completo ilimitado', included: false },
-      { label: 'Hasta 3 mascotas', included: false },
+      { label: "1 mascota registrada", included: true },
+      { label: "Placa QR de identidad", included: true },
+      { label: "Historial: últimos 5 escaneos", included: true },
+      { label: "Reporte de mascota perdida", included: true },
+      { label: "Búsqueda IA por foto (3/mes)", included: true },
+      { label: "Alertas en radio de 3 km", included: false },
+      { label: "SMS/WhatsApp de alerta instantánea", included: false },
+      { label: "Predicción de movimiento IA", included: false },
+      { label: "Historial completo ilimitado", included: false },
+      { label: "Hasta 3 mascotas", included: false },
     ],
-    cta: 'Plan actual',
+    cta: "Plan actual",
     current: true,
   },
   {
-    id: 'plus',
-    name: 'Plus',
-    price: '₡2,990',
-    period: 'por mes',
-    color: 'border-brand-400',
-    badge: 'bg-brand-100 text-brand-700',
-    glow: 'shadow-brand-200',
+    id: "plus",
+    name: "Plus",
+    price: "₡2,990",
+    period: "por mes",
+    color: "border-brand-400",
+    badge: "bg-brand-100 text-brand-700",
+    glow: "shadow-brand-200",
     features: [
-      { label: 'Todo lo del plan Explorador', included: true },
-      { label: 'Hasta 3 mascotas', included: true },
-      { label: 'Historial completo ilimitado', included: true },
-      { label: 'Alertas en radio de 10 km', included: true },
-      { label: 'SMS/WhatsApp de alerta instantánea', included: true },
-      { label: 'Búsqueda IA por foto ilimitada', included: true },
-      { label: 'Predicción de movimiento IA', included: true },
-      { label: 'Sala de coordinación activa', included: true },
-      { label: 'Mascotas ilimitadas', included: false },
-      { label: 'Multi-usuario (familia)', included: false },
+      { label: "Todo lo del plan Explorador", included: true },
+      { label: "Hasta 3 mascotas", included: true },
+      { label: "Historial completo ilimitado", included: true },
+      { label: "Alertas en radio de 10 km", included: true },
+      { label: "SMS/WhatsApp de alerta instantánea", included: true },
+      { label: "Búsqueda IA por foto ilimitada", included: true },
+      { label: "Predicción de movimiento IA", included: true },
+      { label: "Sala de coordinación activa", included: true },
+      { label: "Mascotas ilimitadas", included: false },
+      { label: "Multi-usuario (familia)", included: false },
     ],
-    cta: 'Activar Plus',
-    ctaHref: 'mailto:soporte@pawtrack.cr?subject=Activar%20Plan%20Plus',
+    cta: "Activar Plus",
+    subscriptionTier: "UserPlus" as SubscriptionTier,
   },
   {
-    id: 'familia',
-    name: 'Familia',
-    price: '₡4,990',
-    period: 'por mes',
-    color: 'border-rescue-400',
-    badge: 'bg-rescue-100 text-rescue-700',
+    id: "familia",
+    name: "Familia",
+    price: "₡4,990",
+    period: "por mes",
+    color: "border-rescue-400",
+    badge: "bg-rescue-100 text-rescue-700",
     features: [
-      { label: 'Todo lo del plan Plus', included: true },
-      { label: 'Mascotas ilimitadas', included: true },
-      { label: 'Multi-usuario (hasta 5 miembros)', included: true },
-      { label: 'Registros médicos y vacunas', included: true },
-      { label: 'Recordatorios veterinarios', included: true },
-      { label: 'Radio de alertas sin límite', included: true },
-      { label: 'Exportar historial en PDF', included: true },
-      { label: 'Soporte prioritario', included: true },
-      { label: '', included: true },
-      { label: '', included: true },
+      { label: "Todo lo del plan Plus", included: true },
+      { label: "Mascotas ilimitadas", included: true },
+      { label: "Multi-usuario (hasta 5 miembros)", included: true },
+      { label: "Registros médicos y vacunas", included: true },
+      { label: "Recordatorios veterinarios", included: true },
+      { label: "Radio de alertas sin límite", included: true },
+      { label: "Exportar historial en PDF", included: true },
+      { label: "Soporte prioritario", included: true },
+      { label: "", included: true },
+      { label: "", included: true },
     ],
-    cta: 'Activar Familia',
-    ctaHref: 'mailto:soporte@pawtrack.cr?subject=Activar%20Plan%20Familia',
+    cta: "Activar Familia",
+    subscriptionTier: "UserFamilia" as SubscriptionTier,
   },
-]
+];
 
 interface FreemiumModalProps {
-  onClose: () => void
+  onClose: () => void;
 }
 
 export function FreemiumModal({ onClose }: FreemiumModalProps) {
-  return (
+  const [pendingTier, setPendingTier] = useState<SubscriptionTier | null>(null);
+
+  if (pendingTier) {
+    return (
+      <SinpePaymentModal
+        tier={pendingTier}
+        onClose={() => setPendingTier(null)}
+        onSuccess={onClose}
+      />
+    );
+  }
     <AnimatePresence>
       <motion.div
         className="fixed inset-0 z-50 flex items-end bg-black/50 sm:items-center sm:justify-center p-4"
@@ -103,7 +116,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
           initial={{ y: 48, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 48, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 380, damping: 34 }}
+          transition={{ type: "spring", stiffness: 380, damping: 34 }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -116,7 +129,8 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                 Más protección para tus mascotas
               </h2>
               <p className="mt-1 text-sm text-sand-500">
-                Activa alertas instantáneas, IA de búsqueda sin límite y más desde ₡2,990/mes.
+                Activa alertas instantáneas, IA de búsqueda sin límite y más
+                desde ₡2,990/mes.
               </p>
             </div>
             <button
@@ -125,7 +139,12 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
               className="rounded-xl p-2 text-sand-400 hover:bg-sand-100 hover:text-sand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               aria-label="Cerrar"
             >
-              <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
+              <svg
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                className="h-4 w-4"
+                aria-hidden="true"
+              >
                 <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z" />
               </svg>
             </button>
@@ -140,37 +159,52 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.06 }}
                 className={[
-                  'relative flex flex-col rounded-2xl border-2 p-5',
+                  "relative flex flex-col rounded-2xl border-2 p-5",
                   tier.color,
-                  tier.glow ? `shadow-lg shadow-brand-100` : '',
-                ].join(' ')}
+                  tier.glow ? `shadow-lg shadow-brand-100` : "",
+                ].join(" ")}
               >
-                {tier.id === 'plus' && (
+                {tier.id === "plus" && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-600 px-3 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white">
                     Recomendado
                   </span>
                 )}
 
                 <div className="mb-4">
-                  <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${tier.badge}`}>
+                  <span
+                    className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${tier.badge}`}
+                  >
                     {tier.name}
                   </span>
-                  <p className="mt-2 text-2xl font-extrabold text-sand-900">{tier.price}</p>
+                  <p className="mt-2 text-2xl font-extrabold text-sand-900">
+                    {tier.price}
+                  </p>
                   <p className="text-xs text-sand-400">{tier.period}</p>
                 </div>
 
                 <ul className="mb-5 flex-1 space-y-1.5">
-                  {tier.features.filter((f) => f.label).map((f) => (
-                    <li key={f.label} className="flex items-start gap-2 text-xs text-sand-700">
-                      <span
-                        className={`mt-0.5 shrink-0 text-sm leading-none ${f.included ? 'text-rescue-600' : 'text-sand-300'}`}
-                        aria-hidden="true"
+                  {tier.features
+                    .filter((f) => f.label)
+                    .map((f) => (
+                      <li
+                        key={f.label}
+                        className="flex items-start gap-2 text-xs text-sand-700"
                       >
-                        {f.included ? '✓' : '✗'}
-                      </span>
-                      <span className={f.included ? '' : 'text-sand-400 line-through'}>{f.label}</span>
-                    </li>
-                  ))}
+                        <span
+                          className={`mt-0.5 shrink-0 text-sm leading-none ${f.included ? "text-rescue-600" : "text-sand-300"}`}
+                          aria-hidden="true"
+                        >
+                          {f.included ? "✓" : "✗"}
+                        </span>
+                        <span
+                          className={
+                            f.included ? "" : "text-sand-400 line-through"
+                          }
+                        >
+                          {f.label}
+                        </span>
+                      </li>
+                    ))}
                 </ul>
 
                 {tier.current ? (
@@ -178,32 +212,35 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                     Plan actual
                   </span>
                 ) : (
-                  <a
-                    href={tier.ctaHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => tier.subscriptionTier && setPendingTier(tier.subscriptionTier)}
                     className={[
-                      'block rounded-xl py-2.5 text-center text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400',
-                      tier.id === 'plus'
-                        ? 'bg-brand-600 text-white hover:bg-brand-700'
-                        : 'bg-rescue-600 text-white hover:bg-rescue-700',
-                    ].join(' ')}
+                      "block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
+                      tier.id === "plus"
+                        ? "bg-brand-600 text-white hover:bg-brand-700"
+                        : "bg-rescue-600 text-white hover:bg-rescue-700",
+                    ].join(" ")}
                   >
                     {tier.cta}
-                  </a>
+                  </button>
                 )}
               </motion.div>
             ))}
           </div>
 
           <p className="mt-5 text-center text-xs text-sand-400">
-            Pagos seguros vía SINPE Móvil · Sin contrato · Cancela cuando quieras ·{' '}
-            <a href="mailto:soporte@pawtrack.cr" className="text-brand-600 hover:underline">
+            Pagos seguros vía SINPE Móvil · Sin contrato · Cancela cuando
+            quieras ·{" "}
+            <a
+              href="mailto:soporte@pawtrack.cr"
+              className="text-brand-600 hover:underline"
+            >
               soporte@pawtrack.cr
             </a>
           </p>
         </motion.div>
       </motion.div>
     </AnimatePresence>
-  )
+  );
 }

@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { SinpePaymentModal } from "@/features/pets/components/SinpePaymentModal";
+import type { SubscriptionTier } from "@/features/pets/api/subscriptionApi";
 
 interface Tier {
   id: "basic" | "plus" | "partner";
+  subscriptionTier?: SubscriptionTier;
   name: string;
   price: string;
   period: string;
@@ -10,7 +13,6 @@ interface Tier {
   badge: string;
   features: { label: string; included: boolean }[];
   cta: string;
-  ctaHref: string;
   popular?: boolean;
 }
 
@@ -33,7 +35,6 @@ const TIERS: Tier[] = [
       { label: "Widget embebible para tu sitio", included: false },
     ],
     cta: "Plan actual",
-    ctaHref: "#",
   },
   {
     id: "plus",
@@ -53,9 +54,8 @@ const TIERS: Tier[] = [
       { label: "Soporte prioritario", included: false },
       { label: "Banner en Case Rooms cercanos", included: false },
     ],
-    cta: "Solicitar Plus",
-    ctaHref:
-      "mailto:alianzas@pawtrack.cr?subject=Solicitar%20Plan%20Cl%C3%ADnica%20Plus",
+    cta: "Activar Plus",
+    subscriptionTier: "ClinicPlus" as SubscriptionTier,
   },
   {
     id: "partner",
@@ -74,9 +74,8 @@ const TIERS: Tier[] = [
       { label: "Integración microchip RFID avanzada", included: true },
       { label: "Gestor de cuenta dedicado", included: true },
     ],
-    cta: "Solicitar Partner",
-    ctaHref:
-      "mailto:alianzas@pawtrack.cr?subject=Solicitar%20Plan%20Cl%C3%ADnica%20Partner",
+    cta: "Activar Partner",
+    subscriptionTier: "ClinicPartner" as SubscriptionTier,
   },
 ];
 
@@ -89,6 +88,18 @@ export function ClinicTiersModal({
   currentTier = "basic",
   onClose,
 }: ClinicTiersModalProps) {
+  const [pendingTier, setPendingTier] = useState<SubscriptionTier | null>(null);
+
+  if (pendingTier) {
+    return (
+      <SinpePaymentModal
+        tier={pendingTier}
+        onClose={() => setPendingTier(null)}
+        onSuccess={onClose}
+      />
+    );
+  }
+
   return (
     <AnimatePresence>
       <motion.div
@@ -190,19 +201,18 @@ export function ClinicTiersModal({
                       Plan actual
                     </span>
                   ) : (
-                    <a
-                      href={tier.ctaHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => tier.subscriptionTier && setPendingTier(tier.subscriptionTier)}
                       className={[
-                        "block rounded-xl py-2.5 text-center text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400",
+                        "block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400",
                         tier.popular
                           ? "bg-trust-600 text-white hover:bg-trust-700"
                           : "bg-sand-900 text-white hover:bg-sand-700",
                       ].join(" ")}
                     >
                       {tier.cta}
-                    </a>
+                    </button>
                   )}
                 </div>
               );

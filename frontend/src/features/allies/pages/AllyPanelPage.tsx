@@ -123,7 +123,11 @@ export default function AllyPanelPage() {
           <KPICard
             icon="📍"
             label="Radio cubierto"
-            value={profile ? `${(profile.coverageRadiusMetres / 1000).toFixed(1)} km` : "—"}
+            value={
+              profile
+                ? `${(profile.coverageRadiusMetres / 1000).toFixed(1)} km`
+                : "—"
+            }
             color="border-brand-200"
           />
         </div>
@@ -283,7 +287,9 @@ export default function AllyPanelPage() {
         <section className="rounded-3xl border border-sand-200 bg-surface p-6 shadow-sm">
           <div className="mb-6 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-bold text-sand-900">Bandeja operativa</h2>
+              <h2 className="text-xl font-bold text-sand-900">
+                Bandeja operativa
+              </h2>
               <p className="mt-1 text-sm text-sand-500">
                 Alertas activas dentro de la cobertura de tu organización.
               </p>
@@ -295,7 +301,8 @@ export default function AllyPanelPage() {
                   : "bg-rescue-100 text-rescue-800"
               }`}
             >
-              {alerts?.filter((a) => !a.actionConfirmedAt).length ?? 0} sin responder
+              {alerts?.filter((a) => !a.actionConfirmedAt).length ?? 0} sin
+              responder
             </span>
           </div>
 

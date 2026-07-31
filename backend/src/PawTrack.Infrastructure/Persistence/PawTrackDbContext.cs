@@ -3,9 +3,11 @@ using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Allies;
 using PawTrack.Domain.Auth;
 using PawTrack.Domain.Bot;
+using PawTrack.Domain.Bounties;
 using PawTrack.Domain.Broadcast;
 using PawTrack.Domain.Chat;
 using PawTrack.Domain.Clinics;
+using PawTrack.Domain.Collars;
 using PawTrack.Domain.Fosters;
 using PawTrack.Domain.Incentives;
 using PawTrack.Domain.Locations;
@@ -14,6 +16,7 @@ using PawTrack.Domain.Notifications;
 using PawTrack.Domain.Pets;
 using PawTrack.Domain.Safety;
 using PawTrack.Domain.Sightings;
+using PawTrack.Domain.Subscriptions;
 
 namespace PawTrack.Infrastructure.Persistence;
 
@@ -47,6 +50,10 @@ public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> option
     public DbSet<Clinic>            Clinics            => Set<Clinic>();
     public DbSet<ClinicScan>        ClinicScans        => Set<ClinicScan>();
     public DbSet<PushSubscription>  PushSubscriptions  => Set<PushSubscription>();
+    public DbSet<Subscription>      Subscriptions      => Set<Subscription>();
+    public DbSet<Bounty>            Bounties           => Set<Bounty>();
+    public DbSet<Collar>            Collars            => Set<Collar>();
+    public DbSet<CollarLocation>    CollarLocations    => Set<CollarLocation>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

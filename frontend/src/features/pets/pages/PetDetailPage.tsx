@@ -21,6 +21,12 @@ import { Card } from "@/shared/ui";
 import { Skeleton } from "@/shared/ui/Spinner";
 import { ProgressiveImg } from "@/shared/hooks/useProgressiveImage";
 import { Tabs, type TabItem } from "@/shared/ui/Tabs";
+import { CollarGpsTab } from "../components/CollarGpsTab";
+import { useAuthStore } from "@/features/auth/store/authStore";
+import { CollarGpsTab } from "../components/CollarGpsTab";
+import { useAuthStore } from "@/features/auth/store/authStore";
+import { CollarGpsTab } from "../components/CollarGpsTab";
+import { useAuthStore } from "@/features/auth/store/authStore";
 
 export default function PetDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +35,7 @@ export default function PetDetailPage() {
   const { data: scanHistory } = usePetScanHistory(id ?? "");
   const { data: activeReport } = useActiveLostReport(id ?? "");
   const reactivateMutation = useReactivatePet(id ?? "");
+  const currentUserId = useAuthStore((s) => s.user?.id);
   const [activeTab, setActiveTab] = useState("info");
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -136,6 +143,8 @@ export default function PetDetailPage() {
     },
     { id: "qr", label: "QR", icon: "🏷️" },
     { id: "avistamientos", label: "Avistamientos", icon: "📍" },
+    { id: "gps", label: "GPS", icon: "📡" },
+    { id: "gps", label: "GPS", icon: "📡" },
   ];
 
   return (
@@ -472,8 +481,13 @@ export default function PetDetailPage() {
         </div>
       )}
 
-      {/* ── Avistamientos tab ────────────────────────────────────────── */}
+      {/* ── Avistamientos tab ──────────────────────────────────────────── */}
       {activeTab === "avistamientos" && <SightingList petId={pet.id} />}
+
+      {/* ── GPS tab ──────────────────────────────────────────────────────── */}
+      {activeTab === "gps" && (
+        <CollarGpsTab petId={pet.id} isOwner={currentUserId === pet.ownerId} />
+      )}
     </main>
   );
 }

@@ -250,7 +250,9 @@ function ClinicsTab() {
             rejectLabel="Suspender"
             loading={isPending && processingId === clinic.id}
           >
-            <p className="truncate font-semibold text-sand-900">{clinic.name}</p>
+            <p className="truncate font-semibold text-sand-900">
+              {clinic.name}
+            </p>
             <div className="mt-1 flex flex-wrap gap-1.5">
               <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-semibold text-brand-700">
                 🏥 SENASA {clinic.licenseNumber}
@@ -259,7 +261,9 @@ function ClinicsTab() {
                 📍 {clinic.address}
               </span>
             </div>
-            <p className="mt-1 text-[11px] text-sand-400">{clinic.contactEmail}</p>
+            <p className="mt-1 text-[11px] text-sand-400">
+              {clinic.contactEmail}
+            </p>
             <p className="mt-0.5 text-[11px] text-sand-400">
               Registro:{" "}
               {new Date(clinic.registeredAt).toLocaleDateString("es-CR", {
@@ -307,10 +311,25 @@ export default function AdminPage() {
 
       {/* ── Stats row ── */}
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard icon="🤝" label="Aliados pendientes" value={allyCount} urgent />
-        <StatCard icon="🏥" label="Clínicas pendientes" value={clinicCount} urgent />
+        <StatCard
+          icon="🤝"
+          label="Aliados pendientes"
+          value={allyCount}
+          urgent
+        />
+        <StatCard
+          icon="🏥"
+          label="Clínicas pendientes"
+          value={clinicCount}
+          urgent
+        />
         <StatCard icon="✅" label="Aprobados hoy" value={0} />
-        <StatCard icon="📋" label="Total en revisión" value={allyCount + clinicCount} urgent />
+        <StatCard
+          icon="📋"
+          label="Total en revisión"
+          value={allyCount + clinicCount}
+          urgent
+        />
       </div>
 
       {/* ── Tabs ── */}

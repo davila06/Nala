@@ -1,0 +1,48 @@
+import { apiClient } from '@/shared/lib/apiClient'
+
+export type SubscriptionTier =
+  | 'Free' | 'UserPlus' | 'UserFamilia'
+  | 'ClinicBasic' | 'ClinicPlus' | 'ClinicPartner'
+
+export type SubscriptionStatus = 'PendingPayment' | 'Active' | 'Cancelled' | 'Expired'
+
+export interface SubscriptionDto {
+  id: string
+  tier: SubscriptionTier
+  status: SubscriptionStatus
+  paymentReference: string
+  amountCrc: number
+  createdAt: string
+  activatedAt: string | null
+  expiresAt: string | null
+  isActive: boolean
+}
+
+export const TIER_PRICE_CRC: Record<SubscriptionTier, number> = {
+  Free: 0,
+  UserPlus: 2990,
+  UserFamilia: 4990,
+  ClinicBasic: 0,
+  ClinicPlus: 15000,
+  ClinicPartner: 35000,
+}
+
+export const subscriptionApi = {
+  getMine: (clinicId?: string) =>
+    apiClient
+      .get<SubscriptionDto | null>('/subscriptions/me', { params: clinicId ? { clinicId } : undefined })
+      .then((r) => r.data),
+
+  create: (tier: SubscriptionTier, clinicId?: string) =>
+    apiClient
+      .post<SubscriptionDto>('/subscriptions', { tier, clinicId: clinicId ?? null })
+      .then((r) => r.data),
+
+  activate: (paymentReference: string) =>
+    apiClient
+      .put<SubscriptionDto>('/subscriptions/activate', { paymentReference })
+      .then((r) => r.data),
+
+  cancel: (subscriptionId: string) =>
+    apiClient.delete<SubscriptionDto>(`/subscriptions/${subscriptionId}`).then((r) => r.data),
+}

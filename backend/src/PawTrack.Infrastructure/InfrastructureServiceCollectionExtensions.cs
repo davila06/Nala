@@ -24,6 +24,12 @@ using PawTrack.Infrastructure.Safety;
 using PawTrack.Infrastructure.Sightings;
 using PawTrack.Infrastructure.Storage;
 using PawTrack.Application.Common.Settings;
+using PawTrack.Application.Bounties.Interfaces;
+using PawTrack.Application.Collars.Interfaces;
+using PawTrack.Application.Subscriptions.Interfaces;
+using PawTrack.Infrastructure.Bounties;
+using PawTrack.Infrastructure.Collars;
+using PawTrack.Infrastructure.Subscriptions;
 
 namespace PawTrack.Infrastructure;
 
@@ -150,6 +156,16 @@ public static class InfrastructureServiceCollectionExtensions
 
         // Ephemeral avatar token service (HMAC-SHA256, stateless)
         services.AddSingleton<IAvatarTokenService, HmacAvatarTokenService>();
+
+        // Subscriptions + payments
+        services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+        services.AddSingleton<IPaymentService, SinpePaymentService>();
+
+        // Bounties
+        services.AddScoped<IBountyRepository, BountyRepository>();
+
+        // Collars / GPS
+        services.AddScoped<ICollarRepository, CollarRepository>();
 
         return services;
     }

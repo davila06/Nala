@@ -10,6 +10,7 @@ import { useAuthStore } from "@/features/auth/store/authStore";
 import { CaseActionsPanel } from "../components/CaseActionsPanel";
 import { CaseTimeline } from "../components/CaseTimeline";
 import { SightingHeatMap } from "../components/SightingHeatMap";
+import { BountyWidget } from "../components/BountyWidget";
 import { useCaseRoom } from "../hooks/useCaseRoom";
 import { EmptyState } from "@/shared/ui/Card";
 
@@ -285,6 +286,14 @@ export default function CaseRoomPage() {
                 />
               </div>
             )}
+
+            {/* Bounty widget — owner can create; all can see */}
+            <div className="mt-6">
+              <BountyWidget
+                lostEventId={lostEventId}
+                isOwner={currentUserId === event.ownerId}
+              />
+            </div>
           </div>
 
           <div
