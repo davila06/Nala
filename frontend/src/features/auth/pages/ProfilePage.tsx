@@ -289,8 +289,7 @@ export default function ProfilePage() {
             </p>
             <div className="mt-1 flex items-center gap-2 flex-wrap">
               <Badge variant="neutral">
-                {ROLE_LABEL[serverProfile?.role ?? user?.role ?? ""] ??
-                  user?.role}
+                {ROLE_LABEL[user?.role ?? ""] ?? user?.role}
               </Badge>
               {serverProfile?.createdAt && (
                 <span className="text-xs text-sand-400">

@@ -77,7 +77,8 @@ public sealed class Round113SecurityRegressionTests
     [Fact]
     public void R113_GetMyProfileDto_DoesNotExposeRoleString()
     {
-        var prop = typeof(PawTrack.Application.Auth.Queries.GetMyProfile.UserProfileDto)
+        // UserProfileDto was consolidated into Auth.DTOs — verify the single source of truth
+        var prop = typeof(PawTrack.Application.Auth.DTOs.UserProfileDto)
             .GetProperty("Role");
 
         prop.Should().BeNull(

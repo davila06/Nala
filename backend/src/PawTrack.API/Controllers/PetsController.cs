@@ -320,9 +320,15 @@ public sealed class PetsController(
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetByMicrochip(string chipId, CancellationToken cancellationToken)
     {
-        var cleaned = (chipId ?? string.Empty).Trim();
-        if (cleaned.Length == 0 || cleaned.Length > 15)
-            return BadRequest(new ProblemDetails { Title = "Chip ID inválido", Status = 400 });
+        var cleaned = (chipId ?? string.Empty).Trim().ToUpperInvariant();
+        // ISO 11784: 10–15 hex or decimal digits (FDXB = 15 hex, FDXA = 10 decimal)
+        if (cleaned.Length is < 10 or > 15 || !System.Text.RegularExpressions.Regex.IsMatch(cleaned, @"^[0-9A-F]+$"))
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Chip ID inválido",
+                Detail = "El ID del microchip debe ser de 10 a 15 caracteres hexadecimales (ISO 11784).",
+                Status = 400,
+            });
 
         var result = await sender.Send(new GetPetByMicrochipQuery(cleaned), cancellationToken);
 

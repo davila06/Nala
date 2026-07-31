@@ -21,6 +21,7 @@ public sealed class GetRecoveryRatesQueryHandlerTests
                 Arg.Any<CancellationToken>())
             .Returns(new RecoveryStatsRawData(
                 TotalReports: 0,
+                RecoveredCount: 0,
                 RecoveredDistancesMeters: [],
                 RecoveryDurationsHours: []));
 
@@ -52,6 +53,7 @@ public sealed class GetRecoveryRatesQueryHandlerTests
                 Arg.Any<CancellationToken>())
             .Returns(new RecoveryStatsRawData(
                 TotalReports: 10,
+                RecoveredCount: 5,
                 RecoveredDistancesMeters: [100, 200, 300, 400, 500],
                 RecoveryDurationsHours: [1, 2, 3, 4, 5]));
 

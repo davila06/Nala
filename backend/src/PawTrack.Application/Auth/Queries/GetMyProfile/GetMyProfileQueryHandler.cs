@@ -23,7 +23,6 @@ public sealed class GetMyProfileQueryHandler(IUserRepository userRepository)
             user.Name,
             user.IsEmailVerified,
             user.Role == UserRole.Admin,
-            user.Role.ToString(),
             user.CreatedAt));
     }
 }
