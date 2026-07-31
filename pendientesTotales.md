@@ -139,14 +139,9 @@ Commit `a7d4445`. `LostPetEvent.CurrencyCode`, `RewardBadge` usa `Intl.NumberFor
 
 **Esfuerzo estimado:** 3–4 semanas con Tractive. Hardware propio: 3 meses adicionales.
 
-### ⛔ 4.7 Búsqueda de mascota por microchip (GET /api/pets/by-microchip/{chipId})
+### ✅ 4.7 Búsqueda de mascota por microchip (GET /api/pets/by-microchip/{chipId})
 
-El repositorio ya tiene `GetByMicrochipIdAsync`. Faltan:
-
-- `GetPetByMicrochipQuery` + Handler
-- Endpoint `GET /api/pets/by-microchip/{chipId}` en `PetsController`
-- Útil para clínicas con lectores RFID externos
-- **Esfuerzo:** 4 horas
+Commit `c948a96`. `GetPetByMicrochipQuery` + Handler, `GET /api/pets/by-microchip/{chipId}`, validación ISO 11784 hex (10-15 chars).
 
 ---
 
@@ -180,31 +175,25 @@ Commits `94c2de9`, `26fea19`. `bg-white`/`bg-sand-50` → `bg-surface`/`bg-surfa
 
 `RoleGuard` + nav condicional + quickaction condicional.
 
-### ⛔ 5.8 Sistema de diseño Fase 4 — Experiencias operativas (Case Room, Search Coordination, Visual Match)
+### 🔄 5.8 Sistema de diseño Fase 4 — Experiencias operativas (Case Room, Search Coordination, Visual Match)
 
-Pendiente aplicar sistema de superficies en módulos avanzados.
+`bg-sand-50` → `bg-surface-warm` completado en VisualMatchPage, FoundPetMatchResultPage, ReportSightingPage. SearchCoordinationPage mantiene zinc oscuro intencional (War Room). CaseRoomPage: superficies correctas.
 
-### ⛔ 5.9 Sistema de diseño Fase 5 — Módulos por rol (Ally Panel completo, Clinic Dashboard completo, Admin con más data)
+### 🔄 5.9 Sistema de diseño Fase 5 — Módulos por rol (Ally Panel completo, Clinic Dashboard completo, Admin con más data)
 
-Ally Panel y Clinic Dashboard tienen `bg-surface` básico pero necesitan layout por rol más elaborado.
+ClinicDashboard: banner → modal interactivo (`ClinicTiersModal`). AdminPage: enterprise rewrite con stats header. AllyPanel: KPIs y alerts mejorados. — **en progreso activo**
 
 ---
 
 ## 6. Monetización
 
-### ⛔ 6.1 Freemium (dueños) — Tiers Plus/Familia
+### 🔄 6.1 Freemium (dueños) — Tiers Plus/Familia
 
-| Tier    | Precio     | Feature clave                                         |
-| ------- | ---------- | ----------------------------------------------------- |
-| Free    | Gratis     | 1 mascota, historial 5 escaneos                       |
-| Plus    | ₡2,990/mes | 3 mascotas, predicción IA, alerts SMS, radio 10km     |
-| Familia | ₡4,990/mes | Mascotas ilimitadas, multi-usuario, registros médicos |
+`FreemiumModal` implementado (3 tiers: Explorador/Plus/Familia). Banner en Dashboard para usuarios con mascotas. Falta: integración pasarela de pago (SINPE/Stripe).
 
-Lo que ya existe y puede activarse: predicción de movimiento, historial completo, sala coordinación, radio de alertas.
+### 🔄 6.2 Clínicas tiers de pago
 
-### ⛔ 6.2 Clínicas tiers de pago
-
-Banner de upgrade ya existe en `ClinicDashboardPage`. Falta: integración pasarela de pago (SINPE/Stripe).
+`ClinicTiersModal` implementado (commit `5fe8806`): tabla comparativa 3 tiers, modal interactivo desde banner. Falta: integración pasarela de pago (SINPE/Stripe).
 
 | Tier    | Precio      | Feature clave                                          |
 | ------- | ----------- | ------------------------------------------------------ |
@@ -227,9 +216,9 @@ Banner de upgrade ya existe en `ClinicDashboardPage`. Falta: integración pasare
 Flujo técnico: dueño deposita → escrow → aliado reporta avistamiento clave → HandoverCode confirma entrega → pago menos fee (10–15%) se libera vía SINPE/Stripe Connect.  
 HandoverCode ya implementado en backend. Falta: escrow, SINPE/Stripe Connect, UI de recompensa activa en mapa.
 
-### ⛔ 6.5 Productos físicos (collares, placas QR)
+### ✅ 6.5 Productos físicos (collares, placas QR)
 
-Botón "Pedir collar" en PetDetailPage → WhatsApp template. Sin cambios de backend. **Esfuerzo: 1 día.**
+Commit `c948a96`. Botón condicional con `VITE_COLLAR_WHATSAPP_NUMBER` (feature flag). Oculto si no está configurado.
 
 ### ⛔ 6.6 Certificado veterinario PDF firmado digitalmente
 

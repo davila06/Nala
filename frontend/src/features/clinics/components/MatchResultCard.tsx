@@ -1,8 +1,8 @@
-﻿import type { ClinicScanResultDto } from '../api/clinicsApi'
+﻿import type { ClinicScanResultDto } from "../api/clinicsApi";
 
 interface MatchResultCardProps {
-  result: ClinicScanResultDto
-  onReset: () => void
+  result: ClinicScanResultDto;
+  onReset: () => void;
 }
 
 export function MatchResultCard({ result, onReset }: MatchResultCardProps) {
@@ -24,14 +24,16 @@ export function MatchResultCard({ result, onReset }: MatchResultCardProps) {
           Intentar de nuevo
         </button>
       </div>
-    )
+    );
   }
 
   return (
     <div className="overflow-hidden rounded-2xl border border-rescue-200 bg-rescue-50">
       {/* Header */}
       <div className="border-b border-rescue-200 bg-rescue-600 px-4 py-3">
-        <p className="text-sm font-bold text-white">✅ ¡Mascota identificada!</p>
+        <p className="text-sm font-bold text-white">
+          ✅ ¡Mascota identificada!
+        </p>
       </div>
 
       <div className="p-5">
@@ -40,7 +42,7 @@ export function MatchResultCard({ result, onReset }: MatchResultCardProps) {
           {result.petPhotoUrl ? (
             <img
               src={result.petPhotoUrl}
-              alt={result.petName ?? 'Mascota'}
+              alt={result.petName ?? "Mascota"}
               className="h-20 w-20 rounded-xl object-cover"
             />
           ) : (
@@ -49,10 +51,18 @@ export function MatchResultCard({ result, onReset }: MatchResultCardProps) {
             </div>
           )}
           <div>
-            <p className="text-xl font-extrabold text-sand-900">{result.petName}</p>
+            <p className="text-xl font-extrabold text-sand-900">
+              {result.petName}
+            </p>
             {result.petSpecies && (
               <p className="text-sm text-sand-500 capitalize">
-                {{ Dog: 'Perro', Cat: 'Gato', Bird: 'Ave', Rabbit: 'Conejo', Other: 'Otra' }[result.petSpecies] ?? result.petSpecies}
+                {{
+                  Dog: "Perro",
+                  Cat: "Gato",
+                  Bird: "Ave",
+                  Rabbit: "Conejo",
+                  Other: "Otra",
+                }[result.petSpecies] ?? result.petSpecies}
               </p>
             )}
           </div>
@@ -63,7 +73,9 @@ export function MatchResultCard({ result, onReset }: MatchResultCardProps) {
           <p className="text-xs font-semibold uppercase tracking-wide text-sand-400">
             Datos del dueño
           </p>
-          <p className="mt-1 text-base font-bold text-sand-900">{result.ownerName}</p>
+          <p className="mt-1 text-base font-bold text-sand-900">
+            {result.ownerName}
+          </p>
           <a
             href={`mailto:${result.ownerEmail}`}
             className="mt-0.5 block text-sm text-rescue-600 underline"
@@ -87,6 +99,5 @@ export function MatchResultCard({ result, onReset }: MatchResultCardProps) {
         </button>
       </div>
     </div>
-  )
+  );
 }
-

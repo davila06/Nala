@@ -97,24 +97,34 @@ export default function AllyPanelPage() {
 
       {/* KPI bar for verified allies */}
       {isVerified && alerts && (
-        <div className="mb-8 grid grid-cols-3 gap-3">
+        <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <KPICard
             icon="🔔"
-            label="Alertas totales"
+            label="Alertas recibidas"
             value={alerts.length}
             color="border-sand-200"
           />
           <KPICard
             icon="✅"
-            label="Casos respondidos"
-            value={alerts.length}
+            label="Respondidas"
+            value={alerts.filter((a) => a.actionConfirmedAt !== null).length}
             color="border-rescue-200"
           />
           <KPICard
-            icon="📍"
-            label="Zonas cubiertas"
-            value={1}
+            icon="📊"
+            label="Tasa de respuesta"
+            value={
+              alerts.length > 0
+                ? `${Math.round((alerts.filter((a) => a.actionConfirmedAt !== null).length / alerts.length) * 100)}%`
+                : "—"
+            }
             color="border-trust-200"
+          />
+          <KPICard
+            icon="📍"
+            label="Radio cubierto"
+            value={profile ? `${(profile.coverageRadiusMetres / 1000).toFixed(1)} km` : "—"}
+            color="border-brand-200"
           />
         </div>
       )}
@@ -270,19 +280,22 @@ export default function AllyPanelPage() {
       )}
 
       {!isProfileLoading && isVerified && (
-        <section className="rounded-3xl border border-sand-200 field-input p-6 shadow-sm">
+        <section className="rounded-3xl border border-sand-200 bg-surface p-6 shadow-sm">
           <div className="mb-6 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-bold text-sand-900">
-                Bandeja operativa
-              </h2>
-              <p className="mt-2 text-sm text-sand-600">
-                Alertas activas dentro de la cobertura declarada por tu
-                organización.
+              <h2 className="text-xl font-bold text-sand-900">Bandeja operativa</h2>
+              <p className="mt-1 text-sm text-sand-500">
+                Alertas activas dentro de la cobertura de tu organización.
               </p>
             </div>
-            <span className="rounded-full bg-rescue-100 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-rescue-800">
-              {alerts?.length ?? 0} activas
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] ${
+                (alerts?.filter((a) => !a.actionConfirmedAt).length ?? 0) > 0
+                  ? "bg-warn-100 text-warn-700"
+                  : "bg-rescue-100 text-rescue-800"
+              }`}
+            >
+              {alerts?.filter((a) => !a.actionConfirmedAt).length ?? 0} sin responder
             </span>
           </div>
 

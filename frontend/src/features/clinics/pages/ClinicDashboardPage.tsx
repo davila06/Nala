@@ -10,7 +10,9 @@ import { MatchResultCard } from "../components/MatchResultCard";
 import { ClinicTiersModal } from "../components/ClinicTiersModal";
 
 export default function ClinicDashboardPage() {
-  const [scanResult, setScanResult] = useState<ClinicScanResultDto | null>(null);
+  const [scanResult, setScanResult] = useState<ClinicScanResultDto | null>(
+    null,
+  );
   const [showTiers, setShowTiers] = useState(false);
 
   const { data: clinic, isLoading: clinicLoading } = useQuery({
@@ -116,11 +118,16 @@ export default function ClinicDashboardPage() {
           onClick={() => setShowTiers(true)}
           className="w-full rounded-2xl border border-trust-200 bg-linear-to-r from-trust-50 to-brand-50 px-4 py-3 flex items-center gap-3 text-left hover:from-trust-100 hover:to-brand-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400"
         >
-          <span className="text-2xl shrink-0" aria-hidden="true">⭐</span>
+          <span className="text-2xl shrink-0" aria-hidden="true">
+            ⭐
+          </span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-trust-900">Plan Afiliada básica</p>
+            <p className="text-sm font-semibold text-trust-900">
+              Plan Afiliada básica
+            </p>
             <p className="text-xs text-trust-600 mt-0.5">
-              Actualiza a <strong>Plus (₡15,000/mes)</strong> para posición destacada, badge verificado y estadísticas.
+              Actualiza a <strong>Plus (₡15,000/mes)</strong> para posición
+              destacada, badge verificado y estadísticas.
             </p>
           </div>
           <span className="shrink-0 rounded-xl bg-trust-600 px-3 py-1.5 text-xs font-bold text-white">
@@ -128,7 +135,12 @@ export default function ClinicDashboardPage() {
           </span>
         </button>
 
-        {showTiers && <ClinicTiersModal currentTier="basic" onClose={() => setShowTiers(false)} />}
+        {showTiers && (
+          <ClinicTiersModal
+            currentTier="basic"
+            onClose={() => setShowTiers(false)}
+          />
+        )}
 
         {scanResult ? (
           <MatchResultCard result={scanResult} onReset={handleReset} />

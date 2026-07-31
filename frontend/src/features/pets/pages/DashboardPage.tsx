@@ -5,6 +5,7 @@ import {
   OnboardingWizard,
   shouldShowOnboarding,
 } from "../components/OnboardingWizard";
+import { FreemiumModal } from "../components/FreemiumModal";
 import { usePets } from "../hooks/usePets";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { AlertPreferencesToggle } from "@/features/locations/components/AlertPreferencesToggle";
@@ -27,6 +28,7 @@ export default function DashboardPage() {
   );
   const [filterSpecies, setFilterSpecies] = useState<string>("all");
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
+  const [showFreemium, setShowFreemium] = useState(false);
 
   const filteredPets = useMemo(() => {
     if (!pets) return [];
@@ -161,6 +163,28 @@ export default function DashboardPage() {
             </Link>
           )}
         </div>
+
+        {/* Freemium upsell — only for non-admin users with at least 1 pet */}
+        {!isLoading && user?.role !== "Admin" && (pets?.length ?? 0) >= 1 && (
+          <button
+            type="button"
+            onClick={() => setShowFreemium(true)}
+            className="mb-8 w-full rounded-2xl border border-brand-200 bg-linear-to-r from-brand-50 to-rescue-50 px-4 py-3 flex items-center gap-3 text-left transition-colors hover:from-brand-100 hover:to-rescue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          >
+            <span className="text-2xl shrink-0" aria-hidden="true">⚡</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-brand-900">Activa Plus y protege más a tus mascotas</p>
+              <p className="text-xs text-brand-600 mt-0.5">
+                Alertas instantáneas, IA sin límite y hasta 3 mascotas desde <strong>₡2,990/mes</strong>.
+              </p>
+            </div>
+            <span className="shrink-0 rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white">
+              Ver planes →
+            </span>
+          </button>
+        )}
+
+        {showFreemium && <FreemiumModal onClose={() => setShowFreemium(false)} />}
 
         {/* Loading skeleton */}
         {isLoading && (
