@@ -101,7 +101,7 @@ export function QRFlipCard({ petId, petName, petPhotoUrl, petSpecies = 'Other' }
           style={{ width: 200, height: 200 }}
         >
           {/* ── FRONT: Pet photo ─────────────────────────────────────────── */}
-          <div className="flip-card__face flip-card__face--front rounded-2xl border border-sand-200 bg-sand-50 shadow-md cursor-pointer">
+          <div className="flip-card__face flip-card__face--front rounded-2xl border border-sand-200 bg-surface-warm shadow-md cursor-pointer">
             {petPhotoUrl ? (
               <img
                 src={petPhotoUrl}

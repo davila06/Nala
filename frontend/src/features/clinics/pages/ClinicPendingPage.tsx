@@ -1,6 +1,6 @@
 export default function ClinicPendingPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-sand-50 px-4 animate-fade-in-up">
+    <div className="flex min-h-screen items-center justify-center bg-surface-warm px-4 animate-fade-in-up">
       <div className="max-w-sm text-center">
         <p className="text-5xl">⏳</p>
         <h1 className="mt-4 text-xl font-extrabold text-sand-900">

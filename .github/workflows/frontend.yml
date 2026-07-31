@@ -77,6 +77,8 @@ jobs:
         run: npm run build
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
+          VITE_COLLAR_WHATSAPP_NUMBER: ${{ secrets.VITE_COLLAR_WHATSAPP_NUMBER }}
 
       - name: Deploy to Azure Static Web Apps
         id: deploy

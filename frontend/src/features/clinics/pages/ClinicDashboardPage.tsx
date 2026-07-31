@@ -7,11 +7,11 @@ import {
 } from "../api/clinicsApi";
 import { ScanInput } from "../components/ScanInput";
 import { MatchResultCard } from "../components/MatchResultCard";
+import { ClinicTiersModal } from "../components/ClinicTiersModal";
 
 export default function ClinicDashboardPage() {
-  const [scanResult, setScanResult] = useState<ClinicScanResultDto | null>(
-    null,
-  );
+  const [scanResult, setScanResult] = useState<ClinicScanResultDto | null>(null);
+  const [showTiers, setShowTiers] = useState(false);
 
   const { data: clinic, isLoading: clinicLoading } = useQuery({
     queryKey: ["my-clinic"],
@@ -111,26 +111,24 @@ export default function ClinicDashboardPage() {
       {/* ── Main ── */}
       <main className="mx-auto max-w-lg animate-fade-in-up px-4 py-6 space-y-6">
         {/* ── Tier upgrade banner ───────────────────────────────────── */}
-        <div className="rounded-2xl border border-trust-200 bg-linear-to-r from-trust-50 to-brand-50 px-4 py-3 flex items-center gap-3">
-          <span className="text-2xl" aria-hidden="true">
-            ⭐
-          </span>
+        <button
+          type="button"
+          onClick={() => setShowTiers(true)}
+          className="w-full rounded-2xl border border-trust-200 bg-linear-to-r from-trust-50 to-brand-50 px-4 py-3 flex items-center gap-3 text-left hover:from-trust-100 hover:to-brand-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400"
+        >
+          <span className="text-2xl shrink-0" aria-hidden="true">⭐</span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-trust-900">
-              Plan Afiliada básica
-            </p>
+            <p className="text-sm font-semibold text-trust-900">Plan Afiliada básica</p>
             <p className="text-xs text-trust-600 mt-0.5">
-              Actualiza a <strong>Plus (₡15,000/mes)</strong> para posición
-              destacada en el mapa, badge verificado y estadísticas de escaneos.
+              Actualiza a <strong>Plus (₡15,000/mes)</strong> para posición destacada, badge verificado y estadísticas.
             </p>
           </div>
-          <a
-            href="mailto:alianzas@pawtrack.cr?subject=Actualizar%20a%20Cl%C3%ADnica%20Plus"
-            className="shrink-0 rounded-xl bg-trust-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-trust-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400"
-          >
-            Mejorar
-          </a>
-        </div>
+          <span className="shrink-0 rounded-xl bg-trust-600 px-3 py-1.5 text-xs font-bold text-white">
+            Ver planes →
+          </span>
+        </button>
+
+        {showTiers && <ClinicTiersModal currentTier="basic" onClose={() => setShowTiers(false)} />}
 
         {scanResult ? (
           <MatchResultCard result={scanResult} onReset={handleReset} />

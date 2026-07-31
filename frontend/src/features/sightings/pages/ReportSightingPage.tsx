@@ -49,7 +49,7 @@ function SightingAutoMatchPanel({
           return (
             <div
               key={m.petId}
-              className="flex gap-3 rounded-xl border border-sand-100 bg-sand-50 p-3 shadow-sm"
+              className="flex gap-3 rounded-xl border border-sand-100 bg-surface-warm p-3 shadow-sm"
             >
               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-sand-200">
                 {m.photoUrl ? (

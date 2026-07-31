@@ -44,7 +44,7 @@ export function QuietHoursForm({ value, onChange, disabled = false }: QuietHours
   ].join(' ')
 
   return (
-    <div className="mt-3 rounded-2xl border border-sand-200 bg-sand-50 p-3">
+    <div className="mt-3 rounded-2xl border border-sand-200 bg-surface-warm p-3">
       {/* Header row */}
       <div className="flex items-center justify-between gap-2">
         <div>

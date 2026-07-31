@@ -5,7 +5,7 @@ import { VisualMatchPanel } from "../components/VisualMatchPanel";
 
 export default function VisualMatchPage() {
   return (
-    <div className="min-h-screen bg-sand-50 animate-fade-in-up">
+    <div className="min-h-screen bg-surface-warm animate-fade-in-up">
       <Helmet>
         <title>Buscar mascota por foto — PawTrack CR</title>
         <meta

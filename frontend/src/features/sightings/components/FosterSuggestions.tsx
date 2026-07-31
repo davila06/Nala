@@ -16,7 +16,7 @@ export function FosterSuggestions({ foundReportId }: { foundReportId: string }) 
 
   if (!data || data.length === 0) {
     return (
-      <div className="mt-6 rounded-2xl border border-sand-200 bg-sand-50 p-4 text-sm text-sand-500">
+      <div className="mt-6 rounded-2xl border border-sand-200 bg-surface-warm p-4 text-sm text-sand-500">
         No hay custodios disponibles en este momento.
       </div>
     )

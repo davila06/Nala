@@ -417,7 +417,7 @@ export default function LostReportConfirmationPage() {
       </div>
 
       {/* ── Flyer section ────────────────────────────────────────────────── */}
-      <div className="mb-6 rounded-2xl border border-sand-200 bg-sand-50 p-5">
+      <div className="mb-6 rounded-2xl border border-sand-200 bg-surface-warm p-5">
         <h2 className="mb-1 text-sm font-bold text-sand-800">
           📄 Flyer de búsqueda
         </h2>

@@ -417,7 +417,10 @@ export default function PetDetailPage() {
                   Placa grabada, tag de silicona o combo NFC — desde ₡4,500
                 </p>
               </div>
-              <span className="ml-auto shrink-0 text-sand-400" aria-hidden="true">
+              <span
+                className="ml-auto shrink-0 text-sand-400"
+                aria-hidden="true"
+              >
                 →
               </span>
             </a>

@@ -8,7 +8,7 @@ interface MatchResultCardProps {
 export function MatchResultCard({ result, onReset }: MatchResultCardProps) {
   if (!result.matched) {
     return (
-      <div className="rounded-2xl bg-sand-50 p-6 text-center">
+      <div className="rounded-2xl bg-surface-warm p-6 text-center">
         <p className="text-4xl">🔍</p>
         <p className="mt-3 text-base font-semibold text-sand-800">
           Mascota no encontrada

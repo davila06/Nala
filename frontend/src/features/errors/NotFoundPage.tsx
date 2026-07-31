@@ -12,7 +12,7 @@ const PAW_POSITIONS = [
 
 export default function NotFoundPage() {
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center gap-8 overflow-hidden bg-sand-50 px-6 text-center">
+    <div className="relative flex min-h-screen flex-col items-center justify-center gap-8 overflow-hidden bg-surface-warm px-6 text-center">
       {/* Ambient scattered paw prints */}
       {PAW_POSITIONS.map((p, i) => (
         <span

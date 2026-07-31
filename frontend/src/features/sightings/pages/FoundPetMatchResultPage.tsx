@@ -110,7 +110,7 @@ export default function FoundPetMatchResultPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-sand-200 bg-sand-50 p-8 text-center">
+          <div className="rounded-xl border border-sand-200 bg-surface-warm p-8 text-center">
             <p className="text-2xl" aria-hidden="true">🐾</p>
             <p className="mt-2 text-sm text-sand-600">
               No encontramos reportes activos cerca. Tu reporte está guardado y lo cruzaremos

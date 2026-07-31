@@ -45,7 +45,7 @@ export function SightingList({ petId }: SightingListProps) {
 
   if (!sightings || sightings.length === 0) {
     return (
-      <p className="rounded-xl bg-sand-50 px-4 py-6 text-center text-sm text-sand-400">
+      <p className="rounded-xl bg-surface-warm px-4 py-6 text-center text-sm text-sand-400">
         Sin avistamientos reportados aún.
       </p>
     );

@@ -90,7 +90,7 @@ public sealed class Round113SecurityRegressionTests
     {
         // Arrange
         var userRepo = Substitute.For<IUserRepository>();
-        var userId   = Guid.NewGuid();
+        var userId = Guid.NewGuid();
         var (user, rawToken) = User.Create("admin@example.com", "hashed", "Admin");
         user.VerifyEmail(rawToken);
         user.PromoteToAdmin();
@@ -112,7 +112,7 @@ public sealed class Round113SecurityRegressionTests
     {
         // Arrange
         var userRepo = Substitute.For<IUserRepository>();
-        var userId   = Guid.NewGuid();
+        var userId = Guid.NewGuid();
         var (user, rawToken) = User.Create("owner@example.com", "hashed", "Owner");
         user.VerifyEmail(rawToken);
 

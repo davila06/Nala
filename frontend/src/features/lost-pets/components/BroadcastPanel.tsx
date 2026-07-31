@@ -55,7 +55,7 @@ function StatusChip({ attempt }: { attempt: BroadcastAttemptDto }) {
 
   if (attempt.status === 'Skipped') {
     return (
-      <div className="flex items-center justify-between rounded-xl border border-sand-200 bg-sand-50 px-3 py-2">
+      <div className="flex items-center justify-between rounded-xl border border-sand-200 bg-surface-warm px-3 py-2">
         <span className="flex items-center gap-2 text-sm font-medium text-sand-500">
           <span aria-hidden="true">{icon}</span>
           {label}
