@@ -151,13 +151,13 @@ export default function SearchCoordinationPage() {
       {/* ── Map ── */}
       <div className="relative flex-1">
         {isLoading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface/80">
             <p className="text-sm text-sand-500">Cargando zonas…</p>
           </div>
         )}
 
         {loadError && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface/80">
             <Alert variant="error">Error cargando zonas.</Alert>
           </div>
         )}

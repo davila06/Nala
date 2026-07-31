@@ -89,7 +89,7 @@ export default function CaseRoomPage() {
       </Link>
 
       {/* ── Header card ─────────────────────────────────────────────────────── */}
-      <div className="mb-5 flex items-center gap-3.5 rounded-2xl border border-danger-200 bg-gradient-to-br from-danger-50 to-warn-50 p-4">
+      <div className="mb-5 flex items-center gap-3.5 rounded-2xl border border-danger-200 bg-linear-to-br from-danger-50 to-warn-50 p-4">
         {event.recentPhotoUrl ? (
           <img
             src={event.recentPhotoUrl}
@@ -143,8 +143,8 @@ export default function CaseRoomPage() {
             className={[
               'inline-flex items-center justify-center gap-1.5 rounded-xl border-0 px-2 py-3 text-sm font-bold transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 sm:text-[0.82rem]',
               activeTab === tab.id
-                ? 'bg-white text-sand-900 shadow-sm'
-                : 'bg-transparent text-sand-500 hover:bg-white/70 hover:text-sand-800',
+                ? 'bg-surface text-sand-900 shadow-sm'
+                : 'bg-transparent text-sand-500 hover:bg-surface/70 hover:text-sand-800',
             ].join(' ')}
           >
             <span aria-hidden="true">{tab.icon}</span>

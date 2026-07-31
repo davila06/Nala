@@ -44,7 +44,7 @@ export default function ClinicDashboardPage() {
 
   if (clinicLoading) {
     return (
-      <div className="min-h-screen bg-sand-50">
+      <div className="min-h-screen bg-surface-warm">
         <div className="border-b border-sand-200 field-input px-4 py-4">
           <div className="mx-auto max-w-lg">
             <div className="flex items-start justify-between">
@@ -69,7 +69,7 @@ export default function ClinicDashboardPage() {
 
   if (clinic && clinic.status !== "Active") {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-sand-50 px-4">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-surface-warm px-4">
         <p className="text-4xl">🔒</p>
         <h1 className="mt-3 text-lg font-extrabold text-sand-900">
           {clinic.status === "Pending"
@@ -86,7 +86,7 @@ export default function ClinicDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-sand-50">
+    <div className="min-h-screen bg-surface-warm">
       {/* ── Header ── */}
       <header className="border-b border-sand-200 field-input px-4 py-4">
         <div className="mx-auto max-w-lg">

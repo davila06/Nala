@@ -301,7 +301,7 @@ export default function AllyPanelPage() {
               {alerts.map((alert) => (
                 <article
                   key={alert.notificationId}
-                  className="rounded-2xl border border-sand-200 bg-sand-50 p-5"
+                  className="rounded-2xl border border-sand-200 bg-surface-warm p-5"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>

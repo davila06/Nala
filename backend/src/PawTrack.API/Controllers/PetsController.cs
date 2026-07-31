@@ -10,6 +10,7 @@ using PawTrack.Application.Pets.Queries.GetPetScanHistory;
 using PawTrack.Application.Pets.Queries.GetMyPets;
 using PawTrack.Application.Pets.Queries.GetPetDetail;
 using PawTrack.Application.Pets.Queries.GetPublicPetProfile;
+using PawTrack.Application.Pets.Queries.GetPetByMicrochip;
 using PawTrack.Domain.Pets;
 using System.Security.Claims;
 using Microsoft.AspNetCore.RateLimiting;
@@ -307,6 +308,27 @@ public sealed class PetsController(
         }
 
         return NoContent();
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    // ── GET /api/pets/by-microchip/{chipId} ──────────────────────────────
+    [HttpGet("by-microchip/{chipId}")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetByMicrochip(string chipId, CancellationToken cancellationToken)
+    {
+        var cleaned = (chipId ?? string.Empty).Trim();
+        if (cleaned.Length == 0 || cleaned.Length > 15)
+            return BadRequest(new ProblemDetails { Title = "Chip ID inválido", Status = 400 });
+
+        var result = await sender.Send(new GetPetByMicrochipQuery(cleaned), cancellationToken);
+
+        return result.IsFailure
+            ? NotFound(new ProblemDetails { Title = "Microchip no registrado", Status = 404 })
+            : Ok(result.Value);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

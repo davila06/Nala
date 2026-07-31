@@ -398,6 +398,21 @@ export default function PetDetailPage() {
             />
           </div>
 
+          {/* §6.5 — Collar físico con QR grabado */}
+          <a
+            href={`https://wa.me/50688888888?text=${encodeURIComponent(`Hola, quiero pedir un collar con placa QR para mi mascota ${pet.name} (ID: ${pet.id}). ¿Cuáles opciones tienen disponibles?`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-2xl border border-sand-200 bg-surface-warm px-4 py-3.5 text-sm font-semibold text-sand-700 transition-base hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          >
+            <span className="text-xl" aria-hidden="true">🏷️</span>
+            <div className="min-w-0">
+              <p className="font-semibold text-sand-800">Pedir collar físico con QR</p>
+              <p className="text-xs font-normal text-sand-500">Placa grabada, tag de silicona o combo NFC — desde ₡4,500</p>
+            </div>
+            <span className="ml-auto shrink-0 text-sand-400" aria-hidden="true">→</span>
+          </a>
+
           {/* Scan history */}
           <Card padding="sm">
             <p className="mb-3 text-sm font-semibold text-sand-800">
