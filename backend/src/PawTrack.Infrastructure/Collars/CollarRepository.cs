@@ -16,6 +16,17 @@ public sealed class CollarRepository(PawTrackDbContext dbContext) : ICollarRepos
     public async Task AddAsync(Collar collar, CancellationToken cancellationToken = default) =>
         await dbContext.Collars.AddAsync(collar, cancellationToken);
 
+    public async Task<IReadOnlyList<CollarLocation>> GetLocationHistoryAsync(
+        Guid collarId,
+        DateTimeOffset since,
+        int maxPoints,
+        CancellationToken cancellationToken = default) =>
+        await dbContext.CollarLocations
+            .Where(l => l.CollarId == collarId && l.RecordedAt >= since)
+            .OrderBy(l => l.RecordedAt)
+            .Take(maxPoints)
+            .ToListAsync(cancellationToken);
+
     public async Task AddLocationAsync(CollarLocation location, CancellationToken cancellationToken = default) =>
         await dbContext.CollarLocations.AddAsync(location, cancellationToken);
 

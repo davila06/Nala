@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { useCollarStatus, useRegisterCollar } from "../hooks/useCollar";
+import { useCollarHistory, useCollarStatus, useRegisterCollar } from "../hooks/useCollar";
 
 interface CollarGpsTabProps {
   petId: string;
@@ -16,11 +16,35 @@ const PROVIDER_LABELS = {
   Generic: "Genérico",
 };
 
+const HOURS_OPTIONS = [
+  { value: 1,   label: "Última hora" },
+  { value: 6,   label: "6 horas" },
+  { value: 12,  label: "12 horas" },
+  { value: 24,  label: "24 horas" },
+  { value: 72,  label: "3 días" },
+  { value: 168, label: "7 días" },
+];
+
+// Fit map to polyline bounds when track changes
+function FitBounds({ positions }: { positions: [number, number][] }) {
+  const map = useMap();
+  if (positions.length >= 2) {
+    map.fitBounds(positions, { padding: [24, 24], maxZoom: 16 });
+  }
+  return null;
+}
+
 export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
   const { data: collar, isLoading } = useCollarStatus(petId);
   const { mutateAsync: register, isPending } = useRegisterCollar();
   const [showSetup, setShowSetup] = useState(false);
   const [deviceId, setDeviceId] = useState("");
+  const [hours, setHours] = useState(24);
+
+  const { data: history, isFetching: historyFetching } = useCollarHistory(
+    petId,
+    hours,
+  );
 
   if (isLoading) {
     return <div className="h-48 animate-pulse rounded-2xl bg-sand-100" />;
@@ -69,7 +93,9 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
             </a>
             <div className="flex items-center gap-2">
               <hr className="flex-1 border-sand-200" />
-              <span className="text-[10px] text-sand-400">o ingresa manualmente</span>
+              <span className="text-[10px] text-sand-400">
+                o ingresa manualmente
+              </span>
               <hr className="flex-1 border-sand-200" />
             </div>
             <label className="block text-xs font-semibold text-sand-700">
@@ -155,11 +181,41 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
         />
       </motion.div>
 
+      {/* Time range selector */}
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-semibold text-sand-600">Trayectoria</p>
+        <div className="flex gap-1 flex-wrap justify-end">
+          {HOURS_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setHours(opt.value)}
+              className={[
+                "rounded-xl px-2.5 py-1 text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
+                hours === opt.value
+                  ? "bg-brand-600 text-white"
+                  : "bg-sand-100 text-sand-600 hover:bg-sand-200",
+              ].join(" ")}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Track stats */}
+      {history && history.length > 0 && (
+        <div className="flex gap-3 text-xs text-sand-500">
+          <span className="font-semibold text-sand-700">{history.length}</span> puntos registrados
+          {historyFetching && <span className="text-brand-500 animate-pulse">· actualizando…</span>}
+        </div>
+      )}
+
       {/* Map */}
       {collar.lastLat !== null && collar.lastLng !== null ? (
         <div
           className="overflow-hidden rounded-2xl border border-sand-200"
-          style={{ height: 260 }}
+          style={{ height: 320 }}
         >
           <MapContainer
             center={[collar.lastLat, collar.lastLng]}
@@ -171,9 +227,37 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution="© OpenStreetMap"
             />
+
+            {/* Historical track polyline */}
+            {history && history.length >= 2 && (() => {
+              const positions = history.map(
+                (p): [number, number] => [p.lat, p.lng],
+              );
+              return (
+                <>
+                  <FitBounds positions={positions} />
+                  <Polyline
+                    positions={positions}
+                    pathOptions={{
+                      color: "#f97316",
+                      weight: 3,
+                      opacity: 0.85,
+                      dashArray: undefined,
+                    }}
+                  />
+                  {/* Start dot */}
+                  <Marker
+                    position={positions[0]}
+                    title={`Inicio: ${new Date(history[0].recordedAt).toLocaleTimeString("es-CR")}`}
+                  />
+                </>
+              );
+            })()}
+
+            {/* Current position marker */}
             <Marker position={[collar.lastLat, collar.lastLng]}>
               <Popup>
-                Última posición
+                <strong>Posición actual</strong>
                 <br />
                 {collar.lastSeenAt &&
                   new Date(collar.lastSeenAt).toLocaleString("es-CR")}
@@ -188,9 +272,8 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
       )}
 
       <p className="text-center text-[10px] text-sand-400">
-        La posición se actualiza automáticamente cada 30 segundos. La
-        integración completa con Tractive OAuth requiere configuración
-        adicional.
+        Posición en tiempo real · trayectoria de hasta 7 días ·
+        actualización automática cada 30 s.
       </p>
     </div>
   );

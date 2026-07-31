@@ -110,6 +110,9 @@ const AdminPage = lazy(() => import("@/features/admin/pages/AdminPage"));
 const MunicipalityPortalPage = lazy(
   () => import("@/features/admin/pages/MunicipalityPortalPage"),
 );
+const CertificateVerificationPage = lazy(
+  () => import("@/features/clinics/pages/CertificateVerificationPage"),
+);
 
 export const router = createBrowserRouter([
   {
@@ -412,6 +415,15 @@ export const router = createBrowserRouter([
       },
 
       // ── Catch-all 404 ─────────────────────────────────────────────────────
+      // ── Public certificate verification (no auth, no layout shell) ─────
+      {
+        path: "/verificar/:code",
+        element: (
+          <S>
+            <CertificateVerificationPage />
+          </S>
+        ),
+      },
       { path: "*", element: <NotFoundPage /> },
     ],
   },

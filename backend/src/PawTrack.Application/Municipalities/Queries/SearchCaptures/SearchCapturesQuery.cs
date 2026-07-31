@@ -9,7 +9,7 @@ namespace PawTrack.Application.Municipalities.Queries.SearchCaptures;
 public sealed record SearchCapturesQuery(
     string? Canton,
     CapturedAnimalStatus? Status,
-    int Page     = 1,
+    int Page = 1,
     int PageSize = 20) : IRequest<Result<CapturedAnimalPageDto>>;
 
 public sealed record CapturedAnimalPageDto(IReadOnlyList<CapturedAnimalDto> Items, int Total, int Page, int PageSize);

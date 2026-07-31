@@ -10,6 +10,16 @@ export function useCollarStatus(petId: string) {
   });
 }
 
+export function useCollarHistory(petId: string, hours = 24) {
+  return useQuery({
+    queryKey: ["collar-history", petId, hours],
+    queryFn: () => collarApi.getHistory(petId, hours),
+    enabled: !!petId,
+    refetchInterval: 60_000, // refresh track every minute
+    staleTime: 30_000,
+  });
+}
+
 export function useRegisterCollar() {
   const queryClient = useQueryClient();
   return useMutation({

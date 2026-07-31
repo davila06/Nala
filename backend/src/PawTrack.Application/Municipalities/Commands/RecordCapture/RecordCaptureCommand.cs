@@ -9,10 +9,10 @@ using PawTrack.Domain.Municipalities;
 namespace PawTrack.Application.Municipalities.Commands.RecordCapture;
 
 public sealed record RecordCaptureCommand(
-    Guid    RecordedByUserId,
-    string  Canton,
-    string  Species,
-    string  Color,
+    Guid RecordedByUserId,
+    string Canton,
+    string Species,
+    string Color,
     string? Breed,
     string? EstimatedAge,
     string? Notes,
@@ -32,7 +32,7 @@ public sealed class RecordCaptureCommandValidator : AbstractValidator<RecordCapt
 
 public sealed class RecordCaptureCommandHandler(
     ICapturedAnimalRepository repository,
-    IUnitOfWork               unitOfWork)
+    IUnitOfWork unitOfWork)
     : IRequestHandler<RecordCaptureCommand, Result<CapturedAnimalDto>>
 {
     public async Task<Result<CapturedAnimalDto>> Handle(

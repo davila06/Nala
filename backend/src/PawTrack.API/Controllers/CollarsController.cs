@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PawTrack.Application.Collars.Commands.RegisterCollar;
 using PawTrack.Application.Collars.Interfaces;
 using PawTrack.Application.Collars.Queries.GetCollarStatus;
+using PawTrack.Application.Collars.Queries.GetLocationHistory;
 using PawTrack.Domain.Collars;
 using System.Security.Claims;
 
@@ -43,6 +44,44 @@ public sealed class CollarsController(ISender sender) : ControllerBase
         return Created($"api/collars/pet/{request.PetId}", result.Value);
     }
 
+    // ── GET /api/collars/pet/{petId}/history?hours=24 ────────────────────────
+    [HttpGet("pet/{petId:guid}/history")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetHistory(
+        Guid petId,
+        [FromQuery] int hours     = 24,
+        [FromQuery] int maxPoints = 500,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await sender.Send(new GetLocationHistoryQuery(petId, hours, maxPoints), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);
+    }
+
+    // ── POST /api/collars/pet/{petId}/location ────────────────────────────────
+    /// <summary>Manual location record — for generic/own hardware via HTTP push.</summary>
+    [HttpPost("pet/{petId:guid}/location")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RecordLocation(
+        Guid petId,
+        [FromBody] RecordLocationRequest request,
+        [FromServices] ICollarRepository collarRepository,
+        [FromServices] PawTrack.Application.Common.Interfaces.IUnitOfWork unitOfWork,
+        CancellationToken cancellationToken)
+    {
+        var collar = await collarRepository.GetActiveForPetAsync(petId, cancellationToken);
+        if (collar is null) return NotFound();
+
+        collar.UpdateLocation(request.Lat, request.Lng, request.BatteryPercent);
+        collarRepository.Update(collar);
+        await collarRepository.AddLocationAsync(
+            CollarLocation.Record(collar.Id, request.Lat, request.Lng, request.Accuracy),
+            cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return NoContent();
+    }
+
     // ── GET /api/collars/tractive/connect?petId={petId} ───────────────────────
     /// <summary>Initiates Tractive OAuth2 flow. Redirects to Tractive consent screen.</summary>
     [HttpGet("tractive/connect")]
@@ -50,8 +89,8 @@ public sealed class CollarsController(ISender sender) : ControllerBase
     public IActionResult ConnectTraactive([FromQuery] Guid petId, [FromServices] ITractiveService tractive)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
-        var state      = $"{userId}:{petId}";
-        var authUrl    = tractive.GetAuthorizationUrl(state);
+        var state = $"{userId}:{petId}";
+        var authUrl = tractive.GetAuthorizationUrl(state);
         return Redirect(authUrl);
     }
 
@@ -93,3 +132,4 @@ public sealed class CollarsController(ISender sender) : ControllerBase
 }
 
 public sealed record RegisterCollarRequest(Guid PetId, CollarProvider Provider, string? ExternalDeviceId);
+public sealed record RecordLocationRequest(double Lat, double Lng, int? BatteryPercent, int? Accuracy);

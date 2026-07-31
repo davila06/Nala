@@ -7,10 +7,7 @@ import {
   useRecordCapture,
   useUpdateCaptureStatus,
 } from "../hooks/useMunicipal";
-import {
-  STATUS_LABELS,
-  type CapturedAnimalStatus,
-} from "../api/municipalApi";
+import { STATUS_LABELS, type CapturedAnimalStatus } from "../api/municipalApi";
 
 const PACKAGES = [
   {
@@ -274,16 +271,26 @@ export default function MunicipalityPortalPage() {
 
 function CapturePortal() {
   const [canton, setCanton] = useState("");
-  const [filterStatus, setFilterStatus] = useState<CapturedAnimalStatus | "">("");
+  const [filterStatus, setFilterStatus] = useState<CapturedAnimalStatus | "">(
+    "",
+  );
   const [showForm, setShowForm] = useState(false);
 
-  const { data, isLoading } = useCapturedAnimals(canton || undefined, filterStatus || undefined);
+  const { data, isLoading } = useCapturedAnimals(
+    canton || undefined,
+    filterStatus || undefined,
+  );
   const { mutateAsync: record, isPending: recording } = useRecordCapture();
   const { mutateAsync: updateStatus } = useUpdateCaptureStatus();
 
   const [form, setForm] = useState({
-    canton: "", species: "", color: "", breed: "",
-    estimatedAge: "", notes: "", collarChipNumber: "",
+    canton: "",
+    species: "",
+    color: "",
+    breed: "",
+    estimatedAge: "",
+    notes: "",
+    collarChipNumber: "",
   });
 
   const f = (key: keyof typeof form) => ({
@@ -293,11 +300,11 @@ function CapturePortal() {
   });
 
   const statusColors: Record<CapturedAnimalStatus, string> = {
-    Received:   "bg-warn-100 text-warn-700",
+    Received: "bg-warn-100 text-warn-700",
     OwnerFound: "bg-rescue-100 text-rescue-800",
-    Transferred:"bg-trust-100 text-trust-700",
-    Released:   "bg-sand-100 text-sand-500",
-    Adopted:    "bg-brand-100 text-brand-700",
+    Transferred: "bg-trust-100 text-trust-700",
+    Released: "bg-sand-100 text-sand-500",
+    Adopted: "bg-brand-100 text-brand-700",
   };
 
   return (
@@ -332,12 +339,16 @@ function CapturePortal() {
           />
           <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as CapturedAnimalStatus | "")}
+            onChange={(e) =>
+              setFilterStatus(e.target.value as CapturedAnimalStatus | "")
+            }
             className="rounded-xl border border-sand-200 px-3 py-2 text-sm field-input outline-none focus:border-trust-400"
           >
             <option value="">Todos los estados</option>
             {(Object.keys(STATUS_LABELS) as CapturedAnimalStatus[]).map((s) => (
-              <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+              <option key={s} value={s}>
+                {STATUS_LABELS[s]}
+              </option>
             ))}
           </select>
         </div>
@@ -345,11 +356,18 @@ function CapturePortal() {
         {/* Table */}
         {isLoading ? (
           <div className="space-y-3">
-            {[1,2,3].map(i => <div key={i} className="h-16 animate-pulse rounded-2xl bg-sand-100" />)}
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-16 animate-pulse rounded-2xl bg-sand-100"
+              />
+            ))}
           </div>
         ) : !data?.items.length ? (
           <div className="flex flex-col items-center rounded-2xl border border-dashed border-sand-200 py-10 text-center">
-            <p className="text-sm text-sand-400">No hay registros que coincidan.</p>
+            <p className="text-sm text-sand-400">
+              No hay registros que coincidan.
+            </p>
           </div>
         ) : (
           <AnimatePresence>
@@ -364,22 +382,39 @@ function CapturePortal() {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="font-semibold text-sand-900">
-                        {animal.species}{animal.breed ? ` — ${animal.breed}` : ""} · {animal.color}
+                        {animal.species}
+                        {animal.breed ? ` — ${animal.breed}` : ""} ·{" "}
+                        {animal.color}
                       </p>
                       <p className="text-xs text-sand-500">
-                        📍 {animal.canton} · {new Date(animal.capturedAt).toLocaleDateString("es-CR")}
-                        {animal.collarChipNumber && ` · Chip: ${animal.collarChipNumber}`}
+                        📍 {animal.canton} ·{" "}
+                        {new Date(animal.capturedAt).toLocaleDateString(
+                          "es-CR",
+                        )}
+                        {animal.collarChipNumber &&
+                          ` · Chip: ${animal.collarChipNumber}`}
                       </p>
-                      {animal.notes && <p className="mt-1 text-xs text-sand-400">{animal.notes}</p>}
+                      {animal.notes && (
+                        <p className="mt-1 text-xs text-sand-400">
+                          {animal.notes}
+                        </p>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${statusColors[animal.status]}`}>
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${statusColors[animal.status]}`}
+                      >
                         {STATUS_LABELS[animal.status]}
                       </span>
                       {animal.status === "Received" && (
                         <button
                           type="button"
-                          onClick={() => void updateStatus({ id: animal.id, status: "OwnerFound" })}
+                          onClick={() =>
+                            void updateStatus({
+                              id: animal.id,
+                              status: "OwnerFound",
+                            })
+                          }
                           className="rounded-xl bg-rescue-100 px-2.5 py-1 text-[10px] font-semibold text-rescue-800 hover:bg-rescue-200"
                         >
                           Dueño encontrado
@@ -398,43 +433,87 @@ function CapturePortal() {
           {showForm && (
             <motion.div
               className="fixed inset-0 z-50 flex items-end bg-black/50 sm:items-center sm:justify-center p-4"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setShowForm(false)}
             >
               <motion.div
                 className="w-full max-w-md rounded-3xl bg-surface p-6 shadow-2xl"
-                initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}
+                initial={{ y: 40, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 40, opacity: 0 }}
                 transition={{ type: "spring", stiffness: 400, damping: 35 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <h3 className="mb-4 text-lg font-black text-sand-900">Registrar animal capturado</h3>
+                <h3 className="mb-4 text-lg font-black text-sand-900">
+                  Registrar animal capturado
+                </h3>
                 <form
                   className="space-y-3"
                   onSubmit={async (e) => {
                     e.preventDefault();
                     await record(form);
-                    setForm({ canton:"",species:"",color:"",breed:"",estimatedAge:"",notes:"",collarChipNumber:"" });
+                    setForm({
+                      canton: "",
+                      species: "",
+                      color: "",
+                      breed: "",
+                      estimatedAge: "",
+                      notes: "",
+                      collarChipNumber: "",
+                    });
                     setShowForm(false);
                   }}
                 >
                   <div className="grid gap-3 sm:grid-cols-2">
-                    {([["canton","Cantón","Desamparados"],["species","Especie","Perro / Gato"],["color","Color","Negro y blanco"],["breed","Raza (opcional)","Labrador"],["estimatedAge","Edad aprox. (opcional)","2 años"],["collarChipNumber","Nº chip/collar (opcional)","985..."]] as const).map(([k, label, ph]) => (
-                      <label key={k} className="block text-xs font-semibold text-sand-700">
+                    {(
+                      [
+                        ["canton", "Cantón", "Desamparados"],
+                        ["species", "Especie", "Perro / Gato"],
+                        ["color", "Color", "Negro y blanco"],
+                        ["breed", "Raza (opcional)", "Labrador"],
+                        ["estimatedAge", "Edad aprox. (opcional)", "2 años"],
+                        [
+                          "collarChipNumber",
+                          "Nº chip/collar (opcional)",
+                          "985...",
+                        ],
+                      ] as const
+                    ).map(([k, label, ph]) => (
+                      <label
+                        key={k}
+                        className="block text-xs font-semibold text-sand-700"
+                      >
                         {label}
-                        <input className="mt-1 w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-trust-400 field-input" placeholder={ph} {...f(k as keyof typeof form)} />
+                        <input
+                          className="mt-1 w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-trust-400 field-input"
+                          placeholder={ph}
+                          {...f(k as keyof typeof form)}
+                        />
                       </label>
                     ))}
                   </div>
                   <label className="block text-xs font-semibold text-sand-700">
                     Observaciones
-                    <textarea className="mt-1 w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-trust-400 field-input h-16 resize-none" {...f("notes")} />
+                    <textarea
+                      className="mt-1 w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-trust-400 field-input h-16 resize-none"
+                      {...f("notes")}
+                    />
                   </label>
                   <div className="flex gap-2">
-                    <button type="submit" disabled={recording}
-                      className="flex-1 rounded-xl bg-trust-600 py-2.5 text-sm font-bold text-white hover:bg-trust-700 disabled:opacity-60">
+                    <button
+                      type="submit"
+                      disabled={recording}
+                      className="flex-1 rounded-xl bg-trust-600 py-2.5 text-sm font-bold text-white hover:bg-trust-700 disabled:opacity-60"
+                    >
                       {recording ? "Registrando…" : "Registrar"}
                     </button>
-                    <button type="button" onClick={() => setShowForm(false)} className="rounded-xl border border-sand-200 px-4 text-sm text-sand-600 hover:bg-sand-50">
+                    <button
+                      type="button"
+                      onClick={() => setShowForm(false)}
+                      className="rounded-xl border border-sand-200 px-4 text-sm text-sand-600 hover:bg-sand-50"
+                    >
                       Cancelar
                     </button>
                   </div>

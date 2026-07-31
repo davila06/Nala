@@ -6,6 +6,11 @@ public interface ICollarRepository
 {
     Task<Collar?> GetActiveForPetAsync(Guid petId, CancellationToken cancellationToken = default);
     Task<Collar?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<CollarLocation>> GetLocationHistoryAsync(
+        Guid collarId,
+        DateTimeOffset since,
+        int maxPoints,
+        CancellationToken cancellationToken = default);
     Task AddAsync(Collar collar, CancellationToken cancellationToken = default);
     Task AddLocationAsync(CollarLocation location, CancellationToken cancellationToken = default);
     void Update(Collar collar);

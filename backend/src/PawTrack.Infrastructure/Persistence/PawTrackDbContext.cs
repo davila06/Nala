@@ -57,7 +57,7 @@ public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> option
     public DbSet<Collar> Collars => Set<Collar>();
     public DbSet<CollarLocation> CollarLocations => Set<CollarLocation>();
     public DbSet<VetCertificate> VetCertificates => Set<VetCertificate>();
-    public DbSet<CapturedAnimal> CapturedAnimals  => Set<CapturedAnimal>();
+    public DbSet<CapturedAnimal> CapturedAnimals => Set<CapturedAnimal>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

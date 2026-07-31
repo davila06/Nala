@@ -8,13 +8,13 @@ using PawTrack.Domain.Municipalities;
 namespace PawTrack.Application.Municipalities.Commands.UpdateCaptureStatus;
 
 public sealed record UpdateCaptureStatusCommand(
-    Guid                 AnimalId,
+    Guid AnimalId,
     CapturedAnimalStatus Status,
-    Guid?                MatchedPetId = null) : IRequest<Result<CapturedAnimalDto>>;
+    Guid? MatchedPetId = null) : IRequest<Result<CapturedAnimalDto>>;
 
 public sealed class UpdateCaptureStatusCommandHandler(
     ICapturedAnimalRepository repository,
-    IUnitOfWork               unitOfWork)
+    IUnitOfWork unitOfWork)
     : IRequestHandler<UpdateCaptureStatusCommand, Result<CapturedAnimalDto>>
 {
     public async Task<Result<CapturedAnimalDto>> Handle(

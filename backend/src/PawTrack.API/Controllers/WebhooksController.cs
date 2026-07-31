@@ -58,7 +58,7 @@ public sealed class WebhooksController(ISender sender, IConfiguration configurat
         if (!Request.Headers.TryGetValue("X-Webhook-Signature", out var receivedSig))
             return false;
 
-        var payload  = $"{notification.Reference}:{notification.AmountCrc}";
+        var payload = $"{notification.Reference}:{notification.AmountCrc}";
         var expected = ComputeHmac(secret, payload);
 
         return CryptographicOperations.FixedTimeEquals(
@@ -68,14 +68,14 @@ public sealed class WebhooksController(ISender sender, IConfiguration configurat
 
     private static string ComputeHmac(string key, string data)
     {
-        var keyBytes  = Encoding.UTF8.GetBytes(key);
+        var keyBytes = Encoding.UTF8.GetBytes(key);
         var dataBytes = Encoding.UTF8.GetBytes(data);
         return Convert.ToHexString(HMACSHA256.HashData(keyBytes, dataBytes)).ToLowerInvariant();
     }
 }
 
 public sealed record SinpePaymentNotification(
-    [property: JsonPropertyName("reference")]   string Reference,
-    [property: JsonPropertyName("amount_crc")]  decimal AmountCrc,
+    [property: JsonPropertyName("reference")] string Reference,
+    [property: JsonPropertyName("amount_crc")] decimal AmountCrc,
     [property: JsonPropertyName("sender_name")] string? SenderName,
-    [property: JsonPropertyName("timestamp")]   DateTimeOffset Timestamp);
+    [property: JsonPropertyName("timestamp")] DateTimeOffset Timestamp);

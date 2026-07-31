@@ -18,9 +18,9 @@ public sealed class MunicipalController(ISender sender) : ControllerBase
     [HttpGet("captures")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Search(
-        [FromQuery] string?              canton,
+        [FromQuery] string? canton,
         [FromQuery] CapturedAnimalStatus? status,
-        [FromQuery] int page     = 1,
+        [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {

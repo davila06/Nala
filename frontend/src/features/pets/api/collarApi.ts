@@ -14,10 +14,23 @@ export interface CollarDto {
   isActive: boolean;
 }
 
+export interface LocationPointDto {
+  lat: number;
+  lng: number;
+  recordedAt: string;
+}
+
 export const collarApi = {
   getStatus: (petId: string) =>
     apiClient
       .get<CollarDto | null>(`/collars/pet/${petId}`)
+      .then((r) => r.data),
+
+  getHistory: (petId: string, hours = 24, maxPoints = 500) =>
+    apiClient
+      .get<LocationPointDto[]>(`/collars/pet/${petId}/history`, {
+        params: { hours, maxPoints },
+      })
       .then((r) => r.data),
 
   register: (
