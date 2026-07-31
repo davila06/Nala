@@ -4,20 +4,20 @@ public sealed class Collar
 {
     private Collar() { } // EF Core
 
-    public Guid           Id              { get; private set; }
-    public Guid           PetId           { get; private set; }
-    public Guid           OwnerId         { get; private set; }
-    public CollarProvider Provider        { get; private set; }
+    public Guid Id { get; private set; }
+    public Guid PetId { get; private set; }
+    public Guid OwnerId { get; private set; }
+    public CollarProvider Provider { get; private set; }
     /// <summary>Provider-specific device identifier (Tractive tracker ID, etc.).</summary>
-    public string?        ExternalDeviceId { get; private set; }
+    public string? ExternalDeviceId { get; private set; }
     /// <summary>Encrypted OAuth access token for the provider API. Null for manual/generic.</summary>
-    public string?        ExternalTokenEncrypted { get; private set; }
-    public int?           BatteryPercent  { get; private set; }
-    public double?        LastLat         { get; private set; }
-    public double?        LastLng         { get; private set; }
-    public DateTimeOffset? LastSeenAt     { get; private set; }
-    public bool           IsActive        { get; private set; }
-    public DateTimeOffset RegisteredAt    { get; private set; }
+    public string? ExternalTokenEncrypted { get; private set; }
+    public int? BatteryPercent { get; private set; }
+    public double? LastLat { get; private set; }
+    public double? LastLng { get; private set; }
+    public DateTimeOffset? LastSeenAt { get; private set; }
+    public bool IsActive { get; private set; }
+    public DateTimeOffset RegisteredAt { get; private set; }
 
     // ── Factory ─────────────────────────────────────────────────────────────
 
@@ -25,13 +25,13 @@ public sealed class Collar
     {
         return new Collar
         {
-            Id               = Guid.CreateVersion7(),
-            PetId            = petId,
-            OwnerId          = ownerId,
-            Provider         = provider,
+            Id = Guid.CreateVersion7(),
+            PetId = petId,
+            OwnerId = ownerId,
+            Provider = provider,
             ExternalDeviceId = externalDeviceId,
-            IsActive         = true,
-            RegisteredAt     = DateTimeOffset.UtcNow,
+            IsActive = true,
+            RegisteredAt = DateTimeOffset.UtcNow,
         };
     }
 
@@ -39,10 +39,10 @@ public sealed class Collar
 
     public void UpdateLocation(double lat, double lng, int? batteryPercent)
     {
-        LastLat        = lat;
-        LastLng        = lng;
+        LastLat = lat;
+        LastLng = lng;
         BatteryPercent = batteryPercent;
-        LastSeenAt     = DateTimeOffset.UtcNow;
+        LastSeenAt = DateTimeOffset.UtcNow;
     }
 
     public void SetToken(string encryptedToken) => ExternalTokenEncrypted = encryptedToken;

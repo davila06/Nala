@@ -10,7 +10,7 @@ public sealed record CancelSubscriptionCommand(Guid SubscriptionId, Guid Request
 
 public sealed class CancelSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
-    IUnitOfWork             unitOfWork)
+    IUnitOfWork unitOfWork)
     : IRequestHandler<CancelSubscriptionCommand, Result<SubscriptionDto>>
 {
     public async Task<Result<SubscriptionDto>> Handle(

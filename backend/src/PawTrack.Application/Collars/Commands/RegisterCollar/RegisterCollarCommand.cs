@@ -8,14 +8,14 @@ using PawTrack.Domain.Common;
 namespace PawTrack.Application.Collars.Commands.RegisterCollar;
 
 public sealed record RegisterCollarCommand(
-    Guid           PetId,
-    Guid           OwnerId,
+    Guid PetId,
+    Guid OwnerId,
     CollarProvider Provider,
-    string?        ExternalDeviceId) : IRequest<Result<CollarDto>>;
+    string? ExternalDeviceId) : IRequest<Result<CollarDto>>;
 
 public sealed class RegisterCollarCommandHandler(
     ICollarRepository collarRepository,
-    IUnitOfWork       unitOfWork)
+    IUnitOfWork unitOfWork)
     : IRequestHandler<RegisterCollarCommand, Result<CollarDto>>
 {
     public async Task<Result<CollarDto>> Handle(

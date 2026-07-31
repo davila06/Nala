@@ -3,16 +3,16 @@ using PawTrack.Domain.Bounties;
 namespace PawTrack.Application.Bounties.DTOs;
 
 public sealed record BountyDto(
-    Guid          Id,
-    Guid          LostPetEventId,
-    decimal       Amount,
-    string        CurrencyCode,
-    BountyStatus  Status,
-    string        DepositReference,
-    decimal       PlatformFee,
-    decimal       NetPayoutAmount,
-    Guid?         ClaimedByUserId,
-    DateTimeOffset  CreatedAt,
+    Guid Id,
+    Guid LostPetEventId,
+    decimal Amount,
+    string CurrencyCode,
+    BountyStatus Status,
+    string DepositReference,
+    decimal PlatformFee,
+    decimal NetPayoutAmount,
+    Guid? ClaimedByUserId,
+    DateTimeOffset CreatedAt,
     DateTimeOffset? DepositedAt,
     DateTimeOffset? ClaimedAt,
     DateTimeOffset? ReleasedAt)

@@ -8,12 +8,14 @@ import {
 import { ScanInput } from "../components/ScanInput";
 import { MatchResultCard } from "../components/MatchResultCard";
 import { ClinicTiersModal } from "../components/ClinicTiersModal";
+import { CertificateIssueModal } from "../components/CertificateIssueModal";
 
 export default function ClinicDashboardPage() {
   const [scanResult, setScanResult] = useState<ClinicScanResultDto | null>(
     null,
   );
   const [showTiers, setShowTiers] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
 
   const { data: clinic, isLoading: clinicLoading } = useQuery({
     queryKey: ["my-clinic"],
@@ -139,6 +141,34 @@ export default function ClinicDashboardPage() {
           <ClinicTiersModal
             currentTier="basic"
             onClose={() => setShowTiers(false)}
+          />
+        )}
+
+        {/* ── Partner: certificate issuing ──────────────────────────── */}
+        {/* Shown only when clinic has Partner tier; gated by backend on issue */}
+        <button
+          type="button"
+          onClick={() => setShowCertificate(true)}
+          className="w-full rounded-2xl border border-brand-200 bg-linear-to-r from-brand-50 to-trust-50 px-4 py-3 flex items-center gap-3 text-left hover:from-brand-100 hover:to-trust-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+        >
+          <span className="text-2xl shrink-0" aria-hidden="true">📄</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-brand-900">Emitir certificado veterinario</p>
+            <p className="text-xs text-brand-600 mt-0.5">
+              PDF con firma digital y código QR de verificación. Tier Partner.
+            </p>
+          </div>
+          <span className="shrink-0 rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white">
+            Nuevo →
+          </span>
+        </button>
+
+        {showCertificate && clinic && (
+          <CertificateIssueModal
+            clinicId={clinic.id}
+            clinicName={clinic.name}
+            clinicLicense={clinic.licenseNumber}
+            onClose={() => setShowCertificate(false)}
           />
         )}
 

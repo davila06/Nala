@@ -107,7 +107,9 @@ const ClinicDashboardPage = lazy(
 
 // Admin panel
 const AdminPage = lazy(() => import("@/features/admin/pages/AdminPage"));
-const MunicipalityPortalPage = lazy(() => import("@/features/admin/pages/MunicipalityPortalPage"));
+const MunicipalityPortalPage = lazy(
+  () => import("@/features/admin/pages/MunicipalityPortalPage"),
+);
 
 export const router = createBrowserRouter([
   {

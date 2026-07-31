@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PawTrack.Application.Bounties.Commands.ConfirmBountyDeposit;
 using PawTrack.Application.Bounties.Commands.CreateBounty;
+using PawTrack.Application.Bounties.Commands.ReleaseBounty;
 using PawTrack.Application.Bounties.Queries.GetBountyForEvent;
 using System.Security.Claims;
 
@@ -52,6 +53,22 @@ public sealed class BountiesController(ISender sender) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await sender.Send(new ConfirmBountyDepositCommand(request.DepositReference), cancellationToken);
+
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
+
+        return Ok(result.Value);
+    }
+
+    // ── PUT /api/bounties/{id}/release ────────────────────────────────────────
+    [HttpPut("{id:guid}/release")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> Release(Guid id, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
+        var result = await sender.Send(new ReleaseBountyCommand(id, userId), cancellationToken);
 
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });

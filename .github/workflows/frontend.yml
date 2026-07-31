@@ -79,6 +79,7 @@ jobs:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
           VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
           VITE_COLLAR_WHATSAPP_NUMBER: ${{ secrets.VITE_COLLAR_WHATSAPP_NUMBER }}
+          VITE_SINPE_PHONE: ${{ secrets.VITE_SINPE_PHONE }}
 
       - name: Deploy to Azure Static Web Apps
         id: deploy

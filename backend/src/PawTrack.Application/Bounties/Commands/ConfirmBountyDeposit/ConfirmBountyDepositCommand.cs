@@ -10,7 +10,7 @@ public sealed record ConfirmBountyDepositCommand(string DepositReference) : IReq
 
 public sealed class ConfirmBountyDepositCommandHandler(
     IBountyRepository bountyRepository,
-    IUnitOfWork       unitOfWork)
+    IUnitOfWork unitOfWork)
     : IRequestHandler<ConfirmBountyDepositCommand, Result<BountyDto>>
 {
     public async Task<Result<BountyDto>> Handle(

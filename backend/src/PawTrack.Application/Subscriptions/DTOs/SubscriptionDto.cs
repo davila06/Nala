@@ -3,15 +3,15 @@ using PawTrack.Domain.Subscriptions;
 namespace PawTrack.Application.Subscriptions.DTOs;
 
 public sealed record SubscriptionDto(
-    Guid              Id,
-    SubscriptionTier  Tier,
+    Guid Id,
+    SubscriptionTier Tier,
     SubscriptionStatus Status,
-    string            PaymentReference,
-    decimal           AmountCrc,
-    DateTimeOffset    CreatedAt,
-    DateTimeOffset?   ActivatedAt,
-    DateTimeOffset?   ExpiresAt,
-    bool              IsActive)
+    string PaymentReference,
+    decimal AmountCrc,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? ActivatedAt,
+    DateTimeOffset? ExpiresAt,
+    bool IsActive)
 {
     public static SubscriptionDto FromDomain(Subscription s) => new(
         s.Id,

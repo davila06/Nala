@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PawTrack.Application.Collars.Commands.RegisterCollar;
+using PawTrack.Application.Collars.Interfaces;
 using PawTrack.Application.Collars.Queries.GetCollarStatus;
 using PawTrack.Domain.Collars;
 using System.Security.Claims;
@@ -40,6 +41,48 @@ public sealed class CollarsController(ISender sender) : ControllerBase
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
 
         return Created($"api/collars/pet/{request.PetId}", result.Value);
+    }
+
+    // ── GET /api/collars/tractive/connect?petId={petId} ───────────────────────
+    /// <summary>Initiates Tractive OAuth2 flow. Redirects to Tractive consent screen.</summary>
+    [HttpGet("tractive/connect")]
+    [ProducesResponseType(StatusCodes.Status302Found)]
+    public IActionResult ConnectTraactive([FromQuery] Guid petId, [FromServices] ITractiveService tractive)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var state      = $"{userId}:{petId}";
+        var authUrl    = tractive.GetAuthorizationUrl(state);
+        return Redirect(authUrl);
+    }
+
+    // ── GET /api/collars/tractive/callback ────────────────────────────────────
+    [HttpGet("tractive/callback")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status302Found)]
+    public async Task<IActionResult> TractiveCallback(
+        [FromQuery] string code,
+        [FromQuery] string state,
+        [FromServices] ITractiveService tractive,
+        [FromServices] ICollarRepository collarRepository,
+        CancellationToken cancellationToken)
+    {
+        var parts = state.Split(':');
+        if (parts.Length != 2
+            || !Guid.TryParse(parts[0], out var userId)
+            || !Guid.TryParse(parts[1], out var petId))
+            return BadRequest("Invalid state.");
+
+        var encryptedToken = await tractive.ExchangeCodeForTokenAsync(code, cancellationToken);
+
+        var collar = await collarRepository.GetActiveForPetAsync(petId, cancellationToken);
+        if (collar is not null && collar.Provider == Domain.Collars.CollarProvider.Tractive)
+        {
+            collar.SetToken(encryptedToken);
+            collarRepository.Update(collar);
+        }
+
+        // Redirect to frontend GPS tab after OAuth
+        return Redirect($"https://pawtrack.cr/pets/{petId}?tab=gps&connected=true");
     }
 
     private bool TryGetUserId(out Guid userId)

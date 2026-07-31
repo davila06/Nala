@@ -10,7 +10,7 @@ public sealed record ActivateSubscriptionCommand(string PaymentReference) : IReq
 
 public sealed class ActivateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
-    IUnitOfWork             unitOfWork)
+    IUnitOfWork unitOfWork)
     : IRequestHandler<ActivateSubscriptionCommand, Result<SubscriptionDto>>
 {
     public async Task<Result<SubscriptionDto>> Handle(

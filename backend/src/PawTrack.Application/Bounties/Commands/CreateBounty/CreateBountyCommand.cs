@@ -9,15 +9,15 @@ using PawTrack.Domain.Common;
 namespace PawTrack.Application.Bounties.Commands.CreateBounty;
 
 public sealed record CreateBountyCommand(
-    Guid    LostPetEventId,
-    Guid    OwnerId,
+    Guid LostPetEventId,
+    Guid OwnerId,
     decimal Amount,
-    string  CurrencyCode = "CRC") : IRequest<Result<BountyDto>>;
+    string CurrencyCode = "CRC") : IRequest<Result<BountyDto>>;
 
 public sealed class CreateBountyCommandHandler(
     IBountyRepository bountyRepository,
-    IPaymentService   paymentService,
-    IUnitOfWork       unitOfWork)
+    IPaymentService paymentService,
+    IUnitOfWork unitOfWork)
     : IRequestHandler<CreateBountyCommand, Result<BountyDto>>
 {
     public async Task<Result<BountyDto>> Handle(
@@ -29,7 +29,7 @@ public sealed class CreateBountyCommandHandler(
             return Result.Failure<BountyDto>("An active bounty already exists for this event.");
 
         var reference = paymentService.GenerateReference();
-        var bounty    = Bounty.Create(request.LostPetEventId, request.OwnerId, request.Amount, reference);
+        var bounty = Bounty.Create(request.LostPetEventId, request.OwnerId, request.Amount, reference);
 
         await bountyRepository.AddAsync(bounty, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);

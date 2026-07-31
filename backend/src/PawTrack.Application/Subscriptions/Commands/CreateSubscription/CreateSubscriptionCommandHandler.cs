@@ -9,16 +9,16 @@ namespace PawTrack.Application.Subscriptions.Commands.CreateSubscription;
 
 public sealed class CreateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
-    IPaymentService         paymentService,
-    IUnitOfWork             unitOfWork)
+    IPaymentService paymentService,
+    IUnitOfWork unitOfWork)
     : IRequestHandler<CreateSubscriptionCommand, Result<SubscriptionDto>>
 {
     // Prices in CRC
     private static readonly Dictionary<SubscriptionTier, decimal> Prices = new()
     {
-        [SubscriptionTier.UserPlus]      = 2_990m,
-        [SubscriptionTier.UserFamilia]   = 4_990m,
-        [SubscriptionTier.ClinicPlus]    = 15_000m,
+        [SubscriptionTier.UserPlus] = 2_990m,
+        [SubscriptionTier.UserFamilia] = 4_990m,
+        [SubscriptionTier.ClinicPlus] = 15_000m,
         [SubscriptionTier.ClinicPartner] = 35_000m,
     };
 
@@ -39,7 +39,7 @@ public sealed class CreateSubscriptionCommandHandler(
         if (existing is not null && existing.IsActive)
             return Result.Failure<SubscriptionDto>("An active subscription already exists. Cancel it before upgrading.");
 
-        var reference    = paymentService.GenerateReference();
+        var reference = paymentService.GenerateReference();
         var subscription = request.UserId.HasValue
             ? Subscription.CreateForUser(request.UserId.Value, request.Tier, reference, amount)
             : Subscription.CreateForClinic(request.ClinicId!.Value, request.Tier, reference, amount);

@@ -25,10 +25,14 @@ using PawTrack.Infrastructure.Sightings;
 using PawTrack.Infrastructure.Storage;
 using PawTrack.Application.Common.Settings;
 using PawTrack.Application.Bounties.Interfaces;
+using PawTrack.Application.Certificates.Interfaces;
 using PawTrack.Application.Collars.Interfaces;
+using PawTrack.Application.Municipalities.Interfaces;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Infrastructure.Bounties;
+using PawTrack.Infrastructure.Certificates;
 using PawTrack.Infrastructure.Collars;
+using PawTrack.Infrastructure.Municipalities;
 using PawTrack.Infrastructure.Subscriptions;
 
 namespace PawTrack.Infrastructure;
@@ -109,6 +113,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddHttpClient("PushProvider")
             .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(10));
+        services.AddHttpClient("Tractive")
+            .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(12));
         services.AddSingleton<IPushNotificationService, PushNotificationService>();
         services.AddSingleton<INotificationRateLimitService, MemoryCacheNotificationRateLimitService>();
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
@@ -166,6 +172,17 @@ public static class InfrastructureServiceCollectionExtensions
 
         // Collars / GPS
         services.AddScoped<ICollarRepository, CollarRepository>();
+
+        // PDF Certificates
+        services.AddScoped<ICertificateRepository, CertificateRepository>();
+        services.AddScoped<ICertificateService, QuestPdfCertificateService>();
+
+        // Municipalities
+        services.AddScoped<ICapturedAnimalRepository, CapturedAnimalRepository>();
+
+        // Tractive GPS polling (runs every 5 min)
+        services.AddSingleton<ITractiveService, TractiveService>();
+        services.AddHostedService<TractivePollingJob>();
 
         return services;
     }

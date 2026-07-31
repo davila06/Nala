@@ -203,7 +203,10 @@ export function ClinicTiersModal({
                   ) : (
                     <button
                       type="button"
-                      onClick={() => tier.subscriptionTier && setPendingTier(tier.subscriptionTier)}
+                      onClick={() =>
+                        tier.subscriptionTier &&
+                        setPendingTier(tier.subscriptionTier)
+                      }
                       className={[
                         "block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400",
                         tier.popular

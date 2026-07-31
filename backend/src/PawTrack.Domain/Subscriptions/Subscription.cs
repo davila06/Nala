@@ -4,20 +4,20 @@ public sealed class Subscription
 {
     private Subscription() { } // EF Core
 
-    public Guid               Id               { get; private set; }
+    public Guid Id { get; private set; }
     /// <summary>Owning user (pet owner) or null when this is a clinic subscription.</summary>
-    public Guid?              UserId           { get; private set; }
+    public Guid? UserId { get; private set; }
     /// <summary>Owning clinic or null when this is a user subscription.</summary>
-    public Guid?              ClinicId         { get; private set; }
-    public SubscriptionTier   Tier             { get; private set; }
-    public SubscriptionStatus Status           { get; private set; }
+    public Guid? ClinicId { get; private set; }
+    public SubscriptionTier Tier { get; private set; }
+    public SubscriptionStatus Status { get; private set; }
     /// <summary>SINPE Móvil reference code (8 uppercase alphanum) shown to the subscriber.</summary>
-    public string             PaymentReference { get; private set; } = string.Empty;
-    public decimal            AmountCrc        { get; private set; }
-    public DateTimeOffset     CreatedAt        { get; private set; }
-    public DateTimeOffset?    ActivatedAt      { get; private set; }
-    public DateTimeOffset?    ExpiresAt        { get; private set; }
-    public DateTimeOffset?    CancelledAt      { get; private set; }
+    public string PaymentReference { get; private set; } = string.Empty;
+    public decimal AmountCrc { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
+    public DateTimeOffset? ActivatedAt { get; private set; }
+    public DateTimeOffset? ExpiresAt { get; private set; }
+    public DateTimeOffset? CancelledAt { get; private set; }
 
     // ── Factories ─────────────────────────────────────────────────────────────
 
@@ -26,13 +26,13 @@ public sealed class Subscription
         ValidateUserTier(tier);
         return new Subscription
         {
-            Id               = Guid.CreateVersion7(),
-            UserId           = userId,
-            Tier             = tier,
-            Status           = SubscriptionStatus.PendingPayment,
+            Id = Guid.CreateVersion7(),
+            UserId = userId,
+            Tier = tier,
+            Status = SubscriptionStatus.PendingPayment,
             PaymentReference = paymentReference,
-            AmountCrc        = amountCrc,
-            CreatedAt        = DateTimeOffset.UtcNow,
+            AmountCrc = amountCrc,
+            CreatedAt = DateTimeOffset.UtcNow,
         };
     }
 
@@ -41,13 +41,13 @@ public sealed class Subscription
         ValidateClinicTier(tier);
         return new Subscription
         {
-            Id               = Guid.CreateVersion7(),
-            ClinicId         = clinicId,
-            Tier             = tier,
-            Status           = SubscriptionStatus.PendingPayment,
+            Id = Guid.CreateVersion7(),
+            ClinicId = clinicId,
+            Tier = tier,
+            Status = SubscriptionStatus.PendingPayment,
             PaymentReference = paymentReference,
-            AmountCrc        = amountCrc,
-            CreatedAt        = DateTimeOffset.UtcNow,
+            AmountCrc = amountCrc,
+            CreatedAt = DateTimeOffset.UtcNow,
         };
     }
 
@@ -58,9 +58,9 @@ public sealed class Subscription
         if (Status != SubscriptionStatus.PendingPayment)
             throw new InvalidOperationException("Only pending subscriptions can be activated.");
 
-        Status      = SubscriptionStatus.Active;
+        Status = SubscriptionStatus.Active;
         ActivatedAt = DateTimeOffset.UtcNow;
-        ExpiresAt   = DateTimeOffset.UtcNow.AddMonths(billingMonths);
+        ExpiresAt = DateTimeOffset.UtcNow.AddMonths(billingMonths);
     }
 
     public void Cancel()
@@ -68,7 +68,7 @@ public sealed class Subscription
         if (Status != SubscriptionStatus.Active)
             throw new InvalidOperationException("Only active subscriptions can be cancelled.");
 
-        Status      = SubscriptionStatus.Cancelled;
+        Status = SubscriptionStatus.Cancelled;
         CancelledAt = DateTimeOffset.UtcNow;
     }
 
