@@ -23,6 +23,7 @@ import { ProgressiveImg } from "@/shared/hooks/useProgressiveImage";
 import { Tabs, type TabItem } from "@/shared/ui/Tabs";
 import { CollarGpsTab } from "../components/CollarGpsTab";
 import { PlanGate } from "../components/PlanGate";
+import { MedicalHistoryTab } from "@/features/medical/components/MedicalHistoryTab";
 import { useAuthStore } from "@/features/auth/store/authStore";
 
 export default function PetDetailPage() {
@@ -140,6 +141,7 @@ export default function PetDetailPage() {
     },
     { id: "qr", label: "QR", icon: "🏷️" },
     { id: "avistamientos", label: "Avistamientos", icon: "📍" },
+    { id: "salud", label: "Salud", icon: "🏥" },
     { id: "gps", label: "GPS", icon: "📡" },
   ];
 
@@ -479,6 +481,13 @@ export default function PetDetailPage() {
 
       {/* ── Avistamientos tab ──────────────────────────────────────────── */}
       {activeTab === "avistamientos" && <SightingList petId={pet.id} />}
+
+      {/* ── Salud tab — Familia required ─────────────────────────────── */}
+      {activeTab === "salud" && (
+        <PlanGate requires="Familia">
+          <MedicalHistoryTab petId={pet.id} />
+        </PlanGate>
+      )}
 
       {/* ── GPS tab — Plus required ───────────────────────────────────── */}
       {activeTab === "gps" && (

@@ -114,6 +114,11 @@ const CertificateVerificationPage = lazy(
   () => import("@/features/clinics/pages/CertificateVerificationPage"),
 );
 
+// Family invitation (public — no auth wrapper needed; page handles redirect)
+const AcceptFamilyInvitationPage = lazy(
+  () => import("@/features/family/pages/AcceptFamilyInvitationPage"),
+);
+
 export const router = createBrowserRouter([
   {
     errorElement: <AppErrorBoundary />,
@@ -222,6 +227,14 @@ export const router = createBrowserRouter([
             element: (
               <S>
                 <ClinicPendingPage />
+              </S>
+            ),
+          },
+          {
+            path: "/familia/invitacion/:token",
+            element: (
+              <S>
+                <AcceptFamilyInvitationPage />
               </S>
             ),
           },

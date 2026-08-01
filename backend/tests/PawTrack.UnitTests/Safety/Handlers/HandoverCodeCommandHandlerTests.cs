@@ -27,6 +27,7 @@ public sealed class HandoverCodeCommandHandlerTests
         _verifyHandler = new VerifyHandoverCodeCommandHandler(
             _handoverCodeRepository,
             _lostPetRepository,
+            NSubstitute.Substitute.For<MediatR.ISender>(),
             _unitOfWork);
     }
 

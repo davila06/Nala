@@ -23,6 +23,7 @@ import {
   useCancelSubscription,
   useReportPayment,
 } from "@/features/pets/hooks/useSubscription";
+import { FamilyManagementSection } from "@/features/family/components/FamilyManagementSection";
 import { SinpePaymentModal } from "@/features/pets/components/SinpePaymentModal";
 import type { SubscriptionTier } from "@/features/pets/api/subscriptionApi";
 
@@ -850,6 +851,9 @@ export default function ProfilePage() {
           </div>
         </Card>
       )}
+
+      {/* ── Familia ───────────────────────────────────────────────────── */}
+      <FamilyManagementSection />
 
       {/* ── Delete account ────────────────────────────────────────────── */}
       <Card variant="danger">
