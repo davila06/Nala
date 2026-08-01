@@ -8,17 +8,18 @@
 
 ### Competidores globales identificados
 
-| Plataforma | País | Modelo | Precio base | Diferenciador |
-|---|---|---|---|---|
-| **PawBoost** | EE.UU. | Freemium + ads | Gratis / boost pagado | Red social + Facebook Ads |
-| **PetLink** | EE.UU. | One-time + GPS $45.99 | Registro vitalicio gratis | Microchip registry + GPS hardware |
-| **FidoFinder** | EE.UU. | Freemium | Gratis / featured listings | AI matching, shelter network |
-| **TabCat** | UK | Hardware | £59 kit | RFID tracker de corto alcance |
-| **Lost My Doggie** | EE.UU. | Por uso | $14.95/alerta | Robocall a vecinos |
+| Plataforma         | País   | Modelo                | Precio base                | Diferenciador                     |
+| ------------------ | ------ | --------------------- | -------------------------- | --------------------------------- |
+| **PawBoost**       | EE.UU. | Freemium + ads        | Gratis / boost pagado      | Red social + Facebook Ads         |
+| **PetLink**        | EE.UU. | One-time + GPS $45.99 | Registro vitalicio gratis  | Microchip registry + GPS hardware |
+| **FidoFinder**     | EE.UU. | Freemium              | Gratis / featured listings | AI matching, shelter network      |
+| **TabCat**         | UK     | Hardware              | £59 kit                    | RFID tracker de corto alcance     |
+| **Lost My Doggie** | EE.UU. | Por uso               | $14.95/alerta              | Robocall a vecinos                |
 
 ### Vacío en el mercado latinoamericano
 
 Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
+
 - **Integración con WhatsApp** como canal primario (penetración >95% en CR)
 - **SINPE Móvil** como método de pago nativo
 - **Portal para municipalidades** con gestión de animales capturados
@@ -48,6 +49,7 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 > Para quienes dan sus primeros pasos en la protección digital de mascotas.
 
 **Mascotas y perfil**
+
 - ✅ 1 mascota registrada
 - ✅ Placa QR de identidad digital (URL pública)
 - ✅ Perfil público con foto, nombre, raza, especie
@@ -56,6 +58,7 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 - ✅ Reactivar mascota (Reunida → Activa)
 
 **Emergencia**
+
 - ✅ Reporte de mascota perdida con GPS y foto
 - ✅ Aparición en mapa público de casos activos
 - ✅ Registro de avistamientos (reportes anónimos)
@@ -66,11 +69,13 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 - ✅ Alertas en radio de 3 km
 
 **Comunidad**
+
 - ✅ Acceso al mapa público de mascotas perdidas
 - ✅ Reportar avistamiento de mascotas ajenas
 - ✅ Explorar mapa sin cuenta
 
 **Limitaciones del plan gratuito**
+
 - ✗ Solo 1 mascota
 - ✗ Historial limitado (5 escaneos)
 - ✗ Radio de alertas 3 km
@@ -88,11 +93,13 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 **Todo lo del plan Explorador, más:**
 
 **Mascotas**
+
 - ✅ Hasta 3 mascotas registradas
 - ✅ Historial de escaneos ilimitado
 - ✅ Exportar historial de actividad
 
 **Alertas y búsqueda**
+
 - ✅ Radio de alertas ampliado: 10 km
 - ✅ Alertas instantáneas por **WhatsApp**
 - ✅ Búsqueda por foto con IA — **ilimitada**
@@ -102,11 +109,13 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 - ✅ 3D Radar de búsqueda
 
 **Sistema de recompensas**
+
 - ✅ Crear recompensa (Bounty) con SINPE
 - ✅ Estado en mapa público: recompensa activa
 - ✅ Flujo HandoverCode → liberación de pago
 
 **GPS**
+
 - ✅ Tab GPS en perfil de mascota
 - ✅ Conectar collar GPS (Tractive, Kippy, genérico)
 - ✅ Historial de trayectoria 24 horas
@@ -121,21 +130,25 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 **Todo lo del plan Plus, más:**
 
 **Mascotas y usuarios**
+
 - ✅ Mascotas **ilimitadas**
 - ✅ Multi-usuario: hasta 5 miembros de familia
 - ✅ Perfil compartido por mascota
 
 **Historial médico**
+
 - ✅ Registro de vacunas y desparasitación
 - ✅ Registro de visitas veterinarias
 - ✅ Recordatorios automáticos (citas, vacunas)
 - ✅ Exportar historial médico en PDF
 
 **Alertas**
+
 - ✅ Radio de alertas **sin límite geográfico**
 - ✅ Alertas push en dispositivos de todos los miembros
 
 **Soporte**
+
 - ✅ Soporte prioritario
 - ✅ Acceso anticipado a nuevas features
 
@@ -143,21 +156,21 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 
 ### Comparativa B2C
 
-| Feature | Explorador | Plus ₡2,990 | Familia ₡4,990 |
-|---|:---:|:---:|:---:|
-| Mascotas | 1 | 3 | Ilimitadas |
-| Historial escaneos | 5 últimos | Ilimitado | Ilimitado |
-| Radio alertas | 3 km | 10 km | Sin límite |
-| WhatsApp instantáneo | ✗ | ✅ | ✅ |
-| Búsqueda IA por foto | 3/mes | Ilimitada | Ilimitada |
-| Predicción movimiento IA | ✗ | ✅ | ✅ |
-| Case Room (coordinación) | ✗ | ✅ | ✅ |
-| GPS collar (tab) | ✗ | ✅ | ✅ |
-| Sistema Bounty (recompensa) | ✗ | ✅ | ✅ |
-| Multi-usuario | ✗ | ✗ | ✅ (5) |
-| Historial médico + vacunas | ✗ | ✗ | ✅ |
-| PDF historial médico | ✗ | ✗ | ✅ |
-| Usuarios en familia | 1 | 1 | 5 |
+| Feature                     | Explorador | Plus ₡2,990 | Familia ₡4,990 |
+| --------------------------- | :--------: | :---------: | :------------: |
+| Mascotas                    |     1      |      3      |   Ilimitadas   |
+| Historial escaneos          | 5 últimos  |  Ilimitado  |   Ilimitado    |
+| Radio alertas               |    3 km    |    10 km    |   Sin límite   |
+| WhatsApp instantáneo        |     ✗      |     ✅      |       ✅       |
+| Búsqueda IA por foto        |   3/mes    |  Ilimitada  |   Ilimitada    |
+| Predicción movimiento IA    |     ✗      |     ✅      |       ✅       |
+| Case Room (coordinación)    |     ✗      |     ✅      |       ✅       |
+| GPS collar (tab)            |     ✗      |     ✅      |       ✅       |
+| Sistema Bounty (recompensa) |     ✗      |     ✅      |       ✅       |
+| Multi-usuario               |     ✗      |      ✗      |     ✅ (5)     |
+| Historial médico + vacunas  |     ✗      |      ✗      |       ✅       |
+| PDF historial médico        |     ✗      |      ✗      |       ✅       |
+| Usuarios en familia         |     1      |      1      |       5        |
 
 ---
 
@@ -171,17 +184,20 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 > Para clínicas que quieren aparecer en el directorio y escanear pacientes.
 
 **Directorio y visibilidad**
+
 - ✅ Perfil en directorio público de clínicas PawTrack
 - ✅ Mapa de clínicas (posición estándar)
 - ✅ Información de contacto pública
 
 **Herramientas operativas**
+
 - ✅ Escanear código QR de collar (identificación de mascota)
 - ✅ Escanear microchip RFID (identificación vía chip)
 - ✅ Ver perfil público y datos del dueño (si mascota perdida)
 - ✅ Búsqueda de mascota por número de microchip
 
 **Límites**
+
 - ✗ Sin posición destacada en mapa
 - ✗ Sin badge "Clínica Verificada"
 - ✗ Sin estadísticas de escaneos
@@ -197,16 +213,19 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 **Todo lo de Básica, más:**
 
 **Visibilidad premium**
+
 - ✅ Posición **destacada** en mapa de clínicas
 - ✅ Badge "Clínica Verificada" en directorio y alertas
 - ✅ Logo de la clínica en **alertas de pérdida** cercanas
 - ✅ Banner en Case Rooms de pacientes activos
 
 **Analytics**
+
 - ✅ Estadísticas de escaneos mensuales
 - ✅ Métricas de visibilidad en directorio
 
 **Soporte**
+
 - ✅ Soporte prioritario por email
 - ✅ Capacitación de equipo (onboarding)
 
@@ -219,6 +238,7 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 **Todo lo de Plus, más:**
 
 **Certificación digital**
+
 - ✅ Emisión de **certificados veterinarios PDF** (QuestPDF)
   - Vacunación, examen general, desparasitación, esterilización
   - Código de verificación único (QR en documento)
@@ -226,11 +246,13 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
   - Firma digital de clínica y médico veterinario
 
 **Integraciones**
+
 - ✅ Widget embebible para sitio web propio
 - ✅ Acceso a API de consulta directa (microchip, perfil mascota)
 - ✅ Integración microchip RFID avanzada (lectores externos)
 
 **Soporte y visibilidad**
+
 - ✅ Soporte prioritario 24/7
 - ✅ Gerente de cuenta dedicado
 - ✅ Notificaciones en todos los Case Rooms del cantón
@@ -240,20 +262,20 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 
 ### Comparativa B2B Clínicas
 
-| Feature | Básica | Plus ₡15k | Partner ₡35k |
-|---|:---:|:---:|:---:|
-| Directorio público | ✅ | ✅ | ✅ |
-| Escanear QR / RFID | ✅ | ✅ | ✅ |
-| Búsqueda por microchip | ✅ | ✅ | ✅ |
-| Posición destacada en mapa | ✗ | ✅ | ✅ |
-| Badge "Clínica Verificada" | ✗ | ✅ | ✅ |
-| Logo en alertas de pérdida | ✗ | ✅ | ✅ |
-| Estadísticas de escaneos | ✗ | ✅ | ✅ |
-| Certificados PDF verificables | ✗ | ✗ | ✅ |
-| API de consulta directa | ✗ | ✗ | ✅ |
-| Widget embebible | ✗ | ✗ | ✅ |
-| Soporte prioritario | ✗ | Email | 24/7 + gerente |
-| Comisión patrocinador plataforma | ✗ | ✗ | ✅ |
+| Feature                          | Básica | Plus ₡15k |  Partner ₡35k  |
+| -------------------------------- | :----: | :-------: | :------------: |
+| Directorio público               |   ✅   |    ✅     |       ✅       |
+| Escanear QR / RFID               |   ✅   |    ✅     |       ✅       |
+| Búsqueda por microchip           |   ✅   |    ✅     |       ✅       |
+| Posición destacada en mapa       |   ✗    |    ✅     |       ✅       |
+| Badge "Clínica Verificada"       |   ✗    |    ✅     |       ✅       |
+| Logo en alertas de pérdida       |   ✗    |    ✅     |       ✅       |
+| Estadísticas de escaneos         |   ✗    |    ✅     |       ✅       |
+| Certificados PDF verificables    |   ✗    |     ✗     |       ✅       |
+| API de consulta directa          |   ✗    |     ✗     |       ✅       |
+| Widget embebible                 |   ✗    |     ✗     |       ✅       |
+| Soporte prioritario              |   ✗    |   Email   | 24/7 + gerente |
+| Comisión patrocinador plataforma |   ✗    |     ✗     |       ✅       |
 
 ---
 
@@ -265,18 +287,21 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 ### ✅ Aliado Verificado — Gratis
 
 **Proceso de incorporación**
+
 - Solicitud de verificación con datos de organización
 - Declaración de tipo: Veterinaria / Refugio / Comercio pet-friendly / Seguridad / Municipalidad
 - Mapa de cobertura con radio declarado
 - Aprobación manual por equipo PawTrack (1-2 días hábiles)
 
 **Herramientas operativas (tras verificación)**
+
 - ✅ Bandeja operativa de alertas dentro de la zona declarada
 - ✅ Dashboard KPI: alertas recibidas, tasa de respuesta, radio cubierto
 - ✅ Confirmación de acción en campo ("Ya buscamos en nuestra área")
 - ✅ Perfil en red de aliados (próximamente: directorio público)
 
 **Impacto en la plataforma**
+
 - ✅ Cada aliado amplifica el radio efectivo de búsqueda
 - ✅ Aliados con mayor tasa de respuesta reciben más alertas prioritarias
 
@@ -336,11 +361,11 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 
 > No es un plan de suscripción. Es un **ingreso por transacción** sobre bounties activos.
 
-| Evento | Cargo |
-|---|---|
-| Crear bounty (depósito SINPE) | Gratis |
+| Evento                                 | Cargo                              |
+| -------------------------------------- | ---------------------------------- |
+| Crear bounty (depósito SINPE)          | Gratis                             |
 | Liberación de recompensa al rescatador | **10% de comisión** sobre el monto |
-| Reembolso al dueño (sin entrega) | ₡1,000 cargo fijo |
+| Reembolso al dueño (sin entrega)       | ₡1,000 cargo fijo                  |
 
 **Ejemplo:** Dueño declara ₡25,000 de recompensa. Rescatador confirma entrega con HandoverCode. Rescatador recibe ₡22,500. PawTrack retiene ₡2,500.
 
@@ -348,11 +373,11 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 
 ## 6. Productos Físicos (e-commerce vía WhatsApp)
 
-| Producto | Precio estimado | Estado |
-|---|---|---|
-| Collar con placa QR grabada | ₡4,500–₡8,000 | MVP: botón → WhatsApp |
-| Placa QR standalone (llavero/sticker) | ₡1,500–₡2,500 | MVP: botón → WhatsApp |
-| Combo collar + placa + registro 1 año Plus | ₡14,990 | Planificado |
+| Producto                                   | Precio estimado | Estado                |
+| ------------------------------------------ | --------------- | --------------------- |
+| Collar con placa QR grabada                | ₡4,500–₡8,000   | MVP: botón → WhatsApp |
+| Placa QR standalone (llavero/sticker)      | ₡1,500–₡2,500   | MVP: botón → WhatsApp |
+| Combo collar + placa + registro 1 año Plus | ₡14,990         | Planificado           |
 
 ---
 
@@ -360,16 +385,16 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 
 > Basado en penetración de mercado costarricense en año 1.
 
-| Línea de ingreso | Objetivo usuarios | Precio | ARR estimado |
-|---|---|---|---|
-| Dueños Plus (₡2,990/mes) | 500 suscriptores | ₡2,990/mes | **₡17,940,000** |
-| Dueños Familia (₡4,990/mes) | 100 suscriptores | ₡4,990/mes | **₡5,988,000** |
-| Clínicas Plus (₡15k/mes) | 20 clínicas | ₡15,000/mes | **₡3,600,000** |
-| Clínicas Partner (₡35k/mes) | 5 clínicas | ₡35,000/mes | **₡2,100,000** |
-| Municipalidades (mix) | 5 contratos | ₡200,000 avg/año | **₡1,000,000** |
-| Bounties (comisión 10%) | 200 eventos | ₡2,500 avg | **₡500,000** |
-| Productos físicos | 300 ventas | ₡5,000 avg | **₡1,500,000** |
-| **TOTAL ARR** | | | **≈ ₡32,628,000** (~$62,746 USD) |
+| Línea de ingreso            | Objetivo usuarios | Precio           | ARR estimado                     |
+| --------------------------- | ----------------- | ---------------- | -------------------------------- |
+| Dueños Plus (₡2,990/mes)    | 500 suscriptores  | ₡2,990/mes       | **₡17,940,000**                  |
+| Dueños Familia (₡4,990/mes) | 100 suscriptores  | ₡4,990/mes       | **₡5,988,000**                   |
+| Clínicas Plus (₡15k/mes)    | 20 clínicas       | ₡15,000/mes      | **₡3,600,000**                   |
+| Clínicas Partner (₡35k/mes) | 5 clínicas        | ₡35,000/mes      | **₡2,100,000**                   |
+| Municipalidades (mix)       | 5 contratos       | ₡200,000 avg/año | **₡1,000,000**                   |
+| Bounties (comisión 10%)     | 200 eventos       | ₡2,500 avg       | **₡500,000**                     |
+| Productos físicos           | 300 ventas        | ₡5,000 avg       | **₡1,500,000**                   |
+| **TOTAL ARR**               |                   |                  | **≈ ₡32,628,000** (~$62,746 USD) |
 
 ---
 
@@ -401,38 +426,38 @@ Costa Rica tiene ~890,000 hogares con mascotas. La masa crítica de mascotas reg
 
 ## 9. Comparativa vs competidores globales
 
-| Feature | PawTrack CR | PawBoost | PetLink | FidoFinder |
-|---|---|---|---|---|
-| Precio base | Gratis | Gratis | Gratis | Gratis |
-| Radio de alertas | 3–∞ km según plan | Nacional (EE.UU.) | Nacional (EE.UU.) | Configurable |
-| WhatsApp nativo | ✅ | ✗ | ✗ | ✗ |
-| Bot conversacional | ✅ | ✗ | ✗ | ✗ |
-| SINPE Móvil | ✅ | ✗ | ✗ | ✗ |
-| Portal clínicas | ✅ | ✗ | Parcial | ✗ |
-| Portal municipalidades | ✅ | ✗ | ✗ | Parcial (shelters) |
-| Certificados PDF | ✅ (Partner) | ✗ | ✗ | ✗ |
-| GPS collar tab | ✅ (Plus+) | ✗ | $45.99 hardware | ✗ |
-| AI visual match | ✅ | ✗ | ✗ | ✅ (limitado) |
-| Sala coordinación | ✅ (Plus+) | ✗ | ✗ | ✗ |
-| Sistema bounty | ✅ (Plus+) | ✗ | ✗ | ✗ |
-| Red de aliados | ✅ | Rescue Squad | ✗ | Shelters |
-| Mercado objetivo | Costa Rica 🇨🇷 | EE.UU./Global | EE.UU. | EE.UU. |
-| Enfoque local LATAM | ✅ | ✗ | ✗ | ✗ |
+| Feature                | PawTrack CR       | PawBoost          | PetLink           | FidoFinder         |
+| ---------------------- | ----------------- | ----------------- | ----------------- | ------------------ |
+| Precio base            | Gratis            | Gratis            | Gratis            | Gratis             |
+| Radio de alertas       | 3–∞ km según plan | Nacional (EE.UU.) | Nacional (EE.UU.) | Configurable       |
+| WhatsApp nativo        | ✅                | ✗                 | ✗                 | ✗                  |
+| Bot conversacional     | ✅                | ✗                 | ✗                 | ✗                  |
+| SINPE Móvil            | ✅                | ✗                 | ✗                 | ✗                  |
+| Portal clínicas        | ✅                | ✗                 | Parcial           | ✗                  |
+| Portal municipalidades | ✅                | ✗                 | ✗                 | Parcial (shelters) |
+| Certificados PDF       | ✅ (Partner)      | ✗                 | ✗                 | ✗                  |
+| GPS collar tab         | ✅ (Plus+)        | ✗                 | $45.99 hardware   | ✗                  |
+| AI visual match        | ✅                | ✗                 | ✗                 | ✅ (limitado)      |
+| Sala coordinación      | ✅ (Plus+)        | ✗                 | ✗                 | ✗                  |
+| Sistema bounty         | ✅ (Plus+)        | ✗                 | ✗                 | ✗                  |
+| Red de aliados         | ✅                | Rescue Squad      | ✗                 | Shelters           |
+| Mercado objetivo       | Costa Rica 🇨🇷     | EE.UU./Global     | EE.UU.            | EE.UU.             |
+| Enfoque local LATAM    | ✅                | ✗                 | ✗                 | ✗                  |
 
 ---
 
 ## 10. Política de cambios y cancelación
 
-| Regla | Detalle |
-|---|---|
-| **Período de facturación** | Mensual, cobrado el primer día del ciclo |
-| **Cancelación** | En cualquier momento; acceso hasta fin del período pagado |
-| **Cambio de plan** | Inmediato; prorrateo automático |
-| **Prueba gratuita** | Plan Explorador siempre gratis — sin tarjeta |
-| **Reembolsos** | No aplica para períodos ya usados |
-| **Método de pago** | SINPE Móvil (activo) · Stripe (próximamente) |
+| Regla                      | Detalle                                                   |
+| -------------------------- | --------------------------------------------------------- |
+| **Período de facturación** | Mensual, cobrado el primer día del ciclo                  |
+| **Cancelación**            | En cualquier momento; acceso hasta fin del período pagado |
+| **Cambio de plan**         | Inmediato; prorrateo automático                           |
+| **Prueba gratuita**        | Plan Explorador siempre gratis — sin tarjeta              |
+| **Reembolsos**             | No aplica para períodos ya usados                         |
+| **Método de pago**         | SINPE Móvil (activo) · Stripe (próximamente)              |
 
 ---
 
-*PawTrack CR · alianzas@pawtrack.cr · pawtrack.cr*  
-*Precios en colones costarricenses (₡). Sujetos a cambio con 30 días de aviso previo.*
+_PawTrack CR · alianzas@pawtrack.cr · pawtrack.cr_  
+_Precios en colones costarricenses (₡). Sujetos a cambio con 30 días de aviso previo._

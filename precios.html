@@ -1,0 +1,2766 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>PawTrack CR — Estrategia de Precios 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --brand: #e8521e;
+        --brand-dark: #9e300c;
+        --brand-mid: #c43f10;
+        --gold: #c89000;
+        --gold-light: #fff3cc;
+        --rescue: #17a26d;
+        --rescue-bg: #f0fdf6;
+        --trust: #0c1a4e;
+        --trust-mid: #1a3484;
+        --sand: #fdfcf9;
+        --sand-2: #f9f5ef;
+        --sand-3: #e2d3c4;
+        --ink: #352823;
+        --ink-2: #6e5244;
+        --white: #ffffff;
+        --radius: 16px;
+        --r-sm: 8px;
+        --shadow-card:
+          0 2px 12px rgba(53, 40, 35, 0.08), 0 8px 32px rgba(53, 40, 35, 0.06);
+        --shadow-lg: 0 20px 60px rgba(53, 40, 35, 0.14);
+        --font-d: "Fraunces", Georgia, serif;
+        --font-b: "Plus Jakarta Sans", system-ui, sans-serif;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        font-size: 16px;
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: var(--font-b);
+        background: var(--sand);
+        color: var(--ink);
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ── Scrollbar ── */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--sand-2);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--sand-3);
+        border-radius: 3px;
+      }
+
+      /* ── Nav ── */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(253, 252, 249, 0.92);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--sand-3);
+        padding: 0.75rem 2rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+      }
+
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-family: var(--font-d);
+        font-weight: 700;
+        font-size: 1.15rem;
+        color: var(--brand-dark);
+        text-decoration: none;
+      }
+
+      .nav-brand .paw {
+        font-size: 1.4rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1.5rem;
+        list-style: none;
+        margin-left: auto;
+      }
+
+      .nav-links a {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--ink-2);
+        text-decoration: none;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        transition: color 0.2s;
+      }
+
+      .nav-links a:hover {
+        color: var(--brand);
+      }
+
+      /* ── Layout ── */
+      .container {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+      .section {
+        padding: 5rem 0;
+      }
+      .section-alt {
+        background: var(--sand-2);
+      }
+
+      /* ── Hero ── */
+      .hero {
+        background: var(--trust);
+        color: var(--white);
+        padding: 6rem 2rem 5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse 70% 60% at 20% 80%,
+            rgba(232, 82, 30, 0.18) 0%,
+            transparent 70%
+          ),
+          radial-gradient(
+            ellipse 50% 50% at 80% 20%,
+            rgba(23, 162, 109, 0.12) 0%,
+            transparent 60%
+          );
+      }
+
+      .hero-paws {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .hero-paws span {
+        position: absolute;
+        font-size: 1.5rem;
+        opacity: 0.07;
+        animation: float-up linear infinite;
+      }
+
+      @keyframes float-up {
+        from {
+          transform: translateY(120%) rotate(0deg);
+          opacity: 0;
+        }
+        10% {
+          opacity: 0.07;
+        }
+        90% {
+          opacity: 0.07;
+        }
+        to {
+          transform: translateY(-20%) rotate(360deg);
+          opacity: 0;
+        }
+      }
+
+      .hero-paws span:nth-child(1) {
+        left: 5%;
+        animation-duration: 9s;
+        animation-delay: 0s;
+      }
+      .hero-paws span:nth-child(2) {
+        left: 18%;
+        animation-duration: 12s;
+        animation-delay: 2s;
+        font-size: 0.9rem;
+      }
+      .hero-paws span:nth-child(3) {
+        left: 32%;
+        animation-duration: 7s;
+        animation-delay: 1s;
+        font-size: 2rem;
+      }
+      .hero-paws span:nth-child(4) {
+        left: 48%;
+        animation-duration: 11s;
+        animation-delay: 4s;
+      }
+      .hero-paws span:nth-child(5) {
+        left: 63%;
+        animation-duration: 8s;
+        animation-delay: 3s;
+        font-size: 1rem;
+      }
+      .hero-paws span:nth-child(6) {
+        left: 78%;
+        animation-duration: 14s;
+        animation-delay: 0.5s;
+        font-size: 1.8rem;
+      }
+      .hero-paws span:nth-child(7) {
+        left: 90%;
+        animation-duration: 10s;
+        animation-delay: 6s;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 100px;
+        padding: 0.35rem 1rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 1.5rem;
+      }
+
+      .hero h1 {
+        font-family: var(--font-d);
+        font-size: clamp(2.6rem, 6vw, 5rem);
+        font-weight: 900;
+        line-height: 1.05;
+        margin-bottom: 1.25rem;
+        letter-spacing: -0.03em;
+      }
+
+      .hero h1 em {
+        font-style: italic;
+        color: var(--brand);
+      }
+
+      .hero-sub {
+        font-size: 1.05rem;
+        color: rgba(255, 255, 255, 0.7);
+        max-width: 580px;
+        margin: 0 auto 2.5rem;
+      }
+
+      .hero-meta {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .hero-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .hero-meta-item strong {
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      /* ── Section headers ── */
+      .section-label {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--brand);
+        background: rgba(232, 82, 30, 0.1);
+        border-radius: 100px;
+        padding: 0.3rem 0.85rem;
+        margin-bottom: 1rem;
+      }
+
+      .section-title {
+        font-family: var(--font-d);
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        font-weight: 700;
+        line-height: 1.12;
+        letter-spacing: -0.025em;
+        color: var(--trust);
+        margin-bottom: 0.75rem;
+      }
+
+      .section-title em {
+        font-style: italic;
+        color: var(--brand);
+      }
+
+      .section-desc {
+        font-size: 1rem;
+        color: var(--ink-2);
+        max-width: 560px;
+      }
+
+      .section-header {
+        margin-bottom: 3rem;
+      }
+
+      /* ── Plan cards grid ── */
+      .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        align-items: start;
+      }
+
+      /* ── Plan card ── */
+      .plan-card {
+        background: var(--white);
+        border: 2px solid var(--sand-3);
+        border-radius: var(--radius);
+        padding: 2rem;
+        position: relative;
+        box-shadow: var(--shadow-card);
+        transition:
+          transform 0.22s ease,
+          box-shadow 0.22s ease;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .plan-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      .plan-card.featured {
+        border-color: var(--brand);
+        background: #fff8f4;
+      }
+
+      .plan-card.premium {
+        border-color: var(--rescue);
+        background: var(--rescue-bg);
+      }
+
+      .plan-card.gold {
+        border-color: var(--gold);
+        background: #fffdf0;
+      }
+
+      .plan-card.dark {
+        background: var(--trust);
+        border-color: var(--trust-mid);
+        color: var(--white);
+      }
+
+      .plan-badge {
+        position: absolute;
+        top: -1px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--brand);
+        color: var(--white);
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.25rem 0.75rem;
+        border-radius: 0 0 var(--r-sm) var(--r-sm);
+      }
+
+      .plan-badge.green {
+        background: var(--rescue);
+      }
+      .plan-badge.gold-b {
+        background: var(--gold);
+      }
+
+      .plan-icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+        display: block;
+      }
+
+      .plan-name {
+        font-family: var(--font-d);
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--trust);
+        margin-bottom: 0.25rem;
+      }
+
+      .plan-card.dark .plan-name {
+        color: var(--white);
+      }
+
+      .plan-tagline {
+        font-size: 0.85rem;
+        color: var(--ink-2);
+        margin-bottom: 1.25rem;
+        font-style: italic;
+      }
+
+      .plan-card.dark .plan-tagline {
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .plan-price {
+        margin-bottom: 1.5rem;
+      }
+
+      .plan-amount {
+        font-family: var(--font-d);
+        font-size: 2.4rem;
+        font-weight: 900;
+        color: var(--ink);
+        letter-spacing: -0.04em;
+        line-height: 1;
+      }
+
+      .plan-card.featured .plan-amount {
+        color: var(--brand-dark);
+      }
+      .plan-card.premium .plan-amount {
+        color: var(--rescue);
+      }
+      .plan-card.gold .plan-amount {
+        color: var(--gold);
+      }
+      .plan-card.dark .plan-amount {
+        color: var(--white);
+      }
+
+      .plan-amount sup {
+        font-size: 1.1rem;
+        vertical-align: super;
+        font-weight: 500;
+      }
+
+      .plan-period {
+        font-size: 0.78rem;
+        color: var(--ink-2);
+        font-weight: 500;
+        margin-top: 0.2rem;
+      }
+
+      .plan-card.dark .plan-period {
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      .plan-usd {
+        font-size: 0.72rem;
+        color: var(--ink-2);
+        margin-top: 0.2rem;
+      }
+
+      .plan-card.dark .plan-usd {
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      .plan-divider {
+        border: none;
+        border-top: 1px solid var(--sand-3);
+        margin-bottom: 1.25rem;
+      }
+
+      .plan-card.dark .plan-divider {
+        border-top-color: rgba(255, 255, 255, 0.12);
+      }
+
+      .plan-features {
+        list-style: none;
+        flex: 1;
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .plan-features li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        line-height: 1.45;
+        color: var(--ink);
+      }
+
+      .plan-card.dark .plan-features li {
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .plan-features li.no {
+        color: var(--ink-2);
+        opacity: 0.6;
+      }
+      .plan-card.dark .plan-features li.no {
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      .feat-check {
+        flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        margin-top: 0.12rem;
+        font-weight: 700;
+      }
+
+      .feat-yes {
+        background: rgba(23, 162, 109, 0.15);
+        color: var(--rescue);
+      }
+
+      .plan-card.featured .feat-yes {
+        background: rgba(232, 82, 30, 0.15);
+        color: var(--brand-mid);
+      }
+      .plan-card.dark .feat-yes {
+        background: rgba(23, 162, 109, 0.25);
+        color: #6fd7ae;
+      }
+      .plan-card.gold .feat-yes {
+        background: rgba(200, 144, 0, 0.15);
+        color: var(--gold);
+      }
+
+      .feat-no {
+        background: rgba(0, 0, 0, 0.06);
+        color: var(--ink-2);
+      }
+
+      .plan-card.dark .feat-no {
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      .plan-cta {
+        display: block;
+        text-align: center;
+        padding: 0.8rem 1.5rem;
+        border-radius: var(--r-sm);
+        font-weight: 700;
+        font-size: 0.88rem;
+        text-decoration: none;
+        transition: all 0.18s;
+        cursor: pointer;
+        border: none;
+        width: 100%;
+      }
+
+      .cta-ghost {
+        background: transparent;
+        border: 2px solid var(--sand-3);
+        color: var(--ink-2);
+      }
+
+      .cta-ghost:hover {
+        border-color: var(--ink-2);
+        color: var(--ink);
+      }
+
+      .cta-brand {
+        background: var(--brand);
+        color: var(--white);
+      }
+
+      .cta-brand:hover {
+        background: var(--brand-mid);
+      }
+
+      .cta-green {
+        background: var(--rescue);
+        color: var(--white);
+      }
+
+      .cta-green:hover {
+        background: #108253;
+      }
+
+      .cta-gold {
+        background: var(--gold);
+        color: var(--white);
+      }
+
+      .cta-gold:hover {
+        background: #a07000;
+      }
+
+      .cta-white {
+        background: var(--white);
+        color: var(--trust);
+      }
+
+      .cta-white:hover {
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      /* ── Section header with line ── */
+      .section-rule {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+      }
+
+      .section-rule::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--sand-3);
+      }
+
+      /* ── Comparison table ── */
+      .comp-table-wrap {
+        overflow-x: auto;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-card);
+        border: 1px solid var(--sand-3);
+      }
+
+      .comp-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        background: var(--white);
+      }
+
+      .comp-table thead tr {
+        background: var(--trust);
+        color: var(--white);
+      }
+
+      .comp-table thead th {
+        padding: 1.1rem 1rem;
+        text-align: left;
+        font-weight: 700;
+        font-size: 0.78rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .comp-table thead th:first-child {
+        text-align: left;
+      }
+
+      .comp-table tbody tr:nth-child(even) td {
+        background: var(--sand-2);
+      }
+
+      .comp-table tbody tr:hover td {
+        background: rgba(232, 82, 30, 0.05);
+      }
+
+      .comp-table td {
+        padding: 0.8rem 1rem;
+        border-bottom: 1px solid var(--sand-3);
+        color: var(--ink);
+        vertical-align: middle;
+      }
+
+      .comp-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .comp-table td:first-child {
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      .col-free {
+        background: rgba(0, 0, 0, 0.02) !important;
+      }
+      .col-plus {
+        background: rgba(232, 82, 30, 0.04) !important;
+      }
+      .col-familia {
+        background: rgba(23, 162, 109, 0.04) !important;
+      }
+
+      .tcheck {
+        color: var(--rescue);
+        font-weight: 700;
+        font-size: 1rem;
+      }
+      .tcross {
+        color: var(--sand-3);
+        font-size: 1.1rem;
+      }
+
+      .col-highlight {
+        border-left: 3px solid var(--brand) !important;
+        border-right: 3px solid var(--brand) !important;
+      }
+
+      .th-highlight {
+        background: var(--brand) !important;
+      }
+
+      /* ── Revenue callout ── */
+      .revenue-block {
+        background: var(--trust);
+        border-radius: var(--radius);
+        padding: 3rem;
+        color: var(--white);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .revenue-block::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse 60% 80% at 0% 100%,
+            rgba(232, 82, 30, 0.2) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse 40% 60% at 100% 0%,
+            rgba(23, 162, 109, 0.15) 0%,
+            transparent 50%
+          );
+      }
+
+      .revenue-block > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      .revenue-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1.25rem;
+        margin-top: 2rem;
+      }
+
+      .revenue-row {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--r-sm);
+        padding: 1.1rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .rev-line {
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .rev-amount {
+        font-family: var(--font-d);
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--white);
+      }
+      .rev-detail {
+        font-size: 0.72rem;
+        color: rgba(255, 255, 255, 0.45);
+      }
+
+      .revenue-total {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        display: flex;
+        align-items: baseline;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .rev-total-label {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .rev-total-amount {
+        font-family: var(--font-d);
+        font-size: 3rem;
+        font-weight: 900;
+        color: var(--brand);
+        line-height: 1;
+        letter-spacing: -0.04em;
+      }
+
+      .rev-total-usd {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      /* ── Info cards ── */
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1.25rem;
+      }
+
+      .info-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        padding: 1.75rem;
+        border: 1px solid var(--sand-3);
+        box-shadow: var(--shadow-card);
+      }
+
+      .info-card-icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .info-card h4 {
+        font-family: var(--font-d);
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--trust);
+        margin-bottom: 0.5rem;
+      }
+
+      .info-card p {
+        font-size: 0.85rem;
+        color: var(--ink-2);
+        line-height: 1.6;
+      }
+
+      /* ── Bounty block ── */
+      .bounty-card {
+        background: var(--white);
+        border: 2px solid var(--brand);
+        border-radius: var(--radius);
+        padding: 2rem;
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+        flex-wrap: wrap;
+        box-shadow: 0 0 0 6px rgba(232, 82, 30, 0.06);
+      }
+
+      .bounty-left {
+        flex: 1;
+        min-width: 220px;
+      }
+
+      .bounty-example {
+        background: var(--sand-2);
+        border-radius: var(--r-sm);
+        padding: 1.25rem;
+        font-size: 0.85rem;
+        flex: 1;
+        min-width: 220px;
+      }
+
+      .bounty-example h5 {
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        color: var(--trust);
+      }
+
+      .bounty-flow {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+
+      .bflow-step {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .bflow-num {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--brand);
+        color: var(--white);
+        font-size: 0.65rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .bflow-text {
+        font-size: 0.82rem;
+        color: var(--ink-2);
+      }
+      .bflow-text strong {
+        color: var(--ink);
+      }
+
+      /* ── Products table ── */
+      .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1rem;
+      }
+
+      .product-card {
+        background: var(--white);
+        border: 1px solid var(--sand-3);
+        border-radius: var(--r-sm);
+        padding: 1.25rem;
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+        box-shadow: var(--shadow-card);
+      }
+
+      .product-card .icon {
+        font-size: 1.75rem;
+      }
+
+      .product-card h5 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--trust);
+        margin-bottom: 0.25rem;
+      }
+      .product-card p {
+        font-size: 0.8rem;
+        color: var(--ink-2);
+      }
+      .product-price {
+        font-family: var(--font-d);
+        font-weight: 700;
+        color: var(--brand);
+        font-size: 1.05rem;
+        margin-top: 0.4rem;
+      }
+
+      /* ── Market segment ── */
+      .segment-block {
+        background: var(--trust);
+        color: var(--white);
+        border-radius: var(--radius);
+        padding: 2rem 2.5rem;
+        font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+        font-size: 0.85rem;
+        line-height: 1.8;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .segment-block::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse at 90% 10%,
+          rgba(23, 162, 109, 0.15) 0%,
+          transparent 50%
+        );
+      }
+
+      .segment-block pre {
+        position: relative;
+        z-index: 1;
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      .segment-block .s-num {
+        color: #6fd7ae;
+        font-weight: 700;
+      }
+      .segment-block .s-label {
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      /* ── Policy table ── */
+      .policy-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+      }
+
+      .policy-table td {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--sand-3);
+        vertical-align: top;
+      }
+
+      .policy-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .policy-table td:first-child {
+        font-weight: 700;
+        color: var(--trust);
+        width: 200px;
+        white-space: nowrap;
+      }
+
+      /* ── Competitor table ── */
+      .vs-table-wrap {
+        overflow-x: auto;
+        border-radius: var(--radius);
+        border: 1px solid var(--sand-3);
+        box-shadow: var(--shadow-card);
+      }
+
+      .vs-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.82rem;
+        background: var(--white);
+      }
+
+      .vs-table thead tr {
+        background: var(--trust);
+        color: var(--white);
+      }
+      .vs-table thead th {
+        padding: 0.9rem 0.75rem;
+        font-weight: 700;
+        font-size: 0.72rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .vs-table tbody td {
+        padding: 0.7rem 0.75rem;
+        border-bottom: 1px solid var(--sand-3);
+        color: var(--ink);
+      }
+      .vs-table tbody td:first-child {
+        font-weight: 600;
+      }
+      .vs-table tbody tr:nth-child(even) td {
+        background: var(--sand-2);
+      }
+      .vs-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .vs-table .col-pawtrack {
+        background: rgba(232, 82, 30, 0.06) !important;
+        border-left: 3px solid var(--brand);
+      }
+      .vs-table thead .col-pawtrack {
+        background: var(--brand) !important;
+      }
+
+      /* ── Footer ── */
+      footer {
+        background: var(--ink);
+        color: rgba(255, 255, 255, 0.5);
+        text-align: center;
+        padding: 2rem;
+        font-size: 0.8rem;
+        line-height: 1.8;
+      }
+
+      footer a {
+        color: var(--brand);
+        text-decoration: none;
+      }
+      footer strong {
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      /* ── Utilities ── */
+      .text-brand {
+        color: var(--brand);
+      }
+      .text-rescue {
+        color: var(--rescue);
+      }
+      .text-gold {
+        color: var(--gold);
+      }
+      .text-trust {
+        color: var(--trust);
+      }
+      .text-muted {
+        color: var(--ink-2);
+      }
+
+      .mt-1 {
+        margin-top: 0.5rem;
+      }
+      .mt-2 {
+        margin-top: 1rem;
+      }
+      .mt-3 {
+        margin-top: 1.5rem;
+      }
+      .mt-4 {
+        margin-top: 2rem;
+      }
+
+      .mb-1 {
+        margin-bottom: 0.5rem;
+      }
+      .mb-2 {
+        margin-bottom: 1rem;
+      }
+
+      .bold {
+        font-weight: 700;
+      }
+      .font-d {
+        font-family: var(--font-d);
+      }
+
+      /* Highlight tag */
+      .hl {
+        display: inline-block;
+        background: rgba(232, 82, 30, 0.1);
+        color: var(--brand-dark);
+        border-radius: 4px;
+        padding: 0 0.4em;
+        font-weight: 700;
+        font-size: 0.9em;
+      }
+
+      /* ── Animation on scroll ── */
+      @keyframes fade-up {
+        from {
+          opacity: 0;
+          transform: translateY(24px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate {
+        opacity: 0;
+      }
+      .animate.visible {
+        animation: fade-up 0.5s ease forwards;
+      }
+
+      /* ── Responsive ── */
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+        }
+        .section {
+          padding: 3.5rem 0;
+        }
+        .hero {
+          padding: 4rem 1.5rem 3rem;
+        }
+        .container {
+          padding: 0 1.25rem;
+        }
+        .revenue-block {
+          padding: 2rem;
+        }
+        .comp-table thead th:not(:first-child):not(.th-highlight) {
+          display: none;
+        }
+        .bounty-card {
+          flex-direction: column;
+        }
+      }
+
+      @media print {
+        nav {
+          display: none;
+        }
+        .hero::before,
+        .hero-paws {
+          display: none;
+        }
+        .animate {
+          opacity: 1 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Nav -->
+    <nav>
+      <a href="#" class="nav-brand"><span class="paw">🐾</span> PawTrack CR</a>
+      <ul class="nav-links">
+        <li><a href="#b2c">Dueños</a></li>
+        <li><a href="#clinicas">Clínicas</a></li>
+        <li><a href="#aliados">Aliados</a></li>
+        <li><a href="#municipal">Municipalidades</a></li>
+        <li><a href="#bounties">Bounties</a></li>
+        <li><a href="#proyeccion">Proyección</a></li>
+        <li><a href="#competidores">Competidores</a></li>
+      </ul>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-paws" aria-hidden="true">
+        <span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span>
+        <span>🐾</span><span>🐾</span><span>🐾</span>
+      </div>
+      <div class="hero-content container">
+        <div class="hero-badge">
+          <span>📋</span> Estrategia de Precios · Versión 2026
+        </div>
+        <h1>Protege a tu mascota.<br /><em>Desde ₡0.</em></h1>
+        <p class="hero-sub">
+          PawTrack CR · La única plataforma de recuperación de mascotas con
+          WhatsApp nativo, SINPE Móvil y red comunitaria para Costa Rica.
+        </p>
+        <div class="hero-meta">
+          <div class="hero-meta-item">
+            💰 <span>Referencia: <strong>~₡520 / USD</strong></span>
+          </div>
+          <div class="hero-meta-item">
+            🇨🇷 <span>Mercado: <strong>890,000 hogares CR</strong></span>
+          </div>
+          <div class="hero-meta-item">
+            📅 <span>Moneda: <strong>Colones costarricenses</strong></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Segmentos -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header animate">
+          <span class="section-label">Segmentos de mercado</span>
+          <h2 class="section-title">Cuatro líneas de<br /><em>negocio</em></h2>
+        </div>
+        <div class="info-grid">
+          <div class="info-card animate">
+            <div class="info-card-icon">👤</div>
+            <h4>B2C — Dueños de mascotas</h4>
+            <p>
+              ~890,000 hogares en Costa Rica con mascotas. Planes Explorador
+              (gratis), Plus y Familia.
+            </p>
+          </div>
+          <div class="info-card animate">
+            <div class="info-card-icon">🏥</div>
+            <h4>B2B — Clínicas veterinarias</h4>
+            <p>
+              ~600 clínicas activas en CR. Herramientas de escaneo, certificados
+              PDF y visibilidad en alertas.
+            </p>
+          </div>
+          <div class="info-card animate">
+            <div class="info-card-icon">🤝</div>
+            <h4>B2B — Red de aliados</h4>
+            <p>
+              ~200 organizaciones (refugios, comercios, seguridad privada).
+              Acceso gratuito · verificación requerida.
+            </p>
+          </div>
+          <div class="info-card animate">
+            <div class="info-card-icon">🏛️</div>
+            <h4>B2G — Municipalidades</h4>
+            <p>
+              82 cantones de Costa Rica. Portal de control animal, gestión de
+              capturados y estadísticas por barrio.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- B2C -->
+    <section class="section section-alt" id="b2c">
+      <div class="container">
+        <div class="section-header animate">
+          <span class="section-label">Planes B2C</span>
+          <h2 class="section-title">Para dueños de<br /><em>mascotas</em></h2>
+          <p class="section-desc mt-2">
+            La masa crítica de mascotas registradas es el motor de la
+            plataforma. Un plan gratuito robusto genera crecimiento orgánico que
+            multiplica el valor de los planes pagos.
+          </p>
+        </div>
+
+        <div class="plans-grid">
+          <!-- Explorador -->
+          <div class="plan-card animate">
+            <span class="plan-icon">📦</span>
+            <div class="plan-name">Explorador</div>
+            <div class="plan-tagline">
+              Para quienes dan sus primeros pasos en la protección digital.
+            </div>
+            <div class="plan-price">
+              <div class="plan-amount">Gratis</div>
+              <div class="plan-period">Siempre gratuito · Sin tarjeta</div>
+            </div>
+            <hr class="plan-divider" />
+            <ul class="plan-features">
+              <li>
+                <span class="feat-check feat-yes">✓</span> 1 mascota registrada
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Placa QR de identidad
+                digital
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Perfil público con
+                foto, raza, especie
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Registro de microchip
+                RFID (ISO 11784)
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Historial de
+                escaneos: últimos 5
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Reporte de pérdida
+                con GPS + foto
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Búsqueda IA por foto
+                (3/mes)
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Alertas en radio de 3
+                km
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Acceso al mapa
+                público
+              </li>
+              <li class="no">
+                <span class="feat-check feat-no">✗</span> Solo 1 mascota
+              </li>
+              <li class="no">
+                <span class="feat-check feat-no">✗</span> Sin alertas WhatsApp
+                instantáneas
+              </li>
+              <li class="no">
+                <span class="feat-check feat-no">✗</span> Sin predicción de
+                movimiento IA
+              </li>
+              <li class="no">
+                <span class="feat-check feat-no">✗</span> Sin sala de
+                coordinación activa
+              </li>
+            </ul>
+            <a href="#" class="plan-cta cta-ghost">Empezar gratis</a>
+          </div>
+
+          <!-- Plus -->
+          <div class="plan-card featured animate">
+            <div class="plan-badge">⭐ Más popular</div>
+            <span class="plan-icon">🌟</span>
+            <div class="plan-name text-brand-dark">Plus</div>
+            <div class="plan-tagline">
+              Para dueños activos que quieren máxima velocidad de recuperación.
+            </div>
+            <div class="plan-price">
+              <div class="plan-amount"><sup>₡</sup>2,990</div>
+              <div class="plan-period">por mes</div>
+              <div class="plan-usd">~$5.75 USD · Menos que Netflix 3×</div>
+            </div>
+            <hr class="plan-divider" />
+            <ul class="plan-features">
+              <li>
+                <span class="feat-check feat-yes">✓</span>
+                <strong>Todo lo del plan Explorador</strong>
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Hasta
+                <strong>3 mascotas</strong> registradas
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Historial de escaneos
+                <strong>ilimitado</strong>
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Radio de alertas
+                ampliado: <strong>10 km</strong>
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Alertas instantáneas
+                por <strong>WhatsApp</strong>
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Búsqueda IA por foto
+                — <strong>ilimitada</strong>
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Predicción de
+                movimiento por IA
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Sala de coordinación
+                activa (Case Room)
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Tab GPS · Collar en
+                tiempo real
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Sistema de recompensa
+                (Bounty)
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> 3D Radar de búsqueda
+              </li>
+            </ul>
+            <a href="#" class="plan-cta cta-brand">Activar Plus</a>
+          </div>
+
+          <!-- Familia -->
+          <div class="plan-card premium animate">
+            <span class="plan-icon">👨‍👩‍👧‍👦</span>
+            <div class="plan-name" style="color: var(--rescue)">Familia</div>
+            <div class="plan-tagline">
+              Para familias con varias mascotas o que necesitan acceso
+              compartido.
+            </div>
+            <div class="plan-price">
+              <div class="plan-amount" style="color: var(--rescue)">
+                <sup>₡</sup>4,990
+              </div>
+              <div class="plan-period">por mes</div>
+              <div class="plan-usd">~$9.60 USD</div>
+            </div>
+            <hr class="plan-divider" />
+            <ul class="plan-features">
+              <li>
+                <span class="feat-check feat-yes">✓</span>
+                <strong>Todo lo del plan Plus</strong>
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Mascotas
+                <strong>ilimitadas</strong>
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Multi-usuario: hasta
+                <strong>5 miembros</strong>
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Radio de alertas
+                <strong>sin límite geográfico</strong>
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Registro de vacunas y
+                desparasitación
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Registro de visitas
+                veterinarias
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Recordatorios
+                automáticos
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Exportar historial
+                médico en <strong>PDF</strong>
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Push en todos los
+                dispositivos familiares
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Soporte prioritario
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Acceso anticipado a
+                nuevas features
+              </li>
+            </ul>
+            <a href="#" class="plan-cta cta-green">Activar Familia</a>
+          </div>
+        </div>
+
+        <!-- Comparativa B2C -->
+        <div class="mt-4 animate">
+          <div class="section-rule">
+            <span class="section-label">Comparativa B2C</span>
+          </div>
+          <div class="comp-table-wrap">
+            <table class="comp-table">
+              <thead>
+                <tr>
+                  <th>Feature</th>
+                  <th class="col-free">Explorador</th>
+                  <th class="th-highlight col-highlight">Plus ₡2,990</th>
+                  <th>Familia ₡4,990</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Mascotas</td>
+                  <td class="col-free">1</td>
+                  <td class="col-highlight">3</td>
+                  <td>Ilimitadas</td>
+                </tr>
+                <tr>
+                  <td>Historial escaneos</td>
+                  <td class="col-free">Últimos 5</td>
+                  <td class="col-highlight col-plus">Ilimitado</td>
+                  <td>Ilimitado</td>
+                </tr>
+                <tr>
+                  <td>Radio alertas</td>
+                  <td class="col-free">3 km</td>
+                  <td class="col-highlight col-plus">10 km</td>
+                  <td>Sin límite</td>
+                </tr>
+                <tr>
+                  <td>WhatsApp instantáneo</td>
+                  <td class="col-free"><span class="tcross">—</span></td>
+                  <td class="col-highlight"><span class="tcheck">✓</span></td>
+                  <td><span class="tcheck">✓</span></td>
+                </tr>
+                <tr>
+                  <td>Búsqueda IA por foto</td>
+                  <td class="col-free">3/mes</td>
+                  <td class="col-highlight col-plus">Ilimitada</td>
+                  <td>Ilimitada</td>
+                </tr>
+                <tr>
+                  <td>Predicción movimiento IA</td>
+                  <td class="col-free"><span class="tcross">—</span></td>
+                  <td class="col-highlight"><span class="tcheck">✓</span></td>
+                  <td><span class="tcheck">✓</span></td>
+                </tr>
+                <tr>
+                  <td>Case Room (coordinación)</td>
+                  <td class="col-free"><span class="tcross">—</span></td>
+                  <td class="col-highlight"><span class="tcheck">✓</span></td>
+                  <td><span class="tcheck">✓</span></td>
+                </tr>
+                <tr>
+                  <td>GPS collar (tab)</td>
+                  <td class="col-free"><span class="tcross">—</span></td>
+                  <td class="col-highlight"><span class="tcheck">✓</span></td>
+                  <td><span class="tcheck">✓</span></td>
+                </tr>
+                <tr>
+                  <td>Sistema Bounty</td>
+                  <td class="col-free"><span class="tcross">—</span></td>
+                  <td class="col-highlight"><span class="tcheck">✓</span></td>
+                  <td><span class="tcheck">✓</span></td>
+                </tr>
+                <tr>
+                  <td>Multi-usuario</td>
+                  <td class="col-free"><span class="tcross">—</span></td>
+                  <td class="col-highlight"><span class="tcross">—</span></td>
+                  <td><span class="tcheck">✓ (5)</span></td>
+                </tr>
+                <tr>
+                  <td>Historial médico + PDF</td>
+                  <td class="col-free"><span class="tcross">—</span></td>
+                  <td class="col-highlight"><span class="tcross">—</span></td>
+                  <td><span class="tcheck">✓</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Clínicas -->
+    <section class="section" id="clinicas">
+      <div class="container">
+        <div class="section-header animate">
+          <span class="section-label">Planes B2B</span>
+          <h2 class="section-title">
+            Para clínicas<br /><em>veterinarias</em>
+          </h2>
+          <p class="section-desc mt-2">
+            Facturación mensual · Sin permanencia mínima · Clínica = entidad
+            SENASA registrada.
+          </p>
+        </div>
+
+        <div class="plans-grid">
+          <!-- Básica -->
+          <div class="plan-card animate">
+            <span class="plan-icon">🏥</span>
+            <div class="plan-name">Afiliada Básica</div>
+            <div class="plan-tagline">
+              Para clínicas que quieren aparecer en el directorio y escanear
+              pacientes.
+            </div>
+            <div class="plan-price">
+              <div class="plan-amount">Gratis</div>
+              <div class="plan-period">Siempre disponible</div>
+            </div>
+            <hr class="plan-divider" />
+            <ul class="plan-features">
+              <li>
+                <span class="feat-check feat-yes">✓</span> Perfil en directorio
+                público
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Escanear QR de collar
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Escanear microchip
+                RFID
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Ver perfil público +
+                datos del dueño
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Búsqueda por número
+                de microchip
+              </li>
+              <li class="no">
+                <span class="feat-check feat-no">✗</span> Sin posición destacada
+                en mapa
+              </li>
+              <li class="no">
+                <span class="feat-check feat-no">✗</span> Sin badge "Clínica
+                Verificada"
+              </li>
+              <li class="no">
+                <span class="feat-check feat-no">✗</span> Sin estadísticas de
+                escaneos
+              </li>
+              <li class="no">
+                <span class="feat-check feat-no">✗</span> Sin certificados PDF
+              </li>
+            </ul>
+            <a href="#" class="plan-cta cta-ghost">Registrar clínica</a>
+          </div>
+
+          <!-- Clínica Plus -->
+          <div class="plan-card featured animate">
+            <div class="plan-badge">Recomendado</div>
+            <span class="plan-icon">⭐</span>
+            <div class="plan-name">Clínica Plus</div>
+            <div class="plan-tagline">
+              Para clínicas que buscan diferenciarse y captar nuevos clientes.
+            </div>
+            <div class="plan-price">
+              <div class="plan-amount"><sup>₡</sup>15,000</div>
+              <div class="plan-period">por mes</div>
+              <div class="plan-usd">~$29 USD · ROI en 1 cliente nuevo</div>
+            </div>
+            <hr class="plan-divider" />
+            <ul class="plan-features">
+              <li>
+                <span class="feat-check feat-yes">✓</span>
+                <strong>Todo lo de Básica</strong>
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Posición
+                <strong>destacada</strong> en mapa
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Badge
+                <strong>"Clínica Verificada"</strong>
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Logo en alertas de
+                pérdida cercanas
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Banner en Case Rooms
+                de pacientes
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Estadísticas de
+                escaneos mensuales
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Métricas de
+                visibilidad en directorio
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Soporte prioritario
+                por email
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Capacitación de
+                equipo
+              </li>
+            </ul>
+            <a href="#" class="plan-cta cta-brand">Activar Plus</a>
+          </div>
+
+          <!-- Clínica Partner -->
+          <div class="plan-card gold animate">
+            <div class="plan-badge gold-b">🏆 Premium</div>
+            <span class="plan-icon">🤝</span>
+            <div class="plan-name text-gold">Clínica Partner</div>
+            <div class="plan-tagline">
+              Para clínicas líderes que quieren máximo retorno y herramientas
+              avanzadas.
+            </div>
+            <div class="plan-price">
+              <div class="plan-amount text-gold"><sup>₡</sup>35,000</div>
+              <div class="plan-period">por mes</div>
+              <div class="plan-usd">~$67 USD</div>
+            </div>
+            <hr class="plan-divider" />
+            <ul class="plan-features">
+              <li>
+                <span
+                  class="feat-check feat-yes"
+                  style="
+                    background: rgba(200, 144, 0, 0.15);
+                    color: var(--gold);
+                  "
+                  >✓</span
+                >
+                <strong>Todo lo de Plus</strong>
+              </li>
+              <li>
+                <span
+                  class="feat-check feat-yes"
+                  style="
+                    background: rgba(200, 144, 0, 0.15);
+                    color: var(--gold);
+                  "
+                  >✓</span
+                >
+                <strong>Certificados veterinarios PDF</strong> (QuestPDF)
+              </li>
+              <li>
+                <span
+                  class="feat-check feat-yes"
+                  style="
+                    background: rgba(200, 144, 0, 0.15);
+                    color: var(--gold);
+                  "
+                  >✓</span
+                >
+                Verificación pública en pawtrack.cr/verificar
+              </li>
+              <li>
+                <span
+                  class="feat-check feat-yes"
+                  style="
+                    background: rgba(200, 144, 0, 0.15);
+                    color: var(--gold);
+                  "
+                  >✓</span
+                >
+                Firma digital de clínica y médico
+              </li>
+              <li>
+                <span
+                  class="feat-check feat-yes"
+                  style="
+                    background: rgba(200, 144, 0, 0.15);
+                    color: var(--gold);
+                  "
+                  >✓</span
+                >
+                Widget embebible para sitio web propio
+              </li>
+              <li>
+                <span
+                  class="feat-check feat-yes"
+                  style="
+                    background: rgba(200, 144, 0, 0.15);
+                    color: var(--gold);
+                  "
+                  >✓</span
+                >
+                API de consulta directa
+              </li>
+              <li>
+                <span
+                  class="feat-check feat-yes"
+                  style="
+                    background: rgba(200, 144, 0, 0.15);
+                    color: var(--gold);
+                  "
+                  >✓</span
+                >
+                Soporte 24/7 + gerente de cuenta
+              </li>
+              <li>
+                <span
+                  class="feat-check feat-yes"
+                  style="
+                    background: rgba(200, 144, 0, 0.15);
+                    color: var(--gold);
+                  "
+                  >✓</span
+                >
+                Notificaciones en todo el cantón
+              </li>
+              <li>
+                <span
+                  class="feat-check feat-yes"
+                  style="
+                    background: rgba(200, 144, 0, 0.15);
+                    color: var(--gold);
+                  "
+                  >✓</span
+                >
+                Primeros resultados en búsquedas de zona
+              </li>
+            </ul>
+            <a href="#" class="plan-cta cta-gold">Activar Partner</a>
+          </div>
+        </div>
+
+        <!-- ROI note -->
+        <div
+          class="info-card mt-4 animate"
+          style="
+            border-left: 4px solid var(--brand);
+            border-radius: var(--r-sm) var(--radius) var(--radius) var(--r-sm);
+          "
+        >
+          <p style="font-size: 0.9rem">
+            <strong>¿Por qué las clínicas pagan más que los dueños?</strong
+            ><br />
+            El ROI es directo: una clínica verificada con posición destacada
+            puede captar <span class="hl">5–10 clientes nuevos/mes</span>. Un
+            cliente nuevo = ₡30,000–₡80,000 en consultas anuales. ₡15,000/mes es
+            <strong>&lt;0.5%</strong> de la ganancia que genera un solo cliente
+            nuevo.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Aliados -->
+    <section class="section section-alt" id="aliados">
+      <div class="container">
+        <div class="section-header animate">
+          <span class="section-label">Red de Aliados · B2B gratuito</span>
+          <h2 class="section-title">
+            Aliados verificados —<br /><em>Siempre gratis</em>
+          </h2>
+          <p class="section-desc mt-2">
+            Refugios, negocios pet-friendly, seguridad privada, municipalidades
+            como aliados operativos. El valor está en el impacto comunitario y
+            la visibilidad.
+          </p>
+        </div>
+
+        <div class="plans-grid" style="grid-template-columns: 1fr 1fr">
+          <div class="plan-card animate">
+            <span class="plan-icon">✅</span>
+            <div class="plan-name">Aliado Verificado</div>
+            <div class="plan-tagline">
+              Proceso de verificación manual · Aprobación en 1–2 días hábiles.
+            </div>
+            <div class="plan-price">
+              <div class="plan-amount">Gratis</div>
+              <div class="plan-period">Siempre · Sin condiciones</div>
+            </div>
+            <hr class="plan-divider" />
+            <ul class="plan-features">
+              <li>
+                <span class="feat-check feat-yes">✓</span> Bandeja operativa de
+                alertas en zona declarada
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Dashboard KPI:
+                alertas, tasa respuesta, radio
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Confirmación de
+                acción en campo
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Perfil en red de
+                aliados
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Amplifica el radio
+                efectivo de búsqueda
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Más alertas
+                prioritarias por alta tasa de respuesta
+              </li>
+            </ul>
+            <a href="#" class="plan-cta cta-ghost">Postularse como aliado</a>
+          </div>
+
+          <div
+            class="info-card animate"
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 1rem;
+              justify-content: center;
+            "
+          >
+            <h4
+              style="
+                font-family: var(--font-d);
+                font-size: 1.2rem;
+                color: var(--trust);
+              "
+            >
+              Tipos de aliados aceptados
+            </h4>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem">
+              <div class="bflow-step">
+                <span class="bflow-num" style="background: var(--trust)"
+                  >🏥</span
+                ><span class="bflow-text"
+                  ><strong>Veterinaria</strong> — Puede recibir mascotas
+                  encontradas</span
+                >
+              </div>
+              <div class="bflow-step">
+                <span class="bflow-num" style="background: var(--trust)"
+                  >🏠</span
+                ><span class="bflow-text"
+                  ><strong>Refugio</strong> — Custodia temporal de
+                  mascotas</span
+                >
+              </div>
+              <div class="bflow-step">
+                <span class="bflow-num" style="background: var(--trust)"
+                  >🏪</span
+                ><span class="bflow-text"
+                  ><strong>Comercio pet-friendly</strong> — Punto de referencia
+                  comunitario</span
+                >
+              </div>
+              <div class="bflow-step">
+                <span class="bflow-num" style="background: var(--trust)"
+                  >🔒</span
+                ><span class="bflow-text"
+                  ><strong>Seguridad privada</strong> — Cobertura en zonas
+                  residenciales</span
+                >
+              </div>
+              <div class="bflow-step">
+                <span class="bflow-num" style="background: var(--trust)"
+                  >🏛️</span
+                ><span class="bflow-text"
+                  ><strong>Municipalidad</strong> — Apoyo logístico
+                  oficial</span
+                >
+              </div>
+            </div>
+            <p
+              style="font-size: 0.8rem; color: var(--ink-2); margin-top: 0.5rem"
+            >
+              Los aliados son el motor de la red de búsqueda. Cobrarles reduce
+              su participación y daña el producto. El modelo correcto: aliados
+              gratis → más búsquedas exitosas → más reputación → más dueños
+              pagos.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Municipal -->
+    <section class="section" id="municipal">
+      <div class="container">
+        <div class="section-header animate">
+          <span class="section-label">Licencias Institucionales · B2G</span>
+          <h2 class="section-title">Para<br /><em>Municipalidades</em></h2>
+          <p class="section-desc mt-2">
+            Facturación anual · Incluye onboarding y capacitación · 82 cantones
+            costarricenses.
+          </p>
+        </div>
+
+        <div class="plans-grid">
+          <div class="plan-card animate">
+            <span class="plan-icon">🏛️</span>
+            <div class="plan-name">Municipal Básica</div>
+            <div class="plan-tagline">
+              Control animal digital para cantones pequeños y medianos.
+            </div>
+            <div class="plan-price">
+              <div class="plan-amount"><sup>₡</sup>150,000</div>
+              <div class="plan-period">por año</div>
+              <div class="plan-usd">~$288 USD anuales</div>
+            </div>
+            <hr class="plan-divider" />
+            <ul class="plan-features">
+              <li>
+                <span class="feat-check feat-yes">✓</span> Portal de control
+                animal multiusuario
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Registro de animales
+                capturados
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Estados: Recibido /
+                Localizado / Adoptado
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Enlace automático con
+                mascotas PawTrack
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Reportes mensuales en
+                PDF
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Acceso al mapa de
+                pérdidas del cantón
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Soporte por email
+              </li>
+            </ul>
+            <a href="#" class="plan-cta cta-ghost">Consultar</a>
+          </div>
+
+          <div class="plan-card featured animate">
+            <div class="plan-badge">Recomendado</div>
+            <span class="plan-icon">📊</span>
+            <div class="plan-name">Municipal Full</div>
+            <div class="plan-tagline">
+              Para cantones con alto volumen de casos y reportes SENASA.
+            </div>
+            <div class="plan-price">
+              <div class="plan-amount"><sup>₡</sup>300,000</div>
+              <div class="plan-period">por año</div>
+              <div class="plan-usd">~$577 USD anuales</div>
+            </div>
+            <hr class="plan-divider" />
+            <ul class="plan-features">
+              <li>
+                <span class="feat-check feat-yes">✓</span>
+                <strong>Todo lo de Básica</strong>
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> API de consulta
+                pública del registro
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Dashboard en tiempo
+                real de casos activos
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Estadísticas por
+                barrio y distrito
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Exportación para
+                reportes SENASA / PANI
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> SLA de disponibilidad
+                99.5%
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Soporte prioritario
+                telefónico
+              </li>
+            </ul>
+            <a href="#" class="plan-cta cta-brand">Consultar</a>
+          </div>
+
+          <div class="plan-card dark animate">
+            <div class="plan-badge green">🌐 Regional</div>
+            <span class="plan-icon">🗺️</span>
+            <div class="plan-name">Red Regional</div>
+            <div class="plan-tagline">
+              Múltiples cantones, un solo contrato.
+            </div>
+            <div class="plan-price">
+              <div class="plan-amount"><sup>₡</sup>500,000</div>
+              <div class="plan-period">por año</div>
+              <div class="plan-usd">~$962 USD anuales</div>
+            </div>
+            <hr class="plan-divider" />
+            <ul class="plan-features">
+              <li>
+                <span class="feat-check feat-yes">✓</span>
+                <strong>Todo lo de Full</strong>
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Múltiples cantones —
+                1 contrato
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Capacitación
+                presencial
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Personalización de
+                marca municipal
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Gerente de cuenta
+                dedicado
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> Integración PANI y
+                SENASA
+              </li>
+              <li>
+                <span class="feat-check feat-yes">✓</span> API de consulta
+                inter-cantonal
+              </li>
+            </ul>
+            <a href="#" class="plan-cta cta-white">Consultar</a>
+          </div>
+        </div>
+
+        <!-- Potencial municipal -->
+        <div
+          class="info-card mt-4 animate"
+          style="
+            background: var(--trust);
+            color: var(--white);
+            border-color: var(--trust);
+          "
+        >
+          <p
+            style="
+              font-size: 0.78rem;
+              font-weight: 700;
+              letter-spacing: 0.1em;
+              text-transform: uppercase;
+              color: rgba(255, 255, 255, 0.5);
+              margin-bottom: 1rem;
+            "
+          >
+            Potencial de mercado Municipal
+          </p>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+              gap: 1rem;
+            "
+          >
+            <div>
+              <div
+                style="
+                  font-family: var(--font-d);
+                  font-size: 1.4rem;
+                  font-weight: 700;
+                  color: var(--brand);
+                "
+              >
+                5×
+              </div>
+              <div style="font-size: 0.78rem; color: rgba(255, 255, 255, 0.6)">
+                Contratos Básica → ₡750k/año
+              </div>
+            </div>
+            <div>
+              <div
+                style="
+                  font-family: var(--font-d);
+                  font-size: 1.4rem;
+                  font-weight: 700;
+                  color: var(--brand);
+                "
+              >
+                10×
+              </div>
+              <div style="font-size: 0.78rem; color: rgba(255, 255, 255, 0.6)">
+                Contratos Full → ₡3M/año
+              </div>
+            </div>
+            <div>
+              <div
+                style="
+                  font-family: var(--font-d);
+                  font-size: 1.4rem;
+                  font-weight: 700;
+                  color: var(--brand);
+                "
+              >
+                2×
+              </div>
+              <div style="font-size: 0.78rem; color: rgba(255, 255, 255, 0.6)">
+                Contratos Red → ₡1M/año
+              </div>
+            </div>
+            <div>
+              <div
+                style="
+                  font-family: var(--font-d);
+                  font-size: 1.4rem;
+                  font-weight: 700;
+                  color: var(--rescue);
+                "
+              >
+                82
+              </div>
+              <div style="font-size: 0.78rem; color: rgba(255, 255, 255, 0.6)">
+                cantones en Costa Rica
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bounties -->
+    <section class="section section-alt" id="bounties">
+      <div class="container">
+        <div class="section-header animate">
+          <span class="section-label">Ingresos por transacción</span>
+          <h2 class="section-title">Sistema de<br /><em>Recompensas</em></h2>
+        </div>
+
+        <div class="bounty-card animate">
+          <div class="bounty-left">
+            <h3
+              style="
+                font-family: var(--font-d);
+                font-size: 1.6rem;
+                font-weight: 700;
+                color: var(--trust);
+                margin-bottom: 0.75rem;
+              "
+            >
+              Bounty + HandoverCode
+            </h3>
+            <p
+              style="
+                font-size: 0.9rem;
+                color: var(--ink-2);
+                margin-bottom: 1.5rem;
+              "
+            >
+              No es una suscripción. Es ingreso por transacción sobre bounties
+              activos liberados exitosamente.
+            </p>
+            <table
+              style="width: 100%; font-size: 0.85rem; border-collapse: collapse"
+            >
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--sand-3)">
+                  <td
+                    style="
+                      padding: 0.6rem 0;
+                      font-weight: 600;
+                      color: var(--trust);
+                    "
+                  >
+                    Crear bounty (depósito SINPE)
+                  </td>
+                  <td
+                    style="
+                      padding: 0.6rem 0;
+                      text-align: right;
+                      color: var(--rescue);
+                      font-weight: 700;
+                    "
+                  >
+                    Gratis
+                  </td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--sand-3)">
+                  <td
+                    style="
+                      padding: 0.6rem 0;
+                      font-weight: 600;
+                      color: var(--trust);
+                    "
+                  >
+                    Liberación al rescatador
+                  </td>
+                  <td
+                    style="
+                      padding: 0.6rem 0;
+                      text-align: right;
+                      color: var(--brand);
+                      font-weight: 700;
+                    "
+                  >
+                    10% comisión
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    style="
+                      padding: 0.6rem 0;
+                      font-weight: 600;
+                      color: var(--trust);
+                    "
+                  >
+                    Reembolso al dueño (sin entrega)
+                  </td>
+                  <td
+                    style="
+                      padding: 0.6rem 0;
+                      text-align: right;
+                      color: var(--brand);
+                      font-weight: 700;
+                    "
+                  >
+                    ₡1,000 fijo
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="bounty-example">
+            <h5>Ejemplo práctico</h5>
+            <div class="bounty-flow">
+              <div class="bflow-step">
+                <span class="bflow-num">1</span
+                ><span class="bflow-text"
+                  >Dueño declara <strong>₡25,000</strong> de recompensa</span
+                >
+              </div>
+              <div class="bflow-step">
+                <span class="bflow-num">2</span
+                ><span class="bflow-text"
+                  >Rescatador encuentra la mascota y genera HandoverCode</span
+                >
+              </div>
+              <div class="bflow-step">
+                <span class="bflow-num">3</span
+                ><span class="bflow-text"
+                  >Dueño confirma entrega con el código de 4 dígitos</span
+                >
+              </div>
+              <div class="bflow-step">
+                <span class="bflow-num">4</span
+                ><span class="bflow-text"
+                  >Rescatador recibe <strong>₡22,500</strong></span
+                >
+              </div>
+              <div class="bflow-step">
+                <span class="bflow-num" style="background: var(--brand)">₡</span
+                ><span class="bflow-text"
+                  >PawTrack retiene <strong>₡2,500</strong> (10%)</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Productos físicos -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header animate">
+          <span class="section-label">E-commerce · WhatsApp</span>
+          <h2 class="section-title">Productos<br /><em>físicos</em></h2>
+        </div>
+        <div class="products-grid animate">
+          <div class="product-card">
+            <div class="icon">📿</div>
+            <div>
+              <h5>Collar con placa QR grabada</h5>
+              <p>
+                Identificación física + digital. Escaneable con cualquier
+                cámara.
+              </p>
+              <div class="product-price">₡4,500 – ₡8,000</div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="icon">🏷️</div>
+            <div>
+              <h5>Placa QR standalone</h5>
+              <p>
+                Llavero o sticker independiente. Ideal para gateras y
+                transportines.
+              </p>
+              <div class="product-price">₡1,500 – ₡2,500</div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="icon">📦</div>
+            <div>
+              <h5>Combo collar + placa + 1 año Plus</h5>
+              <p>
+                El kit completo para una protección total desde el primer día.
+              </p>
+              <div class="product-price">₡14,990</div>
+              <div
+                style="
+                  font-size: 0.72rem;
+                  color: var(--ink-2);
+                  margin-top: 0.25rem;
+                "
+              >
+                Próximamente
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="mt-2" style="font-size: 0.8rem; color: var(--ink-2)">
+          MVP: pedidos vía WhatsApp. Stripe y tienda integrada en roadmap Q3
+          2026.
+        </p>
+      </div>
+    </section>
+
+    <!-- Proyección de ingresos -->
+    <section class="section section-alt" id="proyeccion">
+      <div class="container animate">
+        <div class="section-header">
+          <span class="section-label">Proyección financiera · Año 1</span>
+          <h2 class="section-title">
+            Escenario conservador:<br /><em>₡32.6M ARR</em>
+          </h2>
+          <p class="section-desc mt-2">
+            Basado en penetración de mercado costarricense en año 1. Referencia
+            ~$62,746 USD.
+          </p>
+        </div>
+
+        <div class="revenue-block">
+          <p
+            style="
+              font-size: 0.78rem;
+              font-weight: 700;
+              letter-spacing: 0.1em;
+              text-transform: uppercase;
+              color: rgba(255, 255, 255, 0.4);
+              margin-bottom: 0.25rem;
+            "
+          >
+            Líneas de ingreso proyectadas
+          </p>
+          <div class="revenue-grid">
+            <div class="revenue-row">
+              <div class="rev-line">Plus 500 subs</div>
+              <div class="rev-amount">₡17.9M</div>
+              <div class="rev-detail">₡2,990/mes × 500 × 12</div>
+            </div>
+            <div class="revenue-row">
+              <div class="rev-line">Familia 100 subs</div>
+              <div class="rev-amount">₡5.99M</div>
+              <div class="rev-detail">₡4,990/mes × 100 × 12</div>
+            </div>
+            <div class="revenue-row">
+              <div class="rev-line">Clínicas Plus 20×</div>
+              <div class="rev-amount">₡3.6M</div>
+              <div class="rev-detail">₡15,000/mes × 20 × 12</div>
+            </div>
+            <div class="revenue-row">
+              <div class="rev-line">Clínicas Partner 5×</div>
+              <div class="rev-amount">₡2.1M</div>
+              <div class="rev-detail">₡35,000/mes × 5 × 12</div>
+            </div>
+            <div class="revenue-row">
+              <div class="rev-line">Municipalidades 5×</div>
+              <div class="rev-amount">₡1.0M</div>
+              <div class="rev-detail">Mix avg ₡200k/año</div>
+            </div>
+            <div class="revenue-row">
+              <div class="rev-line">Bounties 200 eventos</div>
+              <div class="rev-amount">₡500k</div>
+              <div class="rev-detail">₡2,500 avg × 200</div>
+            </div>
+            <div class="revenue-row">
+              <div class="rev-line">Productos físicos</div>
+              <div class="rev-amount">₡1.5M</div>
+              <div class="rev-detail">₡5,000 avg × 300 ventas</div>
+            </div>
+          </div>
+          <div class="revenue-total">
+            <span class="rev-total-label">ARR Total estimado</span>
+            <span class="rev-total-amount">₡32.6M</span>
+            <span class="rev-total-usd">≈ $62,746 USD</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Competidores -->
+    <section class="section" id="competidores">
+      <div class="container">
+        <div class="section-header animate">
+          <span class="section-label">Análisis competitivo</span>
+          <h2 class="section-title">PawTrack CR vs<br /><em>el mundo</em></h2>
+          <p class="section-desc mt-2">
+            Ninguna plataforma global ofrece hoy en Costa Rica la combinación de
+            WhatsApp nativo, SINPE Móvil y red comunitaria local.
+          </p>
+        </div>
+
+        <div class="vs-table-wrap animate">
+          <table class="vs-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th class="col-pawtrack">PawTrack CR 🇨🇷</th>
+                <th>PawBoost (EE.UU.)</th>
+                <th>PetLink (EE.UU.)</th>
+                <th>FidoFinder (EE.UU.)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Precio base</td>
+                <td class="col-pawtrack">Gratis</td>
+                <td>Gratis</td>
+                <td>Gratis</td>
+                <td>Gratis</td>
+              </tr>
+              <tr>
+                <td>WhatsApp nativo</td>
+                <td class="col-pawtrack"><span class="tcheck">✓</span></td>
+                <td><span class="tcross">—</span></td>
+                <td><span class="tcross">—</span></td>
+                <td><span class="tcross">—</span></td>
+              </tr>
+              <tr>
+                <td>Bot conversacional</td>
+                <td class="col-pawtrack"><span class="tcheck">✓</span></td>
+                <td><span class="tcross">—</span></td>
+                <td><span class="tcross">—</span></td>
+                <td><span class="tcross">—</span></td>
+              </tr>
+              <tr>
+                <td>SINPE Móvil</td>
+                <td class="col-pawtrack"><span class="tcheck">✓</span></td>
+                <td><span class="tcross">—</span></td>
+                <td><span class="tcross">—</span></td>
+                <td><span class="tcross">—</span></td>
+              </tr>
+              <tr>
+                <td>Portal clínicas</td>
+                <td class="col-pawtrack"><span class="tcheck">✓</span></td>
+                <td><span class="tcross">—</span></td>
+                <td>Parcial</td>
+                <td><span class="tcross">—</span></td>
+              </tr>
+              <tr>
+                <td>Portal municipalidades</td>
+                <td class="col-pawtrack"><span class="tcheck">✓</span></td>
+                <td><span class="tcross">—</span></td>
+                <td><span class="tcross">—</span></td>
+                <td>Parcial</td>
+              </tr>
+              <tr>
+                <td>Certificados PDF</td>
+                <td class="col-pawtrack">
+                  <span class="tcheck">✓ (Partner)</span>
+                </td>
+                <td><span class="tcross">—</span></td>
+                <td><span class="tcross">—</span></td>
+                <td><span class="tcross">—</span></td>
+              </tr>
+              <tr>
+                <td>GPS collar (tab integrado)</td>
+                <td class="col-pawtrack">
+                  <span class="tcheck">✓ (Plus+)</span>
+                </td>
+                <td><span class="tcross">—</span></td>
+                <td>$45.99 hardware</td>
+                <td><span class="tcross">—</span></td>
+              </tr>
+              <tr>
+                <td>AI visual match</td>
+                <td class="col-pawtrack"><span class="tcheck">✓</span></td>
+                <td><span class="tcross">—</span></td>
+                <td><span class="tcross">—</span></td>
+                <td>Limitado</td>
+              </tr>
+              <tr>
+                <td>Sala de coordinación</td>
+                <td class="col-pawtrack">
+                  <span class="tcheck">✓ (Plus+)</span>
+                </td>
+                <td><span class="tcross">—</span></td>
+                <td><span class="tcross">—</span></td>
+                <td><span class="tcross">—</span></td>
+              </tr>
+              <tr>
+                <td>Sistema bounty</td>
+                <td class="col-pawtrack">
+                  <span class="tcheck">✓ (Plus+)</span>
+                </td>
+                <td><span class="tcross">—</span></td>
+                <td><span class="tcross">—</span></td>
+                <td><span class="tcross">—</span></td>
+              </tr>
+              <tr>
+                <td>Red de aliados</td>
+                <td class="col-pawtrack"><span class="tcheck">✓</span></td>
+                <td>Rescue Squad</td>
+                <td><span class="tcross">—</span></td>
+                <td>Shelters</td>
+              </tr>
+              <tr>
+                <td>Enfoque local LATAM</td>
+                <td class="col-pawtrack">
+                  <span class="tcheck">✓ Costa Rica</span>
+                </td>
+                <td><span class="tcross">—</span></td>
+                <td><span class="tcross">—</span></td>
+                <td><span class="tcross">—</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Vacío de mercado -->
+        <div
+          class="info-card mt-4 animate"
+          style="border-left: 4px solid var(--rescue)"
+        >
+          <h4 style="margin-bottom: 0.75rem">
+            Vacío en el mercado latinoamericano
+          </h4>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+              gap: 0.75rem;
+              font-size: 0.83rem;
+            "
+          >
+            <div>
+              💬 <strong>WhatsApp nativo</strong> — penetración &gt;95% en CR
+            </div>
+            <div>
+              💳 <strong>SINPE Móvil</strong> — método de pago dominante en CR
+            </div>
+            <div>
+              🏛️ <strong>Portal municipalidades</strong> — gestión de capturados
+            </div>
+            <div>
+              🤝 <strong>Red de aliados verificados</strong> — refugios,
+              veterinarias
+            </div>
+            <div>
+              📜 <strong>Certificados PDF verificables</strong> — con QR único
+            </div>
+            <div>
+              🎯 <strong>Sala de coordinación</strong> — en tiempo real durante
+              búsqueda
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Política -->
+    <section class="section section-alt">
+      <div class="container">
+        <div class="section-header animate">
+          <span class="section-label">Política comercial</span>
+          <h2 class="section-title">Cambios y<br /><em>Cancelación</em></h2>
+        </div>
+        <div class="comp-table-wrap animate">
+          <table class="comp-table">
+            <thead>
+              <tr>
+                <th>Regla</th>
+                <th>Detalle</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Período de facturación</td>
+                <td>Mensual, cobrado el primer día del ciclo</td>
+              </tr>
+              <tr>
+                <td>Cancelación</td>
+                <td>
+                  En cualquier momento · Acceso hasta fin del período pagado
+                </td>
+              </tr>
+              <tr>
+                <td>Cambio de plan</td>
+                <td>Inmediato · Prorrateo automático</td>
+              </tr>
+              <tr>
+                <td>Prueba gratuita</td>
+                <td>Plan Explorador siempre gratis — sin tarjeta de crédito</td>
+              </tr>
+              <tr>
+                <td>Reembolsos</td>
+                <td>No aplica para períodos ya utilizados</td>
+              </tr>
+              <tr>
+                <td>Método de pago</td>
+                <td>SINPE Móvil (activo) · Stripe (próximamente)</td>
+              </tr>
+              <tr>
+                <td>Aviso de cambio de precio</td>
+                <td>30 días de aviso previo por correo</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>
+        🐾 <strong>PawTrack CR</strong> ·
+        <a href="mailto:alianzas@pawtrack.cr">alianzas@pawtrack.cr</a> ·
+        <a href="https://pawtrack.cr">pawtrack.cr</a>
+      </p>
+      <p style="margin-top: 0.4rem">
+        Precios en colones costarricenses (₡) · Sujetos a cambio con 30 días de
+        aviso previo · Referencia ₡520/USD
+      </p>
+      <p style="margin-top: 0.4rem">Versión <strong>2026-07-31</strong></p>
+    </footer>
+
+    <script>
+      // Intersection observer for fade-up animations
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry, i) => {
+            if (entry.isIntersecting) {
+              setTimeout(() => entry.target.classList.add("visible"), i * 60);
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.08, rootMargin: "0px 0px -40px 0px" },
+      );
+
+      document
+        .querySelectorAll(".animate")
+        .forEach((el) => observer.observe(el));
+
+      // Smooth scroll for nav links
+      document.querySelectorAll('a[href^="#"]').forEach((a) => {
+        a.addEventListener("click", (e) => {
+          const target = document.querySelector(a.getAttribute("href"));
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

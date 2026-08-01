@@ -88,26 +88,6 @@ const NAV_MAIN = [
       </svg>
     ),
   },
-  {
-    to: "/estadisticas",
-    label: "Estadísticas",
-    icon: (active: boolean) => (
-      <svg
-        viewBox="0 0 20 20"
-        fill={active ? "currentColor" : "none"}
-        stroke="currentColor"
-        strokeWidth="1.6"
-        className="h-4 w-4"
-        aria-hidden="true"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M3 17V9l4-4 4 4 4-6"
-        />
-      </svg>
-    ),
-  },
 ];
 
 const NAV_EXTRA_ALLY = {
