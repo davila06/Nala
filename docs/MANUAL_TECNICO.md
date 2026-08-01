@@ -3,7 +3,7 @@
 **Versión:** 1.0  
 **Stack:** .NET 9 · React 19 · Azure  
 **Audiencia:** Desarrolladores, arquitectos, equipo DevOps  
-**Última actualización:** Abril 2026
+**Última actualización:** Julio 2026
 
 ---
 
@@ -74,15 +74,15 @@ PawTrack CR es un **monolito modular** con separación por capas siguiendo Clean
 
 ### Principios de la arquitectura
 
-| Principio | Implementación |
-|-----------|---------------|
-| **CQRS** | Commands mutan estado (devuelven datos mínimos). Queries leen y devuelven DTOs. |
-| **Validación en pipeline** | FluentValidation via behavior de MediatR. Nunca en handlers. |
-| **Módulos aislados** | Comunicación cruzada solo por MediatR notifications. Sin llamadas directas entre módulos. |
-| **Result pattern** | `Result<T>` sin excepciones de negocio cruzando límites de módulo. |
-| **IDs** | `Guid` v7 en dominio; `string` en respuestas API. |
-| **Binarios** | Siempre en Blob Storage. Jamás en base de datos. |
-| **Secretos** | Key Vault en producción. Jamás en archivos de configuración versionados. |
+| Principio                  | Implementación                                                                            |
+| -------------------------- | ----------------------------------------------------------------------------------------- |
+| **CQRS**                   | Commands mutan estado (devuelven datos mínimos). Queries leen y devuelven DTOs.           |
+| **Validación en pipeline** | FluentValidation via behavior de MediatR. Nunca en handlers.                              |
+| **Módulos aislados**       | Comunicación cruzada solo por MediatR notifications. Sin llamadas directas entre módulos. |
+| **Result pattern**         | `Result<T>` sin excepciones de negocio cruzando límites de módulo.                        |
+| **IDs**                    | `Guid` v7 en dominio; `string` en respuestas API.                                         |
+| **Binarios**               | Siempre en Blob Storage. Jamás en base de datos.                                          |
+| **Secretos**               | Key Vault en producción. Jamás en archivos de configuración versionados.                  |
 
 ---
 
@@ -127,6 +127,7 @@ PawTrack CR es un **monolito modular** con separación por capas siguiendo Clean
 ### 3.1 PawTrack.API
 
 Punto de entrada del sistema. Responsables de:
+
 - Recibir peticiones HTTP y WebSocket
 - Ejecutar middleware (correlación, manejo de excepciones, forwarded headers)
 - Vincular controllers con MediatR
@@ -137,18 +138,19 @@ Punto de entrada del sistema. Responsables de:
 
 **Directorios clave:**
 
-| Directorio | Contenido |
-|------------|-----------|
-| `Controllers/` | 20 controllers — uno por funcionalidad principal |
-| `Hubs/` | `SearchCoordinationHub` (SignalR) |
-| `Middleware/` | Correlación de requests, manejo global de excepciones |
-| `Filters/` | `ValidateWhatsAppSignatureAttribute` (HMAC-SHA256) |
+| Directorio     | Contenido                                             |
+| -------------- | ----------------------------------------------------- |
+| `Controllers/` | 20 controllers — uno por funcionalidad principal      |
+| `Hubs/`        | `SearchCoordinationHub` (SignalR)                     |
+| `Middleware/`  | Correlación de requests, manejo global de excepciones |
+| `Filters/`     | `ValidateWhatsAppSignatureAttribute` (HMAC-SHA256)    |
 
 ### 3.2 PawTrack.Application
 
 Lógica de negocio pura. Esta capa no tiene dependencias de infraestructura.
 
 **Estructura por módulo** (ejemplo: `Auth/`):
+
 ```
 Auth/
 ├── Commands/
@@ -164,23 +166,26 @@ Auth/
 
 **Módulos implementados:**
 
-| Módulo | Responsabilidad |
-|--------|----------------|
-| `Auth` | Registro, verificación email, login, refresh, logout, perfil |
-| `Pets` | CRUD mascotas, foto, QR, historial escaneos, avatar WhatsApp |
-| `LostPets` | Reporte pérdida, case room, estado, coordinación búsqueda |
-| `Sightings` | Avistamientos, matcheo visual (VisualMatch/) |
-| `Broadcast` | Difusión multi-canal, estado de difusión |
-| `Chat` | Mensajes entre dueño y rescatista |
-| `Safety` | Handover codes, fraud reports |
-| `Notifications` | Inbox, preferencias, push subscriptions |
-| `Allies` | Aplicación, alertas, admin review |
-| `Fosters` | Perfil, sugerencias, custodia |
-| `Clinics` | Registro, escaneo, admin |
-| `Incentives` | Leaderboard, mi score |
-| `Locations` | Preferencias de ubicación para alertas |
-| `Bot` | Sesiones WhatsApp, lógica conversacional |
-| `Common` | Interfaces, comportamientos de pipeline, utilidades |
+| Módulo          | Responsabilidad                                                     |
+| --------------- | ------------------------------------------------------------------- |
+| `Auth`          | Registro, verificación email, login, refresh, logout, perfil        |
+| `Pets`          | CRUD mascotas, foto, QR, historial escaneos, avatar WhatsApp        |
+| `LostPets`      | Reporte pérdida, case room, estado, coordinación búsqueda           |
+| `Sightings`     | Avistamientos, matcheo visual (VisualMatch/)                        |
+| `Broadcast`     | Difusión multi-canal, estado de difusión                            |
+| `Chat`          | Mensajes entre dueño y rescatista                                   |
+| `Safety`        | Handover codes, fraud reports                                       |
+| `Notifications` | Inbox, preferencias, push subscriptions                             |
+| `Allies`        | Aplicación, alertas, admin review                                   |
+| `Fosters`       | Perfil, sugerencias, custodia                                       |
+| `Clinics`       | Registro, escaneo, admin                                            |
+| `Incentives`    | Leaderboard, mi score                                               |
+| `Locations`     | Preferencias de ubicación para alertas                              |
+| `Bot`           | Sesiones WhatsApp, lógica conversacional                            |
+| `Subscriptions` | Planes de suscripción (Explorador / Plus / Familia), SINPE payments |
+| `Collars`       | Integración con collares GPS PawTrack, telemetría                   |
+| `Bounties`      | Sistema de recompensas por avistamiento                             |
+| `Common`        | Interfaces, comportamientos de pipeline, utilidades                 |
 
 ### 3.3 PawTrack.Domain
 
@@ -188,31 +193,31 @@ El corazón del sistema. Sin dependencias externas.
 
 **Entidades principales:**
 
-| Entidad | Descripción |
-|---------|-------------|
-| `User` | Cuenta de usuario. Bcrypt 12. Lockout. Tokens SHA-256. |
-| `RefreshToken` | Token de renovación de sesión JWT. |
-| `Pet` | Mascota. Especie, raza, foto, microchip, estado. |
-| `QrScanEvent` | Registro de cada escaneo del QR de una mascota. |
-| `PetPhotoEmbedding` | Vector de 1024 dimensiones del embedding de la foto. |
-| `LostPetEvent` | Reporte de pérdida. Estado, ubicación, contacto, recompensa. |
-| `SearchZone` | Zona (300 m) de la cuadrícula de búsqueda. |
-| `Sighting` | Avistamiento anónimo. Sin PII del reportante. |
-| `FoundPetReport` | Reporte "encontré una mascota sin QR". |
-| `ChatMessage` | Mensaje en el chat enmascarado. |
-| `HandoverCode` | Código de 4 dígitos para entrega segura. |
-| `FraudReport` | Reporte de comportamiento sospechoso. |
-| `AllyProfile` | Perfil de organización aliada verificada. |
-| `FosterVolunteer` | Voluntario de custodia temporal. |
-| `CustodyRecord` | Registro de custodia activa. |
-| `ClinicProfile` | Perfil de veterinaria afiliada. |
-| `ClinicScanLog` | Registro de escaneo de microchip por clínica. |
-| `BotSession` | Sesión conversacional de WhatsApp. |
-| `ContributorScore` | Puntaje de reunificaciones del usuario. |
-| `BroadcastAttempt` | Registro de intento de difusión por canal. |
-| `NotificationItem` | Notificación in-app. |
-| `UserLocation` | Preferencia de ubicación y alertas geográficas. |
-| `PushSubscription` | Endpoint para notificaciones push web. |
+| Entidad             | Descripción                                                  |
+| ------------------- | ------------------------------------------------------------ |
+| `User`              | Cuenta de usuario. Bcrypt 12. Lockout. Tokens SHA-256.       |
+| `RefreshToken`      | Token de renovación de sesión JWT.                           |
+| `Pet`               | Mascota. Especie, raza, foto, microchip, estado.             |
+| `QrScanEvent`       | Registro de cada escaneo del QR de una mascota.              |
+| `PetPhotoEmbedding` | Vector de 1024 dimensiones del embedding de la foto.         |
+| `LostPetEvent`      | Reporte de pérdida. Estado, ubicación, contacto, recompensa. |
+| `SearchZone`        | Zona (300 m) de la cuadrícula de búsqueda.                   |
+| `Sighting`          | Avistamiento anónimo. Sin PII del reportante.                |
+| `FoundPetReport`    | Reporte "encontré una mascota sin QR".                       |
+| `ChatMessage`       | Mensaje en el chat enmascarado.                              |
+| `HandoverCode`      | Código de 4 dígitos para entrega segura.                     |
+| `FraudReport`       | Reporte de comportamiento sospechoso.                        |
+| `AllyProfile`       | Perfil de organización aliada verificada.                    |
+| `FosterVolunteer`   | Voluntario de custodia temporal.                             |
+| `CustodyRecord`     | Registro de custodia activa.                                 |
+| `ClinicProfile`     | Perfil de veterinaria afiliada.                              |
+| `ClinicScanLog`     | Registro de escaneo de microchip por clínica.                |
+| `BotSession`        | Sesión conversacional de WhatsApp.                           |
+| `ContributorScore`  | Puntaje de reunificaciones del usuario.                      |
+| `BroadcastAttempt`  | Registro de intento de difusión por canal.                   |
+| `NotificationItem`  | Notificación in-app.                                         |
+| `UserLocation`      | Preferencia de ubicación y alertas geográficas.              |
+| `PushSubscription`  | Endpoint para notificaciones push web.                       |
 
 ### 3.4 PawTrack.Infrastructure
 
@@ -220,20 +225,20 @@ Implementaciones de interfaces definidas en Application y Domain.
 
 **Servicios externos integrados:**
 
-| Servicio | Clase | Propósito |
-|----------|-------|-----------|
-| Azure Blob Storage | `BlobStorageService` | Upload/download de fotos |
-| Azure Computer Vision 4.0 | `AzureVisionEmbeddingService` | Vectorización de imágenes (1024d) |
-| Azure Maps Geocoding | `AzureMapsGeocodingService` | Geocodificación de texto a coordenadas |
-| Azure Maps IP Geolocation | `AzureMapsIpGeoLookupService` | Geolocalización de IPs |
-| Email (SMTP/SendGrid) | `EmailSender` | Verificación de email, notificaciones |
-| Meta Cloud API | (WhatsApp controller) | Envío de mensajes WhatsApp |
-| EF Core + SQL Server | `PawTrackDbContext` | Persistencia relacional principal |
+| Servicio                  | Clase                         | Propósito                              |
+| ------------------------- | ----------------------------- | -------------------------------------- |
+| Azure Blob Storage        | `BlobStorageService`          | Upload/download de fotos               |
+| Azure Computer Vision 4.0 | `AzureVisionEmbeddingService` | Vectorización de imágenes (1024d)      |
+| Azure Maps Geocoding      | `AzureMapsGeocodingService`   | Geocodificación de texto a coordenadas |
+| Azure Maps IP Geolocation | `AzureMapsIpGeoLookupService` | Geolocalización de IPs                 |
+| Email (SMTP/SendGrid)     | `EmailSender`                 | Verificación de email, notificaciones  |
+| Meta Cloud API            | (WhatsApp controller)         | Envío de mensajes WhatsApp             |
+| EF Core + SQL Server      | `PawTrackDbContext`           | Persistencia relacional principal      |
 
 **Hosted services:**
 
-| Servicio | Propósito |
-|---------|-----------|
+| Servicio                        | Propósito                                                                                               |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `EmbeddingRefreshHostedService` | Regenera embeddings de fotos de mascotas periódicamente para mantener el índice de matching actualizado |
 
 ---
@@ -242,17 +247,17 @@ Implementaciones de interfaces definidas en Application y Domain.
 
 ### 4.1 Tecnologías
 
-| Librería | Versión | Uso |
-|----------|---------|-----|
-| React | 19 | Core UI |
-| TypeScript | 5.x | Tipado estático strict |
-| Vite | 6 | Build tool + dev server |
-| vite-plugin-pwa | latest | Service worker + manifest |
-| React Router | 6 | Routing con `createBrowserRouter` |
-| TanStack React Query | 5 | Server state (fetching, caching, mutations) |
-| Zustand | 5 | UI state que persiste entre rutas |
-| Leaflet / React-Leaflet | latest | Mapas interactivos |
-| Vitest + Testing Library | latest | Testing |
+| Librería                 | Versión | Uso                                         |
+| ------------------------ | ------- | ------------------------------------------- |
+| React                    | 19      | Core UI                                     |
+| TypeScript               | 5.x     | Tipado estático strict                      |
+| Vite                     | 6       | Build tool + dev server                     |
+| vite-plugin-pwa          | latest  | Service worker + manifest                   |
+| React Router             | 6       | Routing con `createBrowserRouter`           |
+| TanStack React Query     | 5       | Server state (fetching, caching, mutations) |
+| Zustand                  | 5       | UI state que persiste entre rutas           |
+| Leaflet / React-Leaflet  | latest  | Mapas interactivos                          |
+| Vitest + Testing Library | latest  | Testing                                     |
 
 ### 4.2 Estructura de features
 
@@ -331,33 +336,33 @@ Todos los módulos comparten un único DbContext en el MVP. Los `DbSet` están o
 
 ### 5.3 Historial de migraciones
 
-| Migración | Módulo |
-|-----------|--------|
-| `InitialCreate` | Auth (Users, RefreshTokens) |
-| `AddPets` | Pets (Pets) |
-| `AddLostPetEventsAndNotifications` | LostPets, Notifications |
-| `AddSightings` | Sightings |
-| `AddRecentPhotoToLostPetEvents` | LostPets (photo field) |
-| `AddContactToLostPetEvents` | LostPets (contact fields) |
-| `AddPublicMessageToLostPetEvents` | LostPets (public message) |
-| `AddUserLocations` | Locations |
-| `AddBroadcastAttempts` | Broadcast |
-| `AddGeofencingAdvanced` | Geofencing (search radius polygon) |
-| `AddIncentives` | Incentives (ContributorScore, Badge) |
-| `AddPetPhotoEmbeddings` | Sightings AI (embeddings) |
-| `AddChatHandoverFraud` | Chat, Safety |
-| `AddBotSessions` | Bot |
-| `AddRecoveryStatsToLostPetEvents` | LostPets (reunion metrics) |
-| `AddQrScanEventsChainOfCustody` | Pets (scan history) |
-| `AddFoundPetReports` | Sightings (FoundPetReport) |
-| `AddFosterVolunteerNetwork` | Fosters |
-| `AddRiskCalendar` | Safety (seasonal risk) |
-| `AddSearchCoordination` | LostPets (SearchZone) |
-| `AddClinicsModule` | Clinics |
-| `AddPushSubscriptions` | Notifications |
-| `AddBreedEstimateToFoundPetReport` | Sightings |
-| `AddAccountLockout` | Auth |
-| `AddRefreshTokenSessionIssuedAt` | Auth |
+| Migración                          | Módulo                               |
+| ---------------------------------- | ------------------------------------ |
+| `InitialCreate`                    | Auth (Users, RefreshTokens)          |
+| `AddPets`                          | Pets (Pets)                          |
+| `AddLostPetEventsAndNotifications` | LostPets, Notifications              |
+| `AddSightings`                     | Sightings                            |
+| `AddRecentPhotoToLostPetEvents`    | LostPets (photo field)               |
+| `AddContactToLostPetEvents`        | LostPets (contact fields)            |
+| `AddPublicMessageToLostPetEvents`  | LostPets (public message)            |
+| `AddUserLocations`                 | Locations                            |
+| `AddBroadcastAttempts`             | Broadcast                            |
+| `AddGeofencingAdvanced`            | Geofencing (search radius polygon)   |
+| `AddIncentives`                    | Incentives (ContributorScore, Badge) |
+| `AddPetPhotoEmbeddings`            | Sightings AI (embeddings)            |
+| `AddChatHandoverFraud`             | Chat, Safety                         |
+| `AddBotSessions`                   | Bot                                  |
+| `AddRecoveryStatsToLostPetEvents`  | LostPets (reunion metrics)           |
+| `AddQrScanEventsChainOfCustody`    | Pets (scan history)                  |
+| `AddFoundPetReports`               | Sightings (FoundPetReport)           |
+| `AddFosterVolunteerNetwork`        | Fosters                              |
+| `AddRiskCalendar`                  | Safety (seasonal risk)               |
+| `AddSearchCoordination`            | LostPets (SearchZone)                |
+| `AddClinicsModule`                 | Clinics                              |
+| `AddPushSubscriptions`             | Notifications                        |
+| `AddBreedEstimateToFoundPetReport` | Sightings                            |
+| `AddAccountLockout`                | Auth                                 |
+| `AddRefreshTokenSessionIssuedAt`   | Auth                                 |
 
 ### 5.4 Comandos de migración
 
@@ -396,42 +401,42 @@ Declarada en `infra/main.bicep` usando Bicep (Azure Resource Manager DSL).
 
 ### 6.1 Recursos provisionados
 
-| Recurso | SKU / Tier | Propósito |
-|---------|-----------|-----------|
-| Log Analytics Workspace | PerGB2018, 30 días retención | Base para App Insights |
-| Application Insights | Web | Telemetría y trazas |
-| Azure SQL Server | | Motor de base de datos |
-| Azure SQL Database | S1 (escalable) | Base de datos PawTrack |
-| Storage Account | Standard_LRS | Blob (fotos) |
-| Blob Containers | `pet-photos`, `sighting-photos`, `found-pet-photos`, `lost-pet-photos` | Imágenes (público), otras privadas |
-| App Service Plan | B2 Linux | Hosting del backend |
-| App Service | .NET 9 | API backend |
-| Key Vault | Standard | Secretos: JWT, conexiones, API keys |
-| Azure Monitor Alert | | Alertas de errores 5xx |
+| Recurso                 | SKU / Tier                                                             | Propósito                           |
+| ----------------------- | ---------------------------------------------------------------------- | ----------------------------------- |
+| Log Analytics Workspace | PerGB2018, 30 días retención                                           | Base para App Insights              |
+| Application Insights    | Web                                                                    | Telemetría y trazas                 |
+| Azure SQL Server        |                                                                        | Motor de base de datos              |
+| Azure SQL Database      | S1 (escalable)                                                         | Base de datos PawTrack              |
+| Storage Account         | Standard_LRS                                                           | Blob (fotos)                        |
+| Blob Containers         | `pet-photos`, `sighting-photos`, `found-pet-photos`, `lost-pet-photos` | Imágenes (público), otras privadas  |
+| App Service Plan        | B2 Linux                                                               | Hosting del backend                 |
+| App Service             | .NET 9                                                                 | API backend                         |
+| Key Vault               | Standard                                                               | Secretos: JWT, conexiones, API keys |
+| Azure Monitor Alert     |                                                                        | Alertas de errores 5xx              |
 
 ### 6.2 Contenedores de Blob Storage
 
-| Contenedor | Acceso | Uso |
-|------------|--------|-----|
-| `pet-photos` | Público | Fotos de mascotas en perfil |
-| `sighting-photos` | Público | Fotos de avistamientos |
-| `found-pet-photos` | Público | Fotos de reportes "encontré mascota" |
-| `lost-pet-photos` | Público | Fotos recientes en reporte de pérdida |
-| `whatsapp-avatars` | Privado (generado on-demand) | Avatares compuestos |
+| Contenedor         | Acceso                       | Uso                                   |
+| ------------------ | ---------------------------- | ------------------------------------- |
+| `pet-photos`       | Público                      | Fotos de mascotas en perfil           |
+| `sighting-photos`  | Público                      | Fotos de avistamientos                |
+| `found-pet-photos` | Público                      | Fotos de reportes "encontré mascota"  |
+| `lost-pet-photos`  | Público                      | Fotos recientes en reporte de pérdida |
+| `whatsapp-avatars` | Privado (generado on-demand) | Avatares compuestos                   |
 
 ### 6.3 Key Vault — secretos requeridos
 
-| Secreto | Descripción |
-|---------|-------------|
-| `Jwt--Key` | Clave de firma JWT (mín. 32 chars, generada con CSPRNG) |
-| `ConnectionStrings--DefaultConnection` | String de conexión Azure SQL |
-| `Azure--Storage--ConnectionString` | StorageAccount connection string |
-| `Azure--Vision--Endpoint` | URL del servicio Computer Vision |
-| `Azure--Vision--Key` | Subscription key de Computer Vision |
-| `Azure--Maps--SubscriptionKey` | Subscription key de Azure Maps |
-| `WhatsApp--AppSecret` | Secret de la app Meta para validar HMAC |
-| `WhatsApp--VerifyToken` | Token de verificación del webhook Meta |
-| `Email--SmtpPassword` | Contraseña SMTP / API key SendGrid |
+| Secreto                                | Descripción                                             |
+| -------------------------------------- | ------------------------------------------------------- |
+| `Jwt--Key`                             | Clave de firma JWT (mín. 32 chars, generada con CSPRNG) |
+| `ConnectionStrings--DefaultConnection` | String de conexión Azure SQL                            |
+| `Azure--Storage--ConnectionString`     | StorageAccount connection string                        |
+| `Azure--Vision--Endpoint`              | URL del servicio Computer Vision                        |
+| `Azure--Vision--Key`                   | Subscription key de Computer Vision                     |
+| `Azure--Maps--SubscriptionKey`         | Subscription key de Azure Maps                          |
+| `WhatsApp--AppSecret`                  | Secret de la app Meta para validar HMAC                 |
+| `WhatsApp--VerifyToken`                | Token de verificación del webhook Meta                  |
+| `Email--SmtpPassword`                  | Contraseña SMTP / API key SendGrid                      |
 
 ---
 
@@ -439,13 +444,13 @@ Declarada en `infra/main.bicep` usando Bicep (Azure Resource Manager DSL).
 
 ### 7.1 Dependencias de entorno
 
-| Herramienta | Versión mínima |
-|-------------|---------------|
-| .NET SDK | 9.x |
-| Node.js | 20 LTS |
-| Docker Desktop | 4.x |
-| PowerShell | 7.x |
-| EF Core CLI | 9.x (`dotnet tool install -g dotnet-ef`) |
+| Herramienta    | Versión mínima                           |
+| -------------- | ---------------------------------------- |
+| .NET SDK       | 9.x                                      |
+| Node.js        | 20 LTS                                   |
+| Docker Desktop | 4.x                                      |
+| PowerShell     | 7.x                                      |
+| EF Core CLI    | 9.x (`dotnet tool install -g dotnet-ef`) |
 
 ### 7.2 Arranque rápido
 
@@ -520,27 +525,27 @@ Azurite:     localhost:10000 (Blob)
 
 Todas las variables siguen la convención de ASP.NET Core con doble guión como separador de sección en variables de entorno.
 
-| Variable de entorno | Sección JSON | Descripción |
-|--------------------|-------------|-------------|
-| `ConnectionStrings__DefaultConnection` | `ConnectionStrings:DefaultConnection` | SQL Server |
-| `Jwt__Key` | `Jwt:Key` | JWT signing key |
-| `Jwt__Issuer` | `Jwt:Issuer` | JWT issuer |
-| `Jwt__Audience` | `Jwt:Audience` | JWT audience |
-| `Azure__Storage__ConnectionString` | `Azure:Storage:ConnectionString` | Blob Storage |
-| `Azure__Vision__Endpoint` | `Azure:Vision:Endpoint` | Computer Vision |
-| `Azure__Vision__Key` | `Azure:Vision:Key` | Computer Vision |
-| `Azure__Maps__SubscriptionKey` | `Azure:Maps:SubscriptionKey` | Azure Maps |
-| `WhatsApp__AppSecret` | `WhatsApp:AppSecret` | Meta HMAC secret |
-| `WhatsApp__VerifyToken` | `WhatsApp:VerifyToken` | Meta webhook verify token |
-| `WhatsApp__PhoneNumberId` | `WhatsApp:PhoneNumberId` | Meta phone number ID |
-| `WhatsApp__AccessToken` | `WhatsApp:AccessToken` | Meta access token |
-| `Email__SmtpHost` | `Email:SmtpHost` | SMTP host |
-| `Email__SmtpPort` | `Email:SmtpPort` | SMTP port |
-| `Email__SmtpUser` | `Email:SmtpUser` | SMTP user |
-| `Email__SmtpPassword` | `Email:SmtpPassword` | SMTP password |
-| `Cors__AllowedOrigins__0` | `Cors:AllowedOrigins[0]` | Frontend origin permitido |
-| `VisualMatch__BaseUrl` | `VisualMatch:BaseUrl` | URL base para links de perfil en resultados |
-| `ApplicationInsights__ConnectionString` | — | Application Insights |
+| Variable de entorno                     | Sección JSON                          | Descripción                                 |
+| --------------------------------------- | ------------------------------------- | ------------------------------------------- |
+| `ConnectionStrings__DefaultConnection`  | `ConnectionStrings:DefaultConnection` | SQL Server                                  |
+| `Jwt__Key`                              | `Jwt:Key`                             | JWT signing key                             |
+| `Jwt__Issuer`                           | `Jwt:Issuer`                          | JWT issuer                                  |
+| `Jwt__Audience`                         | `Jwt:Audience`                        | JWT audience                                |
+| `Azure__Storage__ConnectionString`      | `Azure:Storage:ConnectionString`      | Blob Storage                                |
+| `Azure__Vision__Endpoint`               | `Azure:Vision:Endpoint`               | Computer Vision                             |
+| `Azure__Vision__Key`                    | `Azure:Vision:Key`                    | Computer Vision                             |
+| `Azure__Maps__SubscriptionKey`          | `Azure:Maps:SubscriptionKey`          | Azure Maps                                  |
+| `WhatsApp__AppSecret`                   | `WhatsApp:AppSecret`                  | Meta HMAC secret                            |
+| `WhatsApp__VerifyToken`                 | `WhatsApp:VerifyToken`                | Meta webhook verify token                   |
+| `WhatsApp__PhoneNumberId`               | `WhatsApp:PhoneNumberId`              | Meta phone number ID                        |
+| `WhatsApp__AccessToken`                 | `WhatsApp:AccessToken`                | Meta access token                           |
+| `Email__SmtpHost`                       | `Email:SmtpHost`                      | SMTP host                                   |
+| `Email__SmtpPort`                       | `Email:SmtpPort`                      | SMTP port                                   |
+| `Email__SmtpUser`                       | `Email:SmtpUser`                      | SMTP user                                   |
+| `Email__SmtpPassword`                   | `Email:SmtpPassword`                  | SMTP password                               |
+| `Cors__AllowedOrigins__0`               | `Cors:AllowedOrigins[0]`              | Frontend origin permitido                   |
+| `VisualMatch__BaseUrl`                  | `VisualMatch:BaseUrl`                 | URL base para links de perfil en resultados |
+| `ApplicationInsights__ConnectionString` | —                                     | Application Insights                        |
 
 ---
 
@@ -572,12 +577,12 @@ Un middleware `OnTokenValidated` verifica si el `jti` del token está en la tabl
 
 ### 9.5 Roles
 
-| Rol | Valor en DB | Acceso |
-|-----|-------------|--------|
-| `Owner` | 0 | Dueño de mascotas — rol por defecto |
-| `Ally` | 1 | Aliado verificado |
-| `Clinic` | 2 | Veterinaria afiliada |
-| `Admin` | 3 | Administrador de plataforma |
+| Rol      | Valor en DB | Acceso                              |
+| -------- | ----------- | ----------------------------------- |
+| `Owner`  | 0           | Dueño de mascotas — rol por defecto |
+| `Ally`   | 1           | Aliado verificado                   |
+| `Clinic` | 2           | Veterinaria afiliada                |
+| `Admin`  | 3           | Administrador de plataforma         |
 
 ### 9.6 Políticas de autorización
 
@@ -641,170 +646,171 @@ Configurado con `KnownNetworks` restringido a rangos RFC-1918 (Azure VNET) para 
 ### Autenticación
 
 Todos los endpoints protegidos requieren:
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 ### Módulo Auth — `/api/auth`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| POST | `/register` | No | Crear cuenta |
-| POST | `/verify-email` | No | Verificar email con token |
-| POST | `/login` | No | Login → JWT + refresh token |
-| POST | `/refresh` | No | Renovar JWT con refresh token |
-| POST | `/logout` | Sí | Invalidar sesión |
-| GET | `/me` | Sí | Perfil del usuario actual |
-| PUT | `/me` | Sí | Actualizar perfil |
+| Método | Endpoint        | Auth | Descripción                   |
+| ------ | --------------- | ---- | ----------------------------- |
+| POST   | `/register`     | No   | Crear cuenta                  |
+| POST   | `/verify-email` | No   | Verificar email con token     |
+| POST   | `/login`        | No   | Login → JWT + refresh token   |
+| POST   | `/refresh`      | No   | Renovar JWT con refresh token |
+| POST   | `/logout`       | Sí   | Invalidar sesión              |
+| GET    | `/me`           | Sí   | Perfil del usuario actual     |
+| PUT    | `/me`           | Sí   | Actualizar perfil             |
 
 ### Módulo Pets — `/api/pets`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| GET | `/` | Sí | Mis mascotas |
-| POST | `/` | Sí | Crear mascota |
-| GET | `/:id` | Sí | Detalle de mascota |
-| PUT | `/:id` | Sí | Actualizar mascota |
-| DELETE | `/:id` | Sí | Eliminar mascota |
-| POST | `/:id/photo` | Sí | Subir foto (multipart, max 5 MB) |
-| GET | `/:id/qr` | Sí | Generar imagen QR |
-| GET | `/:id/scan-history` | Sí | Historial de escaneos |
-| GET | `/:id/whatsapp-avatar` | No | Imagen avatar composición QR + foto |
+| Método | Endpoint               | Auth | Descripción                         |
+| ------ | ---------------------- | ---- | ----------------------------------- |
+| GET    | `/`                    | Sí   | Mis mascotas                        |
+| POST   | `/`                    | Sí   | Crear mascota                       |
+| GET    | `/:id`                 | Sí   | Detalle de mascota                  |
+| PUT    | `/:id`                 | Sí   | Actualizar mascota                  |
+| DELETE | `/:id`                 | Sí   | Eliminar mascota                    |
+| POST   | `/:id/photo`           | Sí   | Subir foto (multipart, max 5 MB)    |
+| GET    | `/:id/qr`              | Sí   | Generar imagen QR                   |
+| GET    | `/:id/scan-history`    | Sí   | Historial de escaneos               |
+| GET    | `/:id/whatsapp-avatar` | No   | Imagen avatar composición QR + foto |
 
 ### Módulo Public — `/api/public`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| GET | `/pets/:id` | Opcional | Perfil público de mascota (+ registra scan) |
-| GET | `/map` | No | Datos del mapa público |
-| GET | `/movement/:lostEventId` | No | Predicción de movimiento |
+| Método | Endpoint                 | Auth     | Descripción                                 |
+| ------ | ------------------------ | -------- | ------------------------------------------- |
+| GET    | `/pets/:id`              | Opcional | Perfil público de mascota (+ registra scan) |
+| GET    | `/map`                   | No       | Datos del mapa público                      |
+| GET    | `/movement/:lostEventId` | No       | Predicción de movimiento                    |
 
 ### Módulo Public Stats — `/api/public/stats`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| GET | `/recovery-rates` | No | Tasas de recuperación (filtros: species, breed, canton) |
-| GET | `/recovery-overview` | No | Resumen general de recuperación |
+| Método | Endpoint             | Auth | Descripción                                             |
+| ------ | -------------------- | ---- | ------------------------------------------------------- |
+| GET    | `/recovery-rates`    | No   | Tasas de recuperación (filtros: species, breed, canton) |
+| GET    | `/recovery-overview` | No   | Resumen general de recuperación                         |
 
 ### Módulo Lost Pets — `/api/lost-pets`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| POST | `/` | Sí | Crear reporte de pérdida |
-| GET | `/:id` | Sí | Detalle del reporte |
-| GET | `/by-pet/:petId` | Sí | Reporte activo para una mascota |
-| GET | `/:id/contact` | Sí | Contacto controlado del dueño |
-| GET | `/:id/case` | Sí | Datos de la sala de caso |
-| PATCH | `/:id/status` | Sí | Cambiar estado del reporte |
-| POST | `/:id/handover/code` | Sí | Generar código de entrega |
-| POST | `/:id/handover/verify` | Sí | Verificar código de entrega |
+| Método | Endpoint               | Auth | Descripción                     |
+| ------ | ---------------------- | ---- | ------------------------------- |
+| POST   | `/`                    | Sí   | Crear reporte de pérdida        |
+| GET    | `/:id`                 | Sí   | Detalle del reporte             |
+| GET    | `/by-pet/:petId`       | Sí   | Reporte activo para una mascota |
+| GET    | `/:id/contact`         | Sí   | Contacto controlado del dueño   |
+| GET    | `/:id/case`            | Sí   | Datos de la sala de caso        |
+| PATCH  | `/:id/status`          | Sí   | Cambiar estado del reporte      |
+| POST   | `/:id/handover/code`   | Sí   | Generar código de entrega       |
+| POST   | `/:id/handover/verify` | Sí   | Verificar código de entrega     |
 
 ### Módulo Sightings — `/api/sightings`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| POST | `/` | No | Reportar avistamiento (anónimo) |
-| GET | `/by-pet/:petId` | Sí | Avistamientos de una mascota |
-| POST | `/visual-match` | No | Matching visual por foto (multipart) |
-| GET | `/visual-match/:sightingId` | No | Matching por avistamiento existente |
+| Método | Endpoint                    | Auth | Descripción                          |
+| ------ | --------------------------- | ---- | ------------------------------------ |
+| POST   | `/`                         | No   | Reportar avistamiento (anónimo)      |
+| GET    | `/by-pet/:petId`            | Sí   | Avistamientos de una mascota         |
+| POST   | `/visual-match`             | No   | Matching visual por foto (multipart) |
+| GET    | `/visual-match/:sightingId` | No   | Matching por avistamiento existente  |
 
 ### Módulo Found Pets — `/api/found-pets`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| POST | `/` | No | Reportar mascota encontrada sin QR |
-| GET | `/:id/matches` | No | Candidatos de matching para reporte |
+| Método | Endpoint       | Auth | Descripción                         |
+| ------ | -------------- | ---- | ----------------------------------- |
+| POST   | `/`            | No   | Reportar mascota encontrada sin QR  |
+| GET    | `/:id/matches` | No   | Candidatos de matching para reporte |
 
 ### Módulo Broadcast — `/api/broadcast`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| POST | `/lost-pets/:lostEventId` | Sí | Disparar difusión multi-canal |
-| GET | `/lost-pets/:lostEventId` | Sí | Estado de la difusión |
+| Método | Endpoint                  | Auth | Descripción                   |
+| ------ | ------------------------- | ---- | ----------------------------- |
+| POST   | `/lost-pets/:lostEventId` | Sí   | Disparar difusión multi-canal |
+| GET    | `/lost-pets/:lostEventId` | Sí   | Estado de la difusión         |
 
 ### Módulo Search Coordination — `/api/search-coordination`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| POST | `/:lostEventId/activate` | Sí | Activar cuadrícula de zonas |
-| GET | `/:lostEventId/zones` | Sí | Obtener zonas actuales |
+| Método | Endpoint                 | Auth | Descripción                 |
+| ------ | ------------------------ | ---- | --------------------------- |
+| POST   | `/:lostEventId/activate` | Sí   | Activar cuadrícula de zonas |
+| GET    | `/:lostEventId/zones`    | Sí   | Obtener zonas actuales      |
 
 _(El claim/clear/release de zonas va por SignalR — ver sección 12)_
 
 ### Módulo Chat — `/api/chat`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| POST | `/:lostEventId/:ownerUserId` | Sí | Enviar mensaje |
-| GET | `/:lostEventId/:ownerUserId` | Sí | Historial de mensajes |
-| GET | `/:lostEventId/:ownerUserId/threads` | Sí | Hilos de conversación |
+| Método | Endpoint                             | Auth | Descripción           |
+| ------ | ------------------------------------ | ---- | --------------------- |
+| POST   | `/:lostEventId/:ownerUserId`         | Sí   | Enviar mensaje        |
+| GET    | `/:lostEventId/:ownerUserId`         | Sí   | Historial de mensajes |
+| GET    | `/:lostEventId/:ownerUserId/threads` | Sí   | Hilos de conversación |
 
 ### Módulo Fraud Reports — `/api/fraud-reports`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| POST | `/` | Sí | Crear reporte de fraude |
+| Método | Endpoint | Auth | Descripción             |
+| ------ | -------- | ---- | ----------------------- |
+| POST   | `/`      | Sí   | Crear reporte de fraude |
 
 ### Módulo Notifications — `/api/notifications`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| GET | `/` | Sí | Inbox de notificaciones |
-| POST | `/:id/read` | Sí | Marcar como leída |
-| POST | `/read-all` | Sí | Marcar todas como leídas |
-| GET | `/preferences` | Sí | Obtener preferencias |
-| PUT | `/preferences` | Sí | Actualizar preferencias |
-| POST | `/push-subscription` | Sí | Registrar endpoint push |
+| Método | Endpoint             | Auth | Descripción              |
+| ------ | -------------------- | ---- | ------------------------ |
+| GET    | `/`                  | Sí   | Inbox de notificaciones  |
+| POST   | `/:id/read`          | Sí   | Marcar como leída        |
+| POST   | `/read-all`          | Sí   | Marcar todas como leídas |
+| GET    | `/preferences`       | Sí   | Obtener preferencias     |
+| PUT    | `/preferences`       | Sí   | Actualizar preferencias  |
+| POST   | `/push-subscription` | Sí   | Registrar endpoint push  |
 
 ### Módulo Allies — `/api/allies`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| POST | `/apply` | Sí | Postularse como aliado |
-| GET | `/me` | Ally | Ver mi perfil de aliado |
-| GET | `/pending` | Admin | Solicitudes pendientes |
-| POST | `/:userId/review` | Admin | Aprobar/rechazar aliado |
+| Método | Endpoint          | Auth  | Descripción             |
+| ------ | ----------------- | ----- | ----------------------- |
+| POST   | `/apply`          | Sí    | Postularse como aliado  |
+| GET    | `/me`             | Ally  | Ver mi perfil de aliado |
+| GET    | `/pending`        | Admin | Solicitudes pendientes  |
+| POST   | `/:userId/review` | Admin | Aprobar/rechazar aliado |
 
 ### Módulo Fosters — `/api/fosters`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| GET | `/me` | Sí | Mi perfil de custodio |
-| PUT | `/me` | Sí | Crear/actualizar perfil de custodio |
-| GET | `/suggestions/from-found-report/:id` | Sí | Custodios sugeridos |
-| POST | `/custody/start` | Sí | Iniciar custodia |
-| POST | `/custody/:id/close` | Sí | Cerrar custodia |
+| Método | Endpoint                             | Auth | Descripción                         |
+| ------ | ------------------------------------ | ---- | ----------------------------------- |
+| GET    | `/me`                                | Sí   | Mi perfil de custodio               |
+| PUT    | `/me`                                | Sí   | Crear/actualizar perfil de custodio |
+| GET    | `/suggestions/from-found-report/:id` | Sí   | Custodios sugeridos                 |
+| POST   | `/custody/start`                     | Sí   | Iniciar custodia                    |
+| POST   | `/custody/:id/close`                 | Sí   | Cerrar custodia                     |
 
 ### Módulo Clinics — `/api/clinics`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| POST | `/register` | No | Registrar clínica |
-| GET | `/me` | Clinic | Mi perfil de clínica |
-| POST | `/scan` | Clinic | Registrar escaneo de microchip |
-| GET | `/pending` | Admin | Clínicas pendientes de aprobación |
-| POST | `/:clinicId/review` | Admin | Aprobar/rechazar clínica |
+| Método | Endpoint            | Auth   | Descripción                       |
+| ------ | ------------------- | ------ | --------------------------------- |
+| POST   | `/register`         | No     | Registrar clínica                 |
+| GET    | `/me`               | Clinic | Mi perfil de clínica              |
+| POST   | `/scan`             | Clinic | Registrar escaneo de microchip    |
+| GET    | `/pending`          | Admin  | Clínicas pendientes de aprobación |
+| POST   | `/:clinicId/review` | Admin  | Aprobar/rechazar clínica          |
 
 ### Módulo Incentives — `/api/incentives`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| GET | `/leaderboard` | No | Top N contribuidores |
-| GET | `/my-score` | Sí | Mi puntaje e insignia |
+| Método | Endpoint       | Auth | Descripción           |
+| ------ | -------------- | ---- | --------------------- |
+| GET    | `/leaderboard` | No   | Top N contribuidores  |
+| GET    | `/my-score`    | Sí   | Mi puntaje e insignia |
 
 ### Módulo Locations — `/api/me/location`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| GET | `/` | Sí | Mis preferencias de ubicación |
-| PUT | `/` | Sí | Actualizar preferencias de ubicación |
+| Método | Endpoint | Auth | Descripción                          |
+| ------ | -------- | ---- | ------------------------------------ |
+| GET    | `/`      | Sí   | Mis preferencias de ubicación        |
+| PUT    | `/`      | Sí   | Actualizar preferencias de ubicación |
 
 ### Módulo WhatsApp — `/api/whatsapp`
 
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| GET | `/webhook` | No | Handshake de verificación Meta |
-| POST | `/webhook` | No (HMAC) | Recibir mensajes entrantes |
+| Método | Endpoint   | Auth      | Descripción                    |
+| ------ | ---------- | --------- | ------------------------------ |
+| GET    | `/webhook` | No        | Handshake de verificación Meta |
+| POST   | `/webhook` | No (HMAC) | Recibir mensajes entrantes     |
 
 ---
 
@@ -819,20 +825,20 @@ El hub gestiona el estado de las zonas de búsqueda en tiempo real. Los cambios 
 
 ### Métodos del servidor (llamados por el cliente)
 
-| Método | Parámetros | Acción |
-|--------|-----------|--------|
-| `ClaimZone` | `lostEventId, zoneId` | El voluntario reclama una zona |
-| `ClearZone` | `lostEventId, zoneId` | El voluntario marca la zona como revisada |
-| `ReleaseZone` | `lostEventId, zoneId` | El voluntario libera la zona |
-| `JoinCase` | `lostEventId` | Unirse al grupo del caso (para recibir updates) |
-| `LeaveCase` | `lostEventId` | Salir del grupo del caso |
+| Método        | Parámetros            | Acción                                          |
+| ------------- | --------------------- | ----------------------------------------------- |
+| `ClaimZone`   | `lostEventId, zoneId` | El voluntario reclama una zona                  |
+| `ClearZone`   | `lostEventId, zoneId` | El voluntario marca la zona como revisada       |
+| `ReleaseZone` | `lostEventId, zoneId` | El voluntario libera la zona                    |
+| `JoinCase`    | `lostEventId`         | Unirse al grupo del caso (para recibir updates) |
+| `LeaveCase`   | `lostEventId`         | Salir del grupo del caso                        |
 
 ### Eventos del hub (recibidos por el cliente)
 
-| Evento | Payload | Cuándo se dispara |
-|--------|---------|------------------|
-| `ZoneUpdated` | `{ zoneId, status, claimedByUserId }` | Cuando cualquier zona cambia de estado |
-| `SearchActivated` | `{ lostEventId, zones[] }` | Cuando se activa una nueva cuadrícula |
+| Evento            | Payload                               | Cuándo se dispara                      |
+| ----------------- | ------------------------------------- | -------------------------------------- |
+| `ZoneUpdated`     | `{ zoneId, status, claimedByUserId }` | Cuando cualquier zona cambia de estado |
+| `SearchActivated` | `{ lostEventId, zones[] }`            | Cuando se activa una nueva cuadrícula  |
 
 ---
 
@@ -919,13 +925,13 @@ AwaitingPhoto
 
 ### Tipos de notificación in-app
 
-| Tipo | Origen | Destinatario |
-|------|--------|-------------|
-| `SightingReceived` | Nuevo avistamiento | Dueño de la mascota |
-| `ChatMessage` | Nuevo mensaje de chat | Participante del chat |
-| `PetLostNearby` | Mascota perdida en área | Usuarios con alertas geográficas activas |
-| `AllyAlert` | Mascota perdida en zona de cobertura | Aliados verificados |
-| `ZoneUpdate` | Cambio de zona de búsqueda | Via SignalR (no in-app) |
+| Tipo               | Origen                               | Destinatario                             |
+| ------------------ | ------------------------------------ | ---------------------------------------- |
+| `SightingReceived` | Nuevo avistamiento                   | Dueño de la mascota                      |
+| `ChatMessage`      | Nuevo mensaje de chat                | Participante del chat                    |
+| `PetLostNearby`    | Mascota perdida en área              | Usuarios con alertas geográficas activas |
+| `AllyAlert`        | Mascota perdida en zona de cobertura | Aliados verificados                      |
+| `ZoneUpdate`       | Cambio de zona de búsqueda           | Via SignalR (no in-app)                  |
 
 ### Push Notifications (Web Push)
 
@@ -945,13 +951,13 @@ Rate limiting implementado con `Microsoft.AspNetCore.RateLimiting` (sliding wind
 
 ### Políticas activas
 
-| Política | Límite | Usado en |
-|----------|--------|---------|
-| `register` | 5 req/10 min por IP | `/api/auth/register`, `/api/clinics/register` |
-| `login` | 10 req/min por IP | `/api/auth/login` |
-| `public-api` | 30 req/min por IP | La mayoría de endpoints públicos y autenticados |
-| `sightings` | 20 req/min por IP | `/api/sightings`, webhook WhatsApp |
-| `broadcast` | 3 req/10 min por IP | `/api/broadcast` |
+| Política     | Límite              | Usado en                                        |
+| ------------ | ------------------- | ----------------------------------------------- |
+| `register`   | 5 req/10 min por IP | `/api/auth/register`, `/api/clinics/register`   |
+| `login`      | 10 req/min por IP   | `/api/auth/login`                               |
+| `public-api` | 30 req/min por IP   | La mayoría de endpoints públicos y autenticados |
+| `sightings`  | 20 req/min por IP   | `/api/sightings`, webhook WhatsApp              |
+| `broadcast`  | 3 req/10 min por IP | `/api/broadcast`                                |
 
 La clave de IP se extrae de `HttpContext.Connection.RemoteIpAddress` post-forwarded-headers, garantizando que se use la IP real del cliente y no la del proxy Azure.
 
@@ -1055,6 +1061,7 @@ dotnet ef database update \
 Activado via `builder.Services.AddApplicationInsightsTelemetry()` con la connection string de Key Vault.
 
 Telemetría automática:
+
 - Request/response time y status codes
 - Dependency calls (SQL, Blob, Computer Vision, Maps)
 - Exceptions
@@ -1062,15 +1069,15 @@ Telemetría automática:
 
 ### Alertas configuradas en Bicep
 
-| Alerta | Condición | Acción |
-|--------|-----------|--------|
+| Alerta        | Condición                              | Acción                      |
+| ------------- | -------------------------------------- | --------------------------- |
 | `High5xxRate` | Tasa de errores 5xx > umbral por 5 min | Email a `alertEmailAddress` |
 
 ### Health checks
 
-| Endpoint | Descripción |
-|----------|-------------|
-| `/health` | Estado básico de la app |
+| Endpoint        | Descripción                                       |
+| --------------- | ------------------------------------------------- |
+| `/health`       | Estado básico de la app                           |
 | `/health/ready` | Verifica conectividad a SQL Server y dependencias |
 
 ---
@@ -1114,4 +1121,4 @@ Telemetría automática:
 
 ---
 
-*PawTrack CR — Manual Técnico · Versión 1.0 · Abril 2026*
+_PawTrack CR — Manual Técnico · Versión 1.0 · Abril 2026_

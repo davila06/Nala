@@ -15,6 +15,11 @@ public sealed class GetRecoveryOverviewQueryHandler(
     {
         var raw = await repository.GetRecoveryOverviewRawAsync(cancellationToken);
 
+        // Totals from ALL raw rows before the display-only Take(20) truncation
+        var totalReports = raw.CantonRows.Sum(x => x.TotalReports);
+        var recoveredCount = raw.CantonRows.Sum(x => x.RecoveredCount);
+        var overallRate = totalReports == 0 ? 0 : (double)recoveredCount / totalReports;
+
         var cantonRows = raw.CantonRows
             .Select(row => new RecoveryOverviewByCantonDto(
                 row.Canton,
@@ -33,10 +38,6 @@ public sealed class GetRecoveryOverviewQueryHandler(
                 Median(row.RecoveryHours)))
             .OrderBy(x => x.MedianRecoveryHours ?? double.MaxValue)
             .ToArray();
-
-        var totalReports = cantonRows.Sum(x => x.TotalReports);
-        var recoveredCount = cantonRows.Sum(x => x.RecoveredCount);
-        var overallRate = totalReports == 0 ? 0 : (double)recoveredCount / totalReports;
 
         return new RecoveryOverviewDto(
             totalReports,

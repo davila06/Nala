@@ -23,10 +23,6 @@ import { ProgressiveImg } from "@/shared/hooks/useProgressiveImage";
 import { Tabs, type TabItem } from "@/shared/ui/Tabs";
 import { CollarGpsTab } from "../components/CollarGpsTab";
 import { useAuthStore } from "@/features/auth/store/authStore";
-import { CollarGpsTab } from "../components/CollarGpsTab";
-import { useAuthStore } from "@/features/auth/store/authStore";
-import { CollarGpsTab } from "../components/CollarGpsTab";
-import { useAuthStore } from "@/features/auth/store/authStore";
 
 export default function PetDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -143,7 +139,6 @@ export default function PetDetailPage() {
     },
     { id: "qr", label: "QR", icon: "🏷️" },
     { id: "avistamientos", label: "Avistamientos", icon: "📍" },
-    { id: "gps", label: "GPS", icon: "📡" },
     { id: "gps", label: "GPS", icon: "📡" },
   ];
 

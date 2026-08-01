@@ -103,6 +103,8 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
       />
     );
   }
+
+  return (
     <AnimatePresence>
       <motion.div
         className="fixed inset-0 z-50 flex items-end bg-black/50 sm:items-center sm:justify-center p-4"
@@ -214,7 +216,10 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => tier.subscriptionTier && setPendingTier(tier.subscriptionTier)}
+                    onClick={() =>
+                      tier.subscriptionTier &&
+                      setPendingTier(tier.subscriptionTier)
+                    }
                     className={[
                       "block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
                       tier.id === "plus"

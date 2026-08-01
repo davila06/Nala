@@ -93,7 +93,8 @@ public sealed class RecoveryStatsReadRepository(PawTrackDbContext dbContext) : I
             .GroupBy(x => x.CantonName ?? "Sin cantón")
             .Select(group => new RecoveryCantonRawItem(
                 group.Key,
-                group.Count(),
+                // Exclude Cancelled so the denominator only counts genuine search attempts
+                group.Count(x => x.Status != Domain.LostPets.LostPetStatus.Cancelled),
                 group.Count(x => x.Status == Domain.LostPets.LostPetStatus.Reunited)))
             .ToListAsync(cancellationToken);
 

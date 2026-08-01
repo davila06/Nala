@@ -242,7 +242,7 @@ function BrandPanel() {
 
       {/* Holographic stat cards — mouse-tracked 3D tilt */}
       <div className="flex gap-3 relative z-10">
-        {totalReports > 0 ? (
+        {totalReunited > 0 ? (
           <>
             <HoloStatItem
               end={totalReports}

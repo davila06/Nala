@@ -19,11 +19,12 @@ public sealed class TractiveService(
 {
     private const string AuthBase = "https://my.tractive.com";
     private const string ApiBase = "https://graph.tractive.com/3";
-    private const string RedirectUri = "https://api.pawtrack.cr/api/collars/tractive/callback";
 
     private string ClientId => configuration["Tractive:ClientId"] ?? string.Empty;
     private string ClientSecret => configuration["Tractive:ClientSecret"] ?? string.Empty;
     private string EncryptKey => configuration["Tractive:EncryptKey"] ?? string.Empty;
+    // Resolved from App:BaseUrl so OAuth works in dev, staging and prod
+    private string RedirectUri => $"{configuration["App:BaseUrl"]}/api/collars/tractive/callback";
 
     public string GetAuthorizationUrl(string state)
     {

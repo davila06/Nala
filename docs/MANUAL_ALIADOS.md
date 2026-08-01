@@ -2,7 +2,7 @@
 
 **Versión:** 1.0  
 **Audiencia:** Organizaciones aliadas verificadas y solicitantes  
-**Última actualización:** Junio 2026
+**Última actualización:** Julio 2026
 
 ---
 
@@ -34,13 +34,13 @@ La participación es voluntaria. No se requiere pago ni membresía.
 
 Al postularte debes seleccionar el tipo que mejor describe a tu organización:
 
-| Tipo | Descripción |
-|------|-------------|
-| **Veterinaria** | Clínica o consultorio veterinario que puede recibir mascotas encontradas o brindar atención de emergencia |
-| **Refugio** | Albergue o refugio de animales que puede custodiar mascotas temporalmente |
+| Tipo                      | Descripción                                                                                                  |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **Veterinaria**           | Clínica o consultorio veterinario que puede recibir mascotas encontradas o brindar atención de emergencia    |
+| **Refugio**               | Albergue o refugio de animales que puede custodiar mascotas temporalmente                                    |
 | **Comercio pet-friendly** | Establecimiento comercial abierto al público que acepta mascotas y puede ser punto de referencia comunitaria |
-| **Seguridad privada** | Empresa o personal de seguridad con cobertura en zonas residenciales o comerciales |
-| **Municipalidad** | Institución municipal con capacidad de apoyo logístico o comunicación oficial |
+| **Seguridad privada**     | Empresa o personal de seguridad con cobertura en zonas residenciales o comerciales                           |
+| **Municipalidad**         | Institución municipal con capacidad de apoyo logístico o comunicación oficial                                |
 
 ---
 
@@ -60,11 +60,11 @@ Necesitas tener una cuenta registrada en PawTrack CR con rol habitual (propietar
 
 El formulario pide los siguientes datos:
 
-| Campo | Descripción |
-|-------|-------------|
-| **Organización** | Nombre oficial de tu organización (ej. "Fundación Huellas Seguras") |
-| **Tipo de aliado** | Selecciona de la lista desplegable (ver sección 2) |
-| **Zona de cobertura** | Nombre descriptivo del área que tu equipo puede cubrir (ej. "Barrio Escalante, San José") |
+| Campo                 | Descripción                                                                                                |
+| --------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Organización**      | Nombre oficial de tu organización (ej. "Fundación Huellas Seguras")                                        |
+| **Tipo de aliado**    | Selecciona de la lista desplegable (ver sección 2)                                                         |
+| **Zona de cobertura** | Nombre descriptivo del área que tu equipo puede cubrir (ej. "Barrio Escalante, San José")                  |
 | **Área de cobertura** | Mapa interactivo donde seleccionas el punto central y el radio en metros que tu organización puede atender |
 
 ### 3.4 Enviar la solicitud
@@ -79,11 +79,11 @@ Una vez completados todos los campos, haz clic en **Enviar solicitud**. Serás r
 
 Después de enviar tu postulación, el panel muestra tu estado actual:
 
-| Estado | Descripción | Qué hacer |
-|--------|-------------|-----------|
-| **Pendiente de revisión** | Tu solicitud fue recibida y está en cola de revisión | Esperar. Recibirás una notificación cuando sea procesada |
-| **Verificado** | Tu organización fue aprobada como aliado | Tienes acceso a la bandeja operativa (sección 5) |
-| **Requiere nueva postulación** | Tu solicitud anterior fue rechazada | Puedes enviar una nueva solicitud con información corregida desde el mismo panel |
+| Estado                         | Descripción                                          | Qué hacer                                                                        |
+| ------------------------------ | ---------------------------------------------------- | -------------------------------------------------------------------------------- |
+| **Pendiente de revisión**      | Tu solicitud fue recibida y está en cola de revisión | Esperar. Recibirás una notificación cuando sea procesada                         |
+| **Verificado**                 | Tu organización fue aprobada como aliado             | Tienes acceso a la bandeja operativa (sección 5)                                 |
+| **Requiere nueva postulación** | Tu solicitud anterior fue rechazada                  | Puedes enviar una nueva solicitud con información corregida desde el mismo panel |
 
 ---
 
@@ -107,9 +107,9 @@ En la esquina superior derecha de la bandeja aparece el número de alertas activ
 
 Cada alerta puede estar en uno de dos estados:
 
-| Estado | Indicador visual |
-|--------|-----------------|
-| **Sin confirmar** | Botón "Ya buscamos en nuestra área" visible |
+| Estado                | Indicador visual                                      |
+| --------------------- | ----------------------------------------------------- |
+| **Sin confirmar**     | Botón "Ya buscamos en nuestra área" visible           |
 | **Acción confirmada** | Badge verde "Acción confirmada" — el botón desaparece |
 
 ---
@@ -129,6 +129,7 @@ Confirma una alerta cuando tu equipo ya tomó alguna acción concreta en el áre
 ### 6.3 Efecto de la confirmación
 
 La confirmación:
+
 - Queda registrada en el sistema con fecha y hora.
 - Notifica al dueño de la mascota que una organización aliada buscó activamente en esa zona.
 - No cierra el caso — el caso permanece activo hasta que el dueño lo marque como reunido.

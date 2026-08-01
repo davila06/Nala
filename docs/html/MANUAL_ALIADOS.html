@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Manual de Aliados — PawTrack CR</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+</head>
+<body>
+<aside id="sidebar">
+  <div class="brand"><span>🐾</span><strong>PawTrack CR<br>Documentación</strong></div>
+  <nav><ul>
+    <li><a href="index.html" class="h2">← Inicio</a></li>
+    <li><a href="MANUAL_USUARIO.html" class="h2">📱 Manual de Usuario</a></li>
+    <li><a href="MANUAL_ADMINISTRADOR.html" class="h2">⚙️ Manual de Administrador</a></li>
+    <li><a href="MANUAL_ALIADOS.html" class="h2">🤝 Manual de Aliados</a></li>
+    <li><a href="MANUAL_CLINICAS.html" class="h2">🏥 Manual de Clínicas Veterinarias</a></li>
+    <li><a href="MANUAL_TECNICO.html" class="h2">🛠️ Manual Técnico</a></li>
+    <li><a href="GUIA_ONBOARDING_DEV.html" class="h2">🚀 Guía de Onboarding Dev</a></li>
+    <li><a href="GUIA_DEPLOY_PASO_A_PASO.html" class="h2">☁️ Guía de Deploy Paso a Paso</a></li>
+    <li><a href="RUNBOOK_OPERACIONES.html" class="h2">📟 Runbook de Operaciones</a></li>
+    <li><a href="DEPLOY_INFO.html" class="h2">🗂️ Datos de Despliegue Beta</a></li>
+    <li><a href="POLITICA_DE_PRIVACIDAD.html" class="h2">🔒 Política de Privacidad</a></li>
+    <li><a href="TERMINOS_DE_USO.html" class="h2">📋 Términos de Uso</a></li>
+  </ul></nav>
+</aside>
+<main id="main">
+  <div id="content"><p style="color:#888;padding:2rem">Cargando…</p></div>
+</main>
+<script>
+const md = "# Manual de Aliados — PawTrack CR\r\n\r\n**Versión:** 1.0  \r\n**Audiencia:** Organizaciones aliadas verificadas y solicitantes  \r\n**Última actualización:** Julio 2026\r\n\r\n---\r\n\r\n## Tabla de contenidos\r\n\r\n1. [¿Qué es un aliado PawTrack?](#1-qué-es-un-aliado-pawtrack)\r\n2. [Tipos de aliados](#2-tipos-de-aliados)\r\n3. [Cómo postularse](#3-cómo-postularse)\r\n4. [Estados de la solicitud](#4-estados-de-la-solicitud)\r\n5. [Bandeja operativa — aliados verificados](#5-bandeja-operativa--aliados-verificados)\r\n6. [Confirmar acciones de búsqueda](#6-confirmar-acciones-de-búsqueda)\r\n7. [Preguntas frecuentes](#7-preguntas-frecuentes)\r\n\r\n---\r\n\r\n## 1. ¿Qué es un aliado PawTrack?\r\n\r\nUn aliado PawTrack CR es una organización o entidad que colabora activamente con la red de recuperación de mascotas. Una vez verificada, tu organización:\r\n\r\n- Recibe **alertas operativas** sobre mascotas perdidas dentro de tu zona de cobertura declarada.\r\n- Puede **confirmar acciones de búsqueda** realizadas en tu área.\r\n- Contribuye a la red de apoyo comunitario que aumenta las probabilidades de reunificación.\r\n\r\nLa participación es voluntaria. No se requiere pago ni membresía.\r\n\r\n---\r\n\r\n## 2. Tipos de aliados\r\n\r\nAl postularte debes seleccionar el tipo que mejor describe a tu organización:\r\n\r\n| Tipo                      | Descripción                                                                                                  |\r\n| ------------------------- | ------------------------------------------------------------------------------------------------------------ |\r\n| **Veterinaria**           | Clínica o consultorio veterinario que puede recibir mascotas encontradas o brindar atención de emergencia    |\r\n| **Refugio**               | Albergue o refugio de animales que puede custodiar mascotas temporalmente                                    |\r\n| **Comercio pet-friendly** | Establecimiento comercial abierto al público que acepta mascotas y puede ser punto de referencia comunitaria |\r\n| **Seguridad privada**     | Empresa o personal de seguridad con cobertura en zonas residenciales o comerciales                           |\r\n| **Municipalidad**         | Institución municipal con capacidad de apoyo logístico o comunicación oficial                                |\r\n\r\n---\r\n\r\n## 3. Cómo postularse\r\n\r\n### 3.1 Requisito previo\r\n\r\nNecesitas tener una cuenta registrada en PawTrack CR con rol habitual (propietario). El rol de Aliado se asigna después de la aprobación.\r\n\r\n### 3.2 Acceder al formulario\r\n\r\n1. Inicia sesión en `https://pawtrack.cr`.\r\n2. El enlace al panel de aliados **solo aparece en tu navegación una vez que el equipo PawTrack te ha dado acceso** al módulo. Si no ves el enlace, no tienes acceso habilitado aún.\r\n3. Accede directamente a `/allies/panel`.\r\n\r\n### 3.3 Completar el formulario de postulación\r\n\r\nEl formulario pide los siguientes datos:\r\n\r\n| Campo                 | Descripción                                                                                                |\r\n| --------------------- | ---------------------------------------------------------------------------------------------------------- |\r\n| **Organización**      | Nombre oficial de tu organización (ej. \"Fundación Huellas Seguras\")                                        |\r\n| **Tipo de aliado**    | Selecciona de la lista desplegable (ver sección 2)                                                         |\r\n| **Zona de cobertura** | Nombre descriptivo del área que tu equipo puede cubrir (ej. \"Barrio Escalante, San José\")                  |\r\n| **Área de cobertura** | Mapa interactivo donde seleccionas el punto central y el radio en metros que tu organización puede atender |\r\n\r\n### 3.4 Enviar la solicitud\r\n\r\nUna vez completados todos los campos, haz clic en **Enviar solicitud**. Serás redirigido a la vista de estado de tu postulación.\r\n\r\n> La revisión es realizada manualmente por el equipo PawTrack y toma entre **1 y 2 días hábiles**.\r\n\r\n---\r\n\r\n## 4. Estados de la solicitud\r\n\r\nDespués de enviar tu postulación, el panel muestra tu estado actual:\r\n\r\n| Estado                         | Descripción                                          | Qué hacer                                                                        |\r\n| ------------------------------ | ---------------------------------------------------- | -------------------------------------------------------------------------------- |\r\n| **Pendiente de revisión**      | Tu solicitud fue recibida y está en cola de revisión | Esperar. Recibirás una notificación cuando sea procesada                         |\r\n| **Verificado**                 | Tu organización fue aprobada como aliado             | Tienes acceso a la bandeja operativa (sección 5)                                 |\r\n| **Requiere nueva postulación** | Tu solicitud anterior fue rechazada                  | Puedes enviar una nueva solicitud con información corregida desde el mismo panel |\r\n\r\n---\r\n\r\n## 5. Bandeja operativa — aliados verificados\r\n\r\nUna vez que tu organización esté verificada, el panel de aliados muestra la **bandeja operativa** en lugar del formulario de postulación.\r\n\r\n### 5.1 Qué son las alertas operativas\r\n\r\nCada vez que se reporta una mascota perdida dentro de tu zona de cobertura declarada, el sistema genera una alerta operativa para tu organización. Esta alerta incluye:\r\n\r\n- **Título** — descripción corta del caso (ej. \"Perro golden perdido, Escazú\")\r\n- **Cuerpo** — información relevante del aviso\r\n- **Fecha y hora** — cuándo se generó la alerta (horario de Costa Rica)\r\n\r\n### 5.2 Contador de alertas activas\r\n\r\nEn la esquina superior derecha de la bandeja aparece el número de alertas activas que aún no han tenido una acción confirmada por tu organización.\r\n\r\n### 5.3 Estado de cada alerta\r\n\r\nCada alerta puede estar en uno de dos estados:\r\n\r\n| Estado                | Indicador visual                                      |\r\n| --------------------- | ----------------------------------------------------- |\r\n| **Sin confirmar**     | Botón \"Ya buscamos en nuestra área\" visible           |\r\n| **Acción confirmada** | Badge verde \"Acción confirmada\" — el botón desaparece |\r\n\r\n---\r\n\r\n## 6. Confirmar acciones de búsqueda\r\n\r\n### 6.1 ¿Cuándo confirmar?\r\n\r\nConfirma una alerta cuando tu equipo ya tomó alguna acción concreta en el área: patrulló la zona, preguntó a vecinos, revisó instalaciones, colocó un cartel, etc.\r\n\r\n### 6.2 Cómo confirmar\r\n\r\n1. En la bandeja operativa, localiza la alerta correspondiente.\r\n2. Haz clic en **Ya buscamos en nuestra área**.\r\n3. El estado de la alerta cambia a \"Acción confirmada\" automáticamente.\r\n\r\n### 6.3 Efecto de la confirmación\r\n\r\nLa confirmación:\r\n\r\n- Queda registrada en el sistema con fecha y hora.\r\n- Notifica al dueño de la mascota que una organización aliada buscó activamente en esa zona.\r\n- No cierra el caso — el caso permanece activo hasta que el dueño lo marque como reunido.\r\n\r\n> **Importante:** Solo puedes confirmar una alerta una vez. No hay forma de deshacer la confirmación desde el panel.\r\n\r\n### 6.4 Alertas sin acciones disponibles\r\n\r\nSi una alerta ya fue confirmada por tu organización, muestra el badge verde y no tiene botón de acción. Esto es normal.\r\n\r\n---\r\n\r\n## 7. Preguntas frecuentes\r\n\r\n**¿Puedo cambiar el área de cobertura después de ser aprobado?**  \r\nNo en la versión actual del panel. Si necesitas actualizar tu cobertura, contacta al equipo PawTrack.\r\n\r\n**¿Recibo notificaciones fuera de la plataforma cuando hay una nueva alerta operativa?**  \r\nEl envío de alertas push a aliados está previsto. Consulta la configuración de notificaciones en el centro de notificaciones de la plataforma para habilitar los avisos que estén disponibles.\r\n\r\n**¿Qué pasa si mi solicitud fue rechazada?**  \r\nEl panel mostrará el estado \"Requiere nueva postulación\". Puedes reenviar el formulario con información más completa o corregida. No hay límite de intentos.\r\n\r\n**¿Cuántas alertas puedo tener activas al mismo tiempo?**  \r\nNo hay límite. Recibirás todas las alertas que el sistema genere dentro de tu zona de cobertura declarada.\r\n\r\n**¿Puedo pertenecer a la red de aliados siendo un individuo y no una organización?**  \r\nEl programa de aliados está orientado a organizaciones. Los individuos pueden contribuir a través del modo voluntario de custodia temporal (Fosters) desde su perfil de usuario.\r\n\r\n**¿Mis datos de contacto son visibles para los dueños de las mascotas?**  \r\nEl nombre de la organización y la zona de cobertura pueden ser visibles en el contexto de los casos. Los datos de contacto individuales de tu cuenta no se exponen públicamente.\r\n";
+const html = DOMPurify.sanitize(marked.parse(md));
+const content = document.getElementById('content');
+content.innerHTML = html;
+
+// Build sidebar nav from rendered headings
+const headings = content.querySelectorAll('h2, h3');
+const sidebar  = document.querySelector('#sidebar nav ul');
+headings.forEach((h, i) => {
+  if (!h.id) {
+    h.id = 'h-' + i + '-' + h.textContent.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').slice(0, 50);
+  }
+  const li = document.createElement('li');
+  const a  = document.createElement('a');
+  a.href      = '#' + h.id;
+  a.textContent = h.textContent.replace(/^#+\s*/, '');
+  a.className = h.tagName.toLowerCase();
+  li.appendChild(a);
+  sidebar.appendChild(li);
+});
+
+// Highlight active link on scroll
+const links = sidebar.querySelectorAll('a[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const active = sidebar.querySelector('a[href="#' + e.target.id + '"]');
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -75% 0px' });
+content.querySelectorAll('h2, h3').forEach(h => obs.observe(h));
+</script>
+</body>
+</html>

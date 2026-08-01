@@ -3,7 +3,7 @@
 **Versión:** 1.0  
 **Plataforma:** Aplicación Web Progresiva (PWA) — accesible desde cualquier navegador  
 **Idioma:** Español  
-**Última actualización:** Abril 2026
+**Última actualización:** Julio 2026
 
 ---
 
@@ -56,13 +56,13 @@ La plataforma funciona como una **aplicación web progresiva (PWA)**: puedes usa
 
 ## 2. Tipos de usuario
 
-| Rol | Descripción |
-|-----|-------------|
-| **Dueño** | Registra mascotas, activa reportes, coordina la búsqueda. Rol por defecto al registrarse. |
-| **Aliado** | Organización verificada (rescatista, refugio, protectora). Recibe alertas enriquecidas y tiene acceso a herramientas de operación. |
-| **Clínica** | Veterinaria afiliada. Puede escanear microchips y registrar visitas de mascotas. |
-| **Administrador** | Equipo PawTrack CR. Verifica aliados, activa clínicas, modera la plataforma. |
-| **Comunidad** | Cualquier persona que escanea un QR o reporta un avistamiento **sin necesidad de cuenta**. |
+| Rol               | Descripción                                                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Dueño**         | Registra mascotas, activa reportes, coordina la búsqueda. Rol por defecto al registrarse.                                          |
+| **Aliado**        | Organización verificada (rescatista, refugio, protectora). Recibe alertas enriquecidas y tiene acceso a herramientas de operación. |
+| **Clínica**       | Veterinaria afiliada. Puede escanear microchips y registrar visitas de mascotas.                                                   |
+| **Administrador** | Equipo PawTrack CR. Verifica aliados, activa clínicas, modera la plataforma.                                                       |
+| **Comunidad**     | Cualquier persona que escanea un QR o reporta un avistamiento **sin necesidad de cuenta**.                                         |
 
 ---
 
@@ -161,6 +161,7 @@ Cuando la mascota está **perdida**, el perfil también muestra:
 - Botón para **contactar al dueño** (abre el chat seguro)
 
 Lo que **nunca** aparece en el perfil público:
+
 - Número de teléfono del dueño
 - Dirección del dueño
 - Correo electrónico
@@ -232,6 +233,7 @@ Para búsquedas organizadas con varias personas, activa el modo de coordinación
 ### Cómo usar las zonas
 
 Cada voluntario en el mapa puede:
+
 - **Reclamar** una zona: "Yo estoy buscando en esta área"
 - **Limpiar** una zona: "Revisé esta zona y no está aquí"
 - **Liberar** una zona: "No puedo seguir, libero la zona para otro"
@@ -338,13 +340,13 @@ El estado de tu mascota vuelve a **Activo** (sana y salva). El reporte se cierra
 
 ### Tipos de notificaciones
 
-| Tipo | Cuándo llega |
-|------|-------------|
-| **Avistamiento nuevo** | Alguien reportó ver a tu mascota |
-| **Chat nuevo** | Alguien escribió en el chat de un caso activo |
+| Tipo                      | Cuándo llega                                                             |
+| ------------------------- | ------------------------------------------------------------------------ |
+| **Avistamiento nuevo**    | Alguien reportó ver a tu mascota                                         |
+| **Chat nuevo**            | Alguien escribió en el chat de un caso activo                            |
 | **Mascota perdida cerca** | Una mascota fue reportada perdida en tu área (si tienes alertas activas) |
-| **Zona de búsqueda** | Cambios en zonas de búsqueda en las que participas |
-| **Sistema** | Actualizaciones de la plataforma |
+| **Zona de búsqueda**      | Cambios en zonas de búsqueda en las que participas                       |
+| **Sistema**               | Actualizaciones de la plataforma                                         |
 
 ### Centro de notificaciones
 
@@ -442,6 +444,7 @@ Las **clínicas afiliadas** son veterinarias verificadas que pueden usar PawTrac
 ### Portal de clínica
 
 Una vez aprobada, accede a `/clinica/portal` donde puedes:
+
 - Buscar mascotas por número de microchip
 - Escanear el código QR del collar o ingresar el número de microchip RFID
 - Ver si la mascota coincide con un perfil registrado en PawTrack
@@ -479,12 +482,12 @@ PawTrack CR reconoce a los usuarios que más han contribuido a reunificar mascot
 
 ### Insignias
 
-| Insignia | Reunificaciones |
-|----------|----------------|
-| Sin insignia | 0 |
-| Bronce | 1–4 |
-| Plata | 5–9 |
-| Oro | 10+ |
+| Insignia     | Reunificaciones |
+| ------------ | --------------- |
+| Sin insignia | 0               |
+| Bronce       | 1–4             |
+| Plata        | 5–9             |
+| Oro          | 10+             |
 
 ### Leaderboard
 
@@ -537,6 +540,7 @@ En reportes activos con varios avistamientos, el sistema puede mostrar una **pre
 ### Tu perfil
 
 Accede a `/perfil` para:
+
 - Actualizar tu nombre
 - Ver tu correo electrónico
 - Configurar tu disponibilidad como voluntario de custodia
@@ -549,6 +553,59 @@ En la app, las preferencias están repartidas en dos espacios:
 - En **Notificaciones** puedes activar notificaciones push y las alertas preventivas de riesgo.
 
 Tu ubicación se usa **solo para enviarte alertas relevantes** de mascotas perdidas cerca de ti. No es visible para otros usuarios.
+
+---
+
+## Planes y suscripciones
+
+PawTrack CR ofrece tres planes:
+
+| Plan           | Precio       | Mascotas   | Destacado                                                                           |
+| -------------- | ------------ | ---------- | ----------------------------------------------------------------------------------- |
+| **Explorador** | Gratis       | 1          | Funciones básicas completas                                                         |
+| **Plus**       | ₡2,990 / mes | Hasta 3    | Alertas instantáneas SMS/WhatsApp, búsqueda IA ilimitada, historial completo        |
+| **Familia**    | ₡4,990 / mes | Ilimitadas | Todo Plus + multi-usuario (5 miembros), exportar historial PDF, soporte prioritario |
+
+### Activar un plan de pago
+
+1. En el Dashboard, toca el banner de **PawTrack Plus** o accede desde la configuración de tu perfil.
+2. Selecciona **Plus** o **Familia**.
+3. Toca **Activar Plus / Activar Familia**.
+4. El sistema genera un código de pago para **SINPE Móvil**. Realiza la transferencia al número indicado con el código como referencia.
+5. El equipo PawTrack verifica el pago y activa el plan dentro de 24 horas hábiles.
+
+> **Sin contrato ni suscripción automática.** Los pagos son manuales vía SINPE; puedes cancelar en cualquier momento contactando a soporte@pawtrack.cr.
+
+### Funciones por plan
+
+| Función                | Explorador | Plus      | Familia     |
+| ---------------------- | ---------- | --------- | ----------- |
+| 1 mascota              | ✓          | ✓         | ✓           |
+| Placa QR               | ✓          | ✓         | ✓           |
+| Reporte de pérdida     | ✓          | ✓         | ✓           |
+| Búsqueda IA por foto   | 3/mes      | Ilimitada | Ilimitada   |
+| Historial de escaneos  | Últimos 5  | Completo  | Completo    |
+| Alertas en radio       | 3 km       | 10 km     | Sin límite  |
+| SMS/WhatsApp           | —          | ✓         | ✓           |
+| Hasta 3 mascotas       | —          | ✓         | ✓           |
+| Mascotas ilimitadas    | —          | —         | ✓           |
+| Multi-usuario          | —          | —         | ✓ (hasta 5) |
+| Exportar historial PDF | —          | —         | ✓           |
+| Soporte prioritario    | —          | —         | ✓           |
+
+---
+
+## Collar GPS (PawTrack Collar)
+
+Si tu mascota usa un collar GPS PawTrack, puedes ver su ubicación en tiempo real desde el perfil de tu mascota.
+
+### Acceder al panel GPS
+
+1. Abre el perfil de tu mascota.
+2. Toca la pestaña **GPS** (ícono 📡).
+3. El mapa muestra la ubicación actual del collar y el historial de posiciones recientes.
+
+> Si tu mascota no tiene un collar GPS asociado, la pestaña GPS estará visible pero mostrará las instrucciones de vinculación.
 
 ---
 
@@ -570,7 +627,7 @@ Sí. PawTrack CR funciona en el navegador Safari de iPhone. Además, puedes inst
 El código QR es solo una imagen — funciona como cualquier QR aunque el celular de quien lo escanea necesita conectarse a internet para ver el perfil.
 
 **¿Cuánto cuesta PawTrack CR?**  
-La plataforma es gratuita para dueños de mascotas y la comunidad en el MVP actual.
+PawTrack CR tiene un plan gratuito y planes de pago opcionales. El plan **Explorador** es siempre gratuito. Los planes **Plus** (₡2,990/mes) y **Familia** (₡4,990/mes) desbloquean funciones avanzadas. Ver sección [Planes y suscripciones](#planes-y-suscripciones).
 
 **¿Cómo sé si alguien escaneó el QR de mi mascota?**  
 Cada escaneo queda registrado. Puedes ver el historial de escaneos en el perfil de tu mascota: fecha, hora y ubicación aproximada.
@@ -586,4 +643,4 @@ Si ves comportamiento sospechoso en el chat, usa el botón "Reportar fraude". Pa
 
 ---
 
-*PawTrack CR — Cada mascota merece volver a casa.*
+_PawTrack CR — Cada mascota merece volver a casa._

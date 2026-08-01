@@ -2,7 +2,7 @@
 
 **Versión:** 1.0  
 **Audiencia:** Equipo de operaciones, developers on-call  
-**Última actualización:** Abril 2026
+**Última actualización:** Julio 2026
 
 > Este runbook describe procedimientos paso a paso para responder a incidentes, realizar tareas operativas recurrentes y ejecutar cambios de alto riesgo en producción.  
 > Sigue siempre el orden exacto de los pasos. En caso de duda, **detente y escala** antes de continuar.
@@ -34,16 +34,16 @@
 
 ## 1. Recursos de producción
 
-| Recurso | Nombre en Azure | URL / Referencia |
-|---------|----------------|-----------------|
-| App Service | `pawtrack-prod-api` | `https://api.pawtrack.cr` |
-| Frontend (Static Web App) | — | `https://pawtrack.cr` |
-| Azure SQL | `pawtrack-prod-sql` / DB `pawtrack` | — |
-| Key Vault | `pawtrack-kv-prod` | `https://pawtrack-kv-prod.vault.azure.net/` |
-| Blob Storage | `pawtrackstorprod` | Contenedores: `pet-photos`, `sighting-photos`, `found-pet-photos`, `lost-pet-photos` |
-| Application Insights | `pawtrack-prod-insights` | Portal Azure → Log Analytics |
-| Log Analytics Workspace | `pawtrack-prod-logs` | Retención: 30 días |
-| App Service Plan | `pawtrack-prod-plan` | SKU: B3 Linux |
+| Recurso                   | Nombre en Azure                     | URL / Referencia                                                                     |
+| ------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------ |
+| App Service               | `pawtrack-prod-api`                 | `https://api.pawtrack.cr`                                                            |
+| Frontend (Static Web App) | —                                   | `https://pawtrack.cr`                                                                |
+| Azure SQL                 | `pawtrack-prod-sql` / DB `pawtrack` | —                                                                                    |
+| Key Vault                 | `pawtrack-kv-prod`                  | `https://pawtrack-kv-prod.vault.azure.net/`                                          |
+| Blob Storage              | `pawtrackstorprod`                  | Contenedores: `pet-photos`, `sighting-photos`, `found-pet-photos`, `lost-pet-photos` |
+| Application Insights      | `pawtrack-prod-insights`            | Portal Azure → Log Analytics                                                         |
+| Log Analytics Workspace   | `pawtrack-prod-logs`                | Retención: 30 días                                                                   |
+| App Service Plan          | `pawtrack-prod-plan`                | SKU: B3 Linux                                                                        |
 
 > **Acceso rápido:** Portal Azure → Resource Group `pawtrack-prod` → seleccionar recurso.
 
@@ -92,8 +92,8 @@ exceptions
 
 ### Triage inicial (primeros 5 minutos)
 
-1. **Verificar el health check:** `curl -f https://api.pawtrack.cr/health`  
-   - Si responde `200` → el proceso está vivo, el error puede ser parcial.  
+1. **Verificar el health check:** `curl -f https://api.pawtrack.cr/health`
+   - Si responde `200` → el proceso está vivo, el error puede ser parcial.
    - Si no responde → ir al paso 4 (reinicio).
 
 2. **Consultar Application Insights** (sección 2) para identificar qué operación está fallando.
@@ -108,13 +108,13 @@ az webapp log tail \
 
 4. **Identificar la causa:**
 
-| Síntoma | Causa probable | Acción |
-|---------|---------------|--------|
-| `SqlException: connection refused` | SQL auto-paused o no disponible | Ver sección 11.1 |
-| `Azure.RequestFailedException` en Storage | Connection string de Storage inválida o servicio degradado | Verificar Key Vault y Azure Storage status |
-| `SecurityTokenExpiredException` masivo | Reloj del servidor desincronizado | Reiniciar App Service (sección 4) |
-| Errores 503 desde el load balancer | App Service sin instancias disponibles | Escalar (sección 5) o reiniciar (sección 4) |
-| `Could not load file or assembly` | Deploy incompleto | Hacer redeploy desde la pipeline |
+| Síntoma                                   | Causa probable                                             | Acción                                      |
+| ----------------------------------------- | ---------------------------------------------------------- | ------------------------------------------- |
+| `SqlException: connection refused`        | SQL auto-paused o no disponible                            | Ver sección 11.1                            |
+| `Azure.RequestFailedException` en Storage | Connection string de Storage inválida o servicio degradado | Verificar Key Vault y Azure Storage status  |
+| `SecurityTokenExpiredException` masivo    | Reloj del servidor desincronizado                          | Reiniciar App Service (sección 4)           |
+| Errores 503 desde el load balancer        | App Service sin instancias disponibles                     | Escalar (sección 5) o reiniciar (sección 4) |
+| `Could not load file or assembly`         | Deploy incompleto                                          | Hacer redeploy desde la pipeline            |
 
 5. Si la causa no es identificable en 10 minutos, **escala** a la persona on-call senior (sección 15).
 
@@ -382,12 +382,12 @@ dependencies
 
 ### Causas comunes y soluciones
 
-| Causa | Síntoma en App Insights | Solución |
-|-------|------------------------|--------|
-| SQL Database auto-paused (serverless) | Primera petición lenta ~5–10 s | Configurar `autoPauseDelay: -1` para deshabilitar el auto-pause en prod, o aceptar el cold start |
-| N+1 en una query | Muchas dependencias `SQL` con duración baja pero alta frecuencia | Revisar el handler con `AsNoTracking()` y `Include()` apropiados |
-| Embedding generation bloqueando la respuesta | Petición `/sightings` lenta | El `EmbeddingRefreshHostedService` debe correr en background, no en el request path |
-| Blobs en contenedor equivocado | `StorageException` en dependencias | Verificar nombres de contenedores en configuración |
+| Causa                                        | Síntoma en App Insights                                          | Solución                                                                                         |
+| -------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| SQL Database auto-paused (serverless)        | Primera petición lenta ~5–10 s                                   | Configurar `autoPauseDelay: -1` para deshabilitar el auto-pause en prod, o aceptar el cold start |
+| N+1 en una query                             | Muchas dependencias `SQL` con duración baja pero alta frecuencia | Revisar el handler con `AsNoTracking()` y `Include()` apropiados                                 |
+| Embedding generation bloqueando la respuesta | Petición `/sightings` lenta                                      | El `EmbeddingRefreshHostedService` debe correr en background, no en el request path              |
+| Blobs en contenedor equivocado               | `StorageException` en dependencias                               | Verificar nombres de contenedores en configuración                                               |
 
 ---
 
@@ -527,12 +527,12 @@ az webapp deploy \
 
 Se recomienda rotar los siguientes secretos cada **90 días**:
 
-| Secreto | Procedimiento |
-|---------|--------------|
-| `jwt-signing-key` | Sección 6.1 (sin purgar refresh tokens si no hay compromiso) |
-| `sql-connection-string` | Sección 6.2 |
+| Secreto                 | Procedimiento                                                                      |
+| ----------------------- | ---------------------------------------------------------------------------------- |
+| `jwt-signing-key`       | Sección 6.1 (sin purgar refresh tokens si no hay compromiso)                       |
+| `sql-connection-string` | Sección 6.2                                                                        |
 | `whatsapp-access-token` | Regenerar en Meta Business Suite → actualizar en Key Vault → reiniciar App Service |
-| `vision-key` | Regenerar en Azure Portal → Azure AI → Key regeneration → actualizar en Key Vault |
+| `vision-key`            | Regenerar en Azure Portal → Azure AI → Key regeneration → actualizar en Key Vault  |
 
 ### Limpieza de datos antiguos (mensual)
 
@@ -554,26 +554,26 @@ WHERE CreatedAt < DATEADD(DAY, -90, GETUTCDATE());
 
 ## 15. Contactos y escalada
 
-| Rol | Responsabilidad | Cuándo contactar |
-|-----|----------------|-----------------|
-| **Lead técnico** | Arquitectura, decisiones de rollback, rotación de secretos críticos | Siempre que haya riesgo de pérdida de datos o compromiso de seguridad |
-| **DevOps / Infraestructura** | App Service, Key Vault, escalado, deploys | Incidentes de disponibilidad que no se resuelven con reinicio |
-| **DBA** | Operaciones de base de datos de emergencia, backups | Secciones 8 y 11 |
-| **Soporte de usuario** | Desbloqueo de cuentas, suspensión de clínicas | Secciones 12 y 13 |
+| Rol                          | Responsabilidad                                                     | Cuándo contactar                                                      |
+| ---------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| **Lead técnico**             | Arquitectura, decisiones de rollback, rotación de secretos críticos | Siempre que haya riesgo de pérdida de datos o compromiso de seguridad |
+| **DevOps / Infraestructura** | App Service, Key Vault, escalado, deploys                           | Incidentes de disponibilidad que no se resuelven con reinicio         |
+| **DBA**                      | Operaciones de base de datos de emergencia, backups                 | Secciones 8 y 11                                                      |
+| **Soporte de usuario**       | Desbloqueo de cuentas, suspensión de clínicas                       | Secciones 12 y 13                                                     |
 
 ### Niveles de escalada
 
-| Severidad | Definición | Tiempo de respuesta objetivo |
-|-----------|-----------|----------------------------|
-| **P1 — Crítico** | Plataforma completamente caída o compromiso de seguridad confirmado | 15 minutos |
-| **P2 — Alto** | Funcionalidad principal degradada (no se pueden reportar mascotas perdidas, login falla) | 1 hora |
-| **P3 — Medio** | Funcionalidad secundaria afectada (notificaciones push, estadísticas) | 4 horas hábiles |
-| **P4 — Bajo** | Comportamiento inesperado sin impacto en usuarios activos | Próximo sprint |
+| Severidad        | Definición                                                                               | Tiempo de respuesta objetivo |
+| ---------------- | ---------------------------------------------------------------------------------------- | ---------------------------- |
+| **P1 — Crítico** | Plataforma completamente caída o compromiso de seguridad confirmado                      | 15 minutos                   |
+| **P2 — Alto**    | Funcionalidad principal degradada (no se pueden reportar mascotas perdidas, login falla) | 1 hora                       |
+| **P3 — Medio**   | Funcionalidad secundaria afectada (notificaciones push, estadísticas)                    | 4 horas hábiles              |
+| **P4 — Bajo**    | Comportamiento inesperado sin impacto en usuarios activos                                | Próximo sprint               |
 
 ### Recursos de estado de servicios externos
 
-| Servicio | Status page |
-|---------|------------|
-| Azure (global) | `https://azure.status.microsoft` |
-| Meta / WhatsApp Cloud API | `https://metastatus.com` |
-| Azure Maps | Panel de Azure Portal → Azure Maps → Resource health |
+| Servicio                  | Status page                                          |
+| ------------------------- | ---------------------------------------------------- |
+| Azure (global)            | `https://azure.status.microsoft`                     |
+| Meta / WhatsApp Cloud API | `https://metastatus.com`                             |
+| Azure Maps                | Panel de Azure Portal → Azure Maps → Resource health |

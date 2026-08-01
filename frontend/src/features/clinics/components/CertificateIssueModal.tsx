@@ -123,8 +123,10 @@ export function CertificateIssueModal({
                   ID de mascota (PawTrack)
                   <input
                     required
+                    pattern="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+                    title="Debe ser un UUID válido (ej. 550e8400-e29b-41d4-a716-446655440000)"
                     className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
-                    placeholder="Guid de la mascota"
+                    placeholder="550e8400-e29b-41d4-a716-446655440000"
                     {...field("petId")}
                   />
                 </label>

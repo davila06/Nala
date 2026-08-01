@@ -2,7 +2,7 @@
 
 **Versión:** 1.0  
 **Fecha de entrada en vigor:** 08 de abril de 2026  
-**Última actualización:** 08 de abril de 2026
+**Última actualización:** 31 de julio de 2026
 
 ---
 

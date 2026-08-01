@@ -2,7 +2,7 @@
 
 **Versión:** 1.0  
 **Audiencia:** Desarrolladores que se incorporan al proyecto  
-**Última actualización:** Junio 2026
+**Última actualización:** Julio 2026
 
 ---
 
@@ -31,13 +31,13 @@
 
 Instala las siguientes herramientas antes de continuar:
 
-| Herramienta | Versión mínima | Verificar |
-|-------------|---------------|-----------|
-| .NET SDK | 9.0 | `dotnet --version` |
-| Node.js | 20 LTS | `node --version` |
-| Docker Desktop | 4.x | `docker --version` |
-| Git | 2.40+ | `git --version` |
-| Azurite CLI | 3.x | `azurite --version` |
+| Herramienta    | Versión mínima | Verificar           |
+| -------------- | -------------- | ------------------- |
+| .NET SDK       | 9.0            | `dotnet --version`  |
+| Node.js        | 20 LTS         | `node --version`    |
+| Docker Desktop | 4.x            | `docker --version`  |
+| Git            | 2.40+          | `git --version`     |
+| Azurite CLI    | 3.x            | `azurite --version` |
 
 ### Instalar Azurite globalmente
 
@@ -72,8 +72,9 @@ Crea el archivo manualmente:
 "TuContraseñaSegura123!" | Set-Content -Path "secrets\sa_password.txt" -Encoding UTF8 -NoNewline
 ```
 
-Requisitos de la contraseña de SQL Server:  
-- Mínimo 8 caracteres  
+Requisitos de la contraseña de SQL Server:
+
+- Mínimo 8 caracteres
 - Al menos una mayúscula, una minúscula, un número y un carácter especial
 
 ### 3.2 Variables de entorno del frontend
@@ -98,10 +99,10 @@ docker compose up -d
 
 Esto levanta:
 
-| Contenedor | Puerto | Propósito |
-|-----------|--------|-----------|
-| `pawtrack-sqlserver` | 1433 | SQL Server 2025 (Developer Edition) |
-| `pawtrack-azurite` | 10000, 10001, 10002 | Emulador de Azure Blob/Queue/Table |
+| Contenedor           | Puerto              | Propósito                           |
+| -------------------- | ------------------- | ----------------------------------- |
+| `pawtrack-sqlserver` | 1433                | SQL Server 2025 (Developer Edition) |
+| `pawtrack-azurite`   | 10000, 10001, 10002 | Emulador de Azure Blob/Queue/Table  |
 
 Verifica que ambos contenedores estén corriendo:
 
@@ -119,12 +120,12 @@ El archivo `appsettings.Development.json` ya incluye la configuración para el e
 
 **Configuración local ya incluida:**
 
-| Variable | Valor |
-|----------|-------|
+| Variable                              | Valor                                                   |
+| ------------------------------------- | ------------------------------------------------------- |
 | `ConnectionStrings:DefaultConnection` | SQL Server local (LocalDB o Docker en `localhost:1433`) |
-| `Jwt:Key` | Clave de desarrollo (no usar en producción) |
-| `Azure:Storage:ConnectionString` | Azurite local (`localhost:10000`) |
-| `Cors:AllowedOrigins` | `http://localhost:5173` y `http://localhost:4173` |
+| `Jwt:Key`                             | Clave de desarrollo (no usar en producción)             |
+| `Azure:Storage:ConnectionString`      | Azurite local (`localhost:10000`)                       |
+| `Cors:AllowedOrigins`                 | `http://localhost:5173` y `http://localhost:4173`       |
 
 Si usas el contenedor Docker (no LocalDB), actualiza la connection string en `appsettings.Development.json`:
 
@@ -176,12 +177,12 @@ Lo que hace el script:
 
 ### Opciones del script
 
-| Flag | Descripción |
-|------|-------------|
-| `-NoBackend` | Inicia solo el frontend (útil cuando ya tienes el backend corriendo) |
-| `-NoFrontend` | Inicia solo el backend |
-| `-RestartAzurite` | Fuerza el reinicio de Azurite aunque ya esté corriendo |
-| `-Mobile` | Expone Vite en la red local para probar la PWA desde el celular (misma WiFi) |
+| Flag              | Descripción                                                                  |
+| ----------------- | ---------------------------------------------------------------------------- |
+| `-NoBackend`      | Inicia solo el frontend (útil cuando ya tienes el backend corriendo)         |
+| `-NoFrontend`     | Inicia solo el backend                                                       |
+| `-RestartAzurite` | Fuerza el reinicio de Azurite aunque ya esté corriendo                       |
+| `-Mobile`         | Expone Vite en la red local para probar la PWA desde el celular (misma WiFi) |
 
 Ejemplo para prueba móvil:
 
@@ -191,15 +192,38 @@ Ejemplo para prueba móvil:
 
 El script detecta tu IP LAN automáticamente e imprime la URL para abrir desde el celular.
 
+### ⚠️ Problema: "Acceso denegado" al iniciar el backend (Windows Defender)
+
+En algunos equipos, Windows Defender bloquea la ejecución del ejecutable `.exe` nativo recién compilado (`PawTrack.API.exe`). Si ves el error `An error occurred trying to start process ... Acceso denegado`, usa este workaround:
+
+```powershell
+# 1. Compilar primero
+dotnet build backend/src/PawTrack.API -c Debug --nologo
+
+# 2. Arrancar el backend directamente con dotnet exec (corre la DLL sin el .exe nativo)
+$env:ASPNETCORE_ENVIRONMENT = "Development"
+$env:ASPNETCORE_URLS = "http://localhost:5199"
+Set-Location "backend/src/PawTrack.API"
+dotnet exec "bin/Debug/net9.0/PawTrack.API.dll"
+```
+
+**Solución permanente:** Agrega `C:\Nala` a las exclusiones de Windows Defender:
+
+```powershell
+Add-MpPreference -ExclusionPath "C:\Nala"
+```
+
+Después de agregar la exclusión, `start-dev.ps1` funcionará normalmente.
+
 ---
 
 ## 8. Verificar que todo funciona
 
-| Endpoint | Resultado esperado |
-|----------|--------------------|
-| `http://localhost:5199/health` | `200 OK` |
+| Endpoint                                | Resultado esperado                |
+| --------------------------------------- | --------------------------------- |
+| `http://localhost:5199/health`          | `200 OK`                          |
 | `http://localhost:5199/openapi/v1.json` | JSON de la especificación OpenAPI |
-| `http://localhost:5173` | Pantalla de inicio de la PWA |
+| `http://localhost:5173`                 | Pantalla de inicio de la PWA      |
 
 Verifica el health del backend:
 
@@ -296,12 +320,12 @@ docker compose down -v
 
 ### Capas del backend
 
-| Capa | Proyecto | Regla |
-|------|----------|-------|
-| **API** | `PawTrack.API` | Solo recibe HTTP/WS, no contiene lógica, despacha a MediatR |
-| **Application** | `PawTrack.Application` | Lógica de negocio pura, sin dependencias de infraestructura |
-| **Domain** | `PawTrack.Domain` | Entidades y reglas de dominio, cero dependencias externas |
-| **Infrastructure** | `PawTrack.Infrastructure` | Implementaciones de Azure, EF Core, Email |
+| Capa               | Proyecto                  | Regla                                                       |
+| ------------------ | ------------------------- | ----------------------------------------------------------- |
+| **API**            | `PawTrack.API`            | Solo recibe HTTP/WS, no contiene lógica, despacha a MediatR |
+| **Application**    | `PawTrack.Application`    | Lógica de negocio pura, sin dependencias de infraestructura |
+| **Domain**         | `PawTrack.Domain`         | Entidades y reglas de dominio, cero dependencias externas   |
+| **Infrastructure** | `PawTrack.Infrastructure` | Implementaciones de Azure, EF Core, Email                   |
 
 ---
 
@@ -427,10 +451,10 @@ Solicita acceso al lead técnico del proyecto.
 
 ### Endpoints de producción
 
-| Servicio | URL |
-|---------|-----|
-| API | `https://api.pawtrack.cr` |
-| Frontend | `https://pawtrack.cr` |
+| Servicio     | URL                              |
+| ------------ | -------------------------------- |
+| API          | `https://api.pawtrack.cr`        |
+| Frontend     | `https://pawtrack.cr`            |
 | Health check | `https://api.pawtrack.cr/health` |
 
 ---
@@ -458,7 +482,8 @@ VS Code con la extensión C# Dev Kit para el backend. El workspace está configu
 **¿Los tests de integración necesitan Docker?**  
 Depende de la configuración del proyecto de tests. Consulta el `README` de `PawTrack.IntegrationTests` para los requisitos específicos.
 
-**¿Cómo agrego una nueva variable de entorno para producción?**  
+**¿Cómo agrego una nueva variable de entorno para producción?**
+
 1. Agrega el secreto en Azure Key Vault (`pawtrack-kv`).
 2. Agrega la referencia Key Vault en `appsettings.json`.
 3. Para desarrollo local, agrega el valor directo en `appsettings.Development.json` (sin el secreto real — usa un valor de prueba).

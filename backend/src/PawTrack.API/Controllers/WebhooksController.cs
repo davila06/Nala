@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using PawTrack.Application.Bounties.Commands.ConfirmBountyDeposit;
 using PawTrack.Application.Bounties.Commands.ConfirmBountyDeposit;
 using PawTrack.Application.Subscriptions.Commands.ActivateSubscription;
 using System.Security.Cryptography;
@@ -16,7 +18,7 @@ namespace PawTrack.API.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/webhooks")]
-public sealed class WebhooksController(ISender sender, IConfiguration configuration) : ControllerBase
+public sealed class WebhooksController(ISender sender, IConfiguration configuration, ILogger<WebhooksController> logger) : ControllerBase
 {
     // ── POST /api/webhooks/sinpe ──────────────────────────────────────────────
     [HttpPost("sinpe")]
@@ -30,7 +32,10 @@ public sealed class WebhooksController(ISender sender, IConfiguration configurat
     {
         // Validate HMAC-SHA256 signature from payment processor
         if (!ValidateSignature(notification))
+        {
+            logger.LogWarning("Webhook signature validation failed for reference {Reference}.", notification.Reference);
             return Unauthorized(new ProblemDetails { Detail = "Invalid webhook signature." });
+        }
 
         // Try to activate a subscription matching the reference
         var subResult = await sender.Send(

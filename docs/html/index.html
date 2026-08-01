@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>PawTrack CR — Documentación</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .index-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.25rem;
+        margin-top: 2rem;
+      }
+      .doc-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        transition:
+          box-shadow 0.18s,
+          border-color 0.18s;
+      }
+      .doc-card:hover {
+        border-color: var(--brand);
+        box-shadow: 0 4px 14px rgba(232, 82, 30, 0.1);
+        text-decoration: none;
+      }
+      .doc-card .icon {
+        font-size: 2rem;
+      }
+      .doc-card h3 {
+        font-size: 1rem;
+        margin: 0;
+        color: var(--dark);
+      }
+      .doc-card p {
+        font-size: 0.82rem;
+        color: var(--text-light);
+        margin: 0;
+      }
+      .cat {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--brand);
+      }
+      #main {
+        padding-top: 2.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <aside id="sidebar">
+      <div class="brand">
+        <span>🐾</span><strong>PawTrack CR<br />Documentación</strong>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html" class="h2 active">Inicio</a></li>
+          <li>
+            <a href="MANUAL_USUARIO.html" class="h2">Manual de Usuario</a>
+          </li>
+          <li>
+            <a href="MANUAL_ADMINISTRADOR.html" class="h2"
+              >Manual de Administrador</a
+            >
+          </li>
+          <li>
+            <a href="MANUAL_ALIADOS.html" class="h2">Manual de Aliados</a>
+          </li>
+          <li>
+            <a href="MANUAL_CLINICAS.html" class="h2">Manual de Clínicas</a>
+          </li>
+          <li><a href="MANUAL_TECNICO.html" class="h2">Manual Técnico</a></li>
+          <li>
+            <a href="GUIA_ONBOARDING_DEV.html" class="h2">Onboarding Dev</a>
+          </li>
+          <li>
+            <a href="GUIA_DEPLOY_PASO_A_PASO.html" class="h2">Guía de Deploy</a>
+          </li>
+          <li>
+            <a href="RUNBOOK_OPERACIONES.html" class="h2"
+              >Runbook Operaciones</a
+            >
+          </li>
+          <li><a href="DEPLOY_INFO.html" class="h2">Datos de Despliegue</a></li>
+          <li>
+            <a href="POLITICA_DE_PRIVACIDAD.html" class="h2"
+              >Política de Privacidad</a
+            >
+          </li>
+          <li><a href="TERMINOS_DE_USO.html" class="h2">Términos de Uso</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <main id="main">
+      <div id="content">
+        <h1>🐾 PawTrack CR — Documentación</h1>
+        <p style="color: var(--text-light); margin-bottom: 0.5rem">
+          Centro de documentación actualizado al
+          <strong>31 de julio de 2026</strong>.
+        </p>
+        <hr />
+
+        <h2>Manuales de usuario</h2>
+        <div class="index-grid">
+          <a href="MANUAL_USUARIO.html" class="doc-card">
+            <div class="icon">📱</div>
+            <div class="cat">Usuario final</div>
+            <h3>Manual de Usuario</h3>
+            <p>
+              Guía completa para dueños de mascotas: registro, QR, reportes,
+              planes Plus y GPS.
+            </p>
+          </a>
+          <a href="MANUAL_ADMINISTRADOR.html" class="doc-card">
+            <div class="icon">⚙️</div>
+            <div class="cat">Administración</div>
+            <h3>Manual de Administrador</h3>
+            <p>
+              Gestión de aliados, clínicas y revisión de solicitudes desde el
+              panel admin.
+            </p>
+          </a>
+          <a href="MANUAL_ALIADOS.html" class="doc-card">
+            <div class="icon">🤝</div>
+            <div class="cat">Aliados</div>
+            <h3>Manual de Aliados</h3>
+            <p>
+              Postulación, estados, bandeja operativa y confirmación de acciones
+              de búsqueda.
+            </p>
+          </a>
+          <a href="MANUAL_CLINICAS.html" class="doc-card">
+            <div class="icon">🏥</div>
+            <div class="cat">Clínicas</div>
+            <h3>Manual de Clínicas Veterinarias</h3>
+            <p>
+              Registro, activación, portal de escaneo y lectura de QR/microchip.
+            </p>
+          </a>
+        </div>
+
+        <h2 style="margin-top: 2.5rem">Documentación técnica</h2>
+        <div class="index-grid">
+          <a href="MANUAL_TECNICO.html" class="doc-card">
+            <div class="icon">🛠️</div>
+            <div class="cat">Ingeniería</div>
+            <h3>Manual Técnico</h3>
+            <p>
+              Arquitectura, módulos, stack .NET 9 + React 19, API REST, SignalR,
+              AI.
+            </p>
+          </a>
+          <a href="GUIA_ONBOARDING_DEV.html" class="doc-card">
+            <div class="icon">🚀</div>
+            <div class="cat">Desarrolladores</div>
+            <h3>Guía de Onboarding Dev</h3>
+            <p>
+              Setup local en 30 minutos: requisitos, Docker, migraciones y
+              start-dev.ps1.
+            </p>
+          </a>
+          <a href="GUIA_DEPLOY_PASO_A_PASO.html" class="doc-card">
+            <div class="icon">☁️</div>
+            <div class="cat">DevOps</div>
+            <h3>Guía de Deploy Paso a Paso</h3>
+            <p>
+              Deploy completo a Azure: imagen Docker, SQL, Static Web App, Key
+              Vault.
+            </p>
+          </a>
+          <a href="RUNBOOK_OPERACIONES.html" class="doc-card">
+            <div class="icon">📟</div>
+            <div class="cat">Operaciones</div>
+            <h3>Runbook de Operaciones</h3>
+            <p>
+              Incidentes, rotación de secretos, rollbacks, escala y
+              mantenimiento programado.
+            </p>
+          </a>
+          <a href="DEPLOY_INFO.html" class="doc-card">
+            <div class="icon">🗂️</div>
+            <div class="cat">Infraestructura</div>
+            <h3>Datos de Despliegue Beta</h3>
+            <p>
+              Recursos Azure desplegados, IDs de suscripción, nombres de
+              contenedores.
+            </p>
+          </a>
+        </div>
+
+        <h2 style="margin-top: 2.5rem">Legal</h2>
+        <div class="index-grid">
+          <a href="POLITICA_DE_PRIVACIDAD.html" class="doc-card">
+            <div class="icon">🔒</div>
+            <div class="cat">Legal</div>
+            <h3>Política de Privacidad</h3>
+            <p>
+              Datos que recopilamos, bases jurídicas, derechos del usuario y
+              retención.
+            </p>
+          </a>
+          <a href="TERMINOS_DE_USO.html" class="doc-card">
+            <div class="icon">📋</div>
+            <div class="cat">Legal</div>
+            <h3>Términos de Uso</h3>
+            <p>
+              Condiciones de uso, conducta prohibida, propiedad intelectual y
+              limitaciones.
+            </p>
+          </a>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

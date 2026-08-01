@@ -2,7 +2,7 @@
 
 **Versión:** 1.0  
 **Audiencia:** Administradores del sistema  
-**Última actualización:** Junio 2026
+**Última actualización:** Julio 2026
 
 ---
 
@@ -31,10 +31,10 @@ El panel de administración es exclusivo para cuentas con rol **Admin**. Si inte
 
 El panel muestra dos pestañas:
 
-| Pestaña | Contenido |
-|---------|-----------|
-| **Aliados** | Solicitudes de verificación de organizaciones aliadas pendientes de revisión |
-| **Clínicas** | Solicitudes de registro de clínicas veterinarias pendientes de activación |
+| Pestaña      | Contenido                                                                    |
+| ------------ | ---------------------------------------------------------------------------- |
+| **Aliados**  | Solicitudes de verificación de organizaciones aliadas pendientes de revisión |
+| **Clínicas** | Solicitudes de registro de clínicas veterinarias pendientes de activación    |
 
 Cada pestaña indica cuántos ítems hay pendientes. Si no hay pendientes, se muestra un mensaje vacío.
 
@@ -57,10 +57,10 @@ Cada tarjeta de solicitud muestra:
 
 ### 2.3 Acciones disponibles
 
-| Botón | Color | Efecto |
-|-------|-------|--------|
-| **Aprobar** | Verde | Activa la cuenta como aliado verificado. La organización puede acceder a su bandeja operativa inmediatamente. |
-| **Rechazar** | Rojo | Descarta la solicitud. La organización puede volver a aplicar. |
+| Botón        | Color | Efecto                                                                                                        |
+| ------------ | ----- | ------------------------------------------------------------------------------------------------------------- |
+| **Aprobar**  | Verde | Activa la cuenta como aliado verificado. La organización puede acceder a su bandeja operativa inmediatamente. |
+| **Rechazar** | Rojo  | Descarta la solicitud. La organización puede volver a aplicar.                                                |
 
 ### 2.4 Criterios de aprobación sugeridos
 
@@ -93,10 +93,10 @@ Cada tarjeta muestra:
 
 ### 3.3 Acciones disponibles
 
-| Botón | Color | Efecto |
-|-------|-------|--------|
-| **Activar** | Verde | Cambia el estado de la clínica a `Activa`. El portal de escaneo queda disponible de inmediato. |
-| **Suspender** | Rojo | Bloquea el acceso de la clínica al portal. La clínica ve el mensaje "Tu cuenta ha sido suspendida". |
+| Botón         | Color | Efecto                                                                                              |
+| ------------- | ----- | --------------------------------------------------------------------------------------------------- |
+| **Activar**   | Verde | Cambia el estado de la clínica a `Activa`. El portal de escaneo queda disponible de inmediato.      |
+| **Suspender** | Rojo  | Bloquea el acceso de la clínica al portal. La clínica ve el mensaje "Tu cuenta ha sido suspendida". |
 
 > **Nota:** Suspender una clínica ya activa es una acción reversible — puedes volver a activarla en cualquier momento.
 

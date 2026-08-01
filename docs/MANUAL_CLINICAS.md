@@ -2,7 +2,7 @@
 
 **Versión:** 1.0  
 **Audiencia:** Clínicas veterinarias afiliadas a la red PawTrack CR  
-**Última actualización:** Junio 2026
+**Última actualización:** Julio 2026
 
 ---
 
@@ -36,15 +36,15 @@ El registro es público y no requiere cuenta previa. Accede a `/clinica/registro
 
 Completa el formulario con los siguientes datos:
 
-| Campo | Descripción | Ejemplo |
-|-------|-------------|---------|
-| **Nombre de la clínica** | Nombre oficial del establecimiento | Clínica Veterinaria Los Yoses |
-| **Número de licencia SENASA** | Número de licencia veterinaria emitida por el SENASA | VET-2024-0123 |
-| **Dirección** | Dirección descriptiva del establecimiento | 300m norte del parque central, San José |
-| **Latitud / Longitud** | Coordenadas geográficas de la clínica (pre-rellenadas con San José centro) | 9.9281 / -84.0908 |
-| **Correo electrónico de contacto** | Email con el que se comunicará el equipo PawTrack | clinica@ejemplo.cr |
-| **Contraseña** | Contraseña para acceder al portal (mínimo 8 caracteres) | — |
-| **Confirmar contraseña** | Repetición de la contraseña para verificar | — |
+| Campo                              | Descripción                                                                | Ejemplo                                 |
+| ---------------------------------- | -------------------------------------------------------------------------- | --------------------------------------- |
+| **Nombre de la clínica**           | Nombre oficial del establecimiento                                         | Clínica Veterinaria Los Yoses           |
+| **Número de licencia SENASA**      | Número de licencia veterinaria emitida por el SENASA                       | VET-2024-0123                           |
+| **Dirección**                      | Dirección descriptiva del establecimiento                                  | 300m norte del parque central, San José |
+| **Latitud / Longitud**             | Coordenadas geográficas de la clínica (pre-rellenadas con San José centro) | 9.9281 / -84.0908                       |
+| **Correo electrónico de contacto** | Email con el que se comunicará el equipo PawTrack                          | clinica@ejemplo.cr                      |
+| **Contraseña**                     | Contraseña para acceder al portal (mínimo 8 caracteres)                    | —                                       |
+| **Confirmar contraseña**           | Repetición de la contraseña para verificar                                 | —                                       |
 
 > **Nota sobre coordenadas:** Los valores de latitud y longitud están pre-rellenados con coordenadas aproximadas de San José. Ajusta los valores numéricos si tu clínica está en otra provincia o cantón.
 
@@ -58,11 +58,11 @@ Haz clic en **Solicitar registro**. Si los datos son válidos y las contraseñas
 
 Tu cuenta de clínica puede estar en tres estados:
 
-| Estado | Descripción | Acceso al portal |
-|--------|-------------|-----------------|
-| **Pendiente** | Tu solicitud fue recibida y está en revisión por el equipo PawTrack | ❌ Bloqueado |
-| **Activa** | Tu clínica fue aprobada | ✅ Portal disponible |
-| **Suspendida** | Tu cuenta fue suspendida por el equipo PawTrack | ❌ Bloqueado |
+| Estado         | Descripción                                                         | Acceso al portal     |
+| -------------- | ------------------------------------------------------------------- | -------------------- |
+| **Pendiente**  | Tu solicitud fue recibida y está en revisión por el equipo PawTrack | ❌ Bloqueado         |
+| **Activa**     | Tu clínica fue aprobada                                             | ✅ Portal disponible |
+| **Suspendida** | Tu cuenta fue suspendida por el equipo PawTrack                     | ❌ Bloqueado         |
 
 ### 3.1 Tiempo de activación
 
@@ -71,12 +71,12 @@ El equipo de PawTrack revisa las solicitudes en **1–2 días hábiles**. No es 
 ### 3.2 Mientras la cuenta está pendiente
 
 Al iniciar sesión verás la pantalla de espera con el mensaje:  
-*"Tu clínica está en revisión. PawTrack activará tu cuenta en 1-2 días hábiles."*
+_"Tu clínica está en revisión. PawTrack activará tu cuenta en 1-2 días hábiles."_
 
 ### 3.3 Si la cuenta fue suspendida
 
 Al iniciar sesión verás el mensaje:  
-*"Tu cuenta ha sido suspendida. Contacta al equipo de PawTrack para más información."*
+_"Tu cuenta ha sido suspendida. Contacta al equipo de PawTrack para más información."_
 
 Escribe a **soporte@pawtrack.cr** indicando el nombre de tu clínica y número de licencia SENASA para gestionar la reactivación.
 
@@ -92,6 +92,7 @@ Escribe a **soporte@pawtrack.cr** indicando el nombre de tu clínica y número d
 ### 4.2 Encabezado del portal
 
 En la parte superior verás:
+
 - Emoji 🏥 + nombre de tu clínica
 - Número de licencia SENASA
 - Badge verde **Activa** confirmando que tu cuenta está operativa
@@ -137,16 +138,17 @@ Si PawTrack tiene registrada la mascota, aparece una tarjeta verde con:
 - **Especie**
 - **Nombre del dueño**
 - **Correo electrónico del dueño** (enlace `mailto:` para abrir tu cliente de correo directamente)
-- Nota de confirmación: *"Se ha notificado al dueño que su mascota fue vista aquí."*
+- Nota de confirmación: _"Se ha notificado al dueño que su mascota fue vista aquí."_
 
 El dueño recibe una notificación automática en la plataforma en ese mismo momento.
 
 ### 6.2 Mascota no encontrada
 
 Si el QR o microchip no coincide con ninguna mascota registrada en PawTrack, aparece el mensaje:  
-*"No hay ninguna mascota registrada con ese QR o microchip en PawTrack."*
+_"No hay ninguna mascota registrada con ese QR o microchip en PawTrack."_
 
 En este caso puedes:
+
 - Intentar con el otro método de escaneo (QR ↔ RFID).
 - Contactar al dueño por otros medios si la mascota tiene placa con teléfono.
 

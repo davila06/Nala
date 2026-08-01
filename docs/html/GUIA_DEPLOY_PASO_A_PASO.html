@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Guía de Deploy Paso a Paso — PawTrack CR</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+</head>
+<body>
+<aside id="sidebar">
+  <div class="brand"><span>🐾</span><strong>PawTrack CR<br>Documentación</strong></div>
+  <nav><ul>
+    <li><a href="index.html" class="h2">← Inicio</a></li>
+    <li><a href="MANUAL_USUARIO.html" class="h2">📱 Manual de Usuario</a></li>
+    <li><a href="MANUAL_ADMINISTRADOR.html" class="h2">⚙️ Manual de Administrador</a></li>
+    <li><a href="MANUAL_ALIADOS.html" class="h2">🤝 Manual de Aliados</a></li>
+    <li><a href="MANUAL_CLINICAS.html" class="h2">🏥 Manual de Clínicas Veterinarias</a></li>
+    <li><a href="MANUAL_TECNICO.html" class="h2">🛠️ Manual Técnico</a></li>
+    <li><a href="GUIA_ONBOARDING_DEV.html" class="h2">🚀 Guía de Onboarding Dev</a></li>
+    <li><a href="GUIA_DEPLOY_PASO_A_PASO.html" class="h2">☁️ Guía de Deploy Paso a Paso</a></li>
+    <li><a href="RUNBOOK_OPERACIONES.html" class="h2">📟 Runbook de Operaciones</a></li>
+    <li><a href="DEPLOY_INFO.html" class="h2">🗂️ Datos de Despliegue Beta</a></li>
+    <li><a href="POLITICA_DE_PRIVACIDAD.html" class="h2">🔒 Política de Privacidad</a></li>
+    <li><a href="TERMINOS_DE_USO.html" class="h2">📋 Términos de Uso</a></li>
+  </ul></nav>
+</aside>
+<main id="main">
+  <div id="content"><p style="color:#888;padding:2rem">Cargando…</p></div>
+</main>
+<script>
+const md = "# PawTrack CR — Guía de Deploy Paso a Paso\r\n\r\n> Ambiente: **PawnTrackBeta** (`PawnTrackBeta` resource group)  \r\n> Cuenta: `davila06@gmail.com` | Suscripción: `Azure subscription 1`\r\n\r\n---\r\n\r\n## Prerrequisitos\r\n\r\nAntes de empezar, asegúrate de tener instalado:\r\n\r\n| Herramienta | Versión mínima | Verificar |\r\n|-------------|---------------|-----------|\r\n| Azure CLI | 2.60+ | `az --version` |\r\n| Docker Desktop | 24+ | `docker --version` |\r\n| .NET SDK | 9.0 | `dotnet --version` |\r\n| Node.js | 20 LTS | `node --version` |\r\n| Azure SWA CLI | latest | `npx @azure/static-web-apps-cli --version` |\r\n\r\n```powershell\r\n# Login inicial\r\naz login\r\naz account set --subscription \"3832b5df-115d-4092-9fc8-2105d7b0af21\"\r\n```\r\n\r\n---\r\n\r\n## PASO 1 — Crear Dockerfile para la API\r\n\r\n**Ubicación:** `backend/src/PawTrack.API/Dockerfile`\r\n\r\nCrea el archivo con este contenido:\r\n\r\n```dockerfile\r\nFROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base\r\nWORKDIR /app\r\nEXPOSE 8080\r\n\r\nFROM mcr.microsoft.com/dotnet/sdk:9.0 AS build\r\nWORKDIR /src\r\nCOPY [\"src/PawTrack.API/PawTrack.API.csproj\", \"src/PawTrack.API/\"]\r\nCOPY [\"src/PawTrack.Application/PawTrack.Application.csproj\", \"src/PawTrack.Application/\"]\r\nCOPY [\"src/PawTrack.Domain/PawTrack.Domain.csproj\", \"src/PawTrack.Domain/\"]\r\nCOPY [\"src/PawTrack.Infrastructure/PawTrack.Infrastructure.csproj\", \"src/PawTrack.Infrastructure/\"]\r\nRUN dotnet restore \"src/PawTrack.API/PawTrack.API.csproj\"\r\nCOPY . .\r\nWORKDIR \"/src/src/PawTrack.API\"\r\nRUN dotnet build -c Release -o /app/build\r\n\r\nFROM build AS publish\r\nRUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false\r\n\r\nFROM base AS final\r\nWORKDIR /app\r\nCOPY --from=publish /app/publish .\r\nENV ASPNETCORE_URLS=http://+:8080\r\nENTRYPOINT [\"dotnet\", \"PawTrack.API.dll\"]\r\n```\r\n\r\nVerifica que compila localmente:\r\n\r\n```powershell\r\ncd backend/\r\ndocker build -f src/PawTrack.API/Dockerfile -t pawtrack-api:local .\r\ndocker run -p 8080:8080 --rm pawtrack-api:local\r\n# Abre http://localhost:8080/health → debe responder 200\r\n```\r\n\r\n---\r\n\r\n## PASO 2 — Configurar SQL Firewall\r\n\r\n```powershell\r\naz sql server firewall-rule create `\r\n  --resource-group PawnTrackBeta `\r\n  --server pawtrack-dev-sql `\r\n  --name \"AllowAzureServices\" `\r\n  --start-ip-address 0.0.0.0 `\r\n  --end-ip-address 0.0.0.0\r\n\r\n# Opcional: agregar tu IP local para correr migraciones desde tu máquina\r\n$myIp = (Invoke-RestMethod https://api.ipify.org)\r\naz sql server firewall-rule create `\r\n  --resource-group PawnTrackBeta `\r\n  --server pawtrack-dev-sql `\r\n  --name \"DevMachine\" `\r\n  --start-ip-address $myIp `\r\n  --end-ip-address $myIp\r\n```\r\n\r\n---\r\n\r\n## PASO 3 — Poblar Key Vault con secrets\r\n\r\n```powershell\r\n$KV  = \"pawtrack-kv-dev\"\r\n$RG  = \"PawnTrackBeta\"\r\n$SQL = \"pawtrack-dev-sql\"\r\n$STO = \"pawtrackstoragdev\"\r\n$DB  = \"pawtrack\"\r\n\r\n# 3.1 — Application Insights connection string\r\n$aiConnStr = az monitor app-insights component show `\r\n  --app pawtrack-dev-insights `\r\n  --resource-group $RG `\r\n  --query connectionString -o tsv\r\naz keyvault secret set --vault-name $KV --name \"appinsights-connection-string\" --value $aiConnStr\r\nWrite-Host \"✔ appinsights-connection-string guardado\"\r\n\r\n# 3.2 — SQL connection string\r\n$sqlPwd = \"NcoD4~&^F%0B(y<+6gWhsYfq\"   # <- reemplaza si usaste otro password\r\n$sqlConnStr = \"Server=tcp:$SQL.database.windows.net,1433;Initial Catalog=$DB;Persist Security Info=False;User ID=pawtrackadmin;Password=$sqlPwd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;\"\r\naz keyvault secret set --vault-name $KV --name \"sql-connection-string\" --value $sqlConnStr\r\nWrite-Host \"✔ sql-connection-string guardado\"\r\n\r\n# 3.3 — Storage connection string\r\n$storageKey = az storage account keys list `\r\n  --account-name $STO `\r\n  --resource-group $RG `\r\n  --query \"[0].value\" -o tsv\r\n$storageConnStr = \"DefaultEndpointsProtocol=https;AccountName=$STO;AccountKey=$storageKey;EndpointSuffix=core.windows.net\"\r\naz keyvault secret set --vault-name $KV --name \"storage-connection-string\" --value $storageConnStr\r\nWrite-Host \"✔ storage-connection-string guardado\"\r\n\r\n# 3.4 — JWT signing key (genera uno nuevo, 64 bytes en Base64)\r\n$jwtKey = [Convert]::ToBase64String([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(64))\r\naz keyvault secret set --vault-name $KV --name \"jwt-signing-key\" --value $jwtKey\r\nWrite-Host \"✔ jwt-signing-key guardado\"\r\n\r\n# 3.5 — SQL admin password (para referencia)\r\naz keyvault secret set --vault-name $KV --name \"sql-admin-password\" --value $sqlPwd\r\nWrite-Host \"✔ sql-admin-password guardado\"\r\n```\r\n\r\n---\r\n\r\n## PASO 4 — Conectar Container App a Key Vault\r\n\r\n```powershell\r\n# Agregar referencias a Key Vault como secrets del Container App\r\naz containerapp secret set `\r\n  --name pawtrack-dev-api `\r\n  --resource-group PawnTrackBeta `\r\n  --secrets `\r\n    \"appinsights-connection-string=keyvaultref:https://pawtrack-kv-dev.vault.azure.net/secrets/appinsights-connection-string,identityref:system\" `\r\n    \"sql-connection-string=keyvaultref:https://pawtrack-kv-dev.vault.azure.net/secrets/sql-connection-string,identityref:system\" `\r\n    \"storage-connection-string=keyvaultref:https://pawtrack-kv-dev.vault.azure.net/secrets/storage-connection-string,identityref:system\" `\r\n    \"jwt-signing-key=keyvaultref:https://pawtrack-kv-dev.vault.azure.net/secrets/jwt-signing-key,identityref:system\"\r\n\r\n# Mapear secrets a variables de entorno\r\naz containerapp update `\r\n  --name pawtrack-dev-api `\r\n  --resource-group PawnTrackBeta `\r\n  --set-env-vars `\r\n    \"APPINSIGHTS_CONNECTIONSTRING=secretref:appinsights-connection-string\" `\r\n    \"ConnectionStrings__DefaultConnection=secretref:sql-connection-string\" `\r\n    \"Azure__Storage__ConnectionString=secretref:storage-connection-string\" `\r\n    \"Jwt__Key=secretref:jwt-signing-key\"\r\n\r\nWrite-Host \"✔ Variables de entorno configuradas\"\r\n```\r\n\r\n---\r\n\r\n## PASO 5 — Ejecutar migraciones de EF Core\r\n\r\n```powershell\r\n# Opción A: Correr desde tu máquina local (requiere IP en firewall SQL del PASO 2)\r\ncd backend/\r\n$env:ConnectionStrings__DefaultConnection = (az keyvault secret show `\r\n  --vault-name pawtrack-kv-dev --name sql-connection-string --query value -o tsv)\r\ndotnet ef database update `\r\n  --project src/PawTrack.Infrastructure `\r\n  --startup-project src/PawTrack.API\r\n\r\n# Opción B: Correr via az sql (scripts de migración ya generados)\r\n# dotnet ef migrations script --output migrations.sql --project src/PawTrack.Infrastructure --startup-project src/PawTrack.API\r\n# az sql db execute --server pawtrack-dev-sql --database pawtrack --file migrations.sql\r\n\r\nWrite-Host \"✔ Migraciones aplicadas\"\r\n```\r\n\r\n---\r\n\r\n## PASO 6 — Build y push de imagen al ACR\r\n\r\n```powershell\r\n$ACR = \"pawtrackacrdev\"\r\n$TAG = \"v1.0.0\"\r\n\r\n# Login al ACR\r\naz acr login --name $ACR\r\n\r\n# Build de la imagen\r\ncd backend/\r\ndocker build -f src/PawTrack.API/Dockerfile -t \"$ACR.azurecr.io/pawtrack-api:$TAG\" .\r\n\r\n# Push al ACR\r\ndocker push \"$ACR.azurecr.io/pawtrack-api:$TAG\"\r\n\r\nWrite-Host \"✔ Imagen subida a $ACR.azurecr.io/pawtrack-api:$TAG\"\r\n```\r\n\r\n---\r\n\r\n## PASO 7 — Actualizar Container App con imagen real\r\n\r\n```powershell\r\n$TAG = \"v1.0.0\"  # mismo tag del paso anterior\r\n\r\naz containerapp update `\r\n  --name pawtrack-dev-api `\r\n  --resource-group PawnTrackBeta `\r\n  --image \"pawtrackacrdev.azurecr.io/pawtrack-api:$TAG\"\r\n\r\n# Verificar que el revision esté Running\r\naz containerapp revision list `\r\n  --name pawtrack-dev-api `\r\n  --resource-group PawnTrackBeta `\r\n  --output table\r\n\r\nWrite-Host \"✔ Container App actualizado con imagen real\"\r\n```\r\n\r\n---\r\n\r\n## PASO 8 — Deploy del Frontend\r\n\r\n```powershell\r\n# Obtener token de Static Web App\r\n$token = az staticwebapp secrets list `\r\n  --name pawtrack-dev-frontend `\r\n  --resource-group PawnTrackBeta `\r\n  --query properties.apiKey -o tsv\r\n\r\n# Build del frontend\r\ncd frontend/\r\nnpm install\r\nnpm run build\r\n\r\n# Deploy al Static Web App\r\nnpx @azure/static-web-apps-cli deploy dist `\r\n  --deployment-token $token `\r\n  --output-location \"dist\"\r\n\r\nWrite-Host \"✔ Frontend desplegado\"\r\n```\r\n\r\n---\r\n\r\n## PASO 9 — Actualizar CORS con URL real del frontend\r\n\r\n```powershell\r\n# Obtener URL del Static Web App\r\n$swaDomain = az staticwebapp show `\r\n  --name pawtrack-dev-frontend `\r\n  --resource-group PawnTrackBeta `\r\n  --query defaultHostname -o tsv\r\n\r\nWrite-Host \"URL del frontend: https://$swaDomain\"\r\n\r\n# Editar infra/parameters.beta.bicepparam:\r\n# param frontendUrl = 'https://<swaDomain>'\r\n\r\n# Re-deploy del Bicep\r\n$sqlPwd = az keyvault secret show --vault-name pawtrack-kv-dev --name sql-admin-password --query value -o tsv\r\naz deployment group create `\r\n  --resource-group PawnTrackBeta `\r\n  --template-file infra/main.bicep `\r\n  --parameters infra/parameters.beta.bicepparam `\r\n  --parameters sqlAdminPassword=$sqlPwd `\r\n  --name pawtrack-beta-deploy-cors\r\n```\r\n\r\n---\r\n\r\n## PASO 10 — Verificación final\r\n\r\n```powershell\r\n# URL del API\r\n$apiUrl = \"https://$(az containerapp show --name pawtrack-dev-api --resource-group PawnTrackBeta --query properties.configuration.ingress.fqdn -o tsv)\"\r\n\r\n# Health check\r\nInvoke-RestMethod \"$apiUrl/health\"\r\n\r\n# Swagger (solo en Staging)\r\nStart-Process \"$apiUrl/swagger\"\r\n\r\n# Frontend\r\n$swaUrl = \"https://$(az staticwebapp show --name pawtrack-dev-frontend --resource-group PawnTrackBeta --query defaultHostname -o tsv)\"\r\nStart-Process $swaUrl\r\n\r\nWrite-Host \"API: $apiUrl\"\r\nWrite-Host \"Frontend: $swaUrl\"\r\n```\r\n\r\n---\r\n\r\n## Flujo de deploy de cambios (día a día)\r\n\r\n```\r\nCambio en código\r\n      │\r\n      ├─ Backend? ──► PASO 6 + PASO 7  (docker build + push + containerapp update)\r\n      │\r\n      ├─ Frontend? ─► PASO 8           (npm build + swa deploy)\r\n      │\r\n      └─ Infra? ────► Bicep deploy     (az deployment group create)\r\n```\r\n\r\n---\r\n\r\n## Troubleshooting rápido\r\n\r\n| Síntoma | Comando diagnóstico |\r\n|---------|-------------------|\r\n| Container App no arranca | `az containerapp logs show --name pawtrack-dev-api --resource-group PawnTrackBeta --follow` |\r\n| Error 401 / 403 en API | Verificar Key Vault secrets y RBAC |\r\n| SQL no conecta | Verificar firewall SQL (PASO 2) |\r\n| Frontend muestra error CORS | Verificar `frontendUrl` en Bicep y re-deploy (PASO 9) |\r\n| Imagen no se descarga del ACR | Verificar RBAC AcrPull en Container App identity |\r\n";
+const html = DOMPurify.sanitize(marked.parse(md));
+const content = document.getElementById('content');
+content.innerHTML = html;
+
+// Build sidebar nav from rendered headings
+const headings = content.querySelectorAll('h2, h3');
+const sidebar  = document.querySelector('#sidebar nav ul');
+headings.forEach((h, i) => {
+  if (!h.id) {
+    h.id = 'h-' + i + '-' + h.textContent.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').slice(0, 50);
+  }
+  const li = document.createElement('li');
+  const a  = document.createElement('a');
+  a.href      = '#' + h.id;
+  a.textContent = h.textContent.replace(/^#+\s*/, '');
+  a.className = h.tagName.toLowerCase();
+  li.appendChild(a);
+  sidebar.appendChild(li);
+});
+
+// Highlight active link on scroll
+const links = sidebar.querySelectorAll('a[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const active = sidebar.querySelector('a[href="#' + e.target.id + '"]');
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -75% 0px' });
+content.querySelectorAll('h2, h3').forEach(h => obs.observe(h));
+</script>
+</body>
+</html>
