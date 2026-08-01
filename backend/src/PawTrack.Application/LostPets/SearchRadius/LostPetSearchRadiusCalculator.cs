@@ -43,13 +43,16 @@ public sealed class LostPetSearchRadiusCalculator : ILostPetSearchRadiusCalculat
         PetSpecies species,
         string? breed,
         DateTimeOffset lastSeenAt,
+        double tierMultiplier = 1.0,
         DateTimeOffset? referenceTime = null)
     {
         var hoursElapsed = Math.Max(0, ((referenceTime ?? DateTimeOffset.UtcNow) - lastSeenAt).TotalHours);
         var key = ResolveKey(species, breed);
         var bracket = GetTimeBracket(hoursElapsed);
+        var baseRadius = RadiusMatrix[key][bracket];
 
-        return RadiusMatrix[key][bracket];
+        if (tierMultiplier < 0) return 50_000;   // Familia: effective 50 km cap
+        return (int)Math.Round(baseRadius * tierMultiplier);
     }
 
     private static string ResolveKey(PetSpecies species, string? breed) => species switch

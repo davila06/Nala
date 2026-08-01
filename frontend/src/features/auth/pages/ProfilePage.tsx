@@ -18,6 +18,13 @@ import { LastSeenMap } from "@/features/lost-pets/components/LastSeenMap";
 import { useGeolocation } from "@/features/lost-pets/hooks/useGeolocation";
 import { usePushSubscription } from "@/features/notifications/hooks/usePushSubscription";
 import { formatDate } from "@/shared/lib/formatDate";
+import {
+  useMySubscription,
+  useCancelSubscription,
+  useReportPayment,
+} from "@/features/pets/hooks/useSubscription";
+import { SinpePaymentModal } from "@/features/pets/components/SinpePaymentModal";
+import type { SubscriptionTier } from "@/features/pets/api/subscriptionApi";
 
 // ── Locale maps ───────────────────────────────────────────────────────────────
 
@@ -63,6 +70,215 @@ function getPasswordStrength(pwd: string): PasswordStrength {
     { score: 4, label: "Fuerte", color: "bg-rescue-500" },
   ];
   return levels[capped];
+}
+
+// ── Subscription helpers ──────────────────────────────────────────────────────
+
+import type { SubscriptionDto } from "@/features/pets/api/subscriptionApi";
+
+const TIER_LABEL: Record<string, string> = {
+  Free: "Explorador",
+  UserPlus: "Plus",
+  UserFamilia: "Familia",
+  ClinicBasic: "Clínica Básica",
+  ClinicPlus: "Clínica Plus",
+  ClinicPartner: "Clínica Partner",
+};
+
+const TIER_PRICE: Record<string, string> = {
+  Free: "Gratis",
+  UserPlus: "₡2.990/mes",
+  UserFamilia: "₡4.990/mes",
+  ClinicBasic: "₡9.900/mes",
+  ClinicPlus: "₡19.900/mes",
+  ClinicPartner: "₡29.900/mes",
+};
+
+const STATUS_BADGE: Record<string, { label: string; color: string }> = {
+  Active: { label: "Activo", color: "bg-rescue-100 text-rescue-700" },
+  PendingPayment: {
+    label: "Pago pendiente",
+    color: "bg-warn-100 text-warn-700",
+  },
+  Expired: { label: "Expirado", color: "bg-danger-100 text-danger-700" },
+  Cancelled: { label: "Cancelado", color: "bg-sand-100 text-sand-600" },
+};
+
+interface MiPlanCardProps {
+  sub: SubscriptionDto | null;
+  cancellingPlan: boolean;
+  reportingPayment: boolean;
+  showCancelConfirm: boolean;
+  setShowCancelConfirm: (v: boolean) => void;
+  onUpgrade: (tier: SubscriptionTier) => void;
+  onCancel: () => Promise<void>;
+  onReportPayment: () => Promise<void>;
+}
+
+function MiPlanCard({
+  sub,
+  cancellingPlan,
+  reportingPayment,
+  showCancelConfirm,
+  setShowCancelConfirm,
+  onUpgrade,
+  onCancel,
+  onReportPayment,
+}: MiPlanCardProps) {
+  const tier = sub?.tier ?? "Free";
+  const status = sub?.status ?? "Active";
+  const badge = STATUS_BADGE[status] ?? STATUS_BADGE.Active;
+  const isFree = tier === "Free";
+  const isPending = status === "PendingPayment";
+  const isActive = status === "Active";
+
+  return (
+    <Card>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-bold text-sand-900">Mi plan</h2>
+          <span
+            className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${badge.color}`}
+          >
+            {badge.label}
+          </span>
+        </div>
+
+        <div className="flex items-end gap-2">
+          <span className="text-2xl font-black text-sand-900">
+            {TIER_LABEL[tier] ?? tier}
+          </span>
+          <span className="mb-0.5 text-sm text-sand-500">
+            {TIER_PRICE[tier] ?? ""}
+          </span>
+        </div>
+
+        {/* Expiry */}
+        {sub?.expiresAt && (
+          <p className="text-xs text-sand-500">
+            {isActive ? "Vence el" : "Venció el"}{" "}
+            <strong>{formatDate(sub.expiresAt)}</strong>
+          </p>
+        )}
+
+        {/* Payment reference */}
+        {isPending && sub?.paymentReference && (
+          <div className="rounded-xl border border-warn-200 bg-warn-50 p-3 space-y-2">
+            <p className="text-xs font-semibold text-warn-800">
+              Referencia de pago SINPE
+            </p>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-lg font-black tracking-widest text-sand-900">
+                {sub.paymentReference}
+              </span>
+              <button
+                type="button"
+                className="rounded-lg px-2 py-1 text-xs font-medium text-warn-700 hover:bg-warn-100"
+                onClick={() => {
+                  void navigator.clipboard.writeText(sub.paymentReference);
+                  toast.success("Referencia copiada.");
+                }}
+              >
+                Copiar
+              </button>
+            </div>
+            {sub.paymentReportedAt ? (
+              <p className="text-xs text-trust-600 font-medium">
+                ✓ Aviso de pago enviado el {formatDate(sub.paymentReportedAt)} —
+                pendiente de verificación.
+              </p>
+            ) : (
+              <Button
+                variant="secondary"
+                loading={reportingPayment}
+                onClick={() => void onReportPayment()}
+                className="w-full text-sm"
+              >
+                ✓ Ya realicé el pago SINPE
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Upgrade CTAs */}
+        {isFree && (
+          <div className="flex gap-2 pt-1">
+            <Button
+              variant="primary"
+              onClick={() => onUpgrade("UserPlus")}
+              className="flex-1 text-sm"
+            >
+              Mejorar a Plus
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => onUpgrade("UserFamilia")}
+              className="flex-1 text-sm"
+            >
+              Ver Familia
+            </Button>
+          </div>
+        )}
+
+        {(status === "Expired" || status === "Cancelled") && !isFree && (
+          <Button
+            variant="primary"
+            onClick={() =>
+              onUpgrade(
+                (tier as SubscriptionTier) === "UserFamilia"
+                  ? "UserFamilia"
+                  : "UserPlus",
+              )
+            }
+            className="w-full text-sm"
+          >
+            Reactivar plan
+          </Button>
+        )}
+
+        {/* Cancel */}
+        {isActive && !isFree && (
+          <>
+            {showCancelConfirm ? (
+              <div className="rounded-xl border border-danger-200 bg-danger-50 p-3 space-y-2">
+                <p className="text-sm font-semibold text-danger-800">
+                  ¿Cancelar suscripción?
+                </p>
+                <p className="text-xs text-danger-700">
+                  Perderás acceso a funciones Plus/Familia al final del período.
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="danger"
+                    loading={cancellingPlan}
+                    onClick={() => void onCancel()}
+                    className="flex-1 text-sm"
+                  >
+                    Sí, cancelar
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowCancelConfirm(false)}
+                    className="flex-1 text-sm"
+                  >
+                    Volver
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="text-xs text-danger-500 underline hover:text-danger-700"
+                onClick={() => setShowCancelConfirm(true)}
+              >
+                Cancelar suscripción
+              </button>
+            )}
+          </>
+        )}
+      </div>
+    </Card>
+  );
 }
 
 export default function ProfilePage() {
@@ -133,6 +349,21 @@ export default function ProfilePage() {
   // Delete account state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
+
+  // Subscription state
+  const { data: mySub } = useMySubscription();
+  const { mutateAsync: cancelSub, isPending: cancellingPlan } =
+    useCancelSubscription();
+  const { mutateAsync: reportPay, isPending: reportingPayment } =
+    useReportPayment();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeTier, setUpgradeTier] = useState<SubscriptionTier>("UserPlus");
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+
+  const openUpgrade = (tier: SubscriptionTier) => {
+    setUpgradeTier(tier);
+    setShowUpgradeModal(true);
+  };
 
   const handleChangePassword = async () => {
     if (newPwd !== confirmNewPwd) {
@@ -227,6 +458,42 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-xl px-4 py-8 space-y-6 animate-fade-in-up">
       <h1 className="text-2xl font-bold text-sand-900">Mi perfil</h1>
+
+      {/* ── Mi Plan ──────────────────────────────────────────────────── */}
+      <MiPlanCard
+        sub={mySub ?? null}
+        cancellingPlan={cancellingPlan}
+        reportingPayment={reportingPayment}
+        showCancelConfirm={showCancelConfirm}
+        setShowCancelConfirm={setShowCancelConfirm}
+        onUpgrade={openUpgrade}
+        onCancel={async () => {
+          if (!mySub?.id) return;
+          try {
+            await cancelSub(mySub.id);
+            setShowCancelConfirm(false);
+            toast.success("Suscripción cancelada.");
+          } catch {
+            toast.error("No se pudo cancelar. Intenta de nuevo.");
+          }
+        }}
+        onReportPayment={async () => {
+          if (!mySub?.id) return;
+          try {
+            await reportPay(mySub.id);
+            toast.success("Aviso de pago registrado. Lo activaremos pronto.");
+          } catch {
+            toast.error("No se pudo registrar el aviso. Intenta de nuevo.");
+          }
+        }}
+      />
+
+      {showUpgradeModal && (
+        <SinpePaymentModal
+          tier={upgradeTier}
+          onClose={() => setShowUpgradeModal(false)}
+        />
+      )}
 
       {/* ── Identity card ────────────────────────────────────────────── */}
       <Card>
@@ -581,7 +848,7 @@ export default function ProfilePage() {
               />
             </button>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* ── Delete account ────────────────────────────────────────────── */}

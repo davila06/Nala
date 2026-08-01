@@ -30,9 +30,43 @@ public sealed class ClinicRepository(PawTrackDbContext dbContext) : IClinicRepos
             .OrderBy(c => c.RegisteredAt)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<Clinic>> GetAllActiveAsync(CancellationToken cancellationToken = default) =>
+        await dbContext.Clinics
+            .AsNoTracking()
+            .Where(c => c.Status == ClinicStatus.Active)
+            .OrderByDescending(c => c.IsFeatured)
+            .ThenBy(c => c.Name)
+            .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<Clinic>> GetFeaturedNearAsync(
+        double lat, double lng, double radiusKm,
+        CancellationToken cancellationToken = default)
+    {
+        // Haversine approximation using bounding box pre-filter then distance sort.
+        // For CR geography (small country) a bounding-box filter is accurate enough.
+        double latDelta = radiusKm / 111.0;
+        double lngDelta = radiusKm / (111.0 * Math.Cos(lat * Math.PI / 180.0));
+
+        var minLat = (decimal)(lat - latDelta);
+        var maxLat = (decimal)(lat + latDelta);
+        var minLng = (decimal)(lng - lngDelta);
+        var maxLng = (decimal)(lng + lngDelta);
+
+        return await dbContext.Clinics
+            .AsNoTracking()
+            .Where(c => c.Status == ClinicStatus.Active
+                     && c.IsFeatured
+                     && c.Lat >= minLat && c.Lat <= maxLat
+                     && c.Lng >= minLng && c.Lng <= maxLng)
+            .OrderByDescending(c => c.IsFeatured)
+            .ThenBy(c => c.Name)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AddAsync(Clinic clinic, CancellationToken cancellationToken = default) =>
         await dbContext.Clinics.AddAsync(clinic, cancellationToken);
 
     public void Update(Clinic clinic) =>
         dbContext.Clinics.Update(clinic);
 }
+

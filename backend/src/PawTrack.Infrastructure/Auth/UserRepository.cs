@@ -13,6 +13,16 @@ public sealed class UserRepository(PawTrackDbContext dbContext) : IUserRepositor
             .Include(u => u.RefreshTokens)
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
 
+    public async Task<IReadOnlyList<User>> GetByIdsAsync(
+        IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        var idSet = ids.ToHashSet();
+        return await dbContext.Users
+            .AsNoTracking()
+            .Where(u => idSet.Contains(u.Id))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default) =>
         await dbContext.Users
             .AsTracking()

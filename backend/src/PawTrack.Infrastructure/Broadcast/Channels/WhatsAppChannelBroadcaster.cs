@@ -57,6 +57,12 @@ public sealed class WhatsAppChannelBroadcaster(
         //         }
         //     },
         //     biz_opaque_callback_data = context.LostPetEventId.ToString()
+        //         new { type = "body", parameters = new[] {
+        //             new { type = "text", text = context.PetName },
+        //             new { type = "text", text = context.TrackingUrl },
+        //             new { type = "text", text = BuildClinicFooter(context) },
+        //         }}
+        //     }
         // };
         // var response = await client.PostAsJsonAsync("messages", payload, cancellationToken);
         // response.EnsureSuccessStatusCode();
@@ -64,11 +70,24 @@ public sealed class WhatsAppChannelBroadcaster(
         // return body?.Messages?.FirstOrDefault()?.Id;
 
         logger.LogInformation(
-            "WhatsApp broadcast skipped (credentials not configured) for event {EventId}",
-            context.LostPetEventId);
+            "WhatsApp broadcast skipped (credentials not configured) for event {EventId}. ClinicFooter={Footer}",
+            context.LostPetEventId,
+            BuildClinicFooter(context));
 
-        // Return a sentinel so the orchestrator can tell that this was
-        // a stub call rather than a channel failure.
         return Task.FromResult<string?>(null);
+    }
+
+    // Builds the clinic-footer text appended to WhatsApp alerts for Plus/Partner owners.
+    private static string BuildClinicFooter(BroadcastMessageContext context)
+    {
+        if (context.NearbyFeaturedClinics is not { Count: > 0 })
+            return string.Empty;
+
+        var lines = context.NearbyFeaturedClinics
+            .Select(c => string.IsNullOrWhiteSpace(c.PhoneNumber)
+                ? $"🏥 {c.Name} — {c.Address}"
+                : $"🏥 {c.Name} — {c.PhoneNumber}");
+
+        return "\n\n_Clínicas verificadas cerca:_\n" + string.Join("\n", lines);
     }
 }

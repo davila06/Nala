@@ -23,7 +23,7 @@ public sealed class LostPetSearchRadiusCalculatorTests
     {
         var sut = new LostPetSearchRadiusCalculator();
 
-        var radius = sut.Calculate(species, breed, ReferenceTime.AddHours(hoursOffset), ReferenceTime);
+        var radius = sut.Calculate(species, breed, ReferenceTime.AddHours(hoursOffset), referenceTime: ReferenceTime);
 
         radius.Should().Be(expectedRadius);
     }

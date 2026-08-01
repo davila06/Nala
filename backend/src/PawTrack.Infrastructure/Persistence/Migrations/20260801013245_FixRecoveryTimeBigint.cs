@@ -11,12 +11,6 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<Guid>(
-                name: "ClinicOwnerId",
-                table: "Subscriptions",
-                type: "uniqueidentifier",
-                nullable: true);
-
             migrationBuilder.AlterColumn<long>(
                 name: "RecoveryTime",
                 table: "LostPetEvents",
@@ -30,10 +24,6 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "ClinicOwnerId",
-                table: "Subscriptions");
-
             migrationBuilder.AlterColumn<TimeSpan>(
                 name: "RecoveryTime",
                 table: "LostPetEvents",

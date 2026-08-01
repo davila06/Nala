@@ -1,6 +1,7 @@
 using MediatR;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.LostPets.SearchRadius;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.LostPets;
 
@@ -13,6 +14,8 @@ public sealed class ReportLostPetCommandHandler(
     INotificationDispatcher notificationDispatcher,
     IBlobStorageService blobStorage,
     IImageProcessor imageProcessor,
+    ISubscriptionService subscriptionService,
+    IClinicRepository clinicRepository,
     IUnitOfWork unitOfWork,
     ILostPetSearchRadiusCalculator searchRadiusCalculator)
     : IRequestHandler<ReportLostPetCommand, Result<string>>
@@ -84,10 +87,14 @@ public sealed class ReportLostPetCommandHandler(
         // Geofenced alert — only when the report includes coordinates.
         if (lostPetEvent.LastSeenLat.HasValue && lostPetEvent.LastSeenLng.HasValue)
         {
+            var tierMultiplier = await subscriptionService.GetAlertRadiusMultiplierAsync(
+                request.RequestingUserId, cancellationToken);
+
             var alertRadiusMetres = searchRadiusCalculator.Calculate(
                 pet.Species,
                 pet.Breed,
-                lostPetEvent.LastSeenAt);
+                lostPetEvent.LastSeenAt,
+                tierMultiplier);
 
             await notificationDispatcher.DispatchGeofencedLostPetAlertsAsync(
                 lostPetEvent.Id,
@@ -107,6 +114,24 @@ public sealed class ReportLostPetCommandHandler(
                 lostPetEvent.LastSeenLat.Value,
                 lostPetEvent.LastSeenLng.Value,
                 cancellationToken);
+
+            // Notify Partner clinics near the lost-pet location (fire-and-forget per clinic)
+            var partnerClinics = await clinicRepository.GetFeaturedNearAsync(
+                (double)lostPetEvent.LastSeenLat.Value,
+                (double)lostPetEvent.LastSeenLng.Value,
+                radiusKm: 15,
+                cancellationToken);
+
+            foreach (var clinic in partnerClinics)
+            {
+                _ = notificationDispatcher.DispatchLostPetAlertToClinicAsync(
+                    clinic.UserId,
+                    lostPetEvent.Id,
+                    pet.Name,
+                    (double)lostPetEvent.LastSeenLat.Value,
+                    (double)lostPetEvent.LastSeenLng.Value,
+                    cancellationToken);
+            }
         }
 
         return Result.Success(lostPetEvent.Id.ToString());

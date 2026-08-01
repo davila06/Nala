@@ -36,12 +36,26 @@ public sealed class MultichannelBroadcastService(
         }
 
         // ── Create pending attempts up front ─────────────────────────────────
-        // Persisting before sending ensures we have a record even if the process
-        // crashes mid-fan-out.
+        var paidChannels = new[]
+        {
+            BroadcastChannel.WhatsApp,
+            BroadcastChannel.Telegram,
+            BroadcastChannel.Facebook,
+        };
+
         var attempts = new List<(BroadcastAttempt Attempt, IChannelBroadcaster Broadcaster)>();
 
         foreach (var broadcaster in broadcasters)
         {
+            // Skip WhatsApp/Telegram/Facebook for free-plan users
+            if (context.RestrictToPaidChannels && paidChannels.Contains(broadcaster.Channel))
+            {
+                logger.LogDebug(
+                    "Skipping {Channel} for event {EventId} — owner is on free plan.",
+                    broadcaster.Channel, context.LostPetEventId);
+                continue;
+            }
+
             var trackingUrl = trackingLinkService.Generate(
                 context.LostPetEventId,
                 broadcaster.Channel.ToString().ToLowerInvariant());

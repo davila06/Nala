@@ -19,6 +19,8 @@ export interface ChatMessage {
   messageId: string;
   /** true = sent by the requesting user */
   isFromMe: boolean;
+  /** @deprecated use isFromMe */
+  isMine?: boolean;
   body: string;
   sentAt: string;
   isReadByRecipient: boolean;

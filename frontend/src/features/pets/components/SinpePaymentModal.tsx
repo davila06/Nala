@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  useActivateSubscription,
   useCreateSubscription,
+  useReportPayment,
 } from "../hooks/useSubscription";
 import type { SubscriptionTier } from "../api/subscriptionApi";
 import { TIER_PRICE_CRC } from "../api/subscriptionApi";
@@ -31,15 +31,16 @@ export function SinpePaymentModal({
   onSuccess,
 }: SinpePaymentModalProps) {
   const [step, setStep] = useState<
-    "confirm" | "payment" | "verifying" | "done"
+    "confirm" | "payment" | "reporting" | "reported"
   >("confirm");
   const [reference, setReference] = useState<string | null>(null);
+  const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const { mutateAsync: createSub, isPending: isCreating } =
     useCreateSubscription();
-  const { mutateAsync: activateSub, isPending: isActivating } =
-    useActivateSubscription();
+  const { mutateAsync: reportPayment, isPending: isReporting } =
+    useReportPayment();
 
   const price = TIER_PRICE_CRC[tier];
   const label = TIER_LABELS[tier];
@@ -49,24 +50,23 @@ export function SinpePaymentModal({
     try {
       const sub = await createSub({ tier, clinicId });
       setReference(sub.paymentReference);
+      setSubscriptionId(sub.id);
       setStep("payment");
     } catch {
       setError("No se pudo generar el código de pago. Intenta de nuevo.");
     }
   }
 
-  async function handleConfirmPayment() {
-    if (!reference) return;
-    setStep("verifying");
+  async function handleReportPayment() {
+    if (!subscriptionId) return;
+    setStep("reporting");
     setError(null);
     try {
-      await activateSub(reference);
-      setStep("done");
+      await reportPayment(subscriptionId);
+      setStep("reported");
       onSuccess?.();
     } catch {
-      setError(
-        "No se pudo verificar el pago. Si ya enviaste el SINPE, espera unos minutos y vuelve a intentarlo.",
-      );
+      setError("No se pudo registrar tu aviso. Intenta de nuevo.");
       setStep("payment");
     }
   }
@@ -78,7 +78,7 @@ export function SinpePaymentModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        onClick={step !== "verifying" ? onClose : undefined}
+        onClick={step !== "reporting" ? onClose : undefined}
       >
         <motion.div
           className="w-full max-w-md rounded-3xl bg-surface p-6 shadow-2xl"
@@ -98,7 +98,7 @@ export function SinpePaymentModal({
                 Activar {label}
               </h2>
             </div>
-            {step !== "verifying" && (
+            {step !== "reporting" && (
               <button
                 type="button"
                 onClick={onClose}
@@ -185,49 +185,51 @@ export function SinpePaymentModal({
               {error && <p className="text-xs text-danger-600">{error}</p>}
               <button
                 type="button"
-                onClick={() => void handleConfirmPayment()}
-                disabled={isActivating}
+                onClick={() => void handleReportPayment()}
+                disabled={isReporting}
                 className="w-full rounded-2xl bg-rescue-600 py-3 text-sm font-bold text-white transition-colors hover:bg-rescue-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-400"
               >
-                {isActivating ? "Verificando…" : "✓ Ya pagué"}
+                {isReporting ? "Registrando…" : "✓ Ya realicé el pago SINPE"}
               </button>
               <p className="text-center text-xs text-sand-400">
-                La verificación puede tardar hasta 5 minutos.
+                Un administrador verificará tu pago y activará el plan.
               </p>
             </div>
           )}
 
-          {/* Step: verifying */}
-          {step === "verifying" && (
+          {/* Step: reporting */}
+          {step === "reporting" && (
             <div className="flex flex-col items-center gap-4 py-6">
               <div className="h-10 w-10 rounded-full border-4 border-brand-200 border-t-brand-500 animate-spin" />
               <p className="text-sm font-semibold text-sand-700">
-                Verificando pago…
-              </p>
-              <p className="text-xs text-sand-400 text-center">
-                No cierres esta ventana.
+                Registrando tu aviso…
               </p>
             </div>
           )}
 
-          {/* Step: done */}
-          {step === "done" && (
+          {/* Step: reported */}
+          {step === "reported" && (
             <div className="flex flex-col items-center gap-4 py-4 text-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-rescue-100 text-3xl">
-                ✅
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-trust-100 text-3xl">
+                🕐
               </div>
               <h3 className="text-lg font-black text-sand-900">
-                ¡Plan {label} activado!
+                ¡Aviso recibido!
               </h3>
-              <p className="text-sm text-sand-500">
-                Tu suscripción está activa por 30 días.
+              <p className="text-sm text-sand-600">
+                Registramos que realizaste el pago SINPE. Un administrador lo
+                verificará y activará el plan <strong>{label}</strong> en las
+                próximas horas.
+              </p>
+              <p className="text-xs text-sand-400">
+                Puedes cerrar esta ventana. Te notificaremos cuando se active.
               </p>
               <button
                 type="button"
                 onClick={onClose}
                 className="mt-2 w-full rounded-2xl bg-brand-600 py-3 text-sm font-bold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               >
-                Continuar
+                Entendido
               </button>
             </div>
           )}

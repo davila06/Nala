@@ -9,6 +9,7 @@ public interface IPetRepository
     Task<Pet?> GetByMicrochipIdAsync(string microchipId, CancellationToken cancellationToken = default);
     /// <summary>Batch fetch pets by a set of IDs. Returns only found pets; missing IDs are silently omitted.</summary>
     Task<IReadOnlyList<Pet>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default);
+    Task<int> CountByOwnerAsync(Guid ownerId, CancellationToken cancellationToken = default);
     Task AddAsync(Pet pet, CancellationToken cancellationToken = default);
     void Update(Pet pet);
     void Delete(Pet pet);

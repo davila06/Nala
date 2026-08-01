@@ -40,8 +40,10 @@ export function Card({
   className = "",
   ...props
 }: CardProps) {
+  // Cast resolves `children: never` TypeScript inference from ElementType polymorphism
+  const T = Tag as "div";
   return (
-    <Tag
+    <T
       className={[
         "rounded-2xl",
         border
@@ -56,7 +58,7 @@ export function Card({
       {...props}
     >
       {children}
-    </Tag>
+    </T>
   );
 }
 

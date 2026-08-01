@@ -48,3 +48,14 @@ export function useCancelSubscription() {
     },
   });
 }
+
+export function useReportPayment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (subscriptionId: string) =>
+      subscriptionApi.reportPayment(subscriptionId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["subscription"] });
+    },
+  });
+}

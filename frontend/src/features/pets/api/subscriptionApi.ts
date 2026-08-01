@@ -23,6 +23,7 @@ export interface SubscriptionDto {
   createdAt: string;
   activatedAt: string | null;
   expiresAt: string | null;
+  paymentReportedAt: string | null;
   isActive: boolean;
 }
 
@@ -59,5 +60,10 @@ export const subscriptionApi = {
   cancel: (subscriptionId: string) =>
     apiClient
       .delete<SubscriptionDto>(`/subscriptions/${subscriptionId}`)
+      .then((r) => r.data),
+
+  reportPayment: (subscriptionId: string) =>
+    apiClient
+      .put<SubscriptionDto>(`/subscriptions/${subscriptionId}/report-payment`)
       .then((r) => r.data),
 };

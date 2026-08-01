@@ -16,6 +16,8 @@ public sealed class Subscription
     /// <summary>SINPE Móvil reference code (8 uppercase alphanum) shown to the subscriber.</summary>
     public string PaymentReference { get; private set; } = string.Empty;
     public decimal AmountCrc { get; private set; }
+    /// <summary>Set when the subscriber self-reports having sent the SINPE payment.</summary>
+    public DateTimeOffset? PaymentReportedAt { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset? ActivatedAt { get; private set; }
     public DateTimeOffset? ExpiresAt { get; private set; }
@@ -78,6 +80,14 @@ public sealed class Subscription
     public void MarkExpired()
     {
         Status = SubscriptionStatus.Expired;
+    }
+
+    /// <summary>Subscriber self-reports that they sent the SINPE payment.</summary>
+    public void ReportPaymentSent()
+    {
+        if (Status != SubscriptionStatus.PendingPayment)
+            throw new InvalidOperationException("Only pending subscriptions can have payment reported.");
+        PaymentReportedAt = DateTimeOffset.UtcNow;
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

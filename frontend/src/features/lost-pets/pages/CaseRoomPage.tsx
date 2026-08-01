@@ -13,6 +13,7 @@ import { SightingHeatMap } from "../components/SightingHeatMap";
 import { BountyWidget } from "../components/BountyWidget";
 import { useCaseRoom } from "../hooks/useCaseRoom";
 import { EmptyState } from "@/shared/ui/Card";
+import type { SponsoredClinicDto } from "../api/caseRoomApi";
 
 // Lazy-load the 3D radar (heavy WebGL — load only for map tab)
 const SearchRadar3D = lazy(() =>
@@ -50,6 +51,49 @@ function ElapsedTime({ from }: { from: string }) {
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
+
+// ── Sponsored Clinic Banner ───────────────────────────────────────────────────
+
+function SponsoredClinicBanner({ clinic }: { clinic: SponsoredClinicDto }) {
+  return (
+    <a
+      href={clinic.website ?? `mailto:${clinic.contactEmail}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mb-4 flex items-center gap-3 rounded-2xl border border-trust-200 bg-linear-to-r from-trust-50 to-surface px-4 py-3 shadow-sm hover:from-trust-100 transition-colors"
+    >
+      {clinic.logoUrl ? (
+        <img
+          src={clinic.logoUrl}
+          alt={clinic.name}
+          className="h-10 w-10 shrink-0 rounded-full object-cover border border-trust-200"
+        />
+      ) : (
+        <span
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-trust-100 text-xl"
+          aria-hidden="true"
+        >
+          🏥
+        </span>
+      )}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5">
+          <p className="text-xs font-extrabold text-trust-900 truncate">
+            {clinic.name}
+          </p>
+          <span className="shrink-0 rounded-full bg-trust-100 px-1.5 py-0.5 text-[9px] font-bold text-trust-700">
+            ✓ Verificada
+          </span>
+        </div>
+        <p className="text-[11px] text-trust-600 truncate">
+          📍 {clinic.address}
+          {clinic.phoneNumber && ` · 📞 ${clinic.phoneNumber}`}
+        </p>
+      </div>
+      <span className="shrink-0 text-xs font-semibold text-trust-500">→</span>
+    </a>
+  );
+}
 
 export default function CaseRoomPage() {
   const { id } = useParams<{ id: string }>();
@@ -89,7 +133,13 @@ export default function CaseRoomPage() {
     );
   }
 
-  const { event, sightings, nearbyAlerts, totalNearbyAlertsDispatched } = data;
+  const {
+    event,
+    sightings,
+    nearbyAlerts,
+    totalNearbyAlertsDispatched,
+    sponsoredClinic,
+  } = data;
 
   return (
     <div className="mx-auto max-w-[680px] px-4 pb-16 pt-6 animate-fade-in-up">
@@ -102,6 +152,9 @@ export default function CaseRoomPage() {
       >
         ← Perfil de mascota
       </Link>
+
+      {/* ── Sponsored clinic banner ──────────────────────────────────────────── */}
+      {sponsoredClinic && <SponsoredClinicBanner clinic={sponsoredClinic} />}
 
       {/* ── Header card ─────────────────────────────────────────────────────── */}
       <div className="mb-5 flex items-center gap-3.5 rounded-2xl border border-danger-200 bg-linear-to-br from-danger-50 to-warn-50 p-4">

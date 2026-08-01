@@ -11,6 +11,7 @@ public sealed record SubscriptionDto(
     DateTimeOffset CreatedAt,
     DateTimeOffset? ActivatedAt,
     DateTimeOffset? ExpiresAt,
+    DateTimeOffset? PaymentReportedAt,
     bool IsActive)
 {
     public static SubscriptionDto FromDomain(Subscription s) => new(
@@ -22,5 +23,6 @@ public sealed record SubscriptionDto(
         s.CreatedAt,
         s.ActivatedAt,
         s.ExpiresAt,
+        s.PaymentReportedAt,
         s.IsActive);
 }

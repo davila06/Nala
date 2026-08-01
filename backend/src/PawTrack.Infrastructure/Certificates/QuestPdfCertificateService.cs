@@ -3,6 +3,7 @@ using PawTrack.Application.Common.Interfaces;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using QRCoder;
 
 namespace PawTrack.Infrastructure.Certificates;
 
@@ -149,15 +150,29 @@ public sealed class QuestPdfCertificateService(IBlobStorageService blobStorage) 
                 page.Footer().AlignCenter().Column(col =>
                 {
                     col.Item().LineHorizontal(0.5f).LineColor(Colors.Grey.Lighten2);
-                    col.Item().PaddingTop(6).Text(text =>
+                    col.Item().PaddingTop(6).Row(row =>
                     {
-                        text.Span("Verifique la autenticidad de este certificado en ")
-                            .FontSize(8).FontColor(Colors.Grey.Medium);
-                        text.Span($"pawtrack.cr/verificar/{data.VerificationCode}")
-                            .FontSize(8).Bold().FontColor(Colors.Orange.Medium);
+                        row.RelativeItem().Text(text =>
+                        {
+                            text.Span("Verifique la autenticidad en ")
+                                .FontSize(8).FontColor(Colors.Grey.Medium);
+                            text.Span($"pawtrack.cr/verificar/{data.VerificationCode}")
+                                .FontSize(8).Bold().FontColor(Colors.Orange.Medium);
+                        });
+                        // Embed a scannable QR code pointing to the public verification URL
+                        row.ConstantItem(48).AlignRight().Image(
+                            GenerateQrPng($"https://pawtrack.cr/verificar/{data.VerificationCode}"));
                     });
                 });
             });
         }).GeneratePdf();
+    }
+
+    private static byte[] GenerateQrPng(string url)
+    {
+        using var generator = new QRCodeGenerator();
+        var data = generator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
+        using var code = new PngByteQRCode(data);
+        return code.GetGraphic(4);
     }
 }

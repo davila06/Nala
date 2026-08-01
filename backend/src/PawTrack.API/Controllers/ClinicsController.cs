@@ -2,11 +2,16 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using PawTrack.Application.Clinics.Commands.ManageApiKey;
 using PawTrack.Application.Clinics.Commands.PerformClinicScan;
 using PawTrack.Application.Clinics.Commands.RegisterClinic;
 using PawTrack.Application.Clinics.Commands.ReviewClinic;
+using PawTrack.Application.Clinics.Queries.GetClinicScanStats;
 using PawTrack.Application.Clinics.Queries.GetMyClinic;
+using PawTrack.Application.Clinics.Queries.GetNearbyActiveAlerts;
 using PawTrack.Application.Clinics.Queries.GetPendingClinics;
+using PawTrack.Application.Clinics.Queries.GetPublicClinics;
+using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Auth;
 using PawTrack.Domain.Clinics;
 using System.Security.Claims;
@@ -15,7 +20,7 @@ namespace PawTrack.API.Controllers;
 
 [ApiController]
 [Route("api/clinics")]
-public sealed class ClinicsController(ISender sender) : ControllerBase
+public sealed class ClinicsController(ISender sender, IBlobStorageService blobStorage) : ControllerBase
 {
     // ── Register ──────────────────────────────────────────────────────────────
 
@@ -137,6 +142,176 @@ public sealed class ClinicsController(ISender sender) : ControllerBase
             : Ok(result.Value);
     }
 
+    // ── Public directory ──────────────────────────────────────────────────────
+
+    [HttpGet("public")]
+    [AllowAnonymous]
+    [EnableRateLimiting("public-api")]
+    [ResponseCache(Duration = 60, VaryByQueryKeys = ["lat", "lng"])]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPublicClinics(
+        [FromQuery] double? lat,
+        [FromQuery] double? lng,
+        CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetPublicClinicsQuery(lat, lng), cancellationToken);
+        return Ok(result.Value);
+    }
+
+    // ── Scan stats (Plus/Partner) ─────────────────────────────────────────────
+
+    [HttpGet("me/stats")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> GetScanStats(
+        [FromQuery] int? year,
+        [FromQuery] int? month,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
+        var now = DateTimeOffset.UtcNow;
+        var y = year ?? now.Year;
+        var m = month ?? now.Month;
+
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(
+            new GetClinicScanStatsQuery(clinicResult.Value.Id, userId, y, m),
+            cancellationToken);
+
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+
+        return Ok(result.Value);
+    }
+
+    // ── Nearby active alerts (Partner) ───────────────────────────────────────
+
+    [HttpGet("me/nearby-alerts")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> GetNearbyAlerts(
+        [FromQuery] double radiusKm = 15,
+        CancellationToken cancellationToken = default)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(
+            new GetNearbyActiveAlertsQuery(clinicResult.Value.Id, userId, radiusKm),
+            cancellationToken);
+
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+
+        return Ok(result.Value);
+    }
+
+    // ── Logo upload ───────────────────────────────────────────────────────────
+
+    [HttpPost("me/logo")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(3 * 1024 * 1024)] // 3MB
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadLogo(
+        IFormFile file,
+        [FromServices] IClinicRepository clinicRepository,
+        [FromServices] IUnitOfWork unitOfWork,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
+        var allowed = new[] { "image/jpeg", "image/png", "image/webp" };
+        if (!allowed.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
+            return BadRequest(new ProblemDetails { Detail = "Only JPEG, PNG or WebP images are accepted.", Status = 400 });
+
+        // Single query — resolve user → clinic in one trip
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        // Fetch as tracked so EF picks up mutations
+        var clinic = await clinicRepository.GetByIdAsync(clinicResult.Value.Id, cancellationToken);
+        if (clinic is null) return Forbid();
+
+        var ext = file.ContentType.Contains("png") ? "png" : file.ContentType.Contains("webp") ? "webp" : "jpg";
+        var blobName = $"clinic-logos/{clinic.Id}.{ext}";
+
+        using var stream = file.OpenReadStream();
+        var url = await blobStorage.UploadAsync("clinic-logos", blobName, stream, file.ContentType, cancellationToken);
+
+        clinic.SetLogoUrl(url);
+        clinicRepository.Update(clinic);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Ok(new { logoUrl = url });
+    }
+
+    // ── API Keys (Partner) ────────────────────────────────────────────────────
+
+    [HttpGet("me/api-keys")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetApiKeys(CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(
+            new GetClinicApiKeysQuery(clinicResult.Value.Id, userId), cancellationToken);
+
+        return result.IsSuccess ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors) });
+    }
+
+    [HttpPost("me/api-keys")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(512)]
+    public async Task<IActionResult> CreateApiKey(
+        [FromBody] CreateApiKeyRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(
+            new CreateClinicApiKeyCommand(clinicResult.Value.Id, userId, request.Label),
+            cancellationToken);
+
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+
+        return Created(string.Empty, result.Value);
+    }
+
+    [HttpDelete("me/api-keys/{keyId:guid}")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> RevokeApiKey(Guid keyId, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(
+            new RevokeClinicApiKeyCommand(keyId, clinicResult.Value.Id, userId),
+            cancellationToken);
+
+        return result.IsSuccess ? NoContent()
+            : NotFound(new ProblemDetails { Detail = "Key not found.", Status = 404 });
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private bool TryGetUserId(out Guid userId)
@@ -199,3 +374,5 @@ public sealed record ClinicScanRequest(
     string InputType);
 
 public sealed record ReviewClinicRequest(bool Approve);
+
+public sealed record CreateApiKeyRequest(string Label);

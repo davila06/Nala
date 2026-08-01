@@ -63,7 +63,7 @@ public interface INotificationDispatcher
     /// Does NOT include the message body to avoid PII leaks into notification channels.
     /// </summary>
     Task DispatchNewChatMessageAsync(
-        Guid   recipientUserId,
+        Guid recipientUserId,
         string recipientEmail,
         string petName,
         string threadId,
@@ -116,5 +116,16 @@ public interface INotificationDispatcher
         string ownerName,
         string petName,
         string outcome,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Notifies a Partner clinic that a lost-pet report was filed within their coverage area.
+    /// </summary>
+    Task DispatchLostPetAlertToClinicAsync(
+        Guid clinicUserId,
+        Guid lostPetEventId,
+        string petName,
+        double lostLat,
+        double lostLng,
         CancellationToken cancellationToken = default);
 }

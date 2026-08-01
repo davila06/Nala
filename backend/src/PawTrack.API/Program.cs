@@ -491,6 +491,7 @@ app.Use(async (ctx, next) =>
     await next();
 });
 app.UseAuthentication();
+app.UseMiddleware<ClinicApiKeyMiddleware>();
 app.UseAuthorization();
 app.UseResponseCaching();
 app.MapControllers();

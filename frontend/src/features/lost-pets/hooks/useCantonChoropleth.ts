@@ -42,9 +42,10 @@ async function fetchCantonGeoJson(): Promise<
   };
   // Normalise GADM property NAME_2 → shapeName expected by the map component
   return {
-    type: "FeatureCollection",
+    type: "FeatureCollection" as const,
     features: raw.features.map((f) => ({
       ...f,
+      type: "Feature" as const,
       properties: { shapeName: f.properties["NAME_2"] as string },
     })),
   };

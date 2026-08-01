@@ -22,6 +22,7 @@ import { Skeleton } from "@/shared/ui/Spinner";
 import { ProgressiveImg } from "@/shared/hooks/useProgressiveImage";
 import { Tabs, type TabItem } from "@/shared/ui/Tabs";
 import { CollarGpsTab } from "../components/CollarGpsTab";
+import { PlanGate } from "../components/PlanGate";
 import { useAuthStore } from "@/features/auth/store/authStore";
 
 export default function PetDetailPage() {
@@ -479,9 +480,14 @@ export default function PetDetailPage() {
       {/* ── Avistamientos tab ──────────────────────────────────────────── */}
       {activeTab === "avistamientos" && <SightingList petId={pet.id} />}
 
-      {/* ── GPS tab ──────────────────────────────────────────────────────── */}
+      {/* ── GPS tab — Plus required ───────────────────────────────────── */}
       {activeTab === "gps" && (
-        <CollarGpsTab petId={pet.id} isOwner={currentUserId === pet.ownerId} />
+        <PlanGate requires="Plus">
+          <CollarGpsTab
+            petId={pet.id}
+            isOwner={currentUserId === pet.ownerId}
+          />
+        </PlanGate>
       )}
     </main>
   );

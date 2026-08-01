@@ -1,6 +1,7 @@
 using MediatR;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Pets.DTOs;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Common;
 using System.Security.Cryptography;
 using System.Text;
@@ -16,6 +17,7 @@ public sealed record GetPetScanHistoryQuery(Guid PetId, Guid RequestingUserId)
 public sealed class GetPetScanHistoryQueryHandler(
     IPetRepository petRepository,
     IQrScanEventRepository qrScanEventRepository,
+    ISubscriptionService subscriptionService,
     IOptions<PetScanExportSettings> exportSettings)
     : IRequestHandler<GetPetScanHistoryQuery, Result<PetScanHistoryDto>>
 {
@@ -33,9 +35,11 @@ public sealed class GetPetScanHistoryQueryHandler(
         if (pet.OwnerId != request.RequestingUserId)
             return Result.Failure<PetScanHistoryDto>("Access denied.");
 
+        var take = await subscriptionService.GetScanHistoryLimitAsync(request.RequestingUserId, cancellationToken);
+
         var events = await qrScanEventRepository.GetByPetIdAsync(
             request.PetId,
-            DefaultPageSize,
+            take,
             cancellationToken);
 
         var ordered = events
@@ -63,16 +67,16 @@ public sealed class GetPetScanHistoryQueryHandler(
         // Deterministic payload: petId + signedAt epoch + event count + ordered scanned timestamps
         var payload = new
         {
-            PetId      = petId,
+            PetId = petId,
             SignedAtUtc = signedAt.ToUnixTimeSeconds(),
             EventCount = events.Count,
             Timestamps = events.Select(e => e.ScannedAt.ToUnixTimeSeconds()).ToArray(),
         };
-        var payloadJson  = JsonSerializer.Serialize(payload);
+        var payloadJson = JsonSerializer.Serialize(payload);
         var payloadBytes = Encoding.UTF8.GetBytes(payloadJson);
-        var keyBytes     = Encoding.UTF8.GetBytes(signingKey);
-        var hash         = HMACSHA256.HashData(keyBytes, payloadBytes);
-        var signature    = $"sha256={Convert.ToHexString(hash).ToLowerInvariant()}";
+        var keyBytes = Encoding.UTF8.GetBytes(signingKey);
+        var hash = HMACSHA256.HashData(keyBytes, payloadBytes);
+        var signature = $"sha256={Convert.ToHexString(hash).ToLowerInvariant()}";
 
         return (signature, signedAt);
     }

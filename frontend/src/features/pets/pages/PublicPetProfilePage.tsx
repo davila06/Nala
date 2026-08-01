@@ -328,7 +328,7 @@ export default function PublicPetProfilePage() {
           isLost &&
           pet.activeLostEventId &&
           (pet.contactName ?? contact?.contactName) && (
-            className="mb-4 rounded-2xl border border-brand-200 bg-linear-to-br from-brand-50 to-surface p-4 shadow-sm">
+            <div className="mb-4 rounded-2xl border border-brand-200 bg-linear-to-br from-brand-50 to-surface p-4 shadow-sm">
               <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-brand-700">
                 Contacto del dueño
               </p>

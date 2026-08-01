@@ -199,12 +199,12 @@ public sealed class Round81To101SecurityRegressionTests
 
     [Fact]
     public void R91_MatchSightingById_EmptySightingId_Fails()
-        => _r91.TestValidate(new MatchSightingByIdQuery(Guid.Empty))
+        => _r91.TestValidate(new MatchSightingByIdQuery(Guid.Empty, Guid.NewGuid()))
                .ShouldHaveValidationErrorFor(x => x.SightingId);
 
     [Fact]
     public void R91_MatchSightingById_ValidSightingId_Passes()
-        => _r91.TestValidate(new MatchSightingByIdQuery(Guid.NewGuid()))
+        => _r91.TestValidate(new MatchSightingByIdQuery(Guid.NewGuid(), Guid.NewGuid()))
                .ShouldNotHaveAnyValidationErrors();
 
     // ── R92: GetMyClinicQuery ────────────────────────────────────────────────

@@ -46,4 +46,11 @@ public sealed record BroadcastMessageContext(
     string TrackingUrl,
     string? RecentPhotoUrl,
     DateTimeOffset LastSeenAt,
-    string? LastSeenDescription);
+    string? LastSeenDescription,
+    /// <summary>When true, skip paid channels (WhatsApp, Telegram, Facebook) — free plan users get email only.</summary>
+    bool RestrictToPaidChannels = false,
+    /// <summary>Plus/Partner clinics near the lost-pet location — appended to WhatsApp/Telegram messages.</summary>
+    IReadOnlyList<NearbyClinicRef>? NearbyFeaturedClinics = null);
+
+/// <summary>Minimal clinic reference embedded in broadcast messages for Plus/Partner clinics.</summary>
+public sealed record NearbyClinicRef(string Name, string? PhoneNumber, string Address);

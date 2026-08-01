@@ -134,12 +134,16 @@ public sealed class RecordPublicQrScanCommandHandlerTests
             DateTimeOffset.UtcNow);
 
         _petRepository.GetByIdAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(pet);
-        _qrScanRepository.GetByPetIdAsync(pet.Id, 50, Arg.Any<CancellationToken>())
+        _qrScanRepository.GetByPetIdAsync(pet.Id, Arg.Any<int>(), Arg.Any<CancellationToken>())
             .Returns([older, newer]);
+
+        var subscriptionService = Substitute.For<PawTrack.Application.Subscriptions.Services.ISubscriptionService>();
+        subscriptionService.GetScanHistoryLimitAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns(50);
 
         var sut = new GetPetScanHistoryQueryHandler(
             _petRepository,
             _qrScanRepository,
+            subscriptionService,
             Options.Create(new PetScanExportSettings()));
 
         var result = await sut.Handle(

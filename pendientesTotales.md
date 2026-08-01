@@ -1,6 +1,6 @@
 # PawTrack CR — Pendientes Totales Consolidados
 
-> Versión: 2026-07-30 (fuente única — reemplaza `erroresConsolidado.md`, `PENDIENTES_BETA.md`, `collares.md`, `mejorasUI.md`, `multi-idioma.md`)  
+> Versión: 2026-07-31 (fuente única — reemplaza `erroresConsolidado.md`, `PENDIENTES_BETA.md`, `collares.md`, `mejorasUI.md`, `multi-idioma.md`)  
 > Ambiente de referencia: **PawnTrackBeta** — Container App + Azure SQL + Static Web App
 
 ---
@@ -17,7 +17,10 @@
 | UI/UX sistema de diseño  | 6 fases  | 3 fases  | 1          | 2 fases      |
 | Módulo Collar GPS        | 1        | 0        | 0          | 1            |
 | Monetización             | 5 líneas | 0        | 1 banner   | 4            |
-| **TOTAL**                | **40+**  | **24**   | **2**      | **11+**      |
+| **Subscription Gating**  | **10**   | **0**    | **0**      | **10**       |
+| **Features Familia**     | **5**    | **0**    | **0**      | **5**        |
+| **UI Gates**             | **6**    | **0**    | **0**      | **6**        |
+| **TOTAL**                | **61+**  | **24**   | **2**      | **32+**      |
 
 ---
 
@@ -291,3 +294,411 @@ Al registrar vacunas/consultas, la clínica genera un PDF/A-1b con firma digital
 | `26fea19` | 2026-07-30 | Dark mode #9–12: Dashboard/PetDetail/ReportLost/Chat                     |
 | `2288c82` | 2026-07-30 | Login enterprise (ojo, errores, stats reales, aria)                      |
 | `9f1efe4` | 2026-07-30 | Login: redirect preservation, remember email, mobile attrs               |
+
+---
+
+## 10. Implementación de Planes de Suscripción — Feature Gating Enterprise
+
+> Análisis: ningún handler ni controller verifica `SubscriptionTier` para usuarios. El único check de tier
+> existente es `ClinicPartner` en `IssueCertificate`. Todo lo demás está libre para todos.
+> Las tareas de esta sección son necesarias para poder **cobrar correctamente** por los planes.
+>
+> **Convención de estado:** ⛔ Pendiente · 🔄 Parcial · ✅ Hecho
+
+---
+
+### 10.1 Capa de enforcement — Backend
+
+#### ⛔ SUBS-01 · `SubscriptionService` — helper de tier en Application
+
+Crear `ISubscriptionService` con métodos que encapsulan la lógica de tier:
+
+```csharp
+// PawTrack.Application/Subscriptions/Services/ISubscriptionService.cs
+public interface ISubscriptionService
+{
+    Task<SubscriptionTier?> GetActiveUserTierAsync(Guid userId, CancellationToken ct = default);
+    Task<bool> IsAtLeastPlusAsync(Guid userId, CancellationToken ct = default);
+    Task<bool> IsFamiliaAsync(Guid userId, CancellationToken ct = default);
+    Task<int> GetPetLimitAsync(Guid userId, CancellationToken ct = default);      // 1 / 3 / ∞ (-1)
+    Task<int> GetScanHistoryLimitAsync(Guid userId, CancellationToken ct = default); // 5 / 50 / 50
+    Task<int?> GetMonthlyAiSearchLimitAsync(Guid userId, CancellationToken ct = default); // 3 / null / null
+    Task<int> GetAlertRadiusBoostMetresAsync(Guid userId, CancellationToken ct = default); // 0 / +7000 / +∞
+}
+```
+
+Implementación: `SubscriptionService` inyecta `ISubscriptionRepository`, mapea `SubscriptionStatus.Active` + tier.  
+Free = `null` subscription ⇒ tier `Explorador` por default.
+
+**Archivos a crear:**  
+`Application/Subscriptions/Services/ISubscriptionService.cs`  
+`Infrastructure/Subscriptions/SubscriptionService.cs`  
+Registrar en `InfrastructureServiceCollectionExtensions.cs`.
+
+---
+
+#### ⛔ SUBS-02 · Límite de mascotas — `CreatePetCommandHandler`
+
+Inject `ISubscriptionService`. Antes de crear:
+
+```csharp
+var petCount = await petRepository.CountByOwnerAsync(request.OwnerId, ct);
+var limit    = await subscriptionService.GetPetLimitAsync(request.OwnerId, ct);
+if (limit != -1 && petCount >= limit)
+    return Result.Failure<Guid>($"Tu plan permite hasta {limit} mascota(s). Actualiza a Plus para registrar más.");
+```
+
+Agregar `CountByOwnerAsync(Guid ownerId)` en `IPetRepository` + implementación.
+
+---
+
+#### ⛔ SUBS-03 · Historial de escaneos — `GetPetScanHistoryQuery`
+
+```csharp
+var limit  = await subscriptionService.GetScanHistoryLimitAsync(request.RequestingUserId, ct);
+var events = await qrScanEventRepository.GetByPetIdAsync(request.PetId, take: limit, ct);
+```
+
+`DefaultPageSize = 50` se mantiene para Plus+; free recibe `take: 5`.
+
+---
+
+#### ⛔ SUBS-04 · Contador mensual de búsquedas IA — `MatchSightingPhotoQuery` y `MatchSightingByIdQuery`
+
+1. Agregar tabla `AiSearchUsage` (`UserId`, `YearMonth` int, `Count` int, `UpdatedAt`) con índice único `(UserId, YearMonth)`.
+2. Migración EF Core.
+3. En los dos handlers de Visual Match, antes de ejecutar la búsqueda:
+
+```csharp
+var monthlyLimit = await subscriptionService.GetMonthlyAiSearchLimitAsync(userId, ct);
+if (monthlyLimit.HasValue)
+{
+    var used = await aiSearchUsageRepository.GetCountAsync(userId, currentYearMonth, ct);
+    if (used >= monthlyLimit.Value)
+        return Result.Failure<...>("Has alcanzado tu límite mensual de 3 búsquedas IA. Activa Plus para búsquedas ilimitadas.");
+    await aiSearchUsageRepository.IncrementAsync(userId, currentYearMonth, ct);
+}
+```
+
+**Archivos a crear/modificar:**  
+`Domain/Sightings/AiSearchUsage.cs`  
+`Application/Common/Interfaces/IAiSearchUsageRepository.cs`  
+`Infrastructure/Sightings/AiSearchUsageRepository.cs`  
+Migración `AddAiSearchUsage`.
+
+---
+
+#### ⛔ SUBS-05 · Radio de alerta por tier — `LostPetSearchRadiusCalculator`
+
+Modificar `ILostPetSearchRadiusCalculator.Calculate(...)` para aceptar un multiplicador de tier:
+
+```csharp
+// Tier multipliers: Free = ×1.0 | Plus = ×3.3 | Familia = ×99 (sin límite práctico)
+int baseRadius = RadiusMatrix[key][bracket];
+int effective  = tierMultiplier == -1 ? baseRadius * 33 : (int)(baseRadius * tierMultiplier);
+return Math.Min(effective, tierMultiplier == -1 ? int.MaxValue : 100_000);
+```
+
+En `ReportLostPetCommandHandler`:
+
+```csharp
+var tierMultiplier = await subscriptionService.GetAlertRadiusBoostMetresAsync(ownerId, ct);
+var alertRadiusMetres = searchRadiusCalculator.Calculate(species, breed, lastSeenAt, tierMultiplier);
+```
+
+El pricing documenta 3 km (free) / 10 km (Plus) como valores aproximados —  
+el calculador puede retornar más si la especie/raza es activa; el tier solo escala el resultado base.
+
+---
+
+#### ⛔ SUBS-06 · Gating WhatsApp broadcast — `BroadcastLostPetCommandHandler`
+
+```csharp
+var isPlus = await subscriptionService.IsAtLeastPlusAsync(lostEvent.OwnerId, ct);
+if (!isPlus)
+{
+    // Free users get email-only broadcast; skip WhatsApp/Telegram
+    channelsToUse = channelsToUse.Where(c => c.Channel == BroadcastChannel.Email).ToList();
+}
+```
+
+---
+
+#### ⛔ SUBS-07 · Gating Case Room — `GetCaseRoomQuery`
+
+```csharp
+var isPlus = await subscriptionService.IsAtLeastPlusAsync(request.RequestingUserId, ct);
+if (!isPlus)
+    return Result.Failure<CaseRoomDto>("La sala de coordinación requiere el plan Plus.");
+```
+
+---
+
+#### ⛔ SUBS-08 · Gating Bounty — `CreateBountyCommand`
+
+```csharp
+var isPlus = await subscriptionService.IsAtLeastPlusAsync(request.RequestingUserId, ct);
+if (!isPlus)
+    return Result.Failure<BountyDto>("El sistema de recompensas requiere el plan Plus.");
+```
+
+---
+
+#### ⛔ SUBS-09 · Gating GPS Collar — `RegisterCollarCommand` y `GetCollarStatusQuery`
+
+```csharp
+var isPlus = await subscriptionService.IsAtLeastPlusAsync(request.OwnerId, ct);
+if (!isPlus)
+    return Result.Failure<CollarDto>("El collar GPS requiere el plan Plus.");
+```
+
+---
+
+#### ⛔ SUBS-10 · Fix `GetMovementPrediction` — mover de público a Plus
+
+Actualmente en `PublicMapController` accesible sin login.  
+Opciones: mover a `LostPetsController` con `[Authorize]` + check Plus, o mantener en público pero sin las coordenadas exactas.
+
+Decisión arquitectónica: **mantener el trail en mapa público** (valor comunitario) pero el **panel de predicción detallado** en `CaseRoomPage` (Plus-only). El endpoint público devuelve solo la dirección general; el de Case Room devuelve el cálculo completo con confianza.
+
+---
+
+### 10.2 Features Familia — Completamente nuevas
+
+#### ⛔ FAM-01 · Módulo Multi-Usuario (cuenta familiar)
+
+**Dominio — entidades nuevas:**
+
+```
+FamilyAccount     Id, OwnerId, Name, CreatedAt
+FamilyMembership  Id, FamilyAccountId, UserId, Role (Owner|Member), JoinedAt, IsActive
+FamilyInvitation  Id, FamilyAccountId, InvitedEmail, Token (GUID), ExpiresAt, AcceptedAt?
+```
+
+**Application — Commands/Queries:**
+
+- `CreateFamilyAccountCommand` — solo Familia tier
+- `InviteFamilyMemberCommand` — genera token, envía email
+- `AcceptFamilyInvitationCommand` — valida token, crea `FamilyMembership`
+- `RemoveFamilyMemberCommand`
+- `GetFamilyMembersQuery`
+- `GetFamilyPetsQuery` — agrega mascotas de todos los miembros
+
+**Controller:** `api/family`
+
+**Frontend — nuevas páginas:**
+
+- `/familia/panel` — lista de miembros con foto + estado
+- `/familia/invitar` — enviar invitación por email
+- `/familia/aceptar?token=...` — landing de aceptación
+
+**Reglas de negocio:**
+
+- Solo el dueño puede invitar/eliminar miembros
+- Máximo 5 miembros (incluyendo el dueño)
+- Todos los miembros ven todas las mascotas del grupo familiar
+- Solo el dueño puede reportar pérdida / cambiar estado
+
+**Esfuerzo estimado:** 2–3 semanas
+
+---
+
+#### ⛔ FAM-02 · Historial médico — modelo de datos
+
+**Dominio — entidades nuevas:**
+
+```
+MedicalRecord  Id, PetId, Type (Vaccination|Deworming|VetVisit|Surgery|Other),
+               Date, Description, VetName?, ClinicName?, NextDueDate?,
+               DocumentUrl? (Blob), CreatedAt, CreatedBy (UserId)
+```
+
+**Application:**
+
+- `AddMedicalRecordCommand` (requiere Familia tier)
+- `UpdateMedicalRecordCommand`
+- `DeleteMedicalRecordCommand`
+- `GetMedicalHistoryQuery` (paginado, filtrado por tipo)
+
+**Controller:** `api/pets/{petId}/medical`
+
+**Frontend:**
+
+- Tab "Salud" en `PetDetailPage` (solo si Familia)
+- `MedicalRecordForm` — tipo, fecha, descripción, adjunto PDF/foto
+- Lista cronológica con iconos por tipo
+- Gateable con `<FamiliaGate>` component
+
+**Esfuerzo estimado:** 1–2 semanas
+
+---
+
+#### ⛔ FAM-03 · Recordatorios veterinarios
+
+**Dominio — entidad nueva:**
+
+```
+VetReminder  Id, PetId, OwnerId, Type, DueDate, Title, Notes?,
+             IsCompleted, CompletedAt?, ReminderSentAt?, CreatedAt
+```
+
+**Background job:** `VetReminderNotificationJob` — corre diario a las 08:00 local,
+envía push/email cuando `DueDate` es hoy o en 7 días y `IsCompleted = false`.
+
+**Application:**
+
+- `CreateVetReminderCommand`
+- `MarkReminderCompletedCommand`
+- `GetUpcomingRemindersQuery`
+- Auto-crear reminders desde `MedicalRecord.NextDueDate` al guardar un registro
+
+**Frontend:**
+
+- Widget en Dashboard: "Próximos recordatorios" para usuarios Familia
+- Tabla de recordatorios en `PetDetailPage` tab "Salud"
+- Notificación push al vencer
+
+**Esfuerzo estimado:** 1 semana (sobre FAM-02)
+
+---
+
+#### ⛔ FAM-04 · Export historial médico PDF (QuestPDF)
+
+QuestPDF ya está instalado y usado en `CertificateGenerator`.
+
+**Application — `ExportMedicalHistoryCommand`:**
+
+- Requiere Familia tier
+- Genera PDF con: portada con foto de mascota, tabla de historial médico, tabla de recordatorios pasados, firma con metadata (fecha, generado por PawTrack CR)
+
+**Controlador:** `GET api/pets/{petId}/medical/export`  
+**Respuesta:** `application/pdf` con `Content-Disposition: attachment`
+
+**Frontend:**  
+Botón "Exportar PDF" en tab "Salud", descarga directamente.
+
+**Esfuerzo estimado:** 3–4 días (sobre FAM-02)
+
+---
+
+#### ⛔ FAM-05 · Push familiar — notificar a todos los miembros
+
+Modificar `NotificationDispatcher.DispatchPetReunitedAsync` (y Lost, Sighting) para,
+cuando el dueño pertenece a una cuenta familiar Familia-tier, enviar push a **todos los miembros activos**:
+
+```csharp
+if (await subscriptionService.IsFamiliaAsync(ownerId, ct))
+{
+    var memberIds = await familyRepository.GetActiveMemberIdsAsync(ownerId, ct);
+    foreach (var memberId in memberIds)
+        await pushNotificationService.SendAsync(memberId, title, body, ct);
+}
+```
+
+**Esfuerzo estimado:** 2 días (sobre FAM-01)
+
+---
+
+### 10.3 Frontend — Componentes de gating UI
+
+#### ⛔ UI-GATE-01 · Hook `useMyTier()`
+
+```ts
+// frontend/src/features/pets/hooks/useSubscription.ts
+export function useMyTier() {
+  const { data: sub } = useMySubscription();
+  const tier = sub?.status === "Active" ? sub.tier : "Explorador";
+  return {
+    tier,
+    isPlus: tier === "UserPlus" || tier === "UserFamilia",
+    isFamilia: tier === "UserFamilia",
+  };
+}
+```
+
+---
+
+#### ⛔ UI-GATE-02 · Componente `<PlanGate>`
+
+```tsx
+// frontend/src/features/pets/components/PlanGate.tsx
+interface PlanGateProps {
+  requires: "Plus" | "Familia";
+  children: ReactNode;
+  fallback?: ReactNode; // default: upgrade banner
+}
+```
+
+Muestra `children` si el tier es suficiente, `fallback` (o un `<UpgradeBanner>`) si no.
+
+---
+
+#### ⛔ UI-GATE-03 · `<UpgradeBanner>` contextual
+
+Componente que muestra el tier requerido con CTA → `FreemiumModal`:
+
+```
+🔒 Esta función requiere Plan Plus (₡2,990/mes)
+   [Conocer Plus →]
+```
+
+---
+
+#### ⛔ UI-GATE-04 · Gating en `PetDetailPage`
+
+Envolver con `<PlanGate>`:
+
+- Tab "GPS" → `requires="Plus"`
+- Botón "Historial completo" en escaneos → `requires="Plus"`
+- Tab "Salud" → `requires="Familia"`
+- Botón "Sala de coordinación" en reporte activo → `requires="Plus"`
+
+---
+
+#### ⛔ UI-GATE-05 · Mostrar límite de mascotas en `Dashboard`
+
+Cuando el usuario tiene 1 mascota (free), mostrar:
+
+```
+🐾 1 / 1 mascotas — Agrega hasta 3 con Plus
+```
+
+CTA abre `FreemiumModal`.
+
+---
+
+#### ⛔ UI-GATE-06 · Contador AI/mes en `VisualMatchPage`
+
+Para usuarios free, mostrar debajo del botón:
+
+```
+Búsquedas IA: 2 / 3 este mes · Plus = ilimitado
+```
+
+---
+
+### 10.4 Orden de implementación recomendado
+
+| Prioridad | Tarea                                            | Bloquea a                         | Esfuerzo |
+| --------- | ------------------------------------------------ | --------------------------------- | -------- |
+| 🔴 1      | SUBS-01 `SubscriptionService`                    | Todo lo demás                     | 1 día    |
+| 🔴 2      | SUBS-02 Límite de mascotas                       | Poder demostrar gating a usuarios | 4 h      |
+| 🔴 3      | SUBS-03 Historial escaneos                       | Coherencia con pricing            | 2 h      |
+| 🔴 4      | SUBS-04 Contador IA mensual + migración          | Previene abuso del plan free      | 1 día    |
+| 🟠 5      | UI-GATE-01 `useMyTier` + UI-GATE-02 `<PlanGate>` | Todos los gates de UI             | 1 día    |
+| 🟠 6      | UI-GATE-03/04/05/06 — Gates en pantallas         | UX de upgrade                     | 1 día    |
+| 🟠 7      | SUBS-05 Radio de alerta por tier                 | Diferenciador Plus                | 4 h      |
+| 🟠 8      | SUBS-06 Broadcast WhatsApp gating                | Gating canal premium              | 2 h      |
+| 🟠 9      | SUBS-07/08/09 Case Room + Bounty + GPS gating    | Gating features Plus              | 4 h      |
+| 🔵 10     | FAM-02 Historial médico (modelo + API)           | FAM-03/04/05                      | 1.5 sem  |
+| 🔵 11     | FAM-03 Recordatorios veterinarios                | —                                 | 1 sem    |
+| 🔵 12     | FAM-04 Export PDF médico                         | FAM-02                            | 3 días   |
+| 🔵 13     | FAM-01 Multi-usuario familiar                    | FAM-05                            | 3 sem    |
+| 🔵 14     | FAM-05 Push familiar                             | FAM-01                            | 2 días   |
+| 🔵 15     | SUBS-10 Fix movement prediction (Plus vs public) | —                                 | 4 h      |
+
+**Total estimado mínimo para poder "cobrar correctamente":**  
+SUBS-01→09 + UI-GATE-01→06 = ~1 semana de trabajo continuo.  
+Familia completo (FAM-01→05) = ~5–6 semanas adicionales.
+
+---

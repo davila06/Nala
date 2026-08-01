@@ -19,6 +19,9 @@ public sealed class PetRepository(PawTrackDbContext dbContext) : IPetRepository
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync(cancellationToken);
 
+    public Task<int> CountByOwnerAsync(Guid ownerId, CancellationToken cancellationToken = default) =>
+        dbContext.Pets.CountAsync(p => p.OwnerId == ownerId, cancellationToken);
+
     public async Task<Pet?> GetByMicrochipIdAsync(
         string microchipId, CancellationToken cancellationToken = default) =>
         await dbContext.Pets

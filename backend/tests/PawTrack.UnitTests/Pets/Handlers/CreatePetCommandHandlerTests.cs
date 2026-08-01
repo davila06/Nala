@@ -12,12 +12,16 @@ public sealed class CreatePetCommandHandlerTests
     private readonly IBlobStorageService _blobStorage = Substitute.For<IBlobStorageService>();
     private readonly IImageProcessor _imageProcessor = Substitute.For<IImageProcessor>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
+    private readonly PawTrack.Application.Subscriptions.Services.ISubscriptionService _subscriptionService =
+        Substitute.For<PawTrack.Application.Subscriptions.Services.ISubscriptionService>();
 
     private readonly CreatePetCommandHandler _sut;
 
     public CreatePetCommandHandlerTests()
     {
-        _sut = new CreatePetCommandHandler(_petRepo, _blobStorage, _imageProcessor, _uow);
+        // Return permissive limit so tests aren't blocked by subscription gating
+        _subscriptionService.GetPetLimitAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns(10);
+        _sut = new CreatePetCommandHandler(_petRepo, _blobStorage, _imageProcessor, _subscriptionService, _uow);
     }
 
     [Fact]

@@ -3,6 +3,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Medical;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Infrastructure.AI;
 using PawTrack.Infrastructure.Allies;
 using PawTrack.Infrastructure.Auth;
@@ -18,6 +20,10 @@ using PawTrack.Infrastructure.Locations;
 using PawTrack.Infrastructure.LostPets;
 using PawTrack.Infrastructure.Notifications;
 using PawTrack.Infrastructure.Notifications.Jobs;
+using PawTrack.Infrastructure.Family;
+using PawTrack.Infrastructure.Medical;
+using PawTrack.Infrastructure.Sightings;
+using PawTrack.Infrastructure.Subscriptions;
 using PawTrack.Infrastructure.Persistence;
 using PawTrack.Infrastructure.Pets;
 using PawTrack.Infrastructure.Safety;
@@ -87,6 +93,7 @@ public static class InfrastructureServiceCollectionExtensions
         // Clinics
         services.AddScoped<IClinicRepository, ClinicRepository>();
         services.AddScoped<IClinicScanRepository, ClinicScanRepository>();
+        services.AddScoped<IClinicApiKeyRepository, ClinicApiKeyRepository>();
 
         // Push subscriptions
         services.AddScoped<IPushSubscriptionRepository, PushSubscriptionRepository>();
@@ -138,6 +145,7 @@ public static class InfrastructureServiceCollectionExtensions
         // Sightings
         services.AddSingleton<IPiiScrubber, PiiScrubber>();
         services.AddScoped<IVisualMatchRepository, VisualMatchRepository>();
+        services.AddScoped<IAiSearchUsageRepository, AiSearchUsageRepository>();
 
         // AI — Azure Computer Vision 4.0 embedding service.
         // HttpClient timeout is intentionally short; VectorizeUrlAsync is best-effort.
@@ -165,6 +173,7 @@ public static class InfrastructureServiceCollectionExtensions
 
         // Subscriptions + payments
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+        services.AddScoped<ISubscriptionService, SubscriptionService>();
         services.AddSingleton<IPaymentService, SinpePaymentService>();
 
         // Bounties
@@ -176,6 +185,13 @@ public static class InfrastructureServiceCollectionExtensions
         // PDF Certificates
         services.AddScoped<ICertificateRepository, CertificateRepository>();
         services.AddScoped<ICertificateService, QuestPdfCertificateService>();
+        services.AddScoped<IMedicalPdfExporter, QuestPdfMedicalExporter>();
+
+        // Family accounts
+        services.AddScoped<IFamilyRepository, FamilyRepository>();
+
+        // Medical records + vet reminders
+        services.AddScoped<IMedicalRepository, MedicalRepository>();
 
         // Municipalities
         services.AddScoped<ICapturedAnimalRepository, CapturedAnimalRepository>();

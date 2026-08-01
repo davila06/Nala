@@ -1,8 +1,10 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Pets;
+using PawTrack.Domain.Sightings;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -31,11 +33,13 @@ public sealed record VisualMatchDto(
 /// then returns the up-to-35 active lost-pet profiles whose photo embedding
 /// best resembles the probe photo, ordered by cosine similarity × geo proximity.
 /// </summary>
+/// <param name="RequestingUserId">The authenticated user — used to enforce monthly AI search quota.</param>
 public sealed record MatchSightingPhotoQuery(
-    Stream   PhotoStream,
-    string   PhotoContentType,
-    double?  Lat,
-    double?  Lng)
+    Stream PhotoStream,
+    string PhotoContentType,
+    double? Lat,
+    double? Lng,
+    Guid RequestingUserId)
     : IRequest<Result<IReadOnlyList<VisualMatchDto>>>;
 
 // ── Settings ──────────────────────────────────────────────────────────────────
@@ -47,25 +51,54 @@ public sealed record VisualMatchSettings(string BaseUrl = "https://pawtrack.cr")
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 public sealed class MatchSightingPhotoQueryHandler(
-    IImageEmbeddingService   embeddingService,
-    IVisualMatchRepository   visualMatchRepository,
-    IUnitOfWork              unitOfWork,
-    VisualMatchSettings      settings,
+    IImageEmbeddingService embeddingService,
+    IVisualMatchRepository visualMatchRepository,
+    IAiSearchUsageRepository aiSearchUsageRepository,
+    ISubscriptionService subscriptionService,
+    IUnitOfWork unitOfWork,
+    VisualMatchSettings settings,
     ILogger<MatchSightingPhotoQueryHandler> logger)
     : IRequestHandler<MatchSightingPhotoQuery, Result<IReadOnlyList<VisualMatchDto>>>
 {
     // Per spec: return up to 35 candidates.
-    private const int   TopK                   = 35;
+    private const int TopK = 35;
     // Lowered from 0.55 → 0.40 so the full 35-slot window is reachable.
     // Azure Vision 4.0 cosine scores: identical photos ≈ 0.98, different species < 0.35.
     private const float MinSimilarityThreshold = 0.40f;
-    private const float CosineWeight           = 0.70f;
-    private const float GeoWeight              = 0.30f;
+    private const float CosineWeight = 0.70f;
+    private const float GeoWeight = 0.30f;
 
     public async Task<Result<IReadOnlyList<VisualMatchDto>>> Handle(
         MatchSightingPhotoQuery request,
-        CancellationToken       cancellationToken)
+        CancellationToken cancellationToken)
     {
+        // ── 0. Enforce monthly AI search quota for free plan ──────────────────
+        var monthlyLimit = await subscriptionService.GetMonthlyAiSearchLimitAsync(
+            request.RequestingUserId, cancellationToken);
+
+        if (monthlyLimit.HasValue)
+        {
+            var yearMonth = int.Parse(DateTimeOffset.UtcNow.ToString("yyyyMM"));
+            var usage = await aiSearchUsageRepository.GetAsync(request.RequestingUserId, yearMonth, cancellationToken);
+            if (usage is not null && usage.Count >= monthlyLimit.Value)
+                return Result.Failure<IReadOnlyList<VisualMatchDto>>(
+                    $"Has usado las {monthlyLimit.Value} búsquedas IA gratuitas de este mes. Activa Plus para búsquedas ilimitadas.");
+
+            if (usage is null)
+            {
+                var newUsage = AiSearchUsage.Create(request.RequestingUserId, yearMonth);
+                newUsage.Increment();
+                await aiSearchUsageRepository.AddAsync(newUsage, cancellationToken);
+            }
+            else
+            {
+                usage.Increment();
+                aiSearchUsageRepository.Update(usage);
+            }
+
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+
         // ── 1. Vectorise the probe photo ──────────────────────────────────────
         var probeVector = await embeddingService.VectorizeStreamAsync(
             request.PhotoStream, request.PhotoContentType, cancellationToken);
@@ -80,11 +113,11 @@ public sealed class MatchSightingPhotoQueryHandler(
             return Result.Success<IReadOnlyList<VisualMatchDto>>([]);
 
         // ── 3. Batch-load cached embeddings (eliminates N+1) ──────────────────
-        var petIds   = profiles.Select(p => p.PetId);
+        var petIds = profiles.Select(p => p.PetId);
         var embedded = await visualMatchRepository.GetEmbeddingsByPetIdsAsync(petIds, cancellationToken);
 
         // ── 4. Score each profile ─────────────────────────────────────────────
-        var baseUrl          = settings.BaseUrl;
+        var baseUrl = settings.BaseUrl;
         var hasNewEmbeddings = false;
 
         var scored = new List<(ActiveLostPetProfile Profile, float Score, float? DistanceKm)>(profiles.Count);
@@ -167,8 +200,8 @@ public sealed class MatchSightingPhotoQueryHandler(
 
     private async Task<(float[]? Vector, bool Persisted)> RegenerateEmbeddingAsync(
         ActiveLostPetProfile profile,
-        string               photoUrlHash,
-        CancellationToken    ct)
+        string photoUrlHash,
+        CancellationToken ct)
     {
         var generated = await embeddingService.VectorizeUrlAsync(profile.PhotoUrl!, ct);
         if (generated is null)
@@ -177,7 +210,7 @@ public sealed class MatchSightingPhotoQueryHandler(
             return (null, false);
         }
 
-        var json      = JsonSerializer.Serialize(generated);
+        var json = JsonSerializer.Serialize(generated);
         var newRecord = PetPhotoEmbedding.Create(profile.PetId, json, photoUrlHash);
         await visualMatchRepository.UpsertEmbeddingAsync(newRecord, ct);
         return (generated, true);

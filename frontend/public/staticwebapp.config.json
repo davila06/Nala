@@ -1,6 +1,9 @@
 {
+  "routes": [
+    { "route": "/precios", "redirect": "/precios.html", "statusCode": 302 }
+  ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/assets/*", "/api/*"]
+    "exclude": ["/assets/*", "/api/*", "/precios.html", "/*.html"]
   }
 }

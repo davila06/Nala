@@ -1,8 +1,10 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Pets;
+using PawTrack.Domain.Sightings;
 using System.Text.Json;
 
 namespace PawTrack.Application.Sightings.VisualMatch;
@@ -18,30 +20,61 @@ namespace PawTrack.Application.Sightings.VisualMatch;
 /// <param name="SightingId">ID of the sighting whose stored <c>PhotoUrl</c> should be probed.</param>
 /// <param name="Lat">Optional: override probe location (defaults to <c>Sighting.Lat / Lng</c>).</param>
 /// <param name="Lng">Optional: override probe location.</param>
+/// <param name="RequestingUserId">Authenticated user — enforces monthly AI search quota.</param>
 public sealed record MatchSightingByIdQuery(
-    Guid    SightingId,
+    Guid SightingId,
+    Guid RequestingUserId,
     double? Lat = null,
     double? Lng = null)
     : IRequest<Result<IReadOnlyList<VisualMatchDto>>>;
 
 public sealed class MatchSightingByIdQueryHandler(
-    ISightingRepository      sightingRepository,
-    IImageEmbeddingService   embeddingService,
-    IVisualMatchRepository   visualMatchRepository,
-    IUnitOfWork              unitOfWork,
-    VisualMatchSettings      settings,
+    ISightingRepository sightingRepository,
+    IImageEmbeddingService embeddingService,
+    IVisualMatchRepository visualMatchRepository,
+    IAiSearchUsageRepository aiSearchUsageRepository,
+    ISubscriptionService subscriptionService,
+    IUnitOfWork unitOfWork,
+    VisualMatchSettings settings,
     ILogger<MatchSightingByIdQueryHandler> logger)
     : IRequestHandler<MatchSightingByIdQuery, Result<IReadOnlyList<VisualMatchDto>>>
 {
-    private const int   TopK                   = 35;
+    private const int TopK = 35;
     private const float MinSimilarityThreshold = 0.40f;
-    private const float CosineWeight           = 0.70f;
-    private const float GeoWeight              = 0.30f;
+    private const float CosineWeight = 0.70f;
+    private const float GeoWeight = 0.30f;
 
     public async Task<Result<IReadOnlyList<VisualMatchDto>>> Handle(
         MatchSightingByIdQuery request,
-        CancellationToken      cancellationToken)
+        CancellationToken cancellationToken)
     {
+        // ── 0. Enforce monthly AI search quota for free plan ──────────────────
+        var monthlyLimit = await subscriptionService.GetMonthlyAiSearchLimitAsync(
+            request.RequestingUserId, cancellationToken);
+
+        if (monthlyLimit.HasValue)
+        {
+            var yearMonth = int.Parse(DateTimeOffset.UtcNow.ToString("yyyyMM"));
+            var usage = await aiSearchUsageRepository.GetAsync(request.RequestingUserId, yearMonth, cancellationToken);
+            if (usage is not null && usage.Count >= monthlyLimit.Value)
+                return Result.Failure<IReadOnlyList<VisualMatchDto>>(
+                    $"Has usado las {monthlyLimit.Value} búsquedas IA gratuitas de este mes. Activa Plus para búsquedas ilimitadas.");
+
+            if (usage is null)
+            {
+                var newUsage = AiSearchUsage.Create(request.RequestingUserId, yearMonth);
+                newUsage.Increment();
+                await aiSearchUsageRepository.AddAsync(newUsage, cancellationToken);
+            }
+            else
+            {
+                usage.Increment();
+                aiSearchUsageRepository.Update(usage);
+            }
+
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+
         // ── 1. Resolve sighting ───────────────────────────────────────────────
         var sighting = await sightingRepository.GetByIdAsync(request.SightingId, cancellationToken);
         if (sighting is null)
@@ -66,11 +99,11 @@ public sealed class MatchSightingByIdQueryHandler(
         if (profiles.Count == 0)
             return Result.Success<IReadOnlyList<VisualMatchDto>>([]);
 
-        var petIds   = profiles.Select(p => p.PetId);
+        var petIds = profiles.Select(p => p.PetId);
         var embedded = await visualMatchRepository.GetEmbeddingsByPetIdsAsync(petIds, cancellationToken);
 
         // ── 5. Score ──────────────────────────────────────────────────────────
-        var baseUrl          = settings.BaseUrl;
+        var baseUrl = settings.BaseUrl;
         var hasNewEmbeddings = false;
 
         var scored = new List<(ActiveLostPetProfile Profile, float Score, float? DistanceKm)>(profiles.Count);
@@ -147,8 +180,8 @@ public sealed class MatchSightingByIdQueryHandler(
 
     private async Task<(float[]? Vector, bool Persisted)> RegenerateEmbeddingAsync(
         ActiveLostPetProfile profile,
-        string               photoUrlHash,
-        CancellationToken    ct)
+        string photoUrlHash,
+        CancellationToken ct)
     {
         var generated = await embeddingService.VectorizeUrlAsync(profile.PhotoUrl!, ct);
         if (generated is null)
@@ -157,7 +190,7 @@ public sealed class MatchSightingByIdQueryHandler(
             return (null, false);
         }
 
-        var json      = JsonSerializer.Serialize(generated);
+        var json = JsonSerializer.Serialize(generated);
         var newRecord = PetPhotoEmbedding.Create(profile.PetId, json, photoUrlHash);
         await visualMatchRepository.UpsertEmbeddingAsync(newRecord, ct);
         return (generated, true);

@@ -105,6 +105,23 @@ export function BountyWidget({ lostEventId, isOwner }: BountyWidgetProps) {
             </div>
           </div>
         )}
+
+        {showConfirm && (
+          <div className="rounded-2xl border border-warn-200 bg-warn-50 px-4 py-3 text-sm text-warn-800">
+            <p className="font-semibold">🏦 Deposita vía SINPE Móvil</p>
+            <p className="mt-1 text-xs text-warn-700">
+              Envía ₡{parseFloat(amount || "0").toLocaleString("es-CR")} con el
+              número de referencia que recibirás por notificación.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowConfirm(false)}
+              className="mt-2 text-xs font-semibold text-warn-700 underline hover:text-warn-900"
+            >
+              Entendido
+            </button>
+          </div>
+        )}
       </div>
     );
   }

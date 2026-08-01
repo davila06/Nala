@@ -159,7 +159,7 @@ export function ChatPanel({
   useEffect(() => {
     if (messages.length > prevLengthRef.current) {
       const newest = messages[messages.length - 1];
-      if (newest && !newest.isMine) tap();
+      if (newest && !newest.isFromMe) tap();
     }
     prevLengthRef.current = messages.length;
   }, [messages.length]);

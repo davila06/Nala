@@ -14,6 +14,11 @@ public sealed class Clinic
     public decimal Lat { get; private set; }
     public decimal Lng { get; private set; }
     public string ContactEmail { get; private set; } = string.Empty;
+    public string? PhoneNumber { get; private set; }
+    public string? Website { get; private set; }
+    public string? LogoUrl { get; private set; }
+    /// <summary>True when the clinic has an active ClinicPlus or ClinicPartner subscription.</summary>
+    public bool IsFeatured { get; private set; }
     public ClinicStatus Status { get; private set; }
     public DateTimeOffset RegisteredAt { get; private set; }
 
@@ -28,19 +33,27 @@ public sealed class Clinic
     {
         return new Clinic
         {
-            Id             = Guid.CreateVersion7(),
-            UserId         = userId,
-            Name           = name.Trim(),
-            LicenseNumber  = licenseNumber.Trim().ToUpperInvariant(),
-            Address        = address.Trim(),
-            Lat            = lat,
-            Lng            = lng,
-            ContactEmail   = contactEmail.Trim().ToLowerInvariant(),
-            Status         = ClinicStatus.Pending,
-            RegisteredAt   = DateTimeOffset.UtcNow,
+            Id = Guid.CreateVersion7(),
+            UserId = userId,
+            Name = name.Trim(),
+            LicenseNumber = licenseNumber.Trim().ToUpperInvariant(),
+            Address = address.Trim(),
+            Lat = lat,
+            Lng = lng,
+            ContactEmail = contactEmail.Trim().ToLowerInvariant(),
+            Status = ClinicStatus.Pending,
+            RegisteredAt = DateTimeOffset.UtcNow,
         };
     }
 
-    public void Activate()   => Status = ClinicStatus.Active;
-    public void Suspend()    => Status = ClinicStatus.Suspended;
+    public void Activate() => Status = ClinicStatus.Active;
+    public void Suspend() => Status = ClinicStatus.Suspended;
+    public void SetFeatured(bool value) => IsFeatured = value;
+    public void SetLogoUrl(string url) => LogoUrl = url;
+
+    public void UpdateContactDetails(string? phoneNumber, string? website)
+    {
+        if (phoneNumber is not null) PhoneNumber = phoneNumber.Trim();
+        if (website is not null) Website = website.Trim();
+    }
 }

@@ -111,7 +111,7 @@ public sealed class SightingsController(ISender sender) : ControllerBase
         if (request.Photo is null)
             return UnprocessableEntity(new ProblemDetails
             {
-                Title  = "Validation error",
+                Title = "Validation error",
                 Status = 422,
                 Extensions = { ["errors"] = new[] { "Photo is required." } },
             });
@@ -120,7 +120,7 @@ public sealed class SightingsController(ISender sender) : ControllerBase
         if (request.Photo.Length > maxBytes)
             return UnprocessableEntity(new ProblemDetails
             {
-                Title  = "Validation error",
+                Title = "Validation error",
                 Status = 422,
                 Extensions = { ["errors"] = new[] { "Photo must be ≤ 5 MB." } },
             });
@@ -128,7 +128,7 @@ public sealed class SightingsController(ISender sender) : ControllerBase
         if (!AllowedMimeTypes.Contains(request.Photo.ContentType))
             return UnprocessableEntity(new ProblemDetails
             {
-                Title  = "Validation error",
+                Title = "Validation error",
                 Status = 422,
                 Extensions = { ["errors"] = new[] { "Photo must be JPEG, PNG, or WebP." } },
             });
@@ -139,24 +139,28 @@ public sealed class SightingsController(ISender sender) : ControllerBase
         if (!ImageMagicBytesValidator.IsValidImage(stream, request.Photo.ContentType))
             return UnprocessableEntity(new ProblemDetails
             {
-                Title  = "Validation error",
+                Title = "Validation error",
                 Status = 422,
                 Extensions = { ["errors"] = new[] { "Photo content does not match the declared file type." } },
             });
+
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
 
         var result = await sender.Send(
             new MatchSightingPhotoQuery(
                 stream,
                 request.Photo.ContentType,
                 request.Lat,
-                request.Lng),
+                request.Lng,
+                userId),
             cancellationToken);
 
         return result.IsSuccess
             ? Ok(result.Value)
             : UnprocessableEntity(new ProblemDetails
             {
-                Title  = "Processing error",
+                Title = "Processing error",
                 Status = 422,
                 Extensions = { ["errors"] = result.Errors },
             });
@@ -181,8 +185,11 @@ public sealed class SightingsController(ISender sender) : ControllerBase
         [FromQuery] double? lng,
         CancellationToken cancellationToken)
     {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
         var result = await sender.Send(
-            new MatchSightingByIdQuery(sightingId, lat, lng),
+            new MatchSightingByIdQuery(sightingId, userId, lat, lng),
             cancellationToken);
 
         if (result.IsFailure)
@@ -192,7 +199,7 @@ public sealed class SightingsController(ISender sender) : ControllerBase
                 ? NotFound(new ProblemDetails { Title = result.Errors[0], Status = 404 })
                 : UnprocessableEntity(new ProblemDetails
                 {
-                    Title  = "Processing error",
+                    Title = "Processing error",
                     Status = 422,
                     Extensions = { ["errors"] = result.Errors },
                 });
@@ -203,7 +210,9 @@ public sealed class SightingsController(ISender sender) : ControllerBase
 
     // ── GET /api/sightings/pet/{petId} — owner only ───────────────────────────
     [HttpGet("pet/{petId:guid}")]
-    [Authorize]    [EnableRateLimiting("public-api")]    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetSightingsByPet(
@@ -242,9 +251,9 @@ public sealed record VisualMatchRequest(
     [property: FromForm(Name = "lng")] double? Lng);
 
 public sealed record ReportSightingRequest(
-    [property: FromForm(Name = "petId")]    Guid PetId,
-    [property: FromForm(Name = "lat")]      double Lat,
-    [property: FromForm(Name = "lng")]      double Lng,
-    [property: FromForm(Name = "note")]     string? Note,
-    [property: FromForm(Name = "sightedAt")]DateTimeOffset? SightedAt,
+    [property: FromForm(Name = "petId")] Guid PetId,
+    [property: FromForm(Name = "lat")] double Lat,
+    [property: FromForm(Name = "lng")] double Lng,
+    [property: FromForm(Name = "note")] string? Note,
+    [property: FromForm(Name = "sightedAt")] DateTimeOffset? SightedAt,
     IFormFile? Photo);

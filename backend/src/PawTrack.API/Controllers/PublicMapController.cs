@@ -85,11 +85,11 @@ public sealed class PublicMapController(ISender sender) : ControllerBase
         return Ok(result.Value);
     }
 
-    // ── GET /api/public/movement/{lostPetEventId} ─────────────────────────────
+    // ── GET /api/public/movement/{lostPetEventId} — summary (public) ─────────
     /// <summary>
-    /// Returns a predictive movement projection for a lost-pet event.
-    /// Computed from all sightings linked to that event — no new tables required.
-    /// Always returns 200 OK; check <c>hasEnoughData</c> in the response body.
+    /// Public endpoint: returns only directional hint (no confidence scores).
+    /// Full prediction with confidence metrics is available at
+    /// GET /api/lost-pets/{id}/movement (requires Plus).
     /// </summary>
     [HttpGet("movement/{lostPetEventId:guid}")]
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any)]
@@ -101,16 +101,18 @@ public sealed class PublicMapController(ISender sender) : ControllerBase
         var result = await sender.Send(
             new GetMovementPredictionQuery(lostPetEventId), cancellationToken);
 
-        // The handler never produces a Failure result; IsFailure guard is defensive.
         if (result.IsFailure)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
-            {
-                Title = "Error al calcular predicción de movimiento",
-                Status = 500,
-            });
-        }
+            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails { Title = "Error al calcular predicción", Status = 500 });
 
-        return Ok(result.Value);
+        // Public: return only direction — full prediction with confidence in /api/lost-pets/{id}/movement (Plus)
+        var v = result.Value;
+        return Ok(new
+        {
+            v.HasEnoughData,
+            v.ProjectedLat,
+            v.ProjectedLng,
+            v.RadiusMeters,
+            // ConfidencePercent and TrailPoints only available in the Plus endpoint
+        });
     }
 }

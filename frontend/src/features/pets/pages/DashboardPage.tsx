@@ -7,6 +7,7 @@ import {
 } from "../components/OnboardingWizard";
 import { FreemiumModal } from "../components/FreemiumModal";
 import { usePets } from "../hooks/usePets";
+import { useMyTier } from "../hooks/useMyTier";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { AlertPreferencesToggle } from "@/features/locations/components/AlertPreferencesToggle";
 import { LeaderboardWidget } from "@/features/incentives/components/LeaderboardWidget";
@@ -18,10 +19,14 @@ import { usePullToRefresh } from "@/shared/hooks/usePullToRefresh";
 export default function DashboardPage() {
   const { data: pets, isLoading, isError, refetch } = usePets();
   const user = useAuthStore((s) => s.user);
+  const { isPlus, isFamilia } = useMyTier();
   const lostCount = useMemo(
     () => (pets ?? []).filter((p) => p.status === "Lost").length,
     [pets],
   );
+  const petLimit = isFamilia ? -1 : isPlus ? 3 : 1;
+  const petCount = pets?.length ?? 0;
+  const atPetLimit = petLimit !== -1 && petCount >= petLimit;
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "Lost" | "Active">(
     "all",
@@ -29,6 +34,14 @@ export default function DashboardPage() {
   const [filterSpecies, setFilterSpecies] = useState<string>("all");
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
   const [showFreemium, setShowFreemium] = useState(false);
+
+  // Listen for upgrade modal requests from PlanGate banners anywhere in the tree
+  useState(() => {
+    const handler = () => setShowFreemium(true);
+    window.addEventListener("pawtrack:open-upgrade-modal", handler);
+    return () =>
+      window.removeEventListener("pawtrack:open-upgrade-modal", handler);
+  });
 
   const filteredPets = useMemo(() => {
     if (!pets) return [];
@@ -114,12 +127,38 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
-          <Link
-            to="/pets/new"
-            className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-base hover:bg-brand-600 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
-          >
-            <span aria-hidden="true">＋</span> Registrar mascota
-          </Link>
+          <div className="flex flex-col items-end gap-1.5">
+            {!isFamilia && petCount > 0 && (
+              <p className="text-xs text-sand-500">
+                {petLimit === -1 ? "" : `${petCount} / ${petLimit} mascotas`}
+                {atPetLimit && !isPlus && (
+                  <button
+                    type="button"
+                    onClick={() => setShowFreemium(true)}
+                    className="ml-1.5 font-semibold text-brand-600 underline"
+                  >
+                    Agrega hasta 3 con Plus →
+                  </button>
+                )}
+              </p>
+            )}
+            {atPetLimit ? (
+              <button
+                type="button"
+                onClick={() => setShowFreemium(true)}
+                className="inline-flex items-center gap-2 rounded-xl border border-brand-300 bg-brand-50 px-4 py-2.5 text-sm font-semibold text-brand-700 transition-base hover:bg-brand-100"
+              >
+                🔒 Actualizar plan
+              </button>
+            ) : (
+              <Link
+                to="/pets/new"
+                className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-base hover:bg-brand-600 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
+              >
+                <span aria-hidden="true">＋</span> Registrar mascota
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* Quick actions */}

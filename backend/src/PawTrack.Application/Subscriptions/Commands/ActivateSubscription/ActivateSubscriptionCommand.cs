@@ -3,6 +3,7 @@ using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Subscriptions.DTOs;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Domain.Common;
+using PawTrack.Domain.Subscriptions;
 
 namespace PawTrack.Application.Subscriptions.Commands.ActivateSubscription;
 
@@ -10,6 +11,7 @@ public sealed record ActivateSubscriptionCommand(string PaymentReference) : IReq
 
 public sealed class ActivateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
+    IClinicRepository clinicRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<ActivateSubscriptionCommand, Result<SubscriptionDto>>
 {
@@ -23,13 +25,26 @@ public sealed class ActivateSubscriptionCommandHandler(
         if (subscription is null)
             return Result.Failure<SubscriptionDto>("Payment reference not found.");
 
-        if (subscription.Status != Domain.Subscriptions.SubscriptionStatus.PendingPayment)
+        if (subscription.Status != SubscriptionStatus.PendingPayment)
             return Result.Failure<SubscriptionDto>("Subscription is not in a pending state.");
 
         subscription.Activate();
         subscriptionRepository.Update(subscription);
+        await SyncClinicFeaturedAsync(subscription, true, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success(SubscriptionDto.FromDomain(subscription));
+    }
+
+    private async Task SyncClinicFeaturedAsync(
+        Domain.Subscriptions.Subscription sub, bool featured, CancellationToken ct)
+    {
+        if (sub.ClinicId is null) return;
+        if (sub.Tier < SubscriptionTier.ClinicPlus) return;
+
+        var clinic = await clinicRepository.GetByIdAsync(sub.ClinicId.Value, ct);
+        if (clinic is null) return;
+        clinic.SetFeatured(featured);
+        clinicRepository.Update(clinic);
     }
 }

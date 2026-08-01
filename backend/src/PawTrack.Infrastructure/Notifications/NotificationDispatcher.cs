@@ -1,15 +1,11 @@
 using Microsoft.Extensions.Logging;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Locations;
 using PawTrack.Domain.Notifications;
 
 namespace PawTrack.Infrastructure.Notifications;
 
-/// <summary>
-/// Orchestrates in-app notification creation, email, and push delivery.
-/// Each dispatch method is intentionally fire-and-complete (not fire-and-forget)
-/// so callers can await the full pipeline.
-/// </summary>
 public sealed class NotificationDispatcher(
     INotificationRepository notificationRepository,
     IEmailSender emailSender,
@@ -18,6 +14,8 @@ public sealed class NotificationDispatcher(
     IAllyProfileRepository allyProfileRepository,
     INotificationRateLimitService rateLimitService,
     IGeofencedAlertLogRepository alertLogRepository,
+    IFamilyRepository familyRepository,
+    ISubscriptionService subscriptionService,
     IUnitOfWork unitOfWork,
     ILogger<NotificationDispatcher> logger)
     : INotificationDispatcher
@@ -76,8 +74,16 @@ public sealed class NotificationDispatcher(
         // 2. Email
         await emailSender.SendPetReunitedAsync(ownerEmail, ownerName, petName, cancellationToken);
 
-        // 3. Push
+        // 3. Push — owner + family members (Familia plan)
         await pushNotificationService.SendAsync(ownerId, title, body, cancellationToken: cancellationToken);
+
+        var isFamilia = await subscriptionService.IsFamiliaAsync(ownerId, cancellationToken);
+        if (isFamilia)
+        {
+            var memberIds = await familyRepository.GetActiveMemberIdsAsync(ownerId, cancellationToken);
+            foreach (var memberId in memberIds.Where(id => id != ownerId))
+                await pushNotificationService.SendAsync(memberId, title, body, cancellationToken: cancellationToken);
+        }
     }
 
     public async Task DispatchSightingAlertAsync(
@@ -139,11 +145,11 @@ public sealed class NotificationDispatcher(
             : petSpecies;
 
         var title = $"🐾 Alerta: {petName} está perdido cerca de ti";
-        var body  = $"{speciesLabel} · Ayuda a encontrarlo, toca para ver su perfil.";
+        var body = $"{speciesLabel} · Ayuda a encontrarlo, toca para ver su perfil.";
         var lostEventIdStr = lostPetEventId.ToString();
 
         var notified = 0;
-        var skipped  = 0;
+        var skipped = 0;
 
         foreach (var userLocation in nearbyUsers)
         {
@@ -274,14 +280,14 @@ public sealed class NotificationDispatcher(
     // ── Chat notification ──────────────────────────────────────────────────────
 
     public async Task DispatchNewChatMessageAsync(
-        Guid   recipientUserId,
+        Guid recipientUserId,
         string recipientEmail,
         string petName,
         string threadId,
         CancellationToken cancellationToken = default)
     {
         var title = $"Nuevo mensaje sobre {petName}";
-        var body  = "Alguien te envió un mensaje en PawTrack. Ábrelo para responder.";
+        var body = "Alguien te envió un mensaje en PawTrack. Ábrelo para responder.";
 
         var notification = Notification.Create(
             recipientUserId,
@@ -393,10 +399,10 @@ public sealed class NotificationDispatcher(
         CancellationToken cancellationToken = default)
     {
         var fosterTitle = $"Custodia de {petName} iniciada";
-        var fosterBody  = $"Gracias, {fosterName}. Tienes a {petName} por {expectedDays} día(s). Cuídalo bien.";
+        var fosterBody = $"Gracias, {fosterName}. Tienes a {petName} por {expectedDays} día(s). Cuídalo bien.";
 
         var ownerTitle = $"{petName} está en custodia temporal";
-        var ownerBody  = $"{fosterName} cuidará a {petName} por {expectedDays} día(s) mientras lo buscas.";
+        var ownerBody = $"{fosterName} cuidará a {petName} por {expectedDays} día(s) mientras lo buscas.";
 
         var recordIdStr = custodyRecordId.ToString();
 
@@ -439,10 +445,10 @@ public sealed class NotificationDispatcher(
         CancellationToken cancellationToken = default)
     {
         var fosterTitle = $"Custodia de {petName} finalizada";
-        var fosterBody  = $"La custodia de {petName} ha concluido. Resultado: {outcome}. ¡Gracias por tu ayuda!";
+        var fosterBody = $"La custodia de {petName} ha concluido. Resultado: {outcome}. ¡Gracias por tu ayuda!";
 
         var ownerTitle = $"Custodia de {petName} cerrada";
-        var ownerBody  = $"La custodia de {petName} en manos de {fosterName} ha finalizado. Resultado: {outcome}.";
+        var ownerBody = $"La custodia de {petName} en manos de {fosterName} ha finalizado. Resultado: {outcome}.";
 
         var recordIdStr = custodyRecordId.ToString();
 
@@ -481,7 +487,7 @@ public sealed class NotificationDispatcher(
         CancellationToken cancellationToken = default)
     {
         var title = $"Tu mascota {petName} fue vista en una clínica";
-        var body  = $"{clinicName} ({clinicAddress}) escaneó el identificador de {petName}.";
+        var body = $"{clinicName} ({clinicAddress}) escaneó el identificador de {petName}.";
 
         var notification = Notification.Create(
             ownerId,
@@ -524,6 +530,24 @@ public sealed class NotificationDispatcher(
             logger.LogWarning(ex,
                 "Push delivery failed for user {UserId}", userId);
         }
+    }
+
+    // ── Clinic: lost-pet alert ─────────────────────────────────────────────────
+
+    public async Task DispatchLostPetAlertToClinicAsync(
+        Guid clinicUserId,
+        Guid lostPetEventId,
+        string petName,
+        double lostLat,
+        double lostLng,
+        CancellationToken cancellationToken = default)
+    {
+        await TrySendPushAsync(
+            clinicUserId,
+            "🚨 Mascota perdida cerca de tu clínica",
+            $"{petName} fue reportada perdida en tu zona.",
+            new PushNotificationMetadata(Url: $"/map"),
+            cancellationToken);
     }
 }
 

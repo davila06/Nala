@@ -8,10 +8,17 @@ import {
   usePendingClinics,
   useReviewAlly,
   useReviewClinic,
+  useAdminSubscriptions,
+  useAdminActivateSubscription,
+  useAdminCancelSubscription,
 } from "../hooks/useAdmin";
-import type { PendingAllyDto, PendingClinicDto } from "../api/adminApi";
+import type {
+  PendingAllyDto,
+  PendingClinicDto,
+  AdminSubscriptionDto,
+} from "../api/adminApi";
 
-type Tab = "allies" | "clinics";
+type Tab = "allies" | "clinics" | "subscriptions";
 
 const ALLY_TYPE_LABELS: Record<string, string> = {
   VeterinaryClinic: "Veterinaria",
@@ -279,6 +286,187 @@ function ClinicsTab() {
   );
 }
 
+// ── Subscriptions tab ─────────────────────────────────────────────────────────
+
+const SUB_TIER_LABEL: Record<string, string> = {
+  Free: "Explorador",
+  UserPlus: "Plus",
+  UserFamilia: "Familia",
+  ClinicBasic: "Clínica Básica",
+  ClinicPlus: "Clínica Plus",
+  ClinicPartner: "Clínica Partner",
+};
+
+const SUB_STATUS_COLOR: Record<string, string> = {
+  Active: "bg-rescue-100 text-rescue-700",
+  PendingPayment: "bg-warn-100 text-warn-700",
+  Expired: "bg-danger-100 text-danger-700",
+  Cancelled: "bg-sand-100 text-sand-500",
+};
+
+function SubscriptionsTab() {
+  const [pendingOnly, setPendingOnly] = useState(false);
+  const [processingId, setProcessingId] = useState<string | null>(null);
+  const { data, isLoading, isError } = useAdminSubscriptions(pendingOnly);
+  const { mutateAsync: activate } = useAdminActivateSubscription();
+  const { mutateAsync: cancelSub } = useAdminCancelSubscription();
+  const { tap, warning } = useHaptic();
+
+  if (isLoading) return <LoadingSkeleton />;
+  if (isError)
+    return <ErrorState msg="No se pudieron cargar las suscripciones." />;
+  if (!data || data.length === 0)
+    return (
+      <EmptyState
+        msg={pendingOnly ? "No hay pagos pendientes." : "No hay suscripciones."}
+      />
+    );
+
+  const handleActivate = async (sub: AdminSubscriptionDto) => {
+    tap();
+    setProcessingId(sub.id);
+    try {
+      await activate({ id: sub.id, billingMonths: 1 });
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleCancel = async (sub: AdminSubscriptionDto) => {
+    warning();
+    setProcessingId(sub.id);
+    try {
+      await cancelSub(sub.id);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      {/* Filter toggle */}
+      <div className="flex gap-1 rounded-xl bg-surface-warm p-1">
+        {([false, true] as const).map((val) => (
+          <button
+            key={String(val)}
+            type="button"
+            onClick={() => setPendingOnly(val)}
+            className={[
+              "flex-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
+              pendingOnly === val
+                ? "bg-surface shadow-sm text-sand-900"
+                : "text-sand-500 hover:text-sand-700",
+            ].join(" ")}
+          >
+            {val ? "Solo pendientes" : "Todos"}
+          </button>
+        ))}
+      </div>
+
+      <AnimatePresence>
+        {data.map((sub) => {
+          const isProcessing = processingId === sub.id;
+          const isPending = sub.status === "PendingPayment";
+          const isActive = sub.status === "Active";
+          const statusColor =
+            SUB_STATUS_COLOR[sub.status] ?? "bg-sand-100 text-sand-500";
+
+          return (
+            <motion.div
+              key={sub.id}
+              layout
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              className="rounded-2xl border border-sand-200 bg-surface p-4 shadow-sm"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-sand-900">
+                      {SUB_TIER_LABEL[sub.tier] ?? sub.tier}
+                    </span>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${statusColor}`}
+                    >
+                      {sub.status === "PendingPayment"
+                        ? "Pago pendiente"
+                        : sub.status}
+                    </span>
+                    {sub.paymentReportedAt && (
+                      <span className="rounded-full bg-warn-100 px-2 py-0.5 text-[10px] font-bold text-warn-700">
+                        ✓ Usuario confirmó pago
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="font-mono text-sm text-sand-700">
+                    Ref: <strong>{sub.paymentReference}</strong>{" "}
+                    <span className="text-sand-400 text-xs">
+                      — ₡{sub.amountCrc.toLocaleString("es-CR")}
+                    </span>
+                  </p>
+
+                  <p className="text-[11px] text-sand-400">
+                    Solicitado:{" "}
+                    {new Date(sub.createdAt).toLocaleString("es-CR", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                  </p>
+
+                  {sub.paymentReportedAt && (
+                    <p className="text-[11px] text-warn-600 font-medium">
+                      Pago reportado:{" "}
+                      {new Date(sub.paymentReportedAt).toLocaleString("es-CR", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex shrink-0 flex-col gap-1.5">
+                  {isPending && (
+                    <button
+                      type="button"
+                      disabled={isProcessing}
+                      onClick={() => void handleActivate(sub)}
+                      className="inline-flex items-center gap-1 rounded-xl bg-rescue-100 px-3 py-1.5 text-xs font-bold text-rescue-800 hover:bg-rescue-200 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-400"
+                    >
+                      {isProcessing ? (
+                        <span className="h-3 w-3 rounded-full border-2 border-rescue-400 border-t-transparent animate-spin" />
+                      ) : (
+                        <span aria-hidden="true">✓</span>
+                      )}
+                      Activar
+                    </button>
+                  )}
+                  {isActive && (
+                    <button
+                      type="button"
+                      disabled={isProcessing}
+                      onClick={() => void handleCancel(sub)}
+                      className="inline-flex items-center gap-1 rounded-xl bg-danger-100 px-3 py-1.5 text-xs font-bold text-danger-700 hover:bg-danger-200 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger-400"
+                    >
+                      {isProcessing ? (
+                        <span className="h-3 w-3 rounded-full border-2 border-danger-400 border-t-transparent animate-spin" />
+                      ) : (
+                        <span aria-hidden="true">✕</span>
+                      )}
+                      Cancelar
+                    </button>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 // ── Page ───────────────────────────────────────────────────────────────────────
 
 export default function AdminPage() {
@@ -286,9 +474,11 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<Tab>("allies");
   const { data: alliesData } = usePendingAllies();
   const { data: clinicsData } = usePendingClinics();
+  const { data: pendingSubsData } = useAdminSubscriptions(true);
 
   const allyCount = alliesData?.length ?? 0;
   const clinicCount = clinicsData?.length ?? 0;
+  const pendingSubCount = pendingSubsData?.length ?? 0;
 
   if (!user || user.role !== "Admin") {
     return <Navigate to="/dashboard" replace />;
@@ -323,20 +513,35 @@ export default function AdminPage() {
           value={clinicCount}
           urgent
         />
-        <StatCard icon="✅" label="Aprobados hoy" value={0} />
+        <StatCard
+          icon="💳"
+          label="Pagos pendientes"
+          value={pendingSubCount}
+          urgent
+        />
         <StatCard
           icon="📋"
           label="Total en revisión"
-          value={allyCount + clinicCount}
+          value={allyCount + clinicCount + pendingSubCount}
           urgent
         />
       </div>
 
       {/* ── Tabs ── */}
       <div className="mb-6 flex gap-1 rounded-2xl bg-surface-warm p-1.5">
-        {(["allies", "clinics"] as const).map((tab) => {
-          const count = tab === "allies" ? allyCount : clinicCount;
-          const label = tab === "allies" ? "Aliados" : "Clínicas";
+        {(["allies", "clinics", "subscriptions"] as const).map((tab) => {
+          const count =
+            tab === "allies"
+              ? allyCount
+              : tab === "clinics"
+                ? clinicCount
+                : pendingSubCount;
+          const label =
+            tab === "allies"
+              ? "Aliados"
+              : tab === "clinics"
+                ? "Clínicas"
+                : "Suscripciones";
           return (
             <button
               key={tab}
@@ -373,7 +578,9 @@ export default function AdminPage() {
           exit={{ opacity: 0, x: -8 }}
           transition={{ duration: 0.16 }}
         >
-          {activeTab === "allies" ? <AlliesTab /> : <ClinicsTab />}
+          {activeTab === "allies" && <AlliesTab />}
+          {activeTab === "clinics" && <ClinicsTab />}
+          {activeTab === "subscriptions" && <SubscriptionsTab />}
         </motion.div>
       </AnimatePresence>
     </div>

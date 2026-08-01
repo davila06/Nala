@@ -15,6 +15,8 @@ import type { MapBBox } from "../api/publicMapApi";
 import { LostPetMarker } from "./LostPetMarker";
 import { PredictionTrail } from "./PredictionTrail";
 import { SightingMarker } from "./SightingMarker";
+import { ClinicMarker } from "./ClinicMarker";
+import type { PublicClinicDto } from "@/features/clinics/api/clinicsApi";
 
 // Leaflet's default icon images reference /images/ which bundlers break.
 // We reset the icon to null so divIcon-based markers (LostPetMarker, SightingMarker)
@@ -27,6 +29,8 @@ interface MapContainerProps {
   onBBoxChange: (bbox: MapBBox) => void;
   /** Keyed by lost-pet event ID. Trails and uncertainty circles are rendered for each entry. */
   predictions?: Record<string, MovementPrediction>;
+  /** When set, renders clinic markers on the map. */
+  clinics?: PublicClinicDto[];
   /** Increment to re-trigger fly-to-user */
   locateTrigger?: number;
   /** Called when GPS resolves or errors — used to reset loading state in the parent */
@@ -122,6 +126,7 @@ export function MapContainer({
   events,
   onBBoxChange,
   predictions = {},
+  clinics,
   locateTrigger = 0,
   onLocated,
   flyTarget,
@@ -162,6 +167,9 @@ export function MapContainer({
               <SightingMarker key={event.id} event={event} />
             ),
           )}
+          {clinics?.map((clinic) => (
+            <ClinicMarker key={`clinic-${clinic.id}`} clinic={clinic} />
+          ))}
         </MarkerClusterGroup>
       </LeafletMapContainer>
     </div>

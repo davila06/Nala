@@ -752,7 +752,16 @@ export default function LoginPage() {
                     </Link>
                   </p>
 
-                  <p className="mt-4 text-center">
+                  <p className="mt-2 text-center">
+                    <a
+                      href="/precios.html"
+                      className="text-xs text-sand-400 hover:text-brand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
+                    >
+                      Ver planes y precios →
+                    </a>
+                  </p>
+
+                  <p className="mt-2 text-center">
                     <Link
                       to="/map"
                       className="text-xs text-sand-400 hover:text-sand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"

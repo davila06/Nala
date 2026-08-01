@@ -93,6 +93,20 @@ public sealed class EmailSender(
             cancellationToken);
     }
 
+    public Task SendFamilyInvitationAsync(
+        string to, string token,
+        CancellationToken cancellationToken = default)
+    {
+        var url = $"{BaseUrl}/familia/aceptar?token={Uri.EscapeDataString(token)}";
+        var html = $"""
+            <p>Te han invitado a unirte a una cuenta familiar en PawTrack CR.</p>
+            <p>Haz clic en el siguiente enlace para aceptar la invitación (válida 7 días):</p>
+            <p><a href="{url}">Aceptar invitación</a></p>
+            <p>Si no reconoces esta invitación, ignora este mensaje.</p>
+            """;
+        return SendAsync(to, to, subject: "Invitación a cuenta familiar — PawTrack CR", html, cancellationToken);
+    }
+
     public Task SendSightingAlertAsync(
         string to, string ownerName, string petName,
         CancellationToken cancellationToken = default)

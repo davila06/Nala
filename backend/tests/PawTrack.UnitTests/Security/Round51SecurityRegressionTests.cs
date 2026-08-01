@@ -43,7 +43,8 @@ public sealed class Round51SecurityRegressionTests
 {
     private static ClinicsController BuildController(ISender sender)
     {
-        var controller = new ClinicsController(sender);
+        var blobStorage = Substitute.For<PawTrack.Application.Common.Interfaces.IBlobStorageService>();
+        var controller = new ClinicsController(sender, blobStorage);
         controller.ControllerContext = new Microsoft.AspNetCore.Mvc.ControllerContext
         {
             HttpContext = new Microsoft.AspNetCore.Http.DefaultHttpContext(),
@@ -109,7 +110,7 @@ public sealed class Round51SecurityRegressionTests
         var sender = Substitute.For<ISender>();
         var dto = new ClinicDto(Guid.NewGuid(), "Las Palmas", "SEN-2024-00123",
             "San José", 9.93m, -84.08m, "clinic@example.com",
-            "Pending", DateTimeOffset.UtcNow);
+            null, null, null, false, "Pending", DateTimeOffset.UtcNow);
         sender.Send(Arg.Any<RegisterClinicCommand>(), Arg.Any<CancellationToken>())
               .Returns(Result.Success(dto));
 

@@ -9,7 +9,7 @@ import {
 import { NotificationItemCard } from "./NotificationItem";
 import { NotificationPreferencesToggle } from "./NotificationPreferencesToggle";
 import { usePushSubscription } from "../hooks/usePushSubscription";
-import { EmptyState, Card } from "@/shared/ui/Card";
+import { EmptyState } from "@/shared/ui/Card";
 import type {
   NotificationItem,
   NotificationType,

@@ -18,15 +18,28 @@ public sealed class ReportLostPetCommandHandlerTests
     private readonly INotificationDispatcher _dispatcher = Substitute.For<INotificationDispatcher>();
     private readonly IBlobStorageService _blobStorage = Substitute.For<IBlobStorageService>();
     private readonly IImageProcessor _imageProcessor = Substitute.For<IImageProcessor>();
+    private readonly IClinicRepository _clinicRepo = Substitute.For<IClinicRepository>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
     private readonly ILostPetSearchRadiusCalculator _searchRadiusCalculator = new LostPetSearchRadiusCalculator();
+    private readonly PawTrack.Application.Subscriptions.Services.ISubscriptionService _subscriptionService =
+        Substitute.For<PawTrack.Application.Subscriptions.Services.ISubscriptionService>();
 
     private readonly ReportLostPetCommandHandler _sut;
 
     public ReportLostPetCommandHandlerTests()
     {
+        // Default: tier multiplier = 1.0 (Free plan) so radius calculations work as expected
+        _subscriptionService
+            .GetAlertRadiusMultiplierAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>())
+            .Returns(1.0);
+        // Default: no featured clinics near any location
+        _clinicRepo
+            .GetFeaturedNearAsync(Arg.Any<double>(), Arg.Any<double>(), Arg.Any<double>(), Arg.Any<CancellationToken>())
+            .Returns(new List<PawTrack.Domain.Clinics.Clinic>().AsReadOnly());
+
         _sut = new ReportLostPetCommandHandler(
-            _lostPetRepo, _petRepo, _userRepo, _dispatcher, _blobStorage, _imageProcessor, _uow, _searchRadiusCalculator);
+            _lostPetRepo, _petRepo, _userRepo, _dispatcher, _blobStorage, _imageProcessor,
+            _subscriptionService, _clinicRepo, _uow, _searchRadiusCalculator);
     }
 
     [Fact]

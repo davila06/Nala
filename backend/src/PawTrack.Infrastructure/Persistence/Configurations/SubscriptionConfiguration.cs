@@ -23,6 +23,7 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
         builder.Property(x => x.ActivatedAt);
         builder.Property(x => x.ExpiresAt);
         builder.Property(x => x.CancelledAt);
+        builder.Property(x => x.PaymentReportedAt);
 
         builder.HasIndex(x => x.UserId);
         builder.HasIndex(x => x.ClinicId);

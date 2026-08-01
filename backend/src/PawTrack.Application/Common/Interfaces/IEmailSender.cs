@@ -9,6 +9,7 @@ public interface IEmailSender
     Task SendLostPetAlertAsync(string to, string ownerName, string petName, CancellationToken cancellationToken = default);
 
     Task SendPetReunitedAsync(string to, string ownerName, string petName, CancellationToken cancellationToken = default);
+    Task SendFamilyInvitationAsync(string to, string token, CancellationToken cancellationToken = default);
 
     Task SendSightingAlertAsync(string to, string ownerName, string petName, CancellationToken cancellationToken = default);
 

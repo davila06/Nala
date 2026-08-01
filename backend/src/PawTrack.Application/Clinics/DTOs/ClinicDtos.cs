@@ -10,6 +10,10 @@ public sealed record ClinicDto(
     decimal Lat,
     decimal Lng,
     string ContactEmail,
+    string? PhoneNumber,
+    string? Website,
+    string? LogoUrl,
+    bool IsFeatured,
     string Status,
     DateTimeOffset RegisteredAt)
 {
@@ -21,6 +25,10 @@ public sealed record ClinicDto(
         clinic.Lat,
         clinic.Lng,
         clinic.ContactEmail,
+        clinic.PhoneNumber,
+        clinic.Website,
+        clinic.LogoUrl,
+        clinic.IsFeatured,
         clinic.Status.ToString(),
         clinic.RegisteredAt);
 }

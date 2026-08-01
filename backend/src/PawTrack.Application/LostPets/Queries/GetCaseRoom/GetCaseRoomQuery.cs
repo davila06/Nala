@@ -2,6 +2,7 @@ using MediatR;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.LostPets.DTOs;
 using PawTrack.Application.Sightings.DTOs;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Notifications;
 
@@ -18,6 +19,16 @@ public sealed record NearbyAlertSummary(
     DateTimeOffset SentAt,
     string Title);
 
+/// <summary>Nearest featured clinic shown as sponsor in the Case Room.</summary>
+public sealed record SponsoredClinicDto(
+    Guid Id,
+    string Name,
+    string Address,
+    string? LogoUrl,
+    string ContactEmail,
+    string? PhoneNumber,
+    string? Website);
+
 /// <summary>
 /// Full aggregate payload for the Incident Room (Case Command Centre).
 /// One network round-trip: event + sightings + notifications in a single query.
@@ -27,6 +38,7 @@ public sealed record CaseRoomDto(
     IReadOnlyList<SightingDto> Sightings,
     IReadOnlyList<NearbyAlertSummary> NearbyAlerts,
     int TotalNearbyAlertsDispatched,
+    SponsoredClinicDto? SponsoredClinic,
     DateTimeOffset GeneratedAt);
 
 // ── Query ─────────────────────────────────────────────────────────────────────
@@ -42,6 +54,8 @@ public sealed class GetCaseRoomQueryHandler(
     IPetRepository petRepository,
     ISightingRepository sightingRepository,
     INotificationRepository notificationRepository,
+    ISubscriptionService subscriptionService,
+    IClinicRepository clinicRepository,
     ISightingPriorityScorer sightingPriorityScorer)
     : IRequestHandler<GetCaseRoomQuery, Result<CaseRoomDto>>
 {
@@ -49,6 +63,11 @@ public sealed class GetCaseRoomQueryHandler(
         GetCaseRoomQuery request,
         CancellationToken cancellationToken)
     {
+        // ── 0. Verify Plus subscription ───────────────────────────────────────
+        var isPlus = await subscriptionService.IsAtLeastPlusAsync(request.RequestingUserId, cancellationToken);
+        if (!isPlus)
+            return Result.Failure<CaseRoomDto>("La sala de caso requiere el plan Plus. Actualiza tu plan para acceder.");
+
         // ── 1. Load the event and verify ownership ────────────────────────────
         var lostEvent = await lostPetRepository.GetByIdAsync(
             request.LostPetEventId, cancellationToken);
@@ -101,7 +120,34 @@ public sealed class GetCaseRoomQueryHandler(
             scoredSightings,
             alertSummaries,
             alertSummaries.Count,
+            await ResolveSponsoredClinicAsync(lostEvent, cancellationToken),
             DateTimeOffset.UtcNow));
+    }
+
+    private async Task<SponsoredClinicDto?> ResolveSponsoredClinicAsync(
+        PawTrack.Domain.LostPets.LostPetEvent lostEvent,
+        CancellationToken cancellationToken)
+    {
+        if (!lostEvent.LastSeenLat.HasValue || !lostEvent.LastSeenLng.HasValue)
+            return null;
+
+        var nearby = await clinicRepository.GetFeaturedNearAsync(
+            (double)lostEvent.LastSeenLat.Value,
+            (double)lostEvent.LastSeenLng.Value,
+            radiusKm: 15,
+            cancellationToken);
+
+        var sponsor = nearby.FirstOrDefault();
+        if (sponsor is null) return null;
+
+        return new SponsoredClinicDto(
+            sponsor.Id,
+            sponsor.Name,
+            sponsor.Address,
+            sponsor.LogoUrl,
+            sponsor.ContactEmail,
+            sponsor.PhoneNumber,
+            sponsor.Website);
     }
 }
 

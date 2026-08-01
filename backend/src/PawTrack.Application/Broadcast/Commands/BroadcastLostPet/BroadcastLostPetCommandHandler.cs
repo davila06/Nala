@@ -1,6 +1,8 @@
 using MediatR;
 using PawTrack.Application.Broadcast.DTOs;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Subscriptions.Services;
+using PawTrack.Domain.Broadcast;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.LostPets;
 
@@ -11,6 +13,8 @@ public sealed class BroadcastLostPetCommandHandler(
     IPetRepository petRepository,
     IUserRepository userRepository,
     IMultichannelBroadcastService broadcastService,
+    ISubscriptionService subscriptionService,
+    IClinicRepository clinicRepository,
     ITrackingLinkService trackingLinkService,
     IPublicAppUrlProvider publicAppUrlProvider)
     : IRequestHandler<BroadcastLostPetCommand, Result<IReadOnlyList<BroadcastAttemptDto>>>
@@ -44,6 +48,27 @@ public sealed class BroadcastLostPetCommandHandler(
         var petProfileUrl = $"{baseUrl}/p/{pet.Id}";
         var trackingUrl = trackingLinkService.Generate(lostEvent.Id, "multicast");
 
+        // Restrict WhatsApp/Telegram/Facebook to Plus+ subscribers
+        var isPlus = await subscriptionService.IsAtLeastPlusAsync(lostEvent.OwnerId, cancellationToken);
+
+        // Fetch featured clinics near lost location for Plus-plan broadcast footer
+        IReadOnlyList<NearbyClinicRef>? nearbyClinics = null;
+        if (isPlus && lostEvent.LastSeenLat.HasValue && lostEvent.LastSeenLng.HasValue)
+        {
+            var clinics = await clinicRepository.GetFeaturedNearAsync(
+                (double)lostEvent.LastSeenLat.Value,
+                (double)lostEvent.LastSeenLng.Value,
+                radiusKm: 15,
+                cancellationToken);
+
+            if (clinics.Count > 0)
+                nearbyClinics = clinics
+                    .Take(3)
+                    .Select(c => new NearbyClinicRef(c.Name, c.PhoneNumber, c.Address))
+                    .ToList()
+                    .AsReadOnly();
+        }
+
         var context = new BroadcastMessageContext(
             LostPetEventId: lostEvent.Id,
             PetName: pet.Name,
@@ -55,7 +80,9 @@ public sealed class BroadcastLostPetCommandHandler(
             TrackingUrl: trackingUrl,
             RecentPhotoUrl: lostEvent.RecentPhotoUrl,
             LastSeenAt: lostEvent.LastSeenAt,
-            LastSeenDescription: lostEvent.Description);
+            LastSeenDescription: lostEvent.Description,
+            RestrictToPaidChannels: !isPlus,
+            NearbyFeaturedClinics: nearbyClinics);
 
         // ── Fan out ───────────────────────────────────────────────────────────
         var results = await broadcastService.BroadcastAsync(context, cancellationToken);

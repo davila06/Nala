@@ -1,5 +1,6 @@
 using MediatR;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Pets;
 
@@ -9,6 +10,7 @@ public sealed class CreatePetCommandHandler(
     IPetRepository petRepository,
     IBlobStorageService blobStorage,
     IImageProcessor imageProcessor,
+    ISubscriptionService subscriptionService,
     IUnitOfWork unitOfWork)
     : IRequestHandler<CreatePetCommand, Result<string>>
 {
@@ -17,6 +19,15 @@ public sealed class CreatePetCommandHandler(
     public async Task<Result<string>> Handle(
         CreatePetCommand request, CancellationToken cancellationToken)
     {
+        var limit = await subscriptionService.GetPetLimitAsync(request.OwnerId, cancellationToken);
+        if (limit != -1)
+        {
+            var count = await petRepository.CountByOwnerAsync(request.OwnerId, cancellationToken);
+            if (count >= limit)
+                return Result.Failure<string>(
+                    $"Tu plan permite hasta {limit} mascota(s). Actualiza a Plus para registrar más.");
+        }
+
         var pet = Pet.Create(
             request.OwnerId,
             request.Name,

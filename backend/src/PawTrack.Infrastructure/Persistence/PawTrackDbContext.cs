@@ -9,10 +9,12 @@ using PawTrack.Domain.Certificates;
 using PawTrack.Domain.Chat;
 using PawTrack.Domain.Clinics;
 using PawTrack.Domain.Collars;
+using PawTrack.Domain.Family;
 using PawTrack.Domain.Fosters;
 using PawTrack.Domain.Incentives;
 using PawTrack.Domain.Locations;
 using PawTrack.Domain.LostPets;
+using PawTrack.Domain.Medical;
 using PawTrack.Domain.Municipalities;
 using PawTrack.Domain.Notifications;
 using PawTrack.Domain.Pets;
@@ -51,6 +53,7 @@ public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> option
     public DbSet<SearchZone> SearchZones => Set<SearchZone>();
     public DbSet<Clinic> Clinics => Set<Clinic>();
     public DbSet<ClinicScan> ClinicScans => Set<ClinicScan>();
+    public DbSet<ClinicApiKey> ClinicApiKeys => Set<ClinicApiKey>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     public DbSet<Bounty> Bounties => Set<Bounty>();
@@ -58,6 +61,12 @@ public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> option
     public DbSet<CollarLocation> CollarLocations => Set<CollarLocation>();
     public DbSet<VetCertificate> VetCertificates => Set<VetCertificate>();
     public DbSet<CapturedAnimal> CapturedAnimals => Set<CapturedAnimal>();
+    public DbSet<AiSearchUsage> AiSearchUsages => Set<AiSearchUsage>();
+    public DbSet<FamilyAccount> FamilyAccounts => Set<FamilyAccount>();
+    public DbSet<FamilyMembership> FamilyMemberships => Set<FamilyMembership>();
+    public DbSet<FamilyInvitation> FamilyInvitations => Set<FamilyInvitation>();
+    public DbSet<MedicalRecord> MedicalRecords => Set<MedicalRecord>();
+    public DbSet<VetReminder> VetReminders => Set<VetReminder>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -2,6 +2,7 @@ using MediatR;
 using PawTrack.Application.Collars.DTOs;
 using PawTrack.Application.Collars.Interfaces;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Collars;
 using PawTrack.Domain.Common;
 
@@ -15,6 +16,7 @@ public sealed record RegisterCollarCommand(
 
 public sealed class RegisterCollarCommandHandler(
     ICollarRepository collarRepository,
+    ISubscriptionService subscriptionService,
     IUnitOfWork unitOfWork)
     : IRequestHandler<RegisterCollarCommand, Result<CollarDto>>
 {
@@ -22,6 +24,10 @@ public sealed class RegisterCollarCommandHandler(
         RegisterCollarCommand request,
         CancellationToken cancellationToken)
     {
+        var isPlus = await subscriptionService.IsAtLeastPlusAsync(request.OwnerId, cancellationToken);
+        if (!isPlus)
+            return Result.Failure<CollarDto>("El collar GPS requiere el plan Plus.");
+
         // Deactivate any existing active collar for this pet
         var existing = await collarRepository.GetActiveForPetAsync(request.PetId, cancellationToken);
         if (existing is not null)

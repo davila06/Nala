@@ -6,6 +6,7 @@ import { useDebouncedBBox, usePublicMapEvents } from "../hooks/usePublicMap";
 import { useMovementPredictions } from "../hooks/useMovementPrediction";
 import type { MapBBox } from "../api/publicMapApi";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import { usePublicClinics } from "@/features/clinics/hooks/useClinics";
 
 export default function PublicMapPage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -19,6 +20,9 @@ export default function PublicMapPage() {
     lng: number;
     zoom?: number;
   } | null>(null);
+  const [showClinics, setShowClinics] = useState(false);
+  const { data: publicClinics = [] } = usePublicClinics(undefined, undefined);
+
   const { debounce } = useDebouncedBBox(150);
   const { data: events = [], isFetching, isError } = usePublicMapEvents(bbox);
 
@@ -162,6 +166,12 @@ export default function PublicMapPage() {
               label: "Zona proyectada",
               pulse: false,
             },
+            { color: "bg-trust-500", label: "Clínica", pulse: false },
+            {
+              color: "bg-brand-300 border-2 border-brand-500",
+              label: "Clínica Plus",
+              pulse: false,
+            },
           ].map(({ color, label, pulse }) => (
             <div
               key={label}
@@ -223,17 +233,36 @@ export default function PublicMapPage() {
             <>📍 Mi ubicación</>
           )}
         </button>
+        {/* Clinics toggle */}
+        <button
+          type="button"
+          onClick={() => setShowClinics((v) => !v)}
+          className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showClinics ? "border-trust-400 bg-trust-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
+        >
+          🏥 Clínicas {showClinics ? "✓" : ""}
+        </button>
       </div>
 
       <MapContainer
         events={filteredEvents}
         predictions={predictions}
+        clinics={showClinics ? publicClinics : undefined}
         locateTrigger={locateTrigger}
         flyTarget={flyTarget}
         onLocated={() => setLocating(false)}
         onBBoxChange={handleBBoxChange}
         className="h-full w-full"
       />
+
+      {/* Clinic count badge when layer is active */}
+      {showClinics && (
+        <div className="absolute bottom-28 right-3 z-[1000] rounded-full bg-trust-700 px-3 py-1 text-xs font-bold text-white shadow-lg">
+          🏥 {publicClinics.length} clínica
+          {publicClinics.length !== 1 ? "s" : ""}
+          {publicClinics.filter((c) => c.isFeatured).length > 0 &&
+            ` · ${publicClinics.filter((c) => c.isFeatured).length} verificada${publicClinics.filter((c) => c.isFeatured).length !== 1 ? "s" : ""}`}
+        </div>
+      )}
     </div>
   );
 }

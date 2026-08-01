@@ -3,6 +3,7 @@ using PawTrack.Application.Bounties.DTOs;
 using PawTrack.Application.Bounties.Interfaces;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Subscriptions.Interfaces;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Bounties;
 using PawTrack.Domain.Common;
 
@@ -17,6 +18,7 @@ public sealed record CreateBountyCommand(
 public sealed class CreateBountyCommandHandler(
     IBountyRepository bountyRepository,
     IPaymentService paymentService,
+    ISubscriptionService subscriptionService,
     IUnitOfWork unitOfWork)
     : IRequestHandler<CreateBountyCommand, Result<BountyDto>>
 {
@@ -24,6 +26,10 @@ public sealed class CreateBountyCommandHandler(
         CreateBountyCommand request,
         CancellationToken cancellationToken)
     {
+        var isPlus = await subscriptionService.IsAtLeastPlusAsync(request.OwnerId, cancellationToken);
+        if (!isPlus)
+            return Result.Failure<BountyDto>("El sistema de recompensas requiere el plan Plus.");
+
         var existing = await bountyRepository.GetByLostEventAsync(request.LostPetEventId, cancellationToken);
         if (existing is not null && existing.Status is BountyStatus.Active or BountyStatus.Claimed)
             return Result.Failure<BountyDto>("An active bounty already exists for this event.");

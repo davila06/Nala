@@ -8,6 +8,7 @@ using PawTrack.Application.LostPets.Queries.GetActiveLostPetByPet;
 using PawTrack.Application.LostPets.Queries.GetCaseRoom;
 using PawTrack.Application.LostPets.Queries.GetLostPetContact;
 using PawTrack.Application.LostPets.Queries.GetLostPetEventById;
+using PawTrack.Application.Sightings.Queries.GetMovementPrediction;
 using PawTrack.Domain.LostPets;
 using System.Security.Claims;
 
@@ -19,7 +20,8 @@ namespace PawTrack.API.Controllers;
 public sealed class LostPetsController(ISender sender) : ControllerBase
 {
     // ── POST /api/lost-pets ───────────────────────────────────────────────────
-    [HttpPost]    [EnableRateLimiting("public-api")] // 30/min — each call writes DB, may upload Blob Storage, dispatches notifications    [Consumes("multipart/form-data")]
+    [HttpPost]
+    [EnableRateLimiting("public-api")] // 30/min — each call writes DB, may upload Blob Storage, dispatches notifications    [Consumes("multipart/form-data")]
     [RequestSizeLimit(5_242_880)] // 5 MB — same ceiling as PetsController and SightingsController
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
@@ -65,7 +67,8 @@ public sealed class LostPetsController(ISender sender) : ControllerBase
     }
 
     // ── GET /api/lost-pets/{id} ───────────────────────────────────────────────
-    [HttpGet("{id:guid}")]    [EnableRateLimiting("public-api")] // 30/min — event IDs are enumerable from public map; throttle prevents bulk harvest    [ProducesResponseType(StatusCodes.Status200OK)]
+    [HttpGet("{id:guid}")]
+    [EnableRateLimiting("public-api")] // 30/min — event IDs are enumerable from public map; throttle prevents bulk harvest    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
@@ -85,7 +88,8 @@ public sealed class LostPetsController(ISender sender) : ControllerBase
     }
 
     // ── GET /api/lost-pets/by-pet/{petId} ────────────────────────────────────
-    [HttpGet("by-pet/{petId:guid}")]    [EnableRateLimiting("public-api")] // 30/min — consistent throttle across all LostPets reads    [ProducesResponseType(StatusCodes.Status200OK)]
+    [HttpGet("by-pet/{petId:guid}")]
+    [EnableRateLimiting("public-api")] // 30/min — consistent throttle across all LostPets reads    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetActiveByPet(Guid petId, CancellationToken cancellationToken)
     {
@@ -112,7 +116,8 @@ public sealed class LostPetsController(ISender sender) : ControllerBase
     /// Returns the emergency contact details (name + phone) for an active lost-pet report.
     /// Requires authentication. ContactPhone is never exposed on public endpoints.
     /// </summary>
-    [HttpGet("{id:guid}/contact")]    [EnableRateLimiting("contact-lookup")] // 10/min — each response discloses a real phone number    [ProducesResponseType(StatusCodes.Status200OK)]
+    [HttpGet("{id:guid}/contact")]
+    [EnableRateLimiting("contact-lookup")] // 10/min — each response discloses a real phone number    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetContact(Guid id, CancellationToken cancellationToken)
     {
@@ -192,6 +197,23 @@ public sealed class LostPetsController(ISender sender) : ControllerBase
         }
 
         return NoContent();
+    }
+
+    // ── GET /api/lost-pets/{id}/movement — full prediction (Plus) ────────────
+    [HttpGet("{id:guid}/movement")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status402PaymentRequired)]
+    public async Task<IActionResult> GetMovementPrediction(Guid id, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out _))
+            return Unauthorized();
+
+        var result = await sender.Send(new GetMovementPredictionQuery(id), cancellationToken);
+        if (result.IsFailure)
+            return StatusCode(StatusCodes.Status500InternalServerError);
+
+        return Ok(result.Value);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

@@ -11,6 +11,7 @@ export interface PetSummary {
   breed: string | null;
   photoUrl: string | null;
   status: PetStatus;
+  activeLostEventId: string | null;
 }
 
 export interface PetDetail {
