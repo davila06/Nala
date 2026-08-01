@@ -21,8 +21,8 @@ public sealed class CancelSubscriptionCommandHandler(
         if (subscription is null)
             return Result.Failure<SubscriptionDto>("Subscription not found.");
 
-        // Ownership check: only the subscriber or an admin can cancel
-        if (subscription.UserId != request.RequestingUserId && subscription.ClinicId != request.RequestingUserId)
+        // Clinic subscriptions record the owner's user ID in ClinicOwnerId
+        if (subscription.UserId != request.RequestingUserId && subscription.ClinicOwnerId != request.RequestingUserId)
             return Result.Failure<SubscriptionDto>("Access denied.");
 
         subscription.Cancel();

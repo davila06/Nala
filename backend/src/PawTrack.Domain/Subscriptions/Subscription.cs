@@ -9,6 +9,8 @@ public sealed class Subscription
     public Guid? UserId { get; private set; }
     /// <summary>Owning clinic or null when this is a user subscription.</summary>
     public Guid? ClinicId { get; private set; }
+    /// <summary>User who created a clinic subscription. Required for ownership checks (ClinicId != UserId).</summary>
+    public Guid? ClinicOwnerId { get; private set; }
     public SubscriptionTier Tier { get; private set; }
     public SubscriptionStatus Status { get; private set; }
     /// <summary>SINPE Móvil reference code (8 uppercase alphanum) shown to the subscriber.</summary>
@@ -36,13 +38,14 @@ public sealed class Subscription
         };
     }
 
-    public static Subscription CreateForClinic(Guid clinicId, SubscriptionTier tier, string paymentReference, decimal amountCrc)
+    public static Subscription CreateForClinic(Guid clinicId, Guid ownerId, SubscriptionTier tier, string paymentReference, decimal amountCrc)
     {
         ValidateClinicTier(tier);
         return new Subscription
         {
             Id = Guid.CreateVersion7(),
             ClinicId = clinicId,
+            ClinicOwnerId = ownerId,
             Tier = tier,
             Status = SubscriptionStatus.PendingPayment,
             PaymentReference = paymentReference,

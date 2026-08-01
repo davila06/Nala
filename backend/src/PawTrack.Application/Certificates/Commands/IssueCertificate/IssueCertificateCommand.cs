@@ -3,6 +3,7 @@ using MediatR;
 using PawTrack.Application.Certificates.DTOs;
 using PawTrack.Application.Certificates.Interfaces;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Domain.Certificates;
 using PawTrack.Domain.Common;
 using System.Security.Cryptography;
@@ -38,15 +39,21 @@ public sealed class IssueCertificateCommandValidator : AbstractValidator<IssueCe
 }
 
 public sealed class IssueCertificateCommandHandler(
-    ICertificateRepository certificateRepository,
-    ICertificateService certificateService,
-    IUnitOfWork unitOfWork)
+    ICertificateRepository  certificateRepository,
+    ICertificateService     certificateService,
+    ISubscriptionRepository subscriptionRepository,
+    IUnitOfWork             unitOfWork)
     : IRequestHandler<IssueCertificateCommand, Result<CertificateDto>>
 {
     public async Task<Result<CertificateDto>> Handle(
         IssueCertificateCommand request,
         CancellationToken cancellationToken)
     {
+        // PDF certificates are a ClinicPartner-tier feature
+        var subscription = await subscriptionRepository.GetActiveForClinicAsync(request.ClinicId, cancellationToken);
+        if (subscription is null || subscription.Tier != Domain.Subscriptions.SubscriptionTier.ClinicPartner)
+            return Result.Failure<CertificateDto>("PDF certificate issuance requires an active Clínica Partner subscription.");
+
         var code = GenerateVerificationCode();
         var certificate = VetCertificate.Issue(
             request.PetId,

@@ -1,16 +1,29 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { certificateApi, CERTIFICATE_TYPE_LABELS } from "@/features/clinics/api/certificateApi";
+import {
+  certificateApi,
+  CERTIFICATE_TYPE_LABELS,
+} from "@/features/clinics/api/certificateApi";
 
-function VerificationBadge({ isValid, isRevoked }: { isValid: boolean; isRevoked: boolean }) {
+function VerificationBadge({
+  isValid,
+  isRevoked,
+}: {
+  isValid: boolean;
+  isRevoked: boolean;
+}) {
   if (isRevoked) {
     return (
       <div className="flex items-center gap-2 rounded-2xl border-2 border-danger-300 bg-danger-50 px-5 py-3">
-        <span className="text-2xl" aria-hidden="true">🚫</span>
+        <span className="text-2xl" aria-hidden="true">
+          🚫
+        </span>
         <div>
           <p className="font-bold text-danger-800">Certificado revocado</p>
-          <p className="text-xs text-danger-600">Este certificado ha sido anulado por la clínica.</p>
+          <p className="text-xs text-danger-600">
+            Este certificado ha sido anulado por la clínica.
+          </p>
         </div>
       </div>
     );
@@ -18,20 +31,30 @@ function VerificationBadge({ isValid, isRevoked }: { isValid: boolean; isRevoked
   if (!isValid) {
     return (
       <div className="flex items-center gap-2 rounded-2xl border-2 border-warn-300 bg-warn-50 px-5 py-3">
-        <span className="text-2xl" aria-hidden="true">⏰</span>
+        <span className="text-2xl" aria-hidden="true">
+          ⏰
+        </span>
         <div>
           <p className="font-bold text-warn-800">Certificado vencido</p>
-          <p className="text-xs text-warn-600">La vigencia de este certificado ha expirado.</p>
+          <p className="text-xs text-warn-600">
+            La vigencia de este certificado ha expirado.
+          </p>
         </div>
       </div>
     );
   }
   return (
     <div className="flex items-center gap-2 rounded-2xl border-2 border-rescue-300 bg-rescue-50 px-5 py-3">
-      <span className="text-2xl" aria-hidden="true">✅</span>
+      <span className="text-2xl" aria-hidden="true">
+        ✅
+      </span>
       <div>
-        <p className="font-bold text-rescue-800">Certificado válido y auténtico</p>
-        <p className="text-xs text-rescue-600">Emitido por una clínica verificada en PawTrack CR.</p>
+        <p className="font-bold text-rescue-800">
+          Certificado válido y auténtico
+        </p>
+        <p className="text-xs text-rescue-600">
+          Emitido por una clínica verificada en PawTrack CR.
+        </p>
       </div>
     </div>
   );
@@ -40,7 +63,9 @@ function VerificationBadge({ isValid, isRevoked }: { isValid: boolean; isRevoked
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-sand-100 py-2.5 last:border-0">
-      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-sand-400 shrink-0">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-sand-400 shrink-0">
+        {label}
+      </p>
       <p className="text-sm font-semibold text-sand-900 text-right">{value}</p>
     </div>
   );
@@ -49,7 +74,11 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 export default function CertificateVerificationPage() {
   const { code } = useParams<{ code: string }>();
 
-  const { data: cert, isLoading, isError } = useQuery({
+  const {
+    data: cert,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["certificate-verify", code],
     queryFn: () => certificateApi.verify(code ?? ""),
     enabled: !!code,
@@ -84,11 +113,16 @@ export default function CertificateVerificationPage() {
         {/* Not found */}
         {!isLoading && (isError || !cert) && (
           <div className="flex flex-col items-center gap-4 rounded-3xl border border-danger-200 bg-danger-50 p-8 text-center">
-            <span className="text-4xl" aria-hidden="true">❓</span>
-            <h1 className="text-lg font-black text-sand-900">Certificado no encontrado</h1>
+            <span className="text-4xl" aria-hidden="true">
+              ❓
+            </span>
+            <h1 className="text-lg font-black text-sand-900">
+              Certificado no encontrado
+            </h1>
             <p className="text-sm text-sand-600">
-              El código <strong className="font-mono">{code}</strong> no corresponde a ningún
-              certificado emitido en PawTrack CR, o el código es incorrecto.
+              El código <strong className="font-mono">{code}</strong> no
+              corresponde a ningún certificado emitido en PawTrack CR, o el
+              código es incorrecto.
             </p>
             <Link
               to="/"
@@ -117,14 +151,19 @@ export default function CertificateVerificationPage() {
             </div>
 
             {/* Status badge */}
-            <VerificationBadge isValid={cert.isValid} isRevoked={cert.isRevoked} />
+            <VerificationBadge
+              isValid={cert.isValid}
+              isRevoked={cert.isRevoked}
+            />
 
             {/* Certificate details */}
             <div className="rounded-3xl border border-sand-200 bg-surface px-5 py-4 shadow-sm">
               <h2 className="mb-1 text-base font-bold text-sand-900">
                 {CERTIFICATE_TYPE_LABELS[cert.type] ?? cert.type}
               </h2>
-              <p className="mb-4 text-xs text-sand-400">Detalles del certificado</p>
+              <p className="mb-4 text-xs text-sand-400">
+                Detalles del certificado
+              </p>
 
               <InfoRow
                 label="Tipo"
@@ -162,7 +201,11 @@ export default function CertificateVerificationPage() {
                           : "bg-warn-100 text-warn-700"
                     }`}
                   >
-                    {cert.isRevoked ? "Revocado" : cert.isValid ? "Vigente" : "Vencido"}
+                    {cert.isRevoked
+                      ? "Revocado"
+                      : cert.isValid
+                        ? "Vigente"
+                        : "Vencido"}
                   </span>
                 }
               />
@@ -192,9 +235,12 @@ export default function CertificateVerificationPage() {
             {/* Trust footer */}
             <div className="rounded-2xl border border-sand-100 bg-surface px-4 py-3 text-center">
               <p className="text-[10px] text-sand-400">
-                Este certificado fue emitido digitalmente por una clínica verificada en{" "}
-                <span className="font-semibold text-brand-600">PawTrack CR</span> —
-                plataforma de identidad veterinaria para Costa Rica.
+                Este certificado fue emitido digitalmente por una clínica
+                verificada en{" "}
+                <span className="font-semibold text-brand-600">
+                  PawTrack CR
+                </span>{" "}
+                — plataforma de identidad veterinaria para Costa Rica.
               </p>
             </div>
           </motion.div>

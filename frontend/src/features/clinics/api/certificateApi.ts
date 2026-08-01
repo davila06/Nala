@@ -62,4 +62,9 @@ export const certificateApi = {
     apiClient
       .post<CertificateDto>("/certificates", request)
       .then((r) => r.data),
+
+  getForClinic: (clinicId: string, page = 1) =>
+    apiClient
+      .get<CertificateDto[]>(`/certificates/clinic/${clinicId}`, { params: { page, pageSize: 10 } })
+      .then((r) => r.data),
 };

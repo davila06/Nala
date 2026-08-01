@@ -6,6 +6,7 @@ using PawTrack.Domain.Subscriptions;
 namespace PawTrack.Application.Subscriptions.Commands.CreateSubscription;
 
 public sealed record CreateSubscriptionCommand(
-    Guid? UserId,
-    Guid? ClinicId,
+    Guid?            UserId,
+    Guid?            ClinicId,
+    Guid             RequestingUserId,
     SubscriptionTier Tier) : IRequest<Result<SubscriptionDto>>;

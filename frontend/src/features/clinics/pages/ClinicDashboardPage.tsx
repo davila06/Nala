@@ -9,6 +9,10 @@ import { ScanInput } from "../components/ScanInput";
 import { MatchResultCard } from "../components/MatchResultCard";
 import { ClinicTiersModal } from "../components/ClinicTiersModal";
 import { CertificateIssueModal } from "../components/CertificateIssueModal";
+import {
+  useCertificatesForClinic,
+} from "../hooks/useCertificates";
+import { CERTIFICATE_TYPE_LABELS } from "../api/certificateApi";
 
 export default function ClinicDashboardPage() {
   const [scanResult, setScanResult] = useState<ClinicScanResultDto | null>(
@@ -176,6 +180,9 @@ export default function ClinicDashboardPage() {
           />
         )}
 
+        {/* ── Certificate history (Partner tier) ───────────────────── */}
+        {clinic && <ClinicCertificateHistory clinicId={clinic.id} />}
+
         {scanResult ? (
           <MatchResultCard result={scanResult} onReset={handleReset} />
         ) : (
@@ -203,5 +210,61 @@ export default function ClinicDashboardPage() {
         )}
       </main>
     </div>
+  );
+}
+
+// ── Certificate history list ───────────────────────────────────────────────────
+
+function ClinicCertificateHistory({ clinicId }: { clinicId: string }) {
+  const { data: certs, isLoading } = useCertificatesForClinic(clinicId);
+
+  if (isLoading) return null;
+  if (!certs || certs.length === 0) return null;
+
+  return (
+    <section className="space-y-3">
+      <h2 className="text-sm font-bold text-sand-700">Certificados emitidos</h2>
+      <ul className="space-y-2">
+        {certs.map((cert) => (
+          <li
+            key={cert.id}
+            className="flex items-center justify-between gap-3 rounded-2xl border border-sand-100 bg-surface px-4 py-3"
+          >
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-sand-900">
+                {CERTIFICATE_TYPE_LABELS[cert.type] ?? cert.type}
+              </p>
+              <p className="text-[11px] text-sand-400">
+                {new Date(cert.issuedAt).toLocaleDateString("es-CR")} ·{" "}
+                <span className="font-mono">{cert.verificationCode}</span>
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <span
+                className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                  cert.isRevoked
+                    ? "bg-danger-100 text-danger-700"
+                    : cert.isValid
+                      ? "bg-rescue-100 text-rescue-800"
+                      : "bg-warn-100 text-warn-700"
+                }`}
+              >
+                {cert.isRevoked ? "Revocado" : cert.isValid ? "Vigente" : "Vencido"}
+              </span>
+              {cert.pdfUrl && (
+                <a
+                  href={cert.pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] font-semibold text-trust-600 hover:underline"
+                >
+                  PDF
+                </a>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

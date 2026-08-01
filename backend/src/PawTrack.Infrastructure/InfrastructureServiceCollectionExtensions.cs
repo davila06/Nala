@@ -183,6 +183,7 @@ public static class InfrastructureServiceCollectionExtensions
         // Tractive GPS polling (runs every 5 min)
         services.AddSingleton<ITractiveService, TractiveService>();
         services.AddHostedService<TractivePollingJob>();
+        services.AddHostedService<CollarLocationPurgeJob>();
 
         return services;
     }

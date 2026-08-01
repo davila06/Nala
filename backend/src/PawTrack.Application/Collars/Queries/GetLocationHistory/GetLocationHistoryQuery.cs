@@ -8,8 +8,8 @@ public sealed record LocationPointDto(double Lat, double Lng, DateTimeOffset Rec
 
 public sealed record GetLocationHistoryQuery(
     Guid PetId,
-    int  Hours     = 24,
-    int  MaxPoints = 500) : IRequest<Result<IReadOnlyList<LocationPointDto>>>;
+    int Hours = 24,
+    int MaxPoints = 500) : IRequest<Result<IReadOnlyList<LocationPointDto>>>;
 
 public sealed class GetLocationHistoryQueryHandler(ICollarRepository collarRepository)
     : IRequestHandler<GetLocationHistoryQuery, Result<IReadOnlyList<LocationPointDto>>>
@@ -22,7 +22,7 @@ public sealed class GetLocationHistoryQueryHandler(ICollarRepository collarRepos
         if (collar is null)
             return Result.Success<IReadOnlyList<LocationPointDto>>([]);
 
-        var since   = DateTimeOffset.UtcNow.AddHours(-Math.Clamp(request.Hours, 1, 168));
+        var since = DateTimeOffset.UtcNow.AddHours(-Math.Clamp(request.Hours, 1, 168));
         var history = await collarRepository.GetLocationHistoryAsync(
             collar.Id, since, request.MaxPoints, cancellationToken);
 

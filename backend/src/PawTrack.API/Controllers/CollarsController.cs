@@ -49,7 +49,7 @@ public sealed class CollarsController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetHistory(
         Guid petId,
-        [FromQuery] int hours     = 24,
+        [FromQuery] int hours = 24,
         [FromQuery] int maxPoints = 500,
         CancellationToken cancellationToken = default)
     {

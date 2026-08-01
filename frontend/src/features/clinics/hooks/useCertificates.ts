@@ -12,6 +12,15 @@ export function useCertificatesForPet(petId: string) {
   });
 }
 
+export function useCertificatesForClinic(clinicId: string, page = 1) {
+  return useQuery({
+    queryKey: ['certificates', 'clinic', clinicId, page],
+    queryFn: () => certificateApi.getForClinic(clinicId, page),
+    enabled: !!clinicId,
+    staleTime: 30_000,
+  })
+}
+
 export function useIssueCertificate() {
   const queryClient = useQueryClient();
   return useMutation({

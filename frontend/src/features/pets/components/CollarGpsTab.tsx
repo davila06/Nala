@@ -1,8 +1,19 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Polyline,
+  useMap,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { useCollarHistory, useCollarStatus, useRegisterCollar } from "../hooks/useCollar";
+import {
+  useCollarHistory,
+  useCollarStatus,
+  useRegisterCollar,
+} from "../hooks/useCollar";
 
 interface CollarGpsTabProps {
   petId: string;
@@ -17,11 +28,11 @@ const PROVIDER_LABELS = {
 };
 
 const HOURS_OPTIONS = [
-  { value: 1,   label: "Última hora" },
-  { value: 6,   label: "6 horas" },
-  { value: 12,  label: "12 horas" },
-  { value: 24,  label: "24 horas" },
-  { value: 72,  label: "3 días" },
+  { value: 1, label: "Última hora" },
+  { value: 6, label: "6 horas" },
+  { value: 12, label: "12 horas" },
+  { value: 24, label: "24 horas" },
+  { value: 72, label: "3 días" },
   { value: 168, label: "7 días" },
 ];
 
@@ -206,8 +217,13 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
       {/* Track stats */}
       {history && history.length > 0 && (
         <div className="flex gap-3 text-xs text-sand-500">
-          <span className="font-semibold text-sand-700">{history.length}</span> puntos registrados
-          {historyFetching && <span className="text-brand-500 animate-pulse">· actualizando…</span>}
+          <span className="font-semibold text-sand-700">{history.length}</span>{" "}
+          puntos registrados
+          {historyFetching && (
+            <span className="text-brand-500 animate-pulse">
+              · actualizando…
+            </span>
+          )}
         </div>
       )}
 
@@ -229,30 +245,33 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
             />
 
             {/* Historical track polyline */}
-            {history && history.length >= 2 && (() => {
-              const positions = history.map(
-                (p): [number, number] => [p.lat, p.lng],
-              );
-              return (
-                <>
-                  <FitBounds positions={positions} />
-                  <Polyline
-                    positions={positions}
-                    pathOptions={{
-                      color: "#f97316",
-                      weight: 3,
-                      opacity: 0.85,
-                      dashArray: undefined,
-                    }}
-                  />
-                  {/* Start dot */}
-                  <Marker
-                    position={positions[0]}
-                    title={`Inicio: ${new Date(history[0].recordedAt).toLocaleTimeString("es-CR")}`}
-                  />
-                </>
-              );
-            })()}
+            {history &&
+              history.length >= 2 &&
+              (() => {
+                const positions = history.map((p): [number, number] => [
+                  p.lat,
+                  p.lng,
+                ]);
+                return (
+                  <>
+                    <FitBounds positions={positions} />
+                    <Polyline
+                      positions={positions}
+                      pathOptions={{
+                        color: "#f97316",
+                        weight: 3,
+                        opacity: 0.85,
+                        dashArray: undefined,
+                      }}
+                    />
+                    {/* Start dot */}
+                    <Marker
+                      position={positions[0]}
+                      title={`Inicio: ${new Date(history[0].recordedAt).toLocaleTimeString("es-CR")}`}
+                    />
+                  </>
+                );
+              })()}
 
             {/* Current position marker */}
             <Marker position={[collar.lastLat, collar.lastLng]}>
@@ -272,8 +291,8 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
       )}
 
       <p className="text-center text-[10px] text-sand-400">
-        Posición en tiempo real · trayectoria de hasta 7 días ·
-        actualización automática cada 30 s.
+        Posición en tiempo real · trayectoria de hasta 7 días · actualización
+        automática cada 30 s.
       </p>
     </div>
   );

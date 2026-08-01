@@ -6,7 +6,9 @@ using PawTrack.Domain.Common;
 
 namespace PawTrack.Application.Bounties.Commands.ConfirmBountyDeposit;
 
-public sealed record ConfirmBountyDepositCommand(string DepositReference) : IRequest<Result<BountyDto>>;
+public sealed record ConfirmBountyDepositCommand(
+    string DepositReference,
+    Guid?  RequestingUserId = null) : IRequest<Result<BountyDto>>;
 
 public sealed class ConfirmBountyDepositCommandHandler(
     IBountyRepository bountyRepository,
@@ -21,6 +23,10 @@ public sealed class ConfirmBountyDepositCommandHandler(
         var bounty = await bountyRepository.GetByDepositReferenceAsync(request.DepositReference, cancellationToken);
         if (bounty is null)
             return Result.Failure<BountyDto>("Bounty deposit reference not found.");
+
+        // Authenticated path: only the pet owner who created the bounty can confirm their deposit
+        if (request.RequestingUserId.HasValue && bounty.OwnerId != request.RequestingUserId.Value)
+            return Result.Failure<BountyDto>("Access denied.");
 
         bounty.ConfirmDeposit();
         bountyRepository.Update(bounty);

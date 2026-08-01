@@ -1,7 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using PawTrack.Application.Certificates.Commands.IssueCertificate;
+using PawTrack.Application.Certificates.Queries.GetCertificatesForClinic;
 using PawTrack.Application.Certificates.Queries.GetCertificatesForPet;
 using PawTrack.Application.Certificates.Queries.VerifyCertificate;
 using PawTrack.Domain.Certificates;
@@ -14,6 +16,21 @@ namespace PawTrack.API.Controllers;
 [Authorize]
 public sealed class CertificatesController(ISender sender) : ControllerBase
 {
+    // ── GET /api/certificates/clinic/{clinicId}?page=1 ──────────────────────
+    [HttpGet("clinic/{clinicId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetForClinic(
+        Guid clinicId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await sender.Send(
+            new GetCertificatesForClinicQuery(clinicId, page, pageSize),
+            cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);
+    }
+
     // ── GET /api/certificates/pet/{petId} ─────────────────────────────────────
     [HttpGet("pet/{petId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -37,6 +54,7 @@ public sealed class CertificatesController(ISender sender) : ControllerBase
 
     // ── POST /api/certificates ────────────────────────────────────────────────
     [HttpPost]
+    [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> Issue(

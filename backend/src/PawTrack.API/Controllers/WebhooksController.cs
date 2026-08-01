@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using PawTrack.Application.Bounties.Commands.ConfirmBountyDeposit;
 using PawTrack.Application.Subscriptions.Commands.ActivateSubscription;
@@ -19,6 +20,7 @@ public sealed class WebhooksController(ISender sender, IConfiguration configurat
 {
     // ── POST /api/webhooks/sinpe ──────────────────────────────────────────────
     [HttpPost("sinpe")]
+    [EnableRateLimiting("public-api")] // 30/min — payment processors should not call more than once per reference
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

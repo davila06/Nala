@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using PawTrack.Application.Bounties.Commands.ConfirmBountyDeposit;
 using PawTrack.Application.Bounties.Commands.CreateBounty;
 using PawTrack.Application.Bounties.Commands.ReleaseBounty;
@@ -26,6 +27,7 @@ public sealed class BountiesController(ISender sender) : ControllerBase
 
     // ── POST /api/bounties ────────────────────────────────────────────────────
     [HttpPost]
+    [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> Create(
@@ -52,7 +54,10 @@ public sealed class BountiesController(ISender sender) : ControllerBase
         [FromBody] ConfirmDepositRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new ConfirmBountyDepositCommand(request.DepositReference), cancellationToken);
+        TryGetUserId(out var userId); // null-safe: webhook callers are anonymous
+        var result = await sender.Send(
+            new ConfirmBountyDepositCommand(request.DepositReference, userId == default ? null : userId),
+            cancellationToken);
 
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });

@@ -42,7 +42,7 @@ public sealed class CreateSubscriptionCommandHandler(
         var reference = paymentService.GenerateReference();
         var subscription = request.UserId.HasValue
             ? Subscription.CreateForUser(request.UserId.Value, request.Tier, reference, amount)
-            : Subscription.CreateForClinic(request.ClinicId!.Value, request.Tier, reference, amount);
+            : Subscription.CreateForClinic(request.ClinicId!.Value, request.RequestingUserId, request.Tier, reference, amount);
 
         await subscriptionRepository.AddAsync(subscription, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);

@@ -14,6 +14,7 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
 
         builder.Property(x => x.UserId);
         builder.Property(x => x.ClinicId);
+        builder.Property(x => x.ClinicOwnerId);
         builder.Property(x => x.Tier).IsRequired().HasConversion<string>().HasMaxLength(20);
         builder.Property(x => x.Status).IsRequired().HasConversion<string>().HasMaxLength(20);
         builder.Property(x => x.PaymentReference).IsRequired().HasMaxLength(8);

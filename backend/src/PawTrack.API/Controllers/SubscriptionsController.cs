@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using PawTrack.Application.Subscriptions.Commands.ActivateSubscription;
 using PawTrack.Application.Subscriptions.Commands.CancelSubscription;
 using PawTrack.Application.Subscriptions.Commands.CreateSubscription;
@@ -33,6 +34,7 @@ public sealed class SubscriptionsController(ISender sender) : ControllerBase
 
     // ── POST /api/subscriptions ──────────────────────────────────────────────
     [HttpPost]
+    [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> Create(
@@ -45,6 +47,7 @@ public sealed class SubscriptionsController(ISender sender) : ControllerBase
             new CreateSubscriptionCommand(
                 request.ClinicId is null ? userId : null,
                 request.ClinicId,
+                userId,
                 request.Tier),
             cancellationToken);
 
