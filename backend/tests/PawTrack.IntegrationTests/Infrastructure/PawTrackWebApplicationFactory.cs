@@ -79,14 +79,14 @@ public sealed class PawTrackWebApplicationFactory : WebApplicationFactory<Progra
             // uses the factory's key. This post-configuration aligns them.
             services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
             {
-                var cfg    = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
+                var cfg = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
                 var testKey = cfg["Jwt:Key"];
                 if (testKey is not null)
                 {
                     options.TokenValidationParameters.IssuerSigningKey =
                         new SymmetricSecurityKey(Encoding.UTF8.GetBytes(testKey));
-                    options.TokenValidationParameters.ValidIssuer   = cfg["Jwt:Issuer"];
-                    options.TokenValidationParameters.ValidAudience  = cfg["Jwt:Audience"];
+                    options.TokenValidationParameters.ValidIssuer = cfg["Jwt:Issuer"];
+                    options.TokenValidationParameters.ValidAudience = cfg["Jwt:Audience"];
                 }
             });
         });

@@ -83,24 +83,24 @@ public sealed class AuthHelperDiagnosticTests(PawTrackWebApplicationFactory fact
 
         using (var scope = factory.Services.CreateScope())
         {
-            var mediator    = scope.ServiceProvider.GetRequiredService<ISender>();
+            var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
             var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>() as CapturingEmailSender;
             await mediator.Send(new RegisterCommand("JWT Test", email, "SecurePass1!"));
             var token = emailSender!.LastVerificationToken!;
             await mediator.Send(new VerifyEmailCommand(token));
 
-            var db   = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
             var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
-            userId   = user!.Id;
+            userId = user!.Id;
         }
 
         // Manually generate JWT using the test key
-        var config  = factory.Services.GetRequiredService<IConfiguration>();
-        var jwtKey  = config["Jwt:Key"]!;
-        var issuer  = config["Jwt:Issuer"]!;
-        var audience= config["Jwt:Audience"]!;
+        var config = factory.Services.GetRequiredService<IConfiguration>();
+        var jwtKey = config["Jwt:Key"]!;
+        var issuer = config["Jwt:Issuer"]!;
+        var audience = config["Jwt:Audience"]!;
 
-        var key         = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var claims = new[]
         {

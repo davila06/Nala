@@ -43,7 +43,13 @@ public sealed class LostPetEventConfiguration : IEntityTypeConfiguration<LostPet
         builder.Property(e => e.ReunionLat);
         builder.Property(e => e.ReunionLng);
         builder.Property(e => e.RecoveryDistanceMeters);
-        builder.Property(e => e.RecoveryTime);
+        // time column can only store up to 23:59:59; multi-day recoveries overflow it.
+        // Store ticks as bigint so any duration fits.
+        builder.Property(e => e.RecoveryTime)
+            .HasColumnType("bigint")
+            .HasConversion(
+                ts => ts.HasValue ? (long?)ts.Value.Ticks : null,
+                ticks => ticks.HasValue ? (TimeSpan?)TimeSpan.FromTicks(ticks.Value) : null);
         builder.Property(e => e.CantonName).HasMaxLength(120);
 
         builder.HasIndex(e => e.PetId);
