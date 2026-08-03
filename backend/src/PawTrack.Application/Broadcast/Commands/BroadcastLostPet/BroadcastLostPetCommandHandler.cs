@@ -75,6 +75,7 @@ public sealed class BroadcastLostPetCommandHandler(
             PetSpecies: pet.Species.ToString(),
             PetBreed: pet.Breed,
             OwnerEmail: owner.Email,
+            OwnerContactPhone: lostEvent.ContactPhone,
             OwnerContactName: lostEvent.ContactName ?? owner.Name,
             PetProfileUrl: petProfileUrl,
             TrackingUrl: trackingUrl,

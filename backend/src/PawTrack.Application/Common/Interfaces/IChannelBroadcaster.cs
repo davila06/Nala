@@ -41,6 +41,8 @@ public sealed record BroadcastMessageContext(
     string? PetBreed,
     /// <see cref="string"/> Owner email — used by the Email channel broadcaster only.
     string OwnerEmail,
+    /// <summary>Owner's WhatsApp-capable phone (from LostPetEvent.ContactPhone) — used to send owner a broadcast confirmation.</summary>
+    string? OwnerContactPhone,
     string? OwnerContactName,
     string PetProfileUrl,
     string TrackingUrl,

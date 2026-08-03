@@ -100,6 +100,11 @@ const NAV_EXTRA_CLINIC = {
   label: "Panel Clínica",
   icon: null,
 };
+const NAV_EXTRA_MUNICIPALITY = {
+  to: "/municipalidad/portal",
+  label: "Portal Municipal",
+  icon: null,
+};
 const NAV_EXTRA_ADMIN = { to: "/admin", label: "Administración", icon: null };
 const NAV_EXTRA_ADMIN_STATS = {
   to: "/estadisticas",
@@ -111,6 +116,7 @@ const ROLE_BADGE: Record<string, { label: string; cls: string }> = {
   Owner: { label: "Propietario", cls: "bg-sand-100 text-sand-600" },
   Ally: { label: "Aliado", cls: "bg-brand-50 text-brand-700" },
   Clinic: { label: "Clínica", cls: "bg-blue-50 text-blue-700" },
+  Municipality: { label: "Municipalidad", cls: "bg-trust-50 text-trust-700" },
   Admin: { label: "Admin", cls: "bg-red-50 text-red-600" },
 };
 
@@ -201,9 +207,11 @@ export default function AuthenticatedLayout() {
       ? NAV_EXTRA_ALLY
       : user?.role === "Clinic"
         ? NAV_EXTRA_CLINIC
-        : user?.role === "Admin"
-          ? NAV_EXTRA_ADMIN
-          : null;
+        : user?.role === "Municipality"
+          ? NAV_EXTRA_MUNICIPALITY
+          : user?.role === "Admin"
+            ? NAV_EXTRA_ADMIN
+            : null;
 
   const adminStatsNav = user?.role === "Admin" ? NAV_EXTRA_ADMIN_STATS : null;
 

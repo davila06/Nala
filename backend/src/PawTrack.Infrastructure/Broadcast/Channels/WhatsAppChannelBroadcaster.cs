@@ -32,8 +32,8 @@ public sealed class WhatsAppChannelBroadcaster(
     {
         if (context.RestrictToPaidChannels) return null; // Free users get email only
 
-        var phoneNumberId  = configuration["Broadcast:WhatsApp:PhoneNumberId"];
-        var accessToken    = configuration["Broadcast:WhatsApp:AccessToken"];
+        var phoneNumberId = configuration["Broadcast:WhatsApp:PhoneNumberId"];
+        var accessToken = configuration["Broadcast:WhatsApp:AccessToken"];
         var recipientListUrl = configuration["Broadcast:WhatsApp:RecipientListUrl"]; // comma-sep WA numbers
 
         if (string.IsNullOrWhiteSpace(phoneNumberId) || string.IsNullOrWhiteSpace(accessToken))
@@ -45,10 +45,25 @@ public sealed class WhatsAppChannelBroadcaster(
         }
 
         var body = BuildMessageBody(context);
-        var recipients = (recipientListUrl ?? string.Empty)
+
+        // Merge owner's WA number (if provided) with the static ally broadcast list
+        var staticRecipients = (recipientListUrl ?? string.Empty)
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-        if (recipients.Length == 0)
+        var recipients = new List<string>(staticRecipients);
+        if (!string.IsNullOrWhiteSpace(context.OwnerContactPhone))
+        {
+            // Normalise CR phone to E.164: strip spaces/dashes, add +506 if needed
+            var phone = context.OwnerContactPhone.Trim().Replace(" ", "").Replace("-", "");
+            if (!phone.StartsWith("+") && !phone.StartsWith("506"))
+                phone = "506" + phone;
+            if (!phone.StartsWith("+"))
+                phone = "+" + phone;
+            if (!recipients.Contains(phone))
+                recipients.Insert(0, phone); // owner notification first
+        }
+
+        if (recipients.Count == 0)
         {
             logger.LogWarning("WhatsApp broadcast: no recipients configured. EventId={EventId}", context.LostPetEventId);
             return null;
@@ -64,7 +79,7 @@ public sealed class WhatsAppChannelBroadcaster(
             var payload = new
             {
                 messaging_product = "whatsapp",
-                recipient_type    = "individual",
+                recipient_type = "individual",
                 to,
                 type = "text",
                 text = new { preview_url = true, body },

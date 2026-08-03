@@ -163,6 +163,36 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         return Ok(result.Value);
     }
 
+    // ── View tracking — fire-and-forget, anonymous ────────────────────────────
+    /// <summary>
+    /// Records a clinic profile impression. Called by the frontend when a user opens a
+    /// clinic popup in the map ("map") or visits the clinic directory ("directory").
+    /// Best-effort: always returns 204 regardless of storage outcome.
+    /// </summary>
+    [HttpPost("{clinicId:guid}/view")]
+    [AllowAnonymous]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public IActionResult TrackView(Guid clinicId, [FromQuery] string source = "map")
+    {
+        var allowed = new[] { "map", "directory", "search", "alert" };
+        var safeSource = allowed.Contains(source, StringComparer.OrdinalIgnoreCase)
+            ? source.ToLowerInvariant()
+            : "map";
+
+        // IP hash for deduplication — never stored raw (OWASP PII requirement)
+        var rawIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+        string? ipHash = rawIp is not null
+            ? Convert.ToHexString(
+                System.Security.Cryptography.SHA256.HashData(
+                    System.Text.Encoding.UTF8.GetBytes(rawIp)))
+                .ToLowerInvariant()
+            : null;
+
+        _ = sender.Send(new TrackClinicViewCommand(clinicId, safeSource, ipHash));
+        return NoContent();
+    }
+
     // ── Visibility stats (Plus/Partner) ──────────────────────────────────────
 
     [HttpGet("me/visibility-stats")]

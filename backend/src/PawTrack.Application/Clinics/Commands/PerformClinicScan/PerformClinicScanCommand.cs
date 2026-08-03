@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using MediatR;
+using PawTrack.Application.Clinics.Commands.TrackClinicView;
 using PawTrack.Application.Clinics.DTOs;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Clinics;
@@ -19,6 +20,7 @@ public sealed record PerformClinicScanCommand(
 public sealed class PerformClinicScanCommandHandler(
     IClinicRepository clinicRepository,
     IClinicScanRepository clinicScanRepository,
+    IClinicProfileViewRepository viewRepository,
     IPetRepository petRepository,
     IUserRepository userRepository,
     INotificationDispatcher notificationDispatcher,
@@ -83,6 +85,11 @@ public sealed class PerformClinicScanCommandHandler(
             clinic.Name,
             clinic.Address,
             cancellationToken);
+
+        // Fire-and-forget visibility tracking — clinic appeared in scan result shown to owner
+        var view = Domain.Clinics.ClinicProfileView.Record(clinic.Id, "scan_result");
+        _ = viewRepository.AddAsync(view, cancellationToken)
+            .ContinueWith(_ => unitOfWork.SaveChangesAsync(CancellationToken.None), TaskContinuationOptions.OnlyOnRanToCompletion);
 
         return Result.Success(new ClinicScanResultDto(
             ScanId: scan.Id,

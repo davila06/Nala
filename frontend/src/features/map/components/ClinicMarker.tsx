@@ -1,6 +1,7 @@
 import { divIcon } from "leaflet";
 import { Marker, Popup } from "react-leaflet";
 import type { PublicClinicDto } from "@/features/clinics/api/clinicsApi";
+import { clinicsApi } from "@/features/clinics/api/clinicsApi";
 
 // Featured (Plus/Partner) clinics get a larger, bordered icon
 const featuredIcon = divIcon({
@@ -35,7 +36,11 @@ export function ClinicMarker({ clinic }: { clinic: PublicClinicDto }) {
   const icon = clinic.isFeatured ? featuredIcon : standardIcon;
 
   return (
-    <Marker position={[clinic.lat, clinic.lng]} icon={icon}>
+    <Marker
+      position={[clinic.lat, clinic.lng]}
+      icon={icon}
+      eventHandlers={{ popupopen: () => clinicsApi.trackView(clinic.id, "map") }}
+    >
       <Popup maxWidth={220}>
         <div className="text-sm space-y-1.5" style={{ minWidth: 180 }}>
           {clinic.logoUrl && (

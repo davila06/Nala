@@ -154,11 +154,22 @@ export const clinicsApi = {
 
   getNearbyAlerts: (radiusKm = 15): Promise<NearbyAlertDto[]> =>
     apiClient
-      .get<NearbyAlertDto[]>("/clinics/me/nearby-alerts", { params: { radiusKm } })
+      .get<
+        NearbyAlertDto[]
+      >("/clinics/me/nearby-alerts", { params: { radiusKm } })
       .then((r) => r.data),
 
   getVisibilityStats: (days = 30): Promise<ClinicVisibilityStatsDto> =>
     apiClient
-      .get<ClinicVisibilityStatsDto>("/clinics/me/visibility-stats", { params: { days } })
+      .get<ClinicVisibilityStatsDto>("/clinics/me/visibility-stats", {
+        params: { days },
+      })
       .then((r) => r.data),
+
+  // Fire-and-forget — called when a user opens a clinic popup or profile
+  trackView: (clinicId: string, source: "map" | "directory" | "search" | "alert"): void => {
+    void apiClient
+      .post(`/clinics/${clinicId}/view`, null, { params: { source } })
+      .catch(() => undefined);
+  },
 };
