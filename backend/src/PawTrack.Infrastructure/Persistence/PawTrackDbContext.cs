@@ -61,6 +61,7 @@ public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> option
     public DbSet<CollarLocation> CollarLocations => Set<CollarLocation>();
     public DbSet<VetCertificate> VetCertificates => Set<VetCertificate>();
     public DbSet<CapturedAnimal> CapturedAnimals => Set<CapturedAnimal>();
+    public DbSet<MunicipalityProfile> MunicipalityProfiles => Set<MunicipalityProfile>();
     public DbSet<AiSearchUsage> AiSearchUsages => Set<AiSearchUsage>();
     public DbSet<FamilyAccount> FamilyAccounts => Set<FamilyAccount>();
     public DbSet<FamilyMembership> FamilyMemberships => Set<FamilyMembership>();

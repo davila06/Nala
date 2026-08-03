@@ -197,6 +197,8 @@ public static class InfrastructureServiceCollectionExtensions
 
         // Municipalities
         services.AddScoped<ICapturedAnimalRepository, CapturedAnimalRepository>();
+        services.AddScoped<IMunicipalProfileRepository, MunicipalProfileRepository>();
+        services.AddScoped<IMunicipalSubscriptionService, MunicipalSubscriptionService>();
 
         // Tractive GPS polling (runs every 5 min)
         services.AddSingleton<ITractiveService, TractiveService>();

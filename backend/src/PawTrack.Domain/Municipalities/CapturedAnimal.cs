@@ -58,6 +58,13 @@ public sealed class CapturedAnimal
 
     public void UpdateStatus(CapturedAnimalStatus status) => Status = status;
 
+    public void AppendNote(string note)
+    {
+        Notes = string.IsNullOrWhiteSpace(Notes)
+            ? note
+            : $"{Notes}\n{note}";
+    }
+
     public void UpdateDetails(string? notes, string? collarChipNumber)
     {
         Notes = notes;
