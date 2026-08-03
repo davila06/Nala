@@ -9,6 +9,7 @@ using PawTrack.Application.LostPets.Queries.GetCaseRoom;
 using PawTrack.Application.LostPets.Queries.GetLostPetContact;
 using PawTrack.Application.LostPets.Queries.GetLostPetEventById;
 using PawTrack.Application.Sightings.Queries.GetMovementPrediction;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.LostPets;
 using System.Security.Claims;
 
@@ -17,7 +18,7 @@ namespace PawTrack.API.Controllers;
 [ApiController]
 [Route("api/lost-pets")]
 [Authorize]
-public sealed class LostPetsController(ISender sender) : ControllerBase
+public sealed class LostPetsController(ISender sender, ISubscriptionService subscriptionService) : ControllerBase
 {
     // ── POST /api/lost-pets ───────────────────────────────────────────────────
     [HttpPost]
@@ -206,8 +207,13 @@ public sealed class LostPetsController(ISender sender) : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status402PaymentRequired)]
     public async Task<IActionResult> GetMovementPrediction(Guid id, CancellationToken cancellationToken)
     {
-        if (!TryGetUserId(out _))
+        if (!TryGetUserId(out var userId))
             return Unauthorized();
+
+        var isPlus = await subscriptionService.IsAtLeastPlusAsync(userId, cancellationToken);
+        if (!isPlus)
+            return StatusCode(StatusCodes.Status402PaymentRequired,
+                new ProblemDetails { Detail = "La predicción de movimiento requiere el plan Plus.", Status = 402 });
 
         var result = await sender.Send(new GetMovementPredictionQuery(id), cancellationToken);
         if (result.IsFailure)

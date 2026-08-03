@@ -6,4 +6,5 @@ public enum UserRole
     Ally,
     Admin,
     Clinic,
+    Municipality,
 }

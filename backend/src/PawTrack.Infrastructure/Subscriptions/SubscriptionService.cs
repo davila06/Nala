@@ -33,7 +33,7 @@ public sealed class SubscriptionService(ISubscriptionRepository repository) : IS
         };
 
     public async Task<int> GetScanHistoryLimitAsync(Guid userId, CancellationToken ct = default) =>
-        await IsAtLeastPlusAsync(userId, ct) ? 50 : 5;
+        await IsAtLeastPlusAsync(userId, ct) ? int.MaxValue : 5;
 
     public async Task<int?> GetMonthlyAiSearchLimitAsync(Guid userId, CancellationToken ct = default) =>
         await IsAtLeastPlusAsync(userId, ct) ? (int?)null : 3;

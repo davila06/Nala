@@ -52,7 +52,9 @@ public sealed class LostPetSearchRadiusCalculator : ILostPetSearchRadiusCalculat
         var baseRadius = RadiusMatrix[key][bracket];
 
         if (tierMultiplier < 0) return 50_000;   // Familia: effective 50 km cap
-        return (int)Math.Round(baseRadius * tierMultiplier);
+        // Enforce pricing floor: Plus must be at minimum 10 km
+        var calculated = (int)Math.Round(baseRadius * tierMultiplier);
+        return tierMultiplier > 1.0 ? Math.Max(calculated, 10_000) : calculated;
     }
 
     private static string ResolveKey(PetSpecies species, string? breed) => species switch

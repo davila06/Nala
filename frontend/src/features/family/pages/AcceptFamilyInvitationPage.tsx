@@ -9,7 +9,9 @@ export default function AcceptFamilyInvitationPage() {
   const navigate = useNavigate();
   const isAuthenticated = !!useAuthStore((s) => s.accessToken);
   const accept = useAcceptFamilyInvitation();
-  const [status, setStatus] = useState<"pending" | "success" | "error">("pending");
+  const [status, setStatus] = useState<"pending" | "success" | "error">(
+    "pending",
+  );
   const [errorMsg, setErrorMsg] = useState<string>("");
 
   useEffect(() => {
@@ -54,9 +56,7 @@ export default function AcceptFamilyInvitationPage() {
         {status === "pending" && (
           <div className="mt-6 space-y-3">
             <Skeleton className="mx-auto h-5 w-48 rounded" />
-            <p className="text-sm text-sand-500">
-              Procesando tu invitación…
-            </p>
+            <p className="text-sm text-sand-500">Procesando tu invitación…</p>
           </div>
         )}
 
@@ -65,9 +65,7 @@ export default function AcceptFamilyInvitationPage() {
             <p className="text-lg font-display font-semibold text-trust-700">
               ¡Bienvenido a la familia! 🎉
             </p>
-            <p className="text-sm text-sand-500">
-              Redirigiendo a tu perfil…
-            </p>
+            <p className="text-sm text-sand-500">Redirigiendo a tu perfil…</p>
           </div>
         )}
 

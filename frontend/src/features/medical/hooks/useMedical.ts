@@ -1,8 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  medicalApi,
-  type AddMedicalRecordPayload,
-} from "../api/medicalApi";
+import { medicalApi, type AddMedicalRecordPayload } from "../api/medicalApi";
 
 export function useMedicalHistory(petId: string) {
   return useQuery({

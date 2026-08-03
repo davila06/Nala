@@ -87,7 +87,8 @@ function ExistingFamily() {
 
   if (!family) return null;
 
-  const isOwner = family.members.find((m) => m.userId === currentUserId)?.role === "Owner";
+  const isOwner =
+    family.members.find((m) => m.userId === currentUserId)?.role === "Owner";
 
   const handleInvite = () => {
     if (!inviteEmail.trim()) return;
@@ -186,15 +187,18 @@ function CreateFamilyForm() {
     create.mutate(name.trim(), {
       onSuccess: () => toast.success("¡Cuenta familiar creada!"),
       onError: (err: unknown) =>
-        toast.error((err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "No se pudo crear la cuenta"),
+        toast.error(
+          (err as { response?: { data?: { detail?: string } } })?.response?.data
+            ?.detail ?? "No se pudo crear la cuenta",
+        ),
     });
   };
 
   return (
     <div className="rounded-2xl border border-sand-200 bg-sand-50 p-4 space-y-3">
       <p className="text-sm text-sand-600">
-        Con el plan Familia puedes agregar hasta 4 miembros adicionales.
-        Todos compartirán acceso al historial médico de tus mascotas.
+        Con el plan Familia puedes agregar hasta 4 miembros adicionales. Todos
+        compartirán acceso al historial médico de tus mascotas.
       </p>
       <div className="flex gap-2">
         <Input

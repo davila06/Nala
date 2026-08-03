@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using PawTrack.Application.Bounties.Commands.ClaimBounty;
 using PawTrack.Application.Bounties.Commands.ConfirmBountyDeposit;
 using PawTrack.Application.Bounties.Commands.CreateBounty;
 using PawTrack.Application.Bounties.Commands.ReleaseBounty;
@@ -79,6 +80,22 @@ public sealed class BountiesController(ISender sender) : ControllerBase
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
 
         return Ok(result.Value);
+    }
+
+    // ── PUT /api/bounties/event/{lostEventId}/claim ───────────────────────────
+    [HttpPut("event/{lostEventId:guid}/claim")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> Claim(Guid lostEventId, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
+        var result = await sender.Send(new ClaimBountyCommand(lostEventId, userId), cancellationToken);
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
+
+        return result.Value is null ? NoContent() : Ok(result.Value);
     }
 
     private bool TryGetUserId(out Guid userId)

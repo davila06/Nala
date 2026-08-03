@@ -128,4 +128,11 @@ public interface INotificationDispatcher
         double lostLat,
         double lostLng,
         CancellationToken cancellationToken = default);
+    /// <summary>Notifies a pet owner of an upcoming vet appointment or vaccination due date.</summary>
+    Task DispatchVetReminderAsync(
+        Guid ownerId,
+        string petName,
+        string reminderTitle,
+        DateOnly dueDate,
+        CancellationToken cancellationToken = default);
 }

@@ -1,4 +1,5 @@
 using MediatR;
+using PawTrack.Application.Bounties.Commands.ClaimBounty;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Common;
 
@@ -12,8 +13,8 @@ namespace PawTrack.Application.Safety.Commands.VerifyHandoverCode;
 /// Returns <c>true</c> on success, <c>false</c> if the code is invalid or expired.
 /// </summary>
 public sealed record VerifyHandoverCodeCommand(
-    Guid   LostPetEventId,
-    Guid   VerifierUserId,
+    Guid LostPetEventId,
+    Guid VerifierUserId,
     string Code)
     : IRequest<Result<bool>>;
 
@@ -21,13 +22,14 @@ public sealed record VerifyHandoverCodeCommand(
 
 public sealed class VerifyHandoverCodeCommandHandler(
     IHandoverCodeRepository handoverCodeRepository,
-    ILostPetRepository      lostPetRepository,
-    IUnitOfWork             unitOfWork)
+    ILostPetRepository lostPetRepository,
+    ISender sender,
+    IUnitOfWork unitOfWork)
     : IRequestHandler<VerifyHandoverCodeCommand, Result<bool>>
 {
     public async Task<Result<bool>> Handle(
         VerifyHandoverCodeCommand command,
-        CancellationToken         cancellationToken)
+        CancellationToken cancellationToken)
     {
         var lostEvent = await lostPetRepository.GetByIdAsync(command.LostPetEventId, cancellationToken);
         if (lostEvent is null)
@@ -49,6 +51,9 @@ public sealed class VerifyHandoverCodeCommandHandler(
         code.MarkAsUsed(command.VerifierUserId);
         handoverCodeRepository.Update(code);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // Auto-claim the bounty (if one exists for this event) — fire-and-forget safe
+        _ = sender.Send(new ClaimBountyCommand(command.LostPetEventId, command.VerifierUserId), cancellationToken);
 
         return Result.Success(true);
     }

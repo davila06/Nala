@@ -20,6 +20,7 @@ public sealed record ExportMedicalHistoryCommand(Guid PetId, Guid RequestingUser
 public sealed class ExportMedicalHistoryCommandHandler(
     IPetRepository petRepository,
     IMedicalRepository medicalRepository,
+    IFamilyRepository familyRepository,
     ISubscriptionService subscriptionService,
     IMedicalPdfExporter pdfExporter)
     : IRequestHandler<ExportMedicalHistoryCommand, Result<byte[]>>
@@ -32,7 +33,11 @@ public sealed class ExportMedicalHistoryCommandHandler(
 
         var pet = await petRepository.GetByIdAsync(request.PetId, ct);
         if (pet is null) return Result.Failure<byte[]>("Mascota no encontrada.");
-        if (pet.OwnerId != request.RequestingUserId) return Result.Failure<byte[]>("Acceso denegado.");
+
+        // Allow family members to export
+        var canAccess = pet.OwnerId == request.RequestingUserId
+            || (await familyRepository.GetActiveMemberIdsAsync(pet.OwnerId, ct)).Contains(request.RequestingUserId);
+        if (!canAccess) return Result.Failure<byte[]>("Acceso denegado.");
 
         var records = (await medicalRepository.GetByPetIdAsync(request.PetId, ct))
             .Select(MedicalRecordDto.FromDomain).ToList();

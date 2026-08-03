@@ -9,7 +9,9 @@ export function useMyFamily() {
     queryFn: familyApi.getMyFamily,
     staleTime: 30_000,
     retry: (count, err: { response?: { status?: number } }) =>
-      err?.response?.status !== 403 && err?.response?.status !== 404 && count < 2,
+      err?.response?.status !== 403 &&
+      err?.response?.status !== 404 &&
+      count < 2,
   });
 }
 

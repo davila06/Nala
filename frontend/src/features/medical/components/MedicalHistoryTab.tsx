@@ -83,7 +83,8 @@ function ReminderCard({
 }) {
   const complete = useCompleteReminder(petId);
   const isOverdue =
-    !reminder.isCompleted && reminder.dueDate < new Date().toISOString().slice(0, 10);
+    !reminder.isCompleted &&
+    reminder.dueDate < new Date().toISOString().slice(0, 10);
 
   return (
     <li
@@ -299,7 +300,8 @@ function AddRecordForm({
 
 export function MedicalHistoryTab({ petId }: { petId: string }) {
   const { data: records, isLoading: loadingRecords } = useMedicalHistory(petId);
-  const { data: reminders, isLoading: loadingReminders } = useVetReminders(petId);
+  const { data: reminders, isLoading: loadingReminders } =
+    useVetReminders(petId);
   const exportPdf = useExportMedicalPdf(petId);
   const [showAddForm, setShowAddForm] = useState(false);
 

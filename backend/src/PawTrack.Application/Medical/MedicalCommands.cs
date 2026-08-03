@@ -6,6 +6,21 @@ using PawTrack.Domain.Medical;
 
 namespace PawTrack.Application.Medical;
 
+// ── Shared family access helper ───────────────────────────────────────────────
+
+file static class FamilyAccessChecker
+{
+    internal static async Task<bool> CanAccessPetAsync(
+        Guid petOwnerId, Guid userId,
+        IFamilyRepository familyRepository,
+        CancellationToken ct)
+    {
+        if (petOwnerId == userId) return true;
+        var memberIds = await familyRepository.GetActiveMemberIdsAsync(petOwnerId, ct);
+        return memberIds.Contains(userId);
+    }
+}
+
 // ── DTOs ──────────────────────────────────────────────────────────────────────
 
 public sealed record MedicalRecordDto(
@@ -56,6 +71,7 @@ public sealed record AddMedicalRecordCommand(
 public sealed class AddMedicalRecordCommandHandler(
     IPetRepository petRepository,
     IMedicalRepository medicalRepository,
+    IFamilyRepository familyRepository,
     ISubscriptionService subscriptionService,
     IBlobStorageService blobStorage,
     IUnitOfWork unitOfWork)
@@ -72,7 +88,7 @@ public sealed class AddMedicalRecordCommandHandler(
 
         var pet = await petRepository.GetByIdAsync(request.PetId, ct);
         if (pet is null) return Result.Failure<MedicalRecordDto>("Mascota no encontrada.");
-        if (pet.OwnerId != request.RequestingUserId)
+        if (!await FamilyAccessChecker.CanAccessPetAsync(pet.OwnerId, request.RequestingUserId, familyRepository, ct))
             return Result.Failure<MedicalRecordDto>("Acceso denegado.");
 
         var record = MedicalRecord.Create(
@@ -116,6 +132,7 @@ public sealed record GetMedicalHistoryQuery(Guid PetId, Guid RequestingUserId)
 public sealed class GetMedicalHistoryQueryHandler(
     IPetRepository petRepository,
     IMedicalRepository medicalRepository,
+    IFamilyRepository familyRepository,
     ISubscriptionService subscriptionService)
     : IRequestHandler<GetMedicalHistoryQuery, Result<IReadOnlyList<MedicalRecordDto>>>
 {
@@ -128,7 +145,7 @@ public sealed class GetMedicalHistoryQueryHandler(
 
         var pet = await petRepository.GetByIdAsync(request.PetId, ct);
         if (pet is null) return Result.Failure<IReadOnlyList<MedicalRecordDto>>("Mascota no encontrada.");
-        if (pet.OwnerId != request.RequestingUserId)
+        if (!await FamilyAccessChecker.CanAccessPetAsync(pet.OwnerId, request.RequestingUserId, familyRepository, ct))
             return Result.Failure<IReadOnlyList<MedicalRecordDto>>("Acceso denegado.");
 
         var records = await medicalRepository.GetByPetIdAsync(request.PetId, ct);
@@ -144,6 +161,7 @@ public sealed record GetVetRemindersQuery(Guid PetId, Guid RequestingUserId)
 
 public sealed class GetVetRemindersQueryHandler(
     IPetRepository petRepository,
+    IFamilyRepository familyRepository,
     IMedicalRepository medicalRepository)
     : IRequestHandler<GetVetRemindersQuery, Result<IReadOnlyList<VetReminderDto>>>
 {
@@ -152,7 +170,7 @@ public sealed class GetVetRemindersQueryHandler(
     {
         var pet = await petRepository.GetByIdAsync(request.PetId, ct);
         if (pet is null) return Result.Failure<IReadOnlyList<VetReminderDto>>("Mascota no encontrada.");
-        if (pet.OwnerId != request.RequestingUserId)
+        if (!await FamilyAccessChecker.CanAccessPetAsync(pet.OwnerId, request.RequestingUserId, familyRepository, ct))
             return Result.Failure<IReadOnlyList<VetReminderDto>>("Acceso denegado.");
 
         var reminders = await medicalRepository.GetUpcomingRemindersAsync(request.PetId, ct);

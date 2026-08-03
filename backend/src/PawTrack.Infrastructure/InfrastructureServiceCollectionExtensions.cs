@@ -192,6 +192,8 @@ public static class InfrastructureServiceCollectionExtensions
 
         // Medical records + vet reminders
         services.AddScoped<IMedicalRepository, MedicalRepository>();
+        services.AddScoped<PawTrack.Infrastructure.Medical.VetReminderNotificationJob>();
+        services.AddHostedService<PawTrack.Infrastructure.Medical.VetReminderHostedService>();
 
         // Municipalities
         services.AddScoped<ICapturedAnimalRepository, CapturedAnimalRepository>();

@@ -11,27 +11,24 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<long>(
+            // SQL Server cannot ALTER a `time` column directly to `bigint` — drop and recreate.
+            migrationBuilder.DropColumn(name: "RecoveryTime", table: "LostPetEvents");
+            migrationBuilder.AddColumn<long>(
                 name: "RecoveryTime",
                 table: "LostPetEvents",
                 type: "bigint",
-                nullable: true,
-                oldClrType: typeof(TimeSpan),
-                oldType: "time",
-                oldNullable: true);
+                nullable: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<TimeSpan>(
+            migrationBuilder.DropColumn(name: "RecoveryTime", table: "LostPetEvents");
+            migrationBuilder.AddColumn<TimeSpan>(
                 name: "RecoveryTime",
                 table: "LostPetEvents",
                 type: "time",
-                nullable: true,
-                oldClrType: typeof(long),
-                oldType: "bigint",
-                oldNullable: true);
+                nullable: true);
         }
     }
 }

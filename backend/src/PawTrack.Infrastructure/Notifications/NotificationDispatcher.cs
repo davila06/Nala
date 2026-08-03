@@ -45,8 +45,16 @@ public sealed class NotificationDispatcher(
         // 2. Email (non-blocking failure tolerance)
         await emailSender.SendLostPetAlertAsync(ownerEmail, ownerName, petName, cancellationToken);
 
-        // 3. Push
+        // 3. Push — owner + family members (Familia plan)
         await pushNotificationService.SendAsync(ownerId, title, body, cancellationToken: cancellationToken);
+
+        var isFamilia = await subscriptionService.IsFamiliaAsync(ownerId, cancellationToken);
+        if (isFamilia)
+        {
+            var memberIds = await familyRepository.GetActiveMemberIdsAsync(ownerId, cancellationToken);
+            foreach (var memberId in memberIds.Where(id => id != ownerId))
+                await TrySendPushAsync(memberId, title, body, null, cancellationToken);
+        }
     }
 
     public async Task DispatchPetReunitedAsync(
@@ -111,8 +119,16 @@ public sealed class NotificationDispatcher(
         // 2. Email
         await emailSender.SendSightingAlertAsync(ownerEmail, ownerName, petName, cancellationToken);
 
-        // 3. Push
+        // 3. Push — owner + family members (Familia plan)
         await pushNotificationService.SendAsync(ownerId, title, body, cancellationToken: cancellationToken);
+
+        var isFamilia = await subscriptionService.IsFamiliaAsync(ownerId, cancellationToken);
+        if (isFamilia)
+        {
+            var memberIds = await familyRepository.GetActiveMemberIdsAsync(ownerId, cancellationToken);
+            foreach (var memberId in memberIds.Where(id => id != ownerId))
+                await TrySendPushAsync(memberId, title, body, null, cancellationToken);
+        }
     }
 
     // ── Geofenced neighbour alerts ────────────────────────────────────────────────
@@ -547,6 +563,21 @@ public sealed class NotificationDispatcher(
             "🚨 Mascota perdida cerca de tu clínica",
             $"{petName} fue reportada perdida en tu zona.",
             new PushNotificationMetadata(Url: $"/map"),
+            cancellationToken);
+    }
+
+    public async Task DispatchVetReminderAsync(
+        Guid ownerId,
+        string petName,
+        string reminderTitle,
+        DateOnly dueDate,
+        CancellationToken cancellationToken = default)
+    {
+        await TrySendPushAsync(
+            ownerId,
+            $"📅 Recordatorio veterinario — {petName}",
+            $"{reminderTitle} · {dueDate:dd/MM/yyyy}",
+            new PushNotificationMetadata(Url: "/dashboard"),
             cancellationToken);
     }
 }

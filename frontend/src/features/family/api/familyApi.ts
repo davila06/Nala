@@ -37,12 +37,8 @@ export const familyApi = {
       .then((r) => r.data),
 
   acceptInvitation: (token: string): Promise<void> =>
-    apiClient
-      .post(`/family/invitations/${token}/accept`)
-      .then(() => undefined),
+    apiClient.post(`/family/invitations/${token}/accept`).then(() => undefined),
 
   removeMember: (memberId: string): Promise<void> =>
-    apiClient
-      .delete(`/family/members/${memberId}`)
-      .then(() => undefined),
+    apiClient.delete(`/family/members/${memberId}`).then(() => undefined),
 };

@@ -11,7 +11,7 @@ namespace PawTrack.API.Controllers;
 
 [ApiController]
 [Route("api/municipalities")]
-[Authorize]
+[Authorize(Roles = "Municipality,Admin")]
 public sealed class MunicipalController(ISender sender) : ControllerBase
 {
     // ── GET /api/municipalities/captures?canton=&status=&page=&pageSize= ─────
