@@ -7,6 +7,7 @@ using PawTrack.Application.Clinics.Commands.ManageApiKey;
 using PawTrack.Application.Clinics.Commands.PerformClinicScan;
 using PawTrack.Application.Clinics.Commands.RegisterClinic;
 using PawTrack.Application.Clinics.Commands.ReviewClinic;
+using PawTrack.Application.Clinics.Commands.TrackClinicView;
 using PawTrack.Application.Clinics.Queries.GetClinicScanStats;
 using PawTrack.Application.Clinics.Queries.GetMyClinic;
 using PawTrack.Application.Clinics.Queries.GetNearbyActiveAlerts;
@@ -159,6 +160,30 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetPublicClinicsQuery(lat, lng), cancellationToken);
+        return Ok(result.Value);
+    }
+
+    // ── Visibility stats (Plus/Partner) ──────────────────────────────────────
+
+    [HttpGet("me/visibility-stats")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status402PaymentRequired)]
+    public async Task<IActionResult> GetVisibilityStats(
+        [FromQuery] int days = 30,
+        CancellationToken cancellationToken = default)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(
+            new GetClinicVisibilityStatsQuery(clinicResult.Value.Id, days), cancellationToken);
+
+        if (result.IsFailure)
+            return StatusCode(402, new ProblemDetails { Detail = result.Errors.FirstOrDefault(), Status = 402 });
+
         return Ok(result.Value);
     }
 

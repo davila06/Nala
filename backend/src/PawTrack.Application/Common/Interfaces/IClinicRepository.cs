@@ -5,6 +5,8 @@ namespace PawTrack.Application.Common.Interfaces;
 public interface IClinicRepository
 {
     Task<Clinic?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    /// <summary>Batch fetch by ID set. Missing IDs are silently omitted.</summary>
+    Task<IReadOnlyList<Clinic>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default);
     Task<Clinic?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<Clinic?> GetByLicenseNumberAsync(string licenseNumber, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Clinic>> GetAllPendingAsync(CancellationToken cancellationToken = default);

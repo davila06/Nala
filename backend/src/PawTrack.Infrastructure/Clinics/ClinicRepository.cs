@@ -12,6 +12,16 @@ public sealed class ClinicRepository(PawTrackDbContext dbContext) : IClinicRepos
             .AsTracking()
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
 
+    public async Task<IReadOnlyList<Clinic>> GetByIdsAsync(
+        IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        var idSet = ids.ToHashSet();
+        return await dbContext.Clinics
+            .AsNoTracking()
+            .Where(c => idSet.Contains(c.Id))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<Clinic?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default) =>
         await dbContext.Clinics
             .AsNoTracking()

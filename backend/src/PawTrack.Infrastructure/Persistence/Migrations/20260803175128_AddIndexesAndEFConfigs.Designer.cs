@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PawTrack.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using PawTrack.Infrastructure.Persistence;
 namespace PawTrack.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(PawTrackDbContext))]
-    partial class PawTrackDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260803175128_AddIndexesAndEFConfigs")]
+    partial class AddIndexesAndEFConfigs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -596,35 +599,6 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .HasFilter("[IsRevoked] = 0");
 
                     b.ToTable("ClinicApiKeys", (string)null);
-                });
-
-            modelBuilder.Entity("PawTrack.Domain.Clinics.ClinicProfileView", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ClinicId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("IpHash")
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
-
-                    b.Property<string>("Source")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTimeOffset>("ViewedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ViewedAt");
-
-                    b.HasIndex("ClinicId", "ViewedAt");
-
-                    b.ToTable("ClinicProfileViews", (string)null);
                 });
 
             modelBuilder.Entity("PawTrack.Domain.Clinics.ClinicScan", b =>

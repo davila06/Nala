@@ -277,15 +277,16 @@ public sealed class GetPetClinicGrantsQueryHandler(
 
         var grants = await grantRepository.GetByPetIdAsync(request.PetId, ct);
 
-        var result = new List<ClinicAccessGrantDto>();
-        foreach (var g in grants)
-        {
-            var clinic = await clinicRepository.GetByIdAsync(g.ClinicId, ct);
-            result.Add(new ClinicAccessGrantDto(
-                g.Id, g.PetId, g.ClinicId, clinic?.Name ?? "Clínica desconocida",
-                g.InitiatedBy, g.IsPending, g.IsEffectivelyActive,
-                g.AcceptedAt, g.CodeExpiresAt, g.CreatedAt));
-        }
+        // batch fetch all clinics in a single query
+        var clinicIds = grants.Select(g => g.ClinicId).Distinct();
+        var clinics = (await clinicRepository.GetByIdsAsync(clinicIds, ct))
+            .ToDictionary(c => c.Id);
+
+        var result = grants.Select(g => new ClinicAccessGrantDto(
+            g.Id, g.PetId, g.ClinicId,
+            clinics.TryGetValue(g.ClinicId, out var c) ? c.Name : "Clínica desconocida",
+            g.InitiatedBy, g.IsPending, g.IsEffectivelyActive,
+            g.AcceptedAt, g.CodeExpiresAt, g.CreatedAt)).ToList();
 
         return Result.Success<IReadOnlyList<ClinicAccessGrantDto>>(result);
     }
@@ -313,16 +314,23 @@ public sealed class GetClinicAuthorizedPetsQueryHandler(
         GetClinicAuthorizedPetsQuery request, CancellationToken ct)
     {
         var grants = await grantRepository.GetByClinicIdAsync(request.ClinicId, ct);
-        var result = new List<AuthorizedPetDto>();
+        var active = grants.Where(g => g.IsEffectivelyActive).ToList();
 
-        foreach (var g in grants.Where(g => g.IsEffectivelyActive))
-        {
-            var pet = await petRepository.GetByIdAsync(g.PetId, ct);
-            if (pet is null) continue;
-            result.Add(new AuthorizedPetDto(
-                pet.Id, pet.Name, pet.Species.ToString(),
-                pet.PhotoUrl, g.AcceptedAt!.Value, g.Id));
-        }
+        // batch fetch all pets in a single query
+        var petIds = active.Select(g => g.PetId).Distinct();
+        var pets = (await petRepository.GetByIdsAsync(petIds, ct))
+            .ToDictionary(p => p.Id);
+
+        var result = active
+            .Where(g => pets.ContainsKey(g.PetId))
+            .Select(g =>
+            {
+                var p = pets[g.PetId];
+                return new AuthorizedPetDto(
+                    p.Id, p.Name, p.Species.ToString(),
+                    p.PhotoUrl, g.AcceptedAt!.Value, g.Id);
+            })
+            .ToList();
 
         return Result.Success<IReadOnlyList<AuthorizedPetDto>>(result);
     }

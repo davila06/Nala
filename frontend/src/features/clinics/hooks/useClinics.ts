@@ -68,3 +68,13 @@ export function useClinicNearbyAlerts(radiusKm = 15) {
     refetchInterval: 60_000,
   });
 }
+
+export function useClinicVisibilityStats(days = 30) {
+  return useQuery({
+    queryKey: ["clinics", "visibility-stats", days],
+    queryFn: () => clinicsApi.getVisibilityStats(days),
+    staleTime: 300_000,
+    retry: (count, err: { response?: { status?: number } }) =>
+      err?.response?.status !== 402 && count < 2,
+  });
+}

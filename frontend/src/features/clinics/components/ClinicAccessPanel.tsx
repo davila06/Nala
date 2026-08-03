@@ -40,8 +40,8 @@ function ClinicGeneratedCodeDisplay({
         Válido hasta {expires.toLocaleString("es-CR")}
       </p>
       <p className="rounded-xl bg-trust-100 px-3 py-2 text-xs text-trust-800">
-        El propietario lo ingresa en PawTrack → perfil de la mascota → tab
-        Salud → "Veterinarias autorizadas" → "Tengo un código".
+        El propietario lo ingresa en PawTrack → perfil de la mascota → tab Salud
+        → "Veterinarias autorizadas" → "Tengo un código".
       </p>
       <Button variant="secondary" onClick={onClose} className="w-full">
         Listo
@@ -137,7 +137,8 @@ export function ClinicAccessPanel({
       if (!currentPetId) throw new Error("No hay mascota seleccionada");
       return clinicAccessApi.clinicGenerateCode(currentPetId);
     },
-    onSuccess: (dto) => setGeneratedCode({ rawCode: dto.rawCode, expiresAt: dto.expiresAt }),
+    onSuccess: (dto) =>
+      setGeneratedCode({ rawCode: dto.rawCode, expiresAt: dto.expiresAt }),
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { detail?: string } } })
         ?.response?.data?.detail;
@@ -186,9 +187,7 @@ export function ClinicAccessPanel({
         ))}
       </div>
 
-      {tab === "list" && (
-        <AuthorizedPatientsList onSelectPet={onSelectPet} />
-      )}
+      {tab === "list" && <AuthorizedPatientsList onSelectPet={onSelectPet} />}
 
       {tab === "generate" && (
         <div className="space-y-3">
@@ -196,7 +195,10 @@ export function ClinicAccessPanel({
             <ClinicGeneratedCodeDisplay
               rawCode={generatedCode.rawCode}
               expiresAt={generatedCode.expiresAt}
-              onClose={() => { setGeneratedCode(null); setTab("list"); }}
+              onClose={() => {
+                setGeneratedCode(null);
+                setTab("list");
+              }}
             />
           ) : (
             <div className="space-y-3">

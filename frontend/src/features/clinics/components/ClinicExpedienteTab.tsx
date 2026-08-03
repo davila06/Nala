@@ -264,15 +264,12 @@ export function ClinicExpedienteTab({
             📋 Sin acceso al expediente
           </p>
           <p className="text-xs text-warn-700">
-            Escanea el QR o chip de la mascota para acceso temporal (90 días),
-            o pide al dueño un código de acceso permanente.
+            Escanea el QR o chip de la mascota para acceso temporal (90 días), o
+            pide al dueño un código de acceso permanente.
           </p>
         </div>
         {onSwitchToPet && (
-          <ClinicAccessPanel
-            currentPetId={petId}
-            onSelectPet={onSwitchToPet}
-          />
+          <ClinicAccessPanel currentPetId={petId} onSelectPet={onSwitchToPet} />
         )}
       </div>
     );
@@ -358,10 +355,7 @@ export function ClinicExpedienteTab({
       {onSwitchToPet && (
         <>
           <hr className="border-sand-100" />
-          <ClinicAccessPanel
-            currentPetId={petId}
-            onSelectPet={onSwitchToPet}
-          />
+          <ClinicAccessPanel currentPetId={petId} onSelectPet={onSwitchToPet} />
         </>
       )}
     </div>

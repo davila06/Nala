@@ -48,8 +48,7 @@ function GeneratedCodeDisplay({
           </button>
         </div>
         <p className="text-xs text-sand-500">
-          Válido por ~{hoursLeft}h · vence el{" "}
-          {expires.toLocaleString("es-CR")}
+          Válido por ~{hoursLeft}h · vence el {expires.toLocaleString("es-CR")}
         </p>
       </div>
 
@@ -57,14 +56,14 @@ function GeneratedCodeDisplay({
         <p className="font-semibold">¿Qué hacer con este código?</p>
         {initiatedBy === "Owner" ? (
           <p>
-            Díselo en voz alta o muéstralo en tu pantalla a la recepcionista.
-            La clínica lo ingresará en su portal para activar el acceso
-            permanente al expediente.
+            Díselo en voz alta o muéstralo en tu pantalla a la recepcionista. La
+            clínica lo ingresará en su portal para activar el acceso permanente
+            al expediente.
           </p>
         ) : (
           <p>
-            El propietario lo ingresa en la app bajo el perfil de la
-            mascota → "Veterinarias autorizadas" → "Tengo un código".
+            El propietario lo ingresa en la app bajo el perfil de la mascota →
+            "Veterinarias autorizadas" → "Tengo un código".
           </p>
         )}
       </div>
@@ -117,7 +116,9 @@ function GrantRow({
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-2">
-        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${statusBadge.cls}`}>
+        <span
+          className={`rounded-full px-2 py-0.5 text-xs font-semibold ${statusBadge.cls}`}
+        >
           {statusBadge.label}
         </span>
         {grant.isActive && !confirmRevoke && (
@@ -196,8 +197,10 @@ export function PetClinicAccessManager({
   const [selectedClinicId, setSelectedClinicId] = useState(
     availableClinics?.[0]?.id ?? "",
   );
-  const [generatedCode, setGeneratedCode] =
-    useState<{ rawCode: string; expiresAt: string } | null>(null);
+  const [generatedCode, setGeneratedCode] = useState<{
+    rawCode: string;
+    expiresAt: string;
+  } | null>(null);
   const [showAcceptForm, setShowAcceptForm] = useState(false);
   const [acceptInput, setAcceptInput] = useState("");
 
@@ -318,7 +321,8 @@ export function PetClinicAccessManager({
       {pendingGrants.length > 0 && (
         <details>
           <summary className="cursor-pointer text-xs font-semibold text-sand-400 hover:text-sand-600">
-            {pendingGrants.length} código{pendingGrants.length !== 1 ? "s" : ""} pendiente
+            {pendingGrants.length} código{pendingGrants.length !== 1 ? "s" : ""}{" "}
+            pendiente
             {pendingGrants.length !== 1 ? "s" : ""}
           </summary>
           <ul className="mt-2 space-y-2">

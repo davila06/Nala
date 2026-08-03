@@ -93,6 +93,15 @@ export interface NearbyAlertDto {
   recentPhotoUrl: string | null;
 }
 
+export interface ClinicVisibilityStatsDto {
+  periodDays: number;
+  profileViews: number;
+  mapClicks: number;
+  searchAppearances: number;
+  alertImpressions: number;
+  scanResultViews: number;
+}
+
 // ── API client methods ─────────────────────────────────────────────────────────
 
 export const clinicsApi = {
@@ -145,8 +154,11 @@ export const clinicsApi = {
 
   getNearbyAlerts: (radiusKm = 15): Promise<NearbyAlertDto[]> =>
     apiClient
-      .get<
-        NearbyAlertDto[]
-      >("/clinics/me/nearby-alerts", { params: { radiusKm } })
+      .get<NearbyAlertDto[]>("/clinics/me/nearby-alerts", { params: { radiusKm } })
+      .then((r) => r.data),
+
+  getVisibilityStats: (days = 30): Promise<ClinicVisibilityStatsDto> =>
+    apiClient
+      .get<ClinicVisibilityStatsDto>("/clinics/me/visibility-stats", { params: { days } })
       .then((r) => r.data),
 };

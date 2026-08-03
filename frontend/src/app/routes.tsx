@@ -110,6 +110,9 @@ const AdminPage = lazy(() => import("@/features/admin/pages/AdminPage"));
 const MunicipalityPortalPage = lazy(
   () => import("@/features/admin/pages/MunicipalityPortalPage"),
 );
+const MunicipalDashboardPage = lazy(
+  () => import("@/features/admin/pages/MunicipalDashboardPage"),
+);
 const CertificateVerificationPage = lazy(
   () => import("@/features/clinics/pages/CertificateVerificationPage"),
 );
@@ -415,7 +418,7 @@ export const router = createBrowserRouter([
               },
             ],
           },
-          // ── Public municipal portal ──────────────────────────────────────────
+          // ── Public municipal portal (marketing) ──────────────────────────────
           {
             path: "/municipalidad",
             element: (
@@ -423,6 +426,20 @@ export const router = createBrowserRouter([
                 <MunicipalityPortalPage />
               </S>
             ),
+          },
+          // ── Municipal operational dashboard (authenticated) ──────────────────
+          {
+            element: <RoleGuard roles={["Municipality", "Admin"]} />,
+            children: [
+              {
+                path: "/municipalidad/portal",
+                element: (
+                  <S>
+                    <MunicipalDashboardPage />
+                  </S>
+                ),
+              },
+            ],
           },
         ],
       },

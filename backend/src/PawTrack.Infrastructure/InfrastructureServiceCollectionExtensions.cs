@@ -93,6 +93,7 @@ public static class InfrastructureServiceCollectionExtensions
         // Clinics
         services.AddScoped<IClinicRepository, ClinicRepository>();
         services.AddScoped<IClinicScanRepository, ClinicScanRepository>();
+        services.AddScoped<IClinicProfileViewRepository, ClinicProfileViewRepository>();
         services.AddScoped<IClinicApiKeyRepository, ClinicApiKeyRepository>();
 
         // Push subscriptions

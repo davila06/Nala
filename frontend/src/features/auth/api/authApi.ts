@@ -51,7 +51,7 @@ export interface UserProfile {
 const ROLE_CLAIM =
   "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
 
-export type UserRole = "Owner" | "Ally" | "Admin" | "Clinic";
+export type UserRole = "Owner" | "Ally" | "Admin" | "Clinic" | "Municipality";
 
 export function decodeRoleFromJwt(accessToken: string): UserRole {
   try {

@@ -53,6 +53,7 @@ public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> option
     public DbSet<SearchZone> SearchZones => Set<SearchZone>();
     public DbSet<Clinic> Clinics => Set<Clinic>();
     public DbSet<ClinicScan> ClinicScans => Set<ClinicScan>();
+    public DbSet<ClinicProfileView> ClinicProfileViews => Set<ClinicProfileView>();
     public DbSet<ClinicApiKey> ClinicApiKeys => Set<ClinicApiKey>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
     public DbSet<Subscription> Subscriptions => Set<Subscription>();

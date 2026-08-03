@@ -45,10 +45,10 @@ public sealed class PerformClinicScanCommandHandler(
         // Resolve pet from input
         var pet = request.InputType switch
         {
-            ScanInputType.Qr       => await ResolvePetFromQrAsync(request.Input, cancellationToken),
+            ScanInputType.Qr => await ResolvePetFromQrAsync(request.Input, cancellationToken),
             ScanInputType.RfidChip => await petRepository.GetByMicrochipIdAsync(
                                           request.Input.Trim().ToUpperInvariant(), cancellationToken),
-            _                      => null,
+            _ => null,
         };
 
         // Record audit scan regardless of match result

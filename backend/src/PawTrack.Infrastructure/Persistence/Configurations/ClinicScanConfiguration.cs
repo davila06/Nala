@@ -27,6 +27,9 @@ public sealed class ClinicScanConfiguration : IEntityTypeConfiguration<ClinicSca
 
         builder.Property(s => s.MatchedPetId); // nullable
 
+        builder.HasIndex(s => s.MatchedPetId)
+            .HasFilter("[MatchedPetId] IS NOT NULL"); // partial index — only matched scans
+
         builder.Property(s => s.ScannedAt).IsRequired();
 
         // composite index for auditing queries by clinic + time

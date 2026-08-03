@@ -2,11 +2,14 @@ namespace PawTrack.Domain.Medical;
 
 public enum MedicalRecordType
 {
-    Vaccination,
-    Deworming,
-    VetVisit,
-    Surgery,
-    Other,
+    // stored as int — safe to rename; do NOT reorder or the DB values break
+    Vaccine = 0,      // was Vaccination
+    Deworming = 1,
+    Checkup = 2,      // was VetVisit
+    Surgery = 3,
+    Other = 4,
+    Medication = 5,
+    Allergy = 6,
 }
 
 public sealed class MedicalRecord

@@ -7,33 +7,33 @@
 
 ## Credenciales por rol
 
-| Rol | Nombre | Email | Contraseña |
-|-----|--------|-------|------------|
-| `Owner` | Ana Pérez (Owner) | `owner@pawtrack.test` | `Test123!` |
-| `Ally` | Carlos Mora (Ally) | `ally@pawtrack.test` | `Ally123!` |
-| `Admin` | Denis Admin | `admin@pawtrack.test` | `Admin123!` |
+| Rol      | Nombre             | Email                  | Contraseña   |
+| -------- | ------------------ | ---------------------- | ------------ |
+| `Owner`  | Ana Pérez (Owner)  | `owner@pawtrack.test`  | `Test123!`   |
+| `Ally`   | Carlos Mora (Ally) | `ally@pawtrack.test`   | `Ally123!`   |
+| `Admin`  | Denis Admin        | `admin@pawtrack.test`  | `Admin123!`  |
 | `Clinic` | Clínica VetCare CR | `clinic@pawtrack.test` | `Clinic123!` |
 
 ---
 
 ## IDs (GUID) asignados
 
-| Rol | ID |
-|-----|-----|
-| `Owner` | `D73FC5EA-6F8F-4ADF-9756-07480962EAF3` |
-| `Ally` | `E2984533-3A78-4C84-8286-7C91E69AE1B3` |
-| `Admin` | `DAD661E5-7B58-4A5A-ABD4-280ACA9B7C72` |
+| Rol      | ID                                     |
+| -------- | -------------------------------------- |
+| `Owner`  | `D73FC5EA-6F8F-4ADF-9756-07480962EAF3` |
+| `Ally`   | `E2984533-3A78-4C84-8286-7C91E69AE1B3` |
+| `Admin`  | `DAD661E5-7B58-4A5A-ABD4-280ACA9B7C72` |
 | `Clinic` | `2B9B9F17-39DD-42A7-B138-A00632ABE55A` |
 
 ---
 
 ## Hashes BCrypt (cost factor 12)
 
-| Email | Hash almacenado |
-|-------|-----------------|
-| `owner@pawtrack.test` | `$2a$12$S7/AoW/NeL4KIvhZO6p6TuWsgBuZQ6kymMD96.3.ALIKR/W51wAES` |
-| `ally@pawtrack.test` | `$2a$12$1BbkfBTccZR17WAmeXQoK.it6ig5SSyAk1hoPD3kl.YQG/u8lul7i` |
-| `admin@pawtrack.test` | `$2a$12$sapENPrv3mwah7zOBZvjfOIZK8PoV0h2YIt11KW4u6l1F3Ah2Mis6` |
+| Email                  | Hash almacenado                                                |
+| ---------------------- | -------------------------------------------------------------- |
+| `owner@pawtrack.test`  | `$2a$12$S7/AoW/NeL4KIvhZO6p6TuWsgBuZQ6kymMD96.3.ALIKR/W51wAES` |
+| `ally@pawtrack.test`   | `$2a$12$1BbkfBTccZR17WAmeXQoK.it6ig5SSyAk1hoPD3kl.YQG/u8lul7i` |
+| `admin@pawtrack.test`  | `$2a$12$sapENPrv3mwah7zOBZvjfOIZK8PoV0h2YIt11KW4u6l1F3Ah2Mis6` |
 | `clinic@pawtrack.test` | `$2a$12$Zc2bzcB9S7nfYbiB8Gq6QePRRlhy6tVgs1jeRm2SejAhwxWn3IY3W` |
 
 ---
@@ -82,7 +82,7 @@ sqlcmd -S "localhost,1433" -U sa -P "PawTrack_Dev!2026" -d PawTrackDev -C -i bac
 
 Las contraseñas cumplen la política mínima de PawTrack:
 
-- ≥ 8 caracteres ✔  
-- Al menos 1 mayúscula ✔  
-- Al menos 1 número ✔  
+- ≥ 8 caracteres ✔
+- Al menos 1 mayúscula ✔
+- Al menos 1 número ✔
 - Al menos 1 símbolo (`!`) ✔

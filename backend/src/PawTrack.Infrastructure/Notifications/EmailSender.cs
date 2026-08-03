@@ -97,7 +97,7 @@ public sealed class EmailSender(
         string to, string token,
         CancellationToken cancellationToken = default)
     {
-        var url = $"{BaseUrl}/familia/aceptar?token={Uri.EscapeDataString(token)}";
+        var url = $"{BaseUrl}/familia/invitacion/{Uri.EscapeDataString(token)}";
         var html = $"""
             <p>Te han invitado a unirte a una cuenta familiar en PawTrack CR.</p>
             <p>Haz clic en el siguiente enlace para aceptar la invitación (válida 7 días):</p>

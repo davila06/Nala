@@ -7,9 +7,9 @@ export type MedicalRecordType =
   | "Deworming"
   | "Checkup"
   | "Surgery"
+  | "Other"
   | "Medication"
-  | "Allergy"
-  | "Other";
+  | "Allergy";
 
 export interface MedicalRecordDto {
   id: string;
@@ -103,7 +103,7 @@ export interface ClinicPatientHistoryDto {
 }
 
 export interface AddClinicMedicalRecordPayload {
-  petId?: string;         // Option A — prior scan required
+  petId?: string; // Option A — prior scan required
   qrOrChipInput?: string; // Option B — inline scan
   inputType?: "Qr" | "RfidChip";
   recordType: MedicalRecordType;
@@ -120,10 +120,13 @@ export const clinicMedicalApi = {
       .get<ClinicPatientHistoryDto>(`/clinics/patients/${petId}/medical`)
       .then((r) => r.data),
 
-  addRecord: (payload: AddClinicMedicalRecordPayload): Promise<MedicalRecordDto> => {
+  addRecord: (
+    payload: AddClinicMedicalRecordPayload,
+  ): Promise<MedicalRecordDto> => {
     const form = new FormData();
     if (payload.petId) form.append("petId", payload.petId);
-    if (payload.qrOrChipInput) form.append("qrOrChipInput", payload.qrOrChipInput);
+    if (payload.qrOrChipInput)
+      form.append("qrOrChipInput", payload.qrOrChipInput);
     if (payload.inputType) form.append("inputType", payload.inputType);
     form.append("recordType", payload.recordType);
     form.append("date", payload.date);
@@ -139,4 +142,3 @@ export const clinicMedicalApi = {
       .then((r) => r.data);
   },
 };
-
