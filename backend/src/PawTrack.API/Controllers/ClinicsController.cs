@@ -14,6 +14,7 @@ using PawTrack.Application.Clinics.Queries.GetPendingClinics;
 using PawTrack.Application.Clinics.Queries.GetPetMedicalHistoryForClinic;
 using PawTrack.Application.Clinics.Queries.GetPublicClinics;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Medical.ClinicAccess;
 using PawTrack.Domain.Auth;
 using PawTrack.Domain.Clinics;
 using PawTrack.Domain.Medical;
@@ -446,6 +447,77 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
 
         return Created(string.Empty, result.Value);
     }
+
+    // ── Access grants (Option C) ───────────────────────────────────────────────
+
+    /// <summary>
+    /// Clinic generates an 8-char code to hand to the pet owner.
+    /// Requires prior scan history with this pet (Option A gate).
+    /// Owner enters the code to activate permanent access.
+    /// </summary>
+    [HttpPost("access-grants/code")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(256)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> GenerateAccessCode(
+        [FromBody] ClinicGenerateAccessCodeRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(
+            new ClinicGenerateAccessCodeCommand(clinicResult.Value.Id, userId, request.PetId), ct);
+
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = result.Errors.FirstOrDefault(), Status = 422 });
+
+        return Created(string.Empty, result.Value);
+    }
+
+    /// <summary>Clinic enters the code the owner generated to activate a grant.</summary>
+    [HttpPost("access-grants/accept")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(256)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> AcceptOwnerCode(
+        [FromBody] AcceptGrantCodeRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(
+            new ClinicAcceptOwnerCodeCommand(clinicResult.Value.Id, userId, request.Code), ct);
+
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = result.Errors.FirstOrDefault(), Status = 422 });
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>List all pets the clinic has active permanent grants for.</summary>
+    [HttpGet("access-grants")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAuthorizedPets(CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(
+            new GetClinicAuthorizedPetsQuery(clinicResult.Value.Id), ct);
+
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);
+    }
 }
 
 // ── Request models ────────────────────────────────────────────────────────────
@@ -475,7 +547,6 @@ public sealed class ClinicAddMedicalRecordRequest
 {
     public Guid? PetId { get; init; }
     public string? QrOrChipInput { get; init; }
-    /// <summary>"Qr" or "RfidChip" — required when QrOrChipInput is provided.</summary>
     public string? InputType { get; init; }
     public string RecordType { get; init; } = string.Empty;
     public DateOnly Date { get; init; }
@@ -484,3 +555,6 @@ public sealed class ClinicAddMedicalRecordRequest
     public DateOnly? NextDueDate { get; init; }
     public IFormFile? Document { get; init; }
 }
+
+public sealed record ClinicGenerateAccessCodeRequest(Guid PetId);
+public sealed record AcceptGrantCodeRequest(string Code);

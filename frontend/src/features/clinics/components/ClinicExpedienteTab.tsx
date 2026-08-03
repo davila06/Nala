@@ -7,6 +7,7 @@ import {
   type MedicalRecordDto,
   type MedicalRecordType,
 } from "@/features/medical/api/medicalApi";
+import { ClinicAccessPanel } from "./ClinicAccessPanel";
 
 // ── Locale helpers ────────────────────────────────────────────────────────────
 
@@ -89,16 +90,19 @@ function AddRecordForm({
   const add = useMutation({
     mutationFn: clinicMedicalApi.addRecord,
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["clinic-patient-history", petId] });
+      void qc.invalidateQueries({
+        queryKey: ["clinic-patient-history", petId],
+      });
       toast.success("Registro guardado en el expediente");
       onClose();
     },
     onError: (err: unknown) => {
-      const apiErr = err as { response?: { data?: { detail?: string }; status?: number } };
+      const apiErr = err as {
+        response?: { data?: { detail?: string }; status?: number };
+      };
       if (apiErr?.response?.status === 403)
         toast.error("Sin acceso: escanee el QR o chip de la mascota primero.");
-      else
-        toast.error(apiErr?.response?.data?.detail ?? "No se pudo guardar");
+      else toast.error(apiErr?.response?.data?.detail ?? "No se pudo guardar");
     },
   });
 
@@ -117,31 +121,51 @@ function AddRecordForm({
       </h3>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">Tipo</label>
+        <label className="mb-1 block text-xs font-medium text-sand-600">
+          Tipo
+        </label>
         <select
           value={type}
           onChange={(e) => setType(e.target.value as MedicalRecordType)}
           className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-trust-400"
         >
           {RECORD_TYPES.map((t) => (
-            <option key={t} value={t}>{TYPE_LABEL[t]}</option>
+            <option key={t} value={t}>
+              {TYPE_LABEL[t]}
+            </option>
           ))}
         </select>
       </div>
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">Fecha</label>
-          <Input type="date" value={date} max={today} onChange={(e) => setDate(e.target.value)} />
+          <label className="mb-1 block text-xs font-medium text-sand-600">
+            Fecha
+          </label>
+          <Input
+            type="date"
+            value={date}
+            max={today}
+            onChange={(e) => setDate(e.target.value)}
+          />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">Próxima cita</label>
-          <Input type="date" value={nextDueDate} min={today} onChange={(e) => setNextDueDate(e.target.value)} />
+          <label className="mb-1 block text-xs font-medium text-sand-600">
+            Próxima cita
+          </label>
+          <Input
+            type="date"
+            value={nextDueDate}
+            min={today}
+            onChange={(e) => setNextDueDate(e.target.value)}
+          />
         </div>
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">Descripción *</label>
+        <label className="mb-1 block text-xs font-medium text-sand-600">
+          Descripción *
+        </label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -152,8 +176,14 @@ function AddRecordForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">Veterinario</label>
-        <Input placeholder="Dr/a. Nombre" value={vetName} onChange={(e) => setVetName(e.target.value)} />
+        <label className="mb-1 block text-xs font-medium text-sand-600">
+          Veterinario
+        </label>
+        <Input
+          placeholder="Dr/a. Nombre"
+          value={vetName}
+          onChange={(e) => setVetName(e.target.value)}
+        />
       </div>
 
       <div>
@@ -197,7 +227,13 @@ function AddRecordForm({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function ClinicExpedienteTab({ petId }: { petId: string }) {
+export function ClinicExpedienteTab({
+  petId,
+  onSwitchToPet,
+}: {
+  petId: string;
+  onSwitchToPet?: (petId: string, petName: string) => void;
+}) {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["clinic-patient-history", petId],
     queryFn: () => clinicMedicalApi.getPatientHistory(petId),
@@ -207,8 +243,9 @@ export function ClinicExpedienteTab({ petId }: { petId: string }) {
   });
 
   const [showAddForm, setShowAddForm] = useState(false);
-  const forbidden = (error as { response?: { status?: number } } | null)
-    ?.response?.status === 403;
+  const forbidden =
+    (error as { response?: { status?: number } } | null)?.response?.status ===
+    403;
 
   if (isLoading) {
     return (
@@ -221,14 +258,22 @@ export function ClinicExpedienteTab({ petId }: { petId: string }) {
 
   if (forbidden || isError) {
     return (
-      <div className="rounded-2xl border border-warn-200 bg-warn-50 p-4 text-center space-y-2">
-        <p className="text-sm font-semibold text-warn-800">
-          📋 Sin acceso al expediente
-        </p>
-        <p className="text-xs text-warn-700">
-          Para acceder al expediente de esta mascota, escanee su QR o chip durante esta consulta.
-          El acceso se otorga automáticamente tras el escaneo (válido 90 días).
-        </p>
+      <div className="space-y-4">
+        <div className="rounded-2xl border border-warn-200 bg-warn-50 p-4 text-center space-y-2">
+          <p className="text-sm font-semibold text-warn-800">
+            📋 Sin acceso al expediente
+          </p>
+          <p className="text-xs text-warn-700">
+            Escanea el QR o chip de la mascota para acceso temporal (90 días),
+            o pide al dueño un código de acceso permanente.
+          </p>
+        </div>
+        {onSwitchToPet && (
+          <ClinicAccessPanel
+            currentPetId={petId}
+            onSelectPet={onSwitchToPet}
+          />
+        )}
       </div>
     );
   }
@@ -253,9 +298,14 @@ export function ClinicExpedienteTab({ petId }: { petId: string }) {
           <div>
             <p className="font-semibold text-sand-900">{data.petName}</p>
             <p className="text-xs text-sand-500">
-              {data.species}{data.breed ? ` · ${data.breed}` : ""}
+              {data.species}
+              {data.breed ? ` · ${data.breed}` : ""}
               {data.lastSeenAt && (
-                <> · última visita {new Date(data.lastSeenAt).toLocaleDateString("es-CR")}</>
+                <>
+                  {" "}
+                  · última visita{" "}
+                  {new Date(data.lastSeenAt).toLocaleDateString("es-CR")}
+                </>
               )}
             </p>
           </div>
@@ -276,7 +326,9 @@ export function ClinicExpedienteTab({ petId }: { petId: string }) {
         </p>
         {clinicRecords.length > 0 ? (
           <ul className="space-y-2">
-            {clinicRecords.map((r) => <RecordCard key={r.id} record={r} />)}
+            {clinicRecords.map((r) => (
+              <RecordCard key={r.id} record={r} />
+            ))}
           </ul>
         ) : (
           <Card padding="sm">
@@ -291,12 +343,26 @@ export function ClinicExpedienteTab({ petId }: { petId: string }) {
       {ownerRecords.length > 0 && (
         <details>
           <summary className="cursor-pointer text-xs font-semibold text-sand-400 hover:text-sand-600">
-            {ownerRecords.length} registro{ownerRecords.length !== 1 ? "s" : ""} del dueño (solo lectura)
+            {ownerRecords.length} registro{ownerRecords.length !== 1 ? "s" : ""}{" "}
+            del dueño (solo lectura)
           </summary>
           <ul className="mt-2 space-y-2">
-            {ownerRecords.map((r) => <RecordCard key={r.id} record={r} />)}
+            {ownerRecords.map((r) => (
+              <RecordCard key={r.id} record={r} />
+            ))}
           </ul>
         </details>
+      )}
+
+      {/* ── Acceso permanente (Option C) ────────────────────────────── */}
+      {onSwitchToPet && (
+        <>
+          <hr className="border-sand-100" />
+          <ClinicAccessPanel
+            currentPetId={petId}
+            onSelectPet={onSwitchToPet}
+          />
+        </>
       )}
     </div>
   );

@@ -68,6 +68,7 @@ public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> option
     public DbSet<FamilyInvitation> FamilyInvitations => Set<FamilyInvitation>();
     public DbSet<MedicalRecord> MedicalRecords => Set<MedicalRecord>();
     public DbSet<VetReminder> VetReminders => Set<VetReminder>();
+    public DbSet<ClinicMedicalAccessGrant> ClinicMedicalAccessGrants => Set<ClinicMedicalAccessGrant>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

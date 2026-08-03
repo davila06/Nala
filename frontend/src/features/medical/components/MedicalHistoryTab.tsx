@@ -8,6 +8,7 @@ import {
   useCompleteReminder,
   useExportMedicalPdf,
 } from "@/features/medical/hooks/useMedical";
+import { PetClinicAccessManager } from "./PetClinicAccessManager";
 import type {
   MedicalRecordType,
   MedicalRecordDto,
@@ -405,6 +406,10 @@ export function MedicalHistoryTab({ petId }: { petId: string }) {
           <div className="h-10 rounded-xl bg-sand-100" />
         </div>
       )}
+
+      {/* ── Clinic access (Option C) ───────────────────────────────────── */}
+      <hr className="border-sand-100" />
+      <PetClinicAccessManager petId={petId} />
     </div>
   );
 }

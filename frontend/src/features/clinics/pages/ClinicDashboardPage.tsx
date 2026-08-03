@@ -20,6 +20,7 @@ import {
 } from "../hooks/useClinics";
 import { CERTIFICATE_TYPE_LABELS } from "../api/certificateApi";
 import { ClinicExpedienteTab } from "../components/ClinicExpedienteTab";
+import { ClinicAccessPanel } from "../components/ClinicAccessPanel";
 import { toast } from "@/shared/lib/toast";
 
 export default function ClinicDashboardPage() {
@@ -182,29 +183,31 @@ export default function ClinicDashboardPage() {
       <main className="mx-auto max-w-lg animate-fade-in-up px-4 py-6 space-y-6">
         {/* ── Section tabs ─────────────────────────────────────────── */}
         <div className="flex gap-1 rounded-2xl bg-surface-warm p-1.5 overflow-x-auto no-scrollbar">
-          {(["scan", "stats", "api", "alerts", "expediente"] as const).map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setActiveSection(s)}
-              className={[
-                "shrink-0 rounded-xl px-3 py-2 text-xs font-bold transition-colors",
-                activeSection === s
-                  ? "bg-surface text-sand-900 shadow-sm"
-                  : "text-sand-500 hover:text-sand-700",
-              ].join(" ")}
-            >
-              {s === "scan"
-                ? "🔍 Escanear"
-                : s === "stats"
-                  ? "📊 Stats"
-                  : s === "api"
-                    ? "🔑 API"
-                    : s === "alerts"
-                      ? "🚨 Alertas"
-                      : "📋 Expediente"}
-            </button>
-          ))}
+          {(["scan", "stats", "api", "alerts", "expediente"] as const).map(
+            (s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setActiveSection(s)}
+                className={[
+                  "shrink-0 rounded-xl px-3 py-2 text-xs font-bold transition-colors",
+                  activeSection === s
+                    ? "bg-surface text-sand-900 shadow-sm"
+                    : "text-sand-500 hover:text-sand-700",
+                ].join(" ")}
+              >
+                {s === "scan"
+                  ? "🔍 Escanear"
+                  : s === "stats"
+                    ? "📊 Stats"
+                    : s === "api"
+                      ? "🔑 API"
+                      : s === "alerts"
+                        ? "🚨 Alertas"
+                        : "📋 Expediente"}
+              </button>
+            ),
+          )}
         </div>
         {activeSection === "scan" && (
           <>
@@ -327,24 +330,48 @@ export default function ClinicDashboardPage() {
               📋 Expediente digital
             </h2>
             {scanResult?.matched && scanResult.petId ? (
-              <ClinicExpedienteTab petId={scanResult.petId} />
+              <ClinicExpedienteTab
+                petId={scanResult.petId}
+                onSwitchToPet={(petId, petName) => {
+                  setScanResult((prev) =>
+                    prev ? { ...prev, petId, petName } : null,
+                  );
+                }}
+              />
             ) : (
-              <div className="rounded-2xl border border-sand-200 bg-sand-50 p-6 text-center space-y-2">
-                <p className="text-2xl">🔍</p>
-                <p className="text-sm font-semibold text-sand-700">
-                  Escanea primero la mascota
-                </p>
-                <p className="text-xs text-sand-500">
-                  Ve a la pestaña <strong>Escanear</strong>, escanea el QR o
-                  chip de la mascota y luego regresa aquí para ver su expediente.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setActiveSection("scan")}
-                  className="mt-2 rounded-xl bg-brand-600 px-4 py-2 text-xs font-bold text-white hover:bg-brand-700"
-                >
-                  Ir a Escanear
-                </button>
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-sand-200 bg-sand-50 p-5 text-center space-y-2">
+                  <p className="text-2xl">🔍</p>
+                  <p className="text-sm font-semibold text-sand-700">
+                    Escanea primero la mascota
+                  </p>
+                  <p className="text-xs text-sand-500">
+                    Ve a la pestaña <strong>Escanear</strong>, escanea el QR o
+                    chip de la mascota y luego regresa aquí para ver su expediente.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setActiveSection("scan")}
+                    className="mt-2 rounded-xl bg-brand-600 px-4 py-2 text-xs font-bold text-white hover:bg-brand-700"
+                  >
+                    Ir a Escanear
+                  </button>
+                </div>
+                <ClinicAccessPanel
+                  currentPetId={null}
+                  onSelectPet={(petId, petName) => {
+                    setScanResult({
+                      scanId: "",
+                      matched: true,
+                      petId,
+                      petName,
+                      petPhotoUrl: null,
+                      ownerName: null,
+                      ownerEmail: null,
+                      petSpecies: null,
+                    });
+                  }}
+                />
               </div>
             )}
           </div>

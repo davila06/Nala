@@ -4,7 +4,6 @@ using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Medical;
 using PawTrack.Domain.Clinics;
 using PawTrack.Domain.Common;
-
 namespace PawTrack.Application.Clinics.Queries.GetPetMedicalHistoryForClinic;
 
 // ── Query ─────────────────────────────────────────────────────────────────────
@@ -35,6 +34,7 @@ public sealed record ClinicPatientHistoryDto(
 public sealed class GetPetMedicalHistoryForClinicQueryHandler(
     IClinicRepository clinicRepository,
     IClinicScanRepository clinicScanRepository,
+    IClinicMedicalAccessGrantRepository grantRepository,
     IPetRepository petRepository,
     IMedicalRepository medicalRepository)
     : IRequestHandler<GetPetMedicalHistoryForClinicQuery, Result<ClinicPatientHistoryDto>>
@@ -51,19 +51,19 @@ public sealed class GetPetMedicalHistoryForClinicQueryHandler(
         if (clinic is null || clinic.Status != ClinicStatus.Active)
             return Result.Failure<ClinicPatientHistoryDto>("La clínica no está activa.");
 
-        // Resolve pet (Option A or B)
         var pet = await ResolvePetAsync(request, ct);
         if (pet is null)
             return Result.Failure<ClinicPatientHistoryDto>(
                 "No se pudo identificar la mascota. Verifique el QR o chip.");
 
-        // Access gate
-        var hasAccess = request.QrOrChipInput is not null // Option B provided inline → access granted
-            || await clinicScanRepository.HasRecentScanAsync(request.ClinicId, pet.Id, RecentScanWindowDays, ct);
+        // Access gate: Option B inline → granted; Option A scan history → granted; Option C active grant → granted
+        var hasAccess = request.QrOrChipInput is not null
+            || await clinicScanRepository.HasRecentScanAsync(request.ClinicId, pet.Id, RecentScanWindowDays, ct)
+            || await grantRepository.HasActiveGrantAsync(request.ClinicId, pet.Id, ct);
 
         if (!hasAccess)
             return Result.Failure<ClinicPatientHistoryDto>(
-                $"La clínica no tiene un escaneo reciente de esta mascota (últimos {RecentScanWindowDays} días).");
+                "La clínica no tiene acceso a esta mascota. Escanee el QR o solicite acceso permanente al dueño.");
 
         var records = await medicalRepository.GetByPetIdAsync(pet.Id, ct);
         var lastScan = await clinicScanRepository.GetLastScanDateAsync(request.ClinicId, pet.Id, ct);

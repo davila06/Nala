@@ -59,6 +59,7 @@ public sealed class AddClinicMedicalRecordCommandValidator
 public sealed class AddClinicMedicalRecordCommandHandler(
     IClinicRepository clinicRepository,
     IClinicScanRepository clinicScanRepository,
+    IClinicMedicalAccessGrantRepository grantRepository,
     IPetRepository petRepository,
     IUserRepository userRepository,
     IMedicalRepository medicalRepository,
@@ -87,16 +88,16 @@ public sealed class AddClinicMedicalRecordCommandHandler(
             return Result.Failure<MedicalRecordDto>(
                 "No se pudo identificar la mascota. Verifique el QR o chip.");
 
-        // ── Option A gate: recent scan history ────────────────────────────────
+        // ── Option A gate: recent scan history; Option C: active grant ─────────
         if (inlineScan is null)
         {
-            var hasAccess = await clinicScanRepository.HasRecentScanAsync(
-                request.ClinicId, pet.Id, RecentScanWindowDays, ct);
+            var hasAccess =
+                await clinicScanRepository.HasRecentScanAsync(request.ClinicId, pet.Id, RecentScanWindowDays, ct)
+                || await grantRepository.HasActiveGrantAsync(request.ClinicId, pet.Id, ct);
             if (!hasAccess)
                 return Result.Failure<MedicalRecordDto>(
-                    $"La clínica no tiene un escaneo reciente de esta mascota " +
-                    $"(últimos {RecentScanWindowDays} días). " +
-                    "Escanee el QR o chip del collar durante la consulta.");
+                    $"La clínica no tiene acceso a esta mascota. " +
+                    $"Escanee el QR durante la consulta (Opción B) o solicite acceso permanente al dueño.");
         }
 
         // ── Create medical record ─────────────────────────────────────────────
