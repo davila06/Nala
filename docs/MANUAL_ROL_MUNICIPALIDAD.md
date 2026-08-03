@@ -12,11 +12,11 @@ El rol **Municipalidad** permite a entidades municipales costarricenses gestiona
 
 ## Tiers municipales
 
-| Tier | Precio aprox. | Acceso |
-|---|---|---|
-| **Básica** | ₡150,000/año | Portal base: registrar capturas, actualizar estado, buscar en cantón propio |
-| **Full** | ₡300,000/año | Todo Básica + fotos en capturas, estadísticas de cantón, búsqueda multi-cantón, API |
-| **Red Regional** | ₡500,000/año | Todo Full + múltiples cantones, transferencias inter-municipales, dashboard regional |
+| Tier             | Precio aprox. | Acceso                                                                               |
+| ---------------- | ------------- | ------------------------------------------------------------------------------------ |
+| **Básica**       | ₡150,000/año  | Portal base: registrar capturas, actualizar estado, buscar en cantón propio          |
+| **Full**         | ₡300,000/año  | Todo Básica + fotos en capturas, estadísticas de cantón, búsqueda multi-cantón, API  |
+| **Red Regional** | ₡500,000/año  | Todo Full + múltiples cantones, transferencias inter-municipales, dashboard regional |
 
 El tier es asignado por el equipo de PawTrack CR. El administrador puede crearlo o modificarlo via `POST /api/municipalities/admin/profiles`.
 
@@ -70,10 +70,10 @@ El animal queda registrado con estado **Recibido**.
 
 Filtra por estado y fecha desde el portal.
 
-| Filtro | Descripción |
-|---|---|
+| Filtro | Descripción                                                     |
+| ------ | --------------------------------------------------------------- |
 | Estado | Recibido / Dueño localizado / Transferido / Liberado / Adoptado |
-| Fecha | Rango de fechas de captura |
+| Fecha  | Rango de fechas de captura                                      |
 
 > **Restricción Básica:** Solo puedes ver animales de tu cantón propio, sin importar qué filtro de cantón apliques.
 
@@ -128,16 +128,16 @@ Para procesar múltiples animales a la vez:
 
 Ve a **Estadísticas** en el menú del portal para ver:
 
-| Métrica | Descripción |
-|---|---|
-| Total capturado | Total de animales registrados en el período |
-| Recibido | Actualmente en custodia |
-| Dueño localizado | Casos resueltos positivamente |
-| Transferido | Enviados a otra institución |
-| Liberado | Animales silvestres liberados |
-| Adoptado | Animales adoptados |
-| **Tasa de recuperación** | % de dueños localizados sobre el total |
-| Actividad últimos 30 días | Gráfico de capturas diarias |
+| Métrica                   | Descripción                                 |
+| ------------------------- | ------------------------------------------- |
+| Total capturado           | Total de animales registrados en el período |
+| Recibido                  | Actualmente en custodia                     |
+| Dueño localizado          | Casos resueltos positivamente               |
+| Transferido               | Enviados a otra institución                 |
+| Liberado                  | Animales silvestres liberados               |
+| Adoptado                  | Animales adoptados                          |
+| **Tasa de recuperación**  | % de dueños localizados sobre el total      |
+| Actividad últimos 30 días | Gráfico de capturas diarias                 |
 
 **Endpoint:** `GET /api/municipalities/stats?canton=`
 
@@ -155,13 +155,13 @@ Incluye todo lo del plan Full más:
 
 Vista consolidada de todos los cantones bajo tu contrato:
 
-| Columna | Descripción |
-|---|---|
-| Cantón | Nombre del cantón |
-| Total | Animales registrados |
-| Activo | En custodia actualmente |
-| Dueño localizado | Casos resueltos |
-| Tasa | % recuperación |
+| Columna          | Descripción             |
+| ---------------- | ----------------------- |
+| Cantón           | Nombre del cantón       |
+| Total            | Animales registrados    |
+| Activo           | En custodia actualmente |
+| Dueño localizado | Casos resueltos         |
+| Tasa             | % recuperación          |
 
 Al final del dashboard: **Total regional** y **tasa de recuperación regional**.
 
@@ -194,18 +194,18 @@ Con una clave API, puedes consultar e ingresar registros desde tu sistema de ges
 
 ## Endpoints de referencia
 
-| Método | Endpoint | Tier mínimo | Descripción |
-|---|---|---|---|
-| GET | `/api/municipalities/profile` | Básica | Ver perfil y tier actual |
-| GET | `/api/municipalities/captures` | Básica | Buscar capturas (cantón propio) |
-| POST | `/api/municipalities/captures` | Básica | Registrar animal capturado |
-| PUT | `/api/municipalities/captures/{id}/status` | Básica | Actualizar estado individual |
-| POST | `/api/municipalities/captures/{id}/photo` | Full | Subir foto al registro |
-| PUT | `/api/municipalities/captures/bulk-status` | Full | Actualización masiva |
-| GET | `/api/municipalities/stats` | Full | Estadísticas del cantón |
-| GET | `/api/municipalities/regional` | Red Regional | Dashboard regional |
-| POST | `/api/municipalities/captures/{id}/transfer` | Red Regional | Transferir entre cantones |
-| POST | `/api/municipalities/admin/profiles` | Admin | Crear/actualizar perfil municipal |
+| Método | Endpoint                                     | Tier mínimo  | Descripción                       |
+| ------ | -------------------------------------------- | ------------ | --------------------------------- |
+| GET    | `/api/municipalities/profile`                | Básica       | Ver perfil y tier actual          |
+| GET    | `/api/municipalities/captures`               | Básica       | Buscar capturas (cantón propio)   |
+| POST   | `/api/municipalities/captures`               | Básica       | Registrar animal capturado        |
+| PUT    | `/api/municipalities/captures/{id}/status`   | Básica       | Actualizar estado individual      |
+| POST   | `/api/municipalities/captures/{id}/photo`    | Full         | Subir foto al registro            |
+| PUT    | `/api/municipalities/captures/bulk-status`   | Full         | Actualización masiva              |
+| GET    | `/api/municipalities/stats`                  | Full         | Estadísticas del cantón           |
+| GET    | `/api/municipalities/regional`               | Red Regional | Dashboard regional                |
+| POST   | `/api/municipalities/captures/{id}/transfer` | Red Regional | Transferir entre cantones         |
+| POST   | `/api/municipalities/admin/profiles`         | Admin        | Crear/actualizar perfil municipal |
 
 ---
 
@@ -230,6 +230,7 @@ Content-Type: application/json
 ```
 
 Para Red Regional con múltiples cantones:
+
 ```json
 {
   "userId": "...",
@@ -245,19 +246,20 @@ Para Red Regional con múltiples cantones:
 
 ## Probar los features como Municipalidad
 
-| Feature | Cómo probar |
-|---|---|
-| **Ver perfil/tier** | `GET /api/municipalities/profile` o portal → sección Perfil |
-| **Registrar captura** | Portal → "+ Nuevo registro" con datos de prueba |
-| **Buscar capturas** | Portal → lista de capturas, aplica filtros |
-| **Actualizar estado** | Toca un registro → cambia estado |
-| **Subir foto** (Full+) | Toca un registro → "Subir foto" (requiere tier Full) |
-| **Bulk update** (Full+) | Selecciona múltiples registros → "Actualizar estado masivo" |
-| **Estadísticas** (Full+) | Portal → menú Estadísticas |
-| **Dashboard regional** (Red Regional) | Portal → menú Regional |
-| **Transferir** (Red Regional) | Detalle de captura → "Transferir" → selecciona cantón destino |
+| Feature                               | Cómo probar                                                   |
+| ------------------------------------- | ------------------------------------------------------------- |
+| **Ver perfil/tier**                   | `GET /api/municipalities/profile` o portal → sección Perfil   |
+| **Registrar captura**                 | Portal → "+ Nuevo registro" con datos de prueba               |
+| **Buscar capturas**                   | Portal → lista de capturas, aplica filtros                    |
+| **Actualizar estado**                 | Toca un registro → cambia estado                              |
+| **Subir foto** (Full+)                | Toca un registro → "Subir foto" (requiere tier Full)          |
+| **Bulk update** (Full+)               | Selecciona múltiples registros → "Actualizar estado masivo"   |
+| **Estadísticas** (Full+)              | Portal → menú Estadísticas                                    |
+| **Dashboard regional** (Red Regional) | Portal → menú Regional                                        |
+| **Transferir** (Red Regional)         | Detalle de captura → "Transferir" → selecciona cantón destino |
 
 > **Usuarios de prueba:**
+>
 > - `Municipality` con tier `Basica` → para probar restricciones de cantón único y sin fotos.
 > - `Municipality` con tier `Full` → para probar fotos, estadísticas y bulk update.
 > - `Municipality` con tier `RedRegional` + múltiples cantones → para dashboard regional y transferencias.

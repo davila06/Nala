@@ -77,6 +77,7 @@ Para integrar PawTrack CR con tu software de gestión veterinaria (PMS):
 5. Puedes revocar claves en cualquier momento tocando **Revocar**.
 
 **Endpoints disponibles con API Key:**
+
 - `GET /api/clinics/scan/{microchipOrQr}` — buscar mascota por chip o QR
 - `POST /api/clinics/scan` — registrar escaneo programático
 
@@ -92,10 +93,10 @@ Muestra las mascotas perdidas reportadas en un radio configurable alrededor de t
 
 ## Planes para clínicas
 
-| Plan | Precio | Destacado |
-|---|---|---|
-| **Clínica Básica** | ₡9,900/mes | Portal base, escaneos, estadísticas |
-| **Clínica Plus** | ₡19,900/mes | Todo Básica + Alertas cercanas, API Key |
+| Plan                | Precio      | Destacado                                                                   |
+| ------------------- | ----------- | --------------------------------------------------------------------------- |
+| **Clínica Básica**  | ₡9,900/mes  | Portal base, escaneos, estadísticas                                         |
+| **Clínica Plus**    | ₡19,900/mes | Todo Básica + Alertas cercanas, API Key                                     |
 | **Clínica Partner** | ₡29,900/mes | Todo Plus + logo en mapa público, notificaciones a dueños, soporte dedicado |
 
 ### Beneficios exclusivos del plan Partner
@@ -111,6 +112,7 @@ Muestra las mascotas perdidas reportadas en un radio configurable alrededor de t
 Solo disponible con el plan **Clínica Partner**. El equipo de PawTrack CR activa esta función al aprobar el plan.
 
 Para maximizar visibilidad:
+
 - Sube tu **logo** desde el portal (pestaña Configuración).
 - Asegúrate de que tu dirección en el mapa sea precisa.
 
@@ -131,6 +133,7 @@ Para maximizar visibilidad:
 2. Acepta el permiso del navegador.
 
 Recibirás notificaciones cuando:
+
 - Una mascota que escaneas en tu clínica esté perdida.
 - Se reporte una mascota perdida en tu área (planes Plus y Partner).
 
@@ -146,14 +149,14 @@ Los dueños de mascotas pueden compartir el código de verificación de un certi
 
 ## Probar los features como Clínica
 
-| Feature | Cómo |
-|---|---|
-| **Escanear QR** | Portal → Escanear → apunta la cámara al QR de una mascota de prueba |
-| **Buscar por microchip** | Portal → Escanear → ingresa manualmente el número de chip |
-| **Ver estadísticas** | Portal → pestaña Estadísticas |
-| **API Keys** | Portal → pestaña API (requiere plan Plus o Partner) |
-| **Alertas cercanas** | Portal → pestaña 🚨 Alertas (requiere plan Plus o Partner) |
-| **Logo en mapa** | Sube el logo y verifica en `/map` con filtro de clínicas activo (requiere plan Partner) |
+| Feature                  | Cómo                                                                                    |
+| ------------------------ | --------------------------------------------------------------------------------------- |
+| **Escanear QR**          | Portal → Escanear → apunta la cámara al QR de una mascota de prueba                     |
+| **Buscar por microchip** | Portal → Escanear → ingresa manualmente el número de chip                               |
+| **Ver estadísticas**     | Portal → pestaña Estadísticas                                                           |
+| **API Keys**             | Portal → pestaña API (requiere plan Plus o Partner)                                     |
+| **Alertas cercanas**     | Portal → pestaña 🚨 Alertas (requiere plan Plus o Partner)                              |
+| **Logo en mapa**         | Sube el logo y verifica en `/map` con filtro de clínicas activo (requiere plan Partner) |
 
 > **Usuario de prueba sugerido:** Cuenta con rol `Clinic`, clínica aprobada, y plan `ClinicPlus` o `ClinicPartner` activo para probar las funciones premium.
 

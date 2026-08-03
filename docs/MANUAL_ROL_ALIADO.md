@@ -47,6 +47,7 @@ Lista en tiempo real de mascotas perdidas dentro de tu zona de cobertura. Cada a
 ### 2. Casos asignados
 
 Mascotas en cuya sala de caso estás participando activamente. Puedes acceder directamente a:
+
 - El chat con el dueño
 - El mapa de avistamientos
 - La coordinación de búsqueda en campo
@@ -84,6 +85,7 @@ Desde la alerta, toca **Ver caso**. Desde la sala de caso puedes:
 Si el dueño activó la coordinación, toca el enlace de búsqueda que comparte. Verás la cuadrícula 7×7 (49 zonas de 300 m²).
 
 Acciones disponibles en cada zona:
+
 - **Reclamar**: "Estoy buscando aquí" — la zona se marca en tu color.
 - **Limpiar**: "Ya revisé, no está aquí" — la zona queda marcada como despejada.
 - **Liberar**: "No puedo continuar" — la zona vuelve a quedar disponible.
@@ -121,13 +123,13 @@ Cuando alguien reporta haber encontrado una mascota, el sistema puede sugerirte 
 
 ## Probar los features como Aliado
 
-| Feature | Cómo |
-|---|---|
-| **Panel de aliado** | `/allies/panel` con cuenta habilitada como Ally |
-| **Alertas de zona** | Crea un reporte de mascota perdida con un usuario Owner en el área de cobertura del aliado |
+| Feature                      | Cómo                                                                                                  |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------- |
+| **Panel de aliado**          | `/allies/panel` con cuenta habilitada como Ally                                                       |
+| **Alertas de zona**          | Crea un reporte de mascota perdida con un usuario Owner en el área de cobertura del aliado            |
 | **Coordinación de búsqueda** | Activa coordinación desde la sala de caso (Owner), comparte el link, únete desde la cuenta del aliado |
-| **Chat con dueño** | Sala de caso → avistamiento → chat |
-| **Estadísticas** | `/estadisticas` |
+| **Chat con dueño**           | Sala de caso → avistamiento → chat                                                                    |
+| **Estadísticas**             | `/estadisticas`                                                                                       |
 
 > **Usuario de prueba sugerido:** Cuenta con rol `Ally` con perfil de aliado completo y aprobado.
 

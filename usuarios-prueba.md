@@ -1,6 +1,7 @@
 # PawTrack CR — Usuarios de Prueba
 
-> **SOLO USO LOCAL / DEV** — Nunca usar estas credenciales en staging o producción.
+> **SOLO USO LOCAL / DEV** — Nunca usar estas credenciales en staging o producción.  
+> Para la guía completa de pruebas por rol y flujos end-to-end, ver [`pruebas.md`](pruebas.md).
 
 ---
 

@@ -60,14 +60,14 @@ La plataforma funciona como una **aplicación web progresiva (PWA)**: puedes usa
 
 ## 2. Tipos de usuario
 
-| Rol                  | Descripción                                                                                                                        |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| **Dueño**            | Registra mascotas, activa reportes, coordina la búsqueda. Rol por defecto al registrarse.                                          |
-| **Aliado**           | Organización verificada (rescatista, refugio, protectora). Recibe alertas enriquecidas y tiene acceso a herramientas de operación. |
-| **Clínica**          | Veterinaria afiliada. Puede escanear microchips y registrar visitas de mascotas.                                                   |
-| **Municipalidad**    | Ente municipal autorizado. Gestiona animales capturados, estadísticas cantonales y transferencias inter-municipales.               |
-| **Administrador**    | Equipo PawTrack CR. Verifica aliados, activa clínicas, modera la plataforma, asigna tiers municipales.                             |
-| **Comunidad**        | Cualquier persona que escanea un QR o reporta un avistamiento **sin necesidad de cuenta**.                                         |
+| Rol               | Descripción                                                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Dueño**         | Registra mascotas, activa reportes, coordina la búsqueda. Rol por defecto al registrarse.                                          |
+| **Aliado**        | Organización verificada (rescatista, refugio, protectora). Recibe alertas enriquecidas y tiene acceso a herramientas de operación. |
+| **Clínica**       | Veterinaria afiliada. Puede escanear microchips y registrar visitas de mascotas.                                                   |
+| **Municipalidad** | Ente municipal autorizado. Gestiona animales capturados, estadísticas cantonales y transferencias inter-municipales.               |
+| **Administrador** | Equipo PawTrack CR. Verifica aliados, activa clínicas, modera la plataforma, asigna tiers municipales.                             |
+| **Comunidad**     | Cualquier persona que escanea un QR o reporta un avistamiento **sin necesidad de cuenta**.                                         |
 
 ---
 
@@ -439,12 +439,12 @@ El bot **nunca almacena tu número de teléfono**. Solo guarda un hash criptogr�
 
 PawTrack CR reconoce a los usuarios que más han contribuido a reunificar mascotas.
 
-| Insignia | Reunificaciones |
-| -------- | --------------- |
-| Sin insignia | 0 |
-| Bronce | 1–4 |
-| Plata | 5–9 |
-| Oro | 10+ |
+| Insignia     | Reunificaciones |
+| ------------ | --------------- |
+| Sin insignia | 0               |
+| Bronce       | 1–4             |
+| Plata        | 5–9             |
+| Oro          | 10+             |
 
 El leaderboard muestra a los usuarios con más reunificaciones en el Dashboard.
 
@@ -519,15 +519,15 @@ Cada mascota tiene una sección **Salud 🏥** en su perfil donde puedes llevar 
 
 ### Tipos de registro
 
-| Tipo | Descripción |
-| ---- | ----------- |
-| 💉 Vacuna | Vacunas aplicadas |
-| 🪱 Desparasitación | Tratamientos antiparasitarios |
-| 🩺 Consulta | Visitas al veterinario |
-| 🔪 Cirugía | Procedimientos quirúrgicos |
-| 💊 Medicamento | Tratamientos con medicamentos |
-| 🌿 Alergia | Alergias conocidas |
-| 📋 Otro | Cualquier otra anotación médica |
+| Tipo               | Descripción                     |
+| ------------------ | ------------------------------- |
+| 💉 Vacuna          | Vacunas aplicadas               |
+| 🪱 Desparasitación | Tratamientos antiparasitarios   |
+| 🩺 Consulta        | Visitas al veterinario          |
+| 🔪 Cirugía         | Procedimientos quirúrgicos      |
+| 💊 Medicamento     | Tratamientos con medicamentos   |
+| 🌿 Alergia         | Alergias conocidas              |
+| 📋 Otro            | Cualquier otra anotación médica |
 
 ### Agregar un registro
 
@@ -567,11 +567,11 @@ PawTrack CR ofrece tres planes para usuarios individuales y tres planes para cl�
 
 ### Planes para dueños de mascotas
 
-| Plan           | Precio       | Mascotas   | Destacado                                                                                       |
-| -------------- | ------------ | ---------- | ----------------------------------------------------------------------------------------------- |
-| **Explorador** | Gratis       | 1          | Funciones básicas completas                                                                     |
-| **Plus**       | ₡2,990 / mes | Hasta 3    | Alertas en radio de 10 km, historial de escaneos completo, GPS, predicción de movimiento        |
-| **Familia**    | ₡4,990 / mes | Ilimitadas | Todo Plus + historial médico, recordatorios vet, cuenta familiar (5 miembros), exportar PDF     |
+| Plan           | Precio       | Mascotas   | Destacado                                                                                   |
+| -------------- | ------------ | ---------- | ------------------------------------------------------------------------------------------- |
+| **Explorador** | Gratis       | 1          | Funciones básicas completas                                                                 |
+| **Plus**       | ₡2,990 / mes | Hasta 3    | Alertas en radio de 10 km, historial de escaneos completo, GPS, predicción de movimiento    |
+| **Familia**    | ₡4,990 / mes | Ilimitadas | Todo Plus + historial médico, recordatorios vet, cuenta familiar (5 miembros), exportar PDF |
 
 ### Comparativa de funciones
 

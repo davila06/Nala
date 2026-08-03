@@ -75,6 +75,7 @@ Activa el reporte lo antes posible. Cada hora importa.
 3. **Activar reporte**.
 
 El sistema cambia el estado a **Perdida** y notifica automáticamente a:
+
 - Aliados verificados en el radio de alerta (según tu plan: 3 km gratis, 10 km Plus, sin límite Familia).
 - Usuarios que tienen activadas las alertas de zona.
 - Miembros de tu cuenta familiar (plan Familia).
@@ -85,13 +86,13 @@ El sistema cambia el estado a **Perdida** y notifica automáticamente a:
 
 Accede desde el Dashboard o desde `/lost/{id}/case`. Desde aquí:
 
-| Acción | Descripción |
-|---|---|
-| **Ver avistamientos** | Todos los reportes de avistamientos en mapa y lista |
-| **Chat** | Conversación enmascarada con cada rescatista |
-| **Difundir** | Enviar el reporte a WhatsApp, Telegram, Facebook, correo |
-| **Coordinación de búsqueda** | Cuadrícula 7×7 en tiempo real para búsqueda organizada |
-| **Cambiar estado** | Activo / Suspendido / Reunificado / Cerrado |
+| Acción                       | Descripción                                              |
+| ---------------------------- | -------------------------------------------------------- |
+| **Ver avistamientos**        | Todos los reportes de avistamientos en mapa y lista      |
+| **Chat**                     | Conversación enmascarada con cada rescatista             |
+| **Difundir**                 | Enviar el reporte a WhatsApp, Telegram, Facebook, correo |
+| **Coordinación de búsqueda** | Cuadrícula 7×7 en tiempo real para búsqueda organizada   |
+| **Cambiar estado**           | Activo / Suspendido / Reunificado / Cerrado              |
 
 ### Difusión multicanal
 
@@ -163,15 +164,15 @@ Pestaña **Salud 🏥** en el perfil de cada mascota.
 
 ### Tipos de registro disponibles
 
-| Ícono | Tipo | Ejemplos de uso |
-|---|---|---|
-| 💉 | Vacuna | Rabia anual, parvovirus, etc. |
-| 🪱 | Desparasitación | Drontal, Milbemax |
-| 🩺 | Consulta | Revisión general, diagnóstico |
-| 🔪 | Cirugía | Esterilización, extracción dental |
-| 💊 | Medicamento | Antibiótico, antiparasitario crónico |
-| 🌿 | Alergia | Alergia a proteína de pollo, etc. |
-| 📋 | Otro | Observaciones generales |
+| Ícono | Tipo            | Ejemplos de uso                      |
+| ----- | --------------- | ------------------------------------ |
+| 💉    | Vacuna          | Rabia anual, parvovirus, etc.        |
+| 🪱    | Desparasitación | Drontal, Milbemax                    |
+| 🩺    | Consulta        | Revisión general, diagnóstico        |
+| 🔪    | Cirugía         | Esterilización, extracción dental    |
+| 💊    | Medicamento     | Antibiótico, antiparasitario crónico |
+| 🌿    | Alergia         | Alergia a proteína de pollo, etc.    |
+| 📋    | Otro            | Observaciones generales              |
 
 ### Agregar un registro
 
@@ -218,30 +219,30 @@ Dashboard → **Alertas de mascotas perdidas cerca de mí** → activa y permite
 
 ### Tipos de notificaciones que recibirás
 
-| Tipo | Cuándo |
-|---|---|
-| Avistamiento | Alguien vio a tu mascota |
-| Chat nuevo | Rescatista escribió en el chat |
-| Mascota perdida cerca | Reporte nuevo en tu área |
-| Recordatorio vet | 3 días antes de una cita médica |
-| Sistema | Actualizaciones de la plataforma |
+| Tipo                  | Cuándo                           |
+| --------------------- | -------------------------------- |
+| Avistamiento          | Alguien vio a tu mascota         |
+| Chat nuevo            | Rescatista escribió en el chat   |
+| Mascota perdida cerca | Reporte nuevo en tu área         |
+| Recordatorio vet      | 3 días antes de una cita médica  |
+| Sistema               | Actualizaciones de la plataforma |
 
 ---
 
 ## Plan Explorador vs Plus vs Familia
 
-| Función | Explorador | Plus | Familia |
-|---|---|---|---|
-| Mascotas | 1 | 3 | ∞ |
-| Búsqueda IA por foto | 3/mes | Ilimitada | Ilimitada |
-| Historial de escaneos | Últimos 5 | Completo | Completo |
-| Radio de alerta | 3 km | 10 km | Sin límite |
-| Panel GPS collar | — | ✓ | ✓ |
-| Predicción de movimiento | — | ✓ | ✓ |
-| Historial médico | — | — | ✓ |
-| Recordatorios vet | — | — | ✓ |
-| Cuenta familiar | — | — | ✓ (5 miembros) |
-| Exportar PDF historial | — | — | ✓ |
+| Función                  | Explorador | Plus      | Familia        |
+| ------------------------ | ---------- | --------- | -------------- |
+| Mascotas                 | 1          | 3         | ∞              |
+| Búsqueda IA por foto     | 3/mes      | Ilimitada | Ilimitada      |
+| Historial de escaneos    | Últimos 5  | Completo  | Completo       |
+| Radio de alerta          | 3 km       | 10 km     | Sin límite     |
+| Panel GPS collar         | —          | ✓         | ✓              |
+| Predicción de movimiento | —          | ✓         | ✓              |
+| Historial médico         | —          | —         | ✓              |
+| Recordatorios vet        | —          | —         | ✓              |
+| Cuenta familiar          | —          | —         | ✓ (5 miembros) |
+| Exportar PDF historial   | —          | —         | ✓              |
 
 ### Activar Plus o Familia
 
@@ -253,16 +254,16 @@ Perfil → Mi plan → **Mejorar a Plus** (o **Ver Familia**) → SINPE Móvil c
 
 Para probar los features implementados en esta sesión:
 
-| Feature | Pasos |
-|---|---|
-| **Cuenta familiar** | Perfil → "Cuenta familiar" — necesitas plan Familia activo |
-| **Invitar miembro** | Cuenta familiar → Invitar → copia el link y ábrelo en otro navegador/perfil |
-| **Aceptar invitación** | Abre `/familia/invitacion/{token}` (si no estás autenticado, te redirige a login primero) |
-| **Historial médico** | Detalle mascota → tab "Salud 🏥" — necesitas plan Familia |
-| **Agregar registro** | Salud → "+ Agregar" → completa el form |
-| **Exportar PDF médico** | Salud → "Exportar PDF" |
-| **Recordatorios** | Agrega un registro con "Próxima cita" → aparece en sección de recordatorios |
-| **Bounty claim** | Genera código de entrega (Handover) → ingrésalo → la recompensa se marca automáticamente |
+| Feature                 | Pasos                                                                                     |
+| ----------------------- | ----------------------------------------------------------------------------------------- |
+| **Cuenta familiar**     | Perfil → "Cuenta familiar" — necesitas plan Familia activo                                |
+| **Invitar miembro**     | Cuenta familiar → Invitar → copia el link y ábrelo en otro navegador/perfil               |
+| **Aceptar invitación**  | Abre `/familia/invitacion/{token}` (si no estás autenticado, te redirige a login primero) |
+| **Historial médico**    | Detalle mascota → tab "Salud 🏥" — necesitas plan Familia                                 |
+| **Agregar registro**    | Salud → "+ Agregar" → completa el form                                                    |
+| **Exportar PDF médico** | Salud → "Exportar PDF"                                                                    |
+| **Recordatorios**       | Agrega un registro con "Próxima cita" → aparece en sección de recordatorios               |
+| **Bounty claim**        | Genera código de entrega (Handover) → ingrésalo → la recompensa se marca automáticamente  |
 
 > **Usuario de prueba sugerido:** Usa el usuario con rol `Owner` y plan `UserFamilia` activo (activarlo desde el admin panel o directamente en la BD en desarrollo).
 

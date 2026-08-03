@@ -2,8 +2,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { municipalApi, type CapturedAnimalStatus } from "../api/municipalApi";
 
 const PROFILE_KEY = ["municipal-profile"] as const;
-const CAPTURES_KEY = (canton?: string, status?: CapturedAnimalStatus, page = 1) =>
-  ["captures", canton, status, page] as const;
+const CAPTURES_KEY = (
+  canton?: string,
+  status?: CapturedAnimalStatus,
+  page = 1,
+) => ["captures", canton, status, page] as const;
 
 export function useMunicipalProfile() {
   return useQuery({
@@ -36,8 +39,15 @@ export function useRecordCapture() {
 export function useUpdateCaptureStatus() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status, matchedPetId }: { id: string; status: CapturedAnimalStatus; matchedPetId?: string }) =>
-      municipalApi.updateStatus(id, status, matchedPetId),
+    mutationFn: ({
+      id,
+      status,
+      matchedPetId,
+    }: {
+      id: string;
+      status: CapturedAnimalStatus;
+      matchedPetId?: string;
+    }) => municipalApi.updateStatus(id, status, matchedPetId),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["captures"] }),
   });
 }
@@ -97,4 +107,3 @@ export function useTransferCapture() {
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["captures"] }),
   });
 }
-

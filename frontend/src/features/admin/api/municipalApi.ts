@@ -90,7 +90,9 @@ export const TIER_LABELS: Record<MunicipalTier, string> = {
 
 export const municipalApi = {
   getProfile: (): Promise<MunicipalProfileDto | null> =>
-    apiClient.get<MunicipalProfileDto | null>("/municipalities/profile").then((r) => r.data),
+    apiClient
+      .get<MunicipalProfileDto | null>("/municipalities/profile")
+      .then((r) => r.data),
 
   search: (canton?: string, status?: CapturedAnimalStatus, page = 1) =>
     apiClient
@@ -113,9 +115,16 @@ export const municipalApi = {
       .post<CapturedAnimalDto>("/municipalities/captures", data)
       .then((r) => r.data),
 
-  updateStatus: (id: string, status: CapturedAnimalStatus, matchedPetId?: string) =>
+  updateStatus: (
+    id: string,
+    status: CapturedAnimalStatus,
+    matchedPetId?: string,
+  ) =>
     apiClient
-      .put<CapturedAnimalDto>(`/municipalities/captures/${id}/status`, { status, matchedPetId })
+      .put<CapturedAnimalDto>(`/municipalities/captures/${id}/status`, {
+        status,
+        matchedPetId,
+      })
       .then((r) => r.data),
 
   bulkUpdateStatus: (
@@ -135,9 +144,13 @@ export const municipalApi = {
     const form = new FormData();
     form.append("photo", file);
     return apiClient
-      .post<{ photoUrl: string }>(`/municipalities/captures/${id}/photo`, form, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
+      .post<{ photoUrl: string }>(
+        `/municipalities/captures/${id}/photo`,
+        form,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      )
       .then((r) => r.data);
   },
 
@@ -147,9 +160,15 @@ export const municipalApi = {
       .then((r) => r.data),
 
   getRegionalDashboard: (): Promise<RegionalDashboardDto> =>
-    apiClient.get<RegionalDashboardDto>("/municipalities/regional").then((r) => r.data),
+    apiClient
+      .get<RegionalDashboardDto>("/municipalities/regional")
+      .then((r) => r.data),
 
-  transfer: (id: string, destinationCanton: string, notes?: string): Promise<CapturedAnimalDto> =>
+  transfer: (
+    id: string,
+    destinationCanton: string,
+    notes?: string,
+  ): Promise<CapturedAnimalDto> =>
     apiClient
       .post<CapturedAnimalDto>(`/municipalities/captures/${id}/transfer`, {
         destinationCanton,
@@ -157,4 +176,3 @@ export const municipalApi = {
       })
       .then((r) => r.data),
 };
-

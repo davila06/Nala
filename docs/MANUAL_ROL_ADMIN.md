@@ -77,6 +77,7 @@ Content-Type: application/json
 Tiers válidos: `Basica`, `Full`, `RedRegional`.
 
 Para Red Regional con múltiples cantones:
+
 ```json
 {
   "additionalCantons": ["Poás", "Grecia", "San Carlos"]
@@ -92,6 +93,7 @@ Para Red Regional con múltiples cantones:
 ### 7. Estadísticas globales
 
 Accede a `/estadisticas` para ver:
+
 - Tasas de recuperación por especie, raza y cantón
 - Tendencias mensuales de reportes y reunificaciones
 
@@ -169,33 +171,33 @@ Los usuarios de prueba disponibles están documentados en `usuarios-prueba.md` e
 
 ## Probar los features como Administrador
 
-| Feature | Cómo |
-|---|---|
-| **Panel admin** | `/admin` con cuenta Admin |
-| **Activar suscripción** | Crea una suscripción pendiente con un usuario Owner → actívala desde el panel |
-| **Aprobar clínica** | Registra una clínica en `/clinica/registro` → apruébala desde el panel |
-| **Crear perfil municipal Básica** | `POST /api/municipalities/admin/profiles` con tier `Basica` |
-| **Crear perfil municipal Full** | Ídem con tier `Full` |
-| **Crear perfil municipal RedRegional** | Ídem con tier `RedRegional` + `additionalCantons` |
-| **Ver reportes de fraude** | Usa el chat desde dos usuarios distintos → reporta fraude → verifica en panel |
-| **Ver estadísticas** | `/estadisticas` |
+| Feature                                | Cómo                                                                          |
+| -------------------------------------- | ----------------------------------------------------------------------------- |
+| **Panel admin**                        | `/admin` con cuenta Admin                                                     |
+| **Activar suscripción**                | Crea una suscripción pendiente con un usuario Owner → actívala desde el panel |
+| **Aprobar clínica**                    | Registra una clínica en `/clinica/registro` → apruébala desde el panel        |
+| **Crear perfil municipal Básica**      | `POST /api/municipalities/admin/profiles` con tier `Basica`                   |
+| **Crear perfil municipal Full**        | Ídem con tier `Full`                                                          |
+| **Crear perfil municipal RedRegional** | Ídem con tier `RedRegional` + `additionalCantons`                             |
+| **Ver reportes de fraude**             | Usa el chat desde dos usuarios distintos → reporta fraude → verifica en panel |
+| **Ver estadísticas**                   | `/estadisticas`                                                               |
 
 ### Tabla de usuarios de prueba recomendados
 
 Para probar la totalidad de los features de la plataforma, utiliza los siguientes usuarios (ver `usuarios-prueba.md`):
 
-| Usuario | Rol | Plan | Para probar |
-|---|---|---|---|
-| admin@pawtrack.cr | Admin | — | Panel admin, activar suscripciones, crear perfiles |
-| owner_free@test.cr | Owner | Explorador (gratis) | Funciones básicas, limitaciones de plan |
-| owner_plus@test.cr | Owner | UserPlus activo | GPS, historial completo de escaneos, radio 10km |
-| owner_familia@test.cr | Owner | UserFamilia activo | Historial médico, cuenta familiar, PDF |
-| ally@test.cr | Ally | — | Panel aliado, alertas de zona, coordinación |
-| clinica_basica@test.cr | Clinic | ClinicBasic | Escanear QR, estadísticas |
-| clinica_partner@test.cr | Clinic | ClinicPartner | Alertas cercanas, API keys, mapa público |
-| municipal_basica@test.cr | Municipality | Básica | Solo cantón propio, sin fotos/stats |
-| municipal_full@test.cr | Municipality | Full | Fotos, bulk, estadísticas, multi-cantón |
-| municipal_regional@test.cr | Municipality | RedRegional | Dashboard regional, transferencias |
+| Usuario                    | Rol          | Plan                | Para probar                                        |
+| -------------------------- | ------------ | ------------------- | -------------------------------------------------- |
+| admin@pawtrack.cr          | Admin        | —                   | Panel admin, activar suscripciones, crear perfiles |
+| owner_free@test.cr         | Owner        | Explorador (gratis) | Funciones básicas, limitaciones de plan            |
+| owner_plus@test.cr         | Owner        | UserPlus activo     | GPS, historial completo de escaneos, radio 10km    |
+| owner_familia@test.cr      | Owner        | UserFamilia activo  | Historial médico, cuenta familiar, PDF             |
+| ally@test.cr               | Ally         | —                   | Panel aliado, alertas de zona, coordinación        |
+| clinica_basica@test.cr     | Clinic       | ClinicBasic         | Escanear QR, estadísticas                          |
+| clinica_partner@test.cr    | Clinic       | ClinicPartner       | Alertas cercanas, API keys, mapa público           |
+| municipal_basica@test.cr   | Municipality | Básica              | Solo cantón propio, sin fotos/stats                |
+| municipal_full@test.cr     | Municipality | Full                | Fotos, bulk, estadísticas, multi-cantón            |
+| municipal_regional@test.cr | Municipality | RedRegional         | Dashboard regional, transferencias                 |
 
 > Crea los perfiles municipales con `POST /api/municipalities/admin/profiles` como Admin antes de probar.
 
