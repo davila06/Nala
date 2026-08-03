@@ -135,4 +135,12 @@ public interface INotificationDispatcher
         string reminderTitle,
         DateOnly dueDate,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Notifies the pet owner that a clinic added a record to their pet's medical history.</summary>
+    Task DispatchClinicMedicalRecordAddedAsync(
+        Guid ownerId,
+        string petName,
+        string clinicName,
+        string recordType,
+        CancellationToken cancellationToken = default);
 }

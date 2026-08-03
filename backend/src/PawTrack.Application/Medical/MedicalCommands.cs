@@ -33,12 +33,16 @@ public sealed record MedicalRecordDto(
     string? ClinicName,
     DateOnly? NextDueDate,
     string? DocumentUrl,
-    DateTimeOffset CreatedAt)
+    DateTimeOffset CreatedAt,
+    Guid? ClinicId,
+    string Source)  // "Owner" | "Clinic"
 {
     public static MedicalRecordDto FromDomain(MedicalRecord r) => new(
         r.Id, r.PetId, r.Type.ToString(), r.Date,
         r.Description, r.VetName, r.ClinicName,
-        r.NextDueDate, r.DocumentUrl, r.CreatedAt);
+        r.NextDueDate, r.DocumentUrl, r.CreatedAt,
+        r.ClinicId,
+        r.ClinicId.HasValue ? "Clinic" : "Owner");
 }
 
 public sealed record VetReminderDto(

@@ -580,5 +580,20 @@ public sealed class NotificationDispatcher(
             new PushNotificationMetadata(Url: "/dashboard"),
             cancellationToken);
     }
+
+    public async Task DispatchClinicMedicalRecordAddedAsync(
+        Guid ownerId,
+        string petName,
+        string clinicName,
+        string recordType,
+        CancellationToken cancellationToken = default)
+    {
+        await TrySendPushAsync(
+            ownerId,
+            $"🏥 Nuevo registro médico — {petName}",
+            $"{clinicName} agregó un registro de {recordType.ToLowerInvariant()} al expediente de {petName}.",
+            new PushNotificationMetadata(Url: "/dashboard"),
+            cancellationToken);
+    }
 }
 

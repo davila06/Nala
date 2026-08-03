@@ -39,19 +39,25 @@ const ALL_TYPES: MedicalRecordType[] = [
 // ── Record card ───────────────────────────────────────────────────────────────
 
 function RecordCard({ record }: { record: MedicalRecordDto }) {
+  const isClinic = record.source === "Clinic";
   return (
     <li className="rounded-xl border border-sand-100 bg-surface-warm p-4 space-y-1">
       <div className="flex items-start justify-between gap-2">
-        <span className="text-sm font-semibold text-sand-800">
-          {TYPE_LABEL[record.type as MedicalRecordType] ?? record.type}
-        </span>
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-sm font-semibold text-sand-800">
+            {TYPE_LABEL[record.type as MedicalRecordType] ?? record.type}
+          </span>
+          {isClinic && (
+            <span className="shrink-0 rounded-full bg-trust-100 px-2 py-0.5 text-xs font-medium text-trust-700">
+              🏥 {record.clinicName ?? "Clínica"}
+            </span>
+          )}
+        </div>
         <span className="shrink-0 text-xs text-sand-500">{record.date}</span>
       </div>
       <p className="text-sm text-sand-700">{record.description}</p>
-      {(record.vetName || record.clinicName) && (
-        <p className="text-xs text-sand-500">
-          {[record.vetName, record.clinicName].filter(Boolean).join(" · ")}
-        </p>
+      {record.vetName && (
+        <p className="text-xs text-sand-500">Dr/a. {record.vetName}</p>
       )}
       {record.nextDueDate && (
         <p className="text-xs font-medium text-warn-700">

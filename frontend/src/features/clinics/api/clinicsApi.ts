@@ -38,6 +38,7 @@ export interface PublicClinicDto {
 export interface ClinicScanResultDto {
   scanId: string;
   matched: boolean;
+  petId: string | null;
   petName: string | null;
   petPhotoUrl: string | null;
   ownerName: string | null;

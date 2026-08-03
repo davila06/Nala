@@ -22,6 +22,8 @@ export interface MedicalRecordDto {
   nextDueDate: string | null;
   documentUrl: string | null;
   createdAt: string;
+  clinicId: string | null;
+  source: "Owner" | "Clinic";
 }
 
 export interface VetReminderDto {
@@ -87,3 +89,54 @@ export const medicalApi = {
       .get(`/pets/${petId}/medical/export`, { responseType: "blob" })
       .then((r) => r.data as Blob),
 };
+
+// ── Clinic patient history ─────────────────────────────────────────────────────
+
+export interface ClinicPatientHistoryDto {
+  petId: string;
+  petName: string;
+  species: string;
+  breed: string | null;
+  photoUrl: string | null;
+  lastSeenAt: string | null;
+  records: MedicalRecordDto[];
+}
+
+export interface AddClinicMedicalRecordPayload {
+  petId?: string;         // Option A — prior scan required
+  qrOrChipInput?: string; // Option B — inline scan
+  inputType?: "Qr" | "RfidChip";
+  recordType: MedicalRecordType;
+  date: string;
+  description: string;
+  vetName?: string;
+  nextDueDate?: string;
+  document?: File;
+}
+
+export const clinicMedicalApi = {
+  getPatientHistory: (petId: string): Promise<ClinicPatientHistoryDto> =>
+    apiClient
+      .get<ClinicPatientHistoryDto>(`/clinics/patients/${petId}/medical`)
+      .then((r) => r.data),
+
+  addRecord: (payload: AddClinicMedicalRecordPayload): Promise<MedicalRecordDto> => {
+    const form = new FormData();
+    if (payload.petId) form.append("petId", payload.petId);
+    if (payload.qrOrChipInput) form.append("qrOrChipInput", payload.qrOrChipInput);
+    if (payload.inputType) form.append("inputType", payload.inputType);
+    form.append("recordType", payload.recordType);
+    form.append("date", payload.date);
+    form.append("description", payload.description);
+    if (payload.vetName) form.append("vetName", payload.vetName);
+    if (payload.nextDueDate) form.append("nextDueDate", payload.nextDueDate);
+    if (payload.document) form.append("document", payload.document);
+
+    return apiClient
+      .post<MedicalRecordDto>("/clinics/patients/medical", form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((r) => r.data);
+  },
+};
+

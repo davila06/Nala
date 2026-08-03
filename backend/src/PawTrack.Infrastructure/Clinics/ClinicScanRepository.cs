@@ -10,6 +10,28 @@ public sealed class ClinicScanRepository(PawTrackDbContext dbContext) : IClinicS
     public async Task AddAsync(ClinicScan scan, CancellationToken cancellationToken = default) =>
         await dbContext.ClinicScans.AddAsync(scan, cancellationToken);
 
+    public async Task<bool> HasRecentScanAsync(
+        Guid clinicId, Guid petId, int withinDays = 90, CancellationToken ct = default)
+    {
+        var cutoff = DateTimeOffset.UtcNow.AddDays(-withinDays);
+        return await dbContext.ClinicScans
+            .AsNoTracking()
+            .AnyAsync(s => s.ClinicId == clinicId
+                        && s.MatchedPetId == petId
+                        && s.ScannedAt >= cutoff, ct);
+    }
+
+    public async Task<DateTimeOffset?> GetLastScanDateAsync(
+        Guid clinicId, Guid petId, CancellationToken ct = default)
+    {
+        return await dbContext.ClinicScans
+            .AsNoTracking()
+            .Where(s => s.ClinicId == clinicId && s.MatchedPetId == petId)
+            .OrderByDescending(s => s.ScannedAt)
+            .Select(s => (DateTimeOffset?)s.ScannedAt)
+            .FirstOrDefaultAsync(ct);
+    }
+
     public async Task<ClinicScanMonthlyStats> GetMonthlyStatsAsync(
         Guid clinicId, int year, int month, CancellationToken cancellationToken = default)
     {

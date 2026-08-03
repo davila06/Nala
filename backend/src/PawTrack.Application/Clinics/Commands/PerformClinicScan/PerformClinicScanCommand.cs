@@ -61,6 +61,7 @@ public sealed class PerformClinicScanCommandHandler(
             return Result.Success(new ClinicScanResultDto(
                 ScanId: scan.Id,
                 Matched: false,
+                PetId: null,
                 PetName: null,
                 PetPhotoUrl: null,
                 OwnerName: null,
@@ -86,10 +87,11 @@ public sealed class PerformClinicScanCommandHandler(
         return Result.Success(new ClinicScanResultDto(
             ScanId: scan.Id,
             Matched: true,
+            PetId: pet.Id,
             PetName: pet.Name,
             PetPhotoUrl: pet.PhotoUrl,
             OwnerName: owner.Name,
-            OwnerNotified: true,   // owner was contacted server-side — raw email is never surfaced
+            OwnerNotified: true,
             PetSpecies: pet.Species.ToString()));
     }
 

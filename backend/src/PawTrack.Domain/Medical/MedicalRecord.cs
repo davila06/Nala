@@ -16,6 +16,8 @@ public sealed class MedicalRecord
     public Guid Id { get; private set; }
     public Guid PetId { get; private set; }
     public Guid CreatedByUserId { get; private set; }
+    /// <summary>Set when a Clinic account added this record; null for owner-created records.</summary>
+    public Guid? ClinicId { get; private set; }
     public MedicalRecordType Type { get; private set; }
     public DateOnly Date { get; private set; }
     public string Description { get; private set; } = string.Empty;
@@ -33,11 +35,13 @@ public sealed class MedicalRecord
         string description,
         string? vetName,
         string? clinicName,
-        DateOnly? nextDueDate) => new()
+        DateOnly? nextDueDate,
+        Guid? clinicId = null) => new()
         {
             Id = Guid.CreateVersion7(),
             PetId = petId,
             CreatedByUserId = createdByUserId,
+            ClinicId = clinicId,
             Type = type,
             Date = date,
             Description = description.Trim(),

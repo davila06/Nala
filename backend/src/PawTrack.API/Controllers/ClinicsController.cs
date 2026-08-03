@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using PawTrack.Application.Clinics.Commands.AddClinicMedicalRecord;
 using PawTrack.Application.Clinics.Commands.ManageApiKey;
 using PawTrack.Application.Clinics.Commands.PerformClinicScan;
 using PawTrack.Application.Clinics.Commands.RegisterClinic;
@@ -10,10 +11,12 @@ using PawTrack.Application.Clinics.Queries.GetClinicScanStats;
 using PawTrack.Application.Clinics.Queries.GetMyClinic;
 using PawTrack.Application.Clinics.Queries.GetNearbyActiveAlerts;
 using PawTrack.Application.Clinics.Queries.GetPendingClinics;
+using PawTrack.Application.Clinics.Queries.GetPetMedicalHistoryForClinic;
 using PawTrack.Application.Clinics.Queries.GetPublicClinics;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Auth;
 using PawTrack.Domain.Clinics;
+using PawTrack.Domain.Medical;
 using System.Security.Claims;
 
 namespace PawTrack.API.Controllers;
@@ -341,7 +344,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
 
     [HttpPut("admin/{clinicId:guid}/review")]
     [Authorize(Roles = "Admin")]
-    [EnableRateLimiting("public-api")] // 30/min — each call writes ReviewClinicCommand (DB write)
+    [EnableRateLimiting("public-api")]
     [RequestSizeLimit(512)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -355,6 +358,93 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
             return NotFound(new ProblemDetails { Title = "Clinic not found", Status = 404 });
 
         return NoContent();
+    }
+
+    // ── Expediente digital ─────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Returns a pet's full medical history to an authenticated clinic.
+    /// Access: Option A — clinic has a ClinicScan for this pet in the last 90 days.
+    ///         Option B — caller supplies petId from the current consult's QR/chip result.
+    /// Supply either petId (A) or qrOrChipInput+inputType (B).
+    /// </summary>
+    [HttpGet("patients/{petId:guid}/medical")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetPatientMedicalHistory(
+        Guid petId,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(
+            new GetPetMedicalHistoryForClinicQuery(clinicResult.Value.Id, petId, null, null), ct);
+
+        if (result.IsFailure)
+            return StatusCode(403, new ProblemDetails { Detail = result.Errors.FirstOrDefault(), Status = 403 });
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Adds a medical record to a pet's expediente from an authenticated clinic.
+    /// Option A: petId is known from a previous scan (clinic has scan history for this pet).
+    /// Option B: qrOrChipInput provided — scan is created inline (records this consult visit).
+    /// </summary>
+    [HttpPost("patients/medical")]
+    [Authorize(Roles = "Clinic")]
+    [Consumes("multipart/form-data")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(5_242_880)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> AddPatientMedicalRecord(
+        [FromForm] ClinicAddMedicalRecordRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        if (!Enum.TryParse<MedicalRecordType>(request.RecordType, ignoreCase: true, out var recordType))
+            return BadRequest(new ProblemDetails { Detail = $"Tipo inválido: {request.RecordType}.", Status = 400 });
+
+        ScanInputType? inputType = null;
+        if (!string.IsNullOrWhiteSpace(request.InputType)
+            && Enum.TryParse<ScanInputType>(request.InputType, ignoreCase: true, out var parsedInputType))
+            inputType = parsedInputType;
+
+        byte[]? docBytes = null;
+        string? docContentType = null;
+        if (request.Document is { Length: > 0 })
+        {
+            var allowed = new[] { "application/pdf", "image/jpeg", "image/png" };
+            if (!allowed.Contains(request.Document.ContentType, StringComparer.OrdinalIgnoreCase))
+                return BadRequest(new ProblemDetails { Detail = "Solo se aceptan PDF, JPEG o PNG.", Status = 400 });
+            using var ms = new MemoryStream();
+            await request.Document.CopyToAsync(ms, ct);
+            docBytes = ms.ToArray();
+            docContentType = request.Document.ContentType;
+        }
+
+        var result = await sender.Send(new AddClinicMedicalRecordCommand(
+            clinicResult.Value.Id, userId,
+            request.PetId, request.QrOrChipInput, inputType,
+            recordType, request.Date, request.Description,
+            request.VetName, request.NextDueDate,
+            docBytes, docContentType), ct);
+
+        if (result.IsFailure)
+            return result.Errors.Any(e => e.Contains("acceso") || e.Contains("escaneo"))
+                ? StatusCode(403, new ProblemDetails { Detail = result.Errors.FirstOrDefault(), Status = 403 })
+                : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+
+        return Created(string.Empty, result.Value);
     }
 }
 
@@ -376,3 +466,21 @@ public sealed record ClinicScanRequest(
 public sealed record ReviewClinicRequest(bool Approve);
 
 public sealed record CreateApiKeyRequest(string Label);
+
+/// <summary>
+/// Multipart form for POST /api/clinics/patients/medical.
+/// Supply PetId (Option A — prior scan required) or QrOrChipInput+InputType (Option B — inline scan).
+/// </summary>
+public sealed class ClinicAddMedicalRecordRequest
+{
+    public Guid? PetId { get; init; }
+    public string? QrOrChipInput { get; init; }
+    /// <summary>"Qr" or "RfidChip" — required when QrOrChipInput is provided.</summary>
+    public string? InputType { get; init; }
+    public string RecordType { get; init; } = string.Empty;
+    public DateOnly Date { get; init; }
+    public string Description { get; init; } = string.Empty;
+    public string? VetName { get; init; }
+    public DateOnly? NextDueDate { get; init; }
+    public IFormFile? Document { get; init; }
+}

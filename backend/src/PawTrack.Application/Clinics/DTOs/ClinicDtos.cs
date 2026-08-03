@@ -47,6 +47,7 @@ public sealed record ClinicDto(
 public sealed record ClinicScanResultDto(
     Guid ScanId,
     bool Matched,
+    Guid? PetId,
     string? PetName,
     string? PetPhotoUrl,
     string? OwnerName,

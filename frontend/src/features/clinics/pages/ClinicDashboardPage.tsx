@@ -19,6 +19,7 @@ import {
   useClinicNearbyAlerts,
 } from "../hooks/useClinics";
 import { CERTIFICATE_TYPE_LABELS } from "../api/certificateApi";
+import { ClinicExpedienteTab } from "../components/ClinicExpedienteTab";
 import { toast } from "@/shared/lib/toast";
 
 export default function ClinicDashboardPage() {
@@ -28,7 +29,7 @@ export default function ClinicDashboardPage() {
   const [showTiers, setShowTiers] = useState(false);
   const [showCertificate, setShowCertificate] = useState(false);
   const [activeSection, setActiveSection] = useState<
-    "scan" | "stats" | "api" | "alerts"
+    "scan" | "stats" | "api" | "alerts" | "expediente"
   >("scan");
   const logoInputRef = useRef<HTMLInputElement>(null);
 
@@ -62,6 +63,10 @@ export default function ClinicDashboardPage() {
 
   function handleReset() {
     setScanResult(null);
+  }
+
+  function handleOpenExpediente(result: ClinicScanResultDto) {
+    if (result.petId) setActiveSection("expediente");
   }
 
   async function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -176,14 +181,14 @@ export default function ClinicDashboardPage() {
       {/* ── Main ── */}
       <main className="mx-auto max-w-lg animate-fade-in-up px-4 py-6 space-y-6">
         {/* ── Section tabs ─────────────────────────────────────────── */}
-        <div className="flex gap-1 rounded-2xl bg-surface-warm p-1.5">
-          {(["scan", "stats", "api", "alerts"] as const).map((s) => (
+        <div className="flex gap-1 rounded-2xl bg-surface-warm p-1.5 overflow-x-auto no-scrollbar">
+          {(["scan", "stats", "api", "alerts", "expediente"] as const).map((s) => (
             <button
               key={s}
               type="button"
               onClick={() => setActiveSection(s)}
               className={[
-                "flex-1 rounded-xl py-2 text-xs font-bold transition-colors",
+                "shrink-0 rounded-xl px-3 py-2 text-xs font-bold transition-colors",
                 activeSection === s
                   ? "bg-surface text-sand-900 shadow-sm"
                   : "text-sand-500 hover:text-sand-700",
@@ -195,7 +200,9 @@ export default function ClinicDashboardPage() {
                   ? "📊 Stats"
                   : s === "api"
                     ? "🔑 API"
-                    : "🚨 Alertas"}
+                    : s === "alerts"
+                      ? "🚨 Alertas"
+                      : "📋 Expediente"}
             </button>
           ))}
         </div>
@@ -268,7 +275,18 @@ export default function ClinicDashboardPage() {
             {clinic && <ClinicCertificateHistory clinicId={clinic.id} />}
 
             {scanResult ? (
-              <MatchResultCard result={scanResult} onReset={handleReset} />
+              <div className="space-y-3">
+                <MatchResultCard result={scanResult} onReset={handleReset} />
+                {scanResult.matched && scanResult.petId && (
+                  <button
+                    type="button"
+                    onClick={() => handleOpenExpediente(scanResult)}
+                    className="w-full rounded-2xl border border-trust-200 bg-trust-50 px-4 py-3 text-sm font-semibold text-trust-800 hover:bg-trust-100 transition-colors"
+                  >
+                    📋 Ver expediente de {scanResult.petName}
+                  </button>
+                )}
+              </div>
             ) : (
               <>
                 <div>
@@ -302,6 +320,35 @@ export default function ClinicDashboardPage() {
         )}
 
         {activeSection === "alerts" && clinic && <ClinicNearbyAlertsSection />}
+
+        {activeSection === "expediente" && (
+          <div className="space-y-4">
+            <h2 className="font-display text-base font-semibold text-sand-800">
+              📋 Expediente digital
+            </h2>
+            {scanResult?.matched && scanResult.petId ? (
+              <ClinicExpedienteTab petId={scanResult.petId} />
+            ) : (
+              <div className="rounded-2xl border border-sand-200 bg-sand-50 p-6 text-center space-y-2">
+                <p className="text-2xl">🔍</p>
+                <p className="text-sm font-semibold text-sand-700">
+                  Escanea primero la mascota
+                </p>
+                <p className="text-xs text-sand-500">
+                  Ve a la pestaña <strong>Escanear</strong>, escanea el QR o
+                  chip de la mascota y luego regresa aquí para ver su expediente.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setActiveSection("scan")}
+                  className="mt-2 rounded-xl bg-brand-600 px-4 py-2 text-xs font-bold text-white hover:bg-brand-700"
+                >
+                  Ir a Escanear
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );
