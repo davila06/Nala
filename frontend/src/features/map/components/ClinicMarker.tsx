@@ -39,7 +39,9 @@ export function ClinicMarker({ clinic }: { clinic: PublicClinicDto }) {
     <Marker
       position={[clinic.lat, clinic.lng]}
       icon={icon}
-      eventHandlers={{ popupopen: () => clinicsApi.trackView(clinic.id, "map") }}
+      eventHandlers={{
+        popupopen: () => clinicsApi.trackView(clinic.id, "map"),
+      }}
     >
       <Popup maxWidth={220}>
         <div className="text-sm space-y-1.5" style={{ minWidth: 180 }}>

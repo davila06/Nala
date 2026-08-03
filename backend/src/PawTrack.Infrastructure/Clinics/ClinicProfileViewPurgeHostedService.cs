@@ -32,7 +32,7 @@ public sealed class ClinicProfileViewPurgeHostedService(
             {
                 await using var scope = scopeFactory.CreateAsyncScope();
                 var repo = scope.ServiceProvider.GetRequiredService<IClinicProfileViewRepository>();
-                var uow  = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                 await repo.PruneOlderThanAsync(RetentionDays, stoppingToken);
                 await uow.SaveChangesAsync(stoppingToken);
                 logger.LogInformation("ClinicProfileViewPurgeHostedService: pruned rows older than {Days} days.", RetentionDays);

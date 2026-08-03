@@ -184,33 +184,40 @@ export default function ClinicDashboardPage() {
       <main className="mx-auto max-w-lg animate-fade-in-up px-4 py-6 space-y-6">
         {/* ── Section tabs ─────────────────────────────────────────── */}
         <div className="flex gap-1 rounded-2xl bg-surface-warm p-1.5 overflow-x-auto no-scrollbar">
-          {(["scan", "stats", "api", "alerts", "expediente", "visibilidad"] as const).map(
-            (s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setActiveSection(s)}
-                className={[
-                  "shrink-0 rounded-xl px-3 py-2 text-xs font-bold transition-colors",
-                  activeSection === s
-                    ? "bg-surface text-sand-900 shadow-sm"
-                    : "text-sand-500 hover:text-sand-700",
-                ].join(" ")}
-              >
-                {s === "scan"
-                  ? "🔍 Escanear"
-                  : s === "stats"
-                    ? "📊 Stats"
-                    : s === "api"
-                      ? "🔑 API"
-                      : s === "alerts"
-                        ? "🚨 Alertas"
-                        : s === "expediente"
-                          ? "📋 Expediente"
-                          : "📈 Visibilidad"}
-              </button>
-            ),
-          )}
+          {(
+            [
+              "scan",
+              "stats",
+              "api",
+              "alerts",
+              "expediente",
+              "visibilidad",
+            ] as const
+          ).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setActiveSection(s)}
+              className={[
+                "shrink-0 rounded-xl px-3 py-2 text-xs font-bold transition-colors",
+                activeSection === s
+                  ? "bg-surface text-sand-900 shadow-sm"
+                  : "text-sand-500 hover:text-sand-700",
+              ].join(" ")}
+            >
+              {s === "scan"
+                ? "🔍 Escanear"
+                : s === "stats"
+                  ? "📊 Stats"
+                  : s === "api"
+                    ? "🔑 API"
+                    : s === "alerts"
+                      ? "🚨 Alertas"
+                      : s === "expediente"
+                        ? "📋 Expediente"
+                        : "📈 Visibilidad"}
+            </button>
+          ))}
         </div>
         {activeSection === "scan" && (
           <>
@@ -480,16 +487,29 @@ function ClinicNearbyAlertsSection() {
 // ── Visibilidad section (Plus/Partner) ───────────────────────────────────────
 
 function ClinicVisibilidadSection() {
-  const { data: stats, isLoading, isError, error } = useClinicVisibilityStats(30);
-  const forbidden = (error as { response?: { status?: number } } | null)?.response?.status === 402;
+  const {
+    data: stats,
+    isLoading,
+    isError,
+    error,
+  } = useClinicVisibilityStats(30);
+  const forbidden =
+    (error as { response?: { status?: number } } | null)?.response?.status ===
+    402;
 
-  if (isLoading) return <div className="animate-pulse h-40 rounded-2xl bg-sand-100" />;
+  if (isLoading)
+    return <div className="animate-pulse h-40 rounded-2xl bg-sand-100" />;
 
   if (forbidden || isError) {
     return (
       <div className="rounded-2xl border border-warn-200 bg-warn-50 p-5 text-center space-y-2">
-        <p className="text-sm font-semibold text-warn-800">📈 Métricas de visibilidad requieren Clínica Plus</p>
-        <p className="text-xs text-warn-700">Actualiza tu plan para ver cuántas veces aparece tu clínica en el mapa, directorio y alertas.</p>
+        <p className="text-sm font-semibold text-warn-800">
+          📈 Métricas de visibilidad requieren Clínica Plus
+        </p>
+        <p className="text-xs text-warn-700">
+          Actualiza tu plan para ver cuántas veces aparece tu clínica en el
+          mapa, directorio y alertas.
+        </p>
       </div>
     );
   }
@@ -499,8 +519,16 @@ function ClinicVisibilidadSection() {
   const metrics = [
     { label: "Vistas en directorio", value: stats.profileViews, icon: "📋" },
     { label: "Clics en mapa", value: stats.mapClicks, icon: "🗺️" },
-    { label: "Apariciones en búsqueda", value: stats.searchAppearances, icon: "🔍" },
-    { label: "Impresiones en alertas", value: stats.alertImpressions, icon: "🚨" },
+    {
+      label: "Apariciones en búsqueda",
+      value: stats.searchAppearances,
+      icon: "🔍",
+    },
+    {
+      label: "Impresiones en alertas",
+      value: stats.alertImpressions,
+      icon: "🚨",
+    },
     { label: "Vistas desde escaneo", value: stats.scanResultViews, icon: "📱" },
   ];
 
@@ -509,14 +537,23 @@ function ClinicVisibilidadSection() {
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-display text-base font-semibold text-sand-800">📈 Visibilidad</h3>
-        <span className="text-xs text-sand-500">Últimos {stats.periodDays} días · {total} impresiones</span>
+        <h3 className="font-display text-base font-semibold text-sand-800">
+          📈 Visibilidad
+        </h3>
+        <span className="text-xs text-sand-500">
+          Últimos {stats.periodDays} días · {total} impresiones
+        </span>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {metrics.map((m) => (
-          <div key={m.label} className="rounded-xl border border-sand-100 bg-surface-warm p-3 text-center">
+          <div
+            key={m.label}
+            className="rounded-xl border border-sand-100 bg-surface-warm p-3 text-center"
+          >
             <p className="text-xl">{m.icon}</p>
-            <p className="text-2xl font-black tabular-nums text-sand-900">{m.value}</p>
+            <p className="text-2xl font-black tabular-nums text-sand-900">
+              {m.value}
+            </p>
             <p className="text-xs text-sand-500">{m.label}</p>
           </div>
         ))}

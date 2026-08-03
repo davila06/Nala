@@ -308,7 +308,8 @@ function AddRecordForm({
 
 export function MedicalHistoryTab({ petId }: { petId: string }) {
   const { data: records, isLoading: loadingRecords } = useMedicalHistory(petId);
-  const { data: reminders, isLoading: loadingReminders } = useVetReminders(petId);
+  const { data: reminders, isLoading: loadingReminders } =
+    useVetReminders(petId);
   const { data: publicClinics } = usePublicClinics();
   const exportPdf = useExportMedicalPdf(petId);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -317,7 +318,10 @@ export function MedicalHistoryTab({ petId }: { petId: string }) {
   const completedReminders = reminders?.filter((r) => r.isCompleted) ?? [];
 
   // map public clinics to the shape the access manager expects
-  const availableClinics = publicClinics?.map((c) => ({ id: c.id, name: c.name }));
+  const availableClinics = publicClinics?.map((c) => ({
+    id: c.id,
+    name: c.name,
+  }));
 
   return (
     <div className="space-y-5">
@@ -413,7 +417,10 @@ export function MedicalHistoryTab({ petId }: { petId: string }) {
 
       {/* ── Clinic access (Option C) ───────────────────────────────────── */}
       <hr className="border-sand-100" />
-      <PetClinicAccessManager petId={petId} availableClinics={availableClinics} />
+      <PetClinicAccessManager
+        petId={petId}
+        availableClinics={availableClinics}
+      />
     </div>
   );
 }

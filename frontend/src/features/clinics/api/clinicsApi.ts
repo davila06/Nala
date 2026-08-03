@@ -167,7 +167,10 @@ export const clinicsApi = {
       .then((r) => r.data),
 
   // Fire-and-forget — called when a user opens a clinic popup or profile
-  trackView: (clinicId: string, source: "map" | "directory" | "search" | "alert"): void => {
+  trackView: (
+    clinicId: string,
+    source: "map" | "directory" | "search" | "alert",
+  ): void => {
     void apiClient
       .post(`/clinics/${clinicId}/view`, null, { params: { source } })
       .catch(() => undefined);
