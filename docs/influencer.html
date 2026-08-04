@@ -184,8 +184,16 @@
         z-index: 1;
         max-width: 800px;
       }
-      .hero-eyebrow {
+      .flag-cr {
         display: inline-block;
+        border-radius: 2px;
+        vertical-align: middle;
+        flex-shrink: 0;
+      }
+      .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         background: rgba(232, 82, 30, 0.15);
         border: 1px solid rgba(232, 82, 30, 0.4);
         color: #f97316;
@@ -801,11 +809,19 @@
   <body>
     <!-- ── NAV ── -->
     <nav>
-      <div class="nav-logo">🐾🇨🇷 PawTrack <span>CR</span></div>
-      <a
-        href="mailto:davila06@gmail.com?subject=Colaboraci%C3%B3n%20PawTrack%20CR"
-        class="nav-cta"
-        >Colaborar →</a
+      <div class="nav-logo">
+        🐾
+        <img
+          class="flag-cr"
+          src="https://flagcdn.com/16x12/cr.png"
+          srcset="https://flagcdn.com/32x24/cr.png 2x"
+          alt="Costa Rica"
+          width="16"
+          height="12"
+        />
+        PawTrack
+        <span>CR</span>
+      </div>
       >
     </nav>
 
@@ -818,7 +834,17 @@
         <div class="orb orb3"></div>
       </div>
       <div class="hero-inner">
-        <span class="hero-eyebrow">🇨🇷 Hecho para Costa Rica</span>
+        <span class="hero-eyebrow"
+          ><img
+            class="flag-cr"
+            src="https://flagcdn.com/20x15/cr.png"
+            srcset="https://flagcdn.com/40x30/cr.png 2x"
+            alt="Costa Rica"
+            width="20"
+            height="15"
+          />
+          Hecho para Costa Rica</span
+        >
         <h1>Porque cada mascota<br />merece volver a casa</h1>
         <p class="hero-sub">
           PawTrack CR es la primera red inteligente de Costa Rica que conecta a
@@ -1387,8 +1413,6 @@
     <footer>
       <div class="logo">🐾 PawTrack <span>CR</span></div>
       <div class="footer-links">
-        <a href="https://pawtrack.cr">Plataforma</a>
-        <a href="https://pawtrack.cr/map">Mapa público</a>
         <a href="mailto:davila06@gmail.com">Contacto</a>
       </div>
       <p>© 2026 PawTrack CR · Hecho con ❤️ para las mascotas de Costa Rica</p>
