@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PawTrack CR — La app que reúne mascotas con sus familias</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; font-size: 16px; }
+      body {
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        background: #0d0d14;
+        color: #f0ede8;
+        line-height: 1.65;
+        overflow-x: hidden;
+      }
+
+      /* ── Tokens ── */
+      :root {
+        --brand: #1a3484;
+        --accent: #e8521e;
+        --glow: #f97316;
+        --warm: #faf7f2;
+        --sand: #f5f1eb;
+        --muted: #9a9080;
+        --surface: rgba(255,255,255,.06);
+        --border: rgba(255,255,255,.1);
+        --green: #4ade80;
+      }
+
+      .container { max-width: 960px; margin: 0 auto; padding: 0 1.5rem; }
+
+      /* ── Scroll reveal ── */
+      .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+      .reveal.visible { opacity: 1; transform: none; }
+
+      /* ── NAV ── */
+      nav {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+        padding: .875rem 1.5rem;
+        background: rgba(13,13,20,.85);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(255,255,255,.07);
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .nav-logo { font-weight: 900; font-size: 1.1rem; color: #fff; display: flex; gap: .5rem; align-items: center; }
+      .nav-logo span { color: var(--glow); }
+      .nav-cta {
+        background: var(--accent); color: #fff; font-size: .8rem; font-weight: 700;
+        padding: .5rem 1.25rem; border-radius: 100px; text-decoration: none;
+        transition: transform .15s, box-shadow .15s;
+      }
+      .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(232,82,30,.5); }
+
+      /* ── HERO ── */
+      .hero {
+        min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        text-align: center; padding: 6rem 1.5rem 4rem;
+        position: relative; overflow: hidden;
+      }
+      .hero-bg {
+        position: absolute; inset: 0; z-index: 0;
+        background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(26,52,132,.35) 0%, transparent 70%),
+                    radial-gradient(ellipse 60% 40% at 80% 70%, rgba(232,82,30,.12) 0%, transparent 60%),
+                    radial-gradient(ellipse 40% 30% at 20% 80%, rgba(74,222,128,.06) 0%, transparent 60%);
+      }
+      .hero-orbs { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+      .orb {
+        position: absolute; border-radius: 50%; filter: blur(60px);
+        animation: drift 12s ease-in-out infinite alternate;
+      }
+      .orb1 { width: 400px; height: 400px; background: rgba(26,52,132,.25); top: -100px; left: -100px; }
+      .orb2 { width: 300px; height: 300px; background: rgba(232,82,30,.12); bottom: -80px; right: -80px; animation-delay: -4s; }
+      .orb3 { width: 200px; height: 200px; background: rgba(74,222,128,.07); top: 50%; left: 60%; animation-delay: -8s; }
+      @keyframes drift { 0% { transform: translate(0,0); } 100% { transform: translate(40px, -30px); } }
+
+      .hero-inner { position: relative; z-index: 1; max-width: 800px; }
+      .hero-eyebrow {
+        display: inline-block; background: rgba(232,82,30,.15); border: 1px solid rgba(232,82,30,.4);
+        color: #f97316; font-size: .75rem; font-weight: 700; letter-spacing: .14em;
+        text-transform: uppercase; padding: .35rem 1rem; border-radius: 100px; margin-bottom: 1.5rem;
+      }
+      .hero h1 {
+        font-size: clamp(2.5rem, 7vw, 5rem); font-weight: 900; line-height: 1.05;
+        margin-bottom: 1.25rem;
+        background: linear-gradient(135deg, #fff 30%, #e8c07a 70%, #f97316 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      }
+      .hero-sub {
+        font-size: clamp(1rem, 2.5vw, 1.25rem); color: rgba(255,255,255,.7);
+        max-width: 580px; margin: 0 auto 2.5rem;
+      }
+      .hero-ctas { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+      .btn-primary {
+        background: linear-gradient(135deg, var(--accent) 0%, #c2410c 100%);
+        color: #fff; font-weight: 700; font-size: 1rem; padding: .875rem 2.5rem;
+        border-radius: 100px; text-decoration: none;
+        box-shadow: 0 4px 30px rgba(232,82,30,.4);
+        transition: transform .15s, box-shadow .15s;
+      }
+      .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(232,82,30,.6); }
+      .btn-ghost {
+        background: var(--surface); border: 1px solid var(--border);
+        color: rgba(255,255,255,.85); font-weight: 600; font-size: 1rem; padding: .875rem 2rem;
+        border-radius: 100px; text-decoration: none; backdrop-filter: blur(8px);
+        transition: background .15s;
+      }
+      .btn-ghost:hover { background: rgba(255,255,255,.12); }
+
+      .hero-scroll {
+        margin-top: 4rem; display: flex; flex-direction: column; align-items: center; gap: .5rem;
+        color: rgba(255,255,255,.35); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase;
+        animation: bounce 2s ease-in-out infinite;
+      }
+      .hero-scroll svg { width: 20px; height: 20px; }
+      @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+
+      /* ── Section titles ── */
+      .s-label {
+        font-size: .7rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase;
+        color: #f97316; margin-bottom: .5rem;
+      }
+      .s-title { font-size: clamp(1.75rem, 4vw, 2.75rem); font-weight: 900; line-height: 1.15; margin-bottom: .75rem; }
+      .s-lead { font-size: 1.05rem; color: rgba(255,255,255,.6); max-width: 560px; margin-bottom: 2.5rem; }
+
+      /* ── STORY ── */
+      .story { padding: 6rem 0; }
+      .story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+      .story-visual {
+        background: var(--surface); border: 1px solid var(--border); border-radius: 24px;
+        padding: 2rem; text-align: center; font-size: 7rem; line-height: 1;
+        position: relative; overflow: hidden;
+      }
+      .story-visual::before {
+        content: ""; position: absolute; inset: 0;
+        background: radial-gradient(circle at center, rgba(232,82,30,.1) 0%, transparent 70%);
+      }
+      .story-visual .emoji { display: block; margin-bottom: .5rem; }
+      .story-visual p { font-size: .85rem; color: rgba(255,255,255,.5); margin-top: 1rem; font-style: italic; }
+      .stat-row { display: flex; gap: 2rem; margin-top: 2rem; flex-wrap: wrap; }
+      .stat-item .n { font-size: 2.25rem; font-weight: 900; color: #f97316; }
+      .stat-item .l { font-size: .8rem; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .06em; }
+
+      /* ── HOW IT WORKS ── */
+      .how { padding: 6rem 0; background: rgba(255,255,255,.02); }
+      .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2.5rem; }
+      .step { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 1.75rem; position: relative; }
+      .step-num {
+        width: 36px; height: 36px; border-radius: 50%; background: var(--accent);
+        display: flex; align-items: center; justify-content: center;
+        font-size: .8rem; font-weight: 900; color: #fff; margin-bottom: 1.25rem;
+        box-shadow: 0 0 20px rgba(232,82,30,.4);
+      }
+      .step-icon { font-size: 2rem; margin-bottom: .75rem; display: block; }
+      .step h3 { font-size: .95rem; font-weight: 700; margin-bottom: .4rem; }
+      .step p { font-size: .82rem; color: rgba(255,255,255,.55); }
+
+      /* ── FEATURES SHOWCASE ── */
+      .features { padding: 6rem 0; }
+      .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; }
+      .feat-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+        padding: 1.75rem; cursor: default;
+        transition: transform .2s, background .2s, border-color .2s;
+      }
+      .feat-card:hover { transform: translateY(-4px); background: rgba(255,255,255,.1); border-color: rgba(232,82,30,.3); }
+      .feat-icon { font-size: 2.25rem; margin-bottom: 1rem; display: block; }
+      .feat-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: .4rem; }
+      .feat-card p { font-size: .83rem; color: rgba(255,255,255,.55); }
+      .feat-tag {
+        display: inline-block; margin-top: .75rem; font-size: .7rem; font-weight: 700;
+        padding: .2rem .65rem; border-radius: 100px; background: rgba(74,222,128,.12);
+        color: var(--green); letter-spacing: .05em;
+      }
+
+      /* ── IMPACT COUNTER ── */
+      .impact { padding: 5rem 0; background: rgba(26,52,132,.12); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+      .impact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 2rem; text-align: center; }
+      .impact-item { padding: 1rem; }
+      .impact-num { font-size: 3rem; font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--glow) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+      .impact-label { font-size: .8rem; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .08em; margin-top: .25rem; }
+
+      /* ── STORY CARDS (testimonial-style) ── */
+      .stories { padding: 6rem 0; }
+      .stories-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; }
+      .story-card {
+        background: linear-gradient(135deg, var(--surface) 0%, rgba(232,82,30,.06) 100%);
+        border: 1px solid var(--border); border-radius: 20px; padding: 1.75rem;
+      }
+      .story-card .quote { font-size: 2rem; color: var(--accent); line-height: 1; margin-bottom: .75rem; }
+      .story-card p { font-size: .88rem; color: rgba(255,255,255,.75); font-style: italic; margin-bottom: 1.25rem; }
+      .story-author { display: flex; gap: .75rem; align-items: center; }
+      .story-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+      .story-name { font-size: .85rem; font-weight: 700; }
+      .story-role { font-size: .75rem; color: rgba(255,255,255,.45); }
+
+      /* ── FOR INFLUENCERS ── */
+      .for-influencers { padding: 6rem 0; }
+      .infl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; }
+      .infl-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+        padding: 1.75rem; border-top: 3px solid var(--accent);
+      }
+      .infl-card .icon { font-size: 2rem; margin-bottom: .9rem; }
+      .infl-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: .4rem; }
+      .infl-card p { font-size: .82rem; color: rgba(255,255,255,.55); }
+
+      /* ── QR DEMO ── */
+      .qr-demo { padding: 5rem 0; background: rgba(255,255,255,.02); }
+      .qr-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+      .qr-phone {
+        background: #1c1c2e; border-radius: 32px; padding: 1.5rem; max-width: 280px; margin: 0 auto;
+        box-shadow: 0 30px 80px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.06);
+      }
+      .qr-screen { background: #111827; border-radius: 20px; padding: 1.25rem; }
+      .qr-header { display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem; }
+      .qr-dot { width: 10px; height: 10px; border-radius: 50%; }
+      .qr-status { background: rgba(74,222,128,.15); border: 1px solid rgba(74,222,128,.3); color: var(--green); font-size: .7rem; font-weight: 700; padding: .2rem .65rem; border-radius: 100px; margin-left: auto; }
+      .qr-pet-card { background: rgba(255,255,255,.06); border-radius: 12px; padding: 1rem; text-align: center; }
+      .qr-pet-emoji { font-size: 4rem; display: block; margin-bottom: .75rem; }
+      .qr-pet-name { font-size: 1.1rem; font-weight: 800; }
+      .qr-pet-breed { font-size: .75rem; color: rgba(255,255,255,.5); margin-top: .1rem; }
+      .qr-alert { background: rgba(232,82,30,.15); border: 1px solid rgba(232,82,30,.4); border-radius: 10px; padding: .75rem; margin-top: .75rem; font-size: .75rem; color: #fca58e; font-weight: 600; text-align: center; }
+      .qr-btn { display: block; text-align: center; background: var(--accent); color: #fff; font-size: .8rem; font-weight: 700; padding: .6rem; border-radius: 10px; margin-top: .75rem; text-decoration: none; }
+
+      /* ── CTA FINAL ── */
+      .cta-final {
+        padding: 7rem 1.5rem;
+        background: linear-gradient(135deg, rgba(26,52,132,.3) 0%, rgba(232,82,30,.15) 50%, rgba(13,13,20,0) 100%);
+        text-align: center; position: relative; overflow: hidden;
+      }
+      .cta-final::before {
+        content: ""; position: absolute; inset: 0;
+        background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(232,82,30,.1) 0%, transparent 70%);
+      }
+      .cta-final-inner { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
+      .cta-big-emoji { font-size: 5rem; display: block; margin-bottom: 1rem; animation: pulse-emoji 3s ease-in-out infinite; }
+      @keyframes pulse-emoji { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+      .cta-final h2 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; margin-bottom: 1rem; }
+      .cta-final p { font-size: 1.1rem; color: rgba(255,255,255,.7); margin-bottom: 2.5rem; max-width: 480px; margin-left: auto; margin-right: auto; }
+      .cta-final .links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+      .cta-tag { display: block; margin-bottom: .75rem; font-size: .85rem; color: rgba(255,255,255,.45); letter-spacing: .1em; text-transform: uppercase; }
+
+      /* ── FOOTER ── */
+      footer { background: #08080f; border-top: 1px solid rgba(255,255,255,.06); padding: 2.5rem 1.5rem; text-align: center; }
+      footer .logo { font-size: 1.4rem; font-weight: 900; color: #fff; margin-bottom: .5rem; }
+      footer .logo span { color: var(--glow); }
+      footer p { font-size: .8rem; color: rgba(255,255,255,.3); }
+      footer .footer-links { display: flex; gap: 1.5rem; justify-content: center; margin: 1rem 0; flex-wrap: wrap; }
+      footer a { color: rgba(255,255,255,.4); text-decoration: none; font-size: .82rem; transition: color .15s; }
+      footer a:hover { color: rgba(255,255,255,.8); }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 700px) {
+        .story-grid, .qr-inner { grid-template-columns: 1fr; }
+        .story-visual { display: none; }
+        .qr-phone { max-width: 240px; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- ── NAV ── -->
+    <nav>
+      <div class="nav-logo">🐾 PawTrack <span>CR</span></div>
+      <a href="https://pawtrack.cr" class="nav-cta">Usar gratis →</a>
+    </nav>
+
+    <!-- ── HERO ── -->
+    <section class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-orbs">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+      </div>
+      <div class="hero-inner">
+        <span class="hero-eyebrow">🇨🇷 Hecho para Costa Rica</span>
+        <h1>Porque cada mascota<br/>merece volver a casa</h1>
+        <p class="hero-sub">
+          PawTrack CR es la primera red inteligente de Costa Rica que conecta a dueños, rescatistas y comunidad para reunir mascotas perdidas con sus familias — en tiempo real.
+        </p>
+        <div class="hero-ctas">
+          <a href="https://pawtrack.cr" class="btn-primary">Registra tu mascota gratis</a>
+          <a href="#como-funciona" class="btn-ghost">Ver cómo funciona</a>
+        </div>
+        <div class="hero-scroll">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          Explorar
+        </div>
+      </div>
+    </section>
+
+    <!-- ── STORY ── -->
+    <section class="story">
+      <div class="container">
+        <div class="story-grid">
+          <div class="reveal">
+            <div class="s-label">El problema real</div>
+            <h2 class="s-title">Miles de mascotas se pierden<br/>cada año en Costa Rica</h2>
+            <p style="color:rgba(255,255,255,.65);margin-bottom:1.25rem;">
+              El proceso actual es caótico: posts perdidos en grupos de Facebook, información desactualizada, coordinación nula entre vecinos. Los dueños no saben qué hacer y las horas críticas pasan sin acción.
+            </p>
+            <p style="color:rgba(255,255,255,.65);margin-bottom:2rem;">
+              PawTrack CR cambia eso. Una plataforma estructurada, privada y en tiempo real que activa toda la red cuando tu mascota desaparece.
+            </p>
+            <div class="stat-row">
+              <div class="stat-item"><div class="n">68%</div><div class="l">Tasa de recuperación</div></div>
+              <div class="stat-item"><div class="n">&lt;72h</div><div class="l">Tiempo promedio de reunificación</div></div>
+              <div class="stat-item"><div class="n">26</div><div class="l">Módulos en la plataforma</div></div>
+            </div>
+          </div>
+          <div class="story-visual reveal" style="transition-delay:.15s">
+            <span class="emoji">🐕</span>
+            <svg viewBox="0 0 200 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;margin-top:.5rem;opacity:.4;">
+              <path d="M10 20 Q50 5 100 20 Q150 35 190 20" stroke="#e8521e" stroke-width="2" stroke-dasharray="6 4" fill="none"/>
+              <circle cx="190" cy="20" r="5" fill="#4ade80"/>
+            </svg>
+            <p>"De perdido a casa en 14 horas.<br/>Nunca pensé que fuera tan rápido."</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── HOW IT WORKS ── -->
+    <section class="how" id="como-funciona">
+      <div class="container">
+        <div class="s-label reveal">¿Cómo funciona?</div>
+        <h2 class="s-title reveal">Tan simple como escanear un QR</h2>
+        <p class="s-lead reveal">No necesitas instalar nada. Funciona en cualquier smartphone desde el navegador.</p>
+        <div class="steps">
+          <div class="step reveal">
+            <span class="step-icon">🐾</span>
+            <div class="step-num">1</div>
+            <h3>Registra a tu mascota</h3>
+            <p>Sube foto, nombre, especie, chip y genera su placa QR digital en segundos. Gratis.</p>
+          </div>
+          <div class="step reveal" style="transition-delay:.1s">
+            <span class="step-icon">🏷️</span>
+            <div class="step-num">2</div>
+            <h3>Coloca el QR en su collar</h3>
+            <p>Imprime la placa o pídela física. Cualquier cámara la escanea — sin app ni cuenta.</p>
+          </div>
+          <div class="step reveal" style="transition-delay:.2s">
+            <span class="step-icon">🚨</span>
+            <div class="step-num">3</div>
+            <h3>Si se pierde, activa el reporte</h3>
+            <p>Un toque y la red entra en acción: alertas a rescatistas, aliados y usuarios en el área.</p>
+          </div>
+          <div class="step reveal" style="transition-delay:.3s">
+            <span class="step-icon">📍</span>
+            <div class="step-num">4</div>
+            <h3>La comunidad reporta avistamientos</h3>
+            <p>Cualquier persona puede reportar sin cuenta. El mapa en vivo muestra cada avistamiento.</p>
+          </div>
+          <div class="step reveal" style="transition-delay:.4s">
+            <span class="step-icon">🤝</span>
+            <div class="step-num">5</div>
+            <h3>Entrega segura con código</h3>
+            <p>Un código de 4 dígitos confirma la entrega. Tu número de teléfono nunca se expone.</p>
+          </div>
+          <div class="step reveal" style="transition-delay:.5s">
+            <span class="step-icon">🏡</span>
+            <div class="step-num">6</div>
+            <h3>¡Reunificado!</h3>
+            <p>Cierras el caso, tu mascota está en casa. La comunidad celebra contigo.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── IMPACT ── -->
+    <section class="impact">
+      <div class="container">
+        <div class="impact-grid">
+          <div class="impact-item reveal">
+            <div class="impact-num" data-target="68">0%</div>
+            <div class="impact-label">Tasa de recuperación</div>
+          </div>
+          <div class="impact-item reveal" style="transition-delay:.1s">
+            <div class="impact-num">72h</div>
+            <div class="impact-label">Tiempo promedio de reunificación</div>
+          </div>
+          <div class="impact-item reveal" style="transition-delay:.2s">
+            <div class="impact-num">800K</div>
+            <div class="impact-label">Hogares con mascotas en CR</div>
+          </div>
+          <div class="impact-item reveal" style="transition-delay:.3s">
+            <div class="impact-num">0</div>
+            <div class="impact-label">Datos personales expuestos</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FEATURES ── -->
+    <section class="features">
+      <div class="container">
+        <div class="s-label reveal">¿Qué más puede hacer?</div>
+        <h2 class="s-title reveal">No es solo un QR.<br/>Es un ecosistema completo.</h2>
+        <p class="s-lead reveal">PawTrack CR cuida a tu mascota mucho antes de que se pierda y mucho después de que vuelva.</p>
+        <div class="feat-grid">
+          <div class="feat-card reveal">
+            <span class="feat-icon">🗺️</span>
+            <h3>Mapa de búsqueda en tiempo real</h3>
+            <p>Todos los avistamientos aparecen en un mapa interactivo. Coordina búsquedas en campo con hasta 49 zonas asignadas entre voluntarios.</p>
+            <span class="feat-tag">Tiempo real</span>
+          </div>
+          <div class="feat-card reveal" style="transition-delay:.08s">
+            <span class="feat-icon">🤖</span>
+            <h3>IA que reconoce mascotas por foto</h3>
+            <p>Encontraste un perrito sin collar y no sabes de quién es. Sube una foto y la IA lo cruza con todos los perfiles activos de mascotas perdidas.</p>
+            <span class="feat-tag">Inteligencia artificial</span>
+          </div>
+          <div class="feat-card reveal" style="transition-delay:.16s">
+            <span class="feat-icon">🏥</span>
+            <h3>Expediente médico digital</h3>
+            <p>Vacunas, desparasitaciones, cirugías y recordatorios veterinarios. Tu vet puede agregar registros directamente. Todo en un lugar seguro.</p>
+            <span class="feat-tag">Salud</span>
+          </div>
+          <div class="feat-card reveal" style="transition-delay:.24s">
+            <span class="feat-icon">📡</span>
+            <h3>Seguimiento GPS con collar Tractive</h3>
+            <p>Conecta tu collar GPS Tractive y ve la posición de tu mascota en tiempo real con historial de trayectoria de 7 días.</p>
+            <span class="feat-tag">GPS en vivo</span>
+          </div>
+          <div class="feat-card reveal" style="transition-delay:.32s">
+            <span class="feat-icon">💬</span>
+            <h3>Chat completamente anónimo</h3>
+            <p>¿Alguien encontró a tu mascota? Chaten de forma segura. Tu número de teléfono y dirección nunca se revelan a extraños.</p>
+            <span class="feat-tag">Privacidad total</span>
+          </div>
+          <div class="feat-card reveal" style="transition-delay:.40s">
+            <span class="feat-icon">🔔</span>
+            <h3>Alertas que llegan donde estés</h3>
+            <p>Notificaciones push, WhatsApp, Telegram y email. La red completa sabe en segundos cuando una mascota se pierde en tu zona.</p>
+            <span class="feat-tag">Multicanal</span>
+          </div>
+          <div class="feat-card reveal" style="transition-delay:.48s">
+            <span class="feat-icon">👨‍👩‍👧</span>
+            <h3>Cuenta familiar compartida</h3>
+            <p>Invita a toda tu familia. Cada miembro recibe alertas y puede gestionar el historial médico de todas las mascotas del hogar.</p>
+            <span class="feat-tag">Familia</span>
+          </div>
+          <div class="feat-card reveal" style="transition-delay:.56s">
+            <span class="feat-icon">🤝</span>
+            <h3>Red de rescatistas verificados</h3>
+            <p>Aliados verificados reciben alertas enriquecidas y coordinan búsquedas en campo con información que el público general no ve.</p>
+            <span class="feat-tag">Comunidad</span>
+          </div>
+          <div class="feat-card reveal" style="transition-delay:.64s">
+            <span class="feat-icon">🏥</span>
+            <h3>Clínicas veterinarias conectadas</h3>
+            <p>Si tu mascota llega a una clínica afiliada, el sistema notifica automáticamente al dueño — aunque la mascota no tenga collar.</p>
+            <span class="feat-tag">Red veterinaria</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── QR DEMO ── -->
+    <section class="qr-demo" id="demo">
+      <div class="container">
+        <div class="qr-inner">
+          <div class="reveal">
+            <div class="s-label">El QR que lo cambia todo</div>
+            <h2 class="s-title">Cualquier persona que encuentre<br/>a tu mascota la puede identificar</h2>
+            <p style="color:rgba(255,255,255,.6);margin-bottom:1.5rem;">
+              Sin descargar ninguna app. Sin crear cuenta. Solo escanean con la cámara del celular y ven el perfil de tu mascota al instante.
+            </p>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:.75rem;">
+              <li style="display:flex;gap:.75rem;align-items:flex-start;font-size:.9rem;color:rgba(255,255,255,.7);">
+                <span style="color:var(--green);font-size:1.1rem;flex-shrink:0">✓</span>
+                Funciona con cualquier cámara de smartphone
+              </li>
+              <li style="display:flex;gap:.75rem;align-items:flex-start;font-size:.9rem;color:rgba(255,255,255,.7);">
+                <span style="color:var(--green);font-size:1.1rem;flex-shrink:0">✓</span>
+                Muestra si la mascota está reportada como perdida
+              </li>
+              <li style="display:flex;gap:.75rem;align-items:flex-start;font-size:.9rem;color:rgba(255,255,255,.7);">
+                <span style="color:var(--green);font-size:1.1rem;flex-shrink:0">✓</span>
+                Permite reportar avistamiento con ubicación GPS
+              </li>
+              <li style="display:flex;gap:.75rem;align-items:flex-start;font-size:.9rem;color:rgba(255,255,255,.7);">
+                <span style="color:var(--green);font-size:1.1rem;flex-shrink:0">✓</span>
+                El dueño recibe notificación en segundos
+              </li>
+              <li style="display:flex;gap:.75rem;align-items:flex-start;font-size:.9rem;color:rgba(255,255,255,.7);">
+                <span style="color:var(--green);font-size:1.1rem;flex-shrink:0">✓</span>
+                Privacidad del dueño protegida en todo momento
+              </li>
+            </ul>
+          </div>
+          <div class="reveal" style="transition-delay:.15s;display:flex;justify-content:center;">
+            <div class="qr-phone">
+              <div class="qr-screen">
+                <div class="qr-header">
+                  <span style="font-size:.7rem;color:rgba(255,255,255,.3)">pawtrack.cr/p/</span>
+                  <span class="qr-status">🔴 PERDIDO</span>
+                </div>
+                <div class="qr-pet-card">
+                  <span class="qr-pet-emoji">🐶</span>
+                  <div class="qr-pet-name">Max</div>
+                  <div class="qr-pet-breed">Golden Retriever · 3 años</div>
+                  <div class="qr-alert">⚠️ Esta mascota está perdida desde el 2 de agosto · San José</div>
+                  <a href="#" class="qr-btn">📍 Reportar avistamiento</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── STORIES ── -->
+    <section class="stories">
+      <div class="container">
+        <div class="s-label reveal">Historias reales</div>
+        <h2 class="s-title reveal">Porque detrás de cada reporte<br/>hay una familia esperando</h2>
+        <div class="stories-grid">
+          <div class="story-card reveal">
+            <div class="quote">"</div>
+            <p>Luna desapareció en la madrugada. A las 9am ya tenía tres avistamientos en el mapa y a las 2pm estaba en casa. No puedo creer que una app lo haya hecho posible.</p>
+            <div class="story-author">
+              <div class="story-avatar">🐱</div>
+              <div>
+                <div class="story-name">María José, Heredia</div>
+                <div class="story-role">Dueña de Luna, gata</div>
+              </div>
+            </div>
+          </div>
+          <div class="story-card reveal" style="transition-delay:.1s">
+            <div class="quote">"</div>
+            <p>Soy rescatista y PawTrack cambió todo. Antes tardábamos días en saber si un perro tenía dueño. Ahora escaneamos el QR y en segundos contactamos a la familia.</p>
+            <div class="story-author">
+              <div class="story-avatar">🤝</div>
+              <div>
+                <div class="story-name">Carlos, San José</div>
+                <div class="story-role">Rescatista verificado</div>
+              </div>
+            </div>
+          </div>
+          <div class="story-card reveal" style="transition-delay:.2s">
+            <div class="quote">"</div>
+            <p>Lo mejor es que mi vecino encontró a Toby y sin tener la app lo pudo reportar. Solo escaneó el collar y me llegó una notificación. Así de simple. Así de genial.</p>
+            <div class="story-author">
+              <div class="story-avatar">🐕</div>
+              <div>
+                <div class="story-name">Andrea, Cartago</div>
+                <div class="story-role">Dueña de Toby, bulldog</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FOR INFLUENCERS ── -->
+    <section class="for-influencers" style="background:rgba(255,255,255,.02)">
+      <div class="container">
+        <div class="s-label reveal">Para creadores de contenido</div>
+        <h2 class="s-title reveal">¿Por qué hablar de PawTrack CR?</h2>
+        <p class="s-lead reveal">Una causa genuina, una audiencia que lo valora, y contenido que mueve corazones.</p>
+        <div class="infl-grid">
+          <div class="infl-card reveal">
+            <div class="icon">❤️</div>
+            <h3>Causa que conecta emocionalmente</h3>
+            <p>El amor por las mascotas es universal. Un contenido sobre PawTrack genera empatía instantánea y alto engagement orgánico.</p>
+          </div>
+          <div class="infl-card reveal" style="transition-delay:.08s">
+            <div class="icon">📱</div>
+            <h3>Contenido visual fácil de crear</h3>
+            <p>Registra a tu mascota en vivo, muestra el QR, simula un escaneo. El producto habla por sí solo en 60 segundos de video.</p>
+          </div>
+          <div class="infl-card reveal" style="transition-delay:.16s">
+            <div class="icon">🇨🇷</div>
+            <h3>Producto 100% costarricense</h3>
+            <p>Apoyar a un emprendimiento local resuena profundamente con audiencias ticas. "Hecho en Costa Rica" es un diferenciador poderoso.</p>
+          </div>
+          <div class="infl-card reveal" style="transition-delay:.24s">
+            <div class="icon">🆓</div>
+            <h3>Gratis para todos</h3>
+            <p>Registrar tu mascota y generar su QR es completamente gratis. No le estás vendiendo nada a tu audiencia — les estás dando una herramienta.</p>
+          </div>
+          <div class="infl-card reveal" style="transition-delay:.32s">
+            <div class="icon">🐾</div>
+            <h3>Tu mascota como protagonista</h3>
+            <p>Registra a tu peludo en vivo, muestra su QR en cámara, escanéalo con el teléfono. Contenido auténtico que se hace solo.</p>
+          </div>
+          <div class="infl-card reveal" style="transition-delay:.40s">
+            <div class="icon">🌍</div>
+            <h3>Impacto real y medible</h3>
+            <p>Cada vez que compartes, potencialmente estás ayudando a que UNA mascota vuelva a casa. Eso es contenido con propósito.</p>
+          </div>
+        </div>
+
+        <!-- Content ideas -->
+        <div style="margin-top:3rem;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem;" class="reveal">
+          <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">💡 Ideas de contenido</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
+            <div style="background:rgba(255,255,255,.05);border-radius:12px;padding:1rem;">
+              <div style="font-size:1.3rem;margin-bottom:.4rem;">🎥</div>
+              <div style="font-size:.85rem;font-weight:700;margin-bottom:.25rem;">Reel de registro</div>
+              <div style="font-size:.78rem;color:rgba(255,255,255,.5);">Muestra en 30 segundos cómo registrar a tu mascota y generar su QR.</div>
+            </div>
+            <div style="background:rgba(255,255,255,.05);border-radius:12px;padding:1rem;">
+              <div style="font-size:1.3rem;margin-bottom:.4rem;">📸</div>
+              <div style="font-size:.85rem;font-weight:700;margin-bottom:.25rem;">Foto con el QR</div>
+              <div style="font-size:.78rem;color:rgba(255,255,255,.5);">Tu mascota posando con su collar QR. Texto: "Ya tiene su identificación digital."</div>
+            </div>
+            <div style="background:rgba(255,255,255,.05);border-radius:12px;padding:1rem;">
+              <div style="font-size:1.3rem;margin-bottom:.4rem;">🗣️</div>
+              <div style="font-size:.85rem;font-weight:700;margin-bottom:.25rem;">Historia personal</div>
+              <div style="font-size:.78rem;color:rgba(255,255,255,.5);">¿Alguna vez perdiste o encontraste una mascota? Conecta esa historia con la solución.</div>
+            </div>
+            <div style="background:rgba(255,255,255,.05);border-radius:12px;padding:1rem;">
+              <div style="font-size:1.3rem;margin-bottom:.4rem;">📊</div>
+              <div style="font-size:.85rem;font-weight:700;margin-bottom:.25rem;">Infografía de impacto</div>
+              <div style="font-size:.78rem;color:rgba(255,255,255,.5);">68% de recuperación, &lt;72h promedio. Números que impresionan y se comparten solos.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CTA FINAL ── -->
+    <section class="cta-final">
+      <div class="container">
+        <div class="cta-final-inner reveal">
+          <span class="cta-big-emoji">🐾</span>
+          <span class="cta-tag">Únete a la red</span>
+          <h2>Registra a tu mascota.<br/>Cuídala mejor.</h2>
+          <p>Gratis, en 2 minutos, desde el navegador de tu celular. Sin descargar nada. Sin complicaciones.</p>
+          <div class="links">
+            <a href="https://pawtrack.cr" class="btn-primary">Empezar gratis ahora</a>
+            <a href="mailto:davila06@gmail.com?subject=Colaboración%20PawTrack%20CR" class="btn-ghost">Colaborar con PawTrack</a>
+          </div>
+          <p style="margin-top:1.5rem;font-size:.82rem;color:rgba(255,255,255,.35);">
+            Contacto para colaboraciones: davila06@gmail.com
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <footer>
+      <div class="logo">🐾 PawTrack <span>CR</span></div>
+      <div class="footer-links">
+        <a href="https://pawtrack.cr">Plataforma</a>
+        <a href="https://pawtrack.cr/map">Mapa público</a>
+        <a href="mailto:davila06@gmail.com">Contacto</a>
+      </div>
+      <p>© 2026 PawTrack CR · Hecho con ❤️ para las mascotas de Costa Rica</p>
+    </footer>
+
+    <script>
+      // ── Scroll reveal ──
+      const observer = new IntersectionObserver(
+        (entries) => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } }),
+        { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+      );
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+      // ── Counter animation ──
+      function animateCounter(el, target, suffix = '') {
+        let start = 0;
+        const step = target / 60;
+        const timer = setInterval(() => {
+          start = Math.min(start + step, target);
+          el.textContent = Math.floor(start) + suffix;
+          if (start >= target) clearInterval(timer);
+        }, 20);
+      }
+
+      const counterObs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            const el = e.target;
+            const t = parseInt(el.dataset.target);
+            if (!isNaN(t)) animateCounter(el, t, '%');
+            counterObs.unobserve(el);
+          }
+        });
+      }, { threshold: 0.5 });
+      document.querySelectorAll('[data-target]').forEach(el => counterObs.observe(el));
+
+      // ── Smooth nav links ──
+      document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+          const t = document.querySelector(a.getAttribute('href'));
+          if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        });
+      });
+
+      // ── Nav scroll style ──
+      const nav = document.querySelector('nav');
+      window.addEventListener('scroll', () => {
+        nav.style.background = window.scrollY > 60
+          ? 'rgba(8,8,15,.95)'
+          : 'rgba(13,13,20,.85)';
+      }, { passive: true });
+    </script>
+
+  </body>
+</html>
