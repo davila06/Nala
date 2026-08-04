@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SinpePaymentModal } from "./SinpePaymentModal";
+import { BundleOrderModal } from "@/features/bundles/components/BundleOrderModal";
 import type { SubscriptionTier } from "../api/subscriptionApi";
 
 interface Tier {
@@ -93,6 +94,7 @@ interface FreemiumModalProps {
 
 export function FreemiumModal({ onClose }: FreemiumModalProps) {
   const [pendingTier, setPendingTier] = useState<SubscriptionTier | null>(null);
+  const [showBundle, setShowBundle] = useState(false);
 
   if (pendingTier) {
     return (
@@ -237,13 +239,36 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
           <p className="mt-5 text-center text-xs text-sand-400">
             Pagos seguros vía SINPE Móvil · Sin contrato · Cancela cuando
             quieras ·{" "}
-            <a
-              href="mailto:soporte@pawtrack.cr"
-              className="text-brand-600 hover:underline"
-            >
+            <a href="mailto:soporte@pawtrack.cr" className="text-brand-600 hover:underline">
               soporte@pawtrack.cr
             </a>
           </p>
+
+          {/* Bundle GPS CTA */}
+          <div className="mt-5 rounded-2xl border border-brand-200 bg-gradient-to-r from-brand-50 to-rescue-50 p-4 flex items-center gap-4">
+            <span className="text-3xl shrink-0" aria-hidden="true">📡</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-brand-800">Bundle Collar GPS + 12 meses Plus</p>
+              <p className="text-xs text-brand-600 opacity-80">Tractive GPS + PawTrack Plus todo incluido · Envío a CR</p>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-sm font-black text-brand-900">₡49,900</p>
+              <button
+                type="button"
+                onClick={() => setShowBundle(true)}
+                className="mt-1 rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              >
+                Pedir collar →
+              </button>
+            </div>
+          </div>
+
+          {/* Bundle modal (shown inline) */}
+          {showBundle && (
+            <div className="mt-4 rounded-2xl border border-sand-200 bg-surface p-4">
+              <BundleOrderModal onClose={() => setShowBundle(false)} />
+            </div>
+          )}
         </motion.div>
       </motion.div>
     </AnimatePresence>

@@ -219,6 +219,78 @@ public sealed class EmailSender(
             cancellationToken);
     }
 
+    // ── Bundle order emails ───────────────────────────────────────────────────
+
+    public Task SendBundleOrderConfirmationAsync(
+        string to, string name, string collarModelLabel,
+        string paymentReference, decimal amountCrc, string shippingAddress,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>Hola {Escape(name)},</p>
+            <p>¡Tu pedido de <strong>{Escape(collarModelLabel)}</strong> + 12 meses de PawTrack Plus
+               fue recibido correctamente!</p>
+            <h3>Detalles del pedido</h3>
+            <table style="border-collapse:collapse;width:100%;max-width:480px;">
+              <tr><td style="padding:6px 0;color:#6b6057;">Collar</td><td style="font-weight:700;">{Escape(collarModelLabel)}</td></tr>
+              <tr><td style="padding:6px 0;color:#6b6057;">Plan incluido</td><td style="font-weight:700;">PawTrack Plus · 12 meses</td></tr>
+              <tr><td style="padding:6px 0;color:#6b6057;">Total</td><td style="font-weight:700;">₡{amountCrc:N0}</td></tr>
+              <tr><td style="padding:6px 0;color:#6b6057;">Referencia SINPE</td><td style="font-weight:800;font-size:1.3em;color:#1a3484;">{Escape(paymentReference)}</td></tr>
+              <tr><td style="padding:6px 0;color:#6b6057;">Dirección de envío</td><td>{Escape(shippingAddress)}</td></tr>
+            </table>
+            <h3>¿Qué sigue?</h3>
+            <ol>
+              <li>Realiza la transferencia SINPE Móvil al número configurado con la referencia <strong>{Escape(paymentReference)}</strong>.</li>
+              <li>Marca el pago como realizado en tu perfil de PawTrack.</li>
+              <li>Confirmaremos el pago en 24-48 horas hábiles y activaremos tu plan Plus.</li>
+              <li>Adquiriremos tu collar y te enviaremos el número de seguimiento por correo.</li>
+            </ol>
+            <p>¿Preguntas? Escríbenos a <a href="mailto:soporte@pawtrack.cr">soporte@pawtrack.cr</a></p>
+            """;
+
+        return SendAsync(to, name,
+            subject: $"📦 Pedido recibido: {collarModelLabel} — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    public Task SendBundlePaymentConfirmedAsync(
+        string to, string name, string collarModelLabel,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>Hola {Escape(name)},</p>
+            <p>✅ ¡Confirmamos tu pago para el bundle <strong>{Escape(collarModelLabel)}</strong>!</p>
+            <p>Tu plan <strong>PawTrack Plus por 12 meses</strong> ya está activo en tu cuenta.
+               Puedes conectar tu collar GPS desde la pestaña GPS en el perfil de tu mascota.</p>
+            <p>Estaremos adquiriendo tu collar y te notificaremos con el número de rastreo
+               tan pronto como sea despachado.</p>
+            <p>Gracias por confiar en PawTrack CR. 🐾</p>
+            """;
+
+        return SendAsync(to, name,
+            subject: $"✅ Pago confirmado · Plan Plus activado — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    public Task SendBundleShippedAsync(
+        string to, string name, string collarModelLabel, string trackingNumber,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>Hola {Escape(name)},</p>
+            <p>📦 ¡Tu <strong>{Escape(collarModelLabel)}</strong> está en camino!</p>
+            <p><strong>Número de seguimiento:</strong> {Escape(trackingNumber)}</p>
+            <p>Puedes rastrear tu paquete en el sitio del transportista con el código anterior.
+               El tiempo estimado de entrega es de 2-5 días hábiles.</p>
+            <p>Una vez que lo recibas, conecta el collar desde la pestaña GPS 📡 en el perfil de tu mascota.</p>
+            <p>Cualquier duda: <a href="mailto:soporte@pawtrack.cr">soporte@pawtrack.cr</a></p>
+            """;
+
+        return SendAsync(to, name,
+            subject: $"🚚 Tu collar GPS está en camino — PawTrack CR",
+            html, cancellationToken);
+    }
+
     // ── Internal helpers ──────────────────────────────────────────────────────
 
     /// <summary>

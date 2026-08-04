@@ -31,11 +31,13 @@ using PawTrack.Infrastructure.Sightings;
 using PawTrack.Infrastructure.Storage;
 using PawTrack.Application.Common.Settings;
 using PawTrack.Application.Bounties.Interfaces;
+using PawTrack.Application.Bundles.Interfaces;
 using PawTrack.Application.Certificates.Interfaces;
 using PawTrack.Application.Collars.Interfaces;
 using PawTrack.Application.Municipalities.Interfaces;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Infrastructure.Bounties;
+using PawTrack.Infrastructure.Bundles;
 using PawTrack.Infrastructure.Certificates;
 using PawTrack.Infrastructure.Collars;
 using PawTrack.Infrastructure.Municipalities;
@@ -180,6 +182,7 @@ public static class InfrastructureServiceCollectionExtensions
 
         // Bounties
         services.AddScoped<IBountyRepository, BountyRepository>();
+        services.AddScoped<IBundleOrderRepository, BundleOrderRepository>();
 
         // Collars / GPS
         services.AddScoped<ICollarRepository, CollarRepository>();

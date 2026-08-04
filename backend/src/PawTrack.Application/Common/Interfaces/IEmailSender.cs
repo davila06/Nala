@@ -59,5 +59,19 @@ public interface IEmailSender
         string counterpartName,
         string outcome,
         CancellationToken cancellationToken = default);
+
+    // ── Bundle order emails ───────────────────────────────────────────────────
+    Task SendBundleOrderConfirmationAsync(
+        string to, string name, string collarModelLabel,
+        string paymentReference, decimal amountCrc, string shippingAddress,
+        CancellationToken cancellationToken = default);
+
+    Task SendBundlePaymentConfirmedAsync(
+        string to, string name, string collarModelLabel,
+        CancellationToken cancellationToken = default);
+
+    Task SendBundleShippedAsync(
+        string to, string name, string collarModelLabel, string trackingNumber,
+        CancellationToken cancellationToken = default);
 }
 

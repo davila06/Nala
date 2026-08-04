@@ -5,6 +5,7 @@ using PawTrack.Domain.Auth;
 using PawTrack.Domain.Bot;
 using PawTrack.Domain.Bounties;
 using PawTrack.Domain.Broadcast;
+using PawTrack.Domain.Bundles;
 using PawTrack.Domain.Certificates;
 using PawTrack.Domain.Chat;
 using PawTrack.Domain.Clinics;
@@ -58,6 +59,7 @@ public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> option
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     public DbSet<Bounty> Bounties => Set<Bounty>();
+    public DbSet<BundleOrder> BundleOrders => Set<BundleOrder>();
     public DbSet<Collar> Collars => Set<Collar>();
     public DbSet<CollarLocation> CollarLocations => Set<CollarLocation>();
     public DbSet<VetCertificate> VetCertificates => Set<VetCertificate>();
