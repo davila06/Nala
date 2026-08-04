@@ -161,4 +161,4 @@ PawTrack CR esta **live** cuando se cumplen las tres condiciones simultaneamente
 
 ---
 
-*Guia detallada: [pasos para ir live.md](pasos%20para%20ir%20live.md)*
+_Guia detallada: [pasos para ir live.md](pasos%20para%20ir%20live.md)_

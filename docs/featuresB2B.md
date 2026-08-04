@@ -7,43 +7,43 @@
 
 ## Índice de estado rápido (actualizado agosto 2026)
 
-| Plan        | Feature                                           |  Estado  |
-| ----------- | ------------------------------------------------- | :------: |
-| **BÁSICA**  | Registro + perfil en directorio                   | ✅ |
-| **BÁSICA**  | Mapa de clínicas (posición estándar)              | ✅ |
-| **BÁSICA**  | Información de contacto pública                   | ✅ |
-| **BÁSICA**  | Escanear QR de collar                             | ✅ |
-| **BÁSICA**  | Escanear microchip RFID                           | ✅ |
-| **BÁSICA**  | Ver perfil público + datos dueño                  | ✅ |
-| **BÁSICA**  | Búsqueda por número de microchip                  | ✅ |
-| **PLUS**    | Posición destacada en mapa                        | ✅ |
-| **PLUS**    | Badge "Clínica Verificada"                        | ✅ |
-| **PLUS**    | Logo en alertas de pérdida (NearbyFeaturedClinics)| ✅ |
-| **PLUS**    | Banner en Case Rooms                              | ✅ |
-| **PLUS**    | Estadísticas de escaneos mensuales                | ✅ |
-| **PLUS**    | Métricas de visibilidad (ClinicProfileViews)      | ✅ |
-| **PARTNER** | Certificados veterinarios PDF                     | ✅ |
-| **PARTNER** | QR de verificación en PDF                        | ✅ |
-| **PARTNER** | Verificación pública `/verificar/{código}`        | ✅ |
-| **PARTNER** | Widget embebible                                  | ✅ |
-| **PARTNER** | API de consulta directa (API Keys)                | ✅ |
-| **PARTNER** | Alertas Case Rooms del cantón (Partner)           | ✅ |
-| **EXPEDIENTE** | Acceso clínica → expediente (Opciones A+B+C)  | ✅ |
-| **EXPEDIENTE** | Código de emparejamiento permanente            | ✅ |
-| **PLUS**    | Logo en alertas de pérdida                        |            ❌            |
-| **PLUS**    | Banner en Case Rooms de pacientes                 |            ❌            |
-| **PLUS**    | Estadísticas de escaneos mensuales                |            ❌            |
-| **PLUS**    | Métricas de visibilidad en directorio             |            ❌            |
-| **PLUS**    | Soporte prioritario por email                     |    N/A (operacional)     |
-| **PARTNER** | Certificados veterinarios PDF (QuestPDF)          |            ✅            |
-| **PARTNER** | Código de verificación único + QR en PDF          |            ✅            |
-| **PARTNER** | Verificación pública `/verificar/{código}`        |            ✅            |
-| **PARTNER** | Firma digital de clínica y médico                 | ⚠️ Parcial (texto plano) |
-| **PARTNER** | Widget embebible para web propia                  |            ❌            |
-| **PARTNER** | API de consulta directa (microchip / perfil)      |        ⚠️ Parcial        |
-| **PARTNER** | Integración RFID avanzada (lectores externos)     |            ❌            |
-| **PARTNER** | Notificaciones en todos los Case Rooms del cantón |            ❌            |
-| **PARTNER** | Primeros resultados en búsquedas de zona          |            ❌            |
+| Plan           | Feature                                            |          Estado          |
+| -------------- | -------------------------------------------------- | :----------------------: |
+| **BÁSICA**     | Registro + perfil en directorio                    |            ✅            |
+| **BÁSICA**     | Mapa de clínicas (posición estándar)               |            ✅            |
+| **BÁSICA**     | Información de contacto pública                    |            ✅            |
+| **BÁSICA**     | Escanear QR de collar                              |            ✅            |
+| **BÁSICA**     | Escanear microchip RFID                            |            ✅            |
+| **BÁSICA**     | Ver perfil público + datos dueño                   |            ✅            |
+| **BÁSICA**     | Búsqueda por número de microchip                   |            ✅            |
+| **PLUS**       | Posición destacada en mapa                         |            ✅            |
+| **PLUS**       | Badge "Clínica Verificada"                         |            ✅            |
+| **PLUS**       | Logo en alertas de pérdida (NearbyFeaturedClinics) |            ✅            |
+| **PLUS**       | Banner en Case Rooms                               |            ✅            |
+| **PLUS**       | Estadísticas de escaneos mensuales                 |            ✅            |
+| **PLUS**       | Métricas de visibilidad (ClinicProfileViews)       |            ✅            |
+| **PARTNER**    | Certificados veterinarios PDF                      |            ✅            |
+| **PARTNER**    | QR de verificación en PDF                          |            ✅            |
+| **PARTNER**    | Verificación pública `/verificar/{código}`         |            ✅            |
+| **PARTNER**    | Widget embebible                                   |            ✅            |
+| **PARTNER**    | API de consulta directa (API Keys)                 |            ✅            |
+| **PARTNER**    | Alertas Case Rooms del cantón (Partner)            |            ✅            |
+| **EXPEDIENTE** | Acceso clínica → expediente (Opciones A+B+C)       |            ✅            |
+| **EXPEDIENTE** | Código de emparejamiento permanente                |            ✅            |
+| **PLUS**       | Logo en alertas de pérdida                         |            ❌            |
+| **PLUS**       | Banner en Case Rooms de pacientes                  |            ❌            |
+| **PLUS**       | Estadísticas de escaneos mensuales                 |            ❌            |
+| **PLUS**       | Métricas de visibilidad en directorio              |            ❌            |
+| **PLUS**       | Soporte prioritario por email                      |    N/A (operacional)     |
+| **PARTNER**    | Certificados veterinarios PDF (QuestPDF)           |            ✅            |
+| **PARTNER**    | Código de verificación único + QR en PDF           |            ✅            |
+| **PARTNER**    | Verificación pública `/verificar/{código}`         |            ✅            |
+| **PARTNER**    | Firma digital de clínica y médico                  | ⚠️ Parcial (texto plano) |
+| **PARTNER**    | Widget embebible para web propia                   |            ❌            |
+| **PARTNER**    | API de consulta directa (microchip / perfil)       |        ⚠️ Parcial        |
+| **PARTNER**    | Integración RFID avanzada (lectores externos)      |            ❌            |
+| **PARTNER**    | Notificaciones en todos los Case Rooms del cantón  |            ❌            |
+| **PARTNER**    | Primeros resultados en búsquedas de zona           |            ❌            |
 
 **Leyenda:** ✅ Implementado y funcional · ⚠️ Parcial · ❌ No existe
 

@@ -5,129 +5,507 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PawTrack CR — Sponsorship</title>
     <style>
-      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-      html { scroll-behavior: smooth; font-size: 16px; }
-      body { font-family: "Segoe UI", system-ui, -apple-system, sans-serif; background: #f5f1eb; color: #1a1a1a; line-height: 1.6; }
-
-      :root {
-        --brand: #1a3484; --accent: #e8521e; --sand: #f5f1eb; --warm: #faf7f2;
-        --muted: #6b6057; --border: #e5dfd7; --gold: #d4af37; --silver: #a0aec0;
-        --bronze: #cd7f32; --green: #14532d; --green-l: #dcfce7;
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+        font-size: 16px;
+      }
+      body {
+        font-family:
+          "Segoe UI",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: #f5f1eb;
+        color: #1a1a1a;
+        line-height: 1.6;
       }
 
-      .container { max-width: 960px; margin: 0 auto; padding: 0 1.5rem; }
+      :root {
+        --brand: #1a3484;
+        --accent: #e8521e;
+        --sand: #f5f1eb;
+        --warm: #faf7f2;
+        --muted: #6b6057;
+        --border: #e5dfd7;
+        --gold: #d4af37;
+        --silver: #a0aec0;
+        --bronze: #cd7f32;
+        --green: #14532d;
+        --green-l: #dcfce7;
+      }
+
+      .container {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
 
       /* ── Hero ── */
       .hero {
-        background: linear-gradient(135deg, var(--brand) 0%, #0f2057 60%, #1a1a2e 100%);
-        color: #fff; padding: 5rem 1.5rem 4rem; text-align: center; position: relative; overflow: hidden;
+        background: linear-gradient(
+          135deg,
+          var(--brand) 0%,
+          #0f2057 60%,
+          #1a1a2e 100%
+        );
+        color: #fff;
+        padding: 5rem 1.5rem 4rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
       }
       .hero::before {
-        content: ""; position: absolute; inset: 0;
-        background: radial-gradient(circle at 80% 20%, rgba(232,82,30,.2) 0%, transparent 55%),
-                    radial-gradient(circle at 20% 80%, rgba(74,222,128,.08) 0%, transparent 50%);
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(232, 82, 30, 0.2) 0%,
+            transparent 55%
+          ),
+          radial-gradient(
+            circle at 20% 80%,
+            rgba(74, 222, 128, 0.08) 0%,
+            transparent 50%
+          );
       }
-      .hero-paw { font-size: 4rem; display: block; margin-bottom: 1rem; filter: drop-shadow(0 4px 12px rgba(0,0,0,.3)); }
-      .hero-tag { display: inline-block; background: rgba(232,82,30,.9); color: #fff; font-size: .7rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; padding: .3rem .9rem; border-radius: 100px; margin-bottom: 1rem; }
-      .hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; line-height: 1.1; max-width: 700px; margin: 0 auto .75rem; }
-      .hero h1 span { color: #f97316; }
-      .hero p { font-size: 1.15rem; opacity: .85; max-width: 560px; margin: 0 auto 2.5rem; }
-      .hero-cta { display: inline-block; background: var(--accent); color: #fff; font-weight: 700; font-size: 1rem; padding: .875rem 2.5rem; border-radius: 100px; text-decoration: none; box-shadow: 0 4px 20px rgba(232,82,30,.4); transition: transform .15s, box-shadow .15s; }
-      .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(232,82,30,.5); }
+      .hero-paw {
+        font-size: 4rem;
+        display: block;
+        margin-bottom: 1rem;
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+      }
+      .hero-tag {
+        display: inline-block;
+        background: rgba(232, 82, 30, 0.9);
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        padding: 0.3rem 0.9rem;
+        border-radius: 100px;
+        margin-bottom: 1rem;
+      }
+      .hero h1 {
+        font-size: clamp(2rem, 5vw, 3.5rem);
+        font-weight: 900;
+        line-height: 1.1;
+        max-width: 700px;
+        margin: 0 auto 0.75rem;
+      }
+      .hero h1 span {
+        color: #f97316;
+      }
+      .hero p {
+        font-size: 1.15rem;
+        opacity: 0.85;
+        max-width: 560px;
+        margin: 0 auto 2.5rem;
+      }
+      .hero-cta {
+        display: inline-block;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 700;
+        font-size: 1rem;
+        padding: 0.875rem 2.5rem;
+        border-radius: 100px;
+        text-decoration: none;
+        box-shadow: 0 4px 20px rgba(232, 82, 30, 0.4);
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      .hero-cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(232, 82, 30, 0.5);
+      }
 
       /* ── Stats ── */
-      .stats-bar { background: var(--brand); padding: 1.5rem; }
-      .stats-bar .container { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; }
-      .stat { text-align: center; color: #fff; }
-      .stat-n { font-size: 1.75rem; font-weight: 900; color: #f97316; }
-      .stat-l { font-size: .72rem; opacity: .7; letter-spacing: .08em; text-transform: uppercase; margin-top: .1rem; }
+      .stats-bar {
+        background: var(--brand);
+        padding: 1.5rem;
+      }
+      .stats-bar .container {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        flex-wrap: wrap;
+      }
+      .stat {
+        text-align: center;
+        color: #fff;
+      }
+      .stat-n {
+        font-size: 1.75rem;
+        font-weight: 900;
+        color: #f97316;
+      }
+      .stat-l {
+        font-size: 0.72rem;
+        opacity: 0.7;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-top: 0.1rem;
+      }
 
       /* ── Section ── */
-      section { padding: 4.5rem 0; }
-      .section-tag { font-size: .7rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: var(--accent); margin-bottom: .5rem; }
-      h2 { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 900; color: var(--brand); line-height: 1.2; margin-bottom: 1rem; }
-      .lead { font-size: 1.05rem; color: var(--muted); max-width: 580px; margin-bottom: 2rem; }
+      section {
+        padding: 4.5rem 0;
+      }
+      .section-tag {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 0.5rem;
+      }
+      h2 {
+        font-size: clamp(1.5rem, 3vw, 2.25rem);
+        font-weight: 900;
+        color: var(--brand);
+        line-height: 1.2;
+        margin-bottom: 1rem;
+      }
+      .lead {
+        font-size: 1.05rem;
+        color: var(--muted);
+        max-width: 580px;
+        margin-bottom: 2rem;
+      }
 
       /* ── Why grid ── */
-      .why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-top: 2rem; }
-      .why-card { background: var(--warm); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; }
-      .why-card .icon { font-size: 2rem; margin-bottom: .75rem; }
-      .why-card h3 { font-size: .9rem; font-weight: 700; color: var(--brand); margin-bottom: .35rem; }
-      .why-card p { font-size: .82rem; color: var(--muted); }
+      .why-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
+        margin-top: 2rem;
+      }
+      .why-card {
+        background: var(--warm);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+      }
+      .why-card .icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+      }
+      .why-card h3 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--brand);
+        margin-bottom: 0.35rem;
+      }
+      .why-card p {
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
 
       /* ── Packages ── */
-      .packages { background: var(--brand); padding: 4.5rem 1.5rem; }
-      .packages h2 { color: #fff; }
-      .packages .lead { color: rgba(255,255,255,.7); }
-      .plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.25rem; margin-top: 2rem; }
-      .plan {
-        background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15);
-        border-radius: 20px; padding: 1.75rem 1.5rem; position: relative; display: flex; flex-direction: column;
-        cursor: pointer; transition: transform .18s, background .18s;
+      .packages {
+        background: var(--brand);
+        padding: 4.5rem 1.5rem;
       }
-      .plan:hover { transform: translateY(-4px); background: rgba(255,255,255,.12); }
-      .plan.featured { background: rgba(232,82,30,.18); border-color: var(--accent); }
-      .plan-badge { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #fff; font-size: .65rem; font-weight: 800; padding: .25rem .8rem; border-radius: 100px; white-space: nowrap; letter-spacing: .06em; }
-      .plan-medal { font-size: 2rem; margin-bottom: .5rem; }
-      .plan-name { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; opacity: .6; color: #fff; }
-      .plan-price { font-size: 1.75rem; font-weight: 900; color: #fff; margin: .25rem 0; }
-      .plan-price span { font-size: .85rem; font-weight: 400; opacity: .6; }
-      .plan-desc { font-size: .8rem; color: rgba(255,255,255,.7); margin: .5rem 0 1rem; flex: 1; }
-      .plan-features { list-style: none; margin: 0; padding: 0; }
-      .plan-features li { font-size: .78rem; color: rgba(255,255,255,.8); padding: .3rem 0; border-bottom: 1px solid rgba(255,255,255,.07); display: flex; gap: .4rem; align-items: flex-start; }
-      .plan-features li:last-child { border: none; }
-      .check-icon { color: #4ade80; flex-shrink: 0; }
-      .plan-cta { margin-top: 1.25rem; display: block; text-align: center; background: rgba(255,255,255,.15); color: #fff; font-size: .82rem; font-weight: 700; padding: .625rem; border-radius: 12px; text-decoration: none; transition: background .15s; }
-      .plan.featured .plan-cta { background: var(--accent); }
-      .plan-cta:hover { background: rgba(255,255,255,.25); }
-      .plan.featured .plan-cta:hover { background: #c2410c; }
+      .packages h2 {
+        color: #fff;
+      }
+      .packages .lead {
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 1.25rem;
+        margin-top: 2rem;
+      }
+      .plan {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: 1.75rem 1.5rem;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+        transition:
+          transform 0.18s,
+          background 0.18s;
+      }
+      .plan:hover {
+        transform: translateY(-4px);
+        background: rgba(255, 255, 255, 0.12);
+      }
+      .plan.featured {
+        background: rgba(232, 82, 30, 0.18);
+        border-color: var(--accent);
+      }
+      .plan-badge {
+        position: absolute;
+        top: -14px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--accent);
+        color: #fff;
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 0.25rem 0.8rem;
+        border-radius: 100px;
+        white-space: nowrap;
+        letter-spacing: 0.06em;
+      }
+      .plan-medal {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+      }
+      .plan-name {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        opacity: 0.6;
+        color: #fff;
+      }
+      .plan-price {
+        font-size: 1.75rem;
+        font-weight: 900;
+        color: #fff;
+        margin: 0.25rem 0;
+      }
+      .plan-price span {
+        font-size: 0.85rem;
+        font-weight: 400;
+        opacity: 0.6;
+      }
+      .plan-desc {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0.5rem 0 1rem;
+        flex: 1;
+      }
+      .plan-features {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .plan-features li {
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.8);
+        padding: 0.3rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        display: flex;
+        gap: 0.4rem;
+        align-items: flex-start;
+      }
+      .plan-features li:last-child {
+        border: none;
+      }
+      .check-icon {
+        color: #4ade80;
+        flex-shrink: 0;
+      }
+      .plan-cta {
+        margin-top: 1.25rem;
+        display: block;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+        font-size: 0.82rem;
+        font-weight: 700;
+        padding: 0.625rem;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: background 0.15s;
+      }
+      .plan.featured .plan-cta {
+        background: var(--accent);
+      }
+      .plan-cta:hover {
+        background: rgba(255, 255, 255, 0.25);
+      }
+      .plan.featured .plan-cta:hover {
+        background: #c2410c;
+      }
 
       /* ── Audience ── */
-      .audience-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 2rem; }
-      .aud-card { background: var(--warm); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; text-align: center; }
-      .aud-card .icon { font-size: 2.5rem; margin-bottom: .6rem; }
-      .aud-card h3 { font-size: .9rem; font-weight: 700; color: var(--brand); margin-bottom: .25rem; }
-      .aud-card p { font-size: .78rem; color: var(--muted); }
+      .audience-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+      .aud-card {
+        background: var(--warm);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.25rem;
+        text-align: center;
+      }
+      .aud-card .icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.6rem;
+      }
+      .aud-card h3 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--brand);
+        margin-bottom: 0.25rem;
+      }
+      .aud-card p {
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
 
       /* ── Modules ── */
-      .modules-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .75rem; margin-top: 1.5rem; }
-      .mod-chip { background: var(--warm); border: 1px solid var(--border); border-radius: 10px; padding: .6rem 1rem; font-size: .8rem; font-weight: 600; color: var(--brand); display: flex; gap: .5rem; align-items: center; }
-      .mod-chip .dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; flex-shrink: 0; }
+      .modules-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+      }
+      .mod-chip {
+        background: var(--warm);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--brand);
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      .mod-chip .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #4ade80;
+        flex-shrink: 0;
+      }
 
       /* ── FAQ ── */
-      .faq-item { border-bottom: 1px solid var(--border); }
-      .faq-q { width: 100%; background: none; border: none; text-align: left; padding: 1rem 0; font-size: .95rem; font-weight: 700; color: var(--brand); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-      .faq-a { font-size: .85rem; color: var(--muted); padding: 0 0 1rem; display: none; }
-      .faq-a.open { display: block; }
-      .faq-icon { font-size: 1.2rem; transition: transform .2s; flex-shrink: 0; }
-      .faq-item.open .faq-icon { transform: rotate(45deg); }
+      .faq-item {
+        border-bottom: 1px solid var(--border);
+      }
+      .faq-q {
+        width: 100%;
+        background: none;
+        border: none;
+        text-align: left;
+        padding: 1rem 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--brand);
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .faq-a {
+        font-size: 0.85rem;
+        color: var(--muted);
+        padding: 0 0 1rem;
+        display: none;
+      }
+      .faq-a.open {
+        display: block;
+      }
+      .faq-icon {
+        font-size: 1.2rem;
+        transition: transform 0.2s;
+        flex-shrink: 0;
+      }
+      .faq-item.open .faq-icon {
+        transform: rotate(45deg);
+      }
 
       /* ── CTA final ── */
-      .cta-section { background: linear-gradient(135deg, var(--accent) 0%, #c2410c 100%); color: #fff; padding: 4rem 1.5rem; text-align: center; }
-      .cta-section h2 { color: #fff; font-size: clamp(1.5rem, 3vw, 2.25rem); }
-      .cta-section p { opacity: .85; margin: .75rem auto 2rem; max-width: 500px; }
-      .btn-white { display: inline-block; background: #fff; color: var(--accent); font-weight: 700; font-size: 1rem; padding: .875rem 2.5rem; border-radius: 100px; text-decoration: none; box-shadow: 0 4px 20px rgba(0,0,0,.2); }
-      .btn-white:hover { background: #fef3c7; }
-      .contact-row { margin-top: 2rem; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
-      .contact-item { color: rgba(255,255,255,.9); font-size: .9rem; display: flex; gap: .5rem; align-items: center; }
+      .cta-section {
+        background: linear-gradient(135deg, var(--accent) 0%, #c2410c 100%);
+        color: #fff;
+        padding: 4rem 1.5rem;
+        text-align: center;
+      }
+      .cta-section h2 {
+        color: #fff;
+        font-size: clamp(1.5rem, 3vw, 2.25rem);
+      }
+      .cta-section p {
+        opacity: 0.85;
+        margin: 0.75rem auto 2rem;
+        max-width: 500px;
+      }
+      .btn-white {
+        display: inline-block;
+        background: #fff;
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 1rem;
+        padding: 0.875rem 2.5rem;
+        border-radius: 100px;
+        text-decoration: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+      .btn-white:hover {
+        background: #fef3c7;
+      }
+      .contact-row {
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+      }
+      .contact-item {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.9rem;
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
 
-      footer { background: #111; color: rgba(255,255,255,.4); text-align: center; padding: 2rem; font-size: .78rem; }
+      footer {
+        background: #111;
+        color: rgba(255, 255, 255, 0.4);
+        text-align: center;
+        padding: 2rem;
+        font-size: 0.78rem;
+      }
 
       @media (max-width: 600px) {
-        .stats-bar .container { gap: 1.5rem; }
-        .hero { padding: 3rem 1.25rem 2.5rem; }
+        .stats-bar .container {
+          gap: 1.5rem;
+        }
+        .hero {
+          padding: 3rem 1.25rem 2.5rem;
+        }
       }
     </style>
   </head>
   <body>
-
     <!-- ── HERO ── -->
     <section class="hero">
       <div class="container">
         <span class="hero-paw">🐾</span>
         <span class="hero-tag">Oportunidad de Sponsorship</span>
-        <h1>Patrocina la plataforma que<br/><span>reúne mascotas</span> con sus familias</h1>
-        <p>PawTrack CR es la primera red inteligente de recuperación de mascotas perdidas en Costa Rica. Tu marca, donde más importa.</p>
+        <h1>
+          Patrocina la plataforma que<br /><span>reúne mascotas</span> con sus
+          familias
+        </h1>
+        <p>
+          PawTrack CR es la primera red inteligente de recuperación de mascotas
+          perdidas en Costa Rica. Tu marca, donde más importa.
+        </p>
         <a href="#packages" class="hero-cta">Ver paquetes de sponsorship →</a>
       </div>
     </section>
@@ -135,50 +513,87 @@
     <!-- ── STATS ── -->
     <div class="stats-bar">
       <div class="container">
-        <div class="stat"><div class="stat-n">68%</div><div class="stat-l">Tasa de recuperación</div></div>
-        <div class="stat"><div class="stat-n">&lt;72h</div><div class="stat-l">Tiempo promedio</div></div>
-        <div class="stat"><div class="stat-n">800K</div><div class="stat-l">Hogares con mascotas en CR</div></div>
-        <div class="stat"><div class="stat-n">26</div><div class="stat-l">Módulos funcionales</div></div>
-        <div class="stat"><div class="stat-n">82</div><div class="stat-l">Municipalidades en CR</div></div>
+        <div class="stat">
+          <div class="stat-n">68%</div>
+          <div class="stat-l">Tasa de recuperación</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">&lt;72h</div>
+          <div class="stat-l">Tiempo promedio</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">800K</div>
+          <div class="stat-l">Hogares con mascotas en CR</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">26</div>
+          <div class="stat-l">Módulos funcionales</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">82</div>
+          <div class="stat-l">Municipalidades en CR</div>
+        </div>
       </div>
     </div>
 
     <!-- ── WHY ── -->
-    <section style="background:#fff">
+    <section style="background: #fff">
       <div class="container">
         <div class="section-tag">¿Por qué PawTrack?</div>
-        <h2>Llega a dueños de mascotas<br/>en su momento más emotivo</h2>
-        <p class="lead">Cuando alguien abre PawTrack, está buscando desesperadamente a su mejor amigo. Tu marca aparece en ese momento de máxima atención e impacto emocional.</p>
+        <h2>Llega a dueños de mascotas<br />en su momento más emotivo</h2>
+        <p class="lead">
+          Cuando alguien abre PawTrack, está buscando desesperadamente a su
+          mejor amigo. Tu marca aparece en ese momento de máxima atención e
+          impacto emocional.
+        </p>
         <div class="why-grid">
           <div class="why-card">
             <div class="icon">🎯</div>
             <h3>Audiencia hiper-segmentada</h3>
-            <p>100% dueños de mascotas activos en Costa Rica. Sin desperdicio de alcance.</p>
+            <p>
+              100% dueños de mascotas activos en Costa Rica. Sin desperdicio de
+              alcance.
+            </p>
           </div>
           <div class="why-card">
             <div class="icon">❤️</div>
             <h3>Causa con propósito</h3>
-            <p>Las mascotas generan el engagement más alto en redes. Tu logo se asocia a reunificaciones reales.</p>
+            <p>
+              Las mascotas generan el engagement más alto en redes. Tu logo se
+              asocia a reunificaciones reales.
+            </p>
           </div>
           <div class="why-card">
             <div class="icon">📊</div>
             <h3>Métricas transparentes</h3>
-            <p>Reportes mensuales con impresiones reales, clics y reunificaciones donde participó tu patrocinio.</p>
+            <p>
+              Reportes mensuales con impresiones reales, clics y reunificaciones
+              donde participó tu patrocinio.
+            </p>
           </div>
           <div class="why-card">
             <div class="icon">🏆</div>
             <h3>Plataforma enterprise</h3>
-            <p>Stack moderno, 26 módulos, 832 pruebas automatizadas. Empresa seria detrás del producto.</p>
+            <p>
+              Stack moderno, 26 módulos, 832 pruebas automatizadas. Empresa
+              seria detrás del producto.
+            </p>
           </div>
           <div class="why-card">
             <div class="icon">🇨🇷</div>
             <h3>Costa Rica primero</h3>
-            <p>Plataforma local, usuarios locales, colones costarricenses. Arquitectura lista para expandir a Centroamérica.</p>
+            <p>
+              Plataforma local, usuarios locales, colones costarricenses.
+              Arquitectura lista para expandir a Centroamérica.
+            </p>
           </div>
           <div class="why-card">
             <div class="icon">📱</div>
             <h3>PWA — sin barrera de instalación</h3>
-            <p>Funciona en cualquier smartphone desde el navegador. Máxima accesibilidad para los usuarios.</p>
+            <p>
+              Funciona en cualquier smartphone desde el navegador. Máxima
+              accesibilidad para los usuarios.
+            </p>
           </div>
         </div>
       </div>
@@ -187,26 +602,52 @@
     <!-- ── PACKAGES ── -->
     <section class="packages" id="packages">
       <div class="container">
-        <div class="section-tag" style="color:#f97316">Paquetes</div>
+        <div class="section-tag" style="color: #f97316">Paquetes</div>
         <h2>Elige tu nivel de patrocinio</h2>
-        <p class="lead">Desde presencia de marca hasta co-marketing completo. Todos los paquetes incluyen acceso a métricas reales.</p>
+        <p class="lead">
+          Desde presencia de marca hasta co-marketing completo. Todos los
+          paquetes incluyen acceso a métricas reales.
+        </p>
         <div class="plans-grid">
           <div class="plan featured">
             <div class="plan-badge">⭐ MÁS IMPACTO</div>
             <div class="plan-medal">🥇</div>
             <div class="plan-name">Principal</div>
             <div class="plan-price">₡500,000 <span>/mes</span></div>
-            <p class="plan-desc">Máxima visibilidad — logo en pantalla de inicio, alertas y mapa.</p>
+            <p class="plan-desc">
+              Máxima visibilidad — logo en pantalla de inicio, alertas y mapa.
+            </p>
             <ul class="plan-features">
-              <li><span class="check-icon">✓</span> Logo en pantalla de inicio (todos los usuarios)</li>
-              <li><span class="check-icon">✓</span> Banner permanente en dashboard</li>
-              <li><span class="check-icon">✓</span> Logo en TODAS las alertas (WA, email, Telegram)</li>
+              <li>
+                <span class="check-icon">✓</span> Logo en pantalla de inicio
+                (todos los usuarios)
+              </li>
+              <li>
+                <span class="check-icon">✓</span> Banner permanente en dashboard
+              </li>
+              <li>
+                <span class="check-icon">✓</span> Logo en TODAS las alertas (WA,
+                email, Telegram)
+              </li>
               <li><span class="check-icon">✓</span> Badge en mapa público</li>
-              <li><span class="check-icon">✓</span> Logo en perfil público de mascotas</li>
-              <li><span class="check-icon">✓</span> 5 licencias Clínica Partner gratuitas</li>
-              <li><span class="check-icon">✓</span> Reporte mensual detallado</li>
-              <li><span class="check-icon">✓</span> 2 menciones/semana en redes</li>
-              <li><span class="check-icon">✓</span> Co-marketing en nuevas features</li>
+              <li>
+                <span class="check-icon">✓</span> Logo en perfil público de
+                mascotas
+              </li>
+              <li>
+                <span class="check-icon">✓</span> 5 licencias Clínica Partner
+                gratuitas
+              </li>
+              <li>
+                <span class="check-icon">✓</span> Reporte mensual detallado
+              </li>
+              <li>
+                <span class="check-icon">✓</span> 2 menciones/semana en redes
+              </li>
+              <li>
+                <span class="check-icon">✓</span> Co-marketing en nuevas
+                features
+              </li>
             </ul>
             <a href="#contact" class="plan-cta">Solicitar información</a>
           </div>
@@ -214,14 +655,25 @@
             <div class="plan-medal">🥈</div>
             <div class="plan-name">Gold</div>
             <div class="plan-price">₡250,000 <span>/mes</span></div>
-            <p class="plan-desc">Alta visibilidad en dashboard y alertas por email.</p>
+            <p class="plan-desc">
+              Alta visibilidad en dashboard y alertas por email.
+            </p>
             <ul class="plan-features">
-              <li><span class="check-icon">✓</span> Logo en dashboard (sidebar)</li>
-              <li><span class="check-icon">✓</span> Logo en alertas por email</li>
+              <li>
+                <span class="check-icon">✓</span> Logo en dashboard (sidebar)
+              </li>
+              <li>
+                <span class="check-icon">✓</span> Logo en alertas por email
+              </li>
               <li><span class="check-icon">✓</span> Badge en mapa público</li>
-              <li><span class="check-icon">✓</span> 3 licencias Clínica Plus gratuitas</li>
+              <li>
+                <span class="check-icon">✓</span> 3 licencias Clínica Plus
+                gratuitas
+              </li>
               <li><span class="check-icon">✓</span> Reporte mensual</li>
-              <li><span class="check-icon">✓</span> 1 mención/semana en redes</li>
+              <li>
+                <span class="check-icon">✓</span> 1 mención/semana en redes
+              </li>
             </ul>
             <a href="#contact" class="plan-cta">Solicitar información</a>
           </div>
@@ -229,12 +681,22 @@
             <div class="plan-medal">🥉</div>
             <div class="plan-name">Silver</div>
             <div class="plan-price">₡100,000 <span>/mes</span></div>
-            <p class="plan-desc">Presencia constante en la plataforma y newsletter.</p>
+            <p class="plan-desc">
+              Presencia constante en la plataforma y newsletter.
+            </p>
             <ul class="plan-features">
-              <li><span class="check-icon">✓</span> Logo en sección patrocinadores</li>
-              <li><span class="check-icon">✓</span> Logo en newsletter mensual</li>
-              <li><span class="check-icon">✓</span> 1 post de agradecimiento/mes</li>
-              <li><span class="check-icon">✓</span> 10 cuentas Plus gratuitas</li>
+              <li>
+                <span class="check-icon">✓</span> Logo en sección patrocinadores
+              </li>
+              <li>
+                <span class="check-icon">✓</span> Logo en newsletter mensual
+              </li>
+              <li>
+                <span class="check-icon">✓</span> 1 post de agradecimiento/mes
+              </li>
+              <li>
+                <span class="check-icon">✓</span> 10 cuentas Plus gratuitas
+              </li>
             </ul>
             <a href="#contact" class="plan-cta">Solicitar información</a>
           </div>
@@ -242,24 +704,45 @@
             <div class="plan-medal">🤝</div>
             <div class="plan-name">Comunitario</div>
             <div class="plan-price">₡30,000 <span>/mes</span></div>
-            <p class="plan-desc">Visibilidad local y acceso a datos de tu zona.</p>
+            <p class="plan-desc">
+              Visibilidad local y acceso a datos de tu zona.
+            </p>
             <ul class="plan-features">
-              <li><span class="check-icon">✓</span> Mención en patrocinadores</li>
+              <li>
+                <span class="check-icon">✓</span> Mención en patrocinadores
+              </li>
               <li><span class="check-icon">✓</span> Logo en sitio web</li>
-              <li><span class="check-icon">✓</span> Métricas de mascotas perdidas en tu zona</li>
+              <li>
+                <span class="check-icon">✓</span> Métricas de mascotas perdidas
+                en tu zona
+              </li>
             </ul>
             <a href="#contact" class="plan-cta">Solicitar información</a>
           </div>
           <div class="plan">
             <div class="plan-medal">🏢</div>
             <div class="plan-name">Institucional</div>
-            <div class="plan-price" style="font-size:1.2rem">Precio negociado</div>
-            <p class="plan-desc">Para municipalidades, ONGs y organizaciones de bienestar animal.</p>
+            <div class="plan-price" style="font-size: 1.2rem">
+              Precio negociado
+            </div>
+            <p class="plan-desc">
+              Para municipalidades, ONGs y organizaciones de bienestar animal.
+            </p>
             <ul class="plan-features">
-              <li><span class="check-icon">✓</span> Co-branding en portal municipal</li>
-              <li><span class="check-icon">✓</span> Municipalidad Full incluida</li>
-              <li><span class="check-icon">✓</span> Integración de red de rescatistas</li>
-              <li><span class="check-icon">✓</span> Reporte trimestral cantonal</li>
+              <li>
+                <span class="check-icon">✓</span> Co-branding en portal
+                municipal
+              </li>
+              <li>
+                <span class="check-icon">✓</span> Municipalidad Full incluida
+              </li>
+              <li>
+                <span class="check-icon">✓</span> Integración de red de
+                rescatistas
+              </li>
+              <li>
+                <span class="check-icon">✓</span> Reporte trimestral cantonal
+              </li>
             </ul>
             <a href="#contact" class="plan-cta">Solicitar información</a>
           </div>
@@ -268,15 +751,20 @@
     </section>
 
     <!-- ── AUDIENCE ── -->
-    <section style="background:#fff">
+    <section style="background: #fff">
       <div class="container">
         <div class="section-tag">Audiencia</div>
-        <h2>Tu marca frente a los usuarios<br/>que más valoran las mascotas</h2>
+        <h2>
+          Tu marca frente a los usuarios<br />que más valoran las mascotas
+        </h2>
         <div class="audience-grid">
           <div class="aud-card">
             <div class="icon">🏠</div>
             <h3>Dueños de mascotas</h3>
-            <p>Personas que invierten activamente en la salud y seguridad de sus mascotas.</p>
+            <p>
+              Personas que invierten activamente en la salud y seguridad de sus
+              mascotas.
+            </p>
           </div>
           <div class="aud-card">
             <div class="icon">🏥</div>
@@ -286,7 +774,10 @@
           <div class="aud-card">
             <div class="icon">🤝</div>
             <h3>Rescatistas y aliados</h3>
-            <p>Organizaciones de bienestar animal con alta influencia comunitaria.</p>
+            <p>
+              Organizaciones de bienestar animal con alta influencia
+              comunitaria.
+            </p>
           </div>
           <div class="aud-card">
             <div class="icon">🏛️</div>
@@ -302,74 +793,134 @@
       <div class="container">
         <div class="section-tag">Producto</div>
         <h2>26 módulos funcionales implementados</h2>
-        <p class="lead">Una plataforma enterprise completa — no un MVP. Lista para producción.</p>
+        <p class="lead">
+          Una plataforma enterprise completa — no un MVP. Lista para producción.
+        </p>
         <div class="modules-list">
           <div class="mod-chip"><span class="dot"></span>Autenticación JWT</div>
-          <div class="mod-chip"><span class="dot"></span>Registro de mascotas</div>
-          <div class="mod-chip"><span class="dot"></span>QR + microchip RFID</div>
-          <div class="mod-chip"><span class="dot"></span>Reporte de pérdida</div>
+          <div class="mod-chip">
+            <span class="dot"></span>Registro de mascotas
+          </div>
+          <div class="mod-chip">
+            <span class="dot"></span>QR + microchip RFID
+          </div>
+          <div class="mod-chip">
+            <span class="dot"></span>Reporte de pérdida
+          </div>
           <div class="mod-chip"><span class="dot"></span>Case Room en vivo</div>
-          <div class="mod-chip"><span class="dot"></span>Avistamientos anónimos</div>
-          <div class="mod-chip"><span class="dot"></span>IA visual matching</div>
-          <div class="mod-chip"><span class="dot"></span>Difusión multicanal</div>
-          <div class="mod-chip"><span class="dot"></span>Coordinación de búsqueda</div>
+          <div class="mod-chip">
+            <span class="dot"></span>Avistamientos anónimos
+          </div>
+          <div class="mod-chip">
+            <span class="dot"></span>IA visual matching
+          </div>
+          <div class="mod-chip">
+            <span class="dot"></span>Difusión multicanal
+          </div>
+          <div class="mod-chip">
+            <span class="dot"></span>Coordinación de búsqueda
+          </div>
           <div class="mod-chip"><span class="dot"></span>Chat enmascarado</div>
-          <div class="mod-chip"><span class="dot"></span>Código de entrega segura</div>
+          <div class="mod-chip">
+            <span class="dot"></span>Código de entrega segura
+          </div>
           <div class="mod-chip"><span class="dot"></span>Bot de WhatsApp</div>
-          <div class="mod-chip"><span class="dot"></span>Clínicas B2B (3 tiers)</div>
-          <div class="mod-chip"><span class="dot"></span>Expediente digital</div>
-          <div class="mod-chip"><span class="dot"></span>Municipalidades B2G</div>
-          <div class="mod-chip"><span class="dot"></span>GPS Collar (Tractive)</div>
-          <div class="mod-chip"><span class="dot"></span>Bundle GPS on-demand</div>
+          <div class="mod-chip">
+            <span class="dot"></span>Clínicas B2B (3 tiers)
+          </div>
+          <div class="mod-chip">
+            <span class="dot"></span>Expediente digital
+          </div>
+          <div class="mod-chip">
+            <span class="dot"></span>Municipalidades B2G
+          </div>
+          <div class="mod-chip">
+            <span class="dot"></span>GPS Collar (Tractive)
+          </div>
+          <div class="mod-chip">
+            <span class="dot"></span>Bundle GPS on-demand
+          </div>
           <div class="mod-chip"><span class="dot"></span>Cuenta familiar</div>
-          <div class="mod-chip"><span class="dot"></span>Historial médico PDF</div>
-          <div class="mod-chip"><span class="dot"></span>Subscription gating</div>
-          <div class="mod-chip"><span class="dot"></span>Push notifications</div>
-          <div class="mod-chip"><span class="dot"></span>Mapa público en vivo</div>
-          <div class="mod-chip"><span class="dot"></span>Estadísticas de recuperación</div>
-          <div class="mod-chip"><span class="dot"></span>Leaderboard + badges</div>
-          <div class="mod-chip"><span class="dot"></span>Recompensas (Bounty)</div>
-          <div class="mod-chip"><span class="dot"></span>Fosters voluntarios</div>
+          <div class="mod-chip">
+            <span class="dot"></span>Historial médico PDF
+          </div>
+          <div class="mod-chip">
+            <span class="dot"></span>Subscription gating
+          </div>
+          <div class="mod-chip">
+            <span class="dot"></span>Push notifications
+          </div>
+          <div class="mod-chip">
+            <span class="dot"></span>Mapa público en vivo
+          </div>
+          <div class="mod-chip">
+            <span class="dot"></span>Estadísticas de recuperación
+          </div>
+          <div class="mod-chip">
+            <span class="dot"></span>Leaderboard + badges
+          </div>
+          <div class="mod-chip">
+            <span class="dot"></span>Recompensas (Bounty)
+          </div>
+          <div class="mod-chip">
+            <span class="dot"></span>Fosters voluntarios
+          </div>
         </div>
       </div>
     </section>
 
     <!-- ── FAQ ── -->
-    <section style="background:#fff">
+    <section style="background: #fff">
       <div class="container">
         <div class="section-tag">FAQ</div>
         <h2>Preguntas frecuentes</h2>
-        <div style="max-width:700px;margin-top:2rem">
+        <div style="max-width: 700px; margin-top: 2rem">
           <div class="faq-item">
             <button class="faq-q" onclick="toggleFaq(this)">
-              ¿Cómo se mide el impacto de mi patrocinio? <span class="faq-icon">+</span>
+              ¿Cómo se mide el impacto de mi patrocinio?
+              <span class="faq-icon">+</span>
             </button>
             <div class="faq-a">
-              Recibirás un reporte mensual con: impresiones de tu logo, clics en tu enlace, cantidad de alertas enviadas donde tu marca apareció, y el número de reunificaciones durante el período. Todo con datos reales de la plataforma.
+              Recibirás un reporte mensual con: impresiones de tu logo, clics en
+              tu enlace, cantidad de alertas enviadas donde tu marca apareció, y
+              el número de reunificaciones durante el período. Todo con datos
+              reales de la plataforma.
             </div>
           </div>
           <div class="faq-item">
             <button class="faq-q" onclick="toggleFaq(this)">
-              ¿Hay compromisos de mínimo de tiempo? <span class="faq-icon">+</span>
+              ¿Hay compromisos de mínimo de tiempo?
+              <span class="faq-icon">+</span>
             </button>
             <div class="faq-a">
-              Los paquetes Silver y Comunitario son mes a mes. Gold y Principal requieren un compromiso mínimo de 3 meses para garantizar la integración completa de la marca en la plataforma.
+              Los paquetes Silver y Comunitario son mes a mes. Gold y Principal
+              requieren un compromiso mínimo de 3 meses para garantizar la
+              integración completa de la marca en la plataforma.
             </div>
           </div>
           <div class="faq-item">
             <button class="faq-q" onclick="toggleFaq(this)">
-              ¿Puedo personalizar lo que incluye mi paquete? <span class="faq-icon">+</span>
+              ¿Puedo personalizar lo que incluye mi paquete?
+              <span class="faq-icon">+</span>
             </button>
             <div class="faq-a">
-              Sí. Los paquetes son un punto de partida. Estamos abiertos a propuestas personalizadas, especialmente para empresas con objetivos muy específicos (zona geográfica, especie de mascota, canal de comunicación, etc.).
+              Sí. Los paquetes son un punto de partida. Estamos abiertos a
+              propuestas personalizadas, especialmente para empresas con
+              objetivos muy específicos (zona geográfica, especie de mascota,
+              canal de comunicación, etc.).
             </div>
           </div>
           <div class="faq-item">
             <button class="faq-q" onclick="toggleFaq(this)">
-              ¿Cuándo estará disponible PawTrack CR al público? <span class="faq-icon">+</span>
+              ¿Cuándo estará disponible PawTrack CR al público?
+              <span class="faq-icon">+</span>
             </button>
             <div class="faq-a">
-              La plataforma está tecnológicamente completa. El lanzamiento público está condicionado a la configuración de los servicios de producción en Azure y el dominio pawtrack.cr. Los sponsors tendrán acceso prioritario y aparecerán desde el primer día de lanzamiento.
+              La plataforma está tecnológicamente completa. El lanzamiento
+              público está condicionado a la configuración de los servicios de
+              producción en Azure y el dominio pawtrack.cr. Los sponsors tendrán
+              acceso prioritario y aparecerán desde el primer día de
+              lanzamiento.
             </div>
           </div>
           <div class="faq-item">
@@ -377,7 +928,9 @@
               ¿Cómo se paga el patrocinio? <span class="faq-icon">+</span>
             </button>
             <div class="faq-a">
-              Factura mensual electrónica. Pago por SINPE Móvil, transferencia IBAN o por acuerdo en especie (productos o servicios para la operación de PawTrack CR).
+              Factura mensual electrónica. Pago por SINPE Móvil, transferencia
+              IBAN o por acuerdo en especie (productos o servicios para la
+              operación de PawTrack CR).
             </div>
           </div>
         </div>
@@ -387,14 +940,22 @@
     <!-- ── CTA FINAL ── -->
     <section class="cta-section" id="contact">
       <div class="container">
-        <h2>¿Listo para ser parte<br/>de algo que importa?</h2>
-        <p>Agendar una reunión de 30 minutos para ver la plataforma en vivo y definir el paquete ideal para tu empresa.</p>
-        <a href="mailto:davila06@gmail.com?subject=Sponsorship%20PawTrack%20CR&body=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20el%20sponsorship%20de%20PawTrack%20CR." class="btn-white">
+        <h2>¿Listo para ser parte<br />de algo que importa?</h2>
+        <p>
+          Agendar una reunión de 30 minutos para ver la plataforma en vivo y
+          definir el paquete ideal para tu empresa.
+        </p>
+        <a
+          href="mailto:davila06@gmail.com?subject=Sponsorship%20PawTrack%20CR&body=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20el%20sponsorship%20de%20PawTrack%20CR."
+          class="btn-white"
+        >
           Escribir a davila06@gmail.com
         </a>
         <div class="contact-row">
           <div class="contact-item">📧 davila06@gmail.com</div>
-          <div class="contact-item">🌐 pawtrack.cr <em style="opacity:.6">(en construcción)</em></div>
+          <div class="contact-item">
+            🌐 pawtrack.cr <em style="opacity: 0.6">(en construcción)</em>
+          </div>
           <div class="contact-item">📍 Costa Rica</div>
         </div>
       </div>
@@ -402,33 +963,37 @@
 
     <footer>
       <p>© 2026 PawTrack CR · Todos los derechos reservados</p>
-      <p style="margin-top:.4rem;opacity:.6">Documento confidencial para presentación a patrocinadores potenciales.</p>
+      <p style="margin-top: 0.4rem; opacity: 0.6">
+        Documento confidencial para presentación a patrocinadores potenciales.
+      </p>
     </footer>
 
     <script>
       function toggleFaq(btn) {
-        const item = btn.closest('.faq-item');
-        const answer = item.querySelector('.faq-a');
-        const isOpen = item.classList.contains('open');
+        const item = btn.closest(".faq-item");
+        const answer = item.querySelector(".faq-a");
+        const isOpen = item.classList.contains("open");
         // close all
-        document.querySelectorAll('.faq-item').forEach(el => {
-          el.classList.remove('open');
-          el.querySelector('.faq-a').classList.remove('open');
+        document.querySelectorAll(".faq-item").forEach((el) => {
+          el.classList.remove("open");
+          el.querySelector(".faq-a").classList.remove("open");
         });
         if (!isOpen) {
-          item.classList.add('open');
-          answer.classList.add('open');
+          item.classList.add("open");
+          answer.classList.add("open");
         }
       }
 
       // Smooth scroll for anchor links
-      document.querySelectorAll('a[href^="#"]').forEach(a => {
-        a.addEventListener('click', e => {
-          const target = document.querySelector(a.getAttribute('href'));
-          if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      document.querySelectorAll('a[href^="#"]').forEach((a) => {
+        a.addEventListener("click", (e) => {
+          const target = document.querySelector(a.getAttribute("href"));
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
         });
       });
     </script>
-
   </body>
 </html>

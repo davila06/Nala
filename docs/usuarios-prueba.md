@@ -1,4 +1,5 @@
 # FINALIZADO
+
 # PawTrack CR — Usuarios de Prueba
 
 > **SOLO USO LOCAL / DEV** — Nunca usar estas credenciales en staging o producción.  

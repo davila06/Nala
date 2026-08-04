@@ -9,13 +9,14 @@
 
 **PawTrack CR** es la primera plataforma digital de Costa Rica para la recuperación de mascotas perdidas. Conecta a dueños, rescatistas, clínicas veterinarias y comunidad en una red estructurada y en tiempo real.
 
-**En una línea:** *Cuando tu mascota se pierde, PawTrack CR activa una red inteligente de búsqueda para traerla de vuelta.*
+**En una línea:** _Cuando tu mascota se pierde, PawTrack CR activa una red inteligente de búsqueda para traerla de vuelta._
 
 ---
 
 ## El problema que resolvemos
 
 Cada año más de **14,000 mascotas** se pierden en Costa Rica. El proceso actual es caótico:
+
 - Posts dispersos en grupos de Facebook que desaparecen del feed
 - Sin coordinación real entre rescatistas y dueños
 - Sin forma segura de conectar al encontrador con el dueño
@@ -27,15 +28,15 @@ PawTrack CR reemplaza ese caos con una infraestructura digital moderna.
 
 ## Métricas y tracción
 
-| Indicador | Valor |
-|---|---|
-| **Tasa de recuperación** (plataforma) | 68% |
-| **Tiempo promedio de reunificación** | < 72 horas |
-| **Municipalidades en CR** | 82 (mercado potencial B2G) |
-| **Clínicas veterinarias activas en CR** | ~1,400 |
-| **Dueños de mascotas en CR** | ~800,000 hogares |
-| **Módulos funcionales implementados** | 26 |
-| **Plataforma** | PWA — funciona en cualquier smartphone |
+| Indicador                               | Valor                                  |
+| --------------------------------------- | -------------------------------------- |
+| **Tasa de recuperación** (plataforma)   | 68%                                    |
+| **Tiempo promedio de reunificación**    | < 72 horas                             |
+| **Municipalidades en CR**               | 82 (mercado potencial B2G)             |
+| **Clínicas veterinarias activas en CR** | ~1,400                                 |
+| **Dueños de mascotas en CR**            | ~800,000 hogares                       |
+| **Módulos funcionales implementados**   | 26                                     |
+| **Plataforma**                          | PWA — funciona en cualquier smartphone |
 
 ---
 
@@ -51,17 +52,17 @@ PawTrack CR reemplaza ese caos con una infraestructura digital moderna.
 
 ## Modelos de monetización activos
 
-| Fuente | Descripción | Precio |
-|---|---|---|
-| Plan Plus | Dueños de mascotas | ₡2,990/mes |
-| Plan Familia | Múltiples mascotas + historial médico | ₡4,990/mes |
-| Bundle GPS | Collar Tractive + 12 meses Plus | ₡49,900 único |
-| Clínica Básica | Portal veterinario | ₡9,900/mes |
-| Clínica Plus | + Estadísticas, alertas, mapa destacado | ₡19,900/mes |
-| Clínica Partner | + API, widget, certificados digitales | ₡29,900/mes |
-| Municipalidad Básica | Portal control animal | ₡150,000/año |
-| Municipalidad Full | + API, estadísticas | ₡300,000/año |
-| Red Regional | Múltiples cantones | ₡500,000/año |
+| Fuente               | Descripción                             | Precio        |
+| -------------------- | --------------------------------------- | ------------- |
+| Plan Plus            | Dueños de mascotas                      | ₡2,990/mes    |
+| Plan Familia         | Múltiples mascotas + historial médico   | ₡4,990/mes    |
+| Bundle GPS           | Collar Tractive + 12 meses Plus         | ₡49,900 único |
+| Clínica Básica       | Portal veterinario                      | ₡9,900/mes    |
+| Clínica Plus         | + Estadísticas, alertas, mapa destacado | ₡19,900/mes   |
+| Clínica Partner      | + API, widget, certificados digitales   | ₡29,900/mes   |
+| Municipalidad Básica | Portal control animal                   | ₡150,000/año  |
+| Municipalidad Full   | + API, estadísticas                     | ₡300,000/año  |
+| Red Regional         | Múltiples cantones                      | ₡500,000/año  |
 
 ---
 
@@ -72,6 +73,7 @@ PawTrack CR reemplaza ese caos con una infraestructura digital moderna.
 Para una empresa que quiere máxima visibilidad en la plataforma más usada por dueños de mascotas en Costa Rica.
 
 **Incluye:**
+
 - Logo en la pantalla de inicio de la PWA (vista por todos los usuarios)
 - Banner permanente en el dashboard del dueño
 - Logo + enlace en TODAS las alertas de mascotas perdidas enviadas por WhatsApp, email y Telegram
@@ -89,6 +91,7 @@ Para una empresa que quiere máxima visibilidad en la plataforma más usada por 
 ### 🥈 Patrocinador Gold — ₡250,000/mes
 
 **Incluye:**
+
 - Logo en dashboard del dueño (sidebar o footer)
 - Logo en alertas de mascotas perdidas por email
 - Badge en mapa público
@@ -103,6 +106,7 @@ Para una empresa que quiere máxima visibilidad en la plataforma más usada por 
 ### 🥉 Patrocinador Silver — ₡100,000/mes
 
 **Incluye:**
+
 - Logo en la sección "Nuestros Patrocinadores" en la app
 - Logo en newsletter mensual de PawTrack
 - 1 post de agradecimiento en redes sociales al mes
@@ -115,6 +119,7 @@ Para una empresa que quiere máxima visibilidad en la plataforma más usada por 
 ### 🤝 Patrocinador Comunitario — ₡30,000/mes
 
 **Incluye:**
+
 - Mención en la sección de patrocinadores
 - Logo en el sitio web de PawTrack CR
 - Acceso a métricas agregadas de mascotas perdidas en su zona
@@ -128,6 +133,7 @@ Para una empresa que quiere máxima visibilidad en la plataforma más usada por 
 Para municipalidades, ONGs y organizaciones de bienestar animal.
 
 **Incluye:**
+
 - Co-branding en el portal municipal de su cantón
 - Acceso al plan Municipalidad Full incluido
 - Integración de su red de rescatistas en el sistema de aliados
@@ -156,7 +162,7 @@ Para municipalidades, ONGs y organizaciones de bienestar animal.
 
 ## Próximos pasos
 
-1. Agendar reunión de presentación: **soporte@pawtrack.cr** | WhatsApp: *(a confirmar)*
+1. Agendar reunión de presentación: **soporte@pawtrack.cr** | WhatsApp: _(a confirmar)_
 2. Tour guiado de la plataforma (30 min demo en vivo)
 3. Propuesta personalizada según los objetivos de tu empresa
 4. Acuerdo de patrocinio + onboarding en 2 semanas
@@ -167,9 +173,9 @@ Para municipalidades, ONGs y organizaciones de bienestar animal.
 
 **Denis Ávila** — Fundador, PawTrack CR  
 📧 davila06@gmail.com  
-🌐 https://pawtrack.cr *(en construcción)*  
+🌐 https://pawtrack.cr _(en construcción)_  
 📱 WhatsApp disponible previa coordinación
 
 ---
 
-*PawTrack CR — Cada mascota merece volver a casa.*
+_PawTrack CR — Cada mascota merece volver a casa._

@@ -1,4 +1,5 @@
 # FINALIZADO
+
 # Manual de Administrador — PawTrack CR
 
 **Versión:** 1.0  

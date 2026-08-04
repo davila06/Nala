@@ -8,26 +8,27 @@
 
 ## 1. Matriz de avance (actualizada agosto 2026)
 
-| Categoría                | Items    | ✅ Hecho | 🔄 Parcial | ⛔ Pendiente |
-| ------------------------ | -------- | -------- | ---------- | ------------ |
-| Infraestructura / DevOps | 6        | 4        | 0          | 2 (GitHub Secrets, dominio) |
-| Seguridad / Canales      | 2        | 2        | 0          | 0            |
-| Features backend         | 7        | 7        | 0          | 0 ✅ completo |
-| Features frontend        | 9        | 9        | 0          | 0 ✅ completo |
-| Internacionalización     | 4        | 4        | 0          | 0            |
-| UI/UX sistema de diseño  | 6 fases  | 6 fases  | 0          | 0 ✅ completo |
-| Módulo Collar GPS        | 1        | 1        | 0          | 0 ✅ completo |
-| Bundle GPS (on-demand)   | 1        | 1        | 0          | 0 ✅ completo |
-| Monetización             | 5 líneas | 5        | 0          | 0 ✅ completo |
-| **Subscription Gating**  | **10**   | **10**   | **0**      | **0 ✅** |
-| **Features Familia**     | **5**    | **5**    | **0**      | **0 ✅** |
-| **UI Gates**             | **6**    | **6**    | **0**      | **0 ✅** |
-| **B2B Clínicas (Fases 1-5)** | **22** | **22** | **0**     | **0 ✅** |
-| **Municipalidades (B2G)** | **9**   | **9**    | **0**      | **0 ✅** |
-| **Expediente Digital A+B+C** | **3** | **3**   | **0**      | **0 ✅** |
-| **TOTAL**                | **90+**  | **85+**  | **0**      | **5 (ops)** |
+| Categoría                    | Items    | ✅ Hecho | 🔄 Parcial | ⛔ Pendiente                |
+| ---------------------------- | -------- | -------- | ---------- | --------------------------- |
+| Infraestructura / DevOps     | 6        | 4        | 0          | 2 (GitHub Secrets, dominio) |
+| Seguridad / Canales          | 2        | 2        | 0          | 0                           |
+| Features backend             | 7        | 7        | 0          | 0 ✅ completo               |
+| Features frontend            | 9        | 9        | 0          | 0 ✅ completo               |
+| Internacionalización         | 4        | 4        | 0          | 0                           |
+| UI/UX sistema de diseño      | 6 fases  | 6 fases  | 0          | 0 ✅ completo               |
+| Módulo Collar GPS            | 1        | 1        | 0          | 0 ✅ completo               |
+| Bundle GPS (on-demand)       | 1        | 1        | 0          | 0 ✅ completo               |
+| Monetización                 | 5 líneas | 5        | 0          | 0 ✅ completo               |
+| **Subscription Gating**      | **10**   | **10**   | **0**      | **0 ✅**                    |
+| **Features Familia**         | **5**    | **5**    | **0**      | **0 ✅**                    |
+| **UI Gates**                 | **6**    | **6**    | **0**      | **0 ✅**                    |
+| **B2B Clínicas (Fases 1-5)** | **22**   | **22**   | **0**      | **0 ✅**                    |
+| **Municipalidades (B2G)**    | **9**    | **9**    | **0**      | **0 ✅**                    |
+| **Expediente Digital A+B+C** | **3**    | **3**    | **0**      | **0 ✅**                    |
+| **TOTAL**                    | **90+**  | **85+**  | **0**      | **5 (ops)**                 |
 
 ### Únicos pendientes reales (operacionales, no código)
+
 1. GitHub Secrets para CI/CD (§1.2)
 2. Dominio `pawtrack.cr` + CNAME (§1.4)
 3. WhatsApp webhook en Meta (§3.1)

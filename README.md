@@ -21,41 +21,42 @@ For the technical spec see [docs/PawTrack_Documento_Maestro_v3.1.md](./docs/PawT
 
 ## Feature overview (August 2026 — complete)
 
-| Module | Status | What it does |
-|--------|--------|-------------|
-| **Auth** | ✅ | Registration, email verification, JWT + refresh tokens, account lockout |
-| **Pets** | ✅ | CRUD, microchip, QR code, photo upload, scan history |
-| **Lost Pets** | ✅ | Loss reports, Case Room, status state machine, bounty, contact |
-| **Sightings** | ✅ | Anonymous geo-tagged sighting reports, photo upload |
-| **Visual Match** | ✅ | Azure Computer Vision embeddings — cosine similarity × geo proximity |
-| **Found Pets** | ✅ | QR-less "I found a pet" flow with AI matching |
-| **Broadcast** | ✅ | Multi-channel diffusion (Email, WhatsApp, Telegram, Facebook) |
-| **Search Coordination** | ✅ | 7×7 zone grid, real-time zone claim/clear/release via SignalR |
-| **Chat** | ✅ | Masked chat between owner and finder — no PII exposed |
-| **Handover** | ✅ | 4-digit delivery code for safe physical reunion + bounty auto-claim |
-| **Fraud Reports** | ✅ | Anti-fraud reporting on suspicious interactions |
-| **Allies** | ✅ | Verified rescue orgs — geo-alerts, admin review |
-| **Fosters** | ✅ | Temporary custody volunteers, nearest-foster suggestions |
-| **Clinics (B2B)** | ✅ | 3-tier plans, microchip scan, digital expediente, API keys, map placement |
-| **Expediente Digital** | ✅ | Vet-clinic ↔ owner shared medical record (Options A+B+C) |
-| **WhatsApp Bot** | ✅ | Conversational report flow via Meta Cloud API |
-| **Notifications** | ✅ | In-app inbox, web push, VetReminder scheduler |
-| **Incentives** | ✅ | Reunification leaderboard with badge tiers |
-| **Public Stats** | ✅ | Recovery rates by species, breed, and canton |
-| **Public Map** | ✅ | Live sighting map + clinics + movement prediction |
-| **Municipalities (B2G)** | ✅ | 3-tier portal (Básica/Full/Red Regional), capture management |
-| **Family Module** | ✅ | Multi-user family account, shared pets, invite via code |
-| **Medical History** | ✅ | Pet health records, vet reminders, PDF export (plan Familia) |
-| **GPS Collar** | ✅ | Tractive OAuth2 + polling job, history map (plan Plus) |
-| **Bundle Orders** | ✅ | On-demand collar bundle — order, pay SINPE, track fulfillment |
-| **Subscription Gating** | ✅ | Plan-gated features (Free/Plus/Familia/Clinic tiers) |
-| **Clinic Access Grants** | ✅ | Explicit consent grants via pairing code (Option C) |
+| Module                   | Status | What it does                                                              |
+| ------------------------ | ------ | ------------------------------------------------------------------------- |
+| **Auth**                 | ✅     | Registration, email verification, JWT + refresh tokens, account lockout   |
+| **Pets**                 | ✅     | CRUD, microchip, QR code, photo upload, scan history                      |
+| **Lost Pets**            | ✅     | Loss reports, Case Room, status state machine, bounty, contact            |
+| **Sightings**            | ✅     | Anonymous geo-tagged sighting reports, photo upload                       |
+| **Visual Match**         | ✅     | Azure Computer Vision embeddings — cosine similarity × geo proximity      |
+| **Found Pets**           | ✅     | QR-less "I found a pet" flow with AI matching                             |
+| **Broadcast**            | ✅     | Multi-channel diffusion (Email, WhatsApp, Telegram, Facebook)             |
+| **Search Coordination**  | ✅     | 7×7 zone grid, real-time zone claim/clear/release via SignalR             |
+| **Chat**                 | ✅     | Masked chat between owner and finder — no PII exposed                     |
+| **Handover**             | ✅     | 4-digit delivery code for safe physical reunion + bounty auto-claim       |
+| **Fraud Reports**        | ✅     | Anti-fraud reporting on suspicious interactions                           |
+| **Allies**               | ✅     | Verified rescue orgs — geo-alerts, admin review                           |
+| **Fosters**              | ✅     | Temporary custody volunteers, nearest-foster suggestions                  |
+| **Clinics (B2B)**        | ✅     | 3-tier plans, microchip scan, digital expediente, API keys, map placement |
+| **Expediente Digital**   | ✅     | Vet-clinic ↔ owner shared medical record (Options A+B+C)                  |
+| **WhatsApp Bot**         | ✅     | Conversational report flow via Meta Cloud API                             |
+| **Notifications**        | ✅     | In-app inbox, web push, VetReminder scheduler                             |
+| **Incentives**           | ✅     | Reunification leaderboard with badge tiers                                |
+| **Public Stats**         | ✅     | Recovery rates by species, breed, and canton                              |
+| **Public Map**           | ✅     | Live sighting map + clinics + movement prediction                         |
+| **Municipalities (B2G)** | ✅     | 3-tier portal (Básica/Full/Red Regional), capture management              |
+| **Family Module**        | ✅     | Multi-user family account, shared pets, invite via code                   |
+| **Medical History**      | ✅     | Pet health records, vet reminders, PDF export (plan Familia)              |
+| **GPS Collar**           | ✅     | Tractive OAuth2 + polling job, history map (plan Plus)                    |
+| **Bundle Orders**        | ✅     | On-demand collar bundle — order, pay SINPE, track fulfillment             |
+| **Subscription Gating**  | ✅     | Plan-gated features (Free/Plus/Familia/Clinic tiers)                      |
+| **Clinic Access Grants** | ✅     | Explicit consent grants via pairing code (Option C)                       |
 
 ---
 
 ## Tech stack
 
 ### Backend
+
 - **.NET 9** — ASP.NET Core Web API
 - **Clean Architecture** — API / Application / Domain / Infrastructure
 - **CQRS** via MediatR 12
@@ -65,6 +66,7 @@ For the technical spec see [docs/PawTrack_Documento_Maestro_v3.1.md](./docs/PawT
 - **Application Insights** — telemetry and alerting
 
 ### Frontend
+
 - **React 19** + **TypeScript 5**
 - **Vite 6** + **vite-plugin-pwa** (PWA / service worker)
 - **TanStack React Query 5** — server-state management
@@ -73,6 +75,7 @@ For the technical spec see [docs/PawTrack_Documento_Maestro_v3.1.md](./docs/PawT
 - **Leaflet / React-Leaflet** — interactive maps
 
 ### Cloud (Azure)
+
 - **App Service** (Linux, .NET 9)
 - **Azure SQL** (SQL Server)
 - **Blob Storage** — all photos and binaries
@@ -82,6 +85,7 @@ For the technical spec see [docs/PawTrack_Documento_Maestro_v3.1.md](./docs/PawT
 - **Notification Hubs** — push notifications
 
 ### Local dev
+
 - **Docker Compose** — SQL Server 2025 + Azurite (Blob/Queue/Table emulator)
 
 ---
@@ -118,12 +122,12 @@ PawTrack.sln
 
 ## Prerequisites
 
-| Tool | Version |
-|------|---------|
-| .NET SDK | 9.x |
-| Node.js | 20 LTS or 22 LTS |
-| Docker Desktop | 4.x or later |
-| PowerShell | 7.x (Windows) |
+| Tool           | Version          |
+| -------------- | ---------------- |
+| .NET SDK       | 9.x              |
+| Node.js        | 20 LTS or 22 LTS |
+| Docker Desktop | 4.x or later     |
+| PowerShell     | 7.x (Windows)    |
 
 ---
 
@@ -167,6 +171,7 @@ Copy `backend/src/PawTrack.API/appsettings.Development.json` and fill in:
 ```
 
 Options:
+
 ```powershell
 .\start-dev.ps1 -NoFrontend      # Backend only
 .\start-dev.ps1 -NoBackend       # Frontend only
@@ -192,6 +197,7 @@ npm run dev
 ```
 
 **URLs:**
+
 - Frontend: `http://localhost:5173`
 - API: `http://localhost:5000` (or port shown on startup)
 - API docs (OpenAPI): `http://localhost:5000/openapi/v1.json`
@@ -296,12 +302,12 @@ az staticwebapp deploy --source dist/
 
 ## Documentation
 
-| Document | Location | Audience |
-|----------|----------|----------|
-| Vision + target audience | [NALA.md](./NALA.md) | Everyone |
+| Document                   | Location                                                                   | Audience      |
+| -------------------------- | -------------------------------------------------------------------------- | ------------- |
+| Vision + target audience   | [NALA.md](./NALA.md)                                                       | Everyone      |
 | Full product specification | [PawTrack_Documento_Maestro_v3.1.md](./PawTrack_Documento_Maestro_v3.1.md) | Product + Dev |
-| User manual | [docs/MANUAL_USUARIO.md](./docs/MANUAL_USUARIO.md) | End users |
-| Technical manual | [docs/MANUAL_TECNICO.md](./docs/MANUAL_TECNICO.md) | Developers |
+| User manual                | [docs/MANUAL_USUARIO.md](./docs/MANUAL_USUARIO.md)                         | End users     |
+| Technical manual           | [docs/MANUAL_TECNICO.md](./docs/MANUAL_TECNICO.md)                         | Developers    |
 
 ---
 

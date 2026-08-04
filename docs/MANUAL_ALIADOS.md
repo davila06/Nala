@@ -1,4 +1,5 @@
 # FINALIZADO
+
 # Manual de Aliados — PawTrack CR
 
 **Versión:** 1.0  

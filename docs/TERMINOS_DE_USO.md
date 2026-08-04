@@ -1,4 +1,5 @@
 # FINALIZADO
+
 # Términos de Uso — PawTrack CR
 
 **Versión:** 1.0  

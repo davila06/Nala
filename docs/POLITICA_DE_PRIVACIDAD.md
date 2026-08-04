@@ -1,4 +1,5 @@
 # FINALIZADO
+
 # Política de Privacidad — PawTrack CR
 
 **Versión:** 1.0  
