@@ -1,5 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { bundleApi, type BundleOrderStatus, type CreateBundleOrderRequest } from "../api/bundleApi";
+import {
+  bundleApi,
+  type BundleOrderStatus,
+  type CreateBundleOrderRequest,
+} from "../api/bundleApi";
 
 const MY_ORDERS_KEY = ["bundle-orders", "mine"] as const;
 const ADMIN_KEY = (status?: BundleOrderStatus, page = 1) =>
@@ -67,8 +71,15 @@ export function useAdminMarkBundleSourced() {
 export function useAdminMarkBundleShipped() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, trackingNumber, adminNotes }: { id: string; trackingNumber: string; adminNotes?: string }) =>
-      bundleApi.adminMarkShipped(id, trackingNumber, adminNotes),
+    mutationFn: ({
+      id,
+      trackingNumber,
+      adminNotes,
+    }: {
+      id: string;
+      trackingNumber: string;
+      adminNotes?: string;
+    }) => bundleApi.adminMarkShipped(id, trackingNumber, adminNotes),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["bundle-orders"] }),
   });
 }

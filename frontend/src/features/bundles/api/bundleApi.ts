@@ -89,23 +89,43 @@ export const bundleApi = {
   // Admin
   getAll: (status?: BundleOrderStatus, page = 1): Promise<BundleOrderPageDto> =>
     apiClient
-      .get<BundleOrderPageDto>("/bundles/admin", { params: { status, page, pageSize: 25 } })
+      .get<BundleOrderPageDto>("/bundles/admin", {
+        params: { status, page, pageSize: 25 },
+      })
       .then((r) => r.data),
 
   adminConfirmPayment: (id: string): Promise<BundleOrderDto> =>
-    apiClient.put<BundleOrderDto>(`/bundles/admin/${id}/confirm-payment`).then((r) => r.data),
-
-  adminMarkSourced: (id: string, adminNotes?: string): Promise<BundleOrderDto> =>
-    apiClient.put<BundleOrderDto>(`/bundles/admin/${id}/sourced`, { adminNotes }).then((r) => r.data),
-
-  adminMarkShipped: (id: string, trackingNumber: string, adminNotes?: string): Promise<BundleOrderDto> =>
     apiClient
-      .put<BundleOrderDto>(`/bundles/admin/${id}/shipped`, { trackingNumber, adminNotes })
+      .put<BundleOrderDto>(`/bundles/admin/${id}/confirm-payment`)
+      .then((r) => r.data),
+
+  adminMarkSourced: (
+    id: string,
+    adminNotes?: string,
+  ): Promise<BundleOrderDto> =>
+    apiClient
+      .put<BundleOrderDto>(`/bundles/admin/${id}/sourced`, { adminNotes })
+      .then((r) => r.data),
+
+  adminMarkShipped: (
+    id: string,
+    trackingNumber: string,
+    adminNotes?: string,
+  ): Promise<BundleOrderDto> =>
+    apiClient
+      .put<BundleOrderDto>(`/bundles/admin/${id}/shipped`, {
+        trackingNumber,
+        adminNotes,
+      })
       .then((r) => r.data),
 
   adminMarkDelivered: (id: string): Promise<BundleOrderDto> =>
-    apiClient.put<BundleOrderDto>(`/bundles/admin/${id}/delivered`).then((r) => r.data),
+    apiClient
+      .put<BundleOrderDto>(`/bundles/admin/${id}/delivered`)
+      .then((r) => r.data),
 
   adminCancel: (id: string, adminNotes?: string): Promise<BundleOrderDto> =>
-    apiClient.put<BundleOrderDto>(`/bundles/admin/${id}/cancel`, { adminNotes }).then((r) => r.data),
+    apiClient
+      .put<BundleOrderDto>(`/bundles/admin/${id}/cancel`, { adminNotes })
+      .then((r) => r.data),
 };

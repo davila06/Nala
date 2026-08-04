@@ -482,12 +482,16 @@ function SubscriptionsTab() {
 
 function BundlesTab() {
   const [statusFilter, setStatusFilter] = useState<string>("");
-  const [trackingInput, setTrackingInput] = useState<Record<string, string>>({});
+  const [trackingInput, setTrackingInput] = useState<Record<string, string>>(
+    {},
+  );
   const [notesInput, setNotesInput] = useState<Record<string, string>>({});
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   const { data, isLoading } = useAdminBundleOrders(
-    statusFilter ? (statusFilter as import("@/features/bundles/api/bundleApi").BundleOrderStatus) : undefined,
+    statusFilter
+      ? (statusFilter as import("@/features/bundles/api/bundleApi").BundleOrderStatus)
+      : undefined,
   );
   const confirmPayment = useAdminConfirmBundlePayment();
   const markSourced = useAdminMarkBundleSourced();
@@ -525,38 +529,63 @@ function BundlesTab() {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
         >
-          {statuses.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+          {statuses.map((s) => (
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
+          ))}
         </select>
-        <span className="text-xs text-sand-500">{data?.total ?? 0} pedidos</span>
+        <span className="text-xs text-sand-500">
+          {data?.total ?? 0} pedidos
+        </span>
       </div>
 
-      {isLoading && <div className="animate-pulse h-24 rounded-2xl bg-sand-100" />}
+      {isLoading && (
+        <div className="animate-pulse h-24 rounded-2xl bg-sand-100" />
+      )}
 
       {data?.items.length === 0 && (
-        <p className="text-center text-sm text-sand-400 py-6">No hay pedidos con este filtro.</p>
+        <p className="text-center text-sm text-sand-400 py-6">
+          No hay pedidos con este filtro.
+        </p>
       )}
 
       <ul className="space-y-3">
         {data?.items.map((order) => (
-          <li key={order.id} className="rounded-2xl border border-sand-200 bg-surface-warm p-4 space-y-3">
+          <li
+            key={order.id}
+            className="rounded-2xl border border-sand-200 bg-surface-warm p-4 space-y-3"
+          >
             <div className="flex items-start justify-between gap-2 flex-wrap">
               <div>
-                <p className="font-semibold text-sand-900">{order.collarModelLabel}</p>
-                <p className="text-xs text-sand-500">
-                  #{order.id.slice(-8).toUpperCase()} · {new Date(order.createdAt).toLocaleDateString("es-CR")}
-                  {order.paymentReportedByUser && order.status === "PendingPayment" && (
-                    <span className="ml-2 rounded-full bg-warn-100 px-2 py-0.5 text-warn-700 font-semibold">⚡ PAGÓ</span>
-                  )}
+                <p className="font-semibold text-sand-900">
+                  {order.collarModelLabel}
                 </p>
                 <p className="text-xs text-sand-500">
-                  Ref: <span className="font-mono font-bold">{order.paymentReference}</span>
+                  #{order.id.slice(-8).toUpperCase()} ·{" "}
+                  {new Date(order.createdAt).toLocaleDateString("es-CR")}
+                  {order.paymentReportedByUser &&
+                    order.status === "PendingPayment" && (
+                      <span className="ml-2 rounded-full bg-warn-100 px-2 py-0.5 text-warn-700 font-semibold">
+                        ⚡ PAGÓ
+                      </span>
+                    )}
+                </p>
+                <p className="text-xs text-sand-500">
+                  Ref:{" "}
+                  <span className="font-mono font-bold">
+                    {order.paymentReference}
+                  </span>
                   {" · "}₡{order.amountCrc.toLocaleString("es-CR")}
                 </p>
                 <p className="text-xs text-sand-500 mt-0.5">
-                  📍 {order.shippingAddress}, {order.shippingCanton} · {order.shippingFullName} · {order.shippingPhone}
+                  📍 {order.shippingAddress}, {order.shippingCanton} ·{" "}
+                  {order.shippingFullName} · {order.shippingPhone}
                 </p>
               </div>
-              <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_COLORS[order.status]}`}>
+              <span
+                className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_COLORS[order.status]}`}
+              >
                 {order.statusLabel}
               </span>
             </div>
@@ -567,7 +596,9 @@ function BundlesTab() {
                 <button
                   type="button"
                   disabled={processingId === order.id}
-                  onClick={() => handle(order.id, () => confirmPayment.mutateAsync(order.id))}
+                  onClick={() =>
+                    handle(order.id, () => confirmPayment.mutateAsync(order.id))
+                  }
                   className="rounded-lg bg-rescue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-rescue-700 disabled:opacity-50"
                 >
                   ✅ Confirmar pago
@@ -577,14 +608,26 @@ function BundlesTab() {
                 <div className="flex gap-2 items-center flex-wrap w-full">
                   <Input
                     value={notesInput[order.id] ?? ""}
-                    onChange={(e) => setNotesInput((p) => ({ ...p, [order.id]: e.target.value }))}
+                    onChange={(e) =>
+                      setNotesInput((p) => ({
+                        ...p,
+                        [order.id]: e.target.value,
+                      }))
+                    }
                     placeholder="Proveedor / número de orden (opcional)"
                     className="flex-1 text-xs"
                   />
                   <button
                     type="button"
                     disabled={processingId === order.id}
-                    onClick={() => handle(order.id, () => markSourced.mutateAsync({ id: order.id, adminNotes: notesInput[order.id] }))}
+                    onClick={() =>
+                      handle(order.id, () =>
+                        markSourced.mutateAsync({
+                          id: order.id,
+                          adminNotes: notesInput[order.id],
+                        }),
+                      )
+                    }
                     className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-700 disabled:opacity-50 shrink-0"
                   >
                     📦 Marcar en adquisición
@@ -595,14 +638,30 @@ function BundlesTab() {
                 <div className="flex gap-2 items-center flex-wrap w-full">
                   <Input
                     value={trackingInput[order.id] ?? ""}
-                    onChange={(e) => setTrackingInput((p) => ({ ...p, [order.id]: e.target.value }))}
+                    onChange={(e) =>
+                      setTrackingInput((p) => ({
+                        ...p,
+                        [order.id]: e.target.value,
+                      }))
+                    }
                     placeholder="Número de rastreo *"
                     className="flex-1 text-xs"
                   />
                   <button
                     type="button"
-                    disabled={processingId === order.id || !trackingInput[order.id]?.trim()}
-                    onClick={() => handle(order.id, () => markShipped.mutateAsync({ id: order.id, trackingNumber: trackingInput[order.id], adminNotes: notesInput[order.id] }))}
+                    disabled={
+                      processingId === order.id ||
+                      !trackingInput[order.id]?.trim()
+                    }
+                    onClick={() =>
+                      handle(order.id, () =>
+                        markShipped.mutateAsync({
+                          id: order.id,
+                          trackingNumber: trackingInput[order.id],
+                          adminNotes: notesInput[order.id],
+                        }),
+                      )
+                    }
                     className="rounded-lg bg-trust-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-trust-700 disabled:opacity-50 shrink-0"
                   >
                     🚚 Marcar enviado
@@ -613,7 +672,9 @@ function BundlesTab() {
                 <button
                   type="button"
                   disabled={processingId === order.id}
-                  onClick={() => handle(order.id, () => markDelivered.mutateAsync(order.id))}
+                  onClick={() =>
+                    handle(order.id, () => markDelivered.mutateAsync(order.id))
+                  }
                   className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-green-700 disabled:opacity-50"
                 >
                   ✅ Marcar entregado
@@ -623,7 +684,14 @@ function BundlesTab() {
                 <button
                   type="button"
                   disabled={processingId === order.id}
-                  onClick={() => handle(order.id, () => cancelOrder.mutateAsync({ id: order.id, adminNotes: "Cancelado por administrador" }))}
+                  onClick={() =>
+                    handle(order.id, () =>
+                      cancelOrder.mutateAsync({
+                        id: order.id,
+                        adminNotes: "Cancelado por administrador",
+                      }),
+                    )
+                  }
                   className="rounded-lg border border-danger-200 px-3 py-1.5 text-xs font-semibold text-danger-600 hover:bg-danger-50 disabled:opacity-50"
                 >
                   Cancelar
@@ -632,10 +700,14 @@ function BundlesTab() {
             </div>
 
             {order.trackingNumber && (
-              <p className="text-xs font-mono text-sand-600">🔍 Tracking: {order.trackingNumber}</p>
+              <p className="text-xs font-mono text-sand-600">
+                🔍 Tracking: {order.trackingNumber}
+              </p>
             )}
             {order.adminNotes && (
-              <p className="text-xs text-sand-500 italic">Notas: {order.adminNotes}</p>
+              <p className="text-xs text-sand-500 italic">
+                Notas: {order.adminNotes}
+              </p>
             )}
           </li>
         ))}
@@ -657,7 +729,9 @@ export default function AdminPage() {
   const clinicCount = clinicsData?.length ?? 0;
   const pendingSubCount = pendingSubsData?.length ?? 0;
   const { data: pendingBundlesData } = useAdminBundleOrders("PendingPayment");
-  const pendingBundleCount = pendingBundlesData?.items.filter((b) => b.paymentReportedByUser).length ?? 0;
+  const pendingBundleCount =
+    pendingBundlesData?.items.filter((b) => b.paymentReportedByUser).length ??
+    0;
 
   if (!user || user.role !== "Admin") {
     return <Navigate to="/dashboard" replace />;
@@ -692,34 +766,66 @@ export default function AdminPage() {
           value={clinicCount}
           urgent
         />
-        <StatCard icon="💳" label="Pagos pendientes" value={pendingSubCount} urgent />
-        <StatCard icon="📦" label="Bundles por confirmar" value={pendingBundleCount} urgent />
+        <StatCard
+          icon="💳"
+          label="Pagos pendientes"
+          value={pendingSubCount}
+          urgent
+        />
+        <StatCard
+          icon="📦"
+          label="Bundles por confirmar"
+          value={pendingBundleCount}
+          urgent
+        />
       </div>
 
       {/* ── Tabs ── */}
       <div className="mb-6 flex gap-1 rounded-2xl bg-surface-warm p-1.5 overflow-x-auto no-scrollbar">
-        {(["allies", "clinics", "subscriptions", "bundles"] as const).map((tab) => {
-          const count =
-            tab === "allies" ? allyCount :
-            tab === "clinics" ? clinicCount :
-            tab === "subscriptions" ? pendingSubCount : pendingBundleCount;
-          const label =
-            tab === "allies" ? "Aliados" :
-            tab === "clinics" ? "Cl\u00ednicas" :
-            tab === "subscriptions" ? "Suscripciones" : "Bundles";
-          return (
-            <button key={tab} type="button" role="tab" aria-selected={activeTab === tab}
-              onClick={() => setActiveTab(tab)}
-              className={["flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
-                activeTab === tab ? "bg-surface text-sand-900 shadow-sm" : "text-sand-500 hover:text-sand-700",
-              ].join(" ")}>
-              {label}
-              {count > 0 && (
-                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${activeTab === tab ? "bg-warn-100 text-warn-700" : "bg-sand-200 text-sand-600"}`}>{count}</span>
-              )}
-            </button>
-          );
-        })}
+        {(["allies", "clinics", "subscriptions", "bundles"] as const).map(
+          (tab) => {
+            const count =
+              tab === "allies"
+                ? allyCount
+                : tab === "clinics"
+                  ? clinicCount
+                  : tab === "subscriptions"
+                    ? pendingSubCount
+                    : pendingBundleCount;
+            const label =
+              tab === "allies"
+                ? "Aliados"
+                : tab === "clinics"
+                  ? "Cl\u00ednicas"
+                  : tab === "subscriptions"
+                    ? "Suscripciones"
+                    : "Bundles";
+            return (
+              <button
+                key={tab}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab}
+                onClick={() => setActiveTab(tab)}
+                className={[
+                  "flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
+                  activeTab === tab
+                    ? "bg-surface text-sand-900 shadow-sm"
+                    : "text-sand-500 hover:text-sand-700",
+                ].join(" ")}
+              >
+                {label}
+                {count > 0 && (
+                  <span
+                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${activeTab === tab ? "bg-warn-100 text-warn-700" : "bg-sand-200 text-sand-600"}`}
+                  >
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          },
+        )}
       </div>
       {/* ── Tab content ── */}
       <AnimatePresence mode="wait">
