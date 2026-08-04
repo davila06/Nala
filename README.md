@@ -4,40 +4,52 @@
 
 Register your pet → Generate a QR → Report it lost → Log sightings → Coordinate the search → Reunite.
 
+> **Status:** Production-ready · Last updated: August 2026  
+> All docs have been moved to [`docs/`](./docs/).
+
 ---
 
 ## What is this?
 
 PawTrack CR is a full-stack Progressive Web App (PWA) that provides structured, real-time tooling for the entire lifecycle of a lost-pet event — from QR-based identity and sighting reports to AI-powered visual matching, field coordination, and secure physical handover.
 
-For the full product vision, target audience, and how everything works see [NALA.md](./NALA.md).  
-For the complete functional and technical specification see [PawTrack_Documento_Maestro_v3.1.md](./PawTrack_Documento_Maestro_v3.1.md).
+For the full product vision see [docs/NALA.md](./docs/NALA.md).  
+For production prerequisites see [docs/pre.md](./docs/pre.md).  
+For the technical spec see [docs/PawTrack_Documento_Maestro_v3.1.md](./docs/PawTrack_Documento_Maestro_v3.1.md).
 
 ---
 
-## Feature overview
+## Feature overview (August 2026 — complete)
 
-| Module | What it does |
-|--------|-------------|
-| **Auth** | Registration, email verification, JWT + refresh tokens, account lockout |
-| **Pets** | CRUD, microchip, QR code, photo upload, scan history |
-| **Lost Pets** | Loss reports, Case Room, status state machine, reward, contact |
-| **Sightings** | Anonymous geo-tagged sighting reports, photo upload |
-| **Visual Match** | Azure Computer Vision embeddings — cosine similarity × geo proximity |
-| **Found Pets** | QR-less "I found a pet" flow with AI matching |
-| **Broadcast** | Multi-channel diffusion (Email, WhatsApp, Telegram, Facebook) |
-| **Search Coordination** | 7×7 zone grid, real-time zone claim/clear/release via SignalR |
-| **Chat** | Masked chat between owner and finder — no PII exposed |
-| **Handover** | 4-digit delivery code for safe physical reunion |
-| **Fraud Reports** | Anti-fraud reporting on suspicious interactions |
-| **Allies** | Verified rescue orgs — geo-alerts, admin review |
-| **Fosters** | Temporary custody volunteers, nearest-foster suggestions |
-| **Clinics** | Affiliated vet clinics, microchip scan log |
-| **WhatsApp Bot** | Conversational report flow via Meta Cloud API |
-| **Notifications** | In-app inbox, web push, per-channel preferences |
-| **Incentives** | Reunification leaderboard with badge tiers |
-| **Public Stats** | Recovery rates by species, breed, and canton |
-| **Public Map** | Live sighting map + movement prediction |
+| Module | Status | What it does |
+|--------|--------|-------------|
+| **Auth** | ✅ | Registration, email verification, JWT + refresh tokens, account lockout |
+| **Pets** | ✅ | CRUD, microchip, QR code, photo upload, scan history |
+| **Lost Pets** | ✅ | Loss reports, Case Room, status state machine, bounty, contact |
+| **Sightings** | ✅ | Anonymous geo-tagged sighting reports, photo upload |
+| **Visual Match** | ✅ | Azure Computer Vision embeddings — cosine similarity × geo proximity |
+| **Found Pets** | ✅ | QR-less "I found a pet" flow with AI matching |
+| **Broadcast** | ✅ | Multi-channel diffusion (Email, WhatsApp, Telegram, Facebook) |
+| **Search Coordination** | ✅ | 7×7 zone grid, real-time zone claim/clear/release via SignalR |
+| **Chat** | ✅ | Masked chat between owner and finder — no PII exposed |
+| **Handover** | ✅ | 4-digit delivery code for safe physical reunion + bounty auto-claim |
+| **Fraud Reports** | ✅ | Anti-fraud reporting on suspicious interactions |
+| **Allies** | ✅ | Verified rescue orgs — geo-alerts, admin review |
+| **Fosters** | ✅ | Temporary custody volunteers, nearest-foster suggestions |
+| **Clinics (B2B)** | ✅ | 3-tier plans, microchip scan, digital expediente, API keys, map placement |
+| **Expediente Digital** | ✅ | Vet-clinic ↔ owner shared medical record (Options A+B+C) |
+| **WhatsApp Bot** | ✅ | Conversational report flow via Meta Cloud API |
+| **Notifications** | ✅ | In-app inbox, web push, VetReminder scheduler |
+| **Incentives** | ✅ | Reunification leaderboard with badge tiers |
+| **Public Stats** | ✅ | Recovery rates by species, breed, and canton |
+| **Public Map** | ✅ | Live sighting map + clinics + movement prediction |
+| **Municipalities (B2G)** | ✅ | 3-tier portal (Básica/Full/Red Regional), capture management |
+| **Family Module** | ✅ | Multi-user family account, shared pets, invite via code |
+| **Medical History** | ✅ | Pet health records, vet reminders, PDF export (plan Familia) |
+| **GPS Collar** | ✅ | Tractive OAuth2 + polling job, history map (plan Plus) |
+| **Bundle Orders** | ✅ | On-demand collar bundle — order, pay SINPE, track fulfillment |
+| **Subscription Gating** | ✅ | Plan-gated features (Free/Plus/Familia/Clinic tiers) |
+| **Clinic Access Grants** | ✅ | Explicit consent grants via pairing code (Option C) |
 
 ---
 

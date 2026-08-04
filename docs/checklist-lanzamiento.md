@@ -1,6 +1,9 @@
 # Checklist de lanzamiento — PawTrack CR en Azure
 
-Marca cada paso solo cuando este verificado. Si algo falla, para y corrige antes de seguir.
+> **Actualizado: 2026-08-04**  
+> Para la lista completa de prerequisitos con comandos exactos, ver [`pre.md`](pre.md).
+
+Marca cada paso solo cuando esté verificado. Si algo falla, para y corrige antes de seguir.
 
 ---
 

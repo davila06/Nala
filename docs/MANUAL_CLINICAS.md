@@ -1,3 +1,4 @@
+# FINALIZADO
 # Manual de Clínicas Veterinarias — PawTrack CR
 
 **Versión:** 1.0  

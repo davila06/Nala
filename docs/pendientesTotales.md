@@ -1,26 +1,40 @@
 # PawTrack CR — Pendientes Totales Consolidados
 
-> Versión: 2026-07-31 (fuente única — reemplaza `erroresConsolidado.md`, `PENDIENTES_BETA.md`, `collares.md`, `mejorasUI.md`, `multi-idioma.md`)  
+> **Última actualización: 2026-08-04**  
+> Versión original: 2026-07-31 — reemplazó `erroresConsolidado.md`, `PENDIENTES_BETA.md`, etc.  
 > Ambiente de referencia: **PawnTrackBeta** — Container App + Azure SQL + Static Web App
 
 ---
 
-## 1. Matriz de avance
+## 1. Matriz de avance (actualizada agosto 2026)
 
 | Categoría                | Items    | ✅ Hecho | 🔄 Parcial | ⛔ Pendiente |
 | ------------------------ | -------- | -------- | ---------- | ------------ |
-| Infraestructura / DevOps | 6        | 4        | 0          | 2            |
-| Seguridad / Canales      | 2        | 1        | 1          | 0            |
-| Features backend         | 7        | 5        | 0          | 2            |
-| Features frontend        | 9        | 7        | 0          | 2            |
+| Infraestructura / DevOps | 6        | 4        | 0          | 2 (GitHub Secrets, dominio) |
+| Seguridad / Canales      | 2        | 2        | 0          | 0            |
+| Features backend         | 7        | 7        | 0          | 0 ✅ completo |
+| Features frontend        | 9        | 9        | 0          | 0 ✅ completo |
 | Internacionalización     | 4        | 4        | 0          | 0            |
-| UI/UX sistema de diseño  | 6 fases  | 3 fases  | 1          | 2 fases      |
-| Módulo Collar GPS        | 1        | 0        | 0          | 1            |
-| Monetización             | 5 líneas | 0        | 1 banner   | 4            |
-| **Subscription Gating**  | **10**   | **0**    | **0**      | **10**       |
-| **Features Familia**     | **5**    | **0**    | **0**      | **5**        |
-| **UI Gates**             | **6**    | **0**    | **0**      | **6**        |
-| **TOTAL**                | **61+**  | **24**   | **2**      | **32+**      |
+| UI/UX sistema de diseño  | 6 fases  | 6 fases  | 0          | 0 ✅ completo |
+| Módulo Collar GPS        | 1        | 1        | 0          | 0 ✅ completo |
+| Bundle GPS (on-demand)   | 1        | 1        | 0          | 0 ✅ completo |
+| Monetización             | 5 líneas | 5        | 0          | 0 ✅ completo |
+| **Subscription Gating**  | **10**   | **10**   | **0**      | **0 ✅** |
+| **Features Familia**     | **5**    | **5**    | **0**      | **0 ✅** |
+| **UI Gates**             | **6**    | **6**    | **0**      | **0 ✅** |
+| **B2B Clínicas (Fases 1-5)** | **22** | **22** | **0**     | **0 ✅** |
+| **Municipalidades (B2G)** | **9**   | **9**    | **0**      | **0 ✅** |
+| **Expediente Digital A+B+C** | **3** | **3**   | **0**      | **0 ✅** |
+| **TOTAL**                | **90+**  | **85+**  | **0**      | **5 (ops)** |
+
+### Únicos pendientes reales (operacionales, no código)
+1. GitHub Secrets para CI/CD (§1.2)
+2. Dominio `pawtrack.cr` + CNAME (§1.4)
+3. WhatsApp webhook en Meta (§3.1)
+4. VAPID keys en Azure (§3.2)
+5. Migraciones EF en Azure SQL (11 migraciones nuevas desde julio)
+
+> Ver [`pre.md`](pre.md) para la lista completa de prerequisitos antes de ir a producción.
 
 ---
 

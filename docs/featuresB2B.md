@@ -1,23 +1,35 @@
 # PawTrack CR — Features B2B Clínicas: Estado, Brechas e Implementación
 
-> Análisis técnico al 2026-08-01 contra la especificación de `precios.md §2`
-> Fuente: inspección directa del código fuente (backend + frontend).
+> **Actualizado: 2026-08-04 — TODO implementado ✅**  
+> Análisis técnico original: 2026-08-01 contra `precios.md §2`
 
 ---
 
-## Índice de estado rápido
+## Índice de estado rápido (actualizado agosto 2026)
 
-| Plan        | Feature                                           |          Estado          |
-| ----------- | ------------------------------------------------- | :----------------------: |
-| **BÁSICA**  | Registro + perfil en directorio                   |            ✅            |
-| **BÁSICA**  | Mapa de clínicas (posición estándar)              |            ❌            |
-| **BÁSICA**  | Información de contacto pública                   |        ⚠️ Parcial        |
-| **BÁSICA**  | Escanear QR de collar                             |            ✅            |
-| **BÁSICA**  | Escanear microchip RFID                           |            ✅            |
-| **BÁSICA**  | Ver perfil público + datos dueño                  |            ✅            |
-| **BÁSICA**  | Búsqueda por número de microchip                  |            ✅            |
-| **PLUS**    | Posición destacada en mapa                        |            ❌            |
-| **PLUS**    | Badge "Clínica Verificada"                        |        ⚠️ Parcial        |
+| Plan        | Feature                                           |  Estado  |
+| ----------- | ------------------------------------------------- | :------: |
+| **BÁSICA**  | Registro + perfil en directorio                   | ✅ |
+| **BÁSICA**  | Mapa de clínicas (posición estándar)              | ✅ |
+| **BÁSICA**  | Información de contacto pública                   | ✅ |
+| **BÁSICA**  | Escanear QR de collar                             | ✅ |
+| **BÁSICA**  | Escanear microchip RFID                           | ✅ |
+| **BÁSICA**  | Ver perfil público + datos dueño                  | ✅ |
+| **BÁSICA**  | Búsqueda por número de microchip                  | ✅ |
+| **PLUS**    | Posición destacada en mapa                        | ✅ |
+| **PLUS**    | Badge "Clínica Verificada"                        | ✅ |
+| **PLUS**    | Logo en alertas de pérdida (NearbyFeaturedClinics)| ✅ |
+| **PLUS**    | Banner en Case Rooms                              | ✅ |
+| **PLUS**    | Estadísticas de escaneos mensuales                | ✅ |
+| **PLUS**    | Métricas de visibilidad (ClinicProfileViews)      | ✅ |
+| **PARTNER** | Certificados veterinarios PDF                     | ✅ |
+| **PARTNER** | QR de verificación en PDF                        | ✅ |
+| **PARTNER** | Verificación pública `/verificar/{código}`        | ✅ |
+| **PARTNER** | Widget embebible                                  | ✅ |
+| **PARTNER** | API de consulta directa (API Keys)                | ✅ |
+| **PARTNER** | Alertas Case Rooms del cantón (Partner)           | ✅ |
+| **EXPEDIENTE** | Acceso clínica → expediente (Opciones A+B+C)  | ✅ |
+| **EXPEDIENTE** | Código de emparejamiento permanente            | ✅ |
 | **PLUS**    | Logo en alertas de pérdida                        |            ❌            |
 | **PLUS**    | Banner en Case Rooms de pacientes                 |            ❌            |
 | **PLUS**    | Estadísticas de escaneos mensuales                |            ❌            |
