@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PawTrack CR — La app que reúne mascotas con sus familias</title>
+    <title>PawTrack CR · Colabora con la red de recuperación de mascotas de Costa Rica</title>
     <style>
       *,
       *::before,
@@ -804,6 +804,110 @@
           max-width: 240px;
         }
       }
+
+      /* ── CREATOR KIT ── */
+      .creator-kit {
+        padding: 6rem 0;
+      }
+      .kit-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.25rem;
+        margin-top: 2.5rem;
+      }
+      .kit-card {
+        background: linear-gradient(
+          135deg,
+          rgba(26, 52, 132, 0.22) 0%,
+          var(--surface) 100%
+        );
+        border: 1px solid rgba(26, 52, 132, 0.4);
+        border-radius: 20px;
+        padding: 1.75rem;
+      }
+      .kit-card .kit-icon {
+        font-size: 2rem;
+        margin-bottom: 0.9rem;
+        display: block;
+      }
+      .kit-card h3 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-bottom: 0.4rem;
+      }
+      .kit-card p {
+        font-size: 0.82rem;
+        color: rgba(255, 255, 255, 0.55);
+      }
+
+      /* ── FOR WHO ── */
+      .for-who {
+        padding: 6rem 0;
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .profiles-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.25rem;
+        margin-top: 2.5rem;
+      }
+      .profile-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 1.75rem;
+        text-align: center;
+      }
+      .profile-card .p-icon {
+        font-size: 2.5rem;
+        display: block;
+        margin-bottom: 0.75rem;
+      }
+      .profile-card h3 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+      }
+      .profile-card p {
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      /* ── NEXT STEPS ── */
+      .next-steps {
+        counter-reset: step-counter;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+        margin: 0 auto 2.25rem;
+        max-width: 440px;
+        text-align: left;
+      }
+      .next-steps li {
+        counter-increment: step-counter;
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        font-size: 0.88rem;
+        color: rgba(255, 255, 255, 0.65);
+      }
+      .next-steps li::before {
+        content: counter(step-counter);
+        width: 26px;
+        min-width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: rgba(232, 82, 30, 0.2);
+        border: 1px solid rgba(232, 82, 30, 0.35);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: #f97316;
+        flex-shrink: 0;
+      }
     </style>
   </head>
   <body>
@@ -822,6 +926,10 @@
         PawTrack
         <span>CR</span>
       </div>
+      <a
+        href="mailto:davila06@gmail.com?subject=Colaboraci%C3%B3n%20PawTrack%20CR"
+        class="nav-cta"
+        >Colaborar →</a
       >
     </nav>
 
@@ -1378,6 +1486,114 @@
       </div>
     </section>
 
+    <!-- ── CREATOR KIT ── -->
+    <section class="creator-kit">
+      <div class="container">
+        <div class="s-label reveal">Lo que te ofrecemos</div>
+        <h2 class="s-title reveal">Sin contratos. Sin compromisos.</h2>
+        <p class="s-lead reveal">
+          Solo una misión compartida y todo lo que necesitás para crear
+          contenido auténtico que mueve a tu comunidad.
+        </p>
+        <div class="kit-grid">
+          <div class="kit-card reveal">
+            <span class="kit-icon">🎯</span>
+            <h3>Acceso demo completo</h3>
+            <p>
+              Probás cada feature antes de publicar. Tu contenido debe ser
+              honesto — te damos acceso real a la plataforma.
+            </p>
+          </div>
+          <div class="kit-card reveal" style="transition-delay: 0.08s">
+            <span class="kit-icon">📦</span>
+            <h3>Kit de assets visuales</h3>
+            <p>
+              Mockups, capturas en alta resolución, logos y guía de marca
+              para que tu post quede impecable.
+            </p>
+          </div>
+          <div class="kit-card reveal" style="transition-delay: 0.16s">
+            <span class="kit-icon">👋</span>
+            <h3>Contacto directo con el fundador</h3>
+            <p>
+              Sin bots ni formularios. Respondemos todas tus preguntas en
+              menos de 24 horas.
+            </p>
+          </div>
+          <div class="kit-card reveal" style="transition-delay: 0.24s">
+            <span class="kit-icon">📣</span>
+            <h3>Amplificamos tu contenido</h3>
+            <p>
+              Compartimos tu publicación desde las redes oficiales de
+              PawTrack CR a toda nuestra comunidad.
+            </p>
+          </div>
+          <div class="kit-card reveal" style="transition-delay: 0.32s">
+            <span class="kit-icon">🏅</span>
+            <h3>Reconocimiento oficial</h3>
+            <p>
+              Aparecés en nuestra página de aliados. Badge "Aliado Oficial
+              PawTrack CR" para tu bio.
+            </p>
+          </div>
+          <div class="kit-card reveal" style="transition-delay: 0.4s">
+            <span class="kit-icon">🕊️</span>
+            <h3>Total libertad editorial</h3>
+            <p>
+              Publicás cuando querás, como querás. Sin guiones, sin
+              validaciones previas, sin exclusividad.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FOR WHO ── -->
+    <section class="for-who">
+      <div class="container">
+        <div class="s-label reveal">¿Es esto para mí?</div>
+        <h2 class="s-title reveal">Cualquier voz suma.</h2>
+        <p class="s-lead reveal">
+          No importa si tenés 500 o 500,000 seguidores. Lo que importa es la
+          conexión auténtica con tu comunidad.
+        </p>
+        <div class="profiles-grid">
+          <div class="profile-card reveal">
+            <span class="p-icon">🐾</span>
+            <h3>Creadores de mascotas</h3>
+            <p>
+              Tu nicho es exactamente el público que necesitamos. El mensaje
+              llega de forma natural.
+            </p>
+          </div>
+          <div class="profile-card reveal" style="transition-delay: 0.08s">
+            <span class="p-icon">🌿</span>
+            <h3>Lifestyle y familia</h3>
+            <p>
+              Las mascotas son familia. Si tu audiencia lo entiende, este
+              contenido conecta solo.
+            </p>
+          </div>
+          <div class="profile-card reveal" style="transition-delay: 0.16s">
+            <span class="p-icon">🤝</span>
+            <h3>Rescatistas y voluntarios</h3>
+            <p>
+              Ya vivís esto. Tu credibilidad hace el mensaje 10 veces más
+              poderoso que cualquier pauta.
+            </p>
+          </div>
+          <div class="profile-card reveal" style="transition-delay: 0.24s">
+            <span class="p-icon">🏥</span>
+            <h3>Veterinarios y clínicas</h3>
+            <p>
+              Autoridad y confianza. Tu recomendación es la que más pesa ante
+              dueños de mascotas.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ── CTA FINAL ── -->
     <section class="cta-final">
       <div class="container">
@@ -1389,11 +1605,17 @@
             Comparte PawTrack CR con tu comunidad. Una historia tuya puede
             marcar la diferencia para una familia costarricense.
           </p>
+          <ol class="next-steps">
+            <li>Escribís con asunto «Colaboración PawTrack CR»</li>
+            <li>Respondemos en menos de 24 horas con el kit completo</li>
+            <li>Probás la plataforma con acceso demo gratis</li>
+            <li>Publicás cuando y como querás — total libertad</li>
+          </ol>
           <div class="links">
             <a
               href="mailto:davila06@gmail.com?subject=Colaboraci%C3%B3n%20PawTrack%20CR"
               class="btn-primary"
-              >Escribir a davila06@gmail.com</a
+              >Quiero colaborar →</a
             >
           </div>
           <p
@@ -1403,7 +1625,7 @@
               color: rgba(255, 255, 255, 0.35);
             "
           >
-            Contacto para colaboraciones: davila06@gmail.com
+            davila06@gmail.com · Respondemos siempre
           </p>
         </div>
       </div>
