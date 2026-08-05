@@ -3,7 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PawTrack CR · Colabora con la red de recuperación de mascotas de Costa Rica</title>
+    <title>
+      PawTrack CR · Colabora con la red de recuperación de mascotas de Costa
+      Rica
+    </title>
+    <meta
+      name="description"
+      content="Colaborá gratis con PawTrack CR, la primera red de recuperación de mascotas de Costa Rica. Causa real, contenido auténtico, impacto medible."
+    />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="Colabora con PawTrack CR · Red de recuperación de mascotas de CR"
+    />
+    <meta
+      property="og:description"
+      content="Tu contenido puede ayudar a que una mascota perdida vuelva a casa. Uníte como aliado de la primera red de mascotas de Costa Rica."
+    />
+    <meta property="og:image" content="https://pawtrack.cr/og-influencer.png" />
+    <meta property="og:url" content="https://pawtrack.cr/influencer" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#0d0d14" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://pawtrack.cr/influencer" />
+    <link rel="preconnect" href="https://flagcdn.com" />
     <style>
       *,
       *::before,
@@ -908,6 +931,89 @@
         color: #f97316;
         flex-shrink: 0;
       }
+
+      /* ── TRUST BAND ── */
+      .trust-band {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.025);
+      }
+      .trust-items {
+        display: flex;
+        gap: 2.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .trust-item {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.4);
+        letter-spacing: 0.02em;
+      }
+      .trust-item strong {
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 700;
+      }
+
+      /* ── FAQ ── */
+      .faq {
+        padding: 6rem 0;
+      }
+      .faq-list {
+        max-width: 700px;
+        margin: 2.5rem auto 0;
+      }
+      .faq-item {
+        border-bottom: 1px solid var(--border);
+      }
+      .faq-item:first-child {
+        border-top: 1px solid var(--border);
+      }
+      .faq-q {
+        width: 100%;
+        background: none;
+        border: none;
+        color: inherit;
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 700;
+        text-align: left;
+        padding: 1.25rem 0;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+      }
+      .faq-q:hover {
+        color: var(--glow);
+      }
+      .faq-chevron {
+        color: var(--accent);
+        font-size: 1.4rem;
+        font-weight: 300;
+        flex-shrink: 0;
+        transition: transform 0.25s;
+        line-height: 1;
+        user-select: none;
+      }
+      .faq-item.open .faq-chevron {
+        transform: rotate(45deg);
+      }
+      .faq-a {
+        font-size: 0.88rem;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.75;
+        max-height: 0;
+        overflow: hidden;
+        transition:
+          max-height 0.35s ease,
+          padding-bottom 0.35s ease;
+      }
+      .faq-item.open .faq-a {
+        max-height: 220px;
+        padding-bottom: 1.25rem;
+      }
     </style>
   </head>
   <body>
@@ -955,9 +1061,9 @@
         >
         <h1>Porque cada mascota<br />merece volver a casa</h1>
         <p class="hero-sub">
-          PawTrack CR es la primera red inteligente de Costa Rica que conecta a
-          dueños, rescatistas y comunidad para reunir mascotas perdidas con sus
-          familias — en tiempo real.
+          Tu contenido puede ayudar a que una mascota perdida vuelva a casa.
+          PawTrack CR es la primera red de recuperación de mascotas de Costa
+          Rica — y necesitamos tu voz.
         </p>
         <div class="hero-ctas">
           <a href="#como-funciona" class="btn-primary">Ver cómo funciona</a>
@@ -978,6 +1084,26 @@
         </div>
       </div>
     </section>
+
+    <!-- ── TRUST BAND ── -->
+    <div class="trust-band">
+      <div class="container">
+        <div class="trust-items">
+          <span class="trust-item"
+            ><strong>26 módulos</strong> en producción</span
+          >
+          <span class="trust-item"
+            ><strong>800K</strong> hogares con mascotas en CR</span
+          >
+          <span class="trust-item"
+            ><strong>100% gratuito</strong> para usuarios</span
+          >
+          <span class="trust-item"
+            ><strong>Hecho en Costa Rica</strong> · 2026</span
+          >
+        </div>
+      </div>
+    </div>
 
     <!-- ── STORY ── -->
     <section class="story">
@@ -1139,8 +1265,8 @@
           No es solo un QR.<br />Es un ecosistema completo.
         </h2>
         <p class="s-lead reveal">
-          PawTrack CR cuida a tu mascota mucho antes de que se pierda y mucho
-          después de que vuelva.
+          Esto es lo que tu audiencia recibe. Un producto serio, completo y en
+          producción — no un prototipo.
         </p>
         <div class="feat-grid">
           <div class="feat-card reveal">
@@ -1508,24 +1634,24 @@
             <span class="kit-icon">📦</span>
             <h3>Kit de assets visuales</h3>
             <p>
-              Mockups, capturas en alta resolución, logos y guía de marca
-              para que tu post quede impecable.
+              Mockups, capturas en alta resolución, logos y guía de marca para
+              que tu post quede impecable.
             </p>
           </div>
           <div class="kit-card reveal" style="transition-delay: 0.16s">
             <span class="kit-icon">👋</span>
             <h3>Contacto directo con el fundador</h3>
             <p>
-              Sin bots ni formularios. Respondemos todas tus preguntas en
-              menos de 24 horas.
+              Sin bots ni formularios. Respondemos todas tus preguntas en menos
+              de 24 horas.
             </p>
           </div>
           <div class="kit-card reveal" style="transition-delay: 0.24s">
             <span class="kit-icon">📣</span>
             <h3>Amplificamos tu contenido</h3>
             <p>
-              Compartimos tu publicación desde las redes oficiales de
-              PawTrack CR a toda nuestra comunidad.
+              Compartimos tu publicación desde las redes oficiales de PawTrack
+              CR a toda nuestra comunidad.
             </p>
           </div>
           <div class="kit-card reveal" style="transition-delay: 0.32s">
@@ -1540,8 +1666,8 @@
             <span class="kit-icon">🕊️</span>
             <h3>Total libertad editorial</h3>
             <p>
-              Publicás cuando querás, como querás. Sin guiones, sin
-              validaciones previas, sin exclusividad.
+              Publicás cuando querás, como querás. Sin guiones, sin validaciones
+              previas, sin exclusividad.
             </p>
           </div>
         </div>
@@ -1594,6 +1720,75 @@
       </div>
     </section>
 
+    <!-- ── FAQ ── -->
+    <section class="faq" id="faq">
+      <div class="container">
+        <div class="s-label reveal">Preguntas frecuentes</div>
+        <h2 class="s-title reveal">Resolvemos tus dudas.</h2>
+        <p class="s-lead reveal">
+          Sin letra pequeña. Las preguntas que nos hacen siempre.
+        </p>
+        <div class="faq-list reveal">
+          <div class="faq-item">
+            <button class="faq-q">
+              ¿Me van a pagar por colaborar?
+              <span class="faq-chevron">+</span>
+            </button>
+            <div class="faq-a">
+              No. PawTrack CR es un proyecto de bien social en etapa de
+              crecimiento. No hay compensación económica, pero sí acceso demo
+              completo, kit de assets, amplificación desde nuestras redes y
+              reconocimiento oficial como aliado.
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">
+              ¿Qué tipo de contenido puedo hacer?
+              <span class="faq-chevron">+</span>
+            </button>
+            <div class="faq-a">
+              Cualquiera que sea auténtico para vos: reel, story, TikTok,
+              unboxing del collar QR, blog, podcast, YouTube. Sin guión, sin
+              aprobaciones previas, sin restricciones de formato.
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">
+              ¿Necesito muchos seguidores?
+              <span class="faq-chevron">+</span>
+            </button>
+            <div class="faq-a">
+              No. Una comunidad comprometida de 500 personas tiene más impacto
+              real que 50K seguidores desconectados. Lo que importa es la
+              autenticidad y la conexión con tu audiencia.
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">
+              ¿Debo revelar que es patrocinio pagado?
+              <span class="faq-chevron">+</span>
+            </button>
+            <div class="faq-a">
+              No hay patrocinio pagado. Es una colaboración voluntaria con una
+              causa social. Podés mencionarlo como una iniciativa que apoyás
+              — no hay nada que revelar como publicidad comercial.
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">
+              ¿La plataforma ya está disponible?
+              <span class="faq-chevron">+</span>
+            </button>
+            <div class="faq-a">
+              Sí. PawTrack CR está en producción con plataforma completa
+              disponible en Costa Rica. Podés probarla antes de publicar
+              cualquier contenido.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ── CTA FINAL ── -->
     <section class="cta-final">
       <div class="container">
@@ -1616,6 +1811,13 @@
               href="mailto:davila06@gmail.com?subject=Colaboraci%C3%B3n%20PawTrack%20CR"
               class="btn-primary"
               >Quiero colaborar →</a
+            >
+            <a
+              href="https://pawtrack.cr"
+              class="btn-ghost"
+              target="_blank"
+              rel="noopener"
+              >Ver la plataforma</a
             >
           </div>
           <p
@@ -1705,6 +1907,18 @@
         },
         { passive: true },
       );
+
+      // ── FAQ accordion ──
+      document.querySelectorAll(".faq-q").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = btn.closest(".faq-item");
+          const isOpen = item.classList.contains("open");
+          document
+            .querySelectorAll(".faq-item")
+            .forEach((i) => i.classList.remove("open"));
+          if (!isOpen) item.classList.add("open");
+        });
+      });
     </script>
   </body>
 </html>
