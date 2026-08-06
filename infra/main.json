@@ -1,0 +1,809 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.41.2.15936",
+      "templateHash": "3765619097490128199"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "PawTrack CR — Azure Infrastructure (MVP) — Región de despliegue"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "dev",
+      "allowedValues": [
+        "dev",
+        "staging",
+        "prod"
+      ],
+      "metadata": {
+        "description": "Entorno: dev, staging, prod"
+      }
+    },
+    "appName": {
+      "type": "string",
+      "defaultValue": "pawtrack",
+      "metadata": {
+        "description": "Nombre base de la aplicación"
+      }
+    },
+    "frontendUrl": {
+      "type": "string",
+      "defaultValue": "https://pawtrack.azurestaticapps.net",
+      "metadata": {
+        "description": "URL del frontend desplegado (para CORS)"
+      }
+    },
+    "alertEmailAddress": {
+      "type": "string",
+      "metadata": {
+        "description": "Email para recibir alertas de Azure Monitor"
+      }
+    },
+    "monthlyBudgetUsd": {
+      "type": "int",
+      "defaultValue": 150,
+      "metadata": {
+        "description": "Presupuesto mensual en USD para alertas de costo"
+      }
+    },
+    "sqlAdminPassword": {
+      "type": "securestring"
+    }
+  },
+  "variables": {
+    "resourcePrefix": "[format('{0}-{1}', parameters('appName'), parameters('environment'))]",
+    "keyVaultName": "[format('{0}-kv-{1}', parameters('appName'), parameters('environment'))]",
+    "storageAccountName": "[replace(format('{0}storage{1}', parameters('appName'), parameters('environment')), '-', '')]",
+    "acrName": "[replace(format('{0}acr{1}', parameters('appName'), parameters('environment')), '-', '')]",
+    "keyVaultSecretsUserRoleId": "4633458b-17de-408a-b874-0445c86b69e6",
+    "acrPullRoleId": "7f951dda-4ed3-4680-a7ca-43fe172d538d"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2023-09-01",
+      "name": "[format('{0}-logs', variables('resourcePrefix'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        },
+        "retentionInDays": 30
+      }
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02",
+      "name": "[format('{0}-insights', variables('resourcePrefix'))]",
+      "location": "[parameters('location')]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web",
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}-logs', variables('resourcePrefix')))]",
+        "IngestionMode": "LogAnalytics"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}-logs', variables('resourcePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2023-08-01-preview",
+      "name": "[format('{0}-sql', variables('resourcePrefix'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "administratorLogin": "pawtrackadmin",
+        "administratorLoginPassword": "[parameters('sqlAdminPassword')]",
+        "minimalTlsVersion": "1.2",
+        "publicNetworkAccess": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2023-08-01-preview",
+      "name": "[format('{0}/{1}', format('{0}-sql', variables('resourcePrefix')), 'pawtrack')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "GP_S_Gen5_1",
+        "tier": "GeneralPurpose",
+        "family": "Gen5",
+        "capacity": 1
+      },
+      "properties": {
+        "autoPauseDelay": 60,
+        "minCapacity": "[json('0.5')]",
+        "collation": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', format('{0}-sql', variables('resourcePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-05-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "allowBlobPublicAccess": true,
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}', variables('storageAccountName'), 'default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}/{2}', variables('storageAccountName'), 'default', 'pet-photos')]",
+      "properties": {
+        "publicAccess": "Blob"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}/{2}', variables('storageAccountName'), 'default', 'sighting-photos')]",
+      "properties": {
+        "publicAccess": "Blob"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}/{2}', variables('storageAccountName'), 'default', 'found-pet-photos')]",
+      "properties": {
+        "publicAccess": "Blob"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}/{2}', variables('storageAccountName'), 'default', 'lost-pet-photos')]",
+      "properties": {
+        "publicAccess": "Blob"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}/{2}', variables('storageAccountName'), 'default', 'whatsapp-avatars')]",
+      "properties": {
+        "publicAccess": "None"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/managementPolicies",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}', variables('storageAccountName'), 'default')]",
+      "properties": {
+        "policy": {
+          "rules": [
+            {
+              "name": "purge-sighting-photos",
+              "enabled": true,
+              "type": "Lifecycle",
+              "definition": {
+                "actions": {
+                  "baseBlob": {
+                    "delete": {
+                      "daysAfterModificationGreaterThan": 90
+                    }
+                  }
+                },
+                "filters": {
+                  "blobTypes": [
+                    "blockBlob"
+                  ],
+                  "prefixMatch": [
+                    "sighting-photos/"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "purge-found-pet-photos",
+              "enabled": true,
+              "type": "Lifecycle",
+              "definition": {
+                "actions": {
+                  "baseBlob": {
+                    "delete": {
+                      "daysAfterModificationGreaterThan": 90
+                    }
+                  }
+                },
+                "filters": {
+                  "blobTypes": [
+                    "blockBlob"
+                  ],
+                  "prefixMatch": [
+                    "found-pet-photos/"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "purge-whatsapp-avatars",
+              "enabled": true,
+              "type": "Lifecycle",
+              "definition": {
+                "actions": {
+                  "baseBlob": {
+                    "delete": {
+                      "daysAfterModificationGreaterThan": 7
+                    }
+                  }
+                },
+                "filters": {
+                  "blobTypes": [
+                    "blockBlob"
+                  ],
+                  "prefixMatch": [
+                    "whatsapp-avatars/"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2023-07-01",
+      "name": "[variables('keyVaultName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "sku": {
+          "family": "A",
+          "name": "standard"
+        },
+        "tenantId": "[subscription().tenantId]",
+        "enableRbacAuthorization": true,
+        "enableSoftDelete": true,
+        "softDeleteRetentionInDays": 7,
+        "publicNetworkAccess": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2023-07-01",
+      "name": "[variables('acrName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Basic"
+      },
+      "properties": {
+        "adminUserEnabled": false
+      }
+    },
+    {
+      "type": "Microsoft.App/managedEnvironments",
+      "apiVersion": "2024-03-01",
+      "name": "[format('{0}-env', variables('resourcePrefix'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "appLogsConfiguration": {
+          "destination": "log-analytics",
+          "logAnalyticsConfiguration": {
+            "customerId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', format('{0}-logs', variables('resourcePrefix'))), '2023-09-01').customerId]",
+            "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', format('{0}-logs', variables('resourcePrefix'))), '2023-09-01').primarySharedKey]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}-logs', variables('resourcePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2024-03-01",
+      "name": "[format('{0}-api', variables('resourcePrefix'))]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "environmentId": "[resourceId('Microsoft.App/managedEnvironments', format('{0}-env', variables('resourcePrefix')))]",
+        "configuration": {
+          "ingress": {
+            "external": true,
+            "targetPort": 8080,
+            "transport": "http"
+          },
+          "registries": [
+            {
+              "server": "[reference(resourceId('Microsoft.ContainerRegistry/registries', variables('acrName')), '2023-07-01').loginServer]",
+              "identity": "system"
+            }
+          ]
+        },
+        "template": {
+          "containers": [
+            {
+              "name": "api",
+              "image": "mcr.microsoft.com/dotnet/samples:aspnetapp",
+              "resources": {
+                "cpu": "[json('0.5')]",
+                "memory": "1Gi"
+              },
+              "env": [
+                {
+                  "name": "ASPNETCORE_ENVIRONMENT",
+                  "value": "[if(equals(parameters('environment'), 'prod'), 'Production', 'Staging')]"
+                },
+                {
+                  "name": "Azure__KeyVaultUri",
+                  "value": "[reference(resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName')), '2023-07-01').vaultUri]"
+                },
+                {
+                  "name": "Cors__AllowedOrigins__0",
+                  "value": "[parameters('frontendUrl')]"
+                }
+              ]
+            }
+          ],
+          "scale": {
+            "minReplicas": "[if(equals(parameters('environment'), 'prod'), 1, 0)]",
+            "maxReplicas": "[if(equals(parameters('environment'), 'prod'), 10, 3)]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.App/managedEnvironments', format('{0}-env', variables('resourcePrefix')))]",
+        "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]",
+        "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "scope": "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]",
+      "name": "[guid(resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName')), resourceId('Microsoft.App/containerApps', format('{0}-api', variables('resourcePrefix'))), variables('keyVaultSecretsUserRoleId'))]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('keyVaultSecretsUserRoleId'))]",
+        "principalId": "[reference(resourceId('Microsoft.App/containerApps', format('{0}-api', variables('resourcePrefix'))), '2024-03-01', 'full').identity.principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.App/containerApps', format('{0}-api', variables('resourcePrefix')))]",
+        "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "scope": "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]",
+      "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', variables('acrName')), resourceId('Microsoft.App/containerApps', format('{0}-api', variables('resourcePrefix'))), variables('acrPullRoleId'))]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('acrPullRoleId'))]",
+        "principalId": "[reference(resourceId('Microsoft.App/containerApps', format('{0}-api', variables('resourcePrefix'))), '2024-03-01', 'full').identity.principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.App/containerApps', format('{0}-api', variables('resourcePrefix')))]",
+        "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Insights/actionGroups",
+      "apiVersion": "2023-09-01-preview",
+      "name": "[format('{0}-alerts-ag', variables('resourcePrefix'))]",
+      "location": "global",
+      "properties": {
+        "groupShortName": "PawTrack",
+        "enabled": true,
+        "emailReceivers": [
+          {
+            "name": "ops-email",
+            "emailAddress": "[parameters('alertEmailAddress')]",
+            "useCommonAlertSchema": true
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Insights/metricAlerts",
+      "apiVersion": "2018-03-01",
+      "name": "[format('{0}-alert-5xx', variables('resourcePrefix'))]",
+      "location": "global",
+      "properties": {
+        "description": "Failed requests exceeded 5 over 5 minutes",
+        "severity": 1,
+        "enabled": true,
+        "scopes": [
+          "[resourceId('Microsoft.Insights/components', format('{0}-insights', variables('resourcePrefix')))]"
+        ],
+        "evaluationFrequency": "PT1M",
+        "windowSize": "PT5M",
+        "criteria": {
+          "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+          "allOf": [
+            {
+              "name": "FailedRequests",
+              "metricName": "requests/failed",
+              "operator": "GreaterThan",
+              "threshold": 5,
+              "timeAggregation": "Count",
+              "criterionType": "StaticThresholdCriterion"
+            }
+          ]
+        },
+        "actions": [
+          {
+            "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', format('{0}-alerts-ag', variables('resourcePrefix')))]"
+          }
+        ],
+        "autoMitigate": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/actionGroups', format('{0}-alerts-ag', variables('resourcePrefix')))]",
+        "[resourceId('Microsoft.Insights/components', format('{0}-insights', variables('resourcePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Insights/metricAlerts",
+      "apiVersion": "2018-03-01",
+      "name": "[format('{0}-alert-latency', variables('resourcePrefix'))]",
+      "location": "global",
+      "properties": {
+        "description": "P95 HTTP response latency exceeded 500ms over 5 minutes",
+        "severity": 2,
+        "enabled": true,
+        "scopes": [
+          "[resourceId('Microsoft.Insights/components', format('{0}-insights', variables('resourcePrefix')))]"
+        ],
+        "evaluationFrequency": "PT1M",
+        "windowSize": "PT5M",
+        "criteria": {
+          "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+          "allOf": [
+            {
+              "name": "requests/duration",
+              "metricName": "requests/duration",
+              "operator": "GreaterThan",
+              "threshold": 500,
+              "timeAggregation": "Average",
+              "criterionType": "StaticThresholdCriterion"
+            }
+          ]
+        },
+        "actions": [
+          {
+            "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', format('{0}-alerts-ag', variables('resourcePrefix')))]"
+          }
+        ],
+        "autoMitigate": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/actionGroups', format('{0}-alerts-ag', variables('resourcePrefix')))]",
+        "[resourceId('Microsoft.Insights/components', format('{0}-insights', variables('resourcePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Insights/webtests",
+      "apiVersion": "2022-06-15",
+      "name": "[format('{0}-availability', variables('resourcePrefix'))]",
+      "location": "[parameters('location')]",
+      "kind": "ping",
+      "tags": {
+        "[format('hidden-link:{0}', resourceId('Microsoft.Insights/components', format('{0}-insights', variables('resourcePrefix'))))]": "Resource"
+      },
+      "properties": {
+        "SyntheticMonitorId": "[format('{0}-availability', variables('resourcePrefix'))]",
+        "Name": "PawTrack Health Check",
+        "Description": "Pings /health endpoint every 5 minutes from multiple regions",
+        "Enabled": true,
+        "Frequency": 300,
+        "Timeout": 30,
+        "Kind": "ping",
+        "Locations": [
+          {
+            "Id": "us-va-ash-azr"
+          },
+          {
+            "Id": "latam-br-gru-edge"
+          },
+          {
+            "Id": "us-tx-sn1-azr"
+          }
+        ],
+        "Configuration": {
+          "WebTest": "[format('<WebTest Name=\"{0}-availability\" Enabled=\"True\" Timeout=\"30\" xmlns=\"http://microsoft.com/schemas/VisualStudio/TeamTest/2010\"><Items><Request Method=\"GET\" Guid=\"health-check\" Version=\"1.1\" Url=\"https://{1}/health\" ThinkTime=\"0\" /></Items></WebTest>', variables('resourcePrefix'), reference(resourceId('Microsoft.App/containerApps', format('{0}-api', variables('resourcePrefix'))), '2024-03-01').configuration.ingress.fqdn)]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', format('{0}-insights', variables('resourcePrefix')))]",
+        "[resourceId('Microsoft.App/containerApps', format('{0}-api', variables('resourcePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Insights/metricAlerts",
+      "apiVersion": "2018-03-01",
+      "name": "[format('{0}-alert-availability', variables('resourcePrefix'))]",
+      "location": "global",
+      "properties": {
+        "description": "API availability dropped below 100% (any location failing)",
+        "severity": 1,
+        "enabled": true,
+        "scopes": [
+          "[resourceId('Microsoft.Insights/webtests', format('{0}-availability', variables('resourcePrefix')))]",
+          "[resourceId('Microsoft.Insights/components', format('{0}-insights', variables('resourcePrefix')))]"
+        ],
+        "evaluationFrequency": "PT1M",
+        "windowSize": "PT5M",
+        "criteria": {
+          "odata.type": "Microsoft.Azure.Monitor.WebtestLocationAvailabilityCriteria",
+          "webTestId": "[resourceId('Microsoft.Insights/webtests', format('{0}-availability', variables('resourcePrefix')))]",
+          "componentId": "[resourceId('Microsoft.Insights/components', format('{0}-insights', variables('resourcePrefix')))]",
+          "failedLocationCount": 1
+        },
+        "actions": [
+          {
+            "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', format('{0}-alerts-ag', variables('resourcePrefix')))]"
+          }
+        ],
+        "autoMitigate": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/actionGroups', format('{0}-alerts-ag', variables('resourcePrefix')))]",
+        "[resourceId('Microsoft.Insights/components', format('{0}-insights', variables('resourcePrefix')))]",
+        "[resourceId('Microsoft.Insights/webtests', format('{0}-availability', variables('resourcePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Insights/metricAlerts",
+      "apiVersion": "2018-03-01",
+      "name": "[format('{0}-alert-auth-failures', variables('resourcePrefix'))]",
+      "location": "global",
+      "properties": {
+        "description": "Auth failures (HTTP 401) exceeded 20 in 5 minutes — possible credential attack",
+        "severity": 2,
+        "enabled": true,
+        "scopes": [
+          "[resourceId('Microsoft.Insights/components', format('{0}-insights', variables('resourcePrefix')))]"
+        ],
+        "evaluationFrequency": "PT1M",
+        "windowSize": "PT5M",
+        "criteria": {
+          "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+          "allOf": [
+            {
+              "name": "AuthFailures",
+              "metricName": "requests/failed",
+              "operator": "GreaterThan",
+              "threshold": 20,
+              "timeAggregation": "Count",
+              "criterionType": "StaticThresholdCriterion",
+              "dimensions": [
+                {
+                  "name": "request/resultCode",
+                  "operator": "Include",
+                  "values": [
+                    "401"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "actions": [
+          {
+            "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', format('{0}-alerts-ag', variables('resourcePrefix')))]"
+          }
+        ],
+        "autoMitigate": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/actionGroups', format('{0}-alerts-ag', variables('resourcePrefix')))]",
+        "[resourceId('Microsoft.Insights/components', format('{0}-insights', variables('resourcePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Insights/metricAlerts",
+      "apiVersion": "2018-03-01",
+      "name": "[format('{0}-alert-rate-limit', variables('resourcePrefix'))]",
+      "location": "global",
+      "properties": {
+        "description": "Rate limit responses (HTTP 429) exceeded 50 in 5 minutes",
+        "severity": 2,
+        "enabled": true,
+        "scopes": [
+          "[resourceId('Microsoft.Insights/components', format('{0}-insights', variables('resourcePrefix')))]"
+        ],
+        "evaluationFrequency": "PT1M",
+        "windowSize": "PT5M",
+        "criteria": {
+          "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+          "allOf": [
+            {
+              "name": "RateLimitHits",
+              "metricName": "requests/failed",
+              "operator": "GreaterThan",
+              "threshold": 50,
+              "timeAggregation": "Count",
+              "criterionType": "StaticThresholdCriterion",
+              "dimensions": [
+                {
+                  "name": "request/resultCode",
+                  "operator": "Include",
+                  "values": [
+                    "429"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "actions": [
+          {
+            "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', format('{0}-alerts-ag', variables('resourcePrefix')))]"
+          }
+        ],
+        "autoMitigate": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/actionGroups', format('{0}-alerts-ag', variables('resourcePrefix')))]",
+        "[resourceId('Microsoft.Insights/components', format('{0}-insights', variables('resourcePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/staticSites",
+      "apiVersion": "2023-12-01",
+      "name": "[format('{0}-frontend', variables('resourcePrefix'))]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[if(equals(parameters('environment'), 'prod'), 'Standard', 'Free')]",
+        "tier": "[if(equals(parameters('environment'), 'prod'), 'Standard', 'Free')]"
+      },
+      "properties": {
+        "stagingEnvironmentPolicy": "Enabled",
+        "allowConfigFileUpdates": true
+      }
+    },
+    {
+      "type": "Microsoft.Consumption/budgets",
+      "apiVersion": "2023-11-01",
+      "name": "[format('{0}-monthly-budget', variables('resourcePrefix'))]",
+      "properties": {
+        "category": "Cost",
+        "amount": "[parameters('monthlyBudgetUsd')]",
+        "timeGrain": "Monthly",
+        "timePeriod": {
+          "startDate": "2026-01-01"
+        },
+        "notifications": {
+          "actual80": {
+            "enabled": true,
+            "operator": "GreaterThan",
+            "threshold": 80,
+            "contactEmails": [
+              "[parameters('alertEmailAddress')]"
+            ],
+            "thresholdType": "Actual"
+          },
+          "forecast100": {
+            "enabled": true,
+            "operator": "GreaterThan",
+            "threshold": 100,
+            "contactEmails": [
+              "[parameters('alertEmailAddress')]"
+            ],
+            "thresholdType": "Forecasted"
+          }
+        }
+      }
+    },
+    {
+      "condition": "[equals(parameters('environment'), 'prod')]",
+      "type": "Microsoft.Network/FrontDoorWebApplicationFirewallPolicies",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}waf', replace(variables('resourcePrefix'), '-', ''))]",
+      "location": "global",
+      "sku": {
+        "name": "Classic_AzureFrontDoor"
+      },
+      "properties": {
+        "policySettings": {
+          "enabledState": "Enabled",
+          "mode": "Prevention",
+          "redirectUrl": "https://pawtrack.cr",
+          "customBlockResponseStatusCode": 403
+        },
+        "managedRules": {
+          "managedRuleSets": [
+            {
+              "ruleSetType": "Microsoft_DefaultRuleSet",
+              "ruleSetVersion": "2.1",
+              "ruleSetAction": "Block"
+            },
+            {
+              "ruleSetType": "Microsoft_BotManagerRuleSet",
+              "ruleSetVersion": "1.1",
+              "ruleSetAction": "Block"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "appServiceUrl": {
+      "type": "string",
+      "value": "[format('https://{0}', reference(resourceId('Microsoft.App/containerApps', format('{0}-api', variables('resourcePrefix'))), '2024-03-01').configuration.ingress.fqdn)]"
+    },
+    "containerAppName": {
+      "type": "string",
+      "value": "[format('{0}-api', variables('resourcePrefix'))]"
+    },
+    "acrLoginServer": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ContainerRegistry/registries', variables('acrName')), '2023-07-01').loginServer]"
+    },
+    "keyVaultUri": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName')), '2023-07-01').vaultUri]"
+    },
+    "appInsightsConnectionString": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/components', format('{0}-insights', variables('resourcePrefix'))), '2020-02-02').ConnectionString]"
+    },
+    "storageAccountName": {
+      "type": "string",
+      "value": "[variables('storageAccountName')]"
+    },
+    "sqlServerFqdn": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Sql/servers', format('{0}-sql', variables('resourcePrefix'))), '2023-08-01-preview').fullyQualifiedDomainName]"
+    },
+    "staticWebAppUrl": {
+      "type": "string",
+      "value": "[format('https://{0}', reference(resourceId('Microsoft.Web/staticSites', format('{0}-frontend', variables('resourcePrefix'))), '2023-12-01').defaultHostname)]"
+    },
+    "staticWebAppName": {
+      "type": "string",
+      "value": "[format('{0}-frontend', variables('resourcePrefix'))]"
+    },
+    "staticWebAppDefaultDomain": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Web/staticSites', format('{0}-frontend', variables('resourcePrefix'))), '2023-12-01').defaultHostname]"
+    }
+  }
+}

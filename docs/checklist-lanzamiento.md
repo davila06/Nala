@@ -13,18 +13,18 @@ Configurar antes de cualquier push a `main` para que el pipeline arranque solo.
 
 Repo → Settings → Secrets and variables → Actions:
 
-| Secret | Valor |
-| ----------------------------- | -------------------------------------------------------- |
-| `AZURE_CLIENT_ID` | App registration Client ID (Workload Identity Federation) |
-| `AZURE_TENANT_ID` | Azure AD Tenant ID |
-| `AZURE_SUBSCRIPTION_ID` | Subscription ID |
-| `AZURE_RESOURCE_GROUP` | `pawtrack-prod-rg` |
-| `ACR_NAME` | `pawtrackacrprod` |
-| `CONTAINER_APP_NAME` | `pawtrack-prod-api` |
-| `CONTAINER_APP_FQDN` | FQDN del Container App (sin `https://`) |
-| `SWA_NAME` | Nombre del Static Web App |
-| `SWA_DEPLOYMENT_TOKEN` | `az staticwebapp secrets list --name <SWA_NAME> ...` |
-| `SQL_ADMIN_PASSWORD` | Password SQL admin (para workflow infra) |
+| Secret                  | Valor                                                     |
+| ----------------------- | --------------------------------------------------------- |
+| `AZURE_CLIENT_ID`       | App registration Client ID (Workload Identity Federation) |
+| `AZURE_TENANT_ID`       | Azure AD Tenant ID                                        |
+| `AZURE_SUBSCRIPTION_ID` | Subscription ID                                           |
+| `AZURE_RESOURCE_GROUP`  | `pawtrack-prod-rg`                                        |
+| `ACR_NAME`              | `pawtrackacrprod`                                         |
+| `CONTAINER_APP_NAME`    | `pawtrack-prod-api`                                       |
+| `CONTAINER_APP_FQDN`    | FQDN del Container App (sin `https://`)                   |
+| `SWA_NAME`              | Nombre del Static Web App                                 |
+| `SWA_DEPLOYMENT_TOKEN`  | `az staticwebapp secrets list --name <SWA_NAME> ...`      |
+| `SQL_ADMIN_PASSWORD`    | Password SQL admin (para workflow infra)                  |
 
 ---
 
@@ -187,6 +187,7 @@ Repo → Settings → Secrets and variables → Actions:
   - Cargar en Key Vault: `WhatsApp__AppSecret`, `WhatsApp__VerifyToken`, `WhatsApp__PhoneNumberId`, `WhatsApp__AccessToken`
 
 - [ ] **VAPID keys** — notificaciones push web
+
   ```powershell
   npx web-push generate-vapid-keys
   # Cargar VAPID__PublicKey y VAPID__PrivateKey en Key Vault

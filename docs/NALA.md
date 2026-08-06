@@ -54,6 +54,7 @@ Cualquier persona que encuentre a la mascota puede escanear el QR **sin necesida
 ### 2. Reporte de pérdida
 
 El dueño activa un reporte de pérdida desde la app. El sistema captura:
+
 - Última ubicación vista (mapa interactivo)
 - Foto reciente
 - Mensaje público para el encontrador
@@ -61,6 +62,7 @@ El dueño activa un reporte de pérdida desde la app. El sistema captura:
 - Recompensa opcional en colones (CRC)
 
 Al activarse el reporte, el sistema notifica automáticamente a:
+
 - **Aliados verificados** en el radio de cobertura
 - **Usuarios con alertas geográficas activas** en la zona
 
@@ -71,6 +73,7 @@ Con un solo clic, el dueño puede difundir el reporte por **correo electrónico,
 ### 4. Avistamientos y matching visual por IA
 
 Cualquier persona — sin necesidad de cuenta — puede reportar un avistamiento indicando:
+
 - Ubicación en el mapa
 - Foto de la mascota vista
 - Nota libre (sanitizada automáticamente para remover datos personales)
@@ -80,6 +83,7 @@ Si la persona no sabe a qué mascota pertenece, puede usar el flujo **"Encontré
 ### 5. Case Room (Sala de caso)
 
 Cada reporte activo tiene una sala de operaciones que centraliza:
+
 - Estado actual del caso
 - Todos los avistamientos recibidos
 - Actividad de búsqueda
@@ -90,6 +94,7 @@ El dueño puede cambiar el estado del caso (activo → suspendido → reunificad
 ### 6. Coordinación de búsqueda en campo
 
 Para búsquedas organizadas, el sistema genera automáticamente una **cuadrícula de 7×7 zonas de 300 m** centrada en el último lugar visto. Los voluntarios en campo pueden:
+
 - **Reclamar** una zona (la estoy buscando)
 - **Limpiar** una zona (la revisé, no está)
 - **Liberar** una zona (no puedo continuar)
@@ -116,11 +121,11 @@ Para usuarios que no tienen acceso a la app web, el sistema ofrece un **bot conv
 
 PawTrack CR opera bajo un modelo freemium con tres planes para dueños de mascotas:
 
-| Plan | Precio | Mascotas | Diferenciador |
-|------|--------|----------|---------------|
-| **Explorador** | Gratis | 1 | QR, reportes, avistamientos |
-| **Plus** | ₡2,990/mes | 3 | GPS, WhatsApp, IA ilimitada, coordinación |
-| **Familia** | ₡4,990/mes | Ilimitadas | Multi-usuario (5), expediente médico, PDF |
+| Plan           | Precio     | Mascotas   | Diferenciador                             |
+| -------------- | ---------- | ---------- | ----------------------------------------- |
+| **Explorador** | Gratis     | 1          | QR, reportes, avistamientos               |
+| **Plus**       | ₡2,990/mes | 3          | GPS, WhatsApp, IA ilimitada, coordinación |
+| **Familia**    | ₡4,990/mes | Ilimitadas | Multi-usuario (5), expediente médico, PDF |
 
 Adicionalmente existen planes B2B para clínicas veterinarias (₡15,000–₡35,000/mes) y licencias B2G para municipalidades (₡150,000–₡500,000/año). El sistema de feature gating está implementado tanto en el backend (enforcement por plan) como en el frontend (UI gates).
 
@@ -145,6 +150,7 @@ PawTrack CR está diseñado para **cuatro audiencias**, todas presentes en Costa
 El núcleo del producto. Personas que tienen uno o más animales de compañía (principalmente perros y gatos) y que valoran la seguridad y trazabilidad de sus mascotas. Son el motor de contenido de la plataforma.
 
 **Perfil típico:**
+
 - Hombre o mujer, 22–55 años
 - Residente urbano o periurbano en el GAM o ciudades intermedias (Cartago, Heredia, Alajuela, Pérez Zeledón)
 - Con smartphone (iOS o Android, aunque la app es PWA y funciona en el navegador)
@@ -167,6 +173,7 @@ Personas que colaboran en la recuperación sin ser el dueño. Incluyen:
 ### Audiencia terciaria: Clínicas veterinarias y comercios (B2B)
 
 Clínicas veterinarias registradas ante SENASA que usan la plataforma para:
+
 - Identificar mascotas via QR o microchip RFID
 - Emitir certificados veterinarios PDF verificables
 - Recibir alertas de mascotas perdidas cercanas
@@ -200,24 +207,24 @@ Costa Rica fue elegida como mercado inicial por razones concretas:
 
 La diferencia con un aviso de "mascota perdida" en redes sociales o una web de clasificados:
 
-| Característica | Facebook/Grupos | PawTrack CR |
-|---|---|---|
-| Identidad permanente | ❌ El post desaparece | ✅ El perfil QR es permanente |
-| Geofencing y alertas | ❌ Manual | ✅ Automático por radio y cantón |
-| Coordinación de búsqueda | ❌ Por mensajes | ✅ Cuadrícula en tiempo real |
-| Matching visual por IA | ❌ | ✅ Azure Computer Vision |
-| Privacidad del reportante | ❌ Nombre público | ✅ Anonimato por diseño |
-| Chat seguro | ❌ WhatsApp personal | ✅ Chat enmascarado in-app |
-| Entrega segura | ❌ Sin protocolo | ✅ Código de 4 dígitos |
-| Sistema de recompensas | ❌ Promesa verbal | ✅ Bounty con escrow + SINPE |
-| Estadísticas de recuperación | ❌ | ✅ Por especie, raza y cantón |
-| Custodios temporales | ❌ | ✅ Red de fosters sugerida |
-| Bot de WhatsApp | ❌ | ✅ Para usuarios sin app |
-| Collar GPS integrado | ❌ | ✅ Tractive via OAuth2 (plan Plus) |
-| Expediente médico | ❌ | ✅ Historial + PDF (plan Familia) |
-| Clínicas veterinarias conectadas | ❌ | ✅ Portal B2B con 3 tiers |
-| Certificados PDF verificables | ❌ | ✅ QR de verificación pública |
-| Portal municipal | ❌ | ✅ B2G para control animal |
+| Característica                   | Facebook/Grupos       | PawTrack CR                        |
+| -------------------------------- | --------------------- | ---------------------------------- |
+| Identidad permanente             | ❌ El post desaparece | ✅ El perfil QR es permanente      |
+| Geofencing y alertas             | ❌ Manual             | ✅ Automático por radio y cantón   |
+| Coordinación de búsqueda         | ❌ Por mensajes       | ✅ Cuadrícula en tiempo real       |
+| Matching visual por IA           | ❌                    | ✅ Azure Computer Vision           |
+| Privacidad del reportante        | ❌ Nombre público     | ✅ Anonimato por diseño            |
+| Chat seguro                      | ❌ WhatsApp personal  | ✅ Chat enmascarado in-app         |
+| Entrega segura                   | ❌ Sin protocolo      | ✅ Código de 4 dígitos             |
+| Sistema de recompensas           | ❌ Promesa verbal     | ✅ Bounty con escrow + SINPE       |
+| Estadísticas de recuperación     | ❌                    | ✅ Por especie, raza y cantón      |
+| Custodios temporales             | ❌                    | ✅ Red de fosters sugerida         |
+| Bot de WhatsApp                  | ❌                    | ✅ Para usuarios sin app           |
+| Collar GPS integrado             | ❌                    | ✅ Tractive via OAuth2 (plan Plus) |
+| Expediente médico                | ❌                    | ✅ Historial + PDF (plan Familia)  |
+| Clínicas veterinarias conectadas | ❌                    | ✅ Portal B2B con 3 tiers          |
+| Certificados PDF verificables    | ❌                    | ✅ QR de verificación pública      |
+| Portal municipal                 | ❌                    | ✅ B2G para control animal         |
 
 ---
 
@@ -241,6 +248,7 @@ El sistema no es un directorio. Tiene coordinación en campo en tiempo real, dif
 PawTrack CR se encuentra en **MVP ampliado**, con todos sus módulos principales funcionando:
 
 **Core — recuperación de mascotas**
+
 - ✅ Autenticación completa (JWT + refresh, verificación de email, bloqueo de cuenta)
 - ✅ Gestión de mascotas, QR, perfil público, historial de escaneos
 - ✅ Reporte de pérdida y Case Room
@@ -254,12 +262,14 @@ PawTrack CR se encuentra en **MVP ampliado**, con todos sus módulos principales
 - ✅ Sistema de recompensas económicas (Bounties con escrow, SINPE Móvil)
 
 **Red colaborativa**
+
 - ✅ Red de aliados verificados con alertas enriquecidas
 - ✅ Voluntarios custodia (fosters) con sugerencias geográficas
 - ✅ Clínicas afiliadas — escaneo QR/microchip, vinculación a perfil de mascota
 - ✅ Sistema de incentivos y leaderboard con insignias
 
 **Monetización — B2C**
+
 - ✅ Sistema de suscripciones con 3 planes: Explorador (gratis), Plus (₡2,990/mes), Familia (₡4,990/mes)
 - ✅ Feature gating completo por plan (UI gates + backend enforcement)
 - ✅ Cuentas familiares multi-usuario (hasta 5 miembros, Plan Familia)
@@ -268,6 +278,7 @@ PawTrack CR se encuentra en **MVP ampliado**, con todos sus módulos principales
 - ✅ Bundle GPS on-demand
 
 **Monetización — B2B Clínicas veterinarias**
+
 - ✅ Portal de clínicas con 3 tiers: Básica (gratis), Plus (₡15,000/mes), Partner (₡35,000/mes)
 - ✅ Expediente digital compartido clínica ↔ dueño (Opciones A, B y C)
 - ✅ Certificados veterinarios PDF verificables con QR único (QuestPDF, Plan Partner)
@@ -275,11 +286,13 @@ PawTrack CR se encuentra en **MVP ampliado**, con todos sus módulos principales
 - ✅ Integración microchip RFID avanzada
 
 **Monetización — B2G Municipalidades**
+
 - ✅ Portal de control animal municipal con 3 planes: Básica, Full, Red Regional
 - ✅ Registro digital de animales capturados, estados, reportes SENASA
 - ✅ API de consulta pública y estadísticas por cantón (plan Full+)
 
 **Infraestructura**
+
 - ✅ Estadísticas públicas de recuperación (por especie, raza, cantón)
 - ✅ PWA instalable (Android/iOS) con soporte offline
 - ✅ Infraestructura Azure declarada en Bicep (Container Apps, SQL, Blob, Key Vault, App Insights)
@@ -291,4 +304,4 @@ PawTrack CR se encuentra en **MVP ampliado**, con todos sus módulos principales
 
 ---
 
-*Proyecto desarrollado por Denis Avila Umaña · Costa Rica · 2026*
+_Proyecto desarrollado por Denis Avila Umaña · Costa Rica · 2026_

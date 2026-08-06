@@ -908,15 +908,15 @@ El perfil público `/p/{serial}` resuelve:
 
 ### Resumen ejecutivo
 
-| Categoría | Costo estimado | Tiempo | Estado |
-| --------- | -------------- | ------ | ------ |
-| Electrónica + PCB (prototipos) | $700–$1,500 USD | Semanas 1–8 | ⛔ Pendiente |
-| EE engineer freelance (firmware + PCB) | $3,000–$7,000 | Meses 1–3 | ⛔ Pendiente |
-| Herramientas de desarrollo | $800–$1,100 | Única vez | ⛔ Pendiente |
-| Certificación SUTEL (CR) + FCC | $1,500–$4,500 | **2–6 meses** | ⛔ Pendiente |
-| Backend (IoT Hub + ingest endpoint) | ~5–6 días dev | Mes 2 | ⛔ Pendiente |
-| Primer lote producción (50 u.) | $4,000–$8,000 | Mes 4–6 | ⛔ Futuro |
-| **TOTAL hasta producción** | **~$10,000–$21,000 USD** | **4–6 meses** | |
+| Categoría                              | Costo estimado           | Tiempo        | Estado       |
+| -------------------------------------- | ------------------------ | ------------- | ------------ |
+| Electrónica + PCB (prototipos)         | $700–$1,500 USD          | Semanas 1–8   | ⛔ Pendiente |
+| EE engineer freelance (firmware + PCB) | $3,000–$7,000            | Meses 1–3     | ⛔ Pendiente |
+| Herramientas de desarrollo             | $800–$1,100              | Única vez     | ⛔ Pendiente |
+| Certificación SUTEL (CR) + FCC         | $1,500–$4,500            | **2–6 meses** | ⛔ Pendiente |
+| Backend (IoT Hub + ingest endpoint)    | ~5–6 días dev            | Mes 2         | ⛔ Pendiente |
+| Primer lote producción (50 u.)         | $4,000–$8,000            | Mes 4–6       | ⛔ Futuro    |
+| **TOTAL hasta producción**             | **~$10,000–$21,000 USD** | **4–6 meses** |              |
 
 > ⚠️ **La certificación SUTEL es el cuello de botella.** Sin ella el collar no puede operar legalmente en CR con LTE-M. Iniciar en paralelo desde el día 1.
 
@@ -924,24 +924,25 @@ El perfil público `/p/{serial}` resuelve:
 
 ### 13.1 BOM completo (Bill of Materials)
 
-| Componente | Modelo | Propósito | Fuente | USD/u |
-| ---------- | ------ | --------- | ------ | ----- |
-| MCU | ESP32-S3-WROOM-1 | CPU + BLE + WiFi provisioning | DigiKey / Mouser | $4.00 |
-| Celular + GPS | SIMCOM SIM7080G | LTE-M + NB-IoT + GNSS integrado | SIMCOM directo | $12.00 |
-| Acelerómetro | ADXL345 | Wake-on-motion interrupt | AliExpress | $0.80 |
-| **BMS chip** | **TP4056 o BQ25100** | **Carga segura LiPo — obligatorio** | LCSC | $0.40 |
-| Regulador 3.3V | AMS1117-3.3 | Alimentar ESP32/ADXL | LCSC | $0.15 |
-| Batería | LiPo 3.7V 1000mAh (50×34×5mm) | Energía principal | AliExpress | $3.50 |
-| Conector carga | USB-C 2.0 (solo carga) | Carga de batería | LCSC | $0.30 |
-| Antena LTE | Flex PCB 700–2100 MHz | Señal celular (el 30% del trabajo de RF) | SIMCOM / Molex | $1.20 |
-| LED indicador | WS2812B RGB | Estado: conectado/sin señal/cargando | AliExpress | $0.20 |
-| Protección ESD | TVS diodes | Proteger USB-C y antena | LCSC | $0.30 |
-| Pasivos varios | Condensadores, resistencias | Circuito soporte | JLCPCB BOM | ~$1.00 |
-| PCB prototipo (5u.) | 4 capas, 50×35mm | Placa base | JLCPCB | $30–80 |
-| Enclosure | TPU flexible (3D print) | Case resistente al agua IP65 | Local / Shapeways | $8–15 |
-| **Total por unidad (prototipo)** | | | | **~$24–$37** |
+| Componente                       | Modelo                        | Propósito                                | Fuente            | USD/u        |
+| -------------------------------- | ----------------------------- | ---------------------------------------- | ----------------- | ------------ |
+| MCU                              | ESP32-S3-WROOM-1              | CPU + BLE + WiFi provisioning            | DigiKey / Mouser  | $4.00        |
+| Celular + GPS                    | SIMCOM SIM7080G               | LTE-M + NB-IoT + GNSS integrado          | SIMCOM directo    | $12.00       |
+| Acelerómetro                     | ADXL345                       | Wake-on-motion interrupt                 | AliExpress        | $0.80        |
+| **BMS chip**                     | **TP4056 o BQ25100**          | **Carga segura LiPo — obligatorio**      | LCSC              | $0.40        |
+| Regulador 3.3V                   | AMS1117-3.3                   | Alimentar ESP32/ADXL                     | LCSC              | $0.15        |
+| Batería                          | LiPo 3.7V 1000mAh (50×34×5mm) | Energía principal                        | AliExpress        | $3.50        |
+| Conector carga                   | USB-C 2.0 (solo carga)        | Carga de batería                         | LCSC              | $0.30        |
+| Antena LTE                       | Flex PCB 700–2100 MHz         | Señal celular (el 30% del trabajo de RF) | SIMCOM / Molex    | $1.20        |
+| LED indicador                    | WS2812B RGB                   | Estado: conectado/sin señal/cargando     | AliExpress        | $0.20        |
+| Protección ESD                   | TVS diodes                    | Proteger USB-C y antena                  | LCSC              | $0.30        |
+| Pasivos varios                   | Condensadores, resistencias   | Circuito soporte                         | JLCPCB BOM        | ~$1.00       |
+| PCB prototipo (5u.)              | 4 capas, 50×35mm              | Placa base                               | JLCPCB            | $30–80       |
+| Enclosure                        | TPU flexible (3D print)       | Case resistente al agua IP65             | Local / Shapeways | $8–15        |
+| **Total por unidad (prototipo)** |                               |                                          |                   | **~$24–$37** |
 
 **Notas críticas de diseño:**
+
 - El BMS (TP4056) es **obligatorio** — sin él la carga del LiPo puede incendiar el collar
 - La antena LTE-M es el componente de diseño más crítico: requiere clearance, ground plane y match de impedancia
 - IP65 mínimo: conformal coating en PCB + gasket de silicona en USB-C + enclosure sellado
@@ -951,16 +952,16 @@ El perfil público `/p/{serial}` resuelve:
 
 ### 13.2 Herramientas de desarrollo
 
-| Herramienta | Modelo | Para qué | USD |
-| ----------- | ------ | -------- | --- |
-| **Osciloscopio** | Rigol DS1054Z (100MHz) | Debug señales, consumo, RF | ~$350 |
-| **Analizador lógico** | Saleae Logic 8 o clone | Debug UART/SPI/I2C | $30–150 |
-| **USB Power Meter** | Atorch o similar | Medir consumo real por estado | $15–30 |
-| Estación soldadura | Hakko FX-888D | Prototipo manual | $120 |
-| Impresora 3D | Bambu Lab A1 Mini | Prototipar enclosures TPU | $300–400 |
-| Programador JTAG | ESP-Prog (oficial Espressif) | Flashear + debug firmware | $15 |
-| SIM de desarrollo | Emnify / Hologram (1 SIM) | Probar LTE-M en CR | $5/mes |
-| **Total** | | | **~$850–$1,100** |
+| Herramienta           | Modelo                       | Para qué                      | USD              |
+| --------------------- | ---------------------------- | ----------------------------- | ---------------- |
+| **Osciloscopio**      | Rigol DS1054Z (100MHz)       | Debug señales, consumo, RF    | ~$350            |
+| **Analizador lógico** | Saleae Logic 8 o clone       | Debug UART/SPI/I2C            | $30–150          |
+| **USB Power Meter**   | Atorch o similar             | Medir consumo real por estado | $15–30           |
+| Estación soldadura    | Hakko FX-888D                | Prototipo manual              | $120             |
+| Impresora 3D          | Bambu Lab A1 Mini            | Prototipar enclosures TPU     | $300–400         |
+| Programador JTAG      | ESP-Prog (oficial Espressif) | Flashear + debug firmware     | $15              |
+| SIM de desarrollo     | Emnify / Hologram (1 SIM)    | Probar LTE-M en CR            | $5/mes           |
+| **Total**             |                              |                               | **~$850–$1,100** |
 
 ---
 
@@ -1007,29 +1008,30 @@ ROBUSTEZ
 
 ### 13.4 Backend — lo que PawTrack debe construir
 
-| Componente | Estado | Días dev | Descripción |
-| ---------- | ------ | -------- | ----------- |
-| Azure IoT Hub (infra) | ⛔ Pendiente | 0.5 | Agregar `Microsoft.Devices/IotHubs` al Bicep |
-| Azure Function IoT → API | ⛔ Pendiente | 1 | Trigger IoT Hub → transforma telemetría → POST backend |
-| `POST /api/collars/ingest` | ⛔ Pendiente | 1.5 | Recibe posición y batería del collar propio |
-| DPS (Device Provisioning) | ⛔ Pendiente | 1 | Enrolar collares en producción sin credenciales hardcodeadas |
-| OTA bucket Blob Storage | ⛔ Pendiente | 0.5 | Container `collar-firmware` + endpoint de descarga |
-| `CollarQrBindings` tabla | ⛔ Pendiente | 0.5 | Serial → petId (ver §12) |
-| `POST /api/collars/bind-serial` | ⛔ Pendiente | 0.5 | Vincular serial a mascota en la app |
-| **Total** | | **~5–6 días** | |
+| Componente                      | Estado       | Días dev      | Descripción                                                  |
+| ------------------------------- | ------------ | ------------- | ------------------------------------------------------------ |
+| Azure IoT Hub (infra)           | ⛔ Pendiente | 0.5           | Agregar `Microsoft.Devices/IotHubs` al Bicep                 |
+| Azure Function IoT → API        | ⛔ Pendiente | 1             | Trigger IoT Hub → transforma telemetría → POST backend       |
+| `POST /api/collars/ingest`      | ⛔ Pendiente | 1.5           | Recibe posición y batería del collar propio                  |
+| DPS (Device Provisioning)       | ⛔ Pendiente | 1             | Enrolar collares en producción sin credenciales hardcodeadas |
+| OTA bucket Blob Storage         | ⛔ Pendiente | 0.5           | Container `collar-firmware` + endpoint de descarga           |
+| `CollarQrBindings` tabla        | ⛔ Pendiente | 0.5           | Serial → petId (ver §12)                                     |
+| `POST /api/collars/bind-serial` | ⛔ Pendiente | 0.5           | Vincular serial a mascota en la app                          |
+| **Total**                       |              | **~5–6 días** |                                                              |
 
 ---
 
 ### 13.5 Certificaciones — SUTEL es la más crítica
 
-| Certificación | Organismo | CR obligatorio | Costo | Tiempo |
-| ------------- | --------- | :------------: | ----- | ------ |
-| **SUTEL homologación** | SUTEL CR (sutel.go.cr) | ✅ Sí | ₡200,000–₡500,000 (~$400–$1,000) | **2–6 meses** |
-| FCC (USA) | FCC.gov | Recomendado | $1,000–$3,000 | 4–8 semanas |
-| CE (EU) | Notified Body | Opcional | $1,500–$4,000 | 8–16 semanas |
-| ROHS | Fabricante | Buenas prácticas | $0 (declaración) | — |
+| Certificación          | Organismo              |  CR obligatorio  | Costo                            | Tiempo        |
+| ---------------------- | ---------------------- | :--------------: | -------------------------------- | ------------- |
+| **SUTEL homologación** | SUTEL CR (sutel.go.cr) |      ✅ Sí       | ₡200,000–₡500,000 (~$400–$1,000) | **2–6 meses** |
+| FCC (USA)              | FCC.gov                |   Recomendado    | $1,000–$3,000                    | 4–8 semanas   |
+| CE (EU)                | Notified Body          |     Opcional     | $1,500–$4,000                    | 8–16 semanas  |
+| ROHS                   | Fabricante             | Buenas prácticas | $0 (declaración)                 | —             |
 
 **Proceso SUTEL:**
+
 1. Reunir: FCC cert del módulo SIM7080G + datasheet + manual técnico + esquemático
 2. Ingresar expediente en sutel.go.cr → Servicios → Homologación
 3. Pagar timbre fiscal + tarifa de análisis técnico
@@ -1044,12 +1046,14 @@ ROBUSTEZ
 ### 13.6 Fases de manufactura
 
 **Fase 1 — Prototipos ($1,500–$3,000 · semanas 1–8)**
+
 - PCB en JLCPCB con SMT assembly
 - Enclosure TPU impreso en 3D
 - Pruebas: GPS fix outdoor, sleep actual con USB Power Meter, inmersión 30 min
 - Sin QR permanente — sticker temporal para pruebas
 
 **Fase 2 — Pilotos ($3,000–$8,000 · meses 2–4)**
+
 - PCB revisada con mejoras de prototipo
 - Tooling para enclosure de plástico: $2,000–$5,000 en Shenzhen (molde inyección)
 - QR grabado láser en enclosure
@@ -1057,6 +1061,7 @@ ROBUSTEZ
 - 10–30 unidades para beta testers reales
 
 **Fase 3 — Producción ($8,000–$15,000 · meses 4–6)**
+
 - SUTEL obtenida
 - Lote 50–100 unidades con partner de manufactura
 - QA automatizado (5–10% sampling por lote)
@@ -1066,29 +1071,29 @@ ROBUSTEZ
 
 ### 13.7 Referencias técnicas
 
-| Recurso | URL |
-| ------- | --- |
-| SIM7080G Hardware Design Guide | simcom.com/product/SIM7080G.html |
-| SIM7080G AT Command Manual | simcom.com/support |
-| ESP32-S3 Technical Reference | docs.espressif.com/esp-idf/esp32s3 |
-| ESP32 Power Management | espressif.com → AN-ESP32-POWERSAVE |
-| ADXL345 Datasheet | analog.com/en/products/adxl345.html |
-| Azure IoT Hub + DPS | learn.microsoft.com/azure/iot-hub |
-| JLCPCB (PCB + SMT) | jlcpcb.com |
-| SUTEL homologación | sutel.go.cr → Servicios → Homologación de equipos |
-| KiCad (EDA open source) | kicad.org |
+| Recurso                        | URL                                               |
+| ------------------------------ | ------------------------------------------------- |
+| SIM7080G Hardware Design Guide | simcom.com/product/SIM7080G.html                  |
+| SIM7080G AT Command Manual     | simcom.com/support                                |
+| ESP32-S3 Technical Reference   | docs.espressif.com/esp-idf/esp32s3                |
+| ESP32 Power Management         | espressif.com → AN-ESP32-POWERSAVE                |
+| ADXL345 Datasheet              | analog.com/en/products/adxl345.html               |
+| Azure IoT Hub + DPS            | learn.microsoft.com/azure/iot-hub                 |
+| JLCPCB (PCB + SMT)             | jlcpcb.com                                        |
+| SUTEL homologación             | sutel.go.cr → Servicios → Homologación de equipos |
+| KiCad (EDA open source)        | kicad.org                                         |
 
 ---
 
 ### 13.8 Riesgos principales
 
-| Riesgo | Probabilidad | Mitigación |
-| ------ | :----------: | ---------- |
-| SUTEL demora >6 meses | **Alta** | Iniciar día 1; usar módulo certificado; consultor local |
-| Consumo real > estimado | Media | Medir con USB Power Meter desde el primer prototipo |
-| SIM7080G desabasto | Baja | Pedir 20+ unidades de dev inmediatamente; tiene alternativa SIM7070G |
-| Waterproofing falla en campo | Media | IP65 mínimo; test de inmersión en cada lote |
-| LTE-M señal baja en CR rural | Media | SIM7080G soporta fallback a 2G/EDGE |
+| Riesgo                       | Probabilidad | Mitigación                                                           |
+| ---------------------------- | :----------: | -------------------------------------------------------------------- |
+| SUTEL demora >6 meses        |   **Alta**   | Iniciar día 1; usar módulo certificado; consultor local              |
+| Consumo real > estimado      |    Media     | Medir con USB Power Meter desde el primer prototipo                  |
+| SIM7080G desabasto           |     Baja     | Pedir 20+ unidades de dev inmediatamente; tiene alternativa SIM7070G |
+| Waterproofing falla en campo |    Media     | IP65 mínimo; test de inmersión en cada lote                          |
+| LTE-M señal baja en CR rural |    Media     | SIM7080G soporta fallback a 2G/EDGE                                  |
 
 ---
 

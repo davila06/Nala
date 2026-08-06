@@ -1,0 +1,2032 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PawTrack Collar GPS — Saber dónde está tu mascota, siempre.</title>
+    <style>
+      /* ── Reset ── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        font-size: 16px;
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family:
+          "Segoe UI",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: #f5f1eb;
+        color: #1a1a1a;
+        line-height: 1.6;
+      }
+
+      /* ── Tokens ── */
+      :root {
+        --brand: #1a3484;
+        --accent: #e8521e;
+        --sand: #f5f1eb;
+        --warm: #faf7f2;
+        --text: #1a1a1a;
+        --muted: #6b6057;
+        --border: #e5dfd7;
+        --green: #14532d;
+        --green-l: #dcfce7;
+      }
+
+      /* ── Layout ── */
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      /* ── Hero ── */
+      .hero {
+        background: linear-gradient(135deg, var(--brand) 0%, #0f2057 100%);
+        color: #fff;
+        padding: 5rem 1.5rem 4rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          circle at 70% 30%,
+          rgba(232, 82, 30, 0.25) 0%,
+          transparent 60%
+        );
+        pointer-events: none;
+      }
+      .hero-label {
+        display: inline-block;
+        background: rgba(232, 82, 30, 0.9);
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        padding: 0.3rem 0.9rem;
+        border-radius: 100px;
+        margin-bottom: 1.25rem;
+      }
+      .hero h1 {
+        font-size: clamp(2rem, 5vw, 3.25rem);
+        font-weight: 800;
+        line-height: 1.15;
+        max-width: 700px;
+        margin: 0 auto 0.75rem;
+      }
+      .hero h1 span {
+        color: #f97316;
+      }
+      .hero p {
+        font-size: 1.125rem;
+        opacity: 0.85;
+        max-width: 520px;
+        margin: 0 auto 2.25rem;
+      }
+      .btn-cta {
+        display: inline-block;
+        background: var(--accent);
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 700;
+        padding: 0.875rem 2.5rem;
+        border-radius: 100px;
+        text-decoration: none;
+        box-shadow: 0 4px 24px rgba(232, 82, 30, 0.4);
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      .btn-cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(232, 82, 30, 0.5);
+      }
+      .hero-emoji {
+        font-size: 5rem;
+        display: block;
+        margin-bottom: 1rem;
+      }
+
+      /* ── Stats bar ── */
+      .stats-bar {
+        background: var(--brand);
+        padding: 1.25rem 1.5rem;
+      }
+      .stats-bar .container {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        flex-wrap: wrap;
+      }
+      .stat {
+        text-align: center;
+        color: #fff;
+      }
+      .stat-num {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #f97316;
+      }
+      .stat-label {
+        font-size: 0.75rem;
+        opacity: 0.75;
+        margin-top: 0.15rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      /* ── Section ── */
+      section {
+        padding: 4rem 0;
+      }
+      .section-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 0.5rem;
+      }
+      h2 {
+        font-size: clamp(1.5rem, 3vw, 2.25rem);
+        font-weight: 800;
+        color: var(--brand);
+        line-height: 1.2;
+        margin-bottom: 1rem;
+      }
+      .lead {
+        font-size: 1.05rem;
+        color: var(--muted);
+        max-width: 560px;
+        margin-bottom: 2.5rem;
+      }
+
+      /* ── Feature grid ── */
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
+        margin-top: 2rem;
+      }
+      .feature-card {
+        background: var(--warm);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+      }
+      .feature-card .icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+      }
+      .feature-card h3 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--brand);
+        margin-bottom: 0.4rem;
+      }
+      .feature-card p {
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+
+      /* ── How it works ── */
+      .steps {
+        counter-reset: step;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 2.5rem;
+      }
+      .step {
+        background: var(--warm);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem 1.25rem;
+        position: relative;
+      }
+      .step::before {
+        counter-increment: step;
+        content: counter(step);
+        position: absolute;
+        top: -14px;
+        left: 1.25rem;
+        background: var(--accent);
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: 800;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .step .emoji {
+        font-size: 1.75rem;
+        margin-bottom: 0.6rem;
+        display: block;
+      }
+      .step p {
+        font-size: 0.83rem;
+        color: var(--muted);
+      }
+      .step strong {
+        color: var(--text);
+        font-size: 0.875rem;
+        display: block;
+        margin-bottom: 0.25rem;
+      }
+
+      /* ── Pricing ── */
+      .pricing-section {
+        background: var(--brand);
+        color: #fff;
+        padding: 4rem 1.5rem;
+      }
+      .pricing-section h2 {
+        color: #fff;
+      }
+      .pricing-section .lead {
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .plans {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.25rem;
+        margin-top: 2rem;
+      }
+      .plan-card {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: 1.75rem 1.5rem;
+        position: relative;
+      }
+      .plan-card.featured {
+        background: rgba(232, 82, 30, 0.15);
+        border-color: var(--accent);
+      }
+      .plan-badge {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--accent);
+        color: #fff;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 0.2rem 0.75rem;
+        border-radius: 100px;
+        white-space: nowrap;
+        letter-spacing: 0.06em;
+      }
+      .plan-name {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        opacity: 0.6;
+      }
+      .plan-price {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0.25rem 0;
+      }
+      .plan-price span {
+        font-size: 0.9rem;
+        font-weight: 400;
+        opacity: 0.6;
+      }
+      .plan-features {
+        margin-top: 1rem;
+        padding: 0;
+        list-style: none;
+      }
+      .plan-features li {
+        font-size: 0.82rem;
+        padding: 0.3rem 0;
+        display: flex;
+        gap: 0.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      }
+      .plan-features li:last-child {
+        border-bottom: none;
+      }
+      .check {
+        color: #4ade80;
+      }
+      .cross {
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      /* ── Compatible ── */
+      .compat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.25rem;
+        margin-top: 2rem;
+      }
+      .compat-card {
+        background: var(--warm);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+      .compat-logo {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: var(--brand);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+      }
+      .compat-name {
+        font-weight: 700;
+        color: var(--brand);
+      }
+      .compat-desc {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-top: 0.2rem;
+      }
+      .compat-price {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--accent);
+        margin-top: 0.35rem;
+      }
+      .compat-badge {
+        display: inline-block;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 0.15rem 0.5rem;
+        border-radius: 100px;
+        margin-left: 0.4rem;
+      }
+      .badge-green {
+        background: var(--green-l);
+        color: var(--green);
+      }
+      .badge-gray {
+        background: #e5e7eb;
+        color: #6b7280;
+      }
+
+      /* ── Where to buy ── */
+      .buy-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+      .buy-card {
+        background: var(--warm);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+      }
+      .buy-card h3 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--brand);
+        margin-bottom: 0.5rem;
+      }
+      .buy-card p,
+      .buy-card li {
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      .buy-card ul {
+        padding-left: 1.1rem;
+        margin-top: 0.5rem;
+      }
+      .buy-card li {
+        margin-bottom: 0.2rem;
+      }
+      .tag {
+        display: inline-block;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        padding: 0.2rem 0.6rem;
+        border-radius: 100px;
+        margin-bottom: 0.75rem;
+      }
+      .tag-easy {
+        background: var(--green-l);
+        color: var(--green);
+      }
+      .tag-medium {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .tag-advanced {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      /* ── FAQ ── */
+      .faq {
+        max-width: 680px;
+      }
+      .faq-item {
+        border-bottom: 1px solid var(--border);
+        padding: 1rem 0;
+      }
+      .faq-q {
+        font-weight: 700;
+        color: var(--brand);
+        margin-bottom: 0.4rem;
+        font-size: 0.95rem;
+      }
+      .faq-a {
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      /* ── CTA section ── */
+      .cta-section {
+        background: linear-gradient(135deg, var(--accent) 0%, #c2410c 100%);
+        color: #fff;
+        padding: 4rem 1.5rem;
+        text-align: center;
+      }
+      .cta-section h2 {
+        color: #fff;
+        font-size: clamp(1.5rem, 3vw, 2.25rem);
+      }
+      .cta-section p {
+        opacity: 0.85;
+        margin: 0.75rem auto 2rem;
+        max-width: 480px;
+      }
+      .btn-white {
+        display: inline-block;
+        background: #fff;
+        color: var(--accent);
+        font-size: 1rem;
+        font-weight: 700;
+        padding: 0.875rem 2.5rem;
+        border-radius: 100px;
+        text-decoration: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+      .btn-white:hover {
+        background: #fef3c7;
+      }
+
+      /* ── Footer ── */
+      footer {
+        background: #111;
+        color: rgba(255, 255, 255, 0.4);
+        text-align: center;
+        padding: 2rem 1.5rem;
+        font-size: 0.78rem;
+      }
+
+      /* ── Utils ── */
+      .text-center {
+        text-align: center;
+      }
+      .mt-0 {
+        margin-top: 0;
+      }
+
+      /* ── Hero layout ── */
+      .hero-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2.5rem;
+        text-align: left;
+        max-width: 860px;
+        margin: 0 auto;
+      }
+      .hero-text {
+        flex: 1;
+      }
+      .hero-art {
+        flex-shrink: 0;
+        width: 270px;
+        filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.42));
+        animation: float 4s ease-in-out infinite;
+      }
+
+      /* ── App preview section ── */
+      .app-preview {
+        display: flex;
+        align-items: center;
+        gap: 2.5rem;
+        margin-top: 3rem;
+        padding: 2rem 2.5rem;
+        background: linear-gradient(135deg, #1a3484 0%, #0f2057 100%);
+        border-radius: 20px;
+        overflow: hidden;
+      }
+      .app-preview-phone {
+        flex-shrink: 0;
+        width: 140px;
+      }
+      .app-preview-text {
+        flex: 1;
+        color: #fff;
+      }
+      .app-preview-text h3 {
+        font-size: 1.15rem;
+        font-weight: 800;
+        margin-bottom: 0.4rem;
+      }
+      .app-preview-text p {
+        font-size: 0.875rem;
+        opacity: 0.75;
+        line-height: 1.6;
+      }
+      .app-pills {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 0.8rem;
+      }
+      .app-pill {
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.25rem 0.7rem;
+        border-radius: 100px;
+      }
+
+      /* ── Step SVG icons ── */
+      .step-icon {
+        display: block;
+        width: 58px;
+        height: 58px;
+        margin-bottom: 0.75rem;
+      }
+
+      /* ── Compat logo override for SVG devices ── */
+      .compat-logo {
+        background: #f8f4ef;
+        font-size: 0;
+      }
+      .compat-logo svg {
+        width: 36px;
+        height: 36px;
+      }
+
+      /* ── Animations ── */
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      @keyframes pulse-pin {
+        0% {
+          transform: scale(1);
+          opacity: 0.5;
+        }
+        100% {
+          transform: scale(2.8);
+          opacity: 0;
+        }
+      }
+      .pin-pulse {
+        animation: pulse-pin 2s ease-out infinite;
+        transform-box: fill-box;
+        transform-origin: center;
+      }
+      .pin-pulse-delay {
+        animation: pulse-pin 2s ease-out 0.9s infinite;
+        transform-box: fill-box;
+        transform-origin: center;
+      }
+
+      @media (max-width: 740px) {
+        .hero-inner {
+          flex-direction: column;
+          text-align: center;
+          gap: 1.5rem;
+        }
+        .hero-art {
+          width: 200px;
+          margin: 0 auto;
+        }
+        .app-preview {
+          flex-direction: column;
+          text-align: center;
+        }
+        .app-preview-phone {
+          width: 110px;
+        }
+        .app-pills {
+          justify-content: center;
+        }
+      }
+      @media (max-width: 600px) {
+        .stats-bar .container {
+          gap: 1.5rem;
+        }
+        .hero {
+          padding: 3.5rem 1.25rem 3rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ── HERO ── -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-inner">
+          <div class="hero-text">
+            <span class="hero-label">Nuevo · PawTrack Collar GPS</span>
+            <h1>Saber dónde está<br />tu mascota, <span>siempre.</span></h1>
+            <p>
+              Conecta tu collar GPS a PawTrack CR y ve la posición en tiempo
+              real, historial de trayectoria y alertas automáticas.
+            </p>
+            <a href="https://pawtrack.cr/perfil" class="btn-cta"
+              >Activar plan Plus →</a
+            >
+          </div>
+          <div class="hero-art">
+            <svg
+              viewBox="0 0 300 320"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                width="300"
+                height="320"
+                rx="24"
+                fill="rgba(255,255,255,.07)"
+              />
+              <g stroke="rgba(255,255,255,.06)" stroke-width="1">
+                <line x1="0" y1="90" x2="300" y2="90" />
+                <line x1="0" y1="165" x2="300" y2="165" />
+                <line x1="0" y1="240" x2="300" y2="240" />
+                <line x1="75" y1="0" x2="75" y2="320" />
+                <line x1="150" y1="0" x2="150" y2="320" />
+                <line x1="225" y1="0" x2="225" y2="320" />
+              </g>
+              <rect
+                x="20"
+                y="230"
+                width="260"
+                height="9"
+                rx="4"
+                fill="rgba(255,255,255,.09)"
+              />
+              <rect
+                x="95"
+                y="205"
+                width="9"
+                height="115"
+                rx="4"
+                fill="rgba(255,255,255,.07)"
+              />
+              <rect
+                x="196"
+                y="205"
+                width="9"
+                height="115"
+                rx="4"
+                fill="rgba(255,255,255,.07)"
+              />
+              <path
+                d="M 46 270 Q 82 242 122 220 Q 152 207 172 184"
+                stroke="#e8521e"
+                stroke-width="2.5"
+                stroke-dasharray="7 4"
+                stroke-linecap="round"
+                fill="none"
+                opacity=".75"
+              />
+              <circle cx="46" cy="270" r="5" fill="#e8521e" opacity=".35" />
+              <circle cx="46" cy="270" r="2.5" fill="#e8521e" />
+              <circle
+                cx="150"
+                cy="66"
+                r="22"
+                fill="#e8521e"
+                class="pin-pulse"
+              />
+              <circle
+                cx="150"
+                cy="66"
+                r="14"
+                fill="#e8521e"
+                class="pin-pulse-delay"
+              />
+              <path
+                d="M150 40 C135 40 122 53 122 67 C122 82 136 92 150 108 C164 92 178 82 178 67 C178 53 165 40 150 40Z"
+                fill="#e8521e"
+              />
+              <circle cx="150" cy="67" r="9.5" fill="white" />
+              <circle cx="150" cy="67" r="4.5" fill="#e8521e" />
+              <path
+                d="M204 228 Q244 204 240 172 Q238 155 226 162"
+                stroke="#d4a564"
+                stroke-width="17"
+                stroke-linecap="round"
+                fill="none"
+              />
+              <ellipse cx="150" cy="234" rx="62" ry="54" fill="#d4a564" />
+              <ellipse
+                cx="143"
+                cy="230"
+                rx="30"
+                ry="34"
+                fill="#e8c07a"
+                opacity=".45"
+              />
+              <rect
+                x="125"
+                y="180"
+                width="50"
+                height="24"
+                rx="12"
+                fill="#d4a564"
+              />
+              <circle cx="150" cy="160" r="48" fill="#d4a564" />
+              <ellipse
+                cx="108"
+                cy="142"
+                rx="21"
+                ry="36"
+                fill="#c8924a"
+                transform="rotate(-14 108 142)"
+              />
+              <ellipse
+                cx="192"
+                cy="142"
+                rx="21"
+                ry="36"
+                fill="#c8924a"
+                transform="rotate(14 192 142)"
+              />
+              <ellipse
+                cx="108"
+                cy="145"
+                rx="12"
+                ry="23"
+                fill="#b07838"
+                transform="rotate(-14 108 145)"
+              />
+              <ellipse
+                cx="192"
+                cy="145"
+                rx="12"
+                ry="23"
+                fill="#b07838"
+                transform="rotate(14 192 145)"
+              />
+              <ellipse cx="150" cy="174" rx="24" ry="19" fill="#c8924a" />
+              <ellipse cx="150" cy="167" rx="11" ry="8.5" fill="#1e0f04" />
+              <circle cx="145.5" cy="168" r="2.5" fill="#120a02" />
+              <circle cx="154.5" cy="168" r="2.5" fill="#120a02" />
+              <path
+                d="M 144 174 Q 150 180 156 174"
+                stroke="#b07838"
+                stroke-width="1.5"
+                fill="none"
+                stroke-linecap="round"
+              />
+              <circle cx="132" cy="152" r="10" fill="white" />
+              <circle cx="168" cy="152" r="10" fill="white" />
+              <circle cx="133" cy="153" r="7" fill="#1e0f04" />
+              <circle cx="169" cy="153" r="7" fill="#1e0f04" />
+              <circle cx="136" cy="150" r="2.5" fill="white" />
+              <circle cx="172" cy="150" r="2.5" fill="white" />
+              <path
+                d="M 123 143 Q 132 140 141 143"
+                stroke="#b07838"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+              />
+              <path
+                d="M 159 143 Q 168 140 177 143"
+                stroke="#b07838"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+              />
+              <rect
+                x="112"
+                y="195"
+                width="76"
+                height="16"
+                rx="8"
+                fill="#e8521e"
+              />
+              <path
+                d="M 140 195 Q 150 191 160 195"
+                stroke="rgba(255,255,255,.3)"
+                stroke-width="1.5"
+                fill="none"
+              />
+              <rect
+                x="132"
+                y="191"
+                width="36"
+                height="24"
+                rx="6"
+                fill="#1a3484"
+              />
+              <rect
+                x="134"
+                y="193"
+                width="32"
+                height="16"
+                rx="4"
+                fill="#2244a0"
+              />
+              <rect
+                x="136"
+                y="195"
+                width="28"
+                height="10"
+                rx="3"
+                fill="rgba(74,222,128,.15)"
+              />
+              <circle cx="150" cy="208" r="3.5" fill="#4ade80" />
+              <circle cx="150" cy="208" r="2" fill="#86efac" />
+              <path
+                d="M 144 199 L 148 203 L 152 199"
+                stroke="white"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                fill="none"
+                opacity=".7"
+              />
+              <rect
+                x="112"
+                y="262"
+                width="26"
+                height="54"
+                rx="13"
+                fill="#d4a564"
+              />
+              <rect
+                x="162"
+                y="262"
+                width="26"
+                height="54"
+                rx="13"
+                fill="#d4a564"
+              />
+              <ellipse cx="125" cy="318" rx="17" ry="9" fill="#c8924a" />
+              <ellipse cx="175" cy="318" rx="17" ry="9" fill="#c8924a" />
+              <circle cx="117" cy="315" r="4" fill="#b07838" />
+              <circle cx="126" cy="316" r="4" fill="#b07838" />
+              <circle cx="135" cy="315" r="4" fill="#b07838" />
+              <circle cx="167" cy="315" r="4" fill="#b07838" />
+              <circle cx="176" cy="316" r="4" fill="#b07838" />
+              <circle cx="185" cy="315" r="4" fill="#b07838" />
+              <rect
+                x="196"
+                y="108"
+                width="90"
+                height="28"
+                rx="14"
+                fill="rgba(255,255,255,.12)"
+              />
+              <text
+                x="241"
+                y="126"
+                text-anchor="middle"
+                fill="white"
+                font-size="11"
+                font-family="system-ui,sans-serif"
+                font-weight="700"
+                opacity=".9"
+              >
+                📡 GPS LIVE
+              </text>
+              <circle cx="42" cy="194" r="22" fill="rgba(255,255,255,.05)" />
+              <circle cx="42" cy="197" r="7" fill="rgba(255,255,255,.09)" />
+              <circle cx="36" cy="190" r="4" fill="rgba(255,255,255,.09)" />
+              <circle cx="48" cy="190" r="4" fill="rgba(255,255,255,.09)" />
+              <circle cx="32" cy="198" r="3" fill="rgba(255,255,255,.07)" />
+              <circle cx="52" cy="198" r="3" fill="rgba(255,255,255,.07)" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── STATS ── -->
+    <div class="stats-bar">
+      <div class="container">
+        <div class="stat">
+          <div class="stat-num">5 min</div>
+          <div class="stat-label">Frecuencia de actualización</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">7 días</div>
+          <div class="stat-label">Historial de trayectoria</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">+10M</div>
+          <div class="stat-label">Mascotas rastreadas globalmente</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">GPS</div>
+          <div class="stat-label">Precisión ≈ 3 metros</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FEATURES ── -->
+    <section style="background: #fff">
+      <div class="container">
+        <div class="section-label">¿Qué incluye?</div>
+        <h2>Todo lo que necesitas para<br />proteger a tu mascota</h2>
+        <p class="lead">
+          La tab GPS de PawTrack se activa automáticamente cuando conectas tu
+          collar. No se requiere configuración adicional.
+        </p>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="icon">🗺️</div>
+            <h3>Posición en tiempo real</h3>
+            <p>
+              Punto actualizado cada 5 minutos en el mapa interactivo de la app.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="icon">📍</div>
+            <h3>Historial de trayectoria</h3>
+            <p>
+              Ruta completa de los últimos 7 días. Filtra por hora, día o
+              semana.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="icon">🔋</div>
+            <h3>Estado de batería</h3>
+            <p>Indicador de batería del collar directamente en la app.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon">🔗</div>
+            <h3>Integración nativa</h3>
+            <p>
+              Compatible con Tractive y Kippy (próximamente). Conecta en un clic
+              con OAuth seguro.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="icon">🚨</div>
+            <h3>Alerta de pérdida automática</h3>
+            <p>
+              Si reportas a tu mascota como perdida, la posición del collar
+              alimenta la búsqueda.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="icon">🔒</div>
+            <h3>Token cifrado AES-256</h3>
+            <p>
+              Tu credencial del proveedor GPS nunca se almacena en texto plano.
+            </p>
+          </div>
+        </div>
+
+        <!-- App preview with phone mockup -->
+        <div class="app-preview">
+          <div class="app-preview-phone">
+            <svg
+              viewBox="0 0 160 300"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect width="160" height="300" rx="28" fill="#1c1c2e" />
+              <rect x="-2" y="80" width="4" height="28" rx="2" fill="#2a2a3e" />
+              <rect
+                x="158"
+                y="70"
+                width="4"
+                height="40"
+                rx="2"
+                fill="#2a2a3e"
+              />
+              <rect
+                x="4"
+                y="4"
+                width="152"
+                height="292"
+                rx="24"
+                fill="#111827"
+              />
+              <rect
+                x="55"
+                y="10"
+                width="50"
+                height="14"
+                rx="7"
+                fill="#1c1c2e"
+              />
+              <rect
+                x="4"
+                y="4"
+                width="152"
+                height="230"
+                rx="24"
+                fill="#1a2e4a"
+              />
+              <line
+                x1="4"
+                y1="65"
+                x2="156"
+                y2="65"
+                stroke="#233450"
+                stroke-width="8"
+              />
+              <line
+                x1="4"
+                y1="125"
+                x2="156"
+                y2="125"
+                stroke="#233450"
+                stroke-width="8"
+              />
+              <line
+                x1="80"
+                y1="4"
+                x2="80"
+                y2="234"
+                stroke="#233450"
+                stroke-width="6"
+              />
+              <line
+                x1="126"
+                y1="4"
+                x2="126"
+                y2="234"
+                stroke="#233450"
+                stroke-width="6"
+              />
+              <rect
+                x="20"
+                y="20"
+                width="56"
+                height="42"
+                rx="3"
+                fill="#1b3a26"
+                opacity=".7"
+              />
+              <rect
+                x="88"
+                y="70"
+                width="34"
+                height="52"
+                rx="3"
+                fill="#1b3a26"
+                opacity=".5"
+              />
+              <rect
+                x="20"
+                y="130"
+                width="56"
+                height="32"
+                rx="3"
+                fill="#213448"
+                opacity=".6"
+              />
+              <path
+                d="M 38 210 Q 55 175 78 150 Q 95 130 108 105"
+                stroke="#e8521e"
+                stroke-width="2.5"
+                stroke-dasharray="6 3"
+                stroke-linecap="round"
+                fill="none"
+                opacity=".9"
+              />
+              <circle cx="38" cy="210" r="5" fill="#e8521e" opacity=".35" />
+              <circle cx="38" cy="210" r="2.5" fill="#e8521e" opacity=".8" />
+              <circle cx="108" cy="105" r="16" fill="#e8521e" opacity=".2" />
+              <circle cx="108" cy="105" r="11" fill="#e8521e" opacity=".4" />
+              <circle cx="108" cy="105" r="8" fill="#e8521e" />
+              <circle cx="108" cy="106" r="3" fill="white" />
+              <circle cx="104.5" cy="102.5" r="1.5" fill="white" />
+              <circle cx="111.5" cy="102.5" r="1.5" fill="white" />
+              <circle cx="103" cy="107.5" r="1.2" fill="white" />
+              <circle cx="113" cy="107.5" r="1.2" fill="white" />
+              <rect
+                x="130"
+                y="160"
+                width="20"
+                height="20"
+                rx="4"
+                fill="rgba(255,255,255,.12)"
+              />
+              <text
+                x="140"
+                y="174"
+                fill="white"
+                font-size="14"
+                text-anchor="middle"
+                font-family="system-ui"
+              >
+                +
+              </text>
+              <rect
+                x="130"
+                y="184"
+                width="20"
+                height="20"
+                rx="4"
+                fill="rgba(255,255,255,.12)"
+              />
+              <text
+                x="140"
+                y="198"
+                fill="white"
+                font-size="14"
+                text-anchor="middle"
+                font-family="system-ui"
+              >
+                -
+              </text>
+              <rect
+                x="4"
+                y="4"
+                width="152"
+                height="22"
+                fill="rgba(0,0,0,.5)"
+                rx="24"
+              />
+              <text
+                x="16"
+                y="18"
+                fill="rgba(255,255,255,.7)"
+                font-size="8"
+                font-family="system-ui"
+              >
+                9:41
+              </text>
+              <text
+                x="118"
+                y="18"
+                fill="rgba(255,255,255,.6)"
+                font-size="8"
+                font-family="system-ui"
+              >
+                ●●●
+              </text>
+              <rect x="4" y="230" width="152" height="36" fill="#1a3484" />
+              <text
+                x="82"
+                y="252"
+                fill="white"
+                font-size="10"
+                font-family="system-ui,sans-serif"
+                font-weight="700"
+                text-anchor="middle"
+              >
+                Max · GPS en vivo
+              </text>
+              <rect x="4" y="266" width="152" height="30" fill="#111827" />
+              <circle cx="18" cy="281" r="4" fill="#4ade80" />
+              <text
+                x="26"
+                y="284"
+                fill="#4ade80"
+                font-size="8"
+                font-family="system-ui"
+                font-weight="600"
+              >
+                EN LÍNEA
+              </text>
+              <rect
+                x="108"
+                y="272"
+                width="28"
+                height="14"
+                rx="3"
+                fill="rgba(255,255,255,.08)"
+                stroke="rgba(255,255,255,.25)"
+                stroke-width="1"
+              />
+              <rect
+                x="110"
+                y="274"
+                width="20"
+                height="10"
+                rx="2"
+                fill="#4ade80"
+                opacity=".85"
+              />
+              <text
+                x="116"
+                y="282"
+                fill="white"
+                font-size="7"
+                font-family="system-ui"
+                font-weight="700"
+              >
+                78%
+              </text>
+              <rect
+                x="60"
+                y="290"
+                width="40"
+                height="3"
+                rx="1.5"
+                fill="rgba(255,255,255,.2)"
+              />
+            </svg>
+          </div>
+          <div class="app-preview-text">
+            <h3>El mapa que te da tranquilidad</h3>
+            <p>
+              Ve la posición de tu mascota en tiempo real directamente en
+              PawTrack. El collar actualiza la posición cada 5 minutos y guarda
+              7 días de historial de trayectoria.
+            </p>
+            <div class="app-pills">
+              <span class="app-pill">📍 Posición en vivo</span>
+              <span class="app-pill">🔋 Nivel de batería</span>
+              <span class="app-pill">📈 Historial 7 días</span>
+              <span class="app-pill">🚨 Alerta de pérdida</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── HOW IT WORKS ── -->
+    <section>
+      <div class="container">
+        <div class="section-label">¿Cómo funciona?</div>
+        <h2>Conectar el collar toma<br />menos de 2 minutos</h2>
+
+        <div class="steps">
+          <div class="step">
+            <svg
+              class="step-icon"
+              viewBox="0 0 60 60"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle cx="30" cy="30" r="28" fill="#fff7f4" />
+              <rect
+                x="13"
+                y="22"
+                width="34"
+                height="26"
+                rx="4"
+                fill="none"
+                stroke="#e8521e"
+                stroke-width="2.5"
+              />
+              <path d="M13 30 H47" stroke="#e8521e" stroke-width="2" />
+              <path d="M30 22 V30" stroke="#e8521e" stroke-width="2" />
+              <path
+                d="M21 16 L30 22 L39 16"
+                stroke="#e8521e"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <rect x="16" y="22" width="11" height="8" rx="2" fill="#ffe4d8" />
+              <rect x="33" y="22" width="11" height="8" rx="2" fill="#ffe4d8" />
+            </svg>
+            <strong>Consigue tu collar</strong>
+            <p>
+              Compra un Tractive en Amazon o en Mr Lee (San José). Precio desde
+              USD $49.
+            </p>
+          </div>
+          <div class="step">
+            <svg
+              class="step-icon"
+              viewBox="0 0 60 60"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle cx="30" cy="30" r="28" fill="#fff7f4" />
+              <rect
+                x="20"
+                y="10"
+                width="20"
+                height="38"
+                rx="5"
+                fill="none"
+                stroke="#e8521e"
+                stroke-width="2.5"
+              />
+              <circle cx="30" cy="43" r="2.5" fill="#e8521e" opacity=".6" />
+              <rect
+                x="26"
+                y="14"
+                width="8"
+                height="2"
+                rx="1"
+                fill="#e8521e"
+                opacity=".4"
+              />
+              <rect
+                x="23"
+                y="19"
+                width="14"
+                height="18"
+                rx="2"
+                fill="#ffe4d8"
+              />
+              <path
+                d="M30 22 C27.8 22 26 23.8 26 26 C26 28.6 30 33 30 33 C30 33 34 28.6 34 26 C34 23.8 32.2 22 30 22Z"
+                fill="#e8521e"
+              />
+              <circle cx="30" cy="26" r="2" fill="white" />
+            </svg>
+            <strong>Abre PawTrack</strong>
+            <p>Entra al perfil de tu mascota y toca la pestaña GPS 📡.</p>
+          </div>
+          <div class="step">
+            <svg
+              class="step-icon"
+              viewBox="0 0 60 60"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle cx="30" cy="30" r="28" fill="#fff7f4" />
+              <rect
+                x="10"
+                y="18"
+                width="16"
+                height="26"
+                rx="4"
+                fill="#ffe4d8"
+                stroke="#e8521e"
+                stroke-width="2"
+              />
+              <rect
+                x="34"
+                y="22"
+                width="16"
+                height="18"
+                rx="4"
+                fill="#ffe4d8"
+                stroke="#e8521e"
+                stroke-width="2"
+              />
+              <circle cx="30" cy="31" r="2.5" fill="#e8521e" />
+              <line
+                x1="26"
+                y1="31"
+                x2="28"
+                y2="31"
+                stroke="#e8521e"
+                stroke-width="1.5"
+                stroke-dasharray="2 1"
+              />
+              <line
+                x1="32"
+                y1="31"
+                x2="34"
+                y2="31"
+                stroke="#e8521e"
+                stroke-width="1.5"
+                stroke-dasharray="2 1"
+              />
+              <path
+                d="M27 31 V29 C27 27.3 28.3 26 30 26 C31.7 26 33 27.3 33 29 V31"
+                stroke="#e8521e"
+                stroke-width="1.5"
+                fill="none"
+              />
+              <rect
+                x="26.5"
+                y="30"
+                width="7"
+                height="5.5"
+                rx="1.5"
+                fill="#e8521e"
+                opacity=".7"
+              />
+            </svg>
+            <strong>Conecta tu cuenta Tractive</strong>
+            <p>
+              Toca "Conectar Tractive" y autoriza el acceso. PawTrack nunca ve
+              tu contraseña.
+            </p>
+          </div>
+          <div class="step">
+            <svg
+              class="step-icon"
+              viewBox="0 0 60 60"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle cx="30" cy="30" r="28" fill="#fff7f4" />
+              <circle cx="30" cy="30" r="18" fill="#e8521e" opacity=".15" />
+              <circle cx="30" cy="30" r="13" fill="#e8521e" opacity=".25" />
+              <path
+                d="M20 31 L26.5 37.5 L40 23"
+                stroke="#e8521e"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                fill="none"
+              />
+            </svg>
+            <strong>Listo — ve la posición</strong>
+            <p>En menos de 5 minutos el mapa muestra dónde está tu mascota.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PRICING ── -->
+    <section class="pricing-section">
+      <div class="container">
+        <div class="section-label" style="color: #f97316">Planes</div>
+        <h2>El GPS está incluido<br />en el plan Plus</h2>
+        <p class="lead">
+          Sin costos adicionales — la integración con tu collar es parte de la
+          suscripción PawTrack.
+        </p>
+
+        <div class="plans">
+          <div class="plan-card">
+            <div class="plan-name">Explorador</div>
+            <div class="plan-price">Gratis</div>
+            <ul class="plan-features">
+              <li><span class="check">✓</span> 1 mascota</li>
+              <li><span class="check">✓</span> QR + reportes de pérdida</li>
+              <li><span class="cross">✗</span> Panel GPS</li>
+              <li><span class="cross">✗</span> Historial completo</li>
+              <li><span class="cross">✗</span> Radio de alerta 10 km</li>
+            </ul>
+          </div>
+          <div class="plan-card featured">
+            <div class="plan-badge">⭐ MÁS POPULAR</div>
+            <div class="plan-name">Plus</div>
+            <div class="plan-price">₡2,990 <span>/mes</span></div>
+            <ul class="plan-features">
+              <li><span class="check">✓</span> Hasta 3 mascotas</li>
+              <li><span class="check">✓</span> QR + reportes + Case Room</li>
+              <li>
+                <span class="check">✓</span>
+                <strong>Panel GPS ← INCLUYE COLLAR</strong>
+              </li>
+              <li><span class="check">✓</span> Historial 7 días</li>
+              <li><span class="check">✓</span> Radio de alerta 10 km</li>
+              <li><span class="check">✓</span> SMS / WhatsApp</li>
+            </ul>
+          </div>
+          <div class="plan-card">
+            <div class="plan-name">Familia</div>
+            <div class="plan-price">₡4,990 <span>/mes</span></div>
+            <ul class="plan-features">
+              <li><span class="check">✓</span> Mascotas ilimitadas</li>
+              <li><span class="check">✓</span> Todo de Plus</li>
+              <li><span class="check">✓</span> Panel GPS</li>
+              <li><span class="check">✓</span> Historial médico</li>
+              <li><span class="check">✓</span> Cuenta familiar (5 miembros)</li>
+              <li><span class="check">✓</span> Alertas sin límite de radio</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── COMPATIBLE DEVICES ── -->
+    <section style="background: #fff">
+      <div class="container">
+        <div class="section-label">Dispositivos compatibles</div>
+        <h2>Funciona con los mejores<br />rastreadores del mercado</h2>
+
+        <div class="compat-grid">
+          <div class="compat-card">
+            <div class="compat-logo">
+              <svg
+                viewBox="0 0 48 48"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect x="20" y="3" width="8" height="8" rx="4" fill="#ff5b00" />
+                <circle cx="24" cy="3" r="3" fill="#ff8030" />
+                <rect
+                  x="6"
+                  y="9"
+                  width="36"
+                  height="28"
+                  rx="9"
+                  fill="#ff5b00"
+                />
+                <rect
+                  x="6"
+                  y="9"
+                  width="36"
+                  height="14"
+                  rx="9"
+                  fill="#ff7a20"
+                />
+                <rect
+                  x="10"
+                  y="13"
+                  width="28"
+                  height="10"
+                  rx="4"
+                  fill="rgba(255,255,255,.2)"
+                />
+                <circle cx="24" cy="18" r="3.5" fill="rgba(255,255,255,.65)" />
+                <circle
+                  cx="20"
+                  cy="14.5"
+                  r="1.8"
+                  fill="rgba(255,255,255,.65)"
+                />
+                <circle
+                  cx="28"
+                  cy="14.5"
+                  r="1.8"
+                  fill="rgba(255,255,255,.65)"
+                />
+                <circle
+                  cx="18"
+                  cy="19.5"
+                  r="1.4"
+                  fill="rgba(255,255,255,.55)"
+                />
+                <circle
+                  cx="30"
+                  cy="19.5"
+                  r="1.4"
+                  fill="rgba(255,255,255,.55)"
+                />
+                <circle cx="24" cy="30" r="4" fill="rgba(0,0,0,.2)" />
+                <circle cx="24" cy="30" r="2.5" fill="#4ade80" />
+                <rect
+                  x="14"
+                  y="35"
+                  width="20"
+                  height="7"
+                  rx="3.5"
+                  fill="#cc4400"
+                />
+                <circle cx="19" cy="38" r="1.5" fill="rgba(0,0,0,.25)" />
+                <circle cx="29" cy="38" r="1.5" fill="rgba(0,0,0,.25)" />
+              </svg>
+            </div>
+            <div>
+              <div class="compat-name">
+                Tractive GPS DOG 4
+                <span class="compat-badge badge-green">✓ Disponible</span>
+              </div>
+              <div class="compat-desc">
+                El rastreador más popular del mundo. GPS + WiFi + actividad.
+                Resistente al agua IPX7.
+              </div>
+              <div class="compat-price">
+                USD $49.99 + USD $4.99/mes (Tractive)
+              </div>
+            </div>
+          </div>
+          <div class="compat-card">
+            <div class="compat-logo">
+              <svg
+                viewBox="0 0 48 48"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect x="20" y="3" width="8" height="8" rx="4" fill="#ff5b00" />
+                <circle cx="24" cy="3" r="3" fill="#ff8030" />
+                <rect
+                  x="6"
+                  y="9"
+                  width="36"
+                  height="28"
+                  rx="9"
+                  fill="#ff5b00"
+                />
+                <rect
+                  x="6"
+                  y="9"
+                  width="36"
+                  height="14"
+                  rx="9"
+                  fill="#ff7a20"
+                />
+                <rect
+                  x="10"
+                  y="13"
+                  width="28"
+                  height="10"
+                  rx="4"
+                  fill="rgba(255,255,255,.2)"
+                />
+                <circle cx="24" cy="18" r="3.5" fill="rgba(255,255,255,.65)" />
+                <circle
+                  cx="20"
+                  cy="14.5"
+                  r="1.8"
+                  fill="rgba(255,255,255,.65)"
+                />
+                <circle
+                  cx="28"
+                  cy="14.5"
+                  r="1.8"
+                  fill="rgba(255,255,255,.65)"
+                />
+                <circle
+                  cx="18"
+                  cy="19.5"
+                  r="1.4"
+                  fill="rgba(255,255,255,.55)"
+                />
+                <circle
+                  cx="30"
+                  cy="19.5"
+                  r="1.4"
+                  fill="rgba(255,255,255,.55)"
+                />
+                <circle cx="24" cy="30" r="4" fill="rgba(0,0,0,.2)" />
+                <circle cx="24" cy="30" r="2.5" fill="#4ade80" />
+                <rect
+                  x="14"
+                  y="35"
+                  width="20"
+                  height="7"
+                  rx="3.5"
+                  fill="#cc4400"
+                />
+                <circle cx="19" cy="38" r="1.5" fill="rgba(0,0,0,.25)" />
+                <circle cx="29" cy="38" r="1.5" fill="rgba(0,0,0,.25)" />
+              </svg>
+            </div>
+            <div>
+              <div class="compat-name">
+                Tractive GPS CAT 4
+                <span class="compat-badge badge-green">✓ Disponible</span>
+              </div>
+              <div class="compat-desc">
+                Diseñado para gatos. Ultra liviano (35g). Igual precisión que el
+                modelo para perros.
+              </div>
+              <div class="compat-price">
+                USD $49.99 + USD $4.99/mes (Tractive)
+              </div>
+            </div>
+          </div>
+          <div class="compat-card">
+            <div class="compat-logo">
+              <svg
+                viewBox="0 0 48 48"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect x="20" y="3" width="8" height="8" rx="4" fill="#0047bb" />
+                <circle cx="24" cy="3" r="3" fill="#3388ff" />
+                <rect
+                  x="6"
+                  y="9"
+                  width="36"
+                  height="28"
+                  rx="9"
+                  fill="#0047bb"
+                />
+                <rect
+                  x="6"
+                  y="9"
+                  width="36"
+                  height="14"
+                  rx="9"
+                  fill="#0066ee"
+                />
+                <rect
+                  x="10"
+                  y="13"
+                  width="28"
+                  height="10"
+                  rx="4"
+                  fill="rgba(255,255,255,.2)"
+                />
+                <circle cx="24" cy="18" r="3.5" fill="rgba(255,255,255,.65)" />
+                <circle
+                  cx="20"
+                  cy="14.5"
+                  r="1.8"
+                  fill="rgba(255,255,255,.65)"
+                />
+                <circle
+                  cx="28"
+                  cy="14.5"
+                  r="1.8"
+                  fill="rgba(255,255,255,.65)"
+                />
+                <circle
+                  cx="18"
+                  cy="19.5"
+                  r="1.4"
+                  fill="rgba(255,255,255,.55)"
+                />
+                <circle
+                  cx="30"
+                  cy="19.5"
+                  r="1.4"
+                  fill="rgba(255,255,255,.55)"
+                />
+                <circle cx="24" cy="30" r="4" fill="rgba(0,0,0,.2)" />
+                <circle cx="24" cy="30" r="2.5" fill="#fbbf24" />
+                <rect
+                  x="14"
+                  y="35"
+                  width="20"
+                  height="7"
+                  rx="3.5"
+                  fill="#003399"
+                />
+                <circle cx="19" cy="38" r="1.5" fill="rgba(0,0,0,.25)" />
+                <circle cx="29" cy="38" r="1.5" fill="rgba(0,0,0,.25)" />
+              </svg>
+            </div>
+            <div>
+              <div class="compat-name">
+                Kippy EVO GPS
+                <span class="compat-badge badge-gray">⏳ Próximamente</span>
+              </div>
+              <div class="compat-desc">
+                GPS + salud + actividad. Popular en LatAm. Batería hasta 3 días.
+              </div>
+              <div class="compat-price">USD $59.99 + EUR €4.99/mes (Kippy)</div>
+            </div>
+          </div>
+          <div class="compat-card">
+            <div class="compat-logo">
+              <svg
+                viewBox="0 0 48 48"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect x="20" y="3" width="8" height="8" rx="4" fill="#1a3484" />
+                <circle cx="24" cy="3" r="3" fill="#4488ff" />
+                <rect
+                  x="4"
+                  y="9"
+                  width="40"
+                  height="30"
+                  rx="10"
+                  fill="#1a3484"
+                />
+                <rect
+                  x="4"
+                  y="9"
+                  width="40"
+                  height="15"
+                  rx="10"
+                  fill="#2244a4"
+                />
+                <rect
+                  x="8"
+                  y="13"
+                  width="32"
+                  height="11"
+                  rx="4"
+                  fill="rgba(255,255,255,.1)"
+                />
+                <text
+                  x="24"
+                  y="22"
+                  text-anchor="middle"
+                  fill="rgba(255,255,255,.8)"
+                  font-size="10"
+                  font-family="system-ui,sans-serif"
+                  font-weight="800"
+                >
+                  P
+                </text>
+                <circle cx="24" cy="32" r="5" fill="rgba(255,255,255,.06)" />
+                <circle cx="24" cy="32" r="3" fill="#60a5fa" />
+                <circle cx="24" cy="32" r="1.5" fill="white" />
+                <rect
+                  x="16"
+                  y="38"
+                  width="16"
+                  height="5"
+                  rx="2.5"
+                  fill="#0f2054"
+                />
+                <rect
+                  x="22"
+                  y="39"
+                  width="4"
+                  height="3"
+                  rx="1"
+                  fill="rgba(255,255,255,.2)"
+                />
+              </svg>
+            </div>
+            <div>
+              <div class="compat-name">
+                PawTrack Collar (propio)
+                <span class="compat-badge badge-gray">🔜 En desarrollo</span>
+              </div>
+              <div class="compat-desc">
+                Hardware propio LTE-M. Sin suscripción externa. SIM incluida en
+                tu plan PawTrack.
+              </div>
+              <div class="compat-price">
+                Precio estimado: ₡25,000 (sin pago mensual adicional)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── WHERE TO BUY ── -->
+    <section>
+      <div class="container">
+        <div class="section-label">¿Dónde consigo el collar?</div>
+        <h2>Varias opciones para<br />adaptarse a tu presupuesto</h2>
+
+        <div class="buy-grid">
+          <div class="buy-card">
+            <span class="tag tag-easy">Más fácil</span>
+            <h3>🛒 Amazon.com</h3>
+            <p>
+              La opción más accesible. Envío a Costa Rica con Aerocasillas,
+              Jetbox o similares.
+            </p>
+            <ul>
+              <li>Tractive GPS DOG 4: USD $49.99</li>
+              <li>Aerocasillas: ~USD $15-20 de flete</li>
+              <li>Tiempo estimado: 7-14 días</li>
+            </ul>
+          </div>
+          <div class="buy-card">
+            <span class="tag tag-easy">Local</span>
+            <h3>🏪 Tiendas en Costa Rica</h3>
+            <p>Disponibles en tiendas especializadas en San José:</p>
+            <ul>
+              <li>Mr Lee PetSmart (Multiplaza, Terramall)</li>
+              <li>PetZone (Rohrmoser)</li>
+              <li>Mascotas Felices (Curridabat)</li>
+            </ul>
+            <p style="margin-top: 0.5rem">Precio local: ~₡35,000–₡45,000</p>
+          </div>
+          <div class="buy-card">
+            <span class="tag tag-easy">🟢 Disponible</span>
+            <h3>📦 Bundle PawTrack — Bajo demanda</h3>
+            <p>
+              Un solo pago, todo incluido. Pedimos el collar especialmente para
+              ti.
+            </p>
+            <ul>
+              <li>Collar Tractive GPS importado</li>
+              <li>12 meses PawTrack Plus activado al confirmar pago</li>
+              <li>Envío a cualquier cantón de Costa Rica</li>
+              <li><strong>₡49,900 total</strong></li>
+            </ul>
+            <p style="margin-top: 0.75rem; font-size: 0.8rem; color: #6b6057">
+              <strong>¿Cómo funciona?</strong><br />
+              1. Haces el pedido en la app con tu dirección.<br />
+              2. Pagas por SINPE Móvil con la referencia generada.<br />
+              3. Confirmamos el pago y activamos tu plan Plus en 24-48 h.<br />
+              4. Adquirimos y enviamos el collar. Te notificamos con el
+              tracking.
+            </p>
+            <a
+              href="https://pawtrack.cr/perfil"
+              style="
+                display: block;
+                margin-top: 0.75rem;
+                background: #e8521e;
+                color: #fff;
+                text-align: center;
+                border-radius: 12px;
+                padding: 0.6rem;
+                font-size: 0.8rem;
+                font-weight: 700;
+                text-decoration: none;
+              "
+            >
+              Pedir mi bundle →
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FAQ ── -->
+    <section style="background: #fff">
+      <div class="container">
+        <div class="section-label">FAQ</div>
+        <h2>Preguntas frecuentes</h2>
+        <div class="faq" style="margin-top: 2rem">
+          <div class="faq-item">
+            <div class="faq-q">
+              ¿Necesito pagar suscripción a Tractive además de PawTrack?
+            </div>
+            <div class="faq-a">
+              Sí. El collar Tractive requiere su propia suscripción (desde USD
+              $4.99/mes) para el acceso a la red LTE. PawTrack usa esa posición
+              para mostrártela en la app — no duplica el costo, pero tampoco
+              puede eliminar la suscripción del fabricante.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">
+              ¿Con qué frecuencia se actualiza la posición?
+            </div>
+            <div class="faq-a">
+              PawTrack consulta al proveedor cada 5 minutos y guarda la
+              posición. Para actualizaciones en tiempo real más frecuentes, usa
+              directamente la app de Tractive.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">¿Es seguro conectar mi cuenta Tractive?</div>
+            <div class="faq-a">
+              Sí. Usamos OAuth2 Authorization Code Flow — nunca vemos tu
+              contraseña de Tractive. Tu token de acceso se almacena cifrado con
+              AES-256-CBC en Key Vault.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">¿Funciona si mi mascota sale del país?</div>
+            <div class="faq-a">
+              Tractive funciona en más de 175 países mientras haya cobertura
+              LTE. PawTrack mostrará la posición sin importar la ubicación
+              geográfica.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">
+              ¿Cuándo estará disponible el collar propio de PawTrack?
+            </div>
+            <div class="faq-a">
+              Está en desarrollo. El objetivo es ofrecer un collar LTE-M sin
+              suscripción mensual externa incluido en los planes Premium.
+              Estimamos disponibilidad para finales de 2027.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">
+              ¿Puedo conectar más de un collar por mascota?
+            </div>
+            <div class="faq-a">
+              Actualmente cada mascota puede tener un collar activo. Si
+              registras uno nuevo, el anterior se desactiva automáticamente.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CTA ── -->
+    <section class="cta-section">
+      <div class="container">
+        <h2>¿Listo para nunca perder<br />a tu mascota de nuevo?</h2>
+        <p>
+          Activa el plan Plus hoy y conecta tu collar GPS en menos de 2 minutos.
+        </p>
+        <a href="https://pawtrack.cr/perfil" class="btn-white"
+          >Activar plan Plus — ₡2,990/mes</a
+        >
+      </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <footer>
+      <p>
+        PawTrack CR ·
+        <a href="https://pawtrack.cr" style="color: inherit">pawtrack.cr</a> ·
+        soporte@pawtrack.cr
+      </p>
+      <p style="margin-top: 0.5rem">
+        © 2026 PawTrack CR. Tractive® es marca registrada de Tractive GmbH.
+        PawTrack no está afiliado oficialmente a Tractive.
+      </p>
+    </footer>
+  </body>
+</html>

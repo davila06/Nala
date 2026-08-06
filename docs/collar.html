@@ -1976,53 +1976,154 @@
       <div class="container">
         <div class="s-label reveal">Hardware propio — completo</div>
         <h2 class="s-title reveal">Todo lo necesario para fabricarlo</h2>
-        <p class="s-lead reveal">Desde el primer prototipo hasta el primer lote de producción. ~$10,000–$21,000 USD · 4–6 meses.</p>
+        <p class="s-lead reveal">
+          Desde el primer prototipo hasta el primer lote de producción.
+          ~$10,000–$21,000 USD · 4–6 meses.
+        </p>
 
         <!-- Summary stats -->
-        <div class="info-grid reveal" style="margin-bottom:2rem;">
-          <div class="info-card" style="border-top:3px solid var(--glow);">
+        <div class="info-grid reveal" style="margin-bottom: 2rem">
+          <div class="info-card" style="border-top: 3px solid var(--glow)">
             <div class="info-card-label">Presupuesto total</div>
             <div class="info-card-value">$10k – $21k USD</div>
           </div>
-          <div class="info-card" style="border-top:3px solid var(--accent);">
+          <div class="info-card" style="border-top: 3px solid var(--accent)">
             <div class="info-card-label">Tiempo al mercado</div>
             <div class="info-card-value">4 – 6 meses</div>
           </div>
-          <div class="info-card" style="border-top:3px solid var(--yellow);">
+          <div class="info-card" style="border-top: 3px solid var(--yellow)">
             <div class="info-card-label">Cuello de botella</div>
             <div class="info-card-value">SUTEL: 2–6 meses</div>
           </div>
-          <div class="info-card" style="border-top:3px solid var(--green);">
+          <div class="info-card" style="border-top: 3px solid var(--green)">
             <div class="info-card-label">Días de dev backend</div>
             <div class="info-card-value">~5–6 días</div>
           </div>
         </div>
 
-        <div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:14px;padding:1.25rem;margin-bottom:2rem;" class="reveal">
-          <strong style="color:var(--yellow);">⚠️ SUTEL es el cuello de botella</strong>
-          <p style="font-size:.82rem;color:rgba(255,255,255,.65);margin-top:.4rem;">Sin homologación SUTEL, el collar no puede operar legalmente en Costa Rica con LTE-M. El proceso tarda 2–6 meses. <strong>Iniciar el trámite en paralelo desde el día 1 del proyecto.</strong></p>
+        <div
+          style="
+            background: rgba(251, 191, 36, 0.08);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 14px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+          "
+          class="reveal"
+        >
+          <strong style="color: var(--yellow)"
+            >⚠️ SUTEL es el cuello de botella</strong
+          >
+          <p
+            style="
+              font-size: 0.82rem;
+              color: rgba(255, 255, 255, 0.65);
+              margin-top: 0.4rem;
+            "
+          >
+            Sin homologación SUTEL, el collar no puede operar legalmente en
+            Costa Rica con LTE-M. El proceso tarda 2–6 meses.
+            <strong
+              >Iniciar el trámite en paralelo desde el día 1 del
+              proyecto.</strong
+            >
+          </p>
         </div>
 
         <div class="reveal">
           <!-- BOM -->
           <div class="accordion-item open">
-            <button class="accordion-trigger">🔩 BOM — Componentes electrónicos <span class="accordion-chevron">+</span></button>
+            <button class="accordion-trigger">
+              🔩 BOM — Componentes electrónicos
+              <span class="accordion-chevron">+</span>
+            </button>
             <div class="accordion-body">
-              <table class="supplier-table" style="margin-top:.5rem;">
-                <thead><tr><th>Componente</th><th>Modelo</th><th>Propósito</th><th>USD/u</th></tr></thead>
+              <table class="supplier-table" style="margin-top: 0.5rem">
+                <thead>
+                  <tr>
+                    <th>Componente</th>
+                    <th>Modelo</th>
+                    <th>Propósito</th>
+                    <th>USD/u</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  <tr><td>MCU</td><td>ESP32-S3-WROOM-1</td><td>CPU + BLE + WiFi provisioning</td><td>$4.00</td></tr>
-                  <tr><td>Celular + GPS</td><td><strong>SIMCOM SIM7080G</strong></td><td>LTE-M + GNSS integrado</td><td>$12.00</td></tr>
-                  <tr><td>Acelerómetro</td><td>ADXL345</td><td>Wake-on-motion interrupt</td><td>$0.80</td></tr>
-                  <tr><td style="color:var(--yellow)"><strong>BMS chip ⚠️</strong></td><td>TP4056 o BQ25100</td><td><strong>Carga segura LiPo — obligatorio</strong></td><td>$0.40</td></tr>
-                  <tr><td>Regulador 3.3V</td><td>AMS1117-3.3</td><td>Alimentar ESP32 / ADXL</td><td>$0.15</td></tr>
-                  <tr><td>Batería</td><td>LiPo 3.7V 1000mAh</td><td>Energía principal</td><td>$3.50</td></tr>
-                  <tr><td>Conector carga</td><td>USB-C 2.0</td><td>Carga de batería</td><td>$0.30</td></tr>
-                  <tr><td style="color:var(--yellow)"><strong>Antena LTE ⚠️</strong></td><td>Flex PCB 700–2100 MHz</td><td><strong>30% del trabajo de RF</strong></td><td>$1.20</td></tr>
-                  <tr><td>LED RGB</td><td>WS2812B</td><td>Indicador estado</td><td>$0.20</td></tr>
-                  <tr><td>PCB prototipo</td><td>JLCPCB 4 capas 50×35mm</td><td>Placa base + SMT</td><td>$30–80/5u</td></tr>
-                  <tr><td>Enclosure</td><td>TPU flexible 3D print</td><td>Case IP65</td><td>$8–15</td></tr>
-                  <tr><td colspan="3"><strong>Total por unidad (prototipo)</strong></td><td><strong>~$24–$37</strong></td></tr>
+                  <tr>
+                    <td>MCU</td>
+                    <td>ESP32-S3-WROOM-1</td>
+                    <td>CPU + BLE + WiFi provisioning</td>
+                    <td>$4.00</td>
+                  </tr>
+                  <tr>
+                    <td>Celular + GPS</td>
+                    <td><strong>SIMCOM SIM7080G</strong></td>
+                    <td>LTE-M + GNSS integrado</td>
+                    <td>$12.00</td>
+                  </tr>
+                  <tr>
+                    <td>Acelerómetro</td>
+                    <td>ADXL345</td>
+                    <td>Wake-on-motion interrupt</td>
+                    <td>$0.80</td>
+                  </tr>
+                  <tr>
+                    <td style="color: var(--yellow)">
+                      <strong>BMS chip ⚠️</strong>
+                    </td>
+                    <td>TP4056 o BQ25100</td>
+                    <td><strong>Carga segura LiPo — obligatorio</strong></td>
+                    <td>$0.40</td>
+                  </tr>
+                  <tr>
+                    <td>Regulador 3.3V</td>
+                    <td>AMS1117-3.3</td>
+                    <td>Alimentar ESP32 / ADXL</td>
+                    <td>$0.15</td>
+                  </tr>
+                  <tr>
+                    <td>Batería</td>
+                    <td>LiPo 3.7V 1000mAh</td>
+                    <td>Energía principal</td>
+                    <td>$3.50</td>
+                  </tr>
+                  <tr>
+                    <td>Conector carga</td>
+                    <td>USB-C 2.0</td>
+                    <td>Carga de batería</td>
+                    <td>$0.30</td>
+                  </tr>
+                  <tr>
+                    <td style="color: var(--yellow)">
+                      <strong>Antena LTE ⚠️</strong>
+                    </td>
+                    <td>Flex PCB 700–2100 MHz</td>
+                    <td><strong>30% del trabajo de RF</strong></td>
+                    <td>$1.20</td>
+                  </tr>
+                  <tr>
+                    <td>LED RGB</td>
+                    <td>WS2812B</td>
+                    <td>Indicador estado</td>
+                    <td>$0.20</td>
+                  </tr>
+                  <tr>
+                    <td>PCB prototipo</td>
+                    <td>JLCPCB 4 capas 50×35mm</td>
+                    <td>Placa base + SMT</td>
+                    <td>$30–80/5u</td>
+                  </tr>
+                  <tr>
+                    <td>Enclosure</td>
+                    <td>TPU flexible 3D print</td>
+                    <td>Case IP65</td>
+                    <td>$8–15</td>
+                  </tr>
+                  <tr>
+                    <td colspan="3">
+                      <strong>Total por unidad (prototipo)</strong>
+                    </td>
+                    <td><strong>~$24–$37</strong></td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -2030,18 +2131,61 @@
 
           <!-- Tools -->
           <div class="accordion-item">
-            <button class="accordion-trigger">🔧 Herramientas de desarrollo <span class="accordion-chevron">+</span></button>
+            <button class="accordion-trigger">
+              🔧 Herramientas de desarrollo
+              <span class="accordion-chevron">+</span>
+            </button>
             <div class="accordion-body">
-              <table class="supplier-table" style="margin-top:.5rem;">
-                <thead><tr><th>Herramienta</th><th>Modelo</th><th>Para qué</th><th>USD</th></tr></thead>
+              <table class="supplier-table" style="margin-top: 0.5rem">
+                <thead>
+                  <tr>
+                    <th>Herramienta</th>
+                    <th>Modelo</th>
+                    <th>Para qué</th>
+                    <th>USD</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  <tr><td><strong>Osciloscopio</strong></td><td>Rigol DS1054Z 100MHz</td><td>Debug señales, consumo, RF</td><td>~$350</td></tr>
-                  <tr><td>Analizador lógico</td><td>Saleae Logic 8 o clone</td><td>Debug UART/SPI/I2C</td><td>$30–150</td></tr>
-                  <tr><td><strong>USB Power Meter</strong></td><td>Atorch UD18</td><td>Medir consumo real por estado</td><td>$20–30</td></tr>
-                  <tr><td>Estación soldadura</td><td>Hakko FX-888D</td><td>Prototipo manual</td><td>$120</td></tr>
-                  <tr><td>Impresora 3D</td><td>Bambu Lab A1 Mini</td><td>Enclosures TPU</td><td>$300–400</td></tr>
-                  <tr><td>Programador JTAG</td><td>ESP-Prog (Espressif)</td><td>Flashear + debug firmware</td><td>$15</td></tr>
-                  <tr><td colspan="3"><strong>Total herramientas</strong></td><td><strong>~$850–$1,100</strong></td></tr>
+                  <tr>
+                    <td><strong>Osciloscopio</strong></td>
+                    <td>Rigol DS1054Z 100MHz</td>
+                    <td>Debug señales, consumo, RF</td>
+                    <td>~$350</td>
+                  </tr>
+                  <tr>
+                    <td>Analizador lógico</td>
+                    <td>Saleae Logic 8 o clone</td>
+                    <td>Debug UART/SPI/I2C</td>
+                    <td>$30–150</td>
+                  </tr>
+                  <tr>
+                    <td><strong>USB Power Meter</strong></td>
+                    <td>Atorch UD18</td>
+                    <td>Medir consumo real por estado</td>
+                    <td>$20–30</td>
+                  </tr>
+                  <tr>
+                    <td>Estación soldadura</td>
+                    <td>Hakko FX-888D</td>
+                    <td>Prototipo manual</td>
+                    <td>$120</td>
+                  </tr>
+                  <tr>
+                    <td>Impresora 3D</td>
+                    <td>Bambu Lab A1 Mini</td>
+                    <td>Enclosures TPU</td>
+                    <td>$300–400</td>
+                  </tr>
+                  <tr>
+                    <td>Programador JTAG</td>
+                    <td>ESP-Prog (Espressif)</td>
+                    <td>Flashear + debug firmware</td>
+                    <td>$15</td>
+                  </tr>
+                  <tr>
+                    <td colspan="3"><strong>Total herramientas</strong></td>
+                    <td><strong>~$850–$1,100</strong></td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -2049,56 +2193,93 @@
 
           <!-- Firmware checklist -->
           <div class="accordion-item">
-            <button class="accordion-trigger">💻 Firmware — checklist completo <span class="accordion-chevron">+</span></button>
+            <button class="accordion-trigger">
+              💻 Firmware — checklist completo
+              <span class="accordion-chevron">+</span>
+            </button>
             <div class="accordion-body">
-              <div class="code-block">CORE
-  ☐ Boot sequence (init periféricos, leer config NVS)
-  ☐ Driver SIM7080G AT commands (UART2, 115200 baud)
-  ☐ LTE-M registration + APN config (Emnify: "em")
-  ☐ MQTT over TLS 1.2 → Azure IoT Hub
-  ☐ GNSS parsing: lat, lng, altitude, HDOP, satélites
-  ☐ A-GPS via LTE antes de cold fix (AT+CGNSSINFO)
-
-POWER MANAGEMENT — el trabajo más difícil
-  ☐ Driver ADXL345 I2C + motion/inactivity interrupt
-  ☐ State machine: Active → Light Sleep → Deep Sleep
-  ☐ ESP32 light_sleep_enable() + timer + GPIO wake
-  ☐ SIM7080G PSM: AT+CPSMS=1,...
-  ☐ GPS power gate (transistor en VCC)
-
-SEGURIDAD Y PROVISIONING
-  ☐ Secure boot con ESP32 eFuse
-  ☐ Certificado TLS por dispositivo (Azure IoT DPS)
-  ☐ Provisioning: BLE → app PawTrack → creds MQTT en NVS
-
-OTA — CRÍTICO para actualizar en campo
-  ☐ Partition table con 2 slots (OTA_0 / OTA_1)
-  ☐ esp_https_ota() con verificación de firma
-  ☐ Rollback automático si nuevo firmware no bootea
-  ☐ Versión reportada en telemetría MQTT
-
-ROBUSTEZ
-  ☐ Watchdog timer (WDT) con auto-recovery
-  ☐ Cola NVS para MQTT publish offline
-  ☐ Reconexión LTE-M automática (backoff exponencial)
-  ☐ Alerta batería <20% via MQTT</div>
+              <div class="code-block">
+                CORE ☐ Boot sequence (init periféricos, leer config NVS) ☐
+                Driver SIM7080G AT commands (UART2, 115200 baud) ☐ LTE-M
+                registration + APN config (Emnify: "em") ☐ MQTT over TLS 1.2 →
+                Azure IoT Hub ☐ GNSS parsing: lat, lng, altitude, HDOP,
+                satélites ☐ A-GPS via LTE antes de cold fix (AT+CGNSSINFO) POWER
+                MANAGEMENT — el trabajo más difícil ☐ Driver ADXL345 I2C +
+                motion/inactivity interrupt ☐ State machine: Active → Light
+                Sleep → Deep Sleep ☐ ESP32 light_sleep_enable() + timer + GPIO
+                wake ☐ SIM7080G PSM: AT+CPSMS=1,... ☐ GPS power gate (transistor
+                en VCC) SEGURIDAD Y PROVISIONING ☐ Secure boot con ESP32 eFuse ☐
+                Certificado TLS por dispositivo (Azure IoT DPS) ☐ Provisioning:
+                BLE → app PawTrack → creds MQTT en NVS OTA — CRÍTICO para
+                actualizar en campo ☐ Partition table con 2 slots (OTA_0 /
+                OTA_1) ☐ esp_https_ota() con verificación de firma ☐ Rollback
+                automático si nuevo firmware no bootea ☐ Versión reportada en
+                telemetría MQTT ROBUSTEZ ☐ Watchdog timer (WDT) con
+                auto-recovery ☐ Cola NVS para MQTT publish offline ☐ Reconexión
+                LTE-M automática (backoff exponencial) ☐ Alerta batería <20% via
+                MQTT
+              </div>
             </div>
           </div>
 
           <!-- Backend -->
           <div class="accordion-item">
-            <button class="accordion-trigger">⚙️ Backend — lo que PawTrack debe construir <span class="accordion-chevron">+</span></button>
+            <button class="accordion-trigger">
+              ⚙️ Backend — lo que PawTrack debe construir
+              <span class="accordion-chevron">+</span>
+            </button>
             <div class="accordion-body">
-              <table class="supplier-table" style="margin-top:.5rem;">
-                <thead><tr><th>Componente</th><th>Estado</th><th>Días</th><th>Descripción</th></tr></thead>
+              <table class="supplier-table" style="margin-top: 0.5rem">
+                <thead>
+                  <tr>
+                    <th>Componente</th>
+                    <th>Estado</th>
+                    <th>Días</th>
+                    <th>Descripción</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  <tr><td>Azure IoT Hub (infra)</td><td><span class="tag tag-red">⛔ Pendiente</span></td><td>0.5</td><td>Agregar al Bicep: Microsoft.Devices/IotHubs</td></tr>
-                  <tr><td>Azure Function IoT → API</td><td><span class="tag tag-red">⛔ Pendiente</span></td><td>1.0</td><td>Trigger IoT Hub → POST /api/collars/ingest</td></tr>
-                  <tr><td>POST /api/collars/ingest</td><td><span class="tag tag-red">⛔ Pendiente</span></td><td>1.5</td><td>Recibe posición + batería del collar propio</td></tr>
-                  <tr><td>DPS (Device Provisioning)</td><td><span class="tag tag-red">⛔ Pendiente</span></td><td>1.0</td><td>Enrolar collares en producción sin hardcode</td></tr>
-                  <tr><td>OTA Blob Storage</td><td><span class="tag tag-red">⛔ Pendiente</span></td><td>0.5</td><td>Container collar-firmware + endpoint descarga</td></tr>
-                  <tr><td>CollarQrBindings + bind-serial</td><td><span class="tag tag-red">⛔ Pendiente</span></td><td>1.0</td><td>Serial → petId binding (§12)</td></tr>
-                  <tr><td colspan="2"><strong>Total backend</strong></td><td><strong>~5–6 días</strong></td><td></td></tr>
+                  <tr>
+                    <td>Azure IoT Hub (infra)</td>
+                    <td><span class="tag tag-red">⛔ Pendiente</span></td>
+                    <td>0.5</td>
+                    <td>Agregar al Bicep: Microsoft.Devices/IotHubs</td>
+                  </tr>
+                  <tr>
+                    <td>Azure Function IoT → API</td>
+                    <td><span class="tag tag-red">⛔ Pendiente</span></td>
+                    <td>1.0</td>
+                    <td>Trigger IoT Hub → POST /api/collars/ingest</td>
+                  </tr>
+                  <tr>
+                    <td>POST /api/collars/ingest</td>
+                    <td><span class="tag tag-red">⛔ Pendiente</span></td>
+                    <td>1.5</td>
+                    <td>Recibe posición + batería del collar propio</td>
+                  </tr>
+                  <tr>
+                    <td>DPS (Device Provisioning)</td>
+                    <td><span class="tag tag-red">⛔ Pendiente</span></td>
+                    <td>1.0</td>
+                    <td>Enrolar collares en producción sin hardcode</td>
+                  </tr>
+                  <tr>
+                    <td>OTA Blob Storage</td>
+                    <td><span class="tag tag-red">⛔ Pendiente</span></td>
+                    <td>0.5</td>
+                    <td>Container collar-firmware + endpoint descarga</td>
+                  </tr>
+                  <tr>
+                    <td>CollarQrBindings + bind-serial</td>
+                    <td><span class="tag tag-red">⛔ Pendiente</span></td>
+                    <td>1.0</td>
+                    <td>Serial → petId binding (§12)</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2"><strong>Total backend</strong></td>
+                    <td><strong>~5–6 días</strong></td>
+                    <td></td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -2106,33 +2287,119 @@ ROBUSTEZ
 
           <!-- SUTEL -->
           <div class="accordion-item">
-            <button class="accordion-trigger">📋 Certificaciones — SUTEL es obligatoria en CR <span class="accordion-chevron">+</span></button>
+            <button class="accordion-trigger">
+              📋 Certificaciones — SUTEL es obligatoria en CR
+              <span class="accordion-chevron">+</span>
+            </button>
             <div class="accordion-body">
-              <table class="supplier-table" style="margin-top:.5rem;">
-                <thead><tr><th>Certificación</th><th>Organismo</th><th>CR obligatorio</th><th>Costo</th><th>Tiempo</th></tr></thead>
+              <table class="supplier-table" style="margin-top: 0.5rem">
+                <thead>
+                  <tr>
+                    <th>Certificación</th>
+                    <th>Organismo</th>
+                    <th>CR obligatorio</th>
+                    <th>Costo</th>
+                    <th>Tiempo</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  <tr style="background:rgba(251,191,36,.05)"><td><strong>SUTEL homologación</strong></td><td>sutel.go.cr</td><td style="color:var(--yellow)">✅ Sí</td><td>₡200k–₡500k</td><td style="color:var(--yellow)"><strong>2–6 meses</strong></td></tr>
-                  <tr><td>FCC (USA)</td><td>FCC.gov</td><td>Recomendado</td><td>$1,000–$3,000</td><td>4–8 semanas</td></tr>
-                  <tr><td>CE (EU)</td><td>Notified Body</td><td>Opcional</td><td>$1,500–$4,000</td><td>8–16 semanas</td></tr>
-                  <tr><td>ROHS</td><td>Fabricante</td><td>Buenas prácticas</td><td>$0</td><td>—</td></tr>
+                  <tr style="background: rgba(251, 191, 36, 0.05)">
+                    <td><strong>SUTEL homologación</strong></td>
+                    <td>sutel.go.cr</td>
+                    <td style="color: var(--yellow)">✅ Sí</td>
+                    <td>₡200k–₡500k</td>
+                    <td style="color: var(--yellow)">
+                      <strong>2–6 meses</strong>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>FCC (USA)</td>
+                    <td>FCC.gov</td>
+                    <td>Recomendado</td>
+                    <td>$1,000–$3,000</td>
+                    <td>4–8 semanas</td>
+                  </tr>
+                  <tr>
+                    <td>CE (EU)</td>
+                    <td>Notified Body</td>
+                    <td>Opcional</td>
+                    <td>$1,500–$4,000</td>
+                    <td>8–16 semanas</td>
+                  </tr>
+                  <tr>
+                    <td>ROHS</td>
+                    <td>Fabricante</td>
+                    <td>Buenas prácticas</td>
+                    <td>$0</td>
+                    <td>—</td>
+                  </tr>
                 </tbody>
               </table>
-              <p style="font-size:.78rem;color:rgba(255,255,255,.6);margin-top:.75rem;"><strong>Proceso SUTEL:</strong> Reunir FCC cert del SIM7080G + datasheet + esquemático → ingresar expediente en sutel.go.cr → pagar timbre fiscal → esperar 60–180 días hábiles → número de homologación para grabar en enclosure.<br/><strong>Truco:</strong> el SIM7080G ya tiene FCC/CE → argumentar "certified radio module" y reducir alcance. Consultor local: ~$300–$600, acorta proceso 30–50%.</p>
+              <p
+                style="
+                  font-size: 0.78rem;
+                  color: rgba(255, 255, 255, 0.6);
+                  margin-top: 0.75rem;
+                "
+              >
+                <strong>Proceso SUTEL:</strong> Reunir FCC cert del SIM7080G +
+                datasheet + esquemático → ingresar expediente en sutel.go.cr →
+                pagar timbre fiscal → esperar 60–180 días hábiles → número de
+                homologación para grabar en enclosure.<br /><strong
+                  >Truco:</strong
+                >
+                el SIM7080G ya tiene FCC/CE → argumentar "certified radio
+                module" y reducir alcance. Consultor local: ~$300–$600, acorta
+                proceso 30–50%.
+              </p>
             </div>
           </div>
 
           <!-- Risks -->
           <div class="accordion-item">
-            <button class="accordion-trigger">⚠️ Riesgos principales <span class="accordion-chevron">+</span></button>
+            <button class="accordion-trigger">
+              ⚠️ Riesgos principales <span class="accordion-chevron">+</span>
+            </button>
             <div class="accordion-body">
-              <table class="supplier-table" style="margin-top:.5rem;">
-                <thead><tr><th>Riesgo</th><th>Prob.</th><th>Mitigación</th></tr></thead>
+              <table class="supplier-table" style="margin-top: 0.5rem">
+                <thead>
+                  <tr>
+                    <th>Riesgo</th>
+                    <th>Prob.</th>
+                    <th>Mitigación</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  <tr><td><strong>SUTEL demora >6 meses</strong></td><td style="color:var(--yellow)">Alta</td><td>Iniciar día 1; usar módulo certificado; contratar consultor</td></tr>
-                  <tr><td>Consumo real > estimado</td><td style="color:rgba(255,255,255,.5)">Media</td><td>Medir con USB Power Meter desde el primer prototipo</td></tr>
-                  <tr><td>SIM7080G desabasto</td><td style="color:var(--green)">Baja</td><td>Pedir 20+ unidades de dev ahora; alternativa: SIM7070G</td></tr>
-                  <tr><td>Waterproofing falla en campo</td><td style="color:rgba(255,255,255,.5)">Media</td><td>IP65 mínimo; test inmersión 30 min en cada lote</td></tr>
-                  <tr><td>LTE-M señal baja en CR rural</td><td style="color:rgba(255,255,255,.5)">Media</td><td>SIM7080G soporta fallback a 2G/EDGE automático</td></tr>
+                  <tr>
+                    <td><strong>SUTEL demora >6 meses</strong></td>
+                    <td style="color: var(--yellow)">Alta</td>
+                    <td>
+                      Iniciar día 1; usar módulo certificado; contratar
+                      consultor
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Consumo real > estimado</td>
+                    <td style="color: rgba(255, 255, 255, 0.5)">Media</td>
+                    <td>Medir con USB Power Meter desde el primer prototipo</td>
+                  </tr>
+                  <tr>
+                    <td>SIM7080G desabasto</td>
+                    <td style="color: var(--green)">Baja</td>
+                    <td>
+                      Pedir 20+ unidades de dev ahora; alternativa: SIM7070G
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Waterproofing falla en campo</td>
+                    <td style="color: rgba(255, 255, 255, 0.5)">Media</td>
+                    <td>IP65 mínimo; test inmersión 30 min en cada lote</td>
+                  </tr>
+                  <tr>
+                    <td>LTE-M señal baja en CR rural</td>
+                    <td style="color: rgba(255, 255, 255, 0.5)">Media</td>
+                    <td>SIM7080G soporta fallback a 2G/EDGE automático</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -2140,15 +2407,59 @@ ROBUSTEZ
 
           <!-- References -->
           <div class="accordion-item">
-            <button class="accordion-trigger">📚 Referencias técnicas <span class="accordion-chevron">+</span></button>
-            <div class="accordion-body" style="line-height:2.2;">
-              <a href="https://www.simcom.com/product/SIM7080G.html" target="_blank" rel="noopener" style="color:var(--glow);display:block;">SIM7080G Hardware Design + AT Manual — simcom.com</a>
-              <a href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/" target="_blank" rel="noopener" style="color:var(--glow);display:block;">ESP32-S3 Technical Reference Manual — espressif.com</a>
-              <a href="https://www.analog.com/en/products/adxl345.html" target="_blank" rel="noopener" style="color:var(--glow);display:block;">ADXL345 Datasheet — analog.com</a>
-              <a href="https://learn.microsoft.com/en-us/azure/iot-hub/" target="_blank" rel="noopener" style="color:var(--glow);display:block;">Azure IoT Hub + DPS — Microsoft Learn</a>
-              <a href="https://jlcpcb.com" target="_blank" rel="noopener" style="color:var(--glow);display:block;">JLCPCB — PCB + SMT assembly — jlcpcb.com</a>
-              <a href="https://sutel.go.cr" target="_blank" rel="noopener" style="color:var(--glow);display:block;">SUTEL — Homologación de equipos — sutel.go.cr</a>
-              <a href="https://kicad.org" target="_blank" rel="noopener" style="color:var(--glow);display:block;">KiCad — EDA open source para diseño PCB — kicad.org</a>
+            <button class="accordion-trigger">
+              📚 Referencias técnicas <span class="accordion-chevron">+</span>
+            </button>
+            <div class="accordion-body" style="line-height: 2.2">
+              <a
+                href="https://www.simcom.com/product/SIM7080G.html"
+                target="_blank"
+                rel="noopener"
+                style="color: var(--glow); display: block"
+                >SIM7080G Hardware Design + AT Manual — simcom.com</a
+              >
+              <a
+                href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/"
+                target="_blank"
+                rel="noopener"
+                style="color: var(--glow); display: block"
+                >ESP32-S3 Technical Reference Manual — espressif.com</a
+              >
+              <a
+                href="https://www.analog.com/en/products/adxl345.html"
+                target="_blank"
+                rel="noopener"
+                style="color: var(--glow); display: block"
+                >ADXL345 Datasheet — analog.com</a
+              >
+              <a
+                href="https://learn.microsoft.com/en-us/azure/iot-hub/"
+                target="_blank"
+                rel="noopener"
+                style="color: var(--glow); display: block"
+                >Azure IoT Hub + DPS — Microsoft Learn</a
+              >
+              <a
+                href="https://jlcpcb.com"
+                target="_blank"
+                rel="noopener"
+                style="color: var(--glow); display: block"
+                >JLCPCB — PCB + SMT assembly — jlcpcb.com</a
+              >
+              <a
+                href="https://sutel.go.cr"
+                target="_blank"
+                rel="noopener"
+                style="color: var(--glow); display: block"
+                >SUTEL — Homologación de equipos — sutel.go.cr</a
+              >
+              <a
+                href="https://kicad.org"
+                target="_blank"
+                rel="noopener"
+                style="color: var(--glow); display: block"
+                >KiCad — EDA open source para diseño PCB — kicad.org</a
+              >
             </div>
           </div>
         </div>

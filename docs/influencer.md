@@ -40,17 +40,17 @@ davila06@gmail.com | pawtrack.cr
 ```
 Hola [Nombre],
 
-Te escribo porque sigo tu contenido sobre [mascotas / estilo de vida / Costa Rica] 
+Te escribo porque sigo tu contenido sobre [mascotas / estilo de vida / Costa Rica]
 y creo que lo que estamos construyendo puede resonar genuinamente con tu audiencia.
 
-Me llamo Denis y soy el fundador de PawTrack CR — la primera red de recuperación 
+Me llamo Denis y soy el fundador de PawTrack CR — la primera red de recuperación
 de mascotas de Costa Rica.
 
 — ¿QUÉ ES PAWTRACK CR? —
 
-Una plataforma que conecta a dueños, rescatistas y comunidad cuando una mascota 
-se pierde. El corazón del sistema es un collar con código QR: cualquier persona 
-que encuentre a la mascota lo escanea con la cámara del celular (sin descargar 
+Una plataforma que conecta a dueños, rescatistas y comunidad cuando una mascota
+se pierde. El corazón del sistema es un collar con código QR: cualquier persona
+que encuentre a la mascota lo escanea con la cámara del celular (sin descargar
 ninguna app) y el dueño recibe una alerta con la ubicación GPS en segundos.
 
 La plataforma incluye:
@@ -61,13 +61,13 @@ La plataforma incluye:
 • Sala de coordinación de búsqueda en tiempo real
 • WhatsApp, push y email como canales de alerta
 
-Es completamente gratuita para los usuarios — el modelo de negocio es a través 
+Es completamente gratuita para los usuarios — el modelo de negocio es a través
 de planes premium y clínicas veterinarias, no de publicidad.
 
 — POR QUÉ TE ESCRIBO —
 
-No busco un "patrocinio pagado". Esto es una colaboración voluntaria con una 
-causa social. Si probás la plataforma y sentís que vale la pena compartirla, 
+No busco un "patrocinio pagado". Esto es una colaboración voluntaria con una
+causa social. Si probás la plataforma y sentís que vale la pena compartirla,
 genial. Si no, no pasa nada.
 
 Lo que sí te ofrezco:
@@ -80,12 +80,12 @@ Lo que sí te ofrezco:
 
 — UNA HISTORIA QUE MUEVE —
 
-El amor por las mascotas es uno de los pocos temas que conecta a toda la 
-audiencia sin importar el nicho. Un video de 60 segundos mostrando el collar QR 
-puede ser el contenido que haga que UNA familia costarricense vuelva a reunirse 
+El amor por las mascotas es uno de los pocos temas que conecta a toda la
+audiencia sin importar el nicho. Un video de 60 segundos mostrando el collar QR
+puede ser el contenido que haga que UNA familia costarricense vuelva a reunirse
 con su mascota. Eso es algo que ninguna pauta publicitaria puede comprar.
 
-¿Te interesa conocer más? Con gusto te hago una demo rápida o te envío el kit 
+¿Te interesa conocer más? Con gusto te hago una demo rápida o te envío el kit
 de material para que lo veas con tus propios ojos.
 
 Un saludo,
