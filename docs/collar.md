@@ -599,40 +599,43 @@ Materiales para la placa:
 ### Segmento 1b — Collar físico personalizado desde China + impresión rápida en sitio
 
 Este modelo cubre dos necesidades complementarias:
+
 1. **Collar físico con soporte QR** fabricado en China a bajo costo — el collar, el QR y PawTrack son un solo paquete
 2. **Impresión en sitio** para ferias, campañas de venta o eventos veterinarios: el usuario registra a su mascota y sale con el collar puesto en 3 minutos
 
 #### Diseños de collar con soporte QR (sin GPS)
 
-| Diseño | Descripción | Costo aprox. China | QR | MOQ |
-| ------ | ----------- | ------------------ | -- | --- |
-| **Collar nylon + porta-placa metálica** | Rivet o clip para placa 3×2 cm, QR impreso en etiqueta vinilo | $1.20–$2.00 | 🔄 Reemplazable | 100 u. |
-| **Collar nylon + ventana TPU** | Ventana transparente sellada donde se inserta el QR en papel/vinilo | $0.80–$1.50 | 🔄 Reemplazable | 200 u. |
-| **Collar + tag silicona con QR grabado láser** | Tag de silicona con QR único grabado, anilla al collar | $1.50–$2.50 | ✅ Permanente | 100 u. |
-| **Collar con placa aluminio encastrada** | Placa grabada en fábrica con QR único por collar | $2.50–$4.00 | ✅ Permanente | 50 u. |
+| Diseño                                         | Descripción                                                         | Costo aprox. China | QR              | MOQ    |
+| ---------------------------------------------- | ------------------------------------------------------------------- | ------------------ | --------------- | ------ |
+| **Collar nylon + porta-placa metálica**        | Rivet o clip para placa 3×2 cm, QR impreso en etiqueta vinilo       | $1.20–$2.00        | 🔄 Reemplazable | 100 u. |
+| **Collar nylon + ventana TPU**                 | Ventana transparente sellada donde se inserta el QR en papel/vinilo | $0.80–$1.50        | 🔄 Reemplazable | 200 u. |
+| **Collar + tag silicona con QR grabado láser** | Tag de silicona con QR único grabado, anilla al collar              | $1.50–$2.50        | ✅ Permanente   | 100 u. |
+| **Collar con placa aluminio encastrada**       | Placa grabada en fábrica con QR único por collar                    | $2.50–$4.00        | ✅ Permanente   | 50 u.  |
 
 **Proveedor recomendado para buscar en Alibaba:**
+
 - Búsqueda: `custom dog collar QR code plate` o `pet ID collar tag window`
 - Filtrar: BSCI certified, Guangzhou/Dongguan, Min. 100 units
 - Pedir muestra antes de confirmar orden: $15–30 por muestra + DHL
 - Contactar directamente fábricas con la palabra "OEM welcome"
 
 **Proveedores específicos a explorar:**
+
 - **Guangzhou Maichen Leather** — collares con soporte para placa metálica
 - **Dongguan Yiwu Pet Products** — collares nylon con ventana TPU
 - Búsqueda directa: alibaba.com → `pet collar ID tag holder custom`
 
 **Costo total landed CR (collar sin GPS, lote 200 unidades):**
 
-| Concepto | Costo USD |
-| -------- | --------- |
-| 200 collares con porta-placa ($1.50/u) | $300 |
-| Flete DHL Shenzhen → CR | ~$120 |
-| Impuestos CR (~15%) | ~$63 |
-| **Total landed** | **~$483 (~₡251,000)** |
-| **Costo por collar** | **~$2.42/u (~₡1,260)** |
-| **Precio venta sugerido** | **₡4,500–₡6,000** |
-| **Margen por collar** | **~₡3,000–₡4,500** |
+| Concepto                               | Costo USD              |
+| -------------------------------------- | ---------------------- |
+| 200 collares con porta-placa ($1.50/u) | $300                   |
+| Flete DHL Shenzhen → CR                | ~$120                  |
+| Impuestos CR (~15%)                    | ~$63                   |
+| **Total landed**                       | **~$483 (~₡251,000)**  |
+| **Costo por collar**                   | **~$2.42/u (~₡1,260)** |
+| **Precio venta sugerido**              | **₡4,500–₡6,000**      |
+| **Margen por collar**                  | **~₡3,000–₡4,500**     |
 
 ---
 
@@ -642,13 +645,14 @@ Para campañas y ferias donde el usuario registra su mascota y recibe el collar 
 
 **Hardware recomendado:**
 
-| Opción | Modelo | Precio | Velocidad | Conectividad | Formato QR |
-| ------ | ------ | ------ | --------- | ------------ | ---------- |
-| **⭐ Mejor opción** | Brother QL-820NWB | ~$180 USD | 2 seg/etiqueta | WiFi + BT + USB | DK-22251 vinilo continuo |
-| Económica | DYMO LabelWriter 450 | ~$80 USD | 3 seg/etiqueta | USB | 30x57mm labels |
-| Industrial | Zebra ZD220 | ~$150 USD | 1 seg/etiqueta | USB + BT | ZPL, alta durabilidad |
+| Opción              | Modelo               | Precio    | Velocidad      | Conectividad    | Formato QR               |
+| ------------------- | -------------------- | --------- | -------------- | --------------- | ------------------------ |
+| **⭐ Mejor opción** | Brother QL-820NWB    | ~$180 USD | 2 seg/etiqueta | WiFi + BT + USB | DK-22251 vinilo continuo |
+| Económica           | DYMO LabelWriter 450 | ~$80 USD  | 3 seg/etiqueta | USB             | 30x57mm labels           |
+| Industrial          | Zebra ZD220          | ~$150 USD | 1 seg/etiqueta | USB + BT        | ZPL, alta durabilidad    |
 
 **Brother QL-820NWB es la opción correcta porque:**
+
 - Imprime desde tablet/smartphone via Bluetooth o WiFi — sin laptop
 - Funciona con batería recargable — no necesita tomacorriente en ferias
 - Etiqueta DK-22251 es vinilo laminado resistente al agua y al sol
@@ -677,20 +681,21 @@ PASO 4 — Verificación (30 segundos)
 ```
 
 **Lo que necesita PawTrack app para soportar esto:**
+
 - `GET /api/pets/{id}/qr` ya existe y retorna imagen SVG/PNG ✅
 - Interfaz de registro simplificada para staff (flujo de 3 pasos, tablet-optimizado) → pendiente
 - Conexión BT/WiFi a Brother QL desde la app → requiere integración Brother SDK o web print
 
 **Inversión para una campaña:**
 
-| Ítem | Costo |
-| ---- | ----- |
-| Impresora Brother QL-820NWB | ~$180 USD |
-| 2 rollos vinilo DK-22251 (800 etiquetas) | ~$30 USD |
-| 200 collares con porta-placa | ~$483 USD |
-| **Total para campaña de 200 mascotas** | **~$693 USD (~₡360,000)** |
-| Ingreso (200 ventas × ₡5,000 collar) | ₡1,000,000 |
-| **Margen bruto campaña** | **~₡640,000** |
+| Ítem                                     | Costo                     |
+| ---------------------------------------- | ------------------------- |
+| Impresora Brother QL-820NWB              | ~$180 USD                 |
+| 2 rollos vinilo DK-22251 (800 etiquetas) | ~$30 USD                  |
+| 200 collares con porta-placa             | ~$483 USD                 |
+| **Total para campaña de 200 mascotas**   | **~$693 USD (~₡360,000)** |
+| Ingreso (200 ventas × ₡5,000 collar)     | ₡1,000,000                |
+| **Margen bruto campaña**                 | **~₡640,000**             |
 
 > La impresora se amortiza desde la primera campaña y sirve para todas las siguientes.
 
@@ -896,6 +901,194 @@ El perfil público `/p/{serial}` resuelve:
 | Pantalla de activación de collar en app                 | 1 día            | Frontend |
 | Coordinar grabado láser con proveedor OEM               | En próxima orden | —        |
 | **Total de desarrollo**                                 | **~2.5 días**    | —        |
+
+---
+
+## 13. Requisitos para hardware propio — lista completa
+
+### Resumen ejecutivo
+
+| Categoría | Costo estimado | Tiempo | Estado |
+| --------- | -------------- | ------ | ------ |
+| Electrónica + PCB (prototipos) | $700–$1,500 USD | Semanas 1–8 | ⛔ Pendiente |
+| EE engineer freelance (firmware + PCB) | $3,000–$7,000 | Meses 1–3 | ⛔ Pendiente |
+| Herramientas de desarrollo | $800–$1,100 | Única vez | ⛔ Pendiente |
+| Certificación SUTEL (CR) + FCC | $1,500–$4,500 | **2–6 meses** | ⛔ Pendiente |
+| Backend (IoT Hub + ingest endpoint) | ~5–6 días dev | Mes 2 | ⛔ Pendiente |
+| Primer lote producción (50 u.) | $4,000–$8,000 | Mes 4–6 | ⛔ Futuro |
+| **TOTAL hasta producción** | **~$10,000–$21,000 USD** | **4–6 meses** | |
+
+> ⚠️ **La certificación SUTEL es el cuello de botella.** Sin ella el collar no puede operar legalmente en CR con LTE-M. Iniciar en paralelo desde el día 1.
+
+---
+
+### 13.1 BOM completo (Bill of Materials)
+
+| Componente | Modelo | Propósito | Fuente | USD/u |
+| ---------- | ------ | --------- | ------ | ----- |
+| MCU | ESP32-S3-WROOM-1 | CPU + BLE + WiFi provisioning | DigiKey / Mouser | $4.00 |
+| Celular + GPS | SIMCOM SIM7080G | LTE-M + NB-IoT + GNSS integrado | SIMCOM directo | $12.00 |
+| Acelerómetro | ADXL345 | Wake-on-motion interrupt | AliExpress | $0.80 |
+| **BMS chip** | **TP4056 o BQ25100** | **Carga segura LiPo — obligatorio** | LCSC | $0.40 |
+| Regulador 3.3V | AMS1117-3.3 | Alimentar ESP32/ADXL | LCSC | $0.15 |
+| Batería | LiPo 3.7V 1000mAh (50×34×5mm) | Energía principal | AliExpress | $3.50 |
+| Conector carga | USB-C 2.0 (solo carga) | Carga de batería | LCSC | $0.30 |
+| Antena LTE | Flex PCB 700–2100 MHz | Señal celular (el 30% del trabajo de RF) | SIMCOM / Molex | $1.20 |
+| LED indicador | WS2812B RGB | Estado: conectado/sin señal/cargando | AliExpress | $0.20 |
+| Protección ESD | TVS diodes | Proteger USB-C y antena | LCSC | $0.30 |
+| Pasivos varios | Condensadores, resistencias | Circuito soporte | JLCPCB BOM | ~$1.00 |
+| PCB prototipo (5u.) | 4 capas, 50×35mm | Placa base | JLCPCB | $30–80 |
+| Enclosure | TPU flexible (3D print) | Case resistente al agua IP65 | Local / Shapeways | $8–15 |
+| **Total por unidad (prototipo)** | | | | **~$24–$37** |
+
+**Notas críticas de diseño:**
+- El BMS (TP4056) es **obligatorio** — sin él la carga del LiPo puede incendiar el collar
+- La antena LTE-M es el componente de diseño más crítico: requiere clearance, ground plane y match de impedancia
+- IP65 mínimo: conformal coating en PCB + gasket de silicona en USB-C + enclosure sellado
+- Incluir test pads en la PCB para facilitar QA en manufactura
+
+---
+
+### 13.2 Herramientas de desarrollo
+
+| Herramienta | Modelo | Para qué | USD |
+| ----------- | ------ | -------- | --- |
+| **Osciloscopio** | Rigol DS1054Z (100MHz) | Debug señales, consumo, RF | ~$350 |
+| **Analizador lógico** | Saleae Logic 8 o clone | Debug UART/SPI/I2C | $30–150 |
+| **USB Power Meter** | Atorch o similar | Medir consumo real por estado | $15–30 |
+| Estación soldadura | Hakko FX-888D | Prototipo manual | $120 |
+| Impresora 3D | Bambu Lab A1 Mini | Prototipar enclosures TPU | $300–400 |
+| Programador JTAG | ESP-Prog (oficial Espressif) | Flashear + debug firmware | $15 |
+| SIM de desarrollo | Emnify / Hologram (1 SIM) | Probar LTE-M en CR | $5/mes |
+| **Total** | | | **~$850–$1,100** |
+
+---
+
+### 13.3 Firmware — checklist completo
+
+```
+CORE
+  ☐ Boot sequence (init periféricos, leer config desde NVS)
+  ☐ Driver SIM7080G via AT commands (UART2, 115200 baud)
+  ☐ Registro LTE-M + config APN (Emnify: em / Hologram: hologram)
+  ☐ MQTT over TLS 1.2 → Azure IoT Hub (MQTT broker)
+  ☐ GNSS parsing: lat, lng, altitude, HDOP, num satélites
+  ☐ A-GPS via LTE antes de cold fix (AT+CGNSSINFO, reduce cold fix a 3-8s)
+
+POWER MANAGEMENT — el trabajo más difícil y el más importante
+  ☐ Driver ADXL345 vía I2C + configurar motion/inactivity interrupt
+  ☐ State machine: Active → Light Sleep → Deep Sleep (ver §2.3)
+  ☐ ESP32 light_sleep_enable() con wake sources: ADXL345 INT + timer
+  ☐ SIM7080G PSM (Power Saving Mode): AT+CPSMS=1,...
+  ☐ GPS power gate (transistor en VCC del módulo)
+  ☐ Calibrar umbrales de movimiento (THRESH_ACT/INACT) con mascotas reales
+
+SEGURIDAD Y PROVISIONING
+  ☐ Secure boot con ESP32 eFuse (previene firmware no autorizado)
+  ☐ Certificado TLS por dispositivo para Azure IoT Hub DPS
+  ☐ Provisioning flow: BLE → app PawTrack → credenciales MQTT guardadas en NVS
+  ☐ Serial único en eFuse o NVS cifrado con clave maestra
+
+OTA — CRÍTICO para actualizar collares en campo
+  ☐ Partition table con 2 slots (OTA_0 / OTA_1)
+  ☐ esp_https_ota() con verificación de firma digital
+  ☐ Rollback automático si el nuevo firmware no bootea correctamente
+  ☐ Versión de firmware reportada en telemetría MQTT
+
+ROBUSTEZ
+  ☐ Watchdog timer (WDT) con recovery automático
+  ☐ Cola local en NVS para MQTT publish si sin conexión
+  ☐ Reconexión LTE-M automática (backoff exponencial)
+  ☐ Alerta batería baja (<20%) publicada vía MQTT
+  ☐ LED indicador: verde=OK, amarillo=sin señal, rojo=batería baja, azul=cargando
+```
+
+---
+
+### 13.4 Backend — lo que PawTrack debe construir
+
+| Componente | Estado | Días dev | Descripción |
+| ---------- | ------ | -------- | ----------- |
+| Azure IoT Hub (infra) | ⛔ Pendiente | 0.5 | Agregar `Microsoft.Devices/IotHubs` al Bicep |
+| Azure Function IoT → API | ⛔ Pendiente | 1 | Trigger IoT Hub → transforma telemetría → POST backend |
+| `POST /api/collars/ingest` | ⛔ Pendiente | 1.5 | Recibe posición y batería del collar propio |
+| DPS (Device Provisioning) | ⛔ Pendiente | 1 | Enrolar collares en producción sin credenciales hardcodeadas |
+| OTA bucket Blob Storage | ⛔ Pendiente | 0.5 | Container `collar-firmware` + endpoint de descarga |
+| `CollarQrBindings` tabla | ⛔ Pendiente | 0.5 | Serial → petId (ver §12) |
+| `POST /api/collars/bind-serial` | ⛔ Pendiente | 0.5 | Vincular serial a mascota en la app |
+| **Total** | | **~5–6 días** | |
+
+---
+
+### 13.5 Certificaciones — SUTEL es la más crítica
+
+| Certificación | Organismo | CR obligatorio | Costo | Tiempo |
+| ------------- | --------- | :------------: | ----- | ------ |
+| **SUTEL homologación** | SUTEL CR (sutel.go.cr) | ✅ Sí | ₡200,000–₡500,000 (~$400–$1,000) | **2–6 meses** |
+| FCC (USA) | FCC.gov | Recomendado | $1,000–$3,000 | 4–8 semanas |
+| CE (EU) | Notified Body | Opcional | $1,500–$4,000 | 8–16 semanas |
+| ROHS | Fabricante | Buenas prácticas | $0 (declaración) | — |
+
+**Proceso SUTEL:**
+1. Reunir: FCC cert del módulo SIM7080G + datasheet + manual técnico + esquemático
+2. Ingresar expediente en sutel.go.cr → Servicios → Homologación
+3. Pagar timbre fiscal + tarifa de análisis técnico
+4. Esperar revisión técnica: 60–180 días hábiles
+5. Recibir número de homologación → grabarlo en el enclosure del collar
+6. Renovar cada 5 años
+
+**Cómo acelerar:** el SIM7080G ya tiene FCC/CE — se puede argumentar que el dispositivo usa un "certified radio module" y reducir el alcance de la certificación. Contratar un consultor local de SUTEL reduce el tiempo en 30–50%.
+
+---
+
+### 13.6 Fases de manufactura
+
+**Fase 1 — Prototipos ($1,500–$3,000 · semanas 1–8)**
+- PCB en JLCPCB con SMT assembly
+- Enclosure TPU impreso en 3D
+- Pruebas: GPS fix outdoor, sleep actual con USB Power Meter, inmersión 30 min
+- Sin QR permanente — sticker temporal para pruebas
+
+**Fase 2 — Pilotos ($3,000–$8,000 · meses 2–4)**
+- PCB revisada con mejoras de prototipo
+- Tooling para enclosure de plástico: $2,000–$5,000 en Shenzhen (molde inyección)
+- QR grabado láser en enclosure
+- SUTEL iniciado en paralelo
+- 10–30 unidades para beta testers reales
+
+**Fase 3 — Producción ($8,000–$15,000 · meses 4–6)**
+- SUTEL obtenida
+- Lote 50–100 unidades con partner de manufactura
+- QA automatizado (5–10% sampling por lote)
+- Caja de empaque con marca PawTrack CR
+
+---
+
+### 13.7 Referencias técnicas
+
+| Recurso | URL |
+| ------- | --- |
+| SIM7080G Hardware Design Guide | simcom.com/product/SIM7080G.html |
+| SIM7080G AT Command Manual | simcom.com/support |
+| ESP32-S3 Technical Reference | docs.espressif.com/esp-idf/esp32s3 |
+| ESP32 Power Management | espressif.com → AN-ESP32-POWERSAVE |
+| ADXL345 Datasheet | analog.com/en/products/adxl345.html |
+| Azure IoT Hub + DPS | learn.microsoft.com/azure/iot-hub |
+| JLCPCB (PCB + SMT) | jlcpcb.com |
+| SUTEL homologación | sutel.go.cr → Servicios → Homologación de equipos |
+| KiCad (EDA open source) | kicad.org |
+
+---
+
+### 13.8 Riesgos principales
+
+| Riesgo | Probabilidad | Mitigación |
+| ------ | :----------: | ---------- |
+| SUTEL demora >6 meses | **Alta** | Iniciar día 1; usar módulo certificado; consultor local |
+| Consumo real > estimado | Media | Medir con USB Power Meter desde el primer prototipo |
+| SIM7080G desabasto | Baja | Pedir 20+ unidades de dev inmediatamente; tiene alternativa SIM7070G |
+| Waterproofing falla en campo | Media | IP65 mínimo; test de inmersión en cada lote |
+| LTE-M señal baja en CR rural | Media | SIM7080G soporta fallback a 2G/EDGE |
 
 ---
 
