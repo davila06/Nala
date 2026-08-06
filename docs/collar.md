@@ -33,13 +33,13 @@ Tractive es la marca líder mundial de rastreadores GPS para mascotas. Usada por
 
 **Precios actuales (Agosto 2026):**
 
-| Producto | Precio USD | Precio CRC aprox. | Dónde comprar |
-| -------- | ---------- | ----------------- | ------------- |
-| Tractive DOG 6 (tracker) | **$79.00** | ₡41,000 | Amazon.com + Aerocasillas |
-| Tractive CAT 6 Mini (tracker) | ~$79.00 | ₡41,000 | Amazon.com + Aerocasillas |
-| Plan Tractive 1 año | $10/mes ($120/año) | ₡62,400/año | Tractive.com (usuario paga directo) |
-| Plan Tractive 2 años | $7/mes ($168 c/2 años) | ₡87,360 c/2 años | Tractive.com |
-| Plan Tractive 5 años | $5/mes ($300 c/5 años) | ₡156,000 c/5 años | Tractive.com |
+| Producto                      | Precio USD             | Precio CRC aprox. | Dónde comprar                       |
+| ----------------------------- | ---------------------- | ----------------- | ----------------------------------- |
+| Tractive DOG 6 (tracker)      | **$79.00**             | ₡41,000           | Amazon.com + Aerocasillas           |
+| Tractive CAT 6 Mini (tracker) | ~$79.00                | ₡41,000           | Amazon.com + Aerocasillas           |
+| Plan Tractive 1 año           | $10/mes ($120/año)     | ₡62,400/año       | Tractive.com (usuario paga directo) |
+| Plan Tractive 2 años          | $7/mes ($168 c/2 años) | ₡87,360 c/2 años  | Tractive.com                        |
+| Plan Tractive 5 años          | $5/mes ($300 c/5 años) | ₡156,000 c/5 años | Tractive.com                        |
 
 > ⚠️ El plan de Tractive lo paga el usuario **directamente a Tractive**. PawTrack no intermedia ese cobro.
 
@@ -47,26 +47,27 @@ Tractive es la marca líder mundial de rastreadores GPS para mascotas. Usada por
 
 Tractive **no tiene programa de reventa ni descuentos por volumen**. Solo existe el programa de afiliados:
 
-| Dato | Valor |
-| ---- | ----- |
-| Comisión | **$20 USD fijo por tracker** (cualquier modelo) |
-| Cookie | 30 días |
-| Pago | 30 días después del cierre del mes |
-| Plataforma | [Impact.com](https://app.impact.com/campaign-promo-signup/Tractive.brand) |
-| Aprobación | Solicitud → revisión en pocos días hábiles |
-| Tracker gratis | Posible pedirlo, caso por caso, sin garantía |
+| Dato           | Valor                                                                     |
+| -------------- | ------------------------------------------------------------------------- |
+| Comisión       | **$20 USD fijo por tracker** (cualquier modelo)                           |
+| Cookie         | 30 días                                                                   |
+| Pago           | 30 días después del cierre del mes                                        |
+| Plataforma     | [Impact.com](https://app.impact.com/campaign-promo-signup/Tractive.brand) |
+| Aprobación     | Solicitud → revisión en pocos días hábiles                                |
+| Tracker gratis | Posible pedirlo, caso por caso, sin garantía                              |
 
 > Tractive rechaza: sitios de cupones, cashback, subnetworks de afiliados y quienes pujen en sus keywords de marca.
 
 **Nuestros bundles propuestos:**
 
-| Bundle | Qué incluye | Precio sugerido (CRC) | Nuestro ingreso |
-| ------ | ----------- | --------------------- | --------------- |
-| Solo suscripción Plus | PawTrack Plus 1 mes | ₡2,990 | ₡2,990 |
-| Pack GPS Link | PawTrack Plus 1 mes + link afiliado DOG 6 | ₡2,990 + afiliado | ₡2,990 + ₡10,400 comisión |
-| Pack GPS Anual | PawTrack Plus 12 meses + link afiliado DOG 6 | ₡35,880 + afiliado | ₡35,880 + ₡10,400 comisión |
+| Bundle                | Qué incluye                                  | Precio sugerido (CRC) | Nuestro ingreso            |
+| --------------------- | -------------------------------------------- | --------------------- | -------------------------- |
+| Solo suscripción Plus | PawTrack Plus 1 mes                          | ₡2,990                | ₡2,990                     |
+| Pack GPS Link         | PawTrack Plus 1 mes + link afiliado DOG 6    | ₡2,990 + afiliado     | ₡2,990 + ₡10,400 comisión  |
+| Pack GPS Anual        | PawTrack Plus 12 meses + link afiliado DOG 6 | ₡35,880 + afiliado    | ₡35,880 + ₡10,400 comisión |
 
 **Para activar el programa:**
+
 1. Solicitar en [tractive.com/landing/affiliate](https://tractive.com/landing/affiliate)
 2. Aplicar via Impact.com → esperar aprobación
 3. Generar link único en el dashboard de Impact
@@ -173,11 +174,11 @@ CollarLocation (write-heavy, purge >30 días)
 
 ### Resumen ejecutivo de precios
 
-| Opción                    | Inversión inicial   | Costo/unidad                | Precio venta sugerido        | Margen neto             | Tiempo al mercado |
-| ------------------------- | ------------------- | --------------------------- | ---------------------------- | ----------------------- | ----------------- |
+| Opción                    | Inversión inicial   | Costo/unidad                | Precio venta sugerido        | Margen neto                  | Tiempo al mercado |
+| ------------------------- | ------------------- | --------------------------- | ---------------------------- | ---------------------------- | ----------------- |
 | **A — Afiliado Tractive** | **$0**              | N/A (no tenemos inventario) | $79 USD DOG 6 (Amazon)       | **$20 USD fijo** por tracker | **Inmediato**     |
-| **B — Hardware propio**   | $3,000+ USD         | ~$30 USD                    | $60–80 USD                   | $30–50 USD              | 3–4 meses         |
-| **C — OEM Concox**        | ~$1,350 USD (50 u.) | ~$27 USD landed en CR       | $38–48 USD (~₡20,000–25,000) | $10–20 USD              | 2–3 meses         |
+| **B — Hardware propio**   | $3,000+ USD         | ~$30 USD                    | $60–80 USD                   | $30–50 USD                   | 3–4 meses         |
+| **C — OEM Concox**        | ~$1,350 USD (50 u.) | ~$27 USD landed en CR       | $38–48 USD (~₡20,000–25,000) | $10–20 USD                   | 2–3 meses         |
 
 **Recomendación:** arrancar con Opción A (cero riesgo, cero inventario) y pivotar a C cuando haya >100 suscriptores Plus que justifiquen el MOQ de 50 unidades.
 
@@ -333,6 +334,45 @@ Azure__IoTHubConnectionString=<connection string del Azure IoT Hub>
 | Familia (₡4,990/mes) | ✅ Todos los providers       | 7 días    |
 
 El collar GPS es **el diferenciador de conversión más fuerte** del plan Plus — muestra valor inmediato y recurrente para el dueño.
+
+---
+
+## 10. Costo total para el usuario final
+
+### El GPS vivo es opcional — el QR funciona solo con PawTrack
+
+La integración Tractive es un **añadido premium**, no un requisito. La mayoría de los usuarios usan PawTrack sin GPS y obtienen todo el valor core de la plataforma.
+
+### Escenario A — Solo QR (sin GPS)
+
+| Concepto | Costo |
+| -------- | ----- |
+| PawTrack Explorador | **Gratis** |
+| PawTrack Plus | ₡2,990/mes |
+| Placa QR física (opcional) | ₡1,500–₡4,500 una sola vez |
+| **Total mensual** | **₡0 – ₡2,990/mes** |
+
+Identificación de mascota, alertas de pérdida, avistamientos, mapa en vivo, chat anónimo → **todo funciona sin Tractive**.
+
+### Escenario B — QR + GPS en vivo (Tractive)
+
+| Concepto | Costo | Frecuencia |
+| -------- | ----- | ---------- |
+| Tractive DOG 6 (hardware) | $79 (~₡41,000) | **Una sola vez** |
+| Tractive suscripción (plan 1 año) | $10/mes (~₡5,200) facturado como $120/año | **Anual** |
+| PawTrack Plus | ₡2,990/mes | Mensual |
+| **Total recurrente mensual** | **~₡8,190/mes** | — |
+| **Inversión primer año (incluyendo hardware)** | **~₡161,000** | — |
+
+> ⚠️ La suscripción de Tractive se paga **directamente a Tractive** — PawTrack no la cobra ni la intermedia.
+
+### Conclusión de pricing
+
+El costo de ₡8,190/mes es elevado para el mercado CR. Por eso el posicionamiento correcto es:
+
+- **Vender PawTrack por su red de avistamientos y QR** — diferenciador único que no requiere hardware
+- **El GPS es el upsell** para quienes ya tienen o quieren un Tractive — no la razón de compra inicial
+- **El afiliado nos genera ₡10,400 una sola vez** por cada usuario que compra Tractive via nuestro link, sin costo operativo
 
 ---
 
