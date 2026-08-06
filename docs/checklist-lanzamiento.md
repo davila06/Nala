@@ -1,9 +1,30 @@
 # Checklist de lanzamiento — PawTrack CR en Azure
 
-> **Actualizado: 2026-08-04**  
+> **Actualizado: 2026-08-06**  
 > Para la lista completa de prerequisitos con comandos exactos, ver [`pre.md`](pre.md).
 
 Marca cada paso solo cuando esté verificado. Si algo falla, para y corrige antes de seguir.
+
+---
+
+## Fase 0 — GitHub Secrets (CI/CD)
+
+Configurar antes de cualquier push a `main` para que el pipeline arranque solo.
+
+Repo → Settings → Secrets and variables → Actions:
+
+| Secret | Valor |
+| ----------------------------- | -------------------------------------------------------- |
+| `AZURE_CLIENT_ID` | App registration Client ID (Workload Identity Federation) |
+| `AZURE_TENANT_ID` | Azure AD Tenant ID |
+| `AZURE_SUBSCRIPTION_ID` | Subscription ID |
+| `AZURE_RESOURCE_GROUP` | `pawtrack-prod-rg` |
+| `ACR_NAME` | `pawtrackacrprod` |
+| `CONTAINER_APP_NAME` | `pawtrack-prod-api` |
+| `CONTAINER_APP_FQDN` | FQDN del Container App (sin `https://`) |
+| `SWA_NAME` | Nombre del Static Web App |
+| `SWA_DEPLOYMENT_TOKEN` | `az staticwebapp secrets list --name <SWA_NAME> ...` |
+| `SQL_ADMIN_PASSWORD` | Password SQL admin (para workflow infra) |
 
 ---
 
@@ -47,21 +68,19 @@ Marca cada paso solo cuando esté verificado. Si algo falla, para y corrige ante
 
 ---
 
-## Fase 3 — Configuracion del backend (App Service)
+## Fase 3 — Configuracion del backend (Container App)
 
-- [ ] `ASPNETCORE_ENVIRONMENT` = `Production`
-- [ ] `App__BaseUrl` = URL publica del frontend (ej. `https://pawtrack.cr`)
-- [ ] `Cors__AllowedOrigins__0` = URL publica del frontend (ej. `https://pawtrack.cr`)
-- [ ] `Azure__KeyVaultUri` = URI del Key Vault
+- [ ] Variables de entorno cargadas en el Container App
 
   ```powershell
-  az webapp config appsettings set `
-    --resource-group pawtrack-prod-rg --name <APP_SERVICE_NAME> `
-    --settings `
+  az containerapp update `
+    --resource-group pawtrack-prod-rg `
+    --name pawtrack-prod-api `
+    --set-env-vars `
       ASPNETCORE_ENVIRONMENT=Production `
-      App__BaseUrl=https://pawtrack.cr `
-      Cors__AllowedOrigins__0=https://pawtrack.cr `
-      Azure__KeyVaultUri=https://<KEYVAULT_NAME>.vault.azure.net/
+      "App__BaseUrl=https://pawtrack.cr" `
+      "Cors__AllowedOrigins__0=https://pawtrack.cr" `
+      "Azure__KeyVaultUri=https://<KEYVAULT_NAME>.vault.azure.net/"
   ```
 
 ---
@@ -82,17 +101,28 @@ Marca cada paso solo cuando esté verificado. Si algo falla, para y corrige ante
 
 ## Fase 5 — Build y deploy backend
 
-- [ ] Build exitoso
-- [ ] Zip deploy completado
-- [ ] App Service reiniciado
+- [ ] Build Docker exitoso
+- [ ] Imagen pusheada a ACR
+- [ ] Container App actualizado con la nueva imagen
 
   ```powershell
-  cd backend
-  dotnet publish src/PawTrack.API -c Release -o ..\publish\api
-  Compress-Archive -Path ..\publish\api\* -DestinationPath ..\publish\api.zip -Force
-  az webapp deployment source config-zip `
-    --resource-group pawtrack-prod-rg --name <APP_SERVICE_NAME> --src ..\publish\api.zip
-  az webapp restart --resource-group pawtrack-prod-rg --name <APP_SERVICE_NAME>
+  az acr login --name pawtrackacrprod
+
+  $tag = "pawtrackacrprod.azurecr.io/pawtrack-api:$(git rev-parse --short HEAD)"
+  docker build -f backend/Dockerfile -t $tag backend/
+  docker push $tag
+
+  az containerapp update `
+    --resource-group pawtrack-prod-rg `
+    --name pawtrack-prod-api `
+    --image $tag
+  ```
+
+- [ ] Logs arrancan sin errores
+
+  ```powershell
+  az containerapp logs show `
+    --resource-group pawtrack-prod-rg --name pawtrack-prod-api --tail 50
   ```
 
 ---
@@ -143,7 +173,31 @@ Marca cada paso solo cuando esté verificado. Si algo falla, para y corrige ante
 
 ---
 
-## Fase 9 — Monitoreo
+## Fase 9 — Servicios externos
+
+- [ ] **Tractive OAuth** — crear app en [developers.tractive.com](https://developers.tractive.com)
+  - Redirect URI: `https://pawtrack.cr/api/collars/tractive/callback`
+  - Scopes: `activity device_info`
+  - Cargar en Key Vault: `Tractive__ClientId`, `Tractive__ClientSecret`, `Tractive__EncryptKey`
+  - Verificar: completar flujo OAuth desde tab GPS en perfil de mascota Plus
+
+- [ ] **WhatsApp webhook** — Meta Business Manager
+  - Webhook URL: `https://api.pawtrack.cr/api/whatsapp/webhook`
+  - Verify token: valor de `WhatsApp__VerifyToken` que cargaste en Key Vault
+  - Cargar en Key Vault: `WhatsApp__AppSecret`, `WhatsApp__VerifyToken`, `WhatsApp__PhoneNumberId`, `WhatsApp__AccessToken`
+
+- [ ] **VAPID keys** — notificaciones push web
+  ```powershell
+  npx web-push generate-vapid-keys
+  # Cargar VAPID__PublicKey y VAPID__PrivateKey en Key Vault
+  ```
+
+- [ ] **Tractive Affiliate** — [go.tractive.com/affiliate](https://go.tractive.com/affiliate)
+  - Añadir `?utm_source=pawtrack` al redirect OAuth para tracking de comisiones (15%)
+
+---
+
+## Fase 10 — Monitoreo
 
 - [ ] Application Insights recibe telemetria (verificar en Azure Portal → App Insights → Live Metrics)
 - [ ] `/health` responde 200 publica — si da 401, cambiar la prueba de disponibilidad de Bicep a un endpoint realmente publico (ej. `/openapi/v1.json`)
