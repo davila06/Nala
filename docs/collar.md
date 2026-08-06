@@ -554,20 +554,20 @@ Tener varias opciones de precio es correcto: diferentes segmentos tienen diferen
 
 > 🔑 = Requiere cuenta/suscripción con un tercero además de PawTrack
 
-| Opción | Precio inicial | Desglose mensual | Total/mes | QR | GPS | Cuentas requeridas |
-| ------ | -------------- | ---------------- | :-------: | :-: | :-: | ------------------ |
-| **🏷️ Placa QR sola** | ₡1,500–₡4,500 | ₡2,990 PawTrack Plus | **₡2,990** | ✅ ES el QR | ❌ | Solo PawTrack |
-| **🏷️ Placa QR sola (gratis)** | ₡1,500–₡4,500 | ₡0 PawTrack Explorador | **₡0** | ✅ ES el QR | ❌ | Solo PawTrack |
-| **📡 OEM Concox + QR láser** | ₡22,000–₡26,000 | ₡2,990 Plus + ₡1,040 SIM IoT | **~₡4,030** | ✅ Grabado | ✅ Básico | PawTrack + 🔑 Emnify/Hologram (SIM) |
-| **⭐ Tractive DOG 6** | ₡41,000 + placa ₡2,000–₡4,500 | ₡2,990 Plus + ₡5,200 Tractive | **~₡8,190** | ⚠️ Pieza separada | ✅ Premium | PawTrack + 🔑 Tractive (obligatorio) |
-| **🔧 Hardware PawTrack** | ₡35,000–₡50,000 | ₡2,990 Plus + ₡1,040 SIM IoT | **~₡4,030** | ✅ Integrado | ✅ Custom | PawTrack + SIM (gestionada por PawTrack) |
+| Opción                        | Precio inicial                | Desglose mensual              |  Total/mes  |        QR         |    GPS     | Cuentas requeridas                       |
+| ----------------------------- | ----------------------------- | ----------------------------- | :---------: | :---------------: | :--------: | ---------------------------------------- |
+| **🏷️ Placa QR sola**          | ₡1,500–₡4,500                 | ₡2,990 PawTrack Plus          | **₡2,990**  |    ✅ ES el QR    |     ❌     | Solo PawTrack                            |
+| **🏷️ Placa QR sola (gratis)** | ₡1,500–₡4,500                 | ₡0 PawTrack Explorador        |   **₡0**    |    ✅ ES el QR    |     ❌     | Solo PawTrack                            |
+| **📡 OEM Concox + QR láser**  | ₡22,000–₡26,000               | ₡2,990 Plus + ₡1,040 SIM IoT  | **~₡4,030** |    ✅ Grabado     | ✅ Básico  | PawTrack + 🔑 Emnify/Hologram (SIM)      |
+| **⭐ Tractive DOG 6**         | ₡41,000 + placa ₡2,000–₡4,500 | ₡2,990 Plus + ₡5,200 Tractive | **~₡8,190** | ⚠️ Pieza separada | ✅ Premium | PawTrack + 🔑 Tractive (obligatorio)     |
+| **🔧 Hardware PawTrack**      | ₡35,000–₡50,000               | ₡2,990 Plus + ₡1,040 SIM IoT  | **~₡4,030** |   ✅ Integrado    | ✅ Custom  | PawTrack + SIM (gestionada por PawTrack) |
 
 **Leyenda de terceros:**
 
-| Cuenta tercero | Quién la crea | Quién la paga | Control de PawTrack |
-| -------------- | ------------- | ------------- | ------------------- |
-| 🔑 **Tractive** | El usuario en tractive.com | El usuario (directo a Tractive) | Ninguno — relación 100% del usuario con Tractive |
-| 🔑 **Emnify / Hologram (SIM)** | El usuario o PawTrack gestiona | El usuario o PawTrack cobra | PawTrack puede gestionar las SIMs centralmente y cobrar incluido |
+| Cuenta tercero                 | Quién la crea                  | Quién la paga                   | Control de PawTrack                                              |
+| ------------------------------ | ------------------------------ | ------------------------------- | ---------------------------------------------------------------- |
+| 🔑 **Tractive**                | El usuario en tractive.com     | El usuario (directo a Tractive) | Ninguno — relación 100% del usuario con Tractive                 |
+| 🔑 **Emnify / Hologram (SIM)** | El usuario o PawTrack gestiona | El usuario o PawTrack cobra     | PawTrack puede gestionar las SIMs centralmente y cobrar incluido |
 
 > ⚠️ **El segmento Tractive es el único donde el usuario debe abrir y pagar una suscripción externa obligatoria** (₡5,200/mes directo a Tractive) sin que PawTrack pueda intervenir ni incluirla en su facturación. Esto debe quedar claro en el onboarding.
 
@@ -593,6 +593,106 @@ Materiales para la placa:
 | Acrílico con QR impreso UV | 2–3 años | ₡1,500–₡2,500 | Imprenta digital local |
 | Tag silicona importado | 2–3 años | ₡2,000–₡3,500 | AliExpress MOQ 50 |
 | Tag NFC + QR combo | 3–4 años | ₡4,000–₡6,000 | AliExpress NTAG213 |
+
+---
+
+### Segmento 1b — Collar físico personalizado desde China + impresión rápida en sitio
+
+Este modelo cubre dos necesidades complementarias:
+1. **Collar físico con soporte QR** fabricado en China a bajo costo — el collar, el QR y PawTrack son un solo paquete
+2. **Impresión en sitio** para ferias, campañas de venta o eventos veterinarios: el usuario registra a su mascota y sale con el collar puesto en 3 minutos
+
+#### Diseños de collar con soporte QR (sin GPS)
+
+| Diseño | Descripción | Costo aprox. China | QR | MOQ |
+| ------ | ----------- | ------------------ | -- | --- |
+| **Collar nylon + porta-placa metálica** | Rivet o clip para placa 3×2 cm, QR impreso en etiqueta vinilo | $1.20–$2.00 | 🔄 Reemplazable | 100 u. |
+| **Collar nylon + ventana TPU** | Ventana transparente sellada donde se inserta el QR en papel/vinilo | $0.80–$1.50 | 🔄 Reemplazable | 200 u. |
+| **Collar + tag silicona con QR grabado láser** | Tag de silicona con QR único grabado, anilla al collar | $1.50–$2.50 | ✅ Permanente | 100 u. |
+| **Collar con placa aluminio encastrada** | Placa grabada en fábrica con QR único por collar | $2.50–$4.00 | ✅ Permanente | 50 u. |
+
+**Proveedor recomendado para buscar en Alibaba:**
+- Búsqueda: `custom dog collar QR code plate` o `pet ID collar tag window`
+- Filtrar: BSCI certified, Guangzhou/Dongguan, Min. 100 units
+- Pedir muestra antes de confirmar orden: $15–30 por muestra + DHL
+- Contactar directamente fábricas con la palabra "OEM welcome"
+
+**Proveedores específicos a explorar:**
+- **Guangzhou Maichen Leather** — collares con soporte para placa metálica
+- **Dongguan Yiwu Pet Products** — collares nylon con ventana TPU
+- Búsqueda directa: alibaba.com → `pet collar ID tag holder custom`
+
+**Costo total landed CR (collar sin GPS, lote 200 unidades):**
+
+| Concepto | Costo USD |
+| -------- | --------- |
+| 200 collares con porta-placa ($1.50/u) | $300 |
+| Flete DHL Shenzhen → CR | ~$120 |
+| Impuestos CR (~15%) | ~$63 |
+| **Total landed** | **~$483 (~₡251,000)** |
+| **Costo por collar** | **~$2.42/u (~₡1,260)** |
+| **Precio venta sugerido** | **₡4,500–₡6,000** |
+| **Margen por collar** | **~₡3,000–₡4,500** |
+
+---
+
+#### Infraestructura de impresión rápida en sitio
+
+Para campañas y ferias donde el usuario registra su mascota y recibe el collar en el momento.
+
+**Hardware recomendado:**
+
+| Opción | Modelo | Precio | Velocidad | Conectividad | Formato QR |
+| ------ | ------ | ------ | --------- | ------------ | ---------- |
+| **⭐ Mejor opción** | Brother QL-820NWB | ~$180 USD | 2 seg/etiqueta | WiFi + BT + USB | DK-22251 vinilo continuo |
+| Económica | DYMO LabelWriter 450 | ~$80 USD | 3 seg/etiqueta | USB | 30x57mm labels |
+| Industrial | Zebra ZD220 | ~$150 USD | 1 seg/etiqueta | USB + BT | ZPL, alta durabilidad |
+
+**Brother QL-820NWB es la opción correcta porque:**
+- Imprime desde tablet/smartphone via Bluetooth o WiFi — sin laptop
+- Funciona con batería recargable — no necesita tomacorriente en ferias
+- Etiqueta DK-22251 es vinilo laminado resistente al agua y al sol
+- Costo etiqueta: ~₡20 por label (rollo de 400 etiquetas ~$15 USD)
+
+**Flujo de campaña en sitio (3 minutos por mascota):**
+
+```
+PASO 1 — Registro (1 min)
+  → Staff abre PawTrack en tablet/celular
+  → Registra: nombre mascota, especie, foto rápida, teléfono dueño
+  → Sistema genera petId y QR único al instante
+
+PASO 2 — Impresión (10 segundos)
+  → PawTrack genera imagen QR (ya existe: GET /api/pets/{id}/qr)
+  → Staff envía a impresora via BT
+  → Impresora imprime etiqueta QR vinilo
+
+PASO 3 — Ensamble (30 segundos)
+  → Staff inserta/adhiere etiqueta en porta-placa del collar
+  → Coloca collar en mascota y ajusta tamaño
+
+PASO 4 — Verificación (30 segundos)
+  → Escanear el collar con la cámara → debe abrir perfil de la mascota
+  → Listo — dueño sale con collar puesto y mascota registrada
+```
+
+**Lo que necesita PawTrack app para soportar esto:**
+- `GET /api/pets/{id}/qr` ya existe y retorna imagen SVG/PNG ✅
+- Interfaz de registro simplificada para staff (flujo de 3 pasos, tablet-optimizado) → pendiente
+- Conexión BT/WiFi a Brother QL desde la app → requiere integración Brother SDK o web print
+
+**Inversión para una campaña:**
+
+| Ítem | Costo |
+| ---- | ----- |
+| Impresora Brother QL-820NWB | ~$180 USD |
+| 2 rollos vinilo DK-22251 (800 etiquetas) | ~$30 USD |
+| 200 collares con porta-placa | ~$483 USD |
+| **Total para campaña de 200 mascotas** | **~$693 USD (~₡360,000)** |
+| Ingreso (200 ventas × ₡5,000 collar) | ₡1,000,000 |
+| **Margen bruto campaña** | **~₡640,000** |
+
+> La impresora se amortiza desde la primera campaña y sirve para todas las siguientes.
 
 ---
 
