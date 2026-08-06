@@ -121,10 +121,98 @@ Kippy es un rastreador GPS+salud con funciones de actividad. Popular en España/
 **Arquitectura recomendada:**
 
 ```
-Collar (ESP32 + SIM7080) → MQTT → Azure IoT Hub → Azure Function → POST /api/collars/ingest
+Collar (ESP32-S3 + SIM7080G) → MQTT/TLS → Azure IoT Hub → Azure Function → POST /api/collars/ingest
 ```
 
 **Variable `CollarProvider.Own = 0`** ya reservada en el dominio.
+
+#### Componentes recomendados
+
+| Componente | Modelo | Dónde comprar | Costo aprox |
+| ---------- | ------ | ------------- | ----------- |
+| MCU | ESP32-S3 (dual-core, BLE) | DigiKey / Mouser | $4 |
+| Módulo celular + GPS | SIM7080G (LTE-M + GNSS integrado) | SIMCOM directo / DigiKey | $12 |
+| Acelerómetro | ADXL345 (detección de movimiento) | AliExpress | $0.80 |
+| Batería | LiPo 3.7V 1000mAh (plana, 50×34×5mm) | AliExpress | $3.50 |
+| PCB | JLCPCB (5 prototipos ~$2 + SMT assembly) | jlcpcb.com | $2–15 |
+| Case | Impresión 3D TPU flexible (resistente a agua) | Local o Shapeways | $5–15 |
+
+#### Gestión de batería y firmware — el problema real
+
+**Sin optimización:** ESP32 + SIM7080G activos consumen ~200–350 mA. Con LiPo 1000 mAh eso da **2–4 horas**. Inutilizable.
+
+**Estrategia de sleep por capas (objetivo: 3–5 días):**
+
+```
+┌─────────────────────────────────────────────────────┐
+│  ESTADO: Movimiento detectado                        │
+│  • GPS hot fix cada 30 segundos                     │
+│  • MQTT transmit + sleep corto (10s)                │
+│  • Consumo: ~250 mA promedio en burst               │
+└──────────────────────┬──────────────────────────────┘
+                       │ Sin movimiento > 2 min
+┌──────────────────────▼──────────────────────────────┐
+│  ESTADO: Quieto (Light Sleep)                        │
+│  • ADXL345 en modo interrupt (wake on motion)       │
+│  • Timer wake cada 10 min → heartbeat MQTT          │
+│  • GPS apagado, SIM en PSM (Power Saving Mode)      │
+│  • Consumo: ~1–3 mA promedio                        │
+└──────────────────────┬──────────────────────────────┘
+                       │ Sin movimiento > 30 min
+┌──────────────────────▼──────────────────────────────┐
+│  ESTADO: Dormido (Deep Sleep ESP32)                  │
+│  • ESP32 a 10–15 µA                                 │
+│  • SIM7080G en PSM: ~0.4 mA (wake on demand)       │
+│  • Wake por interrupción ADXL345 o timer 30 min     │
+│  • Consumo: ~0.5–1 mA promedio                      │
+└─────────────────────────────────────────────────────┘
+```
+
+**Matemáticas de batería (1000 mAh LiPo, mascota típica):**
+
+| Escenario | % tiempo activo | Consumo promedio | Duración |
+| --------- | --------------- | ---------------- | -------- |
+| Sin sleep (malo) | 100% | 280 mA | ~3.5 horas |
+| Con Light Sleep solo | 10% activo | ~30 mA | ~33 horas |
+| Con Deep Sleep (mascota en casa) | 2% activo | ~5 mA | **~8 días** |
+| Mascota activa (caminata 2h/día) | 15% activo | ~43 mA | **~23 horas** |
+
+**La clave práctica:** el ADXL345 como interrupt source para el wake es lo que marca la diferencia. Sin acelerómetro, el timer forzado consume el 80% de la batería en wakups innecesarios.
+
+**Código de referencia (pseudofirmware):**
+
+```c
+// Loop principal simplificado
+void loop() {
+    if (adxl345_motion_detected()) {
+        gps_wakeup();
+        sim_exit_psm();
+        
+        CollarPosition pos = gps_hot_fix(timeout_ms: 5000);
+        mqtt_publish(pos);
+        
+        stationary_seconds = 0;
+    } else {
+        stationary_seconds += sleep_interval;
+        
+        if (stationary_seconds > 1800) {  // 30 min quieto
+            esp32_deep_sleep(wake_after_seconds: 1800,
+                             wake_on_interrupt: ADXL345_INT_PIN);
+        } else if (stationary_seconds > 120) {  // 2 min quieto
+            mqtt_publish_heartbeat(last_known_pos);
+            sim_enter_psm();
+            esp32_light_sleep(wake_after_seconds: 600,  // 10 min
+                              wake_on_interrupt: ADXL345_INT_PIN);
+        }
+    }
+}
+```
+
+**GPS cold fix vs hot fix — problema crítico al despertar:**
+
+- Cold fix (primera vez o sin asistencia): 30–90 segundos, consume ~100 mA todo ese tiempo
+- Hot fix (GNSS assistance, datos de satélites en caché): 3–8 segundos
+- **Solución:** usar A-GPS (Assisted GPS) descargando datos de efemérides al SIM7080G via LTE antes de pedirle el fix. SIM7080G soporta esto nativamente con `AT+CGNSSINFO`
 
 ---
 
@@ -231,19 +319,30 @@ Geofencing: alerta configurable por radio (implementar en Azure Stream Analytics
 
 ---
 
-### Opción C — OEM Concox (solución rápida con marca propia)
+### Opción C — OEM China (solución rápida con marca propia)
 
-**Precios detallados:**
+**Proveedores OEM verificados con API REST documentada:**
 
-| Concepto                                | Costo USD                      |
-| --------------------------------------- | ------------------------------ |
-| Unidad Concox AT4 (FCA Shenzhen)        | $18.00                         |
-| Flete DHL Express Shenzhen → CR (50 u.) | ~$200 / 50 = $4.00/u           |
-| Impuestos importación CR (~15%)         | ~$2.70/u                       |
-| SIM IoT mensual (Emnify/Hologram)       | $2.00/mes/u                    |
-| **Costo total landed CR (hardware)**    | **~$24.70/u**                  |
-| **Precio venta sugerido**               | **₡20,000–₡25,000 (~$38–$48)** |
-| **Margen bruto hardware**               | **~$13–$23/u**                 |
+| Proveedor | Modelo | MOQ | Precio FCA Shenzhen | API | Cert. |
+| --------- | ------ | --- | ------------------- | --- | ----- |
+| **Concox** | AT4 (GPS+WiFi+LTE) | 50 u. | ~$18 | REST propietaria | FCC, CE, ROHS |
+| **Jimi IoT** | JM-VL01 / LL01 | 50 u. | ~$15–22 | REST + MQTT | FCC, CE |
+| **Queclink** | GL300 (miniatura) | 50 u. | ~$18–20 | REST + protocolo binario | FCC, CE, ROHS |
+| **ThinkRace** | TK115 (pet-specific) | 100 u. | ~$12–16 | REST + WebSocket | CE |
+
+> Contactar siempre a `sales@[proveedor].com` pidiendo **API docs + 2 muestras** antes de confirmar orden. Las muestras cuestan $50–100 y llegan en 5–7 días.
+
+**Precios detallados (Concox AT4 como referencia):**
+
+| Concepto | Costo USD |
+| -------- | --------- |
+| Unidad Concox AT4 (FCA Shenzhen) | $18.00 |
+| Flete DHL Express Shenzhen → CR (50 u.) | ~$200 / 50 = $4.00/u |
+| Impuestos importación CR (~15%) | ~$2.70/u |
+| SIM IoT mensual (Emnify/Hologram) | $2.00/mes/u |
+| **Costo total landed CR (hardware)** | **~$24.70/u** |
+| **Precio venta sugerido** | **₡20,000–₡25,000 (~$38–$48)** |
+| **Margen bruto hardware** | **~$13–$23/u** |
 
 **Inversión mínima para arrancar:**
 
@@ -251,13 +350,48 @@ Geofencing: alerta configurable por radio (implementar en Azure Stream Analytics
 - SIM activación para 50 collares: $100 (primer mes)
 - **Total para primer lote**: ~$1,335 USD (~₡694,000)
 
-**Contacto proveedor:**
+**Proceso completo de importación China → Costa Rica:**
 
-- Empresa: Shenzhen Concox Information Technology
-- Email: sales@concox.com
-- Modelo: AT4 (GPS + WiFi + LTE)
-- Certificaciones: FCC, CE, ROHS
-- Código arancelario CR: 8526.91.00 (tramitar con agente aduanal)
+```
+SEMANA 1
+  → Contactar proveedor, pedir API docs y datasheet
+  → Pedir 2–3 muestras ($50–100 + DHL ~$30)
+  → Validar localmente: GPS fix, conectividad, batería, waterproof
+
+SEMANA 2–3
+  → Integrar API del proveedor como CollarProvider.Generic en backend
+  → Confirmar que los endpoints de posición funcionan con el firmware
+
+SEMANA 4
+  → Confirmar orden MOQ 50 u.
+  → Pago: wire transfer (T/T) 30% adelanto, 70% antes de embarque
+  → Producción: 15–20 días en fábrica
+
+SEMANA 6–7
+  → Embarque DHL Express Shenzhen → SJO: 3–5 días hábiles
+  → Contratar agente aduanal (obligatorio en CR para mercancía >$1,000 CIF)
+  → Código arancelario: 8526.91.00
+  → Impuestos: ~15% del valor CIF
+
+SEMANA 8
+  → Recepción, QA (probar 5–10% de unidades)
+  → Activar SIMs (Emnify o Hologram — dashboard web)
+  → Configurar SIMs para apuntar al MQTT de PawTrack
+```
+
+**SIM IoT recomendada para CR:**
+
+| Proveedor | Cobertura CR | Precio/SIM/mes | Dashboard | API gestión |
+| --------- | ------------ | -------------- | --------- | ----------- |
+| **Emnify** | Movistar + Kölbi | $1.50–$2.50 (5 MB) | ✅ Web | ✅ REST |
+| **Hologram** | Claro + Kölbi | $1.00–$2.00 (1 MB) | ✅ Web | ✅ REST |
+
+**Agentes aduanales en CR (referencia):**
+- Grupo Logístico Aduanero (logisticaaduanera.cr)
+- Costo estimado: $80–$120 por trámite
+
+**Contacto Concox:**
+- Email: sales@concox.com | Modelo: AT4 | Cert: FCC, CE, ROHS
 
 ---
 
@@ -345,24 +479,24 @@ La integración Tractive es un **añadido premium**, no un requisito. La mayorí
 
 ### Escenario A — Solo QR (sin GPS)
 
-| Concepto | Costo |
-| -------- | ----- |
-| PawTrack Explorador | **Gratis** |
-| PawTrack Plus | ₡2,990/mes |
+| Concepto                   | Costo                      |
+| -------------------------- | -------------------------- |
+| PawTrack Explorador        | **Gratis**                 |
+| PawTrack Plus              | ₡2,990/mes                 |
 | Placa QR física (opcional) | ₡1,500–₡4,500 una sola vez |
-| **Total mensual** | **₡0 – ₡2,990/mes** |
+| **Total mensual**          | **₡0 – ₡2,990/mes**        |
 
 Identificación de mascota, alertas de pérdida, avistamientos, mapa en vivo, chat anónimo → **todo funciona sin Tractive**.
 
 ### Escenario B — QR + GPS en vivo (Tractive)
 
-| Concepto | Costo | Frecuencia |
-| -------- | ----- | ---------- |
-| Tractive DOG 6 (hardware) | $79 (~₡41,000) | **Una sola vez** |
-| Tractive suscripción (plan 1 año) | $10/mes (~₡5,200) facturado como $120/año | **Anual** |
-| PawTrack Plus | ₡2,990/mes | Mensual |
-| **Total recurrente mensual** | **~₡8,190/mes** | — |
-| **Inversión primer año (incluyendo hardware)** | **~₡161,000** | — |
+| Concepto                                       | Costo                                     | Frecuencia       |
+| ---------------------------------------------- | ----------------------------------------- | ---------------- |
+| Tractive DOG 6 (hardware)                      | $79 (~₡41,000)                            | **Una sola vez** |
+| Tractive suscripción (plan 1 año)              | $10/mes (~₡5,200) facturado como $120/año | **Anual**        |
+| PawTrack Plus                                  | ₡2,990/mes                                | Mensual          |
+| **Total recurrente mensual**                   | **~₡8,190/mes**                           | —                |
+| **Inversión primer año (incluyendo hardware)** | **~₡161,000**                             | —                |
 
 > ⚠️ La suscripción de Tractive se paga **directamente a Tractive** — PawTrack no la cobra ni la intermedia.
 
@@ -373,6 +507,98 @@ El costo de ₡8,190/mes es elevado para el mercado CR. Por eso el posicionamien
 - **Vender PawTrack por su red de avistamientos y QR** — diferenciador único que no requiere hardware
 - **El GPS es el upsell** para quienes ya tienen o quieren un Tractive — no la razón de compra inicial
 - **El afiliado nos genera ₡10,400 una sola vez** por cada usuario que compra Tractive via nuestro link, sin costo operativo
+
+---
+
+## 11. Collar PawTrack integrado — QR + GPS en un solo dispositivo
+
+**El concepto:** un único accesorio que sirve como identificador QR estático Y como tracker GPS activo. Elimina la necesidad de dos elementos separados en el collar.
+
+### El problema de dos piezas
+
+Hoy un usuario Plus necesita:
+1. Placa QR (plástico/metal grabado, ~₡2,000–4,500) — estático, sin batería
+2. Tracker Tractive ($79 USD) — GPS activo, batería, suscripción
+
+Dos elementos físicos en el collar = bulto, posibilidad de perder uno, experiencia fragmentada.
+
+### Solución: QR grabado en el enclosure del tracker
+
+El QR de PawTrack es simplemente una URL: `pawtrack.cr/p/{serialCollar}`. Se puede **grabar con láser directamente en el enclosure de plástico** del tracker — sin pantalla, sin energía, permanente.
+
+```
+┌─────────────────────────────────┐
+│  TRACKER GPS PAWTRACK           │
+│  ┌───────┐  ┌───────────────┐   │
+│  │ [QR] │  │  GPS + LTE    │   │
+│  │código│  │  batería      │   │
+│  └───────┘  └───────────────┘   │
+│  grabado en TPU/ABS             │
+└─────────────────────────────────┘
+```
+
+### Cómo funciona el binding QR ↔ mascota
+
+Cada unidad de hardware sale de fábrica con un **serial único** (ej: `PT-001234`). El QR codifica `pawtrack.cr/p/PT-001234`. Al activar el collar en la app PawTrack:
+
+```
+1. Usuario escanea el QR del collar con la cámara
+2. App detecta el serial y lo vincula al petId del usuario
+3. Backend mapea: serial → petId (tabla CollarQrBinding)
+4. Cualquier escaneo del QR en adelante muestra el perfil correcto
+```
+
+Esto permite fabricar collares en lote sin saber a qué mascota se asignará cada uno — el binding ocurre en la app, no en fábrica.
+
+### Opciones de manufactura del QR en el enclosure
+
+| Método | Costo/unidad | Duración | Calidad | Apto para agua |
+| ------ | ------------ | -------- | ------- | -------------- |
+| **Grabado láser en ABS/PC** | $0.50–1.00 | Permanente | Alta | ✅ |
+| Sticker UV laminado (encapsulado) | $0.20–0.40 | 2–3 años | Media | ✅ (con laminado) |
+| Serigrafía en enclosure | $0.30–0.60 | Permanente | Media-alta | ✅ |
+| Placa metálica encastrada | $1.50–3.00 | Permanente | Muy alta | ✅ |
+
+**Recomendación para MVP:** pedir al proveedor OEM (Concox/Jimi) que incluya **grabado láser** del QR en el enclosure. Esto se solicita en la orden de personalización y agrega ~$0.50–1.00/unidad. JLCPCB y los mismos fabricantes ofrecen este servicio.
+
+### Impacto en el backend
+
+Requiere una tabla adicional mínima:
+
+```sql
+CREATE TABLE CollarQrBindings (
+    Serial      NVARCHAR(20) PRIMARY KEY,   -- PT-001234
+    CollarId    UNIQUEIDENTIFIER NULL,       -- NULL si aún no vinculado
+    BoundAt     DATETIMEOFFSET NULL
+);
+```
+
+Y un endpoint nuevo:
+```
+POST /api/collars/bind-serial
+Body: { serial: "PT-001234", petId: "..." }
+```
+
+El perfil público `/p/{serial}` resuelve:
+1. Si está vinculado → muestra perfil de la mascota (igual que `/p/{petId}`)
+2. Si no está vinculado → muestra página de activación con CTA "Activar este collar"
+
+### Ventajas del collar integrado
+
+- **UX premium**: un solo objeto en el collar del perro
+- **Diferenciador de producto**: "El primer collar de CR con QR + GPS integrados"
+- **Menor fricción**: el usuario no necesita comprar ni imprimir nada extra
+- **Revenue**: vendemos el hardware completo (₡20,000–30,000) + suscripción Plus
+
+### Timeline de implementación
+
+| Paso | Tiempo | Quién |
+| ---- | ------ | ----- |
+| Agregar tabla `CollarQrBindings` + endpoint bind-serial | 1 día | Backend |
+| Adaptar `/p/{id}` para resolver serial O petId | 0.5 día | Backend |
+| Pantalla de activación de collar en app | 1 día | Frontend |
+| Coordinar grabado láser con proveedor OEM | En próxima orden | — |
+| **Total de desarrollo** | **~2.5 días** | — |
 
 ---
 
