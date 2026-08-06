@@ -552,14 +552,26 @@ Tener varias opciones de precio es correcto: diferentes segmentos tienen diferen
 
 ### Tabla comparativa completa
 
-| Opción | Precio inicial | Costo mensual recurrente | QR integrado | GPS | Para quién |
-| ------ | -------------- | ------------------------ | :----------: | :-: | ---------- |
-| **🏷️ Placa QR sola** | ₡1,500–₡4,500 | ₡0 (Explorador gratis) | ✅ ES el QR | ❌ | Dueño básico, presupuesto limitado |
-| **📡 OEM Concox + QR láser** | ₡22,000–₡26,000 | ~₡4,000/mes (SIM + Plus) | ✅ Grabado en enclosure | ✅ Básico | Dueño activo, relación precio/valor óptima |
-| **⭐ Tractive DOG 6** | ₡41,000 + ₡2,000–₡4,500 placa | ~₡8,190/mes (Tractive + Plus) | ⚠️ Placa separada | ✅ Premium | Dueño premium, marca reconocida |
-| **🔧 Hardware PawTrack** | ₡35,000–₡50,000 (futuro) | ~₡4,000/mes (SIM + Plus) | ✅ Diseñado en enclosure | ✅ Custom | Dueño tech-forward, máxima integración |
+> 🔑 = Requiere cuenta/suscripción con un tercero además de PawTrack
 
-### Segmento 1 — El básico (₡0–₡2,990/mes)
+| Opción | Precio inicial | Desglose mensual | Total/mes | QR | GPS | Cuentas requeridas |
+| ------ | -------------- | ---------------- | :-------: | :-: | :-: | ------------------ |
+| **🏷️ Placa QR sola** | ₡1,500–₡4,500 | ₡2,990 PawTrack Plus | **₡2,990** | ✅ ES el QR | ❌ | Solo PawTrack |
+| **🏷️ Placa QR sola (gratis)** | ₡1,500–₡4,500 | ₡0 PawTrack Explorador | **₡0** | ✅ ES el QR | ❌ | Solo PawTrack |
+| **📡 OEM Concox + QR láser** | ₡22,000–₡26,000 | ₡2,990 Plus + ₡1,040 SIM IoT | **~₡4,030** | ✅ Grabado | ✅ Básico | PawTrack + 🔑 Emnify/Hologram (SIM) |
+| **⭐ Tractive DOG 6** | ₡41,000 + placa ₡2,000–₡4,500 | ₡2,990 Plus + ₡5,200 Tractive | **~₡8,190** | ⚠️ Pieza separada | ✅ Premium | PawTrack + 🔑 Tractive (obligatorio) |
+| **🔧 Hardware PawTrack** | ₡35,000–₡50,000 | ₡2,990 Plus + ₡1,040 SIM IoT | **~₡4,030** | ✅ Integrado | ✅ Custom | PawTrack + SIM (gestionada por PawTrack) |
+
+**Leyenda de terceros:**
+
+| Cuenta tercero | Quién la crea | Quién la paga | Control de PawTrack |
+| -------------- | ------------- | ------------- | ------------------- |
+| 🔑 **Tractive** | El usuario en tractive.com | El usuario (directo a Tractive) | Ninguno — relación 100% del usuario con Tractive |
+| 🔑 **Emnify / Hologram (SIM)** | El usuario o PawTrack gestiona | El usuario o PawTrack cobra | PawTrack puede gestionar las SIMs centralmente y cobrar incluido |
+
+> ⚠️ **El segmento Tractive es el único donde el usuario debe abrir y pagar una suscripción externa obligatoria** (₡5,200/mes directo a Tractive) sin que PawTrack pueda intervenir ni incluirla en su facturación. Esto debe quedar claro en el onboarding.
+
+### Segmento 1 — El básico (₡0 o ₡2,990/mes)
 
 **Producto:** Placa QR física + PawTrack Explorador o Plus
 
@@ -568,6 +580,7 @@ Costo inicial:    ₡1,500–₡4,500 (placa grabada o tag de silicona)
 Costo mensual:    ₡0 (Explorador) o ₡2,990 (Plus)
 QR:               ✅ La placa ES el QR — no hay nada que perder ni cargar
 GPS:              ❌ Sin tracking en tiempo real
+Cuentas:          Solo PawTrack — sin terceros
 Para quién:       El 80% del mercado — quieren protección básica sin costo elevado
 ```
 
@@ -583,26 +596,35 @@ Materiales para la placa:
 
 ---
 
-### Segmento 2 — El activo con GPS (₡4,000–₡5,000/mes)
+### Segmento 2 — El activo con GPS (₡4,030/mes)
 
 **Producto:** Collar OEM (Concox AT4 / Jimi / Queclink) con QR grabado láser + PawTrack Plus
 
 ```
 Costo inicial:    ₡22,000–₡26,000 (hardware landed CR)
-Costo mensual:    ~₡1,000 SIM IoT + ₡2,990 Plus = ~₡4,000/mes
-QR:               ✅ Grabado con láser en el enclosure del tracker (+$0.50–$1.00)
+Costo mensual:    ₡2,990 PawTrack Plus
+                + ₡1,040 SIM IoT (Emnify ~$2/mes — Movistar/Kölbi CR)
+                = ~₡4,030/mes total
+QR:               ✅ Grabado con láser en el enclosure (+$0.50–$1.00 en fábrica)
 GPS:              ✅ LTE, actualización cada 30s–5min según movimiento
 Batería:          3–7 días con sleep optimizado
+Cuentas:          PawTrack + 🔑 Emnify/Hologram (SIM IoT)
+                  → PawTrack PUEDE gestionar las SIMs centralmente
+                  → Opción: incluir el costo SIM en el precio del hardware
 Para quién:       Dueños que quieren GPS sin el costo de Tractive
 ```
 
+**Ventaja de la SIM IoT vs Tractive:** PawTrack puede gestionar las SIMs (Emnify tiene API REST para activar/desactivar), cobrarla incluida en el precio del collar o en el plan, y el usuario nunca necesita crear una cuenta externa.
+
 **Por qué es la opción más atractiva para CR:**
+
 - Un solo objeto en el collar (QR + GPS integrados)
 - Costo mensual 50% menor que Tractive
 - Hardware PawTrack-branded (diferenciador)
 - El margen de hardware (~₡13,000–₡23,000) va directamente a PawTrack
 
 **Lo que necesita para funcionar:**
+
 - Integrar API del proveedor como `CollarProvider.Generic` (~3–5 días desarrollo)
 - SIM IoT activada (Emnify: $1.50–2.50/mes, cobertura Movistar+Kölbi en CR)
 - Pedido mínimo: 50 unidades (~$1,335 USD inversión total)
@@ -615,15 +637,22 @@ Para quién:       Dueños que quieren GPS sin el costo de Tractive
 
 ```
 Costo inicial:    ₡41,000 tracker + ₡2,000–₡4,500 placa QR separada
-Costo mensual:    ₡5,200 (Tractive) + ₡2,990 (Plus) = ~₡8,190/mes
+Costo mensual:    ₡2,990 PawTrack Plus
+                + ₡5,200 Tractive suscripción ($10/mes — pago DIRECTO a Tractive)
+                = ~₡8,190/mes total
 QR:               ⚠️ Placa QR adicional — dos piezas en el collar
 GPS:              ✅ Premium (worldwide, health monitoring, 12-day battery)
+Cuentas:          PawTrack + 🔑 Tractive (OBLIGATORIO — el usuario debe crearse
+                  cuenta en tractive.com y pagar directo a ellos)
 Para quién:       Dueños con perros activos/adventures o que ya tienen Tractive
 ```
+
+> ⚠️ **El usuario debe pagar ₡5,200/mes directamente a Tractive.** PawTrack no puede incluir este costo en su facturación, no puede cancelarlo, ni tiene control sobre él. Si Tractive sube precios o cambia términos, el usuario lo enfrenta directamente. Esto debe comunicarse claramente antes de que el usuario compre el tracker.
 
 **La limitación del QR con Tractive:** el tracker Tractive no tiene espacio para QR grabado porque no vendemos el hardware. El usuario necesita un segundo accesorio (placa QR separada). Esto es inferior a la experiencia de un collar integrado.
 
 **Cuándo tiene sentido recomendar Tractive:**
+
 - El usuario ya tiene un Tractive y solo quiere agregar PawTrack
 - Tiene perro grande activo que necesita tracking en exteriores intensivos
 - No le importa el costo mensual elevado
@@ -637,9 +666,12 @@ Para quién:       Dueños con perros activos/adventures o que ya tienen Tractiv
 
 ```
 Costo inicial:    ₡35,000–₡50,000 (estimado, con margen)
-Costo mensual:    ~₡1,000 SIM + ₡2,990 Plus = ~₡4,000/mes
+Costo mensual:    ₡2,990 PawTrack Plus
+                + ₡1,040 SIM IoT (incluida en el precio del hardware o cobrada aparte)
+                = ~₡4,030/mes
 QR:               ✅ Integrado desde el diseño — el mejor UX posible
 GPS:              ✅ Optimizado para CR (LTE-M Movistar/Kölbi)
+Cuentas:          Solo PawTrack — la SIM es gestionada por PawTrack, no el usuario
 Para quién:       Todos — es el producto final ideal de PawTrack
 ```
 
