@@ -3,2030 +3,868 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PawTrack Collar GPS — Saber dónde está tu mascota, siempre.</title>
+    <title>PawTrack Collar — Estrategia de Hardware y QR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <style>
-      /* ── Reset ── */
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      html {
-        font-size: 16px;
-        scroll-behavior: smooth;
-      }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; font-size: 16px; }
       body {
-        font-family:
-          "Segoe UI",
-          system-ui,
-          -apple-system,
-          sans-serif;
-        background: #f5f1eb;
-        color: #1a1a1a;
-        line-height: 1.6;
+        font-family: 'Outfit', system-ui, sans-serif;
+        background: #08080e;
+        color: #eae7e2;
+        line-height: 1.65;
+        overflow-x: hidden;
       }
-
-      /* ── Tokens ── */
       :root {
-        --brand: #1a3484;
-        --accent: #e8521e;
-        --sand: #f5f1eb;
-        --warm: #faf7f2;
-        --text: #1a1a1a;
-        --muted: #6b6057;
-        --border: #e5dfd7;
-        --green: #14532d;
-        --green-l: #dcfce7;
+        --brand: #1a3484; --accent: #e8521e; --glow: #f97316;
+        --green: #4ade80; --red: #f87171; --yellow: #fbbf24;
+        --surface: rgba(255,255,255,0.05);
+        --surface2: rgba(255,255,255,0.08);
+        --border: rgba(255,255,255,0.09);
+        --text-muted: rgba(255,255,255,0.45);
       }
+      .container { max-width: 1040px; margin: 0 auto; padding: 0 1.5rem; }
+      .reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+      .reveal.visible { opacity: 1; transform: none; }
 
-      /* ── Layout ── */
-      .container {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 0 1.5rem;
+      /* ── NAV ── */
+      nav {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+        padding: .75rem 1.5rem;
+        background: rgba(8,8,14,.9); backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; justify-content: space-between; gap: 1rem;
       }
+      .nav-logo { font-family: 'Syne', sans-serif; font-weight: 900; font-size: 1rem; color: #fff; white-space: nowrap; }
+      .nav-logo span { color: var(--glow); }
+      .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+      .nav-links a { color: var(--text-muted); text-decoration: none; font-size: .78rem; font-weight: 500; letter-spacing: .03em; transition: color .15s; }
+      .nav-links a:hover { color: #fff; }
 
-      /* ── Hero ── */
+      /* ── HERO ── */
       .hero {
-        background: linear-gradient(135deg, var(--brand) 0%, #0f2057 100%);
-        color: #fff;
-        padding: 5rem 1.5rem 4rem;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
+        min-height: 52vh; display: flex; align-items: center;
+        padding: 7rem 1.5rem 4rem;
+        background:
+          radial-gradient(ellipse 70% 50% at 20% 60%, rgba(26,52,132,.25) 0%, transparent 70%),
+          radial-gradient(ellipse 50% 40% at 80% 30%, rgba(232,82,30,.1) 0%, transparent 60%);
+        position: relative; overflow: hidden;
       }
       .hero::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(
-          circle at 70% 30%,
-          rgba(232, 82, 30, 0.25) 0%,
-          transparent 60%
-        );
-        pointer-events: none;
+        content: '';
+        position: absolute; top: -1px; left: 0; right: 0; height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(232,82,30,.4), transparent);
       }
-      .hero-label {
-        display: inline-block;
-        background: rgba(232, 82, 30, 0.9);
-        color: #fff;
-        font-size: 0.7rem;
-        font-weight: 700;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        padding: 0.3rem 0.9rem;
-        border-radius: 100px;
-        margin-bottom: 1.25rem;
+      .hero-inner { max-width: 780px; }
+      .hero-eyebrow {
+        display: inline-flex; align-items: center; gap: .5rem;
+        background: rgba(232,82,30,.12); border: 1px solid rgba(232,82,30,.35);
+        color: var(--glow); font-size: .7rem; font-weight: 700;
+        letter-spacing: .14em; text-transform: uppercase;
+        padding: .3rem .9rem; border-radius: 100px; margin-bottom: 1.25rem;
       }
       .hero h1 {
-        font-size: clamp(2rem, 5vw, 3.25rem);
-        font-weight: 800;
-        line-height: 1.15;
-        max-width: 700px;
-        margin: 0 auto 0.75rem;
+        font-family: 'Syne', sans-serif; font-size: clamp(2.2rem,5vw,3.8rem);
+        font-weight: 900; line-height: 1.05; margin-bottom: 1rem;
+        background: linear-gradient(135deg, #fff 30%, #e8c07a 65%, #f97316 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
       }
-      .hero h1 span {
-        color: #f97316;
-      }
-      .hero p {
-        font-size: 1.125rem;
-        opacity: 0.85;
-        max-width: 520px;
-        margin: 0 auto 2.25rem;
-      }
-      .btn-cta {
-        display: inline-block;
-        background: var(--accent);
-        color: #fff;
-        font-size: 1rem;
-        font-weight: 700;
-        padding: 0.875rem 2.5rem;
-        border-radius: 100px;
-        text-decoration: none;
-        box-shadow: 0 4px 24px rgba(232, 82, 30, 0.4);
-        transition:
-          transform 0.15s,
-          box-shadow 0.15s;
-      }
-      .btn-cta:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 32px rgba(232, 82, 30, 0.5);
-      }
-      .hero-emoji {
-        font-size: 5rem;
-        display: block;
-        margin-bottom: 1rem;
-      }
+      .hero-sub { font-size: 1.05rem; color: rgba(255,255,255,.6); max-width: 560px; margin-bottom: 2rem; }
+      .hero-stats { display: flex; gap: 2.5rem; flex-wrap: wrap; }
+      .hero-stat .n { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 900; color: var(--glow); }
+      .hero-stat .l { font-size: .72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
 
-      /* ── Stats bar ── */
-      .stats-bar {
-        background: var(--brand);
-        padding: 1.25rem 1.5rem;
-      }
-      .stats-bar .container {
-        display: flex;
-        justify-content: center;
-        gap: 3rem;
-        flex-wrap: wrap;
-      }
-      .stat {
-        text-align: center;
-        color: #fff;
-      }
-      .stat-num {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: #f97316;
-      }
-      .stat-label {
-        font-size: 0.75rem;
-        opacity: 0.75;
-        margin-top: 0.15rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-      }
+      /* ── SECTION SYSTEM ── */
+      section { padding: 5rem 0; }
+      section:nth-child(even) { background: rgba(255,255,255,.02); }
+      .s-label { font-size: .68rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: var(--glow); margin-bottom: .4rem; }
+      .s-title { font-family: 'Syne', sans-serif; font-size: clamp(1.6rem,3.5vw,2.4rem); font-weight: 900; line-height: 1.15; margin-bottom: .6rem; }
+      .s-lead { font-size: 1rem; color: rgba(255,255,255,.55); max-width: 540px; margin-bottom: 2.5rem; }
+      hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
 
-      /* ── Section ── */
-      section {
-        padding: 4rem 0;
+      /* ── STATUS TABLE ── */
+      .status-grid { display: grid; gap: .6rem; }
+      .status-row {
+        display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 12px; padding: .9rem 1.2rem;
       }
-      .section-label {
-        font-size: 0.7rem;
-        font-weight: 700;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        color: var(--accent);
-        margin-bottom: 0.5rem;
+      .status-row-info { display: flex; flex-direction: column; }
+      .status-row-name { font-size: .88rem; font-weight: 600; }
+      .status-row-file { font-family: 'JetBrains Mono', monospace; font-size: .7rem; color: var(--text-muted); margin-top: .1rem; }
+      .badge {
+        flex-shrink: 0; padding: .25rem .75rem; border-radius: 100px;
+        font-size: .68rem; font-weight: 700; letter-spacing: .06em;
       }
-      h2 {
-        font-size: clamp(1.5rem, 3vw, 2.25rem);
-        font-weight: 800;
-        color: var(--brand);
-        line-height: 1.2;
-        margin-bottom: 1rem;
-      }
-      .lead {
-        font-size: 1.05rem;
-        color: var(--muted);
-        max-width: 560px;
-        margin-bottom: 2.5rem;
-      }
+      .badge-done { background: rgba(74,222,128,.15); color: var(--green); border: 1px solid rgba(74,222,128,.25); }
+      .badge-pending { background: rgba(248,113,113,.12); color: var(--red); border: 1px solid rgba(248,113,113,.2); }
 
-      /* ── Feature grid ── */
-      .feature-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1.25rem;
-        margin-top: 2rem;
+      /* ── CALCULATOR ── */
+      .calc-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+      .calc-options { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+      .calc-option {
+        background: var(--surface); border: 2px solid var(--border);
+        border-radius: 16px; padding: 1.25rem;
+        cursor: pointer; transition: border-color .2s, background .2s;
+        user-select: none;
       }
-      .feature-card {
-        background: var(--warm);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 1.5rem;
+      .calc-option:hover { border-color: rgba(232,82,30,.3); background: var(--surface2); }
+      .calc-option.active { border-color: var(--accent); background: rgba(232,82,30,.08); }
+      .calc-option-icon { font-size: 1.8rem; margin-bottom: .5rem; display: block; }
+      .calc-option-name { font-size: .88rem; font-weight: 700; }
+      .calc-option-price { font-size: .75rem; color: var(--text-muted); margin-top: .2rem; }
+      .calc-panel {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 20px; padding: 1.75rem; min-height: 320px;
       }
-      .feature-card .icon {
-        font-size: 2rem;
-        margin-bottom: 0.75rem;
-      }
-      .feature-card h3 {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: var(--brand);
-        margin-bottom: 0.4rem;
-      }
-      .feature-card p {
-        font-size: 0.82rem;
-        color: var(--muted);
-      }
+      .calc-panel-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; margin-bottom: 1.5rem; }
+      .calc-line { display: flex; justify-content: space-between; align-items: center; padding: .6rem 0; border-bottom: 1px solid var(--border); font-size: .85rem; }
+      .calc-line:last-child { border-bottom: none; }
+      .calc-line-label { color: var(--text-muted); }
+      .calc-line-value { font-weight: 600; }
+      .calc-total { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding: .875rem 1rem; background: rgba(232,82,30,.1); border: 1px solid rgba(232,82,30,.25); border-radius: 12px; }
+      .calc-total-label { font-size: .82rem; font-weight: 700; color: var(--glow); text-transform: uppercase; letter-spacing: .06em; }
+      .calc-total-value { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 900; color: var(--glow); }
+      .calc-warning { margin-top: 1rem; background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.25); border-radius: 10px; padding: .75rem 1rem; font-size: .78rem; color: var(--yellow); }
+      .calc-badge { display: inline-flex; align-items: center; gap: .35rem; padding: .25rem .65rem; border-radius: 100px; font-size: .72rem; font-weight: 700; }
+      .calc-badge-ok { background: rgba(74,222,128,.12); color: var(--green); }
+      .calc-badge-warn { background: rgba(251,191,36,.12); color: var(--yellow); }
+      .calc-badge-no { background: rgba(248,113,113,.12); color: var(--red); }
 
-      /* ── How it works ── */
-      .steps {
-        counter-reset: step;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-top: 2.5rem;
+      /* ── PROVIDERS ── */
+      .provider-tabs { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+      .provider-tab {
+        padding: .5rem 1.1rem; border-radius: 100px; font-size: .8rem; font-weight: 700;
+        border: 1px solid var(--border); background: var(--surface);
+        cursor: pointer; transition: all .15s; color: var(--text-muted);
       }
-      .step {
-        background: var(--warm);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 1.5rem 1.25rem;
-        position: relative;
-      }
-      .step::before {
-        counter-increment: step;
-        content: counter(step);
-        position: absolute;
-        top: -14px;
-        left: 1.25rem;
-        background: var(--accent);
-        color: #fff;
-        font-size: 0.8rem;
-        font-weight: 800;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .step .emoji {
-        font-size: 1.75rem;
-        margin-bottom: 0.6rem;
-        display: block;
-      }
-      .step p {
-        font-size: 0.83rem;
-        color: var(--muted);
-      }
-      .step strong {
-        color: var(--text);
-        font-size: 0.875rem;
-        display: block;
-        margin-bottom: 0.25rem;
-      }
+      .provider-tab:hover { color: #fff; border-color: rgba(255,255,255,.2); }
+      .provider-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+      .provider-panel { display: none; animation: fadeIn .25s ease; }
+      .provider-panel.active { display: block; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+      .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+      .info-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; }
+      .info-card-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); margin-bottom: .3rem; }
+      .info-card-value { font-size: .95rem; font-weight: 600; }
+      .supplier-table { width: 100%; border-collapse: collapse; margin-top: 1.25rem; font-size: .82rem; }
+      .supplier-table th { text-align: left; padding: .6rem .75rem; background: var(--surface2); color: var(--text-muted); font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; }
+      .supplier-table td { padding: .6rem .75rem; border-bottom: 1px solid var(--border); }
+      .supplier-table tr:last-child td { border-bottom: none; }
+      .supplier-table tr:hover td { background: var(--surface); }
+      .tag { display: inline-block; padding: .15rem .5rem; border-radius: 6px; font-size: .68rem; font-weight: 700; }
+      .tag-blue { background: rgba(26,52,132,.35); color: #93c5fd; }
+      .tag-green { background: rgba(74,222,128,.12); color: var(--green); }
+      .tag-red { background: rgba(248,113,113,.12); color: var(--red); }
 
-      /* ── Pricing ── */
-      .pricing-section {
-        background: var(--brand);
-        color: #fff;
-        padding: 4rem 1.5rem;
+      /* ── SLEEP STATES ── */
+      .sleep-states { display: flex; flex-direction: column; gap: 0; position: relative; }
+      .sleep-state {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 16px; padding: 1.5rem; position: relative;
       }
-      .pricing-section h2 {
-        color: #fff;
+      .sleep-state::after {
+        content: '↓';
+        position: absolute; bottom: -1.5rem; left: 50%; transform: translateX(-50%);
+        color: var(--text-muted); font-size: .9rem; z-index: 1;
       }
-      .pricing-section .lead {
-        color: rgba(255, 255, 255, 0.7);
-      }
-      .plans {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 1.25rem;
-        margin-top: 2rem;
-      }
-      .plan-card {
-        background: rgba(255, 255, 255, 0.07);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 20px;
-        padding: 1.75rem 1.5rem;
-        position: relative;
-      }
-      .plan-card.featured {
-        background: rgba(232, 82, 30, 0.15);
-        border-color: var(--accent);
-      }
-      .plan-badge {
-        position: absolute;
-        top: -12px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: var(--accent);
-        color: #fff;
-        font-size: 0.65rem;
-        font-weight: 700;
-        padding: 0.2rem 0.75rem;
-        border-radius: 100px;
-        white-space: nowrap;
-        letter-spacing: 0.06em;
-      }
-      .plan-name {
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        opacity: 0.6;
-      }
-      .plan-price {
-        font-size: 2rem;
-        font-weight: 800;
-        margin: 0.25rem 0;
-      }
-      .plan-price span {
-        font-size: 0.9rem;
-        font-weight: 400;
-        opacity: 0.6;
-      }
-      .plan-features {
-        margin-top: 1rem;
-        padding: 0;
-        list-style: none;
-      }
-      .plan-features li {
-        font-size: 0.82rem;
-        padding: 0.3rem 0;
-        display: flex;
-        gap: 0.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-      }
-      .plan-features li:last-child {
-        border-bottom: none;
-      }
-      .check {
-        color: #4ade80;
-      }
-      .cross {
-        color: rgba(255, 255, 255, 0.3);
-      }
+      .sleep-state:last-child::after { display: none; }
+      .sleep-state + .sleep-state { margin-top: 1.5rem; }
+      .sleep-state-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .75rem; }
+      .sleep-state-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: .95rem; }
+      .sleep-state-power { font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: var(--glow); }
+      .sleep-state ul { list-style: none; display: flex; flex-direction: column; gap: .35rem; }
+      .sleep-state li { font-size: .82rem; color: rgba(255,255,255,.6); display: flex; gap: .5rem; }
+      .sleep-state li::before { content: '•'; color: var(--accent); flex-shrink: 0; }
+      .sleep-state-trigger { font-size: .72rem; color: var(--text-muted); margin-top: .75rem; font-style: italic; }
 
-      /* ── Compatible ── */
-      .compat-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.25rem;
-        margin-top: 2rem;
-      }
-      .compat-card {
-        background: var(--warm);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 1.5rem;
-        display: flex;
-        gap: 1rem;
-        align-items: flex-start;
-      }
-      .compat-logo {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        background: var(--brand);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.4rem;
-        flex-shrink: 0;
-      }
-      .compat-name {
-        font-weight: 700;
-        color: var(--brand);
-      }
-      .compat-desc {
-        font-size: 0.8rem;
-        color: var(--muted);
-        margin-top: 0.2rem;
-      }
-      .compat-price {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--accent);
-        margin-top: 0.35rem;
-      }
-      .compat-badge {
-        display: inline-block;
-        font-size: 0.65rem;
-        font-weight: 700;
-        padding: 0.15rem 0.5rem;
-        border-radius: 100px;
-        margin-left: 0.4rem;
-      }
-      .badge-green {
-        background: var(--green-l);
-        color: var(--green);
-      }
-      .badge-gray {
-        background: #e5e7eb;
-        color: #6b7280;
-      }
+      /* ── BATTERY TABLE ── */
+      .battery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1rem; margin-top: 1.5rem; }
+      .battery-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; text-align: center; }
+      .battery-hours { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 900; }
+      .battery-label { font-size: .75rem; color: var(--text-muted); margin-top: .25rem; }
+      .battery-pct { font-size: .7rem; margin-top: .3rem; }
 
-      /* ── Where to buy ── */
-      .buy-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 1rem;
-        margin-top: 2rem;
-      }
-      .buy-card {
-        background: var(--warm);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 1.5rem;
-      }
-      .buy-card h3 {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: var(--brand);
-        margin-bottom: 0.5rem;
-      }
-      .buy-card p,
-      .buy-card li {
-        font-size: 0.82rem;
-        color: var(--muted);
-      }
-      .buy-card ul {
-        padding-left: 1.1rem;
-        margin-top: 0.5rem;
-      }
-      .buy-card li {
-        margin-bottom: 0.2rem;
-      }
-      .tag {
-        display: inline-block;
-        font-size: 0.65rem;
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        padding: 0.2rem 0.6rem;
-        border-radius: 100px;
-        margin-bottom: 0.75rem;
-      }
-      .tag-easy {
-        background: var(--green-l);
-        color: var(--green);
-      }
-      .tag-medium {
-        background: #fef3c7;
-        color: #92400e;
-      }
-      .tag-advanced {
-        background: #fee2e2;
-        color: #991b1b;
-      }
+      /* ── CAMPAIGN FLOW ── */
+      .flow-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 1rem; margin-top: 1.5rem; }
+      .flow-step { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; position: relative; }
+      .flow-num { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 900; color: #fff; margin-bottom: 1rem; box-shadow: 0 0 16px rgba(232,82,30,.4); }
+      .flow-step h4 { font-size: .88rem; font-weight: 700; margin-bottom: .35rem; }
+      .flow-step p { font-size: .78rem; color: var(--text-muted); }
+      .flow-step-time { display: inline-block; margin-top: .6rem; padding: .2rem .6rem; background: rgba(26,52,132,.3); border-radius: 100px; font-size: .68rem; font-weight: 700; color: #93c5fd; }
 
-      /* ── FAQ ── */
-      .faq {
-        max-width: 680px;
-      }
-      .faq-item {
-        border-bottom: 1px solid var(--border);
-        padding: 1rem 0;
-      }
-      .faq-q {
-        font-weight: 700;
-        color: var(--brand);
-        margin-bottom: 0.4rem;
-        font-size: 0.95rem;
-      }
-      .faq-a {
-        font-size: 0.85rem;
-        color: var(--muted);
-      }
+      /* ── CONCEPT BOX ── */
+      .concept-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: rgba(255,255,255,.7); line-height: 2; white-space: pre; overflow-x: auto; }
 
-      /* ── CTA section ── */
-      .cta-section {
-        background: linear-gradient(135deg, var(--accent) 0%, #c2410c 100%);
-        color: #fff;
-        padding: 4rem 1.5rem;
-        text-align: center;
-      }
-      .cta-section h2 {
-        color: #fff;
-        font-size: clamp(1.5rem, 3vw, 2.25rem);
-      }
-      .cta-section p {
-        opacity: 0.85;
-        margin: 0.75rem auto 2rem;
-        max-width: 480px;
-      }
-      .btn-white {
-        display: inline-block;
-        background: #fff;
-        color: var(--accent);
-        font-size: 1rem;
-        font-weight: 700;
-        padding: 0.875rem 2.5rem;
-        border-radius: 100px;
-        text-decoration: none;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-      }
-      .btn-white:hover {
-        background: #fef3c7;
-      }
+      /* ── ROADMAP ── */
+      .roadmap { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 1.25rem; margin-top: 2rem; }
+      .roadmap-phase { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; border-top: 3px solid var(--brand); }
+      .roadmap-phase.current { border-top-color: var(--glow); }
+      .roadmap-range { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--glow); margin-bottom: .5rem; }
+      .roadmap-phase h3 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+      .roadmap-phase p { font-size: .8rem; color: var(--text-muted); }
+      .roadmap-phase .badge-phase { display: inline-block; margin-top: .75rem; padding: .2rem .65rem; border-radius: 100px; font-size: .68rem; font-weight: 700; background: rgba(74,222,128,.12); color: var(--green); }
 
-      /* ── Footer ── */
-      footer {
-        background: #111;
-        color: rgba(255, 255, 255, 0.4);
-        text-align: center;
-        padding: 2rem 1.5rem;
-        font-size: 0.78rem;
-      }
+      /* ── INVESTMENT BOX ── */
+      .investment-row { display: flex; justify-content: space-between; padding: .7rem 0; border-bottom: 1px solid var(--border); font-size: .85rem; }
+      .investment-row:last-child { border-bottom: none; }
+      .investment-total { display: flex; justify-content: space-between; margin-top: 1rem; padding: 1rem 1.25rem; background: rgba(74,222,128,.08); border: 1px solid rgba(74,222,128,.2); border-radius: 12px; }
+      .investment-total-label { font-weight: 700; color: var(--green); font-size: .85rem; }
+      .investment-total-value { font-family: 'Syne', sans-serif; font-weight: 900; color: var(--green); font-size: 1.1rem; }
 
-      /* ── Utils ── */
-      .text-center {
-        text-align: center;
-      }
-      .mt-0 {
-        margin-top: 0;
-      }
+      /* ── ACCORDION ── */
+      .accordion-item { border-bottom: 1px solid var(--border); }
+      .accordion-item:first-child { border-top: 1px solid var(--border); }
+      .accordion-trigger { width: 100%; background: none; border: none; color: inherit; font-family: inherit; font-size: .92rem; font-weight: 700; text-align: left; padding: 1.1rem 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+      .accordion-trigger:hover { color: var(--glow); }
+      .accordion-chevron { color: var(--accent); font-size: 1.3rem; font-weight: 300; flex-shrink: 0; transition: transform .25s; line-height: 1; user-select: none; }
+      .accordion-item.open .accordion-chevron { transform: rotate(45deg); }
+      .accordion-body { max-height: 0; overflow: hidden; transition: max-height .35s ease, padding-bottom .35s ease; font-size: .85rem; color: rgba(255,255,255,.6); line-height: 1.8; }
+      .accordion-item.open .accordion-body { max-height: 600px; padding-bottom: 1.25rem; }
 
-      /* ── Hero layout ── */
-      .hero-inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 2.5rem;
-        text-align: left;
-        max-width: 860px;
-        margin: 0 auto;
-      }
-      .hero-text {
-        flex: 1;
-      }
-      .hero-art {
-        flex-shrink: 0;
-        width: 270px;
-        filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.42));
-        animation: float 4s ease-in-out infinite;
-      }
+      /* ── CODE ── */
+      .code-block { background: #0e0e1a; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; font-family: 'JetBrains Mono', monospace; font-size: .75rem; color: rgba(255,255,255,.7); overflow-x: auto; white-space: pre; line-height: 1.7; margin-top: 1rem; }
 
-      /* ── App preview section ── */
-      .app-preview {
-        display: flex;
-        align-items: center;
-        gap: 2.5rem;
-        margin-top: 3rem;
-        padding: 2rem 2.5rem;
-        background: linear-gradient(135deg, #1a3484 0%, #0f2057 100%);
-        border-radius: 20px;
-        overflow: hidden;
-      }
-      .app-preview-phone {
-        flex-shrink: 0;
-        width: 140px;
-      }
-      .app-preview-text {
-        flex: 1;
-        color: #fff;
-      }
-      .app-preview-text h3 {
-        font-size: 1.15rem;
-        font-weight: 800;
-        margin-bottom: 0.4rem;
-      }
-      .app-preview-text p {
-        font-size: 0.875rem;
-        opacity: 0.75;
-        line-height: 1.6;
-      }
-      .app-pills {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        margin-top: 0.8rem;
-      }
-      .app-pill {
-        background: rgba(255, 255, 255, 0.12);
-        color: #fff;
-        font-size: 0.7rem;
-        font-weight: 600;
-        padding: 0.25rem 0.7rem;
-        border-radius: 100px;
-      }
+      /* ── FOOTER ── */
+      footer { background: #050508; border-top: 1px solid var(--border); padding: 2rem 1.5rem; text-align: center; }
+      footer .logo { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 900; color: #fff; margin-bottom: .4rem; }
+      footer .logo span { color: var(--glow); }
+      footer p { font-size: .75rem; color: var(--text-muted); }
 
-      /* ── Step SVG icons ── */
-      .step-icon {
-        display: block;
-        width: 58px;
-        height: 58px;
-        margin-bottom: 0.75rem;
-      }
-
-      /* ── Compat logo override for SVG devices ── */
-      .compat-logo {
-        background: #f8f4ef;
-        font-size: 0;
-      }
-      .compat-logo svg {
-        width: 36px;
-        height: 36px;
-      }
-
-      /* ── Animations ── */
-      @keyframes float {
-        0%,
-        100% {
-          transform: translateY(0);
-        }
-        50% {
-          transform: translateY(-10px);
-        }
-      }
-      @keyframes pulse-pin {
-        0% {
-          transform: scale(1);
-          opacity: 0.5;
-        }
-        100% {
-          transform: scale(2.8);
-          opacity: 0;
-        }
-      }
-      .pin-pulse {
-        animation: pulse-pin 2s ease-out infinite;
-        transform-box: fill-box;
-        transform-origin: center;
-      }
-      .pin-pulse-delay {
-        animation: pulse-pin 2s ease-out 0.9s infinite;
-        transform-box: fill-box;
-        transform-origin: center;
-      }
-
-      @media (max-width: 740px) {
-        .hero-inner {
-          flex-direction: column;
-          text-align: center;
-          gap: 1.5rem;
-        }
-        .hero-art {
-          width: 200px;
-          margin: 0 auto;
-        }
-        .app-preview {
-          flex-direction: column;
-          text-align: center;
-        }
-        .app-preview-phone {
-          width: 110px;
-        }
-        .app-pills {
-          justify-content: center;
-        }
-      }
-      @media (max-width: 600px) {
-        .stats-bar .container {
-          gap: 1.5rem;
-        }
-        .hero {
-          padding: 3.5rem 1.25rem 3rem;
-        }
+      /* ── RESPONSIVE ── */
+      @media (max-width: 700px) {
+        .calc-wrap { grid-template-columns: 1fr; }
+        .calc-options { grid-template-columns: 1fr 1fr; }
+        .nav-links { display: none; }
       }
     </style>
   </head>
   <body>
+
+    <!-- ── NAV ── -->
+    <nav>
+      <div class="nav-logo">🐾 PawTrack <span>CR</span></div>
+      <div class="nav-links">
+        <a href="#status">Estado</a>
+        <a href="#calculator">Calculadora</a>
+        <a href="#providers">Proveedores</a>
+        <a href="#campaign">Campañas</a>
+        <a href="#firmware">Firmware</a>
+        <a href="#concept">Collar Integrado</a>
+        <a href="#roadmap">Roadmap</a>
+      </div>
+    </nav>
+
     <!-- ── HERO ── -->
     <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-eyebrow">📡 Hardware Strategy · Agosto 2026</div>
+        <h1>La capa física<br />del ecosistema PawTrack</h1>
+        <p class="hero-sub">
+          De la placa QR básica al collar GPS con firmware personalizado — guía técnica,
+          comercial y de adquisición para el mercado costarricense.
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="n">4</div><div class="l">opciones de precio</div></div>
+          <div class="hero-stat"><div class="n">₡0</div><div class="l">costo mensual mínimo</div></div>
+          <div class="hero-stat"><div class="n">QR</div><div class="l">integrado siempre</div></div>
+          <div class="hero-stat"><div class="n">3 min</div><div class="l">por mascota en campaña</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ESTADO DE IMPLEMENTACIÓN ── -->
+    <section id="status">
       <div class="container">
-        <div class="hero-inner">
-          <div class="hero-text">
-            <span class="hero-label">Nuevo · PawTrack Collar GPS</span>
-            <h1>Saber dónde está<br />tu mascota, <span>siempre.</span></h1>
-            <p>
-              Conecta tu collar GPS a PawTrack CR y ve la posición en tiempo
-              real, historial de trayectoria y alertas automáticas.
-            </p>
-            <a href="https://pawtrack.cr/perfil" class="btn-cta"
-              >Activar plan Plus →</a
-            >
+        <div class="s-label reveal">Backend · Frontend · Integraciones</div>
+        <h2 class="s-title reveal">Estado de implementación</h2>
+        <div class="status-grid reveal">
+          <div class="status-row"><div class="status-row-info"><span class="status-row-name">Dominio</span><span class="status-row-file">Collar.cs · CollarLocation.cs · CollarProvider.cs</span></div><span class="badge badge-done">✅ Completo</span></div>
+          <div class="status-row"><div class="status-row-info"><span class="status-row-name">Repositorio</span><span class="status-row-file">ICollarRepository · CollarRepository.cs</span></div><span class="badge badge-done">✅ Completo</span></div>
+          <div class="status-row"><div class="status-row-info"><span class="status-row-name">Comandos</span><span class="status-row-file">RegisterCollarCommand (requiere plan Plus)</span></div><span class="badge badge-done">✅ Completo</span></div>
+          <div class="status-row"><div class="status-row-info"><span class="status-row-name">Queries</span><span class="status-row-file">GetCollarStatusQuery · GetLocationHistoryQuery</span></div><span class="badge badge-done">✅ Completo</span></div>
+          <div class="status-row"><div class="status-row-info"><span class="status-row-name">Integración Tractive</span><span class="status-row-file">TractiveService.cs (OAuth2 + location API)</span></div><span class="badge badge-done">✅ Completo</span></div>
+          <div class="status-row"><div class="status-row-info"><span class="status-row-name">Polling job</span><span class="status-row-file">TractivePollingJob.cs (BackgroundService, cada 5 min)</span></div><span class="badge badge-done">✅ Completo</span></div>
+          <div class="status-row"><div class="status-row-info"><span class="status-row-name">Purge de historial</span><span class="status-row-file">CollarLocationPurgeJob.cs (datos >30 días)</span></div><span class="badge badge-done">✅ Completo</span></div>
+          <div class="status-row"><div class="status-row-info"><span class="status-row-name">Controlador REST</span><span class="status-row-file">CollarsController · GET /api/collars/tractive/callback</span></div><span class="badge badge-done">✅ Completo</span></div>
+          <div class="status-row"><div class="status-row-info"><span class="status-row-name">Frontend</span><span class="status-row-file">CollarGpsTab.tsx · collarApi.ts · useCollar.ts</span></div><span class="badge badge-done">✅ Completo</span></div>
+          <div class="status-row"><div class="status-row-info"><span class="status-row-name">Kippy</span><span class="status-row-file">KippyService.cs — cobertura solo Europa, sin CR</span></div><span class="badge badge-pending">❌ Pendiente</span></div>
+          <div class="status-row"><div class="status-row-info"><span class="status-row-name">Hardware PawTrack</span><span class="status-row-file">ESP32-S3 + SIM7080G — diseño en progreso</span></div><span class="badge badge-pending">❌ Futuro</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CALCULADORA ── -->
+    <section id="calculator">
+      <div class="container">
+        <div class="s-label reveal">Comparativo interactivo</div>
+        <h2 class="s-title reveal">Calculadora de costos</h2>
+        <p class="s-lead reveal">Seleccioná la opción para ver el desglose completo de costos y cuentas requeridas.</p>
+        <div class="calc-wrap reveal">
+          <div>
+            <div class="calc-options">
+              <div class="calc-option active" data-seg="qr">
+                <span class="calc-option-icon">🏷️</span>
+                <div class="calc-option-name">Placa QR</div>
+                <div class="calc-option-price">₡0–₡2,990/mes</div>
+              </div>
+              <div class="calc-option" data-seg="oem">
+                <span class="calc-option-icon">📡</span>
+                <div class="calc-option-name">OEM + GPS</div>
+                <div class="calc-option-price">~₡4,030/mes</div>
+              </div>
+              <div class="calc-option" data-seg="tractive">
+                <span class="calc-option-icon">⭐</span>
+                <div class="calc-option-name">Tractive</div>
+                <div class="calc-option-price">~₡8,190/mes</div>
+              </div>
+              <div class="calc-option" data-seg="own">
+                <span class="calc-option-icon">🔧</span>
+                <div class="calc-option-name">Hardware PawTrack</div>
+                <div class="calc-option-price">~₡4,030/mes (futuro)</div>
+              </div>
+            </div>
           </div>
-          <div class="hero-art">
-            <svg
-              viewBox="0 0 300 320"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect
-                width="300"
-                height="320"
-                rx="24"
-                fill="rgba(255,255,255,.07)"
-              />
-              <g stroke="rgba(255,255,255,.06)" stroke-width="1">
-                <line x1="0" y1="90" x2="300" y2="90" />
-                <line x1="0" y1="165" x2="300" y2="165" />
-                <line x1="0" y1="240" x2="300" y2="240" />
-                <line x1="75" y1="0" x2="75" y2="320" />
-                <line x1="150" y1="0" x2="150" y2="320" />
-                <line x1="225" y1="0" x2="225" y2="320" />
-              </g>
-              <rect
-                x="20"
-                y="230"
-                width="260"
-                height="9"
-                rx="4"
-                fill="rgba(255,255,255,.09)"
-              />
-              <rect
-                x="95"
-                y="205"
-                width="9"
-                height="115"
-                rx="4"
-                fill="rgba(255,255,255,.07)"
-              />
-              <rect
-                x="196"
-                y="205"
-                width="9"
-                height="115"
-                rx="4"
-                fill="rgba(255,255,255,.07)"
-              />
-              <path
-                d="M 46 270 Q 82 242 122 220 Q 152 207 172 184"
-                stroke="#e8521e"
-                stroke-width="2.5"
-                stroke-dasharray="7 4"
-                stroke-linecap="round"
-                fill="none"
-                opacity=".75"
-              />
-              <circle cx="46" cy="270" r="5" fill="#e8521e" opacity=".35" />
-              <circle cx="46" cy="270" r="2.5" fill="#e8521e" />
-              <circle
-                cx="150"
-                cy="66"
-                r="22"
-                fill="#e8521e"
-                class="pin-pulse"
-              />
-              <circle
-                cx="150"
-                cy="66"
-                r="14"
-                fill="#e8521e"
-                class="pin-pulse-delay"
-              />
-              <path
-                d="M150 40 C135 40 122 53 122 67 C122 82 136 92 150 108 C164 92 178 82 178 67 C178 53 165 40 150 40Z"
-                fill="#e8521e"
-              />
-              <circle cx="150" cy="67" r="9.5" fill="white" />
-              <circle cx="150" cy="67" r="4.5" fill="#e8521e" />
-              <path
-                d="M204 228 Q244 204 240 172 Q238 155 226 162"
-                stroke="#d4a564"
-                stroke-width="17"
-                stroke-linecap="round"
-                fill="none"
-              />
-              <ellipse cx="150" cy="234" rx="62" ry="54" fill="#d4a564" />
-              <ellipse
-                cx="143"
-                cy="230"
-                rx="30"
-                ry="34"
-                fill="#e8c07a"
-                opacity=".45"
-              />
-              <rect
-                x="125"
-                y="180"
-                width="50"
-                height="24"
-                rx="12"
-                fill="#d4a564"
-              />
-              <circle cx="150" cy="160" r="48" fill="#d4a564" />
-              <ellipse
-                cx="108"
-                cy="142"
-                rx="21"
-                ry="36"
-                fill="#c8924a"
-                transform="rotate(-14 108 142)"
-              />
-              <ellipse
-                cx="192"
-                cy="142"
-                rx="21"
-                ry="36"
-                fill="#c8924a"
-                transform="rotate(14 192 142)"
-              />
-              <ellipse
-                cx="108"
-                cy="145"
-                rx="12"
-                ry="23"
-                fill="#b07838"
-                transform="rotate(-14 108 145)"
-              />
-              <ellipse
-                cx="192"
-                cy="145"
-                rx="12"
-                ry="23"
-                fill="#b07838"
-                transform="rotate(14 192 145)"
-              />
-              <ellipse cx="150" cy="174" rx="24" ry="19" fill="#c8924a" />
-              <ellipse cx="150" cy="167" rx="11" ry="8.5" fill="#1e0f04" />
-              <circle cx="145.5" cy="168" r="2.5" fill="#120a02" />
-              <circle cx="154.5" cy="168" r="2.5" fill="#120a02" />
-              <path
-                d="M 144 174 Q 150 180 156 174"
-                stroke="#b07838"
-                stroke-width="1.5"
-                fill="none"
-                stroke-linecap="round"
-              />
-              <circle cx="132" cy="152" r="10" fill="white" />
-              <circle cx="168" cy="152" r="10" fill="white" />
-              <circle cx="133" cy="153" r="7" fill="#1e0f04" />
-              <circle cx="169" cy="153" r="7" fill="#1e0f04" />
-              <circle cx="136" cy="150" r="2.5" fill="white" />
-              <circle cx="172" cy="150" r="2.5" fill="white" />
-              <path
-                d="M 123 143 Q 132 140 141 143"
-                stroke="#b07838"
-                stroke-width="2"
-                fill="none"
-                stroke-linecap="round"
-              />
-              <path
-                d="M 159 143 Q 168 140 177 143"
-                stroke="#b07838"
-                stroke-width="2"
-                fill="none"
-                stroke-linecap="round"
-              />
-              <rect
-                x="112"
-                y="195"
-                width="76"
-                height="16"
-                rx="8"
-                fill="#e8521e"
-              />
-              <path
-                d="M 140 195 Q 150 191 160 195"
-                stroke="rgba(255,255,255,.3)"
-                stroke-width="1.5"
-                fill="none"
-              />
-              <rect
-                x="132"
-                y="191"
-                width="36"
-                height="24"
-                rx="6"
-                fill="#1a3484"
-              />
-              <rect
-                x="134"
-                y="193"
-                width="32"
-                height="16"
-                rx="4"
-                fill="#2244a0"
-              />
-              <rect
-                x="136"
-                y="195"
-                width="28"
-                height="10"
-                rx="3"
-                fill="rgba(74,222,128,.15)"
-              />
-              <circle cx="150" cy="208" r="3.5" fill="#4ade80" />
-              <circle cx="150" cy="208" r="2" fill="#86efac" />
-              <path
-                d="M 144 199 L 148 203 L 152 199"
-                stroke="white"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                fill="none"
-                opacity=".7"
-              />
-              <rect
-                x="112"
-                y="262"
-                width="26"
-                height="54"
-                rx="13"
-                fill="#d4a564"
-              />
-              <rect
-                x="162"
-                y="262"
-                width="26"
-                height="54"
-                rx="13"
-                fill="#d4a564"
-              />
-              <ellipse cx="125" cy="318" rx="17" ry="9" fill="#c8924a" />
-              <ellipse cx="175" cy="318" rx="17" ry="9" fill="#c8924a" />
-              <circle cx="117" cy="315" r="4" fill="#b07838" />
-              <circle cx="126" cy="316" r="4" fill="#b07838" />
-              <circle cx="135" cy="315" r="4" fill="#b07838" />
-              <circle cx="167" cy="315" r="4" fill="#b07838" />
-              <circle cx="176" cy="316" r="4" fill="#b07838" />
-              <circle cx="185" cy="315" r="4" fill="#b07838" />
-              <rect
-                x="196"
-                y="108"
-                width="90"
-                height="28"
-                rx="14"
-                fill="rgba(255,255,255,.12)"
-              />
-              <text
-                x="241"
-                y="126"
-                text-anchor="middle"
-                fill="white"
-                font-size="11"
-                font-family="system-ui,sans-serif"
-                font-weight="700"
-                opacity=".9"
-              >
-                📡 GPS LIVE
-              </text>
-              <circle cx="42" cy="194" r="22" fill="rgba(255,255,255,.05)" />
-              <circle cx="42" cy="197" r="7" fill="rgba(255,255,255,.09)" />
-              <circle cx="36" cy="190" r="4" fill="rgba(255,255,255,.09)" />
-              <circle cx="48" cy="190" r="4" fill="rgba(255,255,255,.09)" />
-              <circle cx="32" cy="198" r="3" fill="rgba(255,255,255,.07)" />
-              <circle cx="52" cy="198" r="3" fill="rgba(255,255,255,.07)" />
-            </svg>
+          <div class="calc-panel" id="calc-panel">
+            <!-- populated by JS -->
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ── STATS ── -->
-    <div class="stats-bar">
+    <!-- ── PROVEEDORES ── -->
+    <section id="providers">
       <div class="container">
-        <div class="stat">
-          <div class="stat-num">5 min</div>
-          <div class="stat-label">Frecuencia de actualización</div>
+        <div class="s-label reveal">GPS · APIs · Cobertura</div>
+        <h2 class="s-title reveal">Proveedores de GPS</h2>
+        <div class="provider-tabs reveal">
+          <button class="provider-tab active" data-tab="tractive">⭐ Tractive</button>
+          <button class="provider-tab" data-tab="oem">📡 OEM China</button>
+          <button class="provider-tab" data-tab="kippy">🌍 Kippy</button>
+          <button class="provider-tab" data-tab="own">🔧 Hardware Propio</button>
         </div>
-        <div class="stat">
-          <div class="stat-num">7 días</div>
-          <div class="stat-label">Historial de trayectoria</div>
+
+        <!-- Tractive -->
+        <div class="provider-panel active reveal" id="tab-tractive">
+          <div class="info-grid">
+            <div class="info-card"><div class="info-card-label">Hardware</div><div class="info-card-value">DOG 6 / CAT 6 Mini</div></div>
+            <div class="info-card"><div class="info-card-label">Precio tracker</div><div class="info-card-value">$79 USD (~₡41,000)</div></div>
+            <div class="info-card"><div class="info-card-label">Plan 1 año</div><div class="info-card-value">$10/mes ($120/año)</div></div>
+            <div class="info-card"><div class="info-card-label">Plan 2 años</div><div class="info-card-value">$7/mes ($168)</div></div>
+            <div class="info-card"><div class="info-card-label">Plan 5 años</div><div class="info-card-value">$5/mes ($300)</div></div>
+            <div class="info-card"><div class="info-card-label">Afiliado</div><div class="info-card-value">$20 fijo/tracker · Impact.com</div></div>
+            <div class="info-card"><div class="info-card-label">Auth</div><div class="info-card-value">OAuth2 Authorization Code</div></div>
+            <div class="info-card"><div class="info-card-label">Cobertura</div><div class="info-card-value">175+ países incl. CR ✅</div></div>
+          </div>
+          <hr class="divider" />
+          <p style="font-size:.82rem;color:var(--text-muted);">Endpoints usados: <code style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--glow)">GET /3/tracker/{id}/positions/recent</code> · <code style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--glow)">POST /api/1/user/oauth/token</code></p>
+          <p style="font-size:.82rem;color:var(--text-muted);margin-top:.5rem;">⚠️ El usuario paga la suscripción Tractive <strong>directamente a Tractive</strong> — PawTrack no intermedia ese cobro.</p>
         </div>
-        <div class="stat">
-          <div class="stat-num">+10M</div>
-          <div class="stat-label">Mascotas rastreadas globalmente</div>
+
+        <!-- OEM China -->
+        <div class="provider-panel" id="tab-oem">
+          <table class="supplier-table">
+            <thead><tr><th>Proveedor</th><th>Modelo</th><th>MOQ</th><th>FCA Shenzhen</th><th>API</th><th>Cert.</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Concox</strong></td><td>AT4 (GPS+WiFi+LTE)</td><td>50 u.</td><td>~$18</td><td><span class="tag tag-green">REST</span></td><td>FCC CE ROHS</td></tr>
+              <tr><td><strong>Jimi IoT</strong></td><td>JM-VL01 / LL01</td><td>50 u.</td><td>~$15–22</td><td><span class="tag tag-green">REST + MQTT</span></td><td>FCC CE</td></tr>
+              <tr><td><strong>Queclink</strong></td><td>GL300 (mini)</td><td>50 u.</td><td>~$18–20</td><td><span class="tag tag-blue">REST + binario</span></td><td>FCC CE ROHS</td></tr>
+              <tr><td><strong>ThinkRace</strong></td><td>TK115 (pet)</td><td>100 u.</td><td>~$12–16</td><td><span class="tag tag-green">REST + WS</span></td><td>CE</td></tr>
+            </tbody>
+          </table>
+          <hr class="divider" />
+          <div class="info-grid">
+            <div class="info-card"><div class="info-card-label">Landed CR (50 u.)</div><div class="info-card-value">~$24.70/u (~₡12,800)</div></div>
+            <div class="info-card"><div class="info-card-label">Inversión mínima</div><div class="info-card-value">~$1,335 USD total</div></div>
+            <div class="info-card"><div class="info-card-label">SIM IoT (Emnify)</div><div class="info-card-value">$1.50–$2.50/mes/SIM</div></div>
+            <div class="info-card"><div class="info-card-label">Cobertura CR</div><div class="info-card-value">Movistar + Kölbi ✅</div></div>
+            <div class="info-card"><div class="info-card-label">Tiempo al mercado</div><div class="info-card-value">~8 semanas</div></div>
+            <div class="info-card"><div class="info-card-label">QR en enclosure</div><div class="info-card-value">Láser +$0.50–1.00/u ✅</div></div>
+          </div>
         </div>
-        <div class="stat">
-          <div class="stat-num">GPS</div>
-          <div class="stat-label">Precisión ≈ 3 metros</div>
+
+        <!-- Kippy -->
+        <div class="provider-panel" id="tab-kippy">
+          <div style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:14px;padding:1.25rem;margin-bottom:1.5rem;">
+            <strong style="color:var(--red);">⛔ No funciona en Costa Rica</strong>
+            <p style="font-size:.82rem;color:var(--text-muted);margin-top:.5rem;">Kippy usa una SIM integrada con cobertura solo en Europa (30+ países). CR no está en la lista. El tracker no puede conectarse desde aquí.</p>
+          </div>
+          <div class="info-grid">
+            <div class="info-card"><div class="info-card-label">Fabricante</div><div class="info-card-value">Datamars Digital SA (Suiza)</div></div>
+            <div class="info-card"><div class="info-card-label">Precio hardware</div><div class="info-card-value">€41.99 (~$46 USD)</div></div>
+            <div class="info-card"><div class="info-card-label">Suscripción</div><div class="info-card-value">Desde €3.33/mes</div></div>
+            <div class="info-card"><div class="info-card-label">Batería</div><div class="info-card-value">Hasta 12 días</div></div>
+            <div class="info-card"><div class="info-card-label">Cobertura CR</div><div class="info-card-value"><span style="color:var(--red)">❌ No disponible</span></div></div>
+            <div class="info-card"><div class="info-card-label">API pública</div><div class="info-card-value"><span style="color:var(--yellow)">⚠️ No documentada</span></div></div>
+          </div>
+          <p style="font-size:.78rem;color:var(--text-muted);margin-top:1rem;">El código para Kippy está reservado en el dominio (<code style="font-family:'JetBrains Mono',monospace">CollarProvider.Kippy = 2</code>). Activar en ~1-2 días si PawTrack se expande a España.</p>
+        </div>
+
+        <!-- Own Hardware -->
+        <div class="provider-panel" id="tab-own">
+          <div class="info-grid">
+            <div class="info-card"><div class="info-card-label">MCU</div><div class="info-card-value">ESP32-S3 — $4</div></div>
+            <div class="info-card"><div class="info-card-label">Celular + GPS</div><div class="info-card-value">SIM7080G (LTE-M) — $12</div></div>
+            <div class="info-card"><div class="info-card-label">Acelerómetro</div><div class="info-card-value">ADXL345 (wake) — $0.80</div></div>
+            <div class="info-card"><div class="info-card-label">Batería</div><div class="info-card-value">LiPo 3.7V 1000mAh — $3.50</div></div>
+            <div class="info-card"><div class="info-card-label">PCB (prototipo)</div><div class="info-card-value">JLCPCB — $2–15</div></div>
+            <div class="info-card"><div class="info-card-label">Tiempo desarrollo</div><div class="info-card-value">3–4 meses</div></div>
+          </div>
+          <p style="font-size:.82rem;color:var(--text-muted);margin-top:1rem;">Arquitectura: <code style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--glow)">ESP32-S3 → MQTT/TLS → Azure IoT Hub → POST /api/collars/ingest</code></p>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- ── FEATURES ── -->
-    <section style="background: #fff">
+    <!-- ── CAMPAÑAS QR SIN GPS ── -->
+    <section id="campaign">
       <div class="container">
-        <div class="section-label">¿Qué incluye?</div>
-        <h2>Todo lo que necesitas para<br />proteger a tu mascota</h2>
-        <p class="lead">
-          La tab GPS de PawTrack se activa automáticamente cuando conectas tu
-          collar. No se requiere configuración adicional.
-        </p>
+        <div class="s-label reveal">Ferias · Veterinarias · Eventos</div>
+        <h2 class="s-title reveal">Modelo de campaña presencial</h2>
+        <p class="s-lead reveal">Collar físico desde China + impresión QR en sitio. El usuario registra su mascota y sale con el collar puesto en 3 minutos.</p>
 
-        <div class="feature-grid">
-          <div class="feature-card">
-            <div class="icon">🗺️</div>
-            <h3>Posición en tiempo real</h3>
-            <p>
-              Punto actualizado cada 5 minutos en el mapa interactivo de la app.
-            </p>
+        <h3 class="reveal" style="font-size:1rem;font-weight:700;margin-bottom:1rem;">Diseños de collar con soporte QR (sin GPS)</h3>
+        <table class="supplier-table reveal">
+          <thead><tr><th>Diseño</th><th>Costo China</th><th>QR</th><th>MOQ</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Nylon + porta-placa metálica</strong></td><td>$1.20–$2.00</td><td><span class="tag tag-blue">🔄 Reemplazable</span></td><td>100 u.</td></tr>
+            <tr><td><strong>Nylon + ventana TPU</strong></td><td>$0.80–$1.50</td><td><span class="tag tag-blue">🔄 Reemplazable</span></td><td>200 u.</td></tr>
+            <tr><td><strong>Tag silicona grabado láser</strong></td><td>$1.50–$2.50</td><td><span class="tag tag-green">✅ Permanente</span></td><td>100 u.</td></tr>
+            <tr><td><strong>Placa aluminio encastrada</strong></td><td>$2.50–$4.00</td><td><span class="tag tag-green">✅ Permanente</span></td><td>50 u.</td></tr>
+          </tbody>
+        </table>
+
+        <hr class="divider" />
+
+        <h3 class="reveal" style="font-size:1rem;font-weight:700;margin-bottom:1rem;">Flujo de campaña</h3>
+        <div class="flow-steps reveal">
+          <div class="flow-step">
+            <div class="flow-num">1</div>
+            <h4>Registro</h4>
+            <p>Staff abre PawTrack en tablet. Nombre, especie, foto, teléfono.</p>
+            <span class="flow-step-time">~1 min</span>
           </div>
-          <div class="feature-card">
-            <div class="icon">📍</div>
-            <h3>Historial de trayectoria</h3>
-            <p>
-              Ruta completa de los últimos 7 días. Filtra por hora, día o
-              semana.
-            </p>
+          <div class="flow-step">
+            <div class="flow-num">2</div>
+            <h4>Impresión QR</h4>
+            <p>GET /api/pets/{id}/qr → Brother QL-820NWB via BT. Etiqueta vinilo.</p>
+            <span class="flow-step-time">~10 seg</span>
           </div>
-          <div class="feature-card">
-            <div class="icon">🔋</div>
-            <h3>Estado de batería</h3>
-            <p>Indicador de batería del collar directamente en la app.</p>
+          <div class="flow-step">
+            <div class="flow-num">3</div>
+            <h4>Ensamble</h4>
+            <p>Insertar etiqueta en porta-placa. Ajustar talla del collar.</p>
+            <span class="flow-step-time">~30 seg</span>
           </div>
-          <div class="feature-card">
-            <div class="icon">🔗</div>
-            <h3>Integración nativa</h3>
-            <p>
-              Compatible con Tractive y Kippy (próximamente). Conecta en un clic
-              con OAuth seguro.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="icon">🚨</div>
-            <h3>Alerta de pérdida automática</h3>
-            <p>
-              Si reportas a tu mascota como perdida, la posición del collar
-              alimenta la búsqueda.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="icon">🔒</div>
-            <h3>Token cifrado AES-256</h3>
-            <p>
-              Tu credencial del proveedor GPS nunca se almacena en texto plano.
-            </p>
+          <div class="flow-step">
+            <div class="flow-num">4</div>
+            <h4>Verificación</h4>
+            <p>Escanear collar → perfil de la mascota aparece. ¡Listo!</p>
+            <span class="flow-step-time">~30 seg</span>
           </div>
         </div>
 
-        <!-- App preview with phone mockup -->
-        <div class="app-preview">
-          <div class="app-preview-phone">
-            <svg
-              viewBox="0 0 160 300"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect width="160" height="300" rx="28" fill="#1c1c2e" />
-              <rect x="-2" y="80" width="4" height="28" rx="2" fill="#2a2a3e" />
-              <rect
-                x="158"
-                y="70"
-                width="4"
-                height="40"
-                rx="2"
-                fill="#2a2a3e"
-              />
-              <rect
-                x="4"
-                y="4"
-                width="152"
-                height="292"
-                rx="24"
-                fill="#111827"
-              />
-              <rect
-                x="55"
-                y="10"
-                width="50"
-                height="14"
-                rx="7"
-                fill="#1c1c2e"
-              />
-              <rect
-                x="4"
-                y="4"
-                width="152"
-                height="230"
-                rx="24"
-                fill="#1a2e4a"
-              />
-              <line
-                x1="4"
-                y1="65"
-                x2="156"
-                y2="65"
-                stroke="#233450"
-                stroke-width="8"
-              />
-              <line
-                x1="4"
-                y1="125"
-                x2="156"
-                y2="125"
-                stroke="#233450"
-                stroke-width="8"
-              />
-              <line
-                x1="80"
-                y1="4"
-                x2="80"
-                y2="234"
-                stroke="#233450"
-                stroke-width="6"
-              />
-              <line
-                x1="126"
-                y1="4"
-                x2="126"
-                y2="234"
-                stroke="#233450"
-                stroke-width="6"
-              />
-              <rect
-                x="20"
-                y="20"
-                width="56"
-                height="42"
-                rx="3"
-                fill="#1b3a26"
-                opacity=".7"
-              />
-              <rect
-                x="88"
-                y="70"
-                width="34"
-                height="52"
-                rx="3"
-                fill="#1b3a26"
-                opacity=".5"
-              />
-              <rect
-                x="20"
-                y="130"
-                width="56"
-                height="32"
-                rx="3"
-                fill="#213448"
-                opacity=".6"
-              />
-              <path
-                d="M 38 210 Q 55 175 78 150 Q 95 130 108 105"
-                stroke="#e8521e"
-                stroke-width="2.5"
-                stroke-dasharray="6 3"
-                stroke-linecap="round"
-                fill="none"
-                opacity=".9"
-              />
-              <circle cx="38" cy="210" r="5" fill="#e8521e" opacity=".35" />
-              <circle cx="38" cy="210" r="2.5" fill="#e8521e" opacity=".8" />
-              <circle cx="108" cy="105" r="16" fill="#e8521e" opacity=".2" />
-              <circle cx="108" cy="105" r="11" fill="#e8521e" opacity=".4" />
-              <circle cx="108" cy="105" r="8" fill="#e8521e" />
-              <circle cx="108" cy="106" r="3" fill="white" />
-              <circle cx="104.5" cy="102.5" r="1.5" fill="white" />
-              <circle cx="111.5" cy="102.5" r="1.5" fill="white" />
-              <circle cx="103" cy="107.5" r="1.2" fill="white" />
-              <circle cx="113" cy="107.5" r="1.2" fill="white" />
-              <rect
-                x="130"
-                y="160"
-                width="20"
-                height="20"
-                rx="4"
-                fill="rgba(255,255,255,.12)"
-              />
-              <text
-                x="140"
-                y="174"
-                fill="white"
-                font-size="14"
-                text-anchor="middle"
-                font-family="system-ui"
-              >
-                +
-              </text>
-              <rect
-                x="130"
-                y="184"
-                width="20"
-                height="20"
-                rx="4"
-                fill="rgba(255,255,255,.12)"
-              />
-              <text
-                x="140"
-                y="198"
-                fill="white"
-                font-size="14"
-                text-anchor="middle"
-                font-family="system-ui"
-              >
-                -
-              </text>
-              <rect
-                x="4"
-                y="4"
-                width="152"
-                height="22"
-                fill="rgba(0,0,0,.5)"
-                rx="24"
-              />
-              <text
-                x="16"
-                y="18"
-                fill="rgba(255,255,255,.7)"
-                font-size="8"
-                font-family="system-ui"
-              >
-                9:41
-              </text>
-              <text
-                x="118"
-                y="18"
-                fill="rgba(255,255,255,.6)"
-                font-size="8"
-                font-family="system-ui"
-              >
-                ●●●
-              </text>
-              <rect x="4" y="230" width="152" height="36" fill="#1a3484" />
-              <text
-                x="82"
-                y="252"
-                fill="white"
-                font-size="10"
-                font-family="system-ui,sans-serif"
-                font-weight="700"
-                text-anchor="middle"
-              >
-                Max · GPS en vivo
-              </text>
-              <rect x="4" y="266" width="152" height="30" fill="#111827" />
-              <circle cx="18" cy="281" r="4" fill="#4ade80" />
-              <text
-                x="26"
-                y="284"
-                fill="#4ade80"
-                font-size="8"
-                font-family="system-ui"
-                font-weight="600"
-              >
-                EN LÍNEA
-              </text>
-              <rect
-                x="108"
-                y="272"
-                width="28"
-                height="14"
-                rx="3"
-                fill="rgba(255,255,255,.08)"
-                stroke="rgba(255,255,255,.25)"
-                stroke-width="1"
-              />
-              <rect
-                x="110"
-                y="274"
-                width="20"
-                height="10"
-                rx="2"
-                fill="#4ade80"
-                opacity=".85"
-              />
-              <text
-                x="116"
-                y="282"
-                fill="white"
-                font-size="7"
-                font-family="system-ui"
-                font-weight="700"
-              >
-                78%
-              </text>
-              <rect
-                x="60"
-                y="290"
-                width="40"
-                height="3"
-                rx="1.5"
-                fill="rgba(255,255,255,.2)"
-              />
-            </svg>
+        <hr class="divider" />
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;" class="reveal">
+          <div>
+            <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">Impresora recomendada</h3>
+            <div class="info-card">
+              <div class="info-card-label">Brother QL-820NWB</div>
+              <div class="info-card-value" style="font-size:1.1rem;margin-bottom:.5rem;">~$180 USD</div>
+              <ul style="list-style:none;font-size:.78rem;color:var(--text-muted);line-height:1.9;">
+                <li>✅ WiFi + Bluetooth + batería recargable</li>
+                <li>✅ Imprime desde tablet/celular</li>
+                <li>✅ DK-22251 vinilo resistente al agua</li>
+                <li>✅ ~₡20 por etiqueta (rollo 400 u.)</li>
+              </ul>
+            </div>
           </div>
-          <div class="app-preview-text">
-            <h3>El mapa que te da tranquilidad</h3>
-            <p>
-              Ve la posición de tu mascota en tiempo real directamente en
-              PawTrack. El collar actualiza la posición cada 5 minutos y guarda
-              7 días de historial de trayectoria.
-            </p>
-            <div class="app-pills">
-              <span class="app-pill">📍 Posición en vivo</span>
-              <span class="app-pill">🔋 Nivel de batería</span>
-              <span class="app-pill">📈 Historial 7 días</span>
-              <span class="app-pill">🚨 Alerta de pérdida</span>
+          <div>
+            <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">Inversión campaña 200 mascotas</h3>
+            <div class="investment-row"><span style="color:var(--text-muted)">Impresora Brother</span><span>~$180 USD</span></div>
+            <div class="investment-row"><span style="color:var(--text-muted)">2 rollos vinilo (800 labels)</span><span>~$30 USD</span></div>
+            <div class="investment-row"><span style="color:var(--text-muted)">200 collares porta-placa</span><span>~$483 USD</span></div>
+            <div class="investment-total">
+              <span class="investment-total-label">Total inversión</span>
+              <span class="investment-total-value">~$693 USD</span>
+            </div>
+            <div style="margin-top:.75rem;font-size:.78rem;color:var(--text-muted);">Ingreso (200 × ₡5,000): <strong style="color:var(--green)">₡1,000,000</strong> · Margen bruto: <strong style="color:var(--green)">~₡640,000</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FIRMWARE SLEEP ── -->
+    <section id="firmware">
+      <div class="container">
+        <div class="s-label reveal">Hardware propio · ESP32-S3 + SIM7080G</div>
+        <h2 class="s-title reveal">Gestión de batería — estrategia de sleep</h2>
+        <p class="s-lead reveal">Sin optimización: 3.5 horas. Con deep sleep por capas: hasta 8 días. El ADXL345 es la clave.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;" class="reveal">
+          <div class="sleep-states">
+            <div class="sleep-state" style="border-top:3px solid var(--red);">
+              <div class="sleep-state-header">
+                <span class="sleep-state-name">🏃 Movimiento detectado</span>
+                <span class="sleep-state-power">~250 mA</span>
+              </div>
+              <ul>
+                <li>GPS hot fix cada 30 segundos</li>
+                <li>MQTT transmit + sleep corto 10s</li>
+                <li>SIM activa, CPU a full</li>
+              </ul>
+              <div class="sleep-state-trigger">→ Sin movimiento >2 min</div>
+            </div>
+            <div class="sleep-state" style="border-top:3px solid var(--yellow);">
+              <div class="sleep-state-header">
+                <span class="sleep-state-name">🌙 Quieto (Light Sleep)</span>
+                <span class="sleep-state-power">~1–3 mA</span>
+              </div>
+              <ul>
+                <li>ADXL345 interrupt en wake-on-motion</li>
+                <li>Timer wake cada 10 min → heartbeat MQTT</li>
+                <li>GPS apagado · SIM en PSM</li>
+              </ul>
+              <div class="sleep-state-trigger">→ Sin movimiento >30 min</div>
+            </div>
+            <div class="sleep-state" style="border-top:3px solid var(--green);">
+              <div class="sleep-state-header">
+                <span class="sleep-state-name">😴 Dormido (Deep Sleep)</span>
+                <span class="sleep-state-power">~0.5–1 mA</span>
+              </div>
+              <ul>
+                <li>ESP32 a 10–15 µA</li>
+                <li>SIM7080G PSM: ~0.4 mA</li>
+                <li>Wake: interrupción ADXL345 o timer 30 min</li>
+              </ul>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:.9rem;font-weight:700;margin-bottom:1rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;">Duración de batería (1000 mAh)</h3>
+            <div class="battery-grid" style="grid-template-columns:1fr 1fr;">
+              <div class="battery-card" style="border-top:3px solid var(--red);">
+                <div class="battery-hours" style="color:var(--red);">3.5h</div>
+                <div class="battery-label">Sin sleep</div>
+                <div class="battery-pct" style="color:var(--text-muted);">100% activo · 280 mA</div>
+              </div>
+              <div class="battery-card" style="border-top:3px solid var(--yellow);">
+                <div class="battery-hours" style="color:var(--yellow);">33h</div>
+                <div class="battery-label">Light Sleep</div>
+                <div class="battery-pct" style="color:var(--text-muted);">10% activo · ~30 mA</div>
+              </div>
+              <div class="battery-card" style="border-top:3px solid var(--green);">
+                <div class="battery-hours" style="color:var(--green);">8 días</div>
+                <div class="battery-label">Deep Sleep</div>
+                <div class="battery-pct" style="color:var(--text-muted);">2% activo · ~5 mA</div>
+              </div>
+              <div class="battery-card" style="border-top:3px solid var(--glow);">
+                <div class="battery-hours" style="color:var(--glow);">23h</div>
+                <div class="battery-label">Activa 2h/día</div>
+                <div class="battery-pct" style="color:var(--text-muted);">15% activo · ~43 mA</div>
+              </div>
+            </div>
+            <div style="margin-top:1.25rem;background:rgba(26,52,132,.2);border:1px solid rgba(26,52,132,.4);border-radius:12px;padding:1rem;font-size:.8rem;color:rgba(255,255,255,.65);">
+              <strong style="color:#93c5fd;">💡 GPS cold fix vs hot fix</strong><br/>
+              Cold fix (primera vez): 30–90 seg · ~100 mA.<br/>
+              Hot fix (A-GPS, efemérides en caché): 3–8 seg.<br/>
+              Solución: <code style="font-family:'JetBrains Mono',monospace;">AT+CGNSSINFO</code> via LTE antes del fix.
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ── HOW IT WORKS ── -->
+    <!-- ── COLLAR INTEGRADO CONCEPT ── -->
+    <section id="concept">
+      <div class="container">
+        <div class="s-label reveal">El producto final</div>
+        <h2 class="s-title reveal">Collar QR + GPS integrado</h2>
+        <p class="s-lead reveal">Un único dispositivo: GPS activo + QR grabado permanentemente. El binding se hace en la app, no en fábrica.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;" class="reveal">
+          <div>
+            <div class="concept-box">┌─────────────────────────────────┐
+│  TRACKER GPS PAWTRACK           │
+│  ┌───────┐  ┌───────────────┐   │
+│  │ [QR] │  │  GPS + LTE    │   │
+│  │ PT-  │  │  batería      │   │
+│  │001234│  │  ADXL345      │   │
+│  └───────┘  └───────────────┘   │
+│  grabado láser en TPU/ABS       │
+└─────────────────────────────────┘</div>
+
+            <div style="margin-top:1.25rem;">
+              <h3 style="font-size:.9rem;font-weight:700;margin-bottom:.75rem;">Métodos de manufactura del QR</h3>
+              <table class="supplier-table">
+                <thead><tr><th>Método</th><th>$/u</th><th>Duración</th><th>Agua</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Grabado láser ABS/PC</strong></td><td>$0.50–1.00</td><td>Permanente</td><td>✅</td></tr>
+                  <tr><td>Sticker UV laminado</td><td>$0.20–0.40</td><td>2–3 años</td><td>✅</td></tr>
+                  <tr><td>Serigrafía enclosure</td><td>$0.30–0.60</td><td>Permanente</td><td>✅</td></tr>
+                  <tr><td>Placa metálica encastrada</td><td>$1.50–3.00</td><td>Permanente</td><td>✅</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:.9rem;font-weight:700;margin-bottom:.75rem;">Sistema de binding serial ↔ mascota</h3>
+            <div style="display:flex;flex-direction:column;gap:.5rem;font-size:.82rem;color:rgba(255,255,255,.65);">
+              <div style="display:flex;gap:.75rem;align-items:flex-start;"><span style="color:var(--glow);font-weight:700;flex-shrink:0;">1.</span>Collar sale de fábrica con serial único (PT-001234)</div>
+              <div style="display:flex;gap:.75rem;align-items:flex-start;"><span style="color:var(--glow);font-weight:700;flex-shrink:0;">2.</span>Usuario escanea el QR con la cámara de PawTrack</div>
+              <div style="display:flex;gap:.75rem;align-items:flex-start;"><span style="color:var(--glow);font-weight:700;flex-shrink:0;">3.</span>App detecta el serial → vincula al petId</div>
+              <div style="display:flex;gap:.75rem;align-items:flex-start;"><span style="color:var(--glow);font-weight:700;flex-shrink:0;">4.</span>Backend mapea serial → perfil en CollarQrBindings</div>
+              <div style="display:flex;gap:.75rem;align-items:flex-start;"><span style="color:var(--glow);font-weight:700;flex-shrink:0;">5.</span>Cualquier escaneo del QR muestra el perfil correcto</div>
+            </div>
+            <div class="code-block" style="margin-top:1.25rem;">-- Tabla requerida (2.5 días total)
+CREATE TABLE CollarQrBindings (
+  Serial    NVARCHAR(20) PRIMARY KEY,
+  CollarId  UNIQUEIDENTIFIER NULL,
+  BoundAt   DATETIMEOFFSET NULL
+);
+
+-- Endpoint nuevo
+POST /api/collars/bind-serial
+{ serial: "PT-001234", petId: "..." }
+
+-- /p/{serial} resuelve:
+-- vinculado  → perfil de la mascota
+-- sin vincular → página "Activar este collar"</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ROADMAP ── -->
+    <section id="roadmap">
+      <div class="container">
+        <div class="s-label reveal">Fases de crecimiento</div>
+        <h2 class="s-title reveal">Roadmap por volumen de usuarios</h2>
+        <div class="roadmap reveal">
+          <div class="roadmap-phase current">
+            <div class="roadmap-range">0 – 100 usuarios Plus</div>
+            <h3>Placa QR + Afiliado Tractive</h3>
+            <p>Cero inventario, cero riesgo. $20 comisión por tracker vendido vía link.</p>
+            <span class="badge-phase">✅ Ahora</span>
+          </div>
+          <div class="roadmap-phase">
+            <div class="roadmap-range">100 – 500 usuarios Plus</div>
+            <h3>Collar OEM + QR Láser</h3>
+            <p>Lanzar Concox/Jimi. MOQ 50u ~$1,335. Primera fuente de ingreso por hardware.</p>
+          </div>
+          <div class="roadmap-phase">
+            <div class="roadmap-range">500+ usuarios Plus</div>
+            <h3>Hardware PawTrack propio</h3>
+            <p>ESP32-S3 + SIM7080G. Mejor UX, mayor margen, marca propia CR.</p>
+          </div>
+          <div class="roadmap-phase">
+            <div class="roadmap-range">Expansión España/EU</div>
+            <h3>Activar Kippy</h3>
+            <p>Código listo. 1-2 días para activar. Cobertura nativa en Europa.</p>
+          </div>
+        </div>
+
+        <hr class="divider" style="margin-top:2.5rem;" />
+
+        <div class="reveal" style="background:rgba(232,82,30,.07);border:1px solid rgba(232,82,30,.2);border-radius:16px;padding:1.5rem;margin-top:0;">
+          <strong style="color:var(--glow);">Estándar mínimo — no negociable</strong>
+          <p style="font-size:.85rem;color:rgba(255,255,255,.65);margin-top:.5rem;">Todo collar que PawTrack recomiende, venda o distribuya <strong>DEBE tener el QR integrado en el mismo objeto</strong> — grabado, placa encastrada o material permanente. Dos objetos separados = experiencia fragmentada.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ACCORDION TÉCNICO ── -->
     <section>
       <div class="container">
-        <div class="section-label">¿Cómo funciona?</div>
-        <h2>Conectar el collar toma<br />menos de 2 minutos</h2>
+        <div class="s-label reveal">Referencia técnica</div>
+        <h2 class="s-title reveal">Detalles técnicos</h2>
+        <div class="reveal">
+          <div class="accordion-item open">
+            <button class="accordion-trigger">Variables de entorno (Key Vault) <span class="accordion-chevron">+</span></button>
+            <div class="accordion-body">
+              <div class="code-block">Tractive__ClientId     = &lt;app client id de developers.tractive.com&gt;
+Tractive__ClientSecret = &lt;client secret&gt;
+Tractive__EncryptKey   = &lt;32 bytes base64: openssl rand -base64 32&gt;
 
-        <div class="steps">
-          <div class="step">
-            <svg
-              class="step-icon"
-              viewBox="0 0 60 60"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="30" cy="30" r="28" fill="#fff7f4" />
-              <rect
-                x="13"
-                y="22"
-                width="34"
-                height="26"
-                rx="4"
-                fill="none"
-                stroke="#e8521e"
-                stroke-width="2.5"
-              />
-              <path d="M13 30 H47" stroke="#e8521e" stroke-width="2" />
-              <path d="M30 22 V30" stroke="#e8521e" stroke-width="2" />
-              <path
-                d="M21 16 L30 22 L39 16"
-                stroke="#e8521e"
-                stroke-width="2"
-                fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <rect x="16" y="22" width="11" height="8" rx="2" fill="#ffe4d8" />
-              <rect x="33" y="22" width="11" height="8" rx="2" fill="#ffe4d8" />
-            </svg>
-            <strong>Consigue tu collar</strong>
-            <p>
-              Compra un Tractive en Amazon o en Mr Lee (San José). Precio desde
-              USD $49.
-            </p>
-          </div>
-          <div class="step">
-            <svg
-              class="step-icon"
-              viewBox="0 0 60 60"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="30" cy="30" r="28" fill="#fff7f4" />
-              <rect
-                x="20"
-                y="10"
-                width="20"
-                height="38"
-                rx="5"
-                fill="none"
-                stroke="#e8521e"
-                stroke-width="2.5"
-              />
-              <circle cx="30" cy="43" r="2.5" fill="#e8521e" opacity=".6" />
-              <rect
-                x="26"
-                y="14"
-                width="8"
-                height="2"
-                rx="1"
-                fill="#e8521e"
-                opacity=".4"
-              />
-              <rect
-                x="23"
-                y="19"
-                width="14"
-                height="18"
-                rx="2"
-                fill="#ffe4d8"
-              />
-              <path
-                d="M30 22 C27.8 22 26 23.8 26 26 C26 28.6 30 33 30 33 C30 33 34 28.6 34 26 C34 23.8 32.2 22 30 22Z"
-                fill="#e8521e"
-              />
-              <circle cx="30" cy="26" r="2" fill="white" />
-            </svg>
-            <strong>Abre PawTrack</strong>
-            <p>Entra al perfil de tu mascota y toca la pestaña GPS 📡.</p>
-          </div>
-          <div class="step">
-            <svg
-              class="step-icon"
-              viewBox="0 0 60 60"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="30" cy="30" r="28" fill="#fff7f4" />
-              <rect
-                x="10"
-                y="18"
-                width="16"
-                height="26"
-                rx="4"
-                fill="#ffe4d8"
-                stroke="#e8521e"
-                stroke-width="2"
-              />
-              <rect
-                x="34"
-                y="22"
-                width="16"
-                height="18"
-                rx="4"
-                fill="#ffe4d8"
-                stroke="#e8521e"
-                stroke-width="2"
-              />
-              <circle cx="30" cy="31" r="2.5" fill="#e8521e" />
-              <line
-                x1="26"
-                y1="31"
-                x2="28"
-                y2="31"
-                stroke="#e8521e"
-                stroke-width="1.5"
-                stroke-dasharray="2 1"
-              />
-              <line
-                x1="32"
-                y1="31"
-                x2="34"
-                y2="31"
-                stroke="#e8521e"
-                stroke-width="1.5"
-                stroke-dasharray="2 1"
-              />
-              <path
-                d="M27 31 V29 C27 27.3 28.3 26 30 26 C31.7 26 33 27.3 33 29 V31"
-                stroke="#e8521e"
-                stroke-width="1.5"
-                fill="none"
-              />
-              <rect
-                x="26.5"
-                y="30"
-                width="7"
-                height="5.5"
-                rx="1.5"
-                fill="#e8521e"
-                opacity=".7"
-              />
-            </svg>
-            <strong>Conecta tu cuenta Tractive</strong>
-            <p>
-              Toca "Conectar Tractive" y autoriza el acceso. PawTrack nunca ve
-              tu contraseña.
-            </p>
-          </div>
-          <div class="step">
-            <svg
-              class="step-icon"
-              viewBox="0 0 60 60"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="30" cy="30" r="28" fill="#fff7f4" />
-              <circle cx="30" cy="30" r="18" fill="#e8521e" opacity=".15" />
-              <circle cx="30" cy="30" r="13" fill="#e8521e" opacity=".25" />
-              <path
-                d="M20 31 L26.5 37.5 L40 23"
-                stroke="#e8521e"
-                stroke-width="3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                fill="none"
-              />
-            </svg>
-            <strong>Listo — ve la posición</strong>
-            <p>En menos de 5 minutos el mapa muestra dónde está tu mascota.</p>
-          </div>
-        </div>
-      </div>
-    </section>
+# Kippy (cuando se implemente en España)
+Collar__KippyEnabled   = true
 
-    <!-- ── PRICING ── -->
-    <section class="pricing-section">
-      <div class="container">
-        <div class="section-label" style="color: #f97316">Planes</div>
-        <h2>El GPS está incluido<br />en el plan Plus</h2>
-        <p class="lead">
-          Sin costos adicionales — la integración con tu collar es parte de la
-          suscripción PawTrack.
-        </p>
-
-        <div class="plans">
-          <div class="plan-card">
-            <div class="plan-name">Explorador</div>
-            <div class="plan-price">Gratis</div>
-            <ul class="plan-features">
-              <li><span class="check">✓</span> 1 mascota</li>
-              <li><span class="check">✓</span> QR + reportes de pérdida</li>
-              <li><span class="cross">✗</span> Panel GPS</li>
-              <li><span class="cross">✗</span> Historial completo</li>
-              <li><span class="cross">✗</span> Radio de alerta 10 km</li>
-            </ul>
-          </div>
-          <div class="plan-card featured">
-            <div class="plan-badge">⭐ MÁS POPULAR</div>
-            <div class="plan-name">Plus</div>
-            <div class="plan-price">₡2,990 <span>/mes</span></div>
-            <ul class="plan-features">
-              <li><span class="check">✓</span> Hasta 3 mascotas</li>
-              <li><span class="check">✓</span> QR + reportes + Case Room</li>
-              <li>
-                <span class="check">✓</span>
-                <strong>Panel GPS ← INCLUYE COLLAR</strong>
-              </li>
-              <li><span class="check">✓</span> Historial 7 días</li>
-              <li><span class="check">✓</span> Radio de alerta 10 km</li>
-              <li><span class="check">✓</span> SMS / WhatsApp</li>
-            </ul>
-          </div>
-          <div class="plan-card">
-            <div class="plan-name">Familia</div>
-            <div class="plan-price">₡4,990 <span>/mes</span></div>
-            <ul class="plan-features">
-              <li><span class="check">✓</span> Mascotas ilimitadas</li>
-              <li><span class="check">✓</span> Todo de Plus</li>
-              <li><span class="check">✓</span> Panel GPS</li>
-              <li><span class="check">✓</span> Historial médico</li>
-              <li><span class="check">✓</span> Cuenta familiar (5 miembros)</li>
-              <li><span class="check">✓</span> Alertas sin límite de radio</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── COMPATIBLE DEVICES ── -->
-    <section style="background: #fff">
-      <div class="container">
-        <div class="section-label">Dispositivos compatibles</div>
-        <h2>Funciona con los mejores<br />rastreadores del mercado</h2>
-
-        <div class="compat-grid">
-          <div class="compat-card">
-            <div class="compat-logo">
-              <svg
-                viewBox="0 0 48 48"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect x="20" y="3" width="8" height="8" rx="4" fill="#ff5b00" />
-                <circle cx="24" cy="3" r="3" fill="#ff8030" />
-                <rect
-                  x="6"
-                  y="9"
-                  width="36"
-                  height="28"
-                  rx="9"
-                  fill="#ff5b00"
-                />
-                <rect
-                  x="6"
-                  y="9"
-                  width="36"
-                  height="14"
-                  rx="9"
-                  fill="#ff7a20"
-                />
-                <rect
-                  x="10"
-                  y="13"
-                  width="28"
-                  height="10"
-                  rx="4"
-                  fill="rgba(255,255,255,.2)"
-                />
-                <circle cx="24" cy="18" r="3.5" fill="rgba(255,255,255,.65)" />
-                <circle
-                  cx="20"
-                  cy="14.5"
-                  r="1.8"
-                  fill="rgba(255,255,255,.65)"
-                />
-                <circle
-                  cx="28"
-                  cy="14.5"
-                  r="1.8"
-                  fill="rgba(255,255,255,.65)"
-                />
-                <circle
-                  cx="18"
-                  cy="19.5"
-                  r="1.4"
-                  fill="rgba(255,255,255,.55)"
-                />
-                <circle
-                  cx="30"
-                  cy="19.5"
-                  r="1.4"
-                  fill="rgba(255,255,255,.55)"
-                />
-                <circle cx="24" cy="30" r="4" fill="rgba(0,0,0,.2)" />
-                <circle cx="24" cy="30" r="2.5" fill="#4ade80" />
-                <rect
-                  x="14"
-                  y="35"
-                  width="20"
-                  height="7"
-                  rx="3.5"
-                  fill="#cc4400"
-                />
-                <circle cx="19" cy="38" r="1.5" fill="rgba(0,0,0,.25)" />
-                <circle cx="29" cy="38" r="1.5" fill="rgba(0,0,0,.25)" />
-              </svg>
-            </div>
-            <div>
-              <div class="compat-name">
-                Tractive GPS DOG 4
-                <span class="compat-badge badge-green">✓ Disponible</span>
-              </div>
-              <div class="compat-desc">
-                El rastreador más popular del mundo. GPS + WiFi + actividad.
-                Resistente al agua IPX7.
-              </div>
-              <div class="compat-price">
-                USD $49.99 + USD $4.99/mes (Tractive)
-              </div>
+# Hardware propio
+Azure__IoTHubConnectionString = &lt;IoT Hub connection string&gt;</div>
             </div>
           </div>
-          <div class="compat-card">
-            <div class="compat-logo">
-              <svg
-                viewBox="0 0 48 48"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect x="20" y="3" width="8" height="8" rx="4" fill="#ff5b00" />
-                <circle cx="24" cy="3" r="3" fill="#ff8030" />
-                <rect
-                  x="6"
-                  y="9"
-                  width="36"
-                  height="28"
-                  rx="9"
-                  fill="#ff5b00"
-                />
-                <rect
-                  x="6"
-                  y="9"
-                  width="36"
-                  height="14"
-                  rx="9"
-                  fill="#ff7a20"
-                />
-                <rect
-                  x="10"
-                  y="13"
-                  width="28"
-                  height="10"
-                  rx="4"
-                  fill="rgba(255,255,255,.2)"
-                />
-                <circle cx="24" cy="18" r="3.5" fill="rgba(255,255,255,.65)" />
-                <circle
-                  cx="20"
-                  cy="14.5"
-                  r="1.8"
-                  fill="rgba(255,255,255,.65)"
-                />
-                <circle
-                  cx="28"
-                  cy="14.5"
-                  r="1.8"
-                  fill="rgba(255,255,255,.65)"
-                />
-                <circle
-                  cx="18"
-                  cy="19.5"
-                  r="1.4"
-                  fill="rgba(255,255,255,.55)"
-                />
-                <circle
-                  cx="30"
-                  cy="19.5"
-                  r="1.4"
-                  fill="rgba(255,255,255,.55)"
-                />
-                <circle cx="24" cy="30" r="4" fill="rgba(0,0,0,.2)" />
-                <circle cx="24" cy="30" r="2.5" fill="#4ade80" />
-                <rect
-                  x="14"
-                  y="35"
-                  width="20"
-                  height="7"
-                  rx="3.5"
-                  fill="#cc4400"
-                />
-                <circle cx="19" cy="38" r="1.5" fill="rgba(0,0,0,.25)" />
-                <circle cx="29" cy="38" r="1.5" fill="rgba(0,0,0,.25)" />
-              </svg>
-            </div>
-            <div>
-              <div class="compat-name">
-                Tractive GPS CAT 4
-                <span class="compat-badge badge-green">✓ Disponible</span>
-              </div>
-              <div class="compat-desc">
-                Diseñado para gatos. Ultra liviano (35g). Igual precisión que el
-                modelo para perros.
-              </div>
-              <div class="compat-price">
-                USD $49.99 + USD $4.99/mes (Tractive)
-              </div>
+          <div class="accordion-item">
+            <button class="accordion-trigger">Checklist para activar Tractive en producción <span class="accordion-chevron">+</span></button>
+            <div class="accordion-body">
+              <ul style="list-style:none;line-height:2.2;">
+                <li>☐ Crear app OAuth en developers.tractive.com · Redirect URI: https://pawtrack.cr/api/collars/tractive/callback · Scopes: activity device_info</li>
+                <li>☐ Cargar Tractive:ClientId, ClientSecret, EncryptKey en Key Vault</li>
+                <li>☐ Verificar TractivePollingJob activo en Container App logs</li>
+                <li>☐ Configurar App:BaseUrl=https://pawtrack.cr</li>
+                <li>☐ Probar flujo completo con un Tractive físico en staging</li>
+                <li>☐ Registrar programa de afiliados en tractive.com/landing/affiliate vía Impact.com</li>
+              </ul>
             </div>
           </div>
-          <div class="compat-card">
-            <div class="compat-logo">
-              <svg
-                viewBox="0 0 48 48"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect x="20" y="3" width="8" height="8" rx="4" fill="#0047bb" />
-                <circle cx="24" cy="3" r="3" fill="#3388ff" />
-                <rect
-                  x="6"
-                  y="9"
-                  width="36"
-                  height="28"
-                  rx="9"
-                  fill="#0047bb"
-                />
-                <rect
-                  x="6"
-                  y="9"
-                  width="36"
-                  height="14"
-                  rx="9"
-                  fill="#0066ee"
-                />
-                <rect
-                  x="10"
-                  y="13"
-                  width="28"
-                  height="10"
-                  rx="4"
-                  fill="rgba(255,255,255,.2)"
-                />
-                <circle cx="24" cy="18" r="3.5" fill="rgba(255,255,255,.65)" />
-                <circle
-                  cx="20"
-                  cy="14.5"
-                  r="1.8"
-                  fill="rgba(255,255,255,.65)"
-                />
-                <circle
-                  cx="28"
-                  cy="14.5"
-                  r="1.8"
-                  fill="rgba(255,255,255,.65)"
-                />
-                <circle
-                  cx="18"
-                  cy="19.5"
-                  r="1.4"
-                  fill="rgba(255,255,255,.55)"
-                />
-                <circle
-                  cx="30"
-                  cy="19.5"
-                  r="1.4"
-                  fill="rgba(255,255,255,.55)"
-                />
-                <circle cx="24" cy="30" r="4" fill="rgba(0,0,0,.2)" />
-                <circle cx="24" cy="30" r="2.5" fill="#fbbf24" />
-                <rect
-                  x="14"
-                  y="35"
-                  width="20"
-                  height="7"
-                  rx="3.5"
-                  fill="#003399"
-                />
-                <circle cx="19" cy="38" r="1.5" fill="rgba(0,0,0,.25)" />
-                <circle cx="29" cy="38" r="1.5" fill="rgba(0,0,0,.25)" />
-              </svg>
-            </div>
-            <div>
-              <div class="compat-name">
-                Kippy EVO GPS
-                <span class="compat-badge badge-gray">⏳ Próximamente</span>
-              </div>
-              <div class="compat-desc">
-                GPS + salud + actividad. Popular en LatAm. Batería hasta 3 días.
-              </div>
-              <div class="compat-price">USD $59.99 + EUR €4.99/mes (Kippy)</div>
+          <div class="accordion-item">
+            <button class="accordion-trigger">Proceso de importación desde China (8 semanas) <span class="accordion-chevron">+</span></button>
+            <div class="accordion-body">
+              <div class="code-block">SEMANA 1:  Contactar proveedor, pedir API docs + 2-3 muestras ($80-130)
+SEMANA 2-3: Integrar API como CollarProvider.Generic (~3-5 días dev)
+SEMANA 4:  Confirmar MOQ 50u · T/T 30% adelanto
+           Producción: 15-20 días en fábrica
+SEMANA 6-7: DHL Express SZX → SJO: 3-5 días hábiles
+           Agente aduanal obligatorio (>$1,000 CIF) · Arancel: 8526.91.00
+           Impuestos: ~15% del valor CIF
+SEMANA 8:  QA (5-10% unidades) · Activar SIMs Emnify · Configurar MQTT</div>
             </div>
           </div>
-          <div class="compat-card">
-            <div class="compat-logo">
-              <svg
-                viewBox="0 0 48 48"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect x="20" y="3" width="8" height="8" rx="4" fill="#1a3484" />
-                <circle cx="24" cy="3" r="3" fill="#4488ff" />
-                <rect
-                  x="4"
-                  y="9"
-                  width="40"
-                  height="30"
-                  rx="10"
-                  fill="#1a3484"
-                />
-                <rect
-                  x="4"
-                  y="9"
-                  width="40"
-                  height="15"
-                  rx="10"
-                  fill="#2244a4"
-                />
-                <rect
-                  x="8"
-                  y="13"
-                  width="32"
-                  height="11"
-                  rx="4"
-                  fill="rgba(255,255,255,.1)"
-                />
-                <text
-                  x="24"
-                  y="22"
-                  text-anchor="middle"
-                  fill="rgba(255,255,255,.8)"
-                  font-size="10"
-                  font-family="system-ui,sans-serif"
-                  font-weight="800"
-                >
-                  P
-                </text>
-                <circle cx="24" cy="32" r="5" fill="rgba(255,255,255,.06)" />
-                <circle cx="24" cy="32" r="3" fill="#60a5fa" />
-                <circle cx="24" cy="32" r="1.5" fill="white" />
-                <rect
-                  x="16"
-                  y="38"
-                  width="16"
-                  height="5"
-                  rx="2.5"
-                  fill="#0f2054"
-                />
-                <rect
-                  x="22"
-                  y="39"
-                  width="4"
-                  height="3"
-                  rx="1"
-                  fill="rgba(255,255,255,.2)"
-                />
-              </svg>
-            </div>
-            <div>
-              <div class="compat-name">
-                PawTrack Collar (propio)
-                <span class="compat-badge badge-gray">🔜 En desarrollo</span>
-              </div>
-              <div class="compat-desc">
-                Hardware propio LTE-M. Sin suscripción externa. SIM incluida en
-                tu plan PawTrack.
-              </div>
-              <div class="compat-price">
-                Precio estimado: ₡25,000 (sin pago mensual adicional)
-              </div>
+          <div class="accordion-item">
+            <button class="accordion-trigger">SIM IoT — comparativa para CR <span class="accordion-chevron">+</span></button>
+            <div class="accordion-body">
+              <table class="supplier-table" style="margin-top:.5rem;">
+                <thead><tr><th>Proveedor</th><th>Cobertura CR</th><th>$/SIM/mes</th><th>Dashboard</th><th>API gestión</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Emnify</strong></td><td>Movistar + Kölbi</td><td>$1.50–$2.50 (5 MB)</td><td>✅ Web</td><td>✅ REST</td></tr>
+                  <tr><td><strong>Hologram</strong></td><td>Claro + Kölbi</td><td>$1.00–$2.00 (1 MB)</td><td>✅ Web</td><td>✅ REST</td></tr>
+                </tbody>
+              </table>
+              <p style="font-size:.78rem;color:var(--text-muted);margin-top:.75rem;">PawTrack puede gestionar las SIMs centralmente vía API de Emnify — el usuario nunca necesita crear una cuenta externa.</p>
             </div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- ── WHERE TO BUY ── -->
-    <section>
-      <div class="container">
-        <div class="section-label">¿Dónde consigo el collar?</div>
-        <h2>Varias opciones para<br />adaptarse a tu presupuesto</h2>
-
-        <div class="buy-grid">
-          <div class="buy-card">
-            <span class="tag tag-easy">Más fácil</span>
-            <h3>🛒 Amazon.com</h3>
-            <p>
-              La opción más accesible. Envío a Costa Rica con Aerocasillas,
-              Jetbox o similares.
-            </p>
-            <ul>
-              <li>Tractive GPS DOG 4: USD $49.99</li>
-              <li>Aerocasillas: ~USD $15-20 de flete</li>
-              <li>Tiempo estimado: 7-14 días</li>
-            </ul>
-          </div>
-          <div class="buy-card">
-            <span class="tag tag-easy">Local</span>
-            <h3>🏪 Tiendas en Costa Rica</h3>
-            <p>Disponibles en tiendas especializadas en San José:</p>
-            <ul>
-              <li>Mr Lee PetSmart (Multiplaza, Terramall)</li>
-              <li>PetZone (Rohrmoser)</li>
-              <li>Mascotas Felices (Curridabat)</li>
-            </ul>
-            <p style="margin-top: 0.5rem">Precio local: ~₡35,000–₡45,000</p>
-          </div>
-          <div class="buy-card">
-            <span class="tag tag-easy">🟢 Disponible</span>
-            <h3>📦 Bundle PawTrack — Bajo demanda</h3>
-            <p>
-              Un solo pago, todo incluido. Pedimos el collar especialmente para
-              ti.
-            </p>
-            <ul>
-              <li>Collar Tractive GPS importado</li>
-              <li>12 meses PawTrack Plus activado al confirmar pago</li>
-              <li>Envío a cualquier cantón de Costa Rica</li>
-              <li><strong>₡49,900 total</strong></li>
-            </ul>
-            <p style="margin-top: 0.75rem; font-size: 0.8rem; color: #6b6057">
-              <strong>¿Cómo funciona?</strong><br />
-              1. Haces el pedido en la app con tu dirección.<br />
-              2. Pagas por SINPE Móvil con la referencia generada.<br />
-              3. Confirmamos el pago y activamos tu plan Plus en 24-48 h.<br />
-              4. Adquirimos y enviamos el collar. Te notificamos con el
-              tracking.
-            </p>
-            <a
-              href="https://pawtrack.cr/perfil"
-              style="
-                display: block;
-                margin-top: 0.75rem;
-                background: #e8521e;
-                color: #fff;
-                text-align: center;
-                border-radius: 12px;
-                padding: 0.6rem;
-                font-size: 0.8rem;
-                font-weight: 700;
-                text-decoration: none;
-              "
-            >
-              Pedir mi bundle →
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── FAQ ── -->
-    <section style="background: #fff">
-      <div class="container">
-        <div class="section-label">FAQ</div>
-        <h2>Preguntas frecuentes</h2>
-        <div class="faq" style="margin-top: 2rem">
-          <div class="faq-item">
-            <div class="faq-q">
-              ¿Necesito pagar suscripción a Tractive además de PawTrack?
-            </div>
-            <div class="faq-a">
-              Sí. El collar Tractive requiere su propia suscripción (desde USD
-              $4.99/mes) para el acceso a la red LTE. PawTrack usa esa posición
-              para mostrártela en la app — no duplica el costo, pero tampoco
-              puede eliminar la suscripción del fabricante.
-            </div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-q">
-              ¿Con qué frecuencia se actualiza la posición?
-            </div>
-            <div class="faq-a">
-              PawTrack consulta al proveedor cada 5 minutos y guarda la
-              posición. Para actualizaciones en tiempo real más frecuentes, usa
-              directamente la app de Tractive.
-            </div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-q">¿Es seguro conectar mi cuenta Tractive?</div>
-            <div class="faq-a">
-              Sí. Usamos OAuth2 Authorization Code Flow — nunca vemos tu
-              contraseña de Tractive. Tu token de acceso se almacena cifrado con
-              AES-256-CBC en Key Vault.
-            </div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-q">¿Funciona si mi mascota sale del país?</div>
-            <div class="faq-a">
-              Tractive funciona en más de 175 países mientras haya cobertura
-              LTE. PawTrack mostrará la posición sin importar la ubicación
-              geográfica.
-            </div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-q">
-              ¿Cuándo estará disponible el collar propio de PawTrack?
-            </div>
-            <div class="faq-a">
-              Está en desarrollo. El objetivo es ofrecer un collar LTE-M sin
-              suscripción mensual externa incluido en los planes Premium.
-              Estimamos disponibilidad para finales de 2027.
-            </div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-q">
-              ¿Puedo conectar más de un collar por mascota?
-            </div>
-            <div class="faq-a">
-              Actualmente cada mascota puede tener un collar activo. Si
-              registras uno nuevo, el anterior se desactiva automáticamente.
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── CTA ── -->
-    <section class="cta-section">
-      <div class="container">
-        <h2>¿Listo para nunca perder<br />a tu mascota de nuevo?</h2>
-        <p>
-          Activa el plan Plus hoy y conecta tu collar GPS en menos de 2 minutos.
-        </p>
-        <a href="https://pawtrack.cr/perfil" class="btn-white"
-          >Activar plan Plus — ₡2,990/mes</a
-        >
       </div>
     </section>
 
     <!-- ── FOOTER ── -->
     <footer>
-      <p>
-        PawTrack CR ·
-        <a href="https://pawtrack.cr" style="color: inherit">pawtrack.cr</a> ·
-        soporte@pawtrack.cr
-      </p>
-      <p style="margin-top: 0.5rem">
-        © 2026 PawTrack CR. Tractive® es marca registrada de Tractive GmbH.
-        PawTrack no está afiliado oficialmente a Tractive.
-      </p>
+      <div class="logo">🐾 PawTrack <span>CR</span></div>
+      <p>Guía técnica de hardware — Interno · Agosto 2026</p>
     </footer>
+
+    <script>
+      // ── Scroll reveal ──
+      const observer = new IntersectionObserver(
+        entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } }),
+        { threshold: 0.1, rootMargin: '0px 0px -30px 0px' }
+      );
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+      // ── Cost calculator ──
+      const segments = {
+        qr: {
+          name: '🏷️ Placa QR sola',
+          initial: '₡1,500 – ₡4,500',
+          lines: [
+            { l: 'PawTrack Explorador', v: '₡0', alt: true },
+            { l: 'PawTrack Plus (opcional)', v: '₡2,990/mes' },
+          ],
+          total: '₡0 – ₡2,990/mes',
+          qr: { cls: 'ok', label: '✅ ES el QR — permanente' },
+          gps: { cls: 'no', label: '❌ Sin GPS' },
+          accounts: 'Solo PawTrack — sin cuentas externas',
+          warn: null,
+          forWho: 'El 80% del mercado — protección básica, costo mínimo'
+        },
+        oem: {
+          name: '📡 OEM Concox + QR láser',
+          initial: '₡22,000 – ₡26,000',
+          lines: [
+            { l: 'PawTrack Plus', v: '₡2,990/mes' },
+            { l: 'SIM IoT (Emnify)', v: '₡1,040/mes' },
+          ],
+          total: '~₡4,030/mes',
+          qr: { cls: 'ok', label: '✅ Grabado en enclosure' },
+          gps: { cls: 'ok', label: '✅ LTE básico · 30s–5min' },
+          accounts: 'PawTrack + SIM IoT (PawTrack puede gestionar)',
+          warn: null,
+          forWho: 'Dueños que quieren GPS sin el costo de Tractive'
+        },
+        tractive: {
+          name: '⭐ Tractive DOG 6',
+          initial: '₡41,000 + ₡2,000–₡4,500 placa',
+          lines: [
+            { l: 'PawTrack Plus', v: '₡2,990/mes' },
+            { l: '⚠️ Tractive (DIRECTO al usuario)', v: '₡5,200/mes' },
+          ],
+          total: '~₡8,190/mes',
+          qr: { cls: 'warn', label: '⚠️ Placa separada — dos piezas' },
+          gps: { cls: 'ok', label: '✅ Premium · worldwide · 12d battery' },
+          accounts: 'PawTrack + Tractive (cuenta obligatoria en tractive.com)',
+          warn: 'El usuario paga ₡5,200/mes DIRECTAMENTE a Tractive. PawTrack no puede incluir ni controlar este cobro.',
+          forWho: 'Usuarios premium o que ya tienen Tractive'
+        },
+        own: {
+          name: '🔧 Hardware PawTrack',
+          initial: '₡35,000 – ₡50,000 (futuro)',
+          lines: [
+            { l: 'PawTrack Plus', v: '₡2,990/mes' },
+            { l: 'SIM IoT (incluida en hardware)', v: '₡1,040/mes' },
+          ],
+          total: '~₡4,030/mes',
+          qr: { cls: 'ok', label: '✅ Integrado desde diseño' },
+          gps: { cls: 'ok', label: '✅ LTE-M custom CR' },
+          accounts: 'Solo PawTrack — SIM gestionada internamente',
+          warn: null,
+          forWho: 'Todos — el producto final ideal de PawTrack'
+        }
+      };
+
+      function renderCalc(key) {
+        const s = segments[key];
+        const panel = document.getElementById('calc-panel');
+        panel.innerHTML = `
+          <div class="calc-panel-title">${s.name}</div>
+          <div class="calc-line"><span class="calc-line-label">Inversión inicial</span><span class="calc-line-value">${s.initial}</span></div>
+          ${s.lines.map(l => `<div class="calc-line"><span class="calc-line-label">${l.l}</span><span class="calc-line-value">${l.v}</span></div>`).join('')}
+          <div class="calc-total"><span class="calc-total-label">Total mensual</span><span class="calc-total-value">${s.total}</span></div>
+          <div style="margin-top:1.25rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+            <span class="calc-badge calc-badge-${s.qr.cls}">${s.qr.label}</span>
+            <span class="calc-badge calc-badge-${s.gps.cls}">${s.gps.label}</span>
+          </div>
+          <div class="calc-line" style="margin-top:.75rem;border:none;padding:0;"><span class="calc-line-label">Cuentas</span><span class="calc-line-value" style="font-size:.78rem;text-align:right;">${s.accounts}</span></div>
+          <div style="margin-top:.5rem;font-size:.75rem;color:var(--text-muted);">${s.forWho}</div>
+          ${s.warn ? `<div class="calc-warning">⚠️ ${s.warn}</div>` : ''}
+        `;
+      }
+
+      document.querySelectorAll('.calc-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          document.querySelectorAll('.calc-option').forEach(o => o.classList.remove('active'));
+          opt.classList.add('active');
+          renderCalc(opt.dataset.seg);
+        });
+      });
+      renderCalc('qr');
+
+      // ── Provider tabs ──
+      document.querySelectorAll('.provider-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.provider-tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.provider-panel').forEach(p => p.classList.remove('active'));
+          tab.classList.add('active');
+          document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+        });
+      });
+
+      // ── Accordion ──
+      document.querySelectorAll('.accordion-trigger').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = btn.closest('.accordion-item');
+          const isOpen = item.classList.contains('open');
+          document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('open'));
+          if (!isOpen) item.classList.add('open');
+        });
+      });
+
+      // ── Nav scroll ──
+      const nav = document.querySelector('nav');
+      window.addEventListener('scroll', () => {
+        nav.style.background = window.scrollY > 60 ? 'rgba(5,5,10,.96)' : 'rgba(8,8,14,.9)';
+      }, { passive: true });
+    </script>
   </body>
 </html>
