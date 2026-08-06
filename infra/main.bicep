@@ -114,6 +114,91 @@ resource sightingPhotosContainer 'Microsoft.Storage/storageAccounts/blobServices
   }
 }
 
+resource foundPetPhotosContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  parent: blobService
+  name: 'found-pet-photos'
+  properties: {
+    publicAccess: 'Blob'
+  }
+}
+
+resource lostPetPhotosContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  parent: blobService
+  name: 'lost-pet-photos'
+  properties: {
+    publicAccess: 'Blob'
+  }
+}
+
+resource whatsappAvatarsContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  parent: blobService
+  name: 'whatsapp-avatars'
+  properties: {
+    publicAccess: 'None'  // Generados on-demand; no requieren acceso público directo
+  }
+}
+
+// ── Blob Lifecycle Policy ─────────────────────────────────────────────────────
+// Purge anonymous/ephemeral photo containers — sighting/found blobs are unclaimed after 90 days
+resource blobLifecyclePolicy 'Microsoft.Storage/storageAccounts/managementPolicies@2023-05-01' = {
+  parent: storageAccount
+  name: 'default'
+  properties: {
+    policy: {
+      rules: [
+        {
+          name: 'purge-sighting-photos'
+          enabled: true
+          type: 'Lifecycle'
+          definition: {
+            actions: {
+              baseBlob: {
+                delete: { daysAfterModificationGreaterThan: 90 }
+              }
+            }
+            filters: {
+              blobTypes: [ 'blockBlob' ]
+              prefixMatch: [ 'sighting-photos/' ]
+            }
+          }
+        }
+        {
+          name: 'purge-found-pet-photos'
+          enabled: true
+          type: 'Lifecycle'
+          definition: {
+            actions: {
+              baseBlob: {
+                delete: { daysAfterModificationGreaterThan: 90 }
+              }
+            }
+            filters: {
+              blobTypes: [ 'blockBlob' ]
+              prefixMatch: [ 'found-pet-photos/' ]
+            }
+          }
+        }
+        {
+          name: 'purge-whatsapp-avatars'
+          enabled: true
+          type: 'Lifecycle'
+          definition: {
+            actions: {
+              baseBlob: {
+                delete: { daysAfterModificationGreaterThan: 7 }
+              }
+            }
+            filters: {
+              blobTypes: [ 'blockBlob' ]
+              prefixMatch: [ 'whatsapp-avatars/' ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
 // ── Key Vault ─────────────────────────────────────────────────────────────────
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: keyVaultName
