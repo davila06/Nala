@@ -11,6 +11,7 @@ namespace PawTrack.Infrastructure.Medical;
 public sealed class VetReminderNotificationJob(IMedicalRepository medicalRepository,
     INotificationDispatcher notificationDispatcher,
     IPetRepository petRepository,
+    IUnitOfWork unitOfWork,
     ILogger<VetReminderNotificationJob> logger)
 {
     public async Task ExecuteAsync(CancellationToken ct)
@@ -20,6 +21,8 @@ public sealed class VetReminderNotificationJob(IMedicalRepository medicalReposit
 
         logger.LogInformation("VetReminderJob: checking {Count} upcoming reminders for {Date}", reminders.Count, today);
 
+        var dispatchedIds = new List<Guid>();
+
         foreach (var reminder in reminders)
         {
             try
@@ -27,18 +30,30 @@ public sealed class VetReminderNotificationJob(IMedicalRepository medicalReposit
                 var pet = await petRepository.GetByIdAsync(reminder.PetId, ct);
                 if (pet is null) continue;
 
-                var daysUntil = reminder.DueDate.DayNumber - today.DayNumber;
-                var message = daysUntil == 0
-                    ? $"¡Hoy es el día! {reminder.Title} para {pet.Name}."
-                    : $"En {daysUntil} día(s): {reminder.Title} para {pet.Name}.";
-
                 await notificationDispatcher.DispatchVetReminderAsync(
                     pet.OwnerId, pet.Name, reminder.Title, reminder.DueDate, ct);
+
+                dispatchedIds.Add(reminder.Id);
             }
             catch (Exception ex)
             {
                 logger.LogWarning(ex, "Failed to dispatch vet reminder {ReminderId}", reminder.Id);
             }
+        }
+
+        // Persist ReminderSentAt — fetch tracking copies to avoid stale EF state
+        foreach (var id in dispatchedIds)
+        {
+            var tracked = await medicalRepository.GetReminderByIdAsync(id, ct);
+            if (tracked is null) continue;
+            tracked.MarkReminderSent();
+            medicalRepository.UpdateReminder(tracked);
+        }
+
+        if (dispatchedIds.Count > 0)
+        {
+            await unitOfWork.SaveChangesAsync(ct);
+            logger.LogInformation("VetReminderJob: marked {Count} reminders as sent", dispatchedIds.Count);
         }
     }
 }

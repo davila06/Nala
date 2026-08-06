@@ -1,3 +1,4 @@
+using FluentValidation;
 using MediatR;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Subscriptions.Services;
@@ -207,5 +208,195 @@ public sealed class CompleteVetReminderCommandHandler(
         medicalRepository.UpdateReminder(reminder);
         await unitOfWork.SaveChangesAsync(ct);
         return Result.Success(true);
+    }
+}
+
+// ── Delete medical record ─────────────────────────────────────────────────────
+
+public sealed record DeleteMedicalRecordCommand(Guid RecordId, Guid RequestingUserId)
+    : IRequest<Result<Unit>>;
+
+public sealed class DeleteMedicalRecordCommandHandler(
+    IPetRepository petRepository,
+    IMedicalRepository medicalRepository,
+    IFamilyRepository familyRepository,
+    ISubscriptionService subscriptionService,
+    IBlobStorageService blobStorage,
+    IUnitOfWork unitOfWork)
+    : IRequestHandler<DeleteMedicalRecordCommand, Result<Unit>>
+{
+    public async Task<Result<Unit>> Handle(DeleteMedicalRecordCommand request, CancellationToken ct)
+    {
+        var isFamilia = await subscriptionService.IsFamiliaAsync(request.RequestingUserId, ct);
+        if (!isFamilia)
+            return Result.Failure<Unit>("El historial médico requiere el plan Familia.");
+
+        var record = await medicalRepository.GetByIdAsync(request.RecordId, ct);
+        if (record is null) return Result.Failure<Unit>("Registro no encontrado.");
+
+        var pet = await petRepository.GetByIdAsync(record.PetId, ct);
+        if (pet is null) return Result.Failure<Unit>("Mascota no encontrada.");
+
+        // Authorize: creator, pet owner, or family member of owner
+        var canDelete = record.CreatedByUserId == request.RequestingUserId
+            || pet.OwnerId == request.RequestingUserId
+            || await FamilyAccessChecker.CanAccessPetAsync(pet.OwnerId, request.RequestingUserId, familyRepository, ct);
+
+        if (!canDelete)
+            return Result.Failure<Unit>("Solo el creador del registro o el dueño de la mascota puede eliminarlo.");
+
+        // Best-effort blob cleanup — do not block deletion on storage failure
+        if (!string.IsNullOrEmpty(record.DocumentUrl))
+        {
+            try { await blobStorage.DeleteAsync(record.DocumentUrl, ct); }
+            catch { /* intentional: storage cleanup is non-critical */ }
+        }
+
+        medicalRepository.Delete(record);
+        await unitOfWork.SaveChangesAsync(ct);
+        return Result.Success(Unit.Value);
+    }
+}
+
+// ── Update medical record ─────────────────────────────────────────────────────
+
+public sealed record UpdateMedicalRecordCommand(
+    Guid RecordId,
+    Guid RequestingUserId,
+    MedicalRecordType Type,
+    DateOnly Date,
+    string Description,
+    string? VetName,
+    string? ClinicName,
+    DateOnly? NextDueDate) : IRequest<Result<MedicalRecordDto>>;
+
+public sealed class UpdateMedicalRecordCommandValidator : AbstractValidator<UpdateMedicalRecordCommand>
+{
+    public UpdateMedicalRecordCommandValidator()
+    {
+        RuleFor(x => x.Description).NotEmpty().MaximumLength(2000);
+        RuleFor(x => x.VetName).MaximumLength(200).When(x => x.VetName is not null);
+        RuleFor(x => x.ClinicName).MaximumLength(200).When(x => x.ClinicName is not null);
+        RuleFor(x => x.Date).LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(1)));
+    }
+}
+
+public sealed class UpdateMedicalRecordCommandHandler(
+    IPetRepository petRepository,
+    IMedicalRepository medicalRepository,
+    IFamilyRepository familyRepository,
+    ISubscriptionService subscriptionService,
+    IUnitOfWork unitOfWork)
+    : IRequestHandler<UpdateMedicalRecordCommand, Result<MedicalRecordDto>>
+{
+    public async Task<Result<MedicalRecordDto>> Handle(UpdateMedicalRecordCommand request, CancellationToken ct)
+    {
+        var isFamilia = await subscriptionService.IsFamiliaAsync(request.RequestingUserId, ct);
+        if (!isFamilia)
+            return Result.Failure<MedicalRecordDto>("El historial médico requiere el plan Familia.");
+
+        var record = await medicalRepository.GetByIdAsync(request.RecordId, ct);
+        if (record is null) return Result.Failure<MedicalRecordDto>("Registro no encontrado.");
+
+        var pet = await petRepository.GetByIdAsync(record.PetId, ct);
+        if (pet is null) return Result.Failure<MedicalRecordDto>("Mascota no encontrada.");
+
+        // Only the creator or family members can edit content
+        var canEdit = record.CreatedByUserId == request.RequestingUserId
+            || await FamilyAccessChecker.CanAccessPetAsync(pet.OwnerId, request.RequestingUserId, familyRepository, ct);
+
+        if (!canEdit)
+            return Result.Failure<MedicalRecordDto>("Solo el creador del registro puede editarlo.");
+
+        record.Update(request.Type, request.Date, request.Description,
+            request.VetName, request.ClinicName, request.NextDueDate);
+        medicalRepository.Update(record);
+        await unitOfWork.SaveChangesAsync(ct);
+        return Result.Success(MedicalRecordDto.FromDomain(record));
+    }
+}
+
+// ── Create standalone vet reminder ────────────────────────────────────────────
+
+public sealed record CreateVetReminderCommand(
+    Guid PetId,
+    Guid RequestingUserId,
+    MedicalRecordType Type,
+    DateOnly DueDate,
+    string Title,
+    string? Notes) : IRequest<Result<VetReminderDto>>;
+
+public sealed class CreateVetReminderCommandValidator : AbstractValidator<CreateVetReminderCommand>
+{
+    public CreateVetReminderCommandValidator()
+    {
+        RuleFor(x => x.Title).NotEmpty().MaximumLength(300);
+        RuleFor(x => x.Notes).MaximumLength(1000).When(x => x.Notes is not null);
+        RuleFor(x => x.DueDate).GreaterThan(DateOnly.FromDateTime(DateTime.UtcNow.Date));
+    }
+}
+
+public sealed class CreateVetReminderCommandHandler(
+    IPetRepository petRepository,
+    IMedicalRepository medicalRepository,
+    IFamilyRepository familyRepository,
+    ISubscriptionService subscriptionService,
+    IUnitOfWork unitOfWork)
+    : IRequestHandler<CreateVetReminderCommand, Result<VetReminderDto>>
+{
+    public async Task<Result<VetReminderDto>> Handle(CreateVetReminderCommand request, CancellationToken ct)
+    {
+        var isFamilia = await subscriptionService.IsFamiliaAsync(request.RequestingUserId, ct);
+        if (!isFamilia)
+            return Result.Failure<VetReminderDto>("Los recordatorios veterinarios requieren el plan Familia.");
+
+        var pet = await petRepository.GetByIdAsync(request.PetId, ct);
+        if (pet is null) return Result.Failure<VetReminderDto>("Mascota no encontrada.");
+        if (!await FamilyAccessChecker.CanAccessPetAsync(pet.OwnerId, request.RequestingUserId, familyRepository, ct))
+            return Result.Failure<VetReminderDto>("Acceso denegado.");
+
+        var reminder = VetReminder.Create(
+            request.PetId, request.RequestingUserId, request.Type,
+            request.DueDate, request.Title, request.Notes);
+
+        await medicalRepository.AddReminderAsync(reminder, ct);
+        await unitOfWork.SaveChangesAsync(ct);
+        return Result.Success(VetReminderDto.FromDomain(reminder));
+    }
+}
+
+// ── Delete vet reminder ───────────────────────────────────────────────────────
+
+public sealed record DeleteVetReminderCommand(Guid ReminderId, Guid RequestingUserId)
+    : IRequest<Result<Unit>>;
+
+public sealed class DeleteVetReminderCommandHandler(
+    IPetRepository petRepository,
+    IMedicalRepository medicalRepository,
+    IFamilyRepository familyRepository,
+    ISubscriptionService subscriptionService,
+    IUnitOfWork unitOfWork)
+    : IRequestHandler<DeleteVetReminderCommand, Result<Unit>>
+{
+    public async Task<Result<Unit>> Handle(DeleteVetReminderCommand request, CancellationToken ct)
+    {
+        var isFamilia = await subscriptionService.IsFamiliaAsync(request.RequestingUserId, ct);
+        if (!isFamilia)
+            return Result.Failure<Unit>("Los recordatorios veterinarios requieren el plan Familia.");
+
+        var reminder = await medicalRepository.GetReminderByIdAsync(request.ReminderId, ct);
+        if (reminder is null) return Result.Failure<Unit>("Recordatorio no encontrado.");
+
+        var pet = await petRepository.GetByIdAsync(reminder.PetId, ct);
+        if (pet is null) return Result.Failure<Unit>("Mascota no encontrada.");
+
+        var canDelete = reminder.OwnerId == request.RequestingUserId
+            || await FamilyAccessChecker.CanAccessPetAsync(pet.OwnerId, request.RequestingUserId, familyRepository, ct);
+        if (!canDelete)
+            return Result.Failure<Unit>("Solo el dueño del recordatorio puede eliminarlo.");
+
+        medicalRepository.DeleteReminder(reminder);
+        await unitOfWork.SaveChangesAsync(ct);
+        return Result.Success(Unit.Value);
     }
 }

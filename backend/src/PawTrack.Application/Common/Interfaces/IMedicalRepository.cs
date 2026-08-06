@@ -15,4 +15,5 @@ public interface IMedicalRepository
     Task<VetReminder?> GetReminderByIdAsync(Guid id, CancellationToken ct = default);
     Task AddReminderAsync(VetReminder reminder, CancellationToken ct = default);
     void UpdateReminder(VetReminder reminder);
+    void DeleteReminder(VetReminder reminder);
 }

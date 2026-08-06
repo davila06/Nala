@@ -44,4 +44,5 @@ public sealed class MedicalRepository(PawTrackDbContext db) : IMedicalRepository
         await db.VetReminders.AddAsync(reminder, ct);
 
     public void UpdateReminder(VetReminder reminder) => db.VetReminders.Update(reminder);
+    public void DeleteReminder(VetReminder reminder) => db.VetReminders.Remove(reminder);
 }

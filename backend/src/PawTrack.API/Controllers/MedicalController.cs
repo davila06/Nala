@@ -111,6 +111,84 @@ public sealed class MedicalController(ISender sender) : ControllerBase
         return File(result.Value!, "application/pdf", $"historial-{petId}.pdf");
     }
 
+    // ── DELETE /api/pets/{petId}/medical/{recordId} ───────────────────────────
+    [HttpDelete("{recordId:guid}")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> DeleteRecord(Guid petId, Guid recordId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new DeleteMedicalRecordCommand(recordId, userId), ct);
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        return NoContent();
+    }
+
+    // ── PUT /api/pets/{petId}/medical/{recordId} ──────────────────────────────
+    [HttpPut("{recordId:guid}")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(4096)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> UpdateRecord(
+        Guid petId,
+        Guid recordId,
+        [FromBody] UpdateMedicalRecordRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        if (!Enum.TryParse<MedicalRecordType>(request.Type, ignoreCase: true, out var recordType))
+            return BadRequest(new ProblemDetails { Detail = $"Tipo inválido: {request.Type}.", Status = 400 });
+
+        var result = await sender.Send(new UpdateMedicalRecordCommand(
+            recordId, userId, recordType,
+            request.Date, request.Description,
+            request.VetName, request.ClinicName, request.NextDueDate), ct);
+
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        return Ok(result.Value);
+    }
+
+    // ── POST /api/pets/{petId}/medical/reminders ──────────────────────────────
+    [HttpPost("reminders")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(2048)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> CreateReminder(
+        Guid petId,
+        [FromBody] CreateVetReminderRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        if (!Enum.TryParse<MedicalRecordType>(request.Type, ignoreCase: true, out var reminderType))
+            return BadRequest(new ProblemDetails { Detail = $"Tipo inválido: {request.Type}.", Status = 400 });
+
+        var result = await sender.Send(new CreateVetReminderCommand(
+            petId, userId, reminderType,
+            request.DueDate, request.Title, request.Notes), ct);
+
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        return Created(string.Empty, result.Value);
+    }
+
+    // ── DELETE /api/pets/{petId}/medical/reminders/{reminderId} ──────────────
+    [HttpDelete("reminders/{reminderId:guid}")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> DeleteReminder(Guid petId, Guid reminderId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new DeleteVetReminderCommand(reminderId, userId), ct);
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        return NoContent();
+    }
+
     private bool TryGetUserId(out Guid userId)
     {
         var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -126,3 +204,17 @@ public sealed record AddMedicalRecordRequest(
     string? ClinicName,
     DateOnly? NextDueDate,
     IFormFile? Document);
+
+public sealed record UpdateMedicalRecordRequest(
+    string Type,
+    DateOnly Date,
+    string Description,
+    string? VetName,
+    string? ClinicName,
+    DateOnly? NextDueDate);
+
+public sealed record CreateVetReminderRequest(
+    string Type,
+    DateOnly DueDate,
+    string Title,
+    string? Notes);
