@@ -105,14 +105,14 @@ Kippy es un rastreador GPS + salud para mascotas fabricado por **Datamars Digita
 
 **Especificaciones del hardware:**
 
-| Característica | Kippy DOG / CAT |
-| -------------- | --------------- |
-| Precio hardware | €41.99 (~$46 USD) |
-| Suscripción | Desde €3.33/mes |
-| Batería | Hasta 12 días (condiciones óptimas) |
-| Resistencia al agua | IP67 — sumergible 1m/30min |
-| Extras | Sonido de llamada, LED parpadeante, monitoreo de salud |
-| Distribución | Solo online en Europa (kippy.eu) — sin distribución en LatAm |
+| Característica      | Kippy DOG / CAT                                              |
+| ------------------- | ------------------------------------------------------------ |
+| Precio hardware     | €41.99 (~$46 USD)                                            |
+| Suscripción         | Desde €3.33/mes                                              |
+| Batería             | Hasta 12 días (condiciones óptimas)                          |
+| Resistencia al agua | IP67 — sumergible 1m/30min                                   |
+| Extras              | Sonido de llamada, LED parpadeante, monitoreo de salud       |
+| Distribución        | Solo online en Europa (kippy.eu) — sin distribución en LatAm |
 
 **Cobertura: solo Europa** ⚠️
 
@@ -131,6 +131,7 @@ El dominio tiene `CollarProvider.Kippy = 2` reservado y la integración está di
 Kippy no tiene una API pública documentada. El endpoint `https://api.kippy.eu/v1/` referenciado en el código es una API interna que funciona con una API Key generada desde la app del usuario — no un programa oficial de integración. **Usar bajo riesgo**: Kippy puede cambiar o deprecar sin aviso.
 
 **Veredicto para PawTrack CR:**
+
 - ❌ No funciona en Costa Rica (cobertura solo Europa)
 - ❌ Sin API pública documentada
 - ❌ Sin distribución en CR
@@ -545,7 +546,133 @@ El costo de ₡8,190/mes es elevado para el mercado CR. Por eso el posicionamien
 
 ---
 
-## 11. Collar PawTrack integrado — QR + GPS en un solo dispositivo
+## 11. Comparativo de opciones — mercado Costa Rica
+
+Tener varias opciones de precio es correcto: diferentes segmentos tienen diferentes presupuestos y necesidades. El QR integrado al collar (no como accesorio separado) es el estándar de calidad que debe cumplir toda opción que PawTrack recomiende o venda.
+
+### Tabla comparativa completa
+
+| Opción | Precio inicial | Costo mensual recurrente | QR integrado | GPS | Para quién |
+| ------ | -------------- | ------------------------ | :----------: | :-: | ---------- |
+| **🏷️ Placa QR sola** | ₡1,500–₡4,500 | ₡0 (Explorador gratis) | ✅ ES el QR | ❌ | Dueño básico, presupuesto limitado |
+| **📡 OEM Concox + QR láser** | ₡22,000–₡26,000 | ~₡4,000/mes (SIM + Plus) | ✅ Grabado en enclosure | ✅ Básico | Dueño activo, relación precio/valor óptima |
+| **⭐ Tractive DOG 6** | ₡41,000 + ₡2,000–₡4,500 placa | ~₡8,190/mes (Tractive + Plus) | ⚠️ Placa separada | ✅ Premium | Dueño premium, marca reconocida |
+| **🔧 Hardware PawTrack** | ₡35,000–₡50,000 (futuro) | ~₡4,000/mes (SIM + Plus) | ✅ Diseñado en enclosure | ✅ Custom | Dueño tech-forward, máxima integración |
+
+### Segmento 1 — El básico (₡0–₡2,990/mes)
+
+**Producto:** Placa QR física + PawTrack Explorador o Plus
+
+```
+Costo inicial:    ₡1,500–₡4,500 (placa grabada o tag de silicona)
+Costo mensual:    ₡0 (Explorador) o ₡2,990 (Plus)
+QR:               ✅ La placa ES el QR — no hay nada que perder ni cargar
+GPS:              ❌ Sin tracking en tiempo real
+Para quién:       El 80% del mercado — quieren protección básica sin costo elevado
+```
+
+**Cómo venderlo:** "Si tu mascota se pierde, cualquier persona que la encuentre escanea el collar con el celular y te llega una notificación en segundos. Sin instalar apps."
+
+Materiales para la placa:
+| Material | Durabilidad | Precio aprox. | Dónde hacer en CR |
+| -------- | ----------- | ------------- | ----------------- |
+| Aluminio grabado | 5+ años | ₡3,000–₡4,500 | Publigráfica, imprentas con láser |
+| Acrílico con QR impreso UV | 2–3 años | ₡1,500–₡2,500 | Imprenta digital local |
+| Tag silicona importado | 2–3 años | ₡2,000–₡3,500 | AliExpress MOQ 50 |
+| Tag NFC + QR combo | 3–4 años | ₡4,000–₡6,000 | AliExpress NTAG213 |
+
+---
+
+### Segmento 2 — El activo con GPS (₡4,000–₡5,000/mes)
+
+**Producto:** Collar OEM (Concox AT4 / Jimi / Queclink) con QR grabado láser + PawTrack Plus
+
+```
+Costo inicial:    ₡22,000–₡26,000 (hardware landed CR)
+Costo mensual:    ~₡1,000 SIM IoT + ₡2,990 Plus = ~₡4,000/mes
+QR:               ✅ Grabado con láser en el enclosure del tracker (+$0.50–$1.00)
+GPS:              ✅ LTE, actualización cada 30s–5min según movimiento
+Batería:          3–7 días con sleep optimizado
+Para quién:       Dueños que quieren GPS sin el costo de Tractive
+```
+
+**Por qué es la opción más atractiva para CR:**
+- Un solo objeto en el collar (QR + GPS integrados)
+- Costo mensual 50% menor que Tractive
+- Hardware PawTrack-branded (diferenciador)
+- El margen de hardware (~₡13,000–₡23,000) va directamente a PawTrack
+
+**Lo que necesita para funcionar:**
+- Integrar API del proveedor como `CollarProvider.Generic` (~3–5 días desarrollo)
+- SIM IoT activada (Emnify: $1.50–2.50/mes, cobertura Movistar+Kölbi en CR)
+- Pedido mínimo: 50 unidades (~$1,335 USD inversión total)
+
+---
+
+### Segmento 3 — El premium con Tractive (₡8,190/mes)
+
+**Producto:** Tractive DOG 6 + placa QR separada + PawTrack Plus
+
+```
+Costo inicial:    ₡41,000 tracker + ₡2,000–₡4,500 placa QR separada
+Costo mensual:    ₡5,200 (Tractive) + ₡2,990 (Plus) = ~₡8,190/mes
+QR:               ⚠️ Placa QR adicional — dos piezas en el collar
+GPS:              ✅ Premium (worldwide, health monitoring, 12-day battery)
+Para quién:       Dueños con perros activos/adventures o que ya tienen Tractive
+```
+
+**La limitación del QR con Tractive:** el tracker Tractive no tiene espacio para QR grabado porque no vendemos el hardware. El usuario necesita un segundo accesorio (placa QR separada). Esto es inferior a la experiencia de un collar integrado.
+
+**Cuándo tiene sentido recomendar Tractive:**
+- El usuario ya tiene un Tractive y solo quiere agregar PawTrack
+- Tiene perro grande activo que necesita tracking en exteriores intensivos
+- No le importa el costo mensual elevado
+- Nuestro ingreso: ₡10,400 comisión de afiliado (una sola vez)
+
+---
+
+### Segmento 4 — Hardware PawTrack propio (futuro)
+
+**Producto:** Collar diseñado por PawTrack con QR grabado en enclosure + Plus
+
+```
+Costo inicial:    ₡35,000–₡50,000 (estimado, con margen)
+Costo mensual:    ~₡1,000 SIM + ₡2,990 Plus = ~₡4,000/mes
+QR:               ✅ Integrado desde el diseño — el mejor UX posible
+GPS:              ✅ Optimizado para CR (LTE-M Movistar/Kölbi)
+Para quién:       Todos — es el producto final ideal de PawTrack
+```
+
+---
+
+### Recomendación de roadmap por volumen de usuarios
+
+```
+0–100 usuarios Plus
+  → Ofrecer solo placa QR + afiliado Tractive
+  → Cero inventario, cero riesgo
+
+100–500 usuarios Plus
+  → Lanzar collar OEM (Concox) con QR grabado
+  → MOQ 50 unidades: ~$1,335 USD
+  → Primera fuente de ingreso por hardware
+
+500+ usuarios Plus
+  → Estudiar hardware propio PawTrack
+  → Diferenciador de marca, mayor margen, mejor UX
+
+Expansión internacional (España)
+  → Activar integración Kippy (ya está en el código)
+  → Europa tiene cobertura nativa de Kippy
+```
+
+### El estándar mínimo para cualquier collar PawTrack
+
+> **Todo collar que PawTrack recomiende, venda o distribuya DEBE tener el QR integrado en el mismo objeto** — grabado en enclosure, placa encastrada o material resistente al agua. Dos objetos separados es experiencia fragmentada y mayor probabilidad de que el usuario pierda el QR cuando más lo necesita.
+
+---
+
+## 12. Collar PawTrack integrado — QR + GPS en un solo dispositivo
 
 **El concepto:** un único accesorio que sirve como identificador QR estático Y como tracker GPS activo. Elimina la necesidad de dos elementos separados en el collar.
 
