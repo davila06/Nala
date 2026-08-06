@@ -35,28 +35,42 @@ Tractive es la marca líder mundial de rastreadores GPS para mascotas. Usada por
 
 | Producto | Precio USD | Precio CRC aprox. | Dónde comprar |
 | -------- | ---------- | ----------------- | ------------- |
-| Tractive GPS 4 Flex (tracker) | $49.99 | ₡26,000 | Amazon.com + envío Aerocasillas |
-| Tractive GPS Dog LTE | $49.99 | ₡26,000 | Amazon.com |
-| Plan Tractive Individual (1 mes) | $4.99/mes | ₡2,600/mes | Tractive.com (usuario paga directo) |
-| Plan Tractive Premium (1 mes) | $9.99/mes | ₡5,200/mes | Tractive.com (usuario paga directo) |
-| Plan Tractive Individual (anual) | $47.88/año | ₡24,900/año | Tractive.com |
+| Tractive DOG 6 (tracker) | **$79.00** | ₡41,000 | Amazon.com + Aerocasillas |
+| Tractive CAT 6 Mini (tracker) | ~$79.00 | ₡41,000 | Amazon.com + Aerocasillas |
+| Plan Tractive 1 año | $10/mes ($120/año) | ₡62,400/año | Tractive.com (usuario paga directo) |
+| Plan Tractive 2 años | $7/mes ($168 c/2 años) | ₡87,360 c/2 años | Tractive.com |
+| Plan Tractive 5 años | $5/mes ($300 c/5 años) | ₡156,000 c/5 años | Tractive.com |
 
-> ⚠️ El plan mensual de Tractive lo paga el usuario **directamente a Tractive**. PawTrack no intermedia ese cobro ni lo incluye en sus precios.
+> ⚠️ El plan de Tractive lo paga el usuario **directamente a Tractive**. PawTrack no intermedia ese cobro.
+
+**Programa de afiliados — el único canal comercial que ofrece Tractive:**
+
+Tractive **no tiene programa de reventa ni descuentos por volumen**. Solo existe el programa de afiliados:
+
+| Dato | Valor |
+| ---- | ----- |
+| Comisión | **$20 USD fijo por tracker** (cualquier modelo) |
+| Cookie | 30 días |
+| Pago | 30 días después del cierre del mes |
+| Plataforma | [Impact.com](https://app.impact.com/campaign-promo-signup/Tractive.brand) |
+| Aprobación | Solicitud → revisión en pocos días hábiles |
+| Tracker gratis | Posible pedirlo, caso por caso, sin garantía |
+
+> Tractive rechaza: sitios de cupones, cashback, subnetworks de afiliados y quienes pujen en sus keywords de marca.
 
 **Nuestros bundles propuestos:**
 
 | Bundle | Qué incluye | Precio sugerido (CRC) | Nuestro ingreso |
 | ------ | ----------- | --------------------- | --------------- |
-| Solo Plus | PawTrack Plus 1 mes | ₡2,990 | ₡2,990 |
-| Pack GPS Link | PawTrack Plus 1 mes + link afiliado Tractive | ₡2,990 + afiliado | ₡2,990 + ~₡3,900 comisión |
-| Pack GPS Anual | PawTrack Plus 12 meses + link afiliado Tractive | ₡35,880 + afiliado | ₡35,880 + ~₡3,900 comisión |
+| Solo suscripción Plus | PawTrack Plus 1 mes | ₡2,990 | ₡2,990 |
+| Pack GPS Link | PawTrack Plus 1 mes + link afiliado DOG 6 | ₡2,990 + afiliado | ₡2,990 + ₡10,400 comisión |
+| Pack GPS Anual | PawTrack Plus 12 meses + link afiliado DOG 6 | ₡35,880 + afiliado | ₡35,880 + ₡10,400 comisión |
 
-**Comisión de afiliado Tractive:** 15% sobre $49.99 = **~$7.50 USD (~₡3,900)** por tracker vendido vía nuestro link.
-
-**Para activar:**
-- Registrarse en [go.tractive.com/affiliate](https://go.tractive.com/affiliate)
-- Obtener link de afiliado único
-- El backend ya redirige con `?utm_source=pawtrack` al iniciar el flujo OAuth
+**Para activar el programa:**
+1. Solicitar en [tractive.com/landing/affiliate](https://tractive.com/landing/affiliate)
+2. Aplicar via Impact.com → esperar aprobación
+3. Generar link único en el dashboard de Impact
+4. El backend ya agrega `?utm_source=pawtrack` al redirect OAuth
 
 - Flujo OAuth2 Authorization Code
 - El dueño conecta su cuenta Tractive desde la tab GPS de PawTrack
@@ -159,11 +173,11 @@ CollarLocation (write-heavy, purge >30 días)
 
 ### Resumen ejecutivo de precios
 
-| Opción | Inversión inicial | Costo/unidad | Precio venta sugerido | Margen neto | Tiempo al mercado |
-| ---------------------- | ----------------- | ------------ | --------------------- | ----------- | ----------------- |
-| **A — Afiliado Tractive** | **$0** | N/A (no tenemos inventario) | $49.99 USD (Amazon) | ~$7.50 USD comisión 15% | **Inmediato** |
-| **B — Hardware propio** | $3,000+ USD | ~$30 USD | $60–80 USD | $30–50 USD | 3–4 meses |
-| **C — OEM Concox** | ~$1,350 USD (50 u.) | ~$27 USD landed en CR | $38–48 USD (~₡20,000–25,000) | $10–20 USD | 2–3 meses |
+| Opción                    | Inversión inicial   | Costo/unidad                | Precio venta sugerido        | Margen neto             | Tiempo al mercado |
+| ------------------------- | ------------------- | --------------------------- | ---------------------------- | ----------------------- | ----------------- |
+| **A — Afiliado Tractive** | **$0**              | N/A (no tenemos inventario) | $79 USD DOG 6 (Amazon)       | **$20 USD fijo** por tracker | **Inmediato**     |
+| **B — Hardware propio**   | $3,000+ USD         | ~$30 USD                    | $60–80 USD                   | $30–50 USD              | 3–4 meses         |
+| **C — OEM Concox**        | ~$1,350 USD (50 u.) | ~$27 USD landed en CR       | $38–48 USD (~₡20,000–25,000) | $10–20 USD              | 2–3 meses         |
 
 **Recomendación:** arrancar con Opción A (cero riesgo, cero inventario) y pivotar a C cuando haya >100 suscriptores Plus que justifiquen el MOQ de 50 unidades.
 
@@ -220,22 +234,24 @@ Geofencing: alerta configurable por radio (implementar en Azure Stream Analytics
 
 **Precios detallados:**
 
-| Concepto | Costo USD |
-| -------- | --------- |
-| Unidad Concox AT4 (FCA Shenzhen) | $18.00 |
-| Flete DHL Express Shenzhen → CR (50 u.) | ~$200 / 50 = $4.00/u |
-| Impuestos importación CR (~15%) | ~$2.70/u |
-| SIM IoT mensual (Emnify/Hologram) | $2.00/mes/u |
-| **Costo total landed CR (hardware)** | **~$24.70/u** |
-| **Precio venta sugerido** | **₡20,000–₡25,000 (~$38–$48)** |
-| **Margen bruto hardware** | **~$13–$23/u** |
+| Concepto                                | Costo USD                      |
+| --------------------------------------- | ------------------------------ |
+| Unidad Concox AT4 (FCA Shenzhen)        | $18.00                         |
+| Flete DHL Express Shenzhen → CR (50 u.) | ~$200 / 50 = $4.00/u           |
+| Impuestos importación CR (~15%)         | ~$2.70/u                       |
+| SIM IoT mensual (Emnify/Hologram)       | $2.00/mes/u                    |
+| **Costo total landed CR (hardware)**    | **~$24.70/u**                  |
+| **Precio venta sugerido**               | **₡20,000–₡25,000 (~$38–$48)** |
+| **Margen bruto hardware**               | **~$13–$23/u**                 |
 
 **Inversión mínima para arrancar:**
+
 - MOQ 50 unidades: $900 hardware + $200 flete + $135 impuestos = **~$1,235 USD**
 - SIM activación para 50 collares: $100 (primer mes)
 - **Total para primer lote**: ~$1,335 USD (~₡694,000)
 
 **Contacto proveedor:**
+
 - Empresa: Shenzhen Concox Information Technology
 - Email: sales@concox.com
 - Modelo: AT4 (GPS + WiFi + LTE)
