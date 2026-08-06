@@ -98,19 +98,52 @@ Tractive:EncryptKey     → 32 bytes en base64 para cifrar el token OAuth (AES-2
 
 ---
 
-### 2.2 Kippy (pendiente ❌)
+### 2.2 Kippy (pendiente ❌ — no viable para CR)
 
-Kippy es un rastreador GPS+salud con funciones de actividad. Popular en España/LatAm.
+**¿Qué es Kippy?**
+Kippy es un rastreador GPS + salud para mascotas fabricado por **Datamars Digital Solutions SA** (Suiza/Italia). Popular en España y Europa. Incluye monitoreo de actividad, frecuencia cardíaca y zonas seguras.
 
-**API:** REST en `https://api.kippy.eu/v1/`
-**Autenticación:** API Key por usuario (no OAuth)
+**Especificaciones del hardware:**
 
-**Para implementar:**
+| Característica | Kippy DOG / CAT |
+| -------------- | --------------- |
+| Precio hardware | €41.99 (~$46 USD) |
+| Suscripción | Desde €3.33/mes |
+| Batería | Hasta 12 días (condiciones óptimas) |
+| Resistencia al agua | IP67 — sumergible 1m/30min |
+| Extras | Sonido de llamada, LED parpadeante, monitoreo de salud |
+| Distribución | Solo online en Europa (kippy.eu) — sin distribución en LatAm |
 
-1. Crear `KippyService : ICollarService` similar a `TractiveService`
-2. Registrar `HttpClient("Kippy")` en `InfrastructureServiceCollectionExtensions`
-3. Extender `TractivePollingJob` o crear `KippyPollingJob` para el mismo patrón
-4. Variable de config: `Kippy:ApiKey` por usuario (guardada cifrada como `ExternalTokenEncrypted`)
+**Cobertura: solo Europa** ⚠️
+
+El dispositivo usa una **SIM integrada** que solo conecta en estos países:
+
+> Austria, Bélgica, Croacia, Dinamarca, España, Francia, Alemania, Grecia, Hungría, Irlanda, Italia, Países Bajos, Noruega, Polonia, Portugal, Rumanía, Serbia, Suecia, Suiza, Reino Unido + Sudáfrica y algunos territorios franceses de ultramar.
+
+**Costa Rica no está en la lista. El tracker no funciona en CR.**
+
+**Por qué está en el código de todos modos:**
+
+El dominio tiene `CollarProvider.Kippy = 2` reservado y la integración está diseñada para usuarios que vengan a PawTrack desde España o Europa. Si PawTrack eventualmente se expande a España/LatAm con cobertura Kippy, la integración está lista para activar en ~1-2 días.
+
+**API de Kippy:**
+
+Kippy no tiene una API pública documentada. El endpoint `https://api.kippy.eu/v1/` referenciado en el código es una API interna que funciona con una API Key generada desde la app del usuario — no un programa oficial de integración. **Usar bajo riesgo**: Kippy puede cambiar o deprecar sin aviso.
+
+**Veredicto para PawTrack CR:**
+- ❌ No funciona en Costa Rica (cobertura solo Europa)
+- ❌ Sin API pública documentada
+- ❌ Sin distribución en CR
+- ✅ Código listo para activar si se expande a España
+- **Prioridad: ninguna** — no implementar hasta que haya usuarios en mercados de cobertura Kippy
+
+**API y autenticación cuando aplique:**
+
+```
+Base URL: https://api.kippy.eu/v1/
+Auth:     Bearer {apiKey}  ← generado desde cuenta Kippy del usuario
+Endpoint clave: GET /pet/{deviceId}/location
+```
 
 ---
 
@@ -128,14 +161,14 @@ Collar (ESP32-S3 + SIM7080G) → MQTT/TLS → Azure IoT Hub → Azure Function �
 
 #### Componentes recomendados
 
-| Componente | Modelo | Dónde comprar | Costo aprox |
-| ---------- | ------ | ------------- | ----------- |
-| MCU | ESP32-S3 (dual-core, BLE) | DigiKey / Mouser | $4 |
-| Módulo celular + GPS | SIM7080G (LTE-M + GNSS integrado) | SIMCOM directo / DigiKey | $12 |
-| Acelerómetro | ADXL345 (detección de movimiento) | AliExpress | $0.80 |
-| Batería | LiPo 3.7V 1000mAh (plana, 50×34×5mm) | AliExpress | $3.50 |
-| PCB | JLCPCB (5 prototipos ~$2 + SMT assembly) | jlcpcb.com | $2–15 |
-| Case | Impresión 3D TPU flexible (resistente a agua) | Local o Shapeways | $5–15 |
+| Componente           | Modelo                                        | Dónde comprar            | Costo aprox |
+| -------------------- | --------------------------------------------- | ------------------------ | ----------- |
+| MCU                  | ESP32-S3 (dual-core, BLE)                     | DigiKey / Mouser         | $4          |
+| Módulo celular + GPS | SIM7080G (LTE-M + GNSS integrado)             | SIMCOM directo / DigiKey | $12         |
+| Acelerómetro         | ADXL345 (detección de movimiento)             | AliExpress               | $0.80       |
+| Batería              | LiPo 3.7V 1000mAh (plana, 50×34×5mm)          | AliExpress               | $3.50       |
+| PCB                  | JLCPCB (5 prototipos ~$2 + SMT assembly)      | jlcpcb.com               | $2–15       |
+| Case                 | Impresión 3D TPU flexible (resistente a agua) | Local o Shapeways        | $5–15       |
 
 #### Gestión de batería y firmware — el problema real
 
@@ -170,12 +203,12 @@ Collar (ESP32-S3 + SIM7080G) → MQTT/TLS → Azure IoT Hub → Azure Function �
 
 **Matemáticas de batería (1000 mAh LiPo, mascota típica):**
 
-| Escenario | % tiempo activo | Consumo promedio | Duración |
-| --------- | --------------- | ---------------- | -------- |
-| Sin sleep (malo) | 100% | 280 mA | ~3.5 horas |
-| Con Light Sleep solo | 10% activo | ~30 mA | ~33 horas |
-| Con Deep Sleep (mascota en casa) | 2% activo | ~5 mA | **~8 días** |
-| Mascota activa (caminata 2h/día) | 15% activo | ~43 mA | **~23 horas** |
+| Escenario                        | % tiempo activo | Consumo promedio | Duración      |
+| -------------------------------- | --------------- | ---------------- | ------------- |
+| Sin sleep (malo)                 | 100%            | 280 mA           | ~3.5 horas    |
+| Con Light Sleep solo             | 10% activo      | ~30 mA           | ~33 horas     |
+| Con Deep Sleep (mascota en casa) | 2% activo       | ~5 mA            | **~8 días**   |
+| Mascota activa (caminata 2h/día) | 15% activo      | ~43 mA           | **~23 horas** |
 
 **La clave práctica:** el ADXL345 como interrupt source para el wake es lo que marca la diferencia. Sin acelerómetro, el timer forzado consume el 80% de la batería en wakups innecesarios.
 
@@ -187,14 +220,14 @@ void loop() {
     if (adxl345_motion_detected()) {
         gps_wakeup();
         sim_exit_psm();
-        
+
         CollarPosition pos = gps_hot_fix(timeout_ms: 5000);
         mqtt_publish(pos);
-        
+
         stationary_seconds = 0;
     } else {
         stationary_seconds += sleep_interval;
-        
+
         if (stationary_seconds > 1800) {  // 30 min quieto
             esp32_deep_sleep(wake_after_seconds: 1800,
                              wake_on_interrupt: ADXL345_INT_PIN);
@@ -323,26 +356,26 @@ Geofencing: alerta configurable por radio (implementar en Azure Stream Analytics
 
 **Proveedores OEM verificados con API REST documentada:**
 
-| Proveedor | Modelo | MOQ | Precio FCA Shenzhen | API | Cert. |
-| --------- | ------ | --- | ------------------- | --- | ----- |
-| **Concox** | AT4 (GPS+WiFi+LTE) | 50 u. | ~$18 | REST propietaria | FCC, CE, ROHS |
-| **Jimi IoT** | JM-VL01 / LL01 | 50 u. | ~$15–22 | REST + MQTT | FCC, CE |
-| **Queclink** | GL300 (miniatura) | 50 u. | ~$18–20 | REST + protocolo binario | FCC, CE, ROHS |
-| **ThinkRace** | TK115 (pet-specific) | 100 u. | ~$12–16 | REST + WebSocket | CE |
+| Proveedor     | Modelo               | MOQ    | Precio FCA Shenzhen | API                      | Cert.         |
+| ------------- | -------------------- | ------ | ------------------- | ------------------------ | ------------- |
+| **Concox**    | AT4 (GPS+WiFi+LTE)   | 50 u.  | ~$18                | REST propietaria         | FCC, CE, ROHS |
+| **Jimi IoT**  | JM-VL01 / LL01       | 50 u.  | ~$15–22             | REST + MQTT              | FCC, CE       |
+| **Queclink**  | GL300 (miniatura)    | 50 u.  | ~$18–20             | REST + protocolo binario | FCC, CE, ROHS |
+| **ThinkRace** | TK115 (pet-specific) | 100 u. | ~$12–16             | REST + WebSocket         | CE            |
 
 > Contactar siempre a `sales@[proveedor].com` pidiendo **API docs + 2 muestras** antes de confirmar orden. Las muestras cuestan $50–100 y llegan en 5–7 días.
 
 **Precios detallados (Concox AT4 como referencia):**
 
-| Concepto | Costo USD |
-| -------- | --------- |
-| Unidad Concox AT4 (FCA Shenzhen) | $18.00 |
-| Flete DHL Express Shenzhen → CR (50 u.) | ~$200 / 50 = $4.00/u |
-| Impuestos importación CR (~15%) | ~$2.70/u |
-| SIM IoT mensual (Emnify/Hologram) | $2.00/mes/u |
-| **Costo total landed CR (hardware)** | **~$24.70/u** |
-| **Precio venta sugerido** | **₡20,000–₡25,000 (~$38–$48)** |
-| **Margen bruto hardware** | **~$13–$23/u** |
+| Concepto                                | Costo USD                      |
+| --------------------------------------- | ------------------------------ |
+| Unidad Concox AT4 (FCA Shenzhen)        | $18.00                         |
+| Flete DHL Express Shenzhen → CR (50 u.) | ~$200 / 50 = $4.00/u           |
+| Impuestos importación CR (~15%)         | ~$2.70/u                       |
+| SIM IoT mensual (Emnify/Hologram)       | $2.00/mes/u                    |
+| **Costo total landed CR (hardware)**    | **~$24.70/u**                  |
+| **Precio venta sugerido**               | **₡20,000–₡25,000 (~$38–$48)** |
+| **Margen bruto hardware**               | **~$13–$23/u**                 |
 
 **Inversión mínima para arrancar:**
 
@@ -381,16 +414,18 @@ SEMANA 8
 
 **SIM IoT recomendada para CR:**
 
-| Proveedor | Cobertura CR | Precio/SIM/mes | Dashboard | API gestión |
-| --------- | ------------ | -------------- | --------- | ----------- |
-| **Emnify** | Movistar + Kölbi | $1.50–$2.50 (5 MB) | ✅ Web | ✅ REST |
-| **Hologram** | Claro + Kölbi | $1.00–$2.00 (1 MB) | ✅ Web | ✅ REST |
+| Proveedor    | Cobertura CR     | Precio/SIM/mes     | Dashboard | API gestión |
+| ------------ | ---------------- | ------------------ | --------- | ----------- |
+| **Emnify**   | Movistar + Kölbi | $1.50–$2.50 (5 MB) | ✅ Web    | ✅ REST     |
+| **Hologram** | Claro + Kölbi    | $1.00–$2.00 (1 MB) | ✅ Web    | ✅ REST     |
 
 **Agentes aduanales en CR (referencia):**
+
 - Grupo Logístico Aduanero (logisticaaduanera.cr)
 - Costo estimado: $80–$120 por trámite
 
 **Contacto Concox:**
+
 - Email: sales@concox.com | Modelo: AT4 | Cert: FCC, CE, ROHS
 
 ---
@@ -517,6 +552,7 @@ El costo de ₡8,190/mes es elevado para el mercado CR. Por eso el posicionamien
 ### El problema de dos piezas
 
 Hoy un usuario Plus necesita:
+
 1. Placa QR (plástico/metal grabado, ~₡2,000–4,500) — estático, sin batería
 2. Tracker Tractive ($79 USD) — GPS activo, batería, suscripción
 
@@ -552,12 +588,12 @@ Esto permite fabricar collares en lote sin saber a qué mascota se asignará cad
 
 ### Opciones de manufactura del QR en el enclosure
 
-| Método | Costo/unidad | Duración | Calidad | Apto para agua |
-| ------ | ------------ | -------- | ------- | -------------- |
-| **Grabado láser en ABS/PC** | $0.50–1.00 | Permanente | Alta | ✅ |
-| Sticker UV laminado (encapsulado) | $0.20–0.40 | 2–3 años | Media | ✅ (con laminado) |
-| Serigrafía en enclosure | $0.30–0.60 | Permanente | Media-alta | ✅ |
-| Placa metálica encastrada | $1.50–3.00 | Permanente | Muy alta | ✅ |
+| Método                            | Costo/unidad | Duración   | Calidad    | Apto para agua    |
+| --------------------------------- | ------------ | ---------- | ---------- | ----------------- |
+| **Grabado láser en ABS/PC**       | $0.50–1.00   | Permanente | Alta       | ✅                |
+| Sticker UV laminado (encapsulado) | $0.20–0.40   | 2–3 años   | Media      | ✅ (con laminado) |
+| Serigrafía en enclosure           | $0.30–0.60   | Permanente | Media-alta | ✅                |
+| Placa metálica encastrada         | $1.50–3.00   | Permanente | Muy alta   | ✅                |
 
 **Recomendación para MVP:** pedir al proveedor OEM (Concox/Jimi) que incluya **grabado láser** del QR en el enclosure. Esto se solicita en la orden de personalización y agrega ~$0.50–1.00/unidad. JLCPCB y los mismos fabricantes ofrecen este servicio.
 
@@ -574,12 +610,14 @@ CREATE TABLE CollarQrBindings (
 ```
 
 Y un endpoint nuevo:
+
 ```
 POST /api/collars/bind-serial
 Body: { serial: "PT-001234", petId: "..." }
 ```
 
 El perfil público `/p/{serial}` resuelve:
+
 1. Si está vinculado → muestra perfil de la mascota (igual que `/p/{petId}`)
 2. Si no está vinculado → muestra página de activación con CTA "Activar este collar"
 
@@ -592,13 +630,13 @@ El perfil público `/p/{serial}` resuelve:
 
 ### Timeline de implementación
 
-| Paso | Tiempo | Quién |
-| ---- | ------ | ----- |
-| Agregar tabla `CollarQrBindings` + endpoint bind-serial | 1 día | Backend |
-| Adaptar `/p/{id}` para resolver serial O petId | 0.5 día | Backend |
-| Pantalla de activación de collar en app | 1 día | Frontend |
-| Coordinar grabado láser con proveedor OEM | En próxima orden | — |
-| **Total de desarrollo** | **~2.5 días** | — |
+| Paso                                                    | Tiempo           | Quién    |
+| ------------------------------------------------------- | ---------------- | -------- |
+| Agregar tabla `CollarQrBindings` + endpoint bind-serial | 1 día            | Backend  |
+| Adaptar `/p/{id}` para resolver serial O petId          | 0.5 día          | Backend  |
+| Pantalla de activación de collar en app                 | 1 día            | Frontend |
+| Coordinar grabado láser con proveedor OEM               | En próxima orden | —        |
+| **Total de desarrollo**                                 | **~2.5 días**    | —        |
 
 ---
 
