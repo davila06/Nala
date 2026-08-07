@@ -156,22 +156,22 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 
 ### Comparativa B2C
 
-| Feature                     | Explorador | Plus ₡2,990 | Familia ₡4,990 |
-| --------------------------- | :--------: | :---------: | :------------: |
-| Mascotas                    |     1      |      3      |   Ilimitadas   |
-| Historial escaneos          | 5 últimos  |  Ilimitado  |   Ilimitado    |
-| Radio alertas               |    3 km    |    10 km    |   Sin límite   |
-| WhatsApp instantáneo        |     ✗      |     ✅      |       ✅       |
-| Búsqueda IA por foto        |   3/mes    |  Ilimitada  |   Ilimitada    |
-| Predicción movimiento IA    |     ✗      |     ✅      |       ✅       |
-| Case Room (coordinación)    |     ✗      |     ✅      |       ✅       |
-| GPS collar (tab)            |     ✗      |     ✅      |       ✅       |
-| Sistema Bounty (recompensa) |     ✗      |     ✅      |       ✅       |
-| Multi-usuario               |     ✗      |      ✗      |     ✅ (5)     |
-| Expediente médico (preview) |     ✗      |   ✅ (3 registros)   |       ✅       |
-| Expediente médico completo  |     ✗      |      ✗      |       ✅       |
-| PDF historial médico        |     ✗      |      ✗      |       ✅       |
-| Usuarios en familia         |     1      |      1      |       5        |
+| Feature                     | Explorador |   Plus ₡2,990    | Familia ₡4,990 |
+| --------------------------- | :--------: | :--------------: | :------------: |
+| Mascotas                    |     1      |        3         |   Ilimitadas   |
+| Historial escaneos          | 5 últimos  |    Ilimitado     |   Ilimitado    |
+| Radio alertas               |    3 km    |      10 km       |   Sin límite   |
+| WhatsApp instantáneo        |     ✗      |        ✅        |       ✅       |
+| Búsqueda IA por foto        |   3/mes    |    Ilimitada     |   Ilimitada    |
+| Predicción movimiento IA    |     ✗      |        ✅        |       ✅       |
+| Case Room (coordinación)    |     ✗      |        ✅        |       ✅       |
+| GPS collar (tab)            |     ✗      |        ✅        |       ✅       |
+| Sistema Bounty (recompensa) |     ✗      |        ✅        |       ✅       |
+| Multi-usuario               |     ✗      |        ✗         |     ✅ (5)     |
+| Expediente médico (preview) |     ✗      | ✅ (3 registros) |       ✅       |
+| Expediente médico completo  |     ✗      |        ✗         |       ✅       |
+| PDF historial médico        |     ✗      |        ✗         |       ✅       |
+| Usuarios en familia         |     1      |        1         |       5        |
 
 ---
 
