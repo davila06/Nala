@@ -67,8 +67,6 @@ public sealed class MedicalController(ISender sender) : ControllerBase
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
         return Ok(result.Value);
     }
-
-    // ── POST /api/pets/{petId}/medical ────────────────────────────────────────
     [HttpPost]
     [Consumes("multipart/form-data")]
     [EnableRateLimiting("public-api")]
@@ -195,6 +193,8 @@ public sealed class MedicalController(ISender sender) : ControllerBase
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
         return Ok(result.Value);
     }
+
+    // ── POST /api/pets/{petId}/medical ────────────────────────────────────────
 
     // ── POST /api/pets/{petId}/medical/reminders ──────────────────────────────
     [HttpPost("reminders")]

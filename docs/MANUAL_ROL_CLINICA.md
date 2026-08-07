@@ -145,11 +145,11 @@ Recibirás notificaciones cuando:
 
 Para ver y agregar registros al expediente médico de un paciente, tu clínica debe tener acceso activo. Hay tres formas:
 
-| Opción | Cómo funciona |
-| ------ | ------------- |
-| **A — Código del dueño** | El dueño genera un código de 8 caracteres desde su app y te lo comparte. Lo ingresas en tu portal para activar el acceso permanente. |
-| **B — Código de la clínica** | Tú generates un código desde el portal y se lo compartes al dueño para que lo active en su app. |
-| **C — Escaneo durante consulta** | Cuando escaneas el QR o chip de la mascota durante una visita, tienes acceso temporal hasta 90 días. |
+| Opción                           | Cómo funciona                                                                                                                        |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **A — Código del dueño**         | El dueño genera un código de 8 caracteres desde su app y te lo comparte. Lo ingresas en tu portal para activar el acceso permanente. |
+| **B — Código de la clínica**     | Tú generates un código desde el portal y se lo compartes al dueño para que lo active en su app.                                      |
+| **C — Escaneo durante consulta** | Cuando escaneas el QR o chip de la mascota durante una visita, tienes acceso temporal hasta 90 días.                                 |
 
 ### ¿Qué puedes hacer con el expediente?
 
@@ -159,7 +159,7 @@ Para ver y agregar registros al expediente médico de un paciente, tu clínica d
 
 ### Plan gating importante
 
-El dueño **no necesita** Plan Familia para que su clínica acceda y escriba en el expediente. La clínica puede agregar registros en cualquier momento. El dueño necesita Plan Familia para **leer** los registros desde su app. Si no tiene el plan, ve un contador: *"Tu veterinaria ha agregado N registros. Actualiza para verlos."*
+El dueño **no necesita** Plan Familia para que su clínica acceda y escriba en el expediente. La clínica puede agregar registros en cualquier momento. El dueño necesita Plan Familia para **leer** los registros desde su app. Si no tiene el plan, ve un contador: _"Tu veterinaria ha agregado N registros. Actualiza para verlos."_
 
 ### Auditoría de acceso
 
@@ -183,16 +183,16 @@ Los dueños de mascotas pueden compartir el código de verificación de un certi
 
 ## Probar los features como Clínica
 
-| Feature | Cómo |
-| ------- | ---- |
-| **Escanear QR** | Portal → Escanear → apunta la cámara al QR de una mascota de prueba |
-| **Buscar por microchip** | Portal → Escanear → ingresa manualmente el número de chip |
-| **Ver expediente** | Escanear mascota → "📋 Ver expediente" |
-| **Agregar registro** | Pestaña Expediente → rellenar formulario → Guardar |
-| **Ver estadísticas** | Portal → pestaña Estadísticas |
-| **API Keys** | Portal → pestaña API (requiere plan Plus o Partner) |
-| **Alertas cercanas** | Portal → pestaña 🚨 Alertas (requiere plan Plus o Partner) |
-| **Logo en mapa** | Sube el logo y verifica en `/map` con filtro de clínicas activo (requiere plan Partner) |
+| Feature                  | Cómo                                                                                    |
+| ------------------------ | --------------------------------------------------------------------------------------- |
+| **Escanear QR**          | Portal → Escanear → apunta la cámara al QR de una mascota de prueba                     |
+| **Buscar por microchip** | Portal → Escanear → ingresa manualmente el número de chip                               |
+| **Ver expediente**       | Escanear mascota → "📋 Ver expediente"                                                  |
+| **Agregar registro**     | Pestaña Expediente → rellenar formulario → Guardar                                      |
+| **Ver estadísticas**     | Portal → pestaña Estadísticas                                                           |
+| **API Keys**             | Portal → pestaña API (requiere plan Plus o Partner)                                     |
+| **Alertas cercanas**     | Portal → pestaña 🚨 Alertas (requiere plan Plus o Partner)                              |
+| **Logo en mapa**         | Sube el logo y verifica en `/map` con filtro de clínicas activo (requiere plan Partner) |
 
 > **Usuario de prueba sugerido:** Cuenta con rol `Clinic`, clínica aprobada, y plan `ClinicPlus` o `ClinicPartner` activo para probar las funciones premium.
 

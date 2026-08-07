@@ -546,7 +546,7 @@ function ClinicAccessLogSection({ petId }: { petId: string }) {
 }
 
 export function MedicalHistoryTab({ petId }: { petId: string }) {
-  const { data: records, isLoading: loadingRecords, isError: historyError } = useMedicalHistory(petId);
+  const { data: historyResult, isLoading: loadingRecords } = useMedicalHistory(petId);
   const { data: count } = useMedicalCount(petId);
   const { data: reminders, isLoading: loadingReminders } = useVetReminders(petId);
   const { data: publicClinics } = usePublicClinics();
@@ -558,10 +558,15 @@ export function MedicalHistoryTab({ petId }: { petId: string }) {
   const [typeFilter, setTypeFilter] = useState<string>("Todos");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const pendingReminders = reminders?.filter((r) => !r.isCompleted) ?? [];
+  const records = historyResult?.records ?? [];
+  const historyIsLimited = historyResult?.isLimited ?? false;
+  const accessTier = historyResult?.accessTier ?? "explorador";
+  const totalCount = historyResult?.totalCount ?? count?.totalRecords ?? 0;
   const completedReminders = reminders?.filter((r) => r.isCompleted) ?? [];
 
-  const filteredRecords = (records ?? [])
+  const pendingReminders = reminders?.filter((r) => !r.isCompleted) ?? [];
+
+  const filteredRecords = records
     .filter((r) => typeFilter === "Todos" || r.type === typeFilter)
     .filter((r) => {
       if (!searchQuery.trim()) return true;
@@ -656,28 +661,40 @@ export function MedicalHistoryTab({ petId }: { petId: string }) {
             <div className="h-16 rounded-xl bg-sand-100" />
             <div className="h-16 rounded-xl bg-sand-100" />
           </div>
-        ) : historyError ? (
-          // Plan Familia gate — show upgrade teaser with count if available
+        ) : accessTier === "explorador" && totalCount === 0 && !loadingRecords ? (
+          <Card padding="sm">
+            <p className="text-center text-sm text-sand-400">No hay registros médicos aún. Agrega el primero.</p>
+          </Card>
+        ) : accessTier === "explorador" && totalCount > 0 ? (
+          // Explorador with clinic records: show count teaser
           <div className="rounded-2xl border border-warn-200 bg-warn-50 p-5 text-center space-y-2">
             <p className="text-2xl">🔒</p>
-            <p className="text-sm font-semibold text-warn-800">
-              El historial médico requiere el plan Familia
-            </p>
-            {count && count.totalRecords > 0 && (
-              <p className="text-sm text-warn-700">
-                Tu mascota tiene <strong>{count.totalRecords} registro{count.totalRecords !== 1 ? "s" : ""}</strong>
-                {count.clinicRecords > 0 && ` (${count.clinicRecords} de tu veterinaria)`}.
-                Actualiza para verlos.
-              </p>
-            )}
-            <a href="/planes" className="inline-block rounded-lg bg-warn-600 px-4 py-2 text-xs font-semibold text-white hover:bg-warn-700">
-              Ver planes →
-            </a>
+            <p className="text-sm font-semibold text-warn-800">Tu veterinaria tiene registros médicos para esta mascota</p>
+            {count && <p className="text-sm text-warn-700">
+              <strong>{totalCount} registro{totalCount !== 1 ? "s" : ""}</strong>
+              {count.clinicRecords > 0 && ` (${count.clinicRecords} de tu veterinaria)`}.
+              Actualiza al plan Familia para verlos.
+            </p>}
+            <a href="/planes" className="inline-block rounded-lg bg-warn-600 px-4 py-2 text-xs font-semibold text-white hover:bg-warn-700">Ver planes →</a>
           </div>
         ) : filteredRecords.length > 0 ? (
-          <ul className="space-y-2">
-            {filteredRecords.map((r) => <RecordCard key={r.id} record={r} petId={petId} />)}
-          </ul>
+          <>
+            <ul className="space-y-2">
+              {filteredRecords.map((r) => <RecordCard key={r.id} record={r} petId={petId} />)}
+            </ul>
+            {/* Plus preview banner */}
+            {historyIsLimited && accessTier === "plus_preview" && (
+              <div className="mt-3 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 flex items-center justify-between gap-3">
+                <p className="text-xs text-brand-700">
+                  Viendo <strong>{records.length} de {totalCount}</strong> registros.
+                  Actualiza a Plan Familia para ver el historial completo.
+                </p>
+                <a href="/planes" className="shrink-0 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-700">
+                  Ver Familia →
+                </a>
+              </div>
+            )}
+          </>
         ) : (
           <Card padding="sm">
             <p className="text-center text-sm text-sand-400">

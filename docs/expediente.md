@@ -176,40 +176,40 @@ Todas las opciones crean un `ClinicMedicalAccessGrant` permanente una vez activa
 
 ### 6.1 Implementado ✅ (todos los gaps críticos y medios)
 
-| Feature | Commit/Sprint | Estado |
-| ------- | ------------- | ------ |
-| DELETE registro médico | feat(medical): close all critical gaps | ✅ |
-| PUT registro médico | feat(medical): close all critical gaps | ✅ |
-| DELETE recordatorio | feat(medical): close all critical gaps | ✅ |
-| POST recordatorio independiente | feat(medical): close all critical gaps | ✅ |
-| VetReminder notifications (bug fix) | feat(medical): close all critical gaps | ✅ |
-| WeightKg por visita | feat(medical): item 7 | ✅ |
-| DosageDescription, Frequency, DurationDays, MedicationEndDate | feat(medical): item 7 | ✅ |
-| Notificación cuando clínica agrega | AddClinicMedicalRecord (ya existía) | ✅ |
-| Log de acceso de clínica (ClinicMedicalAccessLog) | feat(medical): remaining items | ✅ |
-| GET /api/me/medical/reminders (aggregate) | feat(medical): remaining items | ✅ |
-| GET /api/pets/{id}/medical/access-log | feat(medical): remaining items | ✅ |
-| Vista calendario (ReminderCalendar) | feat(medical): remaining items | ✅ |
-| Búsqueda de texto en historial | feat(medical): remaining items | ✅ |
-| Dashboard multi-mascota (ReminderDashboard) | feat(medical): remaining items | ✅ |
-| Plan gating Opción C (count teaser) | feat(medical): item 9+14 | ✅ |
-| Filtro por tipo | feat(medical): steps 1-3 | ✅ |
-| Edit/Delete UI en RecordCard | feat(medical): steps 1-3 | ✅ |
-| 21 unit tests nuevos (853 total) | feat(medical): steps 1-3 | ✅ |
-| 18 integration tests nuevos | feat(medical): steps 1-3 | ✅ |
+| Feature                                                       | Commit/Sprint                          | Estado |
+| ------------------------------------------------------------- | -------------------------------------- | ------ |
+| DELETE registro médico                                        | feat(medical): close all critical gaps | ✅     |
+| PUT registro médico                                           | feat(medical): close all critical gaps | ✅     |
+| DELETE recordatorio                                           | feat(medical): close all critical gaps | ✅     |
+| POST recordatorio independiente                               | feat(medical): close all critical gaps | ✅     |
+| VetReminder notifications (bug fix)                           | feat(medical): close all critical gaps | ✅     |
+| WeightKg por visita                                           | feat(medical): item 7                  | ✅     |
+| DosageDescription, Frequency, DurationDays, MedicationEndDate | feat(medical): item 7                  | ✅     |
+| Notificación cuando clínica agrega                            | AddClinicMedicalRecord (ya existía)    | ✅     |
+| Log de acceso de clínica (ClinicMedicalAccessLog)             | feat(medical): remaining items         | ✅     |
+| GET /api/me/medical/reminders (aggregate)                     | feat(medical): remaining items         | ✅     |
+| GET /api/pets/{id}/medical/access-log                         | feat(medical): remaining items         | ✅     |
+| Vista calendario (ReminderCalendar)                           | feat(medical): remaining items         | ✅     |
+| Búsqueda de texto en historial                                | feat(medical): remaining items         | ✅     |
+| Dashboard multi-mascota (ReminderDashboard)                   | feat(medical): remaining items         | ✅     |
+| Plan gating Opción C (count teaser)                           | feat(medical): item 9+14               | ✅     |
+| Filtro por tipo                                               | feat(medical): steps 1-3               | ✅     |
+| Edit/Delete UI en RecordCard                                  | feat(medical): steps 1-3               | ✅     |
+| 21 unit tests nuevos (853 total)                              | feat(medical): steps 1-3               | ✅     |
+| 18 integration tests nuevos                                   | feat(medical): steps 1-3               | ✅     |
 
 ### 6.2 Visión futura (v2.0+)
 
-| Feature | Descripción | Valor |
-| ------- | ----------- | ----- |
-| Pasaporte veterinario digital | Vacunas + firma vet + QR verificación, útil para viajes/adopciones | Alto |
-| Integración SENASA | Certificado oficial CR para viajes internacionales | Muy alto |
-| Protocolo de vacunación por especie | Calendario recomendado con notificaciones proactivas para cachorros | Alto |
-| WhatsApp reminder | Bot ya existe, falta conectar con VetReminder | Alto |
-| Acceso temporal de clínica | Grants con expiración 30/60/90 días en lugar de permanente | Medio |
-| Lab results estructurados | Tipo específico para analíticas con valores de referencia | Medio |
-| Múltiples documentos por registro | Child entity para attachments adicionales en cirugías complejas | Medio |
-| Gráfico de peso | Curva de peso a lo largo del tiempo cuando WeightKg tiene histórico | Bajo |
+| Feature                             | Descripción                                                         | Valor    |
+| ----------------------------------- | ------------------------------------------------------------------- | -------- |
+| Pasaporte veterinario digital       | Vacunas + firma vet + QR verificación, útil para viajes/adopciones  | Alto     |
+| Integración SENASA                  | Certificado oficial CR para viajes internacionales                  | Muy alto |
+| Protocolo de vacunación por especie | Calendario recomendado con notificaciones proactivas para cachorros | Alto     |
+| WhatsApp reminder                   | Bot ya existe, falta conectar con VetReminder                       | Alto     |
+| Acceso temporal de clínica          | Grants con expiración 30/60/90 días en lugar de permanente          | Medio    |
+| Lab results estructurados           | Tipo específico para analíticas con valores de referencia           | Medio    |
+| Múltiples documentos por registro   | Child entity para attachments adicionales en cirugías complejas     | Medio    |
+| Gráfico de peso                     | Curva de peso a lo largo del tiempo cuando WeightKg tiene histórico | Bajo     |
 
 | Feature                                                                                                                                                    | Impacto | Esfuerzo         | Prioridad |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ---------------- | --------- |
@@ -271,7 +271,7 @@ POST   /api/pets/{petId}/medical/reminders     ← nuevo, standalone
 ### Plan gating — Opción C (implementada ✅)
 
 La clínica siempre puede escribir registros. El dueño necesita Plan Familia para leer.
-Los usuarios sin Plan Familia ven un teaser: *"Tu mascota tiene N registros (X de tu veterinaria). Actualiza para verlos."* via `GET /api/pets/{id}/medical/count` (sin gate de plan).
+Los usuarios sin Plan Familia ven un teaser: _"Tu mascota tiene N registros (X de tu veterinaria). Actualiza para verlos."_ via `GET /api/pets/{id}/medical/count` (sin gate de plan).
 
 ### Audit log (implementado ✅)
 

@@ -33,9 +33,13 @@ export interface MedicalRecordDto {
   medicationEndDate: string | null;
 }
 
-export interface MedicalRecordCountDto {
-  totalRecords: number;
-  clinicRecords: number;
+export interface MedicalHistoryResultDto {
+  records: MedicalRecordDto[];
+  totalCount: number;
+  /** "familia" | "plus_preview" | "explorador" */
+  accessTier: string;
+  isLimited: boolean;
+  previewLimit: number | null;
 }
 
 export interface PetReminderDto {
@@ -106,10 +110,15 @@ export interface CreateVetReminderPayload {
 
 // ── API ───────────────────────────────────────────────────────────────────────
 
+export interface MedicalRecordCountDto {
+  totalRecords: number;
+  clinicRecords: number;
+}
+
 export const medicalApi = {
-  getHistory: (petId: string): Promise<MedicalRecordDto[]> =>
+  getHistory: (petId: string): Promise<MedicalHistoryResultDto> =>
     apiClient
-      .get<MedicalRecordDto[]>(`/pets/${petId}/medical`)
+      .get<MedicalHistoryResultDto>(`/pets/${petId}/medical`)
       .then((r) => r.data),
 
   addRecord: (
@@ -151,9 +160,14 @@ export const medicalApi = {
       .get<PetReminderDto[]>(`/me/medical/reminders`, { params: { daysAhead } })
       .then((r) => r.data),
 
-  getAccessLog: (petId: string, limit = 50): Promise<ClinicAccessLogEntryDto[]> =>
+  getAccessLog: (
+    petId: string,
+    limit = 50,
+  ): Promise<ClinicAccessLogEntryDto[]> =>
     apiClient
-      .get<ClinicAccessLogEntryDto[]>(`/pets/${petId}/medical/access-log`, { params: { limit } })
+      .get<
+        ClinicAccessLogEntryDto[]
+      >(`/pets/${petId}/medical/access-log`, { params: { limit } })
       .then((r) => r.data),
 
   getReminders: (petId: string): Promise<VetReminderDto[]> =>

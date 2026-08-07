@@ -147,11 +147,21 @@ public sealed class AddMedicalRecordCommandHandler(
 
 // ── Get medical history ───────────────────────────────────────────────────────
 
-public sealed record GetMedicalHistoryQuery(Guid PetId, Guid RequestingUserId)
-    : IRequest<Result<IReadOnlyList<MedicalRecordDto>>>;
 // ── Get record count (no plan gate — used for upgrade teaser) ─────────────────
 
 public sealed record MedicalRecordCountDto(int TotalRecords, int ClinicRecords);
+
+/// <summary>
+/// Tiered response: Familia → full history; Plus → 3-record preview with masked fields;
+/// Explorador → empty list (frontend falls back to count-teaser endpoint).
+/// </summary>
+public sealed record MedicalHistoryResultDto(
+    IReadOnlyList<MedicalRecordDto> Records,
+    int TotalCount,
+    /// <summary>"familia" | "plus_preview" | "explorador"</summary>
+    string AccessTier,
+    bool IsLimited,
+    int? PreviewLimit);
 
 public sealed record GetMedicalRecordCountQuery(Guid PetId, Guid RequestingUserId)
     : IRequest<Result<MedicalRecordCountDto>>;
@@ -175,28 +185,60 @@ public sealed class GetMedicalRecordCountQueryHandler(
         return Result.Success(new MedicalRecordCountDto(records.Count, clinicCount));
     }
 }
+public sealed record GetMedicalHistoryQuery(Guid PetId, Guid RequestingUserId)
+    : IRequest<Result<MedicalHistoryResultDto>>;
+
 public sealed class GetMedicalHistoryQueryHandler(
     IPetRepository petRepository,
     IMedicalRepository medicalRepository,
     IFamilyRepository familyRepository,
     ISubscriptionService subscriptionService)
-    : IRequestHandler<GetMedicalHistoryQuery, Result<IReadOnlyList<MedicalRecordDto>>>
+    : IRequestHandler<GetMedicalHistoryQuery, Result<MedicalHistoryResultDto>>
 {
-    public async Task<Result<IReadOnlyList<MedicalRecordDto>>> Handle(
+    private const int PlusPreviewLimit = 3;
+
+    public async Task<Result<MedicalHistoryResultDto>> Handle(
         GetMedicalHistoryQuery request, CancellationToken ct)
     {
-        var isFamilia = await subscriptionService.IsFamiliaAsync(request.RequestingUserId, ct);
-        if (!isFamilia)
-            return Result.Failure<IReadOnlyList<MedicalRecordDto>>("El historial médico requiere el plan Familia.");
-
         var pet = await petRepository.GetByIdAsync(request.PetId, ct);
-        if (pet is null) return Result.Failure<IReadOnlyList<MedicalRecordDto>>("Mascota no encontrada.");
+        if (pet is null) return Result.Failure<MedicalHistoryResultDto>("Mascota no encontrada.");
         if (!await FamilyAccessChecker.CanAccessPetAsync(pet.OwnerId, request.RequestingUserId, familyRepository, ct))
-            return Result.Failure<IReadOnlyList<MedicalRecordDto>>("Acceso denegado.");
+            return Result.Failure<MedicalHistoryResultDto>("Acceso denegado.");
 
+        var tier = await subscriptionService.GetActiveUserTierAsync(request.RequestingUserId, ct);
         var records = await medicalRepository.GetByPetIdAsync(request.PetId, ct);
-        return Result.Success<IReadOnlyList<MedicalRecordDto>>(
-            records.Select(MedicalRecordDto.FromDomain).ToList());
+        var total = records.Count;
+
+        // Familia: full access
+        if (tier == PawTrack.Domain.Subscriptions.SubscriptionTier.UserFamilia)
+        {
+            return Result.Success(new MedicalHistoryResultDto(
+                records.Select(MedicalRecordDto.FromDomain).ToList(),
+                total, "familia", false, null));
+        }
+
+        // Plus: preview — last 3 records, sensitive fields masked
+        if (tier == PawTrack.Domain.Subscriptions.SubscriptionTier.UserPlus)
+        {
+            var preview = records
+                .Take(PlusPreviewLimit)
+                .Select(r => MedicalRecordDto.FromDomain(r) with
+                {
+                    DocumentUrl = null,       // documents are Familia-only
+                    WeightKg = null,          // health metrics are Familia-only
+                    DosageDescription = null,
+                    Frequency = null,
+                    DurationDays = null,
+                    MedicationEndDate = null,
+                })
+                .ToList();
+            return Result.Success(new MedicalHistoryResultDto(
+                preview, total, "plus_preview", true, PlusPreviewLimit));
+        }
+
+        // Explorador: return empty — frontend shows count teaser from /medical/count
+        return Result.Success(new MedicalHistoryResultDto(
+            [], total, "explorador", true, 0));
     }
 }
 

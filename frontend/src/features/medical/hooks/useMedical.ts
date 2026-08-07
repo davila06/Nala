@@ -12,7 +12,7 @@ export function useMedicalHistory(petId: string) {
     queryFn: () => medicalApi.getHistory(petId),
     staleTime: 30_000,
     enabled: !!petId,
-    retry: false, // 422 from plan gate should not retry
+    retry: false,
   });
 }
 

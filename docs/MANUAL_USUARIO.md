@@ -519,15 +519,15 @@ Cada mascota tiene una sección **Salud 🏥** en su perfil donde puedes llevar 
 
 ### Tipos de registro
 
-| Tipo               | Descripción                     |
-| ------------------ | ------------------------------- |
-| 💉 Vacuna          | Vacunas aplicadas               |
-| 🪱 Desparasitación | Tratamientos antiparasitarios   |
-| 🩺 Consulta        | Visitas al veterinario          |
-| 🔪 Cirugía         | Procedimientos quirúrgicos      |
+| Tipo               | Descripción                                                          |
+| ------------------ | -------------------------------------------------------------------- |
+| 💉 Vacuna          | Vacunas aplicadas                                                    |
+| 🪱 Desparasitación | Tratamientos antiparasitarios                                        |
+| 🩺 Consulta        | Visitas al veterinario                                               |
+| 🔪 Cirugía         | Procedimientos quirúrgicos                                           |
 | 💊 Medicamento     | Tratamientos con medicamentos (incluye dosis, frecuencia y duración) |
-| 🌿 Alergia         | Alergias conocidas              |
-| 📋 Otro            | Cualquier otra anotación médica |
+| 🌿 Alergia         | Alergias conocidas                                                   |
+| 📋 Otro            | Cualquier otra anotación médica                                      |
 
 ### Agregar un registro
 

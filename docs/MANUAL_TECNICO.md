@@ -193,37 +193,37 @@ El corazón del sistema. Sin dependencias externas.
 
 **Entidades principales:**
 
-| Entidad             | Descripción                                                  |
-| ------------------- | ------------------------------------------------------------ |
-| `User`              | Cuenta de usuario. Bcrypt 12. Lockout. Tokens SHA-256.       |
-| `RefreshToken`      | Token de renovación de sesión JWT.                           |
-| `Pet`               | Mascota. Especie, raza, foto, microchip, estado.             |
-| `QrScanEvent`       | Registro de cada escaneo del QR de una mascota.              |
-| `PetPhotoEmbedding` | Vector de 1024 dimensiones del embedding de la foto.         |
-| `LostPetEvent`      | Reporte de pérdida. Estado, ubicación, contacto, recompensa. |
-| `SearchZone`        | Zona (300 m) de la cuadrícula de búsqueda.                   |
-| `Sighting`          | Avistamiento anónimo. Sin PII del reportante.                |
-| `FoundPetReport`    | Reporte "encontré una mascota sin QR".                       |
-| `ChatMessage`       | Mensaje en el chat enmascarado.                              |
-| `HandoverCode`           | Código de 4 dígitos para entrega segura.                        |
-| `FraudReport`            | Reporte de comportamiento sospechoso.                           |
-| `AllyProfile`            | Perfil de organización aliada verificada.                       |
-| `FosterVolunteer`        | Voluntario de custodia temporal.                                |
-| `CustodyRecord`          | Registro de custodia activa.                                    |
-| `ClinicProfile`          | Perfil de veterinaria afiliada.                                 |
-| `ClinicScanLog`          | Registro de escaneo de microchip por clínica.                   |
-| `BotSession`             | Sesión conversacional de WhatsApp.                              |
-| `ContributorScore`       | Puntaje de reunificaciones del usuario.                         |
-| `BroadcastAttempt`       | Registro de intento de difusión por canal.                      |
-| `NotificationItem`       | Notificación in-app.                                            |
-| `UserLocation`           | Preferencia de ubicación y alertas geográficas.                 |
-| `PushSubscription`       | Endpoint para notificaciones push web.                          |
-| `MedicalRecord`          | Registro médico de mascota. 7 tipos + campos de medicación/peso.|
-| `VetReminder`            | Recordatorio veterinario con job diario de notificación.        |
-| `ClinicMedicalAccessGrant`| Grant de acceso permanente de clínica al expediente.           |
-| `ClinicMedicalAccessLog` | Audit trail: cada vez que una clínica consulta el expediente.   |
-| `FamilyAccount`          | Cuenta familiar. Hasta 5 miembros. Plan Familia requerido.      |
-| `FamilyMembership`       | Membresía de un usuario a una cuenta familiar.                  |
+| Entidad                    | Descripción                                                      |
+| -------------------------- | ---------------------------------------------------------------- |
+| `User`                     | Cuenta de usuario. Bcrypt 12. Lockout. Tokens SHA-256.           |
+| `RefreshToken`             | Token de renovación de sesión JWT.                               |
+| `Pet`                      | Mascota. Especie, raza, foto, microchip, estado.                 |
+| `QrScanEvent`              | Registro de cada escaneo del QR de una mascota.                  |
+| `PetPhotoEmbedding`        | Vector de 1024 dimensiones del embedding de la foto.             |
+| `LostPetEvent`             | Reporte de pérdida. Estado, ubicación, contacto, recompensa.     |
+| `SearchZone`               | Zona (300 m) de la cuadrícula de búsqueda.                       |
+| `Sighting`                 | Avistamiento anónimo. Sin PII del reportante.                    |
+| `FoundPetReport`           | Reporte "encontré una mascota sin QR".                           |
+| `ChatMessage`              | Mensaje en el chat enmascarado.                                  |
+| `HandoverCode`             | Código de 4 dígitos para entrega segura.                         |
+| `FraudReport`              | Reporte de comportamiento sospechoso.                            |
+| `AllyProfile`              | Perfil de organización aliada verificada.                        |
+| `FosterVolunteer`          | Voluntario de custodia temporal.                                 |
+| `CustodyRecord`            | Registro de custodia activa.                                     |
+| `ClinicProfile`            | Perfil de veterinaria afiliada.                                  |
+| `ClinicScanLog`            | Registro de escaneo de microchip por clínica.                    |
+| `BotSession`               | Sesión conversacional de WhatsApp.                               |
+| `ContributorScore`         | Puntaje de reunificaciones del usuario.                          |
+| `BroadcastAttempt`         | Registro de intento de difusión por canal.                       |
+| `NotificationItem`         | Notificación in-app.                                             |
+| `UserLocation`             | Preferencia de ubicación y alertas geográficas.                  |
+| `PushSubscription`         | Endpoint para notificaciones push web.                           |
+| `MedicalRecord`            | Registro médico de mascota. 7 tipos + campos de medicación/peso. |
+| `VetReminder`              | Recordatorio veterinario con job diario de notificación.         |
+| `ClinicMedicalAccessGrant` | Grant de acceso permanente de clínica al expediente.             |
+| `ClinicMedicalAccessLog`   | Audit trail: cada vez que una clínica consulta el expediente.    |
+| `FamilyAccount`            | Cuenta familiar. Hasta 5 miembros. Plan Familia requerido.       |
+| `FamilyMembership`         | Membresía de un usuario a una cuenta familiar.                   |
 
 ### 3.4 PawTrack.Infrastructure
 
@@ -243,10 +243,10 @@ Implementaciones de interfaces definidas en Application y Domain.
 
 **Hosted services:**
 
-| Servicio | Propósito |
-| -------- | --------- |
-| `EmbeddingRefreshHostedService` | Regenera embeddings de fotos de mascotas periódicamente |
-| `VetReminderHostedService` | Corre diario a las 08:00 CR (14:00 UTC). Envía push a dueños con recordatorios que vencen en ≤3 días. Persiste `ReminderSentAt` para evitar duplicados. |
+| Servicio                        | Propósito                                                                                                                                               |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `EmbeddingRefreshHostedService` | Regenera embeddings de fotos de mascotas periódicamente                                                                                                 |
+| `VetReminderHostedService`      | Corre diario a las 08:00 CR (14:00 UTC). Envía push a dueños con recordatorios que vencen en ≤3 días. Persiste `ReminderSentAt` para evitar duplicados. |
 
 ---
 
@@ -816,41 +816,41 @@ _(El claim/clear/release de zonas va por SignalR — ver sección 12)_
 
 > Plan Familia requerido para lectura/escritura del dueño. Clinicas pueden escribir siempre (con grant activo). `/count` no requiere plan.
 
-| Método | Endpoint | Plan | Descripción |
-| ------ | -------- | ---- | ----------- |
-| GET    | `/`                          | Familia   | Historial completo de la mascota |
-| POST   | `/`                          | Familia   | Agregar registro (multipart, 5 MB) |
-| PUT    | `/{recordId}`                | Familia   | Editar registro (creator/family) |
-| DELETE | `/{recordId}`                | Familia   | Eliminar registro + blob cleanup |
-| GET    | `/count`                     | Cualquiera | Count de registros (teaser para no-Familia) |
-| GET    | `/reminders`                 | Familia   | Recordatorios pendientes de la mascota |
-| POST   | `/reminders`                 | Familia   | Crear recordatorio standalone |
-| PUT    | `/reminders/{id}/complete`   | Familia   | Marcar recordatorio como completado |
-| DELETE | `/reminders/{id}`            | Familia   | Eliminar recordatorio |
-| GET    | `/export`                    | Familia   | Exportar historial como PDF |
-| GET    | `/access-log`                | Familia   | Historial de accesos de clínicas (audit log) |
+| Método | Endpoint                   | Plan       | Descripción                                  |
+| ------ | -------------------------- | ---------- | -------------------------------------------- |
+| GET    | `/`                        | Familia    | Historial completo de la mascota             |
+| POST   | `/`                        | Familia    | Agregar registro (multipart, 5 MB)           |
+| PUT    | `/{recordId}`              | Familia    | Editar registro (creator/family)             |
+| DELETE | `/{recordId}`              | Familia    | Eliminar registro + blob cleanup             |
+| GET    | `/count`                   | Cualquiera | Count de registros (teaser para no-Familia)  |
+| GET    | `/reminders`               | Familia    | Recordatorios pendientes de la mascota       |
+| POST   | `/reminders`               | Familia    | Crear recordatorio standalone                |
+| PUT    | `/reminders/{id}/complete` | Familia    | Marcar recordatorio como completado          |
+| DELETE | `/reminders/{id}`          | Familia    | Eliminar recordatorio                        |
+| GET    | `/export`                  | Familia    | Exportar historial como PDF                  |
+| GET    | `/access-log`              | Familia    | Historial de accesos de clínicas (audit log) |
 
 ### Expediente desde clínica — `/api/clinics/patients/{petId}/medical`
 
-| Método | Endpoint | Clínica activa | Descripción |
-| ------ | -------- | :------------: | ----------- |
-| GET    | `/`      | ✅             | Ver expediente del paciente (requiere grant o scan reciente) |
-| POST   | `/`      | ✅             | Agregar registro al expediente del paciente |
+| Método | Endpoint | Clínica activa | Descripción                                                  |
+| ------ | -------- | :------------: | ------------------------------------------------------------ |
+| GET    | `/`      |       ✅       | Ver expediente del paciente (requiere grant o scan reciente) |
+| POST   | `/`      |       ✅       | Agregar registro al expediente del paciente                  |
 
 ### Aggregate reminders — `/api/me/medical/reminders`
 
-| Método | Endpoint | Plan | Descripción |
-| ------ | -------- | ---- | ----------- |
+| Método | Endpoint                                 | Plan    | Descripción                                               |
+| ------ | ---------------------------------------- | ------- | --------------------------------------------------------- |
 | GET    | `/api/me/medical/reminders?daysAhead=30` | Familia | Todos los recordatorios de todas las mascotas del usuario |
 
 ### Acceso clínica — `/api/pets/{petId}/clinic-access`
 
-| Método | Endpoint | Descripción |
-| ------ | -------- | ----------- |
-| GET    | `/`      | Lista de grants activos y pendientes |
-| POST   | `/code`  | Dueño genera código de 8 chars para la clínica |
-| POST   | `/accept`| Dueño acepta el código que generó la clínica |
-| DELETE | `/{clinicId}` | Revocar acceso de una clínica |
+| Método | Endpoint      | Descripción                                    |
+| ------ | ------------- | ---------------------------------------------- |
+| GET    | `/`           | Lista de grants activos y pendientes           |
+| POST   | `/code`       | Dueño genera código de 8 chars para la clínica |
+| POST   | `/accept`     | Dueño acepta el código que generó la clínica   |
+| DELETE | `/{clinicId}` | Revocar acceso de una clínica                  |
 
 ### Módulo WhatsApp — `/api/whatsapp`
 
