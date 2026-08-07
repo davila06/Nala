@@ -24,6 +24,18 @@ export interface MedicalRecordDto {
   createdAt: string;
   clinicId: string | null;
   source: "Owner" | "Clinic";
+  // Per-visit health metrics
+  weightKg: number | null;
+  // Medication-specific fields
+  dosageDescription: string | null;
+  frequency: string | null;
+  durationDays: number | null;
+  medicationEndDate: string | null;
+}
+
+export interface MedicalRecordCountDto {
+  totalRecords: number;
+  clinicRecords: number;
 }
 
 export interface VetReminderDto {
@@ -44,6 +56,11 @@ export interface AddMedicalRecordPayload {
   clinicName?: string;
   nextDueDate?: string;
   document?: File;
+  weightKg?: number;
+  dosageDescription?: string;
+  frequency?: string;
+  durationDays?: number;
+  medicationEndDate?: string;
 }
 
 export interface UpdateMedicalRecordPayload {
@@ -53,6 +70,11 @@ export interface UpdateMedicalRecordPayload {
   vetName?: string;
   clinicName?: string;
   nextDueDate?: string;
+  weightKg?: number;
+  dosageDescription?: string;
+  frequency?: string;
+  durationDays?: number;
+  medicationEndDate?: string;
 }
 
 export interface CreateVetReminderPayload {
@@ -82,6 +104,11 @@ export const medicalApi = {
     if (payload.clinicName) form.append("clinicName", payload.clinicName);
     if (payload.nextDueDate) form.append("nextDueDate", payload.nextDueDate);
     if (payload.document) form.append("document", payload.document);
+    if (payload.weightKg != null) form.append("weightKg", String(payload.weightKg));
+    if (payload.dosageDescription) form.append("dosageDescription", payload.dosageDescription);
+    if (payload.frequency) form.append("frequency", payload.frequency);
+    if (payload.durationDays != null) form.append("durationDays", String(payload.durationDays));
+    if (payload.medicationEndDate) form.append("medicationEndDate", payload.medicationEndDate);
 
     return apiClient
       .post<MedicalRecordDto>(`/pets/${petId}/medical`, form, {
@@ -89,6 +116,11 @@ export const medicalApi = {
       })
       .then((r) => r.data);
   },
+
+  getCount: (petId: string): Promise<MedicalRecordCountDto> =>
+    apiClient
+      .get<MedicalRecordCountDto>(`/pets/${petId}/medical/count`)
+      .then((r) => r.data),
 
   getReminders: (petId: string): Promise<VetReminderDto[]> =>
     apiClient
@@ -101,7 +133,9 @@ export const medicalApi = {
       .then(() => undefined),
 
   deleteRecord: (petId: string, recordId: string): Promise<void> =>
-    apiClient.delete(`/pets/${petId}/medical/${recordId}`).then(() => undefined),
+    apiClient
+      .delete(`/pets/${petId}/medical/${recordId}`)
+      .then(() => undefined),
 
   updateRecord: (
     petId: string,

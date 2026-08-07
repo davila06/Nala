@@ -23,6 +23,12 @@ public sealed class MedicalRecordConfiguration : IEntityTypeConfiguration<Medica
         builder.Property(x => x.DocumentUrl).HasMaxLength(500);
         builder.Property(x => x.CreatedAt).IsRequired();
 
+        builder.Property(x => x.WeightKg).HasColumnType("decimal(5,2)");
+        builder.Property(x => x.DosageDescription).HasMaxLength(300);
+        builder.Property(x => x.Frequency).HasMaxLength(100);
+        builder.Property(x => x.DurationDays);
+        builder.Property(x => x.MedicationEndDate);
+
         builder.HasIndex(x => x.PetId);
         builder.HasIndex(x => new { x.PetId, x.Date });
         builder.HasIndex(x => x.ClinicId).HasFilter("[ClinicId] IS NOT NULL");

@@ -36,14 +36,20 @@ public sealed record MedicalRecordDto(
     string? DocumentUrl,
     DateTimeOffset CreatedAt,
     Guid? ClinicId,
-    string Source)  // "Owner" | "Clinic"
+    string Source,
+    decimal? WeightKg,
+    string? DosageDescription,
+    string? Frequency,
+    int? DurationDays,
+    DateOnly? MedicationEndDate)
 {
     public static MedicalRecordDto FromDomain(MedicalRecord r) => new(
         r.Id, r.PetId, r.Type.ToString(), r.Date,
         r.Description, r.VetName, r.ClinicName,
         r.NextDueDate, r.DocumentUrl, r.CreatedAt,
         r.ClinicId,
-        r.ClinicId.HasValue ? "Clinic" : "Owner");
+        r.ClinicId.HasValue ? "Clinic" : "Owner",
+        r.WeightKg, r.DosageDescription, r.Frequency, r.DurationDays, r.MedicationEndDate);
 }
 
 public sealed record VetReminderDto(
@@ -71,7 +77,12 @@ public sealed record AddMedicalRecordCommand(
     string? ClinicName,
     DateOnly? NextDueDate,
     byte[]? DocumentBytes,
-    string? DocumentContentType) : IRequest<Result<MedicalRecordDto>>;
+    string? DocumentContentType,
+    decimal? WeightKg = null,
+    string? DosageDescription = null,
+    string? Frequency = null,
+    int? DurationDays = null,
+    DateOnly? MedicationEndDate = null) : IRequest<Result<MedicalRecordDto>>;
 
 public sealed class AddMedicalRecordCommandHandler(
     IPetRepository petRepository,
@@ -99,7 +110,12 @@ public sealed class AddMedicalRecordCommandHandler(
         var record = MedicalRecord.Create(
             request.PetId, request.RequestingUserId, request.Type,
             request.Date, request.Description,
-            request.VetName, request.ClinicName, request.NextDueDate);
+            request.VetName, request.ClinicName, request.NextDueDate,
+            weightKg: request.WeightKg,
+            dosageDescription: request.DosageDescription,
+            frequency: request.Frequency,
+            durationDays: request.DurationDays,
+            medicationEndDate: request.MedicationEndDate);
 
         if (request.DocumentBytes is { Length: > 0 })
         {
@@ -133,7 +149,32 @@ public sealed class AddMedicalRecordCommandHandler(
 
 public sealed record GetMedicalHistoryQuery(Guid PetId, Guid RequestingUserId)
     : IRequest<Result<IReadOnlyList<MedicalRecordDto>>>;
+// ── Get record count (no plan gate — used for upgrade teaser) ─────────────────
 
+public sealed record MedicalRecordCountDto(int TotalRecords, int ClinicRecords);
+
+public sealed record GetMedicalRecordCountQuery(Guid PetId, Guid RequestingUserId)
+    : IRequest<Result<MedicalRecordCountDto>>;
+
+public sealed class GetMedicalRecordCountQueryHandler(
+    IPetRepository petRepository,
+    IFamilyRepository familyRepository,
+    IMedicalRepository medicalRepository)
+    : IRequestHandler<GetMedicalRecordCountQuery, Result<MedicalRecordCountDto>>
+{
+    public async Task<Result<MedicalRecordCountDto>> Handle(
+        GetMedicalRecordCountQuery request, CancellationToken ct)
+    {
+        var pet = await petRepository.GetByIdAsync(request.PetId, ct);
+        if (pet is null) return Result.Failure<MedicalRecordCountDto>("Mascota no encontrada.");
+        if (!await FamilyAccessChecker.CanAccessPetAsync(pet.OwnerId, request.RequestingUserId, familyRepository, ct))
+            return Result.Failure<MedicalRecordCountDto>("Acceso denegado.");
+
+        var records = await medicalRepository.GetByPetIdAsync(request.PetId, ct);
+        var clinicCount = records.Count(r => r.ClinicId.HasValue);
+        return Result.Success(new MedicalRecordCountDto(records.Count, clinicCount));
+    }
+}
 public sealed class GetMedicalHistoryQueryHandler(
     IPetRepository petRepository,
     IMedicalRepository medicalRepository,
@@ -268,7 +309,12 @@ public sealed record UpdateMedicalRecordCommand(
     string Description,
     string? VetName,
     string? ClinicName,
-    DateOnly? NextDueDate) : IRequest<Result<MedicalRecordDto>>;
+    DateOnly? NextDueDate,
+    decimal? WeightKg = null,
+    string? DosageDescription = null,
+    string? Frequency = null,
+    int? DurationDays = null,
+    DateOnly? MedicationEndDate = null) : IRequest<Result<MedicalRecordDto>>;
 
 public sealed class UpdateMedicalRecordCommandValidator : AbstractValidator<UpdateMedicalRecordCommand>
 {
@@ -309,7 +355,9 @@ public sealed class UpdateMedicalRecordCommandHandler(
             return Result.Failure<MedicalRecordDto>("Solo el creador del registro puede editarlo.");
 
         record.Update(request.Type, request.Date, request.Description,
-            request.VetName, request.ClinicName, request.NextDueDate);
+            request.VetName, request.ClinicName, request.NextDueDate,
+            request.WeightKg, request.DosageDescription,
+            request.Frequency, request.DurationDays, request.MedicationEndDate);
         medicalRepository.Update(record);
         await unitOfWork.SaveChangesAsync(ct);
         return Result.Success(MedicalRecordDto.FromDomain(record));

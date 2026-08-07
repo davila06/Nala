@@ -13,6 +13,19 @@ namespace PawTrack.API.Controllers;
 [Authorize]
 public sealed class MedicalController(ISender sender) : ControllerBase
 {
+    // ── GET /api/pets/{petId}/medical/count — no plan gate, teaser for non-Familia ──
+    [HttpGet("count")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCount(Guid petId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetMedicalRecordCountQuery(petId, userId), ct);
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        return Ok(result.Value);
+    }
+
     // ── GET /api/pets/{petId}/medical ─────────────────────────────────────────
     [HttpGet]
     [EnableRateLimiting("public-api")]
@@ -62,7 +75,9 @@ public sealed class MedicalController(ISender sender) : ControllerBase
             request.Date, request.Description,
             request.VetName, request.ClinicName,
             request.NextDueDate,
-            docBytes, docContentType), ct);
+            docBytes, docContentType,
+            request.WeightKg, request.DosageDescription,
+            request.Frequency, request.DurationDays, request.MedicationEndDate), ct);
 
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
@@ -144,7 +159,9 @@ public sealed class MedicalController(ISender sender) : ControllerBase
         var result = await sender.Send(new UpdateMedicalRecordCommand(
             recordId, userId, recordType,
             request.Date, request.Description,
-            request.VetName, request.ClinicName, request.NextDueDate), ct);
+            request.VetName, request.ClinicName, request.NextDueDate,
+            request.WeightKg, request.DosageDescription,
+            request.Frequency, request.DurationDays, request.MedicationEndDate), ct);
 
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
@@ -203,7 +220,12 @@ public sealed record AddMedicalRecordRequest(
     string? VetName,
     string? ClinicName,
     DateOnly? NextDueDate,
-    IFormFile? Document);
+    IFormFile? Document,
+    decimal? WeightKg,
+    string? DosageDescription,
+    string? Frequency,
+    int? DurationDays,
+    DateOnly? MedicationEndDate);
 
 public sealed record UpdateMedicalRecordRequest(
     string Type,
@@ -211,7 +233,12 @@ public sealed record UpdateMedicalRecordRequest(
     string Description,
     string? VetName,
     string? ClinicName,
-    DateOnly? NextDueDate);
+    DateOnly? NextDueDate,
+    decimal? WeightKg,
+    string? DosageDescription,
+    string? Frequency,
+    int? DurationDays,
+    DateOnly? MedicationEndDate);
 
 public sealed record CreateVetReminderRequest(
     string Type,

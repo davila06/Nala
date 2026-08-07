@@ -12,6 +12,16 @@ export function useMedicalHistory(petId: string) {
     queryFn: () => medicalApi.getHistory(petId),
     staleTime: 30_000,
     enabled: !!petId,
+    retry: false, // 422 from plan gate should not retry
+  });
+}
+
+export function useMedicalCount(petId: string) {
+  return useQuery({
+    queryKey: ["medical-count", petId],
+    queryFn: () => medicalApi.getCount(petId),
+    staleTime: 60_000,
+    enabled: !!petId,
   });
 }
 
@@ -39,8 +49,13 @@ export function useDeleteMedicalRecord(petId: string) {
 export function useUpdateMedicalRecord(petId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ recordId, payload }: { recordId: string; payload: UpdateMedicalRecordPayload }) =>
-      medicalApi.updateRecord(petId, recordId, payload),
+    mutationFn: ({
+      recordId,
+      payload,
+    }: {
+      recordId: string;
+      payload: UpdateMedicalRecordPayload;
+    }) => medicalApi.updateRecord(petId, recordId, payload),
     onSuccess: () =>
       void qc.invalidateQueries({ queryKey: ["medical", petId] }),
   });

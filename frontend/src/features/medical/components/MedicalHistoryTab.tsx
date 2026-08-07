@@ -3,6 +3,7 @@ import { toast } from "@/shared/lib/toast";
 import { Button, Input, Card } from "@/shared/ui";
 import {
   useMedicalHistory,
+  useMedicalCount,
   useAddMedicalRecord,
   useDeleteMedicalRecord,
   useUpdateMedicalRecord,
@@ -161,6 +162,15 @@ function RecordCard({
         </div>
       </div>
       <p className="text-sm text-sand-700">{record.description}</p>
+      {record.weightKg != null && (
+        <p className="text-xs font-medium text-sand-600">⚖️ Peso: {record.weightKg} kg</p>
+      )}
+      {record.type === "Medication" && record.dosageDescription && (
+        <p className="text-xs text-sand-600">💊 {record.dosageDescription}
+          {record.frequency ? ` — ${record.frequency}` : ""}
+          {record.durationDays ? ` (${record.durationDays} días)` : ""}
+        </p>
+      )}
       {record.vetName && <p className="text-xs text-sand-500">Dr/a. {record.vetName}</p>}
       {record.nextDueDate && (
         <p className="text-xs font-medium text-warn-700">⏰ Próxima cita: {record.nextDueDate}</p>
@@ -505,7 +515,8 @@ const ALL_FILTER_OPTIONS = ["Todos", ...Object.keys({
 })] as const;
 
 export function MedicalHistoryTab({ petId }: { petId: string }) {
-  const { data: records, isLoading: loadingRecords } = useMedicalHistory(petId);
+  const { data: records, isLoading: loadingRecords, isError: historyError } = useMedicalHistory(petId);
+  const { data: count } = useMedicalCount(petId);
   const { data: reminders, isLoading: loadingReminders } = useVetReminders(petId);
   const { data: publicClinics } = usePublicClinics();
   const exportPdf = useExportMedicalPdf(petId);
@@ -579,6 +590,24 @@ export function MedicalHistoryTab({ petId }: { petId: string }) {
           <div className="animate-pulse space-y-2">
             <div className="h-16 rounded-xl bg-sand-100" />
             <div className="h-16 rounded-xl bg-sand-100" />
+          </div>
+        ) : historyError ? (
+          // Plan Familia gate — show upgrade teaser with count if available
+          <div className="rounded-2xl border border-warn-200 bg-warn-50 p-5 text-center space-y-2">
+            <p className="text-2xl">🔒</p>
+            <p className="text-sm font-semibold text-warn-800">
+              El historial médico requiere el plan Familia
+            </p>
+            {count && count.totalRecords > 0 && (
+              <p className="text-sm text-warn-700">
+                Tu mascota tiene <strong>{count.totalRecords} registro{count.totalRecords !== 1 ? "s" : ""}</strong>
+                {count.clinicRecords > 0 && ` (${count.clinicRecords} de tu veterinaria)`}.
+                Actualiza para verlos.
+              </p>
+            )}
+            <a href="/planes" className="inline-block rounded-lg bg-warn-600 px-4 py-2 text-xs font-semibold text-white hover:bg-warn-700">
+              Ver planes →
+            </a>
           </div>
         ) : filteredRecords.length > 0 ? (
           <ul className="space-y-2">

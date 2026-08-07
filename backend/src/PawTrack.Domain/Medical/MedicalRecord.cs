@@ -30,6 +30,16 @@ public sealed class MedicalRecord
     public string? DocumentUrl { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
 
+    // ── Per-visit health metrics ────────────────────────────────────────────
+    /// <summary>Pet weight at this visit in kilograms.</summary>
+    public decimal? WeightKg { get; private set; }
+
+    // ── Structured medication fields (only meaningful when Type == Medication) ─
+    public string? DosageDescription { get; private set; }
+    public string? Frequency { get; private set; }
+    public int? DurationDays { get; private set; }
+    public DateOnly? MedicationEndDate { get; private set; }
+
     public static MedicalRecord Create(
         Guid petId,
         Guid createdByUserId,
@@ -39,7 +49,12 @@ public sealed class MedicalRecord
         string? vetName,
         string? clinicName,
         DateOnly? nextDueDate,
-        Guid? clinicId = null) => new()
+        Guid? clinicId = null,
+        decimal? weightKg = null,
+        string? dosageDescription = null,
+        string? frequency = null,
+        int? durationDays = null,
+        DateOnly? medicationEndDate = null) => new()
         {
             Id = Guid.CreateVersion7(),
             PetId = petId,
@@ -52,6 +67,11 @@ public sealed class MedicalRecord
             ClinicName = clinicName?.Trim(),
             NextDueDate = nextDueDate,
             CreatedAt = DateTimeOffset.UtcNow,
+            WeightKg = weightKg,
+            DosageDescription = dosageDescription?.Trim(),
+            Frequency = frequency?.Trim(),
+            DurationDays = durationDays,
+            MedicationEndDate = medicationEndDate,
         };
 
     public void SetDocumentUrl(string url) => DocumentUrl = url;
@@ -62,7 +82,12 @@ public sealed class MedicalRecord
         string description,
         string? vetName,
         string? clinicName,
-        DateOnly? nextDueDate)
+        DateOnly? nextDueDate,
+        decimal? weightKg = null,
+        string? dosageDescription = null,
+        string? frequency = null,
+        int? durationDays = null,
+        DateOnly? medicationEndDate = null)
     {
         Type = type;
         Date = date;
@@ -70,5 +95,10 @@ public sealed class MedicalRecord
         VetName = vetName?.Trim();
         ClinicName = clinicName?.Trim();
         NextDueDate = nextDueDate;
+        WeightKg = weightKg;
+        DosageDescription = dosageDescription?.Trim();
+        Frequency = frequency?.Trim();
+        DurationDays = durationDays;
+        MedicationEndDate = medicationEndDate;
     }
 }
