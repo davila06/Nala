@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { medicalApi, type AddMedicalRecordPayload } from "../api/medicalApi";
+import {
+  medicalApi,
+  type AddMedicalRecordPayload,
+  type UpdateMedicalRecordPayload,
+  type CreateVetReminderPayload,
+} from "../api/medicalApi";
 
 export function useMedicalHistory(petId: string) {
   return useQuery({
@@ -22,6 +27,25 @@ export function useAddMedicalRecord(petId: string) {
   });
 }
 
+export function useDeleteMedicalRecord(petId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (recordId: string) => medicalApi.deleteRecord(petId, recordId),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["medical", petId] }),
+  });
+}
+
+export function useUpdateMedicalRecord(petId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ recordId, payload }: { recordId: string; payload: UpdateMedicalRecordPayload }) =>
+      medicalApi.updateRecord(petId, recordId, payload),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["medical", petId] }),
+  });
+}
+
 export function useVetReminders(petId: string) {
   return useQuery({
     queryKey: ["medical-reminders", petId],
@@ -36,6 +60,26 @@ export function useCompleteReminder(petId: string) {
   return useMutation({
     mutationFn: (reminderId: string) =>
       medicalApi.completeReminder(petId, reminderId),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["medical-reminders", petId] }),
+  });
+}
+
+export function useCreateVetReminder(petId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateVetReminderPayload) =>
+      medicalApi.createReminder(petId, payload),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["medical-reminders", petId] }),
+  });
+}
+
+export function useDeleteVetReminder(petId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (reminderId: string) =>
+      medicalApi.deleteReminder(petId, reminderId),
     onSuccess: () =>
       void qc.invalidateQueries({ queryKey: ["medical-reminders", petId] }),
   });

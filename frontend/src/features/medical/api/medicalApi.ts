@@ -46,6 +46,22 @@ export interface AddMedicalRecordPayload {
   document?: File;
 }
 
+export interface UpdateMedicalRecordPayload {
+  type: MedicalRecordType;
+  date: string;
+  description: string;
+  vetName?: string;
+  clinicName?: string;
+  nextDueDate?: string;
+}
+
+export interface CreateVetReminderPayload {
+  type: MedicalRecordType;
+  dueDate: string;
+  title: string;
+  notes?: string;
+}
+
 // ── API ───────────────────────────────────────────────────────────────────────
 
 export const medicalApi = {
@@ -82,6 +98,31 @@ export const medicalApi = {
   completeReminder: (petId: string, reminderId: string): Promise<void> =>
     apiClient
       .put(`/pets/${petId}/medical/reminders/${reminderId}/complete`)
+      .then(() => undefined),
+
+  deleteRecord: (petId: string, recordId: string): Promise<void> =>
+    apiClient.delete(`/pets/${petId}/medical/${recordId}`).then(() => undefined),
+
+  updateRecord: (
+    petId: string,
+    recordId: string,
+    payload: UpdateMedicalRecordPayload,
+  ): Promise<MedicalRecordDto> =>
+    apiClient
+      .put<MedicalRecordDto>(`/pets/${petId}/medical/${recordId}`, payload)
+      .then((r) => r.data),
+
+  createReminder: (
+    petId: string,
+    payload: CreateVetReminderPayload,
+  ): Promise<VetReminderDto> =>
+    apiClient
+      .post<VetReminderDto>(`/pets/${petId}/medical/reminders`, payload)
+      .then((r) => r.data),
+
+  deleteReminder: (petId: string, reminderId: string): Promise<void> =>
+    apiClient
+      .delete(`/pets/${petId}/medical/reminders/${reminderId}`)
       .then(() => undefined),
 
   exportPdf: (petId: string): Promise<Blob> =>

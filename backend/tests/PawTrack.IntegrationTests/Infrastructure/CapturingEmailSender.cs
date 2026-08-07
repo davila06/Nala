@@ -40,4 +40,16 @@ public sealed class CapturingEmailSender : IEmailSender
 
     public Task SendCustodyClosedAsync(string to, string recipientName, string petName, string counterpartName,
         string outcome, CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendFamilyInvitationAsync(string to, string token, CancellationToken ct = default) =>
+        Task.CompletedTask;
+
+    public Task SendBundleOrderConfirmationAsync(string to, string recipientName, string productName,
+        string orderId, decimal price, string currency, CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendBundlePaymentConfirmedAsync(string to, string recipientName, string orderId, CancellationToken ct = default) =>
+        Task.CompletedTask;
+
+    public Task SendBundleShippedAsync(string to, string recipientName, string orderId,
+        string trackingCode, CancellationToken ct = default) => Task.CompletedTask;
 }
