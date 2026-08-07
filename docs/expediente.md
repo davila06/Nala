@@ -55,6 +55,11 @@ MedicalRecord
 ├── ClinicName (string, nullable)
 ├── NextDueDate (DateOnly, nullable) — crea recordatorio automático
 ├── DocumentUrl (string, nullable) — Blob Storage URL
+├── WeightKg (decimal(5,2), nullable) — peso en esta visita
+├── DosageDescription (string, nullable) — solo tipo Medication
+├── Frequency (string, nullable) — solo tipo Medication
+├── DurationDays (int, nullable) — solo tipo Medication
+├── MedicationEndDate (DateOnly, nullable) — solo tipo Medication
 └── CreatedAt (DateTimeOffset)
 ```
 
@@ -71,8 +76,20 @@ VetReminder
 ├── Notes (string, nullable)
 ├── IsCompleted (bool)
 ├── CompletedAt (DateTimeOffset, nullable)
-├── ReminderSentAt (DateTimeOffset, nullable)  -- rastrear cuándo se envió el aviso
+├── ReminderSentAt (DateTimeOffset, nullable)  — ✅ persiste correctamente (bug fixed)
 └── CreatedAt (DateTimeOffset)
+```
+
+### 2.4 ClinicMedicalAccessLog (nuevo — agosto 2026)
+
+```
+ClinicMedicalAccessLog
+├── Id (Guid v7)
+├── PetId → Pets.Id
+├── ClinicId → ClinicProfiles.Id
+├── AccessedByUserId → Users.Id
+├── AccessedAt (DateTimeOffset)
+└── INDEX (PetId, AccessedAt DESC)
 ```
 
 ### 2.3 ClinicMedicalAccessGrant
@@ -153,9 +170,46 @@ Todas las opciones crean un `ClinicMedicalAccessGrant` permanente una vez activa
 
 ---
 
-## 6. Features faltantes (gaps identificados)
+## 6. Estado de implementación — Agosto 2026
 
-### 6.1 Críticos — bloquean operaciones básicas
+> Todos los gaps críticos identificados en versiones anteriores están cerrados. Lo que sigue es una referencia de lo que queda como visión futura.
+
+### 6.1 Implementado ✅ (todos los gaps críticos y medios)
+
+| Feature | Commit/Sprint | Estado |
+| ------- | ------------- | ------ |
+| DELETE registro médico | feat(medical): close all critical gaps | ✅ |
+| PUT registro médico | feat(medical): close all critical gaps | ✅ |
+| DELETE recordatorio | feat(medical): close all critical gaps | ✅ |
+| POST recordatorio independiente | feat(medical): close all critical gaps | ✅ |
+| VetReminder notifications (bug fix) | feat(medical): close all critical gaps | ✅ |
+| WeightKg por visita | feat(medical): item 7 | ✅ |
+| DosageDescription, Frequency, DurationDays, MedicationEndDate | feat(medical): item 7 | ✅ |
+| Notificación cuando clínica agrega | AddClinicMedicalRecord (ya existía) | ✅ |
+| Log de acceso de clínica (ClinicMedicalAccessLog) | feat(medical): remaining items | ✅ |
+| GET /api/me/medical/reminders (aggregate) | feat(medical): remaining items | ✅ |
+| GET /api/pets/{id}/medical/access-log | feat(medical): remaining items | ✅ |
+| Vista calendario (ReminderCalendar) | feat(medical): remaining items | ✅ |
+| Búsqueda de texto en historial | feat(medical): remaining items | ✅ |
+| Dashboard multi-mascota (ReminderDashboard) | feat(medical): remaining items | ✅ |
+| Plan gating Opción C (count teaser) | feat(medical): item 9+14 | ✅ |
+| Filtro por tipo | feat(medical): steps 1-3 | ✅ |
+| Edit/Delete UI en RecordCard | feat(medical): steps 1-3 | ✅ |
+| 21 unit tests nuevos (853 total) | feat(medical): steps 1-3 | ✅ |
+| 18 integration tests nuevos | feat(medical): steps 1-3 | ✅ |
+
+### 6.2 Visión futura (v2.0+)
+
+| Feature | Descripción | Valor |
+| ------- | ----------- | ----- |
+| Pasaporte veterinario digital | Vacunas + firma vet + QR verificación, útil para viajes/adopciones | Alto |
+| Integración SENASA | Certificado oficial CR para viajes internacionales | Muy alto |
+| Protocolo de vacunación por especie | Calendario recomendado con notificaciones proactivas para cachorros | Alto |
+| WhatsApp reminder | Bot ya existe, falta conectar con VetReminder | Alto |
+| Acceso temporal de clínica | Grants con expiración 30/60/90 días en lugar de permanente | Medio |
+| Lab results estructurados | Tipo específico para analíticas con valores de referencia | Medio |
+| Múltiples documentos por registro | Child entity para attachments adicionales en cirugías complejas | Medio |
+| Gráfico de peso | Curva de peso a lo largo del tiempo cuando WeightKg tiene histórico | Bajo |
 
 | Feature                                                                                                                                                    | Impacto | Esfuerzo         | Prioridad |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ---------------- | --------- |
@@ -212,7 +266,20 @@ POST   /api/pets/{petId}/medical/reminders     ← nuevo, standalone
 
 ---
 
-## 7. Bugs y problemas conocidos
+## 7. Decisiones de diseño implementadas
+
+### Plan gating — Opción C (implementada ✅)
+
+La clínica siempre puede escribir registros. El dueño necesita Plan Familia para leer.
+Los usuarios sin Plan Familia ven un teaser: *"Tu mascota tiene N registros (X de tu veterinaria). Actualiza para verlos."* via `GET /api/pets/{id}/medical/count` (sin gate de plan).
+
+### Audit log (implementado ✅)
+
+Cada vez que una clínica consulta el expediente, se genera un `ClinicMedicalAccessLog`. El dueño puede ver el historial via `GET /api/pets/{id}/medical/access-log`.
+
+---
+
+_PawTrack CR · Módulo Expediente Médico Digital · Agosto 2026_
 
 | Problema                                                                                                                                                                                       | Impacto                                | Estado             |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ------------------ |

@@ -508,7 +508,7 @@ En la sección Cuenta familiar, toca **Quitar** junto al nombre del miembro. Sol
 
 ## 26. Historial médico de tu mascota
 
-> Disponible con el plan **Familia** (₡4,990/mes).
+> Disponible con el plan **Familia** (₡4,990/mes). Usuarios sin el plan ven cuántos registros existen y pueden hacer upgrade.
 
 Cada mascota tiene una sección **Salud 🏥** en su perfil donde puedes llevar un registro completo de su historial médico.
 
@@ -525,27 +525,52 @@ Cada mascota tiene una sección **Salud 🏥** en su perfil donde puedes llevar 
 | 🪱 Desparasitación | Tratamientos antiparasitarios   |
 | 🩺 Consulta        | Visitas al veterinario          |
 | 🔪 Cirugía         | Procedimientos quirúrgicos      |
-| 💊 Medicamento     | Tratamientos con medicamentos   |
+| 💊 Medicamento     | Tratamientos con medicamentos (incluye dosis, frecuencia y duración) |
 | 🌿 Alergia         | Alergias conocidas              |
 | 📋 Otro            | Cualquier otra anotación médica |
 
 ### Agregar un registro
 
-1. En la pestaña Salud, toca **+ Agregar**.
+1. En la pestaña Salud, toca **+ Registro**.
 2. Selecciona el tipo de registro.
 3. Ingresa: fecha, descripción, veterinario (opcional), clínica (opcional), próxima cita (opcional).
-4. Adjunta un documento (PDF, JPEG o PNG, máx. 5 MB) si deseas.
-5. Toca **Guardar**.
+4. Si es una consulta, puedes registrar el **peso** de tu mascota en esa visita.
+5. Si es un medicamento, puedes especificar **dosis, frecuencia y duración**.
+6. Adjunta un documento (PDF, JPEG o PNG, máx. 5 MB) si deseas.
+7. Toca **Guardar**.
 
-### Recordatorios de citas
+### Editar o eliminar un registro
 
-Cuando agregas una fecha de próxima cita, el sistema crea automáticamente un recordatorio. **3 días antes** de la cita, recibirás una notificación push.
+- Toca el ícono ✏️ en cualquier registro que hayas creado para editarlo en línea.
+- Toca el ícono 🗑️ para eliminarlo (requiere confirmación). Los registros creados por tu clínica no se pueden editar desde tu cuenta.
 
-Los recordatorios con fecha pasada aparecen en rojo. Márcalos como completados una vez realizados.
+### Buscar en el historial
+
+Usa la barra de búsqueda 🔍 en la sección de registros para filtrar por descripción, nombre del veterinario o clínica. También puedes filtrar por tipo de registro con los botones de chip.
+
+### Vista calendario 📅
+
+Toca el botón **📅 Calendario** para ver los recordatorios del mes en formato de calendario. Los días con recordatorios muestran puntos de colores. Toca un día para ver los detalles.
+
+### Recordatorios
+
+El sistema crea recordatorios automáticamente cuando guardas un registro con una fecha de próxima cita. También puedes crear recordatorios independientes con el botón **⏰ Recordatorio**.
+
+- **3 días antes** de la cita, recibirás una notificación push.
+- Los recordatorios vencidos aparecen en rojo.
+- Toca **✓ Marcar como hecho** una vez completados, o 🗑️ para eliminar un recordatorio incorrecto.
+
+### Dashboard de recordatorios (Plan Familia)
+
+Si tienes varias mascotas, el **Dashboard de recordatorios** muestra todos los recordatorios pendientes de todas tus mascotas en una sola vista, agrupados por fecha (vencidos, hoy, esta semana, próximo mes).
+
+### Acceso de tu veterinaria al expediente
+
+Si autorizaste a una clínica, puede ver y agregar registros a tu expediente. En la sección **🔐 Historial de acceso veterinario** puedes ver cuándo y qué clínicas consultaron el expediente.
 
 ### Exportar PDF
 
-Toca **Exportar PDF** en la sección Salud para descargar un informe completo del historial médico de tu mascota.
+Toca **📄 Exportar PDF** en la sección Salud para descargar un informe completo del historial médico de tu mascota.
 
 ---
 

@@ -1,6 +1,6 @@
 # PawTrack CR — Pendientes Totales Consolidados
 
-> **Última actualización: 2026-08-04**  
+> **Última actualización: 2026-08-07**  
 > Versión original: 2026-07-31 — reemplazó `erroresConsolidado.md`, `PENDIENTES_BETA.md`, etc.  
 > Ambiente de referencia: **PawnTrackBeta** — Container App + Azure SQL + Static Web App
 
@@ -8,24 +8,27 @@
 
 ## 1. Matriz de avance (actualizada agosto 2026)
 
-| Categoría                    | Items    | ✅ Hecho | 🔄 Parcial | ⛔ Pendiente                |
-| ---------------------------- | -------- | -------- | ---------- | --------------------------- |
-| Infraestructura / DevOps     | 6        | 4        | 0          | 2 (GitHub Secrets, dominio) |
-| Seguridad / Canales          | 2        | 2        | 0          | 0                           |
-| Features backend             | 7        | 7        | 0          | 0 ✅ completo               |
-| Features frontend            | 9        | 9        | 0          | 0 ✅ completo               |
-| Internacionalización         | 4        | 4        | 0          | 0                           |
-| UI/UX sistema de diseño      | 6 fases  | 6 fases  | 0          | 0 ✅ completo               |
-| Módulo Collar GPS            | 1        | 1        | 0          | 0 ✅ completo               |
-| Bundle GPS (on-demand)       | 1        | 1        | 0          | 0 ✅ completo               |
-| Monetización                 | 5 líneas | 5        | 0          | 0 ✅ completo               |
-| **Subscription Gating**      | **10**   | **10**   | **0**      | **0 ✅**                    |
-| **Features Familia**         | **5**    | **5**    | **0**      | **0 ✅**                    |
-| **UI Gates**                 | **6**    | **6**    | **0**      | **0 ✅**                    |
-| **B2B Clínicas (Fases 1-5)** | **22**   | **22**   | **0**      | **0 ✅**                    |
-| **Municipalidades (B2G)**    | **9**    | **9**    | **0**      | **0 ✅**                    |
-| **Expediente Digital A+B+C** | **3**    | **3**    | **0**      | **0 ✅**                    |
-| **TOTAL**                    | **90+**  | **85+**  | **0**      | **5 (ops)**                 |
+| Categoría                          | Items     | ✅ Hecho  | 🔄 Parcial | ⛔ Pendiente                |
+| ---------------------------------- | --------- | -------- | ---------- | --------------------------- |
+| Infraestructura / DevOps           | 6         | 4        | 0          | 2 (GitHub Secrets, dominio) |
+| Seguridad / Canales                | 2         | 2        | 0          | 0                           |
+| Features backend                   | 7         | 7        | 0          | 0 ✅ completo               |
+| Features frontend                  | 9         | 9        | 0          | 0 ✅ completo               |
+| Internacionalización               | 4         | 4        | 0          | 0                           |
+| UI/UX sistema de diseño            | 6 fases   | 6 fases  | 0          | 0 ✅ completo               |
+| Módulo Collar GPS                  | 1         | 1        | 0          | 0 ✅ completo               |
+| Bundle GPS (on-demand)             | 1         | 1        | 0          | 0 ✅ completo               |
+| Monetización                       | 5 líneas  | 5        | 0          | 0 ✅ completo               |
+| **Subscription Gating**            | **10**    | **10**   | **0**      | **0 ✅**                    |
+| **Features Familia**               | **5**     | **5**    | **0**      | **0 ✅**                    |
+| **UI Gates**                       | **6**     | **6**    | **0**      | **0 ✅**                    |
+| **B2B Clínicas (Fases 1-5)**       | **22**    | **22**   | **0**      | **0 ✅**                    |
+| **Municipalidades (B2G)**          | **9**     | **9**    | **0**      | **0 ✅**                    |
+| **Expediente Digital A+B+C**       | **3**     | **3**    | **0**      | **0 ✅**                    |
+| **Expediente CRUD completo**       | **8**     | **8**    | **0**      | **0 ✅** *(nuevo)*          |
+| **Expediente campos avanzados**    | **5**     | **5**    | **0**      | **0 ✅** *(nuevo)*          |
+| **Audit log + aggregate reminders**| **3**     | **3**    | **0**      | **0 ✅** *(nuevo)*          |
+| **TOTAL**                          | **106+**  | **101+** | **0**      | **5 (ops)**                 |
 
 ### Únicos pendientes reales (operacionales, no código)
 
@@ -33,7 +36,7 @@
 2. Dominio `pawtrack.cr` + CNAME (§1.4)
 3. WhatsApp webhook en Meta (§3.1)
 4. VAPID keys en Azure (§3.2)
-5. Migraciones EF en Azure SQL (11 migraciones nuevas desde julio)
+5. Migraciones EF en Azure SQL (**14 migraciones** pendientes de aplicar en producción, incluidas las 3 nuevas del módulo de expediente)
 
 > Ver [`pre.md`](pre.md) para la lista completa de prerequisitos antes de ir a producción.
 
@@ -480,7 +483,7 @@ Decisión arquitectónica: **mantener el trail en mapa público** (valor comunit
 
 ### 10.2 Features Familia — Completamente nuevas
 
-#### ⛔ FAM-01 · Módulo Multi-Usuario (cuenta familiar)
+#### ✅ FAM-01 · Módulo Multi-Usuario (cuenta familiar)
 
 **Dominio — entidades nuevas:**
 
@@ -518,7 +521,19 @@ FamilyInvitation  Id, FamilyAccountId, InvitedEmail, Token (GUID), ExpiresAt, Ac
 
 ---
 
-#### ⛔ FAM-02 · Historial médico — modelo de datos
+#### ✅ FAM-02 · Historial médico — modelo de datos + CRUD completo
+
+**Implementado (agosto 2026):**
+
+- Entidad `MedicalRecord`: 7 tipos, + `WeightKg`, `DosageDescription`, `Frequency`, `DurationDays`, `MedicationEndDate`
+- Entidad `ClinicMedicalAccessLog`: audit trail de accesos de clínica
+- Comandos: `AddMedicalRecordCommand`, `UpdateMedicalRecordCommand`, `DeleteMedicalRecordCommand`
+- Queries: `GetMedicalHistoryQuery`, `GetMedicalRecordCountQuery` (no-plan-gate teaser)
+- Plan gating Opción C: clínica siempre escribe; Familia desbloquea lectura; no-Familia ve count teaser
+- Endpoint `GET /api/me/medical/reminders` — recordatorios agregados de todas las mascotas
+- Endpoint `GET /api/pets/{id}/medical/access-log` — historial de acceso veterinario (para el dueño)
+- Frontend: `MedicalHistoryTab` con edit inline, delete con confirmación, búsqueda de texto, filtro por tipo, vista calendario (`ReminderCalendar`), audit log colapsable
+- `ReminderDashboard` — vista multi-mascota agrupada por fecha
 
 **Dominio — entidades nuevas:**
 
@@ -548,7 +563,7 @@ MedicalRecord  Id, PetId, Type (Vaccination|Deworming|VetVisit|Surgery|Other),
 
 ---
 
-#### ⛔ FAM-03 · Recordatorios veterinarios
+#### ✅ FAM-03 · Recordatorios veterinarios
 
 **Dominio — entidad nueva:**
 
@@ -577,7 +592,7 @@ envía push/email cuando `DueDate` es hoy o en 7 días y `IsCompleted = false`.
 
 ---
 
-#### ⛔ FAM-04 · Export historial médico PDF (QuestPDF)
+#### ✅ FAM-04 · Export historial médico PDF (QuestPDF)
 
 QuestPDF ya está instalado y usado en `CertificateGenerator`.
 
@@ -596,7 +611,7 @@ Botón "Exportar PDF" en tab "Salud", descarga directamente.
 
 ---
 
-#### ⛔ FAM-05 · Push familiar — notificar a todos los miembros
+#### ✅ FAM-05 · Push familiar — notificar a todos los miembros
 
 Modificar `NotificationDispatcher.DispatchPetReunitedAsync` (y Lost, Sighting) para,
 cuando el dueño pertenece a una cuenta familiar Familia-tier, enviar push a **todos los miembros activos**:
@@ -705,15 +720,15 @@ Búsquedas IA: 2 / 3 este mes · Plus = ilimitado
 | 🟠 7      | SUBS-05 Radio de alerta por tier                 | Diferenciador Plus                | 4 h      |
 | 🟠 8      | SUBS-06 Broadcast WhatsApp gating                | Gating canal premium              | 2 h      |
 | 🟠 9      | SUBS-07/08/09 Case Room + Bounty + GPS gating    | Gating features Plus              | 4 h      |
-| 🔵 10     | FAM-02 Historial médico (modelo + API)           | FAM-03/04/05                      | 1.5 sem  |
-| 🔵 11     | FAM-03 Recordatorios veterinarios                | —                                 | 1 sem    |
-| 🔵 12     | FAM-04 Export PDF médico                         | FAM-02                            | 3 días   |
-| 🔵 13     | FAM-01 Multi-usuario familiar                    | FAM-05                            | 3 sem    |
-| 🔵 14     | FAM-05 Push familiar                             | FAM-01                            | 2 días   |
+| ✅ 10     | FAM-02 Historial médico (modelo + API + CRUD)    | Completado agosto 2026            | —        |
+| ✅ 11     | FAM-03 Recordatorios veterinarios                | Completado agosto 2026            | —        |
+| ✅ 12     | FAM-04 Export PDF médico                         | Completado agosto 2026            | —        |
+| ✅ 13     | FAM-01 Multi-usuario familiar                    | Completado agosto 2026            | —        |
+| ✅ 14     | FAM-05 Push familiar                             | Completado agosto 2026            | —        |
 | 🔵 15     | SUBS-10 Fix movement prediction (Plus vs public) | —                                 | 4 h      |
 
 **Total estimado mínimo para poder "cobrar correctamente":**  
 SUBS-01→09 + UI-GATE-01→06 = ~1 semana de trabajo continuo.  
-Familia completo (FAM-01→05) = ~5–6 semanas adicionales.
+~~Familia completo (FAM-01→05) = ~5–6 semanas adicionales.~~ **✅ Completado agosto 2026.**
 
 ---

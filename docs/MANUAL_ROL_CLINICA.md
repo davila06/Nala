@@ -139,6 +139,40 @@ Recibirás notificaciones cuando:
 
 ---
 
+## Expediente médico digital del paciente
+
+### Acceso al expediente
+
+Para ver y agregar registros al expediente médico de un paciente, tu clínica debe tener acceso activo. Hay tres formas:
+
+| Opción | Cómo funciona |
+| ------ | ------------- |
+| **A — Código del dueño** | El dueño genera un código de 8 caracteres desde su app y te lo comparte. Lo ingresas en tu portal para activar el acceso permanente. |
+| **B — Código de la clínica** | Tú generates un código desde el portal y se lo compartes al dueño para que lo active en su app. |
+| **C — Escaneo durante consulta** | Cuando escaneas el QR o chip de la mascota durante una visita, tienes acceso temporal hasta 90 días. |
+
+### ¿Qué puedes hacer con el expediente?
+
+- **Ver** historial completo de la mascota: vacunas, consultas, cirugías, medicamentos, alergias, peso por visita.
+- **Agregar** registros médicos con firma de tu clínica (aparecen marcados como "🏥 Clínica" para el dueño).
+- **Registrar** la fecha de próxima cita — el sistema crea un recordatorio automático para el dueño.
+
+### Plan gating importante
+
+El dueño **no necesita** Plan Familia para que su clínica acceda y escriba en el expediente. La clínica puede agregar registros en cualquier momento. El dueño necesita Plan Familia para **leer** los registros desde su app. Si no tiene el plan, ve un contador: *"Tu veterinaria ha agregado N registros. Actualiza para verlos."*
+
+### Auditoría de acceso
+
+Cada vez que tu clínica consulta el expediente de un paciente, **se registra automáticamente** el acceso con fecha y hora. El dueño puede ver este historial en la sección 🔐 de su pestaña Salud. Es una medida de transparencia y confianza — no afecta tu operación, pero es importante saberlo.
+
+### Acceso en el portal
+
+1. Portal → Escanear QR/chip del paciente.
+2. Una vez identificada la mascota, toca **📋 Ver expediente**.
+3. En la pestaña Expediente puedes ver el historial y agregar registros.
+
+---
+
 ## Verificación de certificados
 
 Los certificados médicos emitidos por clínicas afiliadas pueden verificarse en `/clinica/verificar-certificado`.
@@ -149,14 +183,16 @@ Los dueños de mascotas pueden compartir el código de verificación de un certi
 
 ## Probar los features como Clínica
 
-| Feature                  | Cómo                                                                                    |
-| ------------------------ | --------------------------------------------------------------------------------------- |
-| **Escanear QR**          | Portal → Escanear → apunta la cámara al QR de una mascota de prueba                     |
-| **Buscar por microchip** | Portal → Escanear → ingresa manualmente el número de chip                               |
-| **Ver estadísticas**     | Portal → pestaña Estadísticas                                                           |
-| **API Keys**             | Portal → pestaña API (requiere plan Plus o Partner)                                     |
-| **Alertas cercanas**     | Portal → pestaña 🚨 Alertas (requiere plan Plus o Partner)                              |
-| **Logo en mapa**         | Sube el logo y verifica en `/map` con filtro de clínicas activo (requiere plan Partner) |
+| Feature | Cómo |
+| ------- | ---- |
+| **Escanear QR** | Portal → Escanear → apunta la cámara al QR de una mascota de prueba |
+| **Buscar por microchip** | Portal → Escanear → ingresa manualmente el número de chip |
+| **Ver expediente** | Escanear mascota → "📋 Ver expediente" |
+| **Agregar registro** | Pestaña Expediente → rellenar formulario → Guardar |
+| **Ver estadísticas** | Portal → pestaña Estadísticas |
+| **API Keys** | Portal → pestaña API (requiere plan Plus o Partner) |
+| **Alertas cercanas** | Portal → pestaña 🚨 Alertas (requiere plan Plus o Partner) |
+| **Logo en mapa** | Sube el logo y verifica en `/map` con filtro de clínicas activo (requiere plan Partner) |
 
 > **Usuario de prueba sugerido:** Cuenta con rol `Clinic`, clínica aprobada, y plan `ClinicPlus` o `ClinicPartner` activo para probar las funciones premium.
 
