@@ -38,6 +38,26 @@ export interface MedicalRecordCountDto {
   clinicRecords: number;
 }
 
+export interface PetReminderDto {
+  reminderId: string;
+  petId: string;
+  petName: string;
+  petPhotoUrl: string | null;
+  type: MedicalRecordType;
+  dueDate: string;
+  title: string;
+  notes: string | null;
+  isCompleted: boolean;
+  isOverdue: boolean;
+}
+
+export interface ClinicAccessLogEntryDto {
+  logId: string;
+  clinicId: string;
+  clinicName: string | null;
+  accessedAt: string;
+}
+
 export interface VetReminderDto {
   id: string;
   petId: string;
@@ -104,11 +124,15 @@ export const medicalApi = {
     if (payload.clinicName) form.append("clinicName", payload.clinicName);
     if (payload.nextDueDate) form.append("nextDueDate", payload.nextDueDate);
     if (payload.document) form.append("document", payload.document);
-    if (payload.weightKg != null) form.append("weightKg", String(payload.weightKg));
-    if (payload.dosageDescription) form.append("dosageDescription", payload.dosageDescription);
+    if (payload.weightKg != null)
+      form.append("weightKg", String(payload.weightKg));
+    if (payload.dosageDescription)
+      form.append("dosageDescription", payload.dosageDescription);
     if (payload.frequency) form.append("frequency", payload.frequency);
-    if (payload.durationDays != null) form.append("durationDays", String(payload.durationDays));
-    if (payload.medicationEndDate) form.append("medicationEndDate", payload.medicationEndDate);
+    if (payload.durationDays != null)
+      form.append("durationDays", String(payload.durationDays));
+    if (payload.medicationEndDate)
+      form.append("medicationEndDate", payload.medicationEndDate);
 
     return apiClient
       .post<MedicalRecordDto>(`/pets/${petId}/medical`, form, {
@@ -120,6 +144,16 @@ export const medicalApi = {
   getCount: (petId: string): Promise<MedicalRecordCountDto> =>
     apiClient
       .get<MedicalRecordCountDto>(`/pets/${petId}/medical/count`)
+      .then((r) => r.data),
+
+  getMyReminders: (daysAhead = 30): Promise<PetReminderDto[]> =>
+    apiClient
+      .get<PetReminderDto[]>(`/me/medical/reminders`, { params: { daysAhead } })
+      .then((r) => r.data),
+
+  getAccessLog: (petId: string, limit = 50): Promise<ClinicAccessLogEntryDto[]> =>
+    apiClient
+      .get<ClinicAccessLogEntryDto[]>(`/pets/${petId}/medical/access-log`, { params: { limit } })
       .then((r) => r.data),
 
   getReminders: (petId: string): Promise<VetReminderDto[]> =>

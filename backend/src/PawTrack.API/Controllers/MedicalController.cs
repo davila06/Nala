@@ -13,6 +13,34 @@ namespace PawTrack.API.Controllers;
 [Authorize]
 public sealed class MedicalController(ISender sender) : ControllerBase
 {
+    // ── GET /api/me/medical/reminders — aggregate across all pets ────────────
+    [HttpGet("/api/me/medical/reminders")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetMyReminders(
+        [FromQuery] int daysAhead = 30, CancellationToken ct = default)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetMyRemindersQuery(userId, daysAhead), ct);
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        return Ok(result.Value);
+    }
+
+    // ── GET /api/pets/{petId}/medical/access-log — audit log for owner ───────
+    [HttpGet("access-log")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAccessLog(
+        Guid petId, [FromQuery] int limit = 50, CancellationToken ct = default)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetClinicAccessLogQuery(petId, userId, limit), ct);
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        return Ok(result.Value);
+    }
+
     // ── GET /api/pets/{petId}/medical/count — no plan gate, teaser for non-Familia ──
     [HttpGet("count")]
     [EnableRateLimiting("public-api")]

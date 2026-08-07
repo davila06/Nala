@@ -12,8 +12,10 @@ import {
   useCreateVetReminder,
   useDeleteVetReminder,
   useExportMedicalPdf,
+  useClinicAccessLog,
 } from "@/features/medical/hooks/useMedical";
 import { PetClinicAccessManager } from "./PetClinicAccessManager";
+import { ReminderCalendar } from "./ReminderCalendar";
 import { usePublicClinics } from "@/features/clinics/hooks/useClinics";
 import type {
   MedicalRecordType,
@@ -514,6 +516,35 @@ const ALL_FILTER_OPTIONS = ["Todos", ...Object.keys({
   Checkup: 1, Vaccine: 1, Deworming: 1, Medication: 1, Surgery: 1, Allergy: 1, Other: 1
 })] as const;
 
+// ── Clinic access audit log section ──────────────────────────────────────────
+
+function ClinicAccessLogSection({ petId }: { petId: string }) {
+  const { data: logs } = useClinicAccessLog(petId, 10);
+  if (!logs || logs.length === 0) return null;
+
+  return (
+    <details className="text-sm">
+      <summary className="cursor-pointer text-xs font-semibold text-sand-400 hover:text-sand-600">
+        🔐 Historial de acceso veterinario ({logs.length} acceso{logs.length !== 1 ? "s" : ""})
+      </summary>
+      <ul className="mt-2 space-y-1.5">
+        {logs.map((l) => (
+          <li key={l.logId} className="flex items-center justify-between rounded-lg border border-sand-100 px-3 py-2">
+            <span className="text-xs font-medium text-sand-700">
+              🏥 {l.clinicName ?? "Clínica"}
+            </span>
+            <span className="text-xs text-sand-400">
+              {new Date(l.accessedAt).toLocaleDateString("es-CR", {
+                year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"
+              })}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
 export function MedicalHistoryTab({ petId }: { petId: string }) {
   const { data: records, isLoading: loadingRecords, isError: historyError } = useMedicalHistory(petId);
   const { data: count } = useMedicalCount(petId);
@@ -523,14 +554,24 @@ export function MedicalHistoryTab({ petId }: { petId: string }) {
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [showReminderForm, setShowReminderForm] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [typeFilter, setTypeFilter] = useState<string>("Todos");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const pendingReminders = reminders?.filter((r) => !r.isCompleted) ?? [];
   const completedReminders = reminders?.filter((r) => r.isCompleted) ?? [];
 
-  const filteredRecords = typeFilter === "Todos"
-    ? (records ?? [])
-    : (records ?? []).filter((r) => r.type === typeFilter);
+  const filteredRecords = (records ?? [])
+    .filter((r) => typeFilter === "Todos" || r.type === typeFilter)
+    .filter((r) => {
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        r.description.toLowerCase().includes(q) ||
+        (r.vetName?.toLowerCase().includes(q) ?? false) ||
+        (r.clinicName?.toLowerCase().includes(q) ?? false)
+      );
+    });
 
   const availableClinics = publicClinics?.map((c) => ({ id: c.id, name: c.name }));
 
@@ -543,15 +584,23 @@ export function MedicalHistoryTab({ petId }: { petId: string }) {
           <button type="button" disabled={exportPdf.isPending}
             onClick={() => exportPdf.mutate(undefined, { onError: () => toast.error("No se pudo exportar el PDF") })}
             className="rounded-lg border border-sand-300 px-3 py-1.5 text-xs font-semibold text-sand-700 hover:bg-sand-100 disabled:opacity-50">
+          <button
+            type="button"
+            disabled={exportPdf.isPending}
+            onClick={() => exportPdf.mutate(undefined, { onError: () => toast.error("No se pudo exportar el PDF") })}
+            className="rounded-lg border border-sand-300 px-3 py-1.5 text-xs font-semibold text-sand-700 hover:bg-sand-100 disabled:opacity-50">
             {exportPdf.isPending ? "Exportando…" : "📄 Exportar PDF"}
           </button>
+          <Button size="sm" variant="secondary"
+            onClick={() => { setShowCalendar((v) => !v); }}>
+            {showCalendar ? "Lista" : "📅 Calendario"}
+          </Button>
           <Button size="sm" variant="secondary"
             onClick={() => { setShowReminderForm((v) => !v); setShowAddForm(false); }}>
             {showReminderForm ? "Cerrar" : "⏰ Recordatorio"}
           </Button>
           <Button size="sm" onClick={() => { setShowAddForm((v) => !v); setShowReminderForm(false); }}>
             {showAddForm ? "Cerrar" : "+ Registro"}
-            {showAddForm ? "Cerrar" : "+ Agregar"}
           </Button>
         </div>
       </div>
@@ -559,6 +608,11 @@ export function MedicalHistoryTab({ petId }: { petId: string }) {
       {/* Forms */}
       {showAddForm && <AddRecordForm petId={petId} onClose={() => setShowAddForm(false)} />}
       {showReminderForm && <AddReminderForm petId={petId} onClose={() => setShowReminderForm(false)} />}
+
+      {/* Calendar view */}
+      {showCalendar && reminders && (
+        <ReminderCalendar reminders={[...pendingReminders, ...completedReminders]} />
+      )}
 
       {/* Pending reminders */}
       {pendingReminders.length > 0 && (
@@ -572,6 +626,17 @@ export function MedicalHistoryTab({ petId }: { petId: string }) {
 
       {/* Records list */}
       <div>
+        {/* Search input */}
+        <div className="relative mb-3">
+          <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sand-400 text-sm">🔍</span>
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar por descripción, veterinario o clínica…"
+            className="w-full rounded-xl border border-sand-200 bg-white py-2 pl-8 pr-4 text-sm text-sand-800 placeholder:text-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+          />
+        </div>
         {/* Type filter */}
         <div className="mb-3 flex flex-wrap gap-1.5">
           {ALL_FILTER_OPTIONS.map((opt) => (
@@ -648,6 +713,9 @@ export function MedicalHistoryTab({ petId }: { petId: string }) {
         petId={petId}
         availableClinics={availableClinics}
       />
+
+      {/* ── Clinic access audit log ────────────────────────────────────── */}
+      <ClinicAccessLogSection petId={petId} />
     </div>
   );
 }

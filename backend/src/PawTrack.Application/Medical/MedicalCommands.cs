@@ -384,6 +384,115 @@ public sealed class CreateVetReminderCommandValidator : AbstractValidator<Create
     }
 }
 
+// ── Get all reminders across all user's pets ──────────────────────────────────
+
+public sealed record PetReminderDto(
+    Guid ReminderId,
+    Guid PetId,
+    string PetName,
+    string? PetPhotoUrl,
+    string Type,
+    DateOnly DueDate,
+    string Title,
+    string? Notes,
+    bool IsCompleted,
+    bool IsOverdue);
+
+public sealed record GetMyRemindersQuery(Guid UserId, int DaysAhead = 30)
+    : IRequest<Result<IReadOnlyList<PetReminderDto>>>;
+
+public sealed class GetMyRemindersQueryHandler(
+    IPetRepository petRepository,
+    IFamilyRepository familyRepository,
+    IMedicalRepository medicalRepository)
+    : IRequestHandler<GetMyRemindersQuery, Result<IReadOnlyList<PetReminderDto>>>
+{
+    public async Task<Result<IReadOnlyList<PetReminderDto>>> Handle(
+        GetMyRemindersQuery request, CancellationToken ct)
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var cutoff = today.AddDays(request.DaysAhead);
+
+        // Collect all pets visible to this user
+        var ownedPets = await petRepository.GetByOwnerIdAsync(request.UserId, ct);
+        var allPets = ownedPets.ToList();
+
+        // If user is a family member, include the family account owner's pets
+        var familyAsOwner = await familyRepository.GetByOwnerAsync(request.UserId, ct);
+        if (familyAsOwner is null)
+        {
+            var familyAsMember = await familyRepository.GetByMemberAsync(request.UserId, ct);
+            if (familyAsMember is not null)
+            {
+                var ownerPets = await petRepository.GetByOwnerIdAsync(familyAsMember.OwnerId, ct);
+                allPets.AddRange(ownerPets.Where(p => allPets.All(op => op.Id != p.Id)));
+            }
+        }
+
+        var result = new List<PetReminderDto>();
+        foreach (var pet in allPets)
+        {
+            var reminders = await medicalRepository.GetUpcomingRemindersAsync(pet.Id, ct);
+            foreach (var r in reminders)
+            {
+                // Include overdue (past) + upcoming within window
+                if (r.IsCompleted) continue;
+                if (r.DueDate > cutoff) continue;
+
+                result.Add(new PetReminderDto(
+                    r.Id, pet.Id, pet.Name, pet.PhotoUrl,
+                    r.Type.ToString(), r.DueDate, r.Title, r.Notes,
+                    r.IsCompleted,
+                    r.DueDate < today));
+            }
+        }
+
+        return Result.Success<IReadOnlyList<PetReminderDto>>(
+            result.OrderBy(r => r.DueDate).ToList());
+    }
+}
+
+// ── Get clinic access log for a pet (owner only) ──────────────────────────────
+
+public sealed record ClinicAccessLogEntryDto(
+    Guid LogId,
+    Guid ClinicId,
+    string? ClinicName,
+    DateTimeOffset AccessedAt);
+
+public sealed record GetClinicAccessLogQuery(Guid PetId, Guid RequestingUserId, int Limit = 50)
+    : IRequest<Result<IReadOnlyList<ClinicAccessLogEntryDto>>>;
+
+public sealed class GetClinicAccessLogQueryHandler(
+    IPetRepository petRepository,
+    IFamilyRepository familyRepository,
+    IClinicMedicalAccessLogRepository accessLogRepository,
+    IClinicRepository clinicRepository)
+    : IRequestHandler<GetClinicAccessLogQuery, Result<IReadOnlyList<ClinicAccessLogEntryDto>>>
+{
+    public async Task<Result<IReadOnlyList<ClinicAccessLogEntryDto>>> Handle(
+        GetClinicAccessLogQuery request, CancellationToken ct)
+    {
+        var pet = await petRepository.GetByIdAsync(request.PetId, ct);
+        if (pet is null) return Result.Failure<IReadOnlyList<ClinicAccessLogEntryDto>>("Mascota no encontrada.");
+
+        var canView = pet.OwnerId == request.RequestingUserId
+            || await FamilyAccessChecker.CanAccessPetAsync(pet.OwnerId, request.RequestingUserId, familyRepository, ct);
+        if (!canView) return Result.Failure<IReadOnlyList<ClinicAccessLogEntryDto>>("Acceso denegado.");
+
+        var logs = await accessLogRepository.GetByPetIdAsync(request.PetId, request.Limit, ct);
+
+        var entries = new List<ClinicAccessLogEntryDto>();
+        foreach (var log in logs)
+        {
+            var clinic = await clinicRepository.GetByIdAsync(log.ClinicId, ct);
+            entries.Add(new ClinicAccessLogEntryDto(log.Id, log.ClinicId, clinic?.Name, log.AccessedAt));
+        }
+
+        return Result.Success<IReadOnlyList<ClinicAccessLogEntryDto>>(entries);
+    }
+}
+
 public sealed class CreateVetReminderCommandHandler(
     IPetRepository petRepository,
     IMedicalRepository medicalRepository,

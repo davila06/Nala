@@ -25,6 +25,23 @@ export function useMedicalCount(petId: string) {
   });
 }
 
+export function useMyReminders(daysAhead = 30) {
+  return useQuery({
+    queryKey: ["my-reminders", daysAhead],
+    queryFn: () => medicalApi.getMyReminders(daysAhead),
+    staleTime: 30_000,
+  });
+}
+
+export function useClinicAccessLog(petId: string, limit = 50) {
+  return useQuery({
+    queryKey: ["clinic-access-log", petId],
+    queryFn: () => medicalApi.getAccessLog(petId, limit),
+    staleTime: 60_000,
+    enabled: !!petId,
+  });
+}
+
 export function useAddMedicalRecord(petId: string) {
   const qc = useQueryClient();
   return useMutation({

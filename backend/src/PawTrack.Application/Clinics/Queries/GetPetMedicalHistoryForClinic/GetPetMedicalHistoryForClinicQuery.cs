@@ -4,6 +4,7 @@ using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Medical;
 using PawTrack.Domain.Clinics;
 using PawTrack.Domain.Common;
+using PawTrack.Domain.Medical;
 namespace PawTrack.Application.Clinics.Queries.GetPetMedicalHistoryForClinic;
 
 // ── Query ─────────────────────────────────────────────────────────────────────
@@ -36,7 +37,9 @@ public sealed class GetPetMedicalHistoryForClinicQueryHandler(
     IClinicScanRepository clinicScanRepository,
     IClinicMedicalAccessGrantRepository grantRepository,
     IPetRepository petRepository,
-    IMedicalRepository medicalRepository)
+    IMedicalRepository medicalRepository,
+    IClinicMedicalAccessLogRepository accessLogRepository,
+    IUnitOfWork unitOfWork)
     : IRequestHandler<GetPetMedicalHistoryForClinicQuery, Result<ClinicPatientHistoryDto>>
 {
     private const int RecentScanWindowDays = 90;
@@ -67,6 +70,15 @@ public sealed class GetPetMedicalHistoryForClinicQueryHandler(
 
         var records = await medicalRepository.GetByPetIdAsync(pet.Id, ct);
         var lastScan = await clinicScanRepository.GetLastScanDateAsync(request.ClinicId, pet.Id, ct);
+
+        // Audit: record this access (fire-and-persist — must not fail the query if log write fails)
+        try
+        {
+            var log = ClinicMedicalAccessLog.Create(pet.Id, request.ClinicId, request.ClinicId /* userId not available here */);
+            await accessLogRepository.AddAsync(log, ct);
+            await unitOfWork.SaveChangesAsync(ct);
+        }
+        catch { /* audit log failure must not block the query */ }
 
         return Result.Success(new ClinicPatientHistoryDto(
             pet.Id,
