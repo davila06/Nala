@@ -2,9 +2,9 @@
 
 Proyecto: PawTrack CR  
 Autor: Denis Avila Umaña  
-Versión: 3.1 (consolidada y actualizada)  
-Fecha de actualización: 2026-04-06  
-Estado: Desarrollo activo (MVP ampliado)
+Versión: 3.2 (actualizada agosto 2026)  
+Fecha de actualización: 2026-08-07  
+Estado: MVP completo — listo para producción
 
 ---
 
@@ -20,9 +20,9 @@ Mascota registrada -> QR generado -> mascota perdida -> avistamientos -> coordin
 
 ## 2. Estado actual (resumen ejecutivo)
 
-PawTrack CR ya no está en un MVP básico. El repositorio implementa un MVP ampliado con módulos operativos para:
+PawTrack CR ya no está en un MVP básico. El repositorio implementa un **MVP completo** con todos los módulos operativos:
 
-- Autenticación completa con JWT + refresh token.
+- Autenticación completa con JWT + refresh token, lockout, verificación de email.
 - Gestión de mascotas, QR, perfil público y trazabilidad de escaneos.
 - Flujo de pérdida con case room, difusión, checklist y coordinación en campo.
 - Avistamientos con matching visual por IA y reporte de mascota encontrada sin QR.
@@ -32,6 +32,16 @@ PawTrack CR ya no está en un MVP básico. El repositorio implementa un MVP ampl
 - Incentivos (leaderboard y score de contribución).
 - Estadísticas públicas de recuperación.
 - Bot de WhatsApp para captura conversacional de reportes.
+- **Sistema de suscripciones** (Explorador/Plus/Familia) con feature gating completo.
+- **Módulo Familia** (multi-usuario hasta 5 miembros, plan Familia).
+- **Expediente médico digital** completo: CRUD de registros, 7 tipos, campos de medicación, peso por visita, recordatorios veterinarios (con notificación push), vista calendario, dashboard multi-mascota, audit log de acceso de clínicas, acceso tiered por plan (Explorador=count, Plus=3 registros preview, Familia=completo).
+- **Sistema de recompensas económicas** (Bounty) con escrow SINPE Móvil + HandoverCode.
+- **B2B Clínicas** (Básica/Plus/Partner) con expediente compartido, certificados PDF verificables, portal veterinario.
+- **B2G Municipalidades** (Básica/Full/Red Regional) con portal de control animal.
+- **Collar GPS** integración Tractive (OAuth2 + polling), soporte OEM genérico.
+- **Bundle GPS** on-demand.
+- Infraestructura Azure en Bicep (Container Apps, SQL Serverless, Blob, Key Vault, App Insights).
+- CI/CD GitHub Actions (build → test → Docker → ACR → Container App update).
 
 ---
 

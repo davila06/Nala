@@ -231,18 +231,23 @@ Dashboard → **Alertas de mascotas perdidas cerca de mí** → activa y permite
 
 ## Plan Explorador vs Plus vs Familia
 
-| Función                  | Explorador | Plus      | Familia        |
-| ------------------------ | ---------- | --------- | -------------- |
-| Mascotas                 | 1          | 3         | ∞              |
-| Búsqueda IA por foto     | 3/mes      | Ilimitada | Ilimitada      |
-| Historial de escaneos    | Últimos 5  | Completo  | Completo       |
-| Radio de alerta          | 3 km       | 10 km     | Sin límite     |
-| Panel GPS collar         | —          | ✓         | ✓              |
-| Predicción de movimiento | —          | ✓         | ✓              |
-| Historial médico         | —          | —         | ✓              |
-| Recordatorios vet        | —          | —         | ✓              |
-| Cuenta familiar          | —          | —         | ✓ (5 miembros) |
-| Exportar PDF historial   | —          | —         | ✓              |
+| Función                           | Explorador | Plus                      | Familia        |
+| --------------------------------- | ---------- | ------------------------- | -------------- |
+| Mascotas                          | 1          | 3                         | ∞              |
+| Búsqueda IA por foto              | 3/mes      | Ilimitada                 | Ilimitada      |
+| Historial de escaneos             | Últimos 5  | Completo                  | Completo       |
+| Radio de alerta                   | 3 km       | 10 km                     | Sin límite     |
+| Panel GPS collar                  | —          | ✓                         | ✓              |
+| Predicción de movimiento          | —          | ✓                         | ✓              |
+| Expediente médico                 | Count teaser | Preview (últimos 3)     | ✓ Completo     |
+| Editar/eliminar registros médicos | —          | —                         | ✓              |
+| Peso por visita / medicación detallada | —     | —                         | ✓              |
+| Vista calendario recordatorios    | —          | —                         | ✓              |
+| Dashboard multi-mascota recordatorios | —     | —                         | ✓              |
+| Recordatorios vet (crear/eliminar) | —         | —                         | ✓              |
+| Audit log de acceso veterinario   | —          | —                         | ✓              |
+| Cuenta familiar                   | —          | —                         | ✓ (5 miembros) |
+| Exportar PDF historial            | —          | —                         | ✓              |
 
 ### Activar Plus o Familia
 
@@ -254,16 +259,21 @@ Perfil → Mi plan → **Mejorar a Plus** (o **Ver Familia**) → SINPE Móvil c
 
 Para probar los features implementados en esta sesión:
 
-| Feature                 | Pasos                                                                                     |
-| ----------------------- | ----------------------------------------------------------------------------------------- |
-| **Cuenta familiar**     | Perfil → "Cuenta familiar" — necesitas plan Familia activo                                |
-| **Invitar miembro**     | Cuenta familiar → Invitar → copia el link y ábrelo en otro navegador/perfil               |
-| **Aceptar invitación**  | Abre `/familia/invitacion/{token}` (si no estás autenticado, te redirige a login primero) |
-| **Historial médico**    | Detalle mascota → tab "Salud 🏥" — necesitas plan Familia                                 |
-| **Agregar registro**    | Salud → "+ Agregar" → completa el form                                                    |
-| **Exportar PDF médico** | Salud → "Exportar PDF"                                                                    |
-| **Recordatorios**       | Agrega un registro con "Próxima cita" → aparece en sección de recordatorios               |
-| **Bounty claim**        | Genera código de entrega (Handover) → ingrésalo → la recompensa se marca automáticamente  |
+| Feature                              | Pasos                                                                                      |
+| ------------------------------------ | ------------------------------------------------------------------------------------------ |
+| **Cuenta familiar**                  | Perfil → "Cuenta familiar" — necesitas plan Familia activo                                 |
+| **Invitar miembro**                  | Cuenta familiar → Invitar → copia el link y ábrelo en otro navegador/perfil                |
+| **Aceptar invitación**               | Abre `/familia/invitacion/{token}` (si no estás autenticado, te redirige a login primero)  |
+| **Historial médico (Familia)**       | Detalle mascota → tab "Salud 🏥" — historial completo, editar, eliminar, exportar PDF     |
+| **Preview médico (Plus)**            | Tab "Salud 🏥" → muestra últimos 3 registros + banner de upgrade                           |
+| **Agregar registro médico**          | Salud → "+ Registro" → tipo, fecha, descripción, veterinario, peso (opcional), medicación  |
+| **Editar / eliminar registro**       | Tap ✏️ o 🗑️ en cualquier registro que creaste                                             |
+| **Recordatorio independiente**       | Salud → "⏰ Recordatorio" → tipo, fecha, título, notas                                     |
+| **Vista calendario**                 | Salud → "📅 Calendario" — muestra dots por día con recordatorios                           |
+| **Buscar en historial**              | Barra de búsqueda 🔍 en sección Salud — filtra por descripción/vet/clínica                 |
+| **Audit log clínica**                | Salud → "🔐 Historial de acceso veterinario" (colapsable)                                  |
+| **Exportar PDF médico**              | Salud → "📄 Exportar PDF"                                                                  |
+| **Bounty claim**                     | Genera código de entrega (Handover) → ingrésalo → la recompensa se marca automáticamente   |
 
 > **Usuario de prueba sugerido:** Usa el usuario con rol `Owner` y plan `UserFamilia` activo (activarlo desde el admin panel o directamente en la BD en desarrollo).
 

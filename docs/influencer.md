@@ -14,7 +14,7 @@ Te escribo porque sigo tu contenido y creo que esto te puede interesar.
 
 Estoy desarrollando PawTrack CR — una app costarricense para reunir mascotas perdidas con sus familias. Funciona con un collar QR: cualquier persona que encuentre a tu mascota escanea el collar y le llega una alerta al dueño en segundos, sin instalar nada.
 
-Es 100% gratuita para los usuarios y ya está funcionando.
+También incluye expediente médico digital, GPS en vivo, recompensas SINPE y red de clínicas veterinarias. Es 100% gratuita para usuarios básicos y ya está en producción.
 
 Me gustaría saber si te interesa conocerla y quizás compartirla con tu comunidad. No hay ningún compromiso — si la probás y no la sentís auténtica, no hay problema.
 
@@ -56,13 +56,15 @@ ninguna app) y el dueño recibe una alerta con la ubicación GPS en segundos.
 La plataforma incluye:
 • Mapa en tiempo real de avistamientos
 • IA que identifica mascotas por foto
-• Expediente médico digital
+• **Expediente médico digital completo** — vacunas, consultas, medicamentos, peso por visita, recordatorios veterinarios, vista calendario y dashboard multi-mascota (plan Familia)
 • Chat anónimo entre dueño y quien encontró la mascota
 • Sala de coordinación de búsqueda en tiempo real
 • WhatsApp, push y email como canales de alerta
+• Sistema de recompensas económicas (Bounty) con escrow SINPE
+• Portal para clínicas veterinarias con expediente compartido
 
 Es completamente gratuita para los usuarios — el modelo de negocio es a través
-de planes premium y clínicas veterinarias, no de publicidad.
+de planes premium (₡2,990–₡4,990/mes) y clínicas veterinarias, no de publicidad.
 
 — POR QUÉ TE ESCRIBO —
 

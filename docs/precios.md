@@ -168,7 +168,8 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 | GPS collar (tab)            |     ✗      |     ✅      |       ✅       |
 | Sistema Bounty (recompensa) |     ✗      |     ✅      |       ✅       |
 | Multi-usuario               |     ✗      |      ✗      |     ✅ (5)     |
-| Historial médico + vacunas  |     ✗      |      ✗      |       ✅       |
+| Expediente médico (preview) |     ✗      |   ✅ (3 registros)   |       ✅       |
+| Expediente médico completo  |     ✗      |      ✗      |       ✅       |
 | PDF historial médico        |     ✗      |      ✗      |       ✅       |
 | Usuarios en familia         |     1      |      1      |       5        |
 
