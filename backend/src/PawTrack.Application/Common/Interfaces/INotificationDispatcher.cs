@@ -143,4 +143,17 @@ public interface INotificationDispatcher
         string clinicName,
         string recordType,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Sends an ultra-local alert to a single neighbor (Guardia Vecinal member).
+    /// Called once per active neighbor within radius when a lost-pet report is created.
+    /// </summary>
+    Task DispatchNeighborLostPetAlertAsync(
+        Guid neighborUserId,
+        string petName,
+        string petSpecies,
+        string lostPetEventId,
+        double lostLat,
+        double lostLng,
+        CancellationToken cancellationToken = default);
 }

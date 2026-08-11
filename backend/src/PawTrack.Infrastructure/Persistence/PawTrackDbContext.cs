@@ -43,6 +43,7 @@ public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> option
     public DbSet<FosterVolunteer> FosterVolunteers => Set<FosterVolunteer>();
     public DbSet<CustodyRecord> CustodyRecords => Set<CustodyRecord>();
     public DbSet<UserLocation> UserLocations => Set<UserLocation>();
+    public DbSet<NeighborAlert> NeighborAlerts => Set<NeighborAlert>();
     public DbSet<BroadcastAttempt> BroadcastAttempts => Set<BroadcastAttempt>();
     public DbSet<ContributorScore> ContributorScores => Set<ContributorScore>();
     public DbSet<GeofencedAlertLog> GeofencedAlertLogs => Set<GeofencedAlertLog>();

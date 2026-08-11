@@ -595,5 +595,22 @@ public sealed class NotificationDispatcher(
             new PushNotificationMetadata(Url: "/dashboard"),
             cancellationToken);
     }
+
+    public async Task DispatchNeighborLostPetAlertAsync(
+        Guid neighborUserId,
+        string petName,
+        string petSpecies,
+        string lostPetEventId,
+        double lostLat,
+        double lostLng,
+        CancellationToken cancellationToken = default)
+    {
+        await TrySendPushAsync(
+            neighborUserId,
+            $"🚨 Mascota perdida en tu cuadra — {petName}",
+            $"Una {petSpecies.ToLowerInvariant()} llamada {petName} fue reportada perdida cerca de ti. ¡Ayuda a encontrarla!",
+            new PushNotificationMetadata(Url: $"/lost/{lostPetEventId}"),
+            cancellationToken);
+    }
 }
 

@@ -1,38 +1,38 @@
-import { apiClient } from '@/shared/lib/apiClient'
+import { apiClient } from "@/shared/lib/apiClient";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface VisualMatchResult {
-  petId: string
-  lostEventId: string
-  petName: string
-  species: string
-  photoUrl: string | null
+  petId: string;
+  lostEventId: string;
+  petName: string;
+  species: string;
+  photoUrl: string | null;
   /** Combined cosine + geo score in [0, 1]. Higher is better. */
-  similarityScore: number
+  similarityScore: number;
   /** Distance in km from probe location to pet's last-seen location. Null when location was not provided. */
-  distanceKm: number | null
-  publicProfileUrl: string
+  distanceKm: number | null;
+  publicProfileUrl: string;
 }
 
 export interface VisualMatchPayload {
-  photo: File
-  lat?: number
-  lng?: number
+  photo: File;
+  lat?: number;
+  lng?: number;
 }
 
 // ── API client ─────────────────────────────────────────────────────────────────
 
 export const matchingApi = {
   visualMatch: (payload: VisualMatchPayload): Promise<VisualMatchResult[]> => {
-    const form = new FormData()
-    form.append('Photo', payload.photo)
-    if (payload.lat != null) form.append('lat', String(payload.lat))
-    if (payload.lng != null) form.append('lng', String(payload.lng))
+    const form = new FormData();
+    form.append("Photo", payload.photo);
+    if (payload.lat != null) form.append("lat", String(payload.lat));
+    if (payload.lng != null) form.append("lng", String(payload.lng));
 
     return apiClient
-      .post<VisualMatchResult[]>('/sightings/visual-match', form)
-      .then((r) => r.data)
+      .post<VisualMatchResult[]>("/sightings/visual-match", form)
+      .then((r) => r.data);
   },
 
   /** Auto-match using the photo already stored on a persisted sighting. */
@@ -41,26 +41,28 @@ export const matchingApi = {
     lat?: number,
     lng?: number,
   ): Promise<VisualMatchResult[]> => {
-    const params: Record<string, string> = {}
-    if (lat != null) params['lat'] = String(lat)
-    if (lng != null) params['lng'] = String(lng)
+    const params: Record<string, string> = {};
+    if (lat != null) params["lat"] = String(lat);
+    if (lng != null) params["lng"] = String(lng);
 
     return apiClient
-      .post<VisualMatchResult[]>(`/sightings/${sightingId}/visual-match`, null, { params })
-      .then((r) => r.data)
+      .post<
+        VisualMatchResult[]
+      >(`/sightings/${sightingId}/visual-match`, null, { params })
+      .then((r) => r.data);
   },
 
   /** Public endpoint — no auth required, returns top 5 matches. */
   quickMatch: (payload: VisualMatchPayload): Promise<VisualMatchResult[]> => {
-    const form = new FormData()
-    form.append('Photo', payload.photo)
-    if (payload.lat != null) form.append('Lat', String(payload.lat))
-    if (payload.lng != null) form.append('Lng', String(payload.lng))
+    const form = new FormData();
+    form.append("Photo", payload.photo);
+    if (payload.lat != null) form.append("Lat", String(payload.lat));
+    if (payload.lng != null) form.append("Lng", String(payload.lng));
 
     return apiClient
-      .post<VisualMatchResult[]>('/public/encontre/match', form, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      .post<VisualMatchResult[]>("/public/encontre/match", form, {
+        headers: { "Content-Type": "multipart/form-data" },
       })
-      .then((r) => r.data)
+      .then((r) => r.data);
   },
-}
+};

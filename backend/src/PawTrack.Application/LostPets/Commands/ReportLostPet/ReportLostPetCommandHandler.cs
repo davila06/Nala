@@ -16,6 +16,7 @@ public sealed class ReportLostPetCommandHandler(
     IImageProcessor imageProcessor,
     ISubscriptionService subscriptionService,
     IClinicRepository clinicRepository,
+    INeighborAlertRepository neighborAlertRepository,
     IUnitOfWork unitOfWork,
     ILostPetSearchRadiusCalculator searchRadiusCalculator)
     : IRequestHandler<ReportLostPetCommand, Result<string>>
@@ -130,6 +131,35 @@ public sealed class ReportLostPetCommandHandler(
                     pet.Name,
                     (double)lostPetEvent.LastSeenLat.Value,
                     (double)lostPetEvent.LastSeenLng.Value,
+                    cancellationToken);
+            }
+
+            // Notify Guardia Vecinal neighbors within their configured radius
+            var neighbors = await neighborAlertRepository.GetActiveInRadiusAsync(
+                lostPetEvent.LastSeenLat.Value,
+                lostPetEvent.LastSeenLng.Value,
+                radiusMeters: 2000, // query beyond max individual radius to cover all configs
+                cancellationToken);
+
+            foreach (var neighbor in neighbors)
+            {
+                // Skip the owner themselves
+                if (neighbor.UserId == request.RequestingUserId) continue;
+                // Only notify if the loss coords fall within that neighbor's specific radius
+                var distM = PawTrack.Application.Common.GeoHelper.DistanceMetres(
+                    lostPetEvent.LastSeenLat.Value,
+                    lostPetEvent.LastSeenLng.Value,
+                    (double)neighbor.Lat,
+                    (double)neighbor.Lng);
+                if (distM > neighbor.RadiusMeters) continue;
+
+                _ = notificationDispatcher.DispatchNeighborLostPetAlertAsync(
+                    neighbor.UserId,
+                    pet.Name,
+                    pet.Species.ToString(),
+                    lostPetEvent.Id.ToString(),
+                    lostPetEvent.LastSeenLat.Value,
+                    lostPetEvent.LastSeenLng.Value,
                     cancellationToken);
             }
         }

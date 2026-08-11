@@ -24,6 +24,7 @@ import {
   useReportPayment,
 } from "@/features/pets/hooks/useSubscription";
 import { FamilyManagementSection } from "@/features/family/components/FamilyManagementSection";
+import { NeighborStatusCard } from "@/features/locations/components/NeighborStatusCard";
 import { SinpePaymentModal } from "@/features/pets/components/SinpePaymentModal";
 import type { SubscriptionTier } from "@/features/pets/api/subscriptionApi";
 
@@ -854,6 +855,15 @@ export default function ProfilePage() {
 
       {/* ── Familia ───────────────────────────────────────────────────── */}
       <FamilyManagementSection />
+
+      {/* ── Guardia Vecinal section ─────────────────────────────── */}
+      <Card>
+        <h2 className="text-base font-semibold text-sand-800">Guardia Vecinal</h2>
+        <p className="mt-1 mb-4 text-sm text-sand-500">
+          Recibe alertas ultra-locales cuando una mascota se pierde en tu cuadra.
+        </p>
+        <NeighborStatusCard />
+      </Card>
 
       {/* ── Delete account ────────────────────────────────────────────── */}
       <Card variant="danger">

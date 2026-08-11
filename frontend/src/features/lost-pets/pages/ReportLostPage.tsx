@@ -6,6 +6,7 @@ import { PhotoUpload } from "@/features/pets/components/PhotoUpload";
 import { useReportLost } from "../hooks/useLostPets";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { LastSeenMap } from "../components/LastSeenMap";
+import { useNeighborCountInArea } from "@/features/locations/hooks/useNeighbor";
 import {
   estimateSearchRadius,
   hoursElapsedSince,
@@ -50,6 +51,10 @@ export default function ReportLostPage() {
   const [rewardNote, setRewardNote] = useState("");
   const [queuedOffline, setQueuedOffline] = useState(false);
   const [isQueuingOffline, setIsQueuingOffline] = useState(false);
+
+  const { data: neighborCount } = useNeighborCountInArea(
+    coords?.lat, coords?.lng, 500,
+  );
 
   // Auto-request geolocation on mount and seed the pin with the first fix
   useEffect(() => {
@@ -378,6 +383,20 @@ export default function ReportLostPage() {
                             ? `Pin en ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`
                             : `Toca el mapa para marcar dónde fue visto ${pet.name}.`}
                         </p>
+
+                        {/* Neighbor count hint — only when coords are set */}
+                        {coords && neighborCount != null && (
+                          <div className={`mt-2 flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium ${
+                            neighborCount.count > 0
+                              ? "bg-trust-50 text-trust-800 border border-trust-200"
+                              : "bg-sand-50 text-sand-500 border border-sand-100"
+                          }`}>
+                            <span aria-hidden="true">🏘️</span>
+                            {neighborCount.count > 0
+                              ? `${neighborCount.count} vecino${neighborCount.count !== 1 ? "s" : ""} activo${neighborCount.count !== 1 ? "s" : ""} en Guardia Vecinal cercano${neighborCount.count !== 1 ? "s" : ""}. Serán notificados automáticamente.`
+                              : "Sé el primero en activar la Guardia Vecinal en esta zona."}
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}

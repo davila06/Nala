@@ -88,6 +88,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IBroadcastAttemptRepository, BroadcastAttemptRepository>();
         services.AddScoped<IContributorScoreRepository, ContributorScoreRepository>();
         services.AddScoped<IGeofencedAlertLogRepository, GeofencedAlertLogRepository>();
+        services.AddScoped<INeighborAlertRepository, NeighborAlertRepository>();
         services.AddScoped<IFoundPetRepository, FoundPetRepository>();
         services.AddScoped<IFosterVolunteerRepository, FosterVolunteerRepository>();
         services.AddScoped<ICustodyRecordRepository, CustodyRecordRepository>();

@@ -19,6 +19,7 @@ public sealed class ReportLostPetCommandHandlerTests
     private readonly IBlobStorageService _blobStorage = Substitute.For<IBlobStorageService>();
     private readonly IImageProcessor _imageProcessor = Substitute.For<IImageProcessor>();
     private readonly IClinicRepository _clinicRepo = Substitute.For<IClinicRepository>();
+    private readonly INeighborAlertRepository _neighborRepo = Substitute.For<INeighborAlertRepository>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
     private readonly ILostPetSearchRadiusCalculator _searchRadiusCalculator = new LostPetSearchRadiusCalculator();
     private readonly PawTrack.Application.Subscriptions.Services.ISubscriptionService _subscriptionService =
@@ -39,7 +40,7 @@ public sealed class ReportLostPetCommandHandlerTests
 
         _sut = new ReportLostPetCommandHandler(
             _lostPetRepo, _petRepo, _userRepo, _dispatcher, _blobStorage, _imageProcessor,
-            _subscriptionService, _clinicRepo, _uow, _searchRadiusCalculator);
+            _subscriptionService, _clinicRepo, _neighborRepo, _uow, _searchRadiusCalculator);
     }
 
     [Fact]
