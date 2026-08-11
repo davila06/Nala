@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";import {
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
   medicalApi,
   type AddMedicalRecordPayload,
   type UpdateMedicalRecordPayload,

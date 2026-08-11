@@ -119,6 +119,9 @@ const MunicipalDashboardPage = lazy(
 const CertificateVerificationPage = lazy(
   () => import("@/features/clinics/pages/CertificateVerificationPage"),
 );
+const PassportVerificationPage = lazy(
+  () => import("@/features/clinics/pages/PassportVerificationPage"),
+);
 
 // Family invitation (public — no auth wrapper needed; page handles redirect)
 const AcceptFamilyInvitationPage = lazy(
@@ -462,6 +465,14 @@ export const router = createBrowserRouter([
         element: (
           <S>
             <CertificateVerificationPage />
+          </S>
+        ),
+      },
+      {
+        path: "/verificar/pasaporte/:code",
+        element: (
+          <S>
+            <PassportVerificationPage />
           </S>
         ),
       },

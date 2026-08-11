@@ -10,7 +10,11 @@ interface AnnualReportButtonProps {
   createdYear?: number;
 }
 
-export function AnnualReportButton({ petId, petName, createdYear }: AnnualReportButtonProps) {
+export function AnnualReportButton({
+  petId,
+  petName,
+  createdYear,
+}: AnnualReportButtonProps) {
   const currentYear = new Date().getFullYear();
   const firstYear = createdYear ?? 2024;
   const years = Array.from(
@@ -33,7 +37,9 @@ export function AnnualReportButton({ petId, petName, createdYear }: AnnualReport
         className="rounded-xl border border-sand-200 bg-white px-3 py-1.5 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
       >
         {years.map((y) => (
-          <option key={y} value={y}>{y}</option>
+          <option key={y} value={y}>
+            {y}
+          </option>
         ))}
       </select>
 
@@ -43,7 +49,8 @@ export function AnnualReportButton({ petId, petName, createdYear }: AnnualReport
         loading={download.isPending}
         onClick={() =>
           download.mutate(year, {
-            onError: () => toast.error("No se pudo generar el informe. Intenta de nuevo."),
+            onError: () =>
+              toast.error("No se pudo generar el informe. Intenta de nuevo."),
           })
         }
         aria-label={`Descargar informe anual ${year} de ${petName}`}

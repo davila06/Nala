@@ -66,7 +66,7 @@ public sealed class GenerateAnnualReportQueryHandler(
         if (!canAccess) return Result.Failure<byte[]>("Acceso denegado.");
 
         var yearStart = new DateOnly(request.Year, 1, 1);
-        var yearEnd   = new DateOnly(request.Year, 12, 31);
+        var yearEnd = new DateOnly(request.Year, 12, 31);
 
         // Medical records in the year
         var allRecords = await medicalRepository.GetByPetIdAsync(request.PetId, ct);

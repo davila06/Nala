@@ -1077,6 +1077,17 @@ export function MedicalHistoryTab({
 
       {/* ── Clinic access audit log ────────────────────────────────────── */}
       <ClinicAccessLogSection petId={petId} />
+
+      {/* ── Vaccine passports link ─────────────────────────────────────── */}
+      <a
+        href={`/api/certificates/pet/${petId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 rounded-xl border border-sand-100 bg-surface-warm px-4 py-3 text-sm font-medium text-trust-700 hover:bg-trust-50 hover:border-trust-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400"
+      >
+        <span aria-hidden="true">📋</span>
+        Ver certificados y pasaportes emitidos
+      </a>
     </div>
   );
 }

@@ -8,9 +8,9 @@ namespace PawTrack.Infrastructure.Medical;
 public sealed class QuestPdfAnnualReportGenerator : IAnnualReportPdfGenerator
 {
     private const string BrandOrange = "#e8521e";
-    private const string TrustNavy   = "#0c1a4e";
-    private const string SandLight   = "#f9f5ef";
-    private const string TextGray    = "#6e5244";
+    private const string TrustNavy = "#0c1a4e";
+    private const string SandLight = "#f9f5ef";
+    private const string TextGray = "#6e5244";
     private const string RescueGreen = "#17a26d";
 
     public Task<byte[]> GenerateAsync(AnnualReportData data, CancellationToken ct = default)
@@ -206,10 +206,10 @@ public sealed class QuestPdfAnnualReportGenerator : IAnnualReportPdfGenerator
 
     private static string SpeciesEmoji(string species) => species switch
     {
-        "Dog"    => "🐶",
-        "Cat"    => "🐱",
-        "Bird"   => "🐦",
+        "Dog" => "🐶",
+        "Cat" => "🐱",
+        "Bird" => "🐦",
         "Rabbit" => "🐰",
-        _        => "🐾",
+        _ => "🐾",
     };
 }

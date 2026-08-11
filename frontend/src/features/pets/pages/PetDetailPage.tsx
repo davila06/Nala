@@ -495,7 +495,9 @@ export default function PetDetailPage() {
       {activeTab === "salud" && (
         <PlanGate requires="Familia">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="font-display text-base font-semibold text-sand-800 sr-only">Salud</h2>
+            <h2 className="font-display text-base font-semibold text-sand-800 sr-only">
+              Salud
+            </h2>
             <AnnualReportButton
               petId={pet.id}
               petName={pet.name}

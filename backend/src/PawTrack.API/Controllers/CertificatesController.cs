@@ -2,7 +2,9 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using PawTrack.Application.Certificates.Commands;
 using PawTrack.Application.Certificates.Commands.IssueCertificate;
+using PawTrack.Application.Certificates.Interfaces;
 using PawTrack.Application.Certificates.Queries.GetCertificatesForClinic;
 using PawTrack.Application.Certificates.Queries.GetCertificatesForPet;
 using PawTrack.Application.Certificates.Queries.VerifyCertificate;
@@ -83,6 +85,35 @@ public sealed class CertificatesController(ISender sender) : ControllerBase
         return Created($"api/certificates/verify/{result.Value!.VerificationCode}", result.Value);
     }
 
+    // ── POST /api/certificates/passport ───────────────────────────────────────
+    // Emits an OIRSA-format vaccine passport (Clinic Partner only)
+    [HttpPost("passport")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(2048)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> IssuePassport(
+        [FromBody] IssueVaccinePassportRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var vaccines = request.Vaccines
+            .Select(v => new PassportVaccineEntryInput(v.VaccineName, v.Brand, v.LotNumber, v.ApplicationDate, v.ValidUntil))
+            .ToList().AsReadOnly() as System.Collections.Generic.IReadOnlyList<PassportVaccineEntryInput>;
+        var parasite = request.ParasiteControl is { } pc
+            ? new PassportParasiteEntryInput(pc.ProductName, pc.ApplicationDate, pc.NextDueDate)
+            : null;
+        var result = await sender.Send(
+            new IssueVaccinePassportCommand(
+                request.PetId, request.ClinicId, userId,
+                request.VetName, request.VetLicense, request.PetColor,
+                vaccines!, parasite),
+            cancellationToken);
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
+        return Created($"api/certificates/verify/{result.Value!.VerificationCode}", result.Value);
+    }
+
     private bool TryGetUserId(out Guid userId)
     {
         var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -102,3 +133,24 @@ public sealed record IssueCertificateRequest(
     string ClinicName,
     string ClinicLicense,
     string VetName);
+
+public sealed record IssueVaccinePassportRequest(
+    Guid PetId,
+    Guid ClinicId,
+    string VetName,
+    string? VetLicense,
+    string? PetColor,
+    IReadOnlyList<VaccineEntryRequest> Vaccines,
+    ParasiteControlRequest? ParasiteControl);
+
+public sealed record VaccineEntryRequest(
+    string VaccineName,
+    string? Brand,
+    string? LotNumber,
+    DateOnly ApplicationDate,
+    DateOnly? ValidUntil);
+
+public sealed record ParasiteControlRequest(
+    string ProductName,
+    DateOnly ApplicationDate,
+    DateOnly? NextDueDate);
