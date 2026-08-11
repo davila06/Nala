@@ -180,6 +180,10 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ISubscriptionService, SubscriptionService>();
         services.AddSingleton<IPaymentService, SinpePaymentService>();
 
+        // Promotions
+        services.AddScoped<PawTrack.Application.Promotions.Interfaces.IPromotionCodeRepository,
+            PawTrack.Infrastructure.Promotions.PromotionCodeRepository>();
+
         // Bounties
         services.AddScoped<IBountyRepository, BountyRepository>();
         services.AddScoped<IBundleOrderRepository, BundleOrderRepository>();

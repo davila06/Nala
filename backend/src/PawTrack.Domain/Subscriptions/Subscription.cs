@@ -18,6 +18,8 @@ public sealed class Subscription
     public decimal AmountCrc { get; private set; }
     /// <summary>Set when the subscriber self-reports having sent the SINPE payment.</summary>
     public DateTimeOffset? PaymentReportedAt { get; private set; }
+    /// <summary>Set when this subscription was created via a promotion code.</summary>
+    public Guid? RedeemedPromotionCodeId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset? ActivatedAt { get; private set; }
     public DateTimeOffset? ExpiresAt { get; private set; }
@@ -53,6 +55,26 @@ public sealed class Subscription
             PaymentReference = paymentReference,
             AmountCrc = amountCrc,
             CreatedAt = DateTimeOffset.UtcNow,
+        };
+    }
+
+    public static Subscription CreateFromPromotion(
+        Guid userId, SubscriptionTier tier, int months, Guid promotionCodeId)
+    {
+        ValidateUserTier(tier);
+        var now = DateTimeOffset.UtcNow;
+        return new Subscription
+        {
+            Id = Guid.CreateVersion7(),
+            UserId = userId,
+            Tier = tier,
+            Status = SubscriptionStatus.Active,
+            PaymentReference = string.Empty,
+            AmountCrc = 0,
+            RedeemedPromotionCodeId = promotionCodeId,
+            CreatedAt = now,
+            ActivatedAt = now,
+            ExpiresAt = now.AddMonths(months),
         };
     }
 

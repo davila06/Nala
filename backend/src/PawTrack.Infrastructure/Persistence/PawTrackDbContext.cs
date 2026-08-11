@@ -19,6 +19,7 @@ using PawTrack.Domain.Medical;
 using PawTrack.Domain.Municipalities;
 using PawTrack.Domain.Notifications;
 using PawTrack.Domain.Pets;
+using PawTrack.Domain.Promotions;
 using PawTrack.Domain.Safety;
 using PawTrack.Domain.Sightings;
 using PawTrack.Domain.Subscriptions;
@@ -73,6 +74,8 @@ public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> option
     public DbSet<VetReminder> VetReminders => Set<VetReminder>();
     public DbSet<ClinicMedicalAccessGrant> ClinicMedicalAccessGrants => Set<ClinicMedicalAccessGrant>();
     public DbSet<ClinicMedicalAccessLog> ClinicMedicalAccessLogs => Set<ClinicMedicalAccessLog>();
+    public DbSet<PromotionCode> PromotionCodes => Set<PromotionCode>();
+    public DbSet<PromotionCodeRedemption> PromotionCodeRedemptions => Set<PromotionCodeRedemption>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

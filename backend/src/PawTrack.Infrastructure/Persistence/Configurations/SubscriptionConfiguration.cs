@@ -24,6 +24,7 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
         builder.Property(x => x.ExpiresAt);
         builder.Property(x => x.CancelledAt);
         builder.Property(x => x.PaymentReportedAt);
+        builder.Property(x => x.RedeemedPromotionCodeId); // nullable FK — no cascade needed
 
         builder.HasIndex(x => x.UserId);
         builder.HasIndex(x => x.ClinicId);
