@@ -67,6 +67,25 @@ public sealed class MedicalController(ISender sender) : ControllerBase
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
         return Ok(result.Value);
     }
+
+    // ── GET /api/pets/{petId}/medical/weight-history ──────────────────────────
+    [HttpGet("weight-history")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetWeightHistory(Guid petId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetWeightHistoryQuery(petId, userId), ct);
+        if (result.IsFailure)
+        {
+            if (result.Errors.Contains("El historial de peso requiere el plan Familia."))
+                return StatusCode(StatusCodes.Status403Forbidden,
+                    new ProblemDetails { Title = "Plan required", Detail = result.Errors.First(), Status = 403 });
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        }
+        return Ok(result.Value);
+    }
     [HttpPost]
     [Consumes("multipart/form-data")]
     [EnableRateLimiting("public-api")]

@@ -9,11 +9,13 @@ import {
 } from "../hooks/useBundles";
 import {
   COLLAR_MODEL_LABELS,
+  PRODUCT_TYPE_CONFIG,
   STATUS_COLORS,
-  BUNDLE_AMOUNT_CRC,
   type CollarModel,
+  type BundleProductType,
   type BundleOrderDto,
 } from "../api/bundleApi";
+import { NfcSetupGuide } from "./NfcSetupGuide";
 
 // ── CR cantons for shipping ───────────────────────────────────────────────────
 const CANTONS = [
@@ -126,7 +128,7 @@ function OrderCard({ order }: { order: BundleOrderDto }) {
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="font-semibold text-sand-900">
-            {order.collarModelLabel}
+            {order.productTypeLabel ?? order.collarModelLabel}
           </p>
           <p className="text-xs text-sand-500">
             Pedido #{order.id.slice(-8).toUpperCase()} ·{" "}
@@ -280,13 +282,16 @@ function OrderCard({ order }: { order: BundleOrderDto }) {
 
 function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
   const create = useCreateBundleOrder();
-  const [collarModel, setCollarModel] =
-    useState<CollarModel>("TractiveGPSDog4");
+  const [productType, setProductType] = useState<BundleProductType>("CollarGpsPlus");
+  const [collarModel, setCollarModel] = useState<CollarModel>("TractiveGPSDog4");
   const [fullName, setFullName] = useState("");
   const [address, setAddress] = useState("");
   const [canton, setCanton] = useState("San José");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
+
+  const config = PRODUCT_TYPE_CONFIG[productType];
+  const requiresCollar = config.requiresCollar;
 
   const handleSubmit = () => {
     if (!fullName.trim() || !address.trim() || !phone.trim()) {
@@ -301,18 +306,16 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
         shippingCanton: canton,
         shippingPhone: phone.trim(),
         deliveryNotes: notes.trim() || undefined,
+        productType,
       },
       {
         onSuccess: () => {
-          toast.success(
-            "¡Pedido creado! Revisa tu correo para las instrucciones de pago.",
-          );
+          toast.success("¡Pedido creado! Revisa tu correo para las instrucciones de pago.");
           onSuccess();
         },
         onError: (err: unknown) =>
           toast.error(
-            (err as { response?: { data?: { detail?: string } } })?.response
-              ?.data?.detail ?? "Error al crear el pedido",
+            (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Error al crear el pedido",
           ),
       },
     );
@@ -320,39 +323,63 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <div className="space-y-4">
-      {/* Summary card */}
-      <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4 space-y-1">
-        <p className="text-sm font-bold text-brand-800">
-          📦 Bundle PawTrack GPS — Bajo demanda
+      {/* Product type selector */}
+      <div>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sand-500">
+          Elige tu producto
         </p>
-        <p className="text-xs text-brand-700">
-          Collar GPS + 12 meses de PawTrack Plus
-        </p>
-        <p className="text-lg font-black text-brand-900">
-          ₡{BUNDLE_AMOUNT_CRC.toLocaleString("es-CR")}
-        </p>
-        <p className="text-xs text-brand-600 opacity-75">
-          Pago único · Sin suscripción adicional a PawTrack
-        </p>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {(Object.keys(PRODUCT_TYPE_CONFIG) as BundleProductType[]).map((pt) => {
+            const cfg = PRODUCT_TYPE_CONFIG[pt];
+            const isSelected = productType === pt;
+            return (
+              <button
+                key={pt}
+                type="button"
+                onClick={() => setProductType(pt)}
+                className={[
+                  "flex items-start gap-3 rounded-xl border-2 p-3 text-left transition-all",
+                  isSelected
+                    ? "border-brand-500 bg-brand-50"
+                    : "border-sand-200 bg-white hover:border-sand-300",
+                ].join(" ")}
+              >
+                <span className="text-2xl shrink-0" aria-hidden="true">{cfg.emoji}</span>
+                <div className="min-w-0">
+                  <p className={`text-xs font-semibold ${isSelected ? "text-brand-800" : "text-sand-800"}`}>
+                    {cfg.label}
+                  </p>
+                  <p className="text-xs text-sand-500 mt-0.5">{cfg.description}</p>
+                  <p className={`mt-1 text-sm font-bold ${isSelected ? "text-brand-700" : "text-sand-700"}`}>
+                    ₡{cfg.priceCrc.toLocaleString("es-CR")}
+                  </p>
+                </div>
+                {isSelected && (
+                  <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4 text-brand-500 shrink-0 ml-auto" aria-hidden="true">
+                    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
+                  </svg>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Collar model */}
-      <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">
-          Modelo de collar *
-        </label>
-        <select
-          value={collarModel}
-          onChange={(e) => setCollarModel(e.target.value as CollarModel)}
-          className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-        >
-          {(Object.keys(COLLAR_MODEL_LABELS) as CollarModel[]).map((m) => (
-            <option key={m} value={m}>
-              {COLLAR_MODEL_LABELS[m]}
-            </option>
-          ))}
-        </select>
-      </div>
+      {/* Collar model (only for GPS bundle) */}
+      {requiresCollar && (
+        <div>
+          <label className="mb-1 block text-xs font-medium text-sand-600">Modelo de collar *</label>
+          <select
+            value={collarModel}
+            onChange={(e) => setCollarModel(e.target.value as CollarModel)}
+            className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+          >
+            {(Object.keys(COLLAR_MODEL_LABELS) as CollarModel[]).map((m) => (
+              <option key={m} value={m}>{COLLAR_MODEL_LABELS[m]}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* Shipping */}
       <div className="space-y-2">
@@ -441,7 +468,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
         disabled={!fullName.trim() || !address.trim() || !phone.trim()}
         className="w-full"
       >
-        Confirmar pedido — ₡{BUNDLE_AMOUNT_CRC.toLocaleString("es-CR")}
+        Confirmar pedido — ₡{config.priceCrc.toLocaleString("es-CR")}
       </Button>
     </div>
   );
@@ -456,6 +483,7 @@ export function BundleOrderModal({
 }) {
   const { data: orders, isLoading } = useMyBundleOrders();
   const [showForm, setShowForm] = useState(false);
+  const [showNfcGuide, setShowNfcGuide] = useState(false);
 
   const activeOrder = orders?.find(
     (o) => o.status !== "Cancelled" && o.status !== "Delivered",
@@ -534,6 +562,23 @@ export function BundleOrderModal({
           </ul>
         </details>
       )}
+
+      {/* NFC setup shortcut — shown when user has a delivered NFC order */}
+      {orders?.some((o) => o.status === "Delivered" && o.productType === "NfcQrCombo") && (
+        <button
+          type="button"
+          onClick={() => setShowNfcGuide(true)}
+          className="w-full flex items-center gap-3 rounded-xl border border-trust-200 bg-trust-50 px-4 py-3 text-left hover:bg-trust-100 transition-colors"
+        >
+          <span className="text-xl" aria-hidden="true">📲</span>
+          <div>
+            <p className="text-sm font-semibold text-trust-800">Configurar chip NFC</p>
+            <p className="text-xs text-trust-600">Tutorial paso a paso para activar el collar NFC</p>
+          </div>
+        </button>
+      )}
+
+      <NfcSetupGuide isOpen={showNfcGuide} onClose={() => setShowNfcGuide(false)} />
     </div>
   );
 }

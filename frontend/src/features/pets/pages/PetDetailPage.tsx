@@ -485,7 +485,7 @@ export default function PetDetailPage() {
       {/* ── Salud tab — Familia required ─────────────────────────────── */}
       {activeTab === "salud" && (
         <PlanGate requires="Familia">
-          <MedicalHistoryTab petId={pet.id} />
+          <MedicalHistoryTab petId={pet.id} petName={pet.name} />
         </PlanGate>
       )}
 

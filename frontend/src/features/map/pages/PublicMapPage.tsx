@@ -21,7 +21,12 @@ export default function PublicMapPage() {
     zoom?: number;
   } | null>(null);
   const [showClinics, setShowClinics] = useState(false);
+  const [showEmergencyOnly, setShowEmergencyOnly] = useState(false);
   const { data: publicClinics = [] } = usePublicClinics(undefined, undefined);
+
+  const displayedClinics = showEmergencyOnly
+    ? publicClinics.filter((c) => c.isEmergency24h)
+    : publicClinics;
 
   const { debounce } = useDebouncedBBox(150);
   const { data: events = [], isFetching, isError } = usePublicMapEvents(bbox);
@@ -241,12 +246,23 @@ export default function PublicMapPage() {
         >
           🏥 Clínicas {showClinics ? "✓" : ""}
         </button>
+        {/* Emergency-only filter (visible when clinics layer is on) */}
+        {showClinics && (
+          <button
+            type="button"
+            onClick={() => setShowEmergencyOnly((v) => !v)}
+            aria-pressed={showEmergencyOnly}
+            className={`flex items-center gap-1.5 rounded-xl border px-3 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showEmergencyOnly ? "border-danger-400 bg-danger-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
+          >
+            🚨 Solo emergencias
+          </button>
+        )}
       </div>
 
       <MapContainer
         events={filteredEvents}
         predictions={predictions}
-        clinics={showClinics ? publicClinics : undefined}
+        clinics={showClinics ? displayedClinics : undefined}
         locateTrigger={locateTrigger}
         flyTarget={flyTarget}
         onLocated={() => setLocating(false)}
@@ -257,10 +273,11 @@ export default function PublicMapPage() {
       {/* Clinic count badge when layer is active */}
       {showClinics && (
         <div className="absolute bottom-28 right-3 z-[1000] rounded-full bg-trust-700 px-3 py-1 text-xs font-bold text-white shadow-lg">
-          🏥 {publicClinics.length} clínica
-          {publicClinics.length !== 1 ? "s" : ""}
-          {publicClinics.filter((c) => c.isFeatured).length > 0 &&
-            ` · ${publicClinics.filter((c) => c.isFeatured).length} verificada${publicClinics.filter((c) => c.isFeatured).length !== 1 ? "s" : ""}`}
+          {showEmergencyOnly ? "🚨" : "🏥"} {displayedClinics.length} clínica
+          {displayedClinics.length !== 1 ? "s" : ""}
+          {showEmergencyOnly && " · 24h"}
+          {!showEmergencyOnly && displayedClinics.filter((c) => c.isFeatured).length > 0 &&
+            ` · ${displayedClinics.filter((c) => c.isFeatured).length} verificada${displayedClinics.filter((c) => c.isFeatured).length !== 1 ? "s" : ""}`}
         </div>
       )}
     </div>

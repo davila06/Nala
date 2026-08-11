@@ -78,3 +78,12 @@ export function useClinicVisibilityStats(days = 30) {
       err?.response?.status !== 402 && count < 2,
   });
 }
+
+export function useEmergencyVets(lat?: number, lng?: number, radiusKm = 30) {
+  return useQuery({
+    queryKey: ["clinics", "emergency", lat, lng, radiusKm],
+    queryFn: () => clinicsApi.getEmergencyVets(lat, lng, radiusKm),
+    staleTime: 5 * 60_000,
+    enabled: true,
+  });
+}

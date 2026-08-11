@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using PawTrack.Application.Clinics.Queries.GetPublicClinics;
 using PawTrack.Application.Pets.Commands.RecordPublicQrScan;
 using PawTrack.Application.Pets.Queries.GetPublicPetProfile;
 using System.Security.Claims;
@@ -126,5 +127,18 @@ public sealed class PublicController(ISender sender, ILogger<PublicController> l
         // (scan logging is best-effort). Truncating here prevents silent data loss.
         var raw = Request.Headers.UserAgent.ToString();
         return string.IsNullOrWhiteSpace(raw) ? null : raw[..Math.Min(raw.Length, 512)];
+    }
+
+    // ── GET /api/public/emergency-vets ────────────────────────────────────────
+    [HttpGet("emergency-vets")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetEmergencyVets(
+        [FromQuery] double? lat,
+        [FromQuery] double? lng,
+        [FromQuery] double radiusKm = 30,
+        CancellationToken ct = default)
+    {
+        var result = await sender.Send(new GetEmergencyVetsQuery(lat, lng, Math.Clamp(radiusKm, 5, 100)), ct);
+        return result.IsSuccess ? Ok(result.Value) : Ok(Array.Empty<object>());
     }
 }

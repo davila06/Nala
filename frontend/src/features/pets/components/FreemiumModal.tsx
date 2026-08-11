@@ -217,7 +217,12 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                     aria-label="Plan actual"
                     className="flex items-center justify-center gap-1.5 rounded-xl border-2 border-sand-200 bg-sand-50 py-2.5 text-xs font-semibold text-sand-500"
                   >
-                    <svg viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5 text-rescue-500" aria-hidden="true">
+                    <svg
+                      viewBox="0 0 16 16"
+                      fill="currentColor"
+                      className="h-3.5 w-3.5 text-rescue-500"
+                      aria-hidden="true"
+                    >
                       <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
                     </svg>
                     Plan actual

@@ -19,6 +19,10 @@ public sealed class Clinic
     public string? LogoUrl { get; private set; }
     /// <summary>True when the clinic has an active ClinicPlus or ClinicPartner subscription.</summary>
     public bool IsFeatured { get; private set; }
+    /// <summary>True when the clinic offers 24/7 emergency care.</summary>
+    public bool IsEmergency24h { get; private set; }
+    /// <summary>Dedicated emergency phone line; may differ from PhoneNumber.</summary>
+    public string? EmergencyPhone { get; private set; }
     public ClinicStatus Status { get; private set; }
     public DateTimeOffset RegisteredAt { get; private set; }
 
@@ -50,6 +54,12 @@ public sealed class Clinic
     public void Suspend() => Status = ClinicStatus.Suspended;
     public void SetFeatured(bool value) => IsFeatured = value;
     public void SetLogoUrl(string url) => LogoUrl = url;
+
+    public void SetEmergencyStatus(bool is24h, string? emergencyPhone)
+    {
+        IsEmergency24h = is24h;
+        EmergencyPhone = emergencyPhone?.Trim();
+    }
 
     public void UpdateContactDetails(string? phoneNumber, string? website)
     {

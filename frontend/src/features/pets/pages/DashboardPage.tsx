@@ -317,11 +317,17 @@ export default function DashboardPage() {
                         : "bg-sand-100 text-sand-600 hover:bg-sand-200",
                     ].join(" ")}
                   >
-                    {s === "all"
-                      ? "Todos"
-                      : s === "Lost"
-                        ? <><span aria-hidden="true">🚨 </span>Perdidos</>
-                        : <><span aria-hidden="true">✅ </span>Activos</>}
+                    {s === "all" ? (
+                      "Todos"
+                    ) : s === "Lost" ? (
+                      <>
+                        <span aria-hidden="true">🚨 </span>Perdidos
+                      </>
+                    ) : (
+                      <>
+                        <span aria-hidden="true">✅ </span>Activos
+                      </>
+                    )}
                   </button>
                 ))}
                 {species.map((sp) => (
@@ -339,15 +345,28 @@ export default function DashboardPage() {
                         : "bg-sand-100 text-sand-600 hover:bg-sand-200",
                     ].join(" ")}
                   >
-                    {sp === "Dog"
-                      ? <><span aria-hidden="true">🐶 </span>Perros</>
-                      : sp === "Cat"
-                        ? <><span aria-hidden="true">🐱 </span>Gatos</>
-                        : sp === "Bird"
-                          ? <><span aria-hidden="true">🐦 </span>Aves</>
-                          : sp === "Rabbit"
-                            ? <><span aria-hidden="true">🐰 </span>Conejos</>
-                            : <><span aria-hidden="true">🐾 </span>{sp}</>}
+                    {sp === "Dog" ? (
+                      <>
+                        <span aria-hidden="true">🐶 </span>Perros
+                      </>
+                    ) : sp === "Cat" ? (
+                      <>
+                        <span aria-hidden="true">🐱 </span>Gatos
+                      </>
+                    ) : sp === "Bird" ? (
+                      <>
+                        <span aria-hidden="true">🐦 </span>Aves
+                      </>
+                    ) : sp === "Rabbit" ? (
+                      <>
+                        <span aria-hidden="true">🐰 </span>Conejos
+                      </>
+                    ) : (
+                      <>
+                        <span aria-hidden="true">🐾 </span>
+                        {sp}
+                      </>
+                    )}
                   </button>
                 ))}
               </div>

@@ -1,7 +1,9 @@
 # PawTrack CR — Enterprise Sprint Plan
+
 ## Sprint Next (Días 1–15) + Sprint +2 (Días 16–45)
 
 > **Reglas enterprise que aplican a TODOS los ítems:**
+>
 > - Backend: Clean Architecture · CQRS via MediatR · FluentValidation en pipeline · Result<T> · Guid v7 PKs · Problem Details (RFC 7807)
 > - Nunca lanzar excepciones de dominio entre módulos — usar notificaciones MediatR o Result
 > - Frontend: TypeScript strict · React Query para server state · Zustand solo para UI state · co-locate component + hook + test
@@ -16,6 +18,7 @@
 > **Objetivo:** Engine de reglas que analiza el expediente y crea VetReminders proactivos antes de que venzan, sin intervención del dueño.
 
 ### 1.1 · Domain
+
 - [ ] Crear `backend/src/PawTrack.Domain/Medical/HealthProtocol.cs`
   - Props: `Id (Guid)`, `Species (string)`, `RecordType (MedicalRecordType)`, `IntervalDays (int)`, `DisplayName (string)`, `IsSystemDefined (bool)`
   - Factory: `HealthProtocol.Define(species, recordType, intervalDays, displayName)`
@@ -27,6 +30,7 @@
   - Regla: cada protocolo cumplido → puntos proporcionales al total de protocolos activos para la especie
 
 ### 1.2 · Infrastructure / Persistence
+
 - [ ] Agregar `DbSet<HealthProtocol>` en `PawTrackDbContext`
   - Configuración en `OnModelCreating`: `HasKey`, `HasIndex(p => new { p.Species, p.RecordType }).IsUnique()`
   - Seed data en método `SeedHealthProtocols()`:
@@ -46,6 +50,7 @@
 - [ ] Implementar `HealthProtocolRepository` en `PawTrack.Infrastructure/Medical/`
 
 ### 1.3 · Application
+
 - [ ] Crear `backend/src/PawTrack.Application/Medical/HealthAlertCommands.cs`
 
   **Query:** `GetHealthAlertsQuery(Guid PetId)` → `IReadOnlyList<HealthAlertDto>`
@@ -68,6 +73,7 @@
   - Deduplication: no crear VetReminder si ya existe uno del mismo tipo dentro de ±7 días
 
 ### 1.4 · API
+
 - [ ] Agregar endpoints en `MedicalController.cs`:
   - `GET /api/pets/{petId}/health-alerts` → `GetHealthAlertsQuery`
   - `GET /api/pets/{petId}/health-score` → `GetHealthScoreQuery`
@@ -75,6 +81,7 @@
   - Todos requieren `[Authorize]` + validar `petId` pertenece al usuario
 
 ### 1.5 · Frontend
+
 - [ ] Crear `frontend/src/features/medical/api/healthAlertsApi.ts`
   - Tipos: `HealthAlertDto`, `HealthScoreDto`
   - Funciones: `getHealthAlerts(petId)`, `getHealthScore(petId)`, `dismissHealthAlert(petId, recordType)`
@@ -103,6 +110,7 @@
 - [ ] Integrar `HealthScoreCard` en tab "Expediente" de `MedicalHistoryTab.tsx` (arriba de todo)
 
 ### 1.6 · Tests
+
 - [ ] `PawTrack.UnitTests/Medical/GetHealthAlertsQueryHandlerTests.cs`
   - Caso: pet con vacuna rábica hace 400 días → alerta critical
   - Caso: pet con vacuna hace 350 días → alerta warning
@@ -125,6 +133,7 @@
 > **Objetivo:** Visualización de tendencia de peso por visita veterinaria con rangos de referencia por raza/especie.
 
 ### 2.1 · Backend
+
 - [ ] Agregar query `GetWeightHistoryQuery(Guid PetId)` en `MedicalCommands.cs`
   - Returns `WeightHistoryDto { Entries: List<WeightEntryDto>, BreedReference: WeightReferenceDto? }`
   - `WeightEntryDto`: `{ Date: DateOnly, WeightKg: decimal, Source: "Owner"|"Clinic", ClinicName: string? }`
@@ -141,6 +150,7 @@
   - Fallback por especie si la raza no está mapeada
 
 ### 2.2 · Frontend
+
 - [ ] Instalar `recharts` → `npm install recharts @types/recharts` en `frontend/`
 
 - [ ] Crear `frontend/src/features/medical/api/weightApi.ts`
@@ -167,6 +177,7 @@
   - Solo plan Familia (PlanGate wrapper)
 
 ### 2.3 · Tests
+
 - [ ] `PawTrack.UnitTests/Medical/GetWeightHistoryQueryHandlerTests.cs`
   - Caso: pet con 3 registros con peso → devuelve lista ordenada por fecha
   - Caso: peso baja >15% en 90 días → WeightChangeAlert presente
@@ -179,6 +190,7 @@
 > **Objetivo:** Agregar la opción "NFC + QR combo" al flujo de pedido de accesorios y trackear si una visita al perfil provino de NFC o QR.
 
 ### 3.1 · Domain & Application
+
 - [ ] Agregar enum value `NfcQrCombo = 3` a `BundleOrderStatus` o crear `BundleProductType` enum:
   - `CollarGpsPlus = 0`, `QrPlate = 1`, `SiliconeTag = 2`, `NfcQrCombo = 3`, `EmergencyPack = 4`
 
@@ -193,9 +205,11 @@
   - Handler registra `PetScanEvent` con source correcto
 
 ### 3.2 · API
+
 - [ ] Actualizar `BundleOrdersController.cs` para aceptar `productType` en el body de creación
 
 ### 3.3 · Frontend
+
 - [ ] Actualizar `frontend/src/features/bundles/components/BundleOrderModal.tsx`
   - Agregar selector de producto: tarjeta visual para cada `BundleProductType`
   - Card "NFC + QR Combo": descripción, precio ₡12,000, beneficios (toca con Android, escanea con iOS)
@@ -213,6 +227,7 @@
   - Agregar `scanSource?: 'qr' | 'nfc'` al `PetScanEvent`
 
 ### 3.4 · Tests
+
 - [ ] `PawTrack.UnitTests/Bundles/BundleOrderCommandTests.cs`
   - Caso: crear pedido con ProductType NfcQrCombo → se persiste correctamente
 - [ ] `frontend/tests/features/bundles/BundleOrderModal.test.tsx`
@@ -225,6 +240,7 @@
 > **Objetivo:** Marcar clínicas como 24h emergencias y surfacearlas en momentos críticos (mascota perdida, alerta de salud).
 
 ### 4.1 · Domain
+
 - [ ] Agregar campos a `Clinic.cs`:
   - `public bool IsEmergency24h { get; private set; }`
   - `public string? EmergencyPhone { get; private set; }` — puede diferir del PhoneNumber principal
@@ -233,6 +249,7 @@
 - [ ] Migración: `AddClinicEmergencyFields`
 
 ### 4.2 · Application / API
+
 - [ ] Actualizar `ClinicDto` / `ClinicProfileView` para incluir `IsEmergency24h` y `EmergencyPhone`
 
 - [ ] Agregar campo `isEmergency24h: bool` al `GET /api/public/map` query filter
@@ -241,12 +258,13 @@
 - [ ] Actualizar `ClinicsController.cs` endpoint de actualización de perfil para aceptar `IsEmergency24h`
   - Solo Admin puede marcar una clínica como emergency (o la clínica misma en su panel)
 
-- [ ] Crear endpoint `GET /api/public/emergency-vets?lat={}&lng={}&radiusKm={}` 
+- [ ] Crear endpoint `GET /api/public/emergency-vets?lat={}&lng={}&radiusKm={}`
   - Returns: lista de clínicas 24h ordenadas por distancia, máximo 5 resultados
   - No requiere auth — pública para uso desde la app y desde WhatsApp bot
   - Rate limit: 30 req/min por IP
 
 ### 4.3 · Frontend
+
 - [ ] Actualizar `frontend/src/features/map/pages/PublicMapPage.tsx`
   - Agregar toggle "🚨 Solo emergencias 24h" en los controles del mapa
   - Pines de emergency: color rojo con cruz blanca, z-index mayor
@@ -264,6 +282,7 @@
 - [ ] Agregar campo `isEmergency24h` al formulario de perfil en `ClinicDashboardPage`
 
 ### 4.4 · Tests
+
 - [ ] `PawTrack.UnitTests/Clinics/EmergencyVetQueryTests.cs`
   - Caso: 3 clínicas en radio → devuelve las 3 ordenadas por distancia
   - Caso: ninguna clínica de emergency en radio → lista vacía
@@ -278,6 +297,7 @@
 > **Objetivo:** Landing ultra-simplificada pública para el flujo de encontrar una mascota, sin fricción de registro, con AI matching en <3 segundos.
 
 ### 5.1 · Backend
+
 - [ ] Crear endpoint público `POST /api/public/found-pet/quick-match`
   - No requiere autenticación
   - Rate limit: 10 req/min por IP (más estricto que el auth)
@@ -293,6 +313,7 @@
 - [ ] Agregar rate limiting named policy `quick-match-public` en `Program.cs`
 
 ### 5.2 · Frontend — Nueva ruta pública
+
 - [ ] Crear página `frontend/src/features/sightings/pages/QuickFoundPetPage.tsx`
   - Ruta pública: `/encontre` (agregar a `routes.tsx` en `PublicLayout`)
   - SEO: `<title>Encontré una mascota — PawTrack CR</title>` via `react-helmet-async`
@@ -329,10 +350,12 @@
 - [ ] Agregar ruta `/encontre` en `staticwebapp.config.json` para Azure Static Web Apps routing
 
 ### 5.3 · SEO & Performance
+
 - [ ] Agregar `<link rel="preload">` para el modelo de AI visual en el bundle del chunk de quick-match
 - [ ] Lazy-load `QuickFoundPetPage` (ya es patrón en routes.tsx)
 
 ### 5.4 · Tests
+
 - [ ] `PawTrack.IntegrationTests/Public/QuickMatchEndpointTests.cs`
   - Caso: foto válida → response con matches y SessionToken
   - Caso: sin foto → 400 Bad Request
@@ -349,6 +372,7 @@
 > **Objetivo:** Red voluntaria de vecinos verificados por número de teléfono CR que reciben alertas ultra-locales (500m) cuando una mascota se pierde en su cuadra.
 
 ### 6.1 · Domain
+
 - [ ] Crear `backend/src/PawTrack.Domain/Locations/NeighborAlert.cs`
   - Props: `Id (Guid)`, `UserId (Guid)`, `RadiusMeters (int default 500)`, `IsActive (bool)`, `VerifiedPhone (string)`, `VerifiedAt (DateTimeOffset?)`, `EnrolledAt (DateTimeOffset)`
   - Invariant: `RadiusMeters` entre 100 y 2000
@@ -364,6 +388,7 @@
   - Expiración: 10 minutos
 
 ### 6.2 · Infrastructure
+
 - [ ] Agregar `DbSet<NeighborAlert>` y `DbSet<NeighborOtp>` en `PawTrackDbContext`
   - Index espacial (si SQL Server lo soporta) o al menos `HasIndex(n => n.UserId)`
   - `NeighborOtp`: index `UserId + IsUsed`, TTL no nativo → limpiar con job
@@ -378,6 +403,7 @@
 - [ ] `NeighborOtpCleanupService` (hosted): elimina OTPs expirados una vez al día
 
 ### 6.3 · Application
+
 - [ ] Crear `backend/src/PawTrack.Application/Locations/NeighborNetworkCommands.cs`
 
   **Command:** `SendNeighborOtpCommand(Guid UserId, string Phone)`
@@ -403,6 +429,7 @@
   - Notification handler: llama `GetActiveInRadiusAsync` con las coords del reporte → envía push/email a cada vecino activo
 
 ### 6.4 · API
+
 - [ ] Crear `backend/src/PawTrack.API/Controllers/NeighborNetworkController.cs`
   - `POST /api/neighbor/otp` → `SendNeighborOtpCommand` (requiere auth)
   - `POST /api/neighbor/verify` → `VerifyNeighborPhoneCommand`
@@ -411,6 +438,7 @@
   - `GET /api/public/neighbor-count?lat={}&lng={}&radius={}` → `GetNeighborCountInAreaQuery` (público, rate-limited)
 
 ### 6.5 · Frontend
+
 - [ ] Crear `frontend/src/features/locations/components/NeighborNetworkSetup.tsx`
   - Wizard de 3 pasos en un `Drawer` (side=bottom):
     1. Explicación del beneficio + mapa de radio
@@ -435,6 +463,7 @@
 - [ ] Crear hooks `useNeighborStatus`, `useSendOtp`, `useVerifyPhone`, `useUpdateNeighborSettings`
 
 ### 6.6 · Tests
+
 - [ ] `PawTrack.UnitTests/Locations/NeighborOtpTests.cs`
   - Caso: OTP válido verifica correctamente
   - Caso: OTP expirado → Result.Failure
@@ -454,6 +483,7 @@
 > **Objetivo:** Registro de actividad física diaria con entrada manual y sincronización automática desde collar Tractive (si conectado), con benchmarks por raza.
 
 ### 7.1 · Domain
+
 - [ ] Crear `backend/src/PawTrack.Domain/Medical/ActivityLog.cs`
   - Props: `Id (Guid)`, `PetId (Guid)`, `OwnerId (Guid)`, `Date (DateOnly)`, `Type (ActivityType)`, `DurationMinutes (int)`, `DistanceMeters (int?)`, `Notes (string?)`, `Source (ActivitySource)`, `CreatedAt (DateTimeOffset)`
   - `ActivityType` enum: `Walk = 0, Run = 1, Play = 2, Swim = 3, Training = 4, Other = 5`
@@ -468,6 +498,7 @@
   - Data: basada en estándares AKC/veterinarios reconocidos
 
 ### 7.2 · Infrastructure
+
 - [ ] Agregar `DbSet<ActivityLog>` en `PawTrackDbContext`
   - Index: `(PetId, Date)` para queries por rango de fechas
   - Index: `(PetId, Source, Date)` para deduplicación de Tractive sync
@@ -485,6 +516,7 @@
   - Parsear distancia diaria desde Tractive API response (campo `distance_meters` si existe)
 
 ### 7.3 · Application
+
 - [ ] Crear `backend/src/PawTrack.Application/Medical/ActivityCommands.cs`
 
   **Command:** `LogActivityCommand(Guid PetId, Guid OwnerId, DateOnly Date, ActivityType Type, int DurationMinutes, int? DistanceMeters, string? Notes)`
@@ -500,6 +532,7 @@
   **Query:** `GetActivityStreakQuery(Guid PetId)` → `ActivityStreakDto { Current: int, Best: int, LastLogDate: DateOnly? }`
 
 ### 7.4 · API
+
 - [ ] Crear `backend/src/PawTrack.API/Controllers/ActivityController.cs`
   - `POST /api/pets/{petId}/activity` → `LogActivityCommand` (requiere auth, plan Plus)
   - `DELETE /api/pets/{petId}/activity/{activityId}` → `DeleteActivityLogCommand`
@@ -508,6 +541,7 @@
   - Plan gate: retornar 403 si plan Free
 
 ### 7.5 · Frontend
+
 - [ ] Crear `frontend/src/features/medical/api/activityApi.ts`
   - Tipos: `ActivityLogDto`, `ActivityType`, `ActivitySummaryDto`, `ActivityStreakDto`
 
@@ -537,11 +571,13 @@
   - Orden: Info · GPS · Expediente · Actividad · Escaneos
 
 ### 7.6 · Gamification
+
 - [ ] Agregar evento al `IncentiveSystem` cuando streak alcanza 7, 30, 100 días
   - Badge: "🏃 Atleta Activo" (7 días), "🥇 Maestro del Movimiento" (30 días)
   - Publicar `IncentiveEarnedNotification` via MediatR
 
 ### 7.7 · Tests
+
 - [ ] `PawTrack.UnitTests/Medical/LogActivityCommandHandlerTests.cs`
   - Caso: log válido → se persiste con campos correctos
   - Caso: duración 0 → ValidationException
@@ -562,6 +598,7 @@
 > **Objetivo:** Reporte anual autogenerado tipo "Year in Review" que agrega todas las métricas del pet en un año calendario — descargable y compartible.
 
 ### 8.1 · Application
+
 - [ ] Crear `backend/src/PawTrack.Application/Medical/AnnualReportCommands.cs`
 
   **Query:** `GenerateAnnualReportQuery(Guid PetId, Guid RequestingUserId, int Year)`
@@ -580,6 +617,7 @@
     - `HealthScore`: score promedio del año vs score actual
 
 ### 8.2 · Infrastructure / PDF
+
 - [ ] Crear `AnnualReportPdfService.cs` en `PawTrack.Infrastructure/Medical/`
   - Usa QuestPDF (ya en el proyecto desde `CertificatesController`)
   - Template diseño visual:
@@ -600,6 +638,7 @@
   - Cache: por (petId, year) con TTL 1 hora (Content-Addressable Storage en Blob)
 
 ### 8.3 · Frontend
+
 - [ ] Crear `frontend/src/features/medical/components/AnnualReportButton.tsx`
   - Dropdown selector de año (años disponibles desde creación del pet hasta año actual)
   - Muestra preview modal antes de generar:
@@ -614,6 +653,7 @@
 - [ ] Crear hook `useGenerateAnnualReport(petId)` → descarga directa via `axios responseType: 'blob'`
 
 ### 8.4 · Tests
+
 - [ ] `PawTrack.UnitTests/Medical/GenerateAnnualReportQueryHandlerTests.cs`
   - Caso: pet con datos completos del año → DTO correcto
   - Caso: pet sin actividad ese año → ActivitySummary con zeros
@@ -630,6 +670,7 @@
 > **Objetivo:** Certificado de salud estandarizado en formato compatible con requisitos de viaje internacional y nacional de Costa Rica, emitido solo por clínicas Partner.
 
 ### 9.1 · Domain
+
 - [ ] Crear `backend/src/PawTrack.Domain/Certificates/VaccinePassport.cs`
   - Props: `Id (Guid)`, `PetId (Guid)`, `IssuingClinicId (Guid)`, `IssuingVetName (string)`, `IssuingVetLicense (string)`, `IssuedAt (DateTimeOffset)`, `ValidUntil (DateOnly)`, `VerificationCode (string)`, `RabiesVaccineDate (DateOnly?)`, `RabiesVaccineBrand (string?)`, `RabiesVaccineLotNumber (string?)`, `OtherVaccines: List<PassportVaccineEntry>`, `ParasiteControl: PassportParasiteEntry?`, `MicrochipNumber (string?)`, `IsoFormat (string default "OIRSA-CR-2025")`
   - `PassportVaccineEntry`: `{ Name, Date, Brand, LotNumber, ValidUntil }`
@@ -640,6 +681,7 @@
 - [ ] Crear `IVaccinePassportRepository` interface + implementación
 
 ### 9.2 · Infrastructure / PDF
+
 - [ ] Crear migración: `AddVaccinePassport`
   - `DbSet<VaccinePassport>` + `DbSet<PassportVaccineEntry>` (owned collection o tabla separada)
   - Index: `(PetId, IssuedAt)`, `(VerificationCode)` — unique
@@ -656,6 +698,7 @@
     - Watermark: "Emitido por PawTrack CR — Verificable en línea"
 
 ### 9.3 · Application
+
 - [ ] Crear `backend/src/PawTrack.Application/Certificates/VaccinePassportCommands.cs`
 
   **Command:** `IssueVaccinePassportCommand(Guid PetId, Guid IssuingClinicId, string VetName, string VetLicense, ...datos de vacunas y parásitos...)`
@@ -698,6 +741,7 @@
 - [ ] Agregar ruta `/verificar/pasaporte/:code` en `routes.tsx` bajo `PublicLayout`
 
 ### 9.5 · Tests
+
 - [ ] `PawTrack.UnitTests/Certificates/IssueVaccinePassportCommandHandlerTests.cs`
   - Caso: clínica Partner con grant activo → pasaporte emitido con VerificationCode único
   - Caso: clínica no Partner → 403 Forbidden (Result.Failure)
@@ -716,6 +760,7 @@
 ## TAREAS TRANSVERSALES (aplican a todos los features)
 
 ### Migrations & DB
+
 - [ ] Ejecutar todas las migraciones en orden en LocalDB de prueba antes de commit:
   ```
   AddHealthProtocols
@@ -728,6 +773,7 @@
 - [ ] Verificar que seed data de `HealthProtocol` y `BreedActivityBenchmark` se aplica correctamente
 
 ### Plan Gating
+
 - [ ] Auditar todos los nuevos endpoints: cada feature tiene el plan correcto en el gate
   - Health Alerts: todos los planes (Free también recibe alertas, sin score)
   - Weight Chart: Familia only
@@ -739,26 +785,31 @@
   - Neighbor Network: todos los planes
 
 ### Subscription Gating (Frontend)
+
 - [ ] Agregar valores al enum de plan checks en `useMyTier.ts` si es necesario
 - [ ] Verificar que `PlanGate` component muestra el upsell correcto para cada feature
 
 ### Notification Types
+
 - [ ] Agregar al enum `NotificationType` los nuevos tipos:
   - `HealthAlert`, `NeighborLostPetAlert`, `ActivityStreak`, `AnnualReportReady`
 - [ ] Agregar templates de push notification para cada nuevo tipo en `NotificationService`
 
 ### Tests de Integración
+
 - [ ] `PawTrack.IntegrationTests/Medical/HealthAlertsEndpointTests.cs`
 - [ ] `PawTrack.IntegrationTests/Locations/NeighborNetworkEndpointTests.cs`
 - [ ] `PawTrack.IntegrationTests/Medical/ActivityEndpointTests.cs`
 - [ ] `PawTrack.IntegrationTests/Certificates/VaccinePassportEndpointTests.cs`
 
 ### Frontend — Package Updates
+
 - [ ] `npm install recharts` (para Weight Chart y Activity Chart)
 - [ ] Verificar que Recharts no rompe el bundle size (tree-shake con imports específicos)
 - [ ] Actualizar `vite.config.ts` si es necesario para optimizar chunks de recharts
 
 ### Documentación
+
 - [ ] Actualizar `docs/MANUAL_USUARIO.md` con secciones de Activity Log, Health Alerts, Annual Report
 - [ ] Actualizar `docs/MANUAL_CLINICAS.md` con sección de Vaccine Passport (emisión)
 - [ ] Actualizar `docs/MANUAL_TECNICO.md` con nuevos módulos y endpoints
@@ -766,6 +817,7 @@
 - [ ] Actualizar `docs/planes.md` con las nuevas features por tier
 
 ### Deployment
+
 - [ ] Actualizar `infra/main.bicep` si hay nuevas variables de entorno necesarias
 - [ ] Agregar cualquier nuevo secret a Azure Key Vault
 - [ ] Verificar que el nuevo `recharts` no exceda los límites de bundle size (< 500KB gzip por chunk)
@@ -793,4 +845,4 @@ Días 39-45: Buffer + integration tests Sprint +2 + documentación + deployment
 
 ---
 
-*Documento generado: 2026-08-11 | PawTrack CR Enterprise Sprint Plan*
+_Documento generado: 2026-08-11 | PawTrack CR Enterprise Sprint Plan_

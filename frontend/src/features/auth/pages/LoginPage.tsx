@@ -30,7 +30,6 @@ function useTilt(maxAngle: number) {
   return { tilt, onMove, onLeave };
 }
 
-
 // ── Holographic stat card — holo-card CSS + mouse-tracked tilt ────────────────
 
 interface HoloStatItemProps {

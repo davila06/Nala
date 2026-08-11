@@ -11,6 +11,7 @@ import { CaseActionsPanel } from "../components/CaseActionsPanel";
 import { CaseTimeline } from "../components/CaseTimeline";
 import { SightingHeatMap } from "../components/SightingHeatMap";
 import { BountyWidget } from "../components/BountyWidget";
+import { EmergencyVetPanel } from "../components/EmergencyVetPanel";
 import { useCaseRoom } from "../hooks/useCaseRoom";
 import { EmptyState } from "@/shared/ui/Card";
 import type { SponsoredClinicDto } from "../api/caseRoomApi";
@@ -155,6 +156,14 @@ export default function CaseRoomPage() {
 
       {/* ── Sponsored clinic banner ──────────────────────────────────────────── */}
       {sponsoredClinic && <SponsoredClinicBanner clinic={sponsoredClinic} />}
+
+      {/* ── Emergency vet panel ─────────────────────────────────────────────── */}
+      <div className="mb-4">
+        <EmergencyVetPanel
+          lat={event.lastSeenLat ?? undefined}
+          lng={event.lastSeenLng ?? undefined}
+        />
+      </div>
 
       {/* ── Header card ─────────────────────────────────────────────────────── */}
       <div className="mb-5 flex items-center gap-3.5 rounded-2xl border border-danger-200 bg-linear-to-br from-danger-50 to-warn-50 p-4">

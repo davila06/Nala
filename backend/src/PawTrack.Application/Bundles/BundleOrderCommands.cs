@@ -13,12 +13,18 @@ namespace PawTrack.Application.Bundles;
 
 public static class BundlePrices
 {
-    /// <summary>
-    /// All-in bundle price: collar + import + flete + 12 months PawTrack Plus.
-    /// Updated as supplier costs change — single source of truth.
-    /// </summary>
     public const decimal BundleCrc = 49_900m;
     public const int SubscriptionMonths = 12;
+
+    // ── Accessory-only pricing ────────────────────────────────────────────────
+    public static decimal GetPrice(BundleProductType product) => product switch
+    {
+        BundleProductType.QrPlate       => 4_500m,
+        BundleProductType.SiliconeTag   => 5_500m,
+        BundleProductType.NfcQrCombo    => 12_000m,
+        BundleProductType.EmergencyPack => 7_000m,
+        _                               => BundleCrc, // CollarGpsPlus default
+    };
 }
 
 // ── DTOs ─────────────────────────────────────────────────────────────────────
@@ -28,6 +34,8 @@ public sealed record BundleOrderDto(
     Guid UserId,
     string CollarModel,
     string CollarModelLabel,
+    string ProductType,
+    string ProductTypeLabel,
     string Status,
     string StatusLabel,
     string PaymentReference,
@@ -57,17 +65,28 @@ public sealed record BundleOrderDto(
     private static readonly Dictionary<Domain.Bundles.BundleOrderStatus, string> StatusLabels = new()
     {
         [Domain.Bundles.BundleOrderStatus.PendingPayment] = "Pendiente de pago",
-        [Domain.Bundles.BundleOrderStatus.Paid] = "Pago confirmado",
-        [Domain.Bundles.BundleOrderStatus.Sourcing] = "Adquiriendo collar",
-        [Domain.Bundles.BundleOrderStatus.Shipped] = "En camino",
-        [Domain.Bundles.BundleOrderStatus.Delivered] = "Entregado",
-        [Domain.Bundles.BundleOrderStatus.Cancelled] = "Cancelado",
+        [Domain.Bundles.BundleOrderStatus.Paid]           = "Pago confirmado",
+        [Domain.Bundles.BundleOrderStatus.Sourcing]       = "Adquiriendo collar",
+        [Domain.Bundles.BundleOrderStatus.Shipped]        = "En camino",
+        [Domain.Bundles.BundleOrderStatus.Delivered]      = "Entregado",
+        [Domain.Bundles.BundleOrderStatus.Cancelled]      = "Cancelado",
+    };
+
+    private static readonly Dictionary<BundleProductType, string> ProductLabels = new()
+    {
+        [BundleProductType.CollarGpsPlus]  = "Bundle Collar GPS + 12 meses Plus",
+        [BundleProductType.QrPlate]        = "Placa QR de aluminio",
+        [BundleProductType.SiliconeTag]    = "Tag de silicona con QR",
+        [BundleProductType.NfcQrCombo]     = "Combo NFC + QR",
+        [BundleProductType.EmergencyPack]  = "Pack emergencia (placa + tarjeta bolsillo)",
     };
 
     public static BundleOrderDto FromDomain(BundleOrder o) => new(
         o.Id, o.UserId,
         o.CollarModel.ToString(),
         CollarLabels.TryGetValue(o.CollarModel, out var cl) ? cl : o.CollarModel.ToString(),
+        o.ProductType.ToString(),
+        ProductLabels.TryGetValue(o.ProductType, out var pl) ? pl : o.ProductType.ToString(),
         o.Status.ToString(),
         StatusLabels.TryGetValue(o.Status, out var sl) ? sl : o.Status.ToString(),
         o.PaymentReference, o.AmountCrc,
@@ -88,7 +107,8 @@ public sealed record CreateBundleOrderCommand(
     string ShippingAddress,
     string ShippingCanton,
     string ShippingPhone,
-    string? DeliveryNotes) : IRequest<Result<BundleOrderDto>>;
+    string? DeliveryNotes,
+    BundleProductType ProductType = BundleProductType.CollarGpsPlus) : IRequest<Result<BundleOrderDto>>;
 
 public sealed class CreateBundleOrderCommandValidator : AbstractValidator<CreateBundleOrderCommand>
 {
@@ -117,10 +137,11 @@ public sealed class CreateBundleOrderCommandHandler(
         var reference = paymentService.GenerateReference();
         var order = BundleOrder.Create(
             request.UserId, request.CollarModel, reference,
-            BundlePrices.BundleCrc,
+            BundlePrices.GetPrice(request.ProductType),
             request.ShippingFullName, request.ShippingAddress,
             request.ShippingCanton, request.ShippingPhone,
-            request.DeliveryNotes);
+            request.DeliveryNotes,
+            request.ProductType);
 
         await repository.AddAsync(order, ct);
         await unitOfWork.SaveChangesAsync(ct);
@@ -128,10 +149,11 @@ public sealed class CreateBundleOrderCommandHandler(
         var user = await userRepository.GetByIdAsync(request.UserId, ct);
         if (user is not null)
         {
+            var dto = BundleOrderDto.FromDomain(order);
             _ = emailSender.SendBundleOrderConfirmationAsync(
                 user.Email, user.Name,
-                BundleOrderDto.FromDomain(order).CollarModelLabel,
-                reference, BundlePrices.BundleCrc,
+                dto.ProductTypeLabel,
+                reference, dto.AmountCrc,
                 $"{request.ShippingAddress}, {request.ShippingCanton}", ct);
         }
 

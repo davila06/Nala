@@ -28,11 +28,16 @@ public sealed class BundleOrdersController(ISender sender) : ControllerBase
         if (!Enum.TryParse<CollarModel>(request.CollarModel, ignoreCase: true, out var collarModel))
             return BadRequest(new ProblemDetails { Detail = $"Modelo de collar inválido: {request.CollarModel}." });
 
+        var productType = PawTrack.Domain.Bundles.BundleProductType.CollarGpsPlus;
+        if (!string.IsNullOrWhiteSpace(request.ProductType) &&
+            !Enum.TryParse(request.ProductType, ignoreCase: true, out productType))
+            return BadRequest(new ProblemDetails { Detail = $"Tipo de producto inválido: {request.ProductType}." });
+
         var result = await sender.Send(new CreateBundleOrderCommand(
             userId, collarModel,
             request.ShippingFullName, request.ShippingAddress,
             request.ShippingCanton, request.ShippingPhone,
-            request.DeliveryNotes), ct);
+            request.DeliveryNotes, productType), ct);
 
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
@@ -188,7 +193,8 @@ public sealed record CreateBundleOrderRequest(
     string ShippingAddress,
     string ShippingCanton,
     string ShippingPhone,
-    string? DeliveryNotes);
+    string? DeliveryNotes,
+    string? ProductType = null);
 
 public sealed record MarkShippedRequest(string TrackingNumber, string? AdminNotes);
 public sealed record AdminNotesRequest(string? AdminNotes);

@@ -11,6 +11,7 @@ public sealed class BundleOrder
     public Guid Id { get; private set; }
     public Guid UserId { get; private set; }
     public CollarModel CollarModel { get; private set; }
+    public BundleProductType ProductType { get; private set; }
     public BundleOrderStatus Status { get; private set; }
 
     /// <summary>8-char SINPE Móvil payment reference shown to the customer.</summary>
@@ -52,11 +53,13 @@ public sealed class BundleOrder
         string shippingAddress,
         string shippingCanton,
         string shippingPhone,
-        string? deliveryNotes) => new()
+        string? deliveryNotes,
+        BundleProductType productType = BundleProductType.CollarGpsPlus) => new()
         {
             Id = Guid.CreateVersion7(),
             UserId = userId,
             CollarModel = collarModel,
+            ProductType = productType,
             Status = BundleOrderStatus.PendingPayment,
             PaymentReference = paymentReference,
             AmountCrc = amountCrc,

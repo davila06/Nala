@@ -16,6 +16,17 @@ export function useMedicalHistory(petId: string) {
   });
 }
 
+export function useWeightHistory(petId: string) {
+  return useQuery({
+    queryKey: ["medical-weight", petId],
+    queryFn: () => medicalApi.getWeightHistory(petId),
+    staleTime: 5 * 60_000,
+    enabled: !!petId,
+    retry: (count, err: { response?: { status?: number } }) =>
+      err?.response?.status !== 403 && count < 2,
+  });
+}
+
 export function useMedicalCount(petId: string) {
   return useQuery({
     queryKey: ["medical-count", petId],

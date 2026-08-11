@@ -227,7 +227,9 @@ export default function AuthenticatedLayout() {
   const adminStatsNav = user?.role === "Admin" ? NAV_EXTRA_ADMIN_STATS : null;
 
   const pageCtx = resolvePageContext(location.pathname);
-  const isSubPage = pageCtx !== null && !TOP_LEVEL_ROUTES.has(location.pathname) &&
+  const isSubPage =
+    pageCtx !== null &&
+    !TOP_LEVEL_ROUTES.has(location.pathname) &&
     !Array.from(TOP_LEVEL_ROUTES).some((r) => location.pathname === r);
 
   return (
@@ -649,8 +651,17 @@ export default function AuthenticatedLayout() {
                 aria-label="Volver atrás"
                 className="mr-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-sand-500 hover:bg-sand-100 hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-base"
               >
-                <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
-                  <path fillRule="evenodd" d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z" clipRule="evenodd" />
+                <svg
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </button>
             )}

@@ -32,7 +32,22 @@ export interface PublicClinicDto {
   lat: number;
   lng: number;
   isFeatured: boolean;
+  isEmergency24h: boolean;
+  emergencyPhone: string | null;
   status: string;
+}
+
+export interface EmergencyVetDto {
+  id: string;
+  name: string;
+  address: string;
+  emergencyPhone: string | null;
+  phoneNumber: string | null;
+  website: string | null;
+  logoUrl: string | null;
+  lat: number;
+  lng: number;
+  distanceKm: number | null;
 }
 
 export interface ClinicScanResultDto {
@@ -175,4 +190,9 @@ export const clinicsApi = {
       .post(`/clinics/${clinicId}/view`, null, { params: { source } })
       .catch(() => undefined);
   },
+
+  getEmergencyVets: (lat?: number, lng?: number, radiusKm = 30): Promise<EmergencyVetDto[]> =>
+    apiClient
+      .get<EmergencyVetDto[]>("/public/emergency-vets", { params: { lat, lng, radiusKm } })
+      .then((r) => r.data),
 };

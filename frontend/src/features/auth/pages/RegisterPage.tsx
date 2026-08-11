@@ -8,7 +8,6 @@ import { Alert } from "@/shared/ui/Alert";
 import { useCountUp } from "@/shared/hooks/useCountUp";
 import { AmbientPaws, REGISTER_PAWS } from "@/shared/ui/AmbientPaws";
 
-
 function StatItem({
   end,
   suffix,
@@ -289,4 +288,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-

@@ -599,3 +599,92 @@ public sealed class DeleteVetReminderCommandHandler(
         return Result.Success(Unit.Value);
     }
 }
+
+// ── Weight history ────────────────────────────────────────────────────────────
+
+public sealed record WeightEntryDto(
+    DateOnly Date,
+    decimal WeightKg,
+    string Source,
+    string? ClinicName);
+
+public sealed record WeightReferenceDto(
+    decimal MinKg,
+    decimal MaxKg,
+    string Label);
+
+public sealed record WeightHistoryDto(
+    IReadOnlyList<WeightEntryDto> Entries,
+    WeightReferenceDto? Reference,
+    string? WeightChangeAlert);
+
+public sealed record GetWeightHistoryQuery(Guid PetId, Guid RequestingUserId)
+    : IRequest<Result<WeightHistoryDto>>;
+
+public sealed class GetWeightHistoryQueryValidator : AbstractValidator<GetWeightHistoryQuery>
+{
+    public GetWeightHistoryQueryValidator()
+    {
+        RuleFor(x => x.PetId).NotEmpty();
+        RuleFor(x => x.RequestingUserId).NotEmpty();
+    }
+}
+
+public sealed class GetWeightHistoryQueryHandler(
+    IPetRepository petRepository,
+    IMedicalRepository medicalRepository,
+    ISubscriptionService subscriptionService,
+    IFamilyRepository familyRepository)
+    : IRequestHandler<GetWeightHistoryQuery, Result<WeightHistoryDto>>
+{
+    public async Task<Result<WeightHistoryDto>> Handle(
+        GetWeightHistoryQuery request, CancellationToken ct)
+    {
+        var isFamilia = await subscriptionService.IsFamiliaAsync(request.RequestingUserId, ct);
+        if (!isFamilia)
+            return Result.Failure<WeightHistoryDto>("El historial de peso requiere el plan Familia.");
+
+        var pet = await petRepository.GetByIdAsync(request.PetId, ct);
+        if (pet is null) return Result.Failure<WeightHistoryDto>("Mascota no encontrada.");
+
+        var canAccess = await FamilyAccessChecker.CanAccessPetAsync(
+            pet.OwnerId, request.RequestingUserId, familyRepository, ct);
+        if (!canAccess) return Result.Failure<WeightHistoryDto>("Acceso no autorizado.");
+
+        var records = await medicalRepository.GetByPetIdAsync(request.PetId, ct);
+
+        var entries = records
+            .Where(r => r.WeightKg.HasValue)
+            .OrderBy(r => r.Date)
+            .Select(r => new WeightEntryDto(
+                r.Date,
+                r.WeightKg!.Value,
+                r.ClinicId.HasValue ? "Clinic" : "Owner",
+                r.ClinicName))
+            .ToList();
+
+        var reference = BreedWeightReference.Resolve(pet.Breed, pet.Species.ToString());
+        WeightReferenceDto? referenceDto = reference is null ? null
+            : new WeightReferenceDto(reference.MinKg, reference.MaxKg, reference.Label);
+
+        // Alert when weight dropped or gained >15% over the last 90 days
+        string? alert = null;
+        var cutoff = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-90));
+        var recent = entries.Where(e => e.Date >= cutoff).ToList();
+        if (recent.Count >= 2)
+        {
+            var first = recent[0].WeightKg;
+            var last  = recent[^1].WeightKg;
+            if (first > 0)
+            {
+                var delta = Math.Abs((last - first) / first);
+                if (delta >= 0.15m)
+                    alert = last < first
+                        ? $"El peso bajó un {delta:P0} en los últimos 90 días. Consulta con tu veterinario."
+                        : $"El peso subió un {delta:P0} en los últimos 90 días. Consulta con tu veterinario.";
+            }
+        }
+
+        return Result.Success(new WeightHistoryDto(entries, referenceDto, alert));
+    }
+}

@@ -108,6 +108,27 @@ export interface CreateVetReminderPayload {
   notes?: string;
 }
 
+// ── Weight history ────────────────────────────────────────────────────────────
+
+export interface WeightEntryDto {
+  date: string;
+  weightKg: number;
+  source: "Owner" | "Clinic";
+  clinicName: string | null;
+}
+
+export interface WeightReferenceDto {
+  minKg: number;
+  maxKg: number;
+  label: string;
+}
+
+export interface WeightHistoryDto {
+  entries: WeightEntryDto[];
+  reference: WeightReferenceDto | null;
+  weightChangeAlert: string | null;
+}
+
 // ── API ───────────────────────────────────────────────────────────────────────
 
 export interface MedicalRecordCountDto {
@@ -119,6 +140,11 @@ export const medicalApi = {
   getHistory: (petId: string): Promise<MedicalHistoryResultDto> =>
     apiClient
       .get<MedicalHistoryResultDto>(`/pets/${petId}/medical`)
+      .then((r) => r.data),
+
+  getWeightHistory: (petId: string): Promise<WeightHistoryDto> =>
+    apiClient
+      .get<WeightHistoryDto>(`/pets/${petId}/medical/weight-history`)
       .then((r) => r.data),
 
   addRecord: (

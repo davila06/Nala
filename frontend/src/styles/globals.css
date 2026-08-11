@@ -376,8 +376,15 @@ select option {
 
 /* Pulsing border for lost pet cards */
 @keyframes pulse-border {
-  0%, 100% { border-color: var(--color-danger-300); box-shadow: 0 0 0 0 rgb(240 88 88 / 0); }
-  50%       { border-color: var(--color-danger-500); box-shadow: 0 0 0 4px rgb(240 88 88 / 0.12); }
+  0%,
+  100% {
+    border-color: var(--color-danger-300);
+    box-shadow: 0 0 0 0 rgb(240 88 88 / 0);
+  }
+  50% {
+    border-color: var(--color-danger-500);
+    box-shadow: 0 0 0 4px rgb(240 88 88 / 0.12);
+  }
 }
 
 /* Paw burst — celebration on reunite */
