@@ -783,60 +783,60 @@ export default function AdminPage() {
 
       {/* ── Tabs ── */}
       <div className="mb-6 flex gap-1 rounded-2xl bg-surface-warm p-1.5 overflow-x-auto no-scrollbar">
-        {([
-          "allies",
-          "clinics",
-          "subscriptions",
-          "bundles",
-          "promotions",
-        ] as const).map(
-          (tab) => {
-            const count =
-              tab === "allies"
-                ? allyCount
-                : tab === "clinics"
-                  ? clinicCount
-                  : tab === "subscriptions"
-                    ? pendingSubCount
-                    : tab === "bundles"
-                      ? pendingBundleCount
-                      : 0;
-            const label =
-              tab === "allies"
-                ? "Aliados"
-                : tab === "clinics"
-                  ? "Cl\u00ednicas"
-                  : tab === "subscriptions"
-                    ? "Suscripciones"
-                    : tab === "bundles"
-                      ? "Bundles"
-                      : "Promociones";
-            return (
-              <button
-                key={tab}
-                type="button"
-                role="tab"
-                aria-selected={activeTab === tab}
-                onClick={() => setActiveTab(tab)}
-                className={[
-                  "flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
-                  activeTab === tab
-                    ? "bg-surface text-sand-900 shadow-sm"
-                    : "text-sand-500 hover:text-sand-700",
-                ].join(" ")}
-              >
-                {label}
-                {count > 0 && (
-                  <span
-                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${activeTab === tab ? "bg-warn-100 text-warn-700" : "bg-sand-200 text-sand-600"}`}
-                  >
-                    {count}
-                  </span>
-                )}
-              </button>
-            );
-          },
-        )}
+        {(
+          [
+            "allies",
+            "clinics",
+            "subscriptions",
+            "bundles",
+            "promotions",
+          ] as const
+        ).map((tab) => {
+          const count =
+            tab === "allies"
+              ? allyCount
+              : tab === "clinics"
+                ? clinicCount
+                : tab === "subscriptions"
+                  ? pendingSubCount
+                  : tab === "bundles"
+                    ? pendingBundleCount
+                    : 0;
+          const label =
+            tab === "allies"
+              ? "Aliados"
+              : tab === "clinics"
+                ? "Cl\u00ednicas"
+                : tab === "subscriptions"
+                  ? "Suscripciones"
+                  : tab === "bundles"
+                    ? "Bundles"
+                    : "Promociones";
+          return (
+            <button
+              key={tab}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === tab}
+              onClick={() => setActiveTab(tab)}
+              className={[
+                "flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
+                activeTab === tab
+                  ? "bg-surface text-sand-900 shadow-sm"
+                  : "text-sand-500 hover:text-sand-700",
+              ].join(" ")}
+            >
+              {label}
+              {count > 0 && (
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${activeTab === tab ? "bg-warn-100 text-warn-700" : "bg-sand-200 text-sand-600"}`}
+                >
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
       {/* ── Tab content ── */}
       <AnimatePresence mode="wait">
