@@ -22,8 +22,28 @@ export function useWeightHistory(petId: string) {
     queryFn: () => medicalApi.getWeightHistory(petId),
     staleTime: 5 * 60_000,
     enabled: !!petId,
-    retry: (count, err: { response?: { status?: number } }) =>
-      err?.response?.status !== 403 && count < 2,
+    retry: (count, err: { response?: { status?: number } } | unknown) =>
+      (err as { response?: { status?: number } })?.response?.status !== 403 && count < 2,
+  });
+}
+
+export function useHealthAlerts(petId: string) {
+  return useQuery({
+    queryKey: ["health-alerts", petId],
+    queryFn: () => medicalApi.getHealthAlerts(petId),
+    staleTime: 10 * 60_000,
+    enabled: !!petId,
+  });
+}
+
+export function useHealthScore(petId: string) {
+  return useQuery({
+    queryKey: ["health-score", petId],
+    queryFn: () => medicalApi.getHealthScore(petId),
+    staleTime: 10 * 60_000,
+    enabled: !!petId,
+    retry: (count, err: { response?: { status?: number } } | unknown) =>
+      (err as { response?: { status?: number } })?.response?.status !== 403 && count < 2,
   });
 }
 

@@ -276,7 +276,8 @@ export default function PublicMapPage() {
           {showEmergencyOnly ? "🚨" : "🏥"} {displayedClinics.length} clínica
           {displayedClinics.length !== 1 ? "s" : ""}
           {showEmergencyOnly && " · 24h"}
-          {!showEmergencyOnly && displayedClinics.filter((c) => c.isFeatured).length > 0 &&
+          {!showEmergencyOnly &&
+            displayedClinics.filter((c) => c.isFeatured).length > 0 &&
             ` · ${displayedClinics.filter((c) => c.isFeatured).length} verificada${displayedClinics.filter((c) => c.isFeatured).length !== 1 ? "s" : ""}`}
         </div>
       )}

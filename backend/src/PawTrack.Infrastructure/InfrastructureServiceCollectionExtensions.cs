@@ -205,6 +205,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IClinicMedicalAccessGrantRepository, ClinicMedicalAccessGrantRepository>();
         services.AddScoped<PawTrack.Infrastructure.Medical.VetReminderNotificationJob>();
         services.AddHostedService<PawTrack.Infrastructure.Medical.VetReminderHostedService>();
+        services.AddScoped<PawTrack.Infrastructure.Medical.HealthAlertJob>();
+        services.AddHostedService<PawTrack.Infrastructure.Medical.HealthAlertHostedService>();
 
         // Municipalities
         services.AddScoped<ICapturedAnimalRepository, CapturedAnimalRepository>();

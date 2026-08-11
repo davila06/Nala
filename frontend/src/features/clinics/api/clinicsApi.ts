@@ -191,8 +191,14 @@ export const clinicsApi = {
       .catch(() => undefined);
   },
 
-  getEmergencyVets: (lat?: number, lng?: number, radiusKm = 30): Promise<EmergencyVetDto[]> =>
+  getEmergencyVets: (
+    lat?: number,
+    lng?: number,
+    radiusKm = 30,
+  ): Promise<EmergencyVetDto[]> =>
     apiClient
-      .get<EmergencyVetDto[]>("/public/emergency-vets", { params: { lat, lng, radiusKm } })
+      .get<
+        EmergencyVetDto[]
+      >("/public/emergency-vets", { params: { lat, lng, radiusKm } })
       .then((r) => r.data),
 };

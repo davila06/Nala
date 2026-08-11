@@ -86,6 +86,38 @@ public sealed class MedicalController(ISender sender) : ControllerBase
         }
         return Ok(result.Value);
     }
+
+    // ── GET /api/pets/{petId}/medical/health-alerts ───────────────────────────
+    [HttpGet("health-alerts")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetHealthAlerts(Guid petId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetHealthAlertsQuery(petId, userId), ct);
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        return Ok(result.Value);
+    }
+
+    // ── GET /api/pets/{petId}/medical/health-score ────────────────────────────
+    [HttpGet("health-score")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetHealthScore(Guid petId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetHealthScoreQuery(petId, userId), ct);
+        if (result.IsFailure)
+        {
+            if (result.Errors.Contains("El score de salud requiere el plan Plus."))
+                return StatusCode(StatusCodes.Status403Forbidden,
+                    new ProblemDetails { Title = "Plan required", Detail = result.Errors.First(), Status = 403 });
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        }
+        return Ok(result.Value);
+    }
     [HttpPost]
     [Consumes("multipart/form-data")]
     [EnableRateLimiting("public-api")]

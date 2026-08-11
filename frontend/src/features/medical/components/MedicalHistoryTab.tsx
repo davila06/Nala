@@ -17,6 +17,7 @@ import {
 import { PetClinicAccessManager } from "./PetClinicAccessManager";
 import { ReminderCalendar } from "./ReminderCalendar";
 import { WeightTrendChart } from "./WeightTrendChart";
+import { HealthScoreCard } from "./HealthScoreCard";
 import { usePublicClinics } from "@/features/clinics/hooks/useClinics";
 import type {
   MedicalRecordType,
@@ -789,7 +790,13 @@ function ClinicAccessLogSection({ petId }: { petId: string }) {
   );
 }
 
-export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petName?: string }) {
+export function MedicalHistoryTab({
+  petId,
+  petName = "",
+}: {
+  petId: string;
+  petName?: string;
+}) {
   const { data: historyResult, isLoading: loadingRecords } =
     useMedicalHistory(petId);
   const { data: count } = useMedicalCount(petId);
@@ -914,7 +921,8 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
 
       {/* Records list */}
       <div>
-        {/* Weight trend (Familia only — renders its own PlanGate) */}
+        {/* Health score (Plus+) then weight trend (Familia) */}
+        <HealthScoreCard petId={petId} petName={petName} />
         <WeightTrendChart petId={petId} petName={petName} />
 
         {/* Search input */}

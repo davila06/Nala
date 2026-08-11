@@ -42,7 +42,9 @@ function WeightChartInner({ petId, petName }: WeightTrendChartProps) {
   const { data, isLoading, error } = useWeightHistory(petId);
 
   // Silently skip if plan gate returned 403 — PlanGate wrapper shows the upsell
-  const is403 = (error as { response?: { status?: number } } | null)?.response?.status === 403;
+  const is403 =
+    (error as { response?: { status?: number } } | null)?.response?.status ===
+    403;
 
   if (isLoading) return <Skeleton className="h-52 w-full rounded-2xl" />;
   if (is403 || !data) return null;
@@ -78,7 +80,9 @@ function WeightChartInner({ petId, petName }: WeightTrendChartProps) {
           role="alert"
           className="flex items-start gap-2 rounded-xl border border-warn-200 bg-warn-50 px-3 py-2 text-xs text-warn-800"
         >
-          <span aria-hidden="true" className="shrink-0">⚠️</span>
+          <span aria-hidden="true" className="shrink-0">
+            ⚠️
+          </span>
           <span>{data.weightChangeAlert}</span>
         </div>
       )}
@@ -88,8 +92,14 @@ function WeightChartInner({ petId, petName }: WeightTrendChartProps) {
         aria-label={`Gráfico de peso de ${petName}: ${allWeights.length} registros, de ${minW.toFixed(1)} kg a ${maxW.toFixed(1)} kg`}
       >
         <ResponsiveContainer width="100%" height={200}>
-          <LineChart data={chartData} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-sand-200)" />
+          <LineChart
+            data={chartData}
+            margin={{ top: 4, right: 8, left: -16, bottom: 0 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="var(--color-sand-200)"
+            />
 
             <XAxis
               dataKey="date"
@@ -139,7 +149,11 @@ function WeightChartInner({ petId, petName }: WeightTrendChartProps) {
                     y={props.cy - 4}
                     width={8}
                     height={8}
-                    fill={isClinic ? "var(--color-trust-500)" : "var(--color-brand-500)"}
+                    fill={
+                      isClinic
+                        ? "var(--color-trust-500)"
+                        : "var(--color-brand-500)"
+                    }
                     rx={isClinic ? 0 : 4}
                     stroke="white"
                     strokeWidth={1.5}

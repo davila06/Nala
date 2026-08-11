@@ -45,4 +45,23 @@ public sealed class MedicalRepository(PawTrackDbContext db) : IMedicalRepository
 
     public void UpdateReminder(VetReminder reminder) => db.VetReminders.Update(reminder);
     public void DeleteReminder(VetReminder reminder) => db.VetReminders.Remove(reminder);
+
+    public async Task<IReadOnlyList<HealthProtocol>> GetHealthProtocolsBySpeciesAsync(
+        string species, CancellationToken ct = default) =>
+        await db.HealthProtocols.AsNoTracking()
+            .Where(p => p.Species == species)
+            .ToListAsync(ct);
+
+    public async Task<IReadOnlyList<Guid>> GetPetIdsWithRecordsAsync(CancellationToken ct = default) =>
+        await db.MedicalRecords.AsNoTracking()
+            .Select(r => r.PetId)
+            .Distinct()
+            .ToListAsync(ct);
+
+    public Task<VetReminder?> GetLatestReminderByTypeAsync(
+        Guid petId, MedicalRecordType type, CancellationToken ct = default) =>
+        db.VetReminders.AsNoTracking()
+            .Where(r => r.PetId == petId && r.Type == type && !r.IsCompleted)
+            .OrderByDescending(r => r.DueDate)
+            .FirstOrDefaultAsync(ct);
 }

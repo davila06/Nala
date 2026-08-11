@@ -129,6 +129,33 @@ export interface WeightHistoryDto {
   weightChangeAlert: string | null;
 }
 
+// ── Health alerts ─────────────────────────────────────────────────────────────
+
+export type HealthAlertSeverity = "critical" | "warning" | "info";
+
+export interface HealthAlertDto {
+  recordType: string;
+  protocolName: string;
+  lastDate: string | null;
+  dueDate: string;
+  daysUntilDue: number;
+  isOverdue: boolean;
+  severity: HealthAlertSeverity;
+}
+
+export interface HealthScoreBreakdownItemDto {
+  protocolName: string;
+  recordType: string;
+  isCompliant: boolean;
+  lastDate: string | null;
+  dueDate: string | null;
+}
+
+export interface HealthScoreDto {
+  score: number;
+  breakdown: HealthScoreBreakdownItemDto[];
+}
+
 // ── API ───────────────────────────────────────────────────────────────────────
 
 export interface MedicalRecordCountDto {
@@ -145,6 +172,16 @@ export const medicalApi = {
   getWeightHistory: (petId: string): Promise<WeightHistoryDto> =>
     apiClient
       .get<WeightHistoryDto>(`/pets/${petId}/medical/weight-history`)
+      .then((r) => r.data),
+
+  getHealthAlerts: (petId: string): Promise<HealthAlertDto[]> =>
+    apiClient
+      .get<HealthAlertDto[]>(`/pets/${petId}/medical/health-alerts`)
+      .then((r) => r.data),
+
+  getHealthScore: (petId: string): Promise<HealthScoreDto> =>
+    apiClient
+      .get<HealthScoreDto>(`/pets/${petId}/medical/health-score`)
       .then((r) => r.data),
 
   addRecord: (

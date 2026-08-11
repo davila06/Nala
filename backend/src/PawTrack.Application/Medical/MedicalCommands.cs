@@ -674,7 +674,7 @@ public sealed class GetWeightHistoryQueryHandler(
         if (recent.Count >= 2)
         {
             var first = recent[0].WeightKg;
-            var last  = recent[^1].WeightKg;
+            var last = recent[^1].WeightKg;
             if (first > 0)
             {
                 var delta = Math.Abs((last - first) / first);
@@ -686,5 +686,180 @@ public sealed class GetWeightHistoryQueryHandler(
         }
 
         return Result.Success(new WeightHistoryDto(entries, referenceDto, alert));
+    }
+}
+
+// ── Health alerts engine ──────────────────────────────────────────────────────
+
+/// <summary>Shared logic for computing health alerts from records + protocols. No I/O.</summary>
+file static class HealthAlertEngine
+{
+    internal static IReadOnlyList<HealthAlertDto> Compute(
+        IReadOnlyList<MedicalRecord> records,
+        IReadOnlyList<HealthProtocol> protocols)
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        // Latest record date per type
+        var latestByType = records
+            .GroupBy(r => r.Type)
+            .ToDictionary(g => g.Key, g => g.Max(r => r.Date));
+
+        var alerts = new List<HealthAlertDto>();
+
+        foreach (var protocol in protocols)
+        {
+            if (!latestByType.TryGetValue(protocol.RecordType, out var lastDate))
+            {
+                // Never recorded — only alert if pet is older than 90 days (avoid noise for new pets)
+                continue;
+            }
+
+            var days = protocol.DaysUntilDue(lastDate);
+
+            // Expose: overdue + ≤30 days upcoming
+            if (days > 30) continue;
+
+            alerts.Add(new HealthAlertDto(
+                protocol.RecordType.ToString(),
+                protocol.ProtocolName,
+                lastDate,
+                protocol.DueDate(lastDate),
+                days,
+                days < 0,
+                protocol.Severity(lastDate)));
+        }
+
+        return alerts.OrderBy(a => a.DaysUntilDue).ToList().AsReadOnly();
+    }
+
+    internal static int ComputeScore(
+        IReadOnlyList<MedicalRecord> records,
+        IReadOnlyList<HealthProtocol> protocols)
+    {
+        if (protocols.Count == 0) return 100;
+
+        var latestByType = records
+            .GroupBy(r => r.Type)
+            .ToDictionary(g => g.Key, g => g.Max(r => r.Date));
+
+        int compliant = 0;
+        foreach (var protocol in protocols)
+        {
+            if (latestByType.TryGetValue(protocol.RecordType, out var lastDate)
+                && !protocol.IsOverdue(lastDate))
+                compliant++;
+        }
+
+        return (int)Math.Round(compliant * 100.0 / protocols.Count);
+    }
+}
+
+// ── Health alert DTOs ─────────────────────────────────────────────────────────
+
+public sealed record HealthAlertDto(
+    string RecordType,
+    string ProtocolName,
+    DateOnly? LastDate,
+    DateOnly DueDate,
+    int DaysUntilDue,
+    bool IsOverdue,
+    string Severity);
+
+public sealed record HealthScoreBreakdownItemDto(
+    string ProtocolName,
+    string RecordType,
+    bool IsCompliant,
+    DateOnly? LastDate,
+    DateOnly? DueDate);
+
+public sealed record HealthScoreDto(
+    int Score,
+    IReadOnlyList<HealthScoreBreakdownItemDto> Breakdown);
+
+// ── GetHealthAlertsQuery ──────────────────────────────────────────────────────
+
+public sealed record GetHealthAlertsQuery(Guid PetId, Guid RequestingUserId)
+    : IRequest<Result<IReadOnlyList<HealthAlertDto>>>;
+
+public sealed class GetHealthAlertsQueryValidator : AbstractValidator<GetHealthAlertsQuery>
+{
+    public GetHealthAlertsQueryValidator()
+    {
+        RuleFor(x => x.PetId).NotEmpty();
+        RuleFor(x => x.RequestingUserId).NotEmpty();
+    }
+}
+
+public sealed class GetHealthAlertsQueryHandler(
+    IPetRepository petRepository,
+    IMedicalRepository medicalRepository,
+    IFamilyRepository familyRepository)
+    : IRequestHandler<GetHealthAlertsQuery, Result<IReadOnlyList<HealthAlertDto>>>
+{
+    public async Task<Result<IReadOnlyList<HealthAlertDto>>> Handle(
+        GetHealthAlertsQuery request, CancellationToken ct)
+    {
+        var pet = await petRepository.GetByIdAsync(request.PetId, ct);
+        if (pet is null) return Result.Failure<IReadOnlyList<HealthAlertDto>>("Mascota no encontrada.");
+
+        var canAccess = await FamilyAccessChecker.CanAccessPetAsync(
+            pet.OwnerId, request.RequestingUserId, familyRepository, ct);
+        if (!canAccess) return Result.Failure<IReadOnlyList<HealthAlertDto>>("Acceso no autorizado.");
+
+        var records = await medicalRepository.GetByPetIdAsync(request.PetId, ct);
+        var protocols = await medicalRepository.GetHealthProtocolsBySpeciesAsync(pet.Species.ToString(), ct);
+
+        return Result.Success(HealthAlertEngine.Compute(records, protocols));
+    }
+}
+
+// ── GetHealthScoreQuery ───────────────────────────────────────────────────────
+
+public sealed record GetHealthScoreQuery(Guid PetId, Guid RequestingUserId)
+    : IRequest<Result<HealthScoreDto>>;
+
+public sealed class GetHealthScoreQueryHandler(
+    IPetRepository petRepository,
+    IMedicalRepository medicalRepository,
+    ISubscriptionService subscriptionService,
+    IFamilyRepository familyRepository)
+    : IRequestHandler<GetHealthScoreQuery, Result<HealthScoreDto>>
+{
+    public async Task<Result<HealthScoreDto>> Handle(
+        GetHealthScoreQuery request, CancellationToken ct)
+    {
+        var isPlus = await subscriptionService.IsAtLeastPlusAsync(request.RequestingUserId, ct);
+        if (!isPlus)
+            return Result.Failure<HealthScoreDto>("El score de salud requiere el plan Plus.");
+
+        var pet = await petRepository.GetByIdAsync(request.PetId, ct);
+        if (pet is null) return Result.Failure<HealthScoreDto>("Mascota no encontrada.");
+
+        var canAccess = await FamilyAccessChecker.CanAccessPetAsync(
+            pet.OwnerId, request.RequestingUserId, familyRepository, ct);
+        if (!canAccess) return Result.Failure<HealthScoreDto>("Acceso no autorizado.");
+
+        var records = await medicalRepository.GetByPetIdAsync(request.PetId, ct);
+        var protocols = await medicalRepository.GetHealthProtocolsBySpeciesAsync(pet.Species.ToString(), ct);
+
+        var latestByType = records
+            .GroupBy(r => r.Type)
+            .ToDictionary(g => g.Key, g => g.Max(r => r.Date));
+
+        var breakdown = protocols.Select(p =>
+        {
+            latestByType.TryGetValue(p.RecordType, out var lastDate);
+            var isCompliant = lastDate != default && !p.IsOverdue(lastDate);
+            return new HealthScoreBreakdownItemDto(
+                p.ProtocolName,
+                p.RecordType.ToString(),
+                isCompliant,
+                lastDate == default ? null : lastDate,
+                lastDate == default ? null : p.DueDate(lastDate));
+        }).ToList().AsReadOnly();
+
+        var score = HealthAlertEngine.ComputeScore(records, protocols);
+        return Result.Success(new HealthScoreDto(score, breakdown));
     }
 }

@@ -24,6 +24,7 @@ import { Tabs, type TabItem } from "@/shared/ui/Tabs";
 import { CollarGpsTab } from "../components/CollarGpsTab";
 import { PlanGate } from "../components/PlanGate";
 import { MedicalHistoryTab } from "@/features/medical/components/MedicalHistoryTab";
+import { HealthAlertBanner } from "@/features/medical/components/HealthAlertBanner";
 import { useAuthStore } from "@/features/auth/store/authStore";
 
 export default function PetDetailPage() {
@@ -184,6 +185,13 @@ export default function PetDetailPage() {
       <p className="mb-4 inline-flex rounded-full bg-trust-50 px-3 py-1 text-xs font-semibold text-trust-700">
         {todayLabel}
       </p>
+
+      {/* Health alerts — shown above the tab bar for all plans */}
+      <HealthAlertBanner
+        petId={pet.id}
+        petName={pet.name}
+        onSchedule={() => setActiveTab("salud")}
+      />
 
       {/* Tab bar */}
       <div className="mb-5 overflow-x-auto no-scrollbar">

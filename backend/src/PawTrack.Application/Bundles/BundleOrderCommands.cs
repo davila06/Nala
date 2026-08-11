@@ -19,11 +19,11 @@ public static class BundlePrices
     // ── Accessory-only pricing ────────────────────────────────────────────────
     public static decimal GetPrice(BundleProductType product) => product switch
     {
-        BundleProductType.QrPlate       => 4_500m,
-        BundleProductType.SiliconeTag   => 5_500m,
-        BundleProductType.NfcQrCombo    => 12_000m,
+        BundleProductType.QrPlate => 4_500m,
+        BundleProductType.SiliconeTag => 5_500m,
+        BundleProductType.NfcQrCombo => 12_000m,
         BundleProductType.EmergencyPack => 7_000m,
-        _                               => BundleCrc, // CollarGpsPlus default
+        _ => BundleCrc, // CollarGpsPlus default
     };
 }
 
@@ -65,20 +65,20 @@ public sealed record BundleOrderDto(
     private static readonly Dictionary<Domain.Bundles.BundleOrderStatus, string> StatusLabels = new()
     {
         [Domain.Bundles.BundleOrderStatus.PendingPayment] = "Pendiente de pago",
-        [Domain.Bundles.BundleOrderStatus.Paid]           = "Pago confirmado",
-        [Domain.Bundles.BundleOrderStatus.Sourcing]       = "Adquiriendo collar",
-        [Domain.Bundles.BundleOrderStatus.Shipped]        = "En camino",
-        [Domain.Bundles.BundleOrderStatus.Delivered]      = "Entregado",
-        [Domain.Bundles.BundleOrderStatus.Cancelled]      = "Cancelado",
+        [Domain.Bundles.BundleOrderStatus.Paid] = "Pago confirmado",
+        [Domain.Bundles.BundleOrderStatus.Sourcing] = "Adquiriendo collar",
+        [Domain.Bundles.BundleOrderStatus.Shipped] = "En camino",
+        [Domain.Bundles.BundleOrderStatus.Delivered] = "Entregado",
+        [Domain.Bundles.BundleOrderStatus.Cancelled] = "Cancelado",
     };
 
     private static readonly Dictionary<BundleProductType, string> ProductLabels = new()
     {
-        [BundleProductType.CollarGpsPlus]  = "Bundle Collar GPS + 12 meses Plus",
-        [BundleProductType.QrPlate]        = "Placa QR de aluminio",
-        [BundleProductType.SiliconeTag]    = "Tag de silicona con QR",
-        [BundleProductType.NfcQrCombo]     = "Combo NFC + QR",
-        [BundleProductType.EmergencyPack]  = "Pack emergencia (placa + tarjeta bolsillo)",
+        [BundleProductType.CollarGpsPlus] = "Bundle Collar GPS + 12 meses Plus",
+        [BundleProductType.QrPlate] = "Placa QR de aluminio",
+        [BundleProductType.SiliconeTag] = "Tag de silicona con QR",
+        [BundleProductType.NfcQrCombo] = "Combo NFC + QR",
+        [BundleProductType.EmergencyPack] = "Pack emergencia (placa + tarjeta bolsillo)",
     };
 
     public static BundleOrderDto FromDomain(BundleOrder o) => new(
