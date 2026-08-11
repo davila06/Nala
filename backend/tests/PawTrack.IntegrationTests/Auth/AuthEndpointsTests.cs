@@ -5,6 +5,7 @@ using PawTrack.IntegrationTests.Infrastructure;
 
 namespace PawTrack.IntegrationTests.Auth;
 
+[Collection("Integration")]
 public sealed class AuthEndpointsTests(PawTrackWebApplicationFactory factory)
     : IClassFixture<PawTrackWebApplicationFactory>
 {

@@ -5,6 +5,7 @@ using PawTrack.IntegrationTests.Infrastructure;
 
 namespace PawTrack.IntegrationTests.Bounties;
 
+[Collection("Integration")]
 public sealed class BountiesEndpointsTests(PawTrackWebApplicationFactory factory)
     : IClassFixture<PawTrackWebApplicationFactory>
 {
@@ -74,8 +75,8 @@ public sealed class BountiesEndpointsTests(PawTrackWebApplicationFactory factory
     [Fact]
     public async Task ConfirmDeposit_Unauthenticated_RefusesNonOwnerConfirm()
     {
-        // Create bounty as User A
-        var clientA = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        // Create bounty as User A (needs Plus plan)
+        var clientA = await AuthHelper.CreatePlusClientAsync(factory);
 
         var createResp = await clientA.PostAsJsonAsync("/api/bounties", new
         {

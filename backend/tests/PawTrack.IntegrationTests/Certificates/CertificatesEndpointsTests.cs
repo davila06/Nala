@@ -5,6 +5,7 @@ using PawTrack.IntegrationTests.Infrastructure;
 
 namespace PawTrack.IntegrationTests.Certificates;
 
+[Collection("Integration")]
 public sealed class CertificatesEndpointsTests(PawTrackWebApplicationFactory factory)
     : IClassFixture<PawTrackWebApplicationFactory>
 {

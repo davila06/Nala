@@ -177,6 +177,11 @@ public sealed class User
         Role = UserRole.Clinic;
     }
 
+    public void AssignMunicipalityRole()
+    {
+        Role = UserRole.Municipality;
+    }
+
     public void UpdateProfile(string name)
     {
         Name = name.Trim();

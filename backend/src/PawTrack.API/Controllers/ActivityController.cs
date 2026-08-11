@@ -27,7 +27,7 @@ public sealed class ActivityController(ISender sender) : ControllerBase
         if (!TryGetUserId(out var userId)) return Unauthorized();
 
         DateOnly? fromDate = from is not null && DateOnly.TryParse(from, out var f) ? f : null;
-        DateOnly? toDate   = to   is not null && DateOnly.TryParse(to,   out var t) ? t : null;
+        DateOnly? toDate = to is not null && DateOnly.TryParse(to, out var t) ? t : null;
 
         var result = await sender.Send(new GetActivityLogsQuery(petId, userId, fromDate, toDate), ct);
         if (result.IsFailure)

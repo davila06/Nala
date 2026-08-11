@@ -1,9 +1,11 @@
 using System.Net.Http.Json;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PawTrack.Application.Auth.Commands.Register;
 using PawTrack.Application.Auth.Commands.VerifyEmail;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Domain.Subscriptions;
 
 namespace PawTrack.IntegrationTests.Infrastructure;
 
@@ -62,6 +64,81 @@ public static class AuthHelper
             .GetProperty(propertyName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
             ?.GetSetMethod(nonPublic: true);
         setter?.Invoke(obj, [value]);
+    }
+
+    /// <summary>Creates a verified, authenticated client with an active UserPlus subscription.</summary>
+    public static async Task<HttpClient> CreatePlusClientAsync(
+        PawTrackWebApplicationFactory factory,
+        string? email = null)
+    {
+        var client = await CreateAuthenticatedClientAsync(factory, email);
+
+        // Grant a Plus subscription directly via DbContext
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+        var userRepo = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+        var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+
+        var emailStr = email ?? ExtractEmail(client);
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Email == emailStr);
+        if (user is not null)
+        {
+            var sub = Subscription.CreateForUser(
+                user.Id, SubscriptionTier.UserPlus, "TEST-REF", 2990m);
+            sub.Activate();
+            await db.Subscriptions.AddAsync(sub);
+            await db.SaveChangesAsync();
+        }
+
+        return client;
+    }
+
+    /// <summary>Creates a verified, authenticated client with the Municipality role.</summary>
+    public static async Task<HttpClient> CreateMunicipalityClientAsync(
+        PawTrackWebApplicationFactory factory,
+        string? email = null)
+    {
+        email = (email ?? $"muni_{Guid.NewGuid():N}@pawtrack.cr").ToLowerInvariant();
+        var client = await CreateAuthenticatedClientAsync(factory, email);
+
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
+        if (user is not null)
+        {
+            user.AssignMunicipalityRole();
+            db.Users.Update(user);
+            await db.SaveChangesAsync();
+        }
+
+        // Re-login to get a JWT that includes the Municipality role claim
+        var loginResp = await client.PostAsJsonAsync("/api/auth/login", new { email, password = Password });
+        if (loginResp.IsSuccessStatusCode)
+        {
+            var body = await loginResp.Content.ReadFromJsonAsync<LoginResponse>();
+            if (body?.AccessToken is not null)
+                client.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", body.AccessToken);
+        }
+
+        return client;
+    }
+
+    private static string ExtractEmail(HttpClient client)
+    {
+        var token = client.DefaultRequestHeaders.Authorization?.Parameter ?? "";
+        if (string.IsNullOrEmpty(token)) return string.Empty;
+        try
+        {
+            var payload = token.Split('.')[1];
+            var padded = payload + new string('=', (4 - payload.Length % 4) % 4);
+            var bytes = Convert.FromBase64String(padded.Replace('-', '+').Replace('_', '/'));
+            var json = System.Text.Encoding.UTF8.GetString(bytes);
+            var doc = System.Text.Json.JsonDocument.Parse(json);
+            return doc.RootElement.TryGetProperty("email", out var e) ? e.GetString() ?? "" : "";
+        }
+        catch { return string.Empty; }
     }
 
     private sealed record LoginResponse(string AccessToken, string RefreshToken);

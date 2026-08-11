@@ -151,7 +151,7 @@ public sealed class GetActivityLogsQueryHandler(
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var from = request.From ?? today.AddDays(-30);
-        var to   = request.To   ?? today;
+        var to = request.To ?? today;
 
         var logs = await activityRepository.GetByPetAndDateRangeAsync(request.PetId, from, to, ct);
 

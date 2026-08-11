@@ -5,6 +5,7 @@ using PawTrack.IntegrationTests.Infrastructure;
 
 namespace PawTrack.IntegrationTests.Municipalities;
 
+[Collection("Integration")]
 public sealed class MunicipalEndpointsTests(PawTrackWebApplicationFactory factory)
     : IClassFixture<PawTrackWebApplicationFactory>
 {
@@ -20,7 +21,7 @@ public sealed class MunicipalEndpointsTests(PawTrackWebApplicationFactory factor
     [Fact]
     public async Task Search_Authenticated_Returns200WithEmptyPage()
     {
-        var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        var client = await AuthHelper.CreateMunicipalityClientAsync(factory);
 
         var response = await client.GetAsync("/api/municipalities/captures");
 
@@ -45,7 +46,7 @@ public sealed class MunicipalEndpointsTests(PawTrackWebApplicationFactory factor
     [Fact]
     public async Task Record_MissingRequiredFields_Returns422()
     {
-        var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        var client = await AuthHelper.CreateMunicipalityClientAsync(factory);
 
         var response = await client.PostAsJsonAsync("/api/municipalities/captures", new
         {
@@ -60,7 +61,7 @@ public sealed class MunicipalEndpointsTests(PawTrackWebApplicationFactory factor
     [Fact]
     public async Task Record_ValidPayload_Returns201()
     {
-        var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        var client = await AuthHelper.CreateMunicipalityClientAsync(factory);
 
         var response = await client.PostAsJsonAsync("/api/municipalities/captures", new
         {

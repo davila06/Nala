@@ -39,6 +39,14 @@ public sealed class PawTrackWebApplicationFactory : WebApplicationFactory<Progra
                 ["Jwt:ExpirySeconds"] = "900",
                 ["App:BaseUrl"] = "https://localhost:5001",
                 ["ConnectionStrings:DefaultConnection"] = "Server=localhost;Database=PawTrackTest",
+                // Relax all rate limits so the full test suite doesn't self-throttle
+                ["RateLimiting:Login:PermitLimit"] = "1000",
+                ["RateLimiting:Login:WindowSeconds"] = "3600",
+                ["RateLimiting:Register:PermitLimit"] = "1000",
+                ["RateLimiting:Refresh:PermitLimit"] = "1000",
+                ["RateLimiting:PublicApi:PermitLimit"] = "1000",
+                ["RateLimiting:Sightings:PermitLimit"] = "1000",
+                ["RateLimiting:QuickMatchPublic:PermitLimit"] = "1000",
             });
         });
 

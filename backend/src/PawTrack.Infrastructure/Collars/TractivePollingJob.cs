@@ -80,7 +80,7 @@ public sealed class TractivePollingJob(
         var activityRepo = new ActivityLogRepository(db);
         var yesterday = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1));
         var windowStart = new DateTimeOffset(yesterday.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
-        var windowEnd   = new DateTimeOffset(yesterday.ToDateTime(TimeOnly.MaxValue), TimeSpan.Zero);
+        var windowEnd = new DateTimeOffset(yesterday.ToDateTime(TimeOnly.MaxValue), TimeSpan.Zero);
 
         foreach (var collar in collars)
         {
@@ -101,7 +101,7 @@ public sealed class TractivePollingJob(
             {
                 totalMeters += PawTrack.Application.Common.GeoHelper.DistanceMetres(
                     points[i - 1].Lat, points[i - 1].Lng,
-                    points[i].Lat,     points[i].Lng);
+                    points[i].Lat, points[i].Lng);
             }
 
             var estimatedMinutes = Math.Max(1, (int)(totalMeters / 1000 * 12)); // ~12 min/km default pace

@@ -7,6 +7,7 @@ using PawTrack.IntegrationTests.Infrastructure;
 
 namespace PawTrack.IntegrationTests.Webhooks;
 
+[Collection("Integration")]
 public sealed class WebhooksEndpointsTests(PawTrackWebApplicationFactory factory)
     : IClassFixture<PawTrackWebApplicationFactory>
 {

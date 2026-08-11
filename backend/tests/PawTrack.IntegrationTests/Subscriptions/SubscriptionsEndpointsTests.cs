@@ -5,6 +5,7 @@ using PawTrack.IntegrationTests.Infrastructure;
 
 namespace PawTrack.IntegrationTests.Subscriptions;
 
+[Collection("Integration")]
 public sealed class SubscriptionsEndpointsTests(PawTrackWebApplicationFactory factory)
     : IClassFixture<PawTrackWebApplicationFactory>
 {
