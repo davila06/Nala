@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using PawTrack.API.Middleware;
 using PawTrack.Application.Sightings.Commands.ReportFoundPet;
 using PawTrack.Application.Sightings.Queries.GetActiveFoundPets;
+using PawTrack.Application.Sightings.VisualMatch;
 using PawTrack.Domain.Pets;
 
 namespace PawTrack.API.Controllers;
@@ -14,6 +15,51 @@ public sealed class FoundPetsController(ISender sender) : ControllerBase
 {
     private static readonly HashSet<string> AllowedMimeTypes =
         ["image/jpeg", "image/png", "image/webp"];
+
+    // ── POST /api/public/encontre/match — public AI match, no auth required ──
+    [HttpPost("api/public/encontre/match")]
+    [AllowAnonymous]
+    [EnableRateLimiting("quick-match-public")]
+    [RequestSizeLimit(5_242_880)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+    public async Task<IActionResult> QuickMatch(
+        [FromForm] QuickMatchRequest request,
+        CancellationToken ct)
+    {
+        if (request.Photo is null)
+            return BadRequest(new ProblemDetails { Detail = "La foto es requerida.", Status = 400 });
+
+        if (!AllowedMimeTypes.Contains(request.Photo.ContentType))
+            return UnprocessableEntity(new ProblemDetails
+            {
+                Detail = "Solo se aceptan fotos JPEG, PNG o WebP.",
+                Status = 422,
+            });
+
+        await using var stream = request.Photo.OpenReadStream();
+
+        if (!ImageMagicBytesValidator.IsValidImage(stream, request.Photo.ContentType))
+            return UnprocessableEntity(new ProblemDetails
+            {
+                Detail = "El contenido de la imagen no coincide con el tipo de archivo declarado.",
+                Status = 422,
+            });
+
+        // Copy to a MemoryStream so the handler can seek and re-read if needed
+        var ms = new MemoryStream();
+        await stream.CopyToAsync(ms, ct);
+        ms.Position = 0;
+
+        var result = await sender.Send(new PublicQuickMatchQuery(
+            ms, request.Photo.ContentType,
+            request.Lat, request.Lng), ct);
+
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = result.Errors.First(), Status = 422 });
+
+        return Ok(result.Value);
+    }
 
     // ── POST /api/found-pets — anonymous, rate-limited ───────────────────────
     [HttpPost("api/found-pets")]
@@ -127,4 +173,11 @@ public sealed class ReportFoundPetRequest
     public string ContactPhone { get; set; } = string.Empty;
     public string? Note { get; set; }
     public IFormFile? Photo { get; set; }
+}
+
+public sealed class QuickMatchRequest
+{
+    public IFormFile? Photo { get; set; }
+    public double? Lat { get; set; }
+    public double? Lng { get; set; }
 }

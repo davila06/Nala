@@ -11,29 +11,61 @@ interface HealthAlertBannerProps {
 
 function severityClasses(s: string) {
   switch (s) {
-    case "critical": return { border: "border-danger-300",  bg: "bg-danger-50",  text: "text-danger-800",  icon: "🔴", btnCls: "bg-danger-600 hover:bg-danger-700" };
-    case "warning":  return { border: "border-warn-300",    bg: "bg-warn-50",    text: "text-warn-800",    icon: "🟡", btnCls: "bg-warn-600 hover:bg-warn-700" };
-    default:         return { border: "border-trust-200",   bg: "bg-trust-50",   text: "text-trust-800",   icon: "ℹ️",  btnCls: "bg-trust-600 hover:bg-trust-700" };
+    case "critical":
+      return {
+        border: "border-danger-300",
+        bg: "bg-danger-50",
+        text: "text-danger-800",
+        icon: "🔴",
+        btnCls: "bg-danger-600 hover:bg-danger-700",
+      };
+    case "warning":
+      return {
+        border: "border-warn-300",
+        bg: "bg-warn-50",
+        text: "text-warn-800",
+        icon: "🟡",
+        btnCls: "bg-warn-600 hover:bg-warn-700",
+      };
+    default:
+      return {
+        border: "border-trust-200",
+        bg: "bg-trust-50",
+        text: "text-trust-800",
+        icon: "ℹ️",
+        btnCls: "bg-trust-600 hover:bg-trust-700",
+      };
   }
 }
 
 function relativeDate(daysUntilDue: number, isOverdue: boolean) {
-  if (isOverdue) return `Atrasado ${Math.abs(daysUntilDue)} día${Math.abs(daysUntilDue) !== 1 ? "s" : ""}`;
+  if (isOverdue)
+    return `Atrasado ${Math.abs(daysUntilDue)} día${Math.abs(daysUntilDue) !== 1 ? "s" : ""}`;
   if (daysUntilDue === 0) return "Vence hoy";
   if (daysUntilDue === 1) return "Vence mañana";
   return `Vence en ${daysUntilDue} días`;
 }
 
-export function HealthAlertBanner({ petId, petName, onSchedule }: HealthAlertBannerProps) {
+export function HealthAlertBanner({
+  petId,
+  petName,
+  onSchedule,
+}: HealthAlertBannerProps) {
   const { data: alerts = [], isLoading } = useHealthAlerts(petId);
 
   // Only show critical and warning — info is too noisy in a banner
-  const visible = alerts.filter((a) => a.severity === "critical" || a.severity === "warning");
+  const visible = alerts.filter(
+    (a) => a.severity === "critical" || a.severity === "warning",
+  );
 
   if (isLoading || visible.length === 0) return null;
 
   return (
-    <div className="mb-4 space-y-2" role="region" aria-label={`Alertas de salud de ${petName}`}>
+    <div
+      className="mb-4 space-y-2"
+      role="region"
+      aria-label={`Alertas de salud de ${petName}`}
+    >
       <AnimatePresence initial={false}>
         {visible.map((alert) => {
           const cls = severityClasses(alert.severity);
@@ -49,7 +81,9 @@ export function HealthAlertBanner({ petId, petName, onSchedule }: HealthAlertBan
                 role="alert"
                 className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${cls.border} ${cls.bg}`}
               >
-                <span className="text-lg shrink-0" aria-hidden="true">{cls.icon}</span>
+                <span className="text-lg shrink-0" aria-hidden="true">
+                  {cls.icon}
+                </span>
 
                 <div className="flex-1 min-w-0">
                   <p className={`text-xs font-semibold ${cls.text}`}>

@@ -164,7 +164,7 @@ export default function DashboardPage() {
         {/* Quick actions */}
         <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Link
-            to="/encontre-mascota"
+            to="/encontre"
             className="flex items-center gap-3 rounded-xl border border-rescue-200 bg-rescue-50 px-4 py-3 text-sm font-semibold text-rescue-700 transition-base hover:bg-rescue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-400 focus-visible:ring-offset-1"
           >
             <span aria-hidden="true" className="text-lg">

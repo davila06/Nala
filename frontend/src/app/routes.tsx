@@ -88,6 +88,9 @@ const ReportFoundPetPage = lazy(
 const FoundPetMatchResultPage = lazy(
   () => import("@/features/sightings/pages/FoundPetMatchResultPage"),
 );
+const QuickFoundPetPage = lazy(
+  () => import("@/features/sightings/pages/QuickFoundPetPage"),
+);
 
 // Coordinación de buscadores
 const SearchCoordinationPage = lazy(
@@ -206,6 +209,14 @@ export const router = createBrowserRouter([
             element: (
               <S>
                 <ReportFoundPetPage />
+              </S>
+            ),
+          },
+          {
+            path: "/encontre",
+            element: (
+              <S>
+                <QuickFoundPetPage />
               </S>
             ),
           },

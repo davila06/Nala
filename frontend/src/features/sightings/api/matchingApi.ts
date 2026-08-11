@@ -49,4 +49,18 @@ export const matchingApi = {
       .post<VisualMatchResult[]>(`/sightings/${sightingId}/visual-match`, null, { params })
       .then((r) => r.data)
   },
+
+  /** Public endpoint — no auth required, returns top 5 matches. */
+  quickMatch: (payload: VisualMatchPayload): Promise<VisualMatchResult[]> => {
+    const form = new FormData()
+    form.append('Photo', payload.photo)
+    if (payload.lat != null) form.append('Lat', String(payload.lat))
+    if (payload.lng != null) form.append('Lng', String(payload.lng))
+
+    return apiClient
+      .post<VisualMatchResult[]>('/public/encontre/match', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then((r) => r.data)
+  },
 }

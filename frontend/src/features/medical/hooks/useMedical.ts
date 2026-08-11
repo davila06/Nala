@@ -23,7 +23,8 @@ export function useWeightHistory(petId: string) {
     staleTime: 5 * 60_000,
     enabled: !!petId,
     retry: (count, err: { response?: { status?: number } } | unknown) =>
-      (err as { response?: { status?: number } })?.response?.status !== 403 && count < 2,
+      (err as { response?: { status?: number } })?.response?.status !== 403 &&
+      count < 2,
   });
 }
 
@@ -43,7 +44,8 @@ export function useHealthScore(petId: string) {
     staleTime: 10 * 60_000,
     enabled: !!petId,
     retry: (count, err: { response?: { status?: number } } | unknown) =>
-      (err as { response?: { status?: number } })?.response?.status !== 403 && count < 2,
+      (err as { response?: { status?: number } })?.response?.status !== 403 &&
+      count < 2,
   });
 }
 

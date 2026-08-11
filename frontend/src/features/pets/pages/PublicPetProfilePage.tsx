@@ -295,6 +295,17 @@ export default function PublicPetProfilePage() {
           </Link>
         )}
 
+        {/* Quick found-pet AI match — shown for lost pets */}
+        {isLost && (
+          <Link
+            to="/encontre"
+            className="mb-3 flex w-full items-center justify-center gap-2.5 rounded-2xl border border-trust-300 bg-trust-50 py-3 text-sm font-semibold text-trust-700 transition-all hover:bg-trust-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400"
+          >
+            <span aria-hidden="true">🔍</span>
+            Buscar por foto con IA
+          </Link>
+        )}
+
         {/* Owner shortcut */}
         {isOwner && (
           <Link

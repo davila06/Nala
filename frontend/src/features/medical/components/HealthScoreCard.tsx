@@ -13,20 +13,27 @@ function ScoreCircle({ score }: { score: number }) {
   const fill = (score / 100) * circ;
 
   const color =
-    score >= 80 ? "var(--color-rescue-500)" :
-    score >= 50 ? "var(--color-warn-500)" :
-                  "var(--color-danger-500)";
+    score >= 80
+      ? "var(--color-rescue-500)"
+      : score >= 50
+        ? "var(--color-warn-500)"
+        : "var(--color-danger-500)";
 
   const label =
-    score >= 80 ? "Excelente" :
-    score >= 50 ? "Regular" :
-                  "Atención";
+    score >= 80 ? "Excelente" : score >= 50 ? "Regular" : "Atención";
 
   return (
     <div className="flex flex-col items-center" aria-hidden="true">
       <svg width="88" height="88" viewBox="0 0 88 88">
         {/* Track */}
-        <circle cx="44" cy="44" r={radius} fill="none" stroke="var(--color-sand-200)" strokeWidth="7" />
+        <circle
+          cx="44"
+          cy="44"
+          r={radius}
+          fill="none"
+          stroke="var(--color-sand-200)"
+          strokeWidth="7"
+        />
         {/* Progress */}
         <circle
           cx="44"
@@ -40,10 +47,25 @@ function ScoreCircle({ score }: { score: number }) {
           strokeDashoffset={circ / 4} /* start at 12 o'clock */
           style={{ transition: "stroke-dasharray 0.6s ease-out" }}
         />
-        <text x="44" y="41" textAnchor="middle" fontSize="18" fontWeight="700" fill={color} fontFamily="var(--font-display)">
+        <text
+          x="44"
+          y="41"
+          textAnchor="middle"
+          fontSize="18"
+          fontWeight="700"
+          fill={color}
+          fontFamily="var(--font-display)"
+        >
           {score}
         </text>
-        <text x="44" y="55" textAnchor="middle" fontSize="9" fill="var(--color-sand-500)" fontFamily="var(--font-body)">
+        <text
+          x="44"
+          y="55"
+          textAnchor="middle"
+          fontSize="9"
+          fill="var(--color-sand-500)"
+          fontFamily="var(--font-body)"
+        >
           {label}
         </text>
       </svg>
@@ -53,7 +75,9 @@ function ScoreCircle({ score }: { score: number }) {
 
 function HealthScoreInner({ petId, petName }: HealthScoreCardProps) {
   const { data, isLoading, error } = useHealthScore(petId);
-  const is403 = (error as { response?: { status?: number } } | null)?.response?.status === 403;
+  const is403 =
+    (error as { response?: { status?: number } } | null)?.response?.status ===
+    403;
 
   if (isLoading) return <Skeleton className="h-24 w-full rounded-xl" />;
   if (is403 || !data) return null;
@@ -72,12 +96,17 @@ function HealthScoreInner({ petId, petName }: HealthScoreCardProps) {
         </p>
         <ul className="space-y-1.5">
           {data.breakdown.map((item) => (
-            <li key={item.recordType} className="flex items-center gap-2 text-xs">
+            <li
+              key={item.recordType}
+              className="flex items-center gap-2 text-xs"
+            >
               <span
                 className={`h-2 w-2 shrink-0 rounded-full ${item.isCompliant ? "bg-rescue-500" : "bg-danger-400"}`}
                 aria-hidden="true"
               />
-              <span className={`flex-1 ${item.isCompliant ? "text-sand-700" : "text-sand-900 font-medium"}`}>
+              <span
+                className={`flex-1 ${item.isCompliant ? "text-sand-700" : "text-sand-900 font-medium"}`}
+              >
                 {item.protocolName}
               </span>
               {item.lastDate ? (
@@ -85,7 +114,9 @@ function HealthScoreInner({ petId, petName }: HealthScoreCardProps) {
                   {item.isCompliant ? "✓" : "⚠"} {item.lastDate}
                 </span>
               ) : (
-                <span className="text-danger-500 font-semibold shrink-0">Sin registro</span>
+                <span className="text-danger-500 font-semibold shrink-0">
+                  Sin registro
+                </span>
               )}
             </li>
           ))}
