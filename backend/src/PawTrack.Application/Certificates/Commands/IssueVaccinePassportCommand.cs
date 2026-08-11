@@ -63,7 +63,7 @@ public sealed class IssueVaccinePassportCommandHandler(
         if (subscription is null || subscription.Tier != Domain.Subscriptions.SubscriptionTier.ClinicPartner)
             return Result.Failure<CertificateDto>("El Pasaporte de Vacunas requiere una suscripción Clínica Partner activa.");
 
-        var pet    = await petRepository.GetByIdAsync(request.PetId, ct);
+        var pet = await petRepository.GetByIdAsync(request.PetId, ct);
         if (pet is null) return Result.Failure<CertificateDto>("Mascota no encontrada.");
 
         var clinic = await clinicRepository.GetByUserIdAsync(request.ClinicId, ct);
@@ -95,10 +95,10 @@ public sealed class IssueVaccinePassportCommandHandler(
             clinic.Name, clinic.LicenseNumber,
             request.VetName, CertificateType.VaccinePassport.ToString(),
             null, cert.IssuedAt, cert.ValidUntil,
-            OwnerName:       owner?.Name,
-            MicrochipId:     pet.MicrochipId,
-            PetColor:        request.PetColor,
-            Vaccines:        vaccines,
+            OwnerName: owner?.Name,
+            MicrochipId: pet.MicrochipId,
+            PetColor: request.PetColor,
+            Vaccines: vaccines,
             ParasiteControl: parasite);
 
         var pdfUrl = await certificateService.GenerateAndStoreAsync(pdfData, ct);

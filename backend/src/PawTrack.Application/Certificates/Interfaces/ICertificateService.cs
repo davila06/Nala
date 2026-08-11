@@ -22,11 +22,11 @@ public sealed record CertificatePdfData(
     DateTimeOffset IssuedAt,
     DateTimeOffset? ValidUntil,
     // ── Vaccine-passport-specific (OIRSA) ─────────────────────────────────
-    string? OwnerName        = null,
-    string? MicrochipId      = null,
-    string? PetColor         = null,
-    IReadOnlyList<PassportVaccineEntry>? Vaccines       = null,
-    PassportParasiteEntry?               ParasiteControl = null);
+    string? OwnerName = null,
+    string? MicrochipId = null,
+    string? PetColor = null,
+    IReadOnlyList<PassportVaccineEntry>? Vaccines = null,
+    PassportParasiteEntry? ParasiteControl = null);
 
 public sealed record PassportVaccineEntry(
     string VaccineName,

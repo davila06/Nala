@@ -26,6 +26,7 @@ import { PlanGate } from "../components/PlanGate";
 import { MedicalHistoryTab } from "@/features/medical/components/MedicalHistoryTab";
 import { HealthAlertBanner } from "@/features/medical/components/HealthAlertBanner";
 import { AnnualReportButton } from "@/features/medical/components/AnnualReportButton";
+import { ActivityTab } from "@/features/medical/components/ActivityTab";
 import { useAuthStore } from "@/features/auth/store/authStore";
 
 export default function PetDetailPage() {
@@ -143,6 +144,7 @@ export default function PetDetailPage() {
     },
     { id: "qr", label: "QR", icon: "🏷️" },
     { id: "avistamientos", label: "Avistamientos", icon: "📍" },
+    { id: "actividad", label: "Actividad", icon: "🏃" },
     { id: "salud", label: "Salud", icon: "🏥" },
     { id: "gps", label: "GPS", icon: "📡" },
   ];
@@ -490,6 +492,11 @@ export default function PetDetailPage() {
 
       {/* ── Avistamientos tab ──────────────────────────────────────────── */}
       {activeTab === "avistamientos" && <SightingList petId={pet.id} />}
+
+      {/* ── Actividad tab — Plus required ────────────────────────────── */}
+      {activeTab === "actividad" && (
+        <ActivityTab petId={pet.id} petName={pet.name} />
+      )}
 
       {/* ── Salud tab — Familia required ─────────────────────────────── */}
       {activeTab === "salud" && (

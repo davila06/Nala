@@ -29,7 +29,11 @@ function useVerifyPassport(code: string) {
 }
 
 const SPECIES_EMOJI: Record<string, string> = {
-  Dog: "🐶", Cat: "🐱", Bird: "🐦", Rabbit: "🐰", Other: "🐾",
+  Dog: "🐶",
+  Cat: "🐱",
+  Bird: "🐦",
+  Rabbit: "🐰",
+  Other: "🐾",
 };
 
 export default function PassportVerificationPage() {
@@ -40,18 +44,31 @@ export default function PassportVerificationPage() {
     <>
       <Helmet>
         <title>Verificar Pasaporte Veterinario — PawTrack CR</title>
-        <meta name="description" content="Verifica la autenticidad de un pasaporte veterinario emitido por PawTrack CR." />
+        <meta
+          name="description"
+          content="Verifica la autenticidad de un pasaporte veterinario emitido por PawTrack CR."
+        />
       </Helmet>
 
       <div className="min-h-dvh bg-sand-50 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md space-y-6">
           {/* Header */}
           <div className="text-center space-y-1">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-trust-100 text-3xl" aria-hidden="true">
+            <div
+              className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-trust-100 text-3xl"
+              aria-hidden="true"
+            >
               📋
             </div>
-            <h1 className="font-display text-xl font-bold text-sand-900">Verificación de Pasaporte</h1>
-            <p className="text-sm text-sand-500">Código: <span className="font-mono font-semibold text-sand-800">{code.toUpperCase()}</span></p>
+            <h1 className="font-display text-xl font-bold text-sand-900">
+              Verificación de Pasaporte
+            </h1>
+            <p className="text-sm text-sand-500">
+              Código:{" "}
+              <span className="font-mono font-semibold text-sand-800">
+                {code.toUpperCase()}
+              </span>
+            </p>
           </div>
 
           {isLoading && (
@@ -63,29 +80,47 @@ export default function PassportVerificationPage() {
 
           {isError && (
             <div className="rounded-2xl border border-danger-200 bg-danger-50 p-6 text-center space-y-2">
-              <div className="text-4xl" aria-hidden="true">❌</div>
-              <p className="font-semibold text-danger-800">Pasaporte no encontrado</p>
+              <div className="text-4xl" aria-hidden="true">
+                ❌
+              </div>
+              <p className="font-semibold text-danger-800">
+                Pasaporte no encontrado
+              </p>
               <p className="text-sm text-danger-600">
-                El código <span className="font-mono">{code.toUpperCase()}</span> no corresponde a ningún pasaporte emitido en PawTrack CR.
+                El código{" "}
+                <span className="font-mono">{code.toUpperCase()}</span> no
+                corresponde a ningún pasaporte emitido en PawTrack CR.
               </p>
             </div>
           )}
 
           {data && (
-            <div className={`rounded-2xl border-2 p-6 space-y-4 ${
-              data.isValid && !data.isRevoked
-                ? "border-rescue-300 bg-rescue-50"
-                : "border-danger-300 bg-danger-50"
-            }`}>
+            <div
+              className={`rounded-2xl border-2 p-6 space-y-4 ${
+                data.isValid && !data.isRevoked
+                  ? "border-rescue-300 bg-rescue-50"
+                  : "border-danger-300 bg-danger-50"
+              }`}
+            >
               {/* Status badge */}
               <div className="flex items-center gap-2">
                 <span className="text-2xl" aria-hidden="true">
                   {data.isRevoked ? "🚫" : data.isValid ? "✅" : "⚠️"}
                 </span>
-                <span className={`font-display text-lg font-bold ${
-                  data.isRevoked ? "text-danger-800" : data.isValid ? "text-rescue-800" : "text-warn-800"
-                }`}>
-                  {data.isRevoked ? "Pasaporte revocado" : data.isValid ? "Pasaporte válido" : "Pasaporte expirado"}
+                <span
+                  className={`font-display text-lg font-bold ${
+                    data.isRevoked
+                      ? "text-danger-800"
+                      : data.isValid
+                        ? "text-rescue-800"
+                        : "text-warn-800"
+                  }`}
+                >
+                  {data.isRevoked
+                    ? "Pasaporte revocado"
+                    : data.isValid
+                      ? "Pasaporte válido"
+                      : "Pasaporte expirado"}
                 </span>
               </div>
 
@@ -104,7 +139,9 @@ export default function PassportVerificationPage() {
               <dl className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <dt className="text-sand-500">Clínica emisora</dt>
-                  <dd className="font-medium text-sand-900 text-right">{data.clinicName}</dd>
+                  <dd className="font-medium text-sand-900 text-right">
+                    {data.clinicName}
+                  </dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-sand-500">Emitido el</dt>
@@ -115,7 +152,9 @@ export default function PassportVerificationPage() {
                 {data.validUntil && (
                   <div className="flex justify-between">
                     <dt className="text-sand-500">Válido hasta</dt>
-                    <dd className={`font-medium ${data.isValid ? "text-rescue-700" : "text-danger-700"}`}>
+                    <dd
+                      className={`font-medium ${data.isValid ? "text-rescue-700" : "text-danger-700"}`}
+                    >
                       {new Date(data.validUntil).toLocaleDateString("es-CR")}
                     </dd>
                   </div>

@@ -74,6 +74,7 @@ public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> option
     public DbSet<MedicalRecord> MedicalRecords => Set<MedicalRecord>();
     public DbSet<VetReminder> VetReminders => Set<VetReminder>();
     public DbSet<HealthProtocol> HealthProtocols => Set<HealthProtocol>();
+    public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
     public DbSet<ClinicMedicalAccessGrant> ClinicMedicalAccessGrants => Set<ClinicMedicalAccessGrant>();
     public DbSet<ClinicMedicalAccessLog> ClinicMedicalAccessLogs => Set<ClinicMedicalAccessLog>();
     public DbSet<PromotionCode> PromotionCodes => Set<PromotionCode>();
