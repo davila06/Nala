@@ -5,32 +5,9 @@ import PasswordStrengthIndicator from "../components/PasswordStrengthIndicator";
 import { Button } from "@/shared/ui/Button";
 import { Input } from "@/shared/ui/Input";
 import { Alert } from "@/shared/ui/Alert";
+import { useCountUp } from "@/shared/hooks/useCountUp";
+import { AmbientPaws, REGISTER_PAWS } from "@/shared/ui/AmbientPaws";
 
-// ── Ambient floating paw prints ───────────────────────────────────────────────
-const PAWS = [
-  { left: "7%", dur: "6s", size: "1.3rem", delay: "0s", opacity: 0.1 },
-  { left: "25%", dur: "9s", size: "0.9rem", delay: "1.4s", opacity: 0.07 },
-  { left: "55%", dur: "8s", size: "1.6rem", delay: "0.6s", opacity: 0.09 },
-  { left: "75%", dur: "7s", size: "1.1rem", delay: "2.2s", opacity: 0.08 },
-  { left: "90%", dur: "10s", size: "1.4rem", delay: "3.1s", opacity: 0.06 },
-];
-
-// ── Count-up hook ─────────────────────────────────────────────────────────────
-function useCountUp(target: number, duration = 1400, start = false) {
-  const [value, setValue] = useState(0);
-  useEffect(() => {
-    if (!start) return;
-    const t0 = performance.now();
-    const tick = (now: number) => {
-      const p = Math.min((now - t0) / duration, 1);
-      const e = 1 - Math.pow(1 - p, 3);
-      setValue(Math.round(e * target));
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }, [target, duration, start]);
-  return value;
-}
 
 function StatItem({
   end,
@@ -105,23 +82,7 @@ export default function RegisterPage() {
         style={{ position: "relative" }}
       >
         {/* Ambient paws */}
-        {PAWS.map((p, i) => (
-          <span
-            key={i}
-            style={{
-              position: "absolute",
-              left: p.left,
-              bottom: "-2rem",
-              fontSize: p.size,
-              opacity: p.opacity,
-              animation: `float-bob ${p.dur} ease-in-out ${p.delay} infinite`,
-              userSelect: "none",
-              pointerEvents: "none",
-            }}
-          >
-            🐾
-          </span>
-        ))}
+        <AmbientPaws paws={REGISTER_PAWS} />
 
         {/* Logo */}
         <div className="flex items-center gap-3 relative z-10">
@@ -328,3 +289,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+

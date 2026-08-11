@@ -45,7 +45,18 @@ function resolvePageContext(pathname: string) {
   return match ? PAGE_CONTEXT[match] : null;
 }
 
-// ── Nav items by role ────────────────────────────────────────────────────────
+// Routes that are top-level nav destinations — no back button needed
+const TOP_LEVEL_ROUTES = new Set([
+  "/dashboard",
+  "/map",
+  "/notifications",
+  "/perfil",
+  "/allies/panel",
+  "/clinica/portal",
+  "/municipalidad/portal",
+  "/admin",
+  "/estadisticas",
+]);
 const NAV_MAIN = [
   {
     to: "/dashboard",
@@ -216,6 +227,8 @@ export default function AuthenticatedLayout() {
   const adminStatsNav = user?.role === "Admin" ? NAV_EXTRA_ADMIN_STATS : null;
 
   const pageCtx = resolvePageContext(location.pathname);
+  const isSubPage = pageCtx !== null && !TOP_LEVEL_ROUTES.has(location.pathname) &&
+    !Array.from(TOP_LEVEL_ROUTES).some((r) => location.pathname === r);
 
   return (
     <div className="min-h-dvh bg-sand-100">
@@ -629,6 +642,18 @@ export default function AuthenticatedLayout() {
       {pageCtx && (
         <div className="border-b border-sand-100 bg-surface-warm">
           <div className="mx-auto flex h-9 max-w-6xl items-center gap-2 px-4">
+            {isSubPage && (
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                aria-label="Volver atrás"
+                className="mr-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-sand-500 hover:bg-sand-100 hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-base"
+              >
+                <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
+                  <path fillRule="evenodd" d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z" clipRule="evenodd" />
+                </svg>
+              </button>
+            )}
             <span aria-hidden="true" className="text-sm">
               {pageCtx.icon}
             </span>

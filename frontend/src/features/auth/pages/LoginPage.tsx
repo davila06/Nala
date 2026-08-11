@@ -7,6 +7,8 @@ import { useRecoveryOverview } from "@/features/lost-pets/hooks/useRecoveryStats
 import { Button } from "@/shared/ui/Button";
 import { Input } from "@/shared/ui/Input";
 import { Alert } from "@/shared/ui/Alert";
+import { useCountUp } from "@/shared/hooks/useCountUp";
+import { AmbientPaws, LOGIN_PAWS } from "@/shared/ui/AmbientPaws";
 
 // ── Tilt hook — tracks mouse position relative to an element ─────────────────
 
@@ -28,59 +30,6 @@ function useTilt(maxAngle: number) {
   return { tilt, onMove, onLeave };
 }
 
-// ── Count-up hook ─────────────────────────────────────────────────────────────
-
-function useCountUp(target: number, duration = 1800, start = false) {
-  const [value, setValue] = useState(0);
-  useEffect(() => {
-    if (!start) return;
-    const startTime = performance.now();
-    const tick = (now: number) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(Math.round(eased * target));
-      if (progress < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }, [target, duration, start]);
-  return value;
-}
-
-// ── Ambient floating paw prints ───────────────────────────────────────────────
-
-const PAWS = [
-  { left: "8%", animDur: "7s", size: "1.4rem", delay: "0s", opacity: 0.12 },
-  { left: "22%", animDur: "9s", size: "1rem", delay: "1.2s", opacity: 0.08 },
-  { left: "50%", animDur: "11s", size: "1.8rem", delay: "0.5s", opacity: 0.1 },
-  { left: "70%", animDur: "8s", size: "1.2rem", delay: "2.1s", opacity: 0.09 },
-  { left: "88%", animDur: "10s", size: "1.5rem", delay: "3.4s", opacity: 0.07 },
-];
-
-function AmbientPaws() {
-  return (
-    <>
-      {PAWS.map((p, i) => (
-        <span
-          key={i}
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            left: p.left,
-            bottom: "-2rem",
-            fontSize: p.size,
-            opacity: p.opacity,
-            animation: `float-bob ${p.animDur} ease-in-out ${p.delay} infinite`,
-            userSelect: "none",
-            pointerEvents: "none",
-          }}
-        >
-          🐾
-        </span>
-      ))}
-    </>
-  );
-}
 
 // ── Holographic stat card — holo-card CSS + mouse-tracked tilt ────────────────
 
@@ -217,7 +166,7 @@ function BrandPanel() {
       aria-hidden="true"
       style={{ position: "relative" }}
     >
-      <AmbientPaws />
+      <AmbientPaws paws={LOGIN_PAWS} />
 
       <div className="flex items-center gap-3 relative z-10">
         <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 text-xl">

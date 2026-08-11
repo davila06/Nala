@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "@/shared/lib/toast";
-import { Button, Input, Card } from "@/shared/ui";
+import { Button, Input, Card, Drawer } from "@/shared/ui";
 import {
   useMedicalHistory,
   useMedicalCount,
@@ -59,12 +59,13 @@ function RecordCard({
   const updateMutation = useUpdateMedicalRecord(petId);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [editing, setEditing] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
-  // Edit form state
+  // Edit form state — kept in RecordCard so it resets cleanly
   const [editType, setEditType] = useState<MedicalRecordType>(record.type as MedicalRecordType);
   const [editDate, setEditDate] = useState(record.date);
   const [editDesc, setEditDesc] = useState(record.description);
+  const [editDescError, setEditDescError] = useState("");
   const [editVet, setEditVet] = useState(record.vetName ?? "");
   const [editClinic, setEditClinic] = useState(record.clinicName ?? "");
   const [editNextDue, setEditNextDue] = useState(record.nextDueDate ?? "");
@@ -82,7 +83,11 @@ function RecordCard({
   };
 
   const handleUpdate = () => {
-    if (!editDesc.trim()) { toast.error("La descripción es requerida"); return; }
+    if (!editDesc.trim()) {
+      setEditDescError("La descripción es requerida");
+      return;
+    }
+    setEditDescError("");
     updateMutation.mutate(
       { recordId: record.id, payload: {
         type: editType, date: editDate, description: editDesc.trim(),
@@ -91,99 +96,170 @@ function RecordCard({
         nextDueDate: editNextDue || undefined,
       }},
       {
-        onSuccess: () => { toast.success("Registro actualizado"); setEditing(false); },
+        onSuccess: () => { toast.success("Registro actualizado"); setEditOpen(false); },
         onError: () => toast.error("No se pudo actualizar"),
       },
     );
   };
 
-  if (editing) {
-    return (
-      <li className="rounded-xl border border-brand-200 bg-brand-50 p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-brand-700">Editando registro</span>
-          <button type="button" onClick={() => setEditing(false)} className="text-xs text-sand-500 hover:text-sand-700">✕ Cancelar</button>
-        </div>
-        <select value={editType} onChange={(e) => setEditType(e.target.value as MedicalRecordType)}
-          className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-brand-400">
-          {ALL_TYPES.map((t) => <option key={t} value={t}>{TYPE_LABEL[t]}</option>)}
-        </select>
-        <Input type="date" value={editDate} max={today} onChange={(e) => setEditDate(e.target.value)} />
-        <textarea value={editDesc} onChange={(e) => setEditDesc(e.target.value)} rows={2}
-          className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-brand-400" />
-        <div className="grid grid-cols-2 gap-2">
-          <Input placeholder="Veterinario" value={editVet} onChange={(e) => setEditVet(e.target.value)} />
-          <Input placeholder="Clínica" value={editClinic} onChange={(e) => setEditClinic(e.target.value)} />
-        </div>
-        <Input type="date" value={editNextDue} min={today} onChange={(e) => setEditNextDue(e.target.value)} />
-        <Button onClick={handleUpdate} loading={updateMutation.isPending} disabled={!editDesc.trim()} size="sm">
-          Guardar cambios
-        </Button>
-      </li>
-    );
-  }
+  const closeEdit = () => {
+    setEditOpen(false);
+    setEditDescError("");
+    setEditType(record.type as MedicalRecordType);
+    setEditDate(record.date);
+    setEditDesc(record.description);
+    setEditVet(record.vetName ?? "");
+    setEditClinic(record.clinicName ?? "");
+    setEditNextDue(record.nextDueDate ?? "");
+  };
 
   return (
-    <li className="rounded-xl border border-sand-100 bg-surface-warm p-4 space-y-1">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-sm font-semibold text-sand-800">
-            {TYPE_LABEL[record.type as MedicalRecordType] ?? record.type}
-          </span>
-          {isClinic && (
-            <span className="shrink-0 rounded-full bg-trust-100 px-2 py-0.5 text-xs font-medium text-trust-700">
-              🏥 {record.clinicName ?? "Clínica"}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs text-sand-500">{record.date}</span>
-          {/* Only owner-created records can be edited */}
-          {!isClinic && (
-            <button type="button" onClick={() => setEditing(true)}
-              className="text-xs text-brand-500 hover:text-brand-700 font-medium">
-              ✏️
-            </button>
-          )}
-          {confirmDelete ? (
-            <div className="flex items-center gap-1">
-              <button type="button" onClick={handleDelete} disabled={deleteMutation.isPending}
-                className="text-xs font-semibold text-danger-600 hover:text-danger-800 disabled:opacity-50">
-                {deleteMutation.isPending ? "…" : "Confirmar"}
-              </button>
-              <button type="button" onClick={() => setConfirmDelete(false)} className="text-xs text-sand-400 hover:text-sand-600">
-                No
-              </button>
+    <>
+      {/* ── Edit record drawer ─────────────────────────────────────────── */}
+      <Drawer isOpen={editOpen} onClose={closeEdit} title="Editar registro médico" side="bottom">
+        <div className="space-y-4 pb-safe">
+          <div>
+            <label htmlFor={`edit-type-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">
+              Tipo
+            </label>
+            <select
+              id={`edit-type-${record.id}`}
+              value={editType}
+              onChange={(e) => setEditType(e.target.value as MedicalRecordType)}
+              className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2.5 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
+            >
+              {ALL_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {TYPE_LABEL[t]}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor={`edit-date-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">Fecha</label>
+            <Input id={`edit-date-${record.id}`} type="date" value={editDate} max={today} onChange={(e) => setEditDate(e.target.value)} />
+          </div>
+
+          <div>
+            <label htmlFor={`edit-desc-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">
+              Descripción <span aria-hidden="true" className="text-danger-500">*</span>
+            </label>
+            <textarea
+              id={`edit-desc-${record.id}`}
+              value={editDesc}
+              onChange={(e) => { setEditDesc(e.target.value); if (editDescError) setEditDescError(""); }}
+              rows={3}
+              aria-describedby={editDescError ? `edit-desc-err-${record.id}` : undefined}
+              aria-invalid={!!editDescError}
+              className={`w-full rounded-xl border px-3 py-2 text-sm text-sand-800 placeholder:text-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-400 ${
+                editDescError ? "border-danger-400 bg-danger-50" : "border-sand-200 bg-white"
+              }`}
+              placeholder="Ej. Vacuna anti-rábica administrada sin reacciones"
+            />
+            {editDescError && (
+              <p id={`edit-desc-err-${record.id}`} role="alert" className="mt-1 text-xs text-danger-600">
+                {editDescError}
+              </p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label htmlFor={`edit-vet-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">Veterinario</label>
+              <Input id={`edit-vet-${record.id}`} placeholder="Dr/a. Nombre" value={editVet} onChange={(e) => setEditVet(e.target.value)} />
             </div>
-          ) : (
-            <button type="button" onClick={() => setConfirmDelete(true)}
-              className="text-xs text-sand-400 hover:text-danger-500 font-medium">
-              🗑️
-            </button>
-          )}
+            <div>
+              <label htmlFor={`edit-clinic-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">Clínica</label>
+              <Input id={`edit-clinic-${record.id}`} placeholder="Nombre clínica" value={editClinic} onChange={(e) => setEditClinic(e.target.value)} />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor={`edit-next-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">Próxima cita (opcional)</label>
+            <Input id={`edit-next-${record.id}`} type="date" value={editNextDue} min={today} onChange={(e) => setEditNextDue(e.target.value)} />
+          </div>
+
+          <Button fullWidth onClick={handleUpdate} loading={updateMutation.isPending} disabled={!editDesc.trim()}>
+            Guardar cambios
+          </Button>
         </div>
-      </div>
-      <p className="text-sm text-sand-700">{record.description}</p>
-      {record.weightKg != null && (
-        <p className="text-xs font-medium text-sand-600">⚖️ Peso: {record.weightKg} kg</p>
-      )}
-      {record.type === "Medication" && record.dosageDescription && (
-        <p className="text-xs text-sand-600">💊 {record.dosageDescription}
-          {record.frequency ? ` — ${record.frequency}` : ""}
-          {record.durationDays ? ` (${record.durationDays} días)` : ""}
-        </p>
-      )}
-      {record.vetName && <p className="text-xs text-sand-500">Dr/a. {record.vetName}</p>}
-      {record.nextDueDate && (
-        <p className="text-xs font-medium text-warn-700">⏰ Próxima cita: {record.nextDueDate}</p>
-      )}
-      {record.documentUrl && (
-        <a href={record.documentUrl} target="_blank" rel="noopener noreferrer"
-          className="text-xs font-medium text-brand-600 hover:underline">
-          📄 Ver documento adjunto
-        </a>
-      )}
-    </li>
+      </Drawer>
+
+      {/* ── Record card ────────────────────────────────────────────────── */}
+      <li className="rounded-xl border border-sand-100 bg-surface-warm p-4 space-y-1">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-sm font-semibold text-sand-800">
+              {TYPE_LABEL[record.type as MedicalRecordType] ?? record.type}
+            </span>
+            {isClinic && (
+              <span className="shrink-0 rounded-full bg-trust-100 px-2 py-0.5 text-xs font-medium text-trust-700">
+                <span aria-hidden="true">🏥</span> {record.clinicName ?? "Clínica"}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <span className="text-xs text-sand-500">{record.date}</span>
+            {!isClinic && (
+              <button
+                type="button"
+                onClick={() => setEditOpen(true)}
+                aria-label={`Editar: ${record.description}`}
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-brand-400 hover:bg-brand-50 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              >
+                <svg viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5" aria-hidden="true">
+                  <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61Zm.176 4.823L9.75 4.81l-6.286 6.287a.253.253 0 0 0-.064.108l-.558 1.953 1.953-.558a.253.253 0 0 0 .108-.064Zm1.238-3.763a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354Z" />
+                </svg>
+              </button>
+            )}
+            {confirmDelete ? (
+              <div className="flex items-center gap-1">
+                <button type="button" onClick={handleDelete} disabled={deleteMutation.isPending}
+                  className="text-xs font-semibold text-danger-600 hover:text-danger-800 disabled:opacity-50">
+                  {deleteMutation.isPending ? "…" : "Confirmar"}
+                </button>
+                <button type="button" onClick={() => setConfirmDelete(false)} className="text-xs text-sand-400 hover:text-sand-600">
+                  No
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(true)}
+                aria-label={`Eliminar: ${record.description}`}
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-sand-300 hover:bg-danger-50 hover:text-danger-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger-400"
+              >
+                <svg viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5" aria-hidden="true">
+                  <path d="M11 1.75V3h2.25a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1 0-1.5H5V1.75C5 .784 5.784 0 6.75 0h2.5C10.216 0 11 .784 11 1.75ZM4.496 6.675l.66 6.6a.25.25 0 0 0 .249.225h5.19a.25.25 0 0 0 .249-.225l.66-6.6a.75.75 0 0 1 1.492.149l-.66 6.6A1.748 1.748 0 0 1 10.595 15h-5.19a1.75 1.75 0 0 1-1.741-1.575l-.66-6.6a.75.75 0 1 1 1.492-.15ZM6.5 1.75V3h3V1.75a.25.25 0 0 0-.25-.25h-2.5a.25.25 0 0 0-.25.25Z" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+        <p className="text-sm text-sand-700">{record.description}</p>
+        {record.weightKg != null && (
+          <p className="text-xs font-medium text-sand-600"><span aria-hidden="true">⚖️</span> Peso: {record.weightKg} kg</p>
+        )}
+        {record.type === "Medication" && record.dosageDescription && (
+          <p className="text-xs text-sand-600">
+            <span aria-hidden="true">💊</span> {record.dosageDescription}
+            {record.frequency ? ` — ${record.frequency}` : ""}
+            {record.durationDays ? ` (${record.durationDays} días)` : ""}
+          </p>
+        )}
+        {record.vetName && <p className="text-xs text-sand-500">Dr/a. {record.vetName}</p>}
+        {record.nextDueDate && (
+          <p className="text-xs font-medium text-warn-700"><span aria-hidden="true">⏰</span> Próxima cita: {record.nextDueDate}</p>
+        )}
+        {record.documentUrl && (
+          <a href={record.documentUrl} target="_blank" rel="noopener noreferrer"
+            className="text-xs font-medium text-brand-600 hover:underline">
+            <span aria-hidden="true">📄</span> Ver documento adjunto
+          </a>
+        )}
+      </li>
+    </>
   );
 }
 
@@ -248,49 +324,6 @@ function ReminderCard({
             onError: () => toast.error("Error al completar"),
           })}
           className="rounded-lg bg-trust-600 px-3 py-1 text-xs font-semibold text-white hover:bg-trust-700 disabled:opacity-50">
-          ✓ Marcar como hecho
-        </button>
-      )}
-    </li>
-  );
-}
-          ? "border-sand-100 bg-sand-50 opacity-60"
-          : isOverdue
-            ? "border-danger-200 bg-danger-50"
-            : "border-trust-200 bg-trust-50"
-      }`}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <p
-          className={`text-sm font-semibold ${
-            reminder.isCompleted
-              ? "line-through text-sand-400"
-              : isOverdue
-                ? "text-danger-700"
-                : "text-trust-800"
-          }`}
-        >
-          {reminder.title}
-        </p>
-        <span className="shrink-0 text-xs text-sand-500">
-          {reminder.dueDate}
-        </span>
-      </div>
-      {reminder.notes && (
-        <p className="text-xs text-sand-600">{reminder.notes}</p>
-      )}
-      {!reminder.isCompleted && (
-        <button
-          type="button"
-          disabled={complete.isPending}
-          onClick={() => {
-            complete.mutate(reminder.id, {
-              onSuccess: () => toast.success("Recordatorio completado"),
-              onError: () => toast.error("Error al completar"),
-            });
-          }}
-          className="rounded-lg bg-trust-600 px-3 py-1 text-xs font-semibold text-white hover:bg-trust-700 disabled:opacity-50"
-        >
           ✓ Marcar como hecho
         </button>
       )}
@@ -589,11 +622,6 @@ export function MedicalHistoryTab({ petId }: { petId: string }) {
           <button type="button" disabled={exportPdf.isPending}
             onClick={() => exportPdf.mutate(undefined, { onError: () => toast.error("No se pudo exportar el PDF") })}
             className="rounded-lg border border-sand-300 px-3 py-1.5 text-xs font-semibold text-sand-700 hover:bg-sand-100 disabled:opacity-50">
-          <button
-            type="button"
-            disabled={exportPdf.isPending}
-            onClick={() => exportPdf.mutate(undefined, { onError: () => toast.error("No se pudo exportar el PDF") })}
-            className="rounded-lg border border-sand-300 px-3 py-1.5 text-xs font-semibold text-sand-700 hover:bg-sand-100 disabled:opacity-50">
             {exportPdf.isPending ? "Exportando…" : "📄 Exportar PDF"}
           </button>
           <Button size="sm" variant="secondary"
@@ -642,19 +670,33 @@ export function MedicalHistoryTab({ petId }: { petId: string }) {
             className="w-full rounded-xl border border-sand-200 bg-white py-2 pl-8 pr-4 text-sm text-sand-800 placeholder:text-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
           />
         </div>
-        {/* Type filter */}
-        <div className="mb-3 flex flex-wrap gap-1.5">
-          {ALL_FILTER_OPTIONS.map((opt) => (
-            <button key={opt} type="button"
-              onClick={() => setTypeFilter(opt)}
-              className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                typeFilter === opt
-                  ? "bg-brand-600 text-white"
-                  : "bg-sand-100 text-sand-600 hover:bg-sand-200"
-              }`}>
-              {opt === "Todos" ? "Todos" : (TYPE_LABEL[opt as MedicalRecordType] ?? opt)}
-            </button>
-          ))}
+        {/* Type filter — horizontal scroll on mobile */}
+        <div
+          className="mb-3 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [-webkit-overflow-scrolling:touch]"
+          role="group"
+          aria-label="Filtrar por tipo de registro"
+        >
+          {ALL_FILTER_OPTIONS.map((opt) => {
+            const label = opt === "Todos" ? "Todos" : TYPE_LABEL[opt as MedicalRecordType] ?? opt;
+            const emoji = label.match(/^(\S+)\s/)?.[1];
+            const text  = emoji ? label.slice(emoji.length + 1) : label;
+            return (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => setTypeFilter(opt)}
+                aria-pressed={typeFilter === opt}
+                className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                  typeFilter === opt
+                    ? "bg-brand-600 text-white"
+                    : "bg-sand-100 text-sand-600 hover:bg-sand-200"
+                }`}
+              >
+                {opt !== "Todos" && emoji && <span aria-hidden="true">{emoji} </span>}
+                {text}
+              </button>
+            );
+          })}
         </div>
         {loadingRecords ? (
           <div className="animate-pulse space-y-2">

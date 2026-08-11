@@ -25,11 +25,17 @@ interface PetCardProps {
 export const PetCard = ({ pet }: PetCardProps) => (
   <Link
     to={`/pets/${pet.id}`}
-    aria-label={`Ver detalles de ${pet.name}`}
-    className="group relative flex flex-col overflow-hidden rounded-2xl border border-sand-200 field-input shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
+    aria-label={`Ver detalles de ${pet.name}${pet.status === 'Lost' ? ' — perdido/a' : ''}`}
+    className={[
+      "group relative flex flex-col overflow-hidden rounded-2xl border shadow-sm transition-all duration-200",
+      "hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none",
+      pet.status === 'Lost'
+        ? "border-danger-300 animate-[pulse-border_2s_ease-in-out_infinite]"
+        : "border-sand-200 field-input",
+    ].join(' ')}
   >
     {/* Photo area */}
-    <div className="relative h-44 overflow-hidden bg-sand-100">
+    <div className={`relative h-44 overflow-hidden ${pet.status === 'Lost' ? 'bg-danger-50' : 'bg-sand-100'}`}>
       {pet.photoUrl ? (
         <img
           src={pet.photoUrl}
@@ -45,8 +51,8 @@ export const PetCard = ({ pet }: PetCardProps) => (
 
       {/* Lost banner overlay */}
       {pet.status === 'Lost' && (
-        <div className="absolute inset-x-0 top-0 flex items-center justify-center bg-danger-600/90 py-1.5 text-xs font-semibold uppercase tracking-widest text-white">
-          <span aria-hidden="true">⚠</span> Perdida
+        <div className="absolute inset-x-0 top-0 flex items-center justify-center gap-1.5 bg-danger-600/90 py-1.5 text-xs font-semibold uppercase tracking-widest text-white">
+          <span aria-hidden="true">⚠</span> Perdido/a
         </div>
       )}
     </div>
@@ -61,6 +67,16 @@ export const PetCard = ({ pet }: PetCardProps) => (
         {SPECIES_LABEL[pet.species] ?? pet.species}
         {pet.breed ? ` · ${pet.breed}` : ''}
       </p>
+
+      {/* Quick action for lost pets */}
+      {pet.status === 'Lost' && pet.activeLostEventId && (
+        <span className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-danger-600">
+          Ver sala de búsqueda
+          <svg viewBox="0 0 16 16" fill="currentColor" className="h-3 w-3" aria-hidden="true">
+            <path fillRule="evenodd" d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+          </svg>
+        </span>
+      )}
     </div>
   </Link>
 )

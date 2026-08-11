@@ -297,14 +297,19 @@ export default function DashboardPage() {
                   className="w-full rounded-xl border border-sand-200 py-2.5 pl-9 pr-4 text-sm field-input placeholder:text-sand-400 outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400"
                 />
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div
+                className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-webkit-overflow-scrolling:touch]"
+                role="group"
+                aria-label="Filtros de mascotas"
+              >
                 {(["all", "Active", "Lost"] as const).map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() => setFilterStatus(s)}
+                    aria-pressed={filterStatus === s}
                     className={[
-                      "rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
+                      "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
                       filterStatus === s
                         ? s === "Lost"
                           ? "bg-danger-500 text-white shadow-sm"
@@ -315,8 +320,8 @@ export default function DashboardPage() {
                     {s === "all"
                       ? "Todos"
                       : s === "Lost"
-                        ? "🚨 Perdidos"
-                        : "✅ Activos"}
+                        ? <><span aria-hidden="true">🚨 </span>Perdidos</>
+                        : <><span aria-hidden="true">✅ </span>Activos</>}
                   </button>
                 ))}
                 {species.map((sp) => (
@@ -326,22 +331,23 @@ export default function DashboardPage() {
                     onClick={() =>
                       setFilterSpecies(filterSpecies === sp ? "all" : sp)
                     }
+                    aria-pressed={filterSpecies === sp}
                     className={[
-                      "rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
+                      "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
                       filterSpecies === sp
                         ? "bg-trust-500 text-white shadow-sm"
                         : "bg-sand-100 text-sand-600 hover:bg-sand-200",
                     ].join(" ")}
                   >
                     {sp === "Dog"
-                      ? "🐶 Perros"
+                      ? <><span aria-hidden="true">🐶 </span>Perros</>
                       : sp === "Cat"
-                        ? "🐱 Gatos"
+                        ? <><span aria-hidden="true">🐱 </span>Gatos</>
                         : sp === "Bird"
-                          ? "🐦 Aves"
+                          ? <><span aria-hidden="true">🐦 </span>Aves</>
                           : sp === "Rabbit"
-                            ? "🐰 Conejos"
-                            : `🐾 ${sp}`}
+                            ? <><span aria-hidden="true">🐰 </span>Conejos</>
+                            : <><span aria-hidden="true">🐾 </span>{sp}</>}
                   </button>
                 ))}
               </div>
