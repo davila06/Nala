@@ -15,8 +15,13 @@ export function useNeighborStatus() {
 export function useEnrollNeighbor() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ phone, radiusMeters }: { phone: string; radiusMeters: number }) =>
-      neighborApi.enroll(phone, radiusMeters),
+    mutationFn: ({
+      phone,
+      radiusMeters,
+    }: {
+      phone: string;
+      radiusMeters: number;
+    }) => neighborApi.enroll(phone, radiusMeters),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: QUERY_KEY });
     },
@@ -26,15 +31,24 @@ export function useEnrollNeighbor() {
 export function useUpdateNeighborSettings() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ radiusMeters, isActive }: { radiusMeters: number; isActive: boolean }) =>
-      neighborApi.updateSettings(radiusMeters, isActive),
+    mutationFn: ({
+      radiusMeters,
+      isActive,
+    }: {
+      radiusMeters: number;
+      isActive: boolean;
+    }) => neighborApi.updateSettings(radiusMeters, isActive),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: QUERY_KEY });
     },
   });
 }
 
-export function useNeighborCountInArea(lat?: number, lng?: number, radius = 500) {
+export function useNeighborCountInArea(
+  lat?: number,
+  lng?: number,
+  radius = 500,
+) {
   return useQuery({
     queryKey: ["neighbor-count", lat, lng, radius],
     queryFn: () => neighborApi.getCountInArea(lat!, lng!, radius),

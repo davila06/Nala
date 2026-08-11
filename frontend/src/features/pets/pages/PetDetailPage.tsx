@@ -25,6 +25,7 @@ import { CollarGpsTab } from "../components/CollarGpsTab";
 import { PlanGate } from "../components/PlanGate";
 import { MedicalHistoryTab } from "@/features/medical/components/MedicalHistoryTab";
 import { HealthAlertBanner } from "@/features/medical/components/HealthAlertBanner";
+import { AnnualReportButton } from "@/features/medical/components/AnnualReportButton";
 import { useAuthStore } from "@/features/auth/store/authStore";
 
 export default function PetDetailPage() {
@@ -493,6 +494,14 @@ export default function PetDetailPage() {
       {/* ── Salud tab — Familia required ─────────────────────────────── */}
       {activeTab === "salud" && (
         <PlanGate requires="Familia">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="font-display text-base font-semibold text-sand-800 sr-only">Salud</h2>
+            <AnnualReportButton
+              petId={pet.id}
+              petName={pet.name}
+              createdYear={new Date(pet.createdAt).getFullYear()}
+            />
+          </div>
           <MedicalHistoryTab petId={pet.id} petName={pet.name} />
         </PlanGate>
       )}

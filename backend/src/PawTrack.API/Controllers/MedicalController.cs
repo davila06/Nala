@@ -203,6 +203,35 @@ public sealed class MedicalController(ISender sender) : ControllerBase
         return File(result.Value!, "application/pdf", $"historial-{petId}.pdf");
     }
 
+    // ── GET /api/pets/{petId}/medical/annual-report?year= ────────────────────
+    [HttpGet("annual-report")]
+    [EnableRateLimiting("public-api")]
+    [Produces("application/pdf")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> GetAnnualReport(
+        Guid petId,
+        [FromQuery] int? year,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var reportYear = year ?? DateTimeOffset.UtcNow.Year;
+        if (reportYear < 2024 || reportYear > DateTimeOffset.UtcNow.Year)
+            return BadRequest(new ProblemDetails { Detail = "Año fuera de rango.", Status = 400 });
+
+        var result = await sender.Send(new GenerateAnnualReportQuery(petId, userId, reportYear), ct);
+        if (result.IsFailure)
+        {
+            if (result.Errors.Contains("El informe anual requiere el plan Familia."))
+                return StatusCode(StatusCodes.Status403Forbidden,
+                    new ProblemDetails { Title = "Plan required", Detail = result.Errors.First(), Status = 403 });
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        }
+        return File(result.Value!, "application/pdf",
+            $"pawtrack-informe-{petId}-{reportYear}.pdf");
+    }
+
     // ── DELETE /api/pets/{petId}/medical/{recordId} ───────────────────────────
     [HttpDelete("{recordId:guid}")]
     [EnableRateLimiting("public-api")]

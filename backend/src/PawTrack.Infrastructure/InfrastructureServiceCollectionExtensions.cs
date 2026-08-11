@@ -196,6 +196,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ICertificateRepository, CertificateRepository>();
         services.AddScoped<ICertificateService, QuestPdfCertificateService>();
         services.AddScoped<IMedicalPdfExporter, QuestPdfMedicalExporter>();
+        services.AddScoped<IAnnualReportPdfGenerator, QuestPdfAnnualReportGenerator>();
 
         // Family accounts
         services.AddScoped<IFamilyRepository, FamilyRepository>();

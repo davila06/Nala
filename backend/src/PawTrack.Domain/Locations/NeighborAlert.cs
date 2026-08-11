@@ -47,7 +47,7 @@ public sealed class NeighborAlert
 
     // ── Behaviour ─────────────────────────────────────────────────────────────
 
-    public void Activate()   { IsActive = true;  UpdatedAt = DateTimeOffset.UtcNow; }
+    public void Activate() { IsActive = true; UpdatedAt = DateTimeOffset.UtcNow; }
     public void Deactivate() { IsActive = false; UpdatedAt = DateTimeOffset.UtcNow; }
 
     public void SetRadius(int meters) { RadiusMeters = Clamp(meters); UpdatedAt = DateTimeOffset.UtcNow; }

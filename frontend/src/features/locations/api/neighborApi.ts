@@ -26,7 +26,11 @@ export const neighborApi = {
       .put("/neighbor/settings", { radiusMeters, isActive })
       .then(() => undefined),
 
-  getCountInArea: (lat: number, lng: number, radius = 500): Promise<{ count: number }> =>
+  getCountInArea: (
+    lat: number,
+    lng: number,
+    radius = 500,
+  ): Promise<{ count: number }> =>
     apiClient
       .get<{ count: number }>("/public/neighbor-count", {
         params: { lat, lng, radius },

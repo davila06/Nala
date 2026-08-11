@@ -1,5 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";import {
   medicalApi,
   type AddMedicalRecordPayload,
   type UpdateMedicalRecordPayload,
@@ -158,6 +157,20 @@ export function useExportMedicalPdf(petId: string) {
       const a = document.createElement("a");
       a.href = url;
       a.download = `historial-medico-${petId}.pdf`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    },
+  });
+}
+
+export function useDownloadAnnualReport(petId: string) {
+  return useMutation({
+    mutationFn: (year: number) => medicalApi.downloadAnnualReport(petId, year),
+    onSuccess: (blob, year) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `pawtrack-informe-${year}.pdf`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
     },

@@ -94,4 +94,10 @@ public sealed class LostPetRepository(PawTrackDbContext dbContext) : ILostPetRep
 
         return rows.AsReadOnly();
     }
+
+    public async Task<IReadOnlyList<LostPetEvent>> GetAllByPetIdAsync(Guid petId, CancellationToken ct = default) =>
+        await dbContext.LostPetEvents.AsNoTracking()
+            .Where(e => e.PetId == petId)
+            .OrderByDescending(e => e.ReportedAt)
+            .ToListAsync(ct);
 }

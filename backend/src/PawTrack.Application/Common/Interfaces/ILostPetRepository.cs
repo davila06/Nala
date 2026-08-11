@@ -37,4 +37,6 @@ public interface ILostPetRepository
         double east,
         double west,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<LostPetEvent>> GetAllByPetIdAsync(Guid petId, CancellationToken ct = default);
 }

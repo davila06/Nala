@@ -184,6 +184,14 @@ export const medicalApi = {
       .get<HealthScoreDto>(`/pets/${petId}/medical/health-score`)
       .then((r) => r.data),
 
+  downloadAnnualReport: (petId: string, year: number): Promise<Blob> =>
+    apiClient
+      .get(`/pets/${petId}/medical/annual-report`, {
+        params: { year },
+        responseType: "blob",
+      })
+      .then((r) => r.data as Blob),
+
   addRecord: (
     petId: string,
     payload: AddMedicalRecordPayload,
