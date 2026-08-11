@@ -28,8 +28,9 @@ import type {
 } from "../api/adminApi";
 import { toast } from "@/shared/lib/toast";
 import { Input } from "@/shared/ui";
+import { AdminPromotionManager } from "@/features/promotions/components/AdminPromotionManager";
 
-type Tab = "allies" | "clinics" | "subscriptions" | "bundles";
+type Tab = "allies" | "clinics" | "subscriptions" | "bundles" | "promotions";
 
 const ALLY_TYPE_LABELS: Record<string, string> = {
   VeterinaryClinic: "Veterinaria",
@@ -782,7 +783,13 @@ export default function AdminPage() {
 
       {/* ── Tabs ── */}
       <div className="mb-6 flex gap-1 rounded-2xl bg-surface-warm p-1.5 overflow-x-auto no-scrollbar">
-        {(["allies", "clinics", "subscriptions", "bundles"] as const).map(
+        {([
+          "allies",
+          "clinics",
+          "subscriptions",
+          "bundles",
+          "promotions",
+        ] as const).map(
           (tab) => {
             const count =
               tab === "allies"
@@ -791,7 +798,9 @@ export default function AdminPage() {
                   ? clinicCount
                   : tab === "subscriptions"
                     ? pendingSubCount
-                    : pendingBundleCount;
+                    : tab === "bundles"
+                      ? pendingBundleCount
+                      : 0;
             const label =
               tab === "allies"
                 ? "Aliados"
@@ -799,7 +808,9 @@ export default function AdminPage() {
                   ? "Cl\u00ednicas"
                   : tab === "subscriptions"
                     ? "Suscripciones"
-                    : "Bundles";
+                    : tab === "bundles"
+                      ? "Bundles"
+                      : "Promociones";
             return (
               <button
                 key={tab}
@@ -840,6 +851,7 @@ export default function AdminPage() {
           {activeTab === "clinics" && <ClinicsTab />}
           {activeTab === "subscriptions" && <SubscriptionsTab />}
           {activeTab === "bundles" && <BundlesTab />}
+          {activeTab === "promotions" && <AdminPromotionManager />}
         </motion.div>
       </AnimatePresence>
     </div>
