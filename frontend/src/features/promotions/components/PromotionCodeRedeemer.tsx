@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { toast } from "@/shared/lib/toast";
 import { Button, Input } from "@/shared/ui";
-import { useValidatePromotion, useRedeemPromotion } from "../hooks/usePromotion";
+import {
+  useValidatePromotion,
+  useRedeemPromotion,
+} from "../hooks/usePromotion";
 import type { PromotionValidationDto } from "../api/promotionApi";
 
 const TIER_LABELS: Record<string, string> = {
@@ -11,7 +14,9 @@ const TIER_LABELS: Record<string, string> = {
 
 export function PromotionCodeRedeemer() {
   const [code, setCode] = useState("");
-  const [validation, setValidation] = useState<PromotionValidationDto | null>(null);
+  const [validation, setValidation] = useState<PromotionValidationDto | null>(
+    null,
+  );
   const [selectedTier, setSelectedTier] = useState<string>("");
 
   const validate = useValidatePromotion();
@@ -42,8 +47,9 @@ export function PromotionCodeRedeemer() {
           setValidation(null);
         },
         onError: (err: unknown) => {
-          const msg = (err as { response?: { data?: { detail?: string } } })
-            ?.response?.data?.detail ?? "No se pudo aplicar el código";
+          const msg =
+            (err as { response?: { data?: { detail?: string } } })?.response
+              ?.data?.detail ?? "No se pudo aplicar el código";
           toast.error(msg);
         },
       },
@@ -52,7 +58,9 @@ export function PromotionCodeRedeemer() {
 
   return (
     <div className="rounded-2xl border border-sand-200 bg-sand-50 p-5 space-y-3">
-      <h3 className="text-sm font-semibold text-sand-800">🎁 Tengo un código de promoción</h3>
+      <h3 className="text-sm font-semibold text-sand-800">
+        🎁 Tengo un código de promoción
+      </h3>
 
       <div className="flex gap-2">
         <Input
@@ -82,33 +90,42 @@ export function PromotionCodeRedeemer() {
           <div className="flex items-start gap-2">
             <span className="text-green-600 text-lg">✅</span>
             <div>
-              <p className="text-sm font-semibold text-green-800">Código válido</p>
-              <p className="text-sm text-green-700">{validation.benefitDescription}</p>
+              <p className="text-sm font-semibold text-green-800">
+                Código válido
+              </p>
+              <p className="text-sm text-green-700">
+                {validation.benefitDescription}
+              </p>
             </div>
           </div>
 
           {/* Tier selector only needed when discount has no fixed tier */}
-          {validation.type === "PercentageDiscount" && !validation.targetTier && (
-            <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
-                Seleccioná el plan al que aplicar el descuento
-              </label>
-              <select
-                value={selectedTier}
-                onChange={(e) => setSelectedTier(e.target.value)}
-                className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
-              >
-                <option value="">— Elegir plan —</option>
-                <option value="UserPlus">Plan Plus (₡2,990/mes)</option>
-                <option value="UserFamilia">Plan Familia (₡4,990/mes)</option>
-              </select>
-            </div>
-          )}
+          {validation.type === "PercentageDiscount" &&
+            !validation.targetTier && (
+              <div>
+                <label className="mb-1 block text-xs font-medium text-sand-600">
+                  Seleccioná el plan al que aplicar el descuento
+                </label>
+                <select
+                  value={selectedTier}
+                  onChange={(e) => setSelectedTier(e.target.value)}
+                  className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                >
+                  <option value="">— Elegir plan —</option>
+                  <option value="UserPlus">Plan Plus (₡2,990/mes)</option>
+                  <option value="UserFamilia">Plan Familia (₡4,990/mes)</option>
+                </select>
+              </div>
+            )}
 
           {validation.targetTier && (
             <p className="text-xs text-sand-500">
-              Plan: <strong>{TIER_LABELS[validation.targetTier] ?? validation.targetTier}</strong>
-              {!validation.requiresPayment && " — sin costo, activación inmediata"}
+              Plan:{" "}
+              <strong>
+                {TIER_LABELS[validation.targetTier] ?? validation.targetTier}
+              </strong>
+              {!validation.requiresPayment &&
+                " — sin costo, activación inmediata"}
             </p>
           )}
 

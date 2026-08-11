@@ -47,11 +47,15 @@ export interface PromotionSpecRequest {
 export const promotionApi = {
   // User
   validate: (code: string): Promise<PromotionValidationDto> =>
-    apiClient.get<PromotionValidationDto>(`/promotions/validate/${encodeURIComponent(code)}`)
+    apiClient
+      .get<PromotionValidationDto>(
+        `/promotions/validate/${encodeURIComponent(code)}`,
+      )
       .then((r) => r.data),
 
   redeem: (code: string, selectedTier?: string): Promise<unknown> =>
-    apiClient.post("/promotions/redeem", { code, selectedTier: selectedTier ?? null })
+    apiClient
+      .post("/promotions/redeem", { code, selectedTier: selectedTier ?? null })
       .then((r) => r.data),
 
   // Admin
@@ -59,10 +63,12 @@ export const promotionApi = {
     apiClient.get<PromotionCodeDto[]>("/admin/promotions").then((r) => r.data),
 
   createBatch: (specs: PromotionSpecRequest[]): Promise<PromotionCodeDto[]> =>
-    apiClient.post<PromotionCodeDto[]>("/admin/promotions/batch", { specs })
+    apiClient
+      .post<PromotionCodeDto[]>("/admin/promotions/batch", { specs })
       .then((r) => r.data),
 
   toggle: (id: string, activate: boolean): Promise<PromotionCodeDto> =>
-    apiClient.put<PromotionCodeDto>(`/admin/promotions/${id}/toggle`, { activate })
+    apiClient
+      .put<PromotionCodeDto>(`/admin/promotions/${id}/toggle`, { activate })
       .then((r) => r.data),
 };

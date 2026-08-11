@@ -6,7 +6,11 @@ import {
   useCreatePromotionBatch,
   useTogglePromotion,
 } from "../hooks/usePromotion";
-import type { PromotionCodeDto, PromotionSpecRequest, PromotionType } from "../api/promotionApi";
+import type {
+  PromotionCodeDto,
+  PromotionSpecRequest,
+  PromotionType,
+} from "../api/promotionApi";
 
 // ── Default spec factory ──────────────────────────────────────────────────────
 
@@ -32,7 +36,8 @@ function SpecRow({
   onRemove: () => void;
   canRemove: boolean;
 }) {
-  const update = (patch: Partial<PromotionSpecRequest>) => onChange({ ...spec, ...patch });
+  const update = (patch: Partial<PromotionSpecRequest>) =>
+    onChange({ ...spec, ...patch });
 
   return (
     <div className="rounded-xl border border-sand-200 bg-white p-4 space-y-3">
@@ -41,8 +46,11 @@ function SpecRow({
           Código {index + 1}
         </span>
         {canRemove && (
-          <button type="button" onClick={onRemove}
-            className="text-xs text-danger-500 hover:text-danger-700 font-medium">
+          <button
+            type="button"
+            onClick={onRemove}
+            className="text-xs text-danger-500 hover:text-danger-700 font-medium"
+          >
             Eliminar
           </button>
         )}
@@ -51,7 +59,9 @@ function SpecRow({
       <div className="grid grid-cols-2 gap-3">
         {/* Type */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">Tipo de beneficio</label>
+          <label className="mb-1 block text-xs font-medium text-sand-600">
+            Tipo de beneficio
+          </label>
           <select
             value={spec.type}
             onChange={(e) => {
@@ -88,7 +98,9 @@ function SpecRow({
             </label>
             <select
               value={spec.discountPercent ?? 10}
-              onChange={(e) => update({ discountPercent: Number(e.target.value) })}
+              onChange={(e) =>
+                update({ discountPercent: Number(e.target.value) })
+              }
               className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
             >
               <option value={10}>10% — código DES10XXX</option>
@@ -99,7 +111,9 @@ function SpecRow({
 
         {spec.type === "FreeTier" && (
           <div>
-            <label className="mb-1 block text-xs font-medium text-sand-600">Plan gratuito</label>
+            <label className="mb-1 block text-xs font-medium text-sand-600">
+              Plan gratuito
+            </label>
             <select
               value={spec.targetTier ?? "UserPlus"}
               onChange={(e) => update({ targetTier: e.target.value })}
@@ -114,7 +128,9 @@ function SpecRow({
         {spec.type === "FreeMonths" && (
           <>
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">Duración</label>
+              <label className="mb-1 block text-xs font-medium text-sand-600">
+                Duración
+              </label>
               <select
                 value={spec.freeMonths ?? 1}
                 onChange={(e) => update({ freeMonths: Number(e.target.value) })}
@@ -126,7 +142,9 @@ function SpecRow({
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">Plan</label>
+              <label className="mb-1 block text-xs font-medium text-sand-600">
+                Plan
+              </label>
               <select
                 value={spec.targetTier ?? "UserPlus"}
                 onChange={(e) => update({ targetTier: e.target.value })}
@@ -170,12 +188,18 @@ function SpecRow({
 
         {/* Expiry */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">Vence (opcional)</label>
+          <label className="mb-1 block text-xs font-medium text-sand-600">
+            Vence (opcional)
+          </label>
           <Input
             type="date"
             value={spec.expiresAt ? spec.expiresAt.slice(0, 10) : ""}
             onChange={(e) =>
-              update({ expiresAt: e.target.value ? new Date(e.target.value).toISOString() : undefined })
+              update({
+                expiresAt: e.target.value
+                  ? new Date(e.target.value).toISOString()
+                  : undefined,
+              })
             }
           />
         </div>
@@ -183,7 +207,9 @@ function SpecRow({
 
       {/* Admin note */}
       <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">Nota interna</label>
+        <label className="mb-1 block text-xs font-medium text-sand-600">
+          Nota interna
+        </label>
         <Input
           placeholder="Ej: Campaña influencers agosto 2026"
           value={spec.adminNote ?? ""}
@@ -213,39 +239,63 @@ function buildCodePreview(s: PromotionSpecRequest): string {
 
 function CodeRow({ code }: { code: PromotionCodeDto }) {
   const toggle = useTogglePromotion();
-  const pct = code.usagePercent =
-    code.maxRedemptions === -1 ? null : Math.round((code.redeemedCount / code.maxRedemptions) * 100);
+  const pct = (code.usagePercent =
+    code.maxRedemptions === -1
+      ? null
+      : Math.round((code.redeemedCount / code.maxRedemptions) * 100));
 
   return (
     <tr className="border-b border-sand-100 hover:bg-sand-50">
-      <td className="py-2 px-3 font-mono text-sm font-semibold text-sand-800">{code.code}</td>
+      <td className="py-2 px-3 font-mono text-sm font-semibold text-sand-800">
+        {code.code}
+      </td>
       <td className="py-2 px-3 text-xs text-sand-600">{typeLabel(code)}</td>
       <td className="py-2 px-3 text-xs text-sand-600">
-        {code.redeemedCount}/{code.maxRedemptions === -1 ? "∞" : code.maxRedemptions}
+        {code.redeemedCount}/
+        {code.maxRedemptions === -1 ? "∞" : code.maxRedemptions}
         {pct !== null && (
           <div className="mt-1 h-1 rounded-full bg-sand-200 w-16">
-            <div className="h-1 rounded-full bg-brand-500" style={{ width: `${pct}%` }} />
+            <div
+              className="h-1 rounded-full bg-brand-500"
+              style={{ width: `${pct}%` }}
+            />
           </div>
         )}
       </td>
       <td className="py-2 px-3 text-xs text-sand-500">
-        {code.expiresAt ? new Date(code.expiresAt).toLocaleDateString("es-CR") : "—"}
+        {code.expiresAt
+          ? new Date(code.expiresAt).toLocaleDateString("es-CR")
+          : "—"}
       </td>
       <td className="py-2 px-3">
-        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-          code.isActive ? "bg-green-100 text-green-700" : "bg-sand-100 text-sand-500"
-        }`}>
+        <span
+          className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+            code.isActive
+              ? "bg-green-100 text-green-700"
+              : "bg-sand-100 text-sand-500"
+          }`}
+        >
           {code.isActive ? "Activo" : "Inactivo"}
         </span>
       </td>
-      <td className="py-2 px-3 text-xs text-sand-400 max-w-[120px] truncate">{code.adminNote ?? "—"}</td>
+      <td className="py-2 px-3 text-xs text-sand-400 max-w-[120px] truncate">
+        {code.adminNote ?? "—"}
+      </td>
       <td className="py-2 px-3">
         <button
           type="button"
           disabled={toggle.isPending}
-          onClick={() => toggle.mutate({ id: code.id, activate: !code.isActive }, {
-            onSuccess: () => toast.success(code.isActive ? "Código desactivado" : "Código activado"),
-          })}
+          onClick={() =>
+            toggle.mutate(
+              { id: code.id, activate: !code.isActive },
+              {
+                onSuccess: () =>
+                  toast.success(
+                    code.isActive ? "Código desactivado" : "Código activado",
+                  ),
+              },
+            )
+          }
           className="text-xs font-medium text-brand-600 hover:text-brand-800 disabled:opacity-50"
         >
           {code.isActive ? "Desactivar" : "Activar"}
@@ -284,7 +334,9 @@ export function AdminPromotionManager() {
         setLastCreated(created);
         setSpecs([defaultSpec()]);
         setShowForm(false);
-        toast.success(`${created.length} código${created.length !== 1 ? "s" : ""} creado${created.length !== 1 ? "s" : ""}`);
+        toast.success(
+          `${created.length} código${created.length !== 1 ? "s" : ""} creado${created.length !== 1 ? "s" : ""}`,
+        );
       },
       onError: () => toast.error("No se pudieron crear los códigos"),
     });
@@ -298,7 +350,13 @@ export function AdminPromotionManager() {
         <h2 className="font-display text-base font-semibold text-sand-800">
           🎁 Códigos de promoción
         </h2>
-        <Button size="sm" onClick={() => { setShowForm((v) => !v); setLastCreated([]); }}>
+        <Button
+          size="sm"
+          onClick={() => {
+            setShowForm((v) => !v);
+            setLastCreated([]);
+          }}
+        >
           {showForm ? "Cancelar" : "+ Crear códigos"}
         </Button>
       </div>
@@ -307,14 +365,18 @@ export function AdminPromotionManager() {
       {showForm && (
         <Card padding="md">
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-sand-700">Nueva tanda de códigos</h3>
+            <h3 className="text-sm font-semibold text-sand-700">
+              Nueva tanda de códigos
+            </h3>
             {specs.map((s, i) => (
               <SpecRow
                 key={i}
                 spec={s}
                 index={i}
                 onChange={(updated) => updateSpec(i, updated)}
-                onRemove={() => setSpecs((prev) => prev.filter((_, idx) => idx !== i))}
+                onRemove={() =>
+                  setSpecs((prev) => prev.filter((_, idx) => idx !== i))
+                }
                 canRemove={specs.length > 1}
               />
             ))}
@@ -327,9 +389,14 @@ export function AdminPromotionManager() {
             </button>
             <div className="flex items-center justify-between pt-2 border-t border-sand-100">
               <span className="text-xs text-sand-500">
-                Se generarán <strong>{totalCodes}</strong> código{totalCodes !== 1 ? "s" : ""} únicos
+                Se generarán <strong>{totalCodes}</strong> código
+                {totalCodes !== 1 ? "s" : ""} únicos
               </span>
-              <Button onClick={handleCreate} loading={createBatch.isPending} disabled={totalCodes < 1}>
+              <Button
+                onClick={handleCreate}
+                loading={createBatch.isPending}
+                disabled={totalCodes < 1}
+              >
                 Generar {totalCodes} código{totalCodes !== 1 ? "s" : ""}
               </Button>
             </div>
@@ -341,12 +408,15 @@ export function AdminPromotionManager() {
       {lastCreated.length > 0 && (
         <Card padding="md">
           <p className="text-sm font-semibold text-green-700 mb-3">
-            ✅ {lastCreated.length} código{lastCreated.length !== 1 ? "s" : ""} generado{lastCreated.length !== 1 ? "s" : ""}
+            ✅ {lastCreated.length} código{lastCreated.length !== 1 ? "s" : ""}{" "}
+            generado{lastCreated.length !== 1 ? "s" : ""}
           </p>
           <div className="flex flex-wrap gap-2">
             {lastCreated.map((c) => (
-              <span key={c.id}
-                className="rounded-lg border border-sand-200 bg-sand-50 px-3 py-1.5 font-mono text-sm font-semibold text-sand-800">
+              <span
+                key={c.id}
+                className="rounded-lg border border-sand-200 bg-sand-50 px-3 py-1.5 font-mono text-sm font-semibold text-sand-800"
+              >
                 {c.code}
               </span>
             ))}
@@ -360,28 +430,45 @@ export function AdminPromotionManager() {
       {/* Code list */}
       {isLoading ? (
         <div className="animate-pulse space-y-2">
-          {[1, 2, 3].map((i) => <div key={i} className="h-10 rounded-xl bg-sand-100" />)}
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-10 rounded-xl bg-sand-100" />
+          ))}
         </div>
       ) : codes && codes.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-sand-200 text-left">
-                {["Código", "Beneficio", "Uso", "Vence", "Estado", "Nota", ""].map((h) => (
-                  <th key={h} className="py-2 px-3 text-xs font-semibold text-sand-500 uppercase tracking-wide">
+                {[
+                  "Código",
+                  "Beneficio",
+                  "Uso",
+                  "Vence",
+                  "Estado",
+                  "Nota",
+                  "",
+                ].map((h) => (
+                  <th
+                    key={h}
+                    className="py-2 px-3 text-xs font-semibold text-sand-500 uppercase tracking-wide"
+                  >
                     {h}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {codes.map((c) => <CodeRow key={c.id} code={c} />)}
+              {codes.map((c) => (
+                <CodeRow key={c.id} code={c} />
+              ))}
             </tbody>
           </table>
         </div>
       ) : (
         <Card padding="sm">
-          <p className="text-center text-sm text-sand-400">No hay códigos creados aún.</p>
+          <p className="text-center text-sm text-sand-400">
+            No hay códigos creados aún.
+          </p>
         </Card>
       )}
     </div>
