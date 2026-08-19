@@ -20,8 +20,11 @@ public sealed class CollarsController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetStatus(Guid petId, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetCollarStatusQuery(petId), cancellationToken);
-        return result.IsSuccess ? Ok(result.Value) : NotFound();
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetCollarStatusQuery(petId, userId), cancellationToken);
+        if (result.IsFailure)
+            return result.Errors.Contains("Access denied.") ? Forbid() : NotFound();
+        return Ok(result.Value);
     }
 
     // ── POST /api/collars ────────────────────────────────────────────────────
@@ -53,8 +56,11 @@ public sealed class CollarsController(ISender sender) : ControllerBase
         [FromQuery] int maxPoints = 500,
         CancellationToken cancellationToken = default)
     {
-        var result = await sender.Send(new GetLocationHistoryQuery(petId, hours, maxPoints), cancellationToken);
-        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetLocationHistoryQuery(petId, userId, hours, maxPoints), cancellationToken);
+        if (result.IsFailure)
+            return result.Errors.Contains("Access denied.") ? Forbid() : BadRequest(result.Errors);
+        return Ok(result.Value);
     }
 
     // ── POST /api/collars/pet/{petId}/location ────────────────────────────────

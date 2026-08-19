@@ -12,16 +12,22 @@ namespace PawTrack.Application.Incentives.DTOs;
 /// </para>
 /// </summary>
 public sealed record ContributorScoreDto(
-    string OwnerName,
+    string DisplayName,
     int ReunificationCount,
     string Badge,
     int TotalPoints,
     DateTimeOffset UpdatedAt)
 {
     public static ContributorScoreDto FromDomain(ContributorScore s) => new(
-        s.OwnerName,
+        FirstName(s.OwnerName),
         s.ReunificationCount,
         s.Badge.ToString(),
         s.TotalPoints,
         s.UpdatedAt);
+
+    private static string FirstName(string fullName)
+    {
+        var first = fullName.Split(' ', System.StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? fullName;
+        return first.Length > 20 ? first[..20] : first;
+    }
 }

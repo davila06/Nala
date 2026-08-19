@@ -61,13 +61,13 @@ public sealed class Bounty
         DepositedAt = DateTimeOffset.UtcNow;
     }
 
-    public void Claim(Guid sightingId, Guid claimedByUserId)
+    public void Claim(Guid? sightingId, Guid claimedByUserId)
     {
         if (Status != BountyStatus.Active)
             throw new InvalidOperationException("Only active bounties can be claimed.");
 
         Status = BountyStatus.Claimed;
-        ClaimedBySightingId = sightingId;
+        ClaimedBySightingId = sightingId == Guid.Empty ? null : sightingId;
         ClaimedByUserId = claimedByUserId;
         ClaimedAt = DateTimeOffset.UtcNow;
     }

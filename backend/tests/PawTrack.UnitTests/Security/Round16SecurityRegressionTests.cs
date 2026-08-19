@@ -43,8 +43,9 @@ public sealed class Round16SecurityRegressionTests
     [Fact]
     public void ContributorScoreDto_PreservesNonSensitiveFields()
     {
-        typeof(ContributorScoreDto).GetProperty(nameof(ContributorScoreDto.OwnerName))
-            .Should().NotBeNull("OwnerName (display name) is safe to show on the leaderboard");
+        // Renamed from OwnerName → DisplayName; now shows first name only for privacy
+        typeof(ContributorScoreDto).GetProperty(nameof(ContributorScoreDto.DisplayName))
+            .Should().NotBeNull("DisplayName (first name only) is safe to show on the public leaderboard");
 
         typeof(ContributorScoreDto).GetProperty(nameof(ContributorScoreDto.ReunificationCount))
             .Should().NotBeNull("ReunificationCount must be preserved");

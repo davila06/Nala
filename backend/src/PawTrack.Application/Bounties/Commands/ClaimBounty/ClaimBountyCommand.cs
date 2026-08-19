@@ -30,7 +30,7 @@ public sealed class ClaimBountyCommandHandler(
         if (bounty is null || bounty.Status != BountyStatus.Active)
             return Result.Success<BountyDto?>(null);
 
-        bounty.Claim(request.SightingId ?? Guid.Empty, request.ClaimedByUserId);
+        bounty.Claim(request.SightingId, request.ClaimedByUserId);
         bountyRepository.Update(bounty);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

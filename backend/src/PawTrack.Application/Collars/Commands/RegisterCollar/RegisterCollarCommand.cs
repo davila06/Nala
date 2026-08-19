@@ -16,6 +16,7 @@ public sealed record RegisterCollarCommand(
 
 public sealed class RegisterCollarCommandHandler(
     ICollarRepository collarRepository,
+    IPetRepository petRepository,
     ISubscriptionService subscriptionService,
     IUnitOfWork unitOfWork)
     : IRequestHandler<RegisterCollarCommand, Result<CollarDto>>
@@ -24,6 +25,11 @@ public sealed class RegisterCollarCommandHandler(
         RegisterCollarCommand request,
         CancellationToken cancellationToken)
     {
+        // Verify the requesting user owns the pet before allowing collar registration
+        var pet = await petRepository.GetByIdAsync(request.PetId, cancellationToken);
+        if (pet is null || pet.OwnerId != request.OwnerId)
+            return Result.Failure<CollarDto>("Access denied.");
+
         var isPlus = await subscriptionService.IsAtLeastPlusAsync(request.OwnerId, cancellationToken);
         if (!isPlus)
             return Result.Failure<CollarDto>("El collar GPS requiere el plan Plus.");

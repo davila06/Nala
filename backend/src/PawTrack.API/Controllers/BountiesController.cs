@@ -49,15 +49,16 @@ public sealed class BountiesController(ISender sender) : ControllerBase
 
     // ── PUT /api/bounties/confirm-deposit ─────────────────────────────────────
     [HttpPut("confirm-deposit")]
+    [Authorize] // pet owner confirms their own SINPE deposit
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> ConfirmDeposit(
         [FromBody] ConfirmDepositRequest request,
         CancellationToken cancellationToken)
     {
-        TryGetUserId(out var userId); // null-safe: webhook callers are anonymous
+        if (!TryGetUserId(out var userId)) return Unauthorized();
         var result = await sender.Send(
-            new ConfirmBountyDepositCommand(request.DepositReference, userId == default ? null : userId),
+            new ConfirmBountyDepositCommand(request.DepositReference, userId),
             cancellationToken);
 
         if (result.IsFailure)

@@ -8,7 +8,8 @@ export function useLeaderboard(take = 10) {
   return useQuery({
     queryKey: LEADERBOARD_KEY(take),
     queryFn: () => incentivesApi.getLeaderboard(take),
-    staleTime: 60_000,
+    staleTime: 5 * 60_000, // leaderboard changes rarely; 5 min is sufficient
+    gcTime: 10 * 60_000,
   })
 }
 
