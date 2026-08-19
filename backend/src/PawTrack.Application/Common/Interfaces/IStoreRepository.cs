@@ -14,6 +14,7 @@ public interface IStoreRepository
     // Products
     Task<StoreProduct?> GetProductByIdAsync(Guid productId, CancellationToken ct = default);
     Task<IReadOnlyList<StoreProduct>> GetProductsByStoreAsync(Guid storeId, CancellationToken ct = default);
+    Task<IReadOnlyList<StoreProduct>> GetAvailableProductsByStoreAsync(Guid storeId, CancellationToken ct = default);
     Task<IReadOnlyDictionary<Guid, StoreProduct>> GetProductsByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default);
     Task<IReadOnlyDictionary<Guid, string>> GetStoreNamesByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default);
     Task AddProductAsync(StoreProduct product, CancellationToken ct = default);

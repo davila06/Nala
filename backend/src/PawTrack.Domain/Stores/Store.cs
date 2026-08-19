@@ -61,8 +61,9 @@ public sealed class Store
         Address = address.Trim();
         Lat = lat;
         Lng = lng;
-        if (phoneNumber is not null) PhoneNumber = phoneNumber.Trim();
-        if (website is not null) Website = website.Trim();
+        // Empty string = explicit clear; null = unchanged (no-op)
+        PhoneNumber = phoneNumber is null ? PhoneNumber : (phoneNumber.Trim() is { Length: > 0 } p ? p : null);
+        Website = website is null ? Website : (website.Trim() is { Length: > 0 } w ? w : null);
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 }

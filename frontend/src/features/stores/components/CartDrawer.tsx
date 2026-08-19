@@ -2,6 +2,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCartStore } from "../store/cartStore";
 import { Button } from "@/shared/ui/Button";
 
+const MAX_QTY = 100;
+
 interface CartDrawerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -9,7 +11,7 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
-  const { items, storeName, updateQty, removeItem, totalCrc, clear } =
+  const { items, storeName, updateQty, totalCrc, clear } =
     useCartStore();
 
   return (
@@ -94,7 +96,8 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
                           <button
                             type="button"
                             onClick={() => updateQty(product.id, quantity + 1)}
-                            className="flex h-7 w-7 items-center justify-center rounded-lg bg-sand-100 text-sand-700 hover:bg-sand-200 text-sm font-bold"
+                            disabled={quantity >= MAX_QTY}
+                            className="flex h-7 w-7 items-center justify-center rounded-lg bg-sand-100 text-sand-700 hover:bg-sand-200 text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed"
                           >
                             +
                           </button>

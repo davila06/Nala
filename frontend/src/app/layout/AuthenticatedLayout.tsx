@@ -59,6 +59,9 @@ const TOP_LEVEL_ROUTES = new Set([
   "/municipalidad/portal",
   "/admin",
   "/estadisticas",
+  "/mis-pedidos",
+  "/tiendas",
+  "/tienda/portal",
 ]);
 const NAV_MAIN = [
   {

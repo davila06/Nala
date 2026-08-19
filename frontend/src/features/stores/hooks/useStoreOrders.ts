@@ -7,7 +7,8 @@ export function useMyOrders() {
   return useQuery({
     queryKey: ["my-store-orders"],
     queryFn: storeOrdersApi.getMine,
-    staleTime: 60_000,
+    staleTime: 30_000,
+    refetchInterval: 30_000,
   });
 }
 
@@ -15,8 +16,8 @@ export function useIncomingOrders() {
   return useQuery({
     queryKey: ["store-incoming-orders"],
     queryFn: () => storeOrdersApi.getIncoming(),
-    staleTime: 30_000,
-    refetchInterval: 60_000,
+    staleTime: 15_000,
+    refetchInterval: 15_000,
   });
 }
 

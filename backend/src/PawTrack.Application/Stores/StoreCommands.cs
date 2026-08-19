@@ -1,5 +1,7 @@
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
+using PawTrack.Application.Common;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Auth;
 using PawTrack.Domain.Common;
@@ -71,7 +73,8 @@ public sealed class RegisterStoreCommandHandler(
     IStoreRepository storeRepository,
     IPasswordHasher passwordHasher,
     IEmailSender emailSender,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    ILogger<RegisterStoreCommandHandler> logger)
     : IRequestHandler<RegisterStoreCommand, Result<PublicStoreDto>>
 {
     internal const string DuplicateEmailError = "duplicate_email";
@@ -93,7 +96,10 @@ public sealed class RegisterStoreCommandHandler(
         await storeRepository.AddAsync(store, ct);
         await unitOfWork.SaveChangesAsync(ct);
 
-        _ = emailSender.SendEmailVerificationAsync(user.Email, user.Name, rawToken, ct);
+        _ = emailSender.SendEmailVerificationAsync(user.Email, user.Name, rawToken, ct)
+            .ContinueWith(t => logger.LogWarning(t.Exception,
+                "Store registration email failed for {Email}", PiiHelper.MaskEmail(user.Email)),
+                CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
         return Result.Success(PublicStoreDto.FromDomain(store));
     }
 }
@@ -175,10 +181,10 @@ public sealed class GetStoreDetailQueryHandler(IStoreRepository repo)
         if (store is null || store.Status != StoreStatus.Active)
             return Result.Failure<StoreDetailDto>("Tienda no encontrada.");
 
-        var products = await repo.GetProductsByStoreAsync(request.StoreId, ct);
+        var products = await repo.GetAvailableProductsByStoreAsync(request.StoreId, ct);
         var dto = new StoreDetailDto(
             PublicStoreDto.FromDomain(store),
-            products.Where(p => p.IsAvailable).Select(StoreProductDto.FromDomain).ToList());
+            products.Select(StoreProductDto.FromDomain).ToList());
         return Result.Success(dto);
     }
 }

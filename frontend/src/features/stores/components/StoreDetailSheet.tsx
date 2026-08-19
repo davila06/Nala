@@ -28,7 +28,9 @@ export function StoreDetailSheet({
   >(null);
 
   // Reset "added" badges whenever the visible store changes
-  useEffect(() => { setAddedIds(new Set()); }, [storeId]);
+  useEffect(() => {
+    setAddedIds(new Set());
+  }, [storeId]);
 
   if (!isOpen) return null;
 

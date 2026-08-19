@@ -127,7 +127,16 @@ public sealed class PlaceStoreOrderCommandHandler(
             request.CustomerNote, lines);
 
         await orderRepo.AddAsync(order, ct);
-        await uow.SaveChangesAsync(ct);
+
+        try { await uow.SaveChangesAsync(ct); }
+        catch (Exception ex)
+            when (ex.Message.Contains("PaymentReference", StringComparison.OrdinalIgnoreCase)
+               || (ex.InnerException?.Message.Contains("UNIQUE", StringComparison.OrdinalIgnoreCase) == true
+                   && ex.InnerException?.Message.Contains("PaymentReference", StringComparison.OrdinalIgnoreCase) == true))
+        {
+            // Extremely rare: two concurrent orders generated the same 8-char reference
+            return Result.Failure<StoreOrderDto>("Error al generar referencia de pago. Por favor, intenta de nuevo.");
+        }
 
         // Fire-and-forget push notification — uses None so it outlives the request's ct
         _ = notificationDispatcher.DispatchNewStoreOrderAsync(
@@ -256,7 +265,9 @@ public sealed class GetStoreOrdersQueryHandler(IStoreRepository storeRepo, IStor
         var store = await storeRepo.GetByUserIdAsync(request.StoreOwnerUserId, ct);
         if (store is null) return Result.Failure<IReadOnlyList<StoreOrderDto>>("Tienda no encontrada.");
 
-        var orders = await orderRepo.GetByStoreAsync(store.Id, request.Page, request.PageSize, ct);
+        var page = Math.Max(1, request.Page);
+        var pageSize = Math.Clamp(request.PageSize, 1, 50);
+        var orders = await orderRepo.GetByStoreAsync(store.Id, page, pageSize, ct);
         return Result.Success<IReadOnlyList<StoreOrderDto>>(orders.Select(o => StoreOrderDto.FromDomain(o, store.Name)).ToList());
     }
 }

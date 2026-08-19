@@ -620,6 +620,17 @@ public sealed class NotificationDispatcher(
         decimal totalCrc,
         CancellationToken cancellationToken = default)
     {
+        // In-app notification (persisted — survives missed push)
+        var notification = Notification.Create(
+            storeOwnerUserId,
+            NotificationType.SystemMessage,
+            $"🛍️ Nuevo pedido en {storeName}",
+            $"Recibirás ₡{totalCrc:N0}. Confirma el pedido cuando verifiques el pago SINPE.",
+            relatedEntityId: orderId);
+
+        await notificationRepository.AddAsync(notification, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
         await TrySendPushAsync(
             storeOwnerUserId,
             $"🛒 Nuevo pedido en {storeName}",

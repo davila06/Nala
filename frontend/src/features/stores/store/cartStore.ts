@@ -56,7 +56,9 @@ export const useCartStore = create<CartState>()(
 
       removeItem: (productId) =>
         set((state) => {
-          const remaining = state.items.filter((i) => i.product.id !== productId);
+          const remaining = state.items.filter(
+            (i) => i.product.id !== productId,
+          );
           return {
             items: remaining,
             storeId: remaining.length === 0 ? null : state.storeId,
