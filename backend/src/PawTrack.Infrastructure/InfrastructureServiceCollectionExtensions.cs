@@ -56,6 +56,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.Configure<QrScanRetentionSettings>(configuration.GetSection("QrScanRetention"));
         services.Configure<AvatarTokenSettings>(configuration.GetSection("AvatarToken"));
         services.Configure<PetScanExportSettings>(configuration.GetSection("PetScanExport"));
+        services.Configure<PawTrack.Application.Common.Settings.BotSettings>(configuration.GetSection("Bot"));
 
         // EF Core
         services.AddDbContext<PawTrackDbContext>(options =>

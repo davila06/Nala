@@ -1,8 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
-import { incentivesApi } from '../api/incentivesApi'
+import { useQuery } from "@tanstack/react-query";
+import { incentivesApi } from "../api/incentivesApi";
 
-const LEADERBOARD_KEY = (take: number) => ['incentives', 'leaderboard', take] as const
-const MY_SCORE_KEY = () => ['incentives', 'my-score'] as const
+const LEADERBOARD_KEY = (take: number) =>
+  ["incentives", "leaderboard", take] as const;
+const MY_SCORE_KEY = () => ["incentives", "my-score"] as const;
 
 export function useLeaderboard(take = 10) {
   return useQuery({
@@ -10,7 +11,7 @@ export function useLeaderboard(take = 10) {
     queryFn: () => incentivesApi.getLeaderboard(take),
     staleTime: 5 * 60_000, // leaderboard changes rarely; 5 min is sufficient
     gcTime: 10 * 60_000,
-  })
+  });
 }
 
 export function useMyScore(enabled = true) {
@@ -19,5 +20,5 @@ export function useMyScore(enabled = true) {
     queryFn: () => incentivesApi.getMyScore(),
     staleTime: 30_000,
     enabled,
-  })
+  });
 }

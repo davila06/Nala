@@ -2,7 +2,9 @@ using System.Security.Cryptography;
 using System.Text;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Common.Settings;
 using PawTrack.Domain.Auth;
 using PawTrack.Domain.Bot;
 using PawTrack.Domain.Common;
@@ -27,6 +29,7 @@ public sealed class HandleWhatsAppWebhookCommandHandler(
     IWhatsAppSender whatsAppSender,
     IGeocodingService geocodingService,
     IPublicAppUrlProvider urlProvider,
+    IOptions<BotSettings> botOptions,
     IUnitOfWork unitOfWork,
     ILogger<HandleWhatsAppWebhookCommandHandler> logger)
     : IRequestHandler<HandleWhatsAppWebhookCommand, Result<Unit>>
@@ -34,7 +37,7 @@ public sealed class HandleWhatsAppWebhookCommandHandler(
     public async Task<Result<Unit>> Handle(
         HandleWhatsAppWebhookCommand request, CancellationToken cancellationToken)
     {
-        var phoneHash = HashPhone(request.WaId);
+        var phoneHash = HashPhone(request.WaId, botOptions.Value.PhoneHashSecret);
 
         // Load or create session
         var session = await botSessionRepository.GetActiveByPhoneHashAsync(phoneHash, cancellationToken);
@@ -253,10 +256,13 @@ public sealed class HandleWhatsAppWebhookCommandHandler(
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    /// <summary>SHA-256 hash of the E.164 phone number. Never persists the raw number.</summary>
-    private static string HashPhone(string waId)
+    /// <summary>HMAC-SHA256 of the E.164 phone number with a server secret — resists rainbow-table attacks on the finite CR phone space.</summary>
+    private static string HashPhone(string waId, string secret)
     {
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(waId));
+        var key = string.IsNullOrWhiteSpace(secret)
+            ? "pawtrack-bot-dev-fallback-key-32ch"u8.ToArray() // dev/test only
+            : Encoding.UTF8.GetBytes(secret);
+        var bytes = HMACSHA256.HashData(key, Encoding.UTF8.GetBytes(waId));
         return Convert.ToHexStringLower(bytes);
     }
 
