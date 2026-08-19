@@ -1,4 +1,5 @@
 using MediatR;
+using PawTrack.Application.Common;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.LostPets.SearchRadius;
 using PawTrack.Application.Subscriptions.Services;
@@ -56,7 +57,7 @@ public sealed class ReportLostPetCommandHandler(
         if (request.PhotoBytes is { Length: > 0 })
         {
             var resized = await imageProcessor.ResizeAsync(request.PhotoBytes, 800, cancellationToken);
-            var safeFileName = SanitizeFileName(request.PhotoFileName);
+            var safeFileName = BlobHelper.SanitizeFileName(request.PhotoFileName);
             var blobName = $"lost-reports/{lostPetEvent.Id}/{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}-{safeFileName}";
 
             using var stream = new MemoryStream(resized);
@@ -165,14 +166,5 @@ public sealed class ReportLostPetCommandHandler(
         }
 
         return Result.Success(lostPetEvent.Id.ToString());
-    }
-
-    private static string SanitizeFileName(string? fileName)
-    {
-        if (string.IsNullOrWhiteSpace(fileName)) return "photo.jpg";
-        var clean = new string(fileName
-            .Where(c => char.IsLetterOrDigit(c) || c is '.' or '-' or '_')
-            .ToArray());
-        return string.IsNullOrEmpty(clean) ? "photo.jpg" : clean;
     }
 }

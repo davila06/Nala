@@ -1,4 +1,5 @@
 using MediatR;
+using PawTrack.Application.Common;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Common;
@@ -38,7 +39,7 @@ public sealed class CreatePetCommandHandler(
         if (request.PhotoBytes is { Length: > 0 })
         {
             var resized = await imageProcessor.ResizeAsync(request.PhotoBytes, 800, cancellationToken);
-            var blobName = $"{pet.Id}/{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}-{SanitizeFileName(request.PhotoFileName)}";
+            var blobName = $"{pet.Id}/{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}-{BlobHelper.SanitizeFileName(request.PhotoFileName)}";
             using var stream = new MemoryStream(resized);
 
             var photoUrl = await blobStorage.UploadAsync(
@@ -51,14 +52,5 @@ public sealed class CreatePetCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success(pet.Id.ToString());
-    }
-
-    private static string SanitizeFileName(string? fileName)
-    {
-        if (string.IsNullOrWhiteSpace(fileName)) return "photo.jpg";
-        var clean = new string(fileName
-            .Where(c => char.IsLetterOrDigit(c) || c is '.' or '-' or '_')
-            .ToArray());
-        return string.IsNullOrEmpty(clean) ? "photo.jpg" : clean;
     }
 }

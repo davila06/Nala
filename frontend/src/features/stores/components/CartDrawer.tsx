@@ -11,8 +11,7 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
-  const { items, storeName, updateQty, totalCrc, clear } =
-    useCartStore();
+  const { items, storeName, updateQty, totalCrc, clear } = useCartStore();
 
   return (
     <AnimatePresence>

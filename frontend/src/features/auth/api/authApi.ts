@@ -65,7 +65,14 @@ export function decodeRoleFromJwt(accessToken: string): UserRole {
       atob(accessToken.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
     );
     const raw = payload[ROLE_CLAIM] as string | undefined;
-    if (raw === "Ally" || raw === "Admin" || raw === "Clinic") return raw;
+    if (
+      raw === "Ally" ||
+      raw === "Admin" ||
+      raw === "Clinic" ||
+      raw === "Municipality" ||
+      raw === "Store"
+    )
+      return raw;
     return "Owner";
   } catch {
     return "Owner";

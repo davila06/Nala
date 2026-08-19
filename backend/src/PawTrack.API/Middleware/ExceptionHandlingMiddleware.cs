@@ -20,6 +20,13 @@ public sealed class ExceptionHandlingMiddleware(
             await WriteProblemAsync(context, StatusCodes.Status422UnprocessableEntity,
                 "Validation Error", ex.Errors.Select(e => e.ErrorMessage));
         }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("imagen", StringComparison.OrdinalIgnoreCase)
+                                                 || ex.Message.Contains("image", StringComparison.OrdinalIgnoreCase))
+        {
+            logger.LogWarning("Image processing error: {Message}", ex.Message);
+            await WriteProblemAsync(context, StatusCodes.Status400BadRequest,
+                "Invalid Image", detail: "El archivo de imagen no es válido o el formato no está soportado (JPEG, PNG, WebP).");
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unhandled exception for {Method} {Path}", context.Request.Method, context.Request.Path);

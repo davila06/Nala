@@ -12,20 +12,28 @@ public sealed class ImageSharpProcessor : IImageProcessor
         int maxDimension = 800,
         CancellationToken cancellationToken = default)
     {
-        using var image = Image.Load(source);
-
-        // Only downscale — never upscale
-        if (image.Width > maxDimension || image.Height > maxDimension)
+        Image image;
+        try { image = Image.Load(source); }
+        catch (Exception ex) when (ex is UnknownImageFormatException or InvalidImageContentException or ImageProcessingException)
         {
-            image.Mutate(ctx => ctx.Resize(new ResizeOptions
-            {
-                Mode = ResizeMode.Max,
-                Size = new Size(maxDimension, maxDimension),
-            }));
+            throw new InvalidOperationException("Archivo de imagen inválido o formato no soportado.", ex);
         }
 
-        using var output = new MemoryStream();
-        await image.SaveAsJpegAsync(output, new JpegEncoder { Quality = 85 }, cancellationToken);
-        return output.ToArray();
+        using (image)
+        {
+            // Only downscale — never upscale
+            if (image.Width > maxDimension || image.Height > maxDimension)
+            {
+                image.Mutate(ctx => ctx.Resize(new ResizeOptions
+                {
+                    Mode = ResizeMode.Max,
+                    Size = new Size(maxDimension, maxDimension),
+                }));
+            }
+
+            using var output = new MemoryStream();
+            await image.SaveAsJpegAsync(output, new JpegEncoder { Quality = 85 }, cancellationToken);
+            return output.ToArray();
+        }
     }
 }

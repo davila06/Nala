@@ -219,6 +219,8 @@ public sealed class User
             return Result.Failure<bool>("Current password is incorrect.");
 
         PasswordHash = newPasswordHash;
+        // Invalidate all active sessions — force re-login on other devices
+        RevokeAllRefreshTokens();
         return Result.Success(true);
     }
 
