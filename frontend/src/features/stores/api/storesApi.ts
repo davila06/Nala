@@ -182,4 +182,14 @@ export const storesApi = {
     apiClient
       .post<PublicStoreDto>("/stores/register", data)
       .then((r) => r.data),
+
+  uploadProductImage: (productId: string, file: File): Promise<StoreProductDto> => {
+    const form = new FormData();
+    form.append("image", file);
+    return apiClient
+      .post<StoreProductDto>(`/stores/products/${productId}/image`, form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((r) => r.data);
+  },
 };

@@ -82,3 +82,13 @@ export function useDeleteProduct() {
 export function useRegisterStore() {
   return useMutation({ mutationFn: storesApi.register });
 }
+
+export function useUploadProductImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ productId, file }: { productId: string; file: File }) =>
+      storesApi.uploadProductImage(productId, file),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["my-store-products"] }),
+  });
+}

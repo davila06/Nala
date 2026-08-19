@@ -9,11 +9,19 @@ interface ModalProps {
   maxWidth?: number;
 }
 
-export function Modal({ isOpen, onClose, title, children, maxWidth = 420 }: ModalProps) {
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  children,
+  maxWidth = 420,
+}: ModalProps) {
   // Close on Escape
   useEffect(() => {
     if (!isOpen) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [isOpen, onClose]);
@@ -45,7 +53,9 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 420 }: Moda
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
           >
             {title && (
-              <h2 className="mb-4 text-base font-semibold text-ink-900">{title}</h2>
+              <h2 className="mb-4 text-base font-semibold text-ink-900">
+                {title}
+              </h2>
             )}
             {children}
           </motion.div>

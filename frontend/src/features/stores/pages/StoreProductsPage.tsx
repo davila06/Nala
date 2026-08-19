@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Button, Input } from "@/shared/ui";
 import { toast } from "@/shared/lib/toast";
@@ -8,9 +8,13 @@ import {
   useAddProduct,
   useUpdateProduct,
   useDeleteProduct,
+  useUploadProductImage,
 } from "../hooks/useStores";
 import { CATEGORY_LABELS } from "../api/storesApi";
 import type { StoreProductDto, ProductCategory } from "../api/storesApi";
+
+const ACCEPTED = "image/jpeg,image/png,image/webp";
+const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 
 const CATEGORIES = Object.keys(CATEGORY_LABELS) as ProductCategory[];
 
@@ -140,8 +144,46 @@ export default function StoreProductsPage() {
   const add = useAddProduct();
   const update = useUpdateProduct();
   const del = useDeleteProduct();
+  const uploadImage = useUploadProductImage();
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const pendingProductId = useRef<string | null>(null);
+
+  const handleImageClick = (productId: string) => {
+    pendingProductId.current = productId;
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const productId = pendingProductId.current;
+    e.target.value = "";
+    if (!file || !productId) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Solo se aceptan imágenes JPEG, PNG o WebP.");
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      toast.error("La imagen no puede superar 5 MB.");
+      return;
+    }
+    setUploadingId(productId);
+    uploadImage.mutate(
+      { productId, file },
+      {
+        onSuccess: () => {
+          toast.success("Imagen actualizada");
+          setUploadingId(null);
+        },
+        onError: () => {
+          toast.error("No se pudo subir la imagen.");
+          setUploadingId(null);
+        },
+      },
+    );
+  };
 
   if (isLoading)
     return (
@@ -150,7 +192,6 @@ export default function StoreProductsPage() {
       </div>
     );
 
-  const editing = editId ? products?.find((p) => p.id === editId) : undefined;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 space-y-5 animate-fade-in-up">
@@ -218,13 +259,37 @@ export default function StoreProductsPage() {
                 </div>
               ) : (
                 <div className="flex items-start gap-3 p-4">
-                  {product.imageUrl && (
-                    <img
-                      src={product.imageUrl}
-                      alt={product.name}
-                      className="h-14 w-14 rounded-xl object-cover border border-sand-200 shrink-0"
-                    />
-                  )}
+                  {/* Product image with upload overlay */}
+                  <button
+                    type="button"
+                    onClick={() => handleImageClick(product.id)}
+                    title="Cambiar imagen"
+                    className="group relative h-14 w-14 shrink-0 rounded-xl overflow-hidden border border-sand-200 bg-sand-100 flex items-center justify-center"
+                  >
+                    {product.imageUrl ? (
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-xl select-none">📦</span>
+                    )}
+                    {uploadingId === product.id ? (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                        <svg className="h-5 w-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                      </div>
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/40 transition-colors">
+                        <svg viewBox="0 0 16 16" fill="white" className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true">
+                          <path d="M8 1.5a.75.75 0 0 1 .75.75V7h4.75a.75.75 0 0 1 0 1.5H8.75v4.75a.75.75 0 0 1-1.5 0V8.5H2.5a.75.75 0 0 1 0-1.5h4.75V2.25A.75.75 0 0 1 8 1.5Z" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="font-semibold text-sand-900 truncate">
@@ -284,6 +349,16 @@ export default function StoreProductsPage() {
           ))}
         </ul>
       )}
+
+      {/* Hidden file input shared across all product image buttons */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={ACCEPTED}
+        className="sr-only"
+        onChange={handleFileChange}
+        aria-hidden="true"
+      />
     </div>
   );
 }
