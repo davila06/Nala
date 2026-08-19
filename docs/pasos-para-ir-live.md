@@ -123,51 +123,51 @@ Esta es la parte mas importante. Si las variables no estan bien, el despliegue p
 
 Estas son obligatorias para que la app base funcione:
 
-| Nombre | Donde se configura | Obligatoria | Para que sirve |
-|---|---|---|---|
-| `SQL_ADMIN_PASSWORD` | Solo durante despliegue de Bicep | Si | Password del admin de Azure SQL al crear infraestructura |
-| `sql-connection-string` | Key Vault secret | Si | Conexion real del backend a SQL |
-| `jwt-signing-key` | Key Vault secret | Si | Firma de tokens JWT |
-| `storage-connection-string` | Key Vault secret | Si | Subida de fotos a Blob Storage |
-| `appinsights-connection-string` | Key Vault secret | Si | Telemetria de aplicacion |
-| `App__BaseUrl` | App Service setting | Si | URL publica base del frontend, por ejemplo `https://pawtrack.cr` |
-| `VITE_API_URL` | Build del frontend | Si | URL publica de la API, por ejemplo `https://api.pawtrack.cr` |
-| `Cors__AllowedOrigins__0` | App Service setting | Si | Origen permitido del frontend, por ejemplo `https://pawtrack.cr` |
-| `ASPNETCORE_ENVIRONMENT` | App Service setting | Si | Debe quedar en `Production` |
-| `Azure__KeyVaultUri` | App Service setting | Si | URI del Key Vault |
+| Nombre                          | Donde se configura               | Obligatoria | Para que sirve                                                   |
+| ------------------------------- | -------------------------------- | ----------- | ---------------------------------------------------------------- |
+| `SQL_ADMIN_PASSWORD`            | Solo durante despliegue de Bicep | Si          | Password del admin de Azure SQL al crear infraestructura         |
+| `sql-connection-string`         | Key Vault secret                 | Si          | Conexion real del backend a SQL                                  |
+| `jwt-signing-key`               | Key Vault secret                 | Si          | Firma de tokens JWT                                              |
+| `storage-connection-string`     | Key Vault secret                 | Si          | Subida de fotos a Blob Storage                                   |
+| `appinsights-connection-string` | Key Vault secret                 | Si          | Telemetria de aplicacion                                         |
+| `App__BaseUrl`                  | App Service setting              | Si          | URL publica base del frontend, por ejemplo `https://pawtrack.cr` |
+| `VITE_API_URL`                  | Build del frontend               | Si          | URL publica de la API, por ejemplo `https://api.pawtrack.cr`     |
+| `Cors__AllowedOrigins__0`       | App Service setting              | Si          | Origen permitido del frontend, por ejemplo `https://pawtrack.cr` |
+| `ASPNETCORE_ENVIRONMENT`        | App Service setting              | Si          | Debe quedar en `Production`                                      |
+| `Azure__KeyVaultUri`            | App Service setting              | Si          | URI del Key Vault                                                |
 
 ### 6.2 Variables recomendadas para un go-live completo
 
 Estas no siempre bloquean el arranque, pero son importantes si usas funciones asociadas:
 
-| Nombre | Donde se configura | Obligatoria | Para que sirve |
-|---|---|---|---|
-| `vision-endpoint` | Key Vault secret | Depende | Integracion de vision/computer vision |
-| `vision-key` | Key Vault secret | Depende | Integracion de vision/computer vision |
-| `Azure__Maps__SubscriptionKey` | App Service setting o Key Vault ref | Depende | Azure Maps |
-| `ApplicationInsights__ConnectionString` | App Service setting | Opcional | Solo si quieres duplicar la forma clasica de config; Bicep ya inyecta `APPINSIGHTS_CONNECTIONSTRING` |
+| Nombre                                  | Donde se configura                  | Obligatoria | Para que sirve                                                                                       |
+| --------------------------------------- | ----------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------- |
+| `vision-endpoint`                       | Key Vault secret                    | Depende     | Integracion de vision/computer vision                                                                |
+| `vision-key`                            | Key Vault secret                    | Depende     | Integracion de vision/computer vision                                                                |
+| `Azure__Maps__SubscriptionKey`          | App Service setting o Key Vault ref | Depende     | Azure Maps                                                                                           |
+| `ApplicationInsights__ConnectionString` | App Service setting                 | Opcional    | Solo si quieres duplicar la forma clasica de config; Bicep ya inyecta `APPINSIGHTS_CONNECTIONSTRING` |
 
 ### 6.3 Variables opcionales para canales e integraciones
 
 Estas pueden dejarse apagadas en un primer lanzamiento si no estan listas:
 
-| Nombre | Donde se configura | Obligatoria | Para que sirve |
-|---|---|---|---|
-| `whatsapp-phone-number-id` | Key Vault secret | Opcional | Canal WhatsApp |
-| `whatsapp-access-token` | Key Vault secret | Opcional | Canal WhatsApp |
-| `WhatsApp__AppSecret` | App Service setting o Key Vault ref | Opcional | Validacion HMAC del webhook de Meta |
-| `WhatsApp__VerifyToken` | App Service setting o Key Vault ref | Opcional | Validacion inicial del webhook de Meta |
-| `telegram-bot-token` | Key Vault secret | Opcional | Canal Telegram |
-| `facebook-page-access-token` | Key Vault secret | Opcional | Canal Facebook |
-| `facebook-page-id` | Key Vault secret | Opcional | Canal Facebook |
-| `Email__SmtpHost` | App Service setting o Key Vault ref | Opcional | Envio email SMTP |
-| `Email__SmtpPort` | App Service setting o Key Vault ref | Opcional | Envio email SMTP |
-| `Email__SmtpUser` | App Service setting o Key Vault ref | Opcional | Envio email SMTP |
-| `Email__SmtpPassword` | App Service setting o Key Vault ref | Opcional | Envio email SMTP |
-| `Notifications__Push__Enabled` | App Service setting | Opcional | Habilita proveedor externo de push |
-| `Notifications__Push__ProviderUrl` | App Service setting o Key Vault ref | Opcional | URL del proveedor push |
-| `Notifications__Push__ApiKey` | App Service setting o Key Vault ref | Opcional | Api key del proveedor push |
-| `VITE_VAPID_PUBLIC_KEY` | Build del frontend | Opcional | Necesaria si habilitas suscripcion push en navegador |
+| Nombre                             | Donde se configura                  | Obligatoria | Para que sirve                                       |
+| ---------------------------------- | ----------------------------------- | ----------- | ---------------------------------------------------- |
+| `whatsapp-phone-number-id`         | Key Vault secret                    | Opcional    | Canal WhatsApp                                       |
+| `whatsapp-access-token`            | Key Vault secret                    | Opcional    | Canal WhatsApp                                       |
+| `WhatsApp__AppSecret`              | App Service setting o Key Vault ref | Opcional    | Validacion HMAC del webhook de Meta                  |
+| `WhatsApp__VerifyToken`            | App Service setting o Key Vault ref | Opcional    | Validacion inicial del webhook de Meta               |
+| `telegram-bot-token`               | Key Vault secret                    | Opcional    | Canal Telegram                                       |
+| `facebook-page-access-token`       | Key Vault secret                    | Opcional    | Canal Facebook                                       |
+| `facebook-page-id`                 | Key Vault secret                    | Opcional    | Canal Facebook                                       |
+| `Email__SmtpHost`                  | App Service setting o Key Vault ref | Opcional    | Envio email SMTP                                     |
+| `Email__SmtpPort`                  | App Service setting o Key Vault ref | Opcional    | Envio email SMTP                                     |
+| `Email__SmtpUser`                  | App Service setting o Key Vault ref | Opcional    | Envio email SMTP                                     |
+| `Email__SmtpPassword`              | App Service setting o Key Vault ref | Opcional    | Envio email SMTP                                     |
+| `Notifications__Push__Enabled`     | App Service setting                 | Opcional    | Habilita proveedor externo de push                   |
+| `Notifications__Push__ProviderUrl` | App Service setting o Key Vault ref | Opcional    | URL del proveedor push                               |
+| `Notifications__Push__ApiKey`      | App Service setting o Key Vault ref | Opcional    | Api key del proveedor push                           |
+| `VITE_VAPID_PUBLIC_KEY`            | Build del frontend                  | Opcional    | Necesaria si habilitas suscripcion push en navegador |
 
 ### 6.4 Observacion importante sobre push notifications
 
@@ -184,16 +184,16 @@ Si no tienes ese proveedor listo, deja push apagado en el primer go-live. La app
 
 Usa estos valores como base:
 
-| Clave | Valor sugerido |
-|---|---|
-| `environment` | `prod` |
-| `appName` | `pawtrack` |
-| `location` | `eastus` |
-| `frontendUrl` | `https://pawtrack.cr` o `https://www.pawtrack.cr` |
-| `alertEmailAddress` | correo real de operaciones |
-| `App__BaseUrl` | `https://pawtrack.cr` |
-| `VITE_API_URL` | `https://api.pawtrack.cr` |
-| `Cors__AllowedOrigins__0` | `https://pawtrack.cr` |
+| Clave                     | Valor sugerido                                    |
+| ------------------------- | ------------------------------------------------- |
+| `environment`             | `prod`                                            |
+| `appName`                 | `pawtrack`                                        |
+| `location`                | `eastus`                                          |
+| `frontendUrl`             | `https://pawtrack.cr` o `https://www.pawtrack.cr` |
+| `alertEmailAddress`       | correo real de operaciones                        |
+| `App__BaseUrl`            | `https://pawtrack.cr`                             |
+| `VITE_API_URL`            | `https://api.pawtrack.cr`                         |
+| `Cors__AllowedOrigins__0` | `https://pawtrack.cr`                             |
 
 ## 8. Paso 1 - Iniciar sesion en Azure
 
@@ -708,8 +708,8 @@ Si una de esas tres falla, todavia no estas live.
 
 Los siguientes secrets deben configurarse en Key Vault **además** de los listados en la sección anterior:
 
-| Secret en Key Vault | Descripción | Requerido por |
-|---------------------|-------------|---------------|
+| Secret en Key Vault     | Descripción                                                          | Requerido por                        |
+| ----------------------- | -------------------------------------------------------------------- | ------------------------------------ |
 | `bot-phone-hash-secret` | Mínimo 32 chars; HMAC-SHA256 para hash de teléfonos del bot WhatsApp | `Bot:PhoneHashSecret` en appsettings |
 
 ```powershell
@@ -723,11 +723,11 @@ az keyvault secret set \
 
 Las siguientes migraciones deben aplicarse en Azure SQL **adicional** a las que ya existían:
 
-| Migración | Descripción |
-|-----------|-------------|
-| `AddPetStores` | Stores, StoreProducts, StoreOrders, StoreOrderItems |
-| `AddRevokedTokens` | JTI blocklist distribuido para multi-instancia |
-| `AddBillboards` | Vallas publicitarias |
+| Migración          | Descripción                                         |
+| ------------------ | --------------------------------------------------- |
+| `AddPetStores`     | Stores, StoreProducts, StoreOrders, StoreOrderItems |
+| `AddRevokedTokens` | JTI blocklist distribuido para multi-instancia      |
+| `AddBillboards`    | Vallas publicitarias                                |
 
 ```powershell
 # Desde la raíz del backend
@@ -739,9 +739,9 @@ dotnet ef database update \
 
 ## 29. Nuevos contenedores de Blob Storage (agosto 2026)
 
-| Contenedor | Visibilidad | Uso |
-|-----------|-------------|-----|
-| `store-product-images` | Privado | Imágenes de productos de tiendas |
-| `billboard-images` | Privado | Imágenes de vallas publicitarias |
+| Contenedor             | Visibilidad | Uso                              |
+| ---------------------- | ----------- | -------------------------------- |
+| `store-product-images` | Privado     | Imágenes de productos de tiendas |
+| `billboard-images`     | Privado     | Imágenes de vallas publicitarias |
 
 El `BlobStorageService` crea los contenedores automáticamente en el primer upload si no existen.
