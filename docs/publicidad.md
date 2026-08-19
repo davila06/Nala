@@ -45,7 +45,8 @@ Las vallas publicitarias de PawTrack CR son **tarjetas visuales dismissibles** q
 **¿Dónde aparece?**  
 Overlay flotante en la esquina inferior izquierda del mapa interactivo público (`/mapa`). Visible para TODOS los visitantes, incluidos los no registrados.
 
-**¿Quién lo ve?**  
+**¿Quién lo ve?**
+
 - Cualquier persona que escanea un QR y abre el mapa
 - Usuarios buscando mascotas perdidas en la zona
 - Personas explorando la app sin cuenta
@@ -123,31 +124,31 @@ Servicios de búsqueda profesional de mascotas, collares GPS (Tractive), chips R
 
 ### 3.1 Tarifa por placement y duración
 
-| Placement | 1 semana | 1 mes | 3 meses | 6 meses | 12 meses |
-|-----------|:--------:|:-----:|:-------:|:-------:|:--------:|
-| 🗺️ **Map** | ₡18,000 | ₡55,000 | ₡140,000 | ₡240,000 | ₡400,000 |
-| 🏠 **Dashboard** | ₡10,000 | ₡30,000 | ₡75,000 | ₡130,000 | ₡220,000 |
-| 🗂️ **Directory** | ₡12,000 | ₡35,000 | ₡90,000 | ₡155,000 | ₡260,000 |
-| 📋 **Feed** | ₡22,000 | ₡65,000 | ₡165,000 | ₡290,000 | ₡490,000 |
+| Placement        | 1 semana |  1 mes  | 3 meses  | 6 meses  | 12 meses |
+| ---------------- | :------: | :-----: | :------: | :------: | :------: |
+| 🗺️ **Map**       | ₡18,000  | ₡55,000 | ₡140,000 | ₡240,000 | ₡400,000 |
+| 🏠 **Dashboard** | ₡10,000  | ₡30,000 | ₡75,000  | ₡130,000 | ₡220,000 |
+| 🗂️ **Directory** | ₡12,000  | ₡35,000 | ₡90,000  | ₡155,000 | ₡260,000 |
+| 📋 **Feed**      | ₡22,000  | ₡65,000 | ₡165,000 | ₡290,000 | ₡490,000 |
 
 ### 3.2 Paquetes combinados
 
-| Paquete | Descripción | Precio/mes | Precio/año | Ahorro anual |
-|---------|-------------|:----------:|:----------:|:------------:|
-| 🟢 **Starter** | Map — 1 semana | ₡18,000 | — | — |
-| 🔵 **Visibilidad** | Map + Dashboard — 1 mes | ₡75,000 | ₡720,000 | ₡180,000 |
-| 🟣 **Presencia** | Todos los 4 placements — 1 mes | ₡175,000 | ₡1,680,000 | ₡420,000 |
-| 🟡 **Socio Anual** | Todos los 4 placements — 12 meses | — | ₡1,400,000 | ₡700,000 |
+| Paquete            | Descripción                       | Precio/mes | Precio/año | Ahorro anual |
+| ------------------ | --------------------------------- | :--------: | :--------: | :----------: |
+| 🟢 **Starter**     | Map — 1 semana                    |  ₡18,000   |     —      |      —       |
+| 🔵 **Visibilidad** | Map + Dashboard — 1 mes           |  ₡75,000   |  ₡720,000  |   ₡180,000   |
+| 🟣 **Presencia**   | Todos los 4 placements — 1 mes    |  ₡175,000  | ₡1,680,000 |   ₡420,000   |
+| 🟡 **Socio Anual** | Todos los 4 placements — 12 meses |     —      | ₡1,400,000 |   ₡700,000   |
 
 ### 3.3 Add-on: Exclusividad de categoría
 
 Si un anunciante quiere ser el **único de su categoría** visible en un placement durante su período:
 
 | Duración | Cargo adicional |
-|----------|:---------------:|
-| 1 semana | +₡8,000 |
-| 1 mes | +₡20,000 |
-| 3 meses | +₡50,000 |
+| -------- | :-------------: |
+| 1 semana |     +₡8,000     |
+| 1 mes    |    +₡20,000     |
+| 3 meses  |    +₡50,000     |
 
 Ejemplo: una veterinaria paga la exclusividad de categoría en Map — ninguna otra veterinaria puede tener valla en Map durante ese período.
 
@@ -155,14 +156,14 @@ Ejemplo: una veterinaria paga la exclusividad de categoría en Map — ninguna o
 
 ## 4. Descuentos y condiciones especiales
 
-| Condición | Descuento |
-|-----------|:---------:|
-| Cliente con plan StorePlus o StorePartner activo | **20%** en cualquier valla |
-| Cliente con plan ClinicPlus o ClinicPartner activo | **20%** en cualquier valla |
-| Pago de 6 o 12 meses por adelantado | **25–30%** (ya reflejado en la tabla) |
-| ONG o aliado verificado sin fines de lucro | **50%** o gratis en Feed temporalmente |
-| Primera valla de un nuevo anunciante (prueba) | **1 semana en Map gratis** |
-| Referido: otro cliente que refiere al nuevo anunciante | ₡10,000 de crédito al referidor |
+| Condición                                              |               Descuento                |
+| ------------------------------------------------------ | :------------------------------------: |
+| Cliente con plan StorePlus o StorePartner activo       |       **20%** en cualquier valla       |
+| Cliente con plan ClinicPlus o ClinicPartner activo     |       **20%** en cualquier valla       |
+| Pago de 6 o 12 meses por adelantado                    | **25–30%** (ya reflejado en la tabla)  |
+| ONG o aliado verificado sin fines de lucro             | **50%** o gratis en Feed temporalmente |
+| Primera valla de un nuevo anunciante (prueba)          |       **1 semana en Map gratis**       |
+| Referido: otro cliente que refiere al nuevo anunciante |    ₡10,000 de crédito al referidor     |
 
 > Los descuentos no son acumulables entre sí. Se aplica el mayor descuento disponible.
 
@@ -229,16 +230,16 @@ Solicitar por WhatsApp o email antes de crear la valla:
 □ CONTENIDO DE LA VALLA:
    - Título (máx. 120 caracteres)
      Ejemplo: "Kibbles Premium — Envío gratis en Desamparados 🐕"
-   
+
    - Descripción (máx. 300 caracteres, opcional)
      Ejemplo: "Primera bolsa de alimento holístico con 15% de descuento para nuevos clientes. Solo esta semana."
-   
+
    - Texto del botón CTA (máx. 60 caracteres, opcional)
      Ejemplo: "Ver oferta →" o "Escríbenos por WhatsApp"
-   
+
    - URL destino del botón (donde va el usuario al hacer clic)
      Ejemplo: https://wa.me/50688881234 o https://mitienda.com/oferta
-   
+
    - Imagen (ver especificaciones en §7)
      ¿El cliente tiene imagen? ¿O necesita que PawTrack diseñe?
 ```
@@ -258,14 +259,14 @@ Solicitar por WhatsApp o email antes de crear la valla:
 
 ### 7.1 Imagen
 
-| Parámetro | Especificación |
-|-----------|---------------|
-| **Formatos aceptados** | JPEG, PNG, WebP |
-| **Tamaño máximo** | 5 MB |
-| **Dimensiones recomendadas** | 1200 × 628 px (ratio 1.9:1) |
-| **Mínimo recomendado** | 600 × 315 px |
-| **El sistema redimensiona a** | máx. 1200px (automático) |
-| **Calidad de compresión** | 85% JPEG (automático) |
+| Parámetro                     | Especificación              |
+| ----------------------------- | --------------------------- |
+| **Formatos aceptados**        | JPEG, PNG, WebP             |
+| **Tamaño máximo**             | 5 MB                        |
+| **Dimensiones recomendadas**  | 1200 × 628 px (ratio 1.9:1) |
+| **Mínimo recomendado**        | 600 × 315 px                |
+| **El sistema redimensiona a** | máx. 1200px (automático)    |
+| **Calidad de compresión**     | 85% JPEG (automático)       |
 
 ### 7.2 Composición recomendada de la imagen
 
@@ -287,12 +288,12 @@ Solicitar por WhatsApp o email antes de crear la valla:
 
 ### 7.3 Texto de la valla (en la app)
 
-| Campo | Límite | Obligatorio | Notas |
-|-------|--------|:-----------:|-------|
-| Título | 120 caracteres | ✅ | Se muestra en negrita debajo de la imagen |
-| Descripción | 300 caracteres | ❌ | Texto más pequeño, máx 2-3 líneas visibles |
-| CTA texto | 60 caracteres | ❌ | Botón verde con el texto del cliente |
-| CTA URL | Sin límite práctico | Solo si hay CTA | Debe ser HTTPS o WhatsApp |
+| Campo       | Límite              |   Obligatorio   | Notas                                      |
+| ----------- | ------------------- | :-------------: | ------------------------------------------ |
+| Título      | 120 caracteres      |       ✅        | Se muestra en negrita debajo de la imagen  |
+| Descripción | 300 caracteres      |       ❌        | Texto más pequeño, máx 2-3 líneas visibles |
+| CTA texto   | 60 caracteres       |       ❌        | Botón verde con el texto del cliente       |
+| CTA URL     | Sin límite práctico | Solo si hay CTA | Debe ser HTTPS o WhatsApp                  |
 
 ### 7.4 URLs permitidas para el CTA
 
@@ -320,12 +321,14 @@ Solicitar por WhatsApp o email antes de crear la valla:
 ### Paso 2 — Recopilar materiales (día 1-2)
 
 Solicitar al cliente (puede ser por WhatsApp):
+
 - La imagen en la resolución correcta
 - El título, descripción y texto del botón
 - La URL destino del botón
 - Fecha de inicio deseada
 
 > **Tip**: muchos clientes no tienen imagen lista. En ese caso, se puede:
+>
 > - Pedirles que envíen su logo + foto del producto/local y crearla en Canva (~15 min)
 > - Cobrar ₡10,000 adicionales por diseño si el volumen lo justifica
 > - Ofrecer la 1ª semana gratis extendida a 2 semanas si necesitan tiempo para diseñar
@@ -333,6 +336,7 @@ Solicitar al cliente (puede ser por WhatsApp):
 ### Paso 3 — Revisión de contenido (día 2)
 
 Verificar que:
+
 - [ ] La imagen cumple las especificaciones técnicas
 - [ ] El contenido no viola las políticas (§10)
 - [ ] La URL del CTA funciona correctamente
@@ -355,6 +359,7 @@ Tiempo estimado de configuración: **10-15 minutos**.
 ### Paso 6 — Confirmación al cliente (día 3)
 
 Enviar al cliente:
+
 - Screenshot de la valla activa en la app
 - Las fechas exactas de inicio y fin
 - La URL donde pueden verla: `https://pawtrack.cr/mapa` (para Map) o según el placement
@@ -380,27 +385,27 @@ Enviar al cliente:
 1. Click en **+ Nueva valla**.
 2. Completar el formulario:
 
-| Campo | Valor a ingresar |
-|-------|-----------------|
-| **Título** | Texto exacto del cliente (máx 120 chars) |
-| **Descripción** | Texto de apoyo del cliente (o dejar vacío) |
-| **Ubicación (Placement)** | Map / Dashboard / Directory / Feed |
-| **Inicio** | Fecha y hora de inicio (usar 00:00 para inicio del día) |
-| **Fin** | Fecha y hora de fin (usar 23:59 del último día) |
-| **CTA Texto** | Texto del botón (o dejar vacío si no hay CTA) |
-| **CTA URL** | URL de destino del botón |
-| **Prioridad** | Ver tabla de prioridades abajo |
+| Campo                     | Valor a ingresar                                        |
+| ------------------------- | ------------------------------------------------------- |
+| **Título**                | Texto exacto del cliente (máx 120 chars)                |
+| **Descripción**           | Texto de apoyo del cliente (o dejar vacío)              |
+| **Ubicación (Placement)** | Map / Dashboard / Directory / Feed                      |
+| **Inicio**                | Fecha y hora de inicio (usar 00:00 para inicio del día) |
+| **Fin**                   | Fecha y hora de fin (usar 23:59 del último día)         |
+| **CTA Texto**             | Texto del botón (o dejar vacío si no hay CTA)           |
+| **CTA URL**               | URL de destino del botón                                |
+| **Prioridad**             | Ver tabla de prioridades abajo                          |
 
 ### 9.3 Tabla de prioridades por plan
 
-| Tipo de cliente | Prioridad asignada |
-|----------------|:-----------------:|
-| Socio Anual (todos los placements 12 meses) | 90-100 |
-| Paquete Presencia Completa (4 placements) | 70-85 |
-| Cliente 3-6 meses | 50-65 |
-| Cliente mensual | 30-45 |
-| Cliente semanal / primera valla | 10-25 |
-| Valla interna PawTrack (propia) | 1-5 |
+| Tipo de cliente                             | Prioridad asignada |
+| ------------------------------------------- | :----------------: |
+| Socio Anual (todos los placements 12 meses) |       90-100       |
+| Paquete Presencia Completa (4 placements)   |       70-85        |
+| Cliente 3-6 meses                           |       50-65        |
+| Cliente mensual                             |       30-45        |
+| Cliente semanal / primera valla             |       10-25        |
+| Valla interna PawTrack (propia)             |        1-5         |
 
 > Un cliente que paga más = prioridad más alta = se muestra primero si hay varias activas en el mismo placement.
 
@@ -422,6 +427,7 @@ Enviar al cliente:
 ### 9.6 Pausar o ajustar una valla activa
 
 Si el cliente necesita cambiar algo (error en el texto, cambio de imagen):
+
 1. Click en **Pausar** → estado cambia a `Paused`.
 2. Para cambiar la imagen: click en **📷 Imagen** y subir la nueva.
 3. Para cambiar texto: actualmente requiere recrear la valla (pendiente en roadmap: edición directa).
@@ -548,7 +554,7 @@ La renovación tarda 5 minutos y puede quedar lista hoy mismo.
 ```
 Perfecto [Nombre]! Para activar tu valla necesito:
 
-1. 📸 IMAGEN: 
+1. 📸 IMAGEN:
    - Formato: JPG, PNG o WebP
    - Tamaño: mínimo 600×315 px (ideal 1200×628 px)
    - Máximo: 5 MB
@@ -574,21 +580,21 @@ Con eso, la tengo lista en menos de 1 hora ✅
 
 ### 13.1 Calendario de seguimiento sugerido
 
-| Día | Acción |
-|-----|--------|
-| Día 1 (activación) | Enviar screenshot de confirmación + fecha de vencimiento |
-| Día 5 | Verificar que el cliente la haya visto, preguntar si tiene comentarios |
-| Día 15 (si es mensual) | "¿Cómo vas? Quedan 2 semanas." |
-| Día -7 (antes de vencer) | Oferta de renovación con descuento de lealtad |
-| Día vencimiento | Confirmar si quiere renovar o dar de baja |
+| Día                      | Acción                                                                 |
+| ------------------------ | ---------------------------------------------------------------------- |
+| Día 1 (activación)       | Enviar screenshot de confirmación + fecha de vencimiento               |
+| Día 5                    | Verificar que el cliente la haya visto, preguntar si tiene comentarios |
+| Día 15 (si es mensual)   | "¿Cómo vas? Quedan 2 semanas."                                         |
+| Día -7 (antes de vencer) | Oferta de renovación con descuento de lealtad                          |
+| Día vencimiento          | Confirmar si quiere renovar o dar de baja                              |
 
 ### 13.2 Descuentos de renovación
 
 | Renovaciones consecutivas | Descuento |
-|--------------------------|:---------:|
-| 2ª renovación | 5% |
-| 3ª renovación | 10% |
-| 4ª+ renovación | 15% |
+| ------------------------- | :-------: |
+| 2ª renovación             |    5%     |
+| 3ª renovación             |    10%    |
+| 4ª+ renovación            |    15%    |
 
 ### 13.3 Señales de que el cliente quiere más
 
@@ -609,5 +615,5 @@ Esto permite anticipar renovaciones y llevar el historial de pagos.
 
 ---
 
-*PawTrack CR — Publicidad in-app para negocios del mundo mascota en Costa Rica.*  
-*Contacto: davila06@gmail.com | WhatsApp disponible previa coordinación*
+_PawTrack CR — Publicidad in-app para negocios del mundo mascota en Costa Rica._  
+_Contacto: davila06@gmail.com | WhatsApp disponible previa coordinación_

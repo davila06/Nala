@@ -161,7 +161,14 @@ export default function StoreRegistrationPage() {
                 </span>
               </label>
               <div className="h-48 rounded-2xl overflow-hidden border border-sand-200">
-                <LastSeenMap value={coords} onChange={setCoords} />
+                {/* Provide safe defaults — store registration doesn't need geo tracking */}
+                <LastSeenMap
+                  value={coords}
+                  onChange={setCoords}
+                  userCoords={null}
+                  geoStatus="idle"
+                  petName="Tu tienda"
+                />
               </div>
             </div>
             <div>

@@ -42,7 +42,7 @@ export function useChatMessages(threadId: string, enabled = true) {
     queryKey: keys.messages(threadId),
     queryFn: () => chatApi.getMessages(threadId),
     enabled: enabled && !!threadId,
-    // TODO: replace with SignalR push once ChatHub is wired — polling is 12 req/min per open thread
+    // SignalR push via useChatSignalR mounted at page level; poll stays as fallback
     refetchInterval: 10_000,
     staleTime: 5_000,
   });

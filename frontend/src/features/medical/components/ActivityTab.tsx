@@ -208,7 +208,7 @@ function WeeklyChart({
           unit=" m"
         />
         <Tooltip
-          formatter={(v: number) => [`${v} min`, "Duración"]}
+          formatter={(v) => [`${v} min`, "Duración"] as [string, string]}
           contentStyle={{
             borderRadius: 12,
             border: "1px solid var(--color-sand-200)",

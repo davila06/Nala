@@ -31,6 +31,8 @@ export const billboardsApi = {
         totalCount: number;
         pageNumber: number;
         pageSize: number;
+        totalPages: number;
+        hasNextPage: boolean;
       }>("/billboards/admin", {
         params: { page, pageSize },
       })

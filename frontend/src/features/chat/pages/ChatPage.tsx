@@ -4,8 +4,8 @@ import {
   useChatMessages,
   useChatThreads,
   useOpenChatThread,
-  useChatSignalR,
 } from "../hooks/useChatThread";
+import { useChatSignalR } from "../hooks/useChatSignalR";
 import { ChatPanel } from "../components/ChatPanel";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { Button } from "@/shared/ui";

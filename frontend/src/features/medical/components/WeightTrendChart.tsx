@@ -18,14 +18,12 @@ interface WeightTrendChartProps {
   petName: string;
 }
 
-function ChartTooltip({ active, payload }: TooltipProps<number, string>) {
+function ChartTooltip(props: TooltipProps<number, string>) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { active, payload } = props as any;
   if (!active || !payload?.length) return null;
-  const d = payload[0]!.payload as {
-    date: string;
-    weightKg: number;
-    source: string;
-    clinicName: string | null;
-  };
+  const d = payload[0]?.payload as { date: string; weightKg: number; source: string; clinicName: string | null } | undefined;
+  if (!d) return null;
   return (
     <div className="rounded-xl border border-sand-200 bg-surface px-3 py-2 shadow-lg text-xs">
       <p className="font-semibold text-sand-900">{d.weightKg.toFixed(1)} kg</p>
@@ -141,11 +139,13 @@ function WeightChartInner({ petId, petName }: WeightTrendChartProps) {
               strokeWidth={2}
               dot={(props) => {
                 const isClinic = props.payload?.source === "Clinic";
+                const cx = props.cx ?? 0;
+                const cy = props.cy ?? 0;
                 return (
                   <rect
                     key={props.key}
-                    x={props.cx - 4}
-                    y={props.cy - 4}
+                    x={cx - 4}
+                    y={cy - 4}
                     width={8}
                     height={8}
                     fill={

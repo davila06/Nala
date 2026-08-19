@@ -140,9 +140,6 @@ export default function MyStoreOrdersPage() {
   const past = orders.filter((o) => TERMINAL.includes(o.status));
   const hasMore = orders.length === 20; // 20 = pageSize
 
-  const active = orders.filter((o) => !TERMINAL.includes(o.status));
-  const past = orders.filter((o) => TERMINAL.includes(o.status));
-
   return (
     <>
       <Helmet>
