@@ -8,6 +8,7 @@ public interface INotificationRepository
         Guid userId, int skip, int take, CancellationToken cancellationToken = default);
 
     Task<int> CountUnreadAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<int> CountTotalAsync(Guid userId, CancellationToken cancellationToken = default);
 
     Task<Notification?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 

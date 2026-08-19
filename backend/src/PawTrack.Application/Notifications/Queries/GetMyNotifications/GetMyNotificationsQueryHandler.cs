@@ -22,16 +22,19 @@ public sealed class GetMyNotificationsQueryHandler(
         var notifications = await notificationRepository.GetByUserIdAsync(
             request.UserId, skip, pageSize, cancellationToken);
 
+        var totalCount = await notificationRepository.CountTotalAsync(request.UserId, cancellationToken);
         var unreadCount = await notificationRepository.CountUnreadAsync(request.UserId, cancellationToken);
 
-        // Total count approximation: unread + already fetched read items
-        // For MVP we return the page result with a simple total from the unread count
         var dtos = notifications.Select(NotificationDto.FromDomain).ToList();
 
         return Result.Success(new PagedResult<NotificationDto>(
             dtos,
-            unreadCount,  // unread count as badge indicator
+            totalCount,
             pageNumber,
-            pageSize));
+            pageSize)
+        {
+            // Expose unread count as an extension so the UI badge doesn't need a separate request
+            UnreadCount = unreadCount,
+        });
     }
 }

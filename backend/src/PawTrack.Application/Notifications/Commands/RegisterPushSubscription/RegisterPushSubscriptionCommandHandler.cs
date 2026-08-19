@@ -14,10 +14,14 @@ public sealed class RegisterPushSubscriptionCommandHandler(
         RegisterPushSubscriptionCommand request,
         CancellationToken cancellationToken)
     {
-        // Upsert: remove existing subscription with same endpoint before adding
         var existing = await pushRepository.GetByEndpointAsync(request.Endpoint, cancellationToken);
         if (existing is not null)
-            await pushRepository.DeleteByEndpointAsync(request.Endpoint, cancellationToken);
+        {
+            // Only delete if owned by this user; otherwise ignore silently —
+            // an attacker spoofing another user's endpoint must not steal their subscription
+            if (existing.UserId == request.UserId)
+                await pushRepository.DeleteByEndpointAsync(request.Endpoint, cancellationToken);
+        }
 
         var subscription = PushEntity.Create(request.UserId, request.Endpoint, request.KeysJson);
         await pushRepository.AddAsync(subscription, cancellationToken);

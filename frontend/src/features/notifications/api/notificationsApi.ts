@@ -29,6 +29,7 @@ export interface NotificationItem {
 export interface PagedNotifications {
   items: NotificationItem[]
   totalCount: number
+  unreadCount: number | null
   pageNumber: number
   pageSize: number
   totalPages: number

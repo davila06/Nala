@@ -258,7 +258,7 @@ public sealed class AuthController(ISender sender) : ControllerBase
     }
     [HttpPatch("me/password")]
     [Authorize]
-    [EnableRateLimiting("public-api")]
+    [EnableRateLimiting("change-password")]
     [RequestSizeLimit(1024)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]

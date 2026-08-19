@@ -38,8 +38,6 @@ const TYPE_CONFIG: Record<
   Other: { label: "Otro", emoji: "🐾", color: "var(--color-sand-500)" },
 };
 
-const DURATION_STEPS = [5, 10, 15, 20, 30, 45, 60, 90, 120];
-
 // ── Quick log form ────────────────────────────────────────────────────────────
 
 function QuickLogForm({
@@ -52,7 +50,6 @@ function QuickLogForm({
   const [type, setType] = useState<ActivityType>("Walk");
   const [duration, setDuration] = useState(30);
   const [distance, setDistance] = useState("");
-  const [notes, setNotes] = useState("");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const logActivity = useLogActivity(petId);
 
@@ -65,7 +62,6 @@ function QuickLogForm({
         distanceMeters: distance
           ? Math.round(parseFloat(distance) * 1000)
           : undefined,
-        notes: notes.trim() || undefined,
       },
       {
         onSuccess: () => {

@@ -84,4 +84,7 @@ public sealed class NotificationRepository(PawTrackDbContext dbContext) : INotif
 
     public void Update(Notification notification) =>
         dbContext.Notifications.Update(notification);
+
+    public Task<int> CountTotalAsync(Guid userId, CancellationToken cancellationToken = default) =>
+        dbContext.Notifications.CountAsync(n => n.UserId == userId, cancellationToken);
 }

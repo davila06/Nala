@@ -5,7 +5,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ReferenceLine,
   ReferenceArea,
   ResponsiveContainer,
   type TooltipProps,
@@ -188,7 +187,7 @@ function WeightChartInner({ petId, petName }: WeightTrendChartProps) {
 
 export function WeightTrendChart({ petId, petName }: WeightTrendChartProps) {
   return (
-    <PlanGate required="familia" featureName="Tendencia de peso">
+    <PlanGate requires="Familia">
       <div className="rounded-2xl border border-sand-100 bg-surface p-4">
         <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-sand-500">
           Tendencia de peso

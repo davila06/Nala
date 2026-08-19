@@ -252,6 +252,18 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = 0,
             }));
 
+    // ── Auth: change-password — authenticated but still sensitive; 5 attempts/min per IP
+    options.AddPolicy("change-password", ctx =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: RateLimiterIpKey.Get(ctx),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:ChangePassword:PermitLimit", 5),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:ChangePassword:WindowSeconds", 60)),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0,
+            }));
+
     // ── Auth: verify-email — 10 attempts/hour per IP (enumeration/replay protection) ──
     options.AddPolicy("verify-email", ctx =>
         RateLimitPartition.GetFixedWindowLimiter(

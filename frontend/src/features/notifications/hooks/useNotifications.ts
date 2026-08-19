@@ -8,7 +8,6 @@ export function useNotifications(page = 1, pageSize = 20) {
     queryKey: [...NOTIFICATIONS_KEY, page, pageSize],
     queryFn: () => notificationsApi.getMyNotifications(page, pageSize),
     staleTime: 30_000,
-    // Polling every 30 seconds for real-time-ish updates
     refetchInterval: 30_000,
   })
 }
@@ -41,13 +40,17 @@ export function useRespondResolveCheck() {
   })
 }
 
-/** Derived helper — returns unread count from cached query data */
+/**
+ * Returns unread count from the main notifications query cache — no extra request.
+ * Falls back to a direct query when the main cache is cold (e.g. badge on a page
+ * that doesn't mount useNotifications).
+ */
 export function useUnreadCount() {
   return useQuery({
-    queryKey: [...NOTIFICATIONS_KEY, 1, 1],
-    queryFn: () => notificationsApi.getMyNotifications(1, 1),
+    queryKey: [...NOTIFICATIONS_KEY, 1, 20],
+    queryFn: () => notificationsApi.getMyNotifications(1, 20),
     staleTime: 30_000,
     refetchInterval: 30_000,
-    select: (data) => data.totalCount,
+    select: (data) => data.unreadCount ?? 0,
   })
 }
