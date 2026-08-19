@@ -65,6 +65,7 @@ public sealed class SendChatMessageCommandHandler(
     INotificationDispatcher notificationDispatcher,
     ILostPetRepository lostPetRepository,
     IPetRepository petRepository,
+    IPiiScrubber piiScrubber,
     IUnitOfWork unitOfWork,
     ILogger<SendChatMessageCommandHandler> logger)
     : IRequestHandler<SendChatMessageCommand, Result<Guid>>
@@ -102,7 +103,9 @@ public sealed class SendChatMessageCommandHandler(
             return Result.Failure<Guid>("No tienes acceso a este hilo.");
 
         // ── Persist ────────────────────────────────────────────────────────────
-        var message = ChatMessage.Create(command.ThreadId, command.SenderUserId, command.Body);
+        // Scrub as defence-in-depth — Guards check runs first, PiiScrubber catches edge cases
+        var safeBody = piiScrubber.Scrub(command.Body);
+        var message = ChatMessage.Create(command.ThreadId, command.SenderUserId, safeBody);
         await chatRepository.AddMessageAsync(message, cancellationToken);
 
         // Update last-message timestamp on the thread.

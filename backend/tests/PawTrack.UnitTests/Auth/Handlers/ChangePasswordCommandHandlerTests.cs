@@ -25,7 +25,8 @@ public sealed class ChangePasswordCommandHandlerTests
         user.VerifyEmail(token);
 
         _userRepo.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
-        _hasher.Hash("current").Returns("current-hash");
+        // Correct: handler calls Verify with plaintext + stored hash
+        _hasher.Verify("current", "current-hash").Returns(true);
         _hasher.Hash("newpass8").Returns("new-hash");
         _uow.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
 
@@ -45,7 +46,7 @@ public sealed class ChangePasswordCommandHandlerTests
         user.VerifyEmail(token);
 
         _userRepo.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
-        _hasher.Hash("wrong").Returns("wrong-hash");
+        _hasher.Verify("wrong", "correct-hash").Returns(false);
 
         var result = await _sut.Handle(
             new ChangePasswordCommand(user.Id, "wrong", "newpass8"),

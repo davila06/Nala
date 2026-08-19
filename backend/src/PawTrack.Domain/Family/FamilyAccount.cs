@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+
 namespace PawTrack.Domain.Family;
 
 public enum FamilyMemberRole { Owner, Member }
@@ -74,7 +76,7 @@ public sealed class FamilyInvitation
         Id = Guid.CreateVersion7(),
         FamilyAccountId = familyAccountId,
         InvitedEmail = invitedEmail.Trim().ToLowerInvariant(),
-        Token = Guid.NewGuid(),
+        Token = new Guid(RandomNumberGenerator.GetBytes(16)),
         ExpiresAt = DateTimeOffset.UtcNow.AddDays(7),
         CreatedAt = DateTimeOffset.UtcNow,
     };

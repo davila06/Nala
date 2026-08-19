@@ -32,6 +32,8 @@ public static class MigrationHelper
     /// <summary>
     /// Applies pending EF Core migrations to the database.
     /// Safe to call on every startup — idempotent.
+    /// Uses SQL Server's sp_getapplock to prevent concurrent migration races
+    /// when multiple instances start simultaneously (App Service scale-out).
     /// </summary>
     public static async Task ApplyMigrationsAsync(
         IServiceProvider services,
@@ -47,48 +49,76 @@ public static class MigrationHelper
             await db.Database.OpenConnectionAsync(cancellationToken);
             await db.Database.CloseConnectionAsync();
 
-            // ── Step 2: detect EnsureCreated-bootstrapped database ────────────
-            // A DB created with EnsureCreated has all the tables but no
-            // __EFMigrationsHistory table. We must fake-apply the baseline
-            // before calling Migrate(), otherwise InitialCreate fails trying
-            // to CREATE TABLE on tables that already exist.
-            var historyExists = await CheckHistoryTableExistsAsync(db, cancellationToken);
+            // ── Step 2: acquire an exclusive session-level application lock ───
+            // Prevents two instances from running migrations concurrently.
+            // Timeout = 60 s; if we can't acquire, a sibling already holds it
+            // and is migrating — we fall through and let Migrate() become a no-op.
+            const string lockName = "PawTrackMigrations";
+            var lockResult = await ExecuteScalarAsync(db,
+                $"DECLARE @r INT; " +
+                $"EXEC @r = sp_getapplock @Resource = N'{lockName}', @LockMode = N'Exclusive', " +
+                $"@LockOwner = N'Session', @LockTimeout = 60000; " +
+                $"SELECT @r",
+                cancellationToken);
 
-            if (!historyExists)
+            if (lockResult < 0)
             {
-                logger.LogInformation(
-                    "[Migrations] No __EFMigrationsHistory found. " +
-                    "Checking whether schema was bootstrapped via EnsureCreated…");
+                logger.LogWarning("[Migrations] Could not acquire distributed lock (result={R}). Another instance may be migrating.", lockResult);
+            }
 
-                var usersTableExists = await CheckUsersTableExistsAsync(db, cancellationToken);
+            try
+            {
 
-                if (usersTableExists)
+                // ── Step 2: detect EnsureCreated-bootstrapped database ────────────
+                // A DB created with EnsureCreated has all the tables but no
+                // __EFMigrationsHistory table. We must fake-apply the baseline
+                // before calling Migrate(), otherwise InitialCreate fails trying
+                // to CREATE TABLE on tables that already exist.
+                var historyExists = await CheckHistoryTableExistsAsync(db, cancellationToken);
+
+                if (!historyExists)
                 {
-                    // Existing EnsureCreated database — insert all migrations as applied
-                    await FakeApplyAllMigrationsAsync(db, logger, cancellationToken);
-                    logger.LogInformation("[Migrations] Baseline established. Future schema changes will use migrations.");
+                    logger.LogInformation(
+                        "[Migrations] No __EFMigrationsHistory found. " +
+                        "Checking whether schema was bootstrapped via EnsureCreated…");
+
+                    var usersTableExists = await CheckUsersTableExistsAsync(db, cancellationToken);
+
+                    if (usersTableExists)
+                    {
+                        // Existing EnsureCreated database — insert all migrations as applied
+                        await FakeApplyAllMigrationsAsync(db, logger, cancellationToken);
+                        logger.LogInformation("[Migrations] Baseline established. Future schema changes will use migrations.");
+                        return;
+                    }
+
+                    // Completely fresh database — run all migrations normally
+                    logger.LogInformation("[Migrations] Fresh database detected. Running all migrations…");
+                }
+
+                // ── Step 3: apply any pending migrations ──────────────────────────
+                var pending = (await db.Database.GetPendingMigrationsAsync(cancellationToken)).ToList();
+
+                if (pending.Count == 0)
+                {
+                    logger.LogInformation("[Migrations] Database is up to date. No migrations to apply.");
                     return;
                 }
 
-                // Completely fresh database — run all migrations normally
-                logger.LogInformation("[Migrations] Fresh database detected. Running all migrations…");
+                logger.LogInformation("[Migrations] Applying {Count} pending migration(s): {Names}",
+                    pending.Count, string.Join(", ", pending));
+
+                await db.Database.MigrateAsync(cancellationToken);
+
+                logger.LogInformation("[Migrations] All migrations applied successfully.");
             }
-
-            // ── Step 3: apply any pending migrations ──────────────────────────
-            var pending = (await db.Database.GetPendingMigrationsAsync(cancellationToken)).ToList();
-
-            if (pending.Count == 0)
+            finally
             {
-                logger.LogInformation("[Migrations] Database is up to date. No migrations to apply.");
-                return;
+                // Release the application lock regardless of success or failure
+                await ExecuteScalarAsync(db,
+                    $"EXEC sp_releaseapplock @Resource = N'{lockName}', @LockOwner = N'Session'",
+                    cancellationToken);
             }
-
-            logger.LogInformation("[Migrations] Applying {Count} pending migration(s): {Names}",
-                pending.Count, string.Join(", ", pending));
-
-            await db.Database.MigrateAsync(cancellationToken);
-
-            logger.LogInformation("[Migrations] All migrations applied successfully.");
         }
         catch (Exception ex)
         {
