@@ -10,34 +10,34 @@
 
 ## Suscripción y Resource Group
 
-| Campo | Valor |
-|-------|-------|
-| Subscription Name | Azure subscription 1 |
-| Subscription ID | `3832b5df-115d-4092-9fc8-2105d7b0af21` |
-| Tenant ID | `ab810006-3d9f-431f-aabd-52c4a26340af` |
-| Resource Group | `PawnTrackBeta` |
-| Región | `eastus` |
-| Deployment Name | `pawtrack-beta-deploy` |
+| Campo             | Valor                                  |
+| ----------------- | -------------------------------------- |
+| Subscription Name | Azure subscription 1                   |
+| Subscription ID   | `3832b5df-115d-4092-9fc8-2105d7b0af21` |
+| Tenant ID         | `ab810006-3d9f-431f-aabd-52c4a26340af` |
+| Resource Group    | `PawnTrackBeta`                        |
+| Región            | `eastus`                               |
+| Deployment Name   | `pawtrack-beta-deploy`                 |
 
 ---
 
 ## Recursos desplegados
 
-| Recurso | Nombre en Azure | Tipo |
-|---------|----------------|------|
-| Log Analytics Workspace | `pawtrack-dev-logs` | `Microsoft.OperationalInsights/workspaces` |
-| Application Insights | `pawtrack-dev-insights` | `Microsoft.Insights/components` |
-| SQL Server | `pawtrack-dev-sql` | `Microsoft.Sql/servers` |
-| SQL Database | `pawtrack-dev-sql/pawtrack` | `Microsoft.Sql/servers/databases` |
-| Storage Account | `pawtrackstoragdev` | `Microsoft.Storage/storageAccounts` |
-| Blob container | `pet-photos` | público (lectura anónima) |
-| Blob container | `sighting-photos` | público (lectura anónima) |
-| Key Vault | `pawtrack-kv-dev` | `Microsoft.KeyVault/vaults` |
-| Container Registry (ACR) | `pawtrackacrdev` | `Microsoft.ContainerRegistry/registries` |
-| Container Apps Env | `pawtrack-dev-env` | `Microsoft.App/managedEnvironments` |
-| Container App (API) | `pawtrack-dev-api` | `Microsoft.App/containerApps` |
-| Static Web App | `pawtrack-dev-frontend` | `Microsoft.Web/staticSites` |
-| Action Group (alertas) | `pawtrack-dev-alerts-ag` | `Microsoft.Insights/actionGroups` |
+| Recurso                  | Nombre en Azure             | Tipo                                       |
+| ------------------------ | --------------------------- | ------------------------------------------ |
+| Log Analytics Workspace  | `pawtrack-dev-logs`         | `Microsoft.OperationalInsights/workspaces` |
+| Application Insights     | `pawtrack-dev-insights`     | `Microsoft.Insights/components`            |
+| SQL Server               | `pawtrack-dev-sql`          | `Microsoft.Sql/servers`                    |
+| SQL Database             | `pawtrack-dev-sql/pawtrack` | `Microsoft.Sql/servers/databases`          |
+| Storage Account          | `pawtrackstoragdev`         | `Microsoft.Storage/storageAccounts`        |
+| Blob container           | `pet-photos`                | público (lectura anónima)                  |
+| Blob container           | `sighting-photos`           | público (lectura anónima)                  |
+| Key Vault                | `pawtrack-kv-dev`           | `Microsoft.KeyVault/vaults`                |
+| Container Registry (ACR) | `pawtrackacrdev`            | `Microsoft.ContainerRegistry/registries`   |
+| Container Apps Env       | `pawtrack-dev-env`          | `Microsoft.App/managedEnvironments`        |
+| Container App (API)      | `pawtrack-dev-api`          | `Microsoft.App/containerApps`              |
+| Static Web App           | `pawtrack-dev-frontend`     | `Microsoft.Web/staticSites`                |
+| Action Group (alertas)   | `pawtrack-dev-alerts-ag`    | `Microsoft.Insights/actionGroups`          |
 
 ---
 
@@ -115,12 +115,12 @@ az containerapp update \
 
 ## Secrets requeridos en Key Vault (`pawtrack-kv-dev`)
 
-| Secret Name | Descripción |
-|-------------|-------------|
-| `appinsights-connection-string` | Connection string de Application Insights |
-| `sql-connection-string` | Connection string completo de Azure SQL |
-| `storage-connection-string` | Connection string de Storage Account |
-| `jwt-signing-key` | Clave de firma JWT (mínimo 64 chars, base64) |
+| Secret Name                     | Descripción                                  |
+| ------------------------------- | -------------------------------------------- |
+| `appinsights-connection-string` | Connection string de Application Insights    |
+| `sql-connection-string`         | Connection string completo de Azure SQL      |
+| `storage-connection-string`     | Connection string de Storage Account         |
+| `jwt-signing-key`               | Clave de firma JWT (mínimo 64 chars, base64) |
 
 Ver: `docs/PENDIENTES_BETA.md` para instrucciones detalladas.
 
@@ -128,11 +128,11 @@ Ver: `docs/PENDIENTES_BETA.md` para instrucciones detalladas.
 
 ## SQL Admin
 
-| Campo | Valor |
-|-------|-------|
-| SQL Server | `pawtrack-dev-sql.database.windows.net` |
-| Login | `pawtrackadmin` |
-| Password | *(guardado en Key Vault secret `sql-admin-password`)* |
+| Campo      | Valor                                                 |
+| ---------- | ----------------------------------------------------- |
+| SQL Server | `pawtrack-dev-sql.database.windows.net`               |
+| Login      | `pawtrackadmin`                                       |
+| Password   | _(guardado en Key Vault secret `sql-admin-password`)_ |
 
 > ⚠️ El password SQL generado durante este despliegue es: `NcoD4~&^F%0B(y<+6gWhsYfq`  
 > **Guárdalo en tu gestor de contraseñas y elimina esta línea después de leerla.**

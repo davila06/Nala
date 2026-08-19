@@ -11,18 +11,18 @@ Marca cada paso solo cuando esté verificado. Si algo falla, para y corrige ante
 
 Repo → Settings → Secrets and variables → Actions:
 
-| Secret | Valor |
-|--------|-------|
-| `AZURE_CLIENT_ID` | App registration Client ID (Workload Identity Federation) |
-| `AZURE_TENANT_ID` | Azure AD Tenant ID |
-| `AZURE_SUBSCRIPTION_ID` | Subscription ID |
-| `AZURE_RESOURCE_GROUP` | `pawtrack-prod-rg` |
-| `ACR_NAME` | `pawtrackacrprod` |
-| `CONTAINER_APP_NAME` | `pawtrack-prod-api` |
-| `CONTAINER_APP_FQDN` | FQDN del Container App (sin `https://`) |
-| `SWA_NAME` | Nombre del Static Web App |
-| `SWA_DEPLOYMENT_TOKEN` | `az staticwebapp secrets list --name <SWA_NAME> ...` |
-| `SQL_ADMIN_PASSWORD` | Password SQL admin |
+| Secret                  | Valor                                                     |
+| ----------------------- | --------------------------------------------------------- |
+| `AZURE_CLIENT_ID`       | App registration Client ID (Workload Identity Federation) |
+| `AZURE_TENANT_ID`       | Azure AD Tenant ID                                        |
+| `AZURE_SUBSCRIPTION_ID` | Subscription ID                                           |
+| `AZURE_RESOURCE_GROUP`  | `pawtrack-prod-rg`                                        |
+| `ACR_NAME`              | `pawtrackacrprod`                                         |
+| `CONTAINER_APP_NAME`    | `pawtrack-prod-api`                                       |
+| `CONTAINER_APP_FQDN`    | FQDN del Container App (sin `https://`)                   |
+| `SWA_NAME`              | Nombre del Static Web App                                 |
+| `SWA_DEPLOYMENT_TOKEN`  | `az staticwebapp secrets list --name <SWA_NAME> ...`      |
+| `SQL_ADMIN_PASSWORD`    | Password SQL admin                                        |
 
 ---
 

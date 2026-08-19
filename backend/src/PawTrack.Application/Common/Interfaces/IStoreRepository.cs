@@ -7,6 +7,8 @@ public interface IStoreRepository
     Task<Store?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<Store?> GetByUserIdAsync(Guid userId, CancellationToken ct = default);
     Task<IReadOnlyList<Store>> GetAllActiveAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<Store>> GetActivePagedAsync(int skip, int take, CancellationToken ct = default);
+    Task<int> CountActiveAsync(CancellationToken ct = default);
     Task<IReadOnlyList<Store>> GetPendingAsync(CancellationToken ct = default);
     Task AddAsync(Store store, CancellationToken ct = default);
     void Update(Store store);

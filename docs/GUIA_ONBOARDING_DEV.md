@@ -29,13 +29,13 @@
 
 ## 1. Requisitos previos
 
-| Herramienta | Versión mínima | Verificar |
-|-------------|---------------|-----------|
-| .NET SDK | **9.0** | `dotnet --version` |
-| Node.js | **20 LTS** | `node --version` |
-| SQL Server Express | **2019+** | Management Studio / `sqlcmd` |
-| Git | 2.40+ | `git --version` |
-| Azurite CLI | 3.x | `azurite --version` |
+| Herramienta        | Versión mínima | Verificar                    |
+| ------------------ | -------------- | ---------------------------- |
+| .NET SDK           | **9.0**        | `dotnet --version`           |
+| Node.js            | **20 LTS**     | `node --version`             |
+| SQL Server Express | **2019+**      | Management Studio / `sqlcmd` |
+| Git                | 2.40+          | `git --version`              |
+| Azurite CLI        | 3.x            | `azurite --version`          |
 
 ```bash
 npm install -g azurite
@@ -114,6 +114,7 @@ dotnet ef database update --project src/PawTrack.Infrastructure --startup-projec
 ```
 
 Si es la primera vez, esto crea la base de datos `PawTrackLocal` en SQL Express y aplica las **~30 migraciones** incluyendo las más recientes:
+
 - `AddPetStores` — Tiendas, Productos, Pedidos
 - `AddRevokedTokens` — JTI blocklist distribuido
 - `AddBillboards` — Vallas publicitarias
@@ -134,6 +135,7 @@ pwsh -ExecutionPolicy Bypass -File .\start-dev.ps1
 ```
 
 Esto inicia:
+
 1. Azurite (blob emulator en puerto 10000)
 2. API en http://localhost:5000
 3. Frontend en http://localhost:5173
@@ -221,30 +223,30 @@ Advertising/   ← NUEVO: Billboard
 
 ### Backend
 
-| Convención | Ejemplo |
-|-----------|---------|
-| Commands mutan estado | `PlaceStoreOrderCommand` → devuelve `StoreOrderDto` mínimo |
-| Queries solo leen | `GetActiveBillboardsQuery` → devuelve lista de DTOs |
-| Validación en pipeline | `PlaceStoreOrderCommandValidator` — nunca validar en handlers |
-| Errores de dominio | Lanzar excepción solo dentro del dominio; cruzar módulos con `Result<T>` |
-| IDs | `Guid.CreateVersion7()` como PK; siempre strings en la API |
-| Fotos | `IBlobStorageService.UploadAsync()` → URL pública; nunca base64 en DB |
-| Secretos | Siempre Key Vault references en `appsettings.json`; dev key en `appsettings.Development.json` |
-| Rate limiting | Toda ruta write debe tener `[EnableRateLimiting("...")]` |
-| Cancelación | `CancellationToken.None` en fire-and-forget; nunca capturar el request ct |
-| PII en logs | `PiiHelper.MaskEmail()` — jamás loggear emails/teléfonos crudos |
+| Convención             | Ejemplo                                                                                       |
+| ---------------------- | --------------------------------------------------------------------------------------------- |
+| Commands mutan estado  | `PlaceStoreOrderCommand` → devuelve `StoreOrderDto` mínimo                                    |
+| Queries solo leen      | `GetActiveBillboardsQuery` → devuelve lista de DTOs                                           |
+| Validación en pipeline | `PlaceStoreOrderCommandValidator` — nunca validar en handlers                                 |
+| Errores de dominio     | Lanzar excepción solo dentro del dominio; cruzar módulos con `Result<T>`                      |
+| IDs                    | `Guid.CreateVersion7()` como PK; siempre strings en la API                                    |
+| Fotos                  | `IBlobStorageService.UploadAsync()` → URL pública; nunca base64 en DB                         |
+| Secretos               | Siempre Key Vault references en `appsettings.json`; dev key en `appsettings.Development.json` |
+| Rate limiting          | Toda ruta write debe tener `[EnableRateLimiting("...")]`                                      |
+| Cancelación            | `CancellationToken.None` en fire-and-forget; nunca capturar el request ct                     |
+| PII en logs            | `PiiHelper.MaskEmail()` — jamás loggear emails/teléfonos crudos                               |
 
 ### Frontend
 
-| Convención | Descripción |
-|-----------|-------------|
-| Server state | TanStack React Query — nunca Zustand para datos del servidor |
-| UI state | Zustand solo para cart, auth, UI flags |
-| Hooks | `useFeatureXxx` co-locados con el feature |
-| Componentes | Co-localizar: `Component.tsx` + `useXxx.ts` en mismo folder |
-| Errores | `toast.error()` para errores de usuario; nunca `alert()` o `console.error()` |
-| Dismiss dialogs | `<Modal>` component — nunca `window.confirm()` |
-| Imágenes | Validar tipo (MIME) y tamaño (5MB max) en cliente antes de subir |
+| Convención      | Descripción                                                                  |
+| --------------- | ---------------------------------------------------------------------------- |
+| Server state    | TanStack React Query — nunca Zustand para datos del servidor                 |
+| UI state        | Zustand solo para cart, auth, UI flags                                       |
+| Hooks           | `useFeatureXxx` co-locados con el feature                                    |
+| Componentes     | Co-localizar: `Component.tsx` + `useXxx.ts` en mismo folder                  |
+| Errores         | `toast.error()` para errores de usuario; nunca `alert()` o `console.error()` |
+| Dismiss dialogs | `<Modal>` component — nunca `window.confirm()`                               |
+| Imágenes        | Validar tipo (MIME) y tamaño (5MB max) en cliente antes de subir             |
 
 ---
 
@@ -281,10 +283,10 @@ public sealed class MiCommandHandlerTests
     {
         // Arrange
         _repo.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns(/* ... */);
-        
+
         // Act
         var result = await _sut.Handle(new MiCommand(/* ... */), CancellationToken.None);
-        
+
         // Assert
         result.IsSuccess.Should().BeTrue();
     }
@@ -296,16 +298,19 @@ public sealed class MiCommandHandlerTests
 ## 13. Cómo agregar una feature
 
 1. **Domain** — Entidad en `PawTrack.Domain/{Módulo}/`:
+
    ```csharp
    public sealed class MiEntidad { ... }
    ```
 
 2. **Interface** — En `PawTrack.Application/Common/Interfaces/`:
+
    ```csharp
    public interface IMiEntidadRepository { ... }
    ```
 
 3. **Application** — Command/Query en `PawTrack.Application/{Módulo}/`:
+
    ```csharp
    public sealed record MiCommand(...) : IRequest<Result<MiDto>>;
    public sealed class MiCommandValidator : AbstractValidator<MiCommand> { ... }
@@ -313,6 +318,7 @@ public sealed class MiCommandHandlerTests
    ```
 
 4. **Infrastructure** — EF config + repo:
+
    ```csharp
    // Configurations/MiEntidadConfiguration.cs
    // Repositories/MiEntidadRepository.cs
@@ -320,12 +326,14 @@ public sealed class MiCommandHandlerTests
    ```
 
 5. **API** — Controller:
+
    ```csharp
    [ApiController, Route("api/mi-entidad"), Authorize]
    public sealed class MiController(ISender sender) : ControllerBase { ... }
    ```
 
 6. **Frontend** — Feature folder:
+
    ```
    src/features/mi-feature/
      api/miApi.ts

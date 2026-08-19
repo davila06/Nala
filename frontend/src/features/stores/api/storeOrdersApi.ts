@@ -13,8 +13,12 @@ export const storeOrdersApi = {
   place: (payload: PlaceOrderPayload): Promise<StoreOrderDto> =>
     apiClient.post<StoreOrderDto>("/store-orders", payload).then((r) => r.data),
 
-  getMine: (): Promise<StoreOrderDto[]> =>
-    apiClient.get<StoreOrderDto[]>("/store-orders/mine").then((r) => r.data),
+  getMine: (page = 1, pageSize = 20): Promise<StoreOrderDto[]> =>
+    apiClient
+      .get<
+        StoreOrderDto[]
+      >("/store-orders/mine", { params: { page, pageSize } })
+      .then((r) => r.data),
 
   reportPayment: (orderId: string): Promise<void> =>
     apiClient

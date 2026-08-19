@@ -36,15 +36,15 @@ Exclusivo para cuentas con rol **Admin**. Si intentas acceder sin ese rol, el si
 
 ## 2. Tabs disponibles en el panel
 
-| Tab | Función |
-|-----|---------|
-| **Aliados** | Revisar/aprobar solicitudes de aliados |
-| **Clínicas** | Gestionar clínicas veterinarias |
-| **Suscripciones** | Ver y gestionar planes de todos los usuarios |
-| **Bundles** | Bundles GPS on-demand |
-| **Promociones** | Códigos de descuento y promociones |
-| **Tiendas** | Aprobar/rechazar tiendas pendientes de registro |
-| **Vallas** 🆕 | Crear, editar, activar/pausar vallas publicitarias |
+| Tab               | Función                                            |
+| ----------------- | -------------------------------------------------- |
+| **Aliados**       | Revisar/aprobar solicitudes de aliados             |
+| **Clínicas**      | Gestionar clínicas veterinarias                    |
+| **Suscripciones** | Ver y gestionar planes de todos los usuarios       |
+| **Bundles**       | Bundles GPS on-demand                              |
+| **Promociones**   | Códigos de descuento y promociones                 |
+| **Tiendas**       | Aprobar/rechazar tiendas pendientes de registro    |
+| **Vallas** 🆕     | Crear, editar, activar/pausar vallas publicitarias |
 
 ---
 
@@ -53,6 +53,7 @@ Exclusivo para cuentas con rol **Admin**. Si intentas acceder sin ese rol, el si
 ### 3.1 Revisar solicitudes pendientes
 
 En el tab **Aliados**, verás la lista de perfiles pendientes de verificación con:
+
 - Nombre del aliado
 - Tipo de organización
 - Zona de cobertura declarada
@@ -70,6 +71,7 @@ En el tab **Aliados**, verás la lista de perfiles pendientes de verificación c
 ### 4.1 Solicitudes pendientes
 
 En el tab **Clínicas**, verás clínicas en estado `Pending`:
+
 - Nombre de la clínica
 - Dirección y teléfono
 - Email de contacto
@@ -84,6 +86,7 @@ En el tab **Clínicas**, verás clínicas en estado `Pending`:
 ### 4.3 Gestionar API keys
 
 Las clínicas con plan ClinicPartner pueden tener API keys para integración externa. El administrador puede:
+
 - Ver keys activas
 - Revocar una key comprometida
 - Generar una nueva key
@@ -104,10 +107,10 @@ En el tab **Tiendas**:
 
 ### 5.2 Tiers de tienda
 
-| Tier | Capacidades |
-|------|-------------|
-| `StoreBasic` | Catálogo visible, sin pedidos in-app |
-| `StorePlus` | Catálogo + pedidos in-app + SINPE |
+| Tier           | Capacidades                                       |
+| -------------- | ------------------------------------------------- |
+| `StoreBasic`   | Catálogo visible, sin pedidos in-app              |
+| `StorePlus`    | Catálogo + pedidos in-app + SINPE                 |
 | `StorePartner` | Todo StorePlus + analytics + posición prioritaria |
 
 Para cambiar el tier de una tienda, usa la suscripción (tab **Suscripciones**) y asigna el tier correspondiente al userId del dueño de la tienda.
@@ -139,17 +142,18 @@ El sistema de vallas permite mostrar anuncios en 4 ubicaciones de la app.
 ### 6.2 Subir imagen
 
 Una vez creada la valla:
+
 1. Click **📷 Imagen** en la fila de la valla.
 2. Selecciona la imagen (JPEG, PNG o WebP, máx. 5MB).
 3. La imagen se redimensiona automáticamente a 1200px y se guarda en Blob Storage.
 
 ### 6.3 Activar / Pausar / Expirar
 
-| Acción | Estado resultante | Efecto |
-|--------|-------------------|--------|
-| **Activar** | `Active` | Aparece en la app dentro de la ventana de fechas |
-| **Pausar** | `Paused` | Desaparece temporalmente; puede reactivarse |
-| **Expirar** | `Expired` | Permanente; no se puede reactivar |
+| Acción      | Estado resultante | Efecto                                           |
+| ----------- | ----------------- | ------------------------------------------------ |
+| **Activar** | `Active`          | Aparece en la app dentro de la ventana de fechas |
+| **Pausar**  | `Paused`          | Desaparece temporalmente; puede reactivarse      |
+| **Expirar** | `Expired`         | Permanente; no se puede reactivar                |
 
 ### 6.4 Comportamiento en la app
 
@@ -165,6 +169,7 @@ Una vez creada la valla:
 ### 7.1 Ver suscripciones activas
 
 Tab **Suscripciones** → lista de todos los usuarios con suscripción activa:
+
 - Email del usuario
 - Plan actual
 - Fecha de activación
@@ -180,17 +185,17 @@ Para activar un plan después de verificar el pago SINPE:
 
 ### 7.3 Tiers disponibles
 
-| Tier interno | Plan visible |
-|-------------|-------------|
-| `Free` | Explorador |
-| `UserPlus` | Plus (₡2,990/mes) |
-| `UserFamilia` | Familia (₡4,990/mes) |
-| `ClinicBasic` | Clínica Básica (₡15,000/mes) |
-| `ClinicPlus` | Clínica Plus (₡35,000/mes) |
+| Tier interno    | Plan visible                  |
+| --------------- | ----------------------------- |
+| `Free`          | Explorador                    |
+| `UserPlus`      | Plus (₡2,990/mes)             |
+| `UserFamilia`   | Familia (₡4,990/mes)          |
+| `ClinicBasic`   | Clínica Básica (₡15,000/mes)  |
+| `ClinicPlus`    | Clínica Plus (₡35,000/mes)    |
 | `ClinicPartner` | Clínica Partner (₡60,000/mes) |
-| `StoreBasic` | Tienda Básica (gratis) |
-| `StorePlus` | Tienda Plus (₡12,000/mes) |
-| `StorePartner` | Tienda Partner (₡25,000/mes) |
+| `StoreBasic`    | Tienda Básica (gratis)        |
+| `StorePlus`     | Tienda Plus (₡12,000/mes)     |
+| `StorePartner`  | Tienda Partner (₡25,000/mes)  |
 
 ---
 

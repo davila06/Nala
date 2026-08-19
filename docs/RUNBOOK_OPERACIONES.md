@@ -33,16 +33,16 @@
 
 ## 1. Recursos de producción
 
-| Recurso | Nombre en Azure | URL / Referencia |
-| ------- | --------------- | ---------------- |
-| App Service | `pawtrack-prod-api` | `https://api.pawtrack.cr` |
-| Frontend (Static Web App) | — | `https://pawtrack.cr` |
-| Azure SQL | `pawtrack-prod-sql` / DB `pawtrack` | — |
-| Key Vault | `pawtrack-kv-prod` | `https://pawtrack-kv-prod.vault.azure.net/` |
-| Blob Storage | `pawtrackstorprod` | Contenedores: `pet-photos`, `sighting-photos`, `found-pet-photos`, `lost-pet-photos`, `store-product-images`, `billboard-images` |
-| Application Insights | `pawtrack-prod-insights` | Portal Azure → Log Analytics |
-| Log Analytics Workspace | `pawtrack-prod-logs` | Retención: 30 días |
-| App Service Plan | `pawtrack-prod-plan` | SKU: B3 Linux |
+| Recurso                   | Nombre en Azure                     | URL / Referencia                                                                                                                 |
+| ------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| App Service               | `pawtrack-prod-api`                 | `https://api.pawtrack.cr`                                                                                                        |
+| Frontend (Static Web App) | —                                   | `https://pawtrack.cr`                                                                                                            |
+| Azure SQL                 | `pawtrack-prod-sql` / DB `pawtrack` | —                                                                                                                                |
+| Key Vault                 | `pawtrack-kv-prod`                  | `https://pawtrack-kv-prod.vault.azure.net/`                                                                                      |
+| Blob Storage              | `pawtrackstorprod`                  | Contenedores: `pet-photos`, `sighting-photos`, `found-pet-photos`, `lost-pet-photos`, `store-product-images`, `billboard-images` |
+| Application Insights      | `pawtrack-prod-insights`            | Portal Azure → Log Analytics                                                                                                     |
+| Log Analytics Workspace   | `pawtrack-prod-logs`                | Retención: 30 días                                                                                                               |
+| App Service Plan          | `pawtrack-prod-plan`                | SKU: B3 Linux                                                                                                                    |
 
 > **SignalR Hubs activos:** `/hubs/search-coordination` (zonas búsqueda), `/hubs/chat` (mensajes tiempo real)
 

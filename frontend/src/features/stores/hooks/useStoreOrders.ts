@@ -3,10 +3,10 @@ import { storeOrdersApi } from "../api/storeOrdersApi";
 import type { PlaceOrderPayload } from "../api/storeOrdersApi";
 import type { StoreOrderStatus } from "../api/storesApi";
 
-export function useMyOrders() {
+export function useMyOrders(page = 1) {
   return useQuery({
-    queryKey: ["my-store-orders"],
-    queryFn: storeOrdersApi.getMine,
+    queryKey: ["my-store-orders", page],
+    queryFn: () => storeOrdersApi.getMine(page, 20),
     staleTime: 30_000,
     refetchInterval: 30_000,
   });

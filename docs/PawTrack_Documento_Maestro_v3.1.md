@@ -24,33 +24,33 @@ PawTrack CR es un **MVP completo enterprise-hardened** con todos los módulos op
 
 ### Módulos implementados (agosto 2026)
 
-| Módulo | Estado |
-|--------|--------|
-| Auth (JWT, refresh, lockout, email) | ✅ |
-| Mascotas (CRUD, QR, foto, microchip) | ✅ |
-| Pérdida (case room, difusión, handover) | ✅ |
-| Avistamientos + visual IA | ✅ |
-| Notificaciones (in-app, push, WebSub) | ✅ |
-| Chat enmascarado + SignalR real-time | ✅ |
-| Safety (fraud, handover codes) | ✅ |
-| Aliados verificados | ✅ |
-| Custodios temporales | ✅ |
-| Clínicas B2B (3 tiers, PDF, API keys) | ✅ |
-| Municipalidades B2G (3 tiers) | ✅ |
-| Expediente médico digital completo | ✅ |
-| Collar GPS (Tractive + genérico) | ✅ |
-| Bundle GPS on-demand | ✅ |
-| Sistema de recompensas (Bounty/SINPE) | ✅ |
-| Familia (multi-usuario, 5 miembros) | ✅ |
-| Suscripciones (Explorador/Plus/Familia) | ✅ |
-| **Tiendas de mascotas B2B** | ✅ **nuevo** |
-| **Vallas publicitarias (Billboard)** | ✅ **nuevo** |
-| Broadcast multicanal (WA/TG/FB/Email) | ✅ |
-| Bot WhatsApp conversacional | ✅ |
-| Leaderboard + incentivos | ✅ |
-| Mapa público con stores + clínicas | ✅ |
-| Predicción de movimiento IA | ✅ |
-| Estadísticas públicas de recuperación | ✅ |
+| Módulo                                  | Estado       |
+| --------------------------------------- | ------------ |
+| Auth (JWT, refresh, lockout, email)     | ✅           |
+| Mascotas (CRUD, QR, foto, microchip)    | ✅           |
+| Pérdida (case room, difusión, handover) | ✅           |
+| Avistamientos + visual IA               | ✅           |
+| Notificaciones (in-app, push, WebSub)   | ✅           |
+| Chat enmascarado + SignalR real-time    | ✅           |
+| Safety (fraud, handover codes)          | ✅           |
+| Aliados verificados                     | ✅           |
+| Custodios temporales                    | ✅           |
+| Clínicas B2B (3 tiers, PDF, API keys)   | ✅           |
+| Municipalidades B2G (3 tiers)           | ✅           |
+| Expediente médico digital completo      | ✅           |
+| Collar GPS (Tractive + genérico)        | ✅           |
+| Bundle GPS on-demand                    | ✅           |
+| Sistema de recompensas (Bounty/SINPE)   | ✅           |
+| Familia (multi-usuario, 5 miembros)     | ✅           |
+| Suscripciones (Explorador/Plus/Familia) | ✅           |
+| **Tiendas de mascotas B2B**             | ✅ **nuevo** |
+| **Vallas publicitarias (Billboard)**    | ✅ **nuevo** |
+| Broadcast multicanal (WA/TG/FB/Email)   | ✅           |
+| Bot WhatsApp conversacional             | ✅           |
+| Leaderboard + incentivos                | ✅           |
+| Mapa público con stores + clínicas      | ✅           |
+| Predicción de movimiento IA             | ✅           |
+| Estadísticas públicas de recuperación   | ✅           |
 
 ---
 
@@ -73,18 +73,18 @@ PawTrack CR es un **MVP completo enterprise-hardened** con todos los módulos op
 
 ### 3.2 Principios activos
 
-| Principio | Aplicación |
-|-----------|-----------|
-| Validación en pipeline | FluentValidation behaviors — jamás en handlers |
-| Errores de dominio | `Result<T>` o excepciones solo dentro del dominio |
-| IDs | `Guid v7` como PK; strings en API responses |
-| Fotos y binarios | Siempre en Blob Storage — nunca en DB |
-| Secretos | Azure Key Vault — cero secretos hardcodeados |
-| Módulos | Comunicación solo por MediatR — no llamadas directas |
-| Rate limiting | Todas las rutas con política explícita |
-| Seguridad | ChangePassword usa `Verify()` (bcrypt) nunca `Hash()` |
-| JTI Blocklist | SQL-backed (`RevokedTokens` table) — funciona en multi-instancia |
-| Hashes PII | HMAC-SHA256 con clave secreta (teléfonos bot) |
+| Principio              | Aplicación                                                       |
+| ---------------------- | ---------------------------------------------------------------- |
+| Validación en pipeline | FluentValidation behaviors — jamás en handlers                   |
+| Errores de dominio     | `Result<T>` o excepciones solo dentro del dominio                |
+| IDs                    | `Guid v7` como PK; strings en API responses                      |
+| Fotos y binarios       | Siempre en Blob Storage — nunca en DB                            |
+| Secretos               | Azure Key Vault — cero secretos hardcodeados                     |
+| Módulos                | Comunicación solo por MediatR — no llamadas directas             |
+| Rate limiting          | Todas las rutas con política explícita                           |
+| Seguridad              | ChangePassword usa `Verify()` (bcrypt) nunca `Hash()`            |
+| JTI Blocklist          | SQL-backed (`RevokedTokens` table) — funciona en multi-instancia |
+| Hashes PII             | HMAC-SHA256 con clave secreta (teléfonos bot)                    |
 
 ---
 
@@ -92,48 +92,48 @@ PawTrack CR es un **MVP completo enterprise-hardened** con todos los módulos op
 
 ### 4.1 Backend
 
-| Tecnología | Versión | Uso |
-|-----------|---------|-----|
-| .NET | 9.0 | Runtime principal |
-| ASP.NET Core | 9.0 | Web API |
-| MediatR | 12.x | CQRS pipeline |
-| EF Core | 9.x | ORM + migraciones |
-| FluentValidation | 11.x | Validación en pipeline |
-| SignalR | 9.0 | Real-time (chat + search) |
-| ImageSharp | 3.x | Resize de imágenes (JPEG/PNG/WebP) |
-| QuestPDF | 2025.x | Certificados PDF veterinarios |
-| xUnit + NSubstitute + FluentAssertions | — | 916 tests unitarios |
-| Application Insights | — | Telemetría |
+| Tecnología                             | Versión | Uso                                |
+| -------------------------------------- | ------- | ---------------------------------- |
+| .NET                                   | 9.0     | Runtime principal                  |
+| ASP.NET Core                           | 9.0     | Web API                            |
+| MediatR                                | 12.x    | CQRS pipeline                      |
+| EF Core                                | 9.x     | ORM + migraciones                  |
+| FluentValidation                       | 11.x    | Validación en pipeline             |
+| SignalR                                | 9.0     | Real-time (chat + search)          |
+| ImageSharp                             | 3.x     | Resize de imágenes (JPEG/PNG/WebP) |
+| QuestPDF                               | 2025.x  | Certificados PDF veterinarios      |
+| xUnit + NSubstitute + FluentAssertions | —       | 916 tests unitarios                |
+| Application Insights                   | —       | Telemetría                         |
 
 ### 4.2 Frontend
 
-| Tecnología | Versión | Uso |
-|-----------|---------|-----|
-| React | 19 | UI |
-| TypeScript | 5.x strict | Tipos |
-| Vite | 6 | Build + HMR |
-| React Router | 6 | `createBrowserRouter` |
-| TanStack React Query | 5 | Server state |
-| Zustand | 5 | UI state (cart, auth) |
-| Leaflet / React-Leaflet | — | Mapa interactivo |
-| Framer Motion | — | Animaciones |
-| Recharts | — | Charts médicos/actividad |
-| @microsoft/signalr | 10.x | Chat real-time |
-| vite-plugin-pwa | — | PWA (registerType: "prompt") |
-| Sonner | — | Toasts |
+| Tecnología              | Versión    | Uso                          |
+| ----------------------- | ---------- | ---------------------------- |
+| React                   | 19         | UI                           |
+| TypeScript              | 5.x strict | Tipos                        |
+| Vite                    | 6          | Build + HMR                  |
+| React Router            | 6          | `createBrowserRouter`        |
+| TanStack React Query    | 5          | Server state                 |
+| Zustand                 | 5          | UI state (cart, auth)        |
+| Leaflet / React-Leaflet | —          | Mapa interactivo             |
+| Framer Motion           | —          | Animaciones                  |
+| Recharts                | —          | Charts médicos/actividad     |
+| @microsoft/signalr      | 10.x       | Chat real-time               |
+| vite-plugin-pwa         | —          | PWA (registerType: "prompt") |
+| Sonner                  | —          | Toasts                       |
 
 ### 4.3 Infraestructura
 
-| Recurso | Tipo | Descripción |
-|---------|------|-------------|
-| App Service | Linux B3 | API .NET 9 |
-| Azure SQL | Standard S2 | Base de datos |
-| Blob Storage | LRS | Fotos y PDFs |
-| Key Vault | Standard | Secretos |
-| Application Insights | — | APM + logs |
-| Log Analytics | — | KQL queries |
-| Static Web App | Free | Frontend React PWA |
-| Container Registry | Basic | Imágenes Docker |
+| Recurso              | Tipo        | Descripción        |
+| -------------------- | ----------- | ------------------ |
+| App Service          | Linux B3    | API .NET 9         |
+| Azure SQL            | Standard S2 | Base de datos      |
+| Blob Storage         | LRS         | Fotos y PDFs       |
+| Key Vault            | Standard    | Secretos           |
+| Application Insights | —           | APM + logs         |
+| Log Analytics        | —           | KQL queries        |
+| Static Web App       | Free        | Frontend React PWA |
+| Container Registry   | Basic       | Imágenes Docker    |
 
 ---
 
@@ -141,31 +141,31 @@ PawTrack CR es un **MVP completo enterprise-hardened** con todos los módulos op
 
 ### 5.1 Auth (`/api/auth`)
 
-| Endpoint | Método | Auth | Descripción |
-|----------|--------|------|-------------|
-| `/register` | POST | — | Registro; anti-enumeración (siempre 201) |
-| `/verify-email` | GET | — | Verificación con token SHA-256 |
-| `/login` | POST | — | JWT + refresh; lockout tras 5 fallos |
-| `/refresh` | POST | Cookie | Rotación de refresh token; theft detection |
-| `/logout` | POST | JWT | Blocklist JTI en SQL; revoca refresh |
-| `/forgot-password` | POST | — | Anti-enumeración; HMAC email |
-| `/reset-password` | POST | — | Token 30min; revoca todas las sesiones |
-| `/me` | GET | JWT | Perfil actual |
-| `/me` | PATCH | JWT | Actualizar nombre |
-| `/me/password` | PATCH | JWT | Cambio contraseña; revoca todas las sesiones; rate limit 5/min |
-| `/me` | DELETE | JWT | Soft-delete; elimina fotos en Blob |
+| Endpoint           | Método | Auth   | Descripción                                                    |
+| ------------------ | ------ | ------ | -------------------------------------------------------------- |
+| `/register`        | POST   | —      | Registro; anti-enumeración (siempre 201)                       |
+| `/verify-email`    | GET    | —      | Verificación con token SHA-256                                 |
+| `/login`           | POST   | —      | JWT + refresh; lockout tras 5 fallos                           |
+| `/refresh`         | POST   | Cookie | Rotación de refresh token; theft detection                     |
+| `/logout`          | POST   | JWT    | Blocklist JTI en SQL; revoca refresh                           |
+| `/forgot-password` | POST   | —      | Anti-enumeración; HMAC email                                   |
+| `/reset-password`  | POST   | —      | Token 30min; revoca todas las sesiones                         |
+| `/me`              | GET    | JWT    | Perfil actual                                                  |
+| `/me`              | PATCH  | JWT    | Actualizar nombre                                              |
+| `/me/password`     | PATCH  | JWT    | Cambio contraseña; revoca todas las sesiones; rate limit 5/min |
+| `/me`              | DELETE | JWT    | Soft-delete; elimina fotos en Blob                             |
 
 ### 5.2 Pets (`/api/pets`)
 
-| Endpoint | Método | Auth | Descripción |
-|----------|--------|------|-------------|
-| `/` | POST | JWT | Crear mascota; gating por plan |
-| `/{id}` | GET | JWT | Detalle; ownership check |
-| `/{id}` | PUT | JWT | Actualizar foto + datos |
-| `/{id}` | DELETE | JWT | Soft-delete + borrar blobs |
-| `/{id}/scan-history` | GET | JWT | Historial escaneos; tiered |
-| `/{id}/whatsapp-avatar` | GET | — | Avatar optimizado WhatsApp |
-| `/{id}/reactivate` | POST | JWT | Reunida → Activa |
+| Endpoint                | Método | Auth | Descripción                    |
+| ----------------------- | ------ | ---- | ------------------------------ |
+| `/`                     | POST   | JWT  | Crear mascota; gating por plan |
+| `/{id}`                 | GET    | JWT  | Detalle; ownership check       |
+| `/{id}`                 | PUT    | JWT  | Actualizar foto + datos        |
+| `/{id}`                 | DELETE | JWT  | Soft-delete + borrar blobs     |
+| `/{id}/scan-history`    | GET    | JWT  | Historial escaneos; tiered     |
+| `/{id}/whatsapp-avatar` | GET    | —    | Avatar optimizado WhatsApp     |
+| `/{id}/reactivate`      | POST   | JWT  | Reunida → Activa               |
 
 ### 5.3 LostPets (`/api/lost-pets`)
 
@@ -177,26 +177,26 @@ Avistamientos anónimos con PiiScrubber, foto, GPS; visual match por IA.
 
 ### 5.5 Stores (`/api/stores`, `/api/store-orders`, `/api/admin/stores`)
 
-| Endpoint | Auth | Descripción |
-|----------|------|-------------|
-| `GET /api/public/stores` | — | Directorio activo; paginado |
-| `GET /api/public/stores/{id}` | — | Detalle + productos disponibles |
-| `POST /api/stores/register` | — | Registro tienda; anti-enumeración |
-| `GET /api/stores/mine` | Store | Mi tienda |
-| `PUT /api/stores/profile` | Store | Actualizar perfil |
-| `GET /api/stores/products` | Store | Mis productos |
-| `POST /api/stores/products` | Store | Agregar producto |
-| `PUT /api/stores/products/{id}` | Store | Actualizar producto |
-| `DELETE /api/stores/products/{id}` | Store | Eliminar producto |
-| `POST /api/stores/products/{id}/image` | Store | Subir imagen 5MB; resize 800px |
-| `POST /api/store-orders` | JWT | Colocar pedido; plan gate StorePlus+ |
-| `GET /api/store-orders/mine` | JWT | Mis pedidos (paginado) |
-| `PUT /api/store-orders/{id}/report-payment` | JWT | Reportar pago SINPE |
-| `GET /api/store-orders/incoming` | Store | Pedidos entrantes (paginado) |
-| `PUT /api/store-orders/{id}/confirm` | Store | Confirmar pedido |
-| `PUT /api/store-orders/{id}/status` | Store | Avanzar estado (state machine) |
-| `GET /api/admin/stores/pending` | Admin | Lista pendientes |
-| `PUT /api/admin/stores/{id}/review` | Admin | Aprobar/rechazar tienda |
+| Endpoint                                    | Auth  | Descripción                          |
+| ------------------------------------------- | ----- | ------------------------------------ |
+| `GET /api/public/stores`                    | —     | Directorio activo; paginado          |
+| `GET /api/public/stores/{id}`               | —     | Detalle + productos disponibles      |
+| `POST /api/stores/register`                 | —     | Registro tienda; anti-enumeración    |
+| `GET /api/stores/mine`                      | Store | Mi tienda                            |
+| `PUT /api/stores/profile`                   | Store | Actualizar perfil                    |
+| `GET /api/stores/products`                  | Store | Mis productos                        |
+| `POST /api/stores/products`                 | Store | Agregar producto                     |
+| `PUT /api/stores/products/{id}`             | Store | Actualizar producto                  |
+| `DELETE /api/stores/products/{id}`          | Store | Eliminar producto                    |
+| `POST /api/stores/products/{id}/image`      | Store | Subir imagen 5MB; resize 800px       |
+| `POST /api/store-orders`                    | JWT   | Colocar pedido; plan gate StorePlus+ |
+| `GET /api/store-orders/mine`                | JWT   | Mis pedidos (paginado)               |
+| `PUT /api/store-orders/{id}/report-payment` | JWT   | Reportar pago SINPE                  |
+| `GET /api/store-orders/incoming`            | Store | Pedidos entrantes (paginado)         |
+| `PUT /api/store-orders/{id}/confirm`        | Store | Confirmar pedido                     |
+| `PUT /api/store-orders/{id}/status`         | Store | Avanzar estado (state machine)       |
+| `GET /api/admin/stores/pending`             | Admin | Lista pendientes                     |
+| `PUT /api/admin/stores/{id}/review`         | Admin | Aprobar/rechazar tienda              |
 
 #### Estado máquina de pedidos
 
@@ -210,14 +210,14 @@ Cancelación desde Confirmed, Preparing, ReadyForPickup, OutForDelivery.
 
 ### 5.6 Billboards — Vallas publicitarias (`/api/billboards`)
 
-| Endpoint | Auth | Descripción |
-|----------|------|-------------|
-| `GET /api/billboards?placement=Map` | — | Top 5 activas por placement |
-| `GET /api/billboards/admin` | Admin | Lista paginada |
-| `POST /api/billboards` | Admin | Crear valla |
-| `PUT /api/billboards/{id}` | Admin | Actualizar valla |
-| `PATCH /api/billboards/{id}/status` | Admin | Activar/pausar/expirar |
-| `POST /api/billboards/{id}/image` | Admin | Imagen 5MB; resize 1200px |
+| Endpoint                            | Auth  | Descripción                 |
+| ----------------------------------- | ----- | --------------------------- |
+| `GET /api/billboards?placement=Map` | —     | Top 5 activas por placement |
+| `GET /api/billboards/admin`         | Admin | Lista paginada              |
+| `POST /api/billboards`              | Admin | Crear valla                 |
+| `PUT /api/billboards/{id}`          | Admin | Actualizar valla            |
+| `PATCH /api/billboards/{id}/status` | Admin | Activar/pausar/expirar      |
+| `POST /api/billboards/{id}/image`   | Admin | Imagen 5MB; resize 1200px   |
 
 **Placements disponibles:** `Map`, `Dashboard`, `Directory`, `Feed`
 
@@ -333,26 +333,26 @@ Admin:
 
 ## 7. Seguridad — controles implementados
 
-| Control | Implementación |
-|---------|---------------|
-| JWT Algorithm pinning | `ValidAlgorithms: [HS256]` — rechaza alg=none |
-| JTI Blocklist distribuido | SQL `RevokedTokens` + cleanup nightly |
-| bcrypt | Work factor 12; `Verify()` never `Hash()` for comparison |
-| Token theft detection | Refresh rotado detecta replay → revoca todas las sesiones |
-| Absolute session max | 90 días desde `SessionIssuedAt` |
-| Rate limiting | Todas las rutas con política nombrada |
-| BOLA Collars | Ownership check en GetCollarStatus + GetLocationHistory |
-| BOLA Bounty | `ConfirmDeposit` requiere auth; solo el dueño confirma |
-| BOLA Family | Email verificado al aceptar invitación |
-| Push subscription | userId ownership check al registrar endpoint |
-| Phone hash | HMAC-SHA256 con `Bot:PhoneHashSecret` (no SHA-256 plain) |
-| Leaderboard PII | Solo primer nombre (máx 20 chars) en respuesta pública |
-| Image upload | Magic bytes validation + MIME check |
-| SW open redirect | Validación same-origin en notificationclick |
-| Auth endpoints cache | Excluidos del ServiceWorker NetworkFirst |
-| AllowedHosts | `pawtrack.cr;*.pawtrack.cr;localhost` (no `*`) |
-| CSP (SWA) | globalHeaders en staticwebapp.config.json |
-| ChangePassword | Invalida todas las sesiones activas |
+| Control                   | Implementación                                            |
+| ------------------------- | --------------------------------------------------------- |
+| JWT Algorithm pinning     | `ValidAlgorithms: [HS256]` — rechaza alg=none             |
+| JTI Blocklist distribuido | SQL `RevokedTokens` + cleanup nightly                     |
+| bcrypt                    | Work factor 12; `Verify()` never `Hash()` for comparison  |
+| Token theft detection     | Refresh rotado detecta replay → revoca todas las sesiones |
+| Absolute session max      | 90 días desde `SessionIssuedAt`                           |
+| Rate limiting             | Todas las rutas con política nombrada                     |
+| BOLA Collars              | Ownership check en GetCollarStatus + GetLocationHistory   |
+| BOLA Bounty               | `ConfirmDeposit` requiere auth; solo el dueño confirma    |
+| BOLA Family               | Email verificado al aceptar invitación                    |
+| Push subscription         | userId ownership check al registrar endpoint              |
+| Phone hash                | HMAC-SHA256 con `Bot:PhoneHashSecret` (no SHA-256 plain)  |
+| Leaderboard PII           | Solo primer nombre (máx 20 chars) en respuesta pública    |
+| Image upload              | Magic bytes validation + MIME check                       |
+| SW open redirect          | Validación same-origin en notificationclick               |
+| Auth endpoints cache      | Excluidos del ServiceWorker NetworkFirst                  |
+| AllowedHosts              | `pawtrack.cr;*.pawtrack.cr;localhost` (no `*`)            |
+| CSP (SWA)                 | globalHeaders en staticwebapp.config.json                 |
+| ChangePassword            | Invalida todas las sesiones activas                       |
 
 ---
 
@@ -362,11 +362,11 @@ Todas las migraciones están en `backend/src/PawTrack.Infrastructure/Persistence
 
 Las más recientes (post-sprint-store):
 
-| Migración | Descripción |
-|-----------|-------------|
-| `AddPetStores` | Stores, StoreProducts, StoreOrders, StoreOrderItems |
-| `AddRevokedTokens` | JTI blocklist SQL-backed |
-| `AddBillboards` | Vallas publicitarias |
+| Migración          | Descripción                                         |
+| ------------------ | --------------------------------------------------- |
+| `AddPetStores`     | Stores, StoreProducts, StoreOrders, StoreOrderItems |
+| `AddRevokedTokens` | JTI blocklist SQL-backed                            |
+| `AddBillboards`    | Vallas publicitarias                                |
 
 **Pendiente en Azure:** aplicar en Azure SQL vía CI/CD o `dotnet ef database update`.
 
@@ -387,14 +387,14 @@ Las más recientes (post-sprint-store):
 
 ## 10. Pendientes operacionales (no código)
 
-| # | Item | Bloqueante |
-|---|------|------------|
-| 1 | GitHub Secrets CI/CD (10 secrets) | Deploy automatizado |
-| 2 | Dominio `pawtrack.cr` + CNAME | Producción pública |
-| 3 | WhatsApp webhook en Meta Cloud API | Bot WhatsApp |
-| 4 | VAPID keys en Azure Container App | Push notifications |
-| 5 | Migraciones EF en Azure SQL | Producción funcional |
-| 6 | `Bot:PhoneHashSecret` en Key Vault | Hash seguro de teléfonos |
+| #   | Item                               | Bloqueante               |
+| --- | ---------------------------------- | ------------------------ |
+| 1   | GitHub Secrets CI/CD (10 secrets)  | Deploy automatizado      |
+| 2   | Dominio `pawtrack.cr` + CNAME      | Producción pública       |
+| 3   | WhatsApp webhook en Meta Cloud API | Bot WhatsApp             |
+| 4   | VAPID keys en Azure Container App  | Push notifications       |
+| 5   | Migraciones EF en Azure SQL        | Producción funcional     |
+| 6   | `Bot:PhoneHashSecret` en Key Vault | Hash seguro de teléfonos |
 
 Ver [`checklist-lanzamiento.md`](checklist-lanzamiento.md) para el procedimiento completo.
 

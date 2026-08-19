@@ -7,12 +7,12 @@
 
 ## Entorno de desarrollo
 
-| Servicio | URL | Estado esperado |
-|----------|-----|-----------------|
-| **Frontend** | http://localhost:5173 | Vite PWA (registerType: "prompt") |
-| **Backend API** | http://localhost:5000 | .NET 9 |
-| **Azurite** (Blob) | http://localhost:10000 | Emulador Azure Storage |
-| **Base de datos** | `CPC-davil-ECEKS\SQLEXPRESS` / `PawTrackLocal` | SQL Express |
+| Servicio           | URL                                            | Estado esperado                   |
+| ------------------ | ---------------------------------------------- | --------------------------------- |
+| **Frontend**       | http://localhost:5173                          | Vite PWA (registerType: "prompt") |
+| **Backend API**    | http://localhost:5000                          | .NET 9                            |
+| **Azurite** (Blob) | http://localhost:10000                         | Emulador Azure Storage            |
+| **Base de datos**  | `CPC-davil-ECEKS\SQLEXPRESS` / `PawTrackLocal` | SQL Express                       |
 
 ### Iniciar todos los servicios
 

@@ -11,17 +11,19 @@
 
 ### Nuevos secretos requeridos (agosto 2026)
 
-| Secret en Key Vault | Descripción |
-|---------------------|-------------|
-| `bot-phone-hash-secret` | Mínimo 32 chars; HMAC-SHA256 para hash de teléfonos del bot |
+| Secret en Key Vault          | Descripción                                                  |
+| ---------------------------- | ------------------------------------------------------------ |
+| `bot-phone-hash-secret`      | Mínimo 32 chars; HMAC-SHA256 para hash de teléfonos del bot  |
 | `billboard-images-container` | Nombre del contenedor Blob (por defecto: `billboard-images`) |
 
 Agregar en Container App:
+
 ```powershell
 az keyvault secret set --vault-name pawtrack-kv --name bot-phone-hash-secret --value "VALOR_MINIMO_32_CHARS"
 ```
 
 Luego referenciar en `appsettings.json`:
+
 ```json
 "Bot": {
   "PhoneHashSecret": "@Microsoft.KeyVault(VaultName=pawtrack-kv;SecretName=bot-phone-hash-secret)"

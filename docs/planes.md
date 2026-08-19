@@ -10,15 +10,15 @@
 
 **Para quienes dan sus primeros pasos en la protección digital de mascotas.**
 
-| Categoría | Feature |
-|-----------|---------|
-| **Mascotas** | 1 mascota registrada · QR digital · perfil público · foto · raza · especie |
-| **Identificación** | Microchip RFID (ISO 11784) · historial de escaneos (últimos 5) |
-| **Emergencia** | Reporte de pérdida con GPS y foto · aparición en mapa público |
-| **Comunidad** | Avistamientos anónimos · contacto seguro con rescatador · recompensa declarada |
-| **IA** | Búsqueda por foto: **3/mes** |
-| **Alertas** | Radio **3 km** |
-| **Expediente médico** | Ver count de registros (teaser) — sin acceso al contenido |
+| Categoría             | Feature                                                                        |
+| --------------------- | ------------------------------------------------------------------------------ |
+| **Mascotas**          | 1 mascota registrada · QR digital · perfil público · foto · raza · especie     |
+| **Identificación**    | Microchip RFID (ISO 11784) · historial de escaneos (últimos 5)                 |
+| **Emergencia**        | Reporte de pérdida con GPS y foto · aparición en mapa público                  |
+| **Comunidad**         | Avistamientos anónimos · contacto seguro con rescatador · recompensa declarada |
+| **IA**                | Búsqueda por foto: **3/mes**                                                   |
+| **Alertas**           | Radio **3 km**                                                                 |
+| **Expediente médico** | Ver count de registros (teaser) — sin acceso al contenido                      |
 
 ---
 
@@ -28,15 +28,15 @@
 
 Todo lo del plan Explorador, más:
 
-| Categoría | Feature |
-|-----------|---------|
-| **Mascotas** | Hasta **3 mascotas** · historial de escaneos ilimitado |
-| **Alertas** | Radio **10 km** · WhatsApp instantáneo |
-| **IA** | Búsqueda por foto **ilimitada** · predicción de movimiento |
-| **Búsqueda** | Case Room activo · coordinación en tiempo real · 3D Radar |
-| **Recompensas** | Crear Bounty con SINPE · HandoverCode → liberación automática |
-| **GPS** | Collar GPS tab · Tractive / Kippy / genérico · historial 24h |
-| **Expediente médico** | Vista previa de **últimos 3 registros** |
+| Categoría             | Feature                                                       |
+| --------------------- | ------------------------------------------------------------- |
+| **Mascotas**          | Hasta **3 mascotas** · historial de escaneos ilimitado        |
+| **Alertas**           | Radio **10 km** · WhatsApp instantáneo                        |
+| **IA**                | Búsqueda por foto **ilimitada** · predicción de movimiento    |
+| **Búsqueda**          | Case Room activo · coordinación en tiempo real · 3D Radar     |
+| **Recompensas**       | Crear Bounty con SINPE · HandoverCode → liberación automática |
+| **GPS**               | Collar GPS tab · Tractive / Kippy / genérico · historial 24h  |
+| **Expediente médico** | Vista previa de **últimos 3 registros**                       |
 
 ---
 
@@ -46,15 +46,15 @@ Todo lo del plan Explorador, más:
 
 Todo lo del plan Plus, más:
 
-| Categoría | Feature |
-|-----------|---------|
-| **Mascotas** | **Ilimitadas** |
-| **Usuarios** | Hasta **5 miembros** · alertas push a todos los dispositivos |
-| **Alertas** | Radio **sin límite** |
-| **Expediente médico** | Historial completo · editar/eliminar · peso por visita |
-| **Medicación** | Campos estructurados: dosis, frecuencia, duración, fecha fin |
-| **Recordatorios** | Vista calendario · dashboard multi-mascota |
-| **Exportar** | PDF del expediente completo |
+| Categoría             | Feature                                                      |
+| --------------------- | ------------------------------------------------------------ |
+| **Mascotas**          | **Ilimitadas**                                               |
+| **Usuarios**          | Hasta **5 miembros** · alertas push a todos los dispositivos |
+| **Alertas**           | Radio **sin límite**                                         |
+| **Expediente médico** | Historial completo · editar/eliminar · peso por visita       |
+| **Medicación**        | Campos estructurados: dosis, frecuencia, duración, fecha fin |
+| **Recordatorios**     | Vista calendario · dashboard multi-mascota                   |
+| **Exportar**          | PDF del expediente completo                                  |
 
 ---
 
@@ -133,12 +133,12 @@ Todo lo del plan Plus, más:
 
 Las tiendas, clínicas y negocios relacionados pueden anunciar en la plataforma. El sistema de vallas admite:
 
-| Placement | Descripción | Visibilidad |
-|-----------|-------------|-------------|
-| **Map** | Overlay en el mapa público | Alta (todos los visitantes del mapa) |
-| **Dashboard** | Entre tarjetas de mascotas | Media (dueños autenticados) |
-| **Directory** | Top del directorio de tiendas/clínicas | Media |
-| **Feed** | Sobre lista de mascotas perdidas | Alta |
+| Placement     | Descripción                            | Visibilidad                          |
+| ------------- | -------------------------------------- | ------------------------------------ |
+| **Map**       | Overlay en el mapa público             | Alta (todos los visitantes del mapa) |
+| **Dashboard** | Entre tarjetas de mascotas             | Media (dueños autenticados)          |
+| **Directory** | Top del directorio de tiendas/clínicas | Media                                |
+| **Feed**      | Sobre lista de mascotas perdidas       | Alta                                 |
 
 **Modelo:** Contactar con el equipo de PawTrack CR para tarifas y disponibilidad. La plataforma Admin gestiona la aprobación, fechas y prioridad de cada valla.
 

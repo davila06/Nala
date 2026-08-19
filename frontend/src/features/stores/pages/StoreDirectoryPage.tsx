@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Skeleton } from "@/shared/ui/Spinner";
 import { usePublicStores } from "../hooks/useStores";
+import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
 import type { PublicStoreDto } from "../api/storesApi";
 
 function StoreCard({ store }: { store: PublicStoreDto }) {
@@ -84,7 +85,8 @@ export default function StoreDirectoryPage() {
             PawTrack CR.
           </p>
         </div>
-
+        {/* Billboard — Directory placement */}
+        <BillboardBanner placement="Directory" />
         {/* Search */}
         <div className="relative">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sand-400 pointer-events-none">

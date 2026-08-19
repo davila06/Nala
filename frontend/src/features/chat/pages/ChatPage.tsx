@@ -4,6 +4,7 @@ import {
   useChatMessages,
   useChatThreads,
   useOpenChatThread,
+  useChatSignalR,
 } from "../hooks/useChatThread";
 import { ChatPanel } from "../components/ChatPanel";
 import { useAuthStore } from "@/features/auth/store/authStore";
@@ -58,6 +59,8 @@ export default function ChatPage() {
 
   // Prefetch messages for the active thread (ChatPanel also fetches internally).
   useChatMessages(activeThreadId ?? "", !!activeThreadId);
+  // Real-time push — reduces poll load when connection is healthy
+  useChatSignalR(activeThreadId);
 
   const activeThread = threads.find((t) => t.threadId === activeThreadId);
 

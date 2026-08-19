@@ -11,6 +11,7 @@ import { useMyTier } from "../hooks/useMyTier";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { AlertPreferencesToggle } from "@/features/locations/components/AlertPreferencesToggle";
 import { LeaderboardWidget } from "@/features/incentives/components/LeaderboardWidget";
+import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
 import { Alert } from "@/shared/ui/Alert";
 import { Skeleton } from "@/shared/ui/Spinner";
 import { EmptyState } from "@/shared/ui/Card";
@@ -394,6 +395,11 @@ export default function DashboardPage() {
             </h2>
             <AlertPreferencesToggle />
           </div>
+        )}
+
+        {/* Billboard — Dashboard placement */}
+        {!isLoading && (
+          <BillboardBanner placement="Dashboard" className="mt-4" />
         )}
 
         {/* Leaderboard */}

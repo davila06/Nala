@@ -16,8 +16,18 @@ public sealed class StoreRepository(PawTrackDbContext db) : IStoreRepository
     public async Task<IReadOnlyList<Store>> GetAllActiveAsync(CancellationToken ct = default) =>
         await db.Stores.AsNoTracking()
             .Where(s => s.Status == StoreStatus.Active)
-            .OrderBy(s => s.Name)
+            .OrderByDescending(s => s.IsFeatured).ThenBy(s => s.Name)
             .ToListAsync(ct);
+
+    public async Task<IReadOnlyList<Store>> GetActivePagedAsync(int skip, int take, CancellationToken ct = default) =>
+        await db.Stores.AsNoTracking()
+            .Where(s => s.Status == StoreStatus.Active)
+            .OrderByDescending(s => s.IsFeatured).ThenBy(s => s.Name)
+            .Skip(skip).Take(take)
+            .ToListAsync(ct);
+
+    public Task<int> CountActiveAsync(CancellationToken ct = default) =>
+        db.Stores.CountAsync(s => s.Status == StoreStatus.Active, ct);
 
     public async Task<IReadOnlyList<Store>> GetPendingAsync(CancellationToken ct = default) =>
         await db.Stores.AsNoTracking()

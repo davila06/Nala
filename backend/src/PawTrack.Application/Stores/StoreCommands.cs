@@ -153,16 +153,11 @@ public sealed class GetPublicStoresQueryHandler(IStoreRepository repo)
 {
     public async Task<Result<IReadOnlyList<PublicStoreDto>>> Handle(GetPublicStoresQuery request, CancellationToken ct)
     {
-        var stores = await repo.GetAllActiveAsync(ct);
-        // Page the in-memory result — acceptable for map layer which needs all visible pins
-        // When stores exceed 500+, migrate to spatial bbox query
-        var paged = stores
-            .Skip((request.Page - 1) * request.PageSize)
-            .Take(request.PageSize)
-            .Select(PublicStoreDto.FromDomain)
-            .ToList()
-            .AsReadOnly() as IReadOnlyList<PublicStoreDto>;
-        return Result.Success(paged);
+        var page = Math.Max(1, request.Page);
+        var size = Math.Clamp(request.PageSize, 1, 100);
+        var stores = await repo.GetActivePagedAsync((page - 1) * size, size, ct);
+        return Result.Success<IReadOnlyList<PublicStoreDto>>(
+            stores.Select(PublicStoreDto.FromDomain).ToList());
     }
 }
 
