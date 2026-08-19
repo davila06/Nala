@@ -124,6 +124,12 @@ const StoreProductsPage = lazy(
 const StoreOrdersPage = lazy(
   () => import("@/features/stores/pages/StoreOrdersPage"),
 );
+const MyStoreOrdersPage = lazy(
+  () => import("@/features/stores/pages/MyStoreOrdersPage"),
+);
+const StoreDirectoryPage = lazy(
+  () => import("@/features/stores/pages/StoreDirectoryPage"),
+);
 
 // Admin panel
 const AdminPage = lazy(() => import("@/features/admin/pages/AdminPage"));
@@ -281,6 +287,14 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            path: "/tiendas",
+            element: (
+              <S>
+                <StoreDirectoryPage />
+              </S>
+            ),
+          },
+          {
             path: "/familia/invitacion/:token",
             element: (
               <S>
@@ -420,6 +434,14 @@ export const router = createBrowserRouter([
               </S>
             ),
           },
+          {
+            path: "/mis-pedidos",
+            element: (
+              <S>
+                <MyStoreOrdersPage />
+              </S>
+            ),
+          },
 
           // ── Store + Admin only ───────────────────────────────────────────────
           {
@@ -427,15 +449,27 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: "/tienda/portal",
-                element: (<S><StoreDashboardPage /></S>),
+                element: (
+                  <S>
+                    <StoreDashboardPage />
+                  </S>
+                ),
               },
               {
                 path: "/tienda/portal/productos",
-                element: (<S><StoreProductsPage /></S>),
+                element: (
+                  <S>
+                    <StoreProductsPage />
+                  </S>
+                ),
               },
               {
                 path: "/tienda/portal/ordenes",
-                element: (<S><StoreOrdersPage /></S>),
+                element: (
+                  <S>
+                    <StoreOrdersPage />
+                  </S>
+                ),
               },
             ],
           },

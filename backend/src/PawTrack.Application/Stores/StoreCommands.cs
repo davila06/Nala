@@ -139,7 +139,8 @@ public sealed class UpdateStoreProfileCommandHandler(IStoreRepository repo, IUni
 
 // ── Get public stores ─────────────────────────────────────────────────────────
 
-public sealed record GetPublicStoresQuery : IRequest<Result<IReadOnlyList<PublicStoreDto>>>;
+public sealed record GetPublicStoresQuery(int Page = 1, int PageSize = 50)
+    : IRequest<Result<IReadOnlyList<PublicStoreDto>>>;
 
 public sealed class GetPublicStoresQueryHandler(IStoreRepository repo)
     : IRequestHandler<GetPublicStoresQuery, Result<IReadOnlyList<PublicStoreDto>>>
@@ -147,7 +148,15 @@ public sealed class GetPublicStoresQueryHandler(IStoreRepository repo)
     public async Task<Result<IReadOnlyList<PublicStoreDto>>> Handle(GetPublicStoresQuery request, CancellationToken ct)
     {
         var stores = await repo.GetAllActiveAsync(ct);
-        return Result.Success<IReadOnlyList<PublicStoreDto>>(stores.Select(PublicStoreDto.FromDomain).ToList());
+        // Page the in-memory result — acceptable for map layer which needs all visible pins
+        // When stores exceed 500+, migrate to spatial bbox query
+        var paged = stores
+            .Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .Select(PublicStoreDto.FromDomain)
+            .ToList()
+            .AsReadOnly() as IReadOnlyList<PublicStoreDto>;
+        return Result.Success(paged);
     }
 }
 

@@ -41,6 +41,22 @@ public sealed class StoreRepository(PawTrackDbContext db) : IStoreRepository
             .OrderBy(p => p.Category).ThenBy(p => p.Name)
             .ToListAsync(ct);
 
+    public async Task<IReadOnlyDictionary<Guid, StoreProduct>> GetProductsByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
+    {
+        var list = await db.StoreProducts.AsNoTracking()
+            .Where(p => ids.Contains(p.Id))
+            .ToListAsync(ct);
+        return list.ToDictionary(p => p.Id);
+    }
+
+    public async Task<IReadOnlyDictionary<Guid, string>> GetStoreNamesByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
+    {
+        var idList = ids.Distinct().ToList();
+        return await db.Stores.AsNoTracking()
+            .Where(s => idList.Contains(s.Id))
+            .ToDictionaryAsync(s => s.Id, s => s.Name, ct);
+    }
+
     public async Task AddProductAsync(StoreProduct product, CancellationToken ct = default) =>
         await db.StoreProducts.AddAsync(product, ct);
 

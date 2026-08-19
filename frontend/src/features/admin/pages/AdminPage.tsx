@@ -31,7 +31,13 @@ import { Input } from "@/shared/ui";
 import { AdminPromotionManager } from "@/features/promotions/components/AdminPromotionManager";
 import { AdminStoresTab } from "@/features/stores/components/AdminStoresTab";
 
-type Tab = "allies" | "clinics" | "subscriptions" | "bundles" | "promotions" | "stores";
+type Tab =
+  | "allies"
+  | "clinics"
+  | "subscriptions"
+  | "bundles"
+  | "promotions"
+  | "stores";
 
 const ALLY_TYPE_LABELS: Record<string, string> = {
   VeterinaryClinic: "Veterinaria",

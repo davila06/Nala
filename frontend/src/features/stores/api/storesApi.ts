@@ -64,6 +64,7 @@ export interface StoreOrderItemDto {
 export interface StoreOrderDto {
   id: string;
   storeId: string;
+  storeName: string;
   customerId: string;
   status: StoreOrderStatus;
   fulfillmentType: OrderFulfillmentType;

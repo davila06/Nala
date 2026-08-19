@@ -73,6 +73,11 @@ public sealed class StoreOrderConfiguration : IEntityTypeConfiguration<StoreOrde
                .HasForeignKey(i => i.OrderId)
                .OnDelete(DeleteBehavior.Cascade);
 
+        // Explicit backing-field binding — required for private readonly List<T>
+        builder.Navigation(x => x.Items)
+               .HasField("_items")
+               .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasIndex(x => x.PaymentReference).IsUnique();
         builder.HasIndex(x => new { x.StoreId, x.PlacedAt });
         builder.HasIndex(x => new { x.CustomerId, x.PlacedAt });

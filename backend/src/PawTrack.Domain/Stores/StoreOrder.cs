@@ -75,12 +75,31 @@ public sealed class StoreOrder
 
     public void UpdateStatus(StoreOrderStatus newStatus, string? storeNote = null)
     {
+        if (!IsValidTransition(Status, newStatus))
+            throw new InvalidOperationException(
+                $"Transición de estado inválida: {Status} → {newStatus}.");
+
         Status = newStatus;
         if (storeNote is not null) StoreNote = storeNote.Trim();
 
         if (newStatus is StoreOrderStatus.Delivered)
             CompletedAt = DateTimeOffset.UtcNow;
     }
+
+    /// <summary>Allowed forward-only state machine — prevents skipping steps or reversals.</summary>
+    private static bool IsValidTransition(StoreOrderStatus from, StoreOrderStatus to) => (from, to) switch
+    {
+        (StoreOrderStatus.Confirmed, StoreOrderStatus.Preparing) => true,
+        (StoreOrderStatus.Confirmed, StoreOrderStatus.Cancelled) => true,
+        (StoreOrderStatus.Preparing, StoreOrderStatus.ReadyForPickup) => true,
+        (StoreOrderStatus.Preparing, StoreOrderStatus.OutForDelivery) => true,
+        (StoreOrderStatus.Preparing, StoreOrderStatus.Cancelled) => true,
+        (StoreOrderStatus.ReadyForPickup, StoreOrderStatus.Delivered) => true,
+        (StoreOrderStatus.ReadyForPickup, StoreOrderStatus.Cancelled) => true,
+        (StoreOrderStatus.OutForDelivery, StoreOrderStatus.Delivered) => true,
+        (StoreOrderStatus.OutForDelivery, StoreOrderStatus.Cancelled) => true,
+        _ => false,
+    };
 
     public void Cancel(string? reason = null)
     {

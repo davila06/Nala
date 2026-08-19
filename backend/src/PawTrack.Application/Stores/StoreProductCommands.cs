@@ -110,3 +110,42 @@ public sealed class GetMyStoreProductsQueryHandler(IStoreRepository repo)
         return Result.Success<IReadOnlyList<StoreProductDto>>(products.Select(StoreProductDto.FromDomain).ToList());
     }
 }
+
+// ── Upload product image ──────────────────────────────────────────────────────
+
+public sealed record UploadProductImageCommand(
+    Guid StoreOwnerUserId,
+    Guid ProductId,
+    byte[] ImageBytes,
+    string ContentType) : IRequest<Result<StoreProductDto>>;
+
+public sealed class UploadProductImageCommandHandler(
+    IStoreRepository repo,
+    IBlobStorageService blobStorage,
+    IImageProcessor imageProcessor,
+    IUnitOfWork uow)
+    : IRequestHandler<UploadProductImageCommand, Result<StoreProductDto>>
+{
+    private const string Container = "store-product-images";
+
+    public async Task<Result<StoreProductDto>> Handle(UploadProductImageCommand request, CancellationToken ct)
+    {
+        var store = await repo.GetByUserIdAsync(request.StoreOwnerUserId, ct);
+        if (store is null) return Result.Failure<StoreProductDto>("Tienda no encontrada.");
+
+        var product = await repo.GetProductByIdAsync(request.ProductId, ct);
+        if (product is null || product.StoreId != store.Id)
+            return Result.Failure<StoreProductDto>("Producto no encontrado.");
+
+        var resized = await imageProcessor.ResizeAsync(request.ImageBytes, 800, ct);
+        var blobName = $"{store.Id}/{product.Id}/{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.jpg";
+
+        using var stream = new MemoryStream(resized);
+        var url = await blobStorage.UploadAsync(Container, blobName, stream, "image/jpeg", ct);
+
+        product.SetImageUrl(url);
+        repo.UpdateProduct(product);
+        await uow.SaveChangesAsync(ct);
+        return Result.Success(StoreProductDto.FromDomain(product));
+    }
+}

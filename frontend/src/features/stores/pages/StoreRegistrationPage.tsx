@@ -90,11 +90,7 @@ export default function StoreRegistrationPage() {
           </ul>
         </div>
         <p className="text-trust-400 text-sm">
-          Revisa{" "}
-          <Link to="/tienda/planes" className="underline hover:text-white">
-            nuestros planes
-          </Link>{" "}
-          — el básico es gratis.
+          El plan básico es gratis. Planes avanzados desde ₡12,000/mes.
         </p>
       </div>
 
@@ -117,7 +113,11 @@ export default function StoreRegistrationPage() {
           )}
           {error && (
             <Alert variant="error" className="mb-4">
-              No se pudo registrar. Intenta de nuevo.
+              {(
+                error as { response?: { data?: { detail?: string } } }
+              )?.response?.data?.detail?.includes("duplicate_email")
+                ? "Ya existe una cuenta con ese correo. ¿Quieres iniciar sesión?"
+                : "No se pudo registrar la tienda. Verifica los datos e intenta de nuevo."}
             </Alert>
           )}
 

@@ -131,6 +131,31 @@ public sealed class StoresController(ISender sender) : ControllerBase
         return NoContent();
     }
 
+    // ── POST /api/stores/products/{id}/image — upload product photo ───────────
+    [HttpPost("products/{productId:guid}/image")]
+    [Authorize(Roles = "Store")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(5_242_880)] // 5 MB
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> UploadProductImage(
+        Guid productId,
+        [FromForm] IFormFile image,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var allowed = new[] { "image/jpeg", "image/png", "image/webp" };
+        if (!allowed.Contains(image.ContentType, StringComparer.OrdinalIgnoreCase))
+            return BadRequest(new ProblemDetails { Detail = "Solo se aceptan JPEG, PNG o WebP.", Status = 400 });
+
+        using var ms = new MemoryStream();
+        await image.CopyToAsync(ms, ct);
+        var result = await sender.Send(new UploadProductImageCommand(userId, productId, ms.ToArray(), image.ContentType), ct);
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        return Ok(result.Value);
+    }
+
     private bool TryGetUserId(out Guid userId)
     {
         var claim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
@@ -148,9 +173,12 @@ public sealed class PublicStoresController(ISender sender) : ControllerBase
     // ── GET /api/public/stores ────────────────────────────────────────────────
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAll(CancellationToken ct)
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 50,
+        CancellationToken ct = default)
     {
-        var result = await sender.Send(new GetPublicStoresQuery(), ct);
+        var result = await sender.Send(new GetPublicStoresQuery(page, Math.Clamp(pageSize, 1, 100)), ct);
         return result.IsSuccess ? Ok(result.Value) : Ok(Array.Empty<object>());
     }
 

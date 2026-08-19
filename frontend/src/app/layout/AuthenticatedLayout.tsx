@@ -29,8 +29,10 @@ const PAGE_CONTEXT: Record<string, { label: string; icon: string }> = {
   "/chat": { label: "Chat seguro", icon: "💬" },
   "/allies/panel": { label: "Panel de Aliado", icon: "🤝" },
   "/clinica/portal": { label: "Portal Clínica", icon: "🏥" },
-  "/tienda/portal":  { label: "Portal Tienda",  icon: "🛍️" },
-  "/admin":          { label: "Administración", icon: "⚙️" },
+  "/tienda/portal": { label: "Portal Tienda", icon: "🛍️" },
+  "/mis-pedidos": { label: "Mis pedidos", icon: "🛒" },
+  "/tiendas": { label: "Tiendas", icon: "🛒" },
+  "/admin": { label: "Administración", icon: "⚙️" },
 };
 
 function resolvePageContext(pathname: string) {
