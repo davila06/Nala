@@ -29,7 +29,8 @@ const PAGE_CONTEXT: Record<string, { label: string; icon: string }> = {
   "/chat": { label: "Chat seguro", icon: "💬" },
   "/allies/panel": { label: "Panel de Aliado", icon: "🤝" },
   "/clinica/portal": { label: "Portal Clínica", icon: "🏥" },
-  "/admin": { label: "Administración", icon: "⚙️" },
+  "/tienda/portal":  { label: "Portal Tienda",  icon: "🛍️" },
+  "/admin":          { label: "Administración", icon: "⚙️" },
 };
 
 function resolvePageContext(pathname: string) {
@@ -109,6 +110,11 @@ const NAV_EXTRA_ALLY = {
 const NAV_EXTRA_CLINIC = {
   to: "/clinica/portal",
   label: "Panel Clínica",
+  icon: null,
+};
+const NAV_EXTRA_STORE = {
+  to: "/tienda/portal",
+  label: "Portal Tienda",
   icon: null,
 };
 const NAV_EXTRA_MUNICIPALITY = {
@@ -218,11 +224,13 @@ export default function AuthenticatedLayout() {
       ? NAV_EXTRA_ALLY
       : user?.role === "Clinic"
         ? NAV_EXTRA_CLINIC
-        : user?.role === "Municipality"
-          ? NAV_EXTRA_MUNICIPALITY
-          : user?.role === "Admin"
-            ? NAV_EXTRA_ADMIN
-            : null;
+        : user?.role === "Store"
+          ? NAV_EXTRA_STORE
+          : user?.role === "Municipality"
+            ? NAV_EXTRA_MUNICIPALITY
+            : user?.role === "Admin"
+              ? NAV_EXTRA_ADMIN
+              : null;
 
   const adminStatsNav = user?.role === "Admin" ? NAV_EXTRA_ADMIN_STATS : null;
 

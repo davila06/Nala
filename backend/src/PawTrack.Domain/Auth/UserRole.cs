@@ -7,4 +7,5 @@ public enum UserRole
     Admin,
     Clinic,
     Municipality,
+    Store,
 }

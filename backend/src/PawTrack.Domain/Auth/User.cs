@@ -182,6 +182,11 @@ public sealed class User
         Role = UserRole.Municipality;
     }
 
+    public void AssignStoreRole()
+    {
+        Role = UserRole.Store;
+    }
+
     public void UpdateProfile(string name)
     {
         Name = name.Trim();

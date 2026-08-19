@@ -7,6 +7,7 @@ import { useMovementPredictions } from "../hooks/useMovementPrediction";
 import type { MapBBox } from "../api/publicMapApi";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { usePublicClinics } from "@/features/clinics/hooks/useClinics";
+import { usePublicStores } from "@/features/stores/hooks/useStores";
 
 export default function PublicMapPage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -22,7 +23,9 @@ export default function PublicMapPage() {
   } | null>(null);
   const [showClinics, setShowClinics] = useState(false);
   const [showEmergencyOnly, setShowEmergencyOnly] = useState(false);
+  const [showStores, setShowStores] = useState(false);
   const { data: publicClinics = [] } = usePublicClinics(undefined, undefined);
+  const { data: publicStores = [] } = usePublicStores();
 
   const displayedClinics = showEmergencyOnly
     ? publicClinics.filter((c) => c.isEmergency24h)
@@ -257,12 +260,22 @@ export default function PublicMapPage() {
             🚨 Solo emergencias
           </button>
         )}
+        {/* Pet stores toggle */}
+        <button
+          type="button"
+          onClick={() => setShowStores((v) => !v)}
+          aria-pressed={showStores}
+          className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showStores ? "border-rescue-400 bg-rescue-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
+        >
+          🛒 Tiendas {showStores ? "✓" : ""}
+        </button>
       </div>
 
       <MapContainer
         events={filteredEvents}
         predictions={predictions}
         clinics={showClinics ? displayedClinics : undefined}
+        stores={showStores ? publicStores : undefined}
         locateTrigger={locateTrigger}
         flyTarget={flyTarget}
         onLocated={() => setLocating(false)}

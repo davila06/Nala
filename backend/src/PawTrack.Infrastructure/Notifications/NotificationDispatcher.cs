@@ -612,5 +612,20 @@ public sealed class NotificationDispatcher(
             new PushNotificationMetadata(Url: $"/lost/{lostPetEventId}"),
             cancellationToken);
     }
+
+    public async Task DispatchNewStoreOrderAsync(
+        Guid storeOwnerUserId,
+        string storeName,
+        string orderId,
+        decimal totalCrc,
+        CancellationToken cancellationToken = default)
+    {
+        await TrySendPushAsync(
+            storeOwnerUserId,
+            $"🛒 Nuevo pedido en {storeName}",
+            $"Recibirás ₡{totalCrc:N0}. Confirma el pedido cuando verifiques el pago SINPE.",
+            new PushNotificationMetadata(Url: $"/tienda/portal/ordenes/{orderId}"),
+            cancellationToken);
+    }
 }
 

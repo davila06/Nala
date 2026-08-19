@@ -92,6 +92,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IFoundPetRepository, FoundPetRepository>();
         services.AddScoped<IFosterVolunteerRepository, FosterVolunteerRepository>();
         services.AddScoped<ICustodyRecordRepository, CustodyRecordRepository>();
+        services.AddScoped<IStoreRepository, PawTrack.Infrastructure.Stores.StoreRepository>();
+        services.AddScoped<IStoreOrderRepository, PawTrack.Infrastructure.Stores.StoreOrderRepository>();
 
         // Clinics
         services.AddScoped<IClinicRepository, ClinicRepository>();

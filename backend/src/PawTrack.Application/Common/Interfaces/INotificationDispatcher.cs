@@ -156,4 +156,11 @@ public interface INotificationDispatcher
         double lostLat,
         double lostLng,
         CancellationToken cancellationToken = default);
+    /// <summary>Notifies a store owner that a new in-app order has been placed.</summary>
+    Task DispatchNewStoreOrderAsync(
+        Guid storeOwnerUserId,
+        string storeName,
+        string orderId,
+        decimal totalCrc,
+        CancellationToken cancellationToken = default);
 }

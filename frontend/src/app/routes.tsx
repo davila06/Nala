@@ -108,6 +108,23 @@ const ClinicDashboardPage = lazy(
   () => import("@/features/clinics/pages/ClinicDashboardPage"),
 );
 
+// Tiendas de mascotas
+const StoreRegistrationPage = lazy(
+  () => import("@/features/stores/pages/StoreRegistrationPage"),
+);
+const StorePendingPage = lazy(
+  () => import("@/features/stores/pages/StorePendingPage"),
+);
+const StoreDashboardPage = lazy(
+  () => import("@/features/stores/pages/StoreDashboardPage"),
+);
+const StoreProductsPage = lazy(
+  () => import("@/features/stores/pages/StoreProductsPage"),
+);
+const StoreOrdersPage = lazy(
+  () => import("@/features/stores/pages/StoreOrdersPage"),
+);
+
 // Admin panel
 const AdminPage = lazy(() => import("@/features/admin/pages/AdminPage"));
 const MunicipalityPortalPage = lazy(
@@ -244,6 +261,22 @@ export const router = createBrowserRouter([
             element: (
               <S>
                 <ClinicPendingPage />
+              </S>
+            ),
+          },
+          {
+            path: "/tienda/registro",
+            element: (
+              <S>
+                <StoreRegistrationPage />
+              </S>
+            ),
+          },
+          {
+            path: "/tienda/pendiente",
+            element: (
+              <S>
+                <StorePendingPage />
               </S>
             ),
           },
@@ -386,6 +419,25 @@ export const router = createBrowserRouter([
                 <ChatThreadPage />
               </S>
             ),
+          },
+
+          // ── Store + Admin only ───────────────────────────────────────────────
+          {
+            element: <RoleGuard roles={["Store", "Admin"]} />,
+            children: [
+              {
+                path: "/tienda/portal",
+                element: (<S><StoreDashboardPage /></S>),
+              },
+              {
+                path: "/tienda/portal/productos",
+                element: (<S><StoreProductsPage /></S>),
+              },
+              {
+                path: "/tienda/portal/ordenes",
+                element: (<S><StoreOrdersPage /></S>),
+              },
+            ],
           },
 
           // ── Ally + Admin only ────────────────────────────────────────────────
