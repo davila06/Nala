@@ -11,7 +11,10 @@ export function UpdateBanner() {
     needRefresh: [needRefresh],
     updateServiceWorker,
   } = useRegisterSW({
-    onRegisteredSW(_swUrl: unknown, r: { update: () => Promise<void> } | undefined) {
+    onRegisteredSW(
+      _swUrl: unknown,
+      r: { update: () => Promise<void> } | undefined,
+    ) {
       if (r) setInterval(() => void r.update(), 60 * 60_000);
     },
   });

@@ -10,6 +10,140 @@
 
 **Para quienes dan sus primeros pasos en la protección digital de mascotas.**
 
+| Categoría | Feature |
+|-----------|---------|
+| **Mascotas** | 1 mascota registrada · QR digital · perfil público · foto · raza · especie |
+| **Identificación** | Microchip RFID (ISO 11784) · historial de escaneos (últimos 5) |
+| **Emergencia** | Reporte de pérdida con GPS y foto · aparición en mapa público |
+| **Comunidad** | Avistamientos anónimos · contacto seguro con rescatador · recompensa declarada |
+| **IA** | Búsqueda por foto: **3/mes** |
+| **Alertas** | Radio **3 km** |
+| **Expediente médico** | Ver count de registros (teaser) — sin acceso al contenido |
+
+---
+
+### 🌟 Plus — ₡2,990/mes (~$5.75 USD)
+
+**Para dueños activos que quieren la máxima velocidad de recuperación.**
+
+Todo lo del plan Explorador, más:
+
+| Categoría | Feature |
+|-----------|---------|
+| **Mascotas** | Hasta **3 mascotas** · historial de escaneos ilimitado |
+| **Alertas** | Radio **10 km** · WhatsApp instantáneo |
+| **IA** | Búsqueda por foto **ilimitada** · predicción de movimiento |
+| **Búsqueda** | Case Room activo · coordinación en tiempo real · 3D Radar |
+| **Recompensas** | Crear Bounty con SINPE · HandoverCode → liberación automática |
+| **GPS** | Collar GPS tab · Tractive / Kippy / genérico · historial 24h |
+| **Expediente médico** | Vista previa de **últimos 3 registros** |
+
+---
+
+### 👨‍👩‍👧‍👦 Familia — ₡4,990/mes (~$9.60 USD)
+
+**Para familias con varias mascotas o que necesitan acceso compartido.**
+
+Todo lo del plan Plus, más:
+
+| Categoría | Feature |
+|-----------|---------|
+| **Mascotas** | **Ilimitadas** |
+| **Usuarios** | Hasta **5 miembros** · alertas push a todos los dispositivos |
+| **Alertas** | Radio **sin límite** |
+| **Expediente médico** | Historial completo · editar/eliminar · peso por visita |
+| **Medicación** | Campos estructurados: dosis, frecuencia, duración, fecha fin |
+| **Recordatorios** | Vista calendario · dashboard multi-mascota |
+| **Exportar** | PDF del expediente completo |
+
+---
+
+## B2B — Planes para Tiendas de Mascotas
+
+### 🏪 StoreBasic — Gratis
+
+- Listado en directorio y mapa
+- Catálogo de productos visible al público
+- Sin sistema de pedidos in-app
+
+### 🛒 StorePlus — ₡12,000/mes
+
+- Todo StoreBasic +
+- **Recibir pedidos in-app** con SINPE Móvil
+- Panel de órdenes en tiempo real
+- Badge "Tienda Plus" en mapa
+- Estadísticas básicas de ventas
+
+### 🌟 StorePartner — ₡25,000/mes
+
+- Todo StorePlus +
+- Analytics avanzados
+- Soporte multi-sucursal
+- Badge verificado premium
+- Posicionamiento prioritario en mapa y directorio
+
+---
+
+## B2B — Planes para Clínicas Veterinarias
+
+### 🏥 ClinicBasic — ₡15,000/mes
+
+- Escaneo de QR/RFID
+- Directorio básico
+- Notificación al dueño al escanear
+
+### ⭐ ClinicPlus — ₡35,000/mes
+
+- Expediente médico compartido (con consentimiento del dueño)
+- PDF certificados verificables
+- Historial de visitas completo
+
+### 🤝 ClinicPartner — ₡60,000/mes
+
+- Todo ClinicPlus +
+- API keys para integración con HIS propietario
+- Posición destacada en mapa (icono 24h emergencia)
+- Multi-veterinario
+
+---
+
+## B2G — Planes para Municipalidades
+
+### 🏛️ MuniBasic — ₡25,000/mes
+
+- Portal de control animal
+- Gestión de animales capturados
+- Un cantón
+
+### 📊 MuniFull — ₡50,000/mes
+
+- Fotos de animales capturados
+- Estadísticas y reportes
+- Multi-cantón
+
+### 🌐 MuniRedRegional — ₡80,000/mes
+
+- Red regional compartida
+- Coordinación entre cantones
+- Reportes consolidados
+
+---
+
+## Vallas Publicitarias — Ingresos adicionales
+
+Las tiendas, clínicas y negocios relacionados pueden anunciar en la plataforma. El sistema de vallas admite:
+
+| Placement | Descripción | Visibilidad |
+|-----------|-------------|-------------|
+| **Map** | Overlay en el mapa público | Alta (todos los visitantes del mapa) |
+| **Dashboard** | Entre tarjetas de mascotas | Media (dueños autenticados) |
+| **Directory** | Top del directorio de tiendas/clínicas | Media |
+| **Feed** | Sobre lista de mascotas perdidas | Alta |
+
+**Modelo:** Contactar con el equipo de PawTrack CR para tarifas y disponibilidad. La plataforma Admin gestiona la aprobación, fechas y prioridad de cada valla.
+
+**Para quienes dan sus primeros pasos en la protección digital de mascotas.**
+
 | Categoría             | Feature                                                                        |
 | --------------------- | ------------------------------------------------------------------------------ |
 | **Mascotas**          | 1 mascota registrada · QR digital · perfil público · foto · raza · especie     |

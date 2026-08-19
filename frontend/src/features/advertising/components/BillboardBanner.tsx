@@ -11,13 +11,27 @@ interface BillboardBannerProps {
 const DISMISS_KEY = (id: string) => `pawtrack:billboard:dismissed:${id}`;
 
 function isDismissed(id: string): boolean {
-  try { return sessionStorage.getItem(DISMISS_KEY(id)) === "1"; } catch { return false; }
+  try {
+    return sessionStorage.getItem(DISMISS_KEY(id)) === "1";
+  } catch {
+    return false;
+  }
 }
 function setDismissed(id: string) {
-  try { sessionStorage.setItem(DISMISS_KEY(id), "1"); } catch { /* ignore */ }
+  try {
+    sessionStorage.setItem(DISMISS_KEY(id), "1");
+  } catch {
+    /* ignore */
+  }
 }
 
-function BillboardCard({ bill, onDismiss }: { bill: BillboardDto; onDismiss: () => void }) {
+function BillboardCard({
+  bill,
+  onDismiss,
+}: {
+  bill: BillboardDto;
+  onDismiss: () => void;
+}) {
   const handleCta = () => {
     if (!bill.ctaUrl) return;
     // Only open same-origin or https links
@@ -25,7 +39,9 @@ function BillboardCard({ bill, onDismiss }: { bill: BillboardDto; onDismiss: () 
       const url = new URL(bill.ctaUrl);
       if (url.origin === window.location.origin || url.protocol === "https:")
         window.open(bill.ctaUrl, "_blank", "noopener,noreferrer");
-    } catch { /* invalid URL */ }
+    } catch {
+      /* invalid URL */
+    }
   };
 
   return (
@@ -65,7 +81,9 @@ function BillboardCard({ bill, onDismiss }: { bill: BillboardDto; onDismiss: () 
             Publicidad
           </span>
         </div>
-        <p className="font-semibold text-ink-900 text-sm leading-snug">{bill.title}</p>
+        <p className="font-semibold text-ink-900 text-sm leading-snug">
+          {bill.title}
+        </p>
         {bill.body && (
           <p className="text-xs text-sand-600 leading-relaxed">{bill.body}</p>
         )}
@@ -87,14 +105,19 @@ function BillboardCard({ bill, onDismiss }: { bill: BillboardDto; onDismiss: () 
  * Renders the highest-priority active billboard for the given placement.
  * Dismissals are stored in sessionStorage and survive navigation within the tab.
  */
-export function BillboardBanner({ placement, className = "" }: BillboardBannerProps) {
+export function BillboardBanner({
+  placement,
+  className = "",
+}: BillboardBannerProps) {
   const { data: billboards = [] } = useBillboards(placement);
   const [dismissed, setDismissedState] = useState<Set<string>>(new Set());
 
   // Sync sessionStorage on mount
   useEffect(() => {
     const preFiltered = new Set<string>();
-    billboards.forEach((b) => { if (isDismissed(b.id)) preFiltered.add(b.id); });
+    billboards.forEach((b) => {
+      if (isDismissed(b.id)) preFiltered.add(b.id);
+    });
     if (preFiltered.size > 0) setDismissedState(preFiltered);
   }, [billboards]);
 

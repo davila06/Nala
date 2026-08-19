@@ -296,7 +296,10 @@ export default function PublicMapPage() {
         predictions={predictions}
         clinics={showClinics ? displayedClinics : undefined}
         stores={showStores ? publicStores : undefined}
-        onStoreClick={(id) => { setActiveStoreId(id); setShowStores(true); }}
+        onStoreClick={(id) => {
+          setActiveStoreId(id);
+          setShowStores(true);
+        }}
         locateTrigger={locateTrigger}
         flyTarget={flyTarget}
         onLocated={() => setLocating(false)}
@@ -310,15 +313,24 @@ export default function PublicMapPage() {
           storeId={activeStoreId}
           isOpen={!!activeStoreId}
           onClose={() => setActiveStoreId(null)}
-          onCheckout={() => { setActiveStoreId(null); setCartOpen(true); }}
+          onCheckout={() => {
+            setActiveStoreId(null);
+            setCartOpen(true);
+          }}
         />
       )}
       <CartDrawer
         isOpen={cartOpen}
         onClose={() => setCartOpen(false)}
-        onCheckout={() => { setCartOpen(false); setCheckoutOpen(true); }}
+        onCheckout={() => {
+          setCartOpen(false);
+          setCheckoutOpen(true);
+        }}
       />
-      <CheckoutModal isOpen={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
+      <CheckoutModal
+        isOpen={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+      />
 
       {/* Billboard for the map placement — subtle non-intrusive slot */}
       {showStores && (

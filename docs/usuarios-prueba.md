@@ -1,9 +1,48 @@
-# FINALIZADO
-
 # PawTrack CR — Usuarios de Prueba
 
 > **SOLO USO LOCAL / DEV** — Nunca usar estas credenciales en staging o producción.  
-> Para la guía completa de pruebas por rol y flujos end-to-end, ver [`pruebas.md`](pruebas.md).
+> Contraseña universal: `Test123!` (salvo excepciones indicadas)  
+> Última actualización: 2026-08-19
+
+---
+
+## Credenciales completas por rol y plan
+
+| Email | Contraseña | Rol | Plan / Tier | Para probar |
+|-------|-----------|-----|-------------|-------------|
+| `admin@pawtrack.cr` | `Test123!` | Admin | — | Panel admin completo (7 tabs) |
+| `admin@pawtrack.test` | `Admin123!` | Admin | — | Alternativa admin |
+| `owner_free@test.cr` | `Test123!` | Owner | Explorador | Límites: 1 mascota, 5 escaneos |
+| `owner_plus@test.cr` | `Test123!` | Owner | UserPlus ✅ | GPS, radio 10km, IA ilimitada |
+| `owner_familia@test.cr` | `Test123!` | Owner | UserFamilia ✅ | Expediente completo, 5 miembros |
+| `owner@pawtrack.test` | `Test123!` | Owner | Explorador | Alternativa owner |
+| `ally@test.cr` | `Test123!` | Ally | — (verificado) | Panel aliado, alertas de zona |
+| `ally@pawtrack.test` | `Ally123!` | Ally | — | Alternativa ally |
+| `clinica_basica@test.cr` | `Test123!` | Clinic | ClinicBasic | Escaneo QR/RFID básico |
+| `clinica_partner@test.cr` | `Test123!` | Clinic | ClinicPartner ✅ | PDF, API keys, destacada |
+| `clinic@pawtrack.test` | `Clinic123!` | Clinic | — | Alternativa clínica |
+| `municipal_basica@test.cr` | `Test123!` | Municipality | Básica | Portal capturas 1 cantón |
+| `municipal_full@test.cr` | `Test123!` | Municipality | Full | Fotos, estadísticas |
+| `municipal_regional@test.cr` | `Test123!` | Municipality | RedRegional | Red multi-cantón |
+| `store_plus@test.cr` | `Test123!` | Store | StorePlus ✅ | Portal tienda, recibir pedidos |
+| `store_basic@test.cr` | `Test123!` | Store | StoreBasic | Catálogo sin pedidos in-app |
+
+---
+
+## Aplicar el seed de usuarios
+
+```powershell
+sqlcmd -S "CPC-davil-ECEKS\SQLEXPRESS" -d PawTrackLocal -i backend/scripts/seed-test-users.sql
+```
+
+---
+
+## Notas
+
+- Los usuarios `@pawtrack.test` son del seed original; los `@test.cr` son del seed extendido con más detalles de plan.
+- Todos los usuarios `@test.cr` tienen el email ya verificado.
+- Para probar el flujo de tienda, usar `store_plus@test.cr` — solo StorePlus+ puede recibir pedidos in-app.
+- Para probar vallas publicitarias, usar `admin@pawtrack.cr` → tab **Vallas** en el panel admin.
 
 ---
 

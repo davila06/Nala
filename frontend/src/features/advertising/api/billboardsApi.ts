@@ -20,11 +20,18 @@ export interface BillboardDto {
 
 export const billboardsApi = {
   getActive: (placement: BillboardPlacement): Promise<BillboardDto[]> =>
-    apiClient.get<BillboardDto[]>("/billboards", { params: { placement } }).then((r) => r.data),
+    apiClient
+      .get<BillboardDto[]>("/billboards", { params: { placement } })
+      .then((r) => r.data),
 
   getAll: (page = 1, pageSize = 20) =>
     apiClient
-      .get<{ items: BillboardDto[]; totalCount: number; pageNumber: number; pageSize: number }>("/billboards/admin", {
+      .get<{
+        items: BillboardDto[];
+        totalCount: number;
+        pageNumber: number;
+        pageSize: number;
+      }>("/billboards/admin", {
         params: { page, pageSize },
       })
       .then((r) => r.data),
@@ -42,17 +49,30 @@ export const billboardsApi = {
 
   update: (
     id: string,
-    data: { title: string; body?: string; ctaLabel?: string; ctaUrl?: string; startsAt: string; endsAt: string; priority: number },
-  ) => apiClient.put<BillboardDto>(`/billboards/${id}`, data).then((r) => r.data),
+    data: {
+      title: string;
+      body?: string;
+      ctaLabel?: string;
+      ctaUrl?: string;
+      startsAt: string;
+      endsAt: string;
+      priority: number;
+    },
+  ) =>
+    apiClient.put<BillboardDto>(`/billboards/${id}`, data).then((r) => r.data),
 
   setStatus: (id: string, status: "active" | "paused" | "expired") =>
-    apiClient.patch<BillboardDto>(`/billboards/${id}/status`, { status }).then((r) => r.data),
+    apiClient
+      .patch<BillboardDto>(`/billboards/${id}/status`, { status })
+      .then((r) => r.data),
 
   uploadImage: (id: string, file: File) => {
     const form = new FormData();
     form.append("image", file);
     return apiClient
-      .post<BillboardDto>(`/billboards/${id}/image`, form, { headers: { "Content-Type": "multipart/form-data" } })
+      .post<BillboardDto>(`/billboards/${id}/image`, form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
       .then((r) => r.data);
   },
 };

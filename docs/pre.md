@@ -3,10 +3,30 @@
 > Checklist exhaustivo de todas las cuentas, servicios, secretos y configuraciones
 > que deben estar en orden **antes** de ir a producción.
 >
+> **Última actualización: 2026-08-19**
 > Cuenta Azure: `davila06@gmail.com`
 > Subscription: `Azure subscription 1` (`3832b5df-115d-4092-9fc8-2105d7b0af21`)
 > Resource Group: `PawnTrackBeta`
 > Región: `eastus`
+
+### Nuevos secretos requeridos (agosto 2026)
+
+| Secret en Key Vault | Descripción |
+|---------------------|-------------|
+| `bot-phone-hash-secret` | Mínimo 32 chars; HMAC-SHA256 para hash de teléfonos del bot |
+| `billboard-images-container` | Nombre del contenedor Blob (por defecto: `billboard-images`) |
+
+Agregar en Container App:
+```powershell
+az keyvault secret set --vault-name pawtrack-kv --name bot-phone-hash-secret --value "VALOR_MINIMO_32_CHARS"
+```
+
+Luego referenciar en `appsettings.json`:
+```json
+"Bot": {
+  "PhoneHashSecret": "@Microsoft.KeyVault(VaultName=pawtrack-kv;SecretName=bot-phone-hash-secret)"
+}
+```
 
 ---
 

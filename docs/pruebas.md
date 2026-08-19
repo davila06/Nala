@@ -1,18 +1,18 @@
 # PawTrack CR — Guía de Pruebas Locales
 
 > **Solo para entorno local / dev.** Nunca usar estas credenciales en staging o producción.  
-> Última actualización: 2026-08-03
+> Última actualización: 2026-08-19
 
 ---
 
 ## Entorno de desarrollo
 
-| Servicio           | URL                                            | Estado esperado        |
-| ------------------ | ---------------------------------------------- | ---------------------- |
-| **Frontend**       | http://localhost:5173                          | Vite PWA               |
-| **Backend API**    | http://localhost:5199                          | .NET 9                 |
-| **Azurite** (Blob) | http://localhost:10000                         | Emulador Azure Storage |
-| **Base de datos**  | `CPC-davil-ECEKS\SQLEXPRESS` / `PawTrackLocal` | SQL Express            |
+| Servicio | URL | Estado esperado |
+|----------|-----|-----------------|
+| **Frontend** | http://localhost:5173 | Vite PWA (registerType: "prompt") |
+| **Backend API** | http://localhost:5000 | .NET 9 |
+| **Azurite** (Blob) | http://localhost:10000 | Emulador Azure Storage |
+| **Base de datos** | `CPC-davil-ECEKS\SQLEXPRESS` / `PawTrackLocal` | SQL Express |
 
 ### Iniciar todos los servicios
 
@@ -20,6 +20,15 @@
 # Desde la raíz del proyecto
 pwsh -ExecutionPolicy Bypass -File .\start-dev.ps1 -RestartAzurite
 ```
+
+### Variables de entorno frontend (`frontend/.env.local`)
+
+```env
+VITE_API_URL=http://localhost:5000
+VITE_VAPID_PUBLIC_KEY=<opcional-para-push>
+```
+
+---
 
 ---
 

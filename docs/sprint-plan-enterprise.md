@@ -1,8 +1,70 @@
 # PawTrack CR — Enterprise Sprint Plan
 
-## Sprint Next (Días 1–15) + Sprint +2 (Días 16–45)
+> **Última actualización: 2026-08-19**
+> **Estado: SPRINT COMPLETADO** — Todos los features F1-F9 del Sprint Next + Sprint +2 están implementados.
 
-> **Reglas enterprise que aplican a TODOS los ítems:**
+---
+
+## Estado de los features
+
+| Feature | Estado | Tests |
+|---------|--------|-------|
+| F1: Smart Predictive Health Reminders | ✅ Completado | ✅ |
+| F2: Weight Trend Chart + HealthScore | ✅ Completado | ✅ |
+| F3: Activity Logging + BreedBenchmark | ✅ Completado | ✅ |
+| F4: Annual Report PDF | ✅ Completado | — |
+| F5: Neighbor Network (Guardia Vecinal) | ✅ Completado | — |
+| F6: Bounty con SINPE + HandoverCode | ✅ Completado | ✅ 16 tests |
+| F7: Clinic Medical Access Grants | ✅ Completado | — |
+| F8: Clinic Scan Notifications | ✅ Completado | — |
+| F9: Admin Promotions Tab | ✅ Completado | — |
+| **Tiendas de mascotas (B2B)** | ✅ Completado | ✅ 16 tests |
+| **Vallas publicitarias (Billboard)** | ✅ Completado | — |
+| **SignalR Chat real-time** | ✅ Completado | — |
+| **SQL JTI Blocklist** | ✅ Completado | — |
+| **Security hardening (rounds 1-51+)** | ✅ Completado | ✅ 916 tests |
+
+---
+
+## Features adicionales post-sprint (agosto 2026)
+
+### Tiendas de mascotas (Store B2B)
+- Domain: Store, StoreProduct, StoreOrder, StoreOrderItem con state machine completo
+- Plan gate: solo StorePlus/StorePartner reciben pedidos in-app
+- Frontend: mapa con markers, catálogo, carrito (Zustand persist), checkout SINPE, dashboard para dueños
+- Admin: aprobación de tiendas pendientes
+- Tests: 16 tests (state machine + handlers + validación)
+
+### Vallas publicitarias (Billboard)
+- Domain: Billboard con Placement, Status, prioridad, CTA seguro
+- 4 placements: Map, Dashboard, Directory, Feed
+- Frontend: `BillboardBanner` dismissible por sesión, rotación por prioridad
+- Admin: tab "Vallas" con CRUD + upload imagen + activar/pausar
+- Integrado en: Mapa público (placement Map)
+
+### SignalR ChatHub
+- Hub en `/hubs/chat` — push inmediato en mensajes nuevos
+- `useChatSignalR` hook con `withAutomaticReconnect`
+- Poll 10s como fallback si la conexión falla
+
+### JTI Blocklist distribuido
+- `RevokedTokens` tabla en SQL
+- `RevokedTokenCleanupJob` (BackgroundService, purga nocturna)
+- Reemplaza `InMemoryJtiBlocklist` — funciona con App Service scale-out
+
+---
+
+## Convenciones enterprise aplicadas
+
+> Todas las reglas del plan enterprise fueron aplicadas en todos los ítems:
+- Clean Architecture + CQRS via MediatR en todos los handlers
+- FluentValidation en pipeline — jamás validación manual en handlers
+- Result\<T\> o domain exceptions — sin excepciones cruzando módulos
+- Guid v7 PKs en todos los nuevos entities
+- Problem Details (RFC 7807) en todos los errores HTTP
+- Fire-and-forget siempre con `CancellationToken.None` + `.ContinueWith(LogWarning, OnlyOnFaulted)`
+- Rate limiting en todos los nuevos endpoints
+- BOLA checks en todas las queries de recursos sensibles (Collars, Bounties, Family)
 >
 > - Backend: Clean Architecture · CQRS via MediatR · FluentValidation en pipeline · Result<T> · Guid v7 PKs · Problem Details (RFC 7807)
 > - Nunca lanzar excepciones de dominio entre módulos — usar notificaciones MediatR o Result

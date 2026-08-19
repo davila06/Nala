@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { billboardsApi, type BillboardPlacement } from "../api/billboardsApi";
 
-const key = (placement: BillboardPlacement) => ["billboards", placement] as const;
+const key = (placement: BillboardPlacement) =>
+  ["billboards", placement] as const;
 const adminKey = () => ["billboards", "admin"] as const;
 
 export function useBillboards(placement: BillboardPlacement, enabled = true) {
@@ -33,8 +34,13 @@ export function useCreateBillboard() {
 export function useUpdateBillboard() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Parameters<typeof billboardsApi.update>[1] }) =>
-      billboardsApi.update(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Parameters<typeof billboardsApi.update>[1];
+    }) => billboardsApi.update(id, data),
     onSuccess: () => void qc.invalidateQueries({ queryKey: adminKey() }),
   });
 }
@@ -42,8 +48,13 @@ export function useUpdateBillboard() {
 export function useSetBillboardStatus() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: "active" | "paused" | "expired" }) =>
-      billboardsApi.setStatus(id, status),
+    mutationFn: ({
+      id,
+      status,
+    }: {
+      id: string;
+      status: "active" | "paused" | "expired";
+    }) => billboardsApi.setStatus(id, status),
     onSuccess: () => void qc.invalidateQueries({ queryKey: adminKey() }),
   });
 }

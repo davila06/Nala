@@ -1,9 +1,11 @@
 # Manual Técnico — PawTrack CR
 
-**Versión:** 1.0  
+**Versión:** 2.0  
 **Stack:** .NET 9 · React 19 · Azure  
 **Audiencia:** Desarrolladores, arquitectos, equipo DevOps  
-**Última actualización:** Julio 2026
+**Última actualización:** 2026-08-19
+
+> Para la referencia completa ver [`PawTrack_Documento_Maestro_v3.1.md`](../PawTrack_Documento_Maestro_v3.1.md) (renombrado internamente como v4.0).
 
 ---
 

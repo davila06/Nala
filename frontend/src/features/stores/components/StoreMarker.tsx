@@ -31,7 +31,13 @@ const standardIcon = divIcon({
   popupAnchor: [0, -15],
 });
 
-export function StoreMarker({ store, onStoreClick }: { store: PublicStoreDto; onStoreClick?: (id: string) => void }) {
+export function StoreMarker({
+  store,
+  onStoreClick,
+}: {
+  store: PublicStoreDto;
+  onStoreClick?: (id: string) => void;
+}) {
   return (
     <Marker
       position={[store.lat, store.lng]}

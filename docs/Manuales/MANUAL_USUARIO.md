@@ -1,9 +1,9 @@
 # Manual de Usuario — PawTrack CR
 
-**Versión:** 2.0  
+**Versión:** 3.0  
 **Plataforma:** Aplicación Web Progresiva (PWA) — accesible desde cualquier navegador  
 **Idioma:** Español  
-**Última actualización:** Agosto 2026
+**Última actualización:** 2026-08-19
 
 ---
 

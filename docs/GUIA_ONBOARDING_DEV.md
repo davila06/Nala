@@ -1,8 +1,391 @@
 # Guía de Onboarding para Desarrolladores — PawTrack CR
 
-**Versión:** 1.0  
+**Versión:** 2.0  
 **Audiencia:** Desarrolladores que se incorporan al proyecto  
-**Última actualización:** Julio 2026
+**Última actualización:** 2026-08-19
+
+---
+
+## Tabla de contenidos
+
+1. [Requisitos previos](#1-requisitos-previos)
+2. [Clonar el repositorio](#2-clonar-el-repositorio)
+3. [Configurar el entorno local](#3-configurar-el-entorno-local)
+4. [Levantar los servicios de dependencias](#4-levantar-los-servicios-de-dependencias)
+5. [Configurar variables de la API](#5-configurar-variables-de-la-api)
+6. [Aplicar migraciones de base de datos](#6-aplicar-migraciones-de-base-de-datos)
+7. [Arrancar el proyecto con start-dev.ps1](#7-arrancar-el-proyecto-con-start-devps1)
+8. [Verificar que todo funciona](#8-verificar-que-todo-funciona)
+9. [Comandos de desarrollo habituales](#9-comandos-de-desarrollo-habituales)
+10. [Estructura del proyecto en 5 minutos](#10-estructura-del-proyecto-en-5-minutos)
+11. [Convenciones clave que debes conocer](#11-convenciones-clave-que-debes-conocer)
+12. [Tests](#12-tests)
+13. [Cómo agregar una feature](#13-cómo-agregar-una-feature)
+14. [Flujo de trabajo con Git](#14-flujo-de-trabajo-con-git)
+15. [Acceso a producción](#15-acceso-a-producción)
+16. [Preguntas frecuentes](#16-preguntas-frecuentes)
+
+---
+
+## 1. Requisitos previos
+
+| Herramienta | Versión mínima | Verificar |
+|-------------|---------------|-----------|
+| .NET SDK | **9.0** | `dotnet --version` |
+| Node.js | **20 LTS** | `node --version` |
+| SQL Server Express | **2019+** | Management Studio / `sqlcmd` |
+| Git | 2.40+ | `git --version` |
+| Azurite CLI | 3.x | `azurite --version` |
+
+```bash
+npm install -g azurite
+```
+
+> **Nota agosto 2026:** El proyecto ya no usa Docker para el entorno local. SQL Express corre directamente en Windows. Azurite es el emulador de Azure Blob Storage.
+
+---
+
+## 2. Clonar el repositorio
+
+```bash
+git clone <url-del-repo>
+cd Nala
+```
+
+El repositorio usa la raíz `C:\Nala\` como convención de path.
+
+---
+
+## 3. Configurar el entorno local
+
+### 3.1 Archivo de configuración local de la API
+
+Crea `backend/src/PawTrack.API/appsettings.Local.json` (ya existe en el repo — solo asegúrate de que las strings sean correctas):
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=CPC-davil-ECEKS\\SQLEXPRESS;Database=PawTrackLocal;Integrated Security=True;TrustServerCertificate=True;"
+  },
+  "Jwt": {
+    "Key": "dev-only-jwt-signing-key-minimum-32-characters-long!"
+  },
+  "Azure": {
+    "Storage": {
+      "ConnectionString": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;"
+    }
+  },
+  "Bot": {
+    "PhoneHashSecret": "dev-bot-phone-hash-secret-min-32-chars!"
+  }
+}
+```
+
+### 3.2 Variables de entorno del frontend
+
+Crea `frontend/.env.local`:
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+---
+
+## 4. Levantar los servicios de dependencias
+
+```powershell
+# Inicia Azurite (emulador Blob Storage)
+azurite --silent --location .azurite --debug .azurite\debug.log
+```
+
+---
+
+## 5. Configurar variables de la API
+
+La API en desarrollo usa `appsettings.Development.json` + `appsettings.Local.json`. La fusión es automática. No necesitas variables de entorno adicionales para desarrollo básico.
+
+---
+
+## 6. Aplicar migraciones de base de datos
+
+```powershell
+cd backend
+dotnet ef database update --project src/PawTrack.Infrastructure --startup-project src/PawTrack.API --context PawTrackDbContext
+```
+
+Si es la primera vez, esto crea la base de datos `PawTrackLocal` en SQL Express y aplica las **~30 migraciones** incluyendo las más recientes:
+- `AddPetStores` — Tiendas, Productos, Pedidos
+- `AddRevokedTokens` — JTI blocklist distribuido
+- `AddBillboards` — Vallas publicitarias
+
+Después aplica el seed de usuarios de prueba:
+
+```powershell
+sqllocaldb start MSSQLLocalDB  # o tu instancia
+sqlcmd -S "CPC-davil-ECEKS\SQLEXPRESS" -d PawTrackLocal -i backend/scripts/seed-test-users.sql
+```
+
+---
+
+## 7. Arrancar el proyecto con start-dev.ps1
+
+```powershell
+pwsh -ExecutionPolicy Bypass -File .\start-dev.ps1
+```
+
+Esto inicia:
+1. Azurite (blob emulator en puerto 10000)
+2. API en http://localhost:5000
+3. Frontend en http://localhost:5173
+
+---
+
+## 8. Verificar que todo funciona
+
+```bash
+# API health
+curl http://localhost:5000/health/live
+# → {"status":"Healthy"}
+
+# Frontend
+Abrir http://localhost:5173 en el navegador
+```
+
+---
+
+## 9. Comandos de desarrollo habituales
+
+```powershell
+# Build backend
+dotnet build backend/PawTrack.sln
+
+# Tests unitarios
+dotnet test backend/tests/PawTrack.UnitTests
+
+# Tests de integración
+dotnet test backend/tests/PawTrack.IntegrationTests
+
+# Frontend build
+cd frontend && npm run build
+
+# TypeScript check
+cd frontend && npx tsc --noEmit
+
+# Nueva migración EF Core
+cd backend
+dotnet ef migrations add NombreMigracion \
+  --project src/PawTrack.Infrastructure \
+  --startup-project src/PawTrack.API \
+  --context PawTrackDbContext
+```
+
+---
+
+## 10. Estructura del proyecto en 5 minutos
+
+```
+Nala/
+├── backend/
+│   ├── src/
+│   │   ├── PawTrack.API/          ← Controllers, Hubs, Middleware, Program.cs
+│   │   ├── PawTrack.Application/  ← Commands, Queries, DTOs, Validators
+│   │   ├── PawTrack.Domain/       ← Entidades, Value Objects, enums
+│   │   └── PawTrack.Infrastructure/ ← EF Core, repos, services externos
+│   └── tests/
+│       ├── PawTrack.UnitTests/    ← 916 tests (xUnit + NSubstitute)
+│       └── PawTrack.IntegrationTests/ ← 62 tests (WebApplicationFactory)
+├── frontend/
+│   └── src/
+│       ├── app/                   ← routes, layout, providers
+│       ├── features/              ← un folder por feature (auth, pets, stores…)
+│       └── shared/                ← ui components, hooks, lib
+├── infra/
+│   └── main.bicep                 ← IaC completo Azure
+└── docs/                          ← Esta carpeta
+```
+
+### Módulos del dominio (`PawTrack.Domain/`)
+
+```
+Auth/          Pets/          LostPets/      Sightings/
+Notifications/ Chat/          Safety/        Incentives/
+Medical/       Collars/       Bounties/      Family/
+Subscriptions/ Clinics/       Municipalities/ Locations/
+Bot/           Broadcast/     Fosters/       Stores/
+Advertising/   ← NUEVO: Billboard
+```
+
+---
+
+## 11. Convenciones clave que debes conocer
+
+### Backend
+
+| Convención | Ejemplo |
+|-----------|---------|
+| Commands mutan estado | `PlaceStoreOrderCommand` → devuelve `StoreOrderDto` mínimo |
+| Queries solo leen | `GetActiveBillboardsQuery` → devuelve lista de DTOs |
+| Validación en pipeline | `PlaceStoreOrderCommandValidator` — nunca validar en handlers |
+| Errores de dominio | Lanzar excepción solo dentro del dominio; cruzar módulos con `Result<T>` |
+| IDs | `Guid.CreateVersion7()` como PK; siempre strings en la API |
+| Fotos | `IBlobStorageService.UploadAsync()` → URL pública; nunca base64 en DB |
+| Secretos | Siempre Key Vault references en `appsettings.json`; dev key en `appsettings.Development.json` |
+| Rate limiting | Toda ruta write debe tener `[EnableRateLimiting("...")]` |
+| Cancelación | `CancellationToken.None` en fire-and-forget; nunca capturar el request ct |
+| PII en logs | `PiiHelper.MaskEmail()` — jamás loggear emails/teléfonos crudos |
+
+### Frontend
+
+| Convención | Descripción |
+|-----------|-------------|
+| Server state | TanStack React Query — nunca Zustand para datos del servidor |
+| UI state | Zustand solo para cart, auth, UI flags |
+| Hooks | `useFeatureXxx` co-locados con el feature |
+| Componentes | Co-localizar: `Component.tsx` + `useXxx.ts` en mismo folder |
+| Errores | `toast.error()` para errores de usuario; nunca `alert()` o `console.error()` |
+| Dismiss dialogs | `<Modal>` component — nunca `window.confirm()` |
+| Imágenes | Validar tipo (MIME) y tamaño (5MB max) en cliente antes de subir |
+
+---
+
+## 12. Tests
+
+### Correr todos los tests
+
+```powershell
+cd C:\Nala
+dotnet test backend/tests/PawTrack.UnitTests --verbosity minimal
+# → 916 tests, 0 fallos
+
+dotnet test backend/tests/PawTrack.IntegrationTests --verbosity minimal
+# → 62 tests, 0 fallos
+```
+
+### Estructura de un unit test típico
+
+```csharp
+public sealed class MiCommandHandlerTests
+{
+    private readonly IRepo _repo = Substitute.For<IRepo>();
+    private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
+    private readonly MiCommandHandler _sut;
+
+    public MiCommandHandlerTests()
+    {
+        _uow.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
+        _sut = new MiCommandHandler(_repo, _uow);
+    }
+
+    [Fact]
+    public async Task Handle_ValidInput_ReturnSuccess()
+    {
+        // Arrange
+        _repo.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns(/* ... */);
+        
+        // Act
+        var result = await _sut.Handle(new MiCommand(/* ... */), CancellationToken.None);
+        
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+    }
+}
+```
+
+---
+
+## 13. Cómo agregar una feature
+
+1. **Domain** — Entidad en `PawTrack.Domain/{Módulo}/`:
+   ```csharp
+   public sealed class MiEntidad { ... }
+   ```
+
+2. **Interface** — En `PawTrack.Application/Common/Interfaces/`:
+   ```csharp
+   public interface IMiEntidadRepository { ... }
+   ```
+
+3. **Application** — Command/Query en `PawTrack.Application/{Módulo}/`:
+   ```csharp
+   public sealed record MiCommand(...) : IRequest<Result<MiDto>>;
+   public sealed class MiCommandValidator : AbstractValidator<MiCommand> { ... }
+   public sealed class MiCommandHandler(...) : IRequestHandler<...> { ... }
+   ```
+
+4. **Infrastructure** — EF config + repo:
+   ```csharp
+   // Configurations/MiEntidadConfiguration.cs
+   // Repositories/MiEntidadRepository.cs
+   // Persistence/Migrations/AddMiEntidad
+   ```
+
+5. **API** — Controller:
+   ```csharp
+   [ApiController, Route("api/mi-entidad"), Authorize]
+   public sealed class MiController(ISender sender) : ControllerBase { ... }
+   ```
+
+6. **Frontend** — Feature folder:
+   ```
+   src/features/mi-feature/
+     api/miApi.ts
+     hooks/useMiFeature.ts
+     components/MiComponent.tsx
+     pages/MiPage.tsx
+   ```
+
+7. **Tests** — Al menos un unit test por handler.
+
+---
+
+## 14. Flujo de trabajo con Git
+
+```bash
+# Feature branch
+git checkout -b feat/mi-nueva-feature
+
+# Commits descriptivos (Conventional Commits)
+git commit -m "feat(stores): add product image upload endpoint"
+git commit -m "fix(auth): use Verify() instead of Hash() for password comparison"
+git commit -m "security: HMAC phone hash for bot sessions"
+
+# PR → main (CI/CD corre automáticamente)
+```
+
+---
+
+## 15. Acceso a producción
+
+Solo el maintainer tiene acceso a Key Vault y Azure SQL en producción. Para staging/beta, solicitar credenciales temporales al maintainer.
+
+```powershell
+# Ver logs de producción
+az monitor app-insights query \
+  --app pawtrack-prod-insights \
+  --analytics-query "requests | where timestamp > ago(1h) | where resultCode >= 500"
+```
+
+---
+
+## 16. Preguntas frecuentes
+
+**Q: ¿Por qué la API devuelve 401 aunque tengo un token?**  
+A: Puede que el token haya expirado (15 min) o esté en la blocklist SQL. El frontend debería hacer refresh automático. Si persiste, cierra sesión y vuelve a entrar.
+
+**Q: ¿Por qué los tests de integración son lentos?**  
+A: Usan `WebApplicationFactory` con SQLite in-memory. Son lentos por diseño; corren una vez en CI. Para desarrollo, corre solo los unit tests.
+
+**Q: ¿Cómo agrego un nuevo tier de suscripción?**  
+A: Agrega el valor a `SubscriptionTier` enum en `PawTrack.Domain/Subscriptions/`. Luego actualiza `ISubscriptionService` y `SubscriptionService` con la lógica de gating. No olvides tests.
+
+**Q: ¿Por qué el push del ServiceWorker no llega?**  
+A: En desarrollo, `VITE_VAPID_PUBLIC_KEY` no está configurada. Solo funciona con VAPID keys reales en staging/prod.
+
+**Q: ¿Cómo pruebo el bot de WhatsApp localmente?**  
+A: Usa ngrok para exponer `http://localhost:5000` y registra el webhook en Meta. El hash de teléfonos usa `Bot:PhoneHashSecret` del `appsettings.Development.json`.
+
+**Q: ¿Qué hacer si una migración falla en Azure?**  
+A: Ver `RUNBOOK_OPERACIONES.md §8`. Nunca edites migraciones ya aplicadas a cualquier ambiente compartido.
 
 ---
 

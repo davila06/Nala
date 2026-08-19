@@ -179,7 +179,11 @@ export function MapContainer({
             <ClinicMarker key={`clinic-${clinic.id}`} clinic={clinic} />
           ))}
           {stores?.map((store) => (
-            <StoreMarker key={`store-${store.id}`} store={store} onStoreClick={onStoreClick} />
+            <StoreMarker
+              key={`store-${store.id}`}
+              store={store}
+              onStoreClick={onStoreClick}
+            />
           ))}
         </MarkerClusterGroup>
       </LeafletMapContainer>

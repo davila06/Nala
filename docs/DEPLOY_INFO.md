@@ -1,8 +1,10 @@
 # PawTrack CR — Datos de Despliegue Beta
 
-> Generado el: 2026-04-13  
+> Generado originalmente: 2026-04-13 | Actualizado: 2026-08-19  
 > Ambiente: **Beta**  
 > Cuenta Azure: `davila06@gmail.com`
+
+> ⚠️ **Nota agosto 2026:** La arquitectura evolucionó de Container Apps a App Service Linux (B3). Los nombres de recursos pueden diferir si se redesplegó. Usar `GUIA_DEPLOY_PASO_A_PASO.md` para despliegue fresco.
 
 ---
 

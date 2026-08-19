@@ -42,7 +42,9 @@ export function useChatSignalR(threadId: string | null) {
     return () => {
       connection
         .invoke("LeaveThread", threadId)
-        .catch(() => { /* ignore */ })
+        .catch(() => {
+          /* ignore */
+        })
         .finally(() => void connection.stop());
       connectionRef.current = null;
     };

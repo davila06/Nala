@@ -1,10 +1,9 @@
 # Runbook de Operaciones — PawTrack CR
 
-**Versión:** 1.0  
+**Versión:** 2.0  
 **Audiencia:** Equipo de operaciones, developers on-call  
-**Última actualización:** Julio 2026
+**Última actualización:** 2026-08-19
 
-> Este runbook describe procedimientos paso a paso para responder a incidentes, realizar tareas operativas recurrentes y ejecutar cambios de alto riesgo en producción.  
 > Sigue siempre el orden exacto de los pasos. En caso de duda, **detente y escala** antes de continuar.
 
 ---
@@ -34,18 +33,18 @@
 
 ## 1. Recursos de producción
 
-| Recurso                   | Nombre en Azure                     | URL / Referencia                                                                     |
-| ------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------ |
-| App Service               | `pawtrack-prod-api`                 | `https://api.pawtrack.cr`                                                            |
-| Frontend (Static Web App) | —                                   | `https://pawtrack.cr`                                                                |
-| Azure SQL                 | `pawtrack-prod-sql` / DB `pawtrack` | —                                                                                    |
-| Key Vault                 | `pawtrack-kv-prod`                  | `https://pawtrack-kv-prod.vault.azure.net/`                                          |
-| Blob Storage              | `pawtrackstorprod`                  | Contenedores: `pet-photos`, `sighting-photos`, `found-pet-photos`, `lost-pet-photos` |
-| Application Insights      | `pawtrack-prod-insights`            | Portal Azure → Log Analytics                                                         |
-| Log Analytics Workspace   | `pawtrack-prod-logs`                | Retención: 30 días                                                                   |
-| App Service Plan          | `pawtrack-prod-plan`                | SKU: B3 Linux                                                                        |
+| Recurso | Nombre en Azure | URL / Referencia |
+| ------- | --------------- | ---------------- |
+| App Service | `pawtrack-prod-api` | `https://api.pawtrack.cr` |
+| Frontend (Static Web App) | — | `https://pawtrack.cr` |
+| Azure SQL | `pawtrack-prod-sql` / DB `pawtrack` | — |
+| Key Vault | `pawtrack-kv-prod` | `https://pawtrack-kv-prod.vault.azure.net/` |
+| Blob Storage | `pawtrackstorprod` | Contenedores: `pet-photos`, `sighting-photos`, `found-pet-photos`, `lost-pet-photos`, `store-product-images`, `billboard-images` |
+| Application Insights | `pawtrack-prod-insights` | Portal Azure → Log Analytics |
+| Log Analytics Workspace | `pawtrack-prod-logs` | Retención: 30 días |
+| App Service Plan | `pawtrack-prod-plan` | SKU: B3 Linux |
 
-> **Acceso rápido:** Portal Azure → Resource Group `pawtrack-prod` → seleccionar recurso.
+> **SignalR Hubs activos:** `/hubs/search-coordination` (zonas búsqueda), `/hubs/chat` (mensajes tiempo real)
 
 ---
 
