@@ -140,6 +140,10 @@ public sealed class UploadProductImageCommandHandler(
         var resized = await imageProcessor.ResizeAsync(request.ImageBytes, 800, ct);
         var blobName = $"{store.Id}/{product.Id}/{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.jpg";
 
+        // Delete previous blob to avoid orphaned storage objects
+        if (!string.IsNullOrEmpty(product.ImageUrl))
+            await blobStorage.DeleteAsync(product.ImageUrl, ct);
+
         using var stream = new MemoryStream(resized);
         var url = await blobStorage.UploadAsync(Container, blobName, stream, "image/jpeg", ct);
 

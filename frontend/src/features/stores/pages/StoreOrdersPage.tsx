@@ -15,8 +15,7 @@ const NEXT_STATUS_DELIVERY: Partial<
   Record<StoreOrderStatus, StoreOrderStatus>
 > = {
   Confirmed: "Preparing",
-  Preparing: "ReadyForPickup",
-  ReadyForPickup: "OutForDelivery",
+  Preparing: "OutForDelivery",
   OutForDelivery: "Delivered",
 };
 
@@ -26,6 +25,13 @@ const NEXT_STATUS_PICKUP: Partial<Record<StoreOrderStatus, StoreOrderStatus>> =
     Preparing: "ReadyForPickup",
     ReadyForPickup: "Delivered",
   };
+
+const CANCELLABLE: StoreOrderStatus[] = [
+  "Confirmed",
+  "Preparing",
+  "ReadyForPickup",
+  "OutForDelivery",
+];
 
 function getNextStatus(order: StoreOrderDto): StoreOrderStatus | undefined {
   const map =
@@ -136,7 +142,7 @@ function OrderCard({ order }: { order: StoreOrderDto }) {
             → {ORDER_STATUS_LABELS[nextStatus]}
           </Button>
         )}
-        {!["Delivered", "Cancelled"].includes(order.status) && (
+        {CANCELLABLE.includes(order.status) && (
           <Button
             size="sm"
             variant="danger"

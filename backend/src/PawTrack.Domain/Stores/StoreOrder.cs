@@ -62,12 +62,16 @@ public sealed class StoreOrder
 
     public void ReportPayment()
     {
+        if (Status != StoreOrderStatus.PendingPayment)
+            throw new InvalidOperationException("Solo se puede reportar el pago de pedidos pendientes.");
         PaymentReportedByCustomer = true;
         Status = StoreOrderStatus.PaymentReported;
     }
 
     public void Confirm(string? storeNote = null)
     {
+        if (Status != StoreOrderStatus.PaymentReported)
+            throw new InvalidOperationException("Solo se pueden confirmar pedidos con pago reportado.");
         Status = StoreOrderStatus.Confirmed;
         StoreNote = storeNote?.Trim();
         ConfirmedAt = DateTimeOffset.UtcNow;

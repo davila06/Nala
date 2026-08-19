@@ -183,7 +183,10 @@ export const storesApi = {
       .post<PublicStoreDto>("/stores/register", data)
       .then((r) => r.data),
 
-  uploadProductImage: (productId: string, file: File): Promise<StoreProductDto> => {
+  uploadProductImage: (
+    productId: string,
+    file: File,
+  ): Promise<StoreProductDto> => {
     const form = new FormData();
     form.append("image", file);
     return apiClient

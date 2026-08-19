@@ -70,7 +70,9 @@ public sealed class PlaceStoreOrderCommandValidator : AbstractValidator<PlaceSto
         RuleFor(x => x.StoreId).NotEmpty();
         RuleFor(x => x.CustomerId).NotEmpty();
         RuleFor(x => x.Lines).NotEmpty().WithMessage("El pedido debe tener al menos un producto.")
-            .Must(l => l.Count <= 20).WithMessage("Un pedido puede tener máximo 20 líneas.");
+            .Must(l => l.Count <= 20).WithMessage("Un pedido puede tener máximo 20 líneas.")
+            .Must(l => l.Select(x => x.ProductId).Distinct().Count() == l.Count)
+            .WithMessage("No se puede repetir el mismo producto en múltiples líneas.");
         RuleForEach(x => x.Lines).ChildRules(l =>
         {
             l.RuleFor(x => x.Quantity).GreaterThan(0).LessThanOrEqualTo(100)
@@ -127,12 +129,12 @@ public sealed class PlaceStoreOrderCommandHandler(
         await orderRepo.AddAsync(order, ct);
         await uow.SaveChangesAsync(ct);
 
-        // Fire-and-forget push notification — logged on failure, never blocks the response
+        // Fire-and-forget push notification — uses None so it outlives the request's ct
         _ = notificationDispatcher.DispatchNewStoreOrderAsync(
-            store.UserId, store.Name, order.Id.ToString(), order.TotalCrc, ct)
+            store.UserId, store.Name, order.Id.ToString(), order.TotalCrc, CancellationToken.None)
             .ContinueWith(t => logger.LogWarning(t.Exception,
                 "StoreOrder push notification failed for order {OrderId}", order.Id),
-                TaskContinuationOptions.OnlyOnFaulted);
+                CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
 
         return Result.Success(StoreOrderDto.FromDomain(order));
     }
@@ -150,10 +152,11 @@ public sealed class ReportStoreOrderPaymentCommandHandler(IStoreOrderRepository 
         var order = await repo.GetByIdAsync(request.OrderId, ct);
         if (order is null || order.CustomerId != request.CustomerId)
             return Result.Failure<Unit>("Pedido no encontrado.");
-        if (order.Status != StoreOrderStatus.PendingPayment)
-            return Result.Failure<Unit>("El estado del pedido no permite esta acción.");
 
-        order.ReportPayment();
+        try { order.ReportPayment(); }
+        catch (InvalidOperationException ex)
+        { return Result.Failure<Unit>(ex.Message); }
+
         repo.Update(order);
         await uow.SaveChangesAsync(ct);
         return Result.Success(Unit.Value);
@@ -178,13 +181,14 @@ public sealed class ConfirmStoreOrderCommandHandler(
         var order = await orderRepo.GetByIdAsync(request.OrderId, ct);
         if (order is null || order.StoreId != store.Id)
             return Result.Failure<StoreOrderDto>("Pedido no encontrado.");
-        if (order.Status != StoreOrderStatus.PaymentReported)
-            return Result.Failure<StoreOrderDto>("Solo se pueden confirmar pedidos con pago reportado.");
 
-        order.Confirm(request.Note);
+        try { order.Confirm(request.Note); }
+        catch (InvalidOperationException ex)
+        { return Result.Failure<StoreOrderDto>(ex.Message); }
+
         orderRepo.Update(order);
         await uow.SaveChangesAsync(ct);
-        return Result.Success(StoreOrderDto.FromDomain(order));
+        return Result.Success(StoreOrderDto.FromDomain(order, store.Name));
     }
 }
 
@@ -217,7 +221,7 @@ public sealed class UpdateStoreOrderStatusCommandHandler(
 
         orderRepo.Update(order);
         await uow.SaveChangesAsync(ct);
-        return Result.Success(StoreOrderDto.FromDomain(order));
+        return Result.Success(StoreOrderDto.FromDomain(order, store.Name));
     }
 }
 
@@ -234,7 +238,8 @@ public sealed class GetMyStoreOrdersQueryHandler(IStoreOrderRepository repo, ISt
         var storeIds = orders.Select(o => o.StoreId).Distinct();
         var storeNames = await storeRepo.GetStoreNamesByIdsAsync(storeIds, ct);
         return Result.Success<IReadOnlyList<StoreOrderDto>>(
-            orders.Select(o => StoreOrderDto.FromDomain(o, storeNames.GetValueOrDefault(o.StoreId, ""))).ToList());
+            orders.Select(o => StoreOrderDto.FromDomain(o,
+                storeNames.GetValueOrDefault(o.StoreId, "Tienda eliminada"))).ToList());
     }
 }
 

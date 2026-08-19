@@ -140,10 +140,12 @@ public sealed class StoresController(ISender sender) : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> UploadProductImage(
         Guid productId,
-        [FromForm] IFormFile image,
+        [FromForm] IFormFile? image,
         CancellationToken ct)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
+        if (image is null || image.Length == 0)
+            return BadRequest(new ProblemDetails { Detail = "Se requiere una imagen.", Status = 400 });
         var allowed = new[] { "image/jpeg", "image/png", "image/webp" };
         if (!allowed.Contains(image.ContentType, StringComparer.OrdinalIgnoreCase))
             return BadRequest(new ProblemDetails { Detail = "Solo se aceptan JPEG, PNG o WebP.", Status = 400 });

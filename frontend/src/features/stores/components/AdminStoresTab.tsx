@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { toast } from "@/shared/lib/toast";
 import { Button } from "@/shared/ui";
 import { Skeleton } from "@/shared/ui/Spinner";

@@ -12,7 +12,7 @@ function StoreCard({ store }: { store: PublicStoreDto }) {
       className="group rounded-2xl border border-sand-100 bg-surface hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
     >
       {/* Logo / placeholder */}
-      <div className="h-28 bg-sand-100 flex items-center justify-center overflow-hidden">
+      <div className="relative h-28 bg-sand-100 flex items-center justify-center overflow-hidden">
         {store.logoUrl ? (
           <img
             src={store.logoUrl}

@@ -9,11 +9,11 @@ export function usePublicStores() {
   });
 }
 
-export function useStoreDetail(id: string) {
+export function useStoreDetail(id: string, enabled = true) {
   return useQuery({
     queryKey: ["stores", id],
     queryFn: () => storesApi.getDetail(id),
-    enabled: !!id,
+    enabled: !!id && enabled,
     staleTime: 2 * 60_000,
   });
 }

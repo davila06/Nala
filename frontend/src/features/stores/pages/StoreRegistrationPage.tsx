@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { motion } from "framer-motion";
 import { Button, Input } from "@/shared/ui";
 import { Alert } from "@/shared/ui/Alert";
 import { useRegisterStore } from "../hooks/useStores";

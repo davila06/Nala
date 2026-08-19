@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Drawer } from "@/shared/ui/Drawer";
 import { Button } from "@/shared/ui/Button";
 import { Modal } from "@/shared/ui/Modal";
@@ -20,12 +20,15 @@ export function StoreDetailSheet({
   onClose,
   onCheckout,
 }: StoreDetailSheetProps) {
-  const { data, isLoading } = useStoreDetail(storeId);
+  const { data, isLoading } = useStoreDetail(storeId, isOpen);
   const { addItem, totalItems, storeId: cartStoreId } = useCartStore();
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
   const [conflictProduct, setConflictProduct] = useState<
     NonNullable<typeof data>["products"][number] | null
   >(null);
+
+  // Reset "added" badges whenever the visible store changes
+  useEffect(() => { setAddedIds(new Set()); }, [storeId]);
 
   if (!isOpen) return null;
 

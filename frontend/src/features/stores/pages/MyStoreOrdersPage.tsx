@@ -19,10 +19,6 @@ const ICON: Record<StoreOrderStatus, string> = {
 
 function OrderRow({ order }: { order: StoreOrderDto }) {
   const isTerminal = TERMINAL.includes(order.status);
-  const total = order.items.reduce(
-    (sum: number, l) => sum + l.unitPriceCrc * l.quantity,
-    0,
-  );
 
   return (
     <li className="rounded-2xl border border-sand-100 bg-surface p-4 space-y-3">
@@ -69,7 +65,7 @@ function OrderRow({ order }: { order: StoreOrderDto }) {
             : "🏪 Retiro en tienda"}
         </span>
         <span className="font-semibold text-ink-900 text-sm">
-          ₡{total.toLocaleString("es-CR")}
+          ₡{order.totalCrc.toLocaleString("es-CR")}
         </span>
       </div>
 

@@ -72,10 +72,9 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
     onClose();
   };
 
-  if (!isOpen) return null;
-
   return (
     <AnimatePresence>
+      {isOpen && (
       <motion.div
         className="fixed inset-0 z-[60] flex items-end bg-black/50 sm:items-center sm:justify-center p-4"
         initial={{ opacity: 0 }}
@@ -262,6 +261,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
           </div>
         </motion.div>
       </motion.div>
+      )}
     </AnimatePresence>
   );
 }

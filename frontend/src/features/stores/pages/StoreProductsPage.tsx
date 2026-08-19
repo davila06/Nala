@@ -192,7 +192,6 @@ export default function StoreProductsPage() {
       </div>
     );
 
-
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 space-y-5 animate-fade-in-up">
       <Helmet>
@@ -277,14 +276,34 @@ export default function StoreProductsPage() {
                     )}
                     {uploadingId === product.id ? (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                        <svg className="h-5 w-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        <svg
+                          className="h-5 w-5 animate-spin text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                          />
                         </svg>
                       </div>
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/40 transition-colors">
-                        <svg viewBox="0 0 16 16" fill="white" className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true">
+                        <svg
+                          viewBox="0 0 16 16"
+                          fill="white"
+                          className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                          aria-hidden="true"
+                        >
                           <path d="M8 1.5a.75.75 0 0 1 .75.75V7h4.75a.75.75 0 0 1 0 1.5H8.75v4.75a.75.75 0 0 1-1.5 0V8.5H2.5a.75.75 0 0 1 0-1.5h4.75V2.25A.75.75 0 0 1 8 1.5Z" />
                         </svg>
                       </div>
