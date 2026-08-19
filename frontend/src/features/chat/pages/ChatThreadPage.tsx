@@ -19,7 +19,7 @@ export default function ChatThreadPage() {
   } = useChatThreadById(threadId ?? "");
 
   // Real-time push via SignalR — poll stays as fallback
-  useChatSignalR(threadId ?? null);
+  const connectionState = useChatSignalR(threadId ?? null);
 
   if (isLoading) {
     return (
@@ -72,6 +72,7 @@ export default function ChatThreadPage() {
           threadId={threadId}
           lostPetEventId={thread.lostPetEventId}
           otherPartyName={thread.otherPartyName}
+          connectionState={connectionState}
         />
       </div>
     </div>

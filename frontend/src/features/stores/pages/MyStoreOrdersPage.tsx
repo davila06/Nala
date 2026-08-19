@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import { useState } from "react";
 import { Skeleton } from "@/shared/ui/Spinner";
 import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "../api/storesApi";
 import type { StoreOrderDto, StoreOrderStatus } from "../api/storesApi";
@@ -132,7 +133,12 @@ function ProgressBar({
 }
 
 export default function MyStoreOrdersPage() {
-  const { data: orders = [], isLoading } = useMyOrders();
+  const [page, setPage] = useState(1);
+  const { data: orders = [], isLoading } = useMyOrders(page);
+
+  const active = orders.filter((o) => !TERMINAL.includes(o.status));
+  const past = orders.filter((o) => TERMINAL.includes(o.status));
+  const hasMore = orders.length === 20; // 20 = pageSize
 
   const active = orders.filter((o) => !TERMINAL.includes(o.status));
   const past = orders.filter((o) => TERMINAL.includes(o.status));
@@ -190,6 +196,29 @@ export default function MyStoreOrdersPage() {
               ))}
             </ul>
           </section>
+        )}
+
+        {/* Pagination */}
+        {!isLoading && (page > 1 || hasMore) && (
+          <div className="flex items-center justify-center gap-4 pt-2">
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="rounded-xl border border-sand-200 px-4 py-2 text-sm font-medium text-sand-700 hover:bg-sand-50 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              ← Anterior
+            </button>
+            <span className="text-xs text-sand-500">Página {page}</span>
+            <button
+              type="button"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={!hasMore}
+              className="rounded-xl border border-sand-200 px-4 py-2 text-sm font-medium text-sand-700 hover:bg-sand-50 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Siguiente →
+            </button>
+          </div>
         )}
       </div>
     </>

@@ -9,17 +9,24 @@ interface BillboardBannerProps {
 }
 
 const DISMISS_KEY = (id: string) => `pawtrack:billboard:dismissed:${id}`;
+const DISMISS_TTL_MS = 24 * 60 * 60_000; // 24h — persists across tab closes
 
 function isDismissed(id: string): boolean {
   try {
-    return sessionStorage.getItem(DISMISS_KEY(id)) === "1";
+    const raw = localStorage.getItem(DISMISS_KEY(id));
+    if (!raw) return false;
+    if (Date.now() > Number(raw)) {
+      localStorage.removeItem(DISMISS_KEY(id));
+      return false;
+    }
+    return true;
   } catch {
     return false;
   }
 }
 function setDismissed(id: string) {
   try {
-    sessionStorage.setItem(DISMISS_KEY(id), "1");
+    localStorage.setItem(DISMISS_KEY(id), String(Date.now() + DISMISS_TTL_MS));
   } catch {
     /* ignore */
   }
@@ -103,7 +110,7 @@ function BillboardCard({
 
 /**
  * Renders the highest-priority active billboard for the given placement.
- * Dismissals are stored in sessionStorage and survive navigation within the tab.
+ * Dismissals persist 24h in localStorage — survive tab closes.
  */
 export function BillboardBanner({
   placement,
@@ -112,7 +119,7 @@ export function BillboardBanner({
   const { data: billboards = [] } = useBillboards(placement);
   const [dismissed, setDismissedState] = useState<Set<string>>(new Set());
 
-  // Sync sessionStorage on mount
+  // Sync localStorage on mount — filter already-dismissed billboards
   useEffect(() => {
     const preFiltered = new Set<string>();
     billboards.forEach((b) => {

@@ -119,12 +119,18 @@ interface ChatPanelProps {
   threadId: string;
   lostPetEventId: string;
   otherPartyName: string;
+  connectionState?:
+    | "connecting"
+    | "connected"
+    | "reconnecting"
+    | "disconnected";
 }
 
 export function ChatPanel({
   threadId,
   lostPetEventId,
   otherPartyName,
+  connectionState,
 }: ChatPanelProps) {
   const [text, setText] = useState("");
   const [sendError, setSendError] = useState<string | null>(null);
@@ -198,6 +204,9 @@ export function ChatPanel({
           <p className="text-[10px] text-sand-400">
             Chat cifrado · sin compartir datos personales
             {isFetching && " · actualizando…"}
+            {connectionState === "reconnecting" && (
+              <span className="ml-1 text-warn-600">· reconectando…</span>
+            )}
           </p>
         </div>
       </div>

@@ -118,8 +118,12 @@ export const ORDER_STATUS_COLORS: Record<StoreOrderStatus, string> = {
 
 export const storesApi = {
   // Public
-  getAll: (): Promise<PublicStoreDto[]> =>
-    apiClient.get<PublicStoreDto[]>("/public/stores").then((r) => r.data),
+  getAll: (pageSize = 50): Promise<PublicStoreDto[]> =>
+    apiClient
+      .get<
+        PublicStoreDto[]
+      >("/public/stores", { params: { page: 1, pageSize } })
+      .then((r) => r.data),
 
   getDetail: (id: string): Promise<StoreDetailDto> =>
     apiClient.get<StoreDetailDto>(`/public/stores/${id}`).then((r) => r.data),

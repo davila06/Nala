@@ -294,8 +294,10 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
 }
 
 export function AdminBillboardsTab() {
-  const { data, isLoading } = useAdminBillboards();
+  const [page, setPage] = useState(1);
+  const { data, isLoading } = useAdminBillboards(page);
   const [showForm, setShowForm] = useState(false);
+  const hasNextPage = (data?.pageNumber ?? 1) < (data?.totalPages ?? 1);
 
   return (
     <div className="space-y-5">
@@ -331,6 +333,31 @@ export function AdminBillboardsTab() {
           <BillboardRow key={b.id} b={b} />
         ))}
       </ul>
+
+      {/* Pagination */}
+      {!isLoading && (page > 1 || hasNextPage) && (
+        <div className="flex items-center justify-center gap-4 pt-2">
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="rounded-xl border border-sand-200 px-4 py-2 text-sm text-sand-700 hover:bg-sand-50 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            ← Anterior
+          </button>
+          <span className="text-xs text-sand-500">
+            {page} / {data?.totalPages ?? 1}
+          </span>
+          <button
+            type="button"
+            onClick={() => setPage((p) => p + 1)}
+            disabled={!hasNextPage}
+            className="rounded-xl border border-sand-200 px-4 py-2 text-sm text-sand-700 hover:bg-sand-50 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Siguiente →
+          </button>
+        </div>
+      )}
     </div>
   );
 }

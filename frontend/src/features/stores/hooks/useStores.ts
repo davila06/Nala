@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { storesApi } from "../api/storesApi";
 
-export function usePublicStores(enabled = true) {
+// pageSize=500 for the map (all pins visible); default 50 for directory use
+export function usePublicStores(enabled = true, pageSize = 50) {
   return useQuery({
-    queryKey: ["stores", "public"],
-    queryFn: storesApi.getAll,
+    queryKey: ["stores", "public", pageSize],
+    queryFn: () => storesApi.getAll(pageSize),
     staleTime: 5 * 60_000,
     enabled,
   });
