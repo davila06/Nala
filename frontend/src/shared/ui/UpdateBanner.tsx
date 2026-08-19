@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+// @ts-expect-error — virtual module injected by vite-plugin-pwa at build time
 import { useRegisterSW } from "virtual:pwa-register/react";
 
 /**
@@ -10,8 +11,7 @@ export function UpdateBanner() {
     needRefresh: [needRefresh],
     updateServiceWorker,
   } = useRegisterSW({
-    onRegisteredSW(swUrl, r) {
-      // Check for updates every 60 minutes in addition to on-focus checks
+    onRegisteredSW(_swUrl: unknown, r: { update: () => Promise<void> } | undefined) {
       if (r) setInterval(() => void r.update(), 60 * 60_000);
     },
   });

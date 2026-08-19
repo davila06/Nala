@@ -31,11 +31,12 @@ const standardIcon = divIcon({
   popupAnchor: [0, -15],
 });
 
-export function StoreMarker({ store }: { store: PublicStoreDto }) {
+export function StoreMarker({ store, onStoreClick }: { store: PublicStoreDto; onStoreClick?: (id: string) => void }) {
   return (
     <Marker
       position={[store.lat, store.lng]}
       icon={store.isFeatured ? featuredIcon : standardIcon}
+      eventHandlers={{ click: () => onStoreClick?.(store.id) }}
     >
       <Popup maxWidth={220}>
         <div className="text-sm space-y-1.5" style={{ minWidth: 180 }}>

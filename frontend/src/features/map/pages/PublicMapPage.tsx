@@ -8,6 +8,10 @@ import type { MapBBox } from "../api/publicMapApi";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { usePublicClinics } from "@/features/clinics/hooks/useClinics";
 import { usePublicStores } from "@/features/stores/hooks/useStores";
+import { StoreDetailSheet } from "@/features/stores/components/StoreDetailSheet";
+import { CartDrawer } from "@/features/stores/components/CartDrawer";
+import { CheckoutModal } from "@/features/stores/components/CheckoutModal";
+import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
 
 export default function PublicMapPage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -28,6 +32,8 @@ export default function PublicMapPage() {
   const [activeStoreId, setActiveStoreId] = useState<string | null>(() =>
     searchParams.get("storeId"),
   );
+  const [cartOpen, setCartOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   // Auto-activate store layer when arriving from directory deep-link
   useEffect(() => {
@@ -290,12 +296,36 @@ export default function PublicMapPage() {
         predictions={predictions}
         clinics={showClinics ? displayedClinics : undefined}
         stores={showStores ? publicStores : undefined}
+        onStoreClick={(id) => { setActiveStoreId(id); setShowStores(true); }}
         locateTrigger={locateTrigger}
         flyTarget={flyTarget}
         onLocated={() => setLocating(false)}
         onBBoxChange={handleBBoxChange}
         className="h-full w-full"
       />
+
+      {/* Store detail sheet */}
+      {activeStoreId && (
+        <StoreDetailSheet
+          storeId={activeStoreId}
+          isOpen={!!activeStoreId}
+          onClose={() => setActiveStoreId(null)}
+          onCheckout={() => { setActiveStoreId(null); setCartOpen(true); }}
+        />
+      )}
+      <CartDrawer
+        isOpen={cartOpen}
+        onClose={() => setCartOpen(false)}
+        onCheckout={() => { setCartOpen(false); setCheckoutOpen(true); }}
+      />
+      <CheckoutModal isOpen={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
+
+      {/* Billboard for the map placement — subtle non-intrusive slot */}
+      {showStores && (
+        <div className="absolute bottom-36 left-3 z-[999] w-72">
+          <BillboardBanner placement="Map" />
+        </div>
+      )}
 
       {/* Clinic count badge when layer is active */}
       {showClinics && (

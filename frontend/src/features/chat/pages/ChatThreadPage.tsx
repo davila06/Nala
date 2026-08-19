@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { ChatPanel } from "../components/ChatPanel";
 import { useChatThreadById } from "../hooks/useChatThread";
+import { useChatSignalR } from "../hooks/useChatSignalR";
 import { Skeleton } from "@/shared/ui/Spinner";
 
 /**
@@ -16,6 +17,9 @@ export default function ChatThreadPage() {
     isLoading,
     isError,
   } = useChatThreadById(threadId ?? "");
+
+  // Real-time push via SignalR — poll stays as fallback
+  useChatSignalR(threadId ?? null);
 
   if (isLoading) {
     return (

@@ -30,6 +30,7 @@ import { toast } from "@/shared/lib/toast";
 import { Input } from "@/shared/ui";
 import { AdminPromotionManager } from "@/features/promotions/components/AdminPromotionManager";
 import { AdminStoresTab } from "@/features/stores/components/AdminStoresTab";
+import { AdminBillboardsTab } from "@/features/advertising/components/AdminBillboardsTab";
 
 type Tab =
   | "allies"
@@ -37,7 +38,8 @@ type Tab =
   | "subscriptions"
   | "bundles"
   | "promotions"
-  | "stores";
+  | "stores"
+  | "billboards";
 
 const ALLY_TYPE_LABELS: Record<string, string> = {
   VeterinaryClinic: "Veterinaria",
@@ -820,7 +822,9 @@ export default function AdminPage() {
                     ? "Bundles"
                     : tab === "promotions"
                       ? "Promociones"
-                      : "Tiendas";
+                      : tab === "stores"
+                        ? "Tiendas"
+                        : "Vallas";
           return (
             <button
               key={tab}
@@ -862,6 +866,7 @@ export default function AdminPage() {
           {activeTab === "bundles" && <BundlesTab />}
           {activeTab === "promotions" && <AdminPromotionManager />}
           {activeTab === "stores" && <AdminStoresTab />}
+          {activeTab === "billboards" && <AdminBillboardsTab />}
         </motion.div>
       </AnimatePresence>
     </div>

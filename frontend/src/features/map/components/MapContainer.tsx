@@ -35,6 +35,8 @@ interface MapContainerProps {
   clinics?: PublicClinicDto[];
   /** When set, renders pet store markers on the map. */
   stores?: PublicStoreDto[];
+  /** Called when a store marker is clicked — parent can open the detail sheet. */
+  onStoreClick?: (storeId: string) => void;
   /** Increment to re-trigger fly-to-user */
   locateTrigger?: number;
   /** Called when GPS resolves or errors — used to reset loading state in the parent */
@@ -132,6 +134,7 @@ export function MapContainer({
   predictions = {},
   clinics,
   stores,
+  onStoreClick,
   locateTrigger = 0,
   onLocated,
   flyTarget,
@@ -176,7 +179,7 @@ export function MapContainer({
             <ClinicMarker key={`clinic-${clinic.id}`} clinic={clinic} />
           ))}
           {stores?.map((store) => (
-            <StoreMarker key={`store-${store.id}`} store={store} />
+            <StoreMarker key={`store-${store.id}`} store={store} onStoreClick={onStoreClick} />
           ))}
         </MarkerClusterGroup>
       </LeafletMapContainer>

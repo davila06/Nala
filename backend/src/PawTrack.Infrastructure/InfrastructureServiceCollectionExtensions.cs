@@ -108,6 +108,7 @@ public static class InfrastructureServiceCollectionExtensions
 
         // Safety (chat + handover + fraud)
         services.AddScoped<IChatRepository, ChatRepository>();
+        services.AddScoped<IBillboardRepository, PawTrack.Infrastructure.Advertising.BillboardRepository>();
         services.AddScoped<IHandoverCodeRepository, HandoverCodeRepository>();
         services.AddScoped<IFraudReportRepository, FraudReportRepository>();
 

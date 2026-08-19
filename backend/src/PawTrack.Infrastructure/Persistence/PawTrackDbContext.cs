@@ -85,6 +85,7 @@ public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> option
     public DbSet<StoreOrder> StoreOrders => Set<StoreOrder>();
     public DbSet<StoreOrderItem> StoreOrderItems => Set<StoreOrderItem>();
     public DbSet<RevokedToken> RevokedTokens => Set<RevokedToken>();
+    public DbSet<PawTrack.Domain.Advertising.Billboard> Billboards => Set<PawTrack.Domain.Advertising.Billboard>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
