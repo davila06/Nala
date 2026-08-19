@@ -52,26 +52,26 @@ internal static class Guards
 /// rejects bodies that appear to contain phone numbers or email addresses.
 /// </summary>
 public sealed record SendChatMessageCommand(
-    Guid   ThreadId,
-    Guid   SenderUserId,
+    Guid ThreadId,
+    Guid SenderUserId,
     string Body)
     : IRequest<Result<Guid>>;
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 public sealed class SendChatMessageCommandHandler(
-    IChatRepository        chatRepository,
-    IUserRepository        userRepository,
+    IChatRepository chatRepository,
+    IUserRepository userRepository,
     INotificationDispatcher notificationDispatcher,
-    ILostPetRepository     lostPetRepository,
-    IPetRepository         petRepository,
-    IUnitOfWork            unitOfWork,
+    ILostPetRepository lostPetRepository,
+    IPetRepository petRepository,
+    IUnitOfWork unitOfWork,
     ILogger<SendChatMessageCommandHandler> logger)
     : IRequestHandler<SendChatMessageCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(
         SendChatMessageCommand command,
-        CancellationToken      cancellationToken)
+        CancellationToken cancellationToken)
     {
         // ── Validate ───────────────────────────────────────────────────────────
         if (string.IsNullOrWhiteSpace(command.Body))
@@ -125,7 +125,7 @@ public sealed class SendChatMessageCommandHandler(
                 if (recipient is null) return;
 
                 var lostEvent = await lostPetRepository.GetByIdAsync(thread.LostPetEventId, CancellationToken.None);
-                var petName   = lostEvent is null ? "tu mascota" : string.Empty;
+                var petName = lostEvent is null ? "tu mascota" : string.Empty;
                 if (lostEvent is not null)
                 {
                     var pet = await petRepository.GetByIdAsync(lostEvent.PetId, CancellationToken.None);

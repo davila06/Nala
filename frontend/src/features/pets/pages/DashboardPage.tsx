@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { HolographicPetCard } from "../components/HolographicPetCard";
 import {
@@ -35,13 +35,13 @@ export default function DashboardPage() {
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
   const [showFreemium, setShowFreemium] = useState(false);
 
-  // Listen for upgrade modal requests from PlanGate banners anywhere in the tree
-  useState(() => {
+  // useState(fn) ignores the cleanup return — must use useEffect for side effects
+  useEffect(() => {
     const handler = () => setShowFreemium(true);
     window.addEventListener("pawtrack:open-upgrade-modal", handler);
     return () =>
       window.removeEventListener("pawtrack:open-upgrade-modal", handler);
-  });
+  }, []);
 
   const filteredPets = useMemo(() => {
     if (!pets) return [];

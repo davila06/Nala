@@ -138,7 +138,7 @@ export function ChatPanel({
     lostPetEventId,
   );
   const { data: otherPartyIsTyping = false } = useOtherPartyTyping(threadId);
-  const { mutate: notifyTyping } = useNotifyTyping(threadId);
+  const notifyTyping = useNotifyTyping(threadId);
 
   const handleTextChange = useCallback(
     (value: string) => {

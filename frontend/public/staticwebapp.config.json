@@ -5,5 +5,13 @@
   "navigationFallback": {
     "rewrite": "/index.html",
     "exclude": ["/assets/*", "/api/*", "/precios.html", "/*.html"]
+  },
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "geolocation=(self), camera=(self), microphone=(), payment=()",
+    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.blob.core.windows.net; connect-src 'self' https://*.pawtrack.cr https://dc.services.visualstudio.com; font-src 'self'; frame-ancestors 'none'; base-uri 'self'",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload"
   }
 }

@@ -27,6 +27,12 @@ public sealed class ExceptionHandlingMiddleware(
             await WriteProblemAsync(context, StatusCodes.Status400BadRequest,
                 "Invalid Image", detail: "El archivo de imagen no es válido o el formato no está soportado (JPEG, PNG, WebP).");
         }
+        catch (OperationCanceledException)
+        {
+            // Client disconnected — not a server error; suppress noisy LogError
+            if (!context.Response.HasStarted)
+                context.Response.StatusCode = 499; // nginx convention: Client Closed Request
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unhandled exception for {Method} {Path}", context.Request.Method, context.Request.Path);

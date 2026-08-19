@@ -20,12 +20,16 @@ public interface ITypingStateService
 public sealed class InMemoryTypingStateService : ITypingStateService
 {
     private const int TypingWindowSeconds = 5;
+    private const int EvictionIntervalSeconds = 60;
 
-    // key = (threadId, userId), value = last typing timestamp
     private readonly ConcurrentDictionary<(Guid ThreadId, Guid UserId), DateTimeOffset> _state = new();
+    private DateTimeOffset _lastEviction = DateTimeOffset.UtcNow;
 
     public void SetTyping(Guid threadId, Guid userId)
-        => _state[(threadId, userId)] = DateTimeOffset.UtcNow;
+    {
+        _state[(threadId, userId)] = DateTimeOffset.UtcNow;
+        EvictIfDue();
+    }
 
     public bool IsOtherPartyTyping(Guid threadId, Guid currentUserId)
     {
@@ -40,5 +44,16 @@ public sealed class InMemoryTypingStateService : ITypingStateService
             }
         }
         return false;
+    }
+
+    private void EvictIfDue()
+    {
+        var now = DateTimeOffset.UtcNow;
+        if ((now - _lastEviction).TotalSeconds < EvictionIntervalSeconds) return;
+        _lastEviction = now;
+        var cutoff = now.AddSeconds(-TypingWindowSeconds * 2);
+        foreach (var key in _state.Keys)
+            if (_state.TryGetValue(key, out var ts) && ts < cutoff)
+                _state.TryRemove(key, out _);
     }
 }

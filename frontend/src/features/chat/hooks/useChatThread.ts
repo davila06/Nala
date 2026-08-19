@@ -1,3 +1,4 @@
+import { useMemo, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   chatApi,
@@ -87,9 +88,18 @@ export function useOtherPartyTyping(threadId: string) {
   });
 }
 
-/** Fires POST typing signal — call on textarea onChange (debounced externally). */
+/** Returns a debounced typing notifier — safe to call on every keystroke. */
 export function useNotifyTyping(threadId: string) {
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: () => chatApi.notifyTyping(threadId),
   });
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const notify = useMemo(
+    () => () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => mutation.mutate(), 500);
+    },
+    [mutation],
+  );
+  return notify;
 }
