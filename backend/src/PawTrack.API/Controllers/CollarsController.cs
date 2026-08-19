@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using PawTrack.Application.Collars.Commands.RegisterCollar;
 using PawTrack.Application.Collars.Interfaces;
 using PawTrack.Application.Collars.Queries.GetCollarStatus;
@@ -17,6 +18,7 @@ public sealed class CollarsController(ISender sender) : ControllerBase
 {
     // ── GET /api/collars/pet/{petId} ─────────────────────────────────────────
     [HttpGet("pet/{petId:guid}")]
+    [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetStatus(Guid petId, CancellationToken cancellationToken)
     {
@@ -29,6 +31,7 @@ public sealed class CollarsController(ISender sender) : ControllerBase
 
     // ── POST /api/collars ────────────────────────────────────────────────────
     [HttpPost]
+    [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> Register(
@@ -49,6 +52,7 @@ public sealed class CollarsController(ISender sender) : ControllerBase
 
     // ── GET /api/collars/pet/{petId}/history?hours=24 ────────────────────────
     [HttpGet("pet/{petId:guid}/history")]
+    [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetHistory(
         Guid petId,

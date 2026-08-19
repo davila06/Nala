@@ -114,7 +114,9 @@ public static class InfrastructureServiceCollectionExtensions
         // Auth services
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
-        services.AddSingleton<IJtiBlocklist, InMemoryJtiBlocklist>();
+        // SQL-backed: survives restarts and works across App Service scale-out instances
+        services.AddScoped<IJtiBlocklist, DbJtiBlocklist>();
+        services.AddHostedService<RevokedTokenCleanupJob>();
 
         // Storage
         services.AddSingleton<IBlobStorageService, BlobStorageService>();

@@ -43,10 +43,13 @@ public sealed class StoreOrdersController(ISender sender) : ControllerBase
     // ── GET /api/store-orders/mine — customer's own orders ────────────────────
     [HttpGet("mine")]
     [EnableRateLimiting("public-api")]
-    public async Task<IActionResult> GetMine(CancellationToken ct)
+    public async Task<IActionResult> GetMine(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken ct = default)
     {
         if (!TryGetUserId(out var customerId)) return Unauthorized();
-        var result = await sender.Send(new GetMyStoreOrdersQuery(customerId), ct);
+        var result = await sender.Send(new GetMyStoreOrdersQuery(customerId, page, Math.Clamp(pageSize, 1, 50)), ct);
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);
     }
 

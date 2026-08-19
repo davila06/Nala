@@ -142,3 +142,59 @@ public sealed class AcceptFamilyInvitationTests
         result.IsFailure.Should().BeTrue();
     }
 }
+
+// ── InviteFamilyMemberCommandHandler: max pending ─────────────────────────────
+
+public sealed class InviteMemberPendingLimitTests
+{
+    private readonly IFamilyRepository _repo = Substitute.For<IFamilyRepository>();
+    private readonly IEmailSender _email = Substitute.For<IEmailSender>();
+    private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
+
+    private FamilyAccount MakeAccount(Guid ownerId)
+    {
+        var account = FamilyAccount.Create(ownerId, "Test Family");
+        typeof(FamilyAccount).GetProperty("Id")!.SetValue(account, Guid.NewGuid());
+        typeof(FamilyAccount).GetProperty("OwnerId")!.SetValue(account, ownerId);
+        return account;
+    }
+
+    [Fact]
+    public async Task Handle_BelowPendingLimit_CreatesInvitation()
+    {
+        var ownerId = Guid.NewGuid();
+        var account = MakeAccount(ownerId);
+        _repo.GetByOwnerAsync(ownerId, Arg.Any<CancellationToken>()).Returns(account);
+        _repo.CountActiveMembersAsync(account.Id, Arg.Any<CancellationToken>()).Returns(1);
+        _repo.CountPendingInvitationsAsync(account.Id, Arg.Any<CancellationToken>()).Returns(2); // below 3
+        _email.SendFamilyInvitationAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+              .Returns(Task.CompletedTask);
+        _uow.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
+
+        var sut = new InviteFamilyMemberCommandHandler(_repo, _email, _uow,
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<InviteFamilyMemberCommandHandler>.Instance);
+        var result = await sut.Handle(
+            new InviteFamilyMemberCommand(ownerId, "bob@test.com"), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Handle_AtPendingLimit_ReturnsFailure()
+    {
+        var ownerId = Guid.NewGuid();
+        var account = MakeAccount(ownerId);
+        _repo.GetByOwnerAsync(ownerId, Arg.Any<CancellationToken>()).Returns(account);
+        _repo.CountActiveMembersAsync(account.Id, Arg.Any<CancellationToken>()).Returns(1);
+        _repo.CountPendingInvitationsAsync(account.Id, Arg.Any<CancellationToken>()).Returns(3); // at limit
+
+        var sut = new InviteFamilyMemberCommandHandler(_repo, _email, _uow,
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<InviteFamilyMemberCommandHandler>.Instance);
+        var result = await sut.Handle(
+            new InviteFamilyMemberCommand(ownerId, "charlie@test.com"), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain(e => e.Contains("pendientes"));
+        await _repo.DidNotReceive().AddInvitationAsync(Arg.Any<FamilyInvitation>(), Arg.Any<CancellationToken>());
+    }
+}

@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { MapContainer } from "../components/MapContainer";
 import { useDebouncedBBox, usePublicMapEvents } from "../hooks/usePublicMap";
@@ -11,6 +11,7 @@ import { usePublicStores } from "@/features/stores/hooks/useStores";
 
 export default function PublicMapPage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const [searchParams] = useSearchParams();
   const [bbox, setBbox] = useState<MapBBox | null>(null);
   const [locateTrigger, setLocateTrigger] = useState(0);
   const [locating, setLocating] = useState(false);
@@ -24,6 +25,15 @@ export default function PublicMapPage() {
   const [showClinics, setShowClinics] = useState(false);
   const [showEmergencyOnly, setShowEmergencyOnly] = useState(false);
   const [showStores, setShowStores] = useState(false);
+  const [activeStoreId, setActiveStoreId] = useState<string | null>(() =>
+    searchParams.get("storeId"),
+  );
+
+  // Auto-activate store layer when arriving from directory deep-link
+  useEffect(() => {
+    if (searchParams.get("storeId")) setShowStores(true);
+  }, [searchParams]);
+
   const { data: publicClinics = [] } = usePublicClinics(
     undefined,
     undefined,

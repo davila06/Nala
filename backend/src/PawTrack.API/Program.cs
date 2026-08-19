@@ -1,6 +1,7 @@
 using PawTrack.Infrastructure.Notifications;
 using PawTrack.API;
 using PawTrack.API.Hubs;
+using PawTrack.API.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -77,6 +78,8 @@ builder.Services.AddApplicationInsightsTelemetry();
 // ── Application + Infrastructure ─────────────────────────────────────────────
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddScoped<PawTrack.Application.Common.Interfaces.IChatNotifier,
+    PawTrack.API.Hubs.SignalRChatNotifier>();
 builder.Services.AddSingleton(new VisualMatchSettings(
     builder.Configuration["VisualMatch:BaseUrl"] ?? "https://pawtrack.cr"));
 builder.Services.AddSingleton<PawTrack.API.Services.ITypingStateService,
@@ -520,6 +523,7 @@ app.UseAuthorization();
 app.UseResponseCaching();
 app.MapControllers();
 app.MapHub<SearchCoordinationHub>("/hubs/search-coordination");
+app.MapHub<ChatHub>("/hubs/chat");
 
 // ── Startup seeders ───────────────────────────────────────────────────────────
 var startupLogger = app.Services.GetRequiredService<ILogger<Program>>();

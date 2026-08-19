@@ -11,6 +11,7 @@ public interface IFamilyRepository
     Task<IReadOnlyList<Guid>> GetActiveMemberIdsAsync(Guid ownerId, CancellationToken ct = default);
     Task<int> CountActiveMembersAsync(Guid familyAccountId, CancellationToken ct = default);
     Task<FamilyInvitation?> GetInvitationByTokenAsync(Guid token, CancellationToken ct = default);
+    Task<int> CountPendingInvitationsAsync(Guid familyAccountId, CancellationToken ct = default);
     Task AddAccountAsync(FamilyAccount account, CancellationToken ct = default);
     Task AddMembershipAsync(FamilyMembership membership, CancellationToken ct = default);
     Task AddInvitationAsync(FamilyInvitation invitation, CancellationToken ct = default);

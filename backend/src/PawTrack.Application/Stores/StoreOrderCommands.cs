@@ -236,18 +236,22 @@ public sealed class UpdateStoreOrderStatusCommandHandler(
 
 // ── Get my orders (customer) ──────────────────────────────────────────────────
 
-public sealed record GetMyStoreOrdersQuery(Guid CustomerId) : IRequest<Result<IReadOnlyList<StoreOrderDto>>>;
+public sealed record GetMyStoreOrdersQuery(Guid CustomerId, int Page = 1, int PageSize = 20)
+    : IRequest<Result<IReadOnlyList<StoreOrderDto>>>;
 
 public sealed class GetMyStoreOrdersQueryHandler(IStoreOrderRepository repo, IStoreRepository storeRepo)
     : IRequestHandler<GetMyStoreOrdersQuery, Result<IReadOnlyList<StoreOrderDto>>>
 {
     public async Task<Result<IReadOnlyList<StoreOrderDto>>> Handle(GetMyStoreOrdersQuery request, CancellationToken ct)
     {
+        var page = Math.Max(1, request.Page);
+        var pageSize = Math.Clamp(request.PageSize, 1, 50);
         var orders = await repo.GetByCustomerAsync(request.CustomerId, ct);
-        var storeIds = orders.Select(o => o.StoreId).Distinct();
+        var paged = orders.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+        var storeIds = paged.Select(o => o.StoreId).Distinct();
         var storeNames = await storeRepo.GetStoreNamesByIdsAsync(storeIds, ct);
         return Result.Success<IReadOnlyList<StoreOrderDto>>(
-            orders.Select(o => StoreOrderDto.FromDomain(o,
+            paged.Select(o => StoreOrderDto.FromDomain(o,
                 storeNames.GetValueOrDefault(o.StoreId, "Tienda eliminada"))).ToList());
     }
 }

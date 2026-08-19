@@ -15,6 +15,7 @@ public sealed class SendChatMessageCommandHandlerTests
     private readonly ILostPetRepository _lostPetRepo = Substitute.For<ILostPetRepository>();
     private readonly IPetRepository _petRepo = Substitute.For<IPetRepository>();
     private readonly IPiiScrubber _pii = Substitute.For<IPiiScrubber>();
+    private readonly IChatNotifier _chatNotifier = Substitute.For<IChatNotifier>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
     private readonly SendChatMessageCommandHandler _sut;
 
@@ -34,7 +35,7 @@ public sealed class SendChatMessageCommandHandlerTests
 
         _sut = new SendChatMessageCommandHandler(
             _chatRepo, _userRepo, _notifications, _lostPetRepo, _petRepo,
-            _pii, _uow, NullLogger<SendChatMessageCommandHandler>.Instance);
+            _pii, _chatNotifier, _uow, NullLogger<SendChatMessageCommandHandler>.Instance);
     }
 
     private ChatThread MakeOpenThread() =>
@@ -168,9 +169,7 @@ public sealed class ChatContactGuardTests
 
     private SendChatMessageCommandHandler MakeSut() =>
         new(_chatRepo, _userRepo, _notifications, _lostPetRepo, _petRepo,
-            _pii, _uow, NullLogger<SendChatMessageCommandHandler>.Instance);
-
-    [Theory]
+          _pii, Substitute.For<IChatNotifier>(), _uow, NullLogger<SendChatMessageCommandHandler>.Instance);
     [InlineData("Escríbeme a user@example.com")]
     [InlineData("llama al 8888-1234")]
     [InlineData("mi tel: +506 8881 2345")]

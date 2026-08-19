@@ -277,8 +277,8 @@ public sealed class HandleWhatsAppWebhookCommandHandler(
 
         var now = DateTimeOffset.UtcNow;
 
-        if (lower.StartsWith("hoy", StringComparison.Ordinal))    return now.Date;
-        if (lower.StartsWith("ayer", StringComparison.Ordinal))   return now.Date.AddDays(-1);
+        if (lower.StartsWith("hoy", StringComparison.Ordinal)) return now.Date;
+        if (lower.StartsWith("ayer", StringComparison.Ordinal)) return now.Date.AddDays(-1);
 
         // Try a direct parse (handles "2025-04-04 14:30" etc.)
         if (DateTimeOffset.TryParse(input, out var parsed))

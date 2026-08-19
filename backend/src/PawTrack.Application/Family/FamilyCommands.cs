@@ -72,6 +72,12 @@ public sealed class InviteFamilyMemberCommandHandler(
         if (count >= MaxMembers)
             return Result.Failure<FamilyInvitationDto>($"La cuenta familiar ya tiene el máximo de {MaxMembers} miembros.");
 
+        // Limit open invitations to prevent spam
+        const int MaxPendingInvitations = 3;
+        var pending = await familyRepository.CountPendingInvitationsAsync(account.Id, ct);
+        if (pending >= MaxPendingInvitations)
+            return Result.Failure<FamilyInvitationDto>($"Ya tienes {MaxPendingInvitations} invitaciones pendientes. Espera a que sean aceptadas o expiren.");
+
         var invitation = FamilyInvitation.Create(account.Id, request.InvitedEmail);
         await familyRepository.AddInvitationAsync(invitation, ct);
         await unitOfWork.SaveChangesAsync(ct);

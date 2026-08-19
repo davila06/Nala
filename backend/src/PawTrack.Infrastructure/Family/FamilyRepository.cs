@@ -50,6 +50,12 @@ public sealed class FamilyRepository(PawTrackDbContext db) : IFamilyRepository
     public async Task AddInvitationAsync(FamilyInvitation invitation, CancellationToken ct = default) =>
         await db.FamilyInvitations.AddAsync(invitation, ct);
 
+    public Task<int> CountPendingInvitationsAsync(Guid familyAccountId, CancellationToken ct = default) =>
+        db.FamilyInvitations.CountAsync(i =>
+            i.FamilyAccountId == familyAccountId &&
+            i.AcceptedAt == null &&
+            i.ExpiresAt > DateTimeOffset.UtcNow, ct);
+
     public void UpdateMembership(FamilyMembership membership) =>
         db.FamilyMemberships.Update(membership);
 

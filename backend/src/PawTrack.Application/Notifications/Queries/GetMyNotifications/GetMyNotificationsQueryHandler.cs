@@ -19,12 +19,9 @@ public sealed class GetMyNotificationsQueryHandler(
         var pageNumber = Math.Max(request.PageNumber, 1);
         var skip = (pageNumber - 1) * pageSize;
 
-        var notifications = await notificationRepository.GetByUserIdAsync(
-            request.UserId, skip, pageSize, cancellationToken);
-
-        var totalCount = await notificationRepository.CountTotalAsync(request.UserId, cancellationToken);
-        var unreadCount = await notificationRepository.CountUnreadAsync(request.UserId, cancellationToken);
-
+        // 2 queries (items + COUNT / unread) instead of 3 separate round-trips
+        var (notifications, totalCount, unreadCount) = await notificationRepository
+            .GetPagedWithCountsAsync(request.UserId, skip, pageSize, cancellationToken);
         var dtos = notifications.Select(NotificationDto.FromDomain).ToList();
 
         return Result.Success(new PagedResult<NotificationDto>(

@@ -27,11 +27,14 @@ public sealed class ForgotPasswordCommandHandler(
         userRepository.Update(user);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        await emailSender.SendPasswordResetAsync(
+        _ = emailSender.SendPasswordResetAsync(
             to: user.Email,
             name: user.Name,
             resetToken: rawResetToken,
-            cancellationToken: cancellationToken);
+            cancellationToken: CancellationToken.None)
+            .ContinueWith(t => logger.LogWarning(t.Exception,
+                "Auth.ForgotPassword.EmailFailed UserId={UserId}", user.Id),
+                CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
 
         logger.LogInformation("Auth.ForgotPassword.TokenIssued UserId={UserId}", user.Id);
         return Result.Success(true);

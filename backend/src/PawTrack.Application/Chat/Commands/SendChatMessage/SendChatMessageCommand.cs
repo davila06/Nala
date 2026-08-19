@@ -66,6 +66,7 @@ public sealed class SendChatMessageCommandHandler(
     ILostPetRepository lostPetRepository,
     IPetRepository petRepository,
     IPiiScrubber piiScrubber,
+    IChatNotifier chatNotifier,
     IUnitOfWork unitOfWork,
     ILogger<SendChatMessageCommandHandler> logger)
     : IRequestHandler<SendChatMessageCommand, Result<Guid>>
@@ -113,6 +114,14 @@ public sealed class SendChatMessageCommandHandler(
         chatRepository.UpdateThread(thread);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // Push to SignalR group immediately — fire-and-forget (poll fallback stays in the client)
+        _ = chatNotifier.NotifyNewMessageAsync(
+            command.ThreadId.ToString(), message.Id, command.SenderUserId,
+            safeBody, message.SentAt, CancellationToken.None)
+            .ContinueWith(t => logger.LogWarning(t.Exception,
+                "ChatHub push failed for thread {ThreadId}", command.ThreadId),
+                CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
 
         // ── Notify recipient (fire-and-forget; don't block the caller) ─────────
         var recipientId = command.SenderUserId == thread.OwnerUserId
