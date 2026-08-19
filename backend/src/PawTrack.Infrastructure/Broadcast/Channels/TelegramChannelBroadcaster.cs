@@ -32,6 +32,9 @@ public sealed class TelegramChannelBroadcaster(
         BroadcastMessageContext context,
         CancellationToken cancellationToken = default)
     {
+        // STUB: Telegram Bot API integration not yet implemented.
+        // Activate by configuring Broadcast:Telegram:BotToken and adding opt-in flow
+        // for users to link their Telegram chat_id to their PawTrack account.
         logger.LogInformation(
             "Telegram broadcast skipped (credentials not configured) for event {EventId}",
             context.LostPetEventId);

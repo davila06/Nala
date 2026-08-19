@@ -6,6 +6,13 @@ namespace PawTrack.API.Services;
 /// Tracks "is typing" signals per chat thread in memory.
 /// State is intentionally ephemeral — it does not survive process restarts,
 /// and no data is persisted to the database.
+/// <para>
+/// ⚠️ MULTI-INSTANCE LIMITATION: In App Service scale-out deployments with
+/// multiple instances, typing signals sent to instance A will not be visible
+/// to clients connected to instance B. Acceptable for MVP — the 10s message
+/// poll acts as fallback. Future fix: migrate to Azure SignalR Service (sticky
+/// sessions + backplane) or Redis Pub/Sub.
+/// </para>
 /// </summary>
 public interface ITypingStateService
 {

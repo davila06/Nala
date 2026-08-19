@@ -22,7 +22,14 @@ function ChartTooltip(props: TooltipProps<number, string>) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { active, payload } = props as any;
   if (!active || !payload?.length) return null;
-  const d = payload[0]?.payload as { date: string; weightKg: number; source: string; clinicName: string | null } | undefined;
+  const d = payload[0]?.payload as
+    | {
+        date: string;
+        weightKg: number;
+        source: string;
+        clinicName: string | null;
+      }
+    | undefined;
   if (!d) return null;
   return (
     <div className="rounded-xl border border-sand-200 bg-surface px-3 py-2 shadow-lg text-xs">

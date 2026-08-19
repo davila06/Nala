@@ -31,6 +31,9 @@ public sealed class FacebookChannelBroadcaster(
         BroadcastMessageContext context,
         CancellationToken cancellationToken = default)
     {
+        // STUB: Facebook Graph API integration not yet implemented.
+        // Activate by configuring Broadcast:Facebook:PageAccessToken + Broadcast:Facebook:PageId
+        // then POST to https://graph.facebook.com/v19.0/{pageId}/feed
         logger.LogInformation(
             "Facebook broadcast skipped (credentials not configured) for event {EventId}",
             context.LostPetEventId);

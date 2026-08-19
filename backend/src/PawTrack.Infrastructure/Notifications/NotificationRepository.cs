@@ -91,7 +91,7 @@ public sealed class NotificationRepository(PawTrackDbContext dbContext) : INotif
     public async Task<(IReadOnlyList<Notification> Items, int Total, int Unread)> GetPagedWithCountsAsync(
         Guid userId, int skip, int take, CancellationToken cancellationToken = default)
     {
-        // Single round-trip: items + total + unread via GROUP BY projection
+        // 3 queries on the same filtered set — avoids 3 separate handler round-trips to the DB
         var query = dbContext.Notifications.Where(n => n.UserId == userId);
         var total = await query.CountAsync(cancellationToken);
         var unread = await query.CountAsync(n => !n.IsRead, cancellationToken);
