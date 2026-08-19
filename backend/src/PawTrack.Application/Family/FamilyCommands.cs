@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Logging;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Common;
@@ -51,7 +52,8 @@ public sealed record InviteFamilyMemberCommand(Guid OwnerId, string InvitedEmail
 public sealed class InviteFamilyMemberCommandHandler(
     IFamilyRepository familyRepository,
     IEmailSender emailSender,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    ILogger<InviteFamilyMemberCommandHandler> logger)
     : IRequestHandler<InviteFamilyMemberCommand, Result<FamilyInvitationDto>>
 {
     private const int MaxMembers = 5;
@@ -74,11 +76,14 @@ public sealed class InviteFamilyMemberCommandHandler(
         await familyRepository.AddInvitationAsync(invitation, ct);
         await unitOfWork.SaveChangesAsync(ct);
 
-        // Fire-and-forget email — failure here doesn't roll back the invitation
+        // Fire-and-forget — log failures; don't roll back the persisted invitation
         _ = emailSender.SendFamilyInvitationAsync(
             request.InvitedEmail,
             invitation.Token.ToString(),
-            ct);
+            CancellationToken.None)
+            .ContinueWith(t => logger.LogWarning(t.Exception,
+                "Family invitation email failed for {Email}", request.InvitedEmail),
+                CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
 
         return Result.Success(new FamilyInvitationDto(
             invitation.Token, invitation.InvitedEmail, invitation.ExpiresAt));
@@ -91,6 +96,7 @@ public sealed record AcceptFamilyInvitationCommand(Guid AcceptingUserId, Guid To
 
 public sealed class AcceptFamilyInvitationCommandHandler(
     IFamilyRepository familyRepository,
+    IUserRepository userRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<AcceptFamilyInvitationCommand, Result<bool>>
 {
@@ -100,6 +106,14 @@ public sealed class AcceptFamilyInvitationCommandHandler(
         var invitation = await familyRepository.GetInvitationByTokenAsync(request.Token, ct);
         if (invitation is null || invitation.IsExpired || invitation.IsAccepted)
             return Result.Failure<bool>("La invitación no es válida o ya fue usada.");
+
+        // Verify that the accepting user's email matches the invited email
+        var user = await userRepository.GetByIdAsync(request.AcceptingUserId, ct);
+        if (user is null)
+            return Result.Failure<bool>("Usuario no encontrado.");
+
+        if (!string.Equals(user.Email, invitation.InvitedEmail, StringComparison.OrdinalIgnoreCase))
+            return Result.Failure<bool>("Esta invitación fue enviada a otra dirección de correo.");
 
         invitation.Accept();
         familyRepository.UpdateInvitation(invitation);

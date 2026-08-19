@@ -120,14 +120,15 @@ public sealed class SendChatMessageCommandHandler(
         {
             try
             {
-                var recipient = await userRepository.GetByIdAsync(recipientId, cancellationToken);
+                // Use None — this runs after the HTTP request completes
+                var recipient = await userRepository.GetByIdAsync(recipientId, CancellationToken.None);
                 if (recipient is null) return;
 
-                var lostEvent = await lostPetRepository.GetByIdAsync(thread.LostPetEventId, cancellationToken);
+                var lostEvent = await lostPetRepository.GetByIdAsync(thread.LostPetEventId, CancellationToken.None);
                 var petName   = lostEvent is null ? "tu mascota" : string.Empty;
                 if (lostEvent is not null)
                 {
-                    var pet = await petRepository.GetByIdAsync(lostEvent.PetId, cancellationToken);
+                    var pet = await petRepository.GetByIdAsync(lostEvent.PetId, CancellationToken.None);
                     petName = pet?.Name ?? "tu mascota";
                 }
 

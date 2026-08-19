@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { clinicsApi } from "../api/clinicsApi";
 
-export function usePublicClinics(lat?: number, lng?: number) {
+export function usePublicClinics(lat?: number, lng?: number, enabled = true) {
   return useQuery({
     queryKey: ["clinics", "public", lat, lng],
     queryFn: () => clinicsApi.getPublicClinics(lat, lng),
     staleTime: 60_000,
+    enabled,
   });
 }
 

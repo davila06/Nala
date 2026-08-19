@@ -41,8 +41,9 @@ export function useChatMessages(threadId: string, enabled = true) {
     queryKey: keys.messages(threadId),
     queryFn: () => chatApi.getMessages(threadId),
     enabled: enabled && !!threadId,
-    refetchInterval: 5_000, // poll every 5 s for new messages
-    staleTime: 2_000,
+    // TODO: replace with SignalR push once ChatHub is wired — polling is 12 req/min per open thread
+    refetchInterval: 10_000,
+    staleTime: 5_000,
   });
 }
 

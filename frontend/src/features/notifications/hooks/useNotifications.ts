@@ -1,7 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { notificationsApi } from '../api/notificationsApi'
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { notificationsApi } from "../api/notificationsApi";
 
-const NOTIFICATIONS_KEY = ['notifications'] as const
+const NOTIFICATIONS_KEY = ["notifications"] as const;
 
 export function useNotifications(page = 1, pageSize = 20) {
   return useQuery({
@@ -9,35 +9,38 @@ export function useNotifications(page = 1, pageSize = 20) {
     queryFn: () => notificationsApi.getMyNotifications(page, pageSize),
     staleTime: 30_000,
     refetchInterval: 30_000,
-  })
+  });
 }
 
 export function useMarkNotificationRead() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: string) => notificationsApi.markAsRead(id),
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_KEY }),
-  })
+    onSuccess: () =>
+      void queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_KEY }),
+  });
 }
 
 export function useMarkAllRead() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: () => notificationsApi.markAllAsRead(),
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_KEY }),
-  })
+    onSuccess: () =>
+      void queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_KEY }),
+  });
 }
 
 export function useRespondResolveCheck() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, foundAtHome }: { id: string; foundAtHome: boolean }) =>
       notificationsApi.respondResolveCheck(id, foundAtHome),
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_KEY }),
-  })
+    onSuccess: () =>
+      void queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_KEY }),
+  });
 }
 
 /**
@@ -52,5 +55,5 @@ export function useUnreadCount() {
     staleTime: 30_000,
     refetchInterval: 30_000,
     select: (data) => data.unreadCount ?? 0,
-  })
+  });
 }

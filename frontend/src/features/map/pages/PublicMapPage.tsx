@@ -24,8 +24,8 @@ export default function PublicMapPage() {
   const [showClinics, setShowClinics] = useState(false);
   const [showEmergencyOnly, setShowEmergencyOnly] = useState(false);
   const [showStores, setShowStores] = useState(false);
-  const { data: publicClinics = [] } = usePublicClinics(undefined, undefined);
-  const { data: publicStores = [] } = usePublicStores();
+  const { data: publicClinics = [] } = usePublicClinics(undefined, undefined, showClinics);
+  const { data: publicStores = [] } = usePublicStores(showStores);
 
   const displayedClinics = showEmergencyOnly
     ? publicClinics.filter((c) => c.isEmergency24h)

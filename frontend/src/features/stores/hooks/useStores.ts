@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { storesApi } from "../api/storesApi";
 
-export function usePublicStores() {
+export function usePublicStores(enabled = true) {
   return useQuery({
     queryKey: ["stores", "public"],
     queryFn: storesApi.getAll,
     staleTime: 5 * 60_000,
+    enabled,
   });
 }
 
