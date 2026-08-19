@@ -5,6 +5,8 @@
 **Idioma:** Español  
 **Última actualización:** 2026-08-19
 
+> **Nuevo en agosto 2026:** Tiendas de mascotas en el mapa, directorio `/tiendas`, mis pedidos `/mis-pedidos` con seguimiento de estado, vallas publicitarias dismissibles.
+
 ---
 
 ## Tabla de contenidos

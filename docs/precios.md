@@ -1,6 +1,6 @@
 # PawTrack CR — Estrategia de Precios
 
-> Versión: 2026-07-31 | Moneda: Colones costarricenses (₡) | Referencia de cambio: ~520 ₡/USD
+> Versión: 2026-08-19 | Moneda: Colones costarricenses (₡) | Referencia de cambio: ~520 ₡/USD
 
 ---
 
@@ -447,6 +447,31 @@ Costa Rica tiene ~890,000 hogares con mascotas. La masa crítica de mascotas reg
 
 ---
 
+## 4. Tiendas de Mascotas B2B — Planes Store
+
+| Plan             | Precio      | Capacidades                                             |
+| ---------------- | ----------- | ------------------------------------------------------- |
+| **StoreBasic**   | Gratis      | Listado en directorio + mapa, catálogo visible          |
+| **StorePlus**    | ₡12,000/mes | + Pedidos in-app SINPE + panel órdenes real-time        |
+| **StorePartner** | ₡25,000/mes | + Analytics + multi-sucursal + badge verificado premium |
+
+---
+
+## 5. Vallas Publicitarias — Ingresos adicionales de la plataforma
+
+El sistema de vallas permite a tiendas, clínicas y negocios anunciarse dentro de la app. Cuatro placements disponibles:
+
+| Placement     | Dónde aparece                    | Audiencia                |
+| ------------- | -------------------------------- | ------------------------ |
+| **Map**       | Overlay en el mapa público       | Todos los visitantes     |
+| **Dashboard** | Entre las mascotas del dueño     | Usuarios autenticados    |
+| **Directory** | Top del directorio de tiendas    | Compradores potenciales  |
+| **Feed**      | Sobre lista de mascotas perdidas | Alta visibilidad urgente |
+
+**Modelo de negocio:** Tarifa negociada directamente. El Admin gestiona las vallas con fechas, prioridad (0-100) e imagen. Sin intermediarios externos.
+
+---
+
 ## 10. Política de cambios y cancelación
 
 | Regla                      | Detalle                                                   |
@@ -457,8 +482,6 @@ Costa Rica tiene ~890,000 hogares con mascotas. La masa crítica de mascotas reg
 | **Prueba gratuita**        | Plan Explorador siempre gratis — sin tarjeta              |
 | **Reembolsos**             | No aplica para períodos ya usados                         |
 | **Método de pago**         | SINPE Móvil (activo) · Stripe (próximamente)              |
-
----
 
 _PawTrack CR · alianzas@pawtrack.cr · pawtrack.cr_  
 _Precios en colones costarricenses (₡). Sujetos a cambio con 30 días de aviso previo._

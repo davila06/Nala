@@ -1,6 +1,7 @@
 # NALA — Documento de Visión y Propósito
 
-> **NALA** es el nombre interno del proyecto que evolucionó en **PawTrack CR**: una plataforma de identidad y recuperación de mascotas perdidas diseñada para Costa Rica.
+> **NALA** es el nombre interno del proyecto que evolucionó en **PawTrack CR**.  
+> Última actualización: 2026-08-19
 
 ---
 

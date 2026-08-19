@@ -1,5 +1,8 @@
 # Pasos para ir live en Azure para PawTrack CR
 
+> Última actualización: 2026-08-19  
+> Ver también: `checklist-lanzamiento.md` para el checklist rápido y `pre.md` para prerequisites.
+
 ## 1. Objetivo de este documento
 
 Este documento explica, paso por paso, como llevar PawTrack CR a produccion en Azure de la forma mas segura y simple posible.
@@ -698,3 +701,47 @@ PawTrack CR puede considerarse realmente live cuando se cumplan estas tres condi
 3. Un flujo real de negocio funciona de punta a punta: registro o login, creacion de mascota y carga de foto.
 
 Si una de esas tres falla, todavia no estas live.
+
+---
+
+## 27. Secrets adicionales requeridos (agosto 2026)
+
+Los siguientes secrets deben configurarse en Key Vault **además** de los listados en la sección anterior:
+
+| Secret en Key Vault | Descripción | Requerido por |
+|---------------------|-------------|---------------|
+| `bot-phone-hash-secret` | Mínimo 32 chars; HMAC-SHA256 para hash de teléfonos del bot WhatsApp | `Bot:PhoneHashSecret` en appsettings |
+
+```powershell
+az keyvault secret set \
+  --vault-name pawtrack-kv \
+  --name bot-phone-hash-secret \
+  --value "VALOR_MINIMO_32_CARACTERES_AQUI"
+```
+
+## 28. Migraciones adicionales (agosto 2026)
+
+Las siguientes migraciones deben aplicarse en Azure SQL **adicional** a las que ya existían:
+
+| Migración | Descripción |
+|-----------|-------------|
+| `AddPetStores` | Stores, StoreProducts, StoreOrders, StoreOrderItems |
+| `AddRevokedTokens` | JTI blocklist distribuido para multi-instancia |
+| `AddBillboards` | Vallas publicitarias |
+
+```powershell
+# Desde la raíz del backend
+dotnet ef database update \
+  --project src/PawTrack.Infrastructure \
+  --startup-project src/PawTrack.API \
+  --context PawTrackDbContext
+```
+
+## 29. Nuevos contenedores de Blob Storage (agosto 2026)
+
+| Contenedor | Visibilidad | Uso |
+|-----------|-------------|-----|
+| `store-product-images` | Privado | Imágenes de productos de tiendas |
+| `billboard-images` | Privado | Imágenes de vallas publicitarias |
+
+El `BlobStorageService` crea los contenedores automáticamente en el primer upload si no existen.

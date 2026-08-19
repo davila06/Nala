@@ -1,7 +1,7 @@
 # PawTrack CR — Features B2B Clínicas: Estado, Brechas e Implementación
 
-> **Actualizado: 2026-08-04 — TODO implementado ✅**  
-> Análisis técnico original: 2026-08-01 contra `precios.md §2`
+> **Actualizado: 2026-08-19 — TODO implementado ✅**  
+> Incluye también: Tiendas de mascotas (B2B Store) y Vallas Publicitarias (Billboard).
 
 ---
 
@@ -697,4 +697,37 @@ CREATE INDEX IX_ClinicProfileViews_ClinicId_ViewedAt ON ClinicProfileViews(Clini
 
 ---
 
-_Generado 2026-08-01 · PawTrack CR · fuente: inspección directa del código_
+## Tiendas de Mascotas B2B — Completo ✅ (agosto 2026)
+
+| Feature                                      | Estado                               |
+| -------------------------------------------- | ------------------------------------ |
+| Registro de tienda con ubicación en mapa     | ✅                                   |
+| Catálogo de productos (7 categorías)         | ✅                                   |
+| Imágenes de productos (upload, resize 800px) | ✅                                   |
+| Pedidos in-app con SINPE Móvil               | ✅ StorePartner/StorePlus únicamente |
+| Estado máquina de pedidos (8 estados)        | ✅                                   |
+| Panel de dashboard del dueño de tienda       | ✅                                   |
+| Directorio público `/tiendas` + mapa         | ✅                                   |
+| Featured stores (orden prioritario en mapa)  | ✅ IsFeatured DESC                   |
+| Aprobación admin de tiendas                  | ✅                                   |
+| Notificación push al recibir pedido          | ✅                                   |
+| Mis pedidos con historial paginado           | ✅                                   |
+
+---
+
+## Vallas Publicitarias (Billboard) — Completo ✅ (agosto 2026)
+
+| Feature                                       | Estado |
+| --------------------------------------------- | ------ |
+| 4 placements: Map, Dashboard, Directory, Feed | ✅     |
+| Estado máquina: Draft→Active↔Paused→Expired   | ✅     |
+| Prioridad por placement (0-100)               | ✅     |
+| Upload de imagen (5MB, resize 1200px)         | ✅     |
+| CTA con validación de URL same-origin/HTTPS   | ✅     |
+| Dismissal con TTL 24h (localStorage)          | ✅     |
+| Admin CRUD + activar/pausar/imagen            | ✅     |
+| Paginación en admin list                      | ✅     |
+
+---
+
+_Generado 2026-08-01 · actualizado 2026-08-19 · PawTrack CR · fuente: inspección directa del código_

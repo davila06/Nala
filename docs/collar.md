@@ -1,26 +1,33 @@
 # PawTrack Collar GPS — Guía Técnica y de Adquisición
 
-> Documento de referencia para el equipo de PawTrack CR.
+> Documento de referencia para el equipo de PawTrack CR.  
+> Última actualización: 2026-08-19  
 > Aplica a la integración de collares GPS de terceros (Tractive, Kippy) y al hardware propio futuro.
 
 ---
 
 ## 1. Estado actual de implementación
 
-| Capa                      | Archivo                                                 | Estado                         |
-| ------------------------- | ------------------------------------------------------- | ------------------------------ |
-| Dominio                   | `Collar.cs`, `CollarLocation.cs`, `CollarProvider.cs`   | ✅ Completo                    |
-| Repositorio               | `ICollarRepository`, `CollarRepository.cs`              | ✅ Completo                    |
-| Comandos                  | `RegisterCollarCommand` (requiere plan Plus)            | ✅ Completo                    |
-| Queries                   | `GetCollarStatusQuery`, `GetLocationHistoryQuery`       | ✅ Completo                    |
-| Integración Tractive      | `TractiveService.cs` (OAuth2 + location API)            | ✅ Completo                    |
-| Polling job               | `TractivePollingJob.cs` (BackgroundService, cada 5 min) | ✅ Completo                    |
-| Purge de historial        | `CollarLocationPurgeJob.cs` (datos >30 días)            | ✅ Completo                    |
-| Controlador REST          | `CollarsController`                                     | ✅ Completo                    |
-| Frontend                  | `CollarGpsTab.tsx`, `collarApi.ts`, `useCollar.ts`      | ✅ Completo                    |
-| OAuth callback            | `GET /api/collars/tractive/callback`                    | ✅ Completo                    |
-| **Kippy**                 | `KippyService.cs`                                       | ❌ Pendiente                   |
-| **PawTrack Own hardware** | —                                                       | ❌ Pendiente (hardware futuro) |
+| Capa                      | Archivo                                                        | Estado                         |
+| ------------------------- | -------------------------------------------------------------- | ------------------------------ |
+| Dominio                   | `Collar.cs`, `CollarLocation.cs`, `CollarProvider.cs`          | ✅ Completo                    |
+| Repositorio               | `ICollarRepository`, `CollarRepository.cs`                     | ✅ Completo                    |
+| Comandos                  | `RegisterCollarCommand` (requiere plan Plus + ownership check) | ✅ Completo                    |
+| Queries                   | `GetCollarStatusQuery`, `GetLocationHistoryQuery`              | ✅ Completo                    |
+| Seguridad BOLA            | Ownership check en GetCollarStatus y GetLocationHistory        | ✅ Completo                    |
+| Integración Tractive      | `TractiveService.cs` (OAuth2 + location API)                   | ✅ Completo                    |
+| Polling job               | `TractivePollingJob.cs` (BackgroundService, cada 5 min)        | ✅ Completo                    |
+| Purge de historial        | `CollarLocationPurgeJob.cs` (datos >30 días)                   | ✅ Completo                    |
+| Rate limiting             | `[EnableRateLimiting("public-api")]` en todos los endpoints    | ✅ Completo                    |
+| Controlador REST          | `CollarsController`                                            | ✅ Completo                    |
+| Frontend                  | `CollarGpsTab.tsx`, `collarApi.ts`, `useCollar.ts`             | ✅ Completo                    |
+| OAuth callback            | `GET /api/collars/tractive/callback`                           | ✅ Completo                    |
+| **Kippy**                 | `KippyService.cs`                                              | ❌ Pendiente                   |
+| **PawTrack Own hardware** | —                                                              | ❌ Pendiente (hardware futuro) |
+
+### Nota de seguridad importante
+
+`GetCollarStatusQuery` y `GetLocationHistoryQuery` verifican ownership del pet antes de retornar datos. Cualquier usuario autenticado que no sea el dueño de la mascota recibe `Access denied.` (HTTP 403). Esto previene BOLA (Broken Object Level Authorization) donde un atacante con el `petId` podría ver la ubicación GPS histórica de una mascota ajena.
 
 ---
 

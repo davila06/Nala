@@ -1,10 +1,8 @@
-# FINALIZADO
-
 # Manual de Clínicas Veterinarias — PawTrack CR
 
-**Versión:** 1.0  
+**Versión:** 2.0  
 **Audiencia:** Clínicas veterinarias afiliadas a la red PawTrack CR  
-**Última actualización:** Julio 2026
+**Última actualización:** 2026-08-19
 
 ---
 

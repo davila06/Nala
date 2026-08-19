@@ -1,7 +1,7 @@
 # PawTrack CR — Propuesta de Sponsorship
 
 > Documento confidencial para presentación a empresas patrocinadoras  
-> Versión: Agosto 2026
+> Versión: 2026-08-19
 
 ---
 
@@ -178,4 +178,16 @@ Para municipalidades, ONGs y organizaciones de bienestar animal.
 
 ---
 
+### Nueva oportunidad: Vallas Publicitarias en la app
+
+PawTrack CR cuenta con un sistema nativo de publicidad in-app. Los patrocinadores pueden mostrar su marca en 4 ubicaciones:
+
+| Placement      | Descripción                                   |
+| -------------- | --------------------------------------------- |
+| **Mapa**       | Visible a TODOS los usuarios del mapa público |
+| **Dashboard**  | Entre las mascotas del dueño autenticado      |
+| **Directorio** | Top del directorio de tiendas y clínicas      |
+| **Feed**       | Sobre la lista de mascotas perdidas activas   |
+
+Las vallas son gestionadas por el equipo de PawTrack CR. Contactar para tarifas y disponibilidad.
 _PawTrack CR — Cada mascota merece volver a casa._
