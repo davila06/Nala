@@ -69,7 +69,7 @@ public sealed class AdoptionFair
 
     public void RemoveAnimal(Guid animalId) => _animalIds.Remove(animalId);
 
-    public void Activate()  { Status = FairStatus.Active;    UpdatedAt = DateTimeOffset.UtcNow; }
-    public void Finish()    { Status = FairStatus.Finished;  UpdatedAt = DateTimeOffset.UtcNow; }
-    public void Cancel()    { Status = FairStatus.Cancelled; UpdatedAt = DateTimeOffset.UtcNow; }
+    public void Activate() { Status = FairStatus.Active; UpdatedAt = DateTimeOffset.UtcNow; }
+    public void Finish() { Status = FairStatus.Finished; UpdatedAt = DateTimeOffset.UtcNow; }
+    public void Cancel() { Status = FairStatus.Cancelled; UpdatedAt = DateTimeOffset.UtcNow; }
 }

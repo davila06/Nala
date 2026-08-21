@@ -133,6 +133,26 @@ const StoreDirectoryPage = lazy(
 
 // Admin panel
 const AdminPage = lazy(() => import("@/features/admin/pages/AdminPage"));
+
+// Módulo de adopciones
+const AdoptionDirectoryPage = lazy(
+  () => import("@/features/adoptions/pages/AdoptionDirectoryPage"),
+);
+const AdoptionDetailPage = lazy(
+  () => import("@/features/adoptions/pages/AdoptionDetailPage"),
+);
+const MyAdoptionApplicationsPage = lazy(
+  () => import("@/features/adoptions/pages/MyAdoptionApplicationsPage"),
+);
+const ShelterDashboardPage = lazy(
+  () => import("@/features/adoptions/pages/ShelterDashboardPage"),
+);
+const ShelterPublishPage = lazy(
+  () => import("@/features/adoptions/pages/ShelterPublishPage"),
+);
+const ShelterApplicationsPage = lazy(
+  () => import("@/features/adoptions/pages/ShelterApplicationsPage"),
+);
 const MunicipalityPortalPage = lazy(
   () => import("@/features/admin/pages/MunicipalityPortalPage"),
 );
@@ -294,6 +314,23 @@ export const router = createBrowserRouter([
               </S>
             ),
           },
+          // ── Adopciones (público) ──────────────────────────────────────────
+          {
+            path: "/adopciones",
+            element: (
+              <S>
+                <AdoptionDirectoryPage />
+              </S>
+            ),
+          },
+          {
+            path: "/adopciones/:id",
+            element: (
+              <S>
+                <AdoptionDetailPage />
+              </S>
+            ),
+          },
           {
             path: "/familia/invitacion/:token",
             element: (
@@ -442,6 +479,15 @@ export const router = createBrowserRouter([
               </S>
             ),
           },
+          // ── Adopciones (autenticado — Owner) ────────────────────────────────
+          {
+            path: "/mis-adopciones",
+            element: (
+              <S>
+                <MyAdoptionApplicationsPage />
+              </S>
+            ),
+          },
 
           // ── Store + Admin only ───────────────────────────────────────────────
           {
@@ -483,6 +529,31 @@ export const router = createBrowserRouter([
                 element: (
                   <S>
                     <AllyPanelPage />
+                  </S>
+                ),
+              },
+              // ── Shelter adoption management ────────────────────────────────
+              {
+                path: "/shelter/dashboard",
+                element: (
+                  <S>
+                    <ShelterDashboardPage />
+                  </S>
+                ),
+              },
+              {
+                path: "/shelter/publicar",
+                element: (
+                  <S>
+                    <ShelterPublishPage />
+                  </S>
+                ),
+              },
+              {
+                path: "/shelter/animales/:id/aplicaciones",
+                element: (
+                  <S>
+                    <ShelterApplicationsPage />
                   </S>
                 ),
               },

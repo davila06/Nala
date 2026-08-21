@@ -42,13 +42,13 @@ public sealed class AdoptionRepository(PawTrackDbContext db) : IAdoptionReposito
         var q = db.AdoptableAnimals.AsNoTracking()
             .Where(a => a.Status == AdoptionStatus.Available);
 
-        if (species.HasValue)     q = q.Where(a => a.Species == species.Value);
-        if (size.HasValue)        q = q.Where(a => a.Size == size.Value);
+        if (species.HasValue) q = q.Where(a => a.Species == species.Value);
+        if (size.HasValue) q = q.Where(a => a.Size == size.Value);
         if (ageCategory.HasValue) q = q.Where(a => a.AgeCategory == ageCategory.Value);
         if (isVaccinated == true) q = q.Where(a => a.IsVaccinated);
         if (isSterilized == true) q = q.Where(a => a.IsSterilized);
-        if (okWithKids == true)   q = q.Where(a => a.OkWithKids);
-        if (okWithDogs == true)   q = q.Where(a => a.OkWithDogs);
+        if (okWithKids == true) q = q.Where(a => a.OkWithKids);
+        if (okWithDogs == true) q = q.Where(a => a.OkWithDogs);
 
         // Bounding-box approximation (Haversine-precise at application layer if needed)
         if (nearLat.HasValue && nearLng.HasValue)

@@ -110,10 +110,10 @@ public sealed class AdoptablePet
     }
 
     public void MarkInProcess() { Status = AdoptionStatus.InProcess; UpdatedAt = DateTimeOffset.UtcNow; }
-    public void MarkAdopted()   { Status = AdoptionStatus.Adopted; AdoptedAt = DateTimeOffset.UtcNow; }
-    public void Pause()         { Status = AdoptionStatus.Paused; UpdatedAt = DateTimeOffset.UtcNow; }
-    public void Republish()     { Status = AdoptionStatus.Available; UpdatedAt = DateTimeOffset.UtcNow; }
-    public void Remove()        { Status = AdoptionStatus.Removed; UpdatedAt = DateTimeOffset.UtcNow; }
+    public void MarkAdopted() { Status = AdoptionStatus.Adopted; AdoptedAt = DateTimeOffset.UtcNow; }
+    public void Pause() { Status = AdoptionStatus.Paused; UpdatedAt = DateTimeOffset.UtcNow; }
+    public void Republish() { Status = AdoptionStatus.Available; UpdatedAt = DateTimeOffset.UtcNow; }
+    public void Remove() { Status = AdoptionStatus.Removed; UpdatedAt = DateTimeOffset.UtcNow; }
 
     public void UpdateDetails(
         string name,
