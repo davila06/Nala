@@ -24,6 +24,7 @@ using PawTrack.Domain.Safety;
 using PawTrack.Domain.Sightings;
 using PawTrack.Domain.Stores;
 using PawTrack.Domain.Subscriptions;
+using PawTrack.Domain.Adoptions;
 
 namespace PawTrack.Infrastructure.Persistence;
 
@@ -86,6 +87,9 @@ public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> option
     public DbSet<StoreOrderItem> StoreOrderItems => Set<StoreOrderItem>();
     public DbSet<RevokedToken> RevokedTokens => Set<RevokedToken>();
     public DbSet<PawTrack.Domain.Advertising.Billboard> Billboards => Set<PawTrack.Domain.Advertising.Billboard>();
+    public DbSet<AdoptablePet> AdoptableAnimals => Set<AdoptablePet>();
+    public DbSet<AdoptionApplication> AdoptionApplications => Set<AdoptionApplication>();
+    public DbSet<AdoptionFair> AdoptionFairs => Set<AdoptionFair>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

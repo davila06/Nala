@@ -594,6 +594,7 @@
 ## Checklist de definición de "hecho" (DoD) por tarea backend
 
 Cada command/query handler se considera completo cuando:
+
 - [ ] Compila sin errores (0 CS warnings relevantes)
 - [ ] Tiene validator con FluentValidation si acepta input de usuario
 - [ ] Tiene tests unitarios con NSubstitute que cubren el happy path y al menos 2 casos de error
@@ -604,6 +605,7 @@ Cada command/query handler se considera completo cuando:
 ## Checklist de definición de "hecho" por tarea frontend
 
 Cada página/componente se considera completo cuando:
+
 - [ ] TypeScript strict: 0 errores `tsc`
 - [ ] Loading state con `Skeleton` component
 - [ ] Error state con mensaje amigable

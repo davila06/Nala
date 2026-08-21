@@ -44,4 +44,13 @@ public sealed class AllyProfileRepository(PawTrackDbContext dbContext) : IAllyPr
 
     public void Update(AllyProfile profile) =>
         dbContext.AllyProfiles.Update(profile);
+
+    public async Task<IReadOnlyList<AllyProfile>> GetByUserIdsAsync(
+        IEnumerable<Guid> userIds, CancellationToken cancellationToken = default)
+    {
+        var ids = userIds.ToList();
+        return await dbContext.AllyProfiles.AsNoTracking()
+            .Where(a => ids.Contains(a.UserId))
+            .ToListAsync(cancellationToken);
+    }
 }

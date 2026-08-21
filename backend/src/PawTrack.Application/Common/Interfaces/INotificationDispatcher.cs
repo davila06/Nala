@@ -163,4 +163,37 @@ public interface INotificationDispatcher
         string orderId,
         decimal totalCrc,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Notifies the shelter that a user applied to adopt an animal.</summary>
+    Task DispatchAdoptionInterestAsync(
+        Guid shelterUserId,
+        string animalName,
+        Guid applicationId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>Notifies the applicant that their adoption application was approved.</summary>
+    Task DispatchAdoptionApprovedAsync(
+        Guid applicantUserId,
+        string animalName,
+        Guid applicationId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>Notifies the applicant that their adoption application was rejected.</summary>
+    Task DispatchAdoptionRejectedAsync(
+        Guid applicantUserId,
+        string animalName,
+        Guid applicationId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Sends geofenced push alerts to users within <paramref name="radiusMetres"/> of the fair venue.
+    /// </summary>
+    Task DispatchAdoptionFairAlertAsync(
+        Guid fairId,
+        string fairTitle,
+        double fairLat,
+        double fairLng,
+        int radiusMetres,
+        DateTimeOffset fairStartsAt,
+        CancellationToken cancellationToken = default);
 }

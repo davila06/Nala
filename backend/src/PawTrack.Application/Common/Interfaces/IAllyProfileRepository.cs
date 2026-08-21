@@ -13,4 +13,5 @@ public interface IAllyProfileRepository
     Task<IReadOnlyList<AllyProfile>> GetAllPendingAsync(CancellationToken cancellationToken = default);
     Task AddAsync(AllyProfile profile, CancellationToken cancellationToken = default);
     void Update(AllyProfile profile);
+    Task<IReadOnlyList<AllyProfile>> GetByUserIdsAsync(IEnumerable<Guid> userIds, CancellationToken cancellationToken = default);
 }

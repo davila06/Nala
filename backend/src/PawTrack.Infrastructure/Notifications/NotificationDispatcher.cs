@@ -638,5 +638,122 @@ public sealed class NotificationDispatcher(
             new PushNotificationMetadata(Url: $"/tienda/portal/ordenes/{orderId}"),
             cancellationToken);
     }
+
+    public async Task DispatchAdoptionInterestAsync(
+        Guid shelterUserId,
+        string animalName,
+        Guid applicationId,
+        CancellationToken cancellationToken = default)
+    {
+        var notification = Notification.Create(
+            shelterUserId,
+            NotificationType.AdoptionInterest,
+            $"Nueva solicitud de adopción para {animalName}",
+            "Alguien está interesado en adoptar este animal. Revisa la solicitud en tu panel.",
+            relatedEntityId: applicationId.ToString());
+
+        await notificationRepository.AddAsync(notification, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await TrySendPushAsync(
+            shelterUserId,
+            $"🐾 Solicitud para {animalName}",
+            "Alguien quiere adoptarlo. Revisa la solicitud.",
+            new PushNotificationMetadata(Url: $"/shelter/dashboard"),
+            cancellationToken);
+    }
+
+    public async Task DispatchAdoptionApprovedAsync(
+        Guid applicantUserId,
+        string animalName,
+        Guid applicationId,
+        CancellationToken cancellationToken = default)
+    {
+        var notification = Notification.Create(
+            applicantUserId,
+            NotificationType.AdoptionApproved,
+            $"¡Tu solicitud para adoptar a {animalName} fue aprobada!",
+            "La organización aprobó tu solicitud. Revisa tu bandeja para coordinar los próximos pasos.",
+            relatedEntityId: applicationId.ToString());
+
+        await notificationRepository.AddAsync(notification, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await TrySendPushAsync(
+            applicantUserId,
+            $"✅ Solicitud aprobada — {animalName}",
+            "¡La organización aprobó tu solicitud de adopción!",
+            new PushNotificationMetadata(Url: "/mis-adopciones"),
+            cancellationToken);
+    }
+
+    public async Task DispatchAdoptionRejectedAsync(
+        Guid applicantUserId,
+        string animalName,
+        Guid applicationId,
+        CancellationToken cancellationToken = default)
+    {
+        var notification = Notification.Create(
+            applicantUserId,
+            NotificationType.AdoptionRejected,
+            $"Tu solicitud para adoptar a {animalName} no fue aprobada",
+            "La organización no pudo aprobar tu solicitud en esta ocasión. Hay más animales esperando un hogar.",
+            relatedEntityId: applicationId.ToString());
+
+        await notificationRepository.AddAsync(notification, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await TrySendPushAsync(
+            applicantUserId,
+            $"Tu solicitud para {animalName}",
+            "La organización no pudo aprobarla. Hay más animales esperando.",
+            new PushNotificationMetadata(Url: "/adopciones"),
+            cancellationToken);
+    }
+
+    public async Task DispatchAdoptionFairAlertAsync(
+        Guid fairId,
+        string fairTitle,
+        double fairLat,
+        double fairLng,
+        int radiusMetres,
+        DateTimeOffset fairStartsAt,
+        CancellationToken cancellationToken = default)
+    {
+        var nearbyUsers = await userLocationRepository.GetNearbyAlertSubscribersAsync(
+            fairLat, fairLng, radiusMetres, cancellationToken);
+
+        var dateStr = fairStartsAt.ToLocalTime().ToString("dd MMM, HH:mm");
+        var notified = 0;
+
+        foreach (var userLocation in nearbyUsers)
+        {
+            if (!rateLimitService.IsAllowed(userLocation.UserId, "adoption_fair_alert")) continue;
+
+            var notification = Notification.Create(
+                userLocation.UserId,
+                NotificationType.AdoptionFairAlert,
+                $"🐾 Feria de adopción cerca tuyo: {fairTitle}",
+                $"El {dateStr}. ¡Ven a conocer a los animales que buscan hogar!",
+                relatedEntityId: fairId.ToString());
+
+            await notificationRepository.AddAsync(notification, cancellationToken);
+
+            await TrySendPushAsync(
+                userLocation.UserId,
+                $"🐾 Feria de adopción — {fairTitle}",
+                $"El {dateStr}, cerca tuyo.",
+                new PushNotificationMetadata(Url: "/adopciones/ferias"),
+                cancellationToken);
+
+            rateLimitService.Record(userLocation.UserId, "adoption_fair_alert");
+            notified++;
+        }
+
+        if (notified > 0)
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        logger.LogInformation("AdoptionFairAlert dispatched to {Count} users for fair {FairId}", notified, fairId);
+    }
 }
 

@@ -17,4 +17,8 @@ public enum NotificationType
     CustodyClosed,
     NeighborLostPetAlert, // neighbor-network ultra-local alert (~500m radius)
     ActivityStreak,       // gamification streak milestone
+    AdoptionInterest,     // shelter receives: someone applied to adopt
+    AdoptionApproved,     // applicant receives: application approved
+    AdoptionRejected,     // applicant receives: application rejected
+    AdoptionFairAlert,    // nearby users: adoption fair in the area
 }
