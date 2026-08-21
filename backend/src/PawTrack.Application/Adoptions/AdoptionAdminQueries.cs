@@ -86,8 +86,8 @@ public sealed class AdminModerateAnimalCommandHandler(
 
         switch (request.Action.ToLowerInvariant())
         {
-            case "remove":  animal.Remove();  break;
-            case "pause":   animal.Pause();   break;
+            case "remove": animal.Remove(); break;
+            case "pause": animal.Pause(); break;
             case "restore": animal.Republish(); break;
             default:
                 return Result.Failure<bool>(InvalidActionError);

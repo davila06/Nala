@@ -16,11 +16,11 @@ public sealed class CreateSubscriptionCommandHandler(
     // Prices in CRC
     private static readonly Dictionary<SubscriptionTier, decimal> Prices = new()
     {
-        [SubscriptionTier.UserPlus]     = 2_990m,
-        [SubscriptionTier.UserFamilia]  = 4_990m,
-        [SubscriptionTier.ClinicPlus]   = 15_000m,
-        [SubscriptionTier.ClinicPartner]= 35_000m,
-        [SubscriptionTier.ShelterPlus]  = 8_000m,
+        [SubscriptionTier.UserPlus] = 2_990m,
+        [SubscriptionTier.UserFamilia] = 4_990m,
+        [SubscriptionTier.ClinicPlus] = 15_000m,
+        [SubscriptionTier.ClinicPartner] = 35_000m,
+        [SubscriptionTier.ShelterPlus] = 8_000m,
     };
 
     public async Task<Result<SubscriptionDto>> Handle(

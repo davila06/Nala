@@ -7,7 +7,10 @@ import {
   useAdminModerateAnimal,
 } from "../hooks/useAdmin";
 import type { AdoptablePetDto } from "@/features/adoptions/api/adoptionsApi";
-import { SPECIES_LABELS, AGE_LABELS } from "@/features/adoptions/api/adoptionsApi";
+import {
+  SPECIES_LABELS,
+  AGE_LABELS,
+} from "@/features/adoptions/api/adoptionsApi";
 import { toast } from "@/shared/lib/toast";
 
 const STATUS_OPTIONS = [
@@ -22,12 +25,20 @@ const STATUS_OPTIONS = [
 const STATUS_COLORS: Record<string, string> = {
   Available: "bg-green-100 text-green-700",
   InProcess: "bg-yellow-100 text-yellow-700",
-  Adopted:   "bg-blue-100 text-blue-700",
-  Paused:    "bg-orange-100 text-orange-700",
-  Removed:   "bg-red-100 text-red-600",
+  Adopted: "bg-blue-100 text-blue-700",
+  Paused: "bg-orange-100 text-orange-700",
+  Removed: "bg-red-100 text-red-600",
 };
 
-function StatPill({ label, value, color }: { label: string; value: number; color: string }) {
+function StatPill({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color: string;
+}) {
   return (
     <div className={`rounded-2xl px-4 py-3 text-center ${color}`}>
       <p className="text-2xl font-black">{value}</p>
@@ -45,9 +56,11 @@ function AnimalAdminRow({ animal }: { animal: AdoptablePetDto }) {
     try {
       await moderate.mutateAsync({ id: animal.id, action });
       toast.success(
-        action === "remove" ? "Animal removido" :
-        action === "pause"  ? "Animal pausado" :
-                              "Animal restaurado"
+        action === "remove"
+          ? "Animal removido"
+          : action === "pause"
+            ? "Animal pausado"
+            : "Animal restaurado",
       );
     } finally {
       setProcessing(false);
@@ -69,10 +82,15 @@ function AnimalAdminRow({ animal }: { animal: AdoptablePetDto }) {
       <div className="flex items-start gap-3">
         {/* Thumbnail */}
         <div className="h-14 w-14 shrink-0 rounded-xl overflow-hidden bg-sand-100 flex items-center justify-center">
-          {photo
-            ? <img src={photo} alt={animal.name} className="h-full w-full object-cover" />
-            : <span className="text-xl">🐾</span>
-          }
+          {photo ? (
+            <img
+              src={photo}
+              alt={animal.name}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <span className="text-xl">🐾</span>
+          )}
         </div>
 
         {/* Info */}
@@ -84,14 +102,17 @@ function AnimalAdminRow({ animal }: { animal: AdoptablePetDto }) {
             >
               {animal.name}
             </Link>
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${st}`}>
+            <span
+              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${st}`}
+            >
               {animal.status}
             </span>
           </div>
           <p className="text-xs text-sand-500">
             {SPECIES_LABELS[animal.species]}
             {animal.breed && ` · ${animal.breed}`}
-            {" · "}{AGE_LABELS[animal.ageCategory]}
+            {" · "}
+            {AGE_LABELS[animal.ageCategory]}
           </p>
           <p className="text-xs text-sand-400">
             🏠 {animal.organizationName}
@@ -141,9 +162,8 @@ export function AdminAdoptionsTab() {
   const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
   const { data: stats, isLoading: statsLoading } = useAdoptionAdminStats();
-  const { data: animalsPage, isLoading: animalsLoading } = useAdminAdoptionAnimals(
-    statusFilter || undefined, page
-  );
+  const { data: animalsPage, isLoading: animalsLoading } =
+    useAdminAdoptionAnimals(statusFilter || undefined, page);
 
   return (
     <div className="space-y-6">
@@ -154,26 +174,57 @@ export function AdminAdoptionsTab() {
             <div key={i} className="h-16 rounded-2xl bg-sand-100" />
           ))}
         </div>
-      ) : stats && (
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-          <StatPill label="Publicados" value={stats.totalPublished} color="bg-sand-50" />
-          <StatPill label="Disponibles" value={stats.totalAvailable} color="bg-green-50 text-green-800" />
-          <StatPill label="En proceso" value={stats.totalInProcess} color="bg-yellow-50 text-yellow-800" />
-          <StatPill label="Adoptados" value={stats.totalAdopted} color="bg-blue-50 text-blue-800" />
-          <StatPill label="Solicitudes" value={stats.totalApplications} color="bg-purple-50 text-purple-800" />
-          <StatPill label="Ferias" value={stats.totalFairs} color="bg-pink-50 text-pink-800" />
-        </div>
+      ) : (
+        stats && (
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+            <StatPill
+              label="Publicados"
+              value={stats.totalPublished}
+              color="bg-sand-50"
+            />
+            <StatPill
+              label="Disponibles"
+              value={stats.totalAvailable}
+              color="bg-green-50 text-green-800"
+            />
+            <StatPill
+              label="En proceso"
+              value={stats.totalInProcess}
+              color="bg-yellow-50 text-yellow-800"
+            />
+            <StatPill
+              label="Adoptados"
+              value={stats.totalAdopted}
+              color="bg-blue-50 text-blue-800"
+            />
+            <StatPill
+              label="Solicitudes"
+              value={stats.totalApplications}
+              color="bg-purple-50 text-purple-800"
+            />
+            <StatPill
+              label="Ferias"
+              value={stats.totalFairs}
+              color="bg-pink-50 text-pink-800"
+            />
+          </div>
+        )
       )}
 
       {/* Filter */}
       <div className="flex items-center gap-3">
         <select
           value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setPage(1);
+          }}
           className="rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
         >
           {STATUS_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
           ))}
         </select>
         <span className="text-xs text-sand-500">
@@ -190,7 +241,9 @@ export function AdminAdoptionsTab() {
       {/* List */}
       {animalsLoading ? (
         <div className="space-y-3 animate-pulse">
-          {[1, 2, 3].map((i) => <div key={i} className="h-24 rounded-2xl bg-sand-100" />)}
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-24 rounded-2xl bg-sand-100" />
+          ))}
         </div>
       ) : !animalsPage?.items.length ? (
         <div className="py-12 text-center text-sand-400">

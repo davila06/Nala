@@ -108,13 +108,19 @@ export const adminApi = {
   // ── Adoptions admin ────────────────────────────────────────────────────────
 
   getAdoptionStats: () =>
-    apiClient.get<AdoptionAdminStatsDto>("/admin/adoptions/stats").then((r) => r.data),
+    apiClient
+      .get<AdoptionAdminStatsDto>("/admin/adoptions/stats")
+      .then((r) => r.data),
 
   getAdminAnimals: (status?: string, page = 1, pageSize = 20) =>
     apiClient
-      .get<AdminAdoptionsPage>("/admin/adoptions/animals", { params: { status, page, pageSize } })
+      .get<AdminAdoptionsPage>("/admin/adoptions/animals", {
+        params: { status, page, pageSize },
+      })
       .then((r) => r.data),
 
   moderateAnimal: (id: string, action: "remove" | "pause" | "restore") =>
-    apiClient.patch<void>(`/admin/adoptions/animals/${id}/moderate`, { action }),
+    apiClient.patch<void>(`/admin/adoptions/animals/${id}/moderate`, {
+      action,
+    }),
 };

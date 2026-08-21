@@ -83,13 +83,13 @@ public sealed class AdoptionRepository(PawTrackDbContext db) : IAdoptionReposito
         int Get(AdoptionStatus s) => animalCounts.FirstOrDefault(x => x.Status == s)?.Count ?? 0;
 
         return new AdoptionAdminStatsDto(
-            TotalPublished:   animalCounts.Sum(x => x.Count),
-            TotalAvailable:   Get(AdoptionStatus.Available),
-            TotalInProcess:   Get(AdoptionStatus.InProcess),
-            TotalAdopted:     Get(AdoptionStatus.Adopted),
-            TotalPaused:      Get(AdoptionStatus.Paused),
+            TotalPublished: animalCounts.Sum(x => x.Count),
+            TotalAvailable: Get(AdoptionStatus.Available),
+            TotalInProcess: Get(AdoptionStatus.InProcess),
+            TotalAdopted: Get(AdoptionStatus.Adopted),
+            TotalPaused: Get(AdoptionStatus.Paused),
             TotalApplications: await db.AdoptionApplications.CountAsync(ct),
-            TotalFairs:       await db.AdoptionFairs.CountAsync(ct));
+            TotalFairs: await db.AdoptionFairs.CountAsync(ct));
     }
 
     public async Task<(IReadOnlyList<AdoptablePet> Items, int Total)> GetAllAdminPagedAsync(

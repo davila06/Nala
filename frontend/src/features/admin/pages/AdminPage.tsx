@@ -32,9 +32,7 @@ import { AdminPromotionManager } from "@/features/promotions/components/AdminPro
 import { AdminStoresTab } from "@/features/stores/components/AdminStoresTab";
 import { AdminBillboardsTab } from "@/features/advertising/components/AdminBillboardsTab";
 import { AdminAdoptionsTab } from "../components/AdminAdoptionsTab";
-import {
-  useAdoptionAdminStats,
-} from "../hooks/useAdmin";
+import { useAdoptionAdminStats } from "../hooks/useAdmin";
 
 type Tab =
   | "allies"
