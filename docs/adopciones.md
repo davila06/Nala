@@ -42,6 +42,7 @@ Costa Rica tiene entre **800,000 y 1,200,000 animales en situación de calle**. 
 ### La oportunidad para PawTrack CR
 
 PawTrack CR ya tiene:
+
 - **Una red de Aliados verificados** (refugios, rescatistas) que son exactamente los actores de adopción
 - **Mapa interactivo** visto por dueños de mascotas (audiencia objetivo perfecta)
 - **Notificaciones geofenceadas** para alertar por zona
@@ -58,6 +59,7 @@ El módulo de adopciones no requiere construir nueva infraestructura — es una 
 ### UC-01: Publicar un animal en adopción
 
 Un rescatista/shelter publica un animal con:
+
 - Nombre, especie, raza estimada, edad aproximada, peso
 - Foto principal + galería (hasta 5 fotos)
 - Historia: cómo llegó, personalidad, necesidades especiales
@@ -68,6 +70,7 @@ Un rescatista/shelter publica un animal con:
 ### UC-02: Buscar animales en adopción
 
 Cualquier persona (sin cuenta) puede:
+
 - Buscar por especie, tamaño, zona, requisitos
 - Ver en mapa los pines de animales disponibles
 - Filtrar por "eventos de adopción" (ferias)
@@ -76,6 +79,7 @@ Cualquier persona (sin cuenta) puede:
 ### UC-03: Registrar interés / Aplicar para adoptar
 
 Un usuario autenticado puede:
+
 - Marcar "Me interesa este animal"
 - Completar un formulario de pre-adopción
 - Chatear con la organización (canal enmascarado existente)
@@ -84,6 +88,7 @@ Un usuario autenticado puede:
 ### UC-04: Gestionar aplicaciones (organizaciones)
 
 La organización ve:
+
 - Lista de interesados por animal
 - Estado de cada proceso
 - Historial de adopciones realizadas
@@ -92,6 +97,7 @@ La organización ve:
 ### UC-05: Feria de adopción (evento)
 
 Crear un evento temporal con:
+
 - Fecha, hora, lugar (con coordenadas GPS)
 - Lista de animales que estarán presentes
 - Notificación geofenceada a usuarios en la zona
@@ -101,6 +107,7 @@ Crear un evento temporal con:
 ### UC-06: Seguimiento post-adopción
 
 Opcional (fase 2):
+
 - El adoptante puede registrar actualizaciones del animal
 - La organización puede hacer un check-in a los 30, 90, 365 días
 - Genera datos de éxito para el módulo de incentivos
@@ -109,12 +116,12 @@ Opcional (fase 2):
 
 ## 3. Roles y actores
 
-| Actor | Rol en el sistema | Capacidades de adopción |
-|-------|------------------|------------------------|
-| **Visitante anónimo** | — | Ver perfil de animales, ver mapa, buscar |
-| **Usuario registrado** (Explorador) | Owner | Marcar interés, chatear, aplicar para adoptar |
-| **Aliado verificado** (Shelter) | Ally | Publicar animales, gestionar aplicaciones, crear ferias |
-| **Admin** | Admin | Moderar contenido, estadísticas globales, destacar campañas |
+| Actor                               | Rol en el sistema | Capacidades de adopción                                     |
+| ----------------------------------- | ----------------- | ----------------------------------------------------------- |
+| **Visitante anónimo**               | —                 | Ver perfil de animales, ver mapa, buscar                    |
+| **Usuario registrado** (Explorador) | Owner             | Marcar interés, chatear, aplicar para adoptar               |
+| **Aliado verificado** (Shelter)     | Ally              | Publicar animales, gestionar aplicaciones, crear ferias     |
+| **Admin**                           | Admin             | Moderar contenido, estadísticas globales, destacar campañas |
 
 > **Nota clave:** Los **Aliados verificados** ya existen con `AllyType.Shelter`. El módulo de adopciones se construye sobre este rol existente. No requiere un rol nuevo.
 
@@ -124,34 +131,34 @@ Opcional (fase 2):
 
 ### 4.1 Backend — 100% reutilizable
 
-| Componente | Archivo existente | Cómo se reutiliza |
-|------------|------------------|-------------------|
-| `IImageProcessor` | `Infrastructure/AI/ImageSharpProcessor.cs` | Resize de fotos de animales |
-| `IBlobStorageService` | `Infrastructure/Storage/BlobStorageService.cs` | Almacenar fotos en `adoption-photos` container |
-| `BlobHelper.SanitizeFileName` | `Application/Common/BlobHelper.cs` | Sanear nombres de archivos |
-| `INotificationDispatcher` | `Application/Common/Interfaces/` | Nuevos métodos para alertas de adopción |
-| `NotificationType` | `Domain/Notifications/NotificationType.cs` | Añadir `AdoptionInterest`, `AdoptionApproved`, `AdoptionFair` |
-| `IUserLocationRepository` | Existing | Alertas geofenceadas para ferias de adopción |
-| `IPiiScrubber` | Existing | Scrubbing de notas en chat de adopción |
-| `ChatMessage` | `Domain/Chat/ChatMessage.cs` | Chat entre adoptante y organización |
-| `PetSpecies` | `Domain/Pets/PetSpecies.cs` | Reusar enum de especies |
-| `GeoHelper.DistanceMetres` | Existing | Cálculo de distancia para alertas |
-| `RateLimiter policies` | `API/Program.cs` | Reusar `public-api` policy |
-| `Result<T>` | `Domain/Common/` | Patrón de errores |
-| `FluentValidation pipeline` | Existing | Validación de comandos |
+| Componente                    | Archivo existente                              | Cómo se reutiliza                                             |
+| ----------------------------- | ---------------------------------------------- | ------------------------------------------------------------- |
+| `IImageProcessor`             | `Infrastructure/AI/ImageSharpProcessor.cs`     | Resize de fotos de animales                                   |
+| `IBlobStorageService`         | `Infrastructure/Storage/BlobStorageService.cs` | Almacenar fotos en `adoption-photos` container                |
+| `BlobHelper.SanitizeFileName` | `Application/Common/BlobHelper.cs`             | Sanear nombres de archivos                                    |
+| `INotificationDispatcher`     | `Application/Common/Interfaces/`               | Nuevos métodos para alertas de adopción                       |
+| `NotificationType`            | `Domain/Notifications/NotificationType.cs`     | Añadir `AdoptionInterest`, `AdoptionApproved`, `AdoptionFair` |
+| `IUserLocationRepository`     | Existing                                       | Alertas geofenceadas para ferias de adopción                  |
+| `IPiiScrubber`                | Existing                                       | Scrubbing de notas en chat de adopción                        |
+| `ChatMessage`                 | `Domain/Chat/ChatMessage.cs`                   | Chat entre adoptante y organización                           |
+| `PetSpecies`                  | `Domain/Pets/PetSpecies.cs`                    | Reusar enum de especies                                       |
+| `GeoHelper.DistanceMetres`    | Existing                                       | Cálculo de distancia para alertas                             |
+| `RateLimiter policies`        | `API/Program.cs`                               | Reusar `public-api` policy                                    |
+| `Result<T>`                   | `Domain/Common/`                               | Patrón de errores                                             |
+| `FluentValidation pipeline`   | Existing                                       | Validación de comandos                                        |
 
 ### 4.2 Frontend — 100% reutilizable
 
-| Componente | Archivo | Reutilización |
-|-----------|---------|--------------|
-| `MapContainer` | `features/map/components/MapContainer.tsx` | Añadir prop `adoptions` para pins |
-| `BillboardBanner` | `features/advertising/components/BillboardBanner.tsx` | Placement `Adoption` futuro |
-| `StoreDetailSheet` | `features/stores/components/StoreDetailSheet.tsx` | Patrón para `AnimalDetailSheet` |
-| `CartDrawer` pattern | Stores feature | Patrón de drawer lateral |
-| `Modal` | `shared/ui/Modal.tsx` | Confirmaciones y formularios |
-| `useBillboards` pattern | Advertising | Patrón para `useAdoptionCampaigns` |
-| `usePublicStores` pattern | Stores | Patrón para `useAdoptablePets` |
-| `useMyOrders` pattern | Stores | Patrón para `useMyAdoptionApplications` |
+| Componente                | Archivo                                               | Reutilización                           |
+| ------------------------- | ----------------------------------------------------- | --------------------------------------- |
+| `MapContainer`            | `features/map/components/MapContainer.tsx`            | Añadir prop `adoptions` para pins       |
+| `BillboardBanner`         | `features/advertising/components/BillboardBanner.tsx` | Placement `Adoption` futuro             |
+| `StoreDetailSheet`        | `features/stores/components/StoreDetailSheet.tsx`     | Patrón para `AnimalDetailSheet`         |
+| `CartDrawer` pattern      | Stores feature                                        | Patrón de drawer lateral                |
+| `Modal`                   | `shared/ui/Modal.tsx`                                 | Confirmaciones y formularios            |
+| `useBillboards` pattern   | Advertising                                           | Patrón para `useAdoptionCampaigns`      |
+| `usePublicStores` pattern | Stores                                                | Patrón para `useAdoptablePets`          |
+| `useMyOrders` pattern     | Stores                                                | Patrón para `useMyAdoptionApplications` |
 
 ---
 
@@ -733,8 +740,18 @@ frontend/src/features/adoptions/
 
 export type PetSize = "XSmall" | "Small" | "Medium" | "Large" | "XLarge";
 export type AgeCategory = "Puppy" | "Young" | "Adult" | "Senior";
-export type AdoptionStatus = "Available" | "InProcess" | "Adopted" | "Paused" | "Removed";
-export type ApplicationStatus = "Pending" | "Reviewing" | "Approved" | "Rejected" | "Withdrawn";
+export type AdoptionStatus =
+  | "Available"
+  | "InProcess"
+  | "Adopted"
+  | "Paused"
+  | "Removed";
+export type ApplicationStatus =
+  | "Pending"
+  | "Reviewing"
+  | "Approved"
+  | "Rejected"
+  | "Withdrawn";
 export type FairStatus = "Upcoming" | "Active" | "Ended" | "Cancelled";
 
 export interface AdoptablePetDto {
@@ -791,7 +808,9 @@ const adoptionIcon = divIcon({
     display:flex;align-items:center;justify-content:center;
     font-size:15px;box-shadow:0 1px 4px rgba(0,0,0,.3);
   ">🐾</div>`,
-  iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -17],
+  iconSize: [30, 30],
+  iconAnchor: [15, 15],
+  popupAnchor: [0, -17],
 });
 ```
 
@@ -914,23 +933,23 @@ Envíame una foto para subir la imagen principal."
 
 ### 13.1 Tiers de acceso para organizaciones
 
-| Feature | Aliado (gratis) | Ally+ (futuro) |
-|---------|:--------------:|:--------------:|
-| Publicar animales | Hasta 10 | Ilimitado |
-| Fotos por animal | 3 | 5 |
-| Crear ferias | 1 activa | Ilimitadas |
-| Estadísticas de adopción | Básicas | Avanzadas |
-| Posición prioritaria en mapa | ❌ | ✅ |
-| Badge "Organización verificada" | ✅ | ✅ + Featured |
-| Notificaciones geofenceadas de feria | ✅ | ✅ + radio ampliado |
+| Feature                              | Aliado (gratis) |   Ally+ (futuro)    |
+| ------------------------------------ | :-------------: | :-----------------: |
+| Publicar animales                    |    Hasta 10     |      Ilimitado      |
+| Fotos por animal                     |        3        |          5          |
+| Crear ferias                         |    1 activa     |     Ilimitadas      |
+| Estadísticas de adopción             |     Básicas     |      Avanzadas      |
+| Posición prioritaria en mapa         |       ❌        |         ✅          |
+| Badge "Organización verificada"      |       ✅        |    ✅ + Featured    |
+| Notificaciones geofenceadas de feria |       ✅        | ✅ + radio ampliado |
 
 ### 13.2 Nuevas líneas de ingreso
 
-| Línea | Modelo | Estimado |
-|-------|--------|---------|
-| Billboard placement `Adoption` (nuevo) | Tarifa fija/semana | ₡15,000-30,000 |
-| Plan Ally+ con features premium | Suscripción mensual | ₡8,000-15,000/mes |
-| Feria destacada en mapa | One-time | ₡10,000/evento |
+| Línea                                  | Modelo              | Estimado          |
+| -------------------------------------- | ------------------- | ----------------- |
+| Billboard placement `Adoption` (nuevo) | Tarifa fija/semana  | ₡15,000-30,000    |
+| Plan Ally+ con features premium        | Suscripción mensual | ₡8,000-15,000/mes |
+| Feria destacada en mapa                | One-time            | ₡10,000/evento    |
 
 ### 13.3 Plan `AdoptionCampaign` — nuevo tier de suscripción
 
@@ -953,11 +972,13 @@ dotnet ef migrations add AddAdoptions \
 ```
 
 **Tablas que se crean:**
+
 - `AdoptablePets` — animales en adopción
 - `AdoptionApplications` — solicitudes de adopción
 - `AdoptionFairs` — ferias y eventos de adopción
 
 **Nuevo contenedor Blob Storage:**
+
 - `adoption-photos` — privado (acceso vía URL firmada o URL directa en producción)
 
 ---
@@ -1011,6 +1032,7 @@ PawTrack.IntegrationTests/
 ### Sprint 1 — Fundamentos (Semana 1-2)
 
 **Backend:**
+
 - [ ] Domain: `AdoptablePet`, `AdoptionApplication`, `AdoptionFair`
 - [ ] Migración EF Core `AddAdoptions`
 - [ ] `IAdoptionRepository` + implementación
@@ -1020,6 +1042,7 @@ PawTrack.IntegrationTests/
 - [ ] `AdoptionsController` con endpoints públicos y de organización
 
 **Frontend:**
+
 - [ ] `adoptionsApi.ts` con todos los métodos
 - [ ] `useAdoptions.ts`, `useAdoptionApplications.ts`
 - [ ] `AdoptionsPage.tsx` con grid básica
@@ -1028,6 +1051,7 @@ PawTrack.IntegrationTests/
 ### Sprint 2 — Mapa y notificaciones (Semana 3-4)
 
 **Backend:**
+
 - [ ] `GetAdoptionsMapQuery` con bbox filtering
 - [ ] Nuevos tipos en `NotificationType`
 - [ ] `DispatchAdoptionInterestAsync` en NotificationDispatcher
@@ -1035,6 +1059,7 @@ PawTrack.IntegrationTests/
 - [ ] `ReviewAdoptionApplicationCommand`
 
 **Frontend:**
+
 - [ ] `AnimalMapMarker.tsx`
 - [ ] Capa "Adopciones" en `PublicMapPage` (toggle 🐾)
 - [ ] `AnimalDetailSheet.tsx` con formulario integrado
@@ -1043,12 +1068,14 @@ PawTrack.IntegrationTests/
 ### Sprint 3 — Ferias y organización (Semana 5-6)
 
 **Backend:**
+
 - [ ] `AdoptionFair` CRUD completo
 - [ ] Job de notificaciones geofenceadas para ferias
 - [ ] `GetUpcomingFairs` query
 - [ ] Estadísticas básicas para organizaciones
 
 **Frontend:**
+
 - [ ] `FairMapMarker.tsx`
 - [ ] `AdoptionFairCard.tsx` con countdown
 - [ ] `OrgAdoptionsPage.tsx` — panel de gestión
@@ -1146,7 +1173,7 @@ Notificación: Aprobado / Necesita más info
 
 ## Notas finales de arquitectura
 
-- **Sin entidad `AdoptablePet` en el `PetRepository`** — los animales en adopción son entidades independientes del módulo `Pets`. Un animal adoptado puede *luego* ser registrado por el adoptante como `Pet` normal si quiere QR, pero no es obligatorio.
+- **Sin entidad `AdoptablePet` en el `PetRepository`** — los animales en adopción son entidades independientes del módulo `Pets`. Un animal adoptado puede _luego_ ser registrado por el adoptante como `Pet` normal si quiere QR, pero no es obligatorio.
 - **Chat reutilizado directamente** — `ChatThread.Open()` acepta `(lostPetEventId, initiatorUserId)`. Para adopciones, se puede crear un `ChatThread` con `adoptionApplicationId` como contexto (o extender `ChatThread` con un campo `ContextType`).
 - **Fotos en Blob Storage** — contenedor `adoption-photos`, mismo patrón que `pet-photos`. El blob se borra cuando el animal es marcado como `Removed`.
 - **Privacidad de la organización** — igual que con el chat de pérdida, la dirección exacta del refugio no se expone. Solo se muestra el cantón/barrio.
@@ -1154,4 +1181,4 @@ Notificación: Aprobado / Necesita más info
 
 ---
 
-*PawTrack CR — Módulo de Adopciones v1.0 · 2026-08-20*
+_PawTrack CR — Módulo de Adopciones v1.0 · 2026-08-20_

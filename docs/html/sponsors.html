@@ -1,999 +1,450 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PawTrack CR — Sponsorship</title>
-    <style>
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      html {
-        scroll-behavior: smooth;
-        font-size: 16px;
-      }
-      body {
-        font-family:
-          "Segoe UI",
-          system-ui,
-          -apple-system,
-          sans-serif;
-        background: #f5f1eb;
-        color: #1a1a1a;
-        line-height: 1.6;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PawTrack CR — Ronda de Inversión Ángel</title>
+  <style>
+    :root {
+      --brand: #e8521e;
+      --brand2: #f97316;
+      --dark: #0c1a4e;
+      --green: #17a26d;
+      --purple: #7c3aed;
+      --gold: #f0b800;
+      --text: #1e293b;
+      --muted: #64748b;
+      --surface: #ffffff;
+      --bg: #f8fafc;
+      --border: #e2e8f0;
+    }
 
-      :root {
-        --brand: #1a3484;
-        --accent: #e8521e;
-        --sand: #f5f1eb;
-        --warm: #faf7f2;
-        --muted: #6b6057;
-        --border: #e5dfd7;
-        --gold: #d4af37;
-        --silver: #a0aec0;
-        --bronze: #cd7f32;
-        --green: #14532d;
-        --green-l: #dcfce7;
-      }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: "Segoe UI", system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
 
-      .container {
-        max-width: 960px;
-        margin: 0 auto;
-        padding: 0 1.5rem;
-      }
+    /* Hero */
+    .hero { background: linear-gradient(135deg, var(--dark) 0%, #1e3a8a 50%, #1e1b4b 100%); color: white; text-align: center; padding: 80px 24px 60px; position: relative; overflow: hidden; }
+    .hero::before { content: ""; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E"); }
+    .hero-badge { display: inline-block; background: rgba(248,113,22,.2); border: 1px solid rgba(248,113,22,.5); color: #fdba74; font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 6px 18px; border-radius: 100px; margin-bottom: 28px; }
+    .hero h1 { font-size: clamp(32px,6vw,60px); font-weight: 800; line-height: 1.1; margin-bottom: 20px; letter-spacing: -1px; }
+    .hero h1 span { background: linear-gradient(90deg,#f97316,#f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-sub { font-size: 20px; color: #94a3b8; max-width: 620px; margin: 0 auto 40px; }
 
-      /* ── Hero ── */
-      .hero {
-        background: linear-gradient(
-          135deg,
-          var(--brand) 0%,
-          #0f2057 60%,
-          #1a1a2e 100%
-        );
-        color: #fff;
-        padding: 5rem 1.5rem 4rem;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-      }
-      .hero::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background:
-          radial-gradient(
-            circle at 80% 20%,
-            rgba(232, 82, 30, 0.2) 0%,
-            transparent 55%
-          ),
-          radial-gradient(
-            circle at 20% 80%,
-            rgba(74, 222, 128, 0.08) 0%,
-            transparent 50%
-          );
-      }
-      .hero-paw {
-        font-size: 4rem;
-        display: block;
-        margin-bottom: 1rem;
-        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
-      }
-      .hero-tag {
-        display: inline-block;
-        background: rgba(232, 82, 30, 0.9);
-        color: #fff;
-        font-size: 0.7rem;
-        font-weight: 700;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        padding: 0.3rem 0.9rem;
-        border-radius: 100px;
-        margin-bottom: 1rem;
-      }
-      .hero h1 {
-        font-size: clamp(2rem, 5vw, 3.5rem);
-        font-weight: 900;
-        line-height: 1.1;
-        max-width: 700px;
-        margin: 0 auto 0.75rem;
-      }
-      .hero h1 span {
-        color: #f97316;
-      }
-      .hero p {
-        font-size: 1.15rem;
-        opacity: 0.85;
-        max-width: 560px;
-        margin: 0 auto 2.5rem;
-      }
-      .hero-cta {
-        display: inline-block;
-        background: var(--accent);
-        color: #fff;
-        font-weight: 700;
-        font-size: 1rem;
-        padding: 0.875rem 2.5rem;
-        border-radius: 100px;
-        text-decoration: none;
-        box-shadow: 0 4px 20px rgba(232, 82, 30, 0.4);
-        transition:
-          transform 0.15s,
-          box-shadow 0.15s;
-      }
-      .hero-cta:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 32px rgba(232, 82, 30, 0.5);
-      }
+    /* Cupos */
+    .cupos-row { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 40px; }
+    .cupo { width: 72px; height: 72px; border-radius: 50%; border: 3px solid #f97316; display: flex; align-items: center; justify-content: center; font-size: 28px; background: rgba(249,115,22,.15); animation: pulse-ring 2s ease-in-out infinite; }
+    .cupo:nth-child(2){animation-delay:.4s} .cupo:nth-child(3){animation-delay:.8s} .cupo:nth-child(4){animation-delay:1.2s} .cupo:nth-child(5){animation-delay:1.6s}
+    @keyframes pulse-ring { 0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(249,115,22,.4)} 50%{transform:scale(1.05);box-shadow:0 0 0 10px rgba(249,115,22,0)} }
+    .cupos-label { color: #94a3b8; font-size: 14px; margin-bottom: 40px; }
+    .cta-hero { display: inline-block; background: linear-gradient(135deg,#f97316,#e8521e); color: white; font-size: 18px; font-weight: 700; padding: 16px 40px; border-radius: 100px; text-decoration: none; box-shadow: 0 8px 32px rgba(233,82,30,.4); transition: transform .2s, box-shadow .2s; }
+    .cta-hero:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(233,82,30,.55); }
+    .quote-hero { margin-top: 40px; font-size: 16px; color: #94a3b8; font-style: italic; }
 
-      /* ── Stats ── */
-      .stats-bar {
-        background: var(--brand);
-        padding: 1.5rem;
-      }
-      .stats-bar .container {
-        display: flex;
-        justify-content: center;
-        gap: 3rem;
-        flex-wrap: wrap;
-      }
-      .stat {
-        text-align: center;
-        color: #fff;
-      }
-      .stat-n {
-        font-size: 1.75rem;
-        font-weight: 900;
-        color: #f97316;
-      }
-      .stat-l {
-        font-size: 0.72rem;
-        opacity: 0.7;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        margin-top: 0.1rem;
-      }
+    /* Layout */
+    .container { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+    .section { padding: 80px 0; }
+    .section-label { font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--brand); margin-bottom: 12px; }
+    .section-title { font-size: clamp(26px,4vw,40px); font-weight: 800; color: var(--dark); margin-bottom: 16px; letter-spacing: -.5px; }
+    .section-sub { font-size: 18px; color: var(--muted); max-width: 640px; margin-bottom: 48px; }
 
-      /* ── Section ── */
-      section {
-        padding: 4.5rem 0;
-      }
-      .section-tag {
-        font-size: 0.7rem;
-        font-weight: 700;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        color: var(--accent);
-        margin-bottom: 0.5rem;
-      }
-      h2 {
-        font-size: clamp(1.5rem, 3vw, 2.25rem);
-        font-weight: 900;
-        color: var(--brand);
-        line-height: 1.2;
-        margin-bottom: 1rem;
-      }
-      .lead {
-        font-size: 1.05rem;
-        color: var(--muted);
-        max-width: 580px;
-        margin-bottom: 2rem;
-      }
+    /* Problem */
+    .problem-bg { background: var(--dark); color: white; }
+    .problem-bg .section-title { color: white; }
+    .problem-bg .section-label { color: #fdba74; }
+    .stat-big { font-size: clamp(48px,8vw,80px); font-weight: 900; background: linear-gradient(90deg,#f97316,#f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; display: block; }
+    .stat-label { font-size: 16px; color: #94a3b8; margin-top: 8px; }
+    .problem-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 20px; margin-top: 48px; }
+    .problem-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 28px; }
+    .problem-icon { font-size: 32px; margin-bottom: 12px; display: block; }
+    .problem-card h3 { color: white; font-size: 18px; margin-bottom: 8px; }
+    .problem-card p { color: #94a3b8; font-size: 15px; }
 
-      /* ── Why grid ── */
-      .why-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1.25rem;
-        margin-top: 2rem;
-      }
-      .why-card {
-        background: var(--warm);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 1.5rem;
-      }
-      .why-card .icon {
-        font-size: 2rem;
-        margin-bottom: 0.75rem;
-      }
-      .why-card h3 {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: var(--brand);
-        margin-bottom: 0.35rem;
-      }
-      .why-card p {
-        font-size: 0.82rem;
-        color: var(--muted);
-      }
+    /* Done grid */
+    .done-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 14px; margin-bottom: 48px; }
+    .done-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; display: flex; align-items: flex-start; gap: 14px; transition: transform .15s, box-shadow .15s; }
+    .done-item:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,.08); }
+    .done-item.new { border-color: rgba(16,185,129,.3); background: linear-gradient(135deg,#f0fdf4,#ecfdf5); }
+    .done-item.planned { border-color: rgba(124,58,237,.3); background: linear-gradient(135deg,#faf5ff,#f3e8ff); }
+    .done-check { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+    .done-text { font-size: 14px; font-weight: 500; color: var(--text); }
+    .done-text small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 2px; }
 
-      /* ── Packages ── */
-      .packages {
-        background: var(--brand);
-        padding: 4.5rem 1.5rem;
-      }
-      .packages h2 {
-        color: #fff;
-      }
-      .packages .lead {
-        color: rgba(255, 255, 255, 0.7);
-      }
-      .plans-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-        gap: 1.25rem;
-        margin-top: 2rem;
-      }
-      .plan {
-        background: rgba(255, 255, 255, 0.07);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 20px;
-        padding: 1.75rem 1.5rem;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        cursor: pointer;
-        transition:
-          transform 0.18s,
-          background 0.18s;
-      }
-      .plan:hover {
-        transform: translateY(-4px);
-        background: rgba(255, 255, 255, 0.12);
-      }
-      .plan.featured {
-        background: rgba(232, 82, 30, 0.18);
-        border-color: var(--accent);
-      }
-      .plan-badge {
-        position: absolute;
-        top: -14px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: var(--accent);
-        color: #fff;
-        font-size: 0.65rem;
-        font-weight: 800;
-        padding: 0.25rem 0.8rem;
-        border-radius: 100px;
-        white-space: nowrap;
-        letter-spacing: 0.06em;
-      }
-      .plan-medal {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-      }
-      .plan-name {
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        opacity: 0.6;
-        color: #fff;
-      }
-      .plan-price {
-        font-size: 1.75rem;
-        font-weight: 900;
-        color: #fff;
-        margin: 0.25rem 0;
-      }
-      .plan-price span {
-        font-size: 0.85rem;
-        font-weight: 400;
-        opacity: 0.6;
-      }
-      .plan-desc {
-        font-size: 0.8rem;
-        color: rgba(255, 255, 255, 0.7);
-        margin: 0.5rem 0 1rem;
-        flex: 1;
-      }
-      .plan-features {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-      }
-      .plan-features li {
-        font-size: 0.78rem;
-        color: rgba(255, 255, 255, 0.8);
-        padding: 0.3rem 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-        display: flex;
-        gap: 0.4rem;
-        align-items: flex-start;
-      }
-      .plan-features li:last-child {
-        border: none;
-      }
-      .check-icon {
-        color: #4ade80;
-        flex-shrink: 0;
-      }
-      .plan-cta {
-        margin-top: 1.25rem;
-        display: block;
-        text-align: center;
-        background: rgba(255, 255, 255, 0.15);
-        color: #fff;
-        font-size: 0.82rem;
-        font-weight: 700;
-        padding: 0.625rem;
-        border-radius: 12px;
-        text-decoration: none;
-        transition: background 0.15s;
-      }
-      .plan.featured .plan-cta {
-        background: var(--accent);
-      }
-      .plan-cta:hover {
-        background: rgba(255, 255, 255, 0.25);
-      }
-      .plan.featured .plan-cta:hover {
-        background: #c2410c;
-      }
+    /* Numbers */
+    .numbers-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 20px; }
+    .number-card { text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px 16px; position: relative; overflow: hidden; }
+    .number-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg,var(--brand),var(--brand2)); }
+    .number-value { font-size: clamp(28px,4vw,40px); font-weight: 900; color: var(--dark); display: block; letter-spacing: -1px; }
+    .number-name { font-size: 13px; color: var(--muted); margin-top: 6px; }
 
-      /* ── Audience ── */
-      .audience-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-top: 2rem;
-      }
-      .aud-card {
-        background: var(--warm);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 1.25rem;
-        text-align: center;
-      }
-      .aud-card .icon {
-        font-size: 2.5rem;
-        margin-bottom: 0.6rem;
-      }
-      .aud-card h3 {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: var(--brand);
-        margin-bottom: 0.25rem;
-      }
-      .aud-card p {
-        font-size: 0.78rem;
-        color: var(--muted);
-      }
+    /* Revenue */
+    .revenue-list { display: flex; flex-direction: column; gap: 12px; }
+    .revenue-row { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; transition: border-color .15s; }
+    .revenue-row:hover { border-color: var(--brand); }
+    .revenue-num { width: 32px; height: 32px; background: linear-gradient(135deg,var(--brand),var(--brand2)); color: white; border-radius: 50%; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .revenue-name { font-weight: 600; font-size: 15px; }
+    .revenue-name span { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
+    .revenue-price { font-weight: 700; color: var(--green); font-size: 14px; white-space: nowrap; }
 
-      /* ── Modules ── */
-      .modules-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 0.75rem;
-        margin-top: 1.5rem;
-      }
-      .mod-chip {
-        background: var(--warm);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 0.6rem 1rem;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--brand);
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-      }
-      .mod-chip .dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: #4ade80;
-        flex-shrink: 0;
-      }
+    /* Funds */
+    .funds-bg { background: linear-gradient(135deg,#f0fdf4,#ecfdf5); border-radius: 24px; padding: 48px; border: 1px solid rgba(16,185,129,.2); }
+    .funds-total { font-size: 56px; font-weight: 900; color: var(--green); letter-spacing: -2px; margin-bottom: 8px; }
+    .funds-table { width: 100%; border-collapse: collapse; margin-top: 32px; }
+    .funds-table th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding: 8px 12px; border-bottom: 2px solid var(--border); }
+    .funds-table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 15px; }
+    .funds-table tr:last-child td { font-weight: 700; background: rgba(16,185,129,.07); }
 
-      /* ── FAQ ── */
-      .faq-item {
-        border-bottom: 1px solid var(--border);
-      }
-      .faq-q {
-        width: 100%;
-        background: none;
-        border: none;
-        text-align: left;
-        padding: 1rem 0;
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: var(--brand);
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .faq-a {
-        font-size: 0.85rem;
-        color: var(--muted);
-        padding: 0 0 1rem;
-        display: none;
-      }
-      .faq-a.open {
-        display: block;
-      }
-      .faq-icon {
-        font-size: 1.2rem;
-        transition: transform 0.2s;
-        flex-shrink: 0;
-      }
-      .faq-item.open .faq-icon {
-        transform: rotate(45deg);
-      }
+    /* Projection */
+    .projection-bars { display: flex; flex-direction: column; gap: 16px; }
+    .proj-row { display: flex; align-items: center; gap: 16px; }
+    .proj-label { min-width: 80px; font-size: 14px; font-weight: 600; color: var(--muted); }
+    .proj-bar-wrap { flex: 1; background: var(--border); border-radius: 100px; height: 36px; overflow: hidden; }
+    .proj-bar { height: 100%; border-radius: 100px; background: linear-gradient(90deg,var(--green),#10b981); transition: width 1.5s cubic-bezier(.4,0,.2,1); display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; }
+    .proj-bar span { color: white; font-size: 12px; font-weight: 700; white-space: nowrap; }
 
-      /* ── CTA final ── */
-      .cta-section {
-        background: linear-gradient(135deg, var(--accent) 0%, #c2410c 100%);
-        color: #fff;
-        padding: 4rem 1.5rem;
-        text-align: center;
-      }
-      .cta-section h2 {
-        color: #fff;
-        font-size: clamp(1.5rem, 3vw, 2.25rem);
-      }
-      .cta-section p {
-        opacity: 0.85;
-        margin: 0.75rem auto 2rem;
-        max-width: 500px;
-      }
-      .btn-white {
-        display: inline-block;
-        background: #fff;
-        color: var(--accent);
-        font-weight: 700;
-        font-size: 1rem;
-        padding: 0.875rem 2.5rem;
-        border-radius: 100px;
-        text-decoration: none;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-      }
-      .btn-white:hover {
-        background: #fef3c7;
-      }
-      .contact-row {
-        margin-top: 2rem;
-        display: flex;
-        justify-content: center;
-        gap: 2rem;
-        flex-wrap: wrap;
-      }
-      .contact-item {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 0.9rem;
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-      }
+    /* Tech */
+    .tech-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 16px; }
+    .tech-card { background: var(--dark); color: white; border-radius: 16px; padding: 24px; }
+    .tech-icon { font-size: 28px; margin-bottom: 10px; }
+    .tech-card h3 { font-size: 16px; margin-bottom: 6px; }
+    .tech-card p { font-size: 13px; color: #94a3b8; }
 
-      footer {
-        background: #111;
-        color: rgba(255, 255, 255, 0.4);
-        text-align: center;
-        padding: 2rem;
-        font-size: 0.78rem;
-      }
+    /* Matrix */
+    .matrix-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 16px; overflow: hidden; box-shadow: 0 1px 16px rgba(0,0,0,.06); }
+    .matrix-table th { padding: 16px 20px; font-size: 14px; font-weight: 700; background: var(--dark); color: white; }
+    .matrix-table th:nth-child(2) { background: var(--green); }
+    .matrix-table td { padding: 14px 20px; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .matrix-table tr:last-child td { border-bottom: none; }
+    .matrix-table td:nth-child(2) { font-weight: 700; color: var(--green); text-align: center; }
+    .matrix-table td:nth-child(3) { color: #ef4444; text-align: center; }
+    .matrix-table tr:hover td { background: #f8fafc; }
 
-      @media (max-width: 600px) {
-        .stats-bar .container {
-          gap: 1.5rem;
-        }
-        .hero {
-          padding: 3rem 1.25rem 2.5rem;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- ── HERO ── -->
-    <section class="hero">
-      <div class="container">
-        <span class="hero-paw">🐾</span>
-        <span class="hero-tag">Oportunidad de Sponsorship</span>
-        <h1>
-          Patrocina la plataforma que<br /><span>reúne mascotas</span> con sus
-          familias
-        </h1>
-        <p>
-          PawTrack CR es la primera red inteligente de recuperación de mascotas
-          perdidas en Costa Rica. Tu marca, donde más importa.
-        </p>
-        <a href="#packages" class="hero-cta">Ver paquetes de sponsorship →</a>
+    /* Benefits */
+    .benefits-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 20px; }
+    .benefit-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; position: relative; transition: transform .15s, box-shadow .15s; }
+    .benefit-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,.1); }
+    .benefit-num { position: absolute; top: -14px; left: 24px; width: 32px; height: 32px; background: linear-gradient(135deg,var(--brand),var(--brand2)); color: white; font-weight: 800; font-size: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(233,82,30,.3); }
+    .benefit-card h3 { font-size: 16px; margin-bottom: 8px; padding-top: 4px; }
+    .benefit-card p { font-size: 14px; color: var(--muted); }
+
+    /* Steps */
+    .steps-row { display: flex; gap: 0; align-items: flex-start; flex-wrap: wrap; }
+    .step { flex: 1; min-width: 160px; text-align: center; padding: 0 16px; position: relative; }
+    .step::after { content: "→"; position: absolute; right: -8px; top: 28px; font-size: 20px; color: var(--border); }
+    .step:last-child::after { display: none; }
+    .step-circle { width: 60px; height: 60px; background: linear-gradient(135deg,var(--dark),#1e3a8a); color: white; border-radius: 50%; font-size: 22px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; box-shadow: 0 4px 16px rgba(14,30,78,.25); }
+    .step h3 { font-size: 15px; margin-bottom: 4px; }
+    .step p { font-size: 13px; color: var(--muted); }
+
+    /* CTA section */
+    .cta-section { background: linear-gradient(135deg,var(--dark) 0%,#1e3a8a 100%); color: white; padding: 80px 24px; text-align: center; }
+    .cta-section h2 { font-size: clamp(28px,5vw,48px); font-weight: 800; margin-bottom: 16px; letter-spacing: -.5px; }
+    .cta-section p { font-size: 18px; color: #94a3b8; margin-bottom: 40px; }
+    .cta-secondary { display: inline-block; border: 2px solid rgba(255,255,255,.3); color: white; font-size: 16px; font-weight: 600; padding: 14px 32px; border-radius: 100px; text-decoration: none; transition: border-color .2s; margin: 0 8px; }
+    .cta-secondary:hover { border-color: white; }
+
+    .urgency { margin-top: 32px; display: inline-flex; align-items: center; gap: 10px; background: rgba(249,115,22,.15); border: 1px solid rgba(249,115,22,.4); border-radius: 100px; padding: 10px 24px; color: #fdba74; font-size: 14px; font-weight: 600; }
+    .dot-live { width: 10px; height: 10px; background: #f97316; border-radius: 50%; animation: blink 1.2s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    /* Footer */
+    footer { text-align: center; padding: 40px 24px; background: #f1f5f9; font-size: 14px; color: var(--muted); }
+    footer strong { color: var(--text); }
+    footer a { color: var(--brand); text-decoration: none; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+    /* Fade-in animation */
+    .fade-in { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+    .fade-in.visible { opacity: 1; transform: none; }
+
+    @media (max-width:600px) { .steps-row { flex-direction: column; gap: 24px; } .step::after { display: none; } .funds-bg { padding: 28px 20px; } }
+  </style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-badge">🚀 Ronda de Inversión Ángel · Agosto 2026</div>
+  <h1>PawTrack CR<br><span>5 Inversionistas · $1,000</span></h1>
+  <p class="hero-sub">La primera plataforma digital de Costa Rica para mascotas está <strong style="color:white">terminada</strong>. Solo necesitamos combustible para despegar.</p>
+  <div class="cupos-row">
+    <div class="cupo">🐾</div>
+    <div class="cupo">🐾</div>
+    <div class="cupo">🐾</div>
+    <div class="cupo">🐾</div>
+    <div class="cupo">🐾</div>
+  </div>
+  <p class="cupos-label">5 cupos disponibles · $1,000 USD cada uno · $5,000 total</p>
+  <a href="mailto:davila06@gmail.com?subject=Interés%20en%20invertir%20en%20PawTrack%20CR" class="cta-hero">Quiero ser inversionista ángel →</a>
+  <p class="quote-hero">"No buscamos capital para construir — el producto ya está terminado."</p>
+</section>
+
+<section class="section problem-bg">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-label">El problema</div>
+      <h2 class="section-title">14,000 mascotas perdidas cada año</h2>
+      <p class="hero-sub" style="color:#94a3b8">Costa Rica tiene ~800,000 hogares con mascotas. Ninguna plataforma digital local les da servicio real.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:32px;margin-bottom:48px" class="fade-in">
+      <div style="text-align:center"><span class="stat-big">14k</span><p class="stat-label">mascotas perdidas/año en CR</p></div>
+      <div style="text-align:center"><span class="stat-big">800k</span><p class="stat-label">hogares con mascotas</p></div>
+      <div style="text-align:center"><span class="stat-big">82</span><p class="stat-label">municipalidades (mercado B2G)</p></div>
+      <div style="text-align:center"><span class="stat-big">1,400</span><p class="stat-label">clínicas veterinarias activas</p></div>
+    </div>
+    <div class="problem-grid fade-in">
+      <div class="problem-card"><span class="problem-icon">📱</span><h3>Facebook no funciona</h3><p>Los posts desaparecen del feed. Sin estructura. Sin coordinación real.</p></div>
+      <div class="problem-card"><span class="problem-icon">🔒</span><h3>Sin privacidad segura</h3><p>El dueño expone su número de teléfono a desconocidos para recuperar a su mascota.</p></div>
+      <div class="problem-card"><span class="problem-icon">🏥</span><h3>Sin historial médico</h3><p>En emergencias veterinarias, el médico no tiene acceso al historial de la mascota.</p></div>
+      <div class="problem-card"><span class="problem-icon">🤝</span><h3>Sin red de adopciones</h3><p>Los refugios manejan sus adopciones por WhatsApp sin ninguna plataforma estructurada.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-label">El producto</div>
+      <h2 class="section-title">100% construido. Listo para producción.</h2>
+      <p class="section-sub">A diferencia de la mayoría de startups en etapa ángel, PawTrack CR no está en desarrollo. Está terminado.</p>
+    </div>
+    <div class="done-grid fade-in">
+      <div class="done-item"><span class="done-check">✅</span><div class="done-text">Identidad digital con QR<small>Perfil público, microchip, foto</small></div></div>
+      <div class="done-item"><span class="done-check">✅</span><div class="done-text">Mapa en tiempo real<small>GPS, avistamientos, pins</small></div></div>
+      <div class="done-item"><span class="done-check">✅</span><div class="done-text">IA visual (Azure Computer Vision)<small>Matching de fotos de mascotas</small></div></div>
+      <div class="done-item"><span class="done-check">✅</span><div class="done-text">Chat en tiempo real (SignalR)<small>Enmascarado, sin exponer datos</small></div></div>
+      <div class="done-item"><span class="done-check">✅</span><div class="done-text">Bot de WhatsApp conversacional<small>Reporte de pérdida por WhatsApp</small></div></div>
+      <div class="done-item"><span class="done-check">✅</span><div class="done-text">Difusión multicanal<small>WhatsApp + Telegram + Facebook + Email</small></div></div>
+      <div class="done-item"><span class="done-check">✅</span><div class="done-text">Expediente médico digital<small>7 tipos, PDF, recordatorios push</small></div></div>
+      <div class="done-item"><span class="done-check">✅</span><div class="done-text">Collar GPS integrado<small>Tractive OAuth2, hardware genérico</small></div></div>
+      <div class="done-item"><span class="done-check">✅</span><div class="done-text">Sistema de recompensas SINPE<small>Escrow automático, HandoverCode</small></div></div>
+      <div class="done-item"><span class="done-check">✅</span><div class="done-text">B2B Clínicas veterinarias<small>3 tiers, certificados PDF verificables</small></div></div>
+      <div class="done-item"><span class="done-check">✅</span><div class="done-text">B2G Municipalidades<small>Portal control animal, 3 tiers</small></div></div>
+      <div class="done-item new"><span class="done-check">🆕</span><div class="done-text">Tiendas de mascotas<small>Catálogo, pedidos in-app, SINPE</small></div></div>
+      <div class="done-item new"><span class="done-check">🆕</span><div class="done-text">Vallas publicitarias in-app<small>4 placements, CTA, prioridad</small></div></div>
+      <div class="done-item planned"><span class="done-check">📋</span><div class="done-text">Módulo Adopciones<small>Diseñado, listo para sprint</small></div></div>
+    </div>
+    <div class="numbers-grid fade-in">
+      <div class="number-card"><span class="number-value">916</span><div class="number-name">Tests automatizados — 0 fallos</div></div>
+      <div class="number-card"><span class="number-value">0</span><div class="number-name">Errores de compilación</div></div>
+      <div class="number-card"><span class="number-value">30+</span><div class="number-name">Módulos funcionales</div></div>
+      <div class="number-card"><span class="number-value">10+</span><div class="number-name">Rondas auditoría OWASP</div></div>
+      <div class="number-card"><span class="number-value">80k</span><div class="number-name">Líneas de código</div></div>
+      <div class="number-card"><span class="number-value">68%</span><div class="number-name">Tasa de recuperación</div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section class="section">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-label">Monetización</div>
+      <h2 class="section-title">9 fuentes de ingreso activas</h2>
+      <p class="section-sub">No dependemos de una sola fuente. Cada módulo genera ingresos independientes.</p>
+    </div>
+    <div class="revenue-list fade-in">
+      <div class="revenue-row"><div class="revenue-num">1</div><div><div class="revenue-name">Plan Plus — dueños de mascotas<span>GPS, IA ilimitada, radio 10km</span></div></div><div class="revenue-price">₡2,990/mes</div></div>
+      <div class="revenue-row"><div class="revenue-num">2</div><div><div class="revenue-name">Plan Familia — multi-mascota<span>Hasta 5 miembros, historial médico completo</span></div></div><div class="revenue-price">₡4,990/mes</div></div>
+      <div class="revenue-row"><div class="revenue-num">3</div><div><div class="revenue-name">Clínica Básica<span>Portal veterinario, escaneo QR/RFID</span></div></div><div class="revenue-price">₡15,000/mes</div></div>
+      <div class="revenue-row"><div class="revenue-num">4</div><div><div class="revenue-name">Clínica Plus<span>Expediente médico + alertas + estadísticas</span></div></div><div class="revenue-price">₡35,000/mes</div></div>
+      <div class="revenue-row"><div class="revenue-num">5</div><div><div class="revenue-name">Clínica Partner<span>API key, certificados PDF, mapa destacado</span></div></div><div class="revenue-price">₡60,000/mes</div></div>
+      <div class="revenue-row"><div class="revenue-num">6</div><div><div class="revenue-name">Tienda StorePlus<span>Pedidos in-app con SINPE</span></div></div><div class="revenue-price">₡12,000/mes</div></div>
+      <div class="revenue-row"><div class="revenue-num">7</div><div><div class="revenue-name">Municipalidades — 3 tiers<span>Portal control animal B2G</span></div></div><div class="revenue-price">₡150k–500k/año</div></div>
+      <div class="revenue-row"><div class="revenue-num">8</div><div><div class="revenue-name">Sistema de recompensas (Bounty)<span>Escrow SINPE automático</span></div></div><div class="revenue-price">Comisión 10%</div></div>
+      <div class="revenue-row"><div class="revenue-num">9</div><div><div class="revenue-name">Vallas publicitarias in-app<span>4 placements: mapa, dashboard, directorio, feed</span></div></div><div class="revenue-price">₡18k–65k/sem</div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section class="section">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-label">La inversión</div>
+      <h2 class="section-title">¿Para qué se usan los $5,000?</h2>
+      <p class="section-sub">100% infraestructura Azure para los primeros 6 meses. Nada de salarios ni gastos generales.</p>
+    </div>
+    <div class="funds-bg fade-in">
+      <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:8px">
+        <div class="funds-total">$5,000</div>
+        <div style="font-size:20px;color:var(--green);font-weight:700">USD total</div>
       </div>
-    </section>
-
-    <!-- ── STATS ── -->
-    <div class="stats-bar">
-      <div class="container">
-        <div class="stat">
-          <div class="stat-n">68%</div>
-          <div class="stat-l">Tasa de recuperación</div>
-        </div>
-        <div class="stat">
-          <div class="stat-n">&lt;72h</div>
-          <div class="stat-l">Tiempo promedio</div>
-        </div>
-        <div class="stat">
-          <div class="stat-n">800K</div>
-          <div class="stat-l">Hogares con mascotas en CR</div>
-        </div>
-        <div class="stat">
-          <div class="stat-n">26</div>
-          <div class="stat-l">Módulos funcionales</div>
-        </div>
-        <div class="stat">
-          <div class="stat-n">82</div>
-          <div class="stat-l">Municipalidades en CR</div>
-        </div>
+      <p style="color:var(--muted);font-size:16px">5 inversionistas × $1,000 = 6 meses de infraestructura Azure completa</p>
+      <table class="funds-table">
+        <thead><tr><th>Recurso Azure</th><th>$/mes est.</th><th>6 meses</th></tr></thead>
+        <tbody>
+          <tr><td>App Service (B3 Linux)</td><td>~$80</td><td>~$480</td></tr>
+          <tr><td>Azure SQL (Standard S2)</td><td>~$75</td><td>~$450</td></tr>
+          <tr><td>Blob Storage (LRS, 100GB)</td><td>~$5</td><td>~$30</td></tr>
+          <tr><td>Application Insights + Logs</td><td>~$15</td><td>~$90</td></tr>
+          <tr><td>Key Vault + Bandwidth</td><td>~$15</td><td>~$90</td></tr>
+          <tr><td><strong>Total infraestructura</strong></td><td><strong>~$190</strong></td><td><strong>~$1,140</strong></td></tr>
+          <tr><td>Remanente (dominio, marketing, contingencias)</td><td>—</td><td>~$3,860</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:24px;padding:20px;background:rgba(16,185,129,.1);border-radius:12px;border:1px solid rgba(16,185,129,.3)">
+        <strong style="color:var(--green);font-size:16px">Break-even operativo estimado: mes 4–5</strong>
+        <p style="font-size:14px;color:var(--muted);margin-top:4px">Con solo ~30 clientes activos de cualquier tier. Proyección conservadora: 200–500 usuarios los primeros 3 meses.</p>
       </div>
     </div>
+  </div>
+</section>
 
-    <!-- ── WHY ── -->
-    <section style="background: #fff">
-      <div class="container">
-        <div class="section-tag">¿Por qué PawTrack?</div>
-        <h2>Llega a dueños de mascotas<br />en su momento más emotivo</h2>
-        <p class="lead">
-          Cuando alguien abre PawTrack, está buscando desesperadamente a su
-          mejor amigo. Tu marca aparece en ese momento de máxima atención e
-          impacto emocional.
-        </p>
-        <div class="why-grid">
-          <div class="why-card">
-            <div class="icon">🎯</div>
-            <h3>Audiencia hiper-segmentada</h3>
-            <p>
-              100% dueños de mascotas activos en Costa Rica. Sin desperdicio de
-              alcance.
-            </p>
-          </div>
-          <div class="why-card">
-            <div class="icon">❤️</div>
-            <h3>Causa con propósito</h3>
-            <p>
-              Las mascotas generan el engagement más alto en redes. Tu logo se
-              asocia a reunificaciones reales.
-            </p>
-          </div>
-          <div class="why-card">
-            <div class="icon">📊</div>
-            <h3>Métricas transparentes</h3>
-            <p>
-              Reportes mensuales con impresiones reales, clics y reunificaciones
-              donde participó tu patrocinio.
-            </p>
-          </div>
-          <div class="why-card">
-            <div class="icon">🏆</div>
-            <h3>Plataforma enterprise</h3>
-            <p>
-              Stack moderno, 26 módulos, 832 pruebas automatizadas. Empresa
-              seria detrás del producto.
-            </p>
-          </div>
-          <div class="why-card">
-            <div class="icon">🇨🇷</div>
-            <h3>Costa Rica primero</h3>
-            <p>
-              Plataforma local, usuarios locales, colones costarricenses.
-              Arquitectura lista para expandir a Centroamérica.
-            </p>
-          </div>
-          <div class="why-card">
-            <div class="icon">📱</div>
-            <h3>PWA — sin barrera de instalación</h3>
-            <p>
-              Funciona en cualquier smartphone desde el navegador. Máxima
-              accesibilidad para los usuarios.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
+<section class="section" style="background:#f8fafc;padding:60px 0">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-label">Proyección</div>
+      <h2 class="section-title">Ingresos — 12 meses post-lanzamiento</h2>
+    </div>
+    <div class="projection-bars fade-in" style="max-width:720px">
+      <div class="proj-row"><div class="proj-label">Mes 1–2</div><div class="proj-bar-wrap"><div class="proj-bar" style="width:0%" data-width="10%"><span>₡150k–300k</span></div></div></div>
+      <div class="proj-row"><div class="proj-label">Mes 3–4</div><div class="proj-bar-wrap"><div class="proj-bar" style="width:0%" data-width="28%"><span>₡450k–750k</span></div></div></div>
+      <div class="proj-row"><div class="proj-label">Mes 5–6</div><div class="proj-bar-wrap"><div class="proj-bar" style="width:0%" data-width="52%"><span>₡900k–1.5M</span></div></div></div>
+      <div class="proj-row"><div class="proj-label">Mes 7–12</div><div class="proj-bar-wrap"><div class="proj-bar" style="width:0%" data-width="85%"><span>₡1.5M–3M+</span></div></div></div>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-top:16px">Supuestos conservadores. Mix B2C + B2B clínicas + tiendas StorePlus + publicidad in-app.</p>
+  </div>
+</section>
 
-    <!-- ── PACKAGES ── -->
-    <section class="packages" id="packages">
-      <div class="container">
-        <div class="section-tag" style="color: #f97316">Paquetes</div>
-        <h2>Elige tu nivel de patrocinio</h2>
-        <p class="lead">
-          Desde presencia de marca hasta co-marketing completo. Todos los
-          paquetes incluyen acceso a métricas reales.
-        </p>
-        <div class="plans-grid">
-          <div class="plan featured">
-            <div class="plan-badge">⭐ MÁS IMPACTO</div>
-            <div class="plan-medal">🥇</div>
-            <div class="plan-name">Principal</div>
-            <div class="plan-price">₡500,000 <span>/mes</span></div>
-            <p class="plan-desc">
-              Máxima visibilidad — logo en pantalla de inicio, alertas y mapa.
-            </p>
-            <ul class="plan-features">
-              <li>
-                <span class="check-icon">✓</span> Logo en pantalla de inicio
-                (todos los usuarios)
-              </li>
-              <li>
-                <span class="check-icon">✓</span> Banner permanente en dashboard
-              </li>
-              <li>
-                <span class="check-icon">✓</span> Logo en TODAS las alertas (WA,
-                email, Telegram)
-              </li>
-              <li><span class="check-icon">✓</span> Badge en mapa público</li>
-              <li>
-                <span class="check-icon">✓</span> Logo en perfil público de
-                mascotas
-              </li>
-              <li>
-                <span class="check-icon">✓</span> 5 licencias Clínica Partner
-                gratuitas
-              </li>
-              <li>
-                <span class="check-icon">✓</span> Reporte mensual detallado
-              </li>
-              <li>
-                <span class="check-icon">✓</span> 2 menciones/semana en redes
-              </li>
-              <li>
-                <span class="check-icon">✓</span> Co-marketing en nuevas
-                features
-              </li>
-            </ul>
-            <a href="#contact" class="plan-cta">Solicitar información</a>
-          </div>
-          <div class="plan">
-            <div class="plan-medal">🥈</div>
-            <div class="plan-name">Gold</div>
-            <div class="plan-price">₡250,000 <span>/mes</span></div>
-            <p class="plan-desc">
-              Alta visibilidad en dashboard y alertas por email.
-            </p>
-            <ul class="plan-features">
-              <li>
-                <span class="check-icon">✓</span> Logo en dashboard (sidebar)
-              </li>
-              <li>
-                <span class="check-icon">✓</span> Logo en alertas por email
-              </li>
-              <li><span class="check-icon">✓</span> Badge en mapa público</li>
-              <li>
-                <span class="check-icon">✓</span> 3 licencias Clínica Plus
-                gratuitas
-              </li>
-              <li><span class="check-icon">✓</span> Reporte mensual</li>
-              <li>
-                <span class="check-icon">✓</span> 1 mención/semana en redes
-              </li>
-            </ul>
-            <a href="#contact" class="plan-cta">Solicitar información</a>
-          </div>
-          <div class="plan">
-            <div class="plan-medal">🥉</div>
-            <div class="plan-name">Silver</div>
-            <div class="plan-price">₡100,000 <span>/mes</span></div>
-            <p class="plan-desc">
-              Presencia constante en la plataforma y newsletter.
-            </p>
-            <ul class="plan-features">
-              <li>
-                <span class="check-icon">✓</span> Logo en sección patrocinadores
-              </li>
-              <li>
-                <span class="check-icon">✓</span> Logo en newsletter mensual
-              </li>
-              <li>
-                <span class="check-icon">✓</span> 1 post de agradecimiento/mes
-              </li>
-              <li>
-                <span class="check-icon">✓</span> 10 cuentas Plus gratuitas
-              </li>
-            </ul>
-            <a href="#contact" class="plan-cta">Solicitar información</a>
-          </div>
-          <div class="plan">
-            <div class="plan-medal">🤝</div>
-            <div class="plan-name">Comunitario</div>
-            <div class="plan-price">₡30,000 <span>/mes</span></div>
-            <p class="plan-desc">
-              Visibilidad local y acceso a datos de tu zona.
-            </p>
-            <ul class="plan-features">
-              <li>
-                <span class="check-icon">✓</span> Mención en patrocinadores
-              </li>
-              <li><span class="check-icon">✓</span> Logo en sitio web</li>
-              <li>
-                <span class="check-icon">✓</span> Métricas de mascotas perdidas
-                en tu zona
-              </li>
-            </ul>
-            <a href="#contact" class="plan-cta">Solicitar información</a>
-          </div>
-          <div class="plan">
-            <div class="plan-medal">🏢</div>
-            <div class="plan-name">Institucional</div>
-            <div class="plan-price" style="font-size: 1.2rem">
-              Precio negociado
-            </div>
-            <p class="plan-desc">
-              Para municipalidades, ONGs y organizaciones de bienestar animal.
-            </p>
-            <ul class="plan-features">
-              <li>
-                <span class="check-icon">✓</span> Co-branding en portal
-                municipal
-              </li>
-              <li>
-                <span class="check-icon">✓</span> Municipalidad Full incluida
-              </li>
-              <li>
-                <span class="check-icon">✓</span> Integración de red de
-                rescatistas
-              </li>
-              <li>
-                <span class="check-icon">✓</span> Reporte trimestral cantonal
-              </li>
-            </ul>
-            <a href="#contact" class="plan-cta">Solicitar información</a>
-          </div>
-        </div>
-      </div>
-    </section>
+<hr class="divider">
 
-    <!-- ── AUDIENCE ── -->
-    <section style="background: #fff">
-      <div class="container">
-        <div class="section-tag">Audiencia</div>
-        <h2>
-          Tu marca frente a los usuarios<br />que más valoran las mascotas
-        </h2>
-        <div class="audience-grid">
-          <div class="aud-card">
-            <div class="icon">🏠</div>
-            <h3>Dueños de mascotas</h3>
-            <p>
-              Personas que invierten activamente en la salud y seguridad de sus
-              mascotas.
-            </p>
-          </div>
-          <div class="aud-card">
-            <div class="icon">🏥</div>
-            <h3>Clínicas veterinarias</h3>
-            <p>~1,400 clínicas en Costa Rica, muchas ya afiliadas a la red.</p>
-          </div>
-          <div class="aud-card">
-            <div class="icon">🤝</div>
-            <h3>Rescatistas y aliados</h3>
-            <p>
-              Organizaciones de bienestar animal con alta influencia
-              comunitaria.
-            </p>
-          </div>
-          <div class="aud-card">
-            <div class="icon">🏛️</div>
-            <h3>Municipalidades</h3>
-            <p>82 municipalidades como clientes potenciales B2G.</p>
-          </div>
-        </div>
-      </div>
-    </section>
+<section class="section">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-label">Solidez técnica</div>
+      <h2 class="section-title">Stack enterprise de verdad</h2>
+    </div>
+    <div class="tech-grid fade-in">
+      <div class="tech-card"><div class="tech-icon">⚙️</div><h3>.NET 9 + Clean Architecture</h3><p>CQRS (MediatR), EF Core, Azure SQL, FluentValidation en pipeline</p></div>
+      <div class="tech-card"><div class="tech-icon">⚛️</div><h3>React 19 + TypeScript strict</h3><p>PWA instalable, funciona offline, 0 errores TypeScript</p></div>
+      <div class="tech-card"><div class="tech-icon">⚡</div><h3>SignalR Real-time</h3><p>Chat en tiempo real, coordinación de búsqueda, estados de tipeo</p></div>
+      <div class="tech-card"><div class="tech-icon">🤖</div><h3>Azure Computer Vision 4.0</h3><p>Embeddings 1024D, matching visual de mascotas por foto</p></div>
+      <div class="tech-card"><div class="tech-icon">🔒</div><h3>Seguridad enterprise</h3><p>JWT + JTI SQL blocklist, bcrypt w12, BOLA protegido, OWASP Top 10</p></div>
+      <div class="tech-card"><div class="tech-icon">🧪</div><h3>916 tests — 0 fallos</h3><p>xUnit + NSubstitute + FluentAssertions, CI/CD GitHub Actions</p></div>
+    </div>
+  </div>
+</section>
 
-    <!-- ── MODULES ── -->
-    <section>
-      <div class="container">
-        <div class="section-tag">Producto</div>
-        <h2>26 módulos funcionales implementados</h2>
-        <p class="lead">
-          Una plataforma enterprise completa — no un MVP. Lista para producción.
-        </p>
-        <div class="modules-list">
-          <div class="mod-chip"><span class="dot"></span>Autenticación JWT</div>
-          <div class="mod-chip">
-            <span class="dot"></span>Registro de mascotas
-          </div>
-          <div class="mod-chip">
-            <span class="dot"></span>QR + microchip RFID
-          </div>
-          <div class="mod-chip">
-            <span class="dot"></span>Reporte de pérdida
-          </div>
-          <div class="mod-chip"><span class="dot"></span>Case Room en vivo</div>
-          <div class="mod-chip">
-            <span class="dot"></span>Avistamientos anónimos
-          </div>
-          <div class="mod-chip">
-            <span class="dot"></span>IA visual matching
-          </div>
-          <div class="mod-chip">
-            <span class="dot"></span>Difusión multicanal
-          </div>
-          <div class="mod-chip">
-            <span class="dot"></span>Coordinación de búsqueda
-          </div>
-          <div class="mod-chip"><span class="dot"></span>Chat enmascarado</div>
-          <div class="mod-chip">
-            <span class="dot"></span>Código de entrega segura
-          </div>
-          <div class="mod-chip"><span class="dot"></span>Bot de WhatsApp</div>
-          <div class="mod-chip">
-            <span class="dot"></span>Clínicas B2B (3 tiers)
-          </div>
-          <div class="mod-chip">
-            <span class="dot"></span>Expediente digital
-          </div>
-          <div class="mod-chip">
-            <span class="dot"></span>Municipalidades B2G
-          </div>
-          <div class="mod-chip">
-            <span class="dot"></span>GPS Collar (Tractive)
-          </div>
-          <div class="mod-chip">
-            <span class="dot"></span>Bundle GPS on-demand
-          </div>
-          <div class="mod-chip"><span class="dot"></span>Cuenta familiar</div>
-          <div class="mod-chip">
-            <span class="dot"></span>Historial médico PDF
-          </div>
-          <div class="mod-chip">
-            <span class="dot"></span>Subscription gating
-          </div>
-          <div class="mod-chip">
-            <span class="dot"></span>Push notifications
-          </div>
-          <div class="mod-chip">
-            <span class="dot"></span>Mapa público en vivo
-          </div>
-          <div class="mod-chip">
-            <span class="dot"></span>Estadísticas de recuperación
-          </div>
-          <div class="mod-chip">
-            <span class="dot"></span>Leaderboard + badges
-          </div>
-          <div class="mod-chip">
-            <span class="dot"></span>Recompensas (Bounty)
-          </div>
-          <div class="mod-chip">
-            <span class="dot"></span>Fosters voluntarios
-          </div>
-        </div>
-      </div>
-    </section>
+<section class="section" style="background:#f8fafc;padding:60px 0">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-label">Diferenciación</div>
+      <h2 class="section-title">Lo que nadie más tiene en Costa Rica</h2>
+    </div>
+    <table class="matrix-table fade-in">
+      <thead><tr><th>Capacidad</th><th>PawTrack CR ✅</th><th>Competencia global ❌</th></tr></thead>
+      <tbody>
+        <tr><td>Integración nativa con WhatsApp</td><td>✅</td><td>❌</td></tr>
+        <tr><td>Pago con SINPE Móvil</td><td>✅</td><td>❌</td></tr>
+        <tr><td>Portal para municipalidades</td><td>✅</td><td>❌</td></tr>
+        <tr><td>Red de aliados verificados</td><td>✅</td><td>❌</td></tr>
+        <tr><td>Coordinación en campo real-time</td><td>✅</td><td>❌</td></tr>
+        <tr><td>Expediente médico digital</td><td>✅</td><td>❌</td></tr>
+        <tr><td>Marketplace de tiendas mascotas</td><td>✅</td><td>❌</td></tr>
+        <tr><td>Sistema de adopciones integrado</td><td>📋 En diseño</td><td>❌</td></tr>
+        <tr><td>100% PWA — sin instalar nada</td><td>✅</td><td>Parcial</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 
-    <!-- ── FAQ ── -->
-    <section style="background: #fff">
-      <div class="container">
-        <div class="section-tag">FAQ</div>
-        <h2>Preguntas frecuentes</h2>
-        <div style="max-width: 700px; margin-top: 2rem">
-          <div class="faq-item">
-            <button class="faq-q" onclick="toggleFaq(this)">
-              ¿Cómo se mide el impacto de mi patrocinio?
-              <span class="faq-icon">+</span>
-            </button>
-            <div class="faq-a">
-              Recibirás un reporte mensual con: impresiones de tu logo, clics en
-              tu enlace, cantidad de alertas enviadas donde tu marca apareció, y
-              el número de reunificaciones durante el período. Todo con datos
-              reales de la plataforma.
-            </div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-q" onclick="toggleFaq(this)">
-              ¿Hay compromisos de mínimo de tiempo?
-              <span class="faq-icon">+</span>
-            </button>
-            <div class="faq-a">
-              Los paquetes Silver y Comunitario son mes a mes. Gold y Principal
-              requieren un compromiso mínimo de 3 meses para garantizar la
-              integración completa de la marca en la plataforma.
-            </div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-q" onclick="toggleFaq(this)">
-              ¿Puedo personalizar lo que incluye mi paquete?
-              <span class="faq-icon">+</span>
-            </button>
-            <div class="faq-a">
-              Sí. Los paquetes son un punto de partida. Estamos abiertos a
-              propuestas personalizadas, especialmente para empresas con
-              objetivos muy específicos (zona geográfica, especie de mascota,
-              canal de comunicación, etc.).
-            </div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-q" onclick="toggleFaq(this)">
-              ¿Cuándo estará disponible PawTrack CR al público?
-              <span class="faq-icon">+</span>
-            </button>
-            <div class="faq-a">
-              La plataforma está tecnológicamente completa. El lanzamiento
-              público está condicionado a la configuración de los servicios de
-              producción en Azure y el dominio pawtrack.cr. Los sponsors tendrán
-              acceso prioritario y aparecerán desde el primer día de
-              lanzamiento.
-            </div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-q" onclick="toggleFaq(this)">
-              ¿Cómo se paga el patrocinio? <span class="faq-icon">+</span>
-            </button>
-            <div class="faq-a">
-              Factura mensual electrónica. Pago por SINPE Móvil, transferencia
-              IBAN o por acuerdo en especie (productos o servicios para la
-              operación de PawTrack CR).
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+<section class="section">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-label">Tu inversión de $1,000</div>
+      <h2 class="section-title">Lo que recibes como ángel</h2>
+      <p class="section-sub">7 beneficios concretos. Sin letra chica.</p>
+    </div>
+    <div class="benefits-grid fade-in">
+      <div class="benefit-card"><div class="benefit-num">1</div><h3>📜 Participación formal</h3><p>Acuerdo de participación proporcional. Documento real, no promesa verbal.</p></div>
+      <div class="benefit-card"><div class="benefit-num">2</div><h3>♾️ Acceso vitalicio</h3><p>Plan más alto de PawTrack CR para ti y tu familia, para siempre.</p></div>
+      <div class="benefit-card"><div class="benefit-num">3</div><h3>⭐ Patrocinador fundador</h3><p>Tu nombre en la plataforma como parte del grupo fundador.</p></div>
+      <div class="benefit-card"><div class="benefit-num">4</div><h3>🔑 Acceso prioritario</h3><p>Valoración preferencial en futuras rondas de inversión.</p></div>
+      <div class="benefit-card"><div class="benefit-num">5</div><h3>📊 Reporte mensual</h3><p>Métricas reales de la plataforma durante los primeros 12 meses.</p></div>
+      <div class="benefit-card"><div class="benefit-num">6</div><h3>💻 Tour del código</h3><p>Acceso al repositorio privado para due diligence técnico completo.</p></div>
+      <div class="benefit-card"><div class="benefit-num">7</div><h3>🗳️ Voto en el roadmap</h3><p>Voto consultivo en las features de las siguientes versiones.</p></div>
+    </div>
+  </div>
+</section>
 
-    <!-- ── CTA FINAL ── -->
-    <section class="cta-section" id="contact">
-      <div class="container">
-        <h2>¿Listo para ser parte<br />de algo que importa?</h2>
-        <p>
-          Agendar una reunión de 30 minutos para ver la plataforma en vivo y
-          definir el paquete ideal para tu empresa.
-        </p>
-        <a
-          href="mailto:davila06@gmail.com?subject=Sponsorship%20PawTrack%20CR&body=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20el%20sponsorship%20de%20PawTrack%20CR."
-          class="btn-white"
-        >
-          Escribir a davila06@gmail.com
-        </a>
-        <div class="contact-row">
-          <div class="contact-item">📧 davila06@gmail.com</div>
-          <div class="contact-item">
-            🌐 pawtrack.cr <em style="opacity: 0.6">(en construcción)</em>
-          </div>
-          <div class="contact-item">📍 Costa Rica</div>
-        </div>
-      </div>
-    </section>
+<hr class="divider">
 
-    <footer>
-      <p>© 2026 PawTrack CR · Todos los derechos reservados</p>
-      <p style="margin-top: 0.4rem; opacity: 0.6">
-        Documento confidencial para presentación a patrocinadores potenciales.
-      </p>
-    </footer>
+<section class="section" style="background:#f8fafc;padding:60px 0">
+  <div class="container">
+    <div class="fade-in" style="text-align:center;margin-bottom:48px">
+      <div class="section-label">Proceso</div>
+      <h2 class="section-title">5 pasos para ser inversionista</h2>
+    </div>
+    <div class="steps-row fade-in">
+      <div class="step"><div class="step-circle">🎬</div><h3>Demo en vivo</h3><p>30 min mostrando la plataforma funcionando</p></div>
+      <div class="step"><div class="step-circle">🔍</div><h3>Due diligence</h3><p>Acceso al repo privado. Revisa el código.</p></div>
+      <div class="step"><div class="step-circle">📝</div><h3>Acuerdo</h3><p>Documento simple de participación y términos</p></div>
+      <div class="step"><div class="step-circle">💸</div><h3>Transferencia</h3><p>SINPE Móvil o transferencia bancaria</p></div>
+      <div class="step"><div class="step-circle">🚀</div><h3>Onboarding</h3><p>Acceso a métricas, Slack privado, plan vitalicio</p></div>
+    </div>
+  </div>
+</section>
 
-    <script>
-      function toggleFaq(btn) {
-        const item = btn.closest(".faq-item");
-        const answer = item.querySelector(".faq-a");
-        const isOpen = item.classList.contains("open");
-        // close all
-        document.querySelectorAll(".faq-item").forEach((el) => {
-          el.classList.remove("open");
-          el.querySelector(".faq-a").classList.remove("open");
-        });
-        if (!isOpen) {
-          item.classList.add("open");
-          answer.classList.add("open");
-        }
+<section class="cta-section">
+
+      <a href="mailto:davila06@gmail.com?subject=Quiero%20invertir%20en%20PawTrack%20CR" class="cta-hero" style="margin:0 8px 12px">✉️ Escribir a Denis ahora</a>
+      <a href="https://wa.me/50660500440?text=Hola%20Denis%2C%20me%20interesa%20invertir%20en%20PawTrack%20CR" class="cta-secondary">📱 WhatsApp</a>
+    </div>
+    <div class="urgency">
+      <div class="dot-live"></div>
+      Ronda activa · Agosto 2026 · $1,000 USD por cupo
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p><strong>Denis Ávila Umaña</strong> — Fundador y CTO, PawTrack CR</p>
+  <p style="margin-top:6px"><a href="mailto:davila06@gmail.com">davila06@gmail.com</a> &nbsp;·&nbsp; <a href="https://pawtrack.cr">pawtrack.cr</a></p>
+  <p style="margin-top:12px;font-size:12px">Documento confidencial para potenciales inversionistas ángel. No distribuir.</p>
+  <p style="margin-top:4px;font-size:12px"><em>PawTrack CR — Cada mascota merece volver a casa. Cada inversionista merece un producto terminado.</em></p>
+</footer>
+
+<script>
+  // Fade-in on scroll
+  const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } }), { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+  // Animate projection bars on scroll
+  const barObs = new IntersectionObserver(es => {
+    es.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('.proj-bar').forEach(b => { setTimeout(() => { b.style.width = b.getAttribute('data-width'); }, 200); });
+        barObs.unobserve(e.target);
       }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.projection-bars').forEach(el => barObs.observe(el));
 
-      // Smooth scroll for anchor links
-      document.querySelectorAll('a[href^="#"]').forEach((a) => {
-        a.addEventListener("click", (e) => {
-          const target = document.querySelector(a.getAttribute("href"));
-          if (target) {
-            e.preventDefault();
-            target.scrollIntoView({ behavior: "smooth", block: "start" });
-          }
-        });
-      });
-    </script>
-  </body>
+  // Animated counters
+  function animateCount(el, end, suffix) {
+    let start = null;
+    const step = ts => {
+      if (!start) start = ts;
+      const p = Math.min((ts - start) / 2000, 1);
+      const v = Math.floor(p * end);
+      el.textContent = v + suffix;
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = end + suffix;
+    };
+    requestAnimationFrame(step);
+  }
+  const numData = { '916': [916,''], '0': [0,''], '30+': [30,'+'], '10+': [10,'+'], '80k': [80,'k'], '68%': [68,'%'] };
+  const numObs = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) {
+      const v = e.target.querySelector('.number-value');
+      if (v && numData[v.textContent]) { const [n,s] = numData[v.textContent]; animateCount(v, n, s); }
+      numObs.unobserve(e.target);
+    }
+  }), { threshold: 0.5 });
+  document.querySelectorAll('.number-card').forEach(el => numObs.observe(el));
+</script>
+
+</body>
 </html>

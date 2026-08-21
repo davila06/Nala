@@ -42,41 +42,41 @@ A diferencia de la mayoría de startups en etapa de inversión ángel, **PawTrac
 
 ### Lo que existe hoy (agosto 2026)
 
-| Módulo | Estado |
-|--------|--------|
-| Identidad digital (QR, perfil público, microchip) | ✅ Completo |
-| Reporte de pérdida + mapa en tiempo real | ✅ Completo |
-| Avistamientos con IA (Azure Computer Vision) | ✅ Completo |
-| Chat enmascarado entre dueño y rescatador | ✅ Real-time (SignalR) |
-| Difusión multicanal (WhatsApp + Telegram + Facebook + Email) | ✅ Completo |
-| Bot conversacional de WhatsApp | ✅ Completo |
-| Coordinación de búsqueda en campo (zonas en tiempo real) | ✅ Completo |
-| Expediente médico digital (7 tipos, PDF, recordatorios) | ✅ Completo |
-| Collar GPS (integración Tractive, genérico) | ✅ Completo |
-| Sistema de recompensas con SINPE Móvil | ✅ Completo |
-| B2B Clínicas veterinarias (3 tiers, certificados PDF) | ✅ Completo |
-| B2G Municipalidades (portal control animal, 3 tiers) | ✅ Completo |
-| **Tiendas de mascotas** (catálogo, pedidos, SINPE) | ✅ **Nuevo** |
-| **Vallas publicitarias in-app** (4 placements, CTA, prioridad) | ✅ **Nuevo** |
-| Plan Familia (multi-usuario, hasta 5 miembros) | ✅ Completo |
-| Red de aliados verificados (refugios, seguridad, veterinarias) | ✅ Completo |
-| Red vecinal de alertas (radio 500m) | ✅ Completo |
-| Suscripciones + feature gating completo | ✅ Completo |
-| **Módulo Adopciones** (especificación técnica completa) | 📋 Diseñado, listo para sprint |
+| Módulo                                                         | Estado                         |
+| -------------------------------------------------------------- | ------------------------------ |
+| Identidad digital (QR, perfil público, microchip)              | ✅ Completo                    |
+| Reporte de pérdida + mapa en tiempo real                       | ✅ Completo                    |
+| Avistamientos con IA (Azure Computer Vision)                   | ✅ Completo                    |
+| Chat enmascarado entre dueño y rescatador                      | ✅ Real-time (SignalR)         |
+| Difusión multicanal (WhatsApp + Telegram + Facebook + Email)   | ✅ Completo                    |
+| Bot conversacional de WhatsApp                                 | ✅ Completo                    |
+| Coordinación de búsqueda en campo (zonas en tiempo real)       | ✅ Completo                    |
+| Expediente médico digital (7 tipos, PDF, recordatorios)        | ✅ Completo                    |
+| Collar GPS (integración Tractive, genérico)                    | ✅ Completo                    |
+| Sistema de recompensas con SINPE Móvil                         | ✅ Completo                    |
+| B2B Clínicas veterinarias (3 tiers, certificados PDF)          | ✅ Completo                    |
+| B2G Municipalidades (portal control animal, 3 tiers)           | ✅ Completo                    |
+| **Tiendas de mascotas** (catálogo, pedidos, SINPE)             | ✅ **Nuevo**                   |
+| **Vallas publicitarias in-app** (4 placements, CTA, prioridad) | ✅ **Nuevo**                   |
+| Plan Familia (multi-usuario, hasta 5 miembros)                 | ✅ Completo                    |
+| Red de aliados verificados (refugios, seguridad, veterinarias) | ✅ Completo                    |
+| Red vecinal de alertas (radio 500m)                            | ✅ Completo                    |
+| Suscripciones + feature gating completo                        | ✅ Completo                    |
+| **Módulo Adopciones** (especificación técnica completa)        | 📋 Diseñado, listo para sprint |
 
 ### Números que importan
 
-| Indicador | Valor |
-|-----------|-------|
-| **Tests automatizados** | 916 pasando — 0 fallos |
-| **Errores de compilación** | 0 backend + 0 frontend |
-| **Rondas de auditoría de seguridad** | 10+ rondas (OWASP Top 10) |
-| **Vulnerabilidades corregidas** | 30+ (bcrypt, BOLA, JWT, open redirect, PII) |
-| **Líneas de código** | ~80,000 |
-| **Módulos funcionales** | 30+ |
-| **Municipalidades en CR** | 82 (mercado B2G total) |
-| **Clínicas veterinarias en CR** | ~1,400 (mercado B2B) |
-| **Hogares con mascotas en CR** | ~800,000 (mercado B2C) |
+| Indicador                            | Valor                                       |
+| ------------------------------------ | ------------------------------------------- |
+| **Tests automatizados**              | 916 pasando — 0 fallos                      |
+| **Errores de compilación**           | 0 backend + 0 frontend                      |
+| **Rondas de auditoría de seguridad** | 10+ rondas (OWASP Top 10)                   |
+| **Vulnerabilidades corregidas**      | 30+ (bcrypt, BOLA, JWT, open redirect, PII) |
+| **Líneas de código**                 | ~80,000                                     |
+| **Módulos funcionales**              | 30+                                         |
+| **Municipalidades en CR**            | 82 (mercado B2G total)                      |
+| **Clínicas veterinarias en CR**      | ~1,400 (mercado B2B)                        |
+| **Hogares con mascotas en CR**       | ~800,000 (mercado B2C)                      |
 
 ---
 
@@ -84,17 +84,17 @@ A diferencia de la mayoría de startups en etapa de inversión ángel, **PawTrac
 
 A diferencia de plataformas de una sola fuente, PawTrack CR tiene **9 líneas de monetización operativas**:
 
-| # | Fuente | Modelo | Precio |
-|---|--------|--------|--------|
-| 1 | **Plan Plus** — dueños de mascotas | Suscripción | ₡2,990/mes (~$5.75) |
-| 2 | **Plan Familia** — multi-mascota + historial | Suscripción | ₡4,990/mes (~$9.60) |
-| 3 | **Clínica Básica** — portal veterinario | Suscripción | ₡15,000/mes |
-| 4 | **Clínica Plus** — expediente + alertas | Suscripción | ₡35,000/mes |
-| 5 | **Clínica Partner** — API + certificados | Suscripción | ₡60,000/mes |
-| 6 | **Tiendas StorePlus** — pedidos in-app | Suscripción | ₡12,000/mes |
-| 7 | **Municipalidades** — 3 tiers B2G | Suscripción | ₡150,000–₡500,000/año |
-| 8 | **Sistema de recompensas (Bounty)** — SINPE | Comisión 10% | Por transacción |
-| 9 | **Vallas publicitarias in-app** | Tarifa fija | ₡18,000–₡65,000/semana |
+| #   | Fuente                                       | Modelo       | Precio                 |
+| --- | -------------------------------------------- | ------------ | ---------------------- |
+| 1   | **Plan Plus** — dueños de mascotas           | Suscripción  | ₡2,990/mes (~$5.75)    |
+| 2   | **Plan Familia** — multi-mascota + historial | Suscripción  | ₡4,990/mes (~$9.60)    |
+| 3   | **Clínica Básica** — portal veterinario      | Suscripción  | ₡15,000/mes            |
+| 4   | **Clínica Plus** — expediente + alertas      | Suscripción  | ₡35,000/mes            |
+| 5   | **Clínica Partner** — API + certificados     | Suscripción  | ₡60,000/mes            |
+| 6   | **Tiendas StorePlus** — pedidos in-app       | Suscripción  | ₡12,000/mes            |
+| 7   | **Municipalidades** — 3 tiers B2G            | Suscripción  | ₡150,000–₡500,000/año  |
+| 8   | **Sistema de recompensas (Bounty)** — SINPE  | Comisión 10% | Por transacción        |
+| 9   | **Vallas publicitarias in-app**              | Tarifa fija  | ₡18,000–₡65,000/semana |
 
 > **Nota:** Bundle GPS (collar Tractive + suscripción, ₡49,900 único) es ingreso adicional una vez se establezca el proveedor de hardware.
 
@@ -104,16 +104,16 @@ A diferencia de plataformas de una sola fuente, PawTrack CR tiene **9 líneas de
 
 Los **$5,000 USD** se usan exclusivamente para infraestructura Azure durante los primeros 6 meses de operación real:
 
-| Recurso Azure | Costo estimado/mes | 6 meses |
-|--------------|:-----------------:|:-------:|
-| App Service (B3 Linux) | ~$80 | ~$480 |
-| Azure SQL (Standard S2) | ~$75 | ~$450 |
-| Blob Storage (LRS, 100GB) | ~$5 | ~$30 |
-| Application Insights + Log Analytics | ~$15 | ~$90 |
-| Static Web App (frontend) | Gratis | $0 |
-| Key Vault | ~$5 | ~$30 |
-| Bandwidth + CDN | ~$10 | ~$60 |
-| **Total mensual estimado** | **~$190/mes** | **~$1,140** |
+| Recurso Azure                        | Costo estimado/mes |   6 meses   |
+| ------------------------------------ | :----------------: | :---------: |
+| App Service (B3 Linux)               |        ~$80        |    ~$480    |
+| Azure SQL (Standard S2)              |        ~$75        |    ~$450    |
+| Blob Storage (LRS, 100GB)            |        ~$5         |    ~$30     |
+| Application Insights + Log Analytics |        ~$15        |    ~$90     |
+| Static Web App (frontend)            |       Gratis       |     $0      |
+| Key Vault                            |        ~$5         |    ~$30     |
+| Bandwidth + CDN                      |        ~$10        |    ~$60     |
+| **Total mensual estimado**           |   **~$190/mes**    | **~$1,140** |
 
 El remanente (~$3,860) cubre contingencias, dominio, certificados SSL, y los primeros esfuerzos de marketing (WhatsApp Business API, Meta webhook).
 
@@ -123,12 +123,12 @@ El remanente (~$3,860) cubre contingencias, dominio, certificados SSL, y los pri
 
 ## Proyección de ingresos — 12 meses post-lanzamiento
 
-| Mes | Clientes activos | Ingreso mensual estimado |
-|-----|:----------------:|:------------------------:|
-| 1-2 | 50-100 | ₡150,000–₡300,000 |
-| 3-4 | 150-250 | ₡450,000–₡750,000 |
-| 5-6 | 300-500 | ₡900,000–₡1,500,000 |
-| 7-12 | 500-1,000+ | ₡1,500,000–₡3,000,000+ |
+| Mes  | Clientes activos | Ingreso mensual estimado |
+| ---- | :--------------: | :----------------------: |
+| 1-2  |      50-100      |    ₡150,000–₡300,000     |
+| 3-4  |     150-250      |    ₡450,000–₡750,000     |
+| 5-6  |     300-500      |   ₡900,000–₡1,500,000    |
+| 7-12 |    500-1,000+    |  ₡1,500,000–₡3,000,000+  |
 
 > Supuestos conservadores. Mix de B2C (Plus/Familia) + B2B (2-3 clínicas/mes) + tiendas StorePlus + publicidad.
 
@@ -150,17 +150,17 @@ El remanente (~$3,860) cubre contingencias, dominio, certificados SSL, y los pri
 
 ## Lo que diferencia a PawTrack CR
 
-| Factor | PawTrack CR | Competencia global |
-|--------|:-----------:|:-----------------:|
-| Integración WhatsApp nativa | ✅ | ❌ |
-| SINPE Móvil (pago CR) | ✅ | ❌ |
-| Portal para municipalidades | ✅ | ❌ |
-| Red de aliados verificados | ✅ | ❌ |
-| Coordinación en campo real-time | ✅ | ❌ |
-| Expediente médico digital | ✅ | ❌ |
-| Marketplace de tiendas mascotas | ✅ | ❌ |
-| Sistema de adopciones (en desarrollo) | 📋 | ❌ |
-| Funciona 100% en el navegador | ✅ | Parcial |
+| Factor                                | PawTrack CR | Competencia global |
+| ------------------------------------- | :---------: | :----------------: |
+| Integración WhatsApp nativa           |     ✅      |         ❌         |
+| SINPE Móvil (pago CR)                 |     ✅      |         ❌         |
+| Portal para municipalidades           |     ✅      |         ❌         |
+| Red de aliados verificados            |     ✅      |         ❌         |
+| Coordinación en campo real-time       |     ✅      |         ❌         |
+| Expediente médico digital             |     ✅      |         ❌         |
+| Marketplace de tiendas mascotas       |     ✅      |         ❌         |
+| Sistema de adopciones (en desarrollo) |     📋      |         ❌         |
+| Funciona 100% en el navegador         |     ✅      |      Parcial       |
 
 ---
 
