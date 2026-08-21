@@ -1,7 +1,10 @@
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Skeleton } from "@/shared/ui/Spinner";
-import { useApplicationsForAnimal, useReviewApplication } from "../hooks/useAdoptions";
+import {
+  useApplicationsForAnimal,
+  useReviewApplication,
+} from "../hooks/useAdoptions";
 import { useAdoptableAnimal } from "../hooks/useAdoptions";
 import { toast } from "@/shared/lib/toast";
 import { useState } from "react";
@@ -32,7 +35,10 @@ export default function ShelterApplicationsPage() {
 
       <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
         <div className="flex items-center gap-3">
-          <Link to="/shelter/dashboard" className="text-sm text-brand-600 hover:underline">
+          <Link
+            to="/shelter/dashboard"
+            className="text-sm text-brand-600 hover:underline"
+          >
             ← Panel
           </Link>
           <h1 className="text-xl font-bold text-ink-900">
@@ -42,7 +48,9 @@ export default function ShelterApplicationsPage() {
 
         {isLoading ? (
           <div className="space-y-3">
-            {[1, 2].map((i) => <Skeleton key={i} className="h-32 rounded-xl" />)}
+            {[1, 2].map((i) => (
+              <Skeleton key={i} className="h-32 rounded-xl" />
+            ))}
           </div>
         ) : !apps || apps.length === 0 ? (
           <div className="py-16 text-center text-sand-400">
@@ -71,7 +79,10 @@ export default function ShelterApplicationsPage() {
                     <textarea
                       value={reviewNotes[app.id] ?? ""}
                       onChange={(e) =>
-                        setReviewNotes((n) => ({ ...n, [app.id]: e.target.value }))
+                        setReviewNotes((n) => ({
+                          ...n,
+                          [app.id]: e.target.value,
+                        }))
                       }
                       placeholder="Nota de respuesta (opcional, se enviará al solicitante)"
                       maxLength={300}
@@ -107,18 +118,23 @@ export default function ShelterApplicationsPage() {
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    Pending:     "bg-sand-100 text-sand-600",
+    Pending: "bg-sand-100 text-sand-600",
     UnderReview: "bg-blue-50 text-blue-700",
-    Approved:    "bg-green-50 text-green-700",
-    Rejected:    "bg-red-50 text-red-600",
-    Withdrawn:   "bg-sand-100 text-sand-400",
+    Approved: "bg-green-50 text-green-700",
+    Rejected: "bg-red-50 text-red-600",
+    Withdrawn: "bg-sand-100 text-sand-400",
   };
   const labels: Record<string, string> = {
-    Pending: "Pendiente", UnderReview: "En revisión", Approved: "Aprobada",
-    Rejected: "Rechazada", Withdrawn: "Retirada",
+    Pending: "Pendiente",
+    UnderReview: "En revisión",
+    Approved: "Aprobada",
+    Rejected: "Rechazada",
+    Withdrawn: "Retirada",
   };
   return (
-    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${map[status] ?? ""}`}>
+    <span
+      className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${map[status] ?? ""}`}
+    >
       {labels[status] ?? status}
     </span>
   );

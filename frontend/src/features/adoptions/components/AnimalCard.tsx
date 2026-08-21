@@ -5,7 +5,11 @@ import { SPECIES_LABELS, AGE_LABELS } from "../api/adoptionsApi";
 const SIZE_ORDER: PetSize[] = ["XSmall", "Small", "Medium", "Large", "XLarge"];
 
 const SPECIES_EMOJI: Record<string, string> = {
-  Dog: "🐕", Cat: "🐈", Bird: "🐦", Rabbit: "🐇", Other: "🐾",
+  Dog: "🐕",
+  Cat: "🐈",
+  Bird: "🐦",
+  Rabbit: "🐇",
+  Other: "🐾",
 };
 
 interface AnimalCardProps {
@@ -52,8 +56,11 @@ export function AnimalCard({ animal }: AnimalCardProps) {
             {animal.name}
           </p>
           <span className="text-xs text-sand-400 shrink-0">
-            {SIZE_ORDER.indexOf(animal.size) <= 1 ? "pequeño" :
-             animal.size === "Medium" ? "mediano" : "grande"}
+            {SIZE_ORDER.indexOf(animal.size) <= 1
+              ? "pequeño"
+              : animal.size === "Medium"
+                ? "mediano"
+                : "grande"}
           </span>
         </div>
 

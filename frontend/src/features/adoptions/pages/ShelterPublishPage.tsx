@@ -4,16 +4,35 @@ import { Helmet } from "react-helmet-async";
 import { Button } from "@/shared/ui/Button";
 import { Input } from "@/shared/ui/Input";
 import { usePublishAnimal } from "../hooks/useAdoptions";
-import type { PetSpecies, PetSize, AgeCategory, PublishAnimalPayload } from "../api/adoptionsApi";
+import type {
+  PetSpecies,
+  PetSize,
+  AgeCategory,
+  PublishAnimalPayload,
+} from "../api/adoptionsApi";
 import { SPECIES_LABELS, SIZE_LABELS, AGE_LABELS } from "../api/adoptionsApi";
 import { toast } from "@/shared/lib/toast";
 
 const INITIAL: PublishAnimalPayload = {
-  name: "", species: "Dog", size: "Medium", ageCategory: "Young",
-  ageMonthsApprox: null, story: "", requirements: null, medicalNotes: null, breed: null,
-  isVaccinated: false, isSterilized: false, isMicrochipped: false,
-  okWithKids: false, okWithDogs: false, okWithCats: false, needsYard: false,
-  refLat: 9.9281, refLng: -84.0907, refLabel: "San José, Costa Rica",
+  name: "",
+  species: "Dog",
+  size: "Medium",
+  ageCategory: "Young",
+  ageMonthsApprox: null,
+  story: "",
+  requirements: null,
+  medicalNotes: null,
+  breed: null,
+  isVaccinated: false,
+  isSterilized: false,
+  isMicrochipped: false,
+  okWithKids: false,
+  okWithDogs: false,
+  okWithCats: false,
+  needsYard: false,
+  refLat: 9.9281,
+  refLng: -84.0907,
+  refLabel: "San José, Costa Rica",
 };
 
 export default function ShelterPublishPage() {
@@ -39,10 +58,14 @@ export default function ShelterPublishPage() {
 
   return (
     <>
-      <Helmet><title>Publicar animal · PawTrack CR</title></Helmet>
+      <Helmet>
+        <title>Publicar animal · PawTrack CR</title>
+      </Helmet>
 
       <div className="mx-auto max-w-xl px-4 py-8 space-y-6">
-        <h1 className="text-xl font-bold text-ink-900">Publicar animal en adopción</h1>
+        <h1 className="text-xl font-bold text-ink-900">
+          Publicar animal en adopción
+        </h1>
 
         {/* Basic info */}
         <section className="space-y-4">
@@ -60,42 +83,62 @@ export default function ShelterPublishPage() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-sand-500 mb-1">Especie *</label>
+              <label className="block text-xs text-sand-500 mb-1">
+                Especie *
+              </label>
               <select
                 value={form.species}
                 onChange={(e) => set({ species: e.target.value as PetSpecies })}
                 className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
               >
-                {(Object.entries(SPECIES_LABELS) as [PetSpecies, string][]).map(([v, l]) => (
-                  <option key={v} value={v}>{l}</option>
-                ))}
+                {(Object.entries(SPECIES_LABELS) as [PetSpecies, string][]).map(
+                  ([v, l]) => (
+                    <option key={v} value={v}>
+                      {l}
+                    </option>
+                  ),
+                )}
               </select>
             </div>
             <div>
-              <label className="block text-xs text-sand-500 mb-1">Tamaño *</label>
+              <label className="block text-xs text-sand-500 mb-1">
+                Tamaño *
+              </label>
               <select
                 value={form.size}
                 onChange={(e) => set({ size: e.target.value as PetSize })}
                 className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
               >
-                {(Object.entries(SIZE_LABELS) as [PetSize, string][]).map(([v, l]) => (
-                  <option key={v} value={v}>{l}</option>
-                ))}
+                {(Object.entries(SIZE_LABELS) as [PetSize, string][]).map(
+                  ([v, l]) => (
+                    <option key={v} value={v}>
+                      {l}
+                    </option>
+                  ),
+                )}
               </select>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-sand-500 mb-1">Categoría de edad *</label>
+              <label className="block text-xs text-sand-500 mb-1">
+                Categoría de edad *
+              </label>
               <select
                 value={form.ageCategory}
-                onChange={(e) => set({ ageCategory: e.target.value as AgeCategory })}
+                onChange={(e) =>
+                  set({ ageCategory: e.target.value as AgeCategory })
+                }
                 className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
               >
-                {(Object.entries(AGE_LABELS) as [AgeCategory, string][]).map(([v, l]) => (
-                  <option key={v} value={v}>{l}</option>
-                ))}
+                {(Object.entries(AGE_LABELS) as [AgeCategory, string][]).map(
+                  ([v, l]) => (
+                    <option key={v} value={v}>
+                      {l}
+                    </option>
+                  ),
+                )}
               </select>
             </div>
             <Input
@@ -113,7 +156,9 @@ export default function ShelterPublishPage() {
             Historia y personalidad
           </h2>
           <div>
-            <label className="block text-xs text-sand-500 mb-1">Historia *</label>
+            <label className="block text-xs text-sand-500 mb-1">
+              Historia *
+            </label>
             <textarea
               value={form.story}
               onChange={(e) => set({ story: e.target.value })}
@@ -122,10 +167,14 @@ export default function ShelterPublishPage() {
               placeholder="Cuéntanos cómo llegó, cómo es su personalidad, qué necesidades especiales tiene…"
               className="w-full rounded-xl border border-sand-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 resize-none"
             />
-            <p className="text-right text-xs text-sand-400 mt-1">{form.story.length}/2000</p>
+            <p className="text-right text-xs text-sand-400 mt-1">
+              {form.story.length}/2000
+            </p>
           </div>
           <div>
-            <label className="block text-xs text-sand-500 mb-1">Requisitos para el adoptante</label>
+            <label className="block text-xs text-sand-500 mb-1">
+              Requisitos para el adoptante
+            </label>
             <textarea
               value={form.requirements ?? ""}
               onChange={(e) => set({ requirements: e.target.value || null })}
@@ -136,7 +185,9 @@ export default function ShelterPublishPage() {
             />
           </div>
           <div>
-            <label className="block text-xs text-sand-500 mb-1">Notas médicas</label>
+            <label className="block text-xs text-sand-500 mb-1">
+              Notas médicas
+            </label>
             <textarea
               value={form.medicalNotes ?? ""}
               onChange={(e) => set({ medicalNotes: e.target.value || null })}
@@ -165,7 +216,10 @@ export default function ShelterPublishPage() {
                 ["needsYard", "Necesita patio"],
               ] as [keyof PublishAnimalPayload, string][]
             ).map(([key, label]) => (
-              <label key={key} className="flex items-center gap-2 text-sm text-ink-700 cursor-pointer">
+              <label
+                key={key}
+                className="flex items-center gap-2 text-sm text-ink-700 cursor-pointer"
+              >
                 <input
                   type="checkbox"
                   checked={!!form[key]}
@@ -184,7 +238,8 @@ export default function ShelterPublishPage() {
             Zona de referencia
           </h2>
           <p className="text-xs text-sand-400">
-            La ubicación exacta no se muestra públicamente — solo la zona de referencia.
+            La ubicación exacta no se muestra públicamente — solo la zona de
+            referencia.
           </p>
           <Input
             label="Zona (ej: San José, Escazú)"
@@ -196,7 +251,9 @@ export default function ShelterPublishPage() {
 
         <Button
           onClick={handleSubmit}
-          disabled={publish.isPending || !form.name.trim() || !form.story.trim()}
+          disabled={
+            publish.isPending || !form.name.trim() || !form.story.trim()
+          }
           className="w-full"
         >
           {publish.isPending ? "Publicando…" : "Publicar animal"}

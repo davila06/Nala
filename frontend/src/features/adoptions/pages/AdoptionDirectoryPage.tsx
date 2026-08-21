@@ -7,7 +7,10 @@ import { useAdoptableAnimals } from "../hooks/useAdoptions";
 import type { AdoptionFilters } from "../api/adoptionsApi";
 
 export default function AdoptionDirectoryPage() {
-  const [filters, setFilters] = useState<AdoptionFilters>({ page: 1, pageSize: 20 });
+  const [filters, setFilters] = useState<AdoptionFilters>({
+    page: 1,
+    pageSize: 20,
+  });
   const { data, isLoading } = useAdoptableAnimals(filters);
 
   const animals = data?.items ?? [];
@@ -18,7 +21,10 @@ export default function AdoptionDirectoryPage() {
     <>
       <Helmet>
         <title>Adopciones · PawTrack CR</title>
-        <meta name="description" content="Adopta una mascota en Costa Rica. Encuentra perros, gatos y más animales esperando un hogar." />
+        <meta
+          name="description"
+          content="Adopta una mascota en Costa Rica. Encuentra perros, gatos y más animales esperando un hogar."
+        />
       </Helmet>
 
       <div className="mx-auto max-w-5xl px-4 py-8 space-y-6">
@@ -64,7 +70,9 @@ export default function AdoptionDirectoryPage() {
           <div className="flex items-center justify-between pt-4 border-t border-sand-100">
             <button
               disabled={page <= 1}
-              onClick={() => setFilters((f) => ({ ...f, page: (f.page ?? 1) - 1 }))}
+              onClick={() =>
+                setFilters((f) => ({ ...f, page: (f.page ?? 1) - 1 }))
+              }
               className="px-4 py-2 rounded-xl border border-sand-200 text-sm text-ink-700 hover:border-brand-400 disabled:opacity-40 transition-colors"
             >
               ← Anterior
@@ -74,7 +82,9 @@ export default function AdoptionDirectoryPage() {
             </span>
             <button
               disabled={!data?.hasNextPage}
-              onClick={() => setFilters((f) => ({ ...f, page: (f.page ?? 1) + 1 }))}
+              onClick={() =>
+                setFilters((f) => ({ ...f, page: (f.page ?? 1) + 1 }))
+              }
               className="px-4 py-2 rounded-xl border border-sand-200 text-sm text-ink-700 hover:border-brand-400 disabled:opacity-40 transition-colors"
             >
               Siguiente →

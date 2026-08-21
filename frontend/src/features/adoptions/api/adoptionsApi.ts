@@ -5,8 +5,18 @@ import { apiClient } from "@/shared/lib/apiClient";
 export type PetSpecies = "Dog" | "Cat" | "Bird" | "Rabbit" | "Other";
 export type PetSize = "XSmall" | "Small" | "Medium" | "Large" | "XLarge";
 export type AgeCategory = "Puppy" | "Young" | "Adult" | "Senior";
-export type AdoptionStatus = "Available" | "InProcess" | "Adopted" | "Paused" | "Removed";
-export type ApplicationStatus = "Pending" | "UnderReview" | "Approved" | "Rejected" | "Withdrawn";
+export type AdoptionStatus =
+  | "Available"
+  | "InProcess"
+  | "Adopted"
+  | "Paused"
+  | "Removed";
+export type ApplicationStatus =
+  | "Pending"
+  | "UnderReview"
+  | "Approved"
+  | "Rejected"
+  | "Withdrawn";
 export type FairStatus = "Upcoming" | "Active" | "Finished" | "Cancelled";
 
 export interface AdoptablePetDto {
@@ -99,86 +109,146 @@ export interface PagedApplications {
 
 export type PublishAnimalPayload = Pick<
   AdoptablePetDto,
-  | "name" | "species" | "size" | "ageCategory" | "ageMonthsApprox"
-  | "story" | "requirements" | "medicalNotes" | "breed"
-  | "isVaccinated" | "isSterilized" | "isMicrochipped"
-  | "okWithKids" | "okWithDogs" | "okWithCats" | "needsYard"
-  | "refLat" | "refLng" | "refLabel"
+  | "name"
+  | "species"
+  | "size"
+  | "ageCategory"
+  | "ageMonthsApprox"
+  | "story"
+  | "requirements"
+  | "medicalNotes"
+  | "breed"
+  | "isVaccinated"
+  | "isSterilized"
+  | "isMicrochipped"
+  | "okWithKids"
+  | "okWithDogs"
+  | "okWithCats"
+  | "needsYard"
+  | "refLat"
+  | "refLng"
+  | "refLabel"
 >;
 
 export type UpdateAnimalPayload = Pick<
   AdoptablePetDto,
-  | "name" | "story" | "requirements" | "medicalNotes"
-  | "isVaccinated" | "isSterilized" | "isMicrochipped"
-  | "okWithKids" | "okWithDogs" | "okWithCats" | "needsYard"
+  | "name"
+  | "story"
+  | "requirements"
+  | "medicalNotes"
+  | "isVaccinated"
+  | "isSterilized"
+  | "isMicrochipped"
+  | "okWithKids"
+  | "okWithDogs"
+  | "okWithCats"
+  | "needsYard"
 >;
 
 export const SPECIES_LABELS: Record<PetSpecies, string> = {
-  Dog: "Perro", Cat: "Gato", Bird: "Pájaro", Rabbit: "Conejo", Other: "Otro",
+  Dog: "Perro",
+  Cat: "Gato",
+  Bird: "Pájaro",
+  Rabbit: "Conejo",
+  Other: "Otro",
 };
 
 export const SIZE_LABELS: Record<PetSize, string> = {
-  XSmall: "Muy pequeño", Small: "Pequeño", Medium: "Mediano",
-  Large: "Grande", XLarge: "Muy grande",
+  XSmall: "Muy pequeño",
+  Small: "Pequeño",
+  Medium: "Mediano",
+  Large: "Grande",
+  XLarge: "Muy grande",
 };
 
 export const AGE_LABELS: Record<AgeCategory, string> = {
-  Puppy: "Cachorro (<1 año)", Young: "Joven (1–3 años)",
-  Adult: "Adulto (3–8 años)", Senior: "Senior (8+ años)",
+  Puppy: "Cachorro (<1 año)",
+  Young: "Joven (1–3 años)",
+  Adult: "Adulto (3–8 años)",
+  Senior: "Senior (8+ años)",
 };
 
 // ── API client ────────────────────────────────────────────────────────────────
 
 export const adoptionsApi = {
   getAnimals: (filters: AdoptionFilters = {}) =>
-    apiClient.get<PagedAdoptions>("/adoptions/animals", { params: filters }).then((r) => r.data),
+    apiClient
+      .get<PagedAdoptions>("/adoptions/animals", { params: filters })
+      .then((r) => r.data),
 
   getAnimalsForMap: () =>
-    apiClient.get<AdoptablePetDto[]>("/adoptions/animals/map").then((r) => r.data),
+    apiClient
+      .get<AdoptablePetDto[]>("/adoptions/animals/map")
+      .then((r) => r.data),
 
   getAnimal: (id: string) =>
-    apiClient.get<AdoptablePetDto>(`/adoptions/animals/${id}`).then((r) => r.data),
+    apiClient
+      .get<AdoptablePetDto>(`/adoptions/animals/${id}`)
+      .then((r) => r.data),
 
   publishAnimal: (data: PublishAnimalPayload) =>
-    apiClient.post<AdoptablePetDto>("/adoptions/animals", data).then((r) => r.data),
+    apiClient
+      .post<AdoptablePetDto>("/adoptions/animals", data)
+      .then((r) => r.data),
 
   updateAnimal: (id: string, data: UpdateAnimalPayload) =>
-    apiClient.patch<AdoptablePetDto>(`/adoptions/animals/${id}`, data).then((r) => r.data),
+    apiClient
+      .patch<AdoptablePetDto>(`/adoptions/animals/${id}`, data)
+      .then((r) => r.data),
 
   uploadPhoto: (animalId: string, file: File) => {
     const form = new FormData();
     form.append("photo", file);
     return apiClient
-      .post<{ photoUrl: string }>(`/adoptions/animals/${animalId}/photos`, form, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
+      .post<{ photoUrl: string }>(
+        `/adoptions/animals/${animalId}/photos`,
+        form,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      )
       .then((r) => r.data);
   },
 
   deletePhoto: (animalId: string, photoUrl: string) =>
-    apiClient.delete(`/adoptions/animals/${animalId}/photos`, { data: { photoUrl } }),
+    apiClient.delete(`/adoptions/animals/${animalId}/photos`, {
+      data: { photoUrl },
+    }),
 
   getMyAnimals: (page = 1, pageSize = 20) =>
     apiClient
-      .get<PagedAdoptions>("/adoptions/animals/mine", { params: { page, pageSize } })
+      .get<PagedAdoptions>("/adoptions/animals/mine", {
+        params: { page, pageSize },
+      })
       .then((r) => r.data),
 
   applyToAdopt: (animalId: string, note: string) =>
     apiClient
-      .post<AdoptionApplicationDto>(`/adoptions/animals/${animalId}/apply`, { note })
+      .post<AdoptionApplicationDto>(`/adoptions/animals/${animalId}/apply`, {
+        note,
+      })
       .then((r) => r.data),
 
   getApplicationsForAnimal: (animalId: string) =>
     apiClient
-      .get<AdoptionApplicationDto[]>(`/adoptions/animals/${animalId}/applications`)
+      .get<
+        AdoptionApplicationDto[]
+      >(`/adoptions/animals/${animalId}/applications`)
       .then((r) => r.data),
 
-  reviewApplication: (applicationId: string, approve: boolean, reviewNote?: string) =>
+  reviewApplication: (
+    applicationId: string,
+    approve: boolean,
+    reviewNote?: string,
+  ) =>
     apiClient
-      .patch<AdoptionApplicationDto>(`/adoptions/applications/${applicationId}/review`, {
-        approve,
-        reviewNote,
-      })
+      .patch<AdoptionApplicationDto>(
+        `/adoptions/applications/${applicationId}/review`,
+        {
+          approve,
+          reviewNote,
+        },
+      )
       .then((r) => r.data),
 
   withdrawApplication: (applicationId: string) =>
@@ -191,14 +261,22 @@ export const adoptionsApi = {
 
   getMyApplications: (page = 1, pageSize = 20) =>
     apiClient
-      .get<PagedApplications>("/adoptions/applications/mine", { params: { page, pageSize } })
+      .get<PagedApplications>("/adoptions/applications/mine", {
+        params: { page, pageSize },
+      })
       .then((r) => r.data),
 
   getFairs: (lat?: number, lng?: number, radiusKm?: number) =>
     apiClient
-      .get<AdoptionFairDto[]>("/adoptions/fairs", { params: { lat, lng, radiusKm } })
+      .get<
+        AdoptionFairDto[]
+      >("/adoptions/fairs", { params: { lat, lng, radiusKm } })
       .then((r) => r.data),
 
-  createFair: (data: Omit<AdoptionFairDto, "id" | "organizationUserId" | "status">) =>
-    apiClient.post<AdoptionFairDto>("/adoptions/fairs", data).then((r) => r.data),
+  createFair: (
+    data: Omit<AdoptionFairDto, "id" | "organizationUserId" | "status">,
+  ) =>
+    apiClient
+      .post<AdoptionFairDto>("/adoptions/fairs", data)
+      .then((r) => r.data),
 };

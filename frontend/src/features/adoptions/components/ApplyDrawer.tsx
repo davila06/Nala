@@ -11,23 +11,27 @@ interface ApplyDrawerProps {
   onSuccess: () => void;
 }
 
-export function ApplyDrawer({ animalId, animalName, isOpen, onClose, onSuccess }: ApplyDrawerProps) {
+export function ApplyDrawer({
+  animalId,
+  animalName,
+  isOpen,
+  onClose,
+  onSuccess,
+}: ApplyDrawerProps) {
   const [note, setNote] = useState("");
   const apply = useApplyToAdopt();
 
   const handleSubmit = () => {
     if (!note.trim()) return;
-    apply.mutate(
-      { animalId, note: note.trim() },
-      { onSuccess },
-    );
+    apply.mutate({ animalId, note: note.trim() }, { onSuccess });
   };
 
   return (
     <Drawer isOpen={isOpen} onClose={onClose} title={`Adoptar a ${animalName}`}>
       <div className="space-y-4 p-4">
         <p className="text-sm text-sand-500">
-          Cuéntale a la organización un poco sobre ti y por qué quieres adoptar a {animalName}.
+          Cuéntale a la organización un poco sobre ti y por qué quieres adoptar
+          a {animalName}.
         </p>
 
         <textarea

@@ -8,6 +8,7 @@ import type { MapBBox } from "../api/publicMapApi";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { usePublicClinics } from "@/features/clinics/hooks/useClinics";
 import { usePublicStores } from "@/features/stores/hooks/useStores";
+import { useAdoptableAnimalsForMap } from "@/features/adoptions/hooks/useAdoptions";
 import { StoreDetailSheet } from "@/features/stores/components/StoreDetailSheet";
 import { CartDrawer } from "@/features/stores/components/CartDrawer";
 import { CheckoutModal } from "@/features/stores/components/CheckoutModal";
@@ -29,6 +30,7 @@ export default function PublicMapPage() {
   const [showClinics, setShowClinics] = useState(false);
   const [showEmergencyOnly, setShowEmergencyOnly] = useState(false);
   const [showStores, setShowStores] = useState(false);
+  const [showAdoptions, setShowAdoptions] = useState(false);
   const [activeStoreId, setActiveStoreId] = useState<string | null>(() =>
     searchParams.get("storeId"),
   );
@@ -46,6 +48,7 @@ export default function PublicMapPage() {
     showClinics,
   );
   const { data: publicStores = [] } = usePublicStores(showStores, 500);
+  const { data: adoptableAnimals = [] } = useAdoptableAnimalsForMap(showAdoptions);
 
   const displayedClinics = showEmergencyOnly
     ? publicClinics.filter((c) => c.isEmergency24h)
@@ -289,6 +292,15 @@ export default function PublicMapPage() {
         >
           🛒 Tiendas {showStores ? "✓" : ""}
         </button>
+        {/* Adoptions toggle */}
+        <button
+          type="button"
+          onClick={() => setShowAdoptions((v) => !v)}
+          aria-pressed={showAdoptions}
+          className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showAdoptions ? "border-purple-400 bg-purple-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
+        >
+          🐾 Adopciones {showAdoptions ? "✓" : ""}
+        </button>
       </div>
 
       <MapContainer
@@ -300,6 +312,7 @@ export default function PublicMapPage() {
           setActiveStoreId(id);
           setShowStores(true);
         }}
+        adoptions={showAdoptions ? adoptableAnimals : undefined}
         locateTrigger={locateTrigger}
         flyTarget={flyTarget}
         onLocated={() => setLocating(false)}

@@ -141,6 +141,9 @@ const AdoptionDirectoryPage = lazy(
 const AdoptionDetailPage = lazy(
   () => import("@/features/adoptions/pages/AdoptionDetailPage"),
 );
+const AdoptionFairsPage = lazy(
+  () => import("@/features/adoptions/pages/AdoptionFairsPage"),
+);
 const MyAdoptionApplicationsPage = lazy(
   () => import("@/features/adoptions/pages/MyAdoptionApplicationsPage"),
 );
@@ -320,6 +323,14 @@ export const router = createBrowserRouter([
             element: (
               <S>
                 <AdoptionDirectoryPage />
+              </S>
+            ),
+          },
+          {
+            path: "/adopciones/ferias",
+            element: (
+              <S>
+                <AdoptionFairsPage />
               </S>
             ),
           },

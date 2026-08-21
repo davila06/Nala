@@ -30,7 +30,10 @@ export default function AdoptionDetailPage() {
       <div className="mx-auto max-w-lg px-4 py-20 text-center">
         <p className="text-4xl mb-3">🐾</p>
         <p className="text-sand-500">Este animal no está disponible.</p>
-        <Link to="/adopciones" className="mt-4 inline-block text-brand-600 underline text-sm">
+        <Link
+          to="/adopciones"
+          className="mt-4 inline-block text-brand-600 underline text-sm"
+        >
           Ver todos los animales
         </Link>
       </div>
@@ -44,13 +47,18 @@ export default function AdoptionDetailPage() {
     <>
       <Helmet>
         <title>{animal.name} · Adopciones · PawTrack CR</title>
-        <meta name="description" content={`Adopta a ${animal.name} en Costa Rica. ${animal.story.slice(0, 120)}`} />
+        <meta
+          name="description"
+          content={`Adopta a ${animal.name} en Costa Rica. ${animal.story.slice(0, 120)}`}
+        />
       </Helmet>
 
       <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
         {/* Breadcrumb */}
         <nav className="text-xs text-sand-400">
-          <Link to="/adopciones" className="hover:text-brand-500">Adopciones</Link>
+          <Link to="/adopciones" className="hover:text-brand-500">
+            Adopciones
+          </Link>
           {" / "}
           <span className="text-ink-700">{animal.name}</span>
         </nav>
@@ -73,7 +81,11 @@ export default function AdoptionDetailPage() {
                     onClick={() => setPhotoIndex(i)}
                     className={`h-14 w-14 rounded-lg overflow-hidden border-2 transition-colors ${i === photoIndex ? "border-brand-500" : "border-transparent"}`}
                   >
-                    <img src={url} alt="" className="h-full w-full object-cover" />
+                    <img
+                      src={url}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
                   </button>
                 ))}
               </div>
@@ -92,8 +104,10 @@ export default function AdoptionDetailPage() {
             <p className="text-sm text-sand-500 mt-0.5">
               {SPECIES_LABELS[animal.species]}
               {animal.breed && ` · ${animal.breed}`}
-              {" · "}{SIZE_LABELS[animal.size]}
-              {" · "}{AGE_LABELS[animal.ageCategory]}
+              {" · "}
+              {SIZE_LABELS[animal.size]}
+              {" · "}
+              {AGE_LABELS[animal.ageCategory]}
             </p>
           </div>
           <div className="text-right shrink-0">
@@ -129,36 +143,50 @@ export default function AdoptionDetailPage() {
 
         {/* Story */}
         <section>
-          <h2 className="text-sm font-semibold text-ink-800 mb-2">Historia y personalidad</h2>
-          <p className="text-sm text-ink-700 leading-relaxed whitespace-pre-line">{animal.story}</p>
+          <h2 className="text-sm font-semibold text-ink-800 mb-2">
+            Historia y personalidad
+          </h2>
+          <p className="text-sm text-ink-700 leading-relaxed whitespace-pre-line">
+            {animal.story}
+          </p>
         </section>
 
         {/* Requirements */}
         {animal.requirements && (
           <section>
-            <h2 className="text-sm font-semibold text-ink-800 mb-2">Requisitos para el adoptante</h2>
-            <p className="text-sm text-ink-700 leading-relaxed">{animal.requirements}</p>
+            <h2 className="text-sm font-semibold text-ink-800 mb-2">
+              Requisitos para el adoptante
+            </h2>
+            <p className="text-sm text-ink-700 leading-relaxed">
+              {animal.requirements}
+            </p>
           </section>
         )}
 
         {/* Medical notes */}
         {animal.medicalNotes && (
           <section>
-            <h2 className="text-sm font-semibold text-ink-800 mb-2">Notas médicas</h2>
-            <p className="text-sm text-ink-700 leading-relaxed">{animal.medicalNotes}</p>
+            <h2 className="text-sm font-semibold text-ink-800 mb-2">
+              Notas médicas
+            </h2>
+            <p className="text-sm text-ink-700 leading-relaxed">
+              {animal.medicalNotes}
+            </p>
           </section>
         )}
 
         {/* Organization */}
         <section className="rounded-xl bg-sand-50 border border-sand-100 p-4">
           <p className="text-xs text-sand-400 mb-1">Publicado por</p>
-          <p className="text-sm font-semibold text-ink-800">{animal.organizationName}</p>
+          <p className="text-sm font-semibold text-ink-800">
+            {animal.organizationName}
+          </p>
         </section>
 
         {/* CTA */}
         <div className="sticky bottom-4">
-          {isAvailable && (
-            isAuthenticated ? (
+          {isAvailable &&
+            (isAuthenticated ? (
               <button
                 onClick={() => setApplyOpen(true)}
                 className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-2xl shadow-lg transition-colors"
@@ -172,8 +200,7 @@ export default function AdoptionDetailPage() {
               >
                 Inicia sesión para aplicar
               </Link>
-            )
-          )}
+            ))}
         </div>
       </div>
 
@@ -183,14 +210,25 @@ export default function AdoptionDetailPage() {
           animalName={animal.name}
           isOpen={applyOpen}
           onClose={() => setApplyOpen(false)}
-          onSuccess={() => { setApplyOpen(false); toast.success("¡Solicitud enviada! La organización te contactará pronto."); }}
+          onSuccess={() => {
+            setApplyOpen(false);
+            toast.success(
+              "¡Solicitud enviada! La organización te contactará pronto.",
+            );
+          }}
         />
       )}
     </>
   );
 }
 
-function Chip({ children, color }: { children: React.ReactNode; color: string }) {
+function Chip({
+  children,
+  color,
+}: {
+  children: React.ReactNode;
+  color: string;
+}) {
   const colorMap: Record<string, string> = {
     green: "bg-green-50 text-green-700",
     blue: "bg-blue-50 text-blue-700",
@@ -201,7 +239,9 @@ function Chip({ children, color }: { children: React.ReactNode; color: string })
     teal: "bg-teal-50 text-teal-700",
   };
   return (
-    <span className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full ${colorMap[color] ?? "bg-sand-100 text-sand-600"}`}>
+    <span
+      className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full ${colorMap[color] ?? "bg-sand-100 text-sand-600"}`}
+    >
       {children}
     </span>
   );

@@ -127,6 +127,37 @@ public sealed class HandleWhatsAppWebhookCommandHandler(
 
         // "nuevo" resets a completed session — but since Completed sessions are not returned
         // by GetActiveByPhoneHash, this handles the first message in any new session.
+
+        // Adoption keyword interception — respond without starting a lost-pet flow
+        var keyword = request.TextBody!.ToLowerInvariant().Trim();
+        if (keyword.Contains("adopta") || keyword.Contains("adopcion") ||
+            keyword.Contains("adopción") || keyword.Contains("quiero adoptar"))
+        {
+            await whatsAppSender.SendTextAsync(request.WaId,
+                "🐾 *PawTrack CR — Adopciones*\n\n" +
+                "Visita nuestro directorio de animales en adopción:\n" +
+                "👉 https://pawtrack.cr/adopciones\n\n" +
+                "También puedes ver los próximos eventos de adopción:\n" +
+                "🎉 https://pawtrack.cr/adopciones/ferias",
+                ct);
+            return;
+        }
+
+        if (keyword.Contains("dar en adopcion") || keyword.Contains("dar en adopción") ||
+            keyword.Contains("tengo animales") || keyword.Contains("shelter") ||
+            keyword.Contains("refugio"))
+        {
+            await whatsAppSender.SendTextAsync(request.WaId,
+                "🏠 *Para dar animales en adopción con PawTrack CR*\n\n" +
+                "Tu organización necesita:\n" +
+                "1️⃣ Registrarse como Aliado Verificado (Shelter)\n" +
+                "2️⃣ Ingresar al panel del aliado\n" +
+                "3️⃣ Publicar el perfil del animal con fotos\n\n" +
+                "Más información: https://pawtrack.cr/allies/registro",
+                ct);
+            return;
+        }
+
         session.SetPetName(request.TextBody);
         await botSessionRepository.UpdateAsync(session, ct);
 

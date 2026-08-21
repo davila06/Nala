@@ -1,5 +1,10 @@
 import { useState } from "react";
-import type { AdoptionFilters, PetSpecies, PetSize, AgeCategory } from "../api/adoptionsApi";
+import type {
+  AdoptionFilters,
+  PetSpecies,
+  PetSize,
+  AgeCategory,
+} from "../api/adoptionsApi";
 import { SPECIES_LABELS, SIZE_LABELS, AGE_LABELS } from "../api/adoptionsApi";
 
 interface AdoptionFiltersBarProps {
@@ -7,7 +12,10 @@ interface AdoptionFiltersBarProps {
   onChange: (next: AdoptionFilters) => void;
 }
 
-export function AdoptionFiltersBar({ filters, onChange }: AdoptionFiltersBarProps) {
+export function AdoptionFiltersBar({
+  filters,
+  onChange,
+}: AdoptionFiltersBarProps) {
   const [locating, setLocating] = useState(false);
 
   const set = (partial: Partial<AdoptionFilters>) =>
@@ -28,9 +36,14 @@ export function AdoptionFiltersBar({ filters, onChange }: AdoptionFiltersBarProp
   };
 
   const hasFilters = !!(
-    filters.species || filters.size || filters.ageCategory ||
-    filters.isVaccinated || filters.isSterilized || filters.okWithKids ||
-    filters.okWithDogs || filters.lat
+    filters.species ||
+    filters.size ||
+    filters.ageCategory ||
+    filters.isVaccinated ||
+    filters.isSterilized ||
+    filters.okWithKids ||
+    filters.okWithDogs ||
+    filters.lat
   );
 
   return (
@@ -39,35 +52,53 @@ export function AdoptionFiltersBar({ filters, onChange }: AdoptionFiltersBarProp
       <div className="flex flex-wrap gap-2">
         <select
           value={filters.species ?? ""}
-          onChange={(e) => set({ species: (e.target.value as PetSpecies) || undefined })}
+          onChange={(e) =>
+            set({ species: (e.target.value as PetSpecies) || undefined })
+          }
           className="rounded-xl border border-sand-200 bg-surface px-3 py-1.5 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
         >
           <option value="">Especie</option>
-          {(Object.entries(SPECIES_LABELS) as [PetSpecies, string][]).map(([v, l]) => (
-            <option key={v} value={v}>{l}</option>
-          ))}
+          {(Object.entries(SPECIES_LABELS) as [PetSpecies, string][]).map(
+            ([v, l]) => (
+              <option key={v} value={v}>
+                {l}
+              </option>
+            ),
+          )}
         </select>
 
         <select
           value={filters.size ?? ""}
-          onChange={(e) => set({ size: (e.target.value as PetSize) || undefined })}
+          onChange={(e) =>
+            set({ size: (e.target.value as PetSize) || undefined })
+          }
           className="rounded-xl border border-sand-200 bg-surface px-3 py-1.5 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
         >
           <option value="">Tamaño</option>
-          {(Object.entries(SIZE_LABELS) as [PetSize, string][]).map(([v, l]) => (
-            <option key={v} value={v}>{l}</option>
-          ))}
+          {(Object.entries(SIZE_LABELS) as [PetSize, string][]).map(
+            ([v, l]) => (
+              <option key={v} value={v}>
+                {l}
+              </option>
+            ),
+          )}
         </select>
 
         <select
           value={filters.ageCategory ?? ""}
-          onChange={(e) => set({ ageCategory: (e.target.value as AgeCategory) || undefined })}
+          onChange={(e) =>
+            set({ ageCategory: (e.target.value as AgeCategory) || undefined })
+          }
           className="rounded-xl border border-sand-200 bg-surface px-3 py-1.5 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
         >
           <option value="">Edad</option>
-          {(Object.entries(AGE_LABELS) as [AgeCategory, string][]).map(([v, l]) => (
-            <option key={v} value={v}>{l}</option>
-          ))}
+          {(Object.entries(AGE_LABELS) as [AgeCategory, string][]).map(
+            ([v, l]) => (
+              <option key={v} value={v}>
+                {l}
+              </option>
+            ),
+          )}
         </select>
       </div>
 
@@ -81,7 +112,10 @@ export function AdoptionFiltersBar({ filters, onChange }: AdoptionFiltersBarProp
             ["okWithDogs", "OK perros"],
           ] as [keyof AdoptionFilters, string][]
         ).map(([key, label]) => (
-          <label key={key} className="flex items-center gap-1.5 cursor-pointer text-sm text-ink-700">
+          <label
+            key={key}
+            className="flex items-center gap-1.5 cursor-pointer text-sm text-ink-700"
+          >
             <input
               type="checkbox"
               checked={!!filters[key]}
@@ -107,7 +141,9 @@ export function AdoptionFiltersBar({ filters, onChange }: AdoptionFiltersBarProp
             className="rounded-xl border border-sand-200 bg-surface px-3 py-1.5 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
           >
             {[10, 25, 50, 100].map((r) => (
-              <option key={r} value={r}>{r} km</option>
+              <option key={r} value={r}>
+                {r} km
+              </option>
             ))}
           </select>
         )}

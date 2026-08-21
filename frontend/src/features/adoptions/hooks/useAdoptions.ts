@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adoptionsApi, type AdoptionFilters, type PublishAnimalPayload, type UpdateAnimalPayload } from "../api/adoptionsApi";
+import {
+  adoptionsApi,
+  type AdoptionFilters,
+  type PublishAnimalPayload,
+  type UpdateAnimalPayload,
+} from "../api/adoptionsApi";
 
 export function useAdoptableAnimals(filters: AdoptionFilters = {}) {
   return useQuery({
@@ -38,8 +43,10 @@ export function useMyAdoptionAnimals(page = 1, pageSize = 20) {
 export function usePublishAnimal() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: PublishAnimalPayload) => adoptionsApi.publishAnimal(data),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["adoptions", "mine"] }),
+    mutationFn: (data: PublishAnimalPayload) =>
+      adoptionsApi.publishAnimal(data),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["adoptions", "mine"] }),
   });
 }
 
@@ -49,7 +56,9 @@ export function useUpdateAnimal() {
     mutationFn: ({ id, ...data }: { id: string } & UpdateAnimalPayload) =>
       adoptionsApi.updateAnimal(id, data),
     onSuccess: (_data, vars) => {
-      void qc.invalidateQueries({ queryKey: ["adoptions", "animals", vars.id] });
+      void qc.invalidateQueries({
+        queryKey: ["adoptions", "animals", vars.id],
+      });
       void qc.invalidateQueries({ queryKey: ["adoptions", "mine"] });
     },
   });
@@ -61,17 +70,26 @@ export function useUploadAdoptionPhoto() {
     mutationFn: ({ animalId, file }: { animalId: string; file: File }) =>
       adoptionsApi.uploadPhoto(animalId, file),
     onSuccess: (_data, vars) =>
-      void qc.invalidateQueries({ queryKey: ["adoptions", "animals", vars.animalId] }),
+      void qc.invalidateQueries({
+        queryKey: ["adoptions", "animals", vars.animalId],
+      }),
   });
 }
 
 export function useDeleteAdoptionPhoto() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ animalId, photoUrl }: { animalId: string; photoUrl: string }) =>
-      adoptionsApi.deletePhoto(animalId, photoUrl),
+    mutationFn: ({
+      animalId,
+      photoUrl,
+    }: {
+      animalId: string;
+      photoUrl: string;
+    }) => adoptionsApi.deletePhoto(animalId, photoUrl),
     onSuccess: (_data, vars) =>
-      void qc.invalidateQueries({ queryKey: ["adoptions", "animals", vars.animalId] }),
+      void qc.invalidateQueries({
+        queryKey: ["adoptions", "animals", vars.animalId],
+      }),
   });
 }
 
@@ -81,7 +99,9 @@ export function useApplyToAdopt() {
     mutationFn: ({ animalId, note }: { animalId: string; note: string }) =>
       adoptionsApi.applyToAdopt(animalId, note),
     onSuccess: () =>
-      void qc.invalidateQueries({ queryKey: ["adoptions", "applications", "mine"] }),
+      void qc.invalidateQueries({
+        queryKey: ["adoptions", "applications", "mine"],
+      }),
   });
 }
 
@@ -114,9 +134,12 @@ export function useReviewApplication() {
 export function useWithdrawApplication() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (applicationId: string) => adoptionsApi.withdrawApplication(applicationId),
+    mutationFn: (applicationId: string) =>
+      adoptionsApi.withdrawApplication(applicationId),
     onSuccess: () =>
-      void qc.invalidateQueries({ queryKey: ["adoptions", "applications", "mine"] }),
+      void qc.invalidateQueries({
+        queryKey: ["adoptions", "applications", "mine"],
+      }),
   });
 }
 
@@ -139,7 +162,11 @@ export function useMyAdoptionApplications(page = 1, pageSize = 20) {
   });
 }
 
-export function useUpcomingFairs(lat?: number, lng?: number, radiusKm?: number) {
+export function useUpcomingFairs(
+  lat?: number,
+  lng?: number,
+  radiusKm?: number,
+) {
   return useQuery({
     queryKey: ["adoptions", "fairs", lat, lng, radiusKm],
     queryFn: () => adoptionsApi.getFairs(lat, lng, radiusKm),
@@ -151,6 +178,7 @@ export function useCreateFair() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: adoptionsApi.createFair,
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["adoptions", "fairs"] }),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["adoptions", "fairs"] }),
   });
 }
