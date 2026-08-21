@@ -1318,4 +1318,34 @@ Si ves comportamiento sospechoso en el chat, usa el botón "Reportar fraude". Pa
 
 ---
 
+## Adoptar una mascota
+
+### Buscar animales en adopción
+
+1. Ve a **`/adopciones`** desde el menú o activa el toggle **"🐾 Adopciones"** en el mapa.
+2. Usa los filtros: especie, tamaño, edad, vacunado, castrado, OK con niños/perros.
+3. Activa **"📍 Mi zona"** para ver animales cerca de ti (requiere permiso de ubicación).
+4. Haz clic en cualquier tarjeta para ver el perfil completo del animal.
+
+### Aplicar para adoptar
+
+1. En el perfil del animal, haz clic en **"🐾 Quiero adoptarlo"** (necesitas cuenta).
+2. Escribe por qué quieres adoptar a este animal (máx. 500 caracteres).
+3. Envía la solicitud — la organización recibe una notificación de inmediato.
+
+### Seguimiento
+
+- La organización aprobará o rechazará tu solicitud.
+- Recibirás una **notificación push** con la decisión.
+- Si fue aprobada, coordina la entrega con la organización.
+- Consulta todas tus solicitudes en **"Mis adopciones"** (`/mis-adopciones`).
+- Puedes **retirar tu solicitud** mientras esté en estado Pendiente.
+
+### Ferias de adopción
+
+- Ve a **`/adopciones/ferias`** para ver eventos presenciales próximos.
+- El sistema te enviará una **alerta automática** si hay una feria a menos de 10 km.
+
+---
+
 _PawTrack CR — Cada mascota merece volver a casa._

@@ -3,10 +3,12 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using PawTrack.Application.Common;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Adoptions;
 using PawTrack.Domain.Allies;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Pets;
+using PawTrack.Domain.Subscriptions;
 
 namespace PawTrack.Application.Adoptions;
 
@@ -146,16 +148,29 @@ public sealed class PublishAdoptablePetCommandValidator : AbstractValidator<Publ
 public sealed class PublishAdoptablePetCommandHandler(
     IAllyProfileRepository allyProfileRepository,
     IAdoptionRepository adoptionRepository,
+    ISubscriptionService subscriptionService,
     IUnitOfWork unitOfWork,
     ILogger<PublishAdoptablePetCommandHandler> logger)
     : IRequestHandler<PublishAdoptablePetCommand, Result<AdoptablePetDto>>
 {
     public const string NotVerifiedShelterError = "not_verified_shelter";
+    public const string ShelterBasicLimitError  = "shelter_basic_limit_reached";
 
     public async Task<Result<AdoptablePetDto>> Handle(
         PublishAdoptablePetCommand request, CancellationToken ct)
     {
         var ally = await allyProfileRepository.GetVerifiedByUserIdAsync(request.OrganizationUserId, ct);
+        if (ally is null || ally.AllyType != AllyType.Shelter)
+            return Result.Failure<AdoptablePetDto>(NotVerifiedShelterError);
+
+        // ShelterBasic is limited to 5 active animals; ShelterPlus is unlimited
+        var tier = await subscriptionService.GetActiveUserTierAsync(request.OrganizationUserId, ct);
+        if (tier < SubscriptionTier.ShelterPlus)
+        {
+            var activeCount = await adoptionRepository.CountByOrganizationAsync(request.OrganizationUserId, ct);
+            if (activeCount >= 5)
+                return Result.Failure<AdoptablePetDto>(ShelterBasicLimitError);
+        }
         if (ally is null || ally.AllyType != AllyType.Shelter)
             return Result.Failure<AdoptablePetDto>(NotVerifiedShelterError);
 
@@ -551,17 +566,25 @@ public sealed class CreateAdoptionFairCommandValidator : AbstractValidator<Creat
 public sealed class CreateAdoptionFairCommandHandler(
     IAdoptionRepository adoptionRepository,
     IAllyProfileRepository allyProfileRepository,
+    ISubscriptionService subscriptionService,
     INotificationDispatcher notificationDispatcher,
     IUnitOfWork unitOfWork,
     ILogger<CreateAdoptionFairCommandHandler> logger)
     : IRequestHandler<CreateAdoptionFairCommand, Result<AdoptionFairDto>>
 {
+    public const string ShelterPlusRequiredError = "shelter_plus_required";
+
     public async Task<Result<AdoptionFairDto>> Handle(
         CreateAdoptionFairCommand request, CancellationToken ct)
     {
         var ally = await allyProfileRepository.GetVerifiedByUserIdAsync(request.OrganizationUserId, ct);
         if (ally is null || ally.AllyType != AllyType.Shelter)
             return Result.Failure<AdoptionFairDto>("not_verified_shelter");
+
+        // Fairs require ShelterPlus subscription
+        var tier = await subscriptionService.GetActiveUserTierAsync(request.OrganizationUserId, ct);
+        if (tier < SubscriptionTier.ShelterPlus)
+            return Result.Failure<AdoptionFairDto>(ShelterPlusRequiredError);
 
         var fair = AdoptionFair.Create(
             request.OrganizationUserId, request.Title, request.VenueLabel,

@@ -199,5 +199,59 @@
 | Push notifications web    | VAPID sin proveedor externo                       |
 | Update banner inteligente | Muestra "Actualizar / Después" — no fuerza reload |
 | Pull to refresh           | Dashboard y otras listas clave                    |
-| Mapa full-screen          | Leaflet con layers: eventos + clínicas + tiendas  |
+| Mapa full-screen          | Leaflet con layers: eventos + clínicas + tiendas + adopciones  |
 | SignalR real-time         | Chat de mensajes y coordinación de búsqueda       |
+
+---
+
+## 13. Módulo de Adopciones
+
+### Para adoptantes (público / Owner)
+
+| Feature | Plan | Descripción |
+|---|---|---|
+| Directorio público de animales | Todos | Grid paginado filtrable por especie, tamaño, edad, vacunación, zona |
+| Filtro geográfico (GPS) | Todos | Radio configurable 10–100 km desde la ubicación del visitante |
+| Pins de adopción en mapa | Todos | Toggle "Adopciones" en el mapa público; pins morados distintos a los de mascotas perdidas |
+| Perfil detallado del animal | Todos | Galería de fotos, historia, requisitos, notas médicas, badges de salud |
+| Solicitar adopción | Owner | Formulario con nota personal; un solo pending por animal |
+| Ver mis solicitudes | Owner | Estado de cada solicitud; respuesta de la organización |
+| Retirar solicitud | Owner | Solo si está en Pending o UnderReview |
+| Ferias de adopción | Todos | Listado geofenceado de eventos presenciales próximos |
+
+### Para shelters (Ally verificado con AllyType.Shelter)
+
+| Feature | Plan | Descripción |
+|---|---|---|
+| Publicar animal en adopción | ShelterBasic (gratis, máx 5) / ShelterPlus (ilimitado) | Nombre, especie, tamaño, historia, fotos (hasta 5), zona de referencia |
+| Gestionar fotos | Ally | Upload multi-foto a Azure Blob `adoption-photos/`; delete individual |
+| Editar perfil del animal | Ally | Actualizar texto, características y flags de salud |
+| Cambiar estado del animal | Ally | Available → InProcess → Adopted / Paused / Removed |
+| Ver solicitudes por animal | Ally | Lista de aplicantes con nota personal de cada uno |
+| Aprobar / rechazar solicitud | Ally | Con nota de respuesta opcional; se notifica al adoptante |
+| Marcar como adoptado | Ally | Cierra el ciclo; el animal desaparece del directorio activo |
+| Crear ferias de adopción | ShelterPlus | Evento con fecha, lugar GPS, lista de animales presentes |
+| Panel del shelter | Ally | Lista paginada de todos sus animales con estado y acciones |
+
+### Notificaciones de adopción
+
+| Tipo | Destinatario | Canal |
+|---|---|---|
+| `AdoptionInterest` | Shelter | In-app + push |
+| `AdoptionApproved` | Adoptante | In-app + push |
+| `AdoptionRejected` | Adoptante | In-app + push |
+| `AdoptionFairAlert` | Usuarios en radio 10km | Push geofenceado con rate limiting |
+
+### Monetización de adopciones
+
+| Plan | Precio | Límite |
+|---|---|---|
+| ShelterBasic | Gratis | 5 animales activos simultáneos; sin ferias |
+| ShelterPlus | ₡8,000/mes | Animales ilimitados + ferias de adopción + pin destacado |
+
+### WhatsApp Bot — intents de adopción
+
+| Keyword | Respuesta |
+|---|---|
+| "adoptar", "adopcion", "quiero adoptar" | Link al directorio + ferias |
+| "dar en adopcion", "tengo animales", "shelter", "refugio" | Instrucciones para registrarse como Ally Shelter |

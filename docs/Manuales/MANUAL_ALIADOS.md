@@ -161,3 +161,51 @@ El programa de aliados está orientado a organizaciones. Los individuos pueden c
 
 **¿Mis datos de contacto son visibles para los dueños de las mascotas?**  
 El nombre de la organización y la zona de cobertura pueden ser visibles en el contexto de los casos. Los datos de contacto individuales de tu cuenta no se exponen públicamente.
+
+---
+
+## 8. Módulo de Adopciones (Shelter)
+
+> Solo disponible para aliados con AllyType = Shelter y estado Verified.
+
+### 8.1 Publicar un animal en adopción
+
+1. Ir a **/shelter/publicar** desde el panel de aliados.
+2. Completar el formulario:
+   - **Información básica**: nombre, especie, raza, tamaño, categoría de edad.
+   - **Historia y personalidad**: texto libre hasta 2,000 caracteres.
+   - **Características**: vacunado, castrado, microchip, OK con niños/perros/gatos, necesita patio.
+   - **Zona de referencia**: texto descriptivo (ej. "Escazú, San José") — NO se expone la dirección exacta del shelter.
+3. Hacer clic en **Publicar animal**.
+4. Subir fotos desde el panel del shelter (hasta 5 fotos por animal).
+
+> **Plan ShelterBasic (gratis):** máximo 5 animales activos simultáneamente.
+> **Plan ShelterPlus (₡8,000/mes):** animales ilimitados + ferias de adopción + pin destacado en el mapa.
+
+### 8.2 Gestionar solicitudes de adopción
+
+En **/shelter/animales/:id/aplicaciones**:
+
+- Ver todas las solicitudes recibidas con la nota personal de cada aplicante.
+- **Aprobar**: el animal cambia a estado "En proceso" y el adoptante recibe una notificación.
+- **Rechazar**: el adoptante recibe una notificación con la nota de respuesta (opcional).
+- Cuando la entrega física se realiza, usar **"Marcar como adoptado"** en el panel principal.
+
+### 8.3 Crear ferias de adopción (ShelterPlus)
+
+En **/shelter/dashboard**, pestaña "Ferias":
+
+1. Clic en **Crear nueva feria**.
+2. Completar: título, descripción, lugar (nombre del lugar), coordenadas GPS, fecha de inicio y fin.
+3. Seleccionar qué animales estarán presentes.
+4. El sistema envía alertas push geofenceadas a usuarios dentro de 10 km del lugar.
+
+### 8.4 Estados del animal
+
+| Estado | Descripción |
+|---|---|
+| **Disponible** | Visible en el directorio; acepta solicitudes |
+| **En proceso** | Una solicitud fue aprobada; no acepta nuevas solicitudes |
+| **Adoptado** | Cerrado exitosamente; sale del directorio activo |
+| **Pausado** | Temporalmente oculto del directorio (ej. el animal está en tratamiento) |
+| **Removido** | Borrado lógico; no aparece en ningún listado |

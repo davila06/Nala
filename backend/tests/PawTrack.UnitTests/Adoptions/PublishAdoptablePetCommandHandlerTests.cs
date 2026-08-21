@@ -3,9 +3,11 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using PawTrack.Application.Adoptions;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Adoptions;
 using PawTrack.Domain.Allies;
 using PawTrack.Domain.Pets;
+using PawTrack.Domain.Subscriptions;
 
 namespace PawTrack.UnitTests.Adoptions;
 
@@ -13,10 +15,12 @@ public sealed class PublishAdoptablePetCommandHandlerTests
 {
     private readonly IAllyProfileRepository _allies = Substitute.For<IAllyProfileRepository>();
     private readonly IAdoptionRepository _adoptions = Substitute.For<IAdoptionRepository>();
+    private readonly ISubscriptionService _subscriptions = Substitute.For<ISubscriptionService>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
 
     private PublishAdoptablePetCommandHandler BuildHandler() => new(
-        _allies, _adoptions, _uow, NullLogger<PublishAdoptablePetCommandHandler>.Instance);
+        _allies, _adoptions, _subscriptions, _uow,
+        NullLogger<PublishAdoptablePetCommandHandler>.Instance);
 
     private static PublishAdoptablePetCommand Cmd(Guid orgUserId) => new(
         orgUserId, "Max", PetSpecies.Dog, PetSize.Medium, AgeCategory.Young,

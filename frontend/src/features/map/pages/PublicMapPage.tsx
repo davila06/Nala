@@ -48,7 +48,8 @@ export default function PublicMapPage() {
     showClinics,
   );
   const { data: publicStores = [] } = usePublicStores(showStores, 500);
-  const { data: adoptableAnimals = [] } = useAdoptableAnimalsForMap(showAdoptions);
+  const { data: adoptableAnimals = [] } =
+    useAdoptableAnimalsForMap(showAdoptions);
 
   const displayedClinics = showEmergencyOnly
     ? publicClinics.filter((c) => c.isEmergency24h)
