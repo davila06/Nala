@@ -118,7 +118,10 @@ public sealed class Subscription
 
     private static void ValidateUserTier(SubscriptionTier tier)
     {
-        if (tier is not (SubscriptionTier.UserPlus or SubscriptionTier.UserFamilia))
+        if (tier is not (
+            SubscriptionTier.UserPlus or
+            SubscriptionTier.UserFamilia or
+            SubscriptionTier.ShelterPlus))
             throw new ArgumentException($"Tier {tier} is not a valid user tier.");
     }
 

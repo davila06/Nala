@@ -31,6 +31,10 @@ import { Input } from "@/shared/ui";
 import { AdminPromotionManager } from "@/features/promotions/components/AdminPromotionManager";
 import { AdminStoresTab } from "@/features/stores/components/AdminStoresTab";
 import { AdminBillboardsTab } from "@/features/advertising/components/AdminBillboardsTab";
+import { AdminAdoptionsTab } from "../components/AdminAdoptionsTab";
+import {
+  useAdoptionAdminStats,
+} from "../hooks/useAdmin";
 
 type Tab =
   | "allies"
@@ -39,7 +43,8 @@ type Tab =
   | "bundles"
   | "promotions"
   | "stores"
-  | "billboards";
+  | "billboards"
+  | "adoptions";
 
 const ALLY_TYPE_LABELS: Record<string, string> = {
   VeterinaryClinic: "Veterinaria",
@@ -734,6 +739,7 @@ export default function AdminPage() {
   const { data: alliesData } = usePendingAllies();
   const { data: clinicsData } = usePendingClinics();
   const { data: pendingSubsData } = useAdminSubscriptions(true);
+  const { data: adoptionStats } = useAdoptionAdminStats();
 
   const allyCount = alliesData?.length ?? 0;
   const clinicCount = clinicsData?.length ?? 0;
@@ -788,6 +794,12 @@ export default function AdminPage() {
           value={pendingBundleCount}
           urgent
         />
+        <StatCard
+          icon="🐾"
+          label="Animales en adopción"
+          value={adoptionStats?.totalAvailable ?? 0}
+          urgent={false}
+        />
       </div>
 
       {/* ── Tabs ── */}
@@ -799,6 +811,9 @@ export default function AdminPage() {
             "subscriptions",
             "bundles",
             "promotions",
+            "adoptions",
+            "stores",
+            "billboards",
           ] as const
         ).map((tab) => {
           const count =
@@ -822,9 +837,11 @@ export default function AdminPage() {
                     ? "Bundles"
                     : tab === "promotions"
                       ? "Promociones"
-                      : tab === "stores"
-                        ? "Tiendas"
-                        : "Vallas";
+                      : tab === "adoptions"
+                        ? "Adopciones"
+                        : tab === "stores"
+                          ? "Tiendas"
+                          : "Vallas";
           return (
             <button
               key={tab}
@@ -865,6 +882,7 @@ export default function AdminPage() {
           {activeTab === "subscriptions" && <SubscriptionsTab />}
           {activeTab === "bundles" && <BundlesTab />}
           {activeTab === "promotions" && <AdminPromotionManager />}
+          {activeTab === "adoptions" && <AdminAdoptionsTab />}
           {activeTab === "stores" && <AdminStoresTab />}
           {activeTab === "billboards" && <AdminBillboardsTab />}
         </motion.div>

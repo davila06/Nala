@@ -1,3 +1,4 @@
+using PawTrack.Application.Adoptions;
 using PawTrack.Domain.Adoptions;
 using PawTrack.Domain.Pets;
 
@@ -26,6 +27,9 @@ public interface IAdoptionRepository
         CancellationToken ct = default);
     /// <summary>Returns all available animals for the map view; hard-capped at 500.</summary>
     Task<IReadOnlyList<AdoptablePet>> GetAvailableAllAsync(CancellationToken ct = default);
+    Task<AdoptionAdminStatsDto> GetAdminStatsAsync(CancellationToken ct = default);
+    Task<(IReadOnlyList<AdoptablePet> Items, int Total)> GetAllAdminPagedAsync(
+        AdoptionStatus? status, int skip, int take, CancellationToken ct = default);
     Task AddAnimalAsync(AdoptablePet animal, CancellationToken ct = default);
     void UpdateAnimal(AdoptablePet animal);
 

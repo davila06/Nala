@@ -82,3 +82,33 @@ export function useAdminCancelSubscription() {
     },
   });
 }
+
+// ── Adoptions admin hooks ──────────────────────────────────────────────────────
+
+export function useAdoptionAdminStats() {
+  return useQuery({
+    queryKey: ["admin", "adoptions", "stats"],
+    queryFn: adminApi.getAdoptionStats,
+    staleTime: 60_000,
+  });
+}
+
+export function useAdminAdoptionAnimals(status?: string, page = 1, pageSize = 20) {
+  return useQuery({
+    queryKey: ["admin", "adoptions", "animals", status, page],
+    queryFn: () => adminApi.getAdminAnimals(status, page, pageSize),
+    staleTime: 30_000,
+  });
+}
+
+export function useAdminModerateAnimal() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, action }: { id: string; action: "remove" | "pause" | "restore" }) =>
+      adminApi.moderateAnimal(id, action),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "adoptions"] });
+      void queryClient.invalidateQueries({ queryKey: ["adoptions", "animals"] });
+    },
+  });
+}

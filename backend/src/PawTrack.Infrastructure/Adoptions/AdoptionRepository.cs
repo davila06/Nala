@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PawTrack.Application.Adoptions;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Adoptions;
 using PawTrack.Domain.Pets;
@@ -71,6 +72,35 @@ public sealed class AdoptionRepository(PawTrackDbContext db) : IAdoptionReposito
             .OrderByDescending(a => a.PublishedAt)
             .Take(500) // hard cap for map pins
             .ToListAsync(ct);
+
+    public async Task<AdoptionAdminStatsDto> GetAdminStatsAsync(CancellationToken ct = default)
+    {
+        var animalCounts = await db.AdoptableAnimals
+            .GroupBy(a => a.Status)
+            .Select(g => new { Status = g.Key, Count = g.Count() })
+            .ToListAsync(ct);
+
+        int Get(AdoptionStatus s) => animalCounts.FirstOrDefault(x => x.Status == s)?.Count ?? 0;
+
+        return new AdoptionAdminStatsDto(
+            TotalPublished:   animalCounts.Sum(x => x.Count),
+            TotalAvailable:   Get(AdoptionStatus.Available),
+            TotalInProcess:   Get(AdoptionStatus.InProcess),
+            TotalAdopted:     Get(AdoptionStatus.Adopted),
+            TotalPaused:      Get(AdoptionStatus.Paused),
+            TotalApplications: await db.AdoptionApplications.CountAsync(ct),
+            TotalFairs:       await db.AdoptionFairs.CountAsync(ct));
+    }
+
+    public async Task<(IReadOnlyList<AdoptablePet> Items, int Total)> GetAllAdminPagedAsync(
+        AdoptionStatus? status, int skip, int take, CancellationToken ct = default)
+    {
+        var q = db.AdoptableAnimals.AsNoTracking();
+        if (status.HasValue) q = q.Where(a => a.Status == status.Value);
+        var total = await q.CountAsync(ct);
+        var items = await q.OrderByDescending(a => a.PublishedAt).Skip(skip).Take(take).ToListAsync(ct);
+        return (items, total);
+    }
 
     public async Task AddAnimalAsync(AdoptablePet animal, CancellationToken ct = default) =>
         await db.AdoptableAnimals.AddAsync(animal, ct);

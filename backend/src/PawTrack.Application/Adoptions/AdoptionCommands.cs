@@ -154,7 +154,7 @@ public sealed class PublishAdoptablePetCommandHandler(
     : IRequestHandler<PublishAdoptablePetCommand, Result<AdoptablePetDto>>
 {
     public const string NotVerifiedShelterError = "not_verified_shelter";
-    public const string ShelterBasicLimitError  = "shelter_basic_limit_reached";
+    public const string ShelterBasicLimitError = "shelter_basic_limit_reached";
 
     public async Task<Result<AdoptablePetDto>> Handle(
         PublishAdoptablePetCommand request, CancellationToken ct)

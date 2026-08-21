@@ -4,8 +4,29 @@ import type {
   SubscriptionStatus,
   SubscriptionTier,
 } from "@/features/pets/api/subscriptionApi";
+import type { AdoptablePetDto } from "@/features/adoptions/api/adoptionsApi";
 
 export type { SubscriptionDto, SubscriptionStatus, SubscriptionTier };
+
+export interface AdoptionAdminStatsDto {
+  totalPublished: number;
+  totalAvailable: number;
+  totalInProcess: number;
+  totalAdopted: number;
+  totalPaused: number;
+  totalApplications: number;
+  totalFairs: number;
+}
+
+export interface AdminAdoptionsPage {
+  items: AdoptablePetDto[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
 
 export interface AdminSubscriptionDto {
   id: string;
@@ -83,4 +104,17 @@ export const adminApi = {
     apiClient
       .delete<SubscriptionDto>(`/subscriptions/admin/${id}`)
       .then((r) => r.data),
+
+  // ── Adoptions admin ────────────────────────────────────────────────────────
+
+  getAdoptionStats: () =>
+    apiClient.get<AdoptionAdminStatsDto>("/admin/adoptions/stats").then((r) => r.data),
+
+  getAdminAnimals: (status?: string, page = 1, pageSize = 20) =>
+    apiClient
+      .get<AdminAdoptionsPage>("/admin/adoptions/animals", { params: { status, page, pageSize } })
+      .then((r) => r.data),
+
+  moderateAnimal: (id: string, action: "remove" | "pause" | "restore") =>
+    apiClient.patch<void>(`/admin/adoptions/animals/${id}/moderate`, { action }),
 };

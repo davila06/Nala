@@ -19,5 +19,5 @@ public enum SubscriptionTier
 
     // Shelter / adoption tiers
     ShelterBasic = 300, // free — directory + up to 5 active animals
-    ShelterPlus  = 310, // ₡8,000/mes — unlimited animals + fairs + featured map pin
+    ShelterPlus = 310, // ₡8,000/mes — unlimited animals + fairs + featured map pin
 }
