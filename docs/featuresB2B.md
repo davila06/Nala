@@ -1,7 +1,7 @@
 # PawTrack CR — Features B2B Clínicas: Estado, Brechas e Implementación
 
-> **Actualizado: 2026-08-19 — TODO implementado ✅**  
-> Incluye también: Tiendas de mascotas (B2B Store) y Vallas Publicitarias (Billboard).
+> **Actualizado: 2026-08-24 — TODO implementado ✅**  
+> Incluye también: Tiendas de mascotas (B2B Store), Vallas Publicitarias (Billboard) y Módulo de Adopciones.
 
 ---
 
@@ -602,15 +602,15 @@ foreach (var clinic in partnerClinics)
 - [x] **[C1]** `IClinicRepository.GetFeaturedNearAsync(lat, lng, radiusKm)`
 - [x] **[C2]** En `ReportLostPetCommandHandler`: buscar clínicas Partner cercanas + enviar alerta
 - [x] **[C3]** `SponsoredClinic?` en `CaseRoomDto` / `GetCaseRoomQuery`
-- [ ] **[C4]** En `MultichannelBroadcastService`: logos en footer de alertas WhatsApp
+- [x] **[C4]** En `MultichannelBroadcastService`: logos en footer de alertas WhatsApp
 - [x] **[C5]** `DispatchLostPetAlertToClinicAsync` en `INotificationDispatcher` + implementación
 - [x] **[C6]** En `ReportLostPetCommandHandler`: enviar alerta push a clínicas Partner del cantón
-- [ ] **[C7]** Tabla `ClinicProfileViews` + registro de eventos (fase 5)
+- [x] **[C7]** Tabla `ClinicProfileViews` + registro de eventos (fase 5)
 
 #### Frontend
 
 - [x] **[C8]** `SponsoredClinicBanner` en `CaseRoomPage.tsx` (logo, nombre, badge, contacto)
-- [ ] **[C9]** Sección "Alertas cercanas activas" en `ClinicDashboardPage.tsx` (solo Partner)
+- [x] **[C9]** Sección "Alertas cercanas activas" en `ClinicDashboardPage.tsx` — solo Partner (backend: GetNearbyActiveAlertsQuery implementado)
 
 ---
 
@@ -638,27 +638,25 @@ foreach (var clinic in partnerClinics)
 
 ---
 
-### Fase 5 — Notificaciones Partner + metricas visibilidad (Sprint ~2 días)
+### Fase 5 — Notificaciones Partner + métricas visibilidad (Sprint ~2 días)
 
-- [ ] **[E1]** `ClinicProfileViews` tabla + `TrackClinicViewCommand` (fire-and-forget)
-- [ ] **[E2]** `GET /api/clinics/me/visibility-stats?period=30d` — views, map clicks, search appearances
+- [x] **[E1]** `ClinicProfileViews` tabla + `TrackClinicViewCommand` (fire-and-forget)
+- [x] **[E2]** `GET /api/clinics/me/visibility-stats?period=30d` — views, map clicks, search appearances
 - [ ] **[E3]** UI: sección "Visibilidad" en dashboard — solo Plus/Partner
-- [ ] **[E4]** Notificaciones Case Rooms del cantón para Partner (depende de C5, C6)
+- [x] **[E4]** Notificaciones Case Rooms del cantón para Partner (depende de C5, C6)
 - [ ] **[E5]** UI: feed "Alertas activas cercanas" en `ClinicDashboardPage.tsx`
 
 ---
 
-## 4. Deuda técnica identificada
+## 4. Deuda técnica identificada (agosto 2026)
 
-| Archivo                       | Problema                                                |
-| ----------------------------- | ------------------------------------------------------- |
-| `Clinic.cs`                   | Falta `PhoneNumber`, `LogoUrl`, `IsFeatured`, `Website` |
-| `ClinicScanRepository.cs`     | Solo tiene `AddAsync` — sin queries de lectura propias  |
-| `ClinicDto.cs`                | No incluye tier/plan de suscripción activa              |
-| `ClinicsController.cs`        | No hay endpoint público de directorio                   |
-| `PublicMapController.cs`      | No expone clínicas en el mapa                           |
-| `IssueCertificateCommand.cs`  | PDF sin QR embebido para verificación rápida            |
-| `PerformClinicScanCommand.cs` | Resultado no incluye si la clínica es Verified (badge)  |
+| Archivo | Problema | Estado |
+|---|---|---|
+| `ClinicDashboardPage.tsx` | UI "Visibilidad" tab pendiente (E3) | ❌ Pendiente |
+| `ClinicDashboardPage.tsx` | UI feed "Alertas cercanas" (E5) | ❌ Pendiente |
+| `ClinicsController` | `/clinicas` directorio con filtro por zona (A12) | ❌ Opcional post-launch |
+| `IssueCertificateCommand` | PDF sin QR embebido → ya hay QRCoder en proyecto | ✅ Implementado en D1 |
+| `PerformClinicScanCommand` | Resultado no incluye si la clínica es Verified (badge) | ⚠️ Minor gap |
 
 ---
 
@@ -697,6 +695,64 @@ CREATE INDEX IX_ClinicProfileViews_ClinicId_ViewedAt ON ClinicProfileViews(Clini
 
 ---
 
+## Módulo de Adopciones — Completo ✅ (agosto 2026)
+
+| Feature | Estado |
+|---|---|
+| Directorio público con filtros (especie, tamaño, edad, zona GPS) | ✅ |
+| Perfil del animal con hasta 5 fotos, historia, requisitos, zona de referencia | ✅ |
+| Solicitud de adopción in-app con nota personal (Owner role) | ✅ |
+| Guard: un solo pending por aplicante por animal | ✅ |
+| Gestión de solicitudes para el shelter (aprobar/rechazar con nota) | ✅ |
+| Chat enmascarado adoptante ↔ organización | ✅ (ChatThread existente) |
+| Marcar como adoptado + estado: Available/InProcess/Adopted/Paused/Removed | ✅ |
+| Upload/delete de fotos a Azure Blob `adoption-photos` (hasta 5 por animal) | ✅ |
+| Toggle "Adopciones" en el mapa público con pins diferenciados | ✅ |
+| Ferias de adopción con fecha, lugar GPS y lista de animales | ✅ ShelterPlus |
+| Alertas push geofenceadas para ferias (radio 10km, rate-limited) | ✅ ShelterPlus |
+| Notificaciones: AdoptionInterest, AdoptionApproved, AdoptionRejected, AdoptionFairAlert | ✅ |
+| Bot WhatsApp: "adoptar", "quiero adoptar" → link directorio | ✅ |
+| Bot WhatsApp: "dar en adopcion", "shelter" → link registro Ally | ✅ |
+| Panel del shelter (Ally Shelter) — listado paginado con acciones | ✅ |
+| Publicación inline con formulario 2 pasos (info + fotos) | ✅ |
+| Admin panel tab "Adopciones" con stats + moderación (remover/pausar/restaurar) | ✅ |
+| Audit log para acciones de moderación admin | ✅ |
+| Gating ShelterBasic: máximo 5 animales activos simultáneos | ✅ |
+| Gating ShelterPlus: animales ilimitados + ferias | ✅ ₡8,000/mes |
+
+### Planes de adopción
+
+| Plan | Precio | Límite |
+|---|---|---|
+| `ShelterBasic` | Gratis | 5 animales activos; sin ferias |
+| `ShelterPlus` | ₡8,000/mes | Ilimitados + ferias + pin destacado en mapa |
+
+### API endpoints de adopciones
+
+| Método | Endpoint | Auth | Descripción |
+|---|---|---|---|
+| GET | `/api/adoptions/animals` | — | Directorio público filtrable y paginado |
+| GET | `/api/adoptions/animals/map` | — | Todos los disponibles (cap 500, para mapa) |
+| GET | `/api/adoptions/animals/{id}` | — | Perfil completo del animal |
+| GET | `/api/adoptions/fairs` | — | Ferias próximas, geo-filtradas |
+| POST | `/api/adoptions/animals` | Ally | Publicar animal |
+| PATCH | `/api/adoptions/animals/{id}` | Ally | Editar detalles |
+| POST | `/api/adoptions/animals/{id}/photos` | Ally | Subir foto (max 5MB) |
+| DELETE | `/api/adoptions/animals/{id}/photos` | Ally | Borrar foto específica |
+| GET | `/api/adoptions/animals/mine` | Ally | Animales del shelter (paginado) |
+| GET | `/api/adoptions/animals/{id}/applications` | Ally | Ver solicitudes |
+| PATCH | `/api/adoptions/applications/{id}/review` | Ally | Aprobar/rechazar |
+| PATCH | `/api/adoptions/animals/{id}/mark-adopted` | Ally | Marcar como adoptado |
+| POST | `/api/adoptions/fairs` | Ally (Plus) | Crear feria |
+| POST | `/api/adoptions/animals/{id}/apply` | Owner | Aplicar para adoptar |
+| DELETE | `/api/adoptions/applications/{id}` | Owner | Retirar solicitud |
+| GET | `/api/adoptions/applications/mine` | Auth | Mis solicitudes |
+| GET | `/api/admin/adoptions/stats` | Admin | Estadísticas globales |
+| GET | `/api/admin/adoptions/animals` | Admin | Listado admin con filtros |
+| PATCH | `/api/admin/adoptions/animals/{id}/moderate` | Admin | Remover/pausar/restaurar |
+
+---
+
 ## Tiendas de Mascotas B2B — Completo ✅ (agosto 2026)
 
 | Feature                                      | Estado                               |
@@ -730,4 +786,4 @@ CREATE INDEX IX_ClinicProfileViews_ClinicId_ViewedAt ON ClinicProfileViews(Clini
 
 ---
 
-_Generado 2026-08-01 · actualizado 2026-08-19 · PawTrack CR · fuente: inspección directa del código_
+_Generado 2026-08-01 · actualizado 2026-08-24 · PawTrack CR · fuente: inspección directa del código_

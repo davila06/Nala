@@ -1,7 +1,8 @@
 # PawTrack CR — Guía de Deploy Paso a Paso
 
 > Ambiente: **PawnTrackBeta** (`PawnTrackBeta` resource group)  
-> Cuenta: `davila06@gmail.com` | Suscripción: `Azure subscription 1`
+> Cuenta: `davila06@gmail.com` | Suscripción: `Azure subscription 1`  
+> **Última actualización: 2026-08-24** — incluye migraciones de adopciones, outbox, audit log y breed references
 
 ---
 
@@ -129,8 +130,41 @@ Write-Host "✔ jwt-signing-key guardado"
 
 # 3.5 — SQL admin password (para referencia)
 az keyvault secret set --vault-name $KV --name "sql-admin-password" --value $sqlPwd
-Write-Host "✔ sql-admin-password guardado"
+# 3.5 — Bot phone hash secret (mínimo 32 chars)
+$botHashSecret = [Convert]::ToBase64String([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(48))
+az keyvault secret set --vault-name $KV --name "bot-phone-hash-secret" --value $botHashSecret
+Write-Host "✔ bot-phone-hash-secret guardado"
+
+# 3.6 — SendGrid API Key (obtener desde sendgrid.com → Settings → API Keys)
+# az keyvault secret set --vault-name $KV --name "sendgrid-api-key" --value "SG.xxxxx"
+Write-Host "⚠ Cargar sendgrid-api-key manualmente desde el dashboard de SendGrid"
+
+# 3.7 — WhatsApp (obtener desde Meta for Developers)
+# az keyvault secret set --vault-name $KV --name "whatsapp-phone-number-id" --value "XXXX"
+# az keyvault secret set --vault-name $KV --name "whatsapp-access-token" --value "EAAxxxx"
+# az keyvault secret set --vault-name $KV --name "whatsapp-verify-token" --value (openssl rand -hex 16)
+Write-Host "⚠ Cargar secretos de WhatsApp manualmente (ver docs/operacional.md §7)"
 ```
+
+---
+
+## PASO 3b — Crear contenedor Blob Storage para adopciones
+
+```powershell
+# El Bicep crea pet-photos, sighting-photos, found-pet-photos, lost-pet-photos, whatsapp-avatars.
+# El módulo de adopciones necesita un contenedor adicional:
+az storage container create `
+  --name "adoption-photos" `
+  --account-name $STO `
+  --public-access off `
+  --auth-mode login
+Write-Host "✔ Contenedor adoption-photos creado"
+
+# Verificar todos los contenedores
+az storage container list `
+  --account-name $STO `
+  --auth-mode login `
+  --query "[].name" -o table
 
 ---
 
@@ -164,6 +198,19 @@ Write-Host "✔ Variables de entorno configuradas"
 
 ## PASO 5 — Ejecutar migraciones de EF Core
 
+El proyecto tiene **56 migraciones** en total. Las siguientes son las más recientes y deben estar aplicadas antes del primer deploy:
+
+| Migración | Tablas creadas | Cuándo |
+|---|---|---|
+| `AddPetStores` | Stores, StoreProducts, StoreOrders | 2026-08-19 |
+| `AddRevokedTokens` | RevokedTokens | 2026-08-19 |
+| `AddBillboards` | Billboards | 2026-08-19 |
+| `AddAdoptionsModule` | AdoptableAnimals, AdoptionApplications, AdoptionFairs | 2026-08-21 |
+| `AddWhatsAppIdempotencyTable` | WhatsAppProcessedMessages (unique idx en Wamid) | 2026-08-24 |
+| `AddAuditLog` | AuditLog | 2026-08-24 |
+| `AddOutboxAndFosterJsonSpecies` | OutboxMessages; rename AcceptedSpeciesCsv→JSON | 2026-08-24 |
+| `AddBreedReferenceAndCursorPagination` | BreedReferences | 2026-08-24 |
+
 ```powershell
 # Opción A: Correr desde tu máquina local (requiere IP en firewall SQL del PASO 2)
 cd backend/
@@ -172,6 +219,12 @@ $env:ConnectionStrings__DefaultConnection = (az keyvault secret show `
 dotnet ef database update `
   --project src/PawTrack.Infrastructure `
   --startup-project src/PawTrack.API
+
+# Verificar que todas las migraciones están aplicadas
+dotnet ef migrations list `
+  --project src/PawTrack.Infrastructure `
+  --startup-project src/PawTrack.API
+# Todas deben aparecer con [applied]
 
 # Opción B: Correr via az sql (scripts de migración ya generados)
 # dotnet ef migrations script --output migrations.sql --project src/PawTrack.Infrastructure --startup-project src/PawTrack.API
@@ -302,8 +355,10 @@ Write-Host "Frontend: $swaUrl"
 Cambio en código
       │
       ├─ Backend? ──► PASO 6 + PASO 7  (docker build + push + containerapp update)
+      │               Si hay nueva migración: correr PASO 5 primero
       │
       ├─ Frontend? ─► PASO 8           (npm build + swa deploy)
+      │               Variables de entorno: VITE_API_URL, VITE_VAPID_PUBLIC_KEY
       │
       └─ Infra? ────► Bicep deploy     (az deployment group create)
 ```
@@ -319,3 +374,7 @@ Cambio en código
 | SQL no conecta | Verificar firewall SQL (PASO 2) |
 | Frontend muestra error CORS | Verificar `frontendUrl` en Bicep y re-deploy (PASO 9) |
 | Imagen no se descarga del ACR | Verificar RBAC AcrPull en Container App identity |
+| Fotos de adopción no suben | Verificar que el contenedor `adoption-photos` existe (PASO 3b) |
+| Bot de WhatsApp no responde | Verificar `whatsapp-verify-token` y que el webhook está activo en Meta |
+| Push notifications no llegan | Verificar `VITE_VAPID_PUBLIC_KEY` en GitHub Secrets y que `vapid-private-key` está en Key Vault |
+| Migraciones pendientes en logs | Correr PASO 5 con las nuevas migraciones (AddAdoptionsModule, AddWhatsAppIdempotencyTable, AddAuditLog, AddOutboxAndFosterJsonSpecies, AddBreedReferenceAndCursorPagination) |
