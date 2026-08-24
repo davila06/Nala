@@ -78,6 +78,17 @@ El dueño puede ofrecer una recompensa económica que queda en custodia en la pl
 
 El sistema también tiene un **leaderboard público** con los usuarios y aliados que más reunificaciones han logrado, con insignias progresivas.
 
+### 11. Módulo de Adopciones
+
+PawTrack CR integra un módulo completo de adopciones que conecta refugios y organizaciones de rescate con familias adoptantes:
+
+- **Directorio público de animales**: los refugios verificados publican perfiles con fotos, historia, características y zona de referencia (sin dirección exacta). Cualquier persona puede buscar por especie, tamaño, edad o zona sin necesidad de crear cuenta.
+- **Solicitud de adopción in-app**: el interesado envía su solicitud directamente desde el perfil del animal. El refugio gestiona las solicitudes y las aprueba o rechaza con una nota.
+- **Chat enmascarado**: la comunicación entre adoptante y refugio ocurre a través del canal de chat de la plataforma, sin revelar datos de contacto personales.
+- **Ferias de adopción** (plan ShelterPlus): el refugio crea eventos presenciales con fecha, lugar y lista de animales. El sistema envía alertas push automáticas a usuarios en un radio de 10 km.
+- **Toggle en el mapa**: el mapa público incluye una capa de animales en adopción con pins diferenciados.
+- **Bot de WhatsApp**: palabras como "adoptar" o "quiero adoptar" activan respuestas con el enlace al directorio y las próximas ferias.
+
 ---
 
 ## Estadísticas públicas
@@ -107,6 +118,9 @@ Estos datos son públicos y refuerzan la credibilidad de la plataforma.
 | Recompensas en custodia            | ❌                       | ✅                           |
 | Bot de WhatsApp                    | ❌                       | ✅                           |
 | Estadísticas de recuperación       | ❌                       | ✅ Públicas y en tiempo real |
+| Módulo de adopciones               | ❌                       | ✅ Perfiles, solicitudes, ferias |
+| Tiendas de mascotas in-app         | ❌                       | ✅ Catálogo + SINPE Móvil    |
+| Vallas publicitarias segmentadas   | ❌                       | ✅ Por zona y contexto       |
 
 ---
 
@@ -135,6 +149,25 @@ Estos datos son públicos y refuerzan la credibilidad de la plataforma.
 | Integración microchip RFID          | —                            | —                            | ✅                              |
 | Widget embebible en su sitio web    | —                            | —                            | ✅                              |
 
+### Para tiendas de mascotas
+
+|                                        | **Básica** (gratis) | **StorePlus** ₡12,000/mes |
+| -------------------------------------- | ------------------- | ------------------------- |
+| Listing en directorio y mapa           | ✅                  | ✅                        |
+| Catálogo de productos in-app           | —                   | ✅                        |
+| Pedidos y pago con SINPE Móvil         | —                   | ✅                        |
+| Pin destacado en el mapa               | —                   | ✅                        |
+
+### Para refugios y organizaciones de adopción
+
+|                                            | **ShelterBasic** (gratis) | **ShelterPlus** ₡8,000/mes |
+| ------------------------------------------ | ------------------------- | -------------------------- |
+| Publicar animales en adopción              | Hasta 5 activos           | Ilimitados                 |
+| Perfil con fotos (hasta 5 por animal)      | ✅                        | ✅                         |
+| Gestión de solicitudes de adopción         | ✅                        | ✅                         |
+| Ferias de adopción con alertas geofenceadas | —                        | ✅                         |
+| Pin destacado en el mapa                   | —                         | ✅                         |
+
 ### Accesorios físicos con QR (tienda)
 
 La plataforma vende accesorios con el QR de la mascota impreso o grabado:
@@ -158,6 +191,10 @@ Personas de 22–55 años, residentes en el GAM y ciudades intermedias de Costa 
 ### Comunidad y rescatistas
 
 Ciudadanos que encuentran mascotas, rescatistas independientes, organizaciones de bienestar animal y veterinarias. Para ellos la plataforma es **completamente gratuita** y no requiere registro para reportar un avistamiento.
+
+### Refugios y organizaciones de adopción
+
+Refugios, perreras privadas y grupos de rescate que quieren digitalizar sus campañas de adopción. Con el plan ShelterBasic (gratuito) pueden publicar hasta 5 animales. Con ShelterPlus (₡8,000/mes) obtienen animales ilimitados, ferias de adopción geofenceadas y pin destacado en el mapa.
 
 ### Municipalidades e instituciones
 
@@ -190,13 +227,18 @@ Municipalidades y perreras que necesitan digitalizar el control animal. PawTrack
 - Aplicación web progresiva (PWA) — funciona en cualquier smartphone desde el navegador
 - Backend en .NET 9 con arquitectura cloud-native en Microsoft Azure
 - Inteligencia artificial: Azure Computer Vision para matching visual de mascotas
-- Mapas interactivos con tiendas, clínicas y eventos en tiempo real
+- Mapas interactivos con tiendas, clínicas, eventos y animales en adopción en tiempo real
 - Notificaciones push web sin necesidad de instalar app
 - Chat cifrado en tiempo real vía SignalR (WebSockets)
+- **Módulo de Adopciones**: directorio público, solicitudes, chat enmascarado y ferias con alertas geofenceadas
 - **Tiendas de mascotas**: catálogo, pedidos in-app y pago con SINPE Móvil
-- **Vallas publicitarias**: sistema de anuncios segmentados por ubicación en la app
-- Infraestructura desplegada en Azure (App Service, SQL Database, Blob Storage, Key Vault, Application Insights)
+- **Vallas publicitarias**: sistema de anuncios segmentados por ubicación y contexto en la app
+- **Broadcast multicanal**: difusión simultánea por WhatsApp, Telegram, Facebook y Email
+- **Bot de WhatsApp**: reportar pérdidas y buscar adopciones directamente desde un chat
+- API con versionado (v1.0) — garantiza retrocompatibilidad con clientes externos
+- Outbox pattern — las notificaciones se garantizan aunque el servidor se reinicie
+- Infraestructura desplegada en Azure (App Service, SQL Database, Blob Storage, Key Vault, Application Insights, Azure Cache for Redis)
 
 ---
 
-_Documento generado para uso del equipo de diseño web. Para información técnica detallada ver `PawTrack_Documento_Maestro_v3.1.md`._
+_Documento generado para uso del equipo de diseño web. Para información técnica detallada ver `PawTrack_Documento_Maestro_v3.1.md`. Actualizado: agosto 2026._
