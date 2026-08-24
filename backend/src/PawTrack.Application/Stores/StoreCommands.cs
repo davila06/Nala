@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using PawTrack.Application.Common;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Domain.Audit;
 using PawTrack.Domain.Auth;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Stores;
@@ -203,7 +204,7 @@ public sealed class GetMyStoreQueryHandler(IStoreRepository repo)
 
 public sealed record ReviewStoreCommand(Guid StoreId, bool Approve) : IRequest<Result<Unit>>;
 
-public sealed class ReviewStoreCommandHandler(IStoreRepository repo, IUnitOfWork uow)
+public sealed class ReviewStoreCommandHandler(IStoreRepository repo, IAuditLogRepository auditLog, IUnitOfWork uow)
     : IRequestHandler<ReviewStoreCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(ReviewStoreCommand request, CancellationToken ct)
@@ -213,6 +214,12 @@ public sealed class ReviewStoreCommandHandler(IStoreRepository repo, IUnitOfWork
 
         if (request.Approve) store.Activate(); else store.Suspend();
         repo.Update(store);
+
+        await auditLog.AddAsync(AuditLogEntry.Create(
+            Guid.Empty,
+            request.Approve ? AuditAction.StoreApproved : AuditAction.StoreRejected,
+            "Store", request.StoreId.ToString()), ct);
+
         await uow.SaveChangesAsync(ct);
         return Result.Success(Unit.Value);
     }

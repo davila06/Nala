@@ -441,6 +441,19 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(
             new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
+
+// ── API Versioning ────────────────────────────────────────────────────────────
+// Header-based (Api-Version: 1.0) + URL segment (/api/v1/) for future breaking changes.
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new Asp.Versioning.ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = Asp.Versioning.ApiVersionReader.Combine(
+        new Asp.Versioning.HeaderApiVersionReader("Api-Version"),
+        new Asp.Versioning.UrlSegmentApiVersionReader());
+});
+
 builder.Services.AddResponseCaching();
 
 // ── Response Compression (Brotli preferred, Gzip fallback) ───────────────────
@@ -461,12 +474,17 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(o => o.Level = Comp
 builder.Services.Configure<GzipCompressionProviderOptions>(o => o.Level = CompressionLevel.Fastest);
 
 // ── SignalR ───────────────────────────────────────────────────────────────────
-builder.Services.AddSignalR(options =>
+// Use Azure SignalR Service as backplane when configured — required for scale-out.
+// Falls back to in-process SignalR (single-instance only) when key is absent.
+var azureSignalRConn = builder.Configuration["AzureSignalR:ConnectionString"];
+var signalRBuilder = builder.Services.AddSignalR(options =>
 {
     // SearchCoordinationHub only exchanges GUIDs, zone states, and GPS coords.
     // 4 KB ceiling prevents memory exhaustion from oversized client payloads.
     options.MaximumReceiveMessageSize = 4 * 1024; // 4 KB
 });
+if (!string.IsNullOrWhiteSpace(azureSignalRConn))
+    signalRBuilder.AddAzureSignalR(azureSignalRConn);
 
 // ── Application Pipeline ──────────────────────────────────────────────────────
 var app = builder.Build();

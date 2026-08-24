@@ -2,6 +2,7 @@ using MediatR;
 using PawTrack.Application.Subscriptions.DTOs;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Domain.Audit;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Subscriptions;
 
@@ -14,6 +15,7 @@ public sealed record AdminActivateSubscriptionCommand(Guid SubscriptionId, int B
 public sealed class AdminActivateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
     IClinicRepository clinicRepository,
+    IAuditLogRepository auditLog,
     IUnitOfWork unitOfWork)
     : IRequestHandler<AdminActivateSubscriptionCommand, Result<SubscriptionDto>>
 {
@@ -30,6 +32,13 @@ public sealed class AdminActivateSubscriptionCommandHandler(
         sub.Activate(request.BillingMonths);
         subscriptionRepository.Update(sub);
         await SyncClinicFeaturedAsync(sub, true, cancellationToken);
+
+        await auditLog.AddAsync(AuditLogEntry.Create(
+            Guid.Empty,
+            AuditAction.SubscriptionActivated,
+            "Subscription", request.SubscriptionId.ToString(),
+            $"Tier={sub.Tier} Months={request.BillingMonths}"), cancellationToken);
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success(SubscriptionDto.FromDomain(sub));
