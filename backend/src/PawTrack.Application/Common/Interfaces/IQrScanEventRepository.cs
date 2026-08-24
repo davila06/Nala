@@ -26,4 +26,14 @@ public interface IQrScanEventRepository
     /// <paramref name="cutoff"/> and returns the number of rows deleted.
     /// </summary>
     Task<int> DeleteBeforeAsync(DateTimeOffset cutoff, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Cursor-based scan history for a pet. Pass <paramref name="afterId"/> to advance the cursor.
+    /// Avoids OFFSET degradation when scan history grows large.
+    /// </summary>
+    Task<IReadOnlyList<QrScanEvent>> GetByPetIdAfterCursorAsync(
+        Guid petId,
+        Guid? afterId,
+        int take,
+        CancellationToken cancellationToken = default);
 }

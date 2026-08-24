@@ -57,11 +57,11 @@ public sealed class RiskAlertHostedService(
     {
         await using var scope = scopeFactory.CreateAsyncScope();
 
-        var calendarRepo     = scope.ServiceProvider.GetRequiredService<IRiskCalendarEventRepository>();
-        var preferencesRepo  = scope.ServiceProvider.GetRequiredService<IUserNotificationPreferencesRepository>();
+        var calendarRepo = scope.ServiceProvider.GetRequiredService<IRiskCalendarEventRepository>();
+        var preferencesRepo = scope.ServiceProvider.GetRequiredService<IUserNotificationPreferencesRepository>();
         var notificationRepo = scope.ServiceProvider.GetRequiredService<INotificationRepository>();
-        var pushService      = scope.ServiceProvider.GetRequiredService<IPushNotificationService>();
-        var unitOfWork       = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var pushService = scope.ServiceProvider.GetRequiredService<IPushNotificationService>();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
@@ -107,7 +107,7 @@ public sealed class RiskAlertHostedService(
         foreach (var evt in events)
         {
             var title = evt.Name;
-            var body  = evt.MessageTemplate;
+            var body = evt.MessageTemplate;
 
             foreach (var userId in userIds)
             {
@@ -154,8 +154,8 @@ public sealed class RiskAlertHostedService(
     /// </summary>
     private static TimeSpan ComputeDelayUntilNextRun()
     {
-        var now      = DateTime.UtcNow;
-        var nextRun  = now.Date.Add(DailyRunTime);
+        var now = DateTime.UtcNow;
+        var nextRun = now.Date.Add(DailyRunTime);
 
         if (now >= nextRun)
         {

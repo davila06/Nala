@@ -36,6 +36,21 @@ public sealed class NotificationsController(ISender sender) : ControllerBase
         return Ok(result.Value);
     }
 
+    // ── GET /api/notifications/cursor — cursor-based (preferred for large histories) ──
+    [HttpGet("cursor")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCursor(
+        [FromQuery] string? after,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(
+            new GetMyNotificationsCursorQuery(userId, after, pageSize), cancellationToken);
+        return Ok(result.Value);
+    }
+
     // ── PUT /api/notifications/{id}/read ─────────────────────────────────────
     [HttpPut("{id:guid}/read")]
     [EnableRateLimiting("notifications-write")]
@@ -111,7 +126,8 @@ public sealed class NotificationsController(ISender sender) : ControllerBase
     }
 
     // ── GET /api/notifications/preferences ───────────────────────────────────
-    [HttpGet("preferences")]    [EnableRateLimiting("public-api")] // 30/min — read-side of preferences; sibling PUT already uses notifications-write    [ProducesResponseType(typeof(NotificationPreferencesDto), StatusCodes.Status200OK)]
+    [HttpGet("preferences")]
+    [EnableRateLimiting("public-api")] // 30/min — read-side of preferences; sibling PUT already uses notifications-write    [ProducesResponseType(typeof(NotificationPreferencesDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPreferences(CancellationToken cancellationToken)
     {
         if (!TryGetUserId(out var userId))

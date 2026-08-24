@@ -62,4 +62,14 @@ public sealed class QrScanEventRepository(PawTrackDbContext dbContext) : IQrScan
             .Where(e => e.ScannedAt < cutoff)
             .ExecuteDeleteAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<QrScanEvent>> GetByPetIdAfterCursorAsync(
+        Guid petId, Guid? afterId, int take, CancellationToken cancellationToken = default)
+    {
+        // Guid v7 IDs embed a timestamp — descending Id order matches descending ScannedAt.
+        var q = dbContext.Set<QrScanEvent>().AsNoTracking().Where(e => e.PetId == petId);
+        if (afterId.HasValue)
+            q = q.Where(e => e.Id.CompareTo(afterId.Value) < 0);
+        return await q.OrderByDescending(e => e.Id).Take(take).ToListAsync(cancellationToken);
+    }
 }

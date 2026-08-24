@@ -243,6 +243,8 @@ public static class InfrastructureServiceCollectionExtensions
 
         // Medical records + vet reminders
         services.AddScoped<IMedicalRepository, MedicalRepository>();
+        services.AddScoped<IBreedReferenceRepository, BreedReferenceRepository>();
+        services.AddHostedService<BreedReferenceSeedHostedService>();
         services.AddScoped<IActivityLogRepository, ActivityLogRepository>();
         services.AddScoped<IClinicMedicalAccessLogRepository, ClinicMedicalAccessLogRepository>();
         services.AddScoped<IClinicMedicalAccessGrantRepository, ClinicMedicalAccessGrantRepository>();

@@ -31,6 +31,7 @@ using PawTrack.Domain.Subscriptions;
 using PawTrack.Domain.Adoptions;
 using PawTrack.Domain.Audit;
 using PawTrack.Domain.Bot;
+using PawTrack.Domain.Medical;
 using PawTrack.Domain.Outbox;
 
 namespace PawTrack.Infrastructure.Persistence;
@@ -102,6 +103,7 @@ public sealed class PawTrackDbContext(
     public DbSet<AdoptionFair> AdoptionFairs => Set<AdoptionFair>();
     public DbSet<AuditLogEntry> AuditLog => Set<AuditLogEntry>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+    public DbSet<BreedReference> BreedReferences => Set<BreedReference>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

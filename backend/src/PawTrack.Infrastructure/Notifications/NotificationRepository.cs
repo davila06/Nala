@@ -101,4 +101,14 @@ public sealed class NotificationRepository(PawTrackDbContext dbContext) : INotif
             .ToListAsync(cancellationToken);
         return (items.AsReadOnly(), total, unread);
     }
+
+    public async Task<IReadOnlyList<Notification>> GetByUserIdAfterCursorAsync(
+        Guid userId, Guid? afterId, int take, CancellationToken cancellationToken = default)
+    {
+        // Guid v7 IDs are monotonically increasing — sort descending, cursor filters Id < afterId.
+        var q = dbContext.Notifications.AsNoTracking().Where(n => n.UserId == userId);
+        if (afterId.HasValue)
+            q = q.Where(n => n.Id.CompareTo(afterId.Value) < 0);
+        return await q.OrderByDescending(n => n.Id).Take(take).ToListAsync(cancellationToken);
+    }
 }

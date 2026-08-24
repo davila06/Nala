@@ -40,4 +40,15 @@ public interface INotificationRepository
 
     Task AddAsync(Notification notification, CancellationToken cancellationToken = default);
     void Update(Notification notification);
+
+    /// <summary>
+    /// Cursor-based page of notifications for <paramref name="userId"/>.
+    /// Pass <paramref name="afterId"/> (the Id of the last item returned) to advance the cursor.
+    /// Avoids OFFSET degradation on large notification histories.
+    /// </summary>
+    Task<IReadOnlyList<Notification>> GetByUserIdAfterCursorAsync(
+        Guid userId,
+        Guid? afterId,
+        int take,
+        CancellationToken cancellationToken = default);
 }
