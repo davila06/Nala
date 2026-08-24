@@ -133,9 +133,11 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddMemoryCache();
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddHttpClient("PushProvider")
-            .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(10));
+            .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(10))
+            .AddStandardResilienceHandler();
         services.AddHttpClient("Tractive")
-            .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(12));
+            .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(12))
+            .AddStandardResilienceHandler();
         services.AddSingleton<IPushNotificationService, PushNotificationService>();
         services.AddSingleton<INotificationRateLimitService, MemoryCacheNotificationRateLimitService>();
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
@@ -153,6 +155,12 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IChannelBroadcaster, WhatsAppChannelBroadcaster>();
         services.AddScoped<IChannelBroadcaster, TelegramChannelBroadcaster>();
         services.AddScoped<IChannelBroadcaster, FacebookChannelBroadcaster>();
+        services.AddHttpClient("Telegram")
+            .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(10))
+            .AddStandardResilienceHandler();
+        services.AddHttpClient("Facebook")
+            .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(10))
+            .AddStandardResilienceHandler();
         services.AddScoped<IMultichannelBroadcastService, MultichannelBroadcastService>();
         services.AddSingleton<ITrackingLinkService, TrackingLinkService>();
 
@@ -164,16 +172,20 @@ public static class InfrastructureServiceCollectionExtensions
         // AI — Azure Computer Vision 4.0 embedding service.
         // HttpClient timeout is intentionally short; VectorizeUrlAsync is best-effort.
         services.AddHttpClient("AzureVision")
-            .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(12));
+            .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(12))
+            .AddStandardResilienceHandler();
         services.AddSingleton<IImageEmbeddingService, AzureVisionEmbeddingService>();
         services.AddHostedService<EmbeddingRefreshHostedService>();
 
         // WhatsApp Bot — Meta Cloud API sender + Azure Maps geocoder
         services.AddHttpClient("MetaWhatsApp")
-            .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(15));
+            .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(15))
+            .AddStandardResilienceHandler();
         services.AddHttpClient("AzureMaps")
-            .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(10));
+            .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(10))
+            .AddStandardResilienceHandler();
         services.AddScoped<IBotSessionRepository, BotSessionRepository>();
+        services.AddScoped<IWhatsAppIdempotencyRepository, WhatsAppIdempotencyRepository>();
         services.AddScoped<IWhatsAppSender, MetaWhatsAppSender>();
         services.AddScoped<IGeocodingService, AzureMapsGeocodingService>();
         services.AddScoped<IReverseGeocodingService, AzureMapsGeocodingService>();

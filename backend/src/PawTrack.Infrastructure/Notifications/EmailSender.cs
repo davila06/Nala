@@ -320,9 +320,17 @@ public sealed class EmailSender(
             var message = MailHelper.CreateSingleEmail(from, toAddr, subject, plainTextContent: null, htmlContent);
             message.SetClickTracking(enable: false, enableText: false); // privacy: no tracking pixels
 
-            var response = await client.SendEmailAsync(message, cancellationToken);
+            // Retry up to 3 times on transient errors (5xx, network failures).
+            Response? response = null;
+            for (var attempt = 1; attempt <= 3; attempt++)
+            {
+                response = await client.SendEmailAsync(message, cancellationToken);
+                if ((int)response.StatusCode < 500) break;
+                if (attempt < 3)
+                    await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), cancellationToken);
+            }
 
-            if ((int)response.StatusCode >= 400)
+            if ((int)response!.StatusCode >= 400)
             {
                 var body = await response.Body.ReadAsStringAsync(cancellationToken);
                 logger.LogError(

@@ -9,15 +9,23 @@ export interface PlaceOrderPayload {
   lines: { productId: string; quantity: number }[];
 }
 
+export interface PagedStoreOrders {
+  items: StoreOrderDto[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
 export const storeOrdersApi = {
   place: (payload: PlaceOrderPayload): Promise<StoreOrderDto> =>
     apiClient.post<StoreOrderDto>("/store-orders", payload).then((r) => r.data),
 
-  getMine: (page = 1, pageSize = 20): Promise<StoreOrderDto[]> =>
+  getMine: (page = 1, pageSize = 20): Promise<PagedStoreOrders> =>
     apiClient
-      .get<
-        StoreOrderDto[]
-      >("/store-orders/mine", { params: { page, pageSize } })
+      .get<PagedStoreOrders>("/store-orders/mine", { params: { page, pageSize } })
       .then((r) => r.data),
 
   reportPayment: (orderId: string): Promise<void> =>

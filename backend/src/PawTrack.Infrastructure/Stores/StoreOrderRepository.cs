@@ -24,6 +24,18 @@ public sealed class StoreOrderRepository(PawTrackDbContext db) : IStoreOrderRepo
             .OrderByDescending(o => o.PlacedAt)
             .ToListAsync(ct);
 
+    public async Task<IReadOnlyList<StoreOrder>> GetByCustomerPagedAsync(
+        Guid customerId, int skip, int take, CancellationToken ct = default) =>
+        await db.StoreOrders.AsNoTracking()
+            .Include(o => o.Items)
+            .Where(o => o.CustomerId == customerId)
+            .OrderByDescending(o => o.PlacedAt)
+            .Skip(skip).Take(take)
+            .ToListAsync(ct);
+
+    public Task<int> CountByCustomerAsync(Guid customerId, CancellationToken ct = default) =>
+        db.StoreOrders.CountAsync(o => o.CustomerId == customerId, ct);
+
     public async Task<IReadOnlyList<StoreOrder>> GetByStoreAsync(Guid storeId, int page, int pageSize, CancellationToken ct = default) =>
         await db.StoreOrders.AsNoTracking()
             .Include(o => o.Items)

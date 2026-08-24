@@ -54,9 +54,9 @@ public sealed class CloseCustodyCommandHandler(
 
                 await Task.WhenAll(fosterUserTask, ownerUserTask, petTask);
 
-                var fosterUser = fosterUserTask.Result;
-                var ownerUser  = ownerUserTask.Result;
-                var pet        = petTask.Result;
+                var fosterUser = await fosterUserTask;
+                var ownerUser  = await ownerUserTask;
+                var pet        = await petTask;
 
                 if (fosterUser is not null && ownerUser is not null && pet is not null)
                 {

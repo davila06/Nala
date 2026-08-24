@@ -25,6 +25,7 @@ using PawTrack.Domain.Sightings;
 using PawTrack.Domain.Stores;
 using PawTrack.Domain.Subscriptions;
 using PawTrack.Domain.Adoptions;
+using PawTrack.Domain.Bot;
 
 namespace PawTrack.Infrastructure.Persistence;
 
@@ -55,6 +56,7 @@ public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> option
     public DbSet<HandoverCode> HandoverCodes => Set<HandoverCode>();
     public DbSet<FraudReport> FraudReports => Set<FraudReport>();
     public DbSet<BotSession> BotSessions => Set<BotSession>();
+    public DbSet<WhatsAppProcessedMessage> WhatsAppProcessedMessages => Set<WhatsAppProcessedMessage>();
     public DbSet<SearchZone> SearchZones => Set<SearchZone>();
     public DbSet<Clinic> Clinics => Set<Clinic>();
     public DbSet<ClinicScan> ClinicScans => Set<ClinicScan>();

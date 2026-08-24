@@ -134,11 +134,12 @@ function ProgressBar({
 
 export default function MyStoreOrdersPage() {
   const [page, setPage] = useState(1);
-  const { data: orders = [], isLoading } = useMyOrders(page);
+  const { data: paged, isLoading } = useMyOrders(page);
 
+  const orders = paged?.items ?? [];
   const active = orders.filter((o) => !TERMINAL.includes(o.status));
   const past = orders.filter((o) => TERMINAL.includes(o.status));
-  const hasMore = orders.length === 20; // 20 = pageSize
+  const hasMore = paged?.hasNextPage ?? false;
 
   return (
     <>

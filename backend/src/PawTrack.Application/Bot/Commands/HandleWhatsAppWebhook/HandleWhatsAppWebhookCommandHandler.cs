@@ -23,6 +23,7 @@ namespace PawTrack.Application.Bot.Commands.HandleWhatsAppWebhook;
 /// </summary>
 public sealed class HandleWhatsAppWebhookCommandHandler(
     IBotSessionRepository botSessionRepository,
+    IWhatsAppIdempotencyRepository idempotencyRepository,
     IUserRepository userRepository,
     IPetRepository petRepository,
     ILostPetRepository lostPetRepository,
@@ -38,6 +39,11 @@ public sealed class HandleWhatsAppWebhookCommandHandler(
         HandleWhatsAppWebhookCommand request, CancellationToken cancellationToken)
     {
         var phoneHash = HashPhone(request.WaId, botOptions.Value.PhoneHashSecret);
+
+        // DB-level idempotency guard — prevents duplicate processing across multiple instances.
+        // TryMarkAsync performs an atomic INSERT with a unique constraint on wamid.
+        if (!await idempotencyRepository.TryMarkAsync(request.MessageId, cancellationToken))
+            return Result.Success(Unit.Value);
 
         // Load or create session
         var session = await botSessionRepository.GetActiveByPhoneHashAsync(phoneHash, cancellationToken);
@@ -58,7 +64,7 @@ public sealed class HandleWhatsAppWebhookCommandHandler(
             await botSessionRepository.AddAsync(session, cancellationToken);
         }
 
-        // Idempotency guard — Meta may re-deliver webhooks
+        // In-session deduplication remains as a second guard for replay within the same session.
         if (session.IsMessageProcessed(request.MessageId))
         {
             await unitOfWork.SaveChangesAsync(cancellationToken);

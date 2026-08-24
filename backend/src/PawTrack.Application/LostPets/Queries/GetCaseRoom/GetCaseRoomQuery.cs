@@ -163,6 +163,6 @@ file static class TupleTaskExtensions
         this (Task<T1> t1, Task<T2> t2, Task<T3> t3) tasks)
     {
         await Task.WhenAll(tasks.t1, tasks.t2, tasks.t3).ConfigureAwait(false);
-        return (tasks.t1.Result, tasks.t2.Result, tasks.t3.Result);
+        return (await tasks.t1, await tasks.t2, await tasks.t3);
     }
 }

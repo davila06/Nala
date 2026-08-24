@@ -19,10 +19,10 @@ interface WeightTrendChartProps {
 }
 
 function ChartTooltip(props: TooltipProps<number, string>) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { active, payload } = props as any;
-  if (!active || !payload?.length) return null;
-  const d = payload[0]?.payload as
+  if (!props.active) return null;
+  // recharts payload is typed loosely — access the nested data object with a safe cast
+  const entries = (props as { payload?: Array<{ payload?: unknown }> }).payload;
+  const d = entries?.[0]?.payload as
     | {
         date: string;
         weightKg: number;

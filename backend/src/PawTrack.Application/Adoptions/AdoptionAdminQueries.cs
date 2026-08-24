@@ -73,6 +73,7 @@ public sealed record AdminModerateAnimalCommand(
 
 public sealed class AdminModerateAnimalCommandHandler(
     IAdoptionRepository adoptionRepository,
+    IBlobStorageService blobStorage,
     IUnitOfWork unitOfWork)
     : IRequestHandler<AdminModerateAnimalCommand, Result<bool>>
 {
@@ -84,10 +85,17 @@ public sealed class AdminModerateAnimalCommandHandler(
         if (animal is null)
             return Result.Failure<bool>("animal_not_found");
 
+        // Delete blobs when removing permanently so storage is not orphaned.
+        if (request.Action.Equals("remove", StringComparison.OrdinalIgnoreCase))
+        {
+            foreach (var photoUrl in animal.PhotoUrls)
+                await blobStorage.DeleteAsync(photoUrl, ct);
+        }
+
         switch (request.Action.ToLowerInvariant())
         {
-            case "remove": animal.Remove(); break;
-            case "pause": animal.Pause(); break;
+            case "remove":  animal.Remove();    break;
+            case "pause":   animal.Pause();     break;
             case "restore": animal.Republish(); break;
             default:
                 return Result.Failure<bool>(InvalidActionError);
