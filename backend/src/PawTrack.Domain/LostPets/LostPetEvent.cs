@@ -3,7 +3,7 @@ using PawTrack.Domain.LostPets.Events;
 
 namespace PawTrack.Domain.LostPets;
 
-public sealed class LostPetEvent
+public sealed class LostPetEvent : IHasDomainEvents
 {
     private LostPetEvent() { } // EF Core
 

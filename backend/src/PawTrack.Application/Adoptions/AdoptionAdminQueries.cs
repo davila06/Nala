@@ -1,6 +1,7 @@
 using MediatR;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Adoptions;
+using PawTrack.Domain.Audit;
 using PawTrack.Domain.Common;
 
 namespace PawTrack.Application.Adoptions;
@@ -74,6 +75,7 @@ public sealed record AdminModerateAnimalCommand(
 public sealed class AdminModerateAnimalCommandHandler(
     IAdoptionRepository adoptionRepository,
     IBlobStorageService blobStorage,
+    IAuditLogRepository auditLog,
     IUnitOfWork unitOfWork)
     : IRequestHandler<AdminModerateAnimalCommand, Result<bool>>
 {
@@ -94,14 +96,25 @@ public sealed class AdminModerateAnimalCommandHandler(
 
         switch (request.Action.ToLowerInvariant())
         {
-            case "remove":  animal.Remove();    break;
-            case "pause":   animal.Pause();     break;
+            case "remove": animal.Remove(); break;
+            case "pause": animal.Pause(); break;
             case "restore": animal.Republish(); break;
             default:
                 return Result.Failure<bool>(InvalidActionError);
         }
 
         adoptionRepository.UpdateAnimal(animal);
+
+        var auditAction = request.Action.ToLowerInvariant() switch
+        {
+            "remove" => AuditAction.AnimalRemoved,
+            "pause" => AuditAction.AnimalPaused,
+            _ => AuditAction.AnimalRestored,
+        };
+        await auditLog.AddAsync(
+            AuditLogEntry.Create(Guid.Empty, auditAction, "AdoptablePet", request.AnimalId.ToString()),
+            ct);
+
         await unitOfWork.SaveChangesAsync(ct);
         return Result.Success(true);
     }

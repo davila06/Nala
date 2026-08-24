@@ -23,9 +23,9 @@ public sealed class GeofencedAlertLog
     public static GeofencedAlertLog Create(Guid userId, Guid lostPetEventId) =>
         new()
         {
-            Id             = Guid.CreateVersion7(),
-            UserId         = userId,
+            Id = Guid.CreateVersion7(),
+            UserId = userId,
             LostPetEventId = lostPetEventId,
-            SentAt         = DateTimeOffset.UtcNow,
+            SentAt = DateTimeOffset.UtcNow,
         };
 }

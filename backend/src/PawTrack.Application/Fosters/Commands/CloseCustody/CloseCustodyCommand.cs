@@ -49,14 +49,14 @@ public sealed class CloseCustodyCommandHandler(
             if (lostEvent is not null)
             {
                 var fosterUserTask = userRepository.GetByIdAsync(request.FosterUserId, cancellationToken);
-                var ownerUserTask  = userRepository.GetByIdAsync(lostEvent.OwnerId, cancellationToken);
-                var petTask        = petRepository.GetByIdAsync(lostEvent.PetId, cancellationToken);
+                var ownerUserTask = userRepository.GetByIdAsync(lostEvent.OwnerId, cancellationToken);
+                var petTask = petRepository.GetByIdAsync(lostEvent.PetId, cancellationToken);
 
                 await Task.WhenAll(fosterUserTask, ownerUserTask, petTask);
 
                 var fosterUser = await fosterUserTask;
-                var ownerUser  = await ownerUserTask;
-                var pet        = await petTask;
+                var ownerUser = await ownerUserTask;
+                var pet = await petTask;
 
                 if (fosterUser is not null && ownerUser is not null && pet is not null)
                 {

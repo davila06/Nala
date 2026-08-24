@@ -1,3 +1,4 @@
+using PawTrack.Domain.Common;
 using PawTrack.Domain.Sightings.Events;
 
 namespace PawTrack.Domain.Sightings;
@@ -7,7 +8,7 @@ namespace PawTrack.Domain.Sightings;
 /// PII is stripped by the application layer before constructing this entity —
 /// no reporter contact details are ever persisted.
 /// </summary>
-public sealed class Sighting
+public sealed class Sighting : IHasDomainEvents
 {
     private Sighting() { } // EF Core
 

@@ -1,3 +1,4 @@
+using PawTrack.Domain.Common;
 using PawTrack.Domain.Pets;
 
 namespace PawTrack.Domain.Sightings;
@@ -6,7 +7,7 @@ namespace PawTrack.Domain.Sightings;
 /// An anonymous report from a person who found a stray pet and wants to help reunite it.
 /// ContactName / ContactPhone are PII — surfaced only to the matched pet owner.
 /// </summary>
-public sealed class FoundPetReport
+public sealed class FoundPetReport : IHasDomainEvents
 {
     private FoundPetReport() { } // EF Core
 

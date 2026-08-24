@@ -5,6 +5,7 @@ import AuthenticatedLayout from "./layout/AuthenticatedLayout";
 import { RoleGuard } from "./layout/RoleGuard";
 import NotFoundPage from "@/features/errors/NotFoundPage";
 import AppErrorBoundary from "@/features/errors/AppErrorBoundary";
+import { FeatureErrorBoundary } from "@/shared/ui/FeatureErrorBoundary";
 import { Skeleton } from "@/shared/ui/Spinner";
 
 // ── Page skeleton shown during lazy-load ──────────────────────────────────────
@@ -18,8 +19,12 @@ const PageSkeleton = () => (
   </div>
 );
 
-function S({ children }: { children: React.ReactNode }) {
-  return <Suspense fallback={<PageSkeleton />}>{children}</Suspense>;
+function S({ children, name }: { children: React.ReactNode; name?: string }) {
+  return (
+    <FeatureErrorBoundary featureName={name}>
+      <Suspense fallback={<PageSkeleton />}>{children}</Suspense>
+    </FeatureErrorBoundary>
+  );
 }
 
 // Auth pages (Sprint 1)

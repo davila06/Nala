@@ -25,7 +25,9 @@ export const storeOrdersApi = {
 
   getMine: (page = 1, pageSize = 20): Promise<PagedStoreOrders> =>
     apiClient
-      .get<PagedStoreOrders>("/store-orders/mine", { params: { page, pageSize } })
+      .get<PagedStoreOrders>("/store-orders/mine", {
+        params: { page, pageSize },
+      })
       .then((r) => r.data),
 
   reportPayment: (orderId: string): Promise<void> =>

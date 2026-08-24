@@ -3,7 +3,7 @@ using PawTrack.Domain.Pets.Events;
 
 namespace PawTrack.Domain.Pets;
 
-public sealed class Pet
+public sealed class Pet : IHasDomainEvents
 {
     private Pet() { } // EF Core
 

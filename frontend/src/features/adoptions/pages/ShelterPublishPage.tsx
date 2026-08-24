@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/shared/ui/Button";
 import { Input } from "@/shared/ui/Input";
-import { usePublishAnimal } from "../hooks/useAdoptions";
+import {
+  usePublishAnimal,
+  useUploadAdoptionPhoto,
+} from "../hooks/useAdoptions";
 import type {
   PetSpecies,
   PetSize,
@@ -38,7 +41,12 @@ const INITIAL: PublishAnimalPayload = {
 export default function ShelterPublishPage() {
   const navigate = useNavigate();
   const publish = usePublishAnimal();
+  const uploadPhoto = useUploadAdoptionPhoto();
   const [form, setForm] = useState<PublishAnimalPayload>(INITIAL);
+  const [publishedId, setPublishedId] = useState<string | null>(null);
+  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const set = (partial: Partial<PublishAnimalPayload>) =>
     setForm((f) => ({ ...f, ...partial }));
@@ -50,10 +58,24 @@ export default function ShelterPublishPage() {
     }
     publish.mutate(form, {
       onSuccess: (animal) => {
-        toast.success(`¡${animal.name} publicado! Ahora puedes subir fotos.`);
-        navigate("/shelter/dashboard");
+        toast.success(`¡${animal.name} publicado! Ahora sube hasta 5 fotos.`);
+        setPublishedId(animal.id);
       },
     });
+  };
+
+  const handleUploadPhotos = async () => {
+    if (!publishedId || !photoFiles.length) {
+      navigate("/shelter/dashboard");
+      return;
+    }
+    setUploading(true);
+    for (const file of photoFiles.slice(0, 5)) {
+      await uploadPhoto.mutateAsync({ animalId: publishedId, file });
+    }
+    setUploading(false);
+    toast.success("Fotos subidas correctamente ✓");
+    navigate("/shelter/dashboard");
   };
 
   return (
@@ -249,15 +271,79 @@ export default function ShelterPublishPage() {
           />
         </section>
 
-        <Button
-          onClick={handleSubmit}
-          disabled={
-            publish.isPending || !form.name.trim() || !form.story.trim()
-          }
-          className="w-full"
-        >
-          {publish.isPending ? "Publicando…" : "Publicar animal"}
-        </Button>
+        {!publishedId ? (
+          <Button
+            onClick={handleSubmit}
+            disabled={
+              publish.isPending || !form.name.trim() || !form.story.trim()
+            }
+            className="w-full"
+          >
+            {publish.isPending ? "Publicando…" : "Publicar animal"}
+          </Button>
+        ) : (
+          /* Step 2: inline photo upload after successful publish */
+          <section className="space-y-4 rounded-2xl border-2 border-dashed border-brand-200 bg-brand-50 p-5">
+            <h2 className="text-sm font-semibold text-brand-700">
+              📸 Paso 2 — Fotos (hasta 5)
+            </h2>
+            <p className="text-xs text-sand-500">
+              Añade fotos para que los adoptantes conozcan mejor al animal.
+            </p>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                const files = Array.from(e.target.files ?? []).slice(0, 5);
+                setPhotoFiles(files);
+              }}
+            />
+
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full rounded-xl border-2 border-dashed border-sand-300 py-6 text-sm text-sand-500 hover:border-brand-400 hover:text-brand-600 transition-colors"
+            >
+              {photoFiles.length > 0
+                ? `${photoFiles.length} foto(s) seleccionada(s)`
+                : "Toca para seleccionar fotos"}
+            </button>
+
+            {photoFiles.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {photoFiles.map((f, i) => (
+                  <div
+                    key={i}
+                    className="relative h-16 w-16 rounded-lg overflow-hidden bg-sand-100"
+                  >
+                    <img
+                      src={URL.createObjectURL(f)}
+                      alt={f.name}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <Button
+                onClick={handleUploadPhotos}
+                disabled={uploading}
+                className="flex-1"
+              >
+                {uploading
+                  ? "Subiendo…"
+                  : photoFiles.length
+                    ? "Subir y terminar"
+                    : "Terminar sin fotos"}
+              </Button>
+            </div>
+          </section>
+        )}
       </div>
     </>
   );

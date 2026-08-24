@@ -99,6 +99,9 @@ public static class InfrastructureServiceCollectionExtensions
         // Adoptions
         services.AddScoped<IAdoptionRepository, PawTrack.Infrastructure.Adoptions.AdoptionRepository>();
 
+        // Audit log
+        services.AddScoped<IAuditLogRepository, PawTrack.Infrastructure.Audit.AuditLogRepository>();
+
         // Clinics
         services.AddScoped<IClinicRepository, ClinicRepository>();
         services.AddScoped<IClinicScanRepository, ClinicScanRepository>();
@@ -131,6 +134,16 @@ public static class InfrastructureServiceCollectionExtensions
 
         // Notifications
         services.AddMemoryCache();
+        // Prefer Redis (Azure Cache for Redis) in production; fall back to in-memory distributed cache.
+        var redisConnectionString = configuration["Redis:ConnectionString"];
+        if (!string.IsNullOrWhiteSpace(redisConnectionString))
+        {
+            services.AddStackExchangeRedisCache(opt => opt.Configuration = redisConnectionString);
+        }
+        else
+        {
+            services.AddDistributedMemoryCache(); // single-instance dev fallback
+        }
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddHttpClient("PushProvider")
             .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(10))
@@ -139,7 +152,7 @@ public static class InfrastructureServiceCollectionExtensions
             .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(12))
             .AddStandardResilienceHandler();
         services.AddSingleton<IPushNotificationService, PushNotificationService>();
-        services.AddSingleton<INotificationRateLimitService, MemoryCacheNotificationRateLimitService>();
+        services.AddSingleton<INotificationRateLimitService, DistributedNotificationRateLimitService>();
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
         services.AddScoped<StaleReportCheckerJob>();
         services.AddHostedService<StaleReportCheckerHostedService>();

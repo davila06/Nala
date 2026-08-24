@@ -3,6 +3,7 @@ using NSubstitute;
 using PawTrack.Application.Allies.Commands.ReviewAllyApplication;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Allies;
+using PawTrack.Domain.Audit;
 using PawTrack.Domain.Auth;
 
 namespace PawTrack.UnitTests.Allies.Commands;
@@ -11,13 +12,15 @@ public sealed class ReviewAllyApplicationCommandHandlerTests
 {
     private readonly IAllyProfileRepository _allyProfileRepository = Substitute.For<IAllyProfileRepository>();
     private readonly IUserRepository _userRepository = Substitute.For<IUserRepository>();
+    private readonly IAuditLogRepository _auditLog = Substitute.For<IAuditLogRepository>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
 
     private readonly ReviewAllyApplicationCommandHandler _sut;
 
     public ReviewAllyApplicationCommandHandlerTests()
     {
-        _sut = new ReviewAllyApplicationCommandHandler(_allyProfileRepository, _userRepository, _unitOfWork);
+        _sut = new ReviewAllyApplicationCommandHandler(
+            _allyProfileRepository, _userRepository, _auditLog, _unitOfWork);
     }
 
     [Fact]

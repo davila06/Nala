@@ -1,5 +1,7 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Domain.Common;
 using PawTrack.Domain.Allies;
 using PawTrack.Domain.Auth;
 using PawTrack.Domain.Bot;
@@ -25,11 +27,14 @@ using PawTrack.Domain.Sightings;
 using PawTrack.Domain.Stores;
 using PawTrack.Domain.Subscriptions;
 using PawTrack.Domain.Adoptions;
+using PawTrack.Domain.Audit;
 using PawTrack.Domain.Bot;
 
 namespace PawTrack.Infrastructure.Persistence;
 
-public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> options)
+public sealed class PawTrackDbContext(
+    DbContextOptions<PawTrackDbContext> options,
+    IPublisher? publisher = null)
     : DbContext(options), IUnitOfWork
 {
     public DbSet<User> Users => Set<User>();
@@ -92,6 +97,7 @@ public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> option
     public DbSet<AdoptablePet> AdoptableAnimals => Set<AdoptablePet>();
     public DbSet<AdoptionApplication> AdoptionApplications => Set<AdoptionApplication>();
     public DbSet<AdoptionFair> AdoptionFairs => Set<AdoptionFair>();
+    public DbSet<AuditLogEntry> AuditLog => Set<AuditLogEntry>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -107,6 +113,23 @@ public sealed class PawTrackDbContext(DbContextOptions<PawTrackDbContext> option
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return await base.SaveChangesAsync(cancellationToken);
+        // Collect domain events before saving so changes are committed atomically first.
+        var domainEvents = ChangeTracker.Entries<IHasDomainEvents>()
+            .SelectMany(e => e.Entity.DomainEvents)
+            .ToList();
+
+        foreach (var entry in ChangeTracker.Entries<IHasDomainEvents>())
+            entry.Entity.ClearDomainEvents();
+
+        var result = await base.SaveChangesAsync(cancellationToken);
+
+        // Dispatch after commit — handlers may run async side-effects (notifications, etc.)
+        if (publisher is not null)
+        {
+            foreach (var evt in domainEvents)
+                await publisher.Publish(evt, cancellationToken);
+        }
+
+        return result;
     }
 }
