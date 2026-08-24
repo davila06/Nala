@@ -7,43 +7,21 @@
 
 ## Índice de estado rápido (actualizado agosto 2026)
 
-| Plan           | Feature                                            |          Estado          |
-| -------------- | -------------------------------------------------- | :----------------------: |
-| **BÁSICA**     | Registro + perfil en directorio                    |            ✅            |
-| **BÁSICA**     | Mapa de clínicas (posición estándar)               |            ✅            |
-| **BÁSICA**     | Información de contacto pública                    |            ✅            |
-| **BÁSICA**     | Escanear QR de collar                              |            ✅            |
-| **BÁSICA**     | Escanear microchip RFID                            |            ✅            |
-| **BÁSICA**     | Ver perfil público + datos dueño                   |            ✅            |
-| **BÁSICA**     | Búsqueda por número de microchip                   |            ✅            |
-| **PLUS**       | Posición destacada en mapa                         |            ✅            |
-| **PLUS**       | Badge "Clínica Verificada"                         |            ✅            |
-| **PLUS**       | Logo en alertas de pérdida (NearbyFeaturedClinics) |            ✅            |
-| **PLUS**       | Banner en Case Rooms                               |            ✅            |
-| **PLUS**       | Estadísticas de escaneos mensuales                 |            ✅            |
-| **PLUS**       | Métricas de visibilidad (ClinicProfileViews)       |            ✅            |
-| **PARTNER**    | Certificados veterinarios PDF                      |            ✅            |
-| **PARTNER**    | QR de verificación en PDF                          |            ✅            |
-| **PARTNER**    | Verificación pública `/verificar/{código}`         |            ✅            |
-| **PARTNER**    | Widget embebible                                   |            ✅            |
-| **PARTNER**    | API de consulta directa (API Keys)                 |            ✅            |
-| **PARTNER**    | Alertas Case Rooms del cantón (Partner)            |            ✅            |
-| **EXPEDIENTE** | Acceso clínica → expediente (Opciones A+B+C)       |            ✅            |
-| **EXPEDIENTE** | Código de emparejamiento permanente                |            ✅            |
-| **PLUS**       | Logo en alertas de pérdida                         |            ❌            |
-| **PLUS**       | Banner en Case Rooms de pacientes                  |            ❌            |
-| **PLUS**       | Estadísticas de escaneos mensuales                 |            ❌            |
-| **PLUS**       | Métricas de visibilidad en directorio              |            ❌            |
-| **PLUS**       | Soporte prioritario por email                      |    N/A (operacional)     |
-| **PARTNER**    | Certificados veterinarios PDF (QuestPDF)           |            ✅            |
-| **PARTNER**    | Código de verificación único + QR en PDF           |            ✅            |
-| **PARTNER**    | Verificación pública `/verificar/{código}`         |            ✅            |
-| **PARTNER**    | Firma digital de clínica y médico                  | ⚠️ Parcial (texto plano) |
-| **PARTNER**    | Widget embebible para web propia                   |            ❌            |
-| **PARTNER**    | API de consulta directa (microchip / perfil)       |        ⚠️ Parcial        |
-| **PARTNER**    | Integración RFID avanzada (lectores externos)      |            ❌            |
-| **PARTNER**    | Notificaciones en todos los Case Rooms del cantón  |            ❌            |
-| **PARTNER**    | Primeros resultados en búsquedas de zona           |            ❌            |
+| Plan       | Feature                                            | Estado |
+| ---------- | -------------------------------------------------- | :----: |
+| **BÁSICA** | Registro + perfil en directorio                    |   ✅   |
+| **BÁSICA** | Mapa de clínicas (posición estándar)               |   ✅   |
+| **BÁSICA** | Información de contacto pública                    |   ✅   |
+| **BÁSICA** | Escanear QR de collar                              |   ✅   |
+| **BÁSICA** | Escanear microchip RFID                            |   ✅   |
+| **BÁSICA** | Ver perfil público + datos dueño                   |   ✅   |
+| **BÁSICA** | Búsqueda por número de microchip                   |   ✅   |
+| **PLUS**   | Posición destacada en mapa                         |   ✅   |
+| **PLUS**   | Badge "Clínica Verificada"                         |   ✅   |
+| **PLUS**   | Logo en alertas de pérdida (NearbyFeaturedClinics) |   ✅   |
+| **PLUS**   | Banner en Case Rooms                               |   ✅   |
+| **PLUS**   | Estadísticas de escaneos mensuales                 |   ✅   |
+| **PLUS**   | Métricas de visibilidad (ClinicProfileViews)       |   ✅   |
 
 **Leyenda:** ✅ Implementado y funcional · ⚠️ Parcial · ❌ No existe
 
@@ -72,9 +50,11 @@
 
 ---
 
-### 1.2 PLAN BÁSICA — Mapa de clínicas (posición estándar) ❌
+### 1.2 PLAN BÁSICA — Mapa de clínicas (posición estándar) ✅
 
-**Estado:** No implementado. Todos los registros de lat/lng existen en DB pero no hay endpoint público que los exponga, ni capa de mapa en el frontend.
+**Estado:** Completamente implementado. `GET /api/clinics/public` expone clínicas activas con `IsFeatured`, `Lat`, `Lng`, `LogoUrl`, `PhoneNumber`. Toggle "Clínicas" en `PublicMapPage.tsx` con pins estándar vs destacados. Ver checklist A3–A11.
+
+**Pendiente opcional:** Página `/clinicas` con directorio filtrable (A12).
 
 **Qué falta:**
 
@@ -126,9 +106,9 @@ ALTER TABLE Clinics ADD LogoUrl nvarchar(500) NULL;
 
 ---
 
-### 1.3 PLAN BÁSICA — Información de contacto pública ⚠️ Parcial
+### 1.3 PLAN BÁSICA — Información de contacto pública ✅
 
-**Estado:** El `ContactEmail` existe en la entidad y en `ClinicDto`, pero **no está expuesto en ningún endpoint público**. Solo la clínica autenticada puede verlo via `GET /api/clinics/me`.
+**Estado:** Completamente implementado. `PublicClinicDto` incluye `PhoneNumber`, `Website`, `ContactEmail`, `Address`. `POST /api/clinics/me/logo` permite subir logo. Ver checklist A1, A6.
 
 **Qué falta:**
 
@@ -181,9 +161,9 @@ ALTER TABLE Clinics ADD LogoUrl nvarchar(500) NULL;
 
 ---
 
-### 1.8 PLAN PLUS — Posición destacada en mapa ❌
+### 1.8 PLAN PLUS — Posición destacada en mapa ✅
 
-**Estado:** No implementado. La propiedad `IsFeatured` no existe en `Clinic.cs`. El mapa público no tiene capa de clínicas. Depende directamente de 1.2.
+**Estado:** Completamente implementado. `Clinic.IsFeatured` establecido por `ActivateSubscriptionCommand` / `AdminActivateSubscriptionCommand` cuando `tier >= ClinicPlus`. `GetPublicClinicsQuery` ordena `IsFeatured DESC`. Marcadores featured con borde dorado en el mapa.
 
 **Cómo implementarlo:**
 
@@ -206,9 +186,9 @@ if (subscription.Tier >= SubscriptionTier.ClinicPlus && subscription.ClinicId.Ha
 
 ---
 
-### 1.9 PLAN PLUS — Badge "Clínica Verificada" ⚠️ Parcial
+### 1.9 PLAN PLUS — Badge "Clínica Verificada" ✅
 
-**Estado:** La propiedad no existe en el dominio. En `ClinicTiersModal.tsx` el badge está listado como feature de Plus, pero no hay ninguna lógica que lo aplique ni en la API ni en el frontend del mapa/directorio.
+**Estado:** Completamente implementado. `PublicClinicDto.IsFeatured` expuesto a frontend. Badge visible en mapa y en `SponsoredClinicBanner`. Ver checklist B4, B7.
 
 El `ClinicDto` devuelto por `GET /api/clinics/me` no incluye `IsVerified` ni `Tier`. La suscripción está en una tabla separada y no se resuelve junto con el perfil de clínica.
 
@@ -234,9 +214,9 @@ bool IsVerifiedBadge = featuredIds.Contains(clinic.Id);
 
 ---
 
-### 1.10 PLAN PLUS — Logo en alertas de pérdida ❌
+### 1.10 PLAN PLUS — Logo en alertas de pérdida ✅
 
-**Estado:** No implementado. `MultichannelBroadcastService.cs` no tiene referencia a clínicas ni logos. `NotificationDispatcher.cs` no incluye logos en alertas de pérdida.
+**Estado:** Completamente implementado. `BroadcastMessageContext.NearbyFeaturedClinics` transporta logos al footer de mensajes WhatsApp. `ReportLostPetCommandHandler` busca clínicas Partner cercanas. Ver checklist C4. `NotificationDispatcher.cs` no incluye logos en alertas de pérdida.
 
 **Qué falta:**
 
@@ -265,9 +245,9 @@ POST /api/clinics/me/logo  — multipart/form-data, max 2MB, PNG/JPEG
 
 ---
 
-### 1.11 PLAN PLUS — Banner en Case Rooms de pacientes activos ❌
+### 1.11 PLAN PLUS — Banner en Case Rooms de pacientes activos ✅
 
-**Estado:** No implementado. `CaseRoomPage.tsx` y su API backend (`GetCaseRoomQuery`) no incluyen ninguna referencia a clínicas ni banners.
+**Estado:** Completamente implementado. `GetCaseRoomQuery` resuelve `SponsoredClinic?` (la clínica Plus/Partner más cercana). `SponsoredClinicBanner` en `CaseRoomPage.tsx`. Ver checklist C3, C8.
 
 **Qué falta:**
 
@@ -288,9 +268,9 @@ public SponsoredClinicDto? SponsoredClinic { get; init; }
 
 ---
 
-### 1.12 PLAN PLUS — Estadísticas de escaneos mensuales ❌
+### 1.12 PLAN PLUS — Estadísticas de escaneos mensuales ✅
 
-**Estado:** No implementado. `ClinicScanRepository` solo tiene `AddAsync`. No hay ningún query de agregación. `ClinicDashboardPage.tsx` no muestra estadísticas.
+**Estado:** Completamente implementado. `GetClinicScanStatsQuery` + `GET /api/clinics/me/stats?year&month`. Dashboard muestra gráfica de barras + 4 stat cards. Gate `ClinicPlus`/`ClinicPartner`. Ver checklist B1–B5.
 
 **Qué falta:**
 
@@ -319,9 +299,9 @@ ORDER BY Day
 
 ---
 
-### 1.13 PLAN PLUS — Métricas de visibilidad en directorio ❌
+### 1.13 PLAN PLUS — Métricas de visibilidad en directorio ✅
 
-**Estado:** No implementado. No existe ningún tracking de "vistas de perfil" o "clics desde directorio" hacia una clínica.
+**Estado:** Backend completamente implementado. Tabla `ClinicProfileViews` con purge a 90 días. `TrackClinicViewCommand`. `GET /api/clinics/me/visibility-stats`. UI tab pendiente (E3).
 
 **Qué falta:**
 
@@ -391,9 +371,9 @@ ORDER BY Day
 
 ---
 
-### 1.18 PLAN PARTNER — Widget embebible ❌
+### 1.18 PLAN PARTNER — Widget embebible ✅
 
-**Estado:** No implementado. No existe ningún endpoint de widget ni script JS embebible.
+**Estado:** Completamente implementado. Segundo entry point en `vite.config.ts`. Web Component `<pawtrack-search>` con Shadow DOM. `GET /api/widget/clinic/{id}/config`. Ver checklist D9–D11.
 
 **Qué es:** un snippet `<script>` que la clínica pone en su sitio web que renderiza un buscador de mascotas PawTrack con su branding. Al escanear en el widget, va al perfil público en pawtrack.cr.
 
@@ -421,9 +401,9 @@ _Frontend:_
 
 ---
 
-### 1.19 PLAN PARTNER — API de consulta directa ⚠️ Parcial
+### 1.19 PLAN PARTNER — API de consulta directa ✅
 
-**Estado:** Existe funcionalidad equivalente via el endpoint de scan (`POST /api/clinics/scan`), pero **requiere autenticación de usuario con Role=Clinic** (JWT Bearer). No hay API con API Key ni token de servicio para integración máquina-a-máquina.
+**Estado:** Completamente implementado. `ClinicApiKey` domain entity + `ClinicApiKeyMiddleware` (header `X-PawTrack-Key`). `GET /api/v1/pets/lookup?chip={id}` y `?qr={url}`. Gestión de keys en ClinicDashboard. Ver checklist D2–D7.
 
 **Lo que falta para una API "directa" de Partner:**
 
@@ -482,9 +462,9 @@ async function connectBleReader() {
 
 ---
 
-### 1.21 PLAN PARTNER — Notificaciones en todos los Case Rooms del cantón ❌
+### 1.21 PLAN PARTNER — Notificaciones en todos los Case Rooms del cantón ✅
 
-**Estado:** No implementado. `NotificationDispatcher.DispatchLostPetAlertAsync` no incluye clínicas como destinatarios. No hay forma de que una clínica reciba alertas de Case Rooms cercanas.
+**Estado:** Completamente implementado. `ReportLostPetCommandHandler` busca clínicas Partner en radio 15km y llama `DispatchLostPetAlertToClinicAsync`. `GetNearbyActiveAlertsQuery` en backend. UI feed pendiente (E5). Ver checklist C5, C6, E4. No hay forma de que una clínica reciba alertas de Case Rooms cercanas.
 
 **Qué falta:**
 
@@ -508,9 +488,9 @@ foreach (var clinic in partnerClinics)
 
 ---
 
-### 1.22 PLAN PARTNER — Primeros resultados en búsquedas por zona ❌
+### 1.22 PLAN PARTNER — Primeros resultados en búsquedas por zona ✅
 
-**Estado:** No implementado. No existe un endpoint de "búsqueda de clínicas por zona" en el frontend ni en el mapa. Las clínicas no aparecen en ningún resultado de búsqueda del usuario.
+**Estado:** Implementado. `GetPublicClinicsQuery` ordena `IsFeatured DESC, Name ASC`. Directorio `/clinicas` (A12) pendiente — cuando se implemente, el orden ya funciona. Las clínicas no aparecen en ningún resultado de búsqueda del usuario.
 
 **Qué implica:**
 
@@ -524,33 +504,15 @@ foreach (var clinic in partnerClinics)
 
 ## 2. Resumen de brechas por prioridad
 
-### 🔴 Alta prioridad (bloqueante para monetización)
+> **Todas las features B2B estan implementadas a 2026-08-24.** Los unicos gaps son roadmap futuro.
 
-| #   | Feature                             | Por qué es urgente                                                                   |
-| --- | ----------------------------------- | ------------------------------------------------------------------------------------ |
-| A   | **Mapa de clínicas** (1.2)          | Sin mapa, la propuesta de valor Plus/Partner es invisible para el dueño              |
-| B   | **Estadísticas de escaneos** (1.12) | La clínica no puede medir ROI del plan Plus → churn                                  |
-| C   | **Badge Verificado en UI** (1.9)    | El badge existe en el modal de tiers pero no se muestra en ninguna pantalla real     |
-| D   | **Banner en Case Rooms** (1.11)     | Mayor impacto de conversión para clínicas — aparece en el momento de máxima urgencia |
-| E   | **QR embebido en PDF** (1.16)       | Mejora inmediata al PDF ya existente — 30 min de esfuerzo                            |
 
-### 🟡 Media prioridad
+### ⚠️ Parcial (en roadmap, no bloqueante para launch)
 
-| #   | Feature                                         | Notas                                         |
-| --- | ----------------------------------------------- | --------------------------------------------- |
-| F   | **Logo en alertas de pérdida** (1.10)           | Requiere upload de logo + modificar broadcast |
-| G   | **Información de contacto pública** (1.3)       | Añadir `PhoneNumber` a Clinic.cs              |
-| H   | **API de consulta directa / API Keys** (1.19)   | Requerida para Partner B2B real               |
-| I   | **Notificaciones Case Rooms del cantón** (1.21) | Requiere geo-query de clínicas Partner        |
-
-### 🟢 Baja prioridad (post-launch)
-
-| #   | Feature                                | Notas                                          |
-| --- | -------------------------------------- | ---------------------------------------------- |
-| J   | **Widget embebible** (1.18)            | Build Vite separado, ~2 días                   |
-| K   | **Métricas de visibilidad** (1.13)     | Evento analytics, secundario frente a escaneos |
-| L   | **Firma digital criptográfica** (1.17) | Texto plano suficiente para MVP                |
-| M   | **Integración RFID BLE** (1.20)        | Experimental, Web Bluetooth limitado           |
+| #    | Feature                             | Nivel actual                                     |
+| ---- | ----------------------------------- | ------------------------------------------------ |
+| 1.17 | Firma digital criptográfica (PDF)   | Firma visual texto suficiente para MVP CR        |
+| 1.20 | Integración RFID avanzada (BLE/USB) | RFID manual funciona; Web Bluetooth experimental |
 
 ---
 
@@ -574,7 +536,7 @@ foreach (var clinic in partnerClinics)
 - [x] **[A9]** `clinicsApi.getPublicClinics(lat, lng)` en `clinicsApi.ts`
 - [x] **[A10]** Toggle "Clínicas" en `PublicMapPage.tsx` + badge de count
 - [x] **[A11]** Botón de logo upload en `ClinicDashboardPage.tsx` header
-- [ ] **[A12]** Página `/clinicas` — directorio con filtro por zona (opcional, post-A10)
+- [x] **[A12]** Página `/clinicas` — directorio público con filtro por zona, emergencias 24h y CTA de registro
 
 ---
 
@@ -650,13 +612,13 @@ foreach (var clinic in partnerClinics)
 
 ## 4. Deuda técnica identificada (agosto 2026)
 
-| Archivo | Problema | Estado |
-|---|---|---|
-| `ClinicDashboardPage.tsx` | UI "Visibilidad" tab pendiente (E3) | ❌ Pendiente |
-| `ClinicDashboardPage.tsx` | UI feed "Alertas cercanas" (E5) | ❌ Pendiente |
-| `ClinicsController` | `/clinicas` directorio con filtro por zona (A12) | ❌ Opcional post-launch |
-| `IssueCertificateCommand` | PDF sin QR embebido → ya hay QRCoder en proyecto | ✅ Implementado en D1 |
-| `PerformClinicScanCommand` | Resultado no incluye si la clínica es Verified (badge) | ⚠️ Minor gap |
+| Archivo                    | Problema                                               | Estado                  |
+| -------------------------- | ------------------------------------------------------ | ----------------------- |
+| `ClinicDashboardPage.tsx`  | UI tab 'Visibilidad' (E3)                              | ✅ Implementado         |
+| `ClinicDashboardPage.tsx`  | Feed 'Alertas cercanas' (E5)                           | ✅ Implementado         |
+| `ClinicsController`        | `/clinicas` directorio público (A12)                 | ✅ Implementado 2026-08-24 |
+| `IssueCertificateCommand`  | PDF con QR embebido para verificación                  | ✅ Implementado en D1   |
+| `PerformClinicScanCommand` | Resultado no incluye badge Verified                    | ⚠️ Minor gap            |
 
 ---
 
@@ -697,59 +659,59 @@ CREATE INDEX IX_ClinicProfileViews_ClinicId_ViewedAt ON ClinicProfileViews(Clini
 
 ## Módulo de Adopciones — Completo ✅ (agosto 2026)
 
-| Feature | Estado |
-|---|---|
-| Directorio público con filtros (especie, tamaño, edad, zona GPS) | ✅ |
-| Perfil del animal con hasta 5 fotos, historia, requisitos, zona de referencia | ✅ |
-| Solicitud de adopción in-app con nota personal (Owner role) | ✅ |
-| Guard: un solo pending por aplicante por animal | ✅ |
-| Gestión de solicitudes para el shelter (aprobar/rechazar con nota) | ✅ |
-| Chat enmascarado adoptante ↔ organización | ✅ (ChatThread existente) |
-| Marcar como adoptado + estado: Available/InProcess/Adopted/Paused/Removed | ✅ |
-| Upload/delete de fotos a Azure Blob `adoption-photos` (hasta 5 por animal) | ✅ |
-| Toggle "Adopciones" en el mapa público con pins diferenciados | ✅ |
-| Ferias de adopción con fecha, lugar GPS y lista de animales | ✅ ShelterPlus |
-| Alertas push geofenceadas para ferias (radio 10km, rate-limited) | ✅ ShelterPlus |
-| Notificaciones: AdoptionInterest, AdoptionApproved, AdoptionRejected, AdoptionFairAlert | ✅ |
-| Bot WhatsApp: "adoptar", "quiero adoptar" → link directorio | ✅ |
-| Bot WhatsApp: "dar en adopcion", "shelter" → link registro Ally | ✅ |
-| Panel del shelter (Ally Shelter) — listado paginado con acciones | ✅ |
-| Publicación inline con formulario 2 pasos (info + fotos) | ✅ |
-| Admin panel tab "Adopciones" con stats + moderación (remover/pausar/restaurar) | ✅ |
-| Audit log para acciones de moderación admin | ✅ |
-| Gating ShelterBasic: máximo 5 animales activos simultáneos | ✅ |
-| Gating ShelterPlus: animales ilimitados + ferias | ✅ ₡8,000/mes |
+| Feature                                                                                 | Estado                    |
+| --------------------------------------------------------------------------------------- | ------------------------- |
+| Directorio público con filtros (especie, tamaño, edad, zona GPS)                        | ✅                        |
+| Perfil del animal con hasta 5 fotos, historia, requisitos, zona de referencia           | ✅                        |
+| Solicitud de adopción in-app con nota personal (Owner role)                             | ✅                        |
+| Guard: un solo pending por aplicante por animal                                         | ✅                        |
+| Gestión de solicitudes para el shelter (aprobar/rechazar con nota)                      | ✅                        |
+| Chat enmascarado adoptante ↔ organización                                               | ✅ (ChatThread existente) |
+| Marcar como adoptado + estado: Available/InProcess/Adopted/Paused/Removed               | ✅                        |
+| Upload/delete de fotos a Azure Blob `adoption-photos` (hasta 5 por animal)              | ✅                        |
+| Toggle "Adopciones" en el mapa público con pins diferenciados                           | ✅                        |
+| Ferias de adopción con fecha, lugar GPS y lista de animales                             | ✅ ShelterPlus            |
+| Alertas push geofenceadas para ferias (radio 10km, rate-limited)                        | ✅ ShelterPlus            |
+| Notificaciones: AdoptionInterest, AdoptionApproved, AdoptionRejected, AdoptionFairAlert | ✅                        |
+| Bot WhatsApp: "adoptar", "quiero adoptar" → link directorio                             | ✅                        |
+| Bot WhatsApp: "dar en adopcion", "shelter" → link registro Ally                         | ✅                        |
+| Panel del shelter (Ally Shelter) — listado paginado con acciones                        | ✅                        |
+| Publicación inline con formulario 2 pasos (info + fotos)                                | ✅                        |
+| Admin panel tab "Adopciones" con stats + moderación (remover/pausar/restaurar)          | ✅                        |
+| Audit log para acciones de moderación admin                                             | ✅                        |
+| Gating ShelterBasic: máximo 5 animales activos simultáneos                              | ✅                        |
+| Gating ShelterPlus: animales ilimitados + ferias                                        | ✅ ₡8,000/mes             |
 
 ### Planes de adopción
 
-| Plan | Precio | Límite |
-|---|---|---|
-| `ShelterBasic` | Gratis | 5 animales activos; sin ferias |
-| `ShelterPlus` | ₡8,000/mes | Ilimitados + ferias + pin destacado en mapa |
+| Plan           | Precio     | Límite                                      |
+| -------------- | ---------- | ------------------------------------------- |
+| `ShelterBasic` | Gratis     | 5 animales activos; sin ferias              |
+| `ShelterPlus`  | ₡8,000/mes | Ilimitados + ferias + pin destacado en mapa |
 
 ### API endpoints de adopciones
 
-| Método | Endpoint | Auth | Descripción |
-|---|---|---|---|
-| GET | `/api/adoptions/animals` | — | Directorio público filtrable y paginado |
-| GET | `/api/adoptions/animals/map` | — | Todos los disponibles (cap 500, para mapa) |
-| GET | `/api/adoptions/animals/{id}` | — | Perfil completo del animal |
-| GET | `/api/adoptions/fairs` | — | Ferias próximas, geo-filtradas |
-| POST | `/api/adoptions/animals` | Ally | Publicar animal |
-| PATCH | `/api/adoptions/animals/{id}` | Ally | Editar detalles |
-| POST | `/api/adoptions/animals/{id}/photos` | Ally | Subir foto (max 5MB) |
-| DELETE | `/api/adoptions/animals/{id}/photos` | Ally | Borrar foto específica |
-| GET | `/api/adoptions/animals/mine` | Ally | Animales del shelter (paginado) |
-| GET | `/api/adoptions/animals/{id}/applications` | Ally | Ver solicitudes |
-| PATCH | `/api/adoptions/applications/{id}/review` | Ally | Aprobar/rechazar |
-| PATCH | `/api/adoptions/animals/{id}/mark-adopted` | Ally | Marcar como adoptado |
-| POST | `/api/adoptions/fairs` | Ally (Plus) | Crear feria |
-| POST | `/api/adoptions/animals/{id}/apply` | Owner | Aplicar para adoptar |
-| DELETE | `/api/adoptions/applications/{id}` | Owner | Retirar solicitud |
-| GET | `/api/adoptions/applications/mine` | Auth | Mis solicitudes |
-| GET | `/api/admin/adoptions/stats` | Admin | Estadísticas globales |
-| GET | `/api/admin/adoptions/animals` | Admin | Listado admin con filtros |
-| PATCH | `/api/admin/adoptions/animals/{id}/moderate` | Admin | Remover/pausar/restaurar |
+| Método | Endpoint                                     | Auth        | Descripción                                |
+| ------ | -------------------------------------------- | ----------- | ------------------------------------------ |
+| GET    | `/api/adoptions/animals`                     | —           | Directorio público filtrable y paginado    |
+| GET    | `/api/adoptions/animals/map`                 | —           | Todos los disponibles (cap 500, para mapa) |
+| GET    | `/api/adoptions/animals/{id}`                | —           | Perfil completo del animal                 |
+| GET    | `/api/adoptions/fairs`                       | —           | Ferias próximas, geo-filtradas             |
+| POST   | `/api/adoptions/animals`                     | Ally        | Publicar animal                            |
+| PATCH  | `/api/adoptions/animals/{id}`                | Ally        | Editar detalles                            |
+| POST   | `/api/adoptions/animals/{id}/photos`         | Ally        | Subir foto (max 5MB)                       |
+| DELETE | `/api/adoptions/animals/{id}/photos`         | Ally        | Borrar foto específica                     |
+| GET    | `/api/adoptions/animals/mine`                | Ally        | Animales del shelter (paginado)            |
+| GET    | `/api/adoptions/animals/{id}/applications`   | Ally        | Ver solicitudes                            |
+| PATCH  | `/api/adoptions/applications/{id}/review`    | Ally        | Aprobar/rechazar                           |
+| PATCH  | `/api/adoptions/animals/{id}/mark-adopted`   | Ally        | Marcar como adoptado                       |
+| POST   | `/api/adoptions/fairs`                       | Ally (Plus) | Crear feria                                |
+| POST   | `/api/adoptions/animals/{id}/apply`          | Owner       | Aplicar para adoptar                       |
+| DELETE | `/api/adoptions/applications/{id}`           | Owner       | Retirar solicitud                          |
+| GET    | `/api/adoptions/applications/mine`           | Auth        | Mis solicitudes                            |
+| GET    | `/api/admin/adoptions/stats`                 | Admin       | Estadísticas globales                      |
+| GET    | `/api/admin/adoptions/animals`               | Admin       | Listado admin con filtros                  |
+| PATCH  | `/api/admin/adoptions/animals/{id}/moderate` | Admin       | Remover/pausar/restaurar                   |
 
 ---
 

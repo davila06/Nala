@@ -10,13 +10,13 @@
 
 Antes de empezar, asegúrate de tener instalado:
 
-| Herramienta | Versión mínima | Verificar |
-|-------------|---------------|-----------|
-| Azure CLI | 2.60+ | `az --version` |
-| Docker Desktop | 24+ | `docker --version` |
-| .NET SDK | 9.0 | `dotnet --version` |
-| Node.js | 20 LTS | `node --version` |
-| Azure SWA CLI | latest | `npx @azure/static-web-apps-cli --version` |
+| Herramienta    | Versión mínima | Verificar                                  |
+| -------------- | -------------- | ------------------------------------------ |
+| Azure CLI      | 2.60+          | `az --version`                             |
+| Docker Desktop | 24+            | `docker --version`                         |
+| .NET SDK       | 9.0            | `dotnet --version`                         |
+| Node.js        | 20 LTS         | `node --version`                           |
+| Azure SWA CLI  | latest         | `npx @azure/static-web-apps-cli --version` |
 
 ```powershell
 # Login inicial
@@ -150,7 +150,7 @@ Write-Host "⚠ Cargar secretos de WhatsApp manualmente (ver docs/operacional.md
 
 ## PASO 3b — Crear contenedor Blob Storage para adopciones
 
-```powershell
+````powershell
 # El Bicep crea pet-photos, sighting-photos, found-pet-photos, lost-pet-photos, whatsapp-avatars.
 # El módulo de adopciones necesita un contenedor adicional:
 az storage container create `
@@ -192,7 +192,7 @@ az containerapp update `
     "Jwt__Key=secretref:jwt-signing-key"
 
 Write-Host "✔ Variables de entorno configuradas"
-```
+````
 
 ---
 
@@ -200,16 +200,16 @@ Write-Host "✔ Variables de entorno configuradas"
 
 El proyecto tiene **56 migraciones** en total. Las siguientes son las más recientes y deben estar aplicadas antes del primer deploy:
 
-| Migración | Tablas creadas | Cuándo |
-|---|---|---|
-| `AddPetStores` | Stores, StoreProducts, StoreOrders | 2026-08-19 |
-| `AddRevokedTokens` | RevokedTokens | 2026-08-19 |
-| `AddBillboards` | Billboards | 2026-08-19 |
-| `AddAdoptionsModule` | AdoptableAnimals, AdoptionApplications, AdoptionFairs | 2026-08-21 |
-| `AddWhatsAppIdempotencyTable` | WhatsAppProcessedMessages (unique idx en Wamid) | 2026-08-24 |
-| `AddAuditLog` | AuditLog | 2026-08-24 |
-| `AddOutboxAndFosterJsonSpecies` | OutboxMessages; rename AcceptedSpeciesCsv→JSON | 2026-08-24 |
-| `AddBreedReferenceAndCursorPagination` | BreedReferences | 2026-08-24 |
+| Migración                              | Tablas creadas                                        | Cuándo     |
+| -------------------------------------- | ----------------------------------------------------- | ---------- |
+| `AddPetStores`                         | Stores, StoreProducts, StoreOrders                    | 2026-08-19 |
+| `AddRevokedTokens`                     | RevokedTokens                                         | 2026-08-19 |
+| `AddBillboards`                        | Billboards                                            | 2026-08-19 |
+| `AddAdoptionsModule`                   | AdoptableAnimals, AdoptionApplications, AdoptionFairs | 2026-08-21 |
+| `AddWhatsAppIdempotencyTable`          | WhatsAppProcessedMessages (unique idx en Wamid)       | 2026-08-24 |
+| `AddAuditLog`                          | AuditLog                                              | 2026-08-24 |
+| `AddOutboxAndFosterJsonSpecies`        | OutboxMessages; rename AcceptedSpeciesCsv→JSON        | 2026-08-24 |
+| `AddBreedReferenceAndCursorPagination` | BreedReferences                                       | 2026-08-24 |
 
 ```powershell
 # Opción A: Correr desde tu máquina local (requiere IP en firewall SQL del PASO 2)
@@ -367,14 +367,14 @@ Cambio en código
 
 ## Troubleshooting rápido
 
-| Síntoma | Comando diagnóstico |
-|---------|-------------------|
-| Container App no arranca | `az containerapp logs show --name pawtrack-dev-api --resource-group PawnTrackBeta --follow` |
-| Error 401 / 403 en API | Verificar Key Vault secrets y RBAC |
-| SQL no conecta | Verificar firewall SQL (PASO 2) |
-| Frontend muestra error CORS | Verificar `frontendUrl` en Bicep y re-deploy (PASO 9) |
-| Imagen no se descarga del ACR | Verificar RBAC AcrPull en Container App identity |
-| Fotos de adopción no suben | Verificar que el contenedor `adoption-photos` existe (PASO 3b) |
-| Bot de WhatsApp no responde | Verificar `whatsapp-verify-token` y que el webhook está activo en Meta |
-| Push notifications no llegan | Verificar `VITE_VAPID_PUBLIC_KEY` en GitHub Secrets y que `vapid-private-key` está en Key Vault |
+| Síntoma                        | Comando diagnóstico                                                                                                                                                          |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Container App no arranca       | `az containerapp logs show --name pawtrack-dev-api --resource-group PawnTrackBeta --follow`                                                                                  |
+| Error 401 / 403 en API         | Verificar Key Vault secrets y RBAC                                                                                                                                           |
+| SQL no conecta                 | Verificar firewall SQL (PASO 2)                                                                                                                                              |
+| Frontend muestra error CORS    | Verificar `frontendUrl` en Bicep y re-deploy (PASO 9)                                                                                                                        |
+| Imagen no se descarga del ACR  | Verificar RBAC AcrPull en Container App identity                                                                                                                             |
+| Fotos de adopción no suben     | Verificar que el contenedor `adoption-photos` existe (PASO 3b)                                                                                                               |
+| Bot de WhatsApp no responde    | Verificar `whatsapp-verify-token` y que el webhook está activo en Meta                                                                                                       |
+| Push notifications no llegan   | Verificar `VITE_VAPID_PUBLIC_KEY` en GitHub Secrets y que `vapid-private-key` está en Key Vault                                                                              |
 | Migraciones pendientes en logs | Correr PASO 5 con las nuevas migraciones (AddAdoptionsModule, AddWhatsAppIdempotencyTable, AddAuditLog, AddOutboxAndFosterJsonSpecies, AddBreedReferenceAndCursorPagination) |

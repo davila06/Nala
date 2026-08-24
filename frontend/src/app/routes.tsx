@@ -106,6 +106,9 @@ const SearchCoordinationPage = lazy(
 const ClinicRegisterPage = lazy(
   () => import("@/features/clinics/pages/ClinicRegisterPage"),
 );
+const ClinicDirectoryPage = lazy(
+  () => import("@/features/clinics/pages/ClinicDirectoryPage"),
+);
 const ClinicPendingPage = lazy(
   () => import("@/features/clinics/pages/ClinicPendingPage"),
 );
@@ -287,6 +290,14 @@ export const router = createBrowserRouter([
             element: (
               <S>
                 <ClinicRegisterPage />
+              </S>
+            ),
+          },
+          {
+            path: "/clinicas",
+            element: (
+              <S name="Directorio de clínicas">
+                <ClinicDirectoryPage />
               </S>
             ),
           },

@@ -105,22 +105,22 @@ Estos datos son públicos y refuerzan la credibilidad de la plataforma.
 
 ## ¿Por qué no es lo mismo que un grupo de Facebook?
 
-|                                    | Facebook / Grupos        | **PawTrack CR**              |
-| ---------------------------------- | ------------------------ | ---------------------------- |
-| Identidad permanente de la mascota | ❌ El post desaparece    | ✅ Perfil QR permanente      |
-| Alertas automáticas por zona       | ❌ Manual                | ✅ Geofencing automático     |
-| Coordinación de búsqueda           | ❌ Por mensajes de texto | ✅ Cuadrícula en tiempo real |
-| Matching visual por IA             | ❌                       | ✅                           |
-| Privacidad del reportante          | ❌ Nombre visible        | ✅ Anonimato por diseño      |
-| Chat seguro                        | ❌ WhatsApp personal     | ✅ Chat enmascarado in-app   |
-| Entrega verificada                 | ❌ Sin protocolo         | ✅ Código de 4 dígitos       |
-| Red de custodios temporales        | ❌                       | ✅                           |
-| Recompensas en custodia            | ❌                       | ✅                           |
-| Bot de WhatsApp                    | ❌                       | ✅                           |
-| Estadísticas de recuperación       | ❌                       | ✅ Públicas y en tiempo real |
+|                                    | Facebook / Grupos        | **PawTrack CR**                  |
+| ---------------------------------- | ------------------------ | -------------------------------- |
+| Identidad permanente de la mascota | ❌ El post desaparece    | ✅ Perfil QR permanente          |
+| Alertas automáticas por zona       | ❌ Manual                | ✅ Geofencing automático         |
+| Coordinación de búsqueda           | ❌ Por mensajes de texto | ✅ Cuadrícula en tiempo real     |
+| Matching visual por IA             | ❌                       | ✅                               |
+| Privacidad del reportante          | ❌ Nombre visible        | ✅ Anonimato por diseño          |
+| Chat seguro                        | ❌ WhatsApp personal     | ✅ Chat enmascarado in-app       |
+| Entrega verificada                 | ❌ Sin protocolo         | ✅ Código de 4 dígitos           |
+| Red de custodios temporales        | ❌                       | ✅                               |
+| Recompensas en custodia            | ❌                       | ✅                               |
+| Bot de WhatsApp                    | ❌                       | ✅                               |
+| Estadísticas de recuperación       | ❌                       | ✅ Públicas y en tiempo real     |
 | Módulo de adopciones               | ❌                       | ✅ Perfiles, solicitudes, ferias |
-| Tiendas de mascotas in-app         | ❌                       | ✅ Catálogo + SINPE Móvil    |
-| Vallas publicitarias segmentadas   | ❌                       | ✅ Por zona y contexto       |
+| Tiendas de mascotas in-app         | ❌                       | ✅ Catálogo + SINPE Móvil        |
+| Vallas publicitarias segmentadas   | ❌                       | ✅ Por zona y contexto           |
 
 ---
 
@@ -151,22 +151,22 @@ Estos datos son públicos y refuerzan la credibilidad de la plataforma.
 
 ### Para tiendas de mascotas
 
-|                                        | **Básica** (gratis) | **StorePlus** ₡12,000/mes |
-| -------------------------------------- | ------------------- | ------------------------- |
-| Listing en directorio y mapa           | ✅                  | ✅                        |
-| Catálogo de productos in-app           | —                   | ✅                        |
-| Pedidos y pago con SINPE Móvil         | —                   | ✅                        |
-| Pin destacado en el mapa               | —                   | ✅                        |
+|                                | **Básica** (gratis) | **StorePlus** ₡12,000/mes |
+| ------------------------------ | ------------------- | ------------------------- |
+| Listing en directorio y mapa   | ✅                  | ✅                        |
+| Catálogo de productos in-app   | —                   | ✅                        |
+| Pedidos y pago con SINPE Móvil | —                   | ✅                        |
+| Pin destacado en el mapa       | —                   | ✅                        |
 
 ### Para refugios y organizaciones de adopción
 
-|                                            | **ShelterBasic** (gratis) | **ShelterPlus** ₡8,000/mes |
-| ------------------------------------------ | ------------------------- | -------------------------- |
-| Publicar animales en adopción              | Hasta 5 activos           | Ilimitados                 |
-| Perfil con fotos (hasta 5 por animal)      | ✅                        | ✅                         |
-| Gestión de solicitudes de adopción         | ✅                        | ✅                         |
-| Ferias de adopción con alertas geofenceadas | —                        | ✅                         |
-| Pin destacado en el mapa                   | —                         | ✅                         |
+|                                             | **ShelterBasic** (gratis) | **ShelterPlus** ₡8,000/mes |
+| ------------------------------------------- | ------------------------- | -------------------------- |
+| Publicar animales en adopción               | Hasta 5 activos           | Ilimitados                 |
+| Perfil con fotos (hasta 5 por animal)       | ✅                        | ✅                         |
+| Gestión de solicitudes de adopción          | ✅                        | ✅                         |
+| Ferias de adopción con alertas geofenceadas | —                         | ✅                         |
+| Pin destacado en el mapa                    | —                         | ✅                         |
 
 ### Accesorios físicos con QR (tienda)
 
