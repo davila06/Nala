@@ -11,6 +11,7 @@ namespace PawTrack.Infrastructure.Clinics;
 /// </summary>
 public sealed class ClinicProfileViewPurgeHostedService(
     IServiceScopeFactory scopeFactory,
+    IDistributedJobLock jobLock,
     ILogger<ClinicProfileViewPurgeHostedService> logger)
     : BackgroundService
 {
@@ -27,6 +28,9 @@ public sealed class ClinicProfileViewPurgeHostedService(
 
             await Task.Delay(delay, stoppingToken);
             if (stoppingToken.IsCancellationRequested) break;
+
+            await using var lease = await jobLock.TryAcquireAsync("ClinicViewPurge", TimeSpan.FromHours(2), stoppingToken);
+            if (lease is null) continue;
 
             try
             {

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using PawTrack.Application.Common.Interfaces;
 
 namespace PawTrack.Infrastructure.Notifications.Jobs;
 
@@ -9,6 +10,7 @@ namespace PawTrack.Infrastructure.Notifications.Jobs;
 /// </summary>
 public sealed class StaleReportCheckerHostedService(
     IServiceScopeFactory scopeFactory,
+    IDistributedJobLock jobLock,
     ILogger<StaleReportCheckerHostedService> logger)
     : BackgroundService
 {
@@ -25,6 +27,9 @@ public sealed class StaleReportCheckerHostedService(
             await Task.Delay(delay, stoppingToken);
             if (stoppingToken.IsCancellationRequested)
                 break;
+
+            await using var lease = await jobLock.TryAcquireAsync("StaleReportChecker", TimeSpan.FromHours(2), stoppingToken);
+            if (lease is null) continue;
 
             try
             {

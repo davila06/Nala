@@ -71,6 +71,12 @@ public static class InfrastructureServiceCollectionExtensions
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<PawTrackDbContext>());
 
+        // Distributed job lock — prevents duplicate background job execution on scale-out.
+        services.AddSingleton<IDistributedJobLock, SqlServerDistributedJobLock>();
+
+        // Outbox processor — delivers domain events at-least-once after DB commit.
+        services.AddHostedService<PawTrack.Infrastructure.Outbox.OutboxProcessorHostedService>();
+
         // Repositories
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAllyProfileRepository, AllyProfileRepository>();

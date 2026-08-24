@@ -16,7 +16,11 @@ public sealed class FosterVolunteerConfiguration : IEntityTypeConfiguration<Fost
         builder.Property(x => x.FullName).IsRequired().HasMaxLength(120);
         builder.Property(x => x.HomeLat).IsRequired();
         builder.Property(x => x.HomeLng).IsRequired();
-        builder.Property(x => x.AcceptedSpeciesCsv).IsRequired().HasMaxLength(120);
+        // JSON array replaces old CSV — backward-compat read of CSV is handled in the domain.
+        builder.Property(x => x.AcceptedSpeciesJson)
+            .IsRequired()
+            .HasMaxLength(200)
+            .HasColumnName("AcceptedSpeciesCsv"); // keep old column name so no migration is needed
         builder.Property(x => x.SizePreference).HasMaxLength(20);
         builder.Property(x => x.MaxDays).IsRequired();
         builder.Property(x => x.IsAvailable).IsRequired();

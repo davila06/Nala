@@ -17,6 +17,7 @@ namespace PawTrack.Infrastructure.Notifications;
 /// </summary>
 public sealed class RiskAlertHostedService(
     IServiceScopeFactory scopeFactory,
+    IDistributedJobLock jobLock,
     ILogger<RiskAlertHostedService> logger)
     : BackgroundService
 {
@@ -44,7 +45,10 @@ public sealed class RiskAlertHostedService(
 
             if (!stoppingToken.IsCancellationRequested)
             {
-                await RunDailyCycleAsync(stoppingToken);
+                // Only one instance runs the daily cycle on scale-out.
+                await using var lease = await jobLock.TryAcquireAsync("RiskAlert", TimeSpan.FromHours(2), stoppingToken);
+                if (lease is not null)
+                    await RunDailyCycleAsync(stoppingToken);
             }
         }
     }

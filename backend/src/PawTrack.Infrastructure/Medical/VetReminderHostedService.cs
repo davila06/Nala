@@ -60,6 +60,7 @@ public sealed class VetReminderNotificationJob(IMedicalRepository medicalReposit
 
 public sealed class VetReminderHostedService(
     IServiceScopeFactory scopeFactory,
+    IDistributedJobLock jobLock,
     ILogger<VetReminderHostedService> logger)
     : BackgroundService
 {
@@ -75,6 +76,10 @@ public sealed class VetReminderHostedService(
 
             logger.LogInformation("VetReminderHostedService: next run in {Delay}", delay);
             await Task.Delay(delay, stoppingToken);
+
+            // Acquire distributed lock — only one instance runs the job on scale-out.
+            await using var lease = await jobLock.TryAcquireAsync("VetReminder", TimeSpan.FromHours(2), stoppingToken);
+            if (lease is null) continue;
 
             try
             {

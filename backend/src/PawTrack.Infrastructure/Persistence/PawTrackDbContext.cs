@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Common;
+using PawTrack.Domain.Outbox;
+using System.Text.Json;
 using PawTrack.Domain.Allies;
 using PawTrack.Domain.Auth;
 using PawTrack.Domain.Bot;
@@ -29,6 +31,7 @@ using PawTrack.Domain.Subscriptions;
 using PawTrack.Domain.Adoptions;
 using PawTrack.Domain.Audit;
 using PawTrack.Domain.Bot;
+using PawTrack.Domain.Outbox;
 
 namespace PawTrack.Infrastructure.Persistence;
 
@@ -98,6 +101,7 @@ public sealed class PawTrackDbContext(
     public DbSet<AdoptionApplication> AdoptionApplications => Set<AdoptionApplication>();
     public DbSet<AdoptionFair> AdoptionFairs => Set<AdoptionFair>();
     public DbSet<AuditLogEntry> AuditLog => Set<AuditLogEntry>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -121,9 +125,18 @@ public sealed class PawTrackDbContext(
         foreach (var entry in ChangeTracker.Entries<IHasDomainEvents>())
             entry.Entity.ClearDomainEvents();
 
+        // Write each domain event to the outbox table in the same transaction.
+        // The OutboxProcessor background service delivers them after commit (at-least-once).
+        foreach (var evt in domainEvents)
+        {
+            var payload = JsonSerializer.Serialize(evt, evt.GetType());
+            OutboxMessages.Add(OutboxMessage.Create(evt.GetType().FullName ?? evt.GetType().Name, payload));
+        }
+
         var result = await base.SaveChangesAsync(cancellationToken);
 
-        // Dispatch after commit — handlers may run async side-effects (notifications, etc.)
+        // Also dispatch in-process immediately for low-latency paths (SignalR, same-request queries).
+        // The outbox provides durability if the process dies between commit and this point.
         if (publisher is not null)
         {
             foreach (var evt in domainEvents)

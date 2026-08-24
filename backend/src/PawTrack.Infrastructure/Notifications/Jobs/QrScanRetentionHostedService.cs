@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using PawTrack.Application.Common.Interfaces;
 
 namespace PawTrack.Infrastructure.Notifications.Jobs;
 
@@ -10,6 +11,7 @@ namespace PawTrack.Infrastructure.Notifications.Jobs;
 /// </summary>
 public sealed class QrScanRetentionHostedService(
     IServiceScopeFactory scopeFactory,
+    IDistributedJobLock jobLock,
     ILogger<QrScanRetentionHostedService> logger)
     : BackgroundService
 {
@@ -26,6 +28,9 @@ public sealed class QrScanRetentionHostedService(
             await Task.Delay(delay, stoppingToken);
             if (stoppingToken.IsCancellationRequested)
                 break;
+
+            await using var lease = await jobLock.TryAcquireAsync("QrScanRetention", TimeSpan.FromHours(2), stoppingToken);
+            if (lease is null) continue;
 
             try
             {
