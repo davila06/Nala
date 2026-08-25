@@ -15,6 +15,7 @@ public sealed record AdminActivateSubscriptionCommand(Guid SubscriptionId, int B
 public sealed class AdminActivateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
     IClinicRepository clinicRepository,
+    IStoreRepository storeRepository,
     IAuditLogRepository auditLog,
     IUnitOfWork unitOfWork)
     : IRequestHandler<AdminActivateSubscriptionCommand, Result<SubscriptionDto>>
@@ -32,6 +33,7 @@ public sealed class AdminActivateSubscriptionCommandHandler(
         sub.Activate(request.BillingMonths);
         subscriptionRepository.Update(sub);
         await SyncClinicFeaturedAsync(sub, true, cancellationToken);
+        await SyncStoreFeaturedAsync(sub, true, cancellationToken);
 
         await auditLog.AddAsync(AuditLogEntry.Create(
             Guid.Empty,
@@ -51,5 +53,15 @@ public sealed class AdminActivateSubscriptionCommandHandler(
         if (clinic is null) return;
         clinic.SetFeatured(featured);
         clinicRepository.Update(clinic);
+    }
+
+    private async Task SyncStoreFeaturedAsync(Subscription sub, bool featured, CancellationToken ct)
+    {
+        if (sub.UserId is null) return;
+        if (sub.Tier is not (SubscriptionTier.StorePlus or SubscriptionTier.StorePartner)) return;
+        var store = await storeRepository.GetByUserIdAsync(sub.UserId.Value, ct);
+        if (store is null) return;
+        store.SetFeatured(featured);
+        storeRepository.Update(store);
     }
 }

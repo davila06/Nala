@@ -20,7 +20,9 @@ public sealed class ReportSightingCommandHandler(
     IImageProcessor imageProcessor,
     IPiiScrubber piiScrubber,
     INotificationDispatcher notificationDispatcher,
+    IAnimalPhotoValidator animalPhotoValidator,
     IOptions<ResolveCheckSettings> settings,
+    IOptions<AnimalPhotoValidationSettings> validationSettings,
     IUnitOfWork unitOfWork)
     : IRequestHandler<ReportSightingCommand, Result<string>>
 {
@@ -56,6 +58,18 @@ public sealed class ReportSightingCommandHandler(
             using var ms = new MemoryStream();
             await request.PhotoStream.CopyToAsync(ms, cancellationToken);
             var rawBytes = ms.ToArray();
+
+            // Validate animal presence before uploading (fail-open when Vision API unavailable).
+            if (validationSettings.Value.EnforceOnSightings)
+            {
+                using var validationStream = new MemoryStream(rawBytes);
+                var validation = await animalPhotoValidator.ValidateAsync(
+                    validationStream, request.PhotoContentType, cancellationToken);
+
+                if (validation.ServiceAvailable && !validation.IsAnimalDetected)
+                    return Result.Failure<string>(
+                        "La foto no parece contener una mascota. Por favor sube una foto clara del animal.");
+            }
 
             var safeBytes = await imageProcessor.ResizeAsync(rawBytes, 800, cancellationToken);
 

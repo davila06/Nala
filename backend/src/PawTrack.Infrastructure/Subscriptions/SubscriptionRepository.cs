@@ -9,13 +9,17 @@ public sealed class SubscriptionRepository(PawTrackDbContext dbContext) : ISubsc
 {
     public Task<Subscription?> GetActiveForUserAsync(Guid userId, CancellationToken cancellationToken = default) =>
         dbContext.Subscriptions
-            .Where(s => s.UserId == userId && s.Status == SubscriptionStatus.Active)
+            .Where(s => s.UserId == userId
+                && s.Status == SubscriptionStatus.Active
+                && s.ExpiresAt > DateTimeOffset.UtcNow)
             .OrderByDescending(s => s.ActivatedAt)
             .FirstOrDefaultAsync(cancellationToken);
 
     public Task<Subscription?> GetActiveForClinicAsync(Guid clinicId, CancellationToken cancellationToken = default) =>
         dbContext.Subscriptions
-            .Where(s => s.ClinicId == clinicId && s.Status == SubscriptionStatus.Active)
+            .Where(s => s.ClinicId == clinicId
+                && s.Status == SubscriptionStatus.Active
+                && s.ExpiresAt > DateTimeOffset.UtcNow)
             .OrderByDescending(s => s.ActivatedAt)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -29,6 +33,11 @@ public sealed class SubscriptionRepository(PawTrackDbContext dbContext) : ISubsc
         await dbContext.Subscriptions
             .Where(s => s.Status == SubscriptionStatus.PendingPayment)
             .OrderBy(s => s.CreatedAt)
+            .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<Subscription>> GetExpiredActiveAsync(CancellationToken cancellationToken = default) =>
+        await dbContext.Subscriptions
+            .Where(s => s.Status == SubscriptionStatus.Active && s.ExpiresAt <= DateTimeOffset.UtcNow)
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<Subscription>> GetAllPagedAsync(int skip, int take, CancellationToken cancellationToken = default) =>

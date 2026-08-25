@@ -45,6 +45,51 @@ public sealed class StoreOrderRepository(PawTrackDbContext db) : IStoreOrderRepo
             .Take(pageSize)
             .ToListAsync(ct);
 
+    public async Task<StoreOrderMonthlyStats> GetMonthlyStatsAsync(
+        Guid storeId, int year, int month, CancellationToken ct = default)
+    {
+        var orders = await db.StoreOrders.AsNoTracking()
+            .Include(o => o.Items)
+            .Where(o => o.StoreId == storeId
+                     && o.PlacedAt.Year == year
+                     && o.PlacedAt.Month == month)
+            .ToListAsync(ct);
+
+        var delivered = orders.Where(o => o.Status == StoreOrderStatus.Delivered).ToList();
+        var cancelled = orders.Count(o => o.Status == StoreOrderStatus.Cancelled);
+        var totalRevenue = delivered.Sum(o => o.TotalCrc);
+
+        var byDay = orders
+            .GroupBy(o => DateOnly.FromDateTime(o.PlacedAt.LocalDateTime))
+            .OrderBy(g => g.Key)
+            .Select(g => new StoreOrderDayStat(
+                g.Key,
+                g.Count(),
+                g.Where(o => o.Status == StoreOrderStatus.Delivered).Sum(o => o.TotalCrc)))
+            .ToList();
+
+        var topProducts = delivered
+            .SelectMany(o => o.Items)
+            .GroupBy(i => new { i.ProductId, i.ProductName })
+            .Select(g => new StoreTopProductStat(
+                g.Key.ProductId,
+                g.Key.ProductName,
+                g.Sum(i => i.Quantity),
+                g.Sum(i => i.SubtotalCrc)))
+            .OrderByDescending(p => p.RevenueCrc)
+            .Take(5)
+            .ToList();
+
+        return new StoreOrderMonthlyStats(
+            orders.Count,
+            delivered.Count,
+            cancelled,
+            totalRevenue,
+            delivered.Count > 0 ? totalRevenue / delivered.Count : 0m,
+            byDay,
+            topProducts);
+    }
+
     public async Task AddAsync(StoreOrder order, CancellationToken ct = default) =>
         await db.StoreOrders.AddAsync(order, ct);
 

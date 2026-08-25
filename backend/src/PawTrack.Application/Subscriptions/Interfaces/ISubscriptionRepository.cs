@@ -9,6 +9,8 @@ public interface ISubscriptionRepository
     Task<Subscription?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Subscription?> GetByPaymentReferenceAsync(string reference, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Subscription>> GetPendingAsync(CancellationToken cancellationToken = default);
+    /// <summary>Active subscriptions whose ExpiresAt has already passed — candidates for expiration.</summary>
+    Task<IReadOnlyList<Subscription>> GetExpiredActiveAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Subscription>> GetAllPagedAsync(int skip, int take, CancellationToken cancellationToken = default);
     Task<int> CountAllAsync(CancellationToken cancellationToken = default);
     Task AddAsync(Subscription subscription, CancellationToken cancellationToken = default);

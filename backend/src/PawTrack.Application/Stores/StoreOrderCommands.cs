@@ -283,3 +283,63 @@ public sealed class GetStoreOrdersQueryHandler(IStoreRepository storeRepo, IStor
         return Result.Success<IReadOnlyList<StoreOrderDto>>(orders.Select(o => StoreOrderDto.FromDomain(o, store.Name)).ToList());
     }
 }
+
+// ── Get store analytics (owner — StorePlus: basic, StorePartner: advanced) ───
+
+public sealed record StoreOrderDayStatDto(string Day, int OrderCount, decimal RevenueCrc);
+
+public sealed record StoreTopProductStatDto(Guid ProductId, string ProductName, int QuantitySold, decimal RevenueCrc);
+
+public sealed record StoreAnalyticsDto(
+    int Year,
+    int Month,
+    int TotalOrders,
+    int DeliveredOrders,
+    int CancelledOrders,
+    decimal TotalRevenueCrc,
+    decimal AverageOrderValueCrc,
+    /// <summary>Null unless the store has StorePartner (advanced analytics).</summary>
+    IReadOnlyList<StoreOrderDayStatDto>? ByDay,
+    /// <summary>Null unless the store has StorePartner (advanced analytics).</summary>
+    IReadOnlyList<StoreTopProductStatDto>? TopProducts);
+
+public sealed record GetStoreAnalyticsQuery(Guid StoreOwnerUserId, int Year, int Month)
+    : IRequest<Result<StoreAnalyticsDto>>;
+
+public sealed class GetStoreAnalyticsQueryValidator : AbstractValidator<GetStoreAnalyticsQuery>
+{
+    public GetStoreAnalyticsQueryValidator()
+    {
+        RuleFor(x => x.Month).InclusiveBetween(1, 12);
+        RuleFor(x => x.Year).GreaterThan(2020);
+    }
+}
+
+public sealed class GetStoreAnalyticsQueryHandler(
+    IStoreRepository storeRepo,
+    IStoreOrderRepository orderRepo,
+    ISubscriptionService subscriptionService)
+    : IRequestHandler<GetStoreAnalyticsQuery, Result<StoreAnalyticsDto>>
+{
+    public async Task<Result<StoreAnalyticsDto>> Handle(GetStoreAnalyticsQuery request, CancellationToken ct)
+    {
+        var store = await storeRepo.GetByUserIdAsync(request.StoreOwnerUserId, ct);
+        if (store is null) return Result.Failure<StoreAnalyticsDto>("Tienda no encontrada.");
+
+        // Gate: StorePlus gets basic totals; StorePartner additionally gets the by-day
+        // breakdown and top-products ranking ("analytics avanzados" per docs/planes.md).
+        var tier = await subscriptionService.GetActiveUserTierAsync(request.StoreOwnerUserId, ct);
+        if (tier is not (Domain.Subscriptions.SubscriptionTier.StorePlus or Domain.Subscriptions.SubscriptionTier.StorePartner))
+            return Result.Failure<StoreAnalyticsDto>("Las estadísticas requieren el plan Tienda Plus o superior.");
+
+        var raw = await orderRepo.GetMonthlyStatsAsync(store.Id, request.Year, request.Month, ct);
+        var advanced = tier == Domain.Subscriptions.SubscriptionTier.StorePartner;
+
+        return Result.Success(new StoreAnalyticsDto(
+            request.Year, request.Month,
+            raw.TotalOrders, raw.DeliveredOrders, raw.CancelledOrders,
+            raw.TotalRevenueCrc, raw.AverageOrderValueCrc,
+            advanced ? raw.ByDay.Select(d => new StoreOrderDayStatDto(d.Day.ToString("yyyy-MM-dd"), d.OrderCount, d.RevenueCrc)).ToList() : null,
+            advanced ? raw.TopProducts.Select(p => new StoreTopProductStatDto(p.ProductId, p.ProductName, p.QuantitySold, p.RevenueCrc)).ToList() : null));
+    }
+}

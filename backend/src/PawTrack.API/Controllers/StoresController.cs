@@ -66,6 +66,23 @@ public sealed class StoresController(ISender sender) : ControllerBase
         return Ok(result.Value);
     }
 
+    // ── GET /api/stores/me/analytics?year=&month= — StorePlus/Partner gate ───
+    [HttpGet("me/analytics")]
+    [Authorize(Roles = "Store")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetAnalytics(
+        [FromQuery] int? year,
+        [FromQuery] int? month,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var now = DateTimeOffset.UtcNow;
+        var result = await sender.Send(new GetStoreAnalyticsQuery(userId, year ?? now.Year, month ?? now.Month), ct);
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        return Ok(result.Value);
+    }
+
     // ── GET /api/stores/products — owner's full catalog ───────────────────────
     [HttpGet("products")]
     [Authorize(Roles = "Store")]

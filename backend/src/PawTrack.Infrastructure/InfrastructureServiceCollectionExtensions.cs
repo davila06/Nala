@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Common.Settings;
 using PawTrack.Application.Medical;
 using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Infrastructure.AI;
@@ -200,6 +201,11 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IImageEmbeddingService, AzureVisionEmbeddingService>();
         services.AddHostedService<EmbeddingRefreshHostedService>();
 
+        // Animal photo validation — reuses AzureVision HttpClient; fail-open by design.
+        services.Configure<AnimalPhotoValidationSettings>(
+            configuration.GetSection("AnimalPhotoValidation"));
+        services.AddScoped<IAnimalPhotoValidator, AzureVisionAnimalPhotoValidator>();
+
         // WhatsApp Bot — Meta Cloud API sender + Azure Maps geocoder
         services.AddHttpClient("MetaWhatsApp")
             .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(15))
@@ -224,6 +230,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         services.AddScoped<ISubscriptionService, SubscriptionService>();
         services.AddSingleton<IPaymentService, SinpePaymentService>();
+        services.AddHostedService<SubscriptionExpirationJob>();
 
         // Promotions
         services.AddScoped<PawTrack.Application.Promotions.Interfaces.IPromotionCodeRepository,

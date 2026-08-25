@@ -56,6 +56,7 @@ public sealed class Round43SecurityRegressionTests
         IPiiScrubber? pii = null,
         INotificationDispatcher? dispatcher = null,
         IImageProcessor? imageProcessor = null,
+        IAnimalPhotoValidator? animalPhotoValidator = null,
         IUnitOfWork? uow = null)
     {
         sightingRepo ??= Substitute.For<ISightingRepository>();
@@ -71,10 +72,16 @@ public sealed class Round43SecurityRegressionTests
         uow          ??= Substitute.For<IUnitOfWork>();
 
         var settings = Options.Create(new ResolveCheckSettings());
+        var validationSettings = Options.Create(new AnimalPhotoValidationSettings());
+        var animalValidator = Substitute.For<IAnimalPhotoValidator>();
+        // Fail-open default — validator reports animal detected so existing tests are unaffected.
+        animalValidator.ValidateAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(AnimalPhotoValidationResult.ServiceUnavailable);
 
         return new ReportSightingCommandHandler(
             sightingRepo, petRepo, lostPetRepo, userRepo, locationRepo,
-            notifRepo, blob, imageProcessor, pii, dispatcher, settings, uow);
+            notifRepo, blob, imageProcessor, pii, dispatcher,
+            animalValidator, settings, validationSettings, uow);
     }
 
     // ── Helpers — ReportFoundPetCommandHandler ────────────────────────────────

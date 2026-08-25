@@ -12,6 +12,7 @@ public sealed record ActivateSubscriptionCommand(string PaymentReference) : IReq
 public sealed class ActivateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
     IClinicRepository clinicRepository,
+    IStoreRepository storeRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<ActivateSubscriptionCommand, Result<SubscriptionDto>>
 {
@@ -31,6 +32,7 @@ public sealed class ActivateSubscriptionCommandHandler(
         subscription.Activate();
         subscriptionRepository.Update(subscription);
         await SyncClinicFeaturedAsync(subscription, true, cancellationToken);
+        await SyncStoreFeaturedAsync(subscription, true, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success(SubscriptionDto.FromDomain(subscription));
@@ -46,5 +48,17 @@ public sealed class ActivateSubscriptionCommandHandler(
         if (clinic is null) return;
         clinic.SetFeatured(featured);
         clinicRepository.Update(clinic);
+    }
+
+    private async Task SyncStoreFeaturedAsync(
+        Domain.Subscriptions.Subscription sub, bool featured, CancellationToken ct)
+    {
+        if (sub.UserId is null) return;
+        if (sub.Tier is not (SubscriptionTier.StorePlus or SubscriptionTier.StorePartner)) return;
+
+        var store = await storeRepository.GetByUserIdAsync(sub.UserId.Value, ct);
+        if (store is null) return;
+        store.SetFeatured(featured);
+        storeRepository.Update(store);
     }
 }

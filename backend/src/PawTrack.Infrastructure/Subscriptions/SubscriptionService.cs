@@ -9,7 +9,9 @@ public sealed class SubscriptionService(ISubscriptionRepository repository) : IS
     public async Task<SubscriptionTier> GetActiveUserTierAsync(Guid userId, CancellationToken ct = default)
     {
         var sub = await repository.GetActiveForUserAsync(userId, ct);
-        return sub?.Status == SubscriptionStatus.Active ? sub.Tier : SubscriptionTier.Free;
+        // Belt-and-suspenders: repository already filters by ExpiresAt, but IsActive is the
+        // domain's authoritative definition of "still entitled" and must never be bypassed.
+        return sub is not null && sub.IsActive ? sub.Tier : SubscriptionTier.Free;
     }
 
     public async Task<bool> IsAtLeastPlusAsync(Guid userId, CancellationToken ct = default)

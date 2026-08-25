@@ -24,17 +24,25 @@ public sealed class ReportSightingCommandHandlerTests
     private readonly IImageProcessor _imageProcessor = Substitute.For<IImageProcessor>();
     private readonly IPiiScrubber _piiScrubber = Substitute.For<IPiiScrubber>();
     private readonly INotificationDispatcher _dispatcher = Substitute.For<INotificationDispatcher>();
+    private readonly IAnimalPhotoValidator _animalValidator = Substitute.For<IAnimalPhotoValidator>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
 
     private readonly ReportSightingCommandHandler _sut;
 
     public ReportSightingCommandHandlerTests()
     {
+        // Default: validator is available and detects an animal (pass-through for most tests)
+        _animalValidator.ValidateAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(new AnimalPhotoValidationResult(
+                IsAnimalDetected: true, Confidence: 0.95f, DetectedTags: ["dog"], ServiceAvailable: true));
+
         _sut = new ReportSightingCommandHandler(
             _sightingRepo, _petRepo, _lostPetRepo, _userRepo,
             _userLocationRepo, _notificationRepo,
             _blobService, _imageProcessor, _piiScrubber, _dispatcher,
+            _animalValidator,
             Options.Create(new ResolveCheckSettings()),
+            Options.Create(new AnimalPhotoValidationSettings()),
             _uow);
     }
 

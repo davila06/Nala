@@ -25,6 +25,19 @@ public sealed class SubscriptionDomainTests
         act.Should().Throw<ArgumentException>().WithMessage("*not a valid user tier*");
     }
 
+    [Theory]
+    [InlineData(SubscriptionTier.StorePlus)]
+    [InlineData(SubscriptionTier.StorePartner)]
+    public void CreateForUser_StoreTier_Succeeds(SubscriptionTier tier)
+    {
+        // Store owners are Auth.Users (Role = Store), so store subscriptions flow through
+        // the generic user path — this must never regress back to throwing.
+        var sub = Subscription.CreateForUser(Guid.NewGuid(), tier, "ABCD1234", 12000m);
+
+        sub.Tier.Should().Be(tier);
+        sub.Status.Should().Be(SubscriptionStatus.PendingPayment);
+    }
+
     // ── CreateForClinic ────────────────────────────────────────────────────────
 
     [Fact]

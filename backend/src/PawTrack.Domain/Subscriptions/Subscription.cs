@@ -121,6 +121,8 @@ public sealed class Subscription
         if (tier is not (
             SubscriptionTier.UserPlus or
             SubscriptionTier.UserFamilia or
+            SubscriptionTier.StorePlus or
+            SubscriptionTier.StorePartner or
             SubscriptionTier.ShelterPlus))
             throw new ArgumentException($"Tier {tier} is not a valid user tier.");
     }

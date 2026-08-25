@@ -12,6 +12,7 @@ public sealed record CancelSubscriptionCommand(Guid SubscriptionId, Guid Request
 public sealed class CancelSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
     IClinicRepository clinicRepository,
+    IStoreRepository storeRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<CancelSubscriptionCommand, Result<SubscriptionDto>>
 {
@@ -40,6 +41,18 @@ public sealed class CancelSubscriptionCommandHandler(
             {
                 clinic.SetFeatured(false);
                 clinicRepository.Update(clinic);
+            }
+        }
+
+        // Remove featured flag when a store downgrades/cancels
+        if (subscription.UserId.HasValue &&
+            subscription.Tier is SubscriptionTier.StorePlus or SubscriptionTier.StorePartner)
+        {
+            var store = await storeRepository.GetByUserIdAsync(subscription.UserId.Value, cancellationToken);
+            if (store is not null)
+            {
+                store.SetFeatured(false);
+                storeRepository.Update(store);
             }
         }
 

@@ -1,0 +1,54 @@
+using FluentAssertions;
+using NSubstitute;
+using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Subscriptions.Commands.CancelSubscription;
+using PawTrack.Application.Subscriptions.Interfaces;
+using PawTrack.Domain.Stores;
+using PawTrack.Domain.Subscriptions;
+
+namespace PawTrack.UnitTests.Subscriptions.Commands;
+
+public sealed class CancelSubscriptionCommandHandlerTests
+{
+    private readonly ISubscriptionRepository _subscriptions = Substitute.For<ISubscriptionRepository>();
+    private readonly IClinicRepository _clinics = Substitute.For<IClinicRepository>();
+    private readonly IStoreRepository _stores = Substitute.For<IStoreRepository>();
+    private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
+
+    private CancelSubscriptionCommandHandler BuildHandler() =>
+        new(_subscriptions, _clinics, _stores, _uow);
+
+    [Fact]
+    public async Task Handle_ActiveStorePartnerSubscription_CancelsAndUnfeaturesTheStore()
+    {
+        var store = Store.Create(Guid.NewGuid(), "PetShop CR", "desc", "San José", 9.9m, -84.0m, "a@b.com");
+        store.SetFeatured(true);
+        var sub = Subscription.CreateForUser(store.UserId, SubscriptionTier.StorePartner, "ABCD1234", 25000m);
+        sub.Activate();
+
+        _subscriptions.GetByIdAsync(sub.Id, Arg.Any<CancellationToken>()).Returns(sub);
+        _stores.GetByUserIdAsync(store.UserId, Arg.Any<CancellationToken>()).Returns(store);
+
+        var result = await BuildHandler().Handle(
+            new CancelSubscriptionCommand(sub.Id, store.UserId), default);
+
+        result.IsSuccess.Should().BeTrue();
+        sub.Status.Should().Be(SubscriptionStatus.Cancelled);
+        store.IsFeatured.Should().BeFalse();
+        _stores.Received(1).Update(store);
+    }
+
+    [Fact]
+    public async Task Handle_WrongRequestingUser_ReturnsAccessDenied()
+    {
+        var sub = Subscription.CreateForUser(Guid.NewGuid(), SubscriptionTier.StorePlus, "ABCD1234", 12000m);
+        sub.Activate();
+        _subscriptions.GetByIdAsync(sub.Id, Arg.Any<CancellationToken>()).Returns(sub);
+
+        var result = await BuildHandler().Handle(
+            new CancelSubscriptionCommand(sub.Id, Guid.NewGuid()), default);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain("Access denied.");
+    }
+}
