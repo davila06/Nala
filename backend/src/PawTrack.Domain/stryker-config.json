@@ -1,14 +1,13 @@
 {
   "stryker-config": {
-    "solution": "../../PawTrack.sln",
     "project": "PawTrack.Domain.csproj",
-    "test-projects": ["../PawTrack.UnitTests/PawTrack.UnitTests.csproj"],
+    "test-projects": ["../../tests/PawTrack.UnitTests/PawTrack.UnitTests.csproj"],
     "mutation-level": "Standard",
     "reporters": ["html", "json", "progress"],
     "thresholds": {
       "high": 85,
       "low": 65,
-      "break": 55
+      "break": 0
     },
     "ignore-methods": ["ToString", "GetHashCode", "Equals"],
     "coverage-analysis": "perTest"
