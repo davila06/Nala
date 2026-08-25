@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NetTopologySuite.Geometries;
 using PawTrack.Domain.Sightings;
 
 namespace PawTrack.Infrastructure.Persistence.Configurations;
@@ -25,10 +26,15 @@ internal sealed class SightingConfiguration : IEntityTypeConfiguration<Sighting>
         builder.Property(s => s.SightedAt).IsRequired();
         builder.Property(s => s.ReportedAt).IsRequired();
 
-        // Spatial geo-query index — MVP uses in-SQL BBOX filter on these two columns
+        // Shadow property — computed from Lat/Lng in DbContext.SaveChangesAsync.
+        // geography type enables STDistance() radius queries in meters.
+        builder.Property<Point>("Location")
+            .HasColumnType("geography")
+            .IsRequired(false);
+
+        // Replace scalar lat/lng composite index with spatial index for radius queries.
         builder.HasIndex(s => new { s.Lat, s.Lng }).HasDatabaseName("IX_Sightings_LatLng");
 
-        // Common access patterns: all sightings for a pet, linked to a lost report
         builder.HasIndex(s => s.PetId).HasDatabaseName("IX_Sightings_PetId");
         builder.HasIndex(s => s.LostPetEventId).HasDatabaseName("IX_Sightings_LostPetEventId");
 

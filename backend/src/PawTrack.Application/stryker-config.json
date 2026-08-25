@@ -1,7 +1,9 @@
 {
   "stryker-config": {
     "project": "PawTrack.Application.csproj",
-    "test-projects": ["../../tests/PawTrack.UnitTests/PawTrack.UnitTests.csproj"],
+    "test-projects": [
+      "../../tests/PawTrack.UnitTests/PawTrack.UnitTests.csproj"
+    ],
     "mutation-level": "Standard",
     "reporters": ["html", "json", "progress"],
     "thresholds": {

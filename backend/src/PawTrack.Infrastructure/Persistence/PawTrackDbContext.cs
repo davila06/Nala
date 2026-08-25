@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Outbox;
@@ -119,6 +120,14 @@ public sealed class PawTrackDbContext(
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        // Populate spatial Location shadow property from Lat/Lng before saving.
+        foreach (var entry in ChangeTracker.Entries<Sighting>()
+            .Where(e => e.State is EntityState.Added or EntityState.Modified))
+        {
+            entry.Property("Location").CurrentValue =
+                new Point(entry.Entity.Lng, entry.Entity.Lat) { SRID = 4326 };
+        }
+
         // Collect domain events before saving so changes are committed atomically first.
         var domainEvents = ChangeTracker.Entries<IHasDomainEvents>()
             .SelectMany(e => e.Entity.DomainEvents)

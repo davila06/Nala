@@ -63,10 +63,14 @@ public static class InfrastructureServiceCollectionExtensions
         {
             options.UseSqlServer(
                 configuration.GetConnectionString("DefaultConnection"),
-                sqlOptions => sqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 5,
-                    maxRetryDelay: TimeSpan.FromSeconds(10),
-                    errorNumbersToAdd: null));
+                sqlOptions =>
+                {
+                    sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(10),
+                        errorNumbersToAdd: null);
+                    sqlOptions.UseNetTopologySuite(); // enables geography/geometry spatial types
+                });
         });
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<PawTrackDbContext>());
@@ -237,6 +241,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ICertificateService, QuestPdfCertificateService>();
         services.AddScoped<IMedicalPdfExporter, QuestPdfMedicalExporter>();
         services.AddScoped<IAnnualReportPdfGenerator, QuestPdfAnnualReportGenerator>();
+        services.AddScoped<IPetIdCardService, QuestPdfIdCardService>();
 
         // Family accounts
         services.AddScoped<IFamilyRepository, FamilyRepository>();

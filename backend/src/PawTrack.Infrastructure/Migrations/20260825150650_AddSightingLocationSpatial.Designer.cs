@@ -3,18 +3,21 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using PawTrack.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace PawTrack.Infrastructure.Persistence.Migrations
+namespace PawTrack.Infrastructure.Migrations
 {
     [DbContext(typeof(PawTrackDbContext))]
-    partial class PawTrackDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260825150650_AddSightingLocationSpatial")]
+    partial class AddSightingLocationSpatial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

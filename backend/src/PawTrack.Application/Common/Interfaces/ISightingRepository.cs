@@ -36,6 +36,17 @@ public interface ISightingRepository
         DateTimeOffset sinceUtc,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Returns sightings within a true great-circle radius, ordered by ReportedAt descending.
+    /// Requires the <c>Location</c> geography column to be populated.
+    /// Capped at 200 results to prevent runaway queries.
+    /// </summary>
+    Task<IReadOnlyList<Sighting>> GetNearbyAsync(
+        double lat,
+        double lng,
+        int radiusMetres,
+        CancellationToken cancellationToken = default);
+
     Task AddAsync(Sighting sighting, CancellationToken cancellationToken = default);
     void Update(Sighting sighting);
 }

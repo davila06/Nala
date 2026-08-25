@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Sightings;
 using PawTrack.Infrastructure.Persistence;
@@ -70,6 +71,26 @@ public sealed class SightingRepository(PawTrackDbContext dbContext) : ISightingR
 
     public async Task AddAsync(Sighting sighting, CancellationToken cancellationToken = default) =>
         await dbContext.Sightings.AddAsync(sighting, cancellationToken);
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Sighting>> GetNearbyAsync(
+        double lat,
+        double lng,
+        int radiusMetres,
+        CancellationToken cancellationToken = default)
+    {
+        var center = new Point(lng, lat) { SRID = 4326 };
+
+        var results = await dbContext.Sightings
+            .AsNoTracking()
+            .Where(s => EF.Property<Point?>(s, "Location") != null
+                && EF.Property<Point>(s, "Location")!.Distance(center) <= radiusMetres)
+            .OrderByDescending(s => s.ReportedAt)
+            .Take(200)
+            .ToListAsync(cancellationToken);
+
+        return results.AsReadOnly();
+    }
 
     public void Update(Sighting sighting) =>
         dbContext.Sightings.Update(sighting);

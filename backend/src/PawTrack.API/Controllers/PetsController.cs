@@ -11,6 +11,7 @@ using PawTrack.Application.Pets.Queries.GetMyPets;
 using PawTrack.Application.Pets.Queries.GetPetDetail;
 using PawTrack.Application.Pets.Queries.GetPublicPetProfile;
 using PawTrack.Application.Pets.Queries.GetPetByMicrochip;
+using PawTrack.Application.Pets.Queries.DownloadPetIdCard;
 using PawTrack.Domain.Pets;
 using System.Security.Claims;
 using Microsoft.AspNetCore.RateLimiting;
@@ -189,6 +190,25 @@ public sealed class PetsController(
         var pngBytes = qrCodeService.GeneratePng(url);
 
         return File(pngBytes, "image/png", $"qr-{id}.png");
+    }
+
+    // ── GET /api/pets/{id}/id-card ─────────────────────────────────────────────
+    [HttpGet("{id:guid}/id-card")]
+    [EnableRateLimiting("public-api")] // 30/min — PDF generation is CPU-intensive
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DownloadIdCard(Guid id, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+
+        var result = await sender.Send(new DownloadPetIdCardQuery(id, userId), cancellationToken);
+
+        if (result.IsFailure)
+            return NotFound(new ProblemDetails { Title = "Pet not found or access denied.", Status = 404 });
+
+        return File(result.Value!, "application/pdf", $"id-card-{id}.pdf");
     }
 
     // ── GET /api/pets/{id}/whatsapp-avatar ───────────────────────────────────

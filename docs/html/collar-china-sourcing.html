@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PawTrack Collar GPS — Sourcing China &amp; RFQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+        font-size: 16px;
+      }
+      body {
+        font-family: "Outfit", system-ui, sans-serif;
+        background: #08080e;
+        color: #eae7e2;
+        line-height: 1.65;
+      }
+      :root {
+        --brand: #1a3484;
+        --accent: #e8521e;
+        --glow: #f97316;
+        --green: #4ade80;
+        --red: #f87171;
+        --yellow: #fbbf24;
+        --surface: rgba(255, 255, 255, 0.05);
+        --surface2: rgba(255, 255, 255, 0.08);
+        --border: rgba(255, 255, 255, 0.09);
+        --text-muted: rgba(255, 255, 255, 0.5);
+      }
+      .container {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        padding: 0.75rem 1.5rem;
+        background: rgba(8, 8, 14, 0.92);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      .nav-logo {
+        font-family: "Syne", sans-serif;
+        font-weight: 900;
+        font-size: 1rem;
+        white-space: nowrap;
+      }
+      .nav-logo span {
+        color: var(--glow);
+      }
+      .nav-links {
+        display: flex;
+        gap: 1.25rem;
+        flex-wrap: wrap;
+      }
+      .nav-links a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+      }
+      .nav-links a:hover {
+        color: #fff;
+      }
+
+      .hero {
+        padding: 8rem 1.5rem 3rem;
+        background:
+          radial-gradient(
+            ellipse 70% 50% at 20% 20%,
+            rgba(26, 52, 132, 0.28) 0%,
+            transparent 70%
+          ),
+          radial-gradient(
+            ellipse 50% 40% at 80% 10%,
+            rgba(232, 82, 30, 0.12) 0%,
+            transparent 60%
+          );
+      }
+      .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(232, 82, 30, 0.12);
+        border: 1px solid rgba(232, 82, 30, 0.35);
+        color: var(--glow);
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        padding: 0.3rem 0.9rem;
+        border-radius: 100px;
+        margin-bottom: 1.2rem;
+      }
+      .hero h1 {
+        font-family: "Syne", sans-serif;
+        font-size: clamp(1.9rem, 4.5vw, 3rem);
+        font-weight: 900;
+        line-height: 1.08;
+        margin-bottom: 1rem;
+        max-width: 780px;
+        background: linear-gradient(
+          135deg,
+          #fff 30%,
+          #e8c07a 65%,
+          #f97316 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .hero p {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.6);
+        max-width: 620px;
+      }
+
+      section {
+        padding: 3.5rem 0;
+        border-top: 1px solid var(--border);
+      }
+      .s-label {
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--glow);
+        margin-bottom: 0.4rem;
+      }
+      .s-title {
+        font-family: "Syne", sans-serif;
+        font-size: clamp(1.3rem, 2.8vw, 1.8rem);
+        font-weight: 900;
+        margin-bottom: 1rem;
+      }
+      .s-lead {
+        color: rgba(255, 255, 255, 0.55);
+        max-width: 620px;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.25rem 0;
+        font-size: 0.85rem;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 0.7rem 0.8rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      th {
+        color: var(--glow);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      tr:hover td {
+        background: var(--surface);
+      }
+
+      .badge {
+        display: inline-flex;
+        padding: 0.2rem 0.6rem;
+        border-radius: 100px;
+        font-size: 0.68rem;
+        font-weight: 700;
+      }
+      .badge-ok {
+        background: rgba(74, 222, 128, 0.15);
+        color: var(--green);
+        border: 1px solid rgba(74, 222, 128, 0.25);
+      }
+      .badge-no {
+        background: rgba(248, 113, 113, 0.12);
+        color: var(--red);
+        border: 1px solid rgba(248, 113, 113, 0.2);
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 1.5rem 0;
+      }
+      @media (max-width: 720px) {
+        .cards {
+          grid-template-columns: 1fr;
+        }
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.25rem;
+      }
+      .card h3 {
+        font-family: "Syne", sans-serif;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+      }
+      .card p {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      ul.checklist {
+        list-style: none;
+        margin: 1rem 0;
+      }
+      ul.checklist li {
+        position: relative;
+        padding-left: 1.6rem;
+        margin-bottom: 0.55rem;
+        font-size: 0.88rem;
+        color: rgba(255, 255, 255, 0.75);
+      }
+      ul.checklist li::before {
+        content: "☐";
+        position: absolute;
+        left: 0;
+        color: var(--glow);
+        font-size: 1rem;
+      }
+
+      .email-box {
+        position: relative;
+        background: #0d0d16;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+      }
+      .email-box pre {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.78rem;
+        white-space: pre-wrap;
+        color: rgba(255, 255, 255, 0.85);
+        max-height: 640px;
+        overflow-y: auto;
+      }
+      .copy-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.45rem 0.9rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: "Outfit", sans-serif;
+      }
+      .copy-btn:hover {
+        background: var(--glow);
+      }
+      .copy-btn.copied {
+        background: var(--green);
+        color: #08080e;
+      }
+
+      code.inline {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82em;
+        background: var(--surface2);
+        padding: 0.1rem 0.4rem;
+        border-radius: 5px;
+      }
+      a.ref {
+        color: var(--glow);
+        text-decoration: none;
+      }
+      a.ref:hover {
+        text-decoration: underline;
+      }
+
+      footer {
+        padding: 3rem 1.5rem;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.78rem;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-logo">🐾 PawTrack<span> CR</span></div>
+      <div class="nav-links">
+        <a href="#estado">Estado actual</a>
+        <a href="#caminos">Caminos de integración</a>
+        <a href="#fabricantes">Fabricantes</a>
+        <a href="#checklist">Checklist</a>
+        <a href="#email">Correo RFQ</a>
+        <a href="collar.html">← Doc. maestro collar</a>
+      </div>
+    </nav>
+
+    <div class="hero">
+      <div class="container">
+        <div class="hero-eyebrow">📡 Sourcing · RFQ · Fabricantes China</div>
+        <h1>Collar GPS — ficha de sourcing y contacto a fabricantes</h1>
+        <p>
+          Basado en el estado real del código a 2026-08-24, no en el roadmap
+          aspiracional. Define qué necesita soportar un fabricante en China y
+          trae la plantilla de correo lista para enviar a los candidatos
+          evaluados.
+        </p>
+      </div>
+    </div>
+
+    <section id="resumen">
+      <div class="container">
+        <div class="s-label">01 — Resumen ejecutivo</div>
+        <div class="s-title">
+          La ruta de menor esfuerzo ya existe en el código
+        </div>
+        <p class="s-lead">
+          Con lo implementado hoy, integrar un collar OEM chino como
+          <code class="inline">CollarProvider.Generic</code> reutilizando el
+          patrón de <code class="inline">TractivePollingJob</code> (polling REST
+          cada 5 min) es la ruta más rápida — días, no meses. Este documento
+          sirve para: (1) dejar claro qué debe soportar el proveedor
+          técnicamente, (2) exponer los gaps de seguridad/backend a cerrar antes
+          de aceptar tráfico real de dispositivos, y (3) traer el correo listo
+          para los 4 fabricantes candidatos.
+        </p>
+      </div>
+    </section>
+
+    <section id="estado">
+      <div class="container">
+        <div class="s-label">02 — Estado verificado en el código</div>
+        <div class="s-title">Qué existe hoy vs. qué falta</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Pieza</th>
+              <th>Archivo</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">CollarProvider</code> enum</td>
+              <td>CollarProvider.cs</td>
+              <td><span class="badge badge-ok">✅ Existe</span></td>
+            </tr>
+            <tr>
+              <td>GPS OAuth2 + polling (Tractive)</td>
+              <td>TractivePollingJob.cs</td>
+              <td>
+                <span class="badge badge-ok"
+                  >✅ Completa — patrón a clonar</span
+                >
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Push directo
+                <code class="inline">POST /collars/pet/{id}/location</code>
+              </td>
+              <td>CollarsController.cs</td>
+              <td>
+                <span class="badge badge-ok">✅ Existe</span> — hereda
+                <code class="inline">[Authorize]</code>, sin auth de dispositivo
+              </td>
+            </tr>
+            <tr>
+              <td>Histórico de posición + purga automática</td>
+              <td>CollarLocation.cs, CollarLocationPurgeJob.cs</td>
+              <td>
+                <span class="badge badge-ok">✅ Completo</span> (&gt;30 días se
+                purgan)
+              </td>
+            </tr>
+            <tr>
+              <td><code class="inline">CollarQrBindings</code></td>
+              <td>—</td>
+              <td><span class="badge badge-no">❌ Solo documentado</span></td>
+            </tr>
+            <tr>
+              <td>Auth de dispositivo (API key por collar)</td>
+              <td>—</td>
+              <td>
+                <span class="badge badge-no">❌ No existe</span> — reusar patrón
+                <code class="inline">ClinicApiKeys</code>
+              </td>
+            </tr>
+            <tr>
+              <td>Ingesta de foto/video desde el collar (cámara)</td>
+              <td>—</td>
+              <td>
+                <span class="badge badge-no"
+                  >❌ No existe endpoint ni almacenamiento</span
+                >
+              </td>
+            </tr>
+            <tr>
+              <td>Collar propio GPS+pantalla en un enclosure</td>
+              <td>—</td>
+              <td><span class="badge badge-no">❌ Roadmap futuro</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="s-lead" style="margin-top: 1rem">
+          Conclusión: todo lo que se agregue sobre el collar base (cámara,
+          pantalla) es hardware y backend nuevo — el único componente 100%
+          reutilizable hoy es el flujo GPS (polling REST →
+          <code class="inline">CollarLocation</code>).
+        </p>
+      </div>
+    </section>
+
+    <section id="caminos">
+      <div class="container">
+        <div class="s-label">03 — Caminos de integración soportados</div>
+        <div class="s-title">Polling (A) vs. Push directo (B)</div>
+        <div class="cards">
+          <div class="card">
+            <h3>🅰️ Polling REST — recomendado</h3>
+            <p>
+              Clonar <code class="inline">ITractiveService</code> → nuevo
+              servicio del proveedor. ~1–2 días. Requiere que el proveedor tenga
+              API REST para consultar posición por ID. Cero trabajo de firmware,
+              cero problema de auth de dispositivo.
+            </p>
+          </div>
+          <div class="card">
+            <h3>🅱️ Push directo HTTP</h3>
+            <p>
+              El endpoint ya existe, pero exige JWT de usuario hoy — no apto
+              para miles de dispositivos. Falta tabla
+              <code class="inline">CollarDeviceCredentials</code> + validación
+              por API key. Solo viable si el proveedor permite firmware
+              personalizado apuntando a servidor propio.
+            </p>
+          </div>
+        </div>
+
+        <h3
+          style="
+            font-family: &quot;Syne&quot;, sans-serif;
+            font-size: 1rem;
+            margin: 1.5rem 0 0.75rem;
+          "
+        >
+          Paso a paso técnico del Camino A (idéntico al usado con Tractive)
+        </h3>
+        <ol
+          style="
+            padding-left: 1.2rem;
+            font-size: 0.88rem;
+            color: rgba(255, 255, 255, 0.75);
+            display: grid;
+            gap: 0.6rem;
+          "
+        >
+          <li>
+            <strong>Autenticación con el proveedor.</strong> La mayoría de estas
+            plataformas OEM usan usuario/contraseña de cuenta reseller o una API
+            key estática (no OAuth2 como Tractive) — confirmar en el RFQ cuál
+            modelo aplica, porque cambia si hace falta intercambio de token o
+            basta con una key fija en Key Vault.
+          </li>
+          <li>
+            <strong
+              >Registro del dispositivo en la plataforma del proveedor.</strong
+            >
+            Cada collar trae un <code class="inline">deviceId</code>/IMEI de
+            fábrica que debe asociarse a la cuenta de PawTrack antes de que la
+            API devuelva datos — manual o vía API de aprovisionamiento del
+            fabricante.
+          </li>
+          <li>
+            <strong
+              >Mapeo <code class="inline">deviceId</code> →
+              <code class="inline">Collar</code>.</strong
+            >
+            El campo <code class="inline">ExternalDeviceId</code> de
+            <code class="inline">RegisterCollarCommand</code> ya existe y se
+            reutiliza sin cambio de esquema.
+          </li>
+          <li>
+            <strong>Polling job dedicado.</strong> Servicio hermano a
+            <code class="inline">TractivePollingJob</code> que filtra
+            <code class="inline"
+              >Collar.Provider == CollarProvider.Generic</code
+            >
+            y consulta el endpoint de posición por cada
+            <code class="inline">deviceId</code> activo.
+          </li>
+          <li>
+            <strong>Normalización de la respuesta.</strong> Cada proveedor
+            devuelve su propio formato de campos/unidades/timestamp — requiere
+            mapeo a
+            <code class="inline">CollarPosition(Lat, Lng, BatteryPercent)</code>
+            para no filtrar el formato del proveedor al dominio.
+          </li>
+          <li>
+            <strong>Errores y rate limits.</strong> Mismo patrón
+            <code class="inline">try/catch</code> +
+            <code class="inline">LogWarning</code> por collar sin abortar el
+            batch; revisar si el proveedor limita requests/min — con 50+
+            collares puede requerirse un endpoint "bulk" en vez de una llamada
+            por dispositivo.
+          </li>
+          <li>
+            <strong>Persistencia de histórico.</strong> Reutiliza
+            <code class="inline">CollarLocation.Record(...)</code> y el job de
+            purga existente (&gt;30 días) sin cambios.
+          </li>
+          <li>
+            <strong>Validación end-to-end en staging.</strong> Registrar 1
+            collar físico de prueba y confirmar latencia movimiento→tab GPS
+            (hasta 5 min, mismo comportamiento que Tractive).
+          </li>
+        </ol>
+        <p class="s-lead" style="margin-top: 0.75rem">
+          Qué puede alargar el esfuerzo estimado de 1–2 días: falta de
+          SDK/librería HTTP del proveedor (firmas HMAC manuales) o si su API
+          exige suscripción previa a un webhook para "habilitar" el polling —
+          ambos son preguntas explícitas del checklist de la sección 6.
+        </p>
+
+        <p class="s-lead">
+          Recomendación: arrancar con Camino A para el primer lote. Evaluar
+          Camino B solo si se pasa a hardware 100% propio (<code class="inline"
+            >CollarProvider.Own</code
+          >).
+        </p>
+      </div>
+    </section>
+
+    <section id="variantes">
+      <div class="container">
+        <div class="s-label">
+          04 — Variantes de producto a cotizar en el mismo RFQ
+        </div>
+        <div class="s-title">
+          Una familia de productos sobre una plataforma común
+        </div>
+        <p class="s-lead">
+          Pedir al mismo proveedor varios niveles de producto (no un solo SKU)
+          da flexibilidad de pricing por segmento sin negociar con fabricantes
+          distintos. El pedido piloto puede ser solo V1 — V2–V4 quedan como
+          opciones de escalamiento.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Variante</th>
+              <th>Qué incluye</th>
+              <th>Impacto backend</th>
+              <th>Impacto batería</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>V1 — GPS (base)</strong></td>
+              <td>Módulo GPS/LTE-M + GSM, sin extras</td>
+              <td>
+                Ninguno — ya soportado por
+                <code class="inline">CollarProvider.Generic</code>
+              </td>
+              <td>Referencia base (~3–5 días con sleep)</td>
+            </tr>
+            <tr>
+              <td><strong>V2 — GPS + cámara</strong></td>
+              <td>Foto periódica o bajo demanda</td>
+              <td>Endpoint nuevo de ingesta + Blob Storage (no existe hoy)</td>
+              <td>Alto — pedir consumo real por captura</td>
+            </tr>
+            <tr>
+              <td><strong>V3 — GPS + pantalla e-ink</strong></td>
+              <td>Pantalla e-ink para batería/estado o QR estático</td>
+              <td>Ninguno adicional si es solo informativa</td>
+              <td>Bajo si es e-ink (~0 mA en reposo) — rechazar OLED</td>
+            </tr>
+            <tr>
+              <td><strong>V4 — GPS + cámara + pantalla</strong></td>
+              <td>Combo completo ("flagship")</td>
+              <td>Suma de V2 + V3</td>
+              <td>El más alto — requiere validación con muestra real</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="s-lead">
+          Por qué pedir las 4 en el mismo correo: compara el costo incremental
+          real de cada componente sobre la misma base de GPS, con datos de
+          precio/consumo en vez de estimaciones.
+        </p>
+      </div>
+    </section>
+
+    <section id="fabricantes">
+      <div class="container">
+        <div class="s-label">05 — Fabricantes candidatos</div>
+        <div class="s-title">Comparativa para RFQ</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Fabricante</th>
+              <th>API</th>
+              <th>MOQ</th>
+              <th>Fortaleza</th>
+              <th>Riesgo</th>
+              <th>Prioridad</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Concox (AT4)</strong></td>
+              <td>REST propietaria</td>
+              <td>50 u.</td>
+              <td>Contacto ya verificado, FCC/CE/ROHS</td>
+              <td>Bajo</td>
+              <td>1º</td>
+            </tr>
+            <tr>
+              <td><strong>Jimi IoT (JM-VL01)</strong></td>
+              <td>REST + MQTT</td>
+              <td>50 u.</td>
+              <td>Soporta push además de polling</td>
+              <td>Bajo</td>
+              <td>2º</td>
+            </tr>
+            <tr>
+              <td>Queclink (GL300)</td>
+              <td>REST + binario propio</td>
+              <td>50 u.</td>
+              <td>Hardware robusto, miniatura</td>
+              <td>Medio</td>
+              <td>3º</td>
+            </tr>
+            <tr>
+              <td>ThinkRace (TK115)</td>
+              <td>REST + WebSocket</td>
+              <td>100 u.</td>
+              <td>Diseño pet-specific</td>
+              <td>Medio-alto</td>
+              <td>4º</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="checklist">
+      <div class="container">
+        <div class="s-label">06 — Checklist de confirmación por proveedor</div>
+        <div class="s-title">Qué preguntar antes de decidir</div>
+        <ul class="checklist">
+          <li>¿API REST o protocolo binario propietario (GT06/JT808)?</li>
+          <li>
+            ¿Webhook/push a servidor propio, o solo polling contra su nube?
+          </li>
+          <li>
+            ¿Cuáles variantes V1–V4 (GPS, GPS+cámara, GPS+pantalla, combo)
+            pueden fabricar sobre la misma plataforma?
+          </li>
+          <li>
+            Para V2 (cámara): ¿resolución, formato, tamaño de archivo,
+            frecuencia máxima de captura sostenible?
+          </li>
+          <li>
+            Para V3 (pantalla): ¿tamaño/tipo e-ink disponible, consumo en
+            reposo/refresco, contenido fijo o actualizable?
+          </li>
+          <li>
+            ¿Consumo de batería estimado por variante, bajo un escenario de uso
+            concreto?
+          </li>
+          <li>
+            ¿Certificaciones vigentes (FCC/CE/ROHS) y bandas LTE-M/NB-IoT
+            compatibles con CR?
+          </li>
+          <li>
+            ¿MOQ real y precio FCA Shenzhen a 50/100/500 unidades, por cada
+            variante?
+          </li>
+          <li>
+            ¿Costo y tiempo de 2–3 muestras por variante antes de confirmar
+            orden?
+          </li>
+          <li>¿Firmware personalizable (marca propia, endpoint propio)?</li>
+          <li>¿SIM/plan de datos IoT recomendado o eSIM ya activada?</li>
+          <li>¿Lead time de producción y envío a Costa Rica?</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="email">
+      <div class="container">
+        <div class="s-label">
+          07 — Plantilla de correo (inglés — estándar B2B)
+        </div>
+        <div class="s-title">Listo para enviar a los 4 fabricantes</div>
+        <p class="s-lead">
+          Ajustar solo el nombre de contacto y el modelo referenciado por
+          proveedor. Pide explícitamente las 4 variantes de producto (V1–V4)
+          para comparar costos incrementales sobre la misma plataforma.
+        </p>
+        <div class="email-box">
+          <button class="copy-btn" onclick="copyEmail(this)">
+            Copiar correo
+          </button>
+          <pre id="emailText">
+Subject: RFQ — GPS Pet Tracker Collar, Multiple Product Variants (OEM/Custom Branding) — PawTrack CR
+
+Hello [Contact Name],
+
+We are PawTrack CR, a pet-identification and lost-pet recovery platform based in
+Costa Rica. We are evaluating manufacturing partners for a GPS pet tracker collar
+and would like to request a formal quotation plus technical documentation for
+your [Model Name, e.g. AT4 / JM-VL01 / GL300 / TK115].
+
+We are interested in comparing multiple product variants built on the same base
+platform, so please quote and document each one separately:
+
+  - V1: GPS + LTE tracker only (base variant)
+  - V2: GPS + LTE tracker + onboard camera
+  - V3: GPS + LTE tracker + e-ink/e-paper display
+  - V4: GPS + LTE tracker + camera + e-ink display (full combo)
+
+Could you please share the following for each variant that applies:
+
+1. PRODUCT & API (all variants)
+   - Is the position/location API REST (HTTP/JSON), or does it use a proprietary
+     binary protocol (e.g. GT06, JT808)? Please share full API documentation.
+   - Do you support server-to-server webhooks/push notifications to our own
+     HTTPS endpoint, or is polling against your cloud platform the only option?
+   - Do you offer white-label / OEM firmware that can be configured to report
+     to our own server instead of your default platform?
+
+2. CAMERA MODULE (V2 and V4 only)
+   - What image resolution and format does the camera capture (JPEG, etc.)?
+   - What is the typical file size per photo, and how is the image delivered
+     (pushed to our server, pulled via API, or only accessible through your
+     platform/app)?
+   - What is the maximum sustainable capture frequency without draining the
+     battery in under 24 hours?
+
+3. E-INK / E-PAPER DISPLAY (V3 and V4 only)
+   - What display sizes are available, and what is the refresh time?
+   - What is the power draw at rest vs. during a refresh cycle?
+   - Can the displayed content be fixed at the factory (e.g. a static QR code
+     or serial number), or does it require updates from our app via BLE/firmware?
+
+4. POWER & CONNECTIVITY (all variants)
+   - What is the estimated battery life under normal use (GPS reporting every
+     5–10 minutes) for each variant — please provide a concrete usage scenario
+     per variant rather than a generic marketing estimate.
+   - Do you support LTE-M / NB-IoT bands compatible with Costa Rican carriers
+     (Kölbi, Movistar, Claro)?
+   - Do units ship with a pre-activated eSIM, or do we need to source and
+     activate our own IoT SIM plan?
+
+5. CERTIFICATIONS & QUALITY (all variants)
+   - Please confirm current certifications (FCC, CE, ROHS) and IP rating
+     (water/dust resistance) for outdoor pet use.
+
+6. COMMERCIAL TERMS (per variant)
+   - Minimum order quantity (MOQ) and unit price at 50 / 100 / 500 units
+     (FCA Shenzhen), broken down per variant (V1/V2/V3/V4).
+   - Cost and lead time for 2–3 samples per variant before we place a full order.
+   - Standard production lead time after order confirmation.
+   - Do you support custom branding (logo printing, custom packaging)?
+
+We are planning an initial pilot order of approximately 50 units of the base
+GPS variant (V1), with the possibility of scaling to 500+ units and adding the
+camera or display variants within the first year if the pilot performs well.
+We would appreciate a response with pricing, API documentation, and sample
+availability at your earliest convenience.
+
+Thank you very much for your time — we look forward to your reply.
+
+Best regards,
+[Your Name]
+PawTrack CR
+[Contact Email] | [Contact Phone/WhatsApp]</pre
+          >
+        </div>
+      </div>
+    </section>
+
+    <section id="roadmap">
+      <div class="container">
+        <div class="s-label">08 — Roadmap backend al recibir specs</div>
+        <div class="s-title">Pasos de implementación</div>
+        <ul class="checklist">
+          <li>
+            Crear <code class="inline">I{Proveedor}Service</code> clonando la
+            forma de <code class="inline">ITractiveService</code>.
+          </li>
+          <li>
+            Registrar el servicio en
+            <code class="inline"
+              >InfrastructureServiceCollectionExtensions.cs</code
+            >
+            con <code class="inline">HttpClientFactory</code> dedicado.
+          </li>
+          <li>
+            Extender el polling job para incluir collares con
+            <code class="inline">Provider == CollarProvider.Generic</code>.
+          </li>
+          <li>
+            Si se confirma V2 (cámara): diseñar endpoint de ingesta de imagen
+            (<code class="inline">POST /api/collars/pet/{petId}/photo</code>) +
+            almacenamiento en Blob Storage y política de retención.
+          </li>
+          <li>
+            Si se confirma V3 (pantalla): implementar
+            <code class="inline">CollarQrBindings</code> +
+            <code class="inline">POST /api/collars/bind-serial</code> solo si el
+            contenido depende de un serial vinculado dinámicamente.
+          </li>
+          <li>
+            Solo si Camino B: crear
+            <code class="inline">CollarDeviceCredentials</code> + cambiar el
+            endpoint a <code class="inline">[AllowAnonymous]</code> con
+            validación de API key.
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <footer>
+      Documento interno PawTrack CR — actualizado 2026-08-24. Ver también
+      <a class="ref" href="collar.html">collar.html</a> (doc. maestro de
+      hardware).
+    </footer>
+
+    <script>
+      function copyEmail(btn) {
+        const text = document.getElementById("emailText").textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btn.textContent;
+          btn.textContent = "✅ Copiado";
+          btn.classList.add("copied");
+          setTimeout(() => {
+            btn.textContent = original;
+            btn.classList.remove("copied");
+          }, 2000);
+        });
+      }
+    </script>
+  </body>
+</html>
