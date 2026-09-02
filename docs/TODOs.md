@@ -221,22 +221,12 @@
 
 ## 8. Seguridad — gaps residuales
 
-### 8.1 Race condition en idempotency del bot de WhatsApp
+### 8.1 Race condition en idempotency del bot de WhatsApp — ✅ resuelto
 
-- [ ] **🟡** `HandleWhatsAppWebhookCommandHandler.cs` línea 61:
+- [x] ~~`HandleWhatsAppWebhookCommandHandler.cs` — check-then-set sobre `BotSession.ProcessedMessageIds` sin lock~~
+  - Ya existe una guarda a nivel de base de datos: `IWhatsAppIdempotencyRepository.TryMarkAsync` hace un `INSERT` atómico en la tabla `WhatsAppProcessedMessages`, que tiene un índice único sobre `Wamid` (migración `AddWhatsAppIdempotencyTable`, `WhatsAppProcessedMessageConfiguration`). El handler llama a este guard **antes** de tocar `BotSession` y corta temprano si el `INSERT` falla por duplicado (`DbUpdateException` con mensaje de violación de constraint único). El check-then-set sobre `BotSession.IsMessageProcessed`/`MarkMessageProcessed` sigue existiendo como segunda guarda (deduplicación dentro de la misma sesión), pero ya no es la única línea de defensa. Verificado 2026-09-02.
+  - **Deuda pendiente:** no hay test automatizado que ejercite el constraint único a nivel de base de datos — la suite de integración usa el proveedor EF Core InMemory, que no aplica índices únicos. Cubrir esto correctamente requeriría un fixture con SQL Server real o SQLite, y el modelo completo de `PawTrackDbContext` tiene columnas espaciales (`Sighting.Location` como `geography`) que complican un DbContext de prueba aislado sin invertir en un fixture dedicado — no se justificó el esfuerzo en esta sesión.
 
-  ```csharp
-  if (session.IsMessageProcessed(request.MessageId)) return; // check
-  session.MarkMessageProcessed(request.MessageId);           // set
-  await unitOfWork.SaveChangesAsync(ct);                     // commit
-  ```
-
-  - Si dos instancias reciben el mismo webhook simultáneamente, ambas pasan el check antes de que alguna haga commit
-  - **Solución:** añadir índice único en `BotSession.ProcessedMessageIds` o usar `UPDLOCK` en SQL:
-    ```sql
-    -- O más simple: tabla separada WhatsAppIdempotencyKey(MessageId PRIMARY KEY)
-    -- con INSERT que falla en duplicado
-    ```
 
 ### 8.2 GeofencedAlertLog usa `Guid.NewGuid()` en lugar de `Guid.CreateVersion7()`
 
