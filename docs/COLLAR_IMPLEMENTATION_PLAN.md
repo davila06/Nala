@@ -700,12 +700,20 @@ Se agregó `AuthHelper.CreateAdminClientAsync` (mismo patrón que
 
 #### Desviaciones documentadas
 
-- **No se ejecutó la suite contra un stack completo en este sandbox** (requiere
-  SQL Server + backend + frontend corriendo simultáneamente). Se validó que
-  Playwright descubre y parsea los 5 specs correctamente (`npx playwright test
---list` → 6 tests en 5 archivos) y que el build de backend sigue en 0 errores.
-  La ejecución real queda a cargo de `npm run test:e2e` en un entorno con
-  `start-dev.ps1` corriendo, o del workflow de CI.
+- **Actualización 2026-09-02:** la suite SÍ se corrió contra un stack completo
+  (SQL Express local + backend + frontend) en una sesión de debugging
+  posterior. Esa corrida encontró y corrigió **5 bugs reales de producción**
+  (no solo problemas de test): una migración con `defaultValueSql` inválido
+  para SQL Server, un bug de ciclo de vida de conexión en `MigrationHelper`
+  que crasheaba el arranque con migraciones pendientes, `RoleGuard.tsx` sin
+  esperar `isInitializing` (redirect erróneo de admins en refresh de página),
+  y el interceptor 401 de `apiClient.ts` tratando un login fallido como sesión
+  expirada. Al menos una corrida limpia completa fue validada
+  (`auth.spec.ts` 100%). Se observó flakiness intermitente de Chromium/CDP
+  bajo uso sostenido específica de ese sandbox (no reproducida como bug de
+  código); la recomendación es confiar en la corrida de CI (`.github/workflows/e2e.yml`)
+  en vez de perseguir esa flakiness localmente. Ver `/memories/repo/pawtrack-notes.md`
+  para el detalle completo de la investigación.
 - **Descubrimiento durante el diseño de specs:** el rate limit de login
   (5/min por IP, `RateLimiting:Login:PermitLimit`) es demasiado bajo para una
   suite E2E que inicia sesión repetidamente desde la misma IP. El workflow de

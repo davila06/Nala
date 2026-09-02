@@ -118,8 +118,12 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 
 - ✅ Tab GPS en perfil de mascota
 - ✅ Conectar collar GPS (Tractive, Kippy, genérico)
-- ✅ Historial de trayectoria 24 horas
+- ✅ Historial de trayectoria por rango de fechas
 - ✅ Posición en tiempo real
+- ✅ Alertas de conectividad (offline) y batería baja
+- ✅ Modo perdido (búsqueda intensiva)
+- ✅ Zonas seguras (geofencing)
+- ✅ Transferencia segura del collar entre dueños
 
 ---
 

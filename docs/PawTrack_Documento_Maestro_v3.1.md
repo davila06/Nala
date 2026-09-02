@@ -38,7 +38,7 @@ PawTrack CR es un **MVP completo enterprise-hardened** con todos los módulos op
 | Clínicas B2B (3 tiers, PDF, API keys)   | ✅           |
 | Municipalidades B2G (3 tiers)           | ✅           |
 | Expediente médico digital completo      | ✅           |
-| Collar GPS (Tractive + genérico)        | ✅           |
+| Collar GPS (Tractive + genérico + offline/battery alerts, lost mode, safe zones, handover, audit log, admin dashboard) | ✅ |
 | Bundle GPS on-demand                    | ✅           |
 | Sistema de recompensas (Bounty/SINPE)   | ✅           |
 | Familia (multi-usuario, 5 miembros)     | ✅           |
@@ -237,6 +237,10 @@ Chat enmascarado entre dueño y rescatador. PiiScrubber en mensajes. Guard regex
 
 - **BOLA protegido**: `GET /pet/{id}` y `GET /pet/{id}/history` verifican ownership del pet.
 - Integración Tractive OAuth2, genérico HTTP push.
+- Activación por serial + device key (`CollarTag`), inventario admin (registrar/marcar vendido/revocar).
+- Alertas de conectividad (offline) y batería baja, con preferencias configurables por usuario.
+- Modo perdido (Lost Mode), zonas seguras (geofencing), transferencia segura entre dueños (handover codes) y auditoría de eventos.
+- Historial de ubicación por rango de fechas y dashboard de métricas para admin.
 - Rate limiting en todos los endpoints.
 
 ### 5.10 Bounties (`/api/bounties`)
@@ -436,7 +440,7 @@ PawTrack CR ya no está en un MVP básico. El repositorio implementa un **MVP co
 - **Sistema de recompensas económicas** (Bounty) con escrow SINPE Móvil + HandoverCode.
 - **B2B Clínicas** (Básica/Plus/Partner) con expediente compartido, certificados PDF verificables, portal veterinario.
 - **B2G Municipalidades** (Básica/Full/Red Regional) con portal de control animal.
-- **Collar GPS** integración Tractive (OAuth2 + polling), soporte OEM genérico.
+- **Collar GPS** integración Tractive (OAuth2 + polling), soporte OEM genérico, activación por tag/serial, alertas de conectividad y batería, modo perdido, zonas seguras (geofencing), transferencia segura (handover codes), auditoría de eventos, historial de ubicación por rango e inventario/dashboard admin.
 - **Bundle GPS** on-demand.
 - Infraestructura Azure en Bicep (Container Apps, SQL Serverless, Blob, Key Vault, App Insights).
 - CI/CD GitHub Actions (build → test → Docker → ACR → Container App update).

@@ -52,7 +52,7 @@ A diferencia de la mayoría de startups en etapa de inversión ángel, **PawTrac
 | Bot conversacional de WhatsApp                                 | ✅ Completo                    |
 | Coordinación de búsqueda en campo (zonas en tiempo real)       | ✅ Completo                    |
 | Expediente médico digital (7 tipos, PDF, recordatorios)        | ✅ Completo                    |
-| Collar GPS (integración Tractive, genérico)                    | ✅ Completo                    |
+| Collar GPS (Tractive, genérico, alertas, modo perdido, geofencing, auditoría) | ✅ Completo                    |
 | Sistema de recompensas con SINPE Móvil                         | ✅ Completo                    |
 | B2B Clínicas veterinarias (3 tiers, certificados PDF)          | ✅ Completo                    |
 | B2G Municipalidades (portal control animal, 3 tiers)           | ✅ Completo                    |
@@ -96,7 +96,7 @@ A diferencia de plataformas de una sola fuente, PawTrack CR tiene **9 líneas de
 | 8   | **Sistema de recompensas (Bounty)** — SINPE  | Comisión 10% | Por transacción        |
 | 9   | **Vallas publicitarias in-app**              | Tarifa fija  | ₡18,000–₡65,000/semana |
 
-> **Nota:** Bundle GPS (collar Tractive + suscripción, ₡49,900 único) es ingreso adicional una vez se establezca el proveedor de hardware.
+> **Nota:** Bundle GPS (collar Tractive + suscripción, ₲49,900 único) es ingreso adicional una vez se establezca el proveedor de hardware. El collar GPS ya incluye, más allá de la posición en tiempo real, diferenciadores vs. Tractive/competencia: alertas de conectividad y batería, modo perdido coordinado con la red de búsqueda, zonas seguras (geofencing), transferencia segura entre dueños y auditoría de eventos.
 
 ---
 

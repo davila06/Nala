@@ -45,6 +45,7 @@ Exclusivo para cuentas con rol **Admin**. Si intentas acceder sin ese rol, el si
 | **Promociones**   | Códigos de descuento y promociones                 |
 | **Tiendas**       | Aprobar/rechazar tiendas pendientes de registro    |
 | **Vallas** 🆕     | Crear, editar, activar/pausar vallas publicitarias |
+| **CollarTags**    | Inventario y métricas de collares GPS (registrar, marcar vendido, revocar) |
 
 ---
 
@@ -216,6 +217,17 @@ Tab **Bundles** → pedidos de Bundle GPS:
 - Lista de pedidos de bundle (hardware collar GPS + suscripción).
 - Estado: `PendingPayment` → `Active`.
 - Activar manualmente después de verificar el pago.
+
+---
+
+## 9.1 Inventario de Collar Tags
+
+Tab **CollarTags** → inventario y métricas de collares GPS:
+
+- Métricas: total de tags, activos, vendidos, revocados.
+- Registrar tags nuevos (individual o bulk import).
+- Marcar como vendido / revocar un tag.
+- Buscar por número de serie.
 
 ---
 

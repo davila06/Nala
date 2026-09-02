@@ -806,3 +806,5 @@ Este es el elemento más crítico del modelo. La lógica:
 | Bundle GPS                | One-time + suscripción | ✅ Activo               |
 | Collar físico PawTrack    | One-time               | 🔄 Pendiente fabricante |
 | Datos anonimizados        | B2B data               | 📋 Futuro               |
+
+> Bundle GPS incluye ahora, además de la posición en tiempo real e historial: alertas de conectividad/batería, modo perdido, zonas seguras (geofencing), transferencia segura entre dueños y auditoría de eventos (Fase 4/5, 2026-09-02).

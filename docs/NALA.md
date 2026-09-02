@@ -132,7 +132,7 @@ Adicionalmente existen planes B2B para clínicas veterinarias (₡15,000–₡35
 
 ### 11. Collar GPS y expediente médico
 
-El **plan Plus** habilita la integración con collares GPS de terceros (Tractive). El dueño conecta su cuenta Tractive via OAuth2 desde la tab GPS del perfil de mascota. El sistema actualiza la posición cada 5 minutos y muestra el historial de trayectoria de 7 días en un mapa interactivo.
+El **plan Plus** habilita la integración con collares GPS de terceros (Tractive) o genéricos (activación por serial/tag + device key). El dueño conecta su cuenta Tractive via OAuth2 desde la tab GPS del perfil de mascota. El sistema actualiza la posición y muestra el historial de trayectoria por rango de fechas en un mapa interactivo. Además incluye alertas de conectividad (offline) y batería baja, modo perdido (búsqueda intensiva coordinada con la red), zonas seguras (geofencing con alerta de salida), transferencia segura del collar entre dueños (handover code) y auditoría de eventos. Un dashboard de administración permite ver inventario y métricas de collares.
 
 El **plan Familia** desbloquea el expediente médico digital: registro de vacunas, desparasitaciones, visitas veterinarias y recordatorios automáticos. El historial puede ser compartido con clínicas afiliadas y exportado en PDF. Las clínicas Partner pueden emitir certificados veterinarios PDF con QR de verificación pública.
 
@@ -221,7 +221,7 @@ La diferencia con un aviso de "mascota perdida" en redes sociales o una web de c
 | Estadísticas de recuperación     | ❌                    | ✅ Por especie, raza y cantón      |
 | Custodios temporales             | ❌                    | ✅ Red de fosters sugerida         |
 | Bot de WhatsApp                  | ❌                    | ✅ Para usuarios sin app           |
-| Collar GPS integrado             | ❌                    | ✅ Tractive via OAuth2 (plan Plus) |
+| Collar GPS integrado             | ❌                    | ✅ Tractive/genérico + alertas + modo perdido + zonas seguras (plan Plus) |
 | Expediente médico                | ❌                    | ✅ Historial + PDF (plan Familia)  |
 | Clínicas veterinarias conectadas | ❌                    | ✅ Portal B2B con 3 tiers          |
 | Certificados PDF verificables    | ❌                    | ✅ QR de verificación pública      |
@@ -275,7 +275,8 @@ PawTrack CR se encuentra en **MVP ampliado**, con todos sus módulos principales
 - ✅ Feature gating completo por plan (UI gates + backend enforcement)
 - ✅ Cuentas familiares multi-usuario (hasta 5 miembros, Plan Familia)
 - ✅ Expediente médico digital: vacunas, visitas, recordatorios, exportación PDF (Plan Familia)
-- ✅ Integración collar GPS Tractive (OAuth2, polling cada 5 min, historial 7 días)
+- ✅ Integración collar GPS Tractive/genérico (OAuth2, polling, activación por tag/serial, historial por rango)
+- ✅ Alertas de conectividad/batería, modo perdido, zonas seguras (geofencing), transferencia segura y auditoría de eventos del collar
 - ✅ Bundle GPS on-demand
 
 **Monetización — B2B Clínicas veterinarias**

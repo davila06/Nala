@@ -63,7 +63,8 @@ Todas las siguientes vulnerabilidades han sido encontradas y corregidas:
 |---|---------------|-----|
 | 1 | ChangePassword usaba Hash() en vez de Verify() — siempre fallaba | Verify(plaintext, storedHash) |
 | 2 | decodeRoleFromJwt ignoraba roles Store y Municipality | Añadidos al switch |
-| 3 | piClient 401 interceptor sin mutex → múltiples refresh simultáneos | efreshPromise compartido |
+| 3 | piClient 401 interceptor sin mutex → múltiples refresh simultáneos | 
+efreshPromise compartido |
 | 4 | InMemoryJtiBlocklist no funciona en multi-instancia | DbJtiBlocklist (SQL) |
 | 5 | ConfirmBountyDeposit accesible sin autenticación | [Authorize] añadido |
 | 6 | Collar GPS history sin verificación de propiedad (BOLA) | Ownership check en queries |
@@ -76,8 +77,19 @@ Todas las siguientes vulnerabilidades han sido encontradas y corregidas:
 | 13 | FamilyInvitation sin verificar email del aceptante | Email match check |
 | 14 | window.confirm en chat multi-store | Modal nativo |
 | 15 | AllowedHosts: "*" en appsettings.json | Hostnames específicos |
+| 16 | Migración `AddClinicApiKeyExpirationAndRotation` usaba `defaultValueSql` con referencia cruzada de columna (SQL Server inválido) — fallaría en cualquier BD nueva al correr migraciones completas | Reescrita en 3 pasos: `AddColumn` nullable → `UPDATE` → `AlterColumn` NOT NULL |
+| 17 | `MigrationHelper`: `sp_getapplock`/`sp_releaseapplock` en conexiones distintas (el pool cerraba/reseteaba la conexión entre ambas llamadas), causando crash en cada arranque con migraciones pendientes | Una sola conexión abierta durante todo el ciclo acquire→migrate→release |
 
 ---
+
+## 3.1 Bugs reales encontrados via E2E testing (2026-09-02)
+
+Además de la suite de seguridad, la validación E2E contra un stack completo (SQL Server + backend + frontend) del módulo Collar GPS encontró 2 bugs de producción adicionales en el frontend:
+
+| # | Bug | Fix |
+|---|-----|-----|
+| 1 | `RoleGuard.tsx` no esperaba `isInitializing` — un refresh de página en rutas admin redirigía a `/login` antes de que el refresh silencioso (cookie httpOnly) resolviera | Añadido spinner mientras `isInitializing`, igual que `AuthenticatedLayout.tsx` |
+| 2 | `apiClient.ts`: el interceptor de 401 trataba un login fallido igual que una sesión expirada — hacía hard-redirect y borraba el mensaje de error en pantalla | Excluidas las requests a `/auth/login` del flujo de refresh/redirect |
 
 ## 4. Tests — estado actual
 

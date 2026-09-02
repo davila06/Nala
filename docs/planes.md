@@ -35,7 +35,7 @@ Todo lo del plan Explorador, más:
 | **IA**                | Búsqueda por foto **ilimitada** · predicción de movimiento    |
 | **Búsqueda**          | Case Room activo · coordinación en tiempo real · 3D Radar     |
 | **Recompensas**       | Crear Bounty con SINPE · HandoverCode → liberación automática |
-| **GPS**               | Collar GPS tab · Tractive / Kippy / genérico · historial 24h  |
+| **GPS**               | Collar GPS tab · Tractive / Kippy / genérico · historial por rango · alertas offline/batería · modo perdido · zonas seguras |
 | **Expediente médico** | Vista previa de **últimos 3 registros**                       |
 
 ---
@@ -171,7 +171,7 @@ Todo lo del plan Explorador, más:
 | **IA**                | Búsqueda por foto **ilimitada** · predicción de movimiento                                |
 | **Búsqueda**          | Case Room activo · coordinación en tiempo real (zonas 7×7) · 3D Radar                     |
 | **Recompensas**       | Crear Bounty con SINPE · flujo HandoverCode → liberación automática                       |
-| **GPS**               | Tab GPS en perfil · Tractive / Kippy / genérico · posición en tiempo real · historial 24h |
+| **GPS**               | Tab GPS en perfil · Tractive / Kippy / genérico · posición en tiempo real · historial por rango · alertas offline/batería · modo perdido · zonas seguras · transferencia segura |
 | **Expediente médico** | Vista previa de **últimos 3 registros** (tipo, fecha, descripción, veterinario)           |
 
 **Límites en expediente:** documentos adjuntos, peso por visita y campos de medicación solo en Plan Familia. Los 3 registros son un preview; el historial completo requiere Familia.

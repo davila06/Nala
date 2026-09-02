@@ -586,6 +586,35 @@ Si tu mascota usa un collar GPS PawTrack, puedes ver su ubicación en tiempo rea
 2. Toca la pestaña **GPS** 📡 (requiere plan Plus o superior).
 3. El mapa muestra la ubicación actual del collar y el historial de posiciones recientes.
 
+### Activar un collar nuevo
+
+1. Escanea el código QR impreso en el collar o ingresa el número de serie manualmente (formato `PT-XXXX-NNNNNNN`).
+2. El collar queda vinculado a la mascota seleccionada.
+
+### Alertas de conectividad y batería
+
+- Recibes una notificación si el collar pierde conexión (sin reportar ubicación) o si la batería baja de un umbral configurable.
+- Podés ajustar los umbrales y activar/desactivar cada tipo de alerta desde el panel GPS.
+
+### Modo perdido
+
+- Activa el **modo perdido** desde el panel GPS cuando tu mascota se pierde; esto intensifica el seguimiento y coordina con la red de búsqueda.
+- Desactívalo cuando la mascota es recuperada.
+
+### Zonas seguras (geofencing)
+
+- Dibuja o define una zona segura en el mapa (por ejemplo, tu casa o barrio).
+- Recibís una alerta si el collar sale de esa zona.
+
+### Transferencia segura del collar
+
+- Si vendés o regalás tu mascota, podés generar un código de transferencia para que el nuevo dueño vincule el collar a su cuenta de forma segura, sin compartir credenciales.
+
+### Historial y auditoría
+
+- Consultá el historial de ubicaciones por rango de fechas (no solo las últimas 24h).
+- Un registro de auditoría guarda cada activación, desactivación y cambio relevante del collar.
+
 ---
 
 ## 28. Planes y suscripciones

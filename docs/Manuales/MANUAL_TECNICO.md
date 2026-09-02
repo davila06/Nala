@@ -185,7 +185,7 @@ Auth/
 | `Locations`     | Preferencias de ubicación para alertas                              |
 | `Bot`           | Sesiones WhatsApp, lógica conversacional                            |
 | `Subscriptions` | Planes de suscripción (Explorador / Plus / Familia), SINPE payments |
-| `Collars`       | Integración con collares GPS PawTrack, telemetría                   |
+| `Collars`       | Integración con collares GPS PawTrack: activación por tag/serial, telemetría, alertas offline/batería, modo perdido, zonas seguras (geofencing), transferencia segura (handover), auditoría de eventos, historial por rango, dashboard admin |
 | `Bounties`      | Sistema de recompensas por avistamiento                             |
 | `Common`        | Interfaces, comportamientos de pipeline, utilidades                 |
 
@@ -691,6 +691,22 @@ Authorization: Bearer <jwt-token>
 | Método | Endpoint                 | Auth     | Descripción                                 |
 | ------ | ------------------------ | -------- | ------------------------------------------- |
 | GET    | `/pets/:id`              | Opcional | Perfil público de mascota (+ registra scan) |
+
+### Módulo Collars — `/api/collars`
+
+| Método | Endpoint                                    | Auth  | Descripción                                        |
+| ------ | -------------------------------------------- | ----- | --------------------------------------------------- |
+| POST   | `/activate`                                  | Sí    | Activar collar por serial + device key               |
+| GET    | `/pet/:petId`                                | Sí    | Estado del collar de una mascota (BOLA protegido)    |
+| GET    | `/pet/:petId/history`                        | Sí    | Historial de ubicación por rango (BOLA protegido)    |
+| GET    | `/:collarId/connectivity-status`             | Sí    | Estado de conectividad/batería                       |
+| PUT    | `/:collarId/notification-preferences`        | Sí    | Configurar umbrales de alertas offline/batería       |
+| POST   | `/:collarId/lost-mode`                       | Sí    | Activar/desactivar modo perdido                      |
+| POST   | `/:collarId/safe-zones`                      | Sí    | Crear/editar/eliminar zonas seguras (geofencing)      |
+| POST   | `/:collarId/handover-codes`                  | Sí    | Generar/canjear/cancelar código de transferencia     |
+| GET    | `/:collarId/audit-log`                       | Sí    | Log de eventos de auditoría del collar               |
+| POST   | `/ingest-location`                           | Device key | Ingesta de ubicación desde el dispositivo       |
+| GET/POST | `/admin/tags`, `/admin/tags/:id/*`         | Admin | Inventario, métricas y bulk import de collar tags    |
 | GET    | `/map`                   | No       | Datos del mapa público                      |
 | GET    | `/movement/:lostEventId` | No       | Predicción de movimiento                    |
 

@@ -1,5 +1,7 @@
 # Análisis de Gaps: Sistema de Collar Tipo Apple Tag — PawTrack CR
 
+> ⚠️ **DOCUMENTO OBSOLETO (superado 2026-09-02).** Todos los gaps "Crítico" listados abajo (conectividad, auditoría, modo perdido, transferencia segura, geofencing, histórico) fueron implementados en Fase 4 y Fase 5. Ver estado real y actualizado en [`COLLAR_IMPLEMENTATION_PLAN.md`](./COLLAR_IMPLEMENTATION_PLAN.md) §Estado de Implementación y en [`collarFinal.md`](./collarFinal.md). Este archivo se conserva solo como referencia histórica del análisis original.
+
 > **Evaluación de profundidad:** 2026-09-01  
 > **Alcance:** Comparación entre la implementación actual (Fases 1–3) y un sistema tipo Apple AirTag/Find My Pet de nivel enterprise.
 
