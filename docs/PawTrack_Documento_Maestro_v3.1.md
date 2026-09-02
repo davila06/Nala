@@ -24,33 +24,33 @@ PawTrack CR es un **MVP completo enterprise-hardened** con todos los módulos op
 
 ### Módulos implementados (agosto 2026)
 
-| Módulo                                  | Estado       |
-| --------------------------------------- | ------------ |
-| Auth (JWT, refresh, lockout, email)     | ✅           |
-| Mascotas (CRUD, QR, foto, microchip)    | ✅           |
-| Pérdida (case room, difusión, handover) | ✅           |
-| Avistamientos + visual IA               | ✅           |
-| Notificaciones (in-app, push, WebSub)   | ✅           |
-| Chat enmascarado + SignalR real-time    | ✅           |
-| Safety (fraud, handover codes)          | ✅           |
-| Aliados verificados                     | ✅           |
-| Custodios temporales                    | ✅           |
-| Clínicas B2B (3 tiers, PDF, API keys)   | ✅           |
-| Municipalidades B2G (3 tiers)           | ✅           |
-| Expediente médico digital completo      | ✅           |
-| Collar GPS (Tractive + genérico + offline/battery alerts, lost mode, safe zones, handover, audit log, admin dashboard) | ✅ |
-| Bundle GPS on-demand                    | ✅           |
-| Sistema de recompensas (Bounty/SINPE)   | ✅           |
-| Familia (multi-usuario, 5 miembros)     | ✅           |
-| Suscripciones (Explorador/Plus/Familia) | ✅           |
-| **Tiendas de mascotas B2B**             | ✅ **nuevo** |
-| **Vallas publicitarias (Billboard)**    | ✅ **nuevo** |
-| Broadcast multicanal (WA/TG/FB/Email)   | ✅           |
-| Bot WhatsApp conversacional             | ✅           |
-| Leaderboard + incentivos                | ✅           |
-| Mapa público con stores + clínicas      | ✅           |
-| Predicción de movimiento IA             | ✅           |
-| Estadísticas públicas de recuperación   | ✅           |
+| Módulo                                                                                                                 | Estado       |
+| ---------------------------------------------------------------------------------------------------------------------- | ------------ |
+| Auth (JWT, refresh, lockout, email)                                                                                    | ✅           |
+| Mascotas (CRUD, QR, foto, microchip)                                                                                   | ✅           |
+| Pérdida (case room, difusión, handover)                                                                                | ✅           |
+| Avistamientos + visual IA                                                                                              | ✅           |
+| Notificaciones (in-app, push, WebSub)                                                                                  | ✅           |
+| Chat enmascarado + SignalR real-time                                                                                   | ✅           |
+| Safety (fraud, handover codes)                                                                                         | ✅           |
+| Aliados verificados                                                                                                    | ✅           |
+| Custodios temporales                                                                                                   | ✅           |
+| Clínicas B2B (3 tiers, PDF, API keys)                                                                                  | ✅           |
+| Municipalidades B2G (3 tiers)                                                                                          | ✅           |
+| Expediente médico digital completo                                                                                     | ✅           |
+| Collar GPS (Tractive + genérico + offline/battery alerts, lost mode, safe zones, handover, audit log, admin dashboard) | ✅           |
+| Bundle GPS on-demand                                                                                                   | ✅           |
+| Sistema de recompensas (Bounty/SINPE)                                                                                  | ✅           |
+| Familia (multi-usuario, 5 miembros)                                                                                    | ✅           |
+| Suscripciones (Explorador/Plus/Familia)                                                                                | ✅           |
+| **Tiendas de mascotas B2B**                                                                                            | ✅ **nuevo** |
+| **Vallas publicitarias (Billboard)**                                                                                   | ✅ **nuevo** |
+| Broadcast multicanal (WA/TG/FB/Email)                                                                                  | ✅           |
+| Bot WhatsApp conversacional                                                                                            | ✅           |
+| Leaderboard + incentivos                                                                                               | ✅           |
+| Mapa público con stores + clínicas                                                                                     | ✅           |
+| Predicción de movimiento IA                                                                                            | ✅           |
+| Estadísticas públicas de recuperación                                                                                  | ✅           |
 
 ---
 

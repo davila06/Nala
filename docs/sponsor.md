@@ -42,27 +42,27 @@ A diferencia de la mayoría de startups en etapa de inversión ángel, **PawTrac
 
 ### Lo que existe hoy (agosto 2026)
 
-| Módulo                                                         | Estado                         |
-| -------------------------------------------------------------- | ------------------------------ |
-| Identidad digital (QR, perfil público, microchip)              | ✅ Completo                    |
-| Reporte de pérdida + mapa en tiempo real                       | ✅ Completo                    |
-| Avistamientos con IA (Azure Computer Vision)                   | ✅ Completo                    |
-| Chat enmascarado entre dueño y rescatador                      | ✅ Real-time (SignalR)         |
-| Difusión multicanal (WhatsApp + Telegram + Facebook + Email)   | ✅ Completo                    |
-| Bot conversacional de WhatsApp                                 | ✅ Completo                    |
-| Coordinación de búsqueda en campo (zonas en tiempo real)       | ✅ Completo                    |
-| Expediente médico digital (7 tipos, PDF, recordatorios)        | ✅ Completo                    |
+| Módulo                                                                        | Estado                         |
+| ----------------------------------------------------------------------------- | ------------------------------ |
+| Identidad digital (QR, perfil público, microchip)                             | ✅ Completo                    |
+| Reporte de pérdida + mapa en tiempo real                                      | ✅ Completo                    |
+| Avistamientos con IA (Azure Computer Vision)                                  | ✅ Completo                    |
+| Chat enmascarado entre dueño y rescatador                                     | ✅ Real-time (SignalR)         |
+| Difusión multicanal (WhatsApp + Telegram + Facebook + Email)                  | ✅ Completo                    |
+| Bot conversacional de WhatsApp                                                | ✅ Completo                    |
+| Coordinación de búsqueda en campo (zonas en tiempo real)                      | ✅ Completo                    |
+| Expediente médico digital (7 tipos, PDF, recordatorios)                       | ✅ Completo                    |
 | Collar GPS (Tractive, genérico, alertas, modo perdido, geofencing, auditoría) | ✅ Completo                    |
-| Sistema de recompensas con SINPE Móvil                         | ✅ Completo                    |
-| B2B Clínicas veterinarias (3 tiers, certificados PDF)          | ✅ Completo                    |
-| B2G Municipalidades (portal control animal, 3 tiers)           | ✅ Completo                    |
-| **Tiendas de mascotas** (catálogo, pedidos, SINPE)             | ✅ **Nuevo**                   |
-| **Vallas publicitarias in-app** (4 placements, CTA, prioridad) | ✅ **Nuevo**                   |
-| Plan Familia (multi-usuario, hasta 5 miembros)                 | ✅ Completo                    |
-| Red de aliados verificados (refugios, seguridad, veterinarias) | ✅ Completo                    |
-| Red vecinal de alertas (radio 500m)                            | ✅ Completo                    |
-| Suscripciones + feature gating completo                        | ✅ Completo                    |
-| **Módulo Adopciones** (especificación técnica completa)        | 📋 Diseñado, listo para sprint |
+| Sistema de recompensas con SINPE Móvil                                        | ✅ Completo                    |
+| B2B Clínicas veterinarias (3 tiers, certificados PDF)                         | ✅ Completo                    |
+| B2G Municipalidades (portal control animal, 3 tiers)                          | ✅ Completo                    |
+| **Tiendas de mascotas** (catálogo, pedidos, SINPE)                            | ✅ **Nuevo**                   |
+| **Vallas publicitarias in-app** (4 placements, CTA, prioridad)                | ✅ **Nuevo**                   |
+| Plan Familia (multi-usuario, hasta 5 miembros)                                | ✅ Completo                    |
+| Red de aliados verificados (refugios, seguridad, veterinarias)                | ✅ Completo                    |
+| Red vecinal de alertas (radio 500m)                                           | ✅ Completo                    |
+| Suscripciones + feature gating completo                                       | ✅ Completo                    |
+| **Módulo Adopciones** (especificación técnica completa)                       | 📋 Diseñado, listo para sprint |
 
 ### Números que importan
 

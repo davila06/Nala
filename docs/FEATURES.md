@@ -66,20 +66,20 @@
 
 ## 4. Collar GPS
 
-| Feature                          | Plan  | Descripción                                                          |
-| --------------------------------- | ----- | --------------------------------------------------------------------- |
-| Integración Tractive             | Plus  | OAuth2 → posición en tiempo real                                     |
-| Soporte genérico OEM             | Plus  | HTTP push desde cualquier dispositivo                                |
-| Activación por serial (tag)      | Plus  | QR o input manual del serial impreso en el collar + device key       |
-| Historial de ubicación           | Plus  | Trayectoria por rango de fechas (no solo 24h)                        |
-| Tab GPS en perfil                | Plus  | Vista de última posición + historial                                 |
-| Alertas de conectividad/batería   | Plus  | Notificación cuando el collar queda offline o batería baja (umbral configurable) |
-| Modo perdido (Lost Mode)          | Plus  | Toggle que activa búsqueda intensiva y notificaciones a la red        |
-| Zonas seguras (geofencing)        | Plus  | Alerta al salir de una zona segura definida en el mapa                |
-| Transferencia segura (handover)   | Plus  | Código de transferencia de propiedad del collar entre dueños          |
-| Auditoría de eventos              | Plus  | Log de activaciones/desactivaciones/cambios del collar                |
-| Dashboard de inventario (admin)   | Admin | Métricas de collares activos, vendidos, revocados                     |
-| Ownership protegido               | —     | Solo el dueño puede ver el GPS de su mascota (BOLA fix)               |
+| Feature                         | Plan  | Descripción                                                                      |
+| ------------------------------- | ----- | -------------------------------------------------------------------------------- |
+| Integración Tractive            | Plus  | OAuth2 → posición en tiempo real                                                 |
+| Soporte genérico OEM            | Plus  | HTTP push desde cualquier dispositivo                                            |
+| Activación por serial (tag)     | Plus  | QR o input manual del serial impreso en el collar + device key                   |
+| Historial de ubicación          | Plus  | Trayectoria por rango de fechas (no solo 24h)                                    |
+| Tab GPS en perfil               | Plus  | Vista de última posición + historial                                             |
+| Alertas de conectividad/batería | Plus  | Notificación cuando el collar queda offline o batería baja (umbral configurable) |
+| Modo perdido (Lost Mode)        | Plus  | Toggle que activa búsqueda intensiva y notificaciones a la red                   |
+| Zonas seguras (geofencing)      | Plus  | Alerta al salir de una zona segura definida en el mapa                           |
+| Transferencia segura (handover) | Plus  | Código de transferencia de propiedad del collar entre dueños                     |
+| Auditoría de eventos            | Plus  | Log de activaciones/desactivaciones/cambios del collar                           |
+| Dashboard de inventario (admin) | Admin | Métricas de collares activos, vendidos, revocados                                |
+| Ownership protegido             | —     | Solo el dueño puede ver el GPS de su mascota (BOLA fix)                          |
 
 ---
 

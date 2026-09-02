@@ -208,24 +208,24 @@ Costa Rica fue elegida como mercado inicial por razones concretas:
 
 La diferencia con un aviso de "mascota perdida" en redes sociales o una web de clasificados:
 
-| Característica                   | Facebook/Grupos       | PawTrack CR                        |
-| -------------------------------- | --------------------- | ---------------------------------- |
-| Identidad permanente             | ❌ El post desaparece | ✅ El perfil QR es permanente      |
-| Geofencing y alertas             | ❌ Manual             | ✅ Automático por radio y cantón   |
-| Coordinación de búsqueda         | ❌ Por mensajes       | ✅ Cuadrícula en tiempo real       |
-| Matching visual por IA           | ❌                    | ✅ Azure Computer Vision           |
-| Privacidad del reportante        | ❌ Nombre público     | ✅ Anonimato por diseño            |
-| Chat seguro                      | ❌ WhatsApp personal  | ✅ Chat enmascarado in-app         |
-| Entrega segura                   | ❌ Sin protocolo      | ✅ Código de 4 dígitos             |
-| Sistema de recompensas           | ❌ Promesa verbal     | ✅ Bounty con escrow + SINPE       |
-| Estadísticas de recuperación     | ❌                    | ✅ Por especie, raza y cantón      |
-| Custodios temporales             | ❌                    | ✅ Red de fosters sugerida         |
-| Bot de WhatsApp                  | ❌                    | ✅ Para usuarios sin app           |
+| Característica                   | Facebook/Grupos       | PawTrack CR                                                               |
+| -------------------------------- | --------------------- | ------------------------------------------------------------------------- |
+| Identidad permanente             | ❌ El post desaparece | ✅ El perfil QR es permanente                                             |
+| Geofencing y alertas             | ❌ Manual             | ✅ Automático por radio y cantón                                          |
+| Coordinación de búsqueda         | ❌ Por mensajes       | ✅ Cuadrícula en tiempo real                                              |
+| Matching visual por IA           | ❌                    | ✅ Azure Computer Vision                                                  |
+| Privacidad del reportante        | ❌ Nombre público     | ✅ Anonimato por diseño                                                   |
+| Chat seguro                      | ❌ WhatsApp personal  | ✅ Chat enmascarado in-app                                                |
+| Entrega segura                   | ❌ Sin protocolo      | ✅ Código de 4 dígitos                                                    |
+| Sistema de recompensas           | ❌ Promesa verbal     | ✅ Bounty con escrow + SINPE                                              |
+| Estadísticas de recuperación     | ❌                    | ✅ Por especie, raza y cantón                                             |
+| Custodios temporales             | ❌                    | ✅ Red de fosters sugerida                                                |
+| Bot de WhatsApp                  | ❌                    | ✅ Para usuarios sin app                                                  |
 | Collar GPS integrado             | ❌                    | ✅ Tractive/genérico + alertas + modo perdido + zonas seguras (plan Plus) |
-| Expediente médico                | ❌                    | ✅ Historial + PDF (plan Familia)  |
-| Clínicas veterinarias conectadas | ❌                    | ✅ Portal B2B con 3 tiers          |
-| Certificados PDF verificables    | ❌                    | ✅ QR de verificación pública      |
-| Portal municipal                 | ❌                    | ✅ B2G para control animal         |
+| Expediente médico                | ❌                    | ✅ Historial + PDF (plan Familia)                                         |
+| Clínicas veterinarias conectadas | ❌                    | ✅ Portal B2B con 3 tiers                                                 |
+| Certificados PDF verificables    | ❌                    | ✅ QR de verificación pública                                             |
+| Portal municipal                 | ❌                    | ✅ B2G para control animal                                                |
 
 ---
 

@@ -36,15 +36,15 @@ Exclusivo para cuentas con rol **Admin**. Si intentas acceder sin ese rol, el si
 
 ## 2. Tabs disponibles en el panel
 
-| Tab               | Función                                            |
-| ----------------- | -------------------------------------------------- |
-| **Aliados**       | Revisar/aprobar solicitudes de aliados             |
-| **Clínicas**      | Gestionar clínicas veterinarias                    |
-| **Suscripciones** | Ver y gestionar planes de todos los usuarios       |
-| **Bundles**       | Bundles GPS on-demand                              |
-| **Promociones**   | Códigos de descuento y promociones                 |
-| **Tiendas**       | Aprobar/rechazar tiendas pendientes de registro    |
-| **Vallas** 🆕     | Crear, editar, activar/pausar vallas publicitarias |
+| Tab               | Función                                                                    |
+| ----------------- | -------------------------------------------------------------------------- |
+| **Aliados**       | Revisar/aprobar solicitudes de aliados                                     |
+| **Clínicas**      | Gestionar clínicas veterinarias                                            |
+| **Suscripciones** | Ver y gestionar planes de todos los usuarios                               |
+| **Bundles**       | Bundles GPS on-demand                                                      |
+| **Promociones**   | Códigos de descuento y promociones                                         |
+| **Tiendas**       | Aprobar/rechazar tiendas pendientes de registro                            |
+| **Vallas** 🆕     | Crear, editar, activar/pausar vallas publicitarias                         |
 | **CollarTags**    | Inventario y métricas de collares GPS (registrar, marcar vendido, revocar) |
 
 ---

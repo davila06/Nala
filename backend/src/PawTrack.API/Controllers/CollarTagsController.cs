@@ -30,6 +30,7 @@ public sealed class CollarTagsController(ISender sender) : ControllerBase
     // ── POST /api/collars/tag/{serial}/activate ───────────────────────────────
     [HttpPost("tag/{serial}/activate")]
     [Authorize]
+    [EnableRateLimiting("collar-serial-check")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> Activate(string serial, [FromBody] ActivateCollarTagRequest request, CancellationToken cancellationToken)
@@ -46,6 +47,7 @@ public sealed class CollarTagsController(ISender sender) : ControllerBase
     // ── DELETE /api/collars/tag/{serial}/deactivate ───────────────────────────
     [HttpDelete("tag/{serial}/deactivate")]
     [Authorize]
+    [EnableRateLimiting("collar-serial-check")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> Deactivate(string serial, CancellationToken cancellationToken)
@@ -64,6 +66,7 @@ public sealed class CollarTagsController(ISender sender) : ControllerBase
     // ── POST /api/collars/ingest — device push (X-Collar-Key auth) ───────────
     [HttpPost("ingest")]
     [AllowAnonymous] // auth handled by CollarDeviceKeyMiddleware
+    [EnableRateLimiting("location-update")] // caps device-key stuffing/spam per IP
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]

@@ -85,6 +85,7 @@ public sealed class CollarsController(ISender sender) : ControllerBase
     // ── POST /api/collars/pet/{petId}/location ────────────────────────────────
     /// <summary>Manual location record — for generic/own hardware via HTTP push.</summary>
     [HttpPost("pet/{petId:guid}/location")]
+    [EnableRateLimiting("location-update")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RecordLocation(
@@ -98,6 +99,20 @@ public sealed class CollarsController(ISender sender) : ControllerBase
     {
         var collar = await collarRepository.GetActiveForPetAsync(petId, cancellationToken);
         if (collar is null) return NotFound();
+
+        // BOLA guard: caller must be either the collar's own device key (X-Collar-Key)
+        // or the pet's owner authenticated via JWT — never an arbitrary user/collar.
+        var deviceCollarIdClaim = User.FindFirstValue("CollarId");
+        if (deviceCollarIdClaim is not null)
+        {
+            if (!Guid.TryParse(deviceCollarIdClaim, out var deviceCollarId) || deviceCollarId != collar.Id)
+                return Forbid();
+        }
+        else
+        {
+            if (!TryGetUserId(out var userId) || userId != collar.OwnerId)
+                return Forbid();
+        }
 
         collar.UpdateLocation(request.Lat, request.Lng, request.BatteryPercent);
         collarRepository.Update(collar);
