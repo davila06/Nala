@@ -2,28 +2,22 @@
 
 > **Fecha:** 2026-08-24 | Análisis exhaustivo del codebase completo  
 > **Metodología:** grep de TODOs/STUBs/`.Result`/`.Wait()`/anti-patrones + revisión manual de arquitectura  
-> **Prioridad:** 🔴 Crítico · 🟡 Alto · 🟢 Medio · ⚪ Bajo/Futuro
+> **Prioridad:** 🔴 Crítico · 🟡 Alto · 🟢 Medio · ⚪ Bajo/Futuro  
+> **⚠️ Re-auditado 2026-09-02:** una ola grande de hardening (fechada el mismo 2026-08-24, horas después de este análisis) resolvió ~15 de los ítems originales sin que este documento se actualizara. Cada ítem marcado `[x]` abajo fue re-verificado contra el código actual en esa fecha; los que siguen `[ ]` siguen abiertos de verdad.
 
 ---
 
 ## 1. STUBs — Código que no hace nada en producción
 
-### 1.1 Facebook Broadcast Channel
+### 1.1 Facebook Broadcast Channel — ✅ resuelto
 
-- [ ] **🔴** `Infrastructure/Broadcast/Channels/FacebookChannelBroadcaster.cs` siempre retorna `null` y solo loguea
-  - **Implementación:** `POST https://graph.facebook.com/v19.0/{pageId}/feed` con `{ message: "...", link: trackingUrl }`
-  - Requiere: `Broadcast:Facebook:PageAccessToken` y `Broadcast:Facebook:PageId` en Key Vault
-  - Añadir a `IHttpClientFactory` con nombre `"Facebook"` y retry policy (Polly)
-  - El `BroadcastAttempt` ya se persiste — solo falta la llamada HTTP real
-  - Archivos: `FacebookChannelBroadcaster.cs`, `InfrastructureServiceCollectionExtensions.cs`
+- [x] ~~`FacebookChannelBroadcaster.cs` siempre retorna `null` y solo loguea~~
+  - Ya hace `POST https://graph.facebook.com/v19.0/{pageId}/feed` real con `HttpClient("Facebook")`, maneja éxito/error y solo retorna `null` cuando faltan credenciales o la API falla (no incondicionalmente). Verificado 2026-09-02.
 
-### 1.2 Telegram Broadcast Channel
+### 1.2 Telegram Broadcast Channel — ✅ resuelto
 
-- [ ] **🔴** `Infrastructure/Broadcast/Channels/TelegramChannelBroadcaster.cs` mismo problema
-  - **Implementación:** `POST https://api.telegram.org/bot{token}/sendMessage` con `{ chat_id, text, parse_mode: "HTML" }`
-  - Requiere: `Broadcast:Telegram:BotToken` y `Broadcast:Telegram:ChatId` en Key Vault
-  - El canal ya tiene interface y registro DI — solo falta la llamada HTTP
-  - Añadir retry con Polly (transient HTTP errors)
+- [x] ~~`TelegramChannelBroadcaster.cs` mismo problema~~
+  - Ya hace `POST https://api.telegram.org/bot{token}/sendMessage` real con `HttpClient("Telegram")`, incluye envío de foto (`sendPhoto`). Verificado 2026-09-02.
 
 ### 1.3 Kippy GPS Integration
 
@@ -39,23 +33,10 @@
 
 ## 2. Anti-patrones de async/concurrencia
 
-### 2.1 `.Result` después de `Task.WhenAll`
+### 2.1 `.Result` después de `Task.WhenAll` — ✅ resuelto
 
-- [ ] **🟡** `Application/Fosters/Commands/CloseCustody/CloseCustodyCommand.cs` líneas 57-59:
-
-  ```csharp
-  // ACTUAL — anti-patrón (safe solo porque ya fue awaited, pero confuso)
-  var fosterUser = fosterUserTask.Result;
-  var ownerUser  = ownerUserTask.Result;
-  var pet        = petTask.Result;
-
-  // ENTERPRISE — desempaquetar con tuple deconstruction
-  var (fosterUser, ownerUser, pet) = (await fosterUserTask, await ownerUserTask, await petTask);
-  // O mejor aún, después de WhenAll:
-  var fosterUser = await fosterUserTask;
-  ```
-
-  - Archivos: `CloseCustodyCommand.cs`, `GetCaseRoomQuery.cs` (línea 166)
+- [x] ~~`CloseCustodyCommand.cs` líneas 57-59 usaba `.Result` en vez de `await`~~
+  - Ya usa `var fosterUser = await fosterUserTask; var ownerUser = await ownerUserTask;`. Verificado 2026-09-02. `GetCaseRoomQuery.cs` línea 166 no re-verificada.
 
 ### 2.2 Background Services con `Task.Delay` loop (drift)
 
@@ -75,18 +56,11 @@
     ```
   - `PeriodicTimer` no acumula drift, no puede overlappear ticks
 
-### 2.3 Background Services en múltiples instancias (duplicated jobs)
+### 2.3 Background Services en múltiples instancias (duplicated jobs) — 🟡 parcialmente resuelto
 
-- [ ] **🟡** Todos los `BackgroundService` se ejecutan en **cada instancia** del Container App en scale-out
-  - Los jobs diarios (VetReminder, HealthAlert, QrRetention, StaleReport) se ejecutarán N veces cuando hay N instancias
-  - **Solución enterprise:** SQL-based distributed lock antes de ejecutar:
-    ```csharp
-    // En cada BackgroundService antes de ejecutar el trabajo:
-    await using var lease = await distributedLock.AcquireAsync($"job:{nameof(VetReminderHostedService)}", TimeSpan.FromHours(1), ct);
-    if (!lease.Acquired) return; // otra instancia ya lo está corriendo
-    ```
+- [x] ~~`VetReminderHostedService`, `StaleReportCheckerHostedService`, `QrScanRetentionHostedService`~~ ya usan `IDistributedJobLock.TryAcquireAsync(...)` antes de ejecutar. Verificado 2026-09-02.
+- [ ] **🟡** `HealthAlertHostedService.cs` y `EmbeddingRefreshHostedService.cs` **todavía NO** adquieren el distributed lock — siguen duplicando trabajo en scale-out. Aplicar el mismo patrón que los tres anteriores.
   - Alternativamente: usar Azure Container Apps Jobs (run-to-completion) en lugar de hosted services
-  - Afecta: todos los `BackgroundService` del proyecto
 
 ---
 
@@ -129,93 +103,39 @@
 - [x] ~~`Application/Stores/StoreOrderCommands.cs` cargaba todos los pedidos del cliente en memoria~~
   - Ya usa `IStoreOrderRepository.GetByCustomerPagedAsync` (SQL `Skip/Take` + `AsNoTracking`) y `CountByCustomerAsync` para el total; retorna `PagedResult<StoreOrderDto>`. Verificado 2026-09-02; el método sin paginar quedó eliminado por no tener llamadores.
 
-### 4.2 Skip/Take degrada en tablas grandes
+### 4.2 Skip/Take degrada en tablas grandes — ✅ resuelto para Notifications
 
-- [ ] **🟢** Para `Notifications`, `QrScanEvents`, y tablas con alto volumen, `OFFSET/FETCH` (Skip/Take) tiene O(offset) performance en SQL Server
-  - **Solución enterprise:** cursor-based pagination usando `WHERE Id > @lastId ORDER BY Id`
-  - Candidatos: `NotificationRepository.GetPagedWithCountsAsync`, `QrScanHistoryQuery`
-  - Implementar `CursorPagedResult<T, TCursor>` genérico
+- [x] ~~Implementar `CursorPagedResult<T, TCursor>` genérico~~ — existe `CursorPagedResult<T>` (`Application/Common/CursorPagedResult.cs`) y ya se usa en `GetMyNotificationsCursorQuery`. Verificado 2026-09-02.
+  - **Sigue pendiente:** confirmar si `QrScanHistoryQuery` y el historial de ubicación de collares (ver §16.6) ya migraron a cursor o siguen con `Skip/Take`.
 
 ---
 
 ## 5. Domain Events sin dispatch
 
-### 5.1 Domain events definidos pero ignorados
+### 5.1 Domain events definidos pero ignorados — ✅ resuelto
 
-- [ ] **🟢** Los siguientes agregados tienen `_domainEvents` pero todos están con `.Ignore()` en EF Core:
-  - `Pet.cs` → `PetCreatedDomainEvent`, `PetReactivatedDomainEvent`
-  - `LostPetEvent.cs` → `LostPetReportedDomainEvent`, `PetReunitedDomainEvent`
-  - `Sighting.cs` → `SightingReportedDomainEvent`
-  - `FoundPetReport.cs` → domain events
-  - **Los eventos existen pero no se publican a ningún handler**
-  - **Solución enterprise:** publicar eventos en `PawTrackDbContext.SaveChangesAsync`:
-    ```csharp
-    public override async Task<int> SaveChangesAsync(CancellationToken ct = default)
-    {
-        var events = ChangeTracker.Entries<IHasDomainEvents>()
-            .SelectMany(e => e.Entity.DomainEvents)
-            .ToList();
-        var result = await base.SaveChangesAsync(ct);
-        foreach (var evt in events)
-            await mediator.Publish(evt, ct);
-        return result;
-    }
-    ```
-  - Esto permite handlers desacoplados sin modificar los comandos existentes
+- [x] ~~Los eventos existen pero no se publican a ningún handler~~
+  - `PawTrackDbContext.SaveChangesAsync` ya colecciona `ChangeTracker.Entries<IHasDomainEvents>()`, los limpia, y los despacha (via outbox — ver §6.1) exactamente con el patrón enterprise recomendado aquí. Verificado 2026-09-02.
 
 ---
 
 ## 6. Confiabilidad de notificaciones (outbox pattern)
 
-### 6.1 Fire-and-forget con riesgo de pérdida
+### 6.1 Fire-and-forget con riesgo de pérdida — ✅ resuelto
 
-- [ ] **🟡** Todos los handlers usan el patrón:
-
-  ```csharp
-  await unitOfWork.SaveChangesAsync(ct); // ← commit
-  _ = notificationDispatcher.DispatchX(...) // ← si el proceso muere aquí, la notif se pierde
-      .ContinueWith(t => logger.LogWarning(...));
-  ```
-
-  - Si el Container App se reinicia entre el commit y el dispatch, la notificación se pierde permanentemente
-  - **Solución enterprise (Transactional Outbox):**
-    1. Crear tabla `OutboxMessages(Id, Type, Payload, CreatedAt, ProcessedAt?)`
-    2. En `SaveChangesAsync`, serializar eventos a outbox en la misma transacción
-    3. `OutboxProcessor` BackgroundService procesa y borra mensajes procesados
-  - Esto garantiza at-least-once delivery sin transacciones distribuidas
-  - Librerías: MassTransit Outbox, o implementación propia simple
+- [x] ~~Implementar Transactional Outbox~~ — ya existe: tabla `OutboxMessages`, `PawTrackDbContext.SaveChangesAsync` serializa los domain events al outbox en la misma transacción, y `OutboxProcessorHostedService` (con `IDistributedJobLock`) los procesa cada 10s y los despacha via MediatR. Verificado 2026-09-02.
 
 ---
 
 ## 7. Retry policies para HTTP clients
 
-### 7.1 Sin Polly en clientes externos
+### 7.1 Sin Polly en clientes externos — ✅ resuelto
 
-- [ ] **🟡** Los siguientes `HttpClient` no tienen retry policy:
-  - `"MetaWhatsApp"` — mensajes de WhatsApp se pierden en errores transitorios
-  - `"AzureVision"` — embeddings fallan silenciosamente
-  - `"AzureMaps"` — geocoding falla sin retry
-  - `"PushProvider"` — push notifications se pierden
-  - `"Facebook"` (cuando se implemente)
-  - `"Telegram"` (cuando se implemente)
-  - **Implementación con Microsoft.Extensions.Http.Resilience (.NET 8):**
-    ```csharp
-    services.AddHttpClient("MetaWhatsApp")
-        .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(15))
-        .AddStandardResilienceHandler(options =>
-        {
-            options.Retry.MaxRetryAttempts = 3;
-            options.Retry.Delay = TimeSpan.FromSeconds(2);
-        });
-    ```
-  - No usar Polly directamente — `Microsoft.Extensions.Http.Resilience` es el estándar en .NET 8+
+- [x] ~~`MetaWhatsApp`, `AzureVision`, `AzureMaps`, `PushProvider`, `Facebook`, `Telegram`, `Tractive` sin retry policy~~ — los 7 `AddHttpClient(...)` en `InfrastructureServiceCollectionExtensions.cs` ya encadenan `.AddStandardResilienceHandler()` (el estándar `Microsoft.Extensions.Http.Resilience` recomendado aquí, no Polly directo). Verificado 2026-09-02.
 
-### 7.2 SendGrid sin retry
+### 7.2 SendGrid sin retry — ✅ resuelto
 
-- [ ] **🟡** `Infrastructure/Notifications/EmailSender.cs` — la llamada a SendGrid no tiene retry
-  - Un 429 (rate limit) o 503 transitorio de SendGrid silenciosamente descarta el email
-  - **Solución:** envolver la llamada `SendAsync` con retry exponencial (3 intentos, backoff 1s, 2s, 4s)
-  - Alternativa: usar SendGrid's built-in retry (v3 SDK tiene `ISendGridClient` con retry configurado via `HttpClient`)
+- [x] ~~La llamada a SendGrid no tiene retry~~ — `EmailSender.cs` ya reintenta hasta 3 veces en errores transitorios (comentario explícito "Retry up to 3 times on transient errors"). Verificado 2026-09-02.
 
 ---
 
@@ -227,79 +147,44 @@
   - Ya existe una guarda a nivel de base de datos: `IWhatsAppIdempotencyRepository.TryMarkAsync` hace un `INSERT` atómico en la tabla `WhatsAppProcessedMessages`, que tiene un índice único sobre `Wamid` (migración `AddWhatsAppIdempotencyTable`, `WhatsAppProcessedMessageConfiguration`). El handler llama a este guard **antes** de tocar `BotSession` y corta temprano si el `INSERT` falla por duplicado (`DbUpdateException` con mensaje de violación de constraint único). El check-then-set sobre `BotSession.IsMessageProcessed`/`MarkMessageProcessed` sigue existiendo como segunda guarda (deduplicación dentro de la misma sesión), pero ya no es la única línea de defensa. Verificado 2026-09-02.
   - **Deuda pendiente:** no hay test automatizado que ejercite el constraint único a nivel de base de datos — la suite de integración usa el proveedor EF Core InMemory, que no aplica índices únicos. Cubrir esto correctamente requeriría un fixture con SQL Server real o SQLite, y el modelo completo de `PawTrackDbContext` tiene columnas espaciales (`Sighting.Location` como `geography`) que complican un DbContext de prueba aislado sin invertir en un fixture dedicado — no se justificó el esfuerzo en esta sesión.
 
+### 8.2 GeofencedAlertLog usa `Guid.NewGuid()` en lugar de `Guid.CreateVersion7()` — ✅ resuelto
 
-### 8.2 GeofencedAlertLog usa `Guid.NewGuid()` en lugar de `Guid.CreateVersion7()`
+- [x] ~~inconsistencia menor con el resto del codebase~~ — ya usa `Id = Guid.CreateVersion7()`. Verificado 2026-09-02 (duplicado de §16.1).
 
-- [ ] **⚪** `Domain/Locations/GeofencedAlertLog.cs` línea 26 — inconsistencia menor con el resto del codebase
-  - **Fix:** cambiar `Guid.NewGuid()` → `Guid.CreateVersion7()`
-  - Guid v7 es sortable por tiempo — mejor para índices clustered en SQL Server
+### 8.3 Adoption photo blobs no se borran al remover animal — ✅ resuelto
 
-### 8.3 Adoption photo blobs no se borran al remover animal
-
-- [ ] **🟡** `AdminModerateAnimalCommand` y `AdoptablePet.Remove()` cambian el status pero no borran los blobs
-  - Los blobs `adoption-photos/{animalId}/*` quedan en Azure Storage indefinidamente
-  - **Solución:** en `AdminModerateAnimalCommandHandler`, si `action == "remove"`:
-    ```csharp
-    foreach (var url in animal.PhotoUrls)
-        await blobStorage.DeleteAsync(url, ct);
-    ```
-  - También aplicar al `DeleteAdoptionPhotoCommand` cuando se borra el animal completo
+- [x] ~~`AdminModerateAnimalCommand` no borraba los blobs~~ — `AdminModerateAnimalCommandHandler` ya llama a `blobStorage.DeleteAsync(photoUrl, ct)`. Verificado 2026-09-02.
 
 ---
 
 ## 9. Shelter Publish — UX incompleta
 
-### 9.1 Fotos no se pueden subir durante la publicación
+### 9.1 Fotos no se pueden subir durante la publicación — ✅ resuelto
 
-- [ ] **🟡** `ShelterPublishPage.tsx` — después de publicar, muestra toast "Ahora puedes subir fotos" y redirige al dashboard
-  - El usuario tiene que navegar manualmente al dashboard para encontrar el animal y subir fotos
-  - **Enterprise UX:** redirigir directamente al animal recién creado con el formulario de fotos abierto, o añadir paso 3 de fotos dentro del mismo flujo de publicación:
-    ```tsx
-    // Después del publish exitoso:
-    const animalId = result.id;
-    // Mostrar DropZone inline con uploadPhoto mutation
-    // Redirect a /adopciones/{animalId} solo cuando el usuario termina
-    ```
+- [x] ~~El usuario tiene que navegar manualmente al dashboard para encontrar el animal y subir fotos~~
+  - `ShelterPublishPage.tsx` ya tiene `useUploadAdoptionPhoto` + `handleUploadPhotos` inline en el mismo flujo de publicación. Verificado 2026-09-02 (duplicado de §16.2).
 
 ---
 
 ## 10. Audit log para acciones admin
 
-### 10.1 Sin trazabilidad de acciones administrativas
+### 10.1 Sin trazabilidad de acciones administrativas — ✅ resuelto
 
-- [ ] **🟡** No existe registro de quién aprobó un aliado, quién activó una suscripción, quién removió un animal
-  - **Implementación:** tabla `AuditLog(Id, AdminUserId, Action, EntityType, EntityId, OldValue, NewValue, PerformedAt)`
-  - Poblarla en los handlers de admin (`ReviewAllyApplicationCommandHandler`, `AdminActivateSubscriptionCommandHandler`, `AdminModerateAnimalCommandHandler`, etc.)
-  - Exponer endpoint `GET /api/admin/audit?entityType=X&entityId=Y` para investigación de incidentes
+- [x] ~~No existe registro de quién aprobó un aliado, quién activó una suscripción, quién removó un animal~~
+  - Ya existe `AuditLogEntry` + `IAuditLogRepository` + `GetAuditLogQuery`, poblado desde `ReviewAllyApplicationCommandHandler`, `ReviewClinicCommandHandler`, `AdminActivateSubscriptionCommand`, `StoreCommands`, `AdoptionAdminQueries`, etc. Verificado 2026-09-02.
 
 ---
 
 ## 11. Frontend — mejoras de calidad
 
-### 11.1 `any` cast en WeightTrendChart
+### 11.1 `any` cast en WeightTrendChart — ✅ resuelto
 
-- [ ] **🟢** `features/medical/components/WeightTrendChart.tsx` línea 23:
+- [x] ~~`const { active, payload } = props as any;`~~ — ya usa `TooltipProps<number, string>` de recharts. Verificado 2026-09-02.
 
-  ```typescript
-  // ACTUAL
-  const { active, payload } = props as any;
+### 11.2 Polling agresivo en notificaciones y chat — 🟢 parcialmente re-verificado
 
-  // ENTERPRISE — tipo correcto de recharts
-  import type { TooltipProps } from "recharts";
-  import type {
-    NameType,
-    ValueType,
-  } from "recharts/types/component/DefaultTooltipContent";
-  const { active, payload } = props as TooltipProps<ValueType, NameType>;
-  ```
-
-### 11.2 Polling agresivo en notificaciones y chat
-
-- [ ] **🟢** Los siguientes hooks pollan cada 10–30s aunque SignalR ya está implementado:
-  - `useNotifications.ts` → `refetchInterval: 30_000` — redundante con push notifications
-  - `useChatThread.ts` → `refetchInterval: 10_000` y `15_000` — redundante con SignalR
-  - `useStoreOrders.ts` → `refetchInterval: 30_000` — podría ser event-driven
-  - **Solución:** usar `refetchOnWindowFocus: true` + `staleTime` largo + invalidar via SignalR events en lugar de polling constante
+- [x] ~~`useNotifications.ts` con `refetchInterval: 30_000`~~ — ya no tiene `refetchInterval`. Verificado 2026-09-02.
+- [ ] **🟢** `useChatThread.ts` y `useStoreOrders.ts` no re-verificados en esta pasada — asumir abiertos hasta confirmar.
 
 ### 11.3 Absence of error boundaries per feature
 
@@ -321,22 +206,9 @@
 
 ## 12. API — gaps
 
-### 12.1 Sin versioning de API
+### 12.1 Sin versioning de API — ✅ resuelto
 
-- [ ] **🟡** No existe `AddApiVersioning()` en `Program.cs`
-  - Cuando haya breaking changes (cambiar un DTO, renombrar un campo), todos los clientes se rompen
-  - **Implementación:**
-    ```csharp
-    builder.Services.AddApiVersioning(options =>
-    {
-        options.DefaultApiVersion = new ApiVersion(1, 0);
-        options.AssumeDefaultVersionWhenUnspecified = true;
-        options.ReportApiVersions = true;
-        options.ApiVersionReader = ApiVersionReader.Combine(
-            new UrlSegmentApiVersionReader(),     // /api/v1/...
-            new HeaderApiVersionReader("Api-Version"));
-    });
-    ```
+- [x] ~~No existe `AddApiVersioning()` en `Program.cs`~~ — ya está configurado. Verificado 2026-09-02.
 
 ### 12.2 Sin paginación en endpoints que pueden devolver muchos datos
 
@@ -356,21 +228,14 @@
 
 ## 13. Testing gaps
 
-### 13.1 Sin integration tests para el flujo de adopciones
+### 13.1 Sin integration tests para el flujo de adopciones — ✅ resuelto
 
-- [ ] **🟡** El módulo de adopciones tiene unit tests pero ningún integration test end-to-end
-  - **Implementar `AdoptionFlowIntegrationTests.cs`:**
-    - Test 1: `Publish → Apply → Approve → MarkAdopted` (happy path)
-    - Test 2: Gating de 5 animales (ShelterBasic)
-    - Test 3: Fair creation bloqueada sin ShelterPlus
-    - Test 4: Withdraw después de ApplyToAdopt
-    - Usar `WebApplicationFactory<Program>` + SQL Server In-Memory (o SQLite con EF Core)
+- [x] ~~El módulo de adopciones tiene unit tests pero ningún integration test end-to-end~~ — `AdoptionFlowIntegrationTests.cs` ya existe. Verificado 2026-09-02 (contenido exacto de los casos no re-verificado).
 
-### 13.2 Sin tests para broadcast channels
+### 13.2 Sin tests para broadcast channels — 🟢 parcialmente resuelto
 
-- [ ] **🟢** `WhatsAppChannelBroadcaster`, `EmailChannelBroadcaster` no tienen tests
-  - `FacebookChannelBroadcaster` y `TelegramChannelBroadcaster` tampoco (aunque son stubs)
-  - **Añadir:** tests con `NSubstitute` para `IWhatsAppSender`, `IEmailSender` mockeados
+- [x] ~~`WhatsAppChannelBroadcaster`, `EmailChannelBroadcaster` no tenían tests~~ — `WhatsAppChannelBroadcasterTests.cs`, `EmailChannelBroadcasterTests.cs` y `TelegramChannelBroadcasterTests.cs` ya existen. Verificado 2026-09-02.
+- [ ] **🟢** `FacebookChannelBroadcasterTests` sigue sin existir — único canal sin cobertura.
 
 ### 13.3 Sin mutation tests
 
@@ -439,26 +304,22 @@
 
 ## 16. Otros gaps técnicos menores
 
-### 16.1 `GeofencedAlertLog` usa `Guid.NewGuid()`
+### 16.1 `GeofencedAlertLog` usa `Guid.NewGuid()` — ✅ resuelto
 
-- [ ] **⚪** `Domain/Locations/GeofencedAlertLog.cs` línea 26
-  - **Fix trivial:** `Id = Guid.CreateVersion7()` — una línea, consistente con el resto
+- [x] ~~cambiar a `Guid.CreateVersion7()`~~ — ver §8.2, ya aplicado.
 
-### 16.2 ShelterPublish page sin photo upload inline
+### 16.2 ShelterPublish page sin photo upload inline — ✅ resuelto
 
-- [ ] **🟡** Ver sección 9.1 — separado aquí para tracking
-  - **UX fix:** añadir `<DropZone>` multi-file en el paso 3 del formulario de publicación usando `useUploadAdoptionPhoto`
+- [x] ~~ver §9.1~~ — ya implementado.
 
 ### 16.3 UC-06 Seguimiento post-adopción sin implementar
 
 - [ ] **⚪** `adopciones.md` sección UC-06 — check-in 30/90/365 días post-adopción
   - **Sin roadmap activo** — crear spec técnica cuando el módulo de adopciones tenga suficiente tracción
 
-### 16.4 `FosterVolunteer.AcceptedSpeciesCsv` — antipatrón de datos
+### 16.4 `FosterVolunteer.AcceptedSpeciesCsv` — antipatrón de datos — ✅ resuelto
 
-- [ ] **⚪** `Domain/Fosters/FosterVolunteer.cs` almacena species como CSV string
-  - **Enterprise:** tabla `FosterVolunteerSpecies(FosterVolunteerId, Species)` many-to-many
-  - O al menos `nvarchar` con JSON array (como `AdoptablePet._photoUrls`)
+- [x] ~~almacena species como CSV string~~ — ya usa `AcceptedSpeciesJson` (JSON array), manteniendo el nombre de columna `AcceptedSpeciesCsv` solo para no requerir migración, con parseo legacy CSV como fallback de compatibilidad. Verificado 2026-09-02.
 
 ### 16.5 `BreedActivityBenchmark` y `BreedWeightReference` — datos hardcodeados
 
