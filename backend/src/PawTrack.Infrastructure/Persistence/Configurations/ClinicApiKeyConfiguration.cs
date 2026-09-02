@@ -17,6 +17,11 @@ public sealed class ClinicApiKeyConfiguration : IEntityTypeConfiguration<ClinicA
         builder.Property(k => k.Label).IsRequired().HasMaxLength(100);
         builder.Property(k => k.IsRevoked).IsRequired().HasDefaultValue(false);
         builder.Property(k => k.CreatedAt).IsRequired();
+        // No DB-level default: SQL Server can't default a column from another column.
+        // New rows always get ExpiresAt from ClinicApiKey.Create(); pre-existing rows are
+        // backfilled once by the AddClinicApiKeyExpirationAndRotation migration.
+        builder.Property(k => k.ExpiresAt).IsRequired();
+        builder.Property(k => k.RotatedToKeyId);
 
         // partial index — only non-revoked hashes need fast lookup
         builder.HasIndex(k => k.KeyHash)

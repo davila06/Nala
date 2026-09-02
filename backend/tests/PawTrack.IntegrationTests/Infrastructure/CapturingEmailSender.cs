@@ -26,7 +26,8 @@ public sealed class CapturingEmailSender : IEmailSender
         Task.CompletedTask;
 
     public Task SendBroadcastLostPetAsync(string to, string ownerContactName, string petName, string petProfileUrl,
-        string trackingUrl, string? recentPhotoUrl, DateTimeOffset lastSeenAt, CancellationToken ct = default) =>
+        string trackingUrl, string? recentPhotoUrl, DateTimeOffset lastSeenAt,
+        IReadOnlyList<NearbyClinicRef>? nearbyFeaturedClinics = null, CancellationToken ct = default) =>
         Task.CompletedTask;
 
     public Task SendFoundPetMatchAsync(string to, string ownerName, string petName, int scorePercent, CancellationToken ct = default) =>
@@ -52,4 +53,10 @@ public sealed class CapturingEmailSender : IEmailSender
 
     public Task SendBundleShippedAsync(string to, string recipientName, string orderId,
         string trackingCode, CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendSubscriptionExpiringAsync(string to, string name, string tierLabel,
+        DateTimeOffset expiresAt, CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendSubscriptionExpiredAsync(string to, string name, string tierLabel,
+        CancellationToken ct = default) => Task.CompletedTask;
 }

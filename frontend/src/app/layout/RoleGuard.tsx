@@ -21,8 +21,20 @@ export function RoleGuard({
   unauthenticated = "/login",
   unauthorized = "/dashboard",
 }: RoleGuardProps) {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, isInitializing, user } = useAuthStore();
   const location = useLocation();
+
+  if (isInitializing) {
+    // Wait for the silent refresh to resolve before deciding auth state.
+    // Prevents a bogus redirect to /login on a hard refresh/direct nav to a
+    // role-gated route while the httpOnly refresh-token cookie is still valid
+    // (mirrors the same guard in AuthenticatedLayout).
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-bg">
+        <span className="h-8 w-8 animate-spin rounded-full border-4 border-sand-200 border-t-brand-500" />
+      </div>
+    );
+  }
 
   if (!isAuthenticated || !user) {
     const returnTo = encodeURIComponent(location.pathname + location.search);

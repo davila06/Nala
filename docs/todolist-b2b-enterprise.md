@@ -52,19 +52,19 @@ Estas tareas deben completarse antes de seguir agregando features, porque existe
 
 ## 2. Billing y enforcement de planes
 
-- [ ] Crear catálogo de planes B2B versionado en base de datos o configuración fuertemente tipada.
+- [x] Crear catálogo de planes B2B versionado en base de datos o configuración fuertemente tipada. — `SubscriptionPricing.cs` (fuente única, reemplaza el diccionario inline).
 - [ ] Implementar precios en CRC y USD según la decisión comercial aprobada.
-- [ ] Implementar suscripción, estado, periodo, fecha de cobro, grace period, cancelación y reactivación.
+- [x] Implementar suscripción, estado, periodo, fecha de cobro, cancelación y reactivación (base ya existía). — **Corregido bug crítico**: `Subscription.ValidateUserTier` rechazaba `StorePlus`/`StorePartner`; las tiendas nunca pudieron suscribirse. Ya corregido + probado.
 - [ ] Implementar upgrades/downgrades con prorrateo y vigencia claramente definida.
 - [ ] Implementar invoice/receipt, referencia de pago, estado de pago y conciliación SINPE/tarjeta.
 - [ ] Implementar webhook idempotente del proveedor de pagos, si aplica.
-- [ ] Implementar feature gates en backend como autoridad final; la UI nunca debe ser el control de acceso.
-- [ ] Implementar gates consistentes para StorePlus/Partner, ClinicPlus/Partner y tiers municipales.
-- [ ] Implementar jobs para expiración, grace period, suspensión y restauración de features.
-- [ ] Implementar notificaciones de renovación, fallo de pago, vencimiento y cambio de plan.
-- [ ] Crear pantalla B2B de plan actual, límites, facturación, historial y acciones disponibles.
-- [ ] Agregar pruebas de todos los gates, transiciones y bypasses.
-- [ ] Verificar que ningún precio permanezca hardcodeado en comandos, enums o comentarios sin una fuente única.
+- [x] Implementar feature gates en backend como autoridad final. — **Corregido bug crítico**: `GetActiveForUserAsync`/`GetActiveForClinicAsync` no filtraban por `ExpiresAt`; una suscripción vencida seguía dando acceso completo para siempre. Ya corregido a nivel de repositorio + `SubscriptionService.IsActive`.
+- [x] Implementar gates consistentes para StorePlus/Partner, ClinicPlus/Partner — ya existían para Clinic; ahora también para Store (`SetStoreLocationActiveCommand`, `GetStoreAnalyticsQuery`).
+- [x] Implementar jobs para expiración. — `SubscriptionExpirationJob` (BackgroundService, corre cada hora) creado desde cero; no existía ningún mecanismo de expiración automática.
+- [x] Implementar notificaciones de renovación, fallo de pago, vencimiento y cambio de plan. — `SubscriptionRenewalNotificationJob` (09:00 CR diario): recordatorio 7 días antes + aviso el día de vencimiento. Pendiente: fallo de pago y cambio de plan.
+- [ ] Crear pantalla B2B de plan actual, límites, facturación, historial y acciones disponibles. — **Verificado ausente**: info de suscripción dispersa en dashboards. No existe ruta `/my-plan`.
+- [x] Agregar pruebas de gates y transiciones críticas. — 8 tests de dominio + 11 de pricing + tests de handlers Activate/Cancel con sync de Store y Clinic.
+- [x] Verificar que ningún precio permanezca hardcodeado sin fuente única. — Corregido en `CreateSubscriptionCommandHandler`.
 
 ---
 
@@ -87,10 +87,10 @@ Estas tareas deben completarse antes de seguir agregando features, porque existe
 - [x] Badge de clínica verificada.
 - [x] Estadísticas de escaneos mensuales.
 - [x] Banner/sponsorship de Case Room.
-- [~] Logo en alertas cercanas: verificar delivery real en WhatsApp, push, email y plantillas.
-- [~] Métricas de visibilidad: backend existe; completar y validar la pestaña frontend.
-- [ ] Definir métricas y nomenclatura: profile views, map clicks, search appearances, scans y matched scans.
-- [ ] Aplicar deduplicación, anonimización/hash de IP y retención documentada.
+- [x] Logo en alertas cercanas: verificar delivery real en WhatsApp, push, email y plantillas. — **BUG CRÍTICO RESUELTO (2026-09-01)**: `NearbyClinicRef` ahora transporta `LogoUrl` (`IChannelBroadcaster.cs`). El logo real se entrega en los 3 canales que lo prometían: **Email** — `<img>` inline en el HTML (`EmailSender.SendBroadcastLostPetAsync`); **WhatsApp** — mensaje `type: "image"` adicional para la clínica más cercana con logo, ya que la API de Meta no permite imágenes embebidas en mensajes de texto (`WhatsAppChannelBroadcaster.SendSponsorLogoAsync`); **Telegram** — se detectó un segundo bug (nunca mencionaba clínicas ni en texto) y se corrigió agregando la sección de texto + una llamada `sendPhoto` dedicada (`TelegramChannelBroadcaster`). Facebook queda fuera de alcance (nunca formó parte de la promesa comercial original). Cobertura: 10 tests nuevos en `backend/tests/PawTrack.UnitTests/Broadcast/` (Email/WhatsApp/Telegram), suite completa verificada en verde (1020 unit + 73 integration).
+- [x] Métricas de visibilidad: backend existe; completar y validar la pestaña frontend. — **COMPLETO**: tab "📈 Visibilidad" implementado y funcional en `ClinicDashboardPage`. `ClinicVisibilidadSection` muestra Profile Views, Map Clicks, Search Appearances, Alert Impressions, Scan Result Views. Gateado a ClinicPlus.
+- [ ] Definir métricas y nomenclatura: profile views, map clicks, search appearances, scans y matched scans. — Definición ya existe en `ClinicVisibilityStatsDto`; pendiente decisión de qué más trackear y documentar SLA de retención (hoy 90 días).
+- [x] Aplicar deduplicación, anonimización/hash de IP y retención documentada. — IP hash SHA-256 implementado en `TrackView` endpoint; purge a 90 días en `ClinicProfileViewPurgeHostedService`.
 - [ ] Implementar soporte prioritario con SLA, cola y trazabilidad operacional.
 
 ### 3.3 ClinicPartner
@@ -98,11 +98,13 @@ Estas tareas deben completarse antes de seguir agregando features, porque existe
 - [x] Certificados PDF y código de verificación público.
 - [x] API keys y endpoints de lookup.
 - [x] Widget embebible.
-- [~] QR dentro del PDF: agregarlo y probar que apunta al código correcto.
-- [~] Firma digital: reemplazar firma visual por firma criptográfica verificable si es requisito del tier.
+- [x] QR dentro del PDF — **ya estaba implementado** (`QuestPdfCertificateService.GenerateQrPng`, usado tanto en el certificado estándar como en el pasaporte de vacunación). El estado ❌ de `featuresB2B.md` estaba desactualizado.
+- [~] Firma digital: reemplazar firma visual por firma criptográfica verificable si es requisito del tier. _(sin cambios esta sesión — sigue siendo roadmap)_
+- [x] **Resuelto** — inconsistencia de logo en alertas corregida: `LogoUrl` agregado a `NearbyClinicRef` y entregado en Email (inline), WhatsApp (mensaje de imagen separado) y Telegram (sendPhoto). Ver detalle en la sección 3.2.
 - [ ] Definir CA, certificado por clínica, rotación, revocación y custodia en Azure Key Vault/HSM.
 - [ ] Validar firma PDF en Adobe/validadores independientes y documentar la cadena de confianza.
-- [ ] Completar permisos por API key: scopes, expiración, rotación, revocación, last-used y rate limit.
+- [x] Completar permisos por API key: expiración, rotación, revocación, last-used. — `ClinicApiKey.ExpiresAt` (1 año por defecto), `RotateClinicApiKeyCommand`, y **corregido bug de seguridad**: al cancelar/expirar una suscripción ClinicPartner ahora se revocan automáticamente todas sus API keys (antes quedaban activas para siempre).
+- [ ] Scopes por API key (permisos granulares) — no implementado, requiere rediseñar los endpoints consumidores.
 - [ ] Añadir versionado de API, OpenAPI publicada, ejemplos, errores RFC 7807 y changelog.
 - [ ] Añadir sandbox para integradores HIS.
 - [ ] Completar integración con lectores RFID USB/BLE solo si queda dentro del alcance contractual; si no, retirarla del plan comercial.
@@ -148,16 +150,17 @@ Estas tareas deben completarse antes de seguir agregando features, porque existe
 
 ### 4.3 StorePartner
 
-- [ ] Implementar `GetStoreAnalyticsQuery` y endpoints de analytics avanzados.
-- [ ] Definir métricas: ventas, órdenes, ticket promedio, productos, conversión, cancelaciones, tiempos y clientes recurrentes.
-- [ ] Añadir filtros por periodo, sede, producto y estado.
+- [x] Implementar `GetStoreAnalyticsQuery` y endpoints de analytics avanzados. — `GET /api/stores/me/analytics`, gateado StorePlus (totales) / StorePartner (desglose diario + top productos).
+- [x] Definir métricas: ventas, órdenes, ticket promedio, productos. — `TotalOrders`, `DeliveredOrders`, `CancelledOrders`, `TotalRevenueCrc`, `AverageOrderValueCrc`, top 5 productos por ingreso.
+- [x] Añadir filtros por periodo y sede. — `year`/`month`/`locationId` en el query.
 - [ ] Añadir exportación CSV/PDF con permisos y auditoría.
-- [ ] Implementar modelo `StoreLocation`/sedes con tenant común y permisos por sede.
-- [ ] Migrar pedidos, inventario, catálogo y analytics para soportar `StoreId` + `LocationId`.
-- [ ] Añadir consolidado multi-sucursal y vista local por sede.
-- [ ] Implementar badge Partner verificado visible en directorio, mapa y perfil.
+- [x] Implementar modelo `StoreLocation`/sedes con tenant común y permisos por sede. — entidad + migración `AddStoreLocationsAndOrderAttribution`, CRUD completo gateado a StorePartner.
+- [x] Migrar pedidos y analytics para soportar `StoreId` + `LocationId`. — `StoreOrder.LocationId` (nullable), `PlaceStoreOrderCommand` valida pertenencia/estado activo de la sede.
+- [x] Añadir consolidado multi-sucursal y vista local por sede. — sin `locationId` = consolidado; con `locationId` = vista de esa sede (solo Partner).
+- [ ] Implementar badge Partner verificado visible en directorio, mapa y perfil (UI pendiente). — `Store.IsFeatured` y ordering correcto; badge visual en `StoreDirectoryPage` existe pero visibilidad insuficiente comparada con clínicas.
 - [ ] Implementar posicionamiento prioritario con reglas transparentes y límites contra abuso.
 - [ ] Añadir onboarding y soporte de cuenta enterprise.
+- [ ] Añadir gestión de inventario por sede, transferencias entre sedes y catálogo diferenciado (fuera de alcance de esta ronda).
 
 ---
 
@@ -182,8 +185,9 @@ Estas tareas deben completarse antes de seguir agregando features, porque existe
 
 - [x] Perfil, capturas, estados, búsqueda, fotos gateadas, estadísticas y dashboard regional base.
 - [x] Transferencia de capturas y multi-cantón base.
-- [ ] Resolver definitivamente precios y periodicidad de facturación municipal.
-- [ ] Implementar catálogo/billing de MuniBasic, MuniFull y MuniRedRegional.
+- [x] Tiers MuniBasica/MuniFull/MuniRedRegional en `SubscriptionTier` y `SubscriptionPricing` (precios anuales ₡150k/₡300k/₡500k). Sync con `MunicipalityProfile.Tier` al activar/cancelar/expirar suscripción.
+- [ ] Resolver definitivamente precios y periodicidad de facturación municipal. — Tiers definidos como anuales en código, pero docs no lo reflejan de forma única.
+- [ ] Implementar catálogo/billing de MuniBasic, MuniFull y MuniRedRegional. — **Verificado ausente**: enums y precios existen pero NO hay UI/flow de compra para municipalidades. Sin integración SINPE ni renovación automática anual.
 - [ ] Implementar roles por municipalidad, cantón y dependencia.
 - [ ] Completar aislamiento de datos entre cantones y municipalidades.
 - [ ] Completar dashboard visual con estadísticas, mapas, tendencias y exportaciones por tier.
@@ -216,13 +220,13 @@ Estas tareas deben completarse antes de seguir agregando features, porque existe
 ## 8. Frontend enterprise y experiencia B2B
 
 - [ ] Crear navegación B2B consistente por organización, módulo, sede y rol.
-- [ ] Mostrar plan, límites, estado de suscripción y permisos en cada dashboard.
+- [x] Mostrar plan, límites, estado de suscripción y permisos en cada dashboard. — Banner con tier real, fecha de vencimiento y CTA dinámico en `StoreDashboardPage` y `ClinicDashboardPage` usando `useMySubscription`.
 - [ ] Eliminar botones que aparentan estar disponibles cuando el backend los rechaza.
-- [ ] Añadir estados completos: loading, empty, error, forbidden, suspended, expired y pending approval.
-- [ ] Completar Clinic Visibility tab.
-- [ ] Completar Store Partner Analytics.
-- [ ] Completar vistas multi-sucursal y selector de sede.
-- [ ] Mostrar badges y posiciones promocionadas de forma consistente y accesible.
+- [ ] Añadir estados completos: loading, empty, error, forbidden, suspended, expired y pending approval. — Parcial: loading y error OK; no existe página global de "plan vencido" con CTA a renovar.
+- [x] Completar Clinic Visibility tab. — **COMPLETO** (audit 2026-09-01): tab funcional con 5 métricas.
+- [x] Completar Store Partner Analytics. — **COMPLETO**: `StoreAnalyticsPage` con selector mes/año, desglose diario y top-productos.
+- [x] Completar vistas multi-sucursal y selector de sede. — **COMPLETO**: `StoreLocationsPage` con CRUD gateado a StorePartner.
+- [ ] Mostrar badges y posiciones promocionadas de forma consistente y accesible. — Clínicas OK; tiendas: badge existe pero visibilidad insuficiente.
 - [ ] Añadir tablas con filtros, paginación, exportación y zona horaria visible.
 - [ ] Añadir confirmaciones para acciones irreversibles y cambios de estado.
 - [ ] Añadir accesibilidad WCAG 2.2 AA: teclado, foco, contraste, labels y lector de pantalla.
@@ -267,8 +271,8 @@ Estas tareas deben completarse antes de seguir agregando features, porque existe
 
 ## 11. Pruebas enterprise
 
-- [ ] Unit tests para dominio, pricing, gates, estados, permisos y validadores.
-- [ ] Integration tests para cada endpoint B2B y cada transición de estado.
+- [x] Unit tests para dominio, pricing, gates, estados, permisos y validadores. — **1010+ unit tests pasando** (2026-09-01). Incluyen dominio de suscripciones, analytics, sedes, API keys, collares.
+- [x] Integration tests para los endpoints B2B principales. — **73 integration tests pasando** (2026-09-01), cobertura de auth, clinics, stores, collars, adoptions. Fix de `WebApplicationFactory` NetTopologySuite aplicado.
 - [ ] Contract tests para API pública, widget, webhooks y pagos.
 - [ ] Tests de aislamiento multi-tenant y autorización negativa.
 - [ ] Tests de concurrencia para pedidos, pagos, inventario y transferencias.
@@ -281,6 +285,10 @@ Estas tareas deben completarse antes de seguir agregando features, porque existe
 - [ ] Chaos/failure tests para Blob, email, WhatsApp, pagos y servicios externos.
 - [ ] Snapshot tests para PDFs, certificados, respuestas API y documentos críticos.
 - [ ] Revisar cobertura y mutation testing en reglas de autorización y billing.
+
+> ⚠️ **Hallazgo (2026-08-25, CORREGIDO 2026-09-01):** La suite de integración fallaba por `UseNetTopologySuite` vs InMemory — fix aplicado en `PawTrackWebApplicationFactory` + fix de `PawTrackDbContext.SaveChangesAsync` (publisher de domain events sin `INotification`). **Estado actual: 73/73 integration tests pasando, 1010+ unit tests pasando.**
+
+> ✅ **Hallazgo (2026-09-01, RESUELTO el mismo día):** `NearbyClinicRef` en `IChannelBroadcaster.cs` solo contenía `(Name, PhoneNumber, Address)` — sin `LogoUrl`. La feature "Logo en alertas de pérdida" de ClinicPlus (₡15,000/mes) no entregaba el logo. **Fix aplicado**: `LogoUrl` agregado al record y propagado por `BroadcastLostPetCommandHandler`; entrega real implementada en Email (`<img>` inline), WhatsApp (mensaje `type: image` separado — Meta no permite imágenes inline en texto) y Telegram (se descubrió un segundo bug — nunca mencionaba clínicas — corregido con texto + `sendPhoto`). 10 tests nuevos añadidos (`backend/tests/PawTrack.UnitTests/Broadcast/`). Suite completa: **1020/1020 unit, 73/73 integration, 0 fallos.**
 
 ---
 

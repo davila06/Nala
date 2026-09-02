@@ -78,6 +78,11 @@ public sealed class PawTrackDbContext(
     public DbSet<BundleOrder> BundleOrders => Set<BundleOrder>();
     public DbSet<Collar> Collars => Set<Collar>();
     public DbSet<CollarLocation> CollarLocations => Set<CollarLocation>();
+    public DbSet<CollarTag> CollarTags => Set<CollarTag>();
+    public DbSet<CollarDeviceCredential> CollarDeviceCredentials => Set<CollarDeviceCredential>();
+    public DbSet<CollarAuditEntry> CollarAuditEntries => Set<CollarAuditEntry>();
+    public DbSet<CollarHandoverCode> CollarHandoverCodes => Set<CollarHandoverCode>();
+    public DbSet<CollarSafeZone> CollarSafeZones => Set<CollarSafeZone>();
     public DbSet<VetCertificate> VetCertificates => Set<VetCertificate>();
     public DbSet<CapturedAnimal> CapturedAnimals => Set<CapturedAnimal>();
     public DbSet<MunicipalityProfile> MunicipalityProfiles => Set<MunicipalityProfile>();
@@ -97,6 +102,7 @@ public sealed class PawTrackDbContext(
     public DbSet<StoreProduct> StoreProducts => Set<StoreProduct>();
     public DbSet<StoreOrder> StoreOrders => Set<StoreOrder>();
     public DbSet<StoreOrderItem> StoreOrderItems => Set<StoreOrderItem>();
+    public DbSet<StoreLocation> StoreLocations => Set<StoreLocation>();
     public DbSet<RevokedToken> RevokedTokens => Set<RevokedToken>();
     public DbSet<PawTrack.Domain.Advertising.Billboard> Billboards => Set<PawTrack.Domain.Advertising.Billboard>();
     public DbSet<AdoptablePet> AdoptableAnimals => Set<AdoptablePet>();
@@ -148,9 +154,10 @@ public sealed class PawTrackDbContext(
 
         // Also dispatch in-process immediately for low-latency paths (SignalR, same-request queries).
         // The outbox provides durability if the process dies between commit and this point.
+        // Only dispatch events that implement INotification — others are delivered exclusively via the outbox.
         if (publisher is not null)
         {
-            foreach (var evt in domainEvents)
+            foreach (var evt in domainEvents.OfType<MediatR.INotification>())
                 await publisher.Publish(evt, cancellationToken);
         }
 

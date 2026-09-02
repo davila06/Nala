@@ -23,6 +23,7 @@ public static class BundlePrices
         BundleProductType.SiliconeTag => 5_500m,
         BundleProductType.NfcQrCombo => 12_000m,
         BundleProductType.EmergencyPack => 7_000m,
+        BundleProductType.CollarTagGps => 39_900m,
         _ => BundleCrc, // CollarGpsPlus default
     };
 }
@@ -79,6 +80,7 @@ public sealed record BundleOrderDto(
         [BundleProductType.SiliconeTag] = "Tag de silicona con QR",
         [BundleProductType.NfcQrCombo] = "Combo NFC + QR",
         [BundleProductType.EmergencyPack] = "Pack emergencia (placa + tarjeta bolsillo)",
+        [BundleProductType.CollarTagGps] = "CollarTag GPS PawTrack + 12 meses Plus",
     };
 
     public static BundleOrderDto FromDomain(BundleOrder o) => new(

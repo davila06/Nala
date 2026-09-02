@@ -19,12 +19,12 @@ public sealed class CollarsEndpointsTests(PawTrackWebApplicationFactory factory)
     }
 
     [Fact]
-    public async Task GetStatus_AuthenticatedNoCollar_Returns200OrNoContent()
+    public async Task GetStatus_AuthenticatedNonOwnedPet_Returns403Or404()
     {
         var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);
         var response = await client.GetAsync($"/api/collars/pet/{Guid.NewGuid()}");
-        // Ok(null) returns 204; or 200 with null body
-        response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NoContent);
+        // Pet doesn't exist or doesn't belong to this user — either outcome is correct
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -35,13 +35,11 @@ public sealed class CollarsEndpointsTests(PawTrackWebApplicationFactory factory)
     }
 
     [Fact]
-    public async Task GetHistory_AuthenticatedNoCollar_Returns200EmptyArray()
+    public async Task GetHistory_AuthenticatedNonOwnedPet_Returns403Or404()
     {
         var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);
         var response = await client.GetAsync($"/api/collars/pet/{Guid.NewGuid()}/history?hours=24");
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var items = await response.Content.ReadFromJsonAsync<object[]>();
-        items.Should().BeEmpty();
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.NotFound, HttpStatusCode.BadRequest);
     }
 
     [Fact]

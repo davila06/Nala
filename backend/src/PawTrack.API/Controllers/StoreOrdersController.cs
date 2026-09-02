@@ -33,7 +33,7 @@ public sealed class StoreOrdersController(ISender sender) : ControllerBase
 
         var result = await sender.Send(new PlaceStoreOrderCommand(
             customerId, request.StoreId, fulfillment,
-            request.DeliveryAddress, request.CustomerNote, lines), ct);
+            request.DeliveryAddress, request.CustomerNote, lines, request.LocationId), ct);
 
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
@@ -128,7 +128,8 @@ public sealed record PlaceOrderRequest(
     string FulfillmentType,
     string? DeliveryAddress,
     string? CustomerNote,
-    IReadOnlyList<OrderLineRequest> Lines);
+    IReadOnlyList<OrderLineRequest> Lines,
+    Guid? LocationId = null);
 
 public sealed record OrderLineRequest(Guid ProductId, int Quantity);
 public sealed record StoreOrderNoteRequest(string? Note);

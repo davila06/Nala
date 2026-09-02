@@ -13,6 +13,7 @@ public sealed class CancelSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
     IClinicRepository clinicRepository,
     IStoreRepository storeRepository,
+    IClinicApiKeyRepository clinicApiKeyRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<CancelSubscriptionCommand, Result<SubscriptionDto>>
 {
@@ -41,6 +42,19 @@ public sealed class CancelSubscriptionCommandHandler(
             {
                 clinic.SetFeatured(false);
                 clinicRepository.Update(clinic);
+            }
+
+            // API keys are a ClinicPartner-exclusive feature — losing Partner must revoke
+            // all of the clinic's keys, otherwise a downgraded/cancelled clinic keeps full
+            // machine-to-machine API access indefinitely.
+            if (subscription.Tier == SubscriptionTier.ClinicPartner)
+            {
+                var keys = await clinicApiKeyRepository.GetForClinicAsync(subscription.ClinicId.Value, cancellationToken);
+                foreach (var key in keys.Where(k => !k.IsRevoked))
+                {
+                    key.Revoke();
+                    clinicApiKeyRepository.Update(key);
+                }
             }
         }
 

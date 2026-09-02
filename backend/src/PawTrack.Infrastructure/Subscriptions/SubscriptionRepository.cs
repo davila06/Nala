@@ -40,6 +40,16 @@ public sealed class SubscriptionRepository(PawTrackDbContext dbContext) : ISubsc
             .Where(s => s.Status == SubscriptionStatus.Active && s.ExpiresAt <= DateTimeOffset.UtcNow)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<Subscription>> GetExpiringWithinAsync(int days, CancellationToken cancellationToken = default)
+    {
+        var cutoff = DateTimeOffset.UtcNow.AddDays(days);
+        return await dbContext.Subscriptions
+            .Where(s => s.Status == SubscriptionStatus.Active
+                && s.ExpiresAt > DateTimeOffset.UtcNow
+                && s.ExpiresAt <= cutoff)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<Subscription>> GetAllPagedAsync(int skip, int take, CancellationToken cancellationToken = default) =>
         await dbContext.Subscriptions
             .OrderByDescending(s => s.CreatedAt)

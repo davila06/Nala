@@ -123,7 +123,10 @@ public sealed class Subscription
             SubscriptionTier.UserFamilia or
             SubscriptionTier.StorePlus or
             SubscriptionTier.StorePartner or
-            SubscriptionTier.ShelterPlus))
+            SubscriptionTier.ShelterPlus or
+            SubscriptionTier.MuniBasica or
+            SubscriptionTier.MuniFull or
+            SubscriptionTier.MuniRedRegional))
             throw new ArgumentException($"Tier {tier} is not a valid user tier.");
     }
 

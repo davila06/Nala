@@ -26,6 +26,7 @@ public interface IEmailSender
         string trackingUrl,
         string? recentPhotoUrl,
         DateTimeOffset lastSeenAt,
+        IReadOnlyList<NearbyClinicRef>? nearbyFeaturedClinics = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -72,6 +73,15 @@ public interface IEmailSender
 
     Task SendBundleShippedAsync(
         string to, string name, string collarModelLabel, string trackingNumber,
+        CancellationToken cancellationToken = default);
+
+    // ── Subscription lifecycle emails ─────────────────────────────────────────
+    Task SendSubscriptionExpiringAsync(
+        string to, string name, string tierLabel, DateTimeOffset expiresAt,
+        CancellationToken cancellationToken = default);
+
+    Task SendSubscriptionExpiredAsync(
+        string to, string name, string tierLabel,
         CancellationToken cancellationToken = default);
 }
 

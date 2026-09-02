@@ -413,6 +413,18 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = 0,
             }));
 
+    // ── Collar serial check — 5 req/min per IP (brute-force protection) ─────
+    options.AddPolicy("collar-serial-check", ctx =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: RateLimiterIpKey.Get(ctx),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:CollarSerialCheck:PermitLimit", 5),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:CollarSerialCheck:WindowSeconds", 60)),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0,
+            }));
+
     options.RejectionStatusCode = 429;
 });
 
@@ -537,6 +549,7 @@ app.Use(async (ctx, next) =>
 });
 app.UseAuthentication();
 app.UseMiddleware<ClinicApiKeyMiddleware>();
+app.UseMiddleware<CollarDeviceKeyMiddleware>();
 app.UseAuthorization();
 app.UseResponseCaching();
 app.MapControllers();

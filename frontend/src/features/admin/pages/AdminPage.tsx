@@ -32,6 +32,7 @@ import { AdminPromotionManager } from "@/features/promotions/components/AdminPro
 import { AdminStoresTab } from "@/features/stores/components/AdminStoresTab";
 import { AdminBillboardsTab } from "@/features/advertising/components/AdminBillboardsTab";
 import { AdminAdoptionsTab } from "../components/AdminAdoptionsTab";
+import { CollarTagInventorySection } from "../components/CollarTagInventorySection";
 import { useAdoptionAdminStats } from "../hooks/useAdmin";
 
 type Tab =
@@ -42,7 +43,8 @@ type Tab =
   | "promotions"
   | "stores"
   | "billboards"
-  | "adoptions";
+  | "adoptions"
+  | "collar-tags";
 
 const ALLY_TYPE_LABELS: Record<string, string> = {
   VeterinaryClinic: "Veterinaria",
@@ -812,6 +814,7 @@ export default function AdminPage() {
             "adoptions",
             "stores",
             "billboards",
+            "collar-tags",
           ] as const
         ).map((tab) => {
           const count =
@@ -839,7 +842,9 @@ export default function AdminPage() {
                         ? "Adopciones"
                         : tab === "stores"
                           ? "Tiendas"
-                          : "Vallas";
+                          : tab === "billboards"
+                            ? "Vallas"
+                            : "CollarTags";
           return (
             <button
               key={tab}
@@ -883,6 +888,7 @@ export default function AdminPage() {
           {activeTab === "adoptions" && <AdminAdoptionsTab />}
           {activeTab === "stores" && <AdminStoresTab />}
           {activeTab === "billboards" && <AdminBillboardsTab />}
+          {activeTab === "collar-tags" && <CollarTagInventorySection />}
         </motion.div>
       </AnimatePresence>
     </div>

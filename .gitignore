@@ -44,6 +44,11 @@ dev-dist/
 # Vite
 *.vite/
 
+# Playwright E2E
+frontend/playwright-report/
+frontend/test-results/
+frontend/blob-report/
+
 # ===========================
 # Secrets & sensitive files
 # ===========================

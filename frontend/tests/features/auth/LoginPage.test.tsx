@@ -11,7 +11,7 @@ describe('LoginPage', () => {
     renderWithProviders(<LoginPage />)
 
     expect(screen.getByLabelText(/correo/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/contraseña/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/contraseña/i, { selector: 'input' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /ingresar/i })).toBeInTheDocument()
   })
 
@@ -26,7 +26,7 @@ describe('LoginPage', () => {
     renderWithProviders(<LoginPage />)
 
     await user.type(screen.getByLabelText(/correo/i), 'wrong@test.cr')
-    await user.type(screen.getByLabelText(/contraseña/i), 'wrongpass')
+    await user.type(screen.getByLabelText(/contraseña/i, { selector: 'input' }), 'wrongpass')
     await user.click(screen.getByRole('button', { name: /ingresar/i }))
 
     await waitFor(() =>
@@ -50,7 +50,7 @@ describe('LoginPage', () => {
     renderWithProviders(<LoginPage />)
 
     await user.type(screen.getByLabelText(/correo/i), 'denis@test.cr')
-    await user.type(screen.getByLabelText(/contraseña/i), 'SecurePass1')
+    await user.type(screen.getByLabelText(/contraseña/i, { selector: 'input' }), 'SecurePass1')
     await user.click(screen.getByRole('button', { name: /ingresar/i }))
 
     expect(screen.getByRole('button', { name: /ingresando/i })).toBeDisabled()

@@ -11,32 +11,50 @@ using PawTrack.Infrastructure.Persistence;
 
 namespace PawTrack.Infrastructure.Collars;
 
-/// <summary>Polls Tractive for active collars every 5 minutes and records their position.</summary>
+/// <summary>
+/// Polls Tractive for active collars. Runs a fine-grained 30s tick that always covers
+/// collars in lost mode (fresher tracking while a search is active); a normal 5-minute
+/// cycle covers the rest to stay within Tractive's practical refresh rate.
+/// </summary>
 public sealed class TractivePollingJob(
     IServiceProvider services,
     ILogger<TractivePollingJob> logger) : BackgroundService
 {
+    private static readonly TimeSpan LostModeInterval = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan NormalInterval = TimeSpan.FromMinutes(5);
+    private DateTimeOffset _lastNormalPoll = DateTimeOffset.MinValue;
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using var timer = new PeriodicTimer(TimeSpan.FromMinutes(5));
+        using var timer = new PeriodicTimer(LostModeInterval);
         while (!stoppingToken.IsCancellationRequested && await timer.WaitForNextTickAsync(stoppingToken))
         {
-            await PollAllActiveCollarsAsync(stoppingToken);
+            var now = DateTimeOffset.UtcNow;
+            var includeNormalCollars = now - _lastNormalPoll >= NormalInterval;
+            if (includeNormalCollars)
+                _lastNormalPoll = now;
+
+            await PollAllActiveCollarsAsync(stoppingToken, includeNormalCollars);
         }
     }
 
-    private async Task PollAllActiveCollarsAsync(CancellationToken cancellationToken)
+    private async Task PollAllActiveCollarsAsync(CancellationToken cancellationToken, bool includeNormalCollars)
     {
         await using var scope = services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<PawTrackDbContext>();
         var tractive = scope.ServiceProvider.GetRequiredService<ITractiveService>();
+        var safeZoneEvaluationService = scope.ServiceProvider
+            .GetRequiredService<PawTrack.Application.Collars.Services.CollarSafeZoneEvaluationService>();
 
-        var tractiveCollars = await db.Collars
+        var query = db.Collars
             .Where(c => c.IsActive
                 && c.Provider == CollarProvider.Tractive
                 && c.ExternalDeviceId != null
-                && c.ExternalTokenEncrypted != null)
-            .ToListAsync(cancellationToken);
+                && c.ExternalTokenEncrypted != null);
+        if (!includeNormalCollars)
+            query = query.Where(c => c.IsLost);
+
+        var tractiveCollars = await query.ToListAsync(cancellationToken);
 
         foreach (var collar in tractiveCollars)
         {
@@ -55,6 +73,19 @@ public sealed class TractivePollingJob(
                 await db.CollarLocations.AddAsync(
                     CollarLocation.Record(collar.Id, position.Lat, position.Lng),
                     cancellationToken);
+
+                if (collar.IsLost && collar.LostPetEventId is not null)
+                {
+                    var lostPetEvent = await db.LostPetEvents
+                        .FirstOrDefaultAsync(e => e.Id == collar.LostPetEventId.Value, cancellationToken);
+                    if (lostPetEvent is not null)
+                    {
+                        lostPetEvent.UpdateLastSeenLocation(position.Lat, position.Lng, DateTimeOffset.UtcNow);
+                        db.LostPetEvents.Update(lostPetEvent);
+                    }
+                }
+
+                await safeZoneEvaluationService.EvaluateAsync(collar, position.Lat, position.Lng, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -64,8 +95,9 @@ public sealed class TractivePollingJob(
 
         await db.SaveChangesAsync(cancellationToken);
 
-        // ── Daily activity sync from track points ─────────────────────────────
-        await SyncDailyActivityAsync(db, tractiveCollars, cancellationToken);
+        // ── Daily activity sync from track points — only meaningful once per normal cycle ──
+        if (includeNormalCollars)
+            await SyncDailyActivityAsync(db, tractiveCollars, cancellationToken);
     }
 
     /// <summary>

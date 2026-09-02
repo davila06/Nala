@@ -2,7 +2,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Municipalities.Interfaces;
 using PawTrack.Application.Subscriptions.Interfaces;
+using PawTrack.Domain.Municipalities;
 using PawTrack.Domain.Subscriptions;
 
 namespace PawTrack.Infrastructure.Subscriptions;
@@ -34,6 +36,8 @@ public sealed class SubscriptionExpirationJob(
             var subscriptionRepository = scope.ServiceProvider.GetRequiredService<ISubscriptionRepository>();
             var clinicRepository = scope.ServiceProvider.GetRequiredService<IClinicRepository>();
             var storeRepository = scope.ServiceProvider.GetRequiredService<IStoreRepository>();
+            var clinicApiKeyRepository = scope.ServiceProvider.GetRequiredService<IClinicApiKeyRepository>();
+            var municipalRepo = scope.ServiceProvider.GetRequiredService<IMunicipalProfileRepository>();
             var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
             var expired = await subscriptionRepository.GetExpiredActiveAsync(ct);
@@ -52,6 +56,16 @@ public sealed class SubscriptionExpirationJob(
                         clinic.SetFeatured(false);
                         clinicRepository.Update(clinic);
                     }
+
+                    if (sub.Tier == SubscriptionTier.ClinicPartner)
+                    {
+                        var keys = await clinicApiKeyRepository.GetForClinicAsync(sub.ClinicId.Value, ct);
+                        foreach (var key in keys.Where(k => !k.IsRevoked))
+                        {
+                            key.Revoke();
+                            clinicApiKeyRepository.Update(key);
+                        }
+                    }
                 }
 
                 if (sub.UserId.HasValue && sub.Tier is SubscriptionTier.StorePlus or SubscriptionTier.StorePartner)
@@ -61,6 +75,16 @@ public sealed class SubscriptionExpirationJob(
                     {
                         store.SetFeatured(false);
                         storeRepository.Update(store);
+                    }
+                }
+
+                if (sub.UserId.HasValue && SubscriptionPricing.IsMunicipalTier(sub.Tier))
+                {
+                    var profile = await municipalRepo.GetByUserIdAsync(sub.UserId.Value, ct);
+                    if (profile is not null)
+                    {
+                        profile.Upgrade(MunicipalTier.Basica, null);
+                        municipalRepo.Update(profile);
                     }
                 }
             }

@@ -231,6 +231,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ISubscriptionService, SubscriptionService>();
         services.AddSingleton<IPaymentService, SinpePaymentService>();
         services.AddHostedService<SubscriptionExpirationJob>();
+        services.AddHostedService<SubscriptionRenewalNotificationJob>();
 
         // Promotions
         services.AddScoped<PawTrack.Application.Promotions.Interfaces.IPromotionCodeRepository,
@@ -242,6 +243,13 @@ public static class InfrastructureServiceCollectionExtensions
 
         // Collars / GPS
         services.AddScoped<ICollarRepository, CollarRepository>();
+        services.AddScoped<ICollarTagRepository, CollarTagRepository>();
+        services.AddScoped<ICollarDeviceCredentialRepository, CollarDeviceCredentialRepository>();
+        services.AddScoped<ICollarAuditRepository, CollarAuditRepository>();
+        services.AddScoped<ICollarHandoverCodeRepository, CollarHandoverCodeRepository>();
+        services.AddScoped<ICollarSafeZoneRepository, CollarSafeZoneRepository>();
+        services.AddScoped<PawTrack.Application.Collars.Services.CollarConnectivityAlertService>();
+        services.AddScoped<PawTrack.Application.Collars.Services.CollarSafeZoneEvaluationService>();
 
         // PDF Certificates
         services.AddScoped<ICertificateRepository, CertificateRepository>();
@@ -274,6 +282,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<ITractiveService, TractiveService>();
         services.AddHostedService<TractivePollingJob>();
         services.AddHostedService<CollarLocationPurgeJob>();
+        services.AddHostedService<CollarConnectivityAlertJob>();
 
         return services;
     }

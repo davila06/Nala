@@ -65,7 +65,49 @@ public sealed class TelegramChannelBroadcaster(
         logger.LogInformation(
             "Telegram broadcast sent for event {EventId}. MessageId={MessageId}",
             context.LostPetEventId, messageId);
+
+        // Sponsor logo — same rationale as WhatsApp: Telegram text messages can't embed
+        // an inline image, so the sponsoring clinic's logo goes out as its own photo message.
+        var sponsorClinic = context.NearbyFeaturedClinics?.FirstOrDefault(c => c.LogoUrl is not null);
+        if (sponsorClinic is not null)
+            await SendSponsorLogoAsync(client, botToken, chatId, sponsorClinic, context.LostPetEventId, cancellationToken);
+
         return messageId;
+    }
+
+    /// <summary>
+    /// Delivers the sponsoring clinic's logo as its own Telegram photo message.
+    /// Best-effort — failures here never affect the main alert delivery.
+    /// </summary>
+    private async Task SendSponsorLogoAsync(
+        HttpClient client, string botToken, string chatId, NearbyClinicRef clinic,
+        Guid lostPetEventId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var photoUrl = $"https://api.telegram.org/bot{botToken}/sendPhoto";
+            var photoPayload = new
+            {
+                chat_id = chatId,
+                photo = clinic.LogoUrl,
+                caption = $"🏥 Patrocinado por {clinic.Name} — clínica veterinaria cercana",
+            };
+
+            var response = await client.PostAsJsonAsync(photoUrl, photoPayload, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync(cancellationToken);
+                logger.LogWarning(
+                    "Telegram sponsor logo send failed. Clinic={Clinic} Status={Status} Body={Body}",
+                    clinic.Name, (int)response.StatusCode, body);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex,
+                "Telegram sponsor logo error. Clinic={Clinic} EventId={EventId}",
+                clinic.Name, lostPetEventId);
+        }
     }
 
     private static string BuildMessage(BroadcastMessageContext ctx)
@@ -76,12 +118,21 @@ public sealed class TelegramChannelBroadcaster(
             ? "\n" + ctx.LastSeenDescription
             : string.Empty;
 
+        var clinicsSection = string.Empty;
+        if (ctx.NearbyFeaturedClinics?.Count > 0)
+        {
+            var lines = ctx.NearbyFeaturedClinics.Select(c =>
+                "• " + c.Name + (c.PhoneNumber is not null ? " — " + c.PhoneNumber : string.Empty));
+            clinicsSection = "\n\n🏥 <b>Clínicas veterinarias cercanas:</b>\n" + string.Join("\n", lines);
+        }
+
         return
             "<b>MASCOTA PERDIDA</b>\n" +
             "<b>" + ctx.PetName + "</b> (" + species + breed + ")\n" +
             "Visto: " + ctx.LastSeenAt.ToString("dd/MM HH:mm") + desc + "\n\n" +
             "<a href=\"" + ctx.TrackingUrl + "\">Reportar si lo ves</a>\n" +
-            "<a href=\"" + ctx.PetProfileUrl + "\">Ver perfil completo</a>\n\n" +
+            "<a href=\"" + ctx.PetProfileUrl + "\">Ver perfil completo</a>" +
+            clinicsSection + "\n\n" +
             "#MascotaPerdida #PawTrackCR";
     }
 

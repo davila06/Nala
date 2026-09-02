@@ -78,4 +78,20 @@ public sealed class StoreRepository(PawTrackDbContext db) : IStoreRepository
 
     public void UpdateProduct(StoreProduct product) => db.StoreProducts.Update(product);
     public void DeleteProduct(StoreProduct product) => db.StoreProducts.Remove(product);
+
+    // ── Locations ─────────────────────────────────────────────────────────────
+
+    public Task<StoreLocation?> GetLocationByIdAsync(Guid locationId, CancellationToken ct = default) =>
+        db.StoreLocations.AsNoTracking().FirstOrDefaultAsync(l => l.Id == locationId, ct);
+
+    public async Task<IReadOnlyList<StoreLocation>> GetLocationsByStoreAsync(Guid storeId, CancellationToken ct = default) =>
+        await db.StoreLocations.AsNoTracking()
+            .Where(l => l.StoreId == storeId)
+            .OrderByDescending(l => l.IsPrimary).ThenBy(l => l.Name)
+            .ToListAsync(ct);
+
+    public async Task AddLocationAsync(StoreLocation location, CancellationToken ct = default) =>
+        await db.StoreLocations.AddAsync(location, ct);
+
+    public void UpdateLocation(StoreLocation location) => db.StoreLocations.Update(location);
 }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -53,9 +54,15 @@ public sealed class PawTrackWebApplicationFactory : WebApplicationFactory<Progra
         builder.ConfigureServices(services =>
         {
             // ── Replace SQL Server DbContext with InMemory ──────────────────
-            var dbContextOptions = services.SingleOrDefault(
-                d => d.ServiceType == typeof(DbContextOptions<PawTrackDbContext>));
-            if (dbContextOptions is not null) services.Remove(dbContextOptions);
+            // Remove DbContextOptions AND any IDbContextOptionsConfiguration registrations
+            // (EF Core registers one per UseXxx extension call, including UseNetTopologySuite —
+            // if left, it tries to validate spatial support against the InMemory provider and throws).
+            var toRemove = services
+                .Where(d =>
+                    d.ServiceType == typeof(DbContextOptions<PawTrackDbContext>) ||
+                    d.ServiceType == typeof(IDbContextOptionsConfiguration<PawTrackDbContext>))
+                .ToList();
+            foreach (var d in toRemove) services.Remove(d);
 
             var unitOfWork = services.SingleOrDefault(d => d.ServiceType == typeof(IUnitOfWork));
             if (unitOfWork is not null) services.Remove(unitOfWork);

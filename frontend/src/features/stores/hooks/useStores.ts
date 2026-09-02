@@ -94,3 +94,63 @@ export function useUploadProductImage() {
       void qc.invalidateQueries({ queryKey: ["my-store-products"] }),
   });
 }
+
+// ── Analytics (StorePlus+) ────────────────────────────────────────────────────
+
+export function useStoreAnalytics(year?: number, month?: number) {
+  return useQuery({
+    queryKey: ["my-store-analytics", year, month],
+    queryFn: () => storesApi.getAnalytics(year, month),
+    retry: false,
+    staleTime: 5 * 60_000,
+  });
+}
+
+// ── Locations / sedes (StorePartner) ─────────────────────────────────────────
+
+export function useStoreLocations() {
+  return useQuery({
+    queryKey: ["my-store-locations"],
+    queryFn: storesApi.getLocations,
+    retry: false,
+    staleTime: 2 * 60_000,
+  });
+}
+
+export function useCreateStoreLocation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: storesApi.createLocation,
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["my-store-locations"] }),
+  });
+}
+
+export function useUpdateStoreLocation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      ...data
+    }: {
+      id: string;
+      name: string;
+      address: string;
+      lat: number;
+      lng: number;
+      phoneNumber?: string;
+    }) => storesApi.updateLocation(id, data),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["my-store-locations"] }),
+  });
+}
+
+export function useSetLocationActive() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, active }: { id: string; active: boolean }) =>
+      storesApi.setLocationActive(id, active),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["my-store-locations"] }),
+  });
+}

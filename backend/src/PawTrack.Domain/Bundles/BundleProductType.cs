@@ -7,4 +7,5 @@ public enum BundleProductType
     SiliconeTag = 2, // Silicone QR tag
     NfcQrCombo = 3, // NFC NTAG213 chip + QR plate — tap or scan
     EmergencyPack = 4, // QR plate + wallet card emergency pack
+    CollarTagGps = 5, // PawTrack CollarTag GPS device + 12 months Plus
 }

@@ -128,10 +128,29 @@ public sealed class EmailSender(
         string petProfileUrl, string trackingUrl,
         string? recentPhotoUrl,
         DateTimeOffset lastSeenAt,
+        IReadOnlyList<NearbyClinicRef>? nearbyFeaturedClinics = null,
         CancellationToken cancellationToken = default)
     {
         var photo = recentPhotoUrl is not null
             ? $"""<p><img src="{recentPhotoUrl}" alt="{Escape(petName)}" style="max-width:300px;border-radius:8px" /></p>"""
+            : string.Empty;
+
+        // Real, visible clinic logo — HTML email is the one channel that renders inline
+        // images reliably without a separate media message.
+        var clinicsHtml = nearbyFeaturedClinics is { Count: > 0 }
+            ? $"""
+                <div style="margin-top:16px;padding-top:12px;border-top:1px solid #eee;">
+                  <p style="font-size:13px;color:#666;margin:0 0 8px;">🏥 Clínicas veterinarias cercanas:</p>
+                  {string.Join("", nearbyFeaturedClinics.Select(c => $"""
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                      {(c.LogoUrl is not null
+                          ? $"""<img src="{c.LogoUrl}" alt="{Escape(c.Name)}" width="32" height="32" style="border-radius:6px;object-fit:cover;" />"""
+                          : "")}
+                      <span style="font-size:13px;color:#333;">{Escape(c.Name)}{(c.PhoneNumber is not null ? $" — {Escape(c.PhoneNumber)}" : "")}</span>
+                    </div>
+                    """))}
+                </div>
+                """
             : string.Empty;
 
         var html = $"""
@@ -140,6 +159,7 @@ public sealed class EmailSender(
             {photo}
             <p>Último avistamiento: {lastSeenAt:dd/MM/yyyy HH:mm} (UTC)</p>
             <p><a href="{petProfileUrl}">Ver perfil</a> · <a href="{trackingUrl}">Ver en mapa</a></p>
+            {clinicsHtml}
             <p>— Equipo PawTrack CR</p>
             """;
 
@@ -288,6 +308,43 @@ public sealed class EmailSender(
 
         return SendAsync(to, name,
             subject: $"🚚 Tu collar GPS está en camino — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    // ── Subscription lifecycle emails ─────────────────────────────────────────
+
+    public Task SendSubscriptionExpiringAsync(
+        string to, string name, string tierLabel, DateTimeOffset expiresAt,
+        CancellationToken cancellationToken = default)
+    {
+        var days = (int)Math.Ceiling((expiresAt - DateTimeOffset.UtcNow).TotalDays);
+        var html = $"""
+            <p>Hola {Escape(name)},</p>
+            <p>Tu plan <strong>{Escape(tierLabel)}</strong> en PawTrack CR vence en <strong>{days} día{(days == 1 ? "" : "s")}</strong>
+               ({expiresAt:dd/MM/yyyy}).</p>
+            <p>Para renovarlo y no perder tus beneficios, ingresa a tu perfil y realiza el pago
+               antes de esa fecha.</p>
+            <p><a href="https://pawtrack.cr/perfil">Renovar plan →</a></p>
+            <p>Gracias por ser parte de PawTrack CR. 🐾</p>
+            """;
+        return SendAsync(to, name,
+            subject: $"⏰ Tu plan {tierLabel} vence en {days} día{(days == 1 ? "" : "s")} — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    public Task SendSubscriptionExpiredAsync(
+        string to, string name, string tierLabel,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>Hola {Escape(name)},</p>
+            <p>Tu plan <strong>{Escape(tierLabel)}</strong> en PawTrack CR ha vencido.</p>
+            <p>Tus funciones premium están temporalmente desactivadas hasta que renueves tu suscripción.</p>
+            <p><a href="https://pawtrack.cr/perfil">Renovar plan →</a></p>
+            <p>¿Tienes dudas? Escríbenos a <a href="mailto:soporte@pawtrack.cr">soporte@pawtrack.cr</a></p>
+            """;
+        return SendAsync(to, name,
+            subject: $"Tu plan {tierLabel} ha vencido — PawTrack CR",
             html, cancellationToken);
     }
 

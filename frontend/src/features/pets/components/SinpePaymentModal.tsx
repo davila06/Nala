@@ -22,6 +22,14 @@ const TIER_LABELS: Record<SubscriptionTier, string> = {
   ClinicBasic: "Básica",
   ClinicPlus: "Clínica Plus",
   ClinicPartner: "Clínica Partner",
+  StoreBasic: "Tienda Básica",
+  StorePlus: "Tienda Plus",
+  StorePartner: "Tienda Partner",
+  ShelterBasic: "Refugio Básico",
+  ShelterPlus: "Refugio Plus",
+  MuniBasica: "Municipalidad Básica",
+  MuniFull: "Municipalidad Full",
+  MuniRedRegional: "Red Regional",
 };
 
 export function SinpePaymentModal({

@@ -23,7 +23,17 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // A 401 from the login endpoint itself means "wrong credentials" — an
+    // expected, user-facing error the login form already displays. Treating
+    // it like an expired session (silent refresh attempt, then hard redirect
+    // to /login on failure) wipes out that error message via a full page
+    // reload before React ever gets to render it.
+    const isLoginRequest = originalRequest?.url?.includes("/auth/login");
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isLoginRequest
+    ) {
       originalRequest._retry = true;
       try {
         if (!refreshPromise) {
@@ -43,18 +53,16 @@ apiClient.interceptors.response.use(
             )
             .then(({ data }) => {
               const role = decodeRoleFromJwt(data.accessToken);
-              useAuthStore
-                .getState()
-                .setAuth(
-                  {
-                    id: data.user.id,
-                    name: data.user.name,
-                    email: data.user.email,
-                    role,
-                    isAdmin: data.user.isAdmin,
-                  },
-                  data.accessToken,
-                );
+              useAuthStore.getState().setAuth(
+                {
+                  id: data.user.id,
+                  name: data.user.name,
+                  email: data.user.email,
+                  role,
+                  isAdmin: data.user.isAdmin,
+                },
+                data.accessToken,
+              );
               return data.accessToken;
             })
             .finally(() => {

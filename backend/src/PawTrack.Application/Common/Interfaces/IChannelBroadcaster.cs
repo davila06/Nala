@@ -55,4 +55,4 @@ public sealed record BroadcastMessageContext(
     IReadOnlyList<NearbyClinicRef>? NearbyFeaturedClinics = null);
 
 /// <summary>Minimal clinic reference embedded in broadcast messages for Plus/Partner clinics.</summary>
-public sealed record NearbyClinicRef(string Name, string? PhoneNumber, string Address);
+public sealed record NearbyClinicRef(string Name, string? PhoneNumber, string Address, string? LogoUrl);

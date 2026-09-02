@@ -228,6 +228,55 @@ public sealed class PlaceStoreOrderCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_LocationBelongsToAnotherStore_ReturnsFailure()
+    {
+        SetupActiveStore();
+        SetupAvailableProduct(2000m);
+
+        var foreignLocation = StoreLocation.Create(Guid.NewGuid(), "Ajena", "Otra dir", 9.9m, -84m, null);
+        _storeRepo.GetLocationByIdAsync(foreignLocation.Id, Arg.Any<CancellationToken>()).Returns(foreignLocation);
+
+        var cmd = new PlaceStoreOrderCommand(
+            CustomerId: Guid.NewGuid(),
+            StoreId: StoreId,
+            FulfillmentType: OrderFulfillmentType.Pickup,
+            DeliveryAddress: null,
+            CustomerNote: null,
+            Lines: [new PlaceOrderLineInput(ProductId, 1)],
+            LocationId: foreignLocation.Id);
+
+        var result = await _sut.Handle(cmd, CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        await _orderRepo.DidNotReceive().AddAsync(Arg.Any<StoreOrder>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_ValidActiveLocation_AttributesOrderToLocation()
+    {
+        SetupActiveStore();
+        SetupAvailableProduct(2000m);
+
+        var location = StoreLocation.Create(StoreId, "Sucursal Norte", "Norte", 9.9m, -84m, null);
+        _storeRepo.GetLocationByIdAsync(location.Id, Arg.Any<CancellationToken>()).Returns(location);
+
+        var cmd = new PlaceStoreOrderCommand(
+            CustomerId: Guid.NewGuid(),
+            StoreId: StoreId,
+            FulfillmentType: OrderFulfillmentType.Pickup,
+            DeliveryAddress: null,
+            CustomerNote: null,
+            Lines: [new PlaceOrderLineInput(ProductId, 1)],
+            LocationId: location.Id);
+
+        var result = await _sut.Handle(cmd, CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        await _orderRepo.Received(1).AddAsync(
+            Arg.Is<StoreOrder>(o => o.LocationId == location.Id), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task Handle_StoreNotFound_ReturnsFailure()
     {
         _storeRepo.GetByIdAsync(StoreId, Arg.Any<CancellationToken>()).Returns((Store?)null);

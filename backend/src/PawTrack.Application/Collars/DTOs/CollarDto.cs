@@ -11,9 +11,17 @@ public sealed record CollarDto(
     double? LastLat,
     double? LastLng,
     DateTimeOffset? LastSeenAt,
-    bool IsActive)
+    bool IsActive,
+    string? CollarTagSerial,
+    bool IsOffline,
+    bool OfflineAlertsEnabled,
+    int OfflineThresholdMinutes,
+    bool BatteryAlertsEnabled,
+    int BatteryAlertThresholdPercent)
 {
     public static CollarDto FromDomain(Collar c) => new(
         c.Id, c.PetId, c.Provider, c.ExternalDeviceId,
-        c.BatteryPercent, c.LastLat, c.LastLng, c.LastSeenAt, c.IsActive);
+        c.BatteryPercent, c.LastLat, c.LastLng, c.LastSeenAt, c.IsActive,
+        c.CollarTagSerial, c.IsOffline, c.OfflineAlertsEnabled, c.OfflineThresholdMinutes,
+        c.BatteryAlertsEnabled, c.BatteryAlertThresholdPercent);
 }

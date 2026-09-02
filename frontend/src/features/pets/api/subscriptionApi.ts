@@ -6,7 +6,15 @@ export type SubscriptionTier =
   | "UserFamilia"
   | "ClinicBasic"
   | "ClinicPlus"
-  | "ClinicPartner";
+  | "ClinicPartner"
+  | "StoreBasic"
+  | "StorePlus"
+  | "StorePartner"
+  | "ShelterBasic"
+  | "ShelterPlus"
+  | "MuniBasica"
+  | "MuniFull"
+  | "MuniRedRegional";
 
 export type SubscriptionStatus =
   | "PendingPayment"
@@ -34,6 +42,14 @@ export const TIER_PRICE_CRC: Record<SubscriptionTier, number> = {
   ClinicBasic: 0,
   ClinicPlus: 15000,
   ClinicPartner: 35000,
+  StoreBasic: 0,
+  StorePlus: 12000,
+  StorePartner: 25000,
+  ShelterBasic: 0,
+  ShelterPlus: 8000,
+  MuniBasica: 150000,
+  MuniFull: 300000,
+  MuniRedRegional: 500000,
 };
 
 export const subscriptionApi = {

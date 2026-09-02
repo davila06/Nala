@@ -61,7 +61,7 @@ public sealed class GetStoreAnalyticsQueryHandlerTests
         _stores.GetByUserIdAsync(userId, Arg.Any<CancellationToken>()).Returns(store);
         _subscriptions.GetActiveUserTierAsync(userId, Arg.Any<CancellationToken>())
             .Returns(SubscriptionTier.StorePlus);
-        _orders.GetMonthlyStatsAsync(store.Id, 2026, 8, Arg.Any<CancellationToken>()).Returns(MakeStats());
+        _orders.GetMonthlyStatsAsync(store.Id, 2026, 8, Arg.Any<Guid?>(), Arg.Any<CancellationToken>()).Returns(MakeStats());
 
         var result = await BuildHandler().Handle(new GetStoreAnalyticsQuery(userId, 2026, 8), default);
 
@@ -80,7 +80,7 @@ public sealed class GetStoreAnalyticsQueryHandlerTests
         _stores.GetByUserIdAsync(userId, Arg.Any<CancellationToken>()).Returns(store);
         _subscriptions.GetActiveUserTierAsync(userId, Arg.Any<CancellationToken>())
             .Returns(SubscriptionTier.StorePartner);
-        _orders.GetMonthlyStatsAsync(store.Id, 2026, 8, Arg.Any<CancellationToken>()).Returns(MakeStats());
+        _orders.GetMonthlyStatsAsync(store.Id, 2026, 8, Arg.Any<Guid?>(), Arg.Any<CancellationToken>()).Returns(MakeStats());
 
         var result = await BuildHandler().Handle(new GetStoreAnalyticsQuery(userId, 2026, 8), default);
 

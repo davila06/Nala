@@ -1,0 +1,145 @@
+name: E2E Tests (Collar/GPS)
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - ".github/workflows/e2e.yml"
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  e2e:
+    name: Playwright E2E (chromium)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: PawTrack_CI!2026
+          MSSQL_PID: Developer
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'PawTrack_CI!2026' -Q 'SELECT 1' -C"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      azurite:
+        image: mcr.microsoft.com/azure-storage/azurite:latest
+        ports:
+          - 10000:10000
+          - 10001:10001
+          - 10002:10002
+
+    env:
+      ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=PawTrackE2E;User Id=sa;Password=PawTrack_CI!2026;TrustServerCertificate=True;"
+      Jwt__Key: "ci-e2e-test-jwt-signing-key-minimum-32-chars!"
+      ASPNETCORE_ENVIRONMENT: "Local"
+      ASPNETCORE_URLS: "http://localhost:5199"
+      # Login rate limit (default 5/min) is far too low for a suite that logs in
+      # repeatedly across specs from the same runner IP — raise it for this job only.
+      RateLimiting__Login__PermitLimit: "200"
+      RateLimiting__Login__WindowSeconds: "60"
+      Azure__Storage__ConnectionString: "UseDevelopmentStorage=true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Restore & build backend
+        run: |
+          dotnet restore
+          dotnet build --no-restore --configuration Release
+
+      - name: Start backend (background)
+        run: |
+          nohup dotnet run --no-build --configuration Release \
+            --project src/PawTrack.API/PawTrack.API.csproj > /tmp/api.log 2>&1 &
+          for i in $(seq 1 60); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5199/health || true)
+            if [ "$STATUS" = "200" ]; then echo "API healthy"; break; fi
+            sleep 2
+          done
+          curl -sf http://localhost:5199/health || (cat /tmp/api.log && exit 1)
+        working-directory: backend
+
+      - name: Seed test users
+        run: |
+          curl -sO https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
+          sudo dpkg -i packages-microsoft-prod.deb
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18 unixodbc-dev
+          /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "PawTrack_CI!2026" -C \
+            -d PawTrackE2E -i scripts/seed-test-users.sql
+        working-directory: backend
+
+      - name: Install frontend dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: frontend
+
+      - name: Get Playwright version
+        id: pw-version
+        run: |
+          VERSION=$(node -p "require('@playwright/test/package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        working-directory: frontend
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.pw-version.outputs.version }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+        working-directory: frontend
+
+      - name: Install Playwright OS dependencies only (cache hit)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+        working-directory: frontend
+
+      - name: Run Playwright E2E suite
+        env:
+          E2E_BASE_URL: "http://localhost:5173"
+          E2E_API_URL: "http://localhost:5199"
+          CI: "true"
+        run: npx playwright test
+        working-directory: frontend
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 7
+
+      - name: Upload backend log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-log
+          path: /tmp/api.log
+          retention-days: 7

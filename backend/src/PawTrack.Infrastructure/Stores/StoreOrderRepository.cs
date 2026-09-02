@@ -46,13 +46,14 @@ public sealed class StoreOrderRepository(PawTrackDbContext db) : IStoreOrderRepo
             .ToListAsync(ct);
 
     public async Task<StoreOrderMonthlyStats> GetMonthlyStatsAsync(
-        Guid storeId, int year, int month, CancellationToken ct = default)
+        Guid storeId, int year, int month, Guid? locationId = null, CancellationToken ct = default)
     {
         var orders = await db.StoreOrders.AsNoTracking()
             .Include(o => o.Items)
             .Where(o => o.StoreId == storeId
                      && o.PlacedAt.Year == year
-                     && o.PlacedAt.Month == month)
+                     && o.PlacedAt.Month == month
+                     && (locationId == null || o.LocationId == locationId))
             .ToListAsync(ct);
 
         var delivered = orders.Where(o => o.Status == StoreOrderStatus.Delivered).ToList();

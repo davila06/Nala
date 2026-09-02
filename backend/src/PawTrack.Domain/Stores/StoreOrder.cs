@@ -7,6 +7,8 @@ public sealed class StoreOrder
 
     public Guid Id { get; private set; }
     public Guid StoreId { get; private set; }
+    /// <summary>Optional branch/sede this order is attributed to. Null when the store has no locations.</summary>
+    public Guid? LocationId { get; private set; }
     public Guid CustomerId { get; private set; }
     public StoreOrderStatus Status { get; private set; }
     public OrderFulfillmentType FulfillmentType { get; private set; }
@@ -33,12 +35,14 @@ public sealed class StoreOrder
         OrderFulfillmentType fulfillmentType,
         string? deliveryAddress,
         string? customerNote,
-        IReadOnlyList<(Guid ProductId, string ProductName, int Qty, decimal UnitPrice)> lines)
+        IReadOnlyList<(Guid ProductId, string ProductName, int Qty, decimal UnitPrice)> lines,
+        Guid? locationId = null)
     {
         var order = new StoreOrder
         {
             Id = Guid.CreateVersion7(),
             StoreId = storeId,
+            LocationId = locationId,
             CustomerId = customerId,
             Status = StoreOrderStatus.PendingPayment,
             FulfillmentType = fulfillmentType,

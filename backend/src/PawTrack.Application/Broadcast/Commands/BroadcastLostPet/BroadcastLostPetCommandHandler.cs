@@ -64,7 +64,7 @@ public sealed class BroadcastLostPetCommandHandler(
             if (clinics.Count > 0)
                 nearbyClinics = clinics
                     .Take(3)
-                    .Select(c => new NearbyClinicRef(c.Name, c.PhoneNumber, c.Address))
+                    .Select(c => new NearbyClinicRef(c.Name, c.PhoneNumber, c.Address, c.LogoUrl))
                     .ToList()
                     .AsReadOnly();
         }

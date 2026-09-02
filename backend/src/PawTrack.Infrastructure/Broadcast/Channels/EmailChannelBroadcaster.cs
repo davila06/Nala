@@ -33,6 +33,7 @@ public sealed class EmailChannelBroadcaster(
             trackingUrl: context.TrackingUrl,
             recentPhotoUrl: context.RecentPhotoUrl,
             lastSeenAt: context.LastSeenAt,
+            nearbyFeaturedClinics: context.NearbyFeaturedClinics,
             cancellationToken: cancellationToken);
 
         logger.LogInformation(

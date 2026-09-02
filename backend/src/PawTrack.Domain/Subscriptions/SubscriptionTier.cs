@@ -20,4 +20,9 @@ public enum SubscriptionTier
     // Shelter / adoption tiers
     ShelterBasic = 300, // free — directory + up to 5 active animals
     ShelterPlus = 310, // ₡8,000/mes — unlimited animals + fairs + featured map pin
+
+    // Municipality B2G tiers (annual billing)
+    MuniBasica = 400, // ₡150,000/año — portal básico, un cantón
+    MuniFull = 410,   // ₡300,000/año — fotos, estadísticas, API
+    MuniRedRegional = 420, // ₡500,000/año — multi-cantón, dashboard regional
 }

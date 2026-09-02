@@ -60,28 +60,32 @@ public sealed class Round43SecurityRegressionTests
         IUnitOfWork? uow = null)
     {
         sightingRepo ??= Substitute.For<ISightingRepository>();
-        petRepo      ??= Substitute.For<IPetRepository>();
-        lostPetRepo  ??= Substitute.For<ILostPetRepository>();
-        userRepo     ??= Substitute.For<IUserRepository>();
+        petRepo ??= Substitute.For<IPetRepository>();
+        lostPetRepo ??= Substitute.For<ILostPetRepository>();
+        userRepo ??= Substitute.For<IUserRepository>();
         locationRepo ??= Substitute.For<IUserLocationRepository>();
-        notifRepo    ??= Substitute.For<INotificationRepository>();
-        blob         ??= Substitute.For<IBlobStorageService>();
-        pii          ??= Substitute.For<IPiiScrubber>();
-        dispatcher   ??= Substitute.For<INotificationDispatcher>();
+        notifRepo ??= Substitute.For<INotificationRepository>();
+        blob ??= Substitute.For<IBlobStorageService>();
+        pii ??= Substitute.For<IPiiScrubber>();
+        dispatcher ??= Substitute.For<INotificationDispatcher>();
         imageProcessor ??= Substitute.For<IImageProcessor>();
-        uow          ??= Substitute.For<IUnitOfWork>();
+        uow ??= Substitute.For<IUnitOfWork>();
 
         var settings = Options.Create(new ResolveCheckSettings());
         var validationSettings = Options.Create(new AnimalPhotoValidationSettings());
-        var animalValidator = Substitute.For<IAnimalPhotoValidator>();
-        // Fail-open default — validator reports animal detected so existing tests are unaffected.
-        animalValidator.ValidateAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(AnimalPhotoValidationResult.ServiceUnavailable);
+        if (animalPhotoValidator is null)
+        {
+            animalPhotoValidator = Substitute.For<IAnimalPhotoValidator>();
+            // Fail-open default — validator reports animal detected so existing tests are unaffected.
+            animalPhotoValidator
+                .ValidateAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+                .Returns(AnimalPhotoValidationResult.ServiceUnavailable);
+        }
 
         return new ReportSightingCommandHandler(
             sightingRepo, petRepo, lostPetRepo, userRepo, locationRepo,
             notifRepo, blob, imageProcessor, pii, dispatcher,
-            animalValidator, settings, validationSettings, uow);
+            animalPhotoValidator, settings, validationSettings, uow);
     }
 
     // ── Helpers — ReportFoundPetCommandHandler ────────────────────────────────
@@ -96,12 +100,12 @@ public sealed class Round43SecurityRegressionTests
         IUnitOfWork? uow = null)
     {
         foundPetRepo ??= Substitute.For<IFoundPetRepository>();
-        lostPetRepo  ??= Substitute.For<ILostPetRepository>();
-        userRepo     ??= Substitute.For<IUserRepository>();
-        blob         ??= Substitute.For<IBlobStorageService>();
-        dispatcher   ??= Substitute.For<INotificationDispatcher>();
+        lostPetRepo ??= Substitute.For<ILostPetRepository>();
+        userRepo ??= Substitute.For<IUserRepository>();
+        blob ??= Substitute.For<IBlobStorageService>();
+        dispatcher ??= Substitute.For<INotificationDispatcher>();
         imageProcessor ??= Substitute.For<IImageProcessor>();
-        uow          ??= Substitute.For<IUnitOfWork>();
+        uow ??= Substitute.For<IUnitOfWork>();
 
         return new ReportFoundPetCommandHandler(
             foundPetRepo, lostPetRepo, userRepo, blob, imageProcessor, dispatcher, uow);

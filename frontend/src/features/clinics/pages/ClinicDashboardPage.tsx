@@ -23,6 +23,7 @@ import { CERTIFICATE_TYPE_LABELS } from "../api/certificateApi";
 import { ClinicExpedienteTab } from "../components/ClinicExpedienteTab";
 import { ClinicAccessPanel } from "../components/ClinicAccessPanel";
 import { toast } from "@/shared/lib/toast";
+import { useMySubscription } from "@/features/pets/hooks/useSubscription";
 
 export default function ClinicDashboardPage() {
   const [scanResult, setScanResult] = useState<ClinicScanResultDto | null>(
@@ -39,6 +40,8 @@ export default function ClinicDashboardPage() {
     queryKey: ["my-clinic"],
     queryFn: () => clinicsApi.getMyClinic(),
   });
+
+  const { data: sub } = useMySubscription(clinic?.id);
 
   const {
     mutate: performScan,
@@ -221,32 +224,53 @@ export default function ClinicDashboardPage() {
         </div>
         {activeSection === "scan" && (
           <>
-            {/* ── Tier upgrade banner ───────────────────────────────────── */}
-            <button
-              type="button"
-              onClick={() => setShowTiers(true)}
-              className="w-full rounded-2xl border border-trust-200 bg-linear-to-r from-trust-50 to-brand-50 px-4 py-3 flex items-center gap-3 text-left hover:from-trust-100 hover:to-brand-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400"
-            >
-              <span className="text-2xl shrink-0" aria-hidden="true">
-                ⭐
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-trust-900">
-                  Plan Afiliada básica
-                </p>
-                <p className="text-xs text-trust-600 mt-0.5">
-                  Actualiza a <strong>Plus (₡15,000/mes)</strong> para posición
-                  destacada, badge verificado y estadísticas.
-                </p>
-              </div>
-              <span className="shrink-0 rounded-xl bg-trust-600 px-3 py-1.5 text-xs font-bold text-white">
-                Ver planes →
-              </span>
-            </button>
+            {/* ── Tier status / upgrade banner ──────────────────────────── */}
+            {(() => {
+              const tier = sub?.isActive ? sub.tier : null;
+              const isPartner = tier === "ClinicPartner";
+              const isPlus = tier === "ClinicPlus" || isPartner;
+              if (isPartner) return null; // Partner sees no upsell
+              return (
+                <button
+                  type="button"
+                  onClick={() => setShowTiers(true)}
+                  className="w-full rounded-2xl border border-trust-200 bg-linear-to-r from-trust-50 to-brand-50 px-4 py-3 flex items-center gap-3 text-left hover:from-trust-100 hover:to-brand-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400"
+                >
+                  <span className="text-2xl shrink-0" aria-hidden="true">
+                    {isPlus ? "⭐" : "🏥"}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-trust-900">
+                      {isPlus ? "Plan Clínica Plus" : "Plan Afiliada básica"}
+                    </p>
+                    <p className="text-xs text-trust-600 mt-0.5">
+                      {isPlus
+                        ? "Actualiza a Partner (₡35,000/mes) para certificados PDF, API keys y widget embebible."
+                        : "Actualiza a Plus (₡15,000/mes) para posición destacada, badge verificado y estadísticas."}
+                    </p>
+                    {sub?.expiresAt && (
+                      <p className="text-xs text-trust-500 mt-0.5">
+                        Vence:{" "}
+                        {new Date(sub.expiresAt).toLocaleDateString("es-CR")}
+                      </p>
+                    )}
+                  </div>
+                  <span className="shrink-0 rounded-xl bg-trust-600 px-3 py-1.5 text-xs font-bold text-white">
+                    Ver planes →
+                  </span>
+                </button>
+              );
+            })()}
 
             {showTiers && (
               <ClinicTiersModal
-                currentTier="basic"
+                currentTier={
+                  sub?.tier === "ClinicPartner"
+                    ? "partner"
+                    : sub?.tier === "ClinicPlus"
+                      ? "plus"
+                      : "basic"
+                }
                 onClose={() => setShowTiers(false)}
               />
             )}

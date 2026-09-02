@@ -4,11 +4,30 @@ import { Skeleton } from "@/shared/ui/Spinner";
 import { useMyStore, useMyStoreProducts } from "../hooks/useStores";
 import { useIncomingOrders } from "../hooks/useStoreOrders";
 import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "../api/storesApi";
+import { useMySubscription } from "@/features/pets/hooks/useSubscription";
+
+const TIER_LABELS: Record<string, string> = {
+  StoreBasic: "Tienda Básica (gratis)",
+  StorePlus: "Tienda Plus",
+  StorePartner: "Tienda Partner",
+};
+
+const TIER_NEXT: Record<string, string | null> = {
+  StoreBasic: "Actualiza a Plus (₡12,000/mes) para recibir pedidos in-app.",
+  StorePlus:
+    "Actualiza a Partner (₡25,000/mes) para analíticas avanzadas y sedes.",
+  StorePartner: null,
+};
 
 export default function StoreDashboardPage() {
   const { data: store, isLoading } = useMyStore();
   const { data: orders = [] } = useIncomingOrders();
   const { data: products = [] } = useMyStoreProducts();
+  const { data: sub } = useMySubscription();
+
+  const tier = sub?.isActive ? (sub.tier ?? "StoreBasic") : "StoreBasic";
+  const tierLabel = TIER_LABELS[tier] ?? tier;
+  const nextMsg = TIER_NEXT[tier] ?? null;
 
   const pendingOrders = orders.filter(
     (o) => o.status === "PendingPayment" || o.status === "PaymentReported",
@@ -75,6 +94,38 @@ export default function StoreDashboardPage() {
         >
           Editar perfil
         </Link>
+      </div>
+
+      {/* Plan status */}
+      <div
+        className={`rounded-2xl border px-4 py-3 flex items-center gap-3 ${
+          tier === "StorePartner"
+            ? "border-rescue-200 bg-rescue-50"
+            : tier === "StorePlus"
+              ? "border-brand-200 bg-brand-50"
+              : "border-sand-200 bg-sand-50"
+        }`}
+      >
+        <span className="text-xl shrink-0" aria-hidden="true">
+          {tier === "StorePartner" ? "🌟" : tier === "StorePlus" ? "⭐" : "🏪"}
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-sand-900">{tierLabel}</p>
+          {sub?.expiresAt && (
+            <p className="text-xs text-sand-500 mt-0.5">
+              Vence: {new Date(sub.expiresAt).toLocaleDateString("es-CR")}
+            </p>
+          )}
+          {nextMsg && <p className="text-xs text-sand-500 mt-0.5">{nextMsg}</p>}
+        </div>
+        {nextMsg && (
+          <Link
+            to="/perfil"
+            className="shrink-0 rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-700"
+          >
+            Mejorar →
+          </Link>
+        )}
       </div>
 
       {/* Quick stats */}
@@ -173,6 +224,18 @@ export default function StoreDashboardPage() {
           className="flex items-center gap-2 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm font-semibold text-brand-700 hover:bg-brand-100"
         >
           📦 Ver pedidos
+        </Link>
+        <Link
+          to="/tienda/portal/analitica"
+          className="flex items-center gap-2 rounded-xl border border-rescue-200 bg-rescue-50 px-4 py-3 text-sm font-semibold text-rescue-700 hover:bg-rescue-100"
+        >
+          📊 Analíticas
+        </Link>
+        <Link
+          to="/tienda/portal/sedes"
+          className="flex items-center gap-2 rounded-xl border border-trust-200 bg-trust-50 px-4 py-3 text-sm font-semibold text-trust-700 hover:bg-trust-100"
+        >
+          🏪 Sedes
         </Link>
       </div>
     </div>

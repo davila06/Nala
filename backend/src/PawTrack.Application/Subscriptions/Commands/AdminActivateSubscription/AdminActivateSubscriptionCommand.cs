@@ -2,8 +2,10 @@ using MediatR;
 using PawTrack.Application.Subscriptions.DTOs;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Municipalities.Interfaces;
 using PawTrack.Domain.Audit;
 using PawTrack.Domain.Common;
+using PawTrack.Domain.Municipalities;
 using PawTrack.Domain.Subscriptions;
 
 namespace PawTrack.Application.Subscriptions.Commands.AdminActivateSubscription;
@@ -16,6 +18,7 @@ public sealed class AdminActivateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
     IClinicRepository clinicRepository,
     IStoreRepository storeRepository,
+    IMunicipalProfileRepository municipalRepo,
     IAuditLogRepository auditLog,
     IUnitOfWork unitOfWork)
     : IRequestHandler<AdminActivateSubscriptionCommand, Result<SubscriptionDto>>
@@ -34,6 +37,7 @@ public sealed class AdminActivateSubscriptionCommandHandler(
         subscriptionRepository.Update(sub);
         await SyncClinicFeaturedAsync(sub, true, cancellationToken);
         await SyncStoreFeaturedAsync(sub, true, cancellationToken);
+        await SyncMunicipalTierAsync(sub, activate: true, cancellationToken);
 
         await auditLog.AddAsync(AuditLogEntry.Create(
             Guid.Empty,
@@ -63,5 +67,21 @@ public sealed class AdminActivateSubscriptionCommandHandler(
         if (store is null) return;
         store.SetFeatured(featured);
         storeRepository.Update(store);
+    }
+
+    private async Task SyncMunicipalTierAsync(Subscription sub, bool activate, CancellationToken ct)
+    {
+        if (sub.UserId is null || !SubscriptionPricing.IsMunicipalTier(sub.Tier)) return;
+        var profile = await municipalRepo.GetByUserIdAsync(sub.UserId.Value, ct);
+        if (profile is null) return;
+        var muniTier = sub.Tier switch
+        {
+            SubscriptionTier.MuniBasica => MunicipalTier.Basica,
+            SubscriptionTier.MuniFull => MunicipalTier.Full,
+            SubscriptionTier.MuniRedRegional => MunicipalTier.RedRegional,
+            _ => MunicipalTier.Basica,
+        };
+        profile.Upgrade(activate ? muniTier : MunicipalTier.Basica, activate ? sub.ExpiresAt : null);
+        municipalRepo.Update(profile);
     }
 }

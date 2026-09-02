@@ -11,7 +11,7 @@ namespace PawTrack.Application.Clinics.Commands.ManageApiKey;
 
 public sealed record ClinicApiKeyDto(
     Guid Id, string Label, bool IsRevoked,
-    DateTimeOffset CreatedAt, DateTimeOffset? LastUsedAt,
+    DateTimeOffset CreatedAt, DateTimeOffset? LastUsedAt, DateTimeOffset ExpiresAt,
     string? RawKey = null);  // only populated on create
 
 // ── Create ────────────────────────────────────────────────────────────────────
@@ -47,7 +47,7 @@ public sealed class CreateClinicApiKeyCommandHandler(
         await keyRepository.AddAsync(key, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(new ClinicApiKeyDto(key.Id, key.Label, false, key.CreatedAt, null, rawKey));
+        return Result.Success(new ClinicApiKeyDto(key.Id, key.Label, false, key.CreatedAt, null, key.ExpiresAt, rawKey));
     }
 }
 
@@ -105,10 +105,53 @@ public sealed class GetClinicApiKeysQueryHandler(
 
         var keys = await keyRepository.GetForClinicAsync(request.ClinicId, cancellationToken);
         var dtos = keys
-            .Select(k => new ClinicApiKeyDto(k.Id, k.Label, k.IsRevoked, k.CreatedAt, k.LastUsedAt))
+            .Select(k => new ClinicApiKeyDto(k.Id, k.Label, k.IsRevoked, k.CreatedAt, k.LastUsedAt, k.ExpiresAt))
             .ToList()
             .AsReadOnly();
 
         return Result.Success<IReadOnlyList<ClinicApiKeyDto>>(dtos);
+    }
+}
+
+// ── Rotate (revoke old, issue new with the same label) ───────────────────────
+
+public sealed record RotateClinicApiKeyCommand(Guid KeyId, Guid ClinicId, Guid RequestingUserId)
+    : IRequest<Result<ClinicApiKeyDto>>;
+
+public sealed class RotateClinicApiKeyCommandHandler(
+    IClinicRepository clinicRepository,
+    IClinicApiKeyRepository keyRepository,
+    IUnitOfWork unitOfWork)
+    : IRequestHandler<RotateClinicApiKeyCommand, Result<ClinicApiKeyDto>>
+{
+    public async Task<Result<ClinicApiKeyDto>> Handle(
+        RotateClinicApiKeyCommand request, CancellationToken cancellationToken)
+    {
+        var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
+        if (clinic is null || clinic.UserId != request.RequestingUserId)
+            return Result.Failure<ClinicApiKeyDto>("Access denied.");
+
+        var keys = await keyRepository.GetForClinicAsync(request.ClinicId, cancellationToken);
+        var oldKey = keys.FirstOrDefault(k => k.Id == request.KeyId);
+        if (oldKey is null)
+            return Result.Failure<ClinicApiKeyDto>("API key not found.");
+        if (oldKey.IsRevoked)
+            return Result.Failure<ClinicApiKeyDto>("Esta key ya fue revocada o rotada.");
+
+        var rawBytes = RandomNumberGenerator.GetBytes(32);
+        var rawKey = "ptwk_" + Convert.ToBase64String(rawBytes)
+            .Replace("+", "-").Replace("/", "_").Replace("=", "");
+        var hash = ClinicApiKeyHasher.Compute(rawKey);
+
+        var newKey = ClinicApiKey.Create(request.ClinicId, hash, oldKey.Label);
+        await keyRepository.AddAsync(newKey, cancellationToken);
+
+        oldKey.MarkRotatedTo(newKey.Id);
+        keyRepository.Update(oldKey);
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result.Success(new ClinicApiKeyDto(
+            newKey.Id, newKey.Label, false, newKey.CreatedAt, null, newKey.ExpiresAt, rawKey));
     }
 }

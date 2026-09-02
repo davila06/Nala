@@ -73,6 +73,11 @@ public sealed class WhatsAppChannelBroadcaster(
         client.DefaultRequestHeaders.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
+        // Only the closest featured clinic's logo is sent, and only as a single extra
+        // image message — WhatsApp text messages cannot embed an inline image, so a
+        // real "logo in the alert" requires a separate media message per Meta's API.
+        var sponsorClinic = context.NearbyFeaturedClinics?.FirstOrDefault(c => c.LogoUrl is not null);
+
         string? lastMessageId = null;
         foreach (var to in recipients)
         {
@@ -105,9 +110,54 @@ public sealed class WhatsAppChannelBroadcaster(
             {
                 logger.LogError(ex, "WhatsApp broadcast error for {To}. EventId={EventId}", to, context.LostPetEventId);
             }
+
+            if (sponsorClinic is not null)
+                await SendSponsorLogoAsync(client, phoneNumberId, to, sponsorClinic, context.LostPetEventId, cancellationToken);
         }
 
         return lastMessageId;
+    }
+
+    /// <summary>
+    /// Delivers the sponsoring clinic's logo as its own WhatsApp image message.
+    /// Best-effort — failures here never affect the main alert delivery.
+    /// </summary>
+    private async Task SendSponsorLogoAsync(
+        HttpClient client, string phoneNumberId, string to, NearbyClinicRef clinic,
+        Guid lostPetEventId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var imagePayload = new
+            {
+                messaging_product = "whatsapp",
+                recipient_type = "individual",
+                to,
+                type = "image",
+                image = new
+                {
+                    link = clinic.LogoUrl,
+                    caption = $"🏥 Patrocinado por {clinic.Name} — clínica veterinaria cercana",
+                },
+            };
+
+            var response = await client.PostAsJsonAsync(
+                $"{GraphApiBase}/{phoneNumberId}/messages", imagePayload, cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var err = await response.Content.ReadAsStringAsync(cancellationToken);
+                logger.LogWarning(
+                    "WhatsApp sponsor logo send failed for {To}. Clinic={Clinic} Status={Status} Body={Body}",
+                    to, clinic.Name, response.StatusCode, err);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex,
+                "WhatsApp sponsor logo error for {To}. Clinic={Clinic} EventId={EventId}",
+                to, clinic.Name, lostPetEventId);
+        }
     }
 
     private static string BuildMessageBody(BroadcastMessageContext ctx)

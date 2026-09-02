@@ -149,6 +149,19 @@ public sealed class LostPetEvent : IHasDomainEvents
     public void SetRecentPhoto(string url) => RecentPhotoUrl = url;
 
     /// <summary>
+    /// Refreshes the last-seen coordinates from a live GPS collar report while the
+    /// report is active. Feeds the public map, which already reads these fields.
+    /// No-op once the report has been resolved.
+    /// </summary>
+    public void UpdateLastSeenLocation(double lat, double lng, DateTimeOffset seenAt)
+    {
+        if (Status != LostPetStatus.Active) return;
+        LastSeenLat = lat;
+        LastSeenLng = lng;
+        LastSeenAt = seenAt;
+    }
+
+    /// <summary>
     /// Allows the owner to set or update the optional reward after report creation.
     /// Passing <c>null</c> clears the reward.
     /// </summary>

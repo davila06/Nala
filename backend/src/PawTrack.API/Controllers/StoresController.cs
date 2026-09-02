@@ -66,18 +66,80 @@ public sealed class StoresController(ISender sender) : ControllerBase
         return Ok(result.Value);
     }
 
-    // ── GET /api/stores/me/analytics?year=&month= — StorePlus/Partner gate ───
+    // ── GET /api/stores/me/analytics?year=&month=&locationId= — StorePlus/Partner gate ─
     [HttpGet("me/analytics")]
     [Authorize(Roles = "Store")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> GetAnalytics(
         [FromQuery] int? year,
         [FromQuery] int? month,
+        [FromQuery] Guid? locationId,
         CancellationToken ct)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
         var now = DateTimeOffset.UtcNow;
-        var result = await sender.Send(new GetStoreAnalyticsQuery(userId, year ?? now.Year, month ?? now.Month), ct);
+        var result = await sender.Send(
+            new GetStoreAnalyticsQuery(userId, year ?? now.Year, month ?? now.Month, locationId), ct);
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        return Ok(result.Value);
+    }
+
+    // ── GET /api/stores/me/locations — StorePartner gate ──────────────────────
+    [HttpGet("me/locations")]
+    [Authorize(Roles = "Store")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetLocations(CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetMyStoreLocationsQuery(userId), ct);
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        return Ok(result.Value);
+    }
+
+    // ── POST /api/stores/me/locations — StorePartner gate ─────────────────────
+    [HttpPost("me/locations")]
+    [Authorize(Roles = "Store")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(2048)]
+    public async Task<IActionResult> CreateLocation(
+        [FromBody] StoreLocationRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new CreateStoreLocationCommand(
+            userId, request.Name, request.Address, request.Lat, request.Lng, request.PhoneNumber), ct);
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        return Created(string.Empty, result.Value);
+    }
+
+    // ── PUT /api/stores/me/locations/{id} — StorePartner gate ─────────────────
+    [HttpPut("me/locations/{locationId:guid}")]
+    [Authorize(Roles = "Store")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(2048)]
+    public async Task<IActionResult> UpdateLocation(
+        Guid locationId, [FromBody] StoreLocationRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new UpdateStoreLocationCommand(
+            userId, locationId, request.Name, request.Address, request.Lat, request.Lng, request.PhoneNumber), ct);
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+        return Ok(result.Value);
+    }
+
+    // ── PATCH /api/stores/me/locations/{id}/active — StorePartner gate ────────
+    [HttpPatch("me/locations/{locationId:guid}/active")]
+    [Authorize(Roles = "Store")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(256)]
+    public async Task<IActionResult> SetLocationActive(
+        Guid locationId, [FromBody] SetLocationActiveRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new SetStoreLocationActiveCommand(userId, locationId, request.Active), ct);
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
         return Ok(result.Value);
@@ -227,3 +289,8 @@ public sealed record AddProductRequest(
 
 public sealed record UpdateProductRequest(
     string Name, string? Description, string Category, decimal PriceCrc, bool IsAvailable);
+
+public sealed record StoreLocationRequest(
+    string Name, string Address, decimal Lat, decimal Lng, string? PhoneNumber);
+
+public sealed record SetLocationActiveRequest(bool Active);

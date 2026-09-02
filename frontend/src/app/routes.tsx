@@ -45,6 +45,12 @@ const VerifyEmailPage = lazy(
 const DashboardPage = lazy(() => import("@/features/pets/pages/DashboardPage"));
 const CreatePetPage = lazy(() => import("@/features/pets/pages/CreatePetPage"));
 const PetDetailPage = lazy(() => import("@/features/pets/pages/PetDetailPage"));
+const ActivateCollarTagPage = lazy(
+  () => import("@/features/pets/pages/ActivateCollarTagPage"),
+);
+const CollarHandoverRedeemPage = lazy(
+  () => import("@/features/pets/pages/CollarHandoverRedeemPage"),
+);
 const PublicPetProfilePage = lazy(
   () => import("@/features/pets/pages/PublicPetProfilePage"),
 );
@@ -137,6 +143,12 @@ const MyStoreOrdersPage = lazy(
 );
 const StoreDirectoryPage = lazy(
   () => import("@/features/stores/pages/StoreDirectoryPage"),
+);
+const StoreAnalyticsPage = lazy(
+  () => import("@/features/stores/pages/StoreAnalyticsPage"),
+);
+const StoreLocationsPage = lazy(
+  () => import("@/features/stores/pages/StoreLocationsPage"),
 );
 
 // Admin panel
@@ -418,6 +430,22 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            path: "/collars/activate",
+            element: (
+              <S>
+                <ActivateCollarTagPage />
+              </S>
+            ),
+          },
+          {
+            path: "/collars/handover",
+            element: (
+              <S>
+                <CollarHandoverRedeemPage />
+              </S>
+            ),
+          },
+          {
             path: "/pets/:id",
             element: (
               <S>
@@ -541,6 +569,22 @@ export const router = createBrowserRouter([
                 element: (
                   <S>
                     <StoreOrdersPage />
+                  </S>
+                ),
+              },
+              {
+                path: "/tienda/portal/analitica",
+                element: (
+                  <S>
+                    <StoreAnalyticsPage />
+                  </S>
+                ),
+              },
+              {
+                path: "/tienda/portal/sedes",
+                element: (
+                  <S>
+                    <StoreLocationsPage />
                   </S>
                 ),
               },

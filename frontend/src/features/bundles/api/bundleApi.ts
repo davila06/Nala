@@ -16,7 +16,8 @@ export type BundleProductType =
   | "QrPlate"
   | "SiliconeTag"
   | "NfcQrCombo"
-  | "EmergencyPack";
+  | "EmergencyPack"
+  | "CollarTagGps";
 
 export interface BundleOrderDto {
   id: string;
@@ -124,6 +125,14 @@ export const PRODUCT_TYPE_CONFIG: Record<
     description: "Placa QR + tarjeta bolsillo + guía de emergencia",
     priceCrc: 7_000,
     emoji: "🆘",
+    requiresCollar: false,
+  },
+  CollarTagGps: {
+    label: "CollarTag GPS PawTrack + 12 meses Plus",
+    description:
+      "Collar GPS de marca propia · activación en la app · sin suscripción externa",
+    priceCrc: 39_900,
+    emoji: "🏷️",
     requiresCollar: false,
   },
 };

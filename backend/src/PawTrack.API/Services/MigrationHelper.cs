@@ -45,9 +45,14 @@ public static class MigrationHelper
 
         try
         {
-            // ── Step 1: ensure the DB server is reachable ─────────────────────
+            // Keep ONE connection open for the entire acquire→migrate→release
+            // sequence. sp_getapplock's @LockOwner = N'Session' ties the lock to
+            // the physical connection/session — if the connection is closed (even
+            // briefly, e.g. pooled Close()/reopen between calls), ADO.NET's
+            // sp_reset_connection on reuse silently drops session-scoped app
+            // locks, so a later sp_releaseapplock fails with "lock not held"
+            // even though every step before it succeeded.
             await db.Database.OpenConnectionAsync(cancellationToken);
-            await db.Database.CloseConnectionAsync();
 
             // ── Step 2: acquire an exclusive session-level application lock ───
             // Prevents two instances from running migrations concurrently.
@@ -124,6 +129,10 @@ public static class MigrationHelper
         {
             logger.LogError(ex, "[Migrations] Failed to apply migrations. The application may not function correctly.");
             throw; // Fail fast — a broken schema means a broken app
+        }
+        finally
+        {
+            await db.Database.CloseConnectionAsync();
         }
     }
 

@@ -17,7 +17,14 @@ public sealed class CreateSubscriptionCommandHandler(
         CreateSubscriptionCommand request,
         CancellationToken cancellationToken)
     {
-        if (!SubscriptionPricing.TryGetMonthlyPriceCrc(request.Tier, out var amount))
+        // Municipal tiers are billed annually; try annual catalog first, then monthly.
+        decimal amount;
+        int billingMonths;
+        if (SubscriptionPricing.TryGetAnnualPriceCrc(request.Tier, out amount))
+            billingMonths = 12;
+        else if (SubscriptionPricing.TryGetMonthlyPriceCrc(request.Tier, out amount))
+            billingMonths = 1;
+        else
             return Result.Failure<SubscriptionDto>($"Tier {request.Tier} is not a paid tier.");
 
         // Cancel any existing pending subscription for the same owner before creating a new one

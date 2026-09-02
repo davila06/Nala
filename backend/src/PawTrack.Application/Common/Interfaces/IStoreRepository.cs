@@ -22,4 +22,10 @@ public interface IStoreRepository
     Task AddProductAsync(StoreProduct product, CancellationToken ct = default);
     void UpdateProduct(StoreProduct product);
     void DeleteProduct(StoreProduct product);
+
+    // Locations (branches/sedes — StorePartner tier)
+    Task<StoreLocation?> GetLocationByIdAsync(Guid locationId, CancellationToken ct = default);
+    Task<IReadOnlyList<StoreLocation>> GetLocationsByStoreAsync(Guid storeId, CancellationToken ct = default);
+    Task AddLocationAsync(StoreLocation location, CancellationToken ct = default);
+    void UpdateLocation(StoreLocation location);
 }

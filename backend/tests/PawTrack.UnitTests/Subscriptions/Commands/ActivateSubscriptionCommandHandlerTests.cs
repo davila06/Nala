@@ -1,6 +1,7 @@
 using FluentAssertions;
 using NSubstitute;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Municipalities.Interfaces;
 using PawTrack.Application.Subscriptions.Commands.ActivateSubscription;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Domain.Clinics;
@@ -14,10 +15,11 @@ public sealed class ActivateSubscriptionCommandHandlerTests
     private readonly ISubscriptionRepository _subscriptions = Substitute.For<ISubscriptionRepository>();
     private readonly IClinicRepository _clinics = Substitute.For<IClinicRepository>();
     private readonly IStoreRepository _stores = Substitute.For<IStoreRepository>();
+    private readonly IMunicipalProfileRepository _municipal = Substitute.For<IMunicipalProfileRepository>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
 
     private ActivateSubscriptionCommandHandler BuildHandler() =>
-        new(_subscriptions, _clinics, _stores, _uow);
+        new(_subscriptions, _clinics, _stores, _municipal, _uow);
 
     [Fact]
     public async Task Handle_UnknownReference_ReturnsFailure()

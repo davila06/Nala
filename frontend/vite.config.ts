@@ -62,6 +62,15 @@ export default defineConfig({
       "@": resolve(__dirname, "src"),
     },
   },
+  server: {
+    watch: {
+      // Playwright writes trace/screenshot/report files under these dirs while
+      // the E2E suite runs — without ignoring them, Vite's watcher treats each
+      // write as a source change and full-page-reloads the app mid-test,
+      // corrupting whatever test is currently interacting with the page.
+      ignored: ["**/e2e/**", "**/test-results/**", "**/playwright-report/**"],
+    },
+  },
   build: {
     rollupOptions: {
       input: {
@@ -78,5 +87,9 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: ["./tests/setup.ts"],
+    // Playwright specs live under e2e/ and use @playwright/test's test/expect —
+    // incompatible with Vitest; Vitest's default include glob would otherwise
+    // pick them up too since they also match *.spec.ts.
+    exclude: ["**/node_modules/**", "**/dist/**", "e2e/**"],
   },
 });

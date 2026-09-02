@@ -114,6 +114,49 @@ export const ORDER_STATUS_COLORS: Record<StoreOrderStatus, string> = {
   Cancelled: "bg-danger-100 text-danger-700",
 };
 
+// ── Analytics types (StorePlus = totals only, StorePartner = full breakdown) ──
+
+export interface StoreOrderDayStatDto {
+  day: string; // yyyy-MM-dd
+  orderCount: number;
+  revenueCrc: number;
+}
+
+export interface StoreTopProductStatDto {
+  productId: string;
+  productName: string;
+  quantitySold: number;
+  revenueCrc: number;
+}
+
+export interface StoreAnalyticsDto {
+  year: number;
+  month: number;
+  totalOrders: number;
+  deliveredOrders: number;
+  cancelledOrders: number;
+  totalRevenueCrc: number;
+  averageOrderValueCrc: number;
+  /** null when the store has only StorePlus (not StorePartner). */
+  byDay: StoreOrderDayStatDto[] | null;
+  /** null when the store has only StorePlus (not StorePartner). */
+  topProducts: StoreTopProductStatDto[] | null;
+}
+
+// ── StoreLocation types (StorePartner tier) ───────────────────────────────────
+
+export interface StoreLocationDto {
+  id: string;
+  storeId: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  phoneNumber: string | null;
+  isPrimary: boolean;
+  isActive: boolean;
+}
+
 // ── API ───────────────────────────────────────────────────────────────────────
 
 export const storesApi = {
@@ -199,4 +242,48 @@ export const storesApi = {
       })
       .then((r) => r.data);
   },
+
+  // Analytics (StorePlus+)
+  getAnalytics: (year?: number, month?: number): Promise<StoreAnalyticsDto> =>
+    apiClient
+      .get<StoreAnalyticsDto>("/stores/me/analytics", {
+        params: { year, month },
+      })
+      .then((r) => r.data),
+
+  // Locations / sedes (StorePartner)
+  getLocations: (): Promise<StoreLocationDto[]> =>
+    apiClient
+      .get<StoreLocationDto[]>("/stores/me/locations")
+      .then((r) => r.data),
+
+  createLocation: (data: {
+    name: string;
+    address: string;
+    lat: number;
+    lng: number;
+    phoneNumber?: string;
+  }): Promise<StoreLocationDto> =>
+    apiClient
+      .post<StoreLocationDto>("/stores/me/locations", data)
+      .then((r) => r.data),
+
+  updateLocation: (
+    id: string,
+    data: {
+      name: string;
+      address: string;
+      lat: number;
+      lng: number;
+      phoneNumber?: string;
+    },
+  ): Promise<StoreLocationDto> =>
+    apiClient
+      .put<StoreLocationDto>(`/stores/me/locations/${id}`, data)
+      .then((r) => r.data),
+
+  setLocationActive: (id: string, active: boolean): Promise<StoreLocationDto> =>
+    apiClient
+      .patch<StoreLocationDto>(`/stores/me/locations/${id}/active`, { active })
+      .then((r) => r.data),
 };

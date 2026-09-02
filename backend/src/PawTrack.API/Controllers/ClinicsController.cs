@@ -371,6 +371,26 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
             : NotFound(new ProblemDetails { Detail = "Key not found.", Status = 404 });
     }
 
+    // ── POST /api/clinics/me/api-keys/{id}/rotate — revoke old, issue new ─────
+    [HttpPost("me/api-keys/{keyId:guid}/rotate")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> RotateApiKey(Guid keyId, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(
+            new RotateClinicApiKeyCommand(keyId, clinicResult.Value.Id, userId),
+            cancellationToken);
+
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+
+        return Ok(result.Value);
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private bool TryGetUserId(out Guid userId)

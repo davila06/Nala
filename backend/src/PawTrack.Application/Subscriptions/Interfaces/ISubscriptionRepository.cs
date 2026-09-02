@@ -11,6 +11,8 @@ public interface ISubscriptionRepository
     Task<IReadOnlyList<Subscription>> GetPendingAsync(CancellationToken cancellationToken = default);
     /// <summary>Active subscriptions whose ExpiresAt has already passed — candidates for expiration.</summary>
     Task<IReadOnlyList<Subscription>> GetExpiredActiveAsync(CancellationToken cancellationToken = default);
+    /// <summary>Active subscriptions expiring within the given number of days — candidates for renewal reminder.</summary>
+    Task<IReadOnlyList<Subscription>> GetExpiringWithinAsync(int days, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Subscription>> GetAllPagedAsync(int skip, int take, CancellationToken cancellationToken = default);
     Task<int> CountAllAsync(CancellationToken cancellationToken = default);
     Task AddAsync(Subscription subscription, CancellationToken cancellationToken = default);

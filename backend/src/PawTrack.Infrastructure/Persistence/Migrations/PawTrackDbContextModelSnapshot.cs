@@ -1031,6 +1031,9 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<bool>("IsRevoked")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -1048,6 +1051,9 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTimeOffset?>("LastUsedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("RotatedToKeyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -1130,8 +1136,18 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("BatteryAlertThresholdPercent")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("BatteryAlertsEnabled")
+                        .HasColumnType("bit");
+
                     b.Property<int?>("BatteryPercent")
                         .HasColumnType("int");
+
+                    b.Property<string>("CollarTagSerial")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("ExternalDeviceId")
                         .HasMaxLength(100)
@@ -1144,6 +1160,12 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsLost")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsOffline")
+                        .HasColumnType("bit");
+
                     b.Property<double?>("LastLat")
                         .HasColumnType("float");
 
@@ -1152,6 +1174,18 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTimeOffset?>("LastSeenAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("LostModeActivatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("LostPetEventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("OfflineAlertsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("OfflineThresholdMinutes")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uniqueidentifier");
@@ -1172,6 +1206,113 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.HasIndex("PetId", "IsActive");
 
                     b.ToTable("Collars", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Collars.CollarAuditEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CollarId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Details")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Event")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Serial")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CollarId", "CreatedAt");
+
+                    b.HasIndex("Serial", "CreatedAt");
+
+                    b.ToTable("CollarAuditEntries", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Collars.CollarDeviceCredential", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CollarId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("KeyHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTimeOffset?>("LastUsedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KeyHash");
+
+                    b.ToTable("CollarDeviceCredentials", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Collars.CollarHandoverCode", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AttemptCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("CollarId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("GeneratedByOwnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PinHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTimeOffset?>("RedeemedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("RedeemedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CollarId", "RedeemedAt", "CancelledAt");
+
+                    b.ToTable("CollarHandoverCodes", (string)null);
                 });
 
             modelBuilder.Entity("PawTrack.Domain.Collars.CollarLocation", b =>
@@ -1199,6 +1340,82 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.HasIndex("CollarId", "RecordedAt");
 
                     b.ToTable("CollarLocations", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Collars.CollarSafeZone", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CollarId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("LastKnownInside")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PolygonJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CollarId", "Enabled");
+
+                    b.ToTable("CollarSafeZones", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Collars.CollarTag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ActivatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CollarId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FirmwareVersion")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTimeOffset?>("LastPingAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("ManufacturedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Serial")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTimeOffset?>("SoldAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Serial")
+                        .IsUnique();
+
+                    b.ToTable("CollarTags", (string)null);
                 });
 
             modelBuilder.Entity("PawTrack.Domain.Family.FamilyAccount", b =>
@@ -2876,6 +3093,54 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.ToTable("Stores", (string)null);
                 });
 
+            modelBuilder.Entity("PawTrack.Domain.Stores.StoreLocation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("Lat")
+                        .HasColumnType("decimal(9,6)");
+
+                    b.Property<decimal>("Lng")
+                        .HasColumnType("decimal(9,6)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<Guid>("StoreId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StoreId", "IsActive");
+
+                    b.ToTable("StoreLocations", (string)null);
+                });
+
             modelBuilder.Entity("PawTrack.Domain.Stores.StoreOrder", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2905,6 +3170,9 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.Property<int>("FulfillmentType")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("LocationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("PaymentReference")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -2930,6 +3198,8 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .HasColumnType("decimal(12,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("LocationId");
 
                     b.HasIndex("PaymentReference")
                         .IsUnique();

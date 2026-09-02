@@ -10,7 +10,9 @@ public sealed class ClinicApiKeyRepository(PawTrackDbContext dbContext) : IClini
     public async Task<ClinicApiKey?> GetByHashAsync(string keyHash, CancellationToken cancellationToken = default) =>
         await dbContext.ClinicApiKeys
             .AsTracking()
-            .FirstOrDefaultAsync(k => k.KeyHash == keyHash && !k.IsRevoked, cancellationToken);
+            .FirstOrDefaultAsync(k => k.KeyHash == keyHash
+                && !k.IsRevoked
+                && k.ExpiresAt > DateTimeOffset.UtcNow, cancellationToken);
 
     public async Task<IReadOnlyList<ClinicApiKey>> GetForClinicAsync(
         Guid clinicId, CancellationToken cancellationToken = default) =>

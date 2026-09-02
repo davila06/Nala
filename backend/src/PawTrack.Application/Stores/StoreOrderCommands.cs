@@ -62,7 +62,8 @@ public sealed record PlaceStoreOrderCommand(
     OrderFulfillmentType FulfillmentType,
     string? DeliveryAddress,
     string? CustomerNote,
-    IReadOnlyList<PlaceOrderLineInput> Lines) : IRequest<Result<StoreOrderDto>>;
+    IReadOnlyList<PlaceOrderLineInput> Lines,
+    Guid? LocationId = null) : IRequest<Result<StoreOrderDto>>;
 
 public sealed class PlaceStoreOrderCommandValidator : AbstractValidator<PlaceStoreOrderCommand>
 {
@@ -121,11 +122,19 @@ public sealed class PlaceStoreOrderCommandHandler(
             lines.Add((product.Id, product.Name, line.Quantity, product.PriceCrc));
         }
 
+        // Optional branch attribution — must belong to this store and be active
+        if (request.LocationId.HasValue)
+        {
+            var location = await storeRepo.GetLocationByIdAsync(request.LocationId.Value, ct);
+            if (location is null || location.StoreId != store.Id || !location.IsActive)
+                return Result.Failure<StoreOrderDto>("Sede no disponible.");
+        }
+
         var reference = paymentService.GenerateReference();
         var order = StoreOrder.Place(
             store.Id, request.CustomerId, reference,
             request.FulfillmentType, request.DeliveryAddress,
-            request.CustomerNote, lines);
+            request.CustomerNote, lines, request.LocationId);
 
         await orderRepo.AddAsync(order, ct);
 
@@ -303,7 +312,7 @@ public sealed record StoreAnalyticsDto(
     /// <summary>Null unless the store has StorePartner (advanced analytics).</summary>
     IReadOnlyList<StoreTopProductStatDto>? TopProducts);
 
-public sealed record GetStoreAnalyticsQuery(Guid StoreOwnerUserId, int Year, int Month)
+public sealed record GetStoreAnalyticsQuery(Guid StoreOwnerUserId, int Year, int Month, Guid? LocationId = null)
     : IRequest<Result<StoreAnalyticsDto>>;
 
 public sealed class GetStoreAnalyticsQueryValidator : AbstractValidator<GetStoreAnalyticsQuery>
@@ -327,13 +336,27 @@ public sealed class GetStoreAnalyticsQueryHandler(
         if (store is null) return Result.Failure<StoreAnalyticsDto>("Tienda no encontrada.");
 
         // Gate: StorePlus gets basic totals; StorePartner additionally gets the by-day
-        // breakdown and top-products ranking ("analytics avanzados" per docs/planes.md).
+        // breakdown, top-products ranking, and per-location filtering.
         var tier = await subscriptionService.GetActiveUserTierAsync(request.StoreOwnerUserId, ct);
         if (tier is not (Domain.Subscriptions.SubscriptionTier.StorePlus or Domain.Subscriptions.SubscriptionTier.StorePartner))
             return Result.Failure<StoreAnalyticsDto>("Las estadísticas requieren el plan Tienda Plus o superior.");
 
-        var raw = await orderRepo.GetMonthlyStatsAsync(store.Id, request.Year, request.Month, ct);
         var advanced = tier == Domain.Subscriptions.SubscriptionTier.StorePartner;
+
+        Guid? locationFilter = null;
+        if (request.LocationId.HasValue)
+        {
+            if (!advanced)
+                return Result.Failure<StoreAnalyticsDto>("El filtro por sede requiere el plan Tienda Partner.");
+
+            var location = await storeRepo.GetLocationByIdAsync(request.LocationId.Value, ct);
+            if (location is null || location.StoreId != store.Id)
+                return Result.Failure<StoreAnalyticsDto>("Sede no encontrada.");
+
+            locationFilter = location.Id;
+        }
+
+        var raw = await orderRepo.GetMonthlyStatsAsync(store.Id, request.Year, request.Month, locationFilter, ct);
 
         return Result.Success(new StoreAnalyticsDto(
             request.Year, request.Month,
