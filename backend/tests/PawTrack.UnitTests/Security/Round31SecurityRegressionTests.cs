@@ -1,6 +1,9 @@
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using PawTrack.API.Hubs;
 using PawTrack.Application.LostPets.Commands.ClaimZone;
@@ -78,7 +81,7 @@ public sealed class Round31SecurityRegressionTests
         var groupProxy = Substitute.For<IClientProxy>();
         clients.Group(Arg.Any<string>()).Returns(groupProxy);
 
-        var hub = new SearchCoordinationHub(sender);
+        var hub = new SearchCoordinationHub(sender, new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions())));
         hub.Context = context;
         hub.Clients = clients;
 

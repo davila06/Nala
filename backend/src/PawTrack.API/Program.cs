@@ -83,7 +83,7 @@ builder.Services.AddScoped<PawTrack.Application.Common.Interfaces.IChatNotifier,
 builder.Services.AddSingleton(new VisualMatchSettings(
     builder.Configuration["VisualMatch:BaseUrl"] ?? "https://pawtrack.cr"));
 builder.Services.AddSingleton<PawTrack.API.Services.ITypingStateService,
-    PawTrack.API.Services.InMemoryTypingStateService>();
+    PawTrack.API.Services.DistributedTypingStateService>();
 
 // ── OpenAPI ───────────────────────────────────────────────────────────────────
 builder.Services.AddOpenApi();

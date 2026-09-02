@@ -56,43 +56,26 @@
     ```
   - `PeriodicTimer` no acumula drift, no puede overlappear ticks
 
-### 2.3 Background Services en múltiples instancias (duplicated jobs) — 🟡 parcialmente resuelto
+### 2.3 Background Services en múltiples instancias (duplicated jobs) — ✅ resuelto
 
 - [x] ~~`VetReminderHostedService`, `StaleReportCheckerHostedService`, `QrScanRetentionHostedService`~~ ya usan `IDistributedJobLock.TryAcquireAsync(...)` antes de ejecutar. Verificado 2026-09-02.
-- [ ] **🟡** `HealthAlertHostedService.cs` y `EmbeddingRefreshHostedService.cs` **todavía NO** adquieren el distributed lock — siguen duplicando trabajo en scale-out. Aplicar el mismo patrón que los tres anteriores.
-  - Alternativamente: usar Azure Container Apps Jobs (run-to-completion) en lugar de hosted services
+- [x] ~~`HealthAlertHostedService.cs` y `EmbeddingRefreshHostedService.cs` no adquirían el distributed lock~~ — aplicado el mismo `IDistributedJobLock.TryAcquireAsync("HealthAlert"/"EmbeddingRefresh", ...)` que los otros tres jobs. Corregido 2026-09-02.
 
 ---
 
 ## 3. Escalabilidad horizontal (scale-out)
 
-### 3.1 TypingStateService — in-memory, no funciona con múltiples instancias
+### 3.1 TypingStateService — in-memory, no funciona con múltiples instancias — ✅ resuelto
 
-- [ ] **🟡** `API/Services/TypingStateService.cs` — documentado internamente como limitación
-  - **Solución A (recomendada):** Azure SignalR Service como backplane
-    ```csharp
-    builder.Services.AddSignalR().AddAzureSignalR(configuration["AzureSignalR:ConnectionString"]);
-    ```
-    Con esto, los grupos de SignalR se sincronizan automáticamente entre instancias
-  - **Solución B:** Redis Pub/Sub para broadcast de "is typing" entre instancias
-  - **Solución C (mínimo esfuerzo):** mover el estado de typing a un canal SignalR broadcast — el cliente ya tiene el canal
+- [x] ~~`API/Services/TypingStateService.cs` usaba `ConcurrentDictionary` in-memory~~ — reemplazado por `DistributedTypingStateService` sobre `IDistributedCache` (Redis en prod, distributed in-memory en dev single-instancia). Clave por thread (`typing:{threadId:N}`) con TTL de 5s en vez de tracking por usuario, ya que los chats enmascarados son 1:1 y `IDistributedCache` no soporta scan por prefijo. `ChatController.NotifyTyping`/`GetTypingState` convertidos a async. Cubierto por `DistributedTypingStateServiceTests` (4 tests). Corregido 2026-09-02.
 
-### 3.2 SearchCoordinationHub — `_lastLocationUpdate` estático entre instancias
+### 3.2 SearchCoordinationHub — `_lastLocationUpdate` estático entre instancias — ✅ resuelto
 
-- [ ] **🟡** `API/Hubs/SearchCoordinationHub.cs` línea 25: `private static readonly ConcurrentDictionary`
-  - El throttle de ubicación es por conexión, pero si la conexión migra de instancia, el throttle se pierde
-  - **Solución:** mover el throttle al cliente (client-side debounce de 2s antes de enviar) o Redis
+- [x] ~~`private static readonly ConcurrentDictionary` para el throttle de ubicación~~ — reemplazado por `IDistributedCache` (misma clave `search-loc-throttle:{ConnectionId}`, TTL de 2s = ventana de throttle). El TTL reemplaza la limpieza manual que antes vivía en `OnDisconnectedAsync`. Tests existentes (`Round61SecurityRegressionTests`, etc.) actualizados para usar un `IDistributedCache` real (in-memory) ya que el throttle depende de estado persistido entre llamadas. Corregido 2026-09-02.
 
-### 3.3 MemoryCacheNotificationRateLimitService — no distribuido
+### 3.3 MemoryCacheNotificationRateLimitService — no distribuido — ✅ resuelto (ya estaba resuelto, código muerto eliminado)
 
-- [ ] **🟡** `Infrastructure/Notifications/MemoryCacheNotificationRateLimitService.cs` usa `IMemoryCache`
-  - En scale-out, cada instancia tiene su propio cache → usuario puede recibir N notificaciones (una por instancia)
-  - **Solución:** `IDistributedCache` (Redis o Azure Cache for Redis):
-    ```csharp
-    // Reemplazar IMemoryCache con IDistributedCache
-    // Key: $"notif-rl:{userId}:{alertType}"
-    // TTL: ventana de rate limit
-    ```
+- [x] ~~usaba `IMemoryCache`~~ — la implementación **realmente registrada en DI** ya era `DistributedNotificationRateLimitService` (`IDistributedCache`/Redis) desde antes; `MemoryCacheNotificationRateLimitService` existía como clase huérfana sin ninguna referencia (ni DI, ni tests). Eliminada 2026-09-02 para evitar confusión futura sobre cuál implementación está activa.
 
 ---
 

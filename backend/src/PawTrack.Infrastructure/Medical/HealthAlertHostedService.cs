@@ -109,6 +109,7 @@ public sealed class HealthAlertJob(
 
 public sealed class HealthAlertHostedService(
     IServiceScopeFactory scopeFactory,
+    IDistributedJobLock jobLock,
     ILogger<HealthAlertHostedService> logger)
     : BackgroundService
 {
@@ -123,6 +124,10 @@ public sealed class HealthAlertHostedService(
 
             logger.LogInformation("HealthAlertHostedService: next run at {NextRun}", nextRun);
             await Task.Delay(nextRun - now, stoppingToken);
+
+            // Acquire distributed lock — only one instance runs the job on scale-out.
+            await using var lease = await jobLock.TryAcquireAsync("HealthAlert", TimeSpan.FromHours(2), stoppingToken);
+            if (lease is null) continue;
 
             try
             {

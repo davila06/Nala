@@ -1,6 +1,9 @@
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using PawTrack.API.Hubs;
 using PawTrack.Application.LostPets.Queries.IsSearchParticipant;
@@ -66,12 +69,15 @@ public sealed class Round28SecurityRegressionTests
         context.ConnectionId.Returns("test-connection-id");
         context.User.Returns(user);
 
-        var hub = new SearchCoordinationHub(sender);
+        var hub = new SearchCoordinationHub(sender, NewTestCache());
         hub.Groups = groups;
         hub.Context = context;
 
         return (hub, groups);
     }
+
+    private static IDistributedCache NewTestCache() =>
+        new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
 
     // ── JoinSearch: non-participant must be silently denied ───────────────────
 
@@ -142,7 +148,7 @@ public sealed class Round28SecurityRegressionTests
         context.ConnectionId.Returns("anon-connection");
         context.User.Returns(emptyUser);
 
-        var hub = new SearchCoordinationHub(sender);
+        var hub = new SearchCoordinationHub(sender, NewTestCache());
         hub.Groups = groups;
         hub.Context = context;
 

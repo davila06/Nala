@@ -156,10 +156,10 @@ public sealed class ChatController(ISender sender, ITypingStateService typingSta
     [HttpPost("threads/{threadId:guid}/typing")]
     [EnableRateLimiting("chat-message")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public IActionResult NotifyTyping(Guid threadId)
+    public async Task<IActionResult> NotifyTyping(Guid threadId, CancellationToken ct)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
-        typingState.SetTyping(threadId, userId);
+        await typingState.SetTypingAsync(threadId, userId, ct);
         return NoContent();
     }
 
@@ -169,10 +169,10 @@ public sealed class ChatController(ISender sender, ITypingStateService typingSta
     [HttpGet("threads/{threadId:guid}/typing")]
     [EnableRateLimiting("chat-message")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public IActionResult GetTypingState(Guid threadId)
+    public async Task<IActionResult> GetTypingState(Guid threadId, CancellationToken ct)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
-        return Ok(new { isTyping = typingState.IsOtherPartyTyping(threadId, userId) });
+        return Ok(new { isTyping = await typingState.IsOtherPartyTypingAsync(threadId, userId, ct) });
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

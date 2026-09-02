@@ -23,7 +23,8 @@ namespace PawTrack.Infrastructure.AI;
 /// </para>
 /// </summary>
 public sealed class EmbeddingRefreshHostedService(
-    IServiceScopeFactory           scopeFactory,
+    IServiceScopeFactory scopeFactory,
+    IDistributedJobLock jobLock,
     ILogger<EmbeddingRefreshHostedService> logger)
     : BackgroundService
 {
@@ -43,7 +44,11 @@ public sealed class EmbeddingRefreshHostedService(
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            await RunRefreshCycleAsync(stoppingToken);
+            // Acquire distributed lock — only one instance runs the refresh cycle on scale-out.
+            await using var lease = await jobLock.TryAcquireAsync("EmbeddingRefresh", RefreshInterval, stoppingToken);
+            if (lease is not null)
+                await RunRefreshCycleAsync(stoppingToken);
+
             await Task.Delay(RefreshInterval, stoppingToken);
         }
     }
@@ -55,7 +60,7 @@ public sealed class EmbeddingRefreshHostedService(
 
         var visualMatchRepo = scope.ServiceProvider.GetRequiredService<IVisualMatchRepository>();
         var embeddingService = scope.ServiceProvider.GetRequiredService<IImageEmbeddingService>();
-        var unitOfWork       = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
         IReadOnlyList<ActiveLostPetProfile> stale;
         try
@@ -95,8 +100,8 @@ public sealed class EmbeddingRefreshHostedService(
                     continue;
                 }
 
-                var hash      = ComputeUrlHash(profile.PhotoUrl);
-                var json      = JsonSerializer.Serialize(vector);
+                var hash = ComputeUrlHash(profile.PhotoUrl);
+                var json = JsonSerializer.Serialize(vector);
                 var embedding = PetPhotoEmbedding.Create(profile.PetId, json, hash);
 
                 await visualMatchRepo.UpsertEmbeddingAsync(embedding, ct);

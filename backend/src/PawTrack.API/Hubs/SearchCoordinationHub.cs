@@ -1,11 +1,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Caching.Distributed;
 using PawTrack.Application.LostPets.Commands.ClaimZone;
 using PawTrack.Application.LostPets.Commands.ClearZone;
 using PawTrack.Application.LostPets.Commands.ReleaseZone;
 using PawTrack.Application.LostPets.Queries.IsSearchParticipant;
-using System.Collections.Concurrent;
 using System.Security.Claims;
 
 namespace PawTrack.API.Hubs;
@@ -18,11 +18,11 @@ namespace PawTrack.API.Hubs;
 /// <para>All methods require authentication (<see cref="AuthorizeAttribute"/>).</para>
 /// </summary>
 [Authorize]
-public sealed class SearchCoordinationHub(ISender sender) : Hub
+public sealed class SearchCoordinationHub(ISender sender, IDistributedCache cache) : Hub
 {
-    // Per-connection location-update throttle (R61).
-    // Keyed by ConnectionId — removed in OnDisconnectedAsync to prevent unbounded growth.
-    private static readonly ConcurrentDictionary<string, DateTimeOffset> _lastLocationUpdate = new();
+    // Per-connection location-update throttle (R61), backed by IDistributedCache (Redis)
+    // so it's honored across all Container App instances, not just the one holding the
+    // WebSocket connection. TTL expiry replaces the old manual OnDisconnectedAsync cleanup.
     private static readonly TimeSpan _locationThrottleInterval = TimeSpan.FromSeconds(2);
 
     // ── Group management ──────────────────────────────────────────────────────
@@ -128,12 +128,11 @@ public sealed class SearchCoordinationHub(ISender sender) : Hub
         // WebSocket frames are not subject to ASP.NET's HTTP rate limiter, so without
         // this guard a participant can flood all other volunteers with location events
         // at the maximum WebSocket frame rate their client allows.
-        var now = DateTimeOffset.UtcNow;
-        var connectionId = Context.ConnectionId;
-        if (_lastLocationUpdate.TryGetValue(connectionId, out var lastTime) &&
-            now - lastTime < _locationThrottleInterval)
+        var throttleKey = $"search-loc-throttle:{Context.ConnectionId}";
+        if (await cache.GetStringAsync(throttleKey) is not null)
             return; // too frequent — silently drop
-        _lastLocationUpdate[connectionId] = now;
+        await cache.SetStringAsync(throttleKey, "1",
+            new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = _locationThrottleInterval });
 
         // Use ConnectionId (ephemeral, session-scoped) as the client identifier.
         // The authenticated UserId (account GUID) must NOT be broadcast to other group
@@ -147,15 +146,7 @@ public sealed class SearchCoordinationHub(ISender sender) : Hub
 
     // ── Connection lifecycle ──────────────────────────────────────────────────
 
-    /// <summary>
-    /// Removes the per-connection throttle entry when the WebSocket closes to prevent
-    /// unbounded growth of <see cref="_lastLocationUpdate"/>.
-    /// </summary>
-    public override Task OnDisconnectedAsync(Exception? exception)
-    {
-        _lastLocationUpdate.TryRemove(Context.ConnectionId, out _);
-        return base.OnDisconnectedAsync(exception);
-    }
+    // Throttle entries expire via TTL in IDistributedCache — no manual cleanup needed.
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
