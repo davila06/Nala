@@ -19,15 +19,10 @@
 - [x] ~~`TelegramChannelBroadcaster.cs` mismo problema~~
   - Ya hace `POST https://api.telegram.org/bot{token}/sendMessage` real con `HttpClient("Telegram")`, incluye envío de foto (`sendPhoto`). Verificado 2026-09-02.
 
-### 1.3 Kippy GPS Integration
+### 1.3 Kippy GPS Integration — ❌ no se implementará (decisión de producto, 2026-09-02)
 
-- [ ] **🟡** `Domain/Collars/CollarProvider.cs` tiene `Kippy = 2` pero no hay `KippyService`
-  - **Implementación:**
-    1. Crear `KippyService.cs` implementando `ITrackerService` (misma interface que Tractive)
-    2. Crear `KippyPollingJob.cs` similar a `TractivePollingJob.cs` con `PeriodicTimer(5 min)`
-    3. OAuth2 con la API de Kippy (docs: https://www.kippy.eu/developers)
-    4. Registrar en DI con HttpClient named `"Kippy"`
-  - Sin Kippy, el enum value es dead code que confunde
+- [x] ~~`Domain/Collars/CollarProvider.cs` tiene `Kippy = 2` pero no hay `KippyService`~~
+  - **Decisión:** no vale la pena el esfuerzo — descartado. El enum value `Kippy` queda como dead code intencional (Tractive + collar genérico OEM cubren el caso de uso). No se agregará `KippyService`/`KippyPollingJob`.
 
 ---
 
@@ -164,10 +159,10 @@
 
 - [x] ~~`const { active, payload } = props as any;`~~ — ya usa `TooltipProps<number, string>` de recharts. Verificado 2026-09-02.
 
-### 11.2 Polling agresivo en notificaciones y chat — 🟢 parcialmente re-verificado
+### 11.2 Polling agresivo en notificaciones y chat — 🟢 parcialmente resuelto
 
 - [x] ~~`useNotifications.ts` con `refetchInterval: 30_000`~~ — ya no tiene `refetchInterval`. Verificado 2026-09-02.
-- [ ] **🟢** `useChatThread.ts` y `useStoreOrders.ts` no re-verificados en esta pasada — asumir abiertos hasta confirmar.
+- [ ] **🟢** `useChatThread.ts` (`refetchInterval` de 15s/10s/3s en 3 hooks) y `useStoreOrders.ts` (30s/15s) **siguen pollando** pese a que SignalR y WebSocket/eventos ya existen para chat/pedidos. Re-verificado 2026-09-02 — sigue abierto.
 
 ### 11.3 Absence of error boundaries per feature
 
@@ -195,15 +190,15 @@
 
 ### 12.2 Sin paginación en endpoints que pueden devolver muchos datos
 
-- [ ] **🟢** Los siguientes endpoints carecen de paginación y podrían devolver N filas sin límite:
-  - `GET /api/adoptions/animals/{id}/applications` — puede haber muchas aplicaciones para un animal popular
-  - `GET /api/allies/alerts` — limitado a `MaxResults = 50` hardcoded
+- [ ] **🟢** Re-verificado 2026-09-02, ambos siguen abiertos:
+  - `GET /api/adoptions/animals/{id}/applications` (`AdoptionsController.GetApplications`) — sin `page`/`pageSize`, puede devolver N filas sin límite
+  - `GET /api/allies/me/alerts` (`GetMyAllyAlertsQueryHandler`) — límite hardcoded en **200** (no 50 como se documentó originalmente), sin paginación real
   - `GET /api/admin/adoptions/animals` — ya tiene paginación ✅
   - **Fix:** añadir `page`/`pageSize` query params con límite máximo de 50
 
 ### 12.3 Inconsistencia en códigos de error
 
-- [ ] **🟢** Algunos handlers usan constantes tipadas (`internal const string NotVerifiedShelterError = "not_verified_shelter"`) y otros usan strings literales inlineados (`"Access denied."`, `"Custody record not found."`)
+- [ ] **🟢** Re-verificado 2026-09-02 — sigue abierto, no existe `ErrorCodes`/`ErrorCode` en el código. Algunos handlers usan constantes tipadas (`internal const string NotVerifiedShelterError = "not_verified_shelter"`) y otros usan strings literales inlineados (`"Access denied."`, `"Custody record not found."`)
   - **Enterprise:** crear `ErrorCodes` static class con todas las constantes o usar un `enum ErrorCode` convertido a string
   - Permite que el frontend muestre mensajes específicos en español sin depender de strings del servidor
 
@@ -220,15 +215,9 @@
 - [x] ~~`WhatsAppChannelBroadcaster`, `EmailChannelBroadcaster` no tenían tests~~ — `WhatsAppChannelBroadcasterTests.cs`, `EmailChannelBroadcasterTests.cs` y `TelegramChannelBroadcasterTests.cs` ya existen. Verificado 2026-09-02.
 - [ ] **🟢** `FacebookChannelBroadcasterTests` sigue sin existir — único canal sin cobertura.
 
-### 13.3 Sin mutation tests
+### 13.3 Sin mutation tests — ✅ resuelto
 
-- [ ] **⚪** 1,021 tests pero sin mutation testing (Stryker.NET)
-  - Mutation testing revela tests que pasan con código roto
-  - **Setup:**
-    ```bash
-    dotnet tool install -g dotnet-stryker
-    dotnet stryker --project PawTrack.Application --mutation-level Standard
-    ```
+- [x] ~~sin mutation testing (Stryker.NET)~~ — ya está instalado y se corre (`backend/run-stryker.ps1` + reportes reales en `StrykerOutput/2026-08-24.*` y `backend/src/PawTrack.Domain/StrykerOutput/2026-08-24.*`). Verificado 2026-09-02.
 
 ---
 
@@ -304,53 +293,41 @@
 
 - [x] ~~almacena species como CSV string~~ — ya usa `AcceptedSpeciesJson` (JSON array), manteniendo el nombre de columna `AcceptedSpeciesCsv` solo para no requerir migración, con parseo legacy CSV como fallback de compatibilidad. Verificado 2026-09-02.
 
-### 16.5 `BreedActivityBenchmark` y `BreedWeightReference` — datos hardcodeados
+### 16.5 `BreedActivityBenchmark` y `BreedWeightReference` — datos hardcodeados — 🟡 migración a medias
 
-- [ ] **⚪** `Domain/Medical/*.cs` tienen diccionarios de razas hardcodeados en C#
-  - **Enterprise:** moverlos a tabla `BreedReference` en la DB con seed migration
-  - Permite actualizar sin deploy; admins pueden agregar razas nuevas vía panel
+- [ ] **🟡** Re-verificado 2026-09-02: existe `BreedReferenceSeedHostedService` que siembra una tabla `BreedReferences` (con `IBreedReferenceRepository`) a partir de estos mismos diccionarios hardcodeados — pero el código de features **sigue llamando a los estáticos directamente** (`ActivityCommands.cs` → `BreedActivityBenchmark.Resolve(...)`, `MedicalCommands.cs` → `BreedWeightReference.Resolve(...)`), no al repositorio/tabla nueva. La tabla existe y se siembra pero nadie la lee todavía — falta el último paso: cambiar esas dos llamadas para usar `IBreedReferenceRepository` en vez de los diccionarios estáticos.
 
-### 16.6 Missing cursor pagination en collar GPS
+### 16.6 Missing cursor pagination en collar GPS — ✅ resuelto (diseño diferente pero adecuado)
 
-- [ ] **🟢** `GET /api/collars/{id}/location-history` — sin límite documentado ni cursor
-  - Un collar Tractive con meses de historial podría devolver miles de puntos
-  - **Fix:** añadir `?from=ISO8601&to=ISO8601&maxPoints=500` con downsampling
+- [x] ~~`GET /api/collars/{id}/location-history` sin límite ni cursor~~ — ya acepta `from`/`to`/`maxPoints` (clamped a 1–10,000) exactamente como se proponía aquí; al ser series de tiempo, filtrar por rango de fechas + tope de puntos es un diseño válido, no requiere cursor `WHERE Id > @lastId`. Verificado 2026-09-02.
 
 ---
 
 ## Resumen por categoría de impacto
 
-| #         | Categoría                   | Críticos 🔴 | Altos 🟡 | Medios 🟢 | Bajos ⚪ |
-| --------- | --------------------------- | ----------- | -------- | --------- | -------- |
-| 1         | STUBs sin implementar       | 2           | 1        | —         | —        |
-| 2         | Async anti-patrones         | —           | 1        | 1         | —        |
-| 3         | Scale-out / multi-instancia | —           | 3        | —         | —        |
-| 4         | Paginación ineficiente      | 1           | —        | 1         | —        |
-| 5         | Domain events sin dispatch  | —           | —        | 1         | —        |
-| 6         | Outbox / confiabilidad      | —           | 1        | —         | —        |
-| 7         | HTTP retry / resiliencia    | —           | 2        | —         | —        |
-| 8         | Seguridad residual          | —           | 2        | —         | 1        |
-| 9         | UX de shelter               | —           | 2        | —         | —        |
-| 10        | Audit log                   | —           | 1        | —         | —        |
-| 11        | Frontend calidad            | —           | —        | 3         | 1        |
-| 12        | API gaps                    | —           | 1        | 2         | —        |
-| 13        | Testing gaps                | —           | 1        | 1         | 1        |
-| 14        | Infrastructure              | —           | 1        | 2         | —        |
-| 15        | Monitoring                  | —           | 1        | —         | 2        |
-| 16        | Técnicos menores            | —           | 2        | 1         | 3        |
-| **Total** |                             | **3**       | **19**   | **12**    | **8**    |
+> **Actualizado 2026-09-02** tras dos rondas de re-auditoría + fixes. De los ~55 ítems del análisis original: **1 descartado por decisión de producto** (Kippy), **~37 confirmados ya resueltos** (la mayoría eran falsos positivos de un doc desactualizado; ~6 fueron arreglados en esta sesión: distributed locks en 2 hosted services, `TypingStateService`, `SearchCoordinationHub`, RecordLocation BOLA de collares — ver `pendientesTotales.md` §3.2), **16 siguen genuinamente abiertos** (0 críticos, 2 altos, 9 medios, 5 bajos).
+
+| #   | Categoría                   | Abiertos | Detalle                                                          |
+| --- | ----------------------------- | -------- | ----------------------------------------------------------------- |
+| 1   | STUBs sin implementar         | 0        | Facebook/Telegram resueltos; Kippy descartado                     |
+| 2   | Async anti-patrones           | 1 🟢      | `Task.Delay` vs `PeriodicTimer` (estilo, no funcional)             |
+| 3   | Scale-out / multi-instancia   | 0        | Typing, SearchCoordinationHub, jobs, notif rate-limit — todos resueltos |
+| 4   | Paginación ineficiente        | 0        | Store orders + cursor de notificaciones resueltos                 |
+| 11  | Frontend calidad              | 2        | 🟢 polling chat/orders, 🟢 error boundaries, ⚪ suspense skeletons  |
+| 12  | API gaps                      | 2 🟢      | paginación adoptions/allies, códigos de error inconsistentes      |
+| 13  | Testing gaps                  | 1 🟢      | Falta `FacebookChannelBroadcasterTests`                            |
+| 14  | Infrastructure                | 3        | 🟡 Container Apps Jobs, 🟢 verificar lock migraciones, 🟢 rotación SendGrid |
+| 15  | Monitoring                    | 3        | 🟡 alertas App Insights, ⚪ tracing, ⚪ Kusto dashboard               |
+| 16  | Técnicos menores             | 2        | 🟡 BreedReference migración a medias, ⚪ UC-06 post-adopción        |
 
 ---
 
-## Quick wins (< 1h cada uno, alto impacto)
+## Quick wins restantes (< 1h cada uno)
 
-1. **`Guid.NewGuid()` → `Guid.CreateVersion7()`** en `GeofencedAlertLog.cs` — 1 línea
-2. **`.Result` → `await`** en `CloseCustodyCommand.cs` y `GetCaseRoomQuery.cs` — 5 líneas
-3. **`any` cast en `WeightTrendChart`** → tipo correcto de recharts — 3 líneas
-4. **Polly retry en WhatsApp y SendGrid** — 20 líneas por client
-5. **Fotos de adopción borradas al remover animal** — 5 líneas en `AdminModerateAnimalCommandHandler`
-6. **Gating de paginación en `GetMyStoreOrders`** — mover Skip/Take a la query de repo — 30 líneas
+1. **`BreedActivityBenchmark`/`BreedWeightReference`** → cambiar las 2 llamadas en `ActivityCommands.cs`/`MedicalCommands.cs` para usar `IBreedReferenceRepository` en vez de los estáticos (§16.5) — la tabla y el seed ya existen.
+2. **`FacebookChannelBroadcasterTests`** — copiar el patrón de `TelegramChannelBroadcasterTests.cs` (§13.2).
+3. **Paginación real** en `GET /api/adoptions/animals/{id}/applications` y `GET /api/allies/me/alerts` (§12.2).
 
 ---
 
-_Última actualización: 2026-08-24 — análisis del commit `2e4af15`_
+_Última actualización: 2026-09-02 — re-auditoría completa + fixes de escalabilidad_
