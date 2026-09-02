@@ -124,22 +124,10 @@
 
 ## 4. Paginación ineficiente
 
-### 4.1 GetMyStoreOrders — paginación en memoria
+### 4.1 GetMyStoreOrders — ✅ resuelto (paginación en base de datos)
 
-- [ ] **🔴** `Application/Stores/StoreOrderCommands.cs` línea 250:
-
-  ```csharp
-  // ACTUAL — carga TODOS los pedidos del cliente en memoria, luego pagina
-  var orders = await repo.GetByCustomerAsync(request.CustomerId, ct); // ← potencialmente N
-  var paged = orders.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-  // ENTERPRISE — paginación en base de datos
-  ```
-
-  - Crear `GetByCustomerPagedAsync(Guid customerId, int skip, int take, ct)` en `IStoreOrderRepository`
-  - Añadir `CountByCustomerAsync(Guid customerId, ct)` para `totalCount`
-  - Retornar `PagedResult<StoreOrderDto>` en lugar de `IReadOnlyList`
-  - Archivos: `IStoreOrderRepository.cs`, `StoreOrderRepository.cs`, `StoreOrderCommands.cs`, `storeOrdersApi.ts`
+- [x] ~~`Application/Stores/StoreOrderCommands.cs` cargaba todos los pedidos del cliente en memoria~~
+  - Ya usa `IStoreOrderRepository.GetByCustomerPagedAsync` (SQL `Skip/Take` + `AsNoTracking`) y `CountByCustomerAsync` para el total; retorna `PagedResult<StoreOrderDto>`. Verificado 2026-09-02; el método sin paginar quedó eliminado por no tener llamadores.
 
 ### 4.2 Skip/Take degrada en tablas grandes
 
@@ -182,6 +170,7 @@
 ### 6.1 Fire-and-forget con riesgo de pérdida
 
 - [ ] **🟡** Todos los handlers usan el patrón:
+
   ```csharp
   await unitOfWork.SaveChangesAsync(ct); // ← commit
   _ = notificationDispatcher.DispatchX(...) // ← si el proceso muere aquí, la notif se pierde
@@ -235,6 +224,7 @@
 ### 8.1 Race condition en idempotency del bot de WhatsApp
 
 - [ ] **🟡** `HandleWhatsAppWebhookCommandHandler.cs` línea 61:
+
   ```csharp
   if (session.IsMessageProcessed(request.MessageId)) return; // check
   session.MarkMessageProcessed(request.MessageId);           // set
