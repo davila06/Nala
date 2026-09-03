@@ -247,10 +247,10 @@ https://pawtrack.cr
   — mencionan explícitamente **NFC, pantalla E-Ink, cámara y un dispositivo
   totalmente custom** — probablemente requieren desarrollo adicional. Van a evaluar
   cada variante individualmente y recomendarnos la solución más cercana.
-  *(Nota: nosotros no propusimos NFC en las variantes V1–V4 de este documento —
+  _(Nota: nosotros no propusimos NFC en las variantes V1–V4 de este documento —
   puede que lo hayan inferido del roadmap de collar propio en `collarFinal.md`, o
   que lo mencionen como capacidad general de su portafolio. Aclarar en la próxima
-  respuesta si preguntan por esto.)*
+  respuesta si preguntan por esto.)_
 - **No darán estimados sin validar internamente** — conectividad, autonomía de
   batería, specs de cámara, certificaciones, MOQ, precios y plazos de entrega
   quedan pendientes de una revisión interna con sus equipos de producto,

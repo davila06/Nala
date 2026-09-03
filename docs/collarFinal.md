@@ -172,12 +172,12 @@ public sealed class KippyService(IHttpClientFactory factory, IConfiguration conf
 
 Para el collar de marca PawTrack, cuatro fabricantes candidatos clasificados por prioridad:
 
-| Fabricante    | Modelo ref.        | API                     | MOQ    | Fortaleza                                  | Prioridad |
-| ------------- | ------------------ | ----------------------- | ------ | ------------------------------------------ | --------- |
-| **Concox**    | AT4 (GPS+WiFi+LTE) | REST propia documentada | 50 u.  | `sales@concox.com` verificado, FCC/CE/ROHS | **1°**    |
+| Fabricante    | Modelo ref.        | API                     | MOQ    | Fortaleza                                                                                                               | Prioridad          |
+| ------------- | ------------------ | ----------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| **Concox**    | AT4 (GPS+WiFi+LTE) | REST propia documentada | 50 u.  | `sales@concox.com` verificado, FCC/CE/ROHS                                                                              | **1°**             |
 | **Jimi IoT**  | JM-VL01 / LL01     | REST + MQTT             | 50 u.  | Push (MQTT) + polling — más flexible; **en conversación activa, respondieron RFQ 2026-09-03, ver `docs/jimiiot.md` §8** | **1°** (promovido) |
-| **Queclink**  | GL300 miniatura    | REST + binario propio   | 50 u.  | Hardware robusto y compacto                | 3°        |
-| **ThinkRace** | TK115 pet-specific | REST + WebSocket        | 100 u. | Diseño pensado para collar                 | 4°        |
+| **Queclink**  | GL300 miniatura    | REST + binario propio   | 50 u.  | Hardware robusto y compacto                                                                                             | 3°                 |
+| **ThinkRace** | TK115 pet-specific | REST + WebSocket        | 100 u. | Diseño pensado para collar                                                                                              | 4°                 |
 
 **Precios detallados (Concox AT4 como referencia):**
 
