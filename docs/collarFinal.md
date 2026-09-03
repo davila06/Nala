@@ -2,7 +2,7 @@
 
 > **Única fuente de verdad** sobre hardware de collar, proveedores, integración de código, CollarTag (activación tipo AirTag) y sourcing.  
 > Consolida: `collar.md`, `collar-china-sourcing.md`, `collarTag.md`.  
-> Última actualización: 2026-09-02 — CollarTag **implementado** (fases 1–3); Fase 4 Enterprise **COMPLETA**: Alertas de conectividad, Auditoría de eventos, Transferencia segura (Handover) y Lost Mode **implementados**. Fase 5 **COMPLETA** (4/4): Geofencing (Safe Zones), Historial de ubicaciones + export, Admin Dashboard mejorado, y E2E Testing Suite (Playwright) **implementados**.
+> Última actualización: 2026-09-03 — CollarTag **implementado** (fases 1–3); Fase 4 Enterprise **COMPLETA**: Alertas de conectividad, Auditoría de eventos, Transferencia segura (Handover) y Lost Mode **implementados**. Fase 5 **COMPLETA** (4/4): Geofencing (Safe Zones), Historial de ubicaciones + export, Admin Dashboard mejorado, y E2E Testing Suite (Playwright) **implementados**. Conversación activa con **Jimi IoT** (RFQ enviado, respuesta recibida 2026-09-03) — ver `docs/jimiiot.md`.
 
 ---
 
@@ -175,7 +175,7 @@ Para el collar de marca PawTrack, cuatro fabricantes candidatos clasificados por
 | Fabricante    | Modelo ref.        | API                     | MOQ    | Fortaleza                                  | Prioridad |
 | ------------- | ------------------ | ----------------------- | ------ | ------------------------------------------ | --------- |
 | **Concox**    | AT4 (GPS+WiFi+LTE) | REST propia documentada | 50 u.  | `sales@concox.com` verificado, FCC/CE/ROHS | **1°**    |
-| **Jimi IoT**  | JM-VL01 / LL01     | REST + MQTT             | 50 u.  | Push (MQTT) + polling — más flexible       | **2°**    |
+| **Jimi IoT**  | JM-VL01 / LL01     | REST + MQTT             | 50 u.  | Push (MQTT) + polling — más flexible; **en conversación activa, respondieron RFQ 2026-09-03, ver `docs/jimiiot.md` §8** | **1°** (promovido) |
 | **Queclink**  | GL300 miniatura    | REST + binario propio   | 50 u.  | Hardware robusto y compacto                | 3°        |
 | **ThinkRace** | TK115 pet-specific | REST + WebSocket        | 100 u. | Diseño pensado para collar                 | 4°        |
 

@@ -3,6 +3,12 @@
 > Documento preparado para compartir con **Jimi IoT** como parte de la evaluación de un
 > collar GPS para mascotas (OEM/marca blanca) para **PawTrack CR**.
 > Última actualización: 2026-09-03
+>
+> **📌 Estado de la conversación (2026-09-03):** Jimi IoT respondió positivamente al
+> RFQ inicial — interesados en una relación de socio tecnológico/fabricante a largo
+> plazo, no solo venta de un dispositivo existente. Están consolidando información
+> técnica y comercial internamente (producto, ingeniería, ventas) antes de dar
+> respuesta estructurada punto por punto. Ver bitácora completa en §8.
 
 ---
 
@@ -212,3 +218,64 @@ Semana 6–8   → Producción + envío + aduana + activación de SIMs + QA
 Denis Avila Umaña
 [correo] · [WhatsApp/teléfono]
 https://pawtrack.cr
+
+---
+
+## 8. Bitácora de conversación
+
+### 2026-09-03 — Respuesta inicial de Jimi IoT al RFQ
+
+**Resumen de su respuesta:**
+
+- **Interés confirmado en partnership a largo plazo** — leyeron el RFQ como una
+  propuesta de socio tecnológico/fabricante, no solo compra de un tracker existente.
+  Buena señal para negociar términos OEM/ODM más adelante.
+- **Integración con servidor:** confirman soporte de **RESTful API y MQTT**, con
+  experiencia previa integrando con plataformas de terceros. Están dispuestos a
+  evaluar **comunicación directa dispositivo → nuestro propio backend** (es decir,
+  el Camino B / push directo a `POST /api/collars/ingest` que ya tenemos
+  implementado — ver `collarFinal.md` §4), dejando a PawTrack el control completo
+  de la app, backend y datos. También evaluarán requisitos específicos si
+  necesitamos Azure IoT Hub o infraestructura MQTT administrada por nosotros.
+- **OEM/ODM:** confirman branding de producto, empaque, manuales personalizados,
+  nombre del dispositivo y personalización de firmware como parte de su oferta
+  estándar. Personalización de **hardware más profunda** requiere que su equipo de
+  ingeniería evalúe requisitos, volúmenes y alcance antes de confirmar viabilidad,
+  MOQ y costos de ingeniería — es decir, no es gratis ni inmediato, hay que llegar
+  con specs concretas.
+- **Sobre las variantes V1–V4:** algunas se cubren con su portafolio actual; otras
+  — mencionan explícitamente **NFC, pantalla E-Ink, cámara y un dispositivo
+  totalmente custom** — probablemente requieren desarrollo adicional. Van a evaluar
+  cada variante individualmente y recomendarnos la solución más cercana.
+  *(Nota: nosotros no propusimos NFC en las variantes V1–V4 de este documento —
+  puede que lo hayan inferido del roadmap de collar propio en `collarFinal.md`, o
+  que lo mencionen como capacidad general de su portafolio. Aclarar en la próxima
+  respuesta si preguntan por esto.)*
+- **No darán estimados sin validar internamente** — conectividad, autonomía de
+  batería, specs de cámara, certificaciones, MOQ, precios y plazos de entrega
+  quedan pendientes de una revisión interna con sus equipos de producto,
+  ingeniería y ventas.
+- **Validan nuestro roadmap de fases** (50 u. → 500+ u. → hardware NALA
+  personalizado) como un enfoque práctico: proponen identificar primero la
+  solución existente más cercana para la Fase 1 (piloto), validar en mercado, y
+  luego migrar gradualmente a desarrollo OEM/ODM más profundo.
+- **Interés geográfico alineado:** mencionan que ya tienen presencia activa en
+  Centroamérica/LatAm, lo cual coincide con nuestro plan de expansión post-Costa
+  Rica.
+- **Próximo paso de su lado:** van a consolidar la información técnica y
+  comercial y enviarnos una respuesta estructurada punto por punto (referenciando
+  las preguntas de §5 de este documento).
+
+**Próximos pasos de nuestro lado (pendiente):**
+
+- [ ] Esperar la respuesta estructurada de Jimi IoT a las preguntas de §5.
+- [ ] Cuando llegue, decidir si el **Camino B (push directo)** — que ellos ya
+      confirmaron poder soportar — se vuelve la ruta preferida para el piloto en
+      vez del Camino A (polling), ya que evitaría depender de la nube de Jimi IoT
+      para leer posiciones.
+- [ ] Si preguntan por NFC específicamente, aclarar que no es un requisito de la
+      Fase 1/2 (V1–V4) — es una idea de roadmap futuro mencionada en
+      `collarFinal.md`, no una especificación formal enviada a fabricantes.
+- [ ] Preparar specs concretas (volumen esperado año 1, escenario de uso real de
+      batería) para cuando pidan detalle antes de cotizar personalización de
+      hardware.
