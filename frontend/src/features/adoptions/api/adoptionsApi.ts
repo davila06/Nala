@@ -231,9 +231,7 @@ export const adoptionsApi = {
 
   getApplicationsForAnimal: (animalId: string, page = 1, pageSize = 20) =>
     apiClient
-      .get<
-        PagedApplications
-      >(`/adoptions/animals/${animalId}/applications`, {
+      .get<PagedApplications>(`/adoptions/animals/${animalId}/applications`, {
         params: { page, pageSize },
       })
       .then((r) => r.data),
