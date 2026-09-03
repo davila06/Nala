@@ -1,7 +1,7 @@
 ﻿# PawTrack CR — Pendientes y Estado del Proyecto
 
-> **Última actualización: 2026-08-19**
-> Versión anterior: 2026-08-07
+> **Última actualización: 2026-09-03**
+> Versión anterior: 2026-08-19
 
 ---
 
@@ -13,15 +13,16 @@ Todos los módulos de código están implementados. Los únicos pendientes son *
 
 ## 1. Pendientes operacionales (los únicos reales)
 
-| #   | Pendiente                                                                   | Urgencia      | Referencia                             |
-| --- | --------------------------------------------------------------------------- | ------------- | -------------------------------------- | --- | --- | ------------------------------------------------------ | ------------- | ----------------------------------- |
+| #   | Pendiente                                                                   | Urgencia      | Referencia                              |
+| --- | ---------------------------------------------------------------------------- | ------------- | ---------------------------------------- |
 | 1   | **GitHub Secrets CI/CD** (10 secrets)                                       | 🔴 Crítico    | checklist-lanzamiento.md §Fase 0       |
 | 2   | **Dominio pawtrack.cr** + CNAME                                             | 🔴 Crítico    | checklist-lanzamiento.md §Fase 4       |
 | 3   | **WhatsApp webhook en Meta Cloud API**                                      | 🟡 Importante | RUNBOOK_OPERACIONES.md §3.1            |
 | 4   | **VAPID keys en Azure Container App**                                       | 🟡 Importante | RUNBOOK_OPERACIONES.md §3.2            |
 | 5   | **Migraciones EF en Azure SQL**                                             | 🔴 Crítico    | GUIA_DEPLOY_PASO_A_PASO.md §Paso 7     |
-| 6   | **Bot:PhoneHashSecret en Key Vault**                                        | 🟡 Importante | ppsettings.json -> Bot:PhoneHashSecret |     | 7   | **Registro de bases de datos ante PRODHAB** (Ley 8968) | 🟡 Importante | CUMPLIMIENTO_PROTECCION_DATOS.md §4 |
-| 8   | **Confirmar DPA de Microsoft Azure** (transferencia internacional de datos) | 🟢 Deseable   | CUMPLIMIENTO_PROTECCION_DATOS.md §4    |
+| 6   | **Bot:PhoneHashSecret en Key Vault**                                        | 🟡 Importante | appsettings.json -> Bot:PhoneHashSecret |
+| 7   | **Registro de bases de datos ante PRODHAB** (Ley 8968)                     | 🟡 Importante | CUMPLIMIENTO_PROTECCION_DATOS.md §4     |
+| 8   | **Confirmar DPA de Microsoft Azure** (transferencia internacional de datos) | 🟢 Deseable   | CUMPLIMIENTO_PROTECCION_DATOS.md §4     |
 
 ---
 
@@ -64,8 +65,7 @@ Todas las siguientes vulnerabilidades han sido encontradas y corregidas:
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | 1                        | ChangePassword usaba Hash() en vez de Verify() — siempre fallaba                                                                                                                                        | Verify(plaintext, storedHash)                                                  |
 | 2                        | decodeRoleFromJwt ignoraba roles Store y Municipality                                                                                                                                                   | Añadidos al switch                                                             |
-| 3                        | piClient 401 interceptor sin mutex → múltiples refresh simultáneos                                                                                                                                      |
-| efreshPromise compartido |
+| 3                        | `apiClient` 401 interceptor sin mutex → múltiples refresh simultáneos                                                                                                                                   | `refreshPromise` compartido a nivel de módulo evita refrescos duplicados       |
 | 4                        | InMemoryJtiBlocklist no funciona en multi-instancia                                                                                                                                                     | DbJtiBlocklist (SQL)                                                           |
 | 5                        | ConfirmBountyDeposit accesible sin autenticación                                                                                                                                                        | [Authorize] añadido                                                            |
 | 6                        | Collar GPS history sin verificación de propiedad (BOLA)                                                                                                                                                 | Ownership check en queries                                                     |
@@ -102,9 +102,26 @@ Además de la suite de seguridad, la validación E2E contra un stack completo (S
 
 > Revisado y confirmado correcto (sin cambios): hashing de device keys (SHA-256, mismo patrón que otras API keys del sistema), lockout + rate limit de PIN de handover (`RedeemCollarHandoverCode`: máximo de intentos + `handover-verify` 5/min), verificación de serial contra credencial en `IngestCollarLocationCommand`, y autorización por rol (`[Authorize(Roles = "Admin")]`) en `CollarTagAdminController`.
 
+## 3.3 Auditoría de cumplimiento — Ley 8968 (2026-09-03)
+
+Análisis completo de protección de datos personales contra la Ley N.° 8968 de Costa
+Rica + PRODHAB + mejores prácticas internacionales (GDPR como referencia). Detalle
+completo en `CUMPLIMIENTO_PROTECCION_DATOS.md`.
+
+| #   | Hallazgo                                                                                                                                    | Resolución                                                                                                                                                              |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Crítico:** `DeleteAccountCommandHandler` comparaba `Hash(password) == storedHash` en vez de `Verify()` — el derecho de cancelación (ARCO) nunca funcionaba | Corregido a `Verify(confirmPassword, user.PasswordHash)`; test de regresión actualizado                                                                                 |
+| 2   | Sin consentimiento diferenciado para datos de salud (dato sensible, Art. 9)                                                                  | `User.HealthDataConsentedAt` + `GrantHealthDataConsent()`; `AddMedicalRecordCommandHandler` bloquea sin consentimiento; modal en el frontend                           |
+| 3   | Sin confirmación de mayoría de edad / autorización de tutor legal al registro                                                                | `User.IsAdultConfirmed`, checkbox obligatorio en el registro                                                                                                            |
+| 4   | Sin exportación de datos autoservicio (portabilidad)                                                                                        | `GET /api/auth/me/export` (rate-limited 5/5min) + botón "Descargar mis datos" en el perfil                                                                              |
+| 5   | Sin retención/purga para sightings, chat cerrado y notificaciones leídas                                                                    | `PersonalDataRetentionJob` diario (2 años / 2 años / 1 año, configurable), con `IDistributedJobLock`                                                                    |
+
+Pendientes de esta auditoría: únicamente los ítems organizacionales #7 y #8 de la
+§1 (registro ante PRODHAB, confirmar DPA de Microsoft Azure) — no requieren código.
+
 ## 4. Tests — estado actual
 
-- **916 tests unitarios** — todos pasando ✅
-- **62 tests de integración** — todos pasando ✅
-- Suites de seguridad: Rounds 1-51+ con regression tests
-- Suites nuevas (agosto 2026): Bounties, Collars, Family, Chat, Stores
+- **1178 tests unitarios** — todos pasando ✅
+- **88 tests de integración** — todos pasando ✅
+- Suites de seguridad: Rounds 1-113+ con regression tests
+- Suites nuevas (agosto–septiembre 2026): Bounties, Collars, Family, Chat, Stores, Compliance (consentimiento de salud, exportación de datos, retención de datos personales)
