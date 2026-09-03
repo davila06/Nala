@@ -1,7 +1,7 @@
 # NALA — Documento de Visión y Propósito
 
 > **NALA** es el nombre interno del proyecto que evolucionó en **PawTrack CR**.  
-> Última actualización: 2026-08-19
+> Última actualización: 2026-09-03
 
 ---
 
@@ -226,6 +226,106 @@ La diferencia con un aviso de "mascota perdida" en redes sociales o una web de c
 | Clínicas veterinarias conectadas | ❌                    | ✅ Portal B2B con 3 tiers                                                 |
 | Certificados PDF verificables    | ❌                    | ✅ QR de verificación pública                                             |
 | Portal municipal                 | ❌                    | ✅ B2G para control animal                                                |
+
+---
+
+## Arquitectura y stack técnico
+
+PawTrack CR es un **monolito modular** (Clean Architecture) preparado para extracción futura de servicios, sin sobre-ingeniería prematura de microservicios.
+
+```
+[Frontend React PWA] ←→ [ASP.NET Core API] ←→ [Azure SQL]
+                              ↑↓ SignalR         ↑↓ EF Core
+                         [Azure Blob Storage]
+                         [Azure Key Vault]
+                         [Application Insights]
+```
+
+**Capas backend** (dependencias apuntan hacia adentro):
+
+| Capa                      | Responsabilidad                                                                                          |
+| ------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `PawTrack.API`             | Controllers, middleware, hubs SignalR, composición de DI                                                 |
+| `PawTrack.Application`     | Commands/Queries (CQRS via MediatR), validadores FluentValidation, interfaces                            |
+| `PawTrack.Domain`          | Entidades, value objects, lógica de negocio pura — sin dependencias externas                             |
+| `PawTrack.Infrastructure`  | Implementación de repositorios, EF Core, integraciones externas (Azure, Tractive, SendGrid, WhatsApp)    |
+
+**Convenciones que no se negocian:**
+
+- CQRS estricto — comandos mutan y retornan datos mínimos; queries son de solo lectura y retornan DTOs, nunca entidades.
+- Validación exclusivamente en pipeline behaviors de MediatR (FluentValidation) — nunca a mano dentro de un handler.
+- IDs con `Guid.CreateVersion7()` (sortable por tiempo, mejor para índices clustered) — expuestos como string en las respuestas de API.
+- Fotos y binarios siempre en Azure Blob Storage — nunca en la base de datos.
+- Secretos exclusivamente en Azure Key Vault — cero secretos hardcodeados en `appsettings.json`.
+- Comunicación entre módulos solo vía MediatR (commands/notifications) — nunca llamadas directas entre servicios de distintos módulos.
+- Errores de dominio con patrón `Result<T>` o Problem Details (RFC 7807) — nunca excepciones de negocio cruzando límites de módulo.
+- Todas las rutas HTTP tienen una política de rate limiting explícita, particionada por IP (nunca un límite global compartido entre todos los clientes).
+
+### Stack backend
+
+| Tecnología                              | Versión | Uso                                                 |
+| ---------------------------------------- | ------- | ------------------------------------------------------ |
+| .NET / ASP.NET Core                      | 9.0     | Runtime y Web API                                      |
+| MediatR                                  | 12.x    | Pipeline CQRS                                          |
+| Entity Framework Core                    | 9.x     | ORM + migraciones code-first, SQL Server               |
+| FluentValidation                         | 11.x    | Validación en pipeline behaviors                       |
+| SignalR                                  | 9.0     | Real-time (`/hubs/search-coordination`, chat)          |
+| Serilog                                  | —       | Logging estructurado                                   |
+| Microsoft.Extensions.Http.Resilience     | —       | Retry/circuit-breaker en clientes HTTP externos        |
+| QuestPDF                                 | 2025.x  | Certificados veterinarios PDF con QR verificable       |
+| xUnit + NSubstitute + FluentAssertions   | —       | Suite de tests unitarios e integración                 |
+| Stryker.NET                              | —       | Mutation testing                                       |
+| Application Insights                     | —       | Telemetría y monitoreo                                 |
+
+### Stack frontend
+
+| Tecnología               | Versión    | Uso                                               |
+| ------------------------- | ---------- | ------------------------------------------------------ |
+| React                     | 19         | UI                                                     |
+| TypeScript                | 5.x strict | Tipado estricto en todo el codebase                    |
+| Vite                      | 6          | Build + HMR + PWA plugin (`injectManifest`)            |
+| React Router              | 7          | Enrutamiento (`createBrowserRouter`)                   |
+| TanStack React Query      | 5          | Estado de servidor (cache, invalidación)               |
+| Zustand                   | 5          | Estado de UI que persiste entre rutas (ej. auth)       |
+| Leaflet / React-Leaflet   | —          | Mapa interactivo (avistamientos, zonas, GPS)            |
+| Playwright                | —          | Suite de tests end-to-end                              |
+
+### Infraestructura Azure
+
+| Servicio                | Uso                                                                                             |
+| ------------------------ | ---------------------------------------------------------------------------------------------------- |
+| Azure Container Apps    | Hosting del backend, con scale-out multi-instancia                                                   |
+| Azure SQL Database      | Base de datos relacional principal                                                                    |
+| Azure Blob Storage      | Fotos de mascotas, avistamientos, certificados PDF, logos de vallas                                    |
+| Azure Key Vault         | Secretos, connection strings, claves de firma JWT                                                     |
+| Azure Cache for Redis   | Cache distribuido — rate limiting de notificaciones, throttle de SignalR, estado de chat, todo compartido entre instancias |
+| Application Insights    | Telemetría, logs, métricas                                                                            |
+| Azure Computer Vision   | Embeddings de imágenes para matching visual de mascotas                                              |
+| GitHub Actions          | CI/CD: build → test → Docker → ACR → Container App update                                            |
+| Bicep                   | Infraestructura como código                                                                            |
+
+**Diseñado para múltiples instancias desde el inicio:** todo el estado que antes vivía en memoria de un solo proceso (rate limiting de notificaciones, indicador de "escribiendo" en chat, throttle de ubicación GPS en tiempo real, locks de jobs programados) está respaldado por Redis o por locks distribuidos a nivel de base de datos — ninguna réplica del Container App puede quedar desincronizada con las demás.
+
+---
+
+## Calidad, testing y seguridad
+
+**Cobertura de tests (backend):**
+
+- **1,150+ tests unitarios** (xUnit + NSubstitute + FluentAssertions) — 0 fallos
+- **88 tests de integración** end-to-end contra `WebApplicationFactory`
+- Suite de tests end-to-end (Playwright) para los flujos críticos: autenticación, GPS de collar, modo perdido, transferencia segura, dashboard admin
+- Mutation testing con Stryker.NET para validar que los tests realmente detectan código roto, no solo que "pasan"
+- 0 errores de compilación en backend y frontend
+
+**Rondas de seguridad:** la plataforma ha pasado por **más de 100 rondas de auditoría de seguridad** (regresión activa en `backend/tests/PawTrack.UnitTests/Security/`), cubriendo:
+
+- **BOLA (Broken Object Level Authorization):** cada endpoint que expone datos de una mascota, collar, expediente médico o pedido verifica explícitamente que el usuario autenticado es el dueño (o tiene un grant válido) — nunca solo que el JWT es válido.
+- **Autenticación:** JWT de acceso en memoria (nunca `localStorage`), refresh token en cookie `httpOnly`/`Secure`/`SameSite`, bloqueo de cuenta tras intentos fallidos, JTI blocklist respaldada en SQL (funciona correctamente en multi-instancia).
+- **Rate limiting:** partición por IP (no un contador global compartido) en cada endpoint sensible — login, refresh, reportes, mensajes de chat, ingestión de ubicación GPS, verificación de seriales de collar.
+- **Privacidad de avistamientos:** el reportante nunca queda identificado; el chat entre dueño y rescatador es enmascarado; los números de teléfono del bot de WhatsApp se almacenan solo como hash HMAC-SHA256.
+- **Idempotencia:** los webhooks de WhatsApp usan un índice único a nivel de base de datos (no un simple check-then-set en memoria) para garantizar que un mensaje reenviado por Meta nunca se procese dos veces.
+- **Confiabilidad de notificaciones:** patrón de Outbox transaccional — los eventos de dominio se persisten en la misma transacción que el cambio de estado, y un proceso en segundo plano los entrega con reintentos, evitando pérdida de notificaciones si el proceso se reinicia entre el commit y el envío.
 
 ---
 
