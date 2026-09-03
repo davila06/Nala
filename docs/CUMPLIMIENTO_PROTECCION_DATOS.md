@@ -206,16 +206,16 @@ código.
 
 ## 6. Referencias de código auditadas
 
-| Archivo                                                                                       | Relevancia                                                          |
-| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `backend/src/PawTrack.Application/Auth/Commands/DeleteAccount/DeleteAccountCommandHandler.cs` | Derecho de cancelación — bug corregido en este análisis             |
+| Archivo                                                                                       | Relevancia                                                               |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `backend/src/PawTrack.Application/Auth/Commands/DeleteAccount/DeleteAccountCommandHandler.cs` | Derecho de cancelación — bug corregido en este análisis                  |
 | `backend/src/PawTrack.Domain/Auth/User.cs`                                                    | `IsAdultConfirmed`, `HealthDataConsentedAt` / `GrantHealthDataConsent()` |
-| `backend/src/PawTrack.Application/Medical/MedicalCommands.cs`                                 | `AddMedicalRecordCommandHandler` bloquea sin consentimiento de salud |
-| `backend/src/PawTrack.Application/Auth/Queries/ExportMyData/ExportMyDataQueryHandler.cs`      | Endpoint de portabilidad de datos                                    |
-| `backend/src/PawTrack.Infrastructure/Compliance/PersonalDataRetentionJob.cs`                  | Purga de sightings, chat cerrado y notificaciones leídas             |
-| `backend/src/PawTrack.Infrastructure/Collars/CollarLocationPurgeJob.cs`                       | Minimización de datos de ubicación                                  |
-| `backend/src/PawTrack.Infrastructure/Notifications/Jobs/QrScanRetentionJob.cs`                | Minimización de eventos de escaneo QR                               |
-| `backend/src/PawTrack.Infrastructure/Clinics/ClinicProfileViewPurgeHostedService.cs`          | Minimización de vistas de perfil de clínica                         |
-| `frontend/src/shared/ui/CookieConsentBanner.tsx`                                              | Consentimiento de cookies con opción de rechazo                     |
-| `docs/POLITICA_DE_PRIVACIDAD.md`, `docs/TERMINOS_DE_USO.md`                                   | Textos legales vigentes                                             |
-| `infra/parameters.prod.bicepparam`                                                            | Confirma región de hosting (`eastus`) — transferencia internacional |
+| `backend/src/PawTrack.Application/Medical/MedicalCommands.cs`                                 | `AddMedicalRecordCommandHandler` bloquea sin consentimiento de salud     |
+| `backend/src/PawTrack.Application/Auth/Queries/ExportMyData/ExportMyDataQueryHandler.cs`      | Endpoint de portabilidad de datos                                        |
+| `backend/src/PawTrack.Infrastructure/Compliance/PersonalDataRetentionJob.cs`                  | Purga de sightings, chat cerrado y notificaciones leídas                 |
+| `backend/src/PawTrack.Infrastructure/Collars/CollarLocationPurgeJob.cs`                       | Minimización de datos de ubicación                                       |
+| `backend/src/PawTrack.Infrastructure/Notifications/Jobs/QrScanRetentionJob.cs`                | Minimización de eventos de escaneo QR                                    |
+| `backend/src/PawTrack.Infrastructure/Clinics/ClinicProfileViewPurgeHostedService.cs`          | Minimización de vistas de perfil de clínica                              |
+| `frontend/src/shared/ui/CookieConsentBanner.tsx`                                              | Consentimiento de cookies con opción de rechazo                          |
+| `docs/POLITICA_DE_PRIVACIDAD.md`, `docs/TERMINOS_DE_USO.md`                                   | Textos legales vigentes                                                  |
+| `infra/parameters.prod.bicepparam`                                                            | Confirma región de hosting (`eastus`) — transferencia internacional      |
