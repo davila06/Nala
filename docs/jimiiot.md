@@ -34,16 +34,16 @@ existe y está en producción** — no estamos partiendo de cero. Lo que necesit
 Jimi IoT es hardware + firmware compatible con nuestro protocolo de ingesta (o, si su
 plataforma lo soporta, adaptarnos a la de ustedes).
 
-| Componente                                    | Estado                                                                |
-| ---------------------------------------------- | ---------------------------------------------------------------------- |
-| Modelo de datos del collar (`Collar`, `CollarLocation`) | ✅ En producción                                                |
-| Activación por serial físico (`CollarTag`)    | ✅ En producción — formato `PT-[4 hex]-[7 dígitos]`, grabado láser en la carcasa |
-| Autenticación de dispositivo (`X-Collar-Key`) | ✅ En producción — credencial hasheada (SHA-256), nunca en texto plano en la base de datos |
-| Endpoint de ingesta HTTP                      | ✅ En producción — ver §3                                             |
-| Dashboard de inventario/admin                 | ✅ En producción — activar, revocar, métricas de collares             |
-| Alertas de conectividad y batería baja        | ✅ En producción                                                      |
-| Modo perdido, zonas seguras (geofencing)      | ✅ En producción                                                      |
-| Transferencia segura entre dueños (handover)  | ✅ En producción                                                      |
+| Componente                                              | Estado                                                                                     |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Modelo de datos del collar (`Collar`, `CollarLocation`) | ✅ En producción                                                                           |
+| Activación por serial físico (`CollarTag`)              | ✅ En producción — formato `PT-[4 hex]-[7 dígitos]`, grabado láser en la carcasa           |
+| Autenticación de dispositivo (`X-Collar-Key`)           | ✅ En producción — credencial hasheada (SHA-256), nunca en texto plano en la base de datos |
+| Endpoint de ingesta HTTP                                | ✅ En producción — ver §3                                                                  |
+| Dashboard de inventario/admin                           | ✅ En producción — activar, revocar, métricas de collares                                  |
+| Alertas de conectividad y batería baja                  | ✅ En producción                                                                           |
+| Modo perdido, zonas seguras (geofencing)                | ✅ En producción                                                                           |
+| Transferencia segura entre dueños (handover)            | ✅ En producción                                                                           |
 
 ---
 
@@ -91,10 +91,10 @@ X-Collar-Key: <collarApiKey>
 
 **Respuestas:**
 
-| Código | Significado                                                                 |
-| ------ | ----------------------------------------------------------------------------- |
-| `204`  | Ubicación aceptada y registrada.                                              |
-| `401`  | `X-Collar-Key` ausente o inválida.                                            |
+| Código | Significado                                                                                                                                         |
+| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `204`  | Ubicación aceptada y registrada.                                                                                                                    |
+| `401`  | `X-Collar-Key` ausente o inválida.                                                                                                                  |
 | `422`  | El `serial` en el body no coincide con la credencial usada (posible clonación de key) — el firmware debería reintentar re-lectura del serial local. |
 
 **Notas para el firmware:**
@@ -125,12 +125,12 @@ En ese caso necesitaríamos de Jimi IoT:
 Nos interesa comparar el costo incremental real de distintas variantes construidas
 sobre la misma plataforma base:
 
-| Variante                          | Qué incluye              | Prioridad para el piloto inicial |
-| ---------------------------------- | --------------------------- | ----------------------------------- |
-| **V1 — GPS base**                 | GPS + LTE-M/NB-IoT           | ✅ Alta — piloto de 50 unidades      |
-| **V2 — GPS + cámara**             | GPS + cámara de baja resolución | Media — evaluación año 1        |
-| **V3 — GPS + pantalla e-ink**     | GPS + display e-ink pequeño  | Media — evaluación año 1            |
-| **V4 — GPS + cámara + pantalla**  | Combinación completa         | Baja — roadmap futuro               |
+| Variante                         | Qué incluye                     | Prioridad para el piloto inicial |
+| -------------------------------- | ------------------------------- | -------------------------------- |
+| **V1 — GPS base**                | GPS + LTE-M/NB-IoT              | ✅ Alta — piloto de 50 unidades  |
+| **V2 — GPS + cámara**            | GPS + cámara de baja resolución | Media — evaluación año 1         |
+| **V3 — GPS + pantalla e-ink**    | GPS + display e-ink pequeño     | Media — evaluación año 1         |
+| **V4 — GPS + cámara + pantalla** | Combinación completa            | Baja — roadmap futuro            |
 
 ---
 
@@ -141,7 +141,7 @@ sobre la misma plataforma base:
 1. ¿Su API es REST (HTTP/JSON) o protocolo propietario (¿MQTT, GT06, JT808?)?
    Favor compartir documentación técnica completa.
 2. ¿Soportan push/webhook hacia un endpoint HTTPS propio (nuestro `POST
-   /api/collars/ingest`), o el único camino es hacer polling contra su plataforma
+/api/collars/ingest`), o el único camino es hacer polling contra su plataforma
    en la nube?
 3. ¿Ofrecen firmware white-label/OEM configurable para reportar a un servidor
    propio (el nuestro), en vez de únicamente a la nube de Jimi IoT?

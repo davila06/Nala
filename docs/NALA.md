@@ -243,12 +243,12 @@ PawTrack CR es un **monolito modular** (Clean Architecture) preparado para extra
 
 **Capas backend** (dependencias apuntan hacia adentro):
 
-| Capa                      | Responsabilidad                                                                                          |
-| ------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `PawTrack.API`             | Controllers, middleware, hubs SignalR, composición de DI                                                 |
-| `PawTrack.Application`     | Commands/Queries (CQRS via MediatR), validadores FluentValidation, interfaces                            |
-| `PawTrack.Domain`          | Entidades, value objects, lógica de negocio pura — sin dependencias externas                             |
-| `PawTrack.Infrastructure`  | Implementación de repositorios, EF Core, integraciones externas (Azure, Tractive, SendGrid, WhatsApp)    |
+| Capa                      | Responsabilidad                                                                                       |
+| ------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `PawTrack.API`            | Controllers, middleware, hubs SignalR, composición de DI                                              |
+| `PawTrack.Application`    | Commands/Queries (CQRS via MediatR), validadores FluentValidation, interfaces                         |
+| `PawTrack.Domain`         | Entidades, value objects, lógica de negocio pura — sin dependencias externas                          |
+| `PawTrack.Infrastructure` | Implementación de repositorios, EF Core, integraciones externas (Azure, Tractive, SendGrid, WhatsApp) |
 
 **Convenciones que no se negocian:**
 
@@ -263,46 +263,46 @@ PawTrack CR es un **monolito modular** (Clean Architecture) preparado para extra
 
 ### Stack backend
 
-| Tecnología                              | Versión | Uso                                                 |
-| ---------------------------------------- | ------- | ------------------------------------------------------ |
-| .NET / ASP.NET Core                      | 9.0     | Runtime y Web API                                      |
-| MediatR                                  | 12.x    | Pipeline CQRS                                          |
-| Entity Framework Core                    | 9.x     | ORM + migraciones code-first, SQL Server               |
-| FluentValidation                         | 11.x    | Validación en pipeline behaviors                       |
-| SignalR                                  | 9.0     | Real-time (`/hubs/search-coordination`, chat)          |
-| Serilog                                  | —       | Logging estructurado                                   |
-| Microsoft.Extensions.Http.Resilience     | —       | Retry/circuit-breaker en clientes HTTP externos        |
-| QuestPDF                                 | 2025.x  | Certificados veterinarios PDF con QR verificable       |
-| xUnit + NSubstitute + FluentAssertions   | —       | Suite de tests unitarios e integración                 |
-| Stryker.NET                              | —       | Mutation testing                                       |
-| Application Insights                     | —       | Telemetría y monitoreo                                 |
+| Tecnología                             | Versión | Uso                                              |
+| -------------------------------------- | ------- | ------------------------------------------------ |
+| .NET / ASP.NET Core                    | 9.0     | Runtime y Web API                                |
+| MediatR                                | 12.x    | Pipeline CQRS                                    |
+| Entity Framework Core                  | 9.x     | ORM + migraciones code-first, SQL Server         |
+| FluentValidation                       | 11.x    | Validación en pipeline behaviors                 |
+| SignalR                                | 9.0     | Real-time (`/hubs/search-coordination`, chat)    |
+| Serilog                                | —       | Logging estructurado                             |
+| Microsoft.Extensions.Http.Resilience   | —       | Retry/circuit-breaker en clientes HTTP externos  |
+| QuestPDF                               | 2025.x  | Certificados veterinarios PDF con QR verificable |
+| xUnit + NSubstitute + FluentAssertions | —       | Suite de tests unitarios e integración           |
+| Stryker.NET                            | —       | Mutation testing                                 |
+| Application Insights                   | —       | Telemetría y monitoreo                           |
 
 ### Stack frontend
 
-| Tecnología               | Versión    | Uso                                               |
-| ------------------------- | ---------- | ------------------------------------------------------ |
-| React                     | 19         | UI                                                     |
-| TypeScript                | 5.x strict | Tipado estricto en todo el codebase                    |
-| Vite                      | 6          | Build + HMR + PWA plugin (`injectManifest`)            |
-| React Router              | 7          | Enrutamiento (`createBrowserRouter`)                   |
-| TanStack React Query      | 5          | Estado de servidor (cache, invalidación)               |
-| Zustand                   | 5          | Estado de UI que persiste entre rutas (ej. auth)       |
-| Leaflet / React-Leaflet   | —          | Mapa interactivo (avistamientos, zonas, GPS)            |
-| Playwright                | —          | Suite de tests end-to-end                              |
+| Tecnología              | Versión    | Uso                                              |
+| ----------------------- | ---------- | ------------------------------------------------ |
+| React                   | 19         | UI                                               |
+| TypeScript              | 5.x strict | Tipado estricto en todo el codebase              |
+| Vite                    | 6          | Build + HMR + PWA plugin (`injectManifest`)      |
+| React Router            | 7          | Enrutamiento (`createBrowserRouter`)             |
+| TanStack React Query    | 5          | Estado de servidor (cache, invalidación)         |
+| Zustand                 | 5          | Estado de UI que persiste entre rutas (ej. auth) |
+| Leaflet / React-Leaflet | —          | Mapa interactivo (avistamientos, zonas, GPS)     |
+| Playwright              | —          | Suite de tests end-to-end                        |
 
 ### Infraestructura Azure
 
-| Servicio                | Uso                                                                                             |
-| ------------------------ | ---------------------------------------------------------------------------------------------------- |
-| Azure Container Apps    | Hosting del backend, con scale-out multi-instancia                                                   |
-| Azure SQL Database      | Base de datos relacional principal                                                                    |
-| Azure Blob Storage      | Fotos de mascotas, avistamientos, certificados PDF, logos de vallas                                    |
-| Azure Key Vault         | Secretos, connection strings, claves de firma JWT                                                     |
-| Azure Cache for Redis   | Cache distribuido — rate limiting de notificaciones, throttle de SignalR, estado de chat, todo compartido entre instancias |
-| Application Insights    | Telemetría, logs, métricas                                                                            |
-| Azure Computer Vision   | Embeddings de imágenes para matching visual de mascotas                                              |
-| GitHub Actions          | CI/CD: build → test → Docker → ACR → Container App update                                            |
-| Bicep                   | Infraestructura como código                                                                            |
+| Servicio              | Uso                                                                                                                        |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Azure Container Apps  | Hosting del backend, con scale-out multi-instancia                                                                         |
+| Azure SQL Database    | Base de datos relacional principal                                                                                         |
+| Azure Blob Storage    | Fotos de mascotas, avistamientos, certificados PDF, logos de vallas                                                        |
+| Azure Key Vault       | Secretos, connection strings, claves de firma JWT                                                                          |
+| Azure Cache for Redis | Cache distribuido — rate limiting de notificaciones, throttle de SignalR, estado de chat, todo compartido entre instancias |
+| Application Insights  | Telemetría, logs, métricas                                                                                                 |
+| Azure Computer Vision | Embeddings de imágenes para matching visual de mascotas                                                                    |
+| GitHub Actions        | CI/CD: build → test → Docker → ACR → Container App update                                                                  |
+| Bicep                 | Infraestructura como código                                                                                                |
 
 **Diseñado para múltiples instancias desde el inicio:** todo el estado que antes vivía en memoria de un solo proceso (rate limiting de notificaciones, indicador de "escribiendo" en chat, throttle de ubicación GPS en tiempo real, locks de jobs programados) está respaldado por Redis o por locks distribuidos a nivel de base de datos — ninguna réplica del Container App puede quedar desincronizada con las demás.
 
