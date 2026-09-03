@@ -230,10 +230,16 @@ public sealed class AdoptionsController(ISender sender, IBlobStorageService blob
     [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> GetApplications(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetApplications(
+        Guid id,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
-        var result = await sender.Send(new GetApplicationsForAnimalQuery(userId, id), cancellationToken);
+        var result = await sender.Send(
+            new GetApplicationsForAnimalQuery(userId, id, Math.Max(1, page), Math.Clamp(pageSize, 1, 50)),
+            cancellationToken);
         if (result.IsFailure) return Forbid();
         return Ok(result.Value);
     }

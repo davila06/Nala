@@ -634,7 +634,8 @@ public sealed class GetWeightHistoryQueryHandler(
     IPetRepository petRepository,
     IMedicalRepository medicalRepository,
     ISubscriptionService subscriptionService,
-    IFamilyRepository familyRepository)
+    IFamilyRepository familyRepository,
+    IBreedReferenceRepository breedReferenceRepository)
     : IRequestHandler<GetWeightHistoryQuery, Result<WeightHistoryDto>>
 {
     public async Task<Result<WeightHistoryDto>> Handle(
@@ -663,9 +664,9 @@ public sealed class GetWeightHistoryQueryHandler(
                 r.ClinicName))
             .ToList();
 
-        var reference = BreedWeightReference.Resolve(pet.Breed, pet.Species.ToString());
-        WeightReferenceDto? referenceDto = reference is null ? null
-            : new WeightReferenceDto(reference.MinKg, reference.MaxKg, reference.Label);
+        var reference = await breedReferenceRepository.ResolveAsync(pet.Breed, pet.Species.ToString(), ct);
+        WeightReferenceDto? referenceDto = reference is null || reference.WeightMinKg is null ? null
+            : new WeightReferenceDto(reference.WeightMinKg.Value, reference.WeightMaxKg!.Value, reference.WeightLabel!);
 
         // Alert when weight dropped or gained >15% over the last 90 days
         string? alert = null;

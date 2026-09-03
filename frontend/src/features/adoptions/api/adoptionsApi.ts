@@ -229,11 +229,13 @@ export const adoptionsApi = {
       })
       .then((r) => r.data),
 
-  getApplicationsForAnimal: (animalId: string) =>
+  getApplicationsForAnimal: (animalId: string, page = 1, pageSize = 20) =>
     apiClient
       .get<
-        AdoptionApplicationDto[]
-      >(`/adoptions/animals/${animalId}/applications`)
+        PagedApplications
+      >(`/adoptions/animals/${animalId}/applications`, {
+        params: { page, pageSize },
+      })
       .then((r) => r.data),
 
   reviewApplication: (

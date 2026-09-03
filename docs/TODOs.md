@@ -188,13 +188,12 @@
 
 - [x] ~~No existe `AddApiVersioning()` en `Program.cs`~~ — ya está configurado. Verificado 2026-09-02.
 
-### 12.2 Sin paginación en endpoints que pueden devolver muchos datos
+### 12.2 Sin paginación en endpoints que pueden devolver muchos datos — ✅ resuelto
 
-- [ ] **🟢** Re-verificado 2026-09-02, ambos siguen abiertos:
-  - `GET /api/adoptions/animals/{id}/applications` (`AdoptionsController.GetApplications`) — sin `page`/`pageSize`, puede devolver N filas sin límite
-  - `GET /api/allies/me/alerts` (`GetMyAllyAlertsQueryHandler`) — límite hardcoded en **200** (no 50 como se documentó originalmente), sin paginación real
-  - `GET /api/admin/adoptions/animals` — ya tiene paginación ✅
-  - **Fix:** añadir `page`/`pageSize` query params con límite máximo de 50
+- [x] ~~`GET /api/adoptions/animals/{id}/applications` sin `page`/`pageSize`~~ — `GetApplicationsForAnimalQuery` ahora pagina en SQL (`GetApplicationsByAnimalPagedAsync` + `CountApplicationsByAnimalAsync`) y retorna `PagedResult<AdoptionApplicationDto>`; el frontend (`adoptionsApi.ts`, `ShelterApplicationsPage.tsx`) actualizado para el nuevo shape.
+- [x] ~~`GET /api/allies/me/alerts` límite hardcoded en memoria (250 filas cargadas, luego `.Take(200)`)~~ — `INotificationRepository.GetByUserIdAndTypeAsync` ahora acepta `take` y limita en SQL (`.Take(take)`), no solo en memoria después de cargar todo. El cap de 200 en el handler se mantiene como segunda capa de defensa.
+- `GET /api/admin/adoptions/animals` — ya tenía paginación ✅
+  - Corregido 2026-09-02.
 
 ### 12.3 Inconsistencia en códigos de error
 
@@ -210,10 +209,10 @@
 
 - [x] ~~El módulo de adopciones tiene unit tests pero ningún integration test end-to-end~~ — `AdoptionFlowIntegrationTests.cs` ya existe. Verificado 2026-09-02 (contenido exacto de los casos no re-verificado).
 
-### 13.2 Sin tests para broadcast channels — 🟢 parcialmente resuelto
+### 13.2 Sin tests para broadcast channels — ✅ resuelto
 
-- [x] ~~`WhatsAppChannelBroadcaster`, `EmailChannelBroadcaster` no tenían tests~~ — `WhatsAppChannelBroadcasterTests.cs`, `EmailChannelBroadcasterTests.cs` y `TelegramChannelBroadcasterTests.cs` ya existen. Verificado 2026-09-02.
-- [ ] **🟢** `FacebookChannelBroadcasterTests` sigue sin existir — único canal sin cobertura.
+- [x] ~~`WhatsAppChannelBroadcaster`, `EmailChannelBroadcaster` no tenían tests~~ — `WhatsAppChannelBroadcasterTests.cs`, `EmailChannelBroadcasterTests.cs` y `TelegramChannelBroadcasterTests.cs` ya existían. Verificado 2026-09-02.
+- [x] ~~`FacebookChannelBroadcasterTests` no existía~~ — agregado (6 tests: `IsEnabled`, skip sin credenciales, payload correcto al Graph API, post ID en éxito, `null` en error). Corregido 2026-09-02.
 
 ### 13.3 Sin mutation tests — ✅ resuelto
 
@@ -293,9 +292,9 @@
 
 - [x] ~~almacena species como CSV string~~ — ya usa `AcceptedSpeciesJson` (JSON array), manteniendo el nombre de columna `AcceptedSpeciesCsv` solo para no requerir migración, con parseo legacy CSV como fallback de compatibilidad. Verificado 2026-09-02.
 
-### 16.5 `BreedActivityBenchmark` y `BreedWeightReference` — datos hardcodeados — 🟡 migración a medias
+### 16.5 `BreedActivityBenchmark` y `BreedWeightReference` — datos hardcodeados — ✅ resuelto
 
-- [ ] **🟡** Re-verificado 2026-09-02: existe `BreedReferenceSeedHostedService` que siembra una tabla `BreedReferences` (con `IBreedReferenceRepository`) a partir de estos mismos diccionarios hardcodeados — pero el código de features **sigue llamando a los estáticos directamente** (`ActivityCommands.cs` → `BreedActivityBenchmark.Resolve(...)`, `MedicalCommands.cs` → `BreedWeightReference.Resolve(...)`), no al repositorio/tabla nueva. La tabla existe y se siembra pero nadie la lee todavía — falta el último paso: cambiar esas dos llamadas para usar `IBreedReferenceRepository` en vez de los diccionarios estáticos.
+- [x] ~~el código de features seguía llamando a los estáticos directamente en vez de a la tabla/seed ya existentes~~ — `ActivityCommands.cs` (`GetActivityLogsQueryHandler`) y `MedicalCommands.cs` (`GetWeightHistoryQueryHandler`) ahora inyectan `IBreedReferenceRepository` y llaman a `ResolveAsync(...)` en vez de `BreedActivityBenchmark.Resolve(...)`/`BreedWeightReference.Resolve(...)`. Corregido 2026-09-02.
 
 ### 16.6 Missing cursor pagination en collar GPS — ✅ resuelto (diseño diferente pero adecuado)
 
@@ -305,28 +304,24 @@
 
 ## Resumen por categoría de impacto
 
-> **Actualizado 2026-09-02** tras dos rondas de re-auditoría + fixes. De los ~55 ítems del análisis original: **1 descartado por decisión de producto** (Kippy), **~37 confirmados ya resueltos** (la mayoría eran falsos positivos de un doc desactualizado; ~6 fueron arreglados en esta sesión: distributed locks en 2 hosted services, `TypingStateService`, `SearchCoordinationHub`, RecordLocation BOLA de collares — ver `pendientesTotales.md` §3.2), **16 siguen genuinamente abiertos** (0 críticos, 2 altos, 9 medios, 5 bajos).
+> **Actualizado 2026-09-02** tras dos rondas de re-auditoría + fixes, y luego los 3 "quick wins" restantes. De los ~55 ítems del análisis original: **1 descartado por decisión de producto** (Kippy), **~40 confirmados resueltos**, **13 siguen genuinamente abiertos** (0 críticos, 2 altos, 7 medios, 4 bajos).
 
-| #   | Categoría                   | Abiertos | Detalle                                                          |
-| --- | ----------------------------- | -------- | ----------------------------------------------------------------- |
-| 1   | STUBs sin implementar         | 0        | Facebook/Telegram resueltos; Kippy descartado                     |
-| 2   | Async anti-patrones           | 1 🟢      | `Task.Delay` vs `PeriodicTimer` (estilo, no funcional)             |
-| 3   | Scale-out / multi-instancia   | 0        | Typing, SearchCoordinationHub, jobs, notif rate-limit — todos resueltos |
-| 4   | Paginación ineficiente        | 0        | Store orders + cursor de notificaciones resueltos                 |
-| 11  | Frontend calidad              | 2        | 🟢 polling chat/orders, 🟢 error boundaries, ⚪ suspense skeletons  |
-| 12  | API gaps                      | 2 🟢      | paginación adoptions/allies, códigos de error inconsistentes      |
-| 13  | Testing gaps                  | 1 🟢      | Falta `FacebookChannelBroadcasterTests`                            |
-| 14  | Infrastructure                | 3        | 🟡 Container Apps Jobs, 🟢 verificar lock migraciones, 🟢 rotación SendGrid |
-| 15  | Monitoring                    | 3        | 🟡 alertas App Insights, ⚪ tracing, ⚪ Kusto dashboard               |
-| 16  | Técnicos menores             | 2        | 🟡 BreedReference migración a medias, ⚪ UC-06 post-adopción        |
+| #   | Categoría                   | Abiertos | Detalle                                                                     |
+| --- | --------------------------- | -------- | --------------------------------------------------------------------------- |
+| 1   | STUBs sin implementar       | 0        | Facebook/Telegram resueltos; Kippy descartado                               |
+| 2   | Async anti-patrones         | 1 🟢     | `Task.Delay` vs `PeriodicTimer` (estilo, no funcional)                      |
+| 3   | Scale-out / multi-instancia | 0        | Typing, SearchCoordinationHub, jobs, notif rate-limit — todos resueltos     |
+| 4   | Paginación ineficiente      | 0        | Store orders + cursor de notificaciones resueltos                           |
+| 11  | Frontend calidad            | 2        | 🟢 polling chat/orders, 🟢 error boundaries, ⚪ suspense skeletons          |
+| 12  | API gaps                    | 1 🟢     | códigos de error inconsistentes (paginación adoptions/allies ya resuelta)   |
+| 13  | Testing gaps                | 0        | Facebook broadcaster tests agregados                                        |
+| 14  | Infrastructure              | 3        | 🟡 Container Apps Jobs, 🟢 verificar lock migraciones, 🟢 rotación SendGrid |
+| 15  | Monitoring                  | 3        | 🟡 alertas App Insights, ⚪ tracing, ⚪ Kusto dashboard                     |
+| 16  | Técnicos menores            | 1        | ⚪ UC-06 post-adopción (BreedReference ya migrado)                          |
 
 ---
 
-## Quick wins restantes (< 1h cada uno)
-
-1. **`BreedActivityBenchmark`/`BreedWeightReference`** → cambiar las 2 llamadas en `ActivityCommands.cs`/`MedicalCommands.cs` para usar `IBreedReferenceRepository` en vez de los estáticos (§16.5) — la tabla y el seed ya existen.
-2. **`FacebookChannelBroadcasterTests`** — copiar el patrón de `TelegramChannelBroadcasterTests.cs` (§13.2).
-3. **Paginación real** en `GET /api/adoptions/animals/{id}/applications` y `GET /api/allies/me/alerts` (§12.2).
+_Última actualización: 2026-09-02 — re-auditoría completa + fixes de escalabilidad + 3 quick wins (BreedReference, Facebook tests, paginación adoptions/allies)_
 
 ---
 

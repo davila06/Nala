@@ -28,7 +28,8 @@ public sealed class GetMyAllyAlertsQueryHandler(
         var notifications = await notificationRepository.GetByUserIdAndTypeAsync(
             request.UserId,
             NotificationType.VerifiedAllyAlert,
-            cancellationToken);
+            take: MaxResults,
+            cancellationToken: cancellationToken);
 
         return Result.Success<IReadOnlyList<AllyAlertDto>>(
             notifications.Take(MaxResults).Select(AllyAlertDto.FromDomain).ToList().AsReadOnly());

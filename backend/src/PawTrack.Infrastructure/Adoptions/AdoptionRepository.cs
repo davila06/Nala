@@ -117,12 +117,16 @@ public sealed class AdoptionRepository(PawTrackDbContext db) : IAdoptionReposito
         db.AdoptionApplications.FirstOrDefaultAsync(
             a => a.ApplicantUserId == applicantUserId && a.AdoptablePetId == animalId, ct);
 
-    public async Task<IReadOnlyList<AdoptionApplication>> GetApplicationsByAnimalAsync(
-        Guid animalId, CancellationToken ct = default) =>
+    public async Task<IReadOnlyList<AdoptionApplication>> GetApplicationsByAnimalPagedAsync(
+        Guid animalId, int skip, int take, CancellationToken ct = default) =>
         await db.AdoptionApplications.AsNoTracking()
             .Where(a => a.AdoptablePetId == animalId)
             .OrderByDescending(a => a.AppliedAt)
+            .Skip(skip).Take(take)
             .ToListAsync(ct);
+
+    public Task<int> CountApplicationsByAnimalAsync(Guid animalId, CancellationToken ct = default) =>
+        db.AdoptionApplications.CountAsync(a => a.AdoptablePetId == animalId, ct);
 
     public async Task<IReadOnlyList<AdoptionApplication>> GetApplicationsByApplicantAsync(
         Guid applicantUserId, int skip, int take, CancellationToken ct = default) =>

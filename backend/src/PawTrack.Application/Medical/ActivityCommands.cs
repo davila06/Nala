@@ -133,7 +133,8 @@ public sealed class GetActivityLogsQueryHandler(
     IPetRepository petRepository,
     IActivityLogRepository activityRepository,
     IFamilyRepository familyRepository,
-    ISubscriptionService subscriptionService)
+    ISubscriptionService subscriptionService,
+    IBreedReferenceRepository breedReferenceRepository)
     : IRequestHandler<GetActivityLogsQuery, Result<ActivitySummaryDto>>
 {
     public async Task<Result<ActivitySummaryDto>> Handle(GetActivityLogsQuery request, CancellationToken ct)
@@ -175,12 +176,12 @@ public sealed class GetActivityLogsQueryHandler(
         while (loggedDates.Contains(current)) { streak++; current = current.AddDays(-1); }
         best = streak;
 
-        var benchmark = BreedActivityBenchmark.Resolve(pet.Breed, pet.Species.ToString());
-        var benchmarkDto = benchmark is null ? null
+        var benchmark = await breedReferenceRepository.ResolveAsync(pet.Breed, pet.Species.ToString(), ct);
+        var benchmarkDto = benchmark is null || benchmark.ActivityMinMinutes is null ? null
             : new ActivityBenchmarkDto(
-                benchmark.DailyMinutesMin, benchmark.DailyMinutesMax,
-                benchmark.DailyKmMin, benchmark.DailyKmMax,
-                benchmark.EnergyLevel);
+                benchmark.ActivityMinMinutes.Value, benchmark.ActivityMaxMinutes!.Value,
+                benchmark.ActivityMinKm!.Value, benchmark.ActivityMaxKm!.Value,
+                benchmark.EnergyLevel!);
 
         var dtos = logs.Select(ActivityLogDto.FromDomain).ToList().AsReadOnly();
         return Result.Success(new ActivitySummaryDto(dtos, weeklyTotals, benchmarkDto, streak, best));

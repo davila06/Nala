@@ -12,7 +12,8 @@ import { useState } from "react";
 export default function ShelterApplicationsPage() {
   const { id } = useParams<{ id: string }>();
   const { data: animal } = useAdoptableAnimal(id ?? "");
-  const { data: apps, isLoading } = useApplicationsForAnimal(id ?? "");
+  const { data: appsPage, isLoading } = useApplicationsForAnimal(id ?? "");
+  const apps = appsPage?.items;
   const review = useReviewApplication();
   const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
 

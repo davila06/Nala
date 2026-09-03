@@ -29,6 +29,7 @@ public interface INotificationRepository
     Task<IReadOnlyList<Notification>> GetByUserIdAndTypeAsync(
         Guid userId,
         NotificationType type,
+        int take = 200,
         CancellationToken cancellationToken = default);
 
     Task<bool> HasRecentByUserTypeAndEntityAsync(

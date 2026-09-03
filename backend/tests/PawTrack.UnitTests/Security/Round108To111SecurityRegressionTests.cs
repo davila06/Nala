@@ -154,7 +154,7 @@ public sealed class Round108To111SecurityRegressionTests
             .AsReadOnly();
 
         notifRepo.GetByUserIdAndTypeAsync(
-                     userId, NotificationType.VerifiedAllyAlert, Arg.Any<CancellationToken>())
+                     userId, NotificationType.VerifiedAllyAlert, Arg.Any<int>(), Arg.Any<CancellationToken>())
                  .Returns(oversized);
 
         var handler = new GetMyAllyAlertsQueryHandler(allyRepo, notifRepo);
@@ -188,6 +188,6 @@ public sealed class Round108To111SecurityRegressionTests
         result.IsFailure.Should().BeTrue();
         await notifRepo.DidNotReceive()
             .GetByUserIdAndTypeAsync(
-                Arg.Any<Guid>(), Arg.Any<NotificationType>(), Arg.Any<CancellationToken>());
+                Arg.Any<Guid>(), Arg.Any<NotificationType>(), Arg.Any<int>(), Arg.Any<CancellationToken>());
     }
 }

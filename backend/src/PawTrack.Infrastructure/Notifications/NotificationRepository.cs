@@ -50,12 +50,14 @@ public sealed class NotificationRepository(PawTrackDbContext dbContext) : INotif
     public async Task<IReadOnlyList<Notification>> GetByUserIdAndTypeAsync(
         Guid userId,
         NotificationType type,
+        int take = 200,
         CancellationToken cancellationToken = default)
     {
         var results = await dbContext.Notifications
             .AsNoTracking()
             .Where(n => n.UserId == userId && n.Type == type)
             .OrderByDescending(n => n.CreatedAt)
+            .Take(take)
             .ToListAsync(cancellationToken);
 
         return results.AsReadOnly();

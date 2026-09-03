@@ -106,30 +106,39 @@ public sealed class GetMyAdoptionAnimalsQueryHandler(
 
 public sealed record GetApplicationsForAnimalQuery(
     Guid OrganizationUserId,
-    Guid AdoptablePetId) : IRequest<Result<IReadOnlyList<AdoptionApplicationDto>>>;
+    Guid AdoptablePetId,
+    int Page = 1,
+    int PageSize = 20) : IRequest<Result<PagedResult<AdoptionApplicationDto>>>;
 
 public sealed class GetApplicationsForAnimalQueryHandler(
     IAdoptionRepository adoptionRepository,
     IAllyProfileRepository allyProfileRepository)
-    : IRequestHandler<GetApplicationsForAnimalQuery, Result<IReadOnlyList<AdoptionApplicationDto>>>
+    : IRequestHandler<GetApplicationsForAnimalQuery, Result<PagedResult<AdoptionApplicationDto>>>
 {
-    public async Task<Result<IReadOnlyList<AdoptionApplicationDto>>> Handle(
+    public async Task<Result<PagedResult<AdoptionApplicationDto>>> Handle(
         GetApplicationsForAnimalQuery request, CancellationToken ct)
     {
         var ally = await allyProfileRepository.GetVerifiedByUserIdAsync(request.OrganizationUserId, ct);
         if (ally is null || ally.AllyType != AllyType.Shelter)
-            return Result.Failure<IReadOnlyList<AdoptionApplicationDto>>("not_verified_shelter");
+            return Result.Failure<PagedResult<AdoptionApplicationDto>>("not_verified_shelter");
 
         var animal = await adoptionRepository.GetAnimalByIdAsync(request.AdoptablePetId, ct);
         if (animal is null || animal.OrganizationUserId != request.OrganizationUserId)
-            return Result.Failure<IReadOnlyList<AdoptionApplicationDto>>("access_denied");
+            return Result.Failure<PagedResult<AdoptionApplicationDto>>("access_denied");
 
-        var apps = await adoptionRepository.GetApplicationsByAnimalAsync(request.AdoptablePetId, ct);
-        return Result.Success<IReadOnlyList<AdoptionApplicationDto>>(
-            apps.Select(a => new AdoptionApplicationDto(
+        var page = Math.Max(1, request.Page);
+        var pageSize = Math.Clamp(request.PageSize, 1, 50);
+        var skip = (page - 1) * pageSize;
+
+        var total = await adoptionRepository.CountApplicationsByAnimalAsync(request.AdoptablePetId, ct);
+        var apps = await adoptionRepository.GetApplicationsByAnimalPagedAsync(request.AdoptablePetId, skip, pageSize, ct);
+
+        var dtos = apps.Select(a => new AdoptionApplicationDto(
                 a.Id.ToString(), a.AdoptablePetId.ToString(), a.ApplicantUserId.ToString(),
                 a.ApplicantNote, a.Status.ToString(), a.ReviewNote, a.AppliedAt, a.ReviewedAt))
-            .ToList());
+            .ToList();
+
+        return Result.Success(new PagedResult<AdoptionApplicationDto>(dtos, total, page, pageSize));
     }
 }
 

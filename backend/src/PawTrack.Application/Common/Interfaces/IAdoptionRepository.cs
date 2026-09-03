@@ -37,7 +37,8 @@ public interface IAdoptionRepository
 
     Task<AdoptionApplication?> GetApplicationByIdAsync(Guid id, CancellationToken ct = default);
     Task<AdoptionApplication?> GetApplicationByApplicantAndAnimalAsync(Guid applicantUserId, Guid animalId, CancellationToken ct = default);
-    Task<IReadOnlyList<AdoptionApplication>> GetApplicationsByAnimalAsync(Guid animalId, CancellationToken ct = default);
+    Task<IReadOnlyList<AdoptionApplication>> GetApplicationsByAnimalPagedAsync(Guid animalId, int skip, int take, CancellationToken ct = default);
+    Task<int> CountApplicationsByAnimalAsync(Guid animalId, CancellationToken ct = default);
     Task<IReadOnlyList<AdoptionApplication>> GetApplicationsByApplicantAsync(Guid applicantUserId, int skip, int take, CancellationToken ct = default);
     Task<int> CountApplicationsByApplicantAsync(Guid applicantUserId, CancellationToken ct = default);
     Task AddApplicationAsync(AdoptionApplication application, CancellationToken ct = default);
