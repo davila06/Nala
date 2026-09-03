@@ -45,3 +45,34 @@ export function useDeleteAccount() {
     },
   });
 }
+
+export function useGrantHealthDataConsent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => authApi.grantHealthDataConsent(),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+    },
+  });
+}
+
+/** Triggers a browser download of the user's full personal data export as JSON. */
+export function useExportMyData() {
+  return useMutation({
+    mutationFn: async () => {
+      const data = await authApi.exportMyData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `pawtrack-mis-datos-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    },
+  });
+}

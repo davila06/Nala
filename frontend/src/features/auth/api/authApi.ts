@@ -4,6 +4,7 @@ export interface RegisterRequest {
   name: string;
   email: string;
   password: string;
+  isAdultConfirmed: boolean;
 }
 
 export interface LoginRequest {
@@ -45,6 +46,8 @@ export interface UserProfile {
   email: string;
   isAdmin: boolean;
   createdAt: string;
+  isAdultConfirmed: boolean;
+  hasHealthDataConsent: boolean;
 }
 
 // ── JWT decode helper (no signature validation — server validates on every request) ──
@@ -112,4 +115,12 @@ export const authApi = {
 
   deleteAccount: (data: { confirmPassword: string }) =>
     apiClient.delete<void>("/auth/me", { data }),
+
+  grantHealthDataConsent: () =>
+    apiClient
+      .post<{ consentedAt: string }>("/auth/me/health-data-consent")
+      .then((r) => r.data),
+
+  exportMyData: () =>
+    apiClient.get<unknown>("/auth/me/export").then((r) => r.data),
 };

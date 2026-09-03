@@ -94,4 +94,10 @@ public sealed class SightingRepository(PawTrackDbContext dbContext) : ISightingR
 
     public void Update(Sighting sighting) =>
         dbContext.Sightings.Update(sighting);
+
+    public async Task<int> DeleteReportedBeforeAsync(
+        DateTimeOffset cutoff, CancellationToken cancellationToken = default) =>
+        await dbContext.Sightings
+            .Where(s => s.ReportedAt < cutoff)
+            .ExecuteDeleteAsync(cancellationToken);
 }

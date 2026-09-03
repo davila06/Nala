@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using PawTrack.Application.Auth.Commands.ChangePassword;
 using PawTrack.Application.Auth.Commands.DeleteAccount;
 using PawTrack.Application.Auth.Commands.ForgotPassword;
+using PawTrack.Application.Auth.Commands.GrantHealthDataConsent;
 using PawTrack.Application.Auth.Commands.Login;
 using PawTrack.Application.Auth.Commands.Logout;
 using PawTrack.Application.Auth.Commands.RefreshToken;
@@ -12,6 +13,7 @@ using PawTrack.Application.Auth.Commands.Register;
 using PawTrack.Application.Auth.Commands.ResetPassword;
 using PawTrack.Application.Auth.Commands.UpdateUserProfile;
 using PawTrack.Application.Auth.Commands.VerifyEmail;
+using PawTrack.Application.Auth.Queries.ExportMyData;
 using PawTrack.Application.Auth.Queries.GetMyProfile;
 using System.Security.Claims;
 
@@ -32,7 +34,7 @@ public sealed class AuthController(ISender sender) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await sender.Send(
-            new RegisterCommand(request.Name, request.Email, request.Password),
+            new RegisterCommand(request.Name, request.Email, request.Password, request.IsAdultConfirmed),
             cancellationToken);
 
         if (result.IsFailure)
@@ -320,10 +322,54 @@ public sealed class AuthController(ISender sender) : ControllerBase
         Response.Cookies.Delete("refreshToken", new CookieOptions { Path = "/api/auth" });
         return NoContent();
     }
+
+    [HttpPost("me/health-data-consent")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GrantHealthDataConsent(CancellationToken cancellationToken)
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue("sub");
+
+        if (userIdClaim is null || !Guid.TryParse(userIdClaim, out var userId))
+            return Unauthorized();
+
+        var result = await sender.Send(new GrantHealthDataConsentCommand(userId), cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(new ProblemDetails { Title = "Consent could not be recorded", Detail = string.Join("; ", result.Errors), Status = 400 });
+
+        return Ok(new { consentedAt = result.Value });
+    }
+
+    [HttpGet("me/export")]
+    [Authorize]
+    [EnableRateLimiting("data-export")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExportMyData(CancellationToken cancellationToken)
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue("sub");
+
+        if (userIdClaim is null || !Guid.TryParse(userIdClaim, out var userId))
+            return Unauthorized();
+
+        var result = await sender.Send(new ExportMyDataQuery(userId), cancellationToken);
+
+        if (result.IsFailure)
+            return NotFound(new ProblemDetails { Title = "User not found", Status = 404 });
+
+        return Ok(result.Value);
+    }
 }
 
 // Request models — co-located with controller
-public sealed record RegisterRequest(string Name, string Email, string Password);
+public sealed record RegisterRequest(string Name, string Email, string Password, bool IsAdultConfirmed);
 public sealed record LoginRequest(string Email, string Password);
 public sealed record ForgotPasswordRequest(string Email);
 public sealed record ResetPasswordRequest(string Token, string NewPassword);

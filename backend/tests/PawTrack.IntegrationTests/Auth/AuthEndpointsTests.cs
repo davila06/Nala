@@ -19,6 +19,7 @@ public sealed class AuthEndpointsTests(PawTrackWebApplicationFactory factory)
             name = "Denis Avila",
             email = $"test_{Guid.NewGuid()}@pawtrack.cr",
             password = "SecurePass1!",
+            isAdultConfirmed = true,
         });
 
         // Anti-enumeration: response body must NOT expose userId or reveal
@@ -51,6 +52,7 @@ public sealed class AuthEndpointsTests(PawTrackWebApplicationFactory factory)
             name = "User One",
             email,
             password = "SecurePass1!",
+            isAdultConfirmed = true,
         });
 
         var response = await _client.PostAsJsonAsync("/api/auth/register", new
@@ -58,6 +60,7 @@ public sealed class AuthEndpointsTests(PawTrackWebApplicationFactory factory)
             name = "User Two",
             email,
             password = "SecurePass1!",
+            isAdultConfirmed = true,
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -73,6 +76,7 @@ public sealed class AuthEndpointsTests(PawTrackWebApplicationFactory factory)
             name = "Unverified User",
             email,
             password = "SecurePass1!",
+            isAdultConfirmed = true,
         });
 
         var response = await _client.PostAsJsonAsync("/api/auth/login", new

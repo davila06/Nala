@@ -127,4 +127,24 @@ public sealed class ChatRepository(PawTrackDbContext dbContext) : IChatRepositor
                  && m.SenderUserId != recipientUserId
                  && !m.IsReadByRecipient,
             cancellationToken);
+
+    public async Task<int> DeleteClosedThreadsOlderThanAsync(
+        DateTimeOffset cutoff, CancellationToken cancellationToken = default)
+    {
+        var threadIds = await dbContext.ChatThreads
+            .Where(t => t.Status == ChatThreadStatus.Closed && t.LastMessageAt < cutoff)
+            .Select(t => t.Id)
+            .ToListAsync(cancellationToken);
+
+        if (threadIds.Count == 0) return 0;
+
+        // Delete messages first — no FK cascade is assumed here to keep the operation explicit.
+        await dbContext.ChatMessages
+            .Where(m => threadIds.Contains(m.ThreadId))
+            .ExecuteDeleteAsync(cancellationToken);
+
+        return await dbContext.ChatThreads
+            .Where(t => threadIds.Contains(t.Id))
+            .ExecuteDeleteAsync(cancellationToken);
+    }
 }

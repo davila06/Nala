@@ -113,4 +113,10 @@ public sealed class NotificationRepository(PawTrackDbContext dbContext) : INotif
             q = q.Where(n => n.Id.CompareTo(afterId.Value) < 0);
         return await q.OrderByDescending(n => n.Id).Take(take).ToListAsync(cancellationToken);
     }
+
+    public async Task<int> DeleteReadBeforeAsync(
+        DateTimeOffset cutoff, CancellationToken cancellationToken = default) =>
+        await dbContext.Notifications
+            .Where(n => n.IsRead && n.CreatedAt < cutoff)
+            .ExecuteDeleteAsync(cancellationToken);
 }

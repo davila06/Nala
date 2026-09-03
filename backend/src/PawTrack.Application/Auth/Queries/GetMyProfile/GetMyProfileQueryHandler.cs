@@ -17,12 +17,6 @@ public sealed class GetMyProfileQueryHandler(IUserRepository userRepository)
         if (user is null)
             return Result.Failure<UserProfileDto>(["Usuario no encontrado."]);
 
-        return Result.Success(new UserProfileDto(
-            user.Id.ToString(),
-            user.Email,
-            user.Name,
-            user.IsEmailVerified,
-            user.Role == UserRole.Admin,
-            user.CreatedAt));
+        return Result.Success(UserProfileDto.FromDomain(user));
     }
 }

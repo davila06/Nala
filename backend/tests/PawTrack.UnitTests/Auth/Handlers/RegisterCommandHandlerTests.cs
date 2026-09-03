@@ -26,7 +26,7 @@ public sealed class RegisterCommandHandlerTests
     public async Task Handle_NewUser_CreatesUserAndSendsEmail()
     {
         // Arrange
-        var cmd = new RegisterCommand("Test User", "test@example.com", "Password1");
+        var cmd = new RegisterCommand("Test User", "test@example.com", "Password1", true);
         _userRepo.ExistsByEmailAsync(cmd.Email, Arg.Any<CancellationToken>()).Returns(false);
         _hasher.Hash(cmd.Password).Returns("hashed_password");
         _uow.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
@@ -54,7 +54,7 @@ public sealed class RegisterCommandHandlerTests
     {
         // Arrange — anti-enumeration: the handler must NOT surface whether
         // an account for this email already exists.
-        var cmd = new RegisterCommand("Test User", "existing@example.com", "Password1");
+        var cmd = new RegisterCommand("Test User", "existing@example.com", "Password1", true);
         _userRepo.ExistsByEmailAsync(cmd.Email, Arg.Any<CancellationToken>()).Returns(true);
 
         // Act

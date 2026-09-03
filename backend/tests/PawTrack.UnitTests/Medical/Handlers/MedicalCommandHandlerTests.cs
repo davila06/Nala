@@ -452,3 +452,66 @@ public sealed class DeleteVetReminderCommandHandlerTests
         result.IsFailure.Should().BeTrue();
     }
 }
+
+// ═════════════════════════════════════════════════════════════════════════════
+// AddMedicalRecordCommandHandlerTests
+// ═════════════════════════════════════════════════════════════════════════════
+
+public sealed class AddMedicalRecordCommandHandlerTests
+{
+    private readonly IPetRepository _petRepo = Substitute.For<IPetRepository>();
+    private readonly IMedicalRepository _medRepo = Substitute.For<IMedicalRepository>();
+    private readonly IFamilyRepository _familyRepo = Substitute.For<IFamilyRepository>();
+    private readonly ISubscriptionService _subs = Substitute.For<ISubscriptionService>();
+    private readonly IBlobStorageService _blob = Substitute.For<IBlobStorageService>();
+    private readonly IUserRepository _userRepo = Substitute.For<IUserRepository>();
+    private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
+
+    private readonly AddMedicalRecordCommandHandler _sut;
+
+    public AddMedicalRecordCommandHandlerTests()
+    {
+        _subs.IsFamiliaAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns(true);
+        _sut = new AddMedicalRecordCommandHandler(
+            _petRepo, _medRepo, _familyRepo, _subs, _blob, _userRepo, _uow);
+    }
+
+    private static AddMedicalRecordCommand BuildCommand(Guid petId, Guid userId) => new(
+        petId, userId, MedicalRecordType.Checkup, new DateOnly(2026, 1, 1),
+        "Annual checkup", "Dr. Smith", "PawClinic", null, null, null);
+
+    [Fact]
+    public async Task Handle_NoHealthDataConsent_ReturnsConsentRequiredSentinel()
+    {
+        var ownerId = Guid.NewGuid();
+        var pet = Pet.Create(ownerId, "Max", PetSpecies.Dog, null, null);
+        var (owner, _) = PawTrack.Domain.Auth.User.Create("owner@test.com", "hash", "Owner");
+
+        _petRepo.GetByIdAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(pet);
+        _userRepo.GetByIdAsync(ownerId, Arg.Any<CancellationToken>()).Returns(owner);
+
+        var result = await _sut.Handle(BuildCommand(pet.Id, ownerId), default);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain(AddMedicalRecordCommandHandler.HealthDataConsentRequiredError);
+        await _medRepo.DidNotReceive().AddAsync(Arg.Any<MedicalRecord>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_WithHealthDataConsent_CreatesRecord()
+    {
+        var ownerId = Guid.NewGuid();
+        var pet = Pet.Create(ownerId, "Max", PetSpecies.Dog, null, null);
+        var (owner, _) = PawTrack.Domain.Auth.User.Create("owner@test.com", "hash", "Owner");
+        owner.GrantHealthDataConsent();
+
+        _petRepo.GetByIdAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(pet);
+        _userRepo.GetByIdAsync(ownerId, Arg.Any<CancellationToken>()).Returns(owner);
+
+        var result = await _sut.Handle(BuildCommand(pet.Id, ownerId), default);
+
+        result.IsSuccess.Should().BeTrue();
+        await _medRepo.Received(1).AddAsync(Arg.Any<MedicalRecord>(), Arg.Any<CancellationToken>());
+        await _uow.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+}

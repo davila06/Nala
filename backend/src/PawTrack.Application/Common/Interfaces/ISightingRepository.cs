@@ -49,4 +49,11 @@ public interface ISightingRepository
 
     Task AddAsync(Sighting sighting, CancellationToken cancellationToken = default);
     void Update(Sighting sighting);
+
+    /// <summary>
+    /// Deletes sightings with <see cref="Sighting.ReportedAt"/> older than <paramref name="cutoff"/>
+    /// and returns the number of rows deleted. Used by the personal data retention job
+    /// (Ley 8968 proportional conservation principle).
+    /// </summary>
+    Task<int> DeleteReportedBeforeAsync(DateTimeOffset cutoff, CancellationToken cancellationToken = default);
 }

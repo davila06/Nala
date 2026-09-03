@@ -26,7 +26,7 @@ public static class AuthHelper
             var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
 
             // 1. Register via command — CapturingEmailSender captures the raw token
-            var registerResult = await mediator.Send(new RegisterCommand("Test User", email, Password));
+            var registerResult = await mediator.Send(new RegisterCommand("Test User", email, Password, true));
 
             // 2. Get the captured raw token from the singleton email sender
             var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>()

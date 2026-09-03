@@ -66,6 +66,12 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.DeletedAt);
 
+        builder.Property(u => u.IsAdultConfirmed)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(u => u.HealthDataConsentedAt);
+
         // Soft-deleted accounts are excluded from default queries
         builder.HasQueryFilter(u => !u.IsDeleted);
 

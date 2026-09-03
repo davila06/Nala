@@ -6,7 +6,9 @@ public sealed record UserProfileDto(
     string Name,
     bool IsEmailVerified,
     bool IsAdmin,
-    DateTimeOffset CreatedAt)
+    DateTimeOffset CreatedAt,
+    bool IsAdultConfirmed,
+    bool HasHealthDataConsent)
 {
     public static UserProfileDto FromDomain(PawTrack.Domain.Auth.User user) => new(
         user.Id.ToString(),
@@ -14,5 +16,7 @@ public sealed record UserProfileDto(
         user.Name,
         user.IsEmailVerified,
         user.Role == PawTrack.Domain.Auth.UserRole.Admin,
-        user.CreatedAt);
+        user.CreatedAt,
+        user.IsAdultConfirmed,
+        user.HasHealthDataConsent);
 }

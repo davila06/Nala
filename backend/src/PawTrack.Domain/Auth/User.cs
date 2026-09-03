@@ -22,6 +22,23 @@ public sealed class User
     public DateTimeOffset? PasswordResetTokenExpiry { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
 
+    /// <summary>
+    /// Confirms the user declared they are of legal age (or hold guardian authorization)
+    /// at registration time. Ley 8968 (Costa Rica) does not mandate identity-verified age
+    /// checks for this product category, but the Terms of Use require this declaration —
+    /// this field is the technical record backing that requirement.
+    /// </summary>
+    public bool IsAdultConfirmed { get; private set; }
+
+    /// <summary>
+    /// Timestamp of the user's explicit, differentiated consent to processing of their
+    /// pets' health data (Ley 8968 Art. 9 — sensitive data). Null until granted.
+    /// Distinct from the general Terms of Use acceptance at registration.
+    /// </summary>
+    public DateTimeOffset? HealthDataConsentedAt { get; private set; }
+
+    public bool HasHealthDataConsent => HealthDataConsentedAt.HasValue;
+
     // ── Account lockout ───────────────────────────────────────────────────────
     public int FailedLoginAttempts { get; private set; }
     public DateTimeOffset? LockoutEnd { get; private set; }
@@ -40,7 +57,8 @@ public sealed class User
     /// The domain entity stores only the SHA-256 hex hash of the token so that
     /// a database breach cannot be used to verify accounts without the original link.
     /// </summary>
-    public static (User User, string RawToken) Create(string email, string passwordHash, string name)
+    public static (User User, string RawToken) Create(
+        string email, string passwordHash, string name, bool isAdultConfirmed = false)
     {
         var rawToken = GenerateRawToken();
         var tokenHash = ToHexHash(rawToken);
@@ -58,8 +76,18 @@ public sealed class User
             PasswordResetToken = null,
             PasswordResetTokenExpiry = null,
             CreatedAt = DateTimeOffset.UtcNow,
+            IsAdultConfirmed = isAdultConfirmed,
         };
         return (user, rawToken);
+    }
+
+    /// <summary>
+    /// Records explicit, differentiated consent to process health data for the user's pets.
+    /// Idempotent — re-granting does not overwrite the original consent timestamp.
+    /// </summary>
+    public void GrantHealthDataConsent()
+    {
+        HealthDataConsentedAt ??= DateTimeOffset.UtcNow;
     }
 
     public string IssuePasswordResetToken()

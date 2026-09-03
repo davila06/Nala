@@ -6,4 +6,5 @@ namespace PawTrack.Application.Auth.Commands.Register;
 public sealed record RegisterCommand(
     string Name,
     string Email,
-    string Password) : IRequest<Result<string>>;
+    string Password,
+    bool IsAdultConfirmed) : IRequest<Result<string>>;

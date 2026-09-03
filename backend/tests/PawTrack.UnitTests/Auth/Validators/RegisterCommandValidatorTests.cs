@@ -10,14 +10,14 @@ public sealed class RegisterCommandValidatorTests
     [Fact]
     public void Name_Empty_ShouldFail()
     {
-        var cmd = new RegisterCommand(string.Empty, "test@example.com", "Password1");
+        var cmd = new RegisterCommand(string.Empty, "test@example.com", "Password1", true);
         _sut.TestValidate(cmd).ShouldHaveValidationErrorFor(x => x.Name);
     }
 
     [Fact]
     public void Name_TooLong_ShouldFail()
     {
-        var cmd = new RegisterCommand(new string('a', 101), "test@example.com", "Password1");
+        var cmd = new RegisterCommand(new string('a', 101), "test@example.com", "Password1", true);
         _sut.TestValidate(cmd).ShouldHaveValidationErrorFor(x => x.Name);
     }
 
@@ -27,7 +27,7 @@ public sealed class RegisterCommandValidatorTests
     [InlineData("")]
     public void Email_Invalid_ShouldFail(string email)
     {
-        var cmd = new RegisterCommand("Test User", email, "Password1");
+        var cmd = new RegisterCommand("Test User", email, "Password1", true);
         _sut.TestValidate(cmd).ShouldHaveValidationErrorFor(x => x.Email);
     }
 
@@ -39,14 +39,21 @@ public sealed class RegisterCommandValidatorTests
     [InlineData("NoSpecialChar1")] // no special character
     public void Password_Invalid_ShouldFail(string password)
     {
-        var cmd = new RegisterCommand("Test User", "test@example.com", password);
+        var cmd = new RegisterCommand("Test User", "test@example.com", password, true);
         _sut.TestValidate(cmd).ShouldHaveValidationErrorFor(x => x.Password);
     }
 
     [Fact]
     public void ValidCommand_ShouldPassValidation()
     {
-        var cmd = new RegisterCommand("Denis Avila", "denis@pawtrack.cr", "SecurePass1!");
+        var cmd = new RegisterCommand("Denis Avila", "denis@pawtrack.cr", "SecurePass1!", true);
         _sut.TestValidate(cmd).ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
+    public void IsAdultConfirmed_False_ShouldFail()
+    {
+        var cmd = new RegisterCommand("Denis Avila", "denis@pawtrack.cr", "SecurePass1!", false);
+        _sut.TestValidate(cmd).ShouldHaveValidationErrorFor(x => x.IsAdultConfirmed);
     }
 }

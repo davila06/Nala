@@ -9,6 +9,7 @@ import {
   useUpdateProfile,
   useChangePassword,
   useDeleteAccount,
+  useExportMyData,
 } from "../hooks/useProfile";
 import { useAuthStore } from "../store/authStore";
 import type { PetSpecies } from "@/features/sightings/api/fostersApi";
@@ -292,6 +293,8 @@ export default function ProfilePage() {
     useChangePassword();
   const { mutateAsync: deleteAccountMutation, isPending: deletingAccount } =
     useDeleteAccount();
+  const { mutate: exportMyDataMutation, isPending: exportingData } =
+    useExportMyData();
   const user = useAuthStore((s) => s.user);
   const {
     status: pushStatus,
@@ -866,6 +869,31 @@ export default function ProfilePage() {
           cuadra.
         </p>
         <NeighborStatusCard />
+      </Card>
+
+      {/* ── Privacidad y tus datos ───────────────────────────────────────── */}
+      <Card>
+        <h2 className="text-base font-semibold text-sand-800">
+          Privacidad y tus datos
+        </h2>
+        <p className="mt-1 mb-4 text-sm text-sand-500">
+          Descarga una copia de todos tus datos personales (perfil, mascotas,
+          reportes de pérdida, historial médico, mensajes y notificaciones) en
+          formato JSON.
+        </p>
+        <Button
+          variant="secondary"
+          size="sm"
+          loading={exportingData}
+          onClick={() =>
+            exportMyDataMutation(undefined, {
+              onError: () =>
+                toast.error("No se pudo generar la descarga de tus datos"),
+            })
+          }
+        >
+          Descargar mis datos
+        </Button>
       </Card>
 
       {/* ── Delete account ────────────────────────────────────────────── */}

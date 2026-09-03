@@ -52,4 +52,11 @@ public interface INotificationRepository
         Guid? afterId,
         int take,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes notifications that are already read and older than <paramref name="cutoff"/>,
+    /// returning the number of rows deleted. Unread notifications are never purged automatically.
+    /// Used by the personal data retention job (Ley 8968 proportional conservation principle).
+    /// </summary>
+    Task<int> DeleteReadBeforeAsync(DateTimeOffset cutoff, CancellationToken cancellationToken = default);
 }

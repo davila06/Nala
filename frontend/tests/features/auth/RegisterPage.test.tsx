@@ -57,6 +57,7 @@ describe('RegisterPage', () => {
     await user.type(screen.getByLabelText(/correo/i), 'denis@test.cr')
     await user.type(screen.getByLabelText(/^contraseña/i), 'SecurePass1')
     await user.type(screen.getByLabelText(/confirmar/i), 'SecurePass1')
+    await user.click(screen.getByRole('checkbox'))
     await user.click(screen.getByRole('button', { name: /crear cuenta/i }))
 
     expect(screen.getByRole('button', { name: /registrando/i })).toBeDisabled()
@@ -76,10 +77,24 @@ describe('RegisterPage', () => {
     await user.type(screen.getByLabelText(/correo/i), 'exists@test.cr')
     await user.type(screen.getByLabelText(/^contraseña/i), 'SecurePass1')
     await user.type(screen.getByLabelText(/confirmar/i), 'SecurePass1')
+    await user.click(screen.getByRole('checkbox'))
     await user.click(screen.getByRole('button', { name: /crear cuenta/i }))
 
     await waitFor(() =>
       expect(screen.getByRole('alert')).toHaveTextContent(/error al registrar/i),
     )
+  })
+
+  it('shows error when age/guardian confirmation checkbox is unchecked', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<RegisterPage />)
+
+    await user.type(screen.getByLabelText(/nombre/i), 'Denis')
+    await user.type(screen.getByLabelText(/correo/i), 'denis@test.cr')
+    await user.type(screen.getByLabelText(/^contraseña/i), 'SecurePass1')
+    await user.type(screen.getByLabelText(/confirmar/i), 'SecurePass1')
+    await user.click(screen.getByRole('button', { name: /crear cuenta/i }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/mayor de edad/i)
   })
 })

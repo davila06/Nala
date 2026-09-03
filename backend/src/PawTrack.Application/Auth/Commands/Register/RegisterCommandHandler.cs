@@ -28,7 +28,8 @@ public sealed class RegisterCommandHandler(
         }
 
         var passwordHash = passwordHasher.Hash(request.Password);
-        var (user, rawVerificationToken) = User.Create(request.Email, passwordHash, request.Name);
+        var (user, rawVerificationToken) = User.Create(
+            request.Email, passwordHash, request.Name, request.IsAdultConfirmed);
 
         await userRepository.AddAsync(user, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);

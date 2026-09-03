@@ -267,6 +267,20 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = 0,
             }));
 
+    // ── Auth: data export — authenticated, but aggregates across every module the
+    // user owns data in (pets, lost-pet reports, medical records, chat, notifications);
+    // capped tightly to prevent repeated heavy aggregation queries: 5 per 5 min per IP.
+    options.AddPolicy("data-export", ctx =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: RateLimiterIpKey.Get(ctx),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:DataExport:PermitLimit", 5),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:DataExport:WindowSeconds", 300)),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0,
+            }));
+
     // ── Auth: verify-email — 10 attempts/hour per IP (enumeration/replay protection) ──
     options.AddPolicy("verify-email", ctx =>
         RateLimitPartition.GetFixedWindowLimiter(

@@ -19,6 +19,10 @@ import { ReminderCalendar } from "./ReminderCalendar";
 import { WeightTrendChart } from "./WeightTrendChart";
 import { HealthScoreCard } from "./HealthScoreCard";
 import { usePublicClinics } from "@/features/clinics/hooks/useClinics";
+import {
+  useMyProfile,
+  useGrantHealthDataConsent,
+} from "@/features/auth/hooks/useProfile";
 import type {
   MedicalRecordType,
   MedicalRecordDto,
@@ -487,6 +491,8 @@ function AddRecordForm({
   onClose: () => void;
 }) {
   const add = useAddMedicalRecord(petId);
+  const { data: profile } = useMyProfile();
+  const grantConsent = useGrantHealthDataConsent();
   const today = new Date().toISOString().slice(0, 10);
   const [type, setType] = useState<MedicalRecordType>("Checkup");
   const [date, setDate] = useState(today);
@@ -527,114 +533,143 @@ function AddRecordForm({
         Nuevo registro médico
       </h3>
 
-      {/* Type */}
-      <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">
-          Tipo
-        </label>
-        <select
-          value={type}
-          onChange={(e) => setType(e.target.value as MedicalRecordType)}
-          className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
-        >
-          {ALL_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {TYPE_LABEL[t]}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Date */}
-      <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">
-          Fecha
-        </label>
-        <Input
-          type="date"
-          value={date}
-          max={today}
-          onChange={(e) => setDate(e.target.value)}
-        />
-      </div>
-
-      {/* Description */}
-      <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">
-          Descripción *
-        </label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={2}
-          className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 placeholder:text-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
-          placeholder="Ej. Vacuna anti-rábica anual administrada sin reacciones"
-        />
-      </div>
-
-      {/* Vet / Clinic */}
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
-            Veterinario
-          </label>
-          <Input
-            placeholder="Dr. Nombre"
-            value={vetName}
-            onChange={(e) => setVetName(e.target.value)}
-          />
+      {profile && !profile.hasHealthDataConsent ? (
+        <div className="space-y-3">
+          <p className="text-sm text-sand-700">
+            Los datos de salud de tu mascota (vacunas, diagnósticos,
+            tratamientos) son datos sensibles. Antes de continuar, necesitamos
+            tu consentimiento explícito para tratarlos con fines de cuidado y
+            coordinación con clínicas veterinarias.
+          </p>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              loading={grantConsent.isPending}
+              onClick={() =>
+                grantConsent.mutate(undefined, {
+                  onError: () =>
+                    toast.error("No se pudo registrar el consentimiento"),
+                })
+              }
+            >
+              Acepto
+            </Button>
+            <Button variant="secondary" size="sm" onClick={onClose}>
+              Cancelar
+            </Button>
+          </div>
         </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
-            Clínica
-          </label>
-          <Input
-            placeholder="Nombre clínica"
-            value={clinicName}
-            onChange={(e) => setClinicName(e.target.value)}
-          />
-        </div>
-      </div>
+      ) : (
+        <>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-sand-600">
+              Tipo
+            </label>
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value as MedicalRecordType)}
+              className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
+            >
+              {ALL_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {TYPE_LABEL[t]}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      {/* Next due */}
-      <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">
-          Próxima cita (opcional)
-        </label>
-        <Input
-          type="date"
-          value={nextDueDate}
-          min={today}
-          onChange={(e) => setNextDueDate(e.target.value)}
-        />
-      </div>
+          {/* Date */}
+          <div>
+            <label className="mb-1 block text-xs font-medium text-sand-600">
+              Fecha
+            </label>
+            <Input
+              type="date"
+              value={date}
+              max={today}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
 
-      {/* Document */}
-      <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">
-          Documento (PDF / foto, máx. 5MB)
-        </label>
-        <input
-          type="file"
-          accept=".pdf,image/jpeg,image/png"
-          onChange={(e) => setDocument(e.target.files?.[0] ?? null)}
-          className="block w-full text-xs text-sand-600 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-brand-700 hover:file:bg-brand-200"
-        />
-      </div>
+          {/* Description */}
+          <div>
+            <label className="mb-1 block text-xs font-medium text-sand-600">
+              Descripción *
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={2}
+              className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 placeholder:text-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+              placeholder="Ej. Vacuna anti-rábica anual administrada sin reacciones"
+            />
+          </div>
 
-      <div className="flex gap-2 pt-1">
-        <Button
-          onClick={handleSubmit}
-          loading={add.isPending}
-          disabled={!description.trim()}
-          className="flex-1"
-        >
-          Guardar
-        </Button>
-        <Button variant="secondary" onClick={onClose} className="flex-1">
-          Cancelar
-        </Button>
-      </div>
+          {/* Vet / Clinic */}
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-sand-600">
+                Veterinario
+              </label>
+              <Input
+                placeholder="Dr. Nombre"
+                value={vetName}
+                onChange={(e) => setVetName(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-sand-600">
+                Clínica
+              </label>
+              <Input
+                placeholder="Nombre clínica"
+                value={clinicName}
+                onChange={(e) => setClinicName(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Next due */}
+          <div>
+            <label className="mb-1 block text-xs font-medium text-sand-600">
+              Próxima cita (opcional)
+            </label>
+            <Input
+              type="date"
+              value={nextDueDate}
+              min={today}
+              onChange={(e) => setNextDueDate(e.target.value)}
+            />
+          </div>
+
+          {/* Document */}
+          <div>
+            <label className="mb-1 block text-xs font-medium text-sand-600">
+              Documento (PDF / foto, máx. 5MB)
+            </label>
+            <input
+              type="file"
+              accept=".pdf,image/jpeg,image/png"
+              onChange={(e) => setDocument(e.target.files?.[0] ?? null)}
+              className="block w-full text-xs text-sand-600 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-brand-700 hover:file:bg-brand-200"
+            />
+          </div>
+
+          <div className="flex gap-2 pt-1">
+            <Button
+              onClick={handleSubmit}
+              loading={add.isPending}
+              disabled={!description.trim()}
+              className="flex-1"
+            >
+              Guardar
+            </Button>
+            <Button variant="secondary" onClick={onClose} className="flex-1">
+              Cancelar
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

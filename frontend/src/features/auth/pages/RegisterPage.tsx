@@ -39,6 +39,7 @@ export default function RegisterPage() {
     password: "",
     confirm: "",
   });
+  const [isAdultConfirmed, setIsAdultConfirmed] = useState(false);
   const [validationError, setValidationError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -68,7 +69,18 @@ export default function RegisterPage() {
       setValidationError("La contraseña debe tener al menos 8 caracteres.");
       return;
     }
-    register({ name: form.name, email: form.email, password: form.password });
+    if (!isAdultConfirmed) {
+      setValidationError(
+        "Debes confirmar que eres mayor de edad o cuentas con autorización de tu tutor legal.",
+      );
+      return;
+    }
+    register({
+      name: form.name,
+      email: form.email,
+      password: form.password,
+      isAdultConfirmed,
+    });
   }
 
   return (
@@ -225,6 +237,21 @@ export default function RegisterPage() {
               value={form.confirm}
               onChange={(e) => setForm({ ...form, confirm: e.target.value })}
             />
+
+            <label className="flex items-start gap-2 text-sm text-sand-600">
+              <input
+                type="checkbox"
+                id="isAdultConfirmed"
+                required
+                checked={isAdultConfirmed}
+                onChange={(e) => setIsAdultConfirmed(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-sand-300 text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              />
+              <span>
+                Confirmo que soy mayor de edad o que cuento con la autorización
+                de mi tutor legal para usar PawTrack CR.
+              </span>
+            </label>
 
             <div className="pt-1">
               <Button type="submit" loading={isPending} fullWidth size="lg">

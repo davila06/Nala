@@ -39,4 +39,7 @@ public interface ILostPetRepository
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<LostPetEvent>> GetAllByPetIdAsync(Guid petId, CancellationToken ct = default);
+
+    /// <summary>Returns all lost-pet reports (any status) owned by the given user, newest first.</summary>
+    Task<IReadOnlyList<LostPetEvent>> GetByOwnerIdAsync(Guid ownerId, CancellationToken cancellationToken = default);
 }

@@ -54,4 +54,12 @@ public interface IChatRepository
         Guid threadId,
         Guid recipientUserId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes all messages and threads for threads whose <see cref="ChatThread.Status"/> is
+    /// <see cref="ChatThreadStatus.Closed"/> and <see cref="ChatThread.LastMessageAt"/> is older
+    /// than <paramref name="cutoff"/>. Returns the number of threads deleted. Used by the
+    /// personal data retention job (Ley 8968 proportional conservation principle).
+    /// </summary>
+    Task<int> DeleteClosedThreadsOlderThanAsync(DateTimeOffset cutoff, CancellationToken cancellationToken = default);
 }

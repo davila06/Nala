@@ -31,6 +31,7 @@ public sealed class AuthHelperDiagnosticTests(PawTrackWebApplicationFactory fact
             name = "Diag User",
             email,
             password = "SecurePass1!",
+            isAdultConfirmed = true,
         });
 
         var token = factory.LastVerificationToken;
@@ -47,7 +48,7 @@ public sealed class AuthHelperDiagnosticTests(PawTrackWebApplicationFactory fact
             var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
             var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>() as CapturingEmailSender;
 
-            await mediator.Send(new RegisterCommand("Test", email, "SecurePass1!"));
+            await mediator.Send(new RegisterCommand("Test", email, "SecurePass1!", true));
             var token = emailSender!.LastVerificationToken!;
 
             var result = await mediator.Send(new VerifyEmailCommand(token));
@@ -85,7 +86,7 @@ public sealed class AuthHelperDiagnosticTests(PawTrackWebApplicationFactory fact
         {
             var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
             var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>() as CapturingEmailSender;
-            await mediator.Send(new RegisterCommand("JWT Test", email, "SecurePass1!"));
+            await mediator.Send(new RegisterCommand("JWT Test", email, "SecurePass1!", true));
             var token = emailSender!.LastVerificationToken!;
             await mediator.Send(new VerifyEmailCommand(token));
 

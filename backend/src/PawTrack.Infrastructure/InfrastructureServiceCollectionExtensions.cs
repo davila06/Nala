@@ -55,6 +55,7 @@ public static class InfrastructureServiceCollectionExtensions
         // ── Options bindings ──────────────────────────────────────────────────
         services.Configure<ResolveCheckSettings>(configuration.GetSection("ResolveCheck"));
         services.Configure<QrScanRetentionSettings>(configuration.GetSection("QrScanRetention"));
+        services.Configure<PersonalDataRetentionSettings>(configuration.GetSection("PersonalDataRetention"));
         services.Configure<AvatarTokenSettings>(configuration.GetSection("AvatarToken"));
         services.Configure<PetScanExportSettings>(configuration.GetSection("PetScanExport"));
         services.Configure<PawTrack.Application.Common.Settings.BotSettings>(configuration.GetSection("Bot"));
@@ -172,6 +173,11 @@ public static class InfrastructureServiceCollectionExtensions
         // QR retention job (runs at 02:00 CR time)
         services.AddScoped<QrScanRetentionJob>();
         services.AddHostedService<QrScanRetentionHostedService>();
+
+        // Personal data retention job (sightings, closed chat threads, read notifications;
+        // runs at 03:00 CR time) — Ley 8968 proportional conservation principle.
+        services.AddScoped<PawTrack.Infrastructure.Compliance.PersonalDataRetentionJob>();
+        services.AddHostedService<PawTrack.Infrastructure.Compliance.PersonalDataRetentionHostedService>();
 
         // Broadcast — channel broadcasters registered as IChannelBroadcaster.
         // The orchestrator resolves IEnumerable<IChannelBroadcaster> to fan out.

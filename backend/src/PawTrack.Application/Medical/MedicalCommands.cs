@@ -90,10 +90,17 @@ public sealed class AddMedicalRecordCommandHandler(
     IFamilyRepository familyRepository,
     ISubscriptionService subscriptionService,
     IBlobStorageService blobStorage,
+    IUserRepository userRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<AddMedicalRecordCommand, Result<MedicalRecordDto>>
 {
     private const string MedicalDocsContainer = "medical-docs";
+
+    /// <summary>
+    /// Sentinel error the frontend checks for to trigger the health-data consent
+    /// modal instead of a generic error toast. Not a user-facing message by itself.
+    /// </summary>
+    public const string HealthDataConsentRequiredError = "HEALTH_DATA_CONSENT_REQUIRED";
 
     public async Task<Result<MedicalRecordDto>> Handle(
         AddMedicalRecordCommand request, CancellationToken ct)
@@ -101,6 +108,14 @@ public sealed class AddMedicalRecordCommandHandler(
         var isFamilia = await subscriptionService.IsFamiliaAsync(request.RequestingUserId, ct);
         if (!isFamilia)
             return Result.Failure<MedicalRecordDto>("El historial médico requiere el plan Familia.");
+
+        // Health data (vaccines, diagnoses, treatments) is sensitive data under Ley 8968
+        // Art. 9 — requires explicit, differentiated consent beyond the general Terms of
+        // Use acceptance given at registration.
+        var requestingUser = await userRepository.GetByIdAsync(request.RequestingUserId, ct);
+        if (requestingUser is null) return Result.Failure<MedicalRecordDto>("Usuario no encontrado.");
+        if (!requestingUser.HasHealthDataConsent)
+            return Result.Failure<MedicalRecordDto>(HealthDataConsentRequiredError);
 
         var pet = await petRepository.GetByIdAsync(request.PetId, ct);
         if (pet is null) return Result.Failure<MedicalRecordDto>("Mascota no encontrada.");

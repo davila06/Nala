@@ -24,5 +24,8 @@ public sealed class RegisterCommandValidator : AbstractValidator<RegisterCommand
             .Matches("[0-9]").WithMessage("Password must contain at least one digit.")
             .Matches(@"[!@#$%^&*()_\-+=\[\]{};':""\\|,.<>\/?`~]")
                 .WithMessage("Password must contain at least one special character.");
+        RuleFor(x => x.IsAdultConfirmed)
+            .Equal(true)
+            .WithMessage("Debes confirmar que eres mayor de edad o cuentas con autorización de tu tutor legal.");
     }
 }

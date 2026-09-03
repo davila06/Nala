@@ -26,10 +26,14 @@ vía de autoservicio, sin importar que ingresara la contraseña correcta. Esto r
 directamente el **derecho de cancelación/supresión** (ARCO) prometido en la Política
 de Privacidad §11. Ya está corregido y cubierto por test de regresión.
 
-Quedan **gaps genuinos pendientes** (documentados en la §4) que requieren decisión de
-producto/legal antes de implementarse — no son bugs de código, sino funcionalidad
-que aún no existe: exportación de datos autoservicio, verificación de edad al
-registro, y consentimiento específico y diferenciado para datos de salud/GPS.
+**Actualización 2026-09-03:** los cuatro gaps identificados en la §4 (consentimiento
+diferenciado para datos de salud, confirmación de mayoría de edad al registro,
+exportación de datos autoservicio, y retención/purga para sightings/chat/
+notificaciones) ya fueron **implementados a nivel enterprise** — ver evidencia de
+código en la §6 y detalle en cada subsección de la §4. Quedan únicamente dos ítems
+**organizacionales** (no de código): confirmar el registro de bases de datos ante
+PRODHAB y confirmar el DPA con Microsoft Azure para la transferencia internacional
+de datos.
 
 ---
 
@@ -37,22 +41,22 @@ registro, y consentimiento específico y diferenciado para datos de salud/GPS.
 
 ### 2.1 Ley 8968 (Costa Rica) — obligaciones clave
 
-| Principio / obligación                      | Fuente                    | Resumen                                                                                  |
-| -------------------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------ |
-| Consentimiento informado y expreso           | Art. 5, 7                 | El tratamiento requiere consentimiento salvo excepciones legales (ejecución contractual, interés vital, etc.) |
-| Datos sensibles                              | Art. 9                    | Salud, biométricos y otros datos sensibles requieren consentimiento **expreso y diferenciado** del consentimiento general |
-| Calidad y finalidad de los datos             | Art. 6, 11                | Solo recolectar lo necesario para la finalidad declarada; no usar para fines incompatibles |
-| Derechos ARCO                                | Art. 4, 8, 27–33          | Acceso, Rectificación, Cancelación (supresión), Oposición — deben poder ejercerse de forma efectiva |
-| Seguridad de la información                  | Art. 10                   | Medidas técnicas y organizativas para evitar alteración, pérdida, tratamiento no autorizado |
-| Registro de bases de datos ante PRODHAB      | Art. 22 (Reglamento)      | Bases de datos con fines comerciales que contienen datos personales deben registrarse ante PRODHAB |
-| Transferencia internacional de datos         | Art. 14                   | Requiere consentimiento o garantías equivalentes de protección en el país destino          |
-| Conservación proporcional                    | Art. 6, 11                | No conservar datos más tiempo del necesario para la finalidad                              |
+| Principio / obligación                  | Fuente               | Resumen                                                                                                                   |
+| --------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Consentimiento informado y expreso      | Art. 5, 7            | El tratamiento requiere consentimiento salvo excepciones legales (ejecución contractual, interés vital, etc.)             |
+| Datos sensibles                         | Art. 9               | Salud, biométricos y otros datos sensibles requieren consentimiento **expreso y diferenciado** del consentimiento general |
+| Calidad y finalidad de los datos        | Art. 6, 11           | Solo recolectar lo necesario para la finalidad declarada; no usar para fines incompatibles                                |
+| Derechos ARCO                           | Art. 4, 8, 27–33     | Acceso, Rectificación, Cancelación (supresión), Oposición — deben poder ejercerse de forma efectiva                       |
+| Seguridad de la información             | Art. 10              | Medidas técnicas y organizativas para evitar alteración, pérdida, tratamiento no autorizado                               |
+| Registro de bases de datos ante PRODHAB | Art. 22 (Reglamento) | Bases de datos con fines comerciales que contienen datos personales deben registrarse ante PRODHAB                        |
+| Transferencia internacional de datos    | Art. 14              | Requiere consentimiento o garantías equivalentes de protección en el país destino                                         |
+| Conservación proporcional               | Art. 6, 11           | No conservar datos más tiempo del necesario para la finalidad                                                             |
 
 ### 2.2 Buenas prácticas internacionales usadas como referencia (no aplican directamente)
 
-- **GDPR (UE):** principios de *privacy by design/default*, *data minimization*,
-  *right to erasure* (Art. 17), *data portability* (Art. 20), *edad de consentimiento
-  digital* (Art. 8, típicamente 13–16 años según el país).
+- **GDPR (UE):** principios de _privacy by design/default_, _data minimization_,
+  _right to erasure_ (Art. 17), _data portability_ (Art. 20), _edad de consentimiento
+  digital_ (Art. 8, típicamente 13–16 años según el país).
 - **OWASP ASVS / Top 10:** controles técnicos de autenticación, autorización (BOLA),
   cifrado y gestión de secretos — ya cubiertos extensamente en este proyecto (ver
   `pendientesTotales.md` §3).
@@ -63,86 +67,95 @@ registro, y consentimiento específico y diferenciado para datos de salud/GPS.
 
 Verificado directamente contra el código (no solo contra la política escrita):
 
-| Área                                  | Evidencia en código                                                                                                   |
-| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Anonimato del reportante de avistamientos | Los avistamientos no almacenan identidad del reportante — diseño confirmado en `NALA.md` y el módulo `Sightings`      |
-| Chat enmascarado                       | Contacto dueño↔rescatador sin exponer teléfono real; validado en `ChatContactGuardTests`                              |
-| Hash de teléfonos (bot WhatsApp)       | HMAC-SHA256 con clave secreta, no SHA-256 plano (ya corregido en rondas de seguridad previas)                         |
-| Contraseñas                            | BCrypt work factor 12, `Verify()` usado correctamente en login/`ChangePassword` (y ahora también en `DeleteAccount`)  |
-| JWT + refresh                          | Access token en memoria (nunca `localStorage`), refresh en cookie `httpOnly`/`Secure`/`SameSite`, JTI blocklist en SQL |
-| BOLA (acceso a datos de terceros)      | Ownership checks explícitos en collares, expediente médico, pedidos — auditado extensamente esta sesión               |
-| Minimización — collar GPS              | `CollarLocationPurgeJob` purga ubicaciones >30 días; historial expuesto solo por rango, máx. 10,000 puntos            |
-| Minimización — QR scans                | `QrScanRetentionJob` corre diario, purga eventos antiguos                                                             |
-| Minimización — vistas de perfil clínica | `ClinicProfileViewPurgeHostedService` purga vistas antiguas                                                           |
-| Cookies                                | Banner con opciones **igualmente prominentes** "Aceptar todo" / "Solo esenciales" — buena práctica (no solo "aceptar") |
-| Rate limiting anti fuerza bruta        | Partición por IP en todos los endpoints sensibles — protege contra exfiltración masiva de datos personales            |
-| Cifrado de tokens externos             | Token OAuth de Tractive cifrado con AES-256 antes de persistir                                                        |
-| No venta de datos                      | Declarado explícitamente en Política de Privacidad §7                                                                 |
-| Derecho de cancelación (ahora funcional) | `DeleteAccountCommandHandler` — **corregido en este análisis** (ver §1)                                              |
+| Área                                      | Evidencia en código                                                                                                    |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Anonimato del reportante de avistamientos | Los avistamientos no almacenan identidad del reportante — diseño confirmado en `NALA.md` y el módulo `Sightings`       |
+| Chat enmascarado                          | Contacto dueño↔rescatador sin exponer teléfono real; validado en `ChatContactGuardTests`                               |
+| Hash de teléfonos (bot WhatsApp)          | HMAC-SHA256 con clave secreta, no SHA-256 plano (ya corregido en rondas de seguridad previas)                          |
+| Contraseñas                               | BCrypt work factor 12, `Verify()` usado correctamente en login/`ChangePassword` (y ahora también en `DeleteAccount`)   |
+| JWT + refresh                             | Access token en memoria (nunca `localStorage`), refresh en cookie `httpOnly`/`Secure`/`SameSite`, JTI blocklist en SQL |
+| BOLA (acceso a datos de terceros)         | Ownership checks explícitos en collares, expediente médico, pedidos — auditado extensamente esta sesión                |
+| Minimización — collar GPS                 | `CollarLocationPurgeJob` purga ubicaciones >30 días; historial expuesto solo por rango, máx. 10,000 puntos             |
+| Minimización — QR scans                   | `QrScanRetentionJob` corre diario, purga eventos antiguos                                                              |
+| Minimización — vistas de perfil clínica   | `ClinicProfileViewPurgeHostedService` purga vistas antiguas                                                            |
+| Cookies                                   | Banner con opciones **igualmente prominentes** "Aceptar todo" / "Solo esenciales" — buena práctica (no solo "aceptar") |
+| Rate limiting anti fuerza bruta           | Partición por IP en todos los endpoints sensibles — protege contra exfiltración masiva de datos personales             |
+| Cifrado de tokens externos                | Token OAuth de Tractive cifrado con AES-256 antes de persistir                                                         |
+| No venta de datos                         | Declarado explícitamente en Política de Privacidad §7                                                                  |
+| Derecho de cancelación (ahora funcional)  | `DeleteAccountCommandHandler` — **corregido en este análisis** (ver §1)                                                |
 
 ---
 
-## 4. Hallazgos — Gaps pendientes (requieren decisión de producto/legal)
+## 4. Hallazgos — Gaps identificados y su resolución
 
-Estos NO son bugs — son funcionalidad que la política de privacidad ya redacta de
-forma general ("cuando sea aplicable", "según corresponda") pero que aún no tiene
+Estos NO eran bugs — eran funcionalidad que la política de privacidad ya redacta de
+forma general ("cuando sea aplicable", "según corresponda") pero que aún no tenía
 una implementación técnica dedicada. Priorizados por relevancia legal.
 
 ### 🔴 Alto — datos sensibles de salud sin consentimiento diferenciado
 
-**Problema:** el expediente médico (vacunas, diagnósticos, tratamientos) es un
-**dato sensible** bajo el Art. 9 de la Ley 8968. Actualmente su único "gate" es
-comercial (plan Familia) — no existe un paso de consentimiento **específico y
-diferenciado** del consentimiento general de los Términos de Uso antes de que el
-usuario suba el primer registro médico.
+### ✅ Resuelto (2026-09-03) — datos sensibles de salud sin consentimiento diferenciado
 
-**Recomendación:** al crear el primer registro médico de una mascota, mostrar un
-modal de consentimiento explícito ("Acepto que PawTrack CR trate datos de salud de
-mi mascota con fines de cuidado y coordinación con clínicas") con registro de
-`ConsentedAt` en la base de datos — no basta con un checkbox genérico ya aceptado
-en el registro de la cuenta.
+**Problema (ya corregido):** el expediente médico (vacunas, diagnósticos,
+tratamientos) es un **dato sensible** bajo el Art. 9 de la Ley 8968. El único
+"gate" anterior era comercial (plan Familia) — no existía un paso de
+consentimiento **específico y diferenciado** del consentimiento general de los
+Términos de Uso antes de que el usuario subiera el primer registro médico.
 
-### 🟡 Medio — sin verificación de edad al registro
+**Implementado:** `User` ahora tiene `HealthDataConsentedAt` (nullable,
+idempotente vía `GrantHealthDataConsent()`). `AddMedicalRecordCommandHandler`
+bloquea la creación de cualquier registro médico hasta que el usuario haya dado
+este consentimiento explícito — devuelve el sentinel `HEALTH_DATA_CONSENT_REQUIRED`
+si falta. El frontend (`MedicalHistoryTab.tsx`) muestra un modal de
+consentimiento explícito antes del formulario de "Nuevo registro médico" y llama
+a `POST /api/auth/me/health-data-consent` al aceptar.
 
-**Problema:** `RegisterCommand`/`RegisterCommandValidator` no capturan fecha de
-nacimiento ni ningún control de edad mínima. Los Términos de Uso §4 dicen "si eres
-menor de edad, debes usar la plataforma con autorización... de tu tutor legal", pero
-no hay ningún mecanismo técnico que lo verifique o lo haga cumplir.
+### ✅ Resuelto (2026-09-03) — sin verificación de edad al registro
 
-**Recomendación (mínimo viable):** agregar un campo de confirmación de mayoría de
-edad (checkbox "Confirmo que soy mayor de edad o cuento con autorización de mi
-tutor legal") en el registro, con el valor persistido. No requiere verificación de
-identidad formal (fuera de alcance realista para el MVP), pero cierra la brecha
-entre lo que dice el ToS y lo que el sistema efectivamente registra.
+**Problema (ya corregido):** `RegisterCommand`/`RegisterCommandValidator` no
+capturaban ninguna confirmación de mayoría de edad. Los Términos de Uso §4 dicen
+"si eres menor de edad, debes usar la plataforma con autorización... de tu tutor
+legal", pero no había ningún mecanismo técnico que lo verificara o lo hiciera
+cumplir.
 
-### 🟡 Medio — sin exportación de datos autoservicio (portabilidad)
+**Implementado:** `User.IsAdultConfirmed` (bool, persistido en el registro).
+`RegisterCommandValidator` exige `IsAdultConfirmed == true`
+("Debes confirmar que eres mayor de edad o cuentas con autorización de tu tutor
+legal."). El formulario de registro (`RegisterPage.tsx`) agrega un checkbox
+obligatorio con ese texto exacto. No es verificación de identidad formal (fuera
+de alcance realista para el MVP), pero cierra la brecha entre lo que dice el ToS
+y lo que el sistema efectivamente registra.
 
-**Problema:** la Política de Privacidad §11 promete "portabilidad de ciertos datos
+### ✅ Resuelto (2026-09-03) — sin exportación de datos autoservicio (portabilidad)
+
+**Problema (ya corregido):** la Política de Privacidad §11 prometía "portabilidad
+de ciertos datos cuando sea aplicable", pero el único mecanismo era escribir a
+`privacidad@pawtrack.cr` para un proceso manual.
+
+**Implementado:** `GET /api/auth/me/export` (endpoint autenticado, rate-limited a
+5 solicitudes / 5 min por IP dado el costo de la agregación) devuelve un JSON con
+perfil, mascotas, reportes de pérdida propios, expediente médico, mensajes de
+chat propios (excluye los mensajes de la otra parte de la conversación — esos son
+datos personales de un tercero, no del usuario exportador) y notificaciones. El
+botón "Descargar mis datos" en `ProfilePage.tsx` dispara la descarga como archivo
+`.json`.
+
+### ✅ Resuelto (2026-09-03) — sin retención/purga para sightings, chat y notificaciones
+
+**Problema (ya corregido):** a diferencia de ubicaciones de collar, QR scans y
+vistas de clínica (que sí purgaban automáticamente), los avistamientos, mensajes
+de chat y notificaciones se conservaban indefinidamente.
+
+**Implementado:** `PersonalDataRetentionJob` (corre diario a las 03:00 hora CR,
+con `IDistributedJobLock` para scale-out) purga: avistamientos reportados hace
+más de `SightingRetentionDays` (default 730 días), hilos de chat **Closed** con
+último mensaje hace más de `ClosedChatRetentionDays` (default 730 días, incluye
+sus mensajes), y notificaciones **leídas** hace más de
+`ReadNotificationRetentionDays` (default 365 días — las no leídas nunca se purgan
+automáticamente). Configurable vía `appsettings.json` → `PersonalDataRetention:*`.
 cuando sea aplicable", pero el único mecanismo es escribir a
 `privacidad@pawtrack.cr` para un proceso manual. No hay endpoint de "descargar mis
 datos".
-
-**Recomendación:** endpoint `GET /api/auth/me/export` que compile JSON con:
-perfil, mascotas, reportes de pérdida propios, mensajes de chat propios,
-expediente médico — reutilizando los repositorios ya existentes (no requiere
-nuevas queries complejas, es una agregación de lo que ya se puede consultar por
-partes). Prioridad media porque el canal manual ya cumple el requisito legal
-mínimo, pero el autoservicio es la práctica internacional recomendada y reduce
-carga operativa de soporte.
-
-### 🟢 Bajo — sin retención/purga para sightings, chat y notificaciones
-
-**Problema:** a diferencia de ubicaciones de collar, QR scans y vistas de clínica
-(que sí purgan automáticamente), los avistamientos, mensajes de chat y
-notificaciones **se conservan indefinidamente**. Esto no es ilegal per se (Ley 8968
-no fija un plazo numérico), pero contradice el principio de conservación
-proporcional (Art. 6/11) si esos datos ya no sirven la finalidad original (ej. un
-caso cerrado hace 2 años).
-
-**Recomendación:** definir una política de retención razonable (ej. 2 años tras el
-cierre del caso para sightings/chat asociado) y un job de purga/anonimización
-análogo a `QrScanRetentionJob`. No urgente — priorizar después de los ítems
-🔴/🟡.
 
 ### 🟢 Bajo (organizacional, no de código) — registro ante PRODHAB
 
@@ -182,10 +195,10 @@ código.
 - [x] Controles BOLA en todos los endpoints de datos personales/sensibles
 - [x] Derecho de cancelación (eliminación de cuenta) — **corregido, ahora funcional**
 - [x] Purga automática: ubicaciones GPS de collar, QR scans, vistas de clínica
-- [ ] Consentimiento diferenciado para datos de salud (expediente médico) — 🔴 pendiente
-- [ ] Verificación/confirmación de mayoría de edad al registro — 🟡 pendiente
-- [ ] Exportación de datos autoservicio (portabilidad) — 🟡 pendiente
-- [ ] Retención/purga para sightings, chat, notificaciones — 🟢 pendiente
+- [x] Consentimiento diferenciado para datos de salud (expediente médico)
+- [x] Confirmación de mayoría de edad / autorización de tutor legal al registro
+- [x] Exportación de datos autoservicio (portabilidad) — `GET /api/auth/me/export`
+- [x] Retención/purga para sightings, chat cerrado y notificaciones leídas
 - [ ] Confirmar registro de bases de datos ante PRODHAB — 🟢 organizacional
 - [ ] Confirmar DPA con Microsoft Azure para transferencia internacional — 🟢 organizacional
 
@@ -193,12 +206,16 @@ código.
 
 ## 6. Referencias de código auditadas
 
-| Archivo                                                                                  | Relevancia                                                    |
-| ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
-| `backend/src/PawTrack.Application/Auth/Commands/DeleteAccount/DeleteAccountCommandHandler.cs` | Derecho de cancelación — bug corregido en este análisis         |
-| `backend/src/PawTrack.Infrastructure/Collars/CollarLocationPurgeJob.cs`                    | Minimización de datos de ubicación                              |
-| `backend/src/PawTrack.Infrastructure/Notifications/Jobs/QrScanRetentionJob.cs`             | Minimización de eventos de escaneo QR                            |
-| `backend/src/PawTrack.Infrastructure/Clinics/ClinicProfileViewPurgeHostedService.cs`        | Minimización de vistas de perfil de clínica                     |
-| `frontend/src/shared/ui/CookieConsentBanner.tsx`                                           | Consentimiento de cookies con opción de rechazo                 |
-| `docs/POLITICA_DE_PRIVACIDAD.md`, `docs/TERMINOS_DE_USO.md`                               | Textos legales vigentes                                          |
-| `infra/parameters.prod.bicepparam`                                                         | Confirma región de hosting (`eastus`) — transferencia internacional |
+| Archivo                                                                                       | Relevancia                                                          |
+| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `backend/src/PawTrack.Application/Auth/Commands/DeleteAccount/DeleteAccountCommandHandler.cs` | Derecho de cancelación — bug corregido en este análisis             |
+| `backend/src/PawTrack.Domain/Auth/User.cs`                                                    | `IsAdultConfirmed`, `HealthDataConsentedAt` / `GrantHealthDataConsent()` |
+| `backend/src/PawTrack.Application/Medical/MedicalCommands.cs`                                 | `AddMedicalRecordCommandHandler` bloquea sin consentimiento de salud |
+| `backend/src/PawTrack.Application/Auth/Queries/ExportMyData/ExportMyDataQueryHandler.cs`      | Endpoint de portabilidad de datos                                    |
+| `backend/src/PawTrack.Infrastructure/Compliance/PersonalDataRetentionJob.cs`                  | Purga de sightings, chat cerrado y notificaciones leídas             |
+| `backend/src/PawTrack.Infrastructure/Collars/CollarLocationPurgeJob.cs`                       | Minimización de datos de ubicación                                  |
+| `backend/src/PawTrack.Infrastructure/Notifications/Jobs/QrScanRetentionJob.cs`                | Minimización de eventos de escaneo QR                               |
+| `backend/src/PawTrack.Infrastructure/Clinics/ClinicProfileViewPurgeHostedService.cs`          | Minimización de vistas de perfil de clínica                         |
+| `frontend/src/shared/ui/CookieConsentBanner.tsx`                                              | Consentimiento de cookies con opción de rechazo                     |
+| `docs/POLITICA_DE_PRIVACIDAD.md`, `docs/TERMINOS_DE_USO.md`                                   | Textos legales vigentes                                             |
+| `infra/parameters.prod.bicepparam`                                                            | Confirma región de hosting (`eastus`) — transferencia internacional |
