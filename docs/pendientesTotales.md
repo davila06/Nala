@@ -20,8 +20,8 @@ Todos los módulos de código están implementados. Los únicos pendientes son *
 | 3   | **WhatsApp webhook en Meta Cloud API** | 🟡 Importante | RUNBOOK_OPERACIONES.md §3.1            |
 | 4   | **VAPID keys en Azure Container App**  | 🟡 Importante | RUNBOOK_OPERACIONES.md §3.2            |
 | 5   | **Migraciones EF en Azure SQL**        | 🔴 Crítico    | GUIA_DEPLOY_PASO_A_PASO.md §Paso 7     |
-| 6   | **Bot:PhoneHashSecret en Key Vault**   | 🟡 Importante | ppsettings.json -> Bot:PhoneHashSecret |
-
+| 6   | **Bot:PhoneHashSecret en Key Vault**   | 🟡 Importante | ppsettings.json -> Bot:PhoneHashSecret || 7   | **Registro de bases de datos ante PRODHAB** (Ley 8968) | 🟡 Importante | CUMPLIMIENTO_PROTECCION_DATOS.md §4 |
+| 8   | **Confirmar DPA de Microsoft Azure** (transferencia internacional de datos) | 🟢 Deseable | CUMPLIMIENTO_PROTECCION_DATOS.md §4 |
 ---
 
 ## 2. Módulos completados (agosto 2026)

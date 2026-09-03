@@ -21,8 +21,7 @@ public sealed class DeleteAccountCommandHandler(
             return Result.Failure<bool>("User not found.");
 
         // Confirm password before irreversible action
-        var confirmHash = passwordHasher.Hash(request.ConfirmPassword);
-        if (user.PasswordHash != confirmHash)
+        if (!passwordHasher.Verify(request.ConfirmPassword, user.PasswordHash))
             return Result.Failure<bool>("Password confirmation is incorrect.");
 
         // Delete all pet photos from Blob Storage before soft-deleting the account

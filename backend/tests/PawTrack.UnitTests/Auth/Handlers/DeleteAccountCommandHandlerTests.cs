@@ -31,7 +31,7 @@ public sealed class DeleteAccountCommandHandlerTests
         pet.SetPhoto("https://blob/pet-photos/max.jpg");
 
         _userRepo.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
-        _hasher.Hash("correct").Returns("correct-hash");
+        _hasher.Verify("correct", "correct-hash").Returns(true);
         _petRepo.GetByOwnerIdAsync(user.Id, Arg.Any<CancellationToken>())
             .Returns(new List<Pet> { pet }.AsReadOnly() as IReadOnlyList<Pet>);
         _uow.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
@@ -54,7 +54,7 @@ public sealed class DeleteAccountCommandHandlerTests
         user.VerifyEmail(token);
 
         _userRepo.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
-        _hasher.Hash("wrong").Returns("wrong-hash");
+        _hasher.Verify("wrong", "correct-hash").Returns(false);
 
         var result = await _sut.Handle(
             new DeleteAccountCommand(user.Id, "wrong"),
