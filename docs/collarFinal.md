@@ -220,6 +220,28 @@ Agentes aduanales en CR (referencia): Grupo Logístico Aduanero (`logisticaaduan
 
 ---
 
+### 3.3.1 TrackSolid Pro / Jimi Life — Análisis de viabilidad (2026-09-04)
+
+Jimi IoT opera dos productos con propósitos opuestos — solo uno es viable como ruta de integración:
+
+| Producto           | Qué es                                                                                                                                                                     | ¿Viable para PawTrack?                                                                                                             |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **TrackSolid Pro** | Plataforma SaaS B2B con **Open API documentada** (`tracksolidprodocs.jimicloud.com`)                                                                                       | ✅ Sí — ver detalle abajo                                                                                                          |
+| **Jimi Life**      | App de consumidor final (iOS/Android, `com.jimi.life`) — el equivalente de "la app de Tractive" para dispositivos Jimi IoT (dashcam, smart tag, mascotas, adultos mayores) | ❌ No — no tiene API propia; usarla obligaría al dueño a usar dos apps (Jimi Life + PawTrack), sin acceso programático a los datos |
+
+**Hallazgos clave de TrackSolid Pro (confirmados contra la documentación oficial):**
+
+- El modelo de dispositivo tiene un campo `mcTypeUseScope` que acepta explícitamente el valor **`"pet"`** — Jimi IoT ya modela collares de mascota como categoría de primera clase en su plataforma, no un caso límite.
+- **Camino A (polling)** soportado nativamente: `jimi.device.location.get` / `jimi.user.device.location.list`, hasta 100 IMEIs por llamada — mismo patrón que `TractivePollingJob` ya en producción.
+- **Camino B (push directo) soportado nativamente**, sin necesitar firmware OEM custom: sección "Webhook Push Function" de su API expone `/location/push` (posición GPS), `/api/v1/tag/data/push` (dispositivos tipo Tag) y push de alarmas/estado — todos configurables hacia una URL propia (la nuestra). **Esto responde la pregunta que dejamos abierta en `jimiiot.md` §8** sobre si Jimi IoT podía soportar push directo a nuestro backend.
+- Autenticación: token tipo OAuth (usuario/password + `appKey`/`appSecret`, firma MD5, token válido ~2h) — mismo nivel de complejidad que la integración Tractive ya implementada.
+- Nodos regionales: US/EU/HK-SG — el nodo US es el candidato natural por latencia desde Costa Rica.
+- Alternativa de middleware (no evaluada a fondo): `flespi.com/manufacturers/jimi-iot` normaliza el protocolo nativo Concox/Jimi IoT a JSON/MQTT sin pasar por TrackSolid — opción de respaldo si TrackSolid Pro no cubre algún caso.
+
+**Recomendación:** usar TrackSolid Pro (no Jimi Life) como ruta de integración con hardware Jimi IoT existente, en paralelo a la conversación OEM/ODM de largo plazo ya en curso (`jimiiot.md` §8). Empezar con Camino A (clonar `TractivePollingJob`, ~1–2 días de esfuerzo); evaluar Camino B una vez resuelto cómo verificar el origen del webhook (Jimi IoT no documenta firma de webhook — mitigar con allowlist de IP o un token acordado en el onboarding).
+
+---
+
 ### 3.4 Hardware propio PawTrack (roadmap futuro)
 
 `CollarProvider.Own = 0` reservado. Arquitectura recomendada:

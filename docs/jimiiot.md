@@ -2,7 +2,7 @@
 
 > Documento preparado para compartir con **Jimi IoT** como parte de la evaluación de un
 > collar GPS para mascotas (OEM/marca blanca) para **PawTrack CR**.
-> Última actualización: 2026-09-03
+> Última actualización: 2026-09-04
 >
 > **📌 Estado de la conversación (2026-09-03):** Jimi IoT respondió positivamente al
 > RFQ inicial — interesados en una relación de socio tecnológico/fabricante a largo
@@ -269,13 +269,68 @@ https://pawtrack.cr
 **Próximos pasos de nuestro lado (pendiente):**
 
 - [ ] Esperar la respuesta estructurada de Jimi IoT a las preguntas de §5.
-- [ ] Cuando llegue, decidir si el **Camino B (push directo)** — que ellos ya
+- [x] Cuando llegue, decidir si el **Camino B (push directo)** — que ellos ya
       confirmaron poder soportar — se vuelve la ruta preferida para el piloto en
       vez del Camino A (polling), ya que evitaría depender de la nube de Jimi IoT
-      para leer posiciones.
+      para leer posiciones. **Actualización 2026-09-04:** confirmado independientemente
+      contra la documentación pública de su plataforma TrackSolid Pro
+      (`tracksolidprodocs.jimicloud.com`) — su Open API ya expone tanto Camino A
+      (`jimi.device.location.get`, polling) como Camino B (`/location/push`, webhook
+      directo a nuestra URL) de forma nativa, sin depender de que confirmen nada
+      adicional por firmware custom. Ver análisis completo en `collarFinal.md` §3.3.1.
 - [ ] Si preguntan por NFC específicamente, aclarar que no es un requisito de la
       Fase 1/2 (V1–V4) — es una idea de roadmap futuro mencionada en
       `collarFinal.md`, no una especificación formal enviada a fabricantes.
 - [ ] Preparar specs concretas (volumen esperado año 1, escenario de uso real de
       batería) para cuando pidan detalle antes de cotizar personalización de
       hardware.
+
+### 2026-09-04 — Viabilidad de TrackSolid Pro / Jimi Life (análisis independiente)
+
+Mientras esperamos la respuesta estructurada de Jimi IoT, se analizó directamente
+la documentación pública de sus dos productos de plataforma para no depender
+solo de lo que ellos confirmen por correo:
+
+- **TrackSolid Pro** (`tracksolidprodocs.jimicloud.com`) es su Open API B2B real
+  y madura — modela dispositivos `mcTypeUseScope: "pet"` explícitamente, soporta
+  Camino A y Camino B nativamente (ver detalle en `collarFinal.md` §3.3.1). Es una
+  ruta de integración viable **hoy**, en paralelo a la negociación OEM/ODM de
+  hardware propio.
+- **Jimi Life** es su app de consumidor final (equivalente a "la app de
+  Tractive") — no tiene API propia y no es un punto de integración. Si un
+  collar se aprovisiona solo hacia Jimi Life, no tendríamos acceso programático
+  a los datos. Descartado como ruta de integración.
+
+**Próximo paso:** si la respuesta estructurada de Jimi IoT tarda o no cubre push
+directo con suficiente detalle, evaluar arrancar el piloto directamente contra
+TrackSolid Pro (Camino A, clonando `TractivePollingJob`) sin esperar más — ya
+confirmamos independientemente que su plataforma lo soporta.
+
+### 2026-09-04 — Correo de seguimiento enviado: alinear el piloto con TrackSolid Pro
+
+Se envió un correo de seguimiento en el mismo hilo del RFQ (asunto: "Re: RFQ —
+GPS Pet Tracker Collar (OEM/Custom Branding) — Aligning on TrackSolid Pro for
+the pilot"), sin esperar la respuesta estructurada de Jimi IoT a §5, para no
+bloquear la validación técnica. Pide, en orden:
+
+1. **Cuenta y acceso**: cómo obtener una cuenta distribuidor/reseller de
+   TrackSolid Pro con `appKey`/`appSecret` para nuestro backend (no la app
+   Jimi Life), si el acceso a la API tiene costo recurrente separado del
+   hardware, y qué nodo regional usar desde Costa Rica (US/EU/HK-SG).
+2. **Ruta de integración**: confirmar que el modelo V1 (piloto) se puede
+   aprovisionar bajo `mcTypeUseScope = "pet"`, preferencia por Camino B
+   (`/location/push`, `/api/v1/tag/data/push`) con pasos exactos de
+   configuración del dispositivo, y si existe firma/secreto compartido para
+   verificar el origen del webhook (si no, pedir su rango de IPs de salida
+   para allowlist). Camino A (`jimi.device.location.get`, polling) queda como
+   respaldo si el push no está listo para el modelo V1.
+3. **Piloto**: si los ~50 collares se pueden pre-activar en TrackSolid Pro
+   antes del envío o se activan por serial/IMEI al recibirlos, y si pueden dar
+   una cuenta sandbox/de prueba ya mismo para validar la integración antes de
+   confirmar la orden de hardware.
+
+Se aclaró que esto corre en paralelo a la conversación OEM/ODM de largo plazo,
+sin reemplazarla.
+
+**Pendiente:** respuesta de Jimi IoT a este correo de seguimiento + su
+respuesta estructurada original a §5.
