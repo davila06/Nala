@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   useCreateSubscription,
   useReportPayment,
+  useSubscriptionCatalog,
 } from "../hooks/useSubscription";
 import type { SubscriptionTier } from "../api/subscriptionApi";
 import { TIER_PRICE_CRC } from "../api/subscriptionApi";
@@ -49,9 +50,15 @@ export function SinpePaymentModal({
     useCreateSubscription();
   const { mutateAsync: reportPayment, isPending: isReporting } =
     useReportPayment();
+  const { data: catalog } = useSubscriptionCatalog();
 
-  const price = TIER_PRICE_CRC[tier];
-  const label = TIER_LABELS[tier];
+  const catalogPlan = catalog?.find((plan) => plan.tier === tier);
+  const price =
+    catalogPlan?.annualPriceCrc ??
+    catalogPlan?.monthlyPriceCrc ??
+    TIER_PRICE_CRC[tier];
+  const label = catalogPlan?.displayName ?? TIER_LABELS[tier];
+  const pricePeriod = catalogPlan?.annualPriceCrc ? "año" : "mes";
 
   async function handleStartPayment() {
     setError(null);
@@ -131,7 +138,10 @@ export function SinpePaymentModal({
               <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4">
                 <p className="text-sm text-brand-800">
                   Activarás el plan <strong>{label}</strong> por{" "}
-                  <strong>₡{price.toLocaleString("es-CR")}/mes</strong>.
+                  <strong>
+                    ₡{price.toLocaleString("es-CR")}/{pricePeriod}
+                  </strong>
+                  .
                 </p>
                 <p className="mt-2 text-xs text-brand-600">
                   El pago se realiza vía SINPE Móvil. Se generará un código de
@@ -181,7 +191,8 @@ export function SinpePaymentModal({
                     3
                   </span>
                   Escribe el código <strong>{reference}</strong> en el campo de
-                  descripción/mensaje.
+                  asunto o descripción de la transferencia SINPE. Debe quedar
+                  exactamente igual, sin espacios ni caracteres adicionales.
                 </li>
                 <li className="flex gap-3">
                   <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-100 text-[10px] font-bold text-brand-700">

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SinpePaymentModal } from "./SinpePaymentModal";
 import { BundleOrderModal } from "@/features/bundles/components/BundleOrderModal";
 import type { SubscriptionTier } from "../api/subscriptionApi";
+import { useSubscriptionCatalog } from "../hooks/useSubscription";
 
 interface Tier {
   id: "free" | "plus" | "familia";
@@ -95,6 +96,7 @@ interface FreemiumModalProps {
 export function FreemiumModal({ onClose }: FreemiumModalProps) {
   const [pendingTier, setPendingTier] = useState<SubscriptionTier | null>(null);
   const [showBundle, setShowBundle] = useState(false);
+  const { data: catalog } = useSubscriptionCatalog();
 
   if (pendingTier) {
     return (
@@ -182,7 +184,16 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                     {tier.name}
                   </span>
                   <p className="mt-2 text-2xl font-extrabold text-sand-900">
-                    {tier.price}
+                    {(() => {
+                      const plan = tier.subscriptionTier
+                        ? catalog?.find(
+                            (item) => item.tier === tier.subscriptionTier,
+                          )
+                        : undefined;
+                      return plan?.monthlyPriceCrc
+                        ? `₡${plan.monthlyPriceCrc.toLocaleString("es-CR")}`
+                        : tier.price;
+                    })()}
                   </p>
                   <p className="text-xs text-sand-400">{tier.period}</p>
                 </div>

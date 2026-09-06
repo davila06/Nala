@@ -46,7 +46,7 @@ export function CookieConsentBanner() {
           Usamos cookies esenciales para el funcionamiento de la app y cookies
           de analítica (Application Insights) para mejorar el servicio.{" "}
           <a
-            href="/legal/politica-de-privacidad"
+            href="/legal/politica-de-privacidad.html"
             className="font-semibold text-brand-600 underline underline-offset-2 hover:text-brand-700"
           >
             Ver política de privacidad

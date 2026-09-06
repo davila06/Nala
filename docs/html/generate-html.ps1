@@ -15,6 +15,7 @@ $docs = @(
   @{ file = "FEATURES.md";                    title = "Features por Plan";                 icon = "🧭"; back = "../FEATURES.md" }
   @{ file = "planes.md";                     title = "Planes y Precios";                  icon = "💳"; back = "../planes.md" }
   @{ file = "precios.md";                    title = "Precios y Modelo Comercial";       icon = "📊"; back = "../precios.md" }
+  @{ file = "sinpe.md";                      title = "Automatización SINPE Móvil";        icon = "💸"; back = "../sinpe.md" }
   @{ file = "NALA.md";                       title = "Producto PawTrack CR";             icon = "🐾"; back = "../NALA.md" }
   @{ file = "Manuales/MANUAL_USUARIO.md";            title = "Manual de Usuario";                icon = "📱"; back = "../Manuales/MANUAL_USUARIO.md" }
   @{ file = "Manuales/MANUAL_ADMINISTRADOR.md";      title = "Manual de Administrador";          icon = "⚙️"; back = "../Manuales/MANUAL_ADMINISTRADOR.md" }

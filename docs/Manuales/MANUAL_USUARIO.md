@@ -656,7 +656,7 @@ PawTrack CR ofrece tres niveles para usuarios individuales. También existen pla
 
 1. En el Dashboard o en tu perfil, toca **Mejorar a Plus** o **Ver Familia**.
 2. Selecciona el plan.
-3. El sistema genera un código de pago para **SINPE Móvil**. Realiza la transferencia con el código como referencia.
+3. El sistema genera una referencia única de 8 caracteres para **SINPE Móvil**. Realiza la transferencia y escribe esa referencia exactamente en el **asunto o descripción/mensaje** de la transferencia, sin espacios ni caracteres adicionales.
 4. Toca **Ya realicé el pago SINPE** para notificar al equipo.
 5. El equipo PawTrack verifica el pago y activa el plan dentro de **24 horas hábiles**.
 

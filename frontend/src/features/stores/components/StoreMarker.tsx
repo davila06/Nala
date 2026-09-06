@@ -87,7 +87,7 @@ export function StoreMarker({
             </a>
           )}
           <Link
-            to={`/tiendas/${store.id}`}
+            to={`/map?storeId=${store.id}`}
             style={{
               display: "block",
               background: "#17a26d",

@@ -1037,7 +1037,7 @@ export function MedicalHistoryTab({
               </p>
             )}
             <a
-              href="/planes"
+              href="/precios.html"
               className="inline-block rounded-lg bg-warn-600 px-4 py-2 text-xs font-semibold text-white hover:bg-warn-700"
             >
               Ver planes →
@@ -1062,7 +1062,7 @@ export function MedicalHistoryTab({
                   completo.
                 </p>
                 <a
-                  href="/planes"
+                  href="/precios.html"
                   className="shrink-0 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-700"
                 >
                   Ver Familia →

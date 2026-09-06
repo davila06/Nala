@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SinpePaymentModal } from "@/features/pets/components/SinpePaymentModal";
 import type { SubscriptionTier } from "@/features/pets/api/subscriptionApi";
+import { useSubscriptionCatalog } from "@/features/pets/hooks/useSubscription";
 
 interface Tier {
   id: "basic" | "plus" | "partner";
@@ -89,6 +90,7 @@ export function ClinicTiersModal({
   onClose,
 }: ClinicTiersModalProps) {
   const [pendingTier, setPendingTier] = useState<SubscriptionTier | null>(null);
+  const { data: catalog } = useSubscriptionCatalog();
 
   if (pendingTier) {
     return (
@@ -168,7 +170,16 @@ export function ClinicTiersModal({
                       {tier.name}
                     </span>
                     <p className="mt-2 text-2xl font-extrabold text-sand-900">
-                      {tier.price}
+                      {(() => {
+                        const plan = tier.subscriptionTier
+                          ? catalog?.find(
+                              (item) => item.tier === tier.subscriptionTier,
+                            )
+                          : undefined;
+                        return plan?.monthlyPriceCrc
+                          ? `₡${plan.monthlyPriceCrc.toLocaleString("es-CR")}`
+                          : tier.price;
+                      })()}
                     </p>
                     <p className="text-xs text-sand-400">{tier.period}</p>
                   </div>

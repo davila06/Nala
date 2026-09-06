@@ -23,11 +23,15 @@ import {
   useMySubscription,
   useCancelSubscription,
   useReportPayment,
+  useSubscriptionCatalog,
 } from "@/features/pets/hooks/useSubscription";
 import { FamilyManagementSection } from "@/features/family/components/FamilyManagementSection";
 import { NeighborStatusCard } from "@/features/locations/components/NeighborStatusCard";
 import { SinpePaymentModal } from "@/features/pets/components/SinpePaymentModal";
-import type { SubscriptionTier } from "@/features/pets/api/subscriptionApi";
+import type {
+  SubscriptionPlanCatalogDto,
+  SubscriptionTier,
+} from "@/features/pets/api/subscriptionApi";
 
 // ── Locale maps ───────────────────────────────────────────────────────────────
 
@@ -83,18 +87,28 @@ const TIER_LABEL: Record<string, string> = {
   Free: "Explorador",
   UserPlus: "Plus",
   UserFamilia: "Familia",
-  ClinicBasic: "Clínica Básica",
+  StorePlus: "Tienda Plus",
+  StorePartner: "Tienda Partner",
+  ShelterPlus: "Refugio Plus",
   ClinicPlus: "Clínica Plus",
   ClinicPartner: "Clínica Partner",
+  MuniBasica: "Municipal Básica",
+  MuniFull: "Municipal Full",
+  MuniRedRegional: "Red Regional",
 };
 
 const TIER_PRICE: Record<string, string> = {
   Free: "Gratis",
   UserPlus: "₡2.990/mes",
   UserFamilia: "₡4.990/mes",
-  ClinicBasic: "₡9.900/mes",
-  ClinicPlus: "₡19.900/mes",
-  ClinicPartner: "₡29.900/mes",
+  StorePlus: "₡12.000/mes",
+  StorePartner: "₡25.000/mes",
+  ShelterPlus: "₡8.000/mes",
+  ClinicPlus: "₡15.000/mes",
+  ClinicPartner: "₡35.000/mes",
+  MuniBasica: "₡150.000/año",
+  MuniFull: "₡300.000/año",
+  MuniRedRegional: "₡500.000/año",
 };
 
 const STATUS_BADGE: Record<string, { label: string; color: string }> = {
@@ -116,6 +130,7 @@ interface MiPlanCardProps {
   onUpgrade: (tier: SubscriptionTier) => void;
   onCancel: () => Promise<void>;
   onReportPayment: () => Promise<void>;
+  catalog?: SubscriptionPlanCatalogDto[];
 }
 
 function MiPlanCard({
@@ -127,6 +142,7 @@ function MiPlanCard({
   onUpgrade,
   onCancel,
   onReportPayment,
+  catalog,
 }: MiPlanCardProps) {
   const tier = sub?.tier ?? "Free";
   const status = sub?.status ?? "Active";
@@ -134,6 +150,12 @@ function MiPlanCard({
   const isFree = tier === "Free";
   const isPending = status === "PendingPayment";
   const isActive = status === "Active";
+  const catalogPlan = catalog?.find((plan) => plan.tier === tier);
+  const catalogPrice =
+    catalogPlan?.annualPriceCrc ?? catalogPlan?.monthlyPriceCrc;
+  const catalogPriceLabel = catalogPrice
+    ? `₡${catalogPrice.toLocaleString("es-CR")}/${catalogPlan?.annualPriceCrc ? "año" : "mes"}`
+    : undefined;
 
   return (
     <Card>
@@ -152,7 +174,7 @@ function MiPlanCard({
             {TIER_LABEL[tier] ?? tier}
           </span>
           <span className="mb-0.5 text-sm text-sand-500">
-            {TIER_PRICE[tier] ?? ""}
+            {catalogPriceLabel ?? TIER_PRICE[tier] ?? ""}
           </span>
         </div>
 
@@ -357,6 +379,7 @@ export default function ProfilePage() {
 
   // Subscription state
   const { data: mySub } = useMySubscription();
+  const { data: planCatalog } = useSubscriptionCatalog();
   const { mutateAsync: cancelSub, isPending: cancellingPlan } =
     useCancelSubscription();
   const { mutateAsync: reportPay, isPending: reportingPayment } =
@@ -467,6 +490,7 @@ export default function ProfilePage() {
       {/* ── Mi Plan ──────────────────────────────────────────────────── */}
       <MiPlanCard
         sub={mySub ?? null}
+        catalog={planCatalog}
         cancellingPlan={cancellingPlan}
         reportingPayment={reportingPayment}
         showCancelConfirm={showCancelConfirm}

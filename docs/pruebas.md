@@ -173,7 +173,7 @@ sqlcmd -S "CPC-davil-ECEKS\SQLEXPRESS" -d PawTrackLocal -E `
 1. Login como `owner_free@test.cr`
 2. Dashboard → clic en "Activa Plus" → elige plan Plus → clic "Continuar con SINPE"
 3. El sistema genera referencia de 8 chars (ej. `ABC12345`)
-4. Simulación de pago: en vez de SINPE real, activar manualmente vía Admin:
+4. En una transferencia real, colocar `ABC12345` exactamente en el asunto o descripción/mensaje de SINPE. En el entorno de prueba, simular el pago activando manualmente vía Admin:
    - Login como `admin@pawtrack.cr` → `/admin` → Suscripciones → buscar la referencia → Activar
 5. Volver al usuario → refrescar → el plan Plus debe estar activo
 

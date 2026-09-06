@@ -241,6 +241,8 @@ Implementaciones de interfaces definidas en Application y Domain.
 - La entidad usa `Version` como token de concurrencia optimista.
 - La creación de suscripciones consulta el catálogo activo; las suscripciones existentes conservan el importe original.
 - La migración `AddSubscriptionPlanCatalog` siembra el catálogo vigente inicial.
+- El catálogo público se consulta mediante `GET /api/catalog/subscription-plans`; solo devuelve planes activos y no expone controles administrativos.
+- Los tiers municipales (`MuniBasica`, `MuniFull`, `MuniRedRegional`) tienen vigencia anual; una activación administrativa los extiende por 12 meses.
 
 **Servicios externos integrados:**
 
@@ -709,6 +711,12 @@ Todos los endpoints requieren JWT con rol `Admin`:
 | DELETE | `/{id}`  | Desactivar lógicamente un plan usando `version`                      |
 
 El API rechaza tiers gratuitos, precios no positivos y conflictos de versión. La autorización se aplica en el framework con `[Authorize(Roles = "Admin")]`, además del guard de rol del frontend.
+
+### Catálogo público — `/api/catalog/subscription-plans`
+
+| Método | Endpoint | Auth | Descripción                                                                                                    |
+| ------ | -------- | ---- | -------------------------------------------------------------------------------------------------------------- |
+| GET    | `/`      | No   | Devuelve los planes activos, nombres, descripciones y precios vigentes para las vistas públicas y autenticadas |
 
 ### Módulo Pets — `/api/pets`
 

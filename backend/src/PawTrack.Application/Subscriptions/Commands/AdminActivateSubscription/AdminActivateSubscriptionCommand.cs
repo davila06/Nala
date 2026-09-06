@@ -33,7 +33,10 @@ public sealed class AdminActivateSubscriptionCommandHandler(
         if (sub.Status == SubscriptionStatus.Active)
             return Result.Failure<SubscriptionDto>("Subscription is already active.");
 
-        sub.Activate(request.BillingMonths);
+        var billingMonths = SubscriptionPricing.IsMunicipalTier(sub.Tier)
+            ? 12
+            : Math.Max(1, request.BillingMonths);
+        sub.Activate(billingMonths);
         subscriptionRepository.Update(sub);
         await SyncClinicFeaturedAsync(sub, true, cancellationToken);
         await SyncStoreFeaturedAsync(sub, true, cancellationToken);
@@ -43,7 +46,7 @@ public sealed class AdminActivateSubscriptionCommandHandler(
             Guid.Empty,
             AuditAction.SubscriptionActivated,
             "Subscription", request.SubscriptionId.ToString(),
-            $"Tier={sub.Tier} Months={request.BillingMonths}"), cancellationToken);
+            $"Tier={sub.Tier} Months={billingMonths}"), cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

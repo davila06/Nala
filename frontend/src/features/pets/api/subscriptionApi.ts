@@ -35,6 +35,17 @@ export interface SubscriptionDto {
   isActive: boolean;
 }
 
+export interface SubscriptionPlanCatalogDto {
+  id: string;
+  tier: SubscriptionTier;
+  displayName: string;
+  description: string;
+  monthlyPriceCrc: number | null;
+  annualPriceCrc: number | null;
+  isActive: boolean;
+  version: string;
+}
+
 export const TIER_PRICE_CRC: Record<SubscriptionTier, number> = {
   Free: 0,
   UserPlus: 2990,
@@ -53,6 +64,11 @@ export const TIER_PRICE_CRC: Record<SubscriptionTier, number> = {
 };
 
 export const subscriptionApi = {
+  getCatalog: () =>
+    apiClient
+      .get<SubscriptionPlanCatalogDto[]>("/catalog/subscription-plans")
+      .then((r) => r.data),
+
   getMine: (clinicId?: string) =>
     apiClient
       .get<SubscriptionDto | null>("/subscriptions/me", {

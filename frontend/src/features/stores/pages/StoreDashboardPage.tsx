@@ -89,7 +89,7 @@ export default function StoreDashboardPage() {
           </div>
         </div>
         <Link
-          to="/tienda/portal/perfil"
+          to="/tienda/portal"
           className="rounded-xl border border-sand-200 px-3 py-2 text-xs font-semibold text-sand-700 hover:bg-sand-50"
         >
           Editar perfil

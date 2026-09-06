@@ -259,6 +259,7 @@ public sealed class RedeemPromotionCodeCommandValidator : AbstractValidator<Rede
 public sealed class RedeemPromotionCodeCommandHandler(
     IPromotionCodeRepository promoRepository,
     ISubscriptionRepository subscriptionRepository,
+    ISubscriptionPlanRepository planRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<RedeemPromotionCodeCommand, Result<SubscriptionDto>>
 {
@@ -295,6 +296,10 @@ public sealed class RedeemPromotionCodeCommandHandler(
         if (tier is null)
             return Result.Failure<SubscriptionDto>("Especificá el plan al que querés aplicar el descuento.");
 
+        var plan = await planRepository.GetByTierAsync(tier.Value, ct);
+        if (plan is null || !plan.IsActive)
+            return Result.Failure<SubscriptionDto>("El plan seleccionado no está disponible.");
+
         // 6. If fully paid sub active and trying to apply free code → block
         var existing = await subscriptionRepository.GetActiveForUserAsync(request.UserId, ct);
         if (existing is { IsActive: true } && code.IsFullyFree)
@@ -319,19 +324,14 @@ public sealed class RedeemPromotionCodeCommandHandler(
         }
         else
         {
-            // Partial discount — create sub with reduced amount, still needs SINPE
-            var prices = new Dictionary<SubscriptionTier, decimal>
-            {
-                [SubscriptionTier.UserPlus] = 2_990m,
-                [SubscriptionTier.UserFamilia] = 4_990m,
-                [SubscriptionTier.ClinicPlus] = 15_000m,
-                [SubscriptionTier.ClinicPartner] = 35_000m,
-            };
-            if (!prices.TryGetValue(tier.Value, out var basePrice))
-                return Result.Failure<SubscriptionDto>("Tier no válido para este código.");
+            // Partial discount — resolve the current catalog amount, then create
+            // the reduced-price subscription that still needs SINPE confirmation.
+            var basePrice = plan.AnnualPriceCrc ?? plan.MonthlyPriceCrc;
+            if (basePrice is null)
+                return Result.Failure<SubscriptionDto>("El plan no tiene un precio configurado.");
 
             var discountFactor = 1m - (code.DiscountPercent!.Value / 100m);
-            var discountedAmount = Math.Round(basePrice * discountFactor, 0);
+            var discountedAmount = Math.Round(basePrice.Value * discountFactor, 0);
             var reference = GeneratePaymentReference();
             newSub = Subscription.CreateForUser(request.UserId, tier.Value, reference, discountedAmount);
         }

@@ -9,7 +9,7 @@ import type { PublicStoreDto } from "../api/storesApi";
 function StoreCard({ store }: { store: PublicStoreDto }) {
   return (
     <Link
-      to={`/mapa?storeId=${store.id}`}
+      to={`/map?storeId=${store.id}`}
       className="group rounded-2xl border border-sand-100 bg-surface hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
     >
       {/* Logo / placeholder */}

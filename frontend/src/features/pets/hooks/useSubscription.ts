@@ -9,6 +9,14 @@ export function useMySubscription(clinicId?: string) {
   });
 }
 
+export function useSubscriptionCatalog() {
+  return useQuery({
+    queryKey: ["subscription", "catalog"],
+    queryFn: subscriptionApi.getCatalog,
+    staleTime: 5 * 60_000,
+  });
+}
+
 export function useCreateSubscription() {
   const queryClient = useQueryClient();
   return useMutation({
