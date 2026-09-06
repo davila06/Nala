@@ -3,7 +3,7 @@
 **Versión:** 2.0  
 **Stack:** .NET 9 · React 19 · Azure  
 **Audiencia:** Desarrolladores, arquitectos, equipo DevOps  
-**Última actualización:** 2026-08-19
+**Última actualización:** 2026-09-06
 
 > Para la referencia completa ver [`PawTrack_Documento_Maestro_v3.1.md`](../PawTrack_Documento_Maestro_v3.1.md) (renombrado internamente como v4.0).
 
@@ -184,7 +184,7 @@ Auth/
 | `Incentives`    | Leaderboard, mi score                                                                                                                                                                                                                        |
 | `Locations`     | Preferencias de ubicación para alertas                                                                                                                                                                                                       |
 | `Bot`           | Sesiones WhatsApp, lógica conversacional                                                                                                                                                                                                     |
-| `Subscriptions` | Planes de suscripción (Explorador / Plus / Familia), SINPE payments                                                                                                                                                                          |
+| `Subscriptions` | Suscripciones B2C/B2B/B2G, catálogo administrable de planes y precios, activación/cancelación y pagos SINPE                                                                                                                                  |
 | `Collars`       | Integración con collares GPS PawTrack: activación por tag/serial, telemetría, alertas offline/batería, modo perdido, zonas seguras (geofencing), transferencia segura (handover), auditoría de eventos, historial por rango, dashboard admin |
 | `Bounties`      | Sistema de recompensas por avistamiento                                                                                                                                                                                                      |
 | `Common`        | Interfaces, comportamientos de pipeline, utilidades                                                                                                                                                                                          |
@@ -195,41 +195,52 @@ El corazón del sistema. Sin dependencias externas.
 
 **Entidades principales:**
 
-| Entidad                    | Descripción                                                      |
-| -------------------------- | ---------------------------------------------------------------- |
-| `User`                     | Cuenta de usuario. Bcrypt 12. Lockout. Tokens SHA-256.           |
-| `RefreshToken`             | Token de renovación de sesión JWT.                               |
-| `Pet`                      | Mascota. Especie, raza, foto, microchip, estado.                 |
-| `QrScanEvent`              | Registro de cada escaneo del QR de una mascota.                  |
-| `PetPhotoEmbedding`        | Vector de 1024 dimensiones del embedding de la foto.             |
-| `LostPetEvent`             | Reporte de pérdida. Estado, ubicación, contacto, recompensa.     |
-| `SearchZone`               | Zona (300 m) de la cuadrícula de búsqueda.                       |
-| `Sighting`                 | Avistamiento anónimo. Sin PII del reportante.                    |
-| `FoundPetReport`           | Reporte "encontré una mascota sin QR".                           |
-| `ChatMessage`              | Mensaje en el chat enmascarado.                                  |
-| `HandoverCode`             | Código de 4 dígitos para entrega segura.                         |
-| `FraudReport`              | Reporte de comportamiento sospechoso.                            |
-| `AllyProfile`              | Perfil de organización aliada verificada.                        |
-| `FosterVolunteer`          | Voluntario de custodia temporal.                                 |
-| `CustodyRecord`            | Registro de custodia activa.                                     |
-| `ClinicProfile`            | Perfil de veterinaria afiliada.                                  |
-| `ClinicScanLog`            | Registro de escaneo de microchip por clínica.                    |
-| `BotSession`               | Sesión conversacional de WhatsApp.                               |
-| `ContributorScore`         | Puntaje de reunificaciones del usuario.                          |
-| `BroadcastAttempt`         | Registro de intento de difusión por canal.                       |
-| `NotificationItem`         | Notificación in-app.                                             |
-| `UserLocation`             | Preferencia de ubicación y alertas geográficas.                  |
-| `PushSubscription`         | Endpoint para notificaciones push web.                           |
-| `MedicalRecord`            | Registro médico de mascota. 7 tipos + campos de medicación/peso. |
-| `VetReminder`              | Recordatorio veterinario con job diario de notificación.         |
-| `ClinicMedicalAccessGrant` | Grant de acceso permanente de clínica al expediente.             |
-| `ClinicMedicalAccessLog`   | Audit trail: cada vez que una clínica consulta el expediente.    |
-| `FamilyAccount`            | Cuenta familiar. Hasta 5 miembros. Plan Familia requerido.       |
-| `FamilyMembership`         | Membresía de un usuario a una cuenta familiar.                   |
+| Entidad                    | Descripción                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------------- |
+| `User`                     | Cuenta de usuario. Bcrypt 12. Lockout. Tokens SHA-256.                             |
+| `RefreshToken`             | Token de renovación de sesión JWT.                                                 |
+| `Pet`                      | Mascota. Especie, raza, foto, microchip, estado.                                   |
+| `QrScanEvent`              | Registro de cada escaneo del QR de una mascota.                                    |
+| `PetPhotoEmbedding`        | Vector de 1024 dimensiones del embedding de la foto.                               |
+| `LostPetEvent`             | Reporte de pérdida. Estado, ubicación, contacto, recompensa.                       |
+| `SearchZone`               | Zona (300 m) de la cuadrícula de búsqueda.                                         |
+| `Sighting`                 | Avistamiento anónimo. Sin PII del reportante.                                      |
+| `FoundPetReport`           | Reporte "encontré una mascota sin QR".                                             |
+| `ChatMessage`              | Mensaje en el chat enmascarado.                                                    |
+| `HandoverCode`             | Código de 4 dígitos para entrega segura.                                           |
+| `FraudReport`              | Reporte de comportamiento sospechoso.                                              |
+| `AllyProfile`              | Perfil de organización aliada verificada.                                          |
+| `FosterVolunteer`          | Voluntario de custodia temporal.                                                   |
+| `CustodyRecord`            | Registro de custodia activa.                                                       |
+| `ClinicProfile`            | Perfil de veterinaria afiliada.                                                    |
+| `ClinicScanLog`            | Registro de escaneo de microchip por clínica.                                      |
+| `BotSession`               | Sesión conversacional de WhatsApp.                                                 |
+| `ContributorScore`         | Puntaje de reunificaciones del usuario.                                            |
+| `BroadcastAttempt`         | Registro de intento de difusión por canal.                                         |
+| `NotificationItem`         | Notificación in-app.                                                               |
+| `UserLocation`             | Preferencia de ubicación y alertas geográficas.                                    |
+| `PushSubscription`         | Endpoint para notificaciones push web.                                             |
+| `MedicalRecord`            | Registro médico de mascota. 7 tipos + campos de medicación/peso.                   |
+| `VetReminder`              | Recordatorio veterinario con job diario de notificación.                           |
+| `ClinicMedicalAccessGrant` | Grant de acceso permanente de clínica al expediente.                               |
+| `ClinicMedicalAccessLog`   | Audit trail: cada vez que una clínica consulta el expediente.                      |
+| `FamilyAccount`            | Cuenta familiar. Hasta 5 miembros. Plan Familia requerido.                         |
+| `FamilyMembership`         | Membresía de un usuario a una cuenta familiar.                                     |
+| `Subscription`             | Suscripción contratada, estado, tier, importe y vigencia.                          |
+| `SubscriptionPlan`         | Catálogo administrable de tiers, precios, estado activo y versión de concurrencia. |
 
 ### 3.4 PawTrack.Infrastructure
 
 Implementaciones de interfaces definidas en Application y Domain.
+
+#### Catálogo de planes y precios
+
+`SubscriptionPlan` se persiste en la tabla `SubscriptionPlans`. El tier (`SubscriptionTier`) es un identificador estable; el nombre, descripción y precios son configurables por administradores. La desactivación es lógica para conservar el historial de suscripciones.
+
+- Los precios mensuales y anuales son opcionales según la modalidad del tier.
+- La entidad usa `Version` como token de concurrencia optimista.
+- La creación de suscripciones consulta el catálogo activo; las suscripciones existentes conservan el importe original.
+- La migración `AddSubscriptionPlanCatalog` siembra el catálogo vigente inicial.
 
 **Servicios externos integrados:**
 
@@ -671,6 +682,33 @@ Authorization: Bearer <jwt-token>
 | POST   | `/logout`       | Sí   | Invalidar sesión              |
 | GET    | `/me`           | Sí   | Perfil del usuario actual     |
 | PUT    | `/me`           | Sí   | Actualizar perfil             |
+
+### Módulo Subscriptions — `/api/subscriptions`
+
+| Método | Endpoint               | Auth  | Descripción                                             |
+| ------ | ---------------------- | ----- | ------------------------------------------------------- |
+| GET    | `/me`                  | Sí    | Consultar la suscripción activa propia o de una clínica |
+| POST   | `/`                    | Sí    | Crear una solicitud usando un plan activo del catálogo  |
+| PUT    | `/activate`            | Sí    | Activar por referencia de pago                          |
+| PUT    | `/{id}/report-payment` | Sí    | Reportar pago SINPE                                     |
+| DELETE | `/{id}`                | Sí    | Cancelar la suscripción propia                          |
+| GET    | `/admin`               | Admin | Listar suscripciones y pagos pendientes                 |
+| PUT    | `/admin/{id}/activate` | Admin | Activar cualquier suscripción                           |
+| DELETE | `/admin/{id}`          | Admin | Cancelar cualquier suscripción                          |
+
+### Módulo Admin Subscription Plans — `/api/admin/subscription-plans`
+
+Todos los endpoints requieren JWT con rol `Admin`:
+
+| Método | Endpoint | Descripción                                                          |
+| ------ | -------- | -------------------------------------------------------------------- |
+| GET    | `/`      | Listar planes activos o incluir inactivos con `includeInactive=true` |
+| POST   | `/`      | Crear un plan para un tier pagado                                    |
+| GET    | `/{id}`  | Consultar un plan por ID                                             |
+| PUT    | `/{id}`  | Editar nombre, descripción o precios usando `version`                |
+| DELETE | `/{id}`  | Desactivar lógicamente un plan usando `version`                      |
+
+El API rechaza tiers gratuitos, precios no positivos y conflictos de versión. La autorización se aplica en el framework con `[Authorize(Roles = "Admin")]`, además del guard de rol del frontend.
 
 ### Módulo Pets — `/api/pets`
 

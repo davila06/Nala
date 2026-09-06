@@ -2,7 +2,7 @@
 
 **Versión:** 2.0  
 **Audiencia:** Organizaciones aliadas verificadas y solicitantes  
-**Última actualización:** 2026-08-19
+**Última actualización:** 2026-09-06
 
 ---
 

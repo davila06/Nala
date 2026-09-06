@@ -2,7 +2,7 @@
 
 **Versión:** 2.0  
 **Audiencia:** Clínicas veterinarias afiliadas a la red PawTrack CR  
-**Última actualización:** 2026-08-19
+**Última actualización:** 2026-09-06
 
 ---
 
@@ -79,6 +79,17 @@ Al iniciar sesión verás el mensaje:
 _"Tu cuenta ha sido suspendida. Contacta al equipo de PawTrack para más información."_
 
 Escribe a **soporte@pawtrack.cr** indicando el nombre de tu clínica y número de licencia SENASA para gestionar la reactivación.
+
+## 3.4 Planes de clínica
+
+El registro y el perfil de directorio son la entrada gratuita. Los planes comerciales activos son:
+
+| Tier interno    |      Precio | Capacidades principales                                                                                                |
+| --------------- | ----------: | ---------------------------------------------------------------------------------------------------------------------- |
+| `ClinicPlus`    | ₡15,000/mes | Destacado en mapa, badge verificado, estadísticas de escaneos, métricas de visibilidad y certificados PDF verificables |
+| `ClinicPartner` | ₡35,000/mes | Todo ClinicPlus, API keys, widget embebible y endpoints especializados                                                 |
+
+Los gates se validan en el backend con una suscripción activa y no solo desde la interfaz. `ClinicPartner` es necesario para API keys, widget e integraciones; `ClinicPlus` habilita las métricas y la visibilidad premium.
 
 ---
 

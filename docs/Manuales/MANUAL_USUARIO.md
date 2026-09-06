@@ -3,7 +3,7 @@
 **Versión:** 3.0  
 **Plataforma:** Aplicación Web Progresiva (PWA) — accesible desde cualquier navegador  
 **Idioma:** Español  
-**Última actualización:** 2026-08-19
+**Última actualización:** 2026-09-06
 
 > **Nuevo en agosto 2026:** Tiendas de mascotas en el mapa, directorio `/tiendas`, mis pedidos `/mis-pedidos` con seguimiento de estado, vallas publicitarias dismissibles.
 
@@ -619,7 +619,7 @@ Si tu mascota usa un collar GPS PawTrack, puedes ver su ubicación en tiempo rea
 
 ## 28. Planes y suscripciones
 
-PawTrack CR ofrece tres planes para usuarios individuales y tres planes para clínicas veterinarias.
+PawTrack CR ofrece tres niveles para usuarios individuales. También existen planes comerciales separados para tiendas, refugios, clínicas y municipalidades.
 
 ### Planes para dueños de mascotas
 
@@ -633,24 +633,24 @@ PawTrack CR ofrece tres planes para usuarios individuales y tres planes para cl�
 
 ### Comparativa de funciones
 
-| Función                  | Explorador | Plus      | Familia     |
-| ------------------------ | ---------- | --------- | ----------- |
-| 1 mascota                | ✓          | ✓         | ✓           |
-| Placa QR                 | ✓          | ✓         | ✓           |
-| Reporte de pérdida       | ✓          | ✓         | ✓           |
-| Búsqueda IA por foto     | 3/mes      | Ilimitada | Ilimitada   |
-| Historial de escaneos    | Últimos 5  | Completo  | Completo    |
-| Alertas en radio         | 3 km       | 10 km     | Sin límite  |
-| SMS/WhatsApp             | —          | ✓         | ✓           |
-| Hasta 3 mascotas         | —          | ✓         | ✓           |
-| Panel GPS collar         | —          | ✓         | ✓           |
-| Predicción de movimiento | —          | ✓         | ✓           |
-| Mascotas ilimitadas      | —          | —         | ✓           |
-| Historial médico         | —          | —         | ✓           |
-| Recordatorios vet        | —          | —         | ✓           |
-| Cuenta familiar          | —          | —         | ✓ (hasta 5) |
-| Exportar historial PDF   | —          | —         | ✓           |
-| Soporte prioritario      | —          | —         | ✓           |
+| Función                  | Explorador | Plus                    | Familia             |
+| ------------------------ | ---------- | ----------------------- | ------------------- |
+| 1 mascota                | ✓          | ✓                       | ✓                   |
+| Placa QR                 | ✓          | ✓                       | ✓                   |
+| Reporte de pérdida       | ✓          | ✓                       | ✓                   |
+| Búsqueda IA por foto     | 3/mes      | Ilimitada               | Ilimitada           |
+| Historial de escaneos    | Últimos 5  | Completo                | Completo            |
+| Alertas en radio         | Básico     | Ampliado (aprox. 10 km) | Sin límite efectivo |
+| SMS/WhatsApp             | —          | ✓                       | ✓                   |
+| Hasta 3 mascotas         | —          | ✓                       | ✓                   |
+| Panel GPS collar         | —          | ✓                       | ✓                   |
+| Predicción de movimiento | —          | ✓                       | ✓                   |
+| Mascotas ilimitadas      | —          | —                       | ✓                   |
+| Historial médico         | —          | —                       | ✓                   |
+| Recordatorios vet        | —          | —                       | ✓                   |
+| Cuenta familiar          | —          | —                       | ✓ (hasta 5)         |
+| Exportar historial PDF   | —          | —                       | ✓                   |
+| Soporte prioritario      | —          | —                       | ✓                   |
 
 ### Activar un plan de pago
 
@@ -661,6 +661,17 @@ PawTrack CR ofrece tres planes para usuarios individuales y tres planes para cl�
 5. El equipo PawTrack verifica el pago y activa el plan dentro de **24 horas hábiles**.
 
 > **Sin contrato ni suscripción automática.** Puedes cancelar en cualquier momento contactando a soporte@pawtrack.cr.
+
+### Otros planes comerciales
+
+Los planes B2B/B2G no se contratan desde el flujo de dueño de mascota:
+
+- Tiendas: `StorePlus` (₡12,000/mes) y `StorePartner` (₡25,000/mes).
+- Refugios: `ShelterPlus` (₡8,000/mes); el estado base/directorio permite hasta 5 animales activos.
+- Clínicas: `ClinicPlus` (₡15,000/mes) y `ClinicPartner` (₡35,000/mes).
+- Municipalidades: `MuniBasica` (₡150,000/año), `MuniFull` (₡300,000/año) y `MuniRedRegional` (₡500,000/año).
+
+Consulta el comparador actualizado en `docs/html/PLANES_FEATURES.html`.
 
 ---
 
@@ -1261,43 +1272,6 @@ En la app, las preferencias están repartidas en dos espacios:
 Tu ubicación se usa **solo para enviarte alertas relevantes** de mascotas perdidas cerca de ti. No es visible para otros usuarios.
 
 ---
-
-## Planes y suscripciones
-
-PawTrack CR ofrece tres planes:
-
-| Plan           | Precio       | Mascotas   | Destacado                                                                           |
-| -------------- | ------------ | ---------- | ----------------------------------------------------------------------------------- |
-| **Explorador** | Gratis       | 1          | Funciones básicas completas                                                         |
-| **Plus**       | ₡2,990 / mes | Hasta 3    | Alertas instantáneas SMS/WhatsApp, búsqueda IA ilimitada, historial completo        |
-| **Familia**    | ₡4,990 / mes | Ilimitadas | Todo Plus + multi-usuario (5 miembros), exportar historial PDF, soporte prioritario |
-
-### Activar un plan de pago
-
-1. En el Dashboard, toca el banner de **PawTrack Plus** o accede desde la configuración de tu perfil.
-2. Selecciona **Plus** o **Familia**.
-3. Toca **Activar Plus / Activar Familia**.
-4. El sistema genera un código de pago para **SINPE Móvil**. Realiza la transferencia al número indicado con el código como referencia.
-5. El equipo PawTrack verifica el pago y activa el plan dentro de 24 horas hábiles.
-
-> **Sin contrato ni suscripción automática.** Los pagos son manuales vía SINPE; puedes cancelar en cualquier momento contactando a soporte@pawtrack.cr.
-
-### Funciones por plan
-
-| Función                | Explorador | Plus      | Familia     |
-| ---------------------- | ---------- | --------- | ----------- |
-| 1 mascota              | ✓          | ✓         | ✓           |
-| Placa QR               | ✓          | ✓         | ✓           |
-| Reporte de pérdida     | ✓          | ✓         | ✓           |
-| Búsqueda IA por foto   | 3/mes      | Ilimitada | Ilimitada   |
-| Historial de escaneos  | Últimos 5  | Completo  | Completo    |
-| Alertas en radio       | 3 km       | 10 km     | Sin límite  |
-| SMS/WhatsApp           | —          | ✓         | ✓           |
-| Hasta 3 mascotas       | —          | ✓         | ✓           |
-| Mascotas ilimitadas    | —          | —         | ✓           |
-| Multi-usuario          | —          | —         | ✓ (hasta 5) |
-| Exportar historial PDF | —          | —         | ✓           |
-| Soporte prioritario    | —          | —         | ✓           |
 
 ---
 
