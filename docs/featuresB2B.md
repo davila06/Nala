@@ -1,29 +1,43 @@
-# PawTrack CR — Features B2B Clínicas: Estado, Brechas e Implementación
+# PawTrack CR — Features B2B y planes actuales
 
-> **Actualizado: 2026-08-24 — TODO implementado ✅**  
-> Incluye también: Tiendas de mascotas (B2B Store), Vallas Publicitarias (Billboard) y Módulo de Adopciones.
+> **Fuente de verdad:** `SubscriptionTier` y `SubscriptionPricing` del backend.  
+> **Actualizado:** 2026-09-06  
+> **Estado:** Alineado con la app actual.
 
 ---
 
-## Índice de estado rápido (actualizado agosto 2026)
+## Resumen ejecutivo
 
-| Plan       | Feature                                            | Estado |
-| ---------- | -------------------------------------------------- | :----: |
-| **BÁSICA** | Registro + perfil en directorio                    |   ✅   |
-| **BÁSICA** | Mapa de clínicas (posición estándar)               |   ✅   |
-| **BÁSICA** | Información de contacto pública                    |   ✅   |
-| **BÁSICA** | Escanear QR de collar                              |   ✅   |
-| **BÁSICA** | Escanear microchip RFID                            |   ✅   |
-| **BÁSICA** | Ver perfil público + datos dueño                   |   ✅   |
-| **BÁSICA** | Búsqueda por número de microchip                   |   ✅   |
-| **PLUS**   | Posición destacada en mapa                         |   ✅   |
-| **PLUS**   | Badge "Clínica Verificada"                         |   ✅   |
-| **PLUS**   | Logo en alertas de pérdida (NearbyFeaturedClinics) |   ✅   |
-| **PLUS**   | Banner en Case Rooms                               |   ✅   |
-| **PLUS**   | Estadísticas de escaneos mensuales                 |   ✅   |
-| **PLUS**   | Métricas de visibilidad (ClinicProfileViews)       |   ✅   |
+La implementación real del producto usa estos tiers activos:
 
-**Leyenda:** ✅ Implementado y funcional · ⚠️ Parcial · ❌ No existe
+| Segmento        | Tier actual del backend                     | Precio actual             |
+| --------------- | ------------------------------------------- | ------------------------- |
+| Dueños          | `Free`, `UserPlus`, `UserFamilia`           | ₡0 / ₡2,990 / ₡4,990      |
+| Tiendas         | `StorePlus`, `StorePartner`                 | ₡12,000 / ₡25,000 mes     |
+| Refugios        | `ShelterPlus`                               | ₡8,000 mes                |
+| Clínicas        | `ClinicPlus`, `ClinicPartner`               | ₡15,000 / ₡35,000 mes     |
+| Municipalidades | `MuniBasica`, `MuniFull`, `MuniRedRegional` | ₡150k / ₡300k / ₡500k año |
+
+> `ClinicBasic`, `StoreBasic` y `ShelterBasic` existen como estados libres y de directorio, pero no representan el tier pagado principal del sistema actual. La doc debe describirlos como estado base y no como plan comercial activo.
+
+---
+
+## Estado real de features por segmento
+
+| Segmento        | Feature                       | Tier requerido    |
+| --------------- | ----------------------------- | ----------------- |
+| Clínicas        | Destacado en mapa             | `ClinicPlus`      |
+| Clínicas        | Badge verificado              | `ClinicPlus`      |
+| Clínicas        | Estadísticas de escaneos      | `ClinicPlus`      |
+| Clínicas        | Certificados PDF verificables | `ClinicPlus`      |
+| Clínicas        | API keys y widget embebible   | `ClinicPartner`   |
+| Tiendas         | Pedidos in-app                | `StorePlus`       |
+| Tiendas         | Analytics avanzados           | `StorePartner`    |
+| Municipalidades | Fotos y reportes              | `MuniFull`        |
+| Municipalidades | Multi-cantón / red regional   | `MuniRedRegional` |
+| Refugios        | Animales ilimitados + ferias  | `ShelterPlus`     |
+
+**Leyenda:** ✅ Implementado y funcional en la app actual · ⚠️ Requiere validación de UX o contrato
 
 ---
 
@@ -506,7 +520,6 @@ foreach (var clinic in partnerClinics)
 
 > **Todas las features B2B estan implementadas a 2026-08-24.** Los unicos gaps son roadmap futuro.
 
-
 ### ⚠️ Parcial (en roadmap, no bloqueante para launch)
 
 | #    | Feature                             | Nivel actual                                     |
@@ -612,13 +625,13 @@ foreach (var clinic in partnerClinics)
 
 ## 4. Deuda técnica identificada (agosto 2026)
 
-| Archivo                    | Problema                                               | Estado                  |
-| -------------------------- | ------------------------------------------------------ | ----------------------- |
-| `ClinicDashboardPage.tsx`  | UI tab 'Visibilidad' (E3)                              | ✅ Implementado         |
-| `ClinicDashboardPage.tsx`  | Feed 'Alertas cercanas' (E5)                           | ✅ Implementado         |
-| `ClinicsController`        | `/clinicas` directorio público (A12)                 | ✅ Implementado 2026-08-24 |
-| `IssueCertificateCommand`  | PDF con QR embebido para verificación                  | ✅ Implementado en D1   |
-| `PerformClinicScanCommand` | Resultado no incluye badge Verified                    | ⚠️ Minor gap            |
+| Archivo                    | Problema                              | Estado                     |
+| -------------------------- | ------------------------------------- | -------------------------- |
+| `ClinicDashboardPage.tsx`  | UI tab 'Visibilidad' (E3)             | ✅ Implementado            |
+| `ClinicDashboardPage.tsx`  | Feed 'Alertas cercanas' (E5)          | ✅ Implementado            |
+| `ClinicsController`        | `/clinicas` directorio público (A12)  | ✅ Implementado 2026-08-24 |
+| `IssueCertificateCommand`  | PDF con QR embebido para verificación | ✅ Implementado en D1      |
+| `PerformClinicScanCommand` | Resultado no incluye badge Verified   | ⚠️ Minor gap               |
 
 ---
 

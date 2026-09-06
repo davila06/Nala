@@ -9,6 +9,7 @@ namespace PawTrack.Application.Subscriptions.Commands.CreateSubscription;
 
 public sealed class CreateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
+    ISubscriptionPlanRepository planRepository,
     IPaymentService paymentService,
     IUnitOfWork unitOfWork)
     : IRequestHandler<CreateSubscriptionCommand, Result<SubscriptionDto>>
@@ -17,15 +18,11 @@ public sealed class CreateSubscriptionCommandHandler(
         CreateSubscriptionCommand request,
         CancellationToken cancellationToken)
     {
-        // Municipal tiers are billed annually; try annual catalog first, then monthly.
-        decimal amount;
-        int billingMonths;
-        if (SubscriptionPricing.TryGetAnnualPriceCrc(request.Tier, out amount))
-            billingMonths = 12;
-        else if (SubscriptionPricing.TryGetMonthlyPriceCrc(request.Tier, out amount))
-            billingMonths = 1;
-        else
-            return Result.Failure<SubscriptionDto>($"Tier {request.Tier} is not a paid tier.");
+        var plan = await planRepository.GetByTierAsync(request.Tier, cancellationToken);
+        if (plan is null || !plan.IsActive)
+            return Result.Failure<SubscriptionDto>($"Tier {request.Tier} is not an active paid plan.");
+
+        var amount = plan.AnnualPriceCrc ?? plan.MonthlyPriceCrc!.Value;
 
         // Cancel any existing pending subscription for the same owner before creating a new one
         Subscription? existing = request.UserId.HasValue

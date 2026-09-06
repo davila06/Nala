@@ -33,12 +33,14 @@ import { AdminStoresTab } from "@/features/stores/components/AdminStoresTab";
 import { AdminBillboardsTab } from "@/features/advertising/components/AdminBillboardsTab";
 import { AdminAdoptionsTab } from "../components/AdminAdoptionsTab";
 import { CollarTagInventorySection } from "../components/CollarTagInventorySection";
+import { AdminSubscriptionPlansTab } from "../components/AdminSubscriptionPlansTab";
 import { useAdoptionAdminStats } from "../hooks/useAdmin";
 
 type Tab =
   | "allies"
   | "clinics"
   | "subscriptions"
+  | "subscription-plans"
   | "bundles"
   | "promotions"
   | "stores"
@@ -809,6 +811,7 @@ export default function AdminPage() {
             "allies",
             "clinics",
             "subscriptions",
+            "subscription-plans",
             "bundles",
             "promotions",
             "adoptions",
@@ -834,17 +837,19 @@ export default function AdminPage() {
                 ? "Clínicas"
                 : tab === "subscriptions"
                   ? "Suscripciones"
-                  : tab === "bundles"
-                    ? "Bundles"
-                    : tab === "promotions"
-                      ? "Promociones"
-                      : tab === "adoptions"
-                        ? "Adopciones"
-                        : tab === "stores"
-                          ? "Tiendas"
-                          : tab === "billboards"
-                            ? "Vallas"
-                            : "CollarTags";
+                  : tab === "subscription-plans"
+                    ? "Planes y precios"
+                    : tab === "bundles"
+                      ? "Bundles"
+                      : tab === "promotions"
+                        ? "Promociones"
+                        : tab === "adoptions"
+                          ? "Adopciones"
+                          : tab === "stores"
+                            ? "Tiendas"
+                            : tab === "billboards"
+                              ? "Vallas"
+                              : "CollarTags";
           return (
             <button
               key={tab}
@@ -883,6 +888,7 @@ export default function AdminPage() {
           {activeTab === "allies" && <AlliesTab />}
           {activeTab === "clinics" && <ClinicsTab />}
           {activeTab === "subscriptions" && <SubscriptionsTab />}
+          {activeTab === "subscription-plans" && <AdminSubscriptionPlansTab />}
           {activeTab === "bundles" && <BundlesTab />}
           {activeTab === "promotions" && <AdminPromotionManager />}
           {activeTab === "adoptions" && <AdminAdoptionsTab />}

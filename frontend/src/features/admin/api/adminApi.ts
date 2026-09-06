@@ -42,6 +42,19 @@ export interface AdminSubscriptionDto {
   paymentReportedAt: string | null;
 }
 
+export interface SubscriptionPlanDto {
+  id: string;
+  tier: SubscriptionTier;
+  displayName: string;
+  description: string;
+  monthlyPriceCrc: number | null;
+  annualPriceCrc: number | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  version: string;
+}
+
 export interface PendingAllyDto {
   userId: string;
   organizationName: string;
@@ -103,6 +116,41 @@ export const adminApi = {
   adminCancelSubscription: (id: string) =>
     apiClient
       .delete<SubscriptionDto>(`/subscriptions/admin/${id}`)
+      .then((r) => r.data),
+
+  getSubscriptionPlans: (includeInactive = true) =>
+    apiClient
+      .get<SubscriptionPlanDto[]>("/admin/subscription-plans", {
+        params: { includeInactive, skip: 0, take: 100 },
+      })
+      .then((r) => r.data),
+
+  createSubscriptionPlan: (
+    payload: Omit<
+      SubscriptionPlanDto,
+      "id" | "isActive" | "createdAt" | "updatedAt" | "version"
+    >,
+  ) =>
+    apiClient
+      .post<SubscriptionPlanDto>("/admin/subscription-plans", payload)
+      .then((r) => r.data),
+
+  updateSubscriptionPlan: (
+    id: string,
+    payload: Omit<
+      SubscriptionPlanDto,
+      "id" | "tier" | "isActive" | "createdAt" | "updatedAt"
+    >,
+  ) =>
+    apiClient
+      .put<SubscriptionPlanDto>(`/admin/subscription-plans/${id}`, payload)
+      .then((r) => r.data),
+
+  deleteSubscriptionPlan: (id: string, version: string) =>
+    apiClient
+      .delete<SubscriptionPlanDto>(`/admin/subscription-plans/${id}`, {
+        data: { version },
+      })
       .then((r) => r.data),
 
   // ── Adoptions admin ────────────────────────────────────────────────────────

@@ -1,223 +1,144 @@
-# PawTrack CR — Planes y Precios
+# PawTrack CR — Planes y precios
 
-> Versión: Agosto 2026 | Moneda: Colones CRC | Referencia: ~520 ₡/USD
+> Fuente de verdad: backend (`SubscriptionTier` y `SubscriptionPricing`).
+> Revisión: 2026-09-06
+> Estado: alineado con la implementación actual.
 
----
+## 1. Resumen ejecutivo
 
-## B2C — Planes para Dueños de Mascotas
+La base real de planes implementada hoy es la siguiente:
 
-### 📦 Explorador — Gratis
+- B2C: `Free`, `UserPlus`, `UserFamilia`
+- Tiendas: `StorePlus`, `StorePartner`
+- Refugios: `ShelterPlus`
+- Clínicas: `ClinicPlus`, `ClinicPartner`
+- Municipalidades: `MuniBasica`, `MuniFull`, `MuniRedRegional`
 
-**Para quienes dan sus primeros pasos en la protección digital de mascotas.**
-
-| Categoría             | Feature                                                                        |
-| --------------------- | ------------------------------------------------------------------------------ |
-| **Mascotas**          | 1 mascota registrada · QR digital · perfil público · foto · raza · especie     |
-| **Identificación**    | Microchip RFID (ISO 11784) · historial de escaneos (últimos 5)                 |
-| **Emergencia**        | Reporte de pérdida con GPS y foto · aparición en mapa público                  |
-| **Comunidad**         | Avistamientos anónimos · contacto seguro con rescatador · recompensa declarada |
-| **IA**                | Búsqueda por foto: **3/mes**                                                   |
-| **Alertas**           | Radio **3 km**                                                                 |
-| **Expediente médico** | Ver count de registros (teaser) — sin acceso al contenido                      |
+Los estados `ClinicBasic`, `StoreBasic` y `ShelterBasic` existen como marca libre o de directorio, pero no son la fuente final de billing ni de feature gating en la app actual. Es decir, el producto real se rige por los tiers activos pagados en producción y los free/public states no deben confundirse con planes de venta.
 
 ---
 
-### 🌟 Plus — ₡2,990/mes (~$5.75 USD)
+## 2. B2C — Dueños de mascotas
 
-**Para dueños activos que quieren la máxima velocidad de recuperación.**
+### Explorador — Gratis
 
-Todo lo del plan Explorador, más:
+- 1 mascota registrada
+- Historial de escaneos limitado a 5 entradas
+- Búsqueda visual por IA: 3 búsquedas/mes
+- Reporte de pérdida, mapa público y avistamientos anónimos
+- No incluye GPS ni funciones premium
 
-| Categoría             | Feature                                                                                                                     |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| **Mascotas**          | Hasta **3 mascotas** · historial de escaneos ilimitado                                                                      |
-| **Alertas**           | Radio **10 km** · WhatsApp instantáneo                                                                                      |
-| **IA**                | Búsqueda por foto **ilimitada** · predicción de movimiento                                                                  |
-| **Búsqueda**          | Case Room activo · coordinación en tiempo real · 3D Radar                                                                   |
-| **Recompensas**       | Crear Bounty con SINPE · HandoverCode → liberación automática                                                               |
-| **GPS**               | Collar GPS tab · Tractive / Kippy / genérico · historial por rango · alertas offline/batería · modo perdido · zonas seguras |
-| **Expediente médico** | Vista previa de **últimos 3 registros**                                                                                     |
+### Plus — ₡2,990/mes
 
----
+- Todo lo del plan Explorador
+- Hasta 3 mascotas
+- Historial de escaneos ilimitado
+- IA ilimitada
+- Alertas ampliadas y coordinación activa
+- Tab GPS, integraciones de collar, Case Room, Bounty
 
-### 👨‍👩‍👧‍👦 Familia — ₡4,990/mes (~$9.60 USD)
+### Familia — ₡4,990/mes
 
-**Para familias con varias mascotas o que necesitan acceso compartido.**
-
-Todo lo del plan Plus, más:
-
-| Categoría             | Feature                                                      |
-| --------------------- | ------------------------------------------------------------ |
-| **Mascotas**          | **Ilimitadas**                                               |
-| **Usuarios**          | Hasta **5 miembros** · alertas push a todos los dispositivos |
-| **Alertas**           | Radio **sin límite**                                         |
-| **Expediente médico** | Historial completo · editar/eliminar · peso por visita       |
-| **Medicación**        | Campos estructurados: dosis, frecuencia, duración, fecha fin |
-| **Recordatorios**     | Vista calendario · dashboard multi-mascota                   |
-| **Exportar**          | PDF del expediente completo                                  |
+- Todo lo de Plus
+- Mascotas ilimitadas
+- Hasta 5 miembros en la cuenta familiar
+- Historial médico completo
+- Peso por visita, medicación estructurada, recordatorios, calendario y exportación PDF
 
 ---
 
-## B2B — Planes para Tiendas de Mascotas
+## 3. B2B — Tiendas de mascotas
 
-### 🏪 StoreBasic — Gratis
+### StorePlus — ₡12,000/mes
 
-- Listado en directorio y mapa
-- Catálogo de productos visible al público
-- Sin sistema de pedidos in-app
+- Catálogo público de productos
+- Pedido in-app con SINPE Móvil
+- Gestión de pedidos
+- Badge / destaque base en directorio y mapa
 
-### 🛒 StorePlus — ₡12,000/mes
+### StorePartner — ₡25,000/mes
 
-- Todo StoreBasic +
-- **Recibir pedidos in-app** con SINPE Móvil
-- Panel de órdenes en tiempo real
-- Badge "Tienda Plus" en mapa
-- Estadísticas básicas de ventas
-
-### 🌟 StorePartner — ₡25,000/mes
-
-- Todo StorePlus +
+- Todo lo de StorePlus
 - Analytics avanzados
-- Soporte multi-sucursal
-- Badge verificado premium
-- Posicionamiento prioritario en mapa y directorio
+- Multi-sucursal / multi-location
+- Mejor posicionamiento y funciones premium de gestión
 
 ---
 
-## B2B — Planes para Clínicas Veterinarias
+## 4. Refugios / adopciones
 
-### 🏥 ClinicBasic — ₡15,000/mes
+### ShelterPlus — ₡8,000/mes
 
-- Escaneo de QR/RFID
-- Directorio básico
-- Notificación al dueño al escanear
+- Publicación ilimitada de animales en adopción
+- Ferias de adopción
+- Pin destacado en mapa
+- Gestión completa de solicitudes y panel del refugio
 
-### ⭐ ClinicPlus — ₡35,000/mes
-
-- Expediente médico compartido (con consentimiento del dueño)
-- PDF certificados verificables
-- Historial de visitas completo
-
-### 🤝 ClinicPartner — ₡60,000/mes
-
-- Todo ClinicPlus +
-- API keys para integración con HIS propietario
-- Posición destacada en mapa (icono 24h emergencia)
-- Multi-veterinario
+> El tier `ShelterBasic` es un límite libre de 5 animales activos; no es el plan de pago principal del sistema actual.
 
 ---
 
-## B2G — Planes para Municipalidades
+## 5. B2B — Clínicas veterinarias
 
-### 🏛️ MuniBasic — ₡25,000/mes
+### ClinicPlus — ₡15,000/mes
 
-- Portal de control animal
-- Gestión de animales capturados
+- Destacado en mapa y directorio
+- Badge verificado
+- Estadísticas de escaneos y métricas de visibilidad
+- Certificados PDF verificables
+
+### ClinicPartner — ₡35,000/mes
+
+- Todo lo de ClinicPlus
+- API keys para integración
+- Widget embebible
+- Endpoints especializados y funciones premium de proveedor
+
+> El tier `ClinicBasic` aparece como un estado o descriptor de entrada, pero la app actual no usa ese nombre como flujo de pricing/activación en producción.
+
+---
+
+## 6. B2G — Municipalidades
+
+### MuniBasica — ₡150,000/año
+
+- Portal básico de gestión
 - Un cantón
 
-### 📊 MuniFull — ₡50,000/mes
+### MuniFull — ₡300,000/año
 
+- Todo lo de Básica
 - Fotos de animales capturados
 - Estadísticas y reportes
+
+### MuniRedRegional — ₡500,000/año
+
+- Todo lo de Full
 - Multi-cantón
-
-### 🌐 MuniRedRegional — ₡80,000/mes
-
-- Red regional compartida
-- Coordinación entre cantones
-- Reportes consolidados
+- Red regional y dashboard consolidado
 
 ---
 
-## Vallas Publicitarias — Ingresos adicionales
+## 7. Pricing oficial vigente en código
 
-Las tiendas, clínicas y negocios relacionados pueden anunciar en la plataforma. El sistema de vallas admite:
-
-| Placement     | Descripción                            | Visibilidad                          |
-| ------------- | -------------------------------------- | ------------------------------------ |
-| **Map**       | Overlay en el mapa público             | Alta (todos los visitantes del mapa) |
-| **Dashboard** | Entre tarjetas de mascotas             | Media (dueños autenticados)          |
-| **Directory** | Top del directorio de tiendas/clínicas | Media                                |
-| **Feed**      | Sobre lista de mascotas perdidas       | Alta                                 |
-
-**Modelo:** Contactar con el equipo de PawTrack CR para tarifas y disponibilidad. La plataforma Admin gestiona la aprobación, fechas y prioridad de cada valla.
-
-**Para quienes dan sus primeros pasos en la protección digital de mascotas.**
-
-| Categoría             | Feature                                                                        |
-| --------------------- | ------------------------------------------------------------------------------ |
-| **Mascotas**          | 1 mascota registrada · QR digital · perfil público · foto · raza · especie     |
-| **Identificación**    | Microchip RFID (ISO 11784) · historial de escaneos (últimos 5)                 |
-| **Emergencia**        | Reporte de pérdida con GPS y foto · aparición en mapa público                  |
-| **Comunidad**         | Avistamientos anónimos · contacto seguro con rescatador · recompensa declarada |
-| **IA**                | Búsqueda por foto: **3/mes**                                                   |
-| **Alertas**           | Radio **3 km**                                                                 |
-| **Expediente médico** | Ver count de registros (teaser) — sin acceso al contenido                      |
-
-**Limitaciones:** 1 mascota · historial limitado · sin WhatsApp · sin predicción IA · sin GPS.
+| Tier              |   Precio | Modalidad |
+| ----------------- | -------: | --------- |
+| `UserPlus`        |   ₡2,990 | mensual   |
+| `UserFamilia`     |   ₡4,990 | mensual   |
+| `StorePlus`       |  ₡12,000 | mensual   |
+| `StorePartner`    |  ₡25,000 | mensual   |
+| `ShelterPlus`     |   ₡8,000 | mensual   |
+| `ClinicPlus`      |  ₡15,000 | mensual   |
+| `ClinicPartner`   |  ₡35,000 | mensual   |
+| `MuniBasica`      | ₡150,000 | anual     |
+| `MuniFull`        | ₡300,000 | anual     |
+| `MuniRedRegional` | ₡500,000 | anual     |
 
 ---
 
-### 🌟 Plus — ₡2,990/mes (~$5.75 USD)
+## 8. Regla para documentación
 
-**Para dueños activos que quieren la máxima velocidad de recuperación.**
-
-Todo lo del plan Explorador, más:
-
-| Categoría             | Feature                                                                                                                                                                         |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Mascotas**          | Hasta **3 mascotas** · historial de escaneos ilimitado · exportar actividad                                                                                                     |
-| **Alertas**           | Radio **10 km** · WhatsApp instantáneo                                                                                                                                          |
-| **IA**                | Búsqueda por foto **ilimitada** · predicción de movimiento                                                                                                                      |
-| **Búsqueda**          | Case Room activo · coordinación en tiempo real (zonas 7×7) · 3D Radar                                                                                                           |
-| **Recompensas**       | Crear Bounty con SINPE · flujo HandoverCode → liberación automática                                                                                                             |
-| **GPS**               | Tab GPS en perfil · Tractive / Kippy / genérico · posición en tiempo real · historial por rango · alertas offline/batería · modo perdido · zonas seguras · transferencia segura |
-| **Expediente médico** | Vista previa de **últimos 3 registros** (tipo, fecha, descripción, veterinario)                                                                                                 |
-
-**Límites en expediente:** documentos adjuntos, peso por visita y campos de medicación solo en Plan Familia. Los 3 registros son un preview; el historial completo requiere Familia.
-
----
-
-### 👨‍👩‍👧‍👦 Familia — ₡4,990/mes (~$9.60 USD)
-
-**Para familias con varias mascotas o que necesitan acceso compartido.**
-
-Todo lo del plan Plus, más:
-
-| Categoría             | Feature                                                                         |
-| --------------------- | ------------------------------------------------------------------------------- |
-| **Mascotas**          | **Ilimitadas**                                                                  |
-| **Usuarios**          | Hasta **5 miembros de familia** · alertas push a todos los dispositivos         |
-| **Alertas**           | Radio **sin límite geográfico**                                                 |
-| **Expediente médico** | Historial completo · editar/eliminar registros · peso por visita (WeightKg)     |
-| **Medicación**        | Campos estructurados: dosis, frecuencia, duración, fecha fin                    |
-| **Recordatorios**     | Crear recordatorios independientes · vista calendario · dashboard multi-mascota |
-| **Clínica**           | Ver audit log de accesos de veterinaria · gestionar grants de acceso            |
-| **Exportación**       | PDF del historial médico completo                                               |
-| **Soporte**           | Prioritario · acceso anticipado a nuevas features                               |
-
----
-
-### Comparativa B2C
-
-| Feature                        |  Explorador  |      Plus ₡2,990      | Familia ₡4,990 |
-| ------------------------------ | :----------: | :-------------------: | :------------: |
-| Mascotas                       |      1       |           3           |   Ilimitadas   |
-| Historial escaneos             |  5 últimos   |       Ilimitado       |   Ilimitado    |
-| Radio alertas                  |     3 km     |         10 km         |   Sin límite   |
-| WhatsApp instantáneo           |      ✗       |          ✅           |       ✅       |
-| Búsqueda IA por foto           |    3/mes     |       Ilimitada       |   Ilimitada    |
-| Predicción movimiento IA       |      ✗       |          ✅           |       ✅       |
-| Case Room (coordinación)       |      ✗       |          ✅           |       ✅       |
-| GPS collar                     |      ✗       |          ✅           |       ✅       |
-| Sistema Bounty                 |      ✗       |          ✅           |       ✅       |
-| Multi-usuario                  |      ✗       |           ✗           |     ✅ (5)     |
-| Expediente médico              | Count teaser | Preview (3 registros) |  Completo ✅   |
-| Peso por visita                |      ✗       |           ✗           |       ✅       |
-| Medicación estructurada        |      ✗       |           ✗           |       ✅       |
-| PDF historial médico           |      ✗       |           ✗           |       ✅       |
-| Vista calendario recordatorios |      ✗       |           ✗           |       ✅       |
-| Dashboard multi-mascota        |      ✗       |           ✗           |       ✅       |
+Este documento es la fuente de verdad comercial del producto actual. Cualquier otro documento que describa precios o features debe alinearse con estos tiers y sus límites. Duplicar nombres, tarificaciones o planes fuera del código ha generado inconsistencias y debe corregirse si aparece en otra documentación interna.
 
 ---
 

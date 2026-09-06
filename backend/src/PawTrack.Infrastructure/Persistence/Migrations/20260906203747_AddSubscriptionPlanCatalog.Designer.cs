@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using PawTrack.Infrastructure.Persistence;
@@ -12,9 +13,11 @@ using PawTrack.Infrastructure.Persistence;
 namespace PawTrack.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(PawTrackDbContext))]
-    partial class PawTrackDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260906203747_AddSubscriptionPlanCatalog")]
+    partial class AddSubscriptionPlanCatalog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

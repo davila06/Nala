@@ -81,8 +81,10 @@ En el tab **Clínicas**, verás clínicas en estado `Pending`:
 ### 4.2 Activar suscripción de clínica
 
 1. Selecciona la clínica → **Activar**.
-2. Elige el tier: `ClinicBasic`, `ClinicPlus` o `ClinicPartner`.
+2. Elige el tier activo: `ClinicPlus` o `ClinicPartner`.
 3. La clínica recibe acceso inmediato al portal veterinario.
+
+> El estado `ClinicBasic` representa la entrada gratuita / directorio público, no el plan comercial principal del producto actual.
 
 ### 4.3 Gestionar API keys
 
@@ -108,11 +110,13 @@ En el tab **Tiendas**:
 
 ### 5.2 Tiers de tienda
 
-| Tier           | Capacidades                                       |
-| -------------- | ------------------------------------------------- |
-| `StoreBasic`   | Catálogo visible, sin pedidos in-app              |
-| `StorePlus`    | Catálogo + pedidos in-app + SINPE                 |
-| `StorePartner` | Todo StorePlus + analytics + posición prioritaria |
+| Tier           | Capacidades                                                |
+| -------------- | ---------------------------------------------------------- |
+| `StoreBasic`   | Estado base gratuito: catálogo visible, sin pedidos in-app |
+| `StorePlus`    | Catálogo + pedidos in-app + SINPE                          |
+| `StorePartner` | Todo StorePlus + analytics + posición prioritaria          |
+
+> `StoreBasic` no es el plan pagado principal del producto actual; es un nivel de registro/directorio gratuito.
 
 Para cambiar el tier de una tienda, usa la suscripción (tab **Suscripciones**) y asigna el tier correspondiente al userId del dueño de la tienda.
 
@@ -186,17 +190,33 @@ Para activar un plan después de verificar el pago SINPE:
 
 ### 7.3 Tiers disponibles
 
-| Tier interno    | Plan visible                  |
-| --------------- | ----------------------------- |
-| `Free`          | Explorador                    |
-| `UserPlus`      | Plus (₡2,990/mes)             |
-| `UserFamilia`   | Familia (₡4,990/mes)          |
-| `ClinicBasic`   | Clínica Básica (₡15,000/mes)  |
-| `ClinicPlus`    | Clínica Plus (₡35,000/mes)    |
-| `ClinicPartner` | Clínica Partner (₡60,000/mes) |
-| `StoreBasic`    | Tienda Básica (gratis)        |
-| `StorePlus`     | Tienda Plus (₡12,000/mes)     |
-| `StorePartner`  | Tienda Partner (₡25,000/mes)  |
+| Tier interno      | Plan visible     | Precio real del backend |
+| ----------------- | ---------------- | ----------------------- |
+| `Free`            | Explorador       | ₡0                      |
+| `UserPlus`        | Plus             | ₡2,990/mes              |
+| `UserFamilia`     | Familia          | ₡4,990/mes              |
+| `StorePlus`       | Tienda Plus      | ₡12,000/mes             |
+| `StorePartner`    | Tienda Partner   | ₡25,000/mes             |
+| `ClinicPlus`      | Clínica Plus     | ₡15,000/mes             |
+| `ClinicPartner`   | Clínica Partner  | ₡35,000/mes             |
+| `ShelterPlus`     | Refugio Plus     | ₡8,000/mes              |
+| `MuniBasica`      | Municipal Básica | ₡150,000/año            |
+| `MuniFull`        | Municipal Full   | ₡300,000/año            |
+| `MuniRedRegional` | Red Regional     | ₡500,000/año            |
+
+> Los nombres `ClinicBasic`, `StoreBasic` y `ShelterBasic` aparecen como estados base o de directorio; no son la definición comercial activa en la implementación actual.
+
+### 7.4 Administrar planes y precios
+
+El tab **Planes y precios** del panel admin permite consultar, crear, editar y desactivar los planes comerciales. Solo usuarios con rol `Admin` pueden acceder.
+
+- Los tiers son identificadores estables y no se pueden cambiar al editar un plan.
+- Cada plan debe tener al menos un precio positivo mensual o anual.
+- La edición usa control de versión; si otro administrador modificó el plan, la operación se rechaza para evitar sobrescribir cambios.
+- La desactivación es lógica para conservar el historial de suscripciones existentes.
+- La creación de nuevas suscripciones consulta este catálogo administrado; los cambios de precio no modifican suscripciones ya creadas.
+
+API administrativa equivalente: `GET/POST /api/admin/subscription-plans`, `GET/PUT/DELETE /api/admin/subscription-plans/{id}`.
 
 ---
 

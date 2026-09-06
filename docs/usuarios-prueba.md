@@ -8,24 +8,24 @@
 
 ## Credenciales completas por rol y plan
 
-| Email                        | Contraseña   | Rol          | Plan / Tier      | Para probar                     |
-| ---------------------------- | ------------ | ------------ | ---------------- | ------------------------------- |
-| `admin@pawtrack.cr`          | `Test123!`   | Admin        | —                | Panel admin completo (7 tabs)   |
-| `admin@pawtrack.test`        | `Admin123!`  | Admin        | —                | Alternativa admin               |
-| `owner_free@test.cr`         | `Test123!`   | Owner        | Explorador       | Límites: 1 mascota, 5 escaneos  |
-| `owner_plus@test.cr`         | `Test123!`   | Owner        | UserPlus ✅      | GPS, radio 10km, IA ilimitada   |
-| `owner_familia@test.cr`      | `Test123!`   | Owner        | UserFamilia ✅   | Expediente completo, 5 miembros |
-| `owner@pawtrack.test`        | `Test123!`   | Owner        | Explorador       | Alternativa owner               |
-| `ally@test.cr`               | `Test123!`   | Ally         | — (verificado)   | Panel aliado, alertas de zona   |
-| `ally@pawtrack.test`         | `Ally123!`   | Ally         | —                | Alternativa ally                |
-| `clinica_basica@test.cr`     | `Test123!`   | Clinic       | ClinicBasic      | Escaneo QR/RFID básico          |
-| `clinica_partner@test.cr`    | `Test123!`   | Clinic       | ClinicPartner ✅ | PDF, API keys, destacada        |
-| `clinic@pawtrack.test`       | `Clinic123!` | Clinic       | —                | Alternativa clínica             |
-| `municipal_basica@test.cr`   | `Test123!`   | Municipality | Básica           | Portal capturas 1 cantón        |
-| `municipal_full@test.cr`     | `Test123!`   | Municipality | Full             | Fotos, estadísticas             |
-| `municipal_regional@test.cr` | `Test123!`   | Municipality | RedRegional      | Red multi-cantón                |
-| `store_plus@test.cr`         | `Test123!`   | Store        | StorePlus ✅     | Portal tienda, recibir pedidos  |
-| `store_basic@test.cr`        | `Test123!`   | Store        | StoreBasic       | Catálogo sin pedidos in-app     |
+| Email                        | Contraseña   | Rol          | Plan / Tier                   | Para probar                     |
+| ---------------------------- | ------------ | ------------ | ----------------------------- | ------------------------------- |
+| `admin@pawtrack.cr`          | `Test123!`   | Admin        | —                             | Panel admin completo (7 tabs)   |
+| `admin@pawtrack.test`        | `Admin123!`  | Admin        | —                             | Alternativa admin               |
+| `owner_free@test.cr`         | `Test123!`   | Owner        | Explorador                    | Límites: 1 mascota, 5 escaneos  |
+| `owner_plus@test.cr`         | `Test123!`   | Owner        | UserPlus ✅                   | GPS, radio 10km, IA ilimitada   |
+| `owner_familia@test.cr`      | `Test123!`   | Owner        | UserFamilia ✅                | Expediente completo, 5 miembros |
+| `owner@pawtrack.test`        | `Test123!`   | Owner        | Explorador                    | Alternativa owner               |
+| `ally@test.cr`               | `Test123!`   | Ally         | — (verificado)                | Panel aliado, alertas de zona   |
+| `ally@pawtrack.test`         | `Ally123!`   | Ally         | —                             | Alternativa ally                |
+| `clinica_basica@test.cr`     | `Test123!`   | Clinic       | ClinicBasic (base/directorio) | Escaneo QR/RFID básico          |
+| `clinica_partner@test.cr`    | `Test123!`   | Clinic       | ClinicPartner ✅              | PDF, API keys, destacada        |
+| `clinic@pawtrack.test`       | `Clinic123!` | Clinic       | —                             | Alternativa clínica             |
+| `municipal_basica@test.cr`   | `Test123!`   | Municipality | Básica                        | Portal capturas 1 cantón        |
+| `municipal_full@test.cr`     | `Test123!`   | Municipality | Full                          | Fotos, estadísticas             |
+| `municipal_regional@test.cr` | `Test123!`   | Municipality | RedRegional                   | Red multi-cantón                |
+| `store_plus@test.cr`         | `Test123!`   | Store        | StorePlus ✅                  | Portal tienda, recibir pedidos  |
+| `store_basic@test.cr`        | `Test123!`   | Store        | StoreBasic (base/directorio)  | Catálogo sin pedidos in-app     |
 
 ---
 

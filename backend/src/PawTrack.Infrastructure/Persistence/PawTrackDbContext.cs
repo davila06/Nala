@@ -74,6 +74,7 @@ public sealed class PawTrackDbContext(
     public DbSet<ClinicApiKey> ClinicApiKeys => Set<ClinicApiKey>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
+    public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
     public DbSet<Bounty> Bounties => Set<Bounty>();
     public DbSet<BundleOrder> BundleOrders => Set<BundleOrder>();
     public DbSet<Collar> Collars => Set<Collar>();

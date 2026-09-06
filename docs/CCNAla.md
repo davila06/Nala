@@ -160,13 +160,13 @@ Estos datos son públicos y refuerzan la credibilidad de la plataforma.
 
 ### Para refugios y organizaciones de adopción
 
-|                                             | **ShelterBasic** (gratis) | **ShelterPlus** ₡8,000/mes |
-| ------------------------------------------- | ------------------------- | -------------------------- |
-| Publicar animales en adopción               | Hasta 5 activos           | Ilimitados                 |
-| Perfil con fotos (hasta 5 por animal)       | ✅                        | ✅                         |
-| Gestión de solicitudes de adopción          | ✅                        | ✅                         |
-| Ferias de adopción con alertas geofenceadas | —                         | ✅                         |
-| Pin destacado en el mapa                    | —                         | ✅                         |
+| Feature                                     | ShelterBasic (base/directorio) | ShelterPlus (₡8,000/mes) |
+| ------------------------------------------- | ------------------------------ | ------------------------ |
+| Publicar animales en adopción               | Hasta 5 activos                | Ilimitados               |
+| Perfil con fotos (hasta 5 por animal)       | ✅                             | ✅                       |
+| Gestión de solicitudes de adopción          | ✅                             | ✅                       |
+| Ferias de adopción con alertas geofenceadas | —                              | ✅                       |
+| Pin destacado en el mapa                    | —                              | ✅                       |
 
 ### Accesorios físicos con QR (tienda)
 
@@ -194,7 +194,7 @@ Ciudadanos que encuentran mascotas, rescatistas independientes, organizaciones d
 
 ### Refugios y organizaciones de adopción
 
-Refugios, perreras privadas y grupos de rescate que quieren digitalizar sus campañas de adopción. Con el plan ShelterBasic (gratuito) pueden publicar hasta 5 animales. Con ShelterPlus (₡8,000/mes) obtienen animales ilimitados, ferias de adopción geofenceadas y pin destacado en el mapa.
+Refugios, perreras privadas y grupos de rescate que quieren digitalizar sus campañas de adopción. Con el estado base/directorio `ShelterBasic` (gratuito) pueden publicar hasta 5 animales. Con `ShelterPlus` (₡8,000/mes) obtienen animales ilimitados, ferias de adopción geofenceadas y pin destacado en el mapa.
 
 ### Municipalidades e instituciones
 

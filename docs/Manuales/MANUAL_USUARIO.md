@@ -629,6 +629,8 @@ PawTrack CR ofrece tres planes para usuarios individuales y tres planes para cl�
 | **Plus**       | ₡2,990 / mes | Hasta 3    | Alertas en radio de 10 km, historial de escaneos completo, GPS, predicción de movimiento    |
 | **Familia**    | ₡4,990 / mes | Ilimitadas | Todo Plus + historial médico, recordatorios vet, cuenta familiar (5 miembros), exportar PDF |
 
+> La nomenclatura técnica del backend es `Free`, `UserPlus` y `UserFamilia`. Los nombres visibles para el usuario permanecen Explorador, Plus y Familia.
+
 ### Comparativa de funciones
 
 | Función                  | Explorador | Plus      | Familia     |

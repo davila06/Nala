@@ -4,14 +4,23 @@
 
 param([string]$DocsPath = "C:\Nala\docs")
 
-$htmlDir = Join-Path $DocsPath "html"
+$sourceDir = if (Test-Path (Join-Path $DocsPath "FEATURES.md")) {
+  $DocsPath
+} else {
+  Join-Path $DocsPath "docs"
+}
+$htmlDir = Join-Path $sourceDir "html"
 
 $docs = @(
-  @{ file = "MANUAL_USUARIO.md";            title = "Manual de Usuario";                icon = "📱"; back = "../MANUAL_USUARIO.md" }
-  @{ file = "MANUAL_ADMINISTRADOR.md";      title = "Manual de Administrador";          icon = "⚙️"; back = "../MANUAL_ADMINISTRADOR.md" }
-  @{ file = "MANUAL_ALIADOS.md";            title = "Manual de Aliados";                icon = "🤝"; back = "../MANUAL_ALIADOS.md" }
-  @{ file = "MANUAL_CLINICAS.md";           title = "Manual de Clínicas Veterinarias";  icon = "🏥"; back = "../MANUAL_CLINICAS.md" }
-  @{ file = "MANUAL_TECNICO.md";            title = "Manual Técnico";                   icon = "🛠️"; back = "../MANUAL_TECNICO.md" }
+  @{ file = "FEATURES.md";                    title = "Features por Plan";                 icon = "🧭"; back = "../FEATURES.md" }
+  @{ file = "planes.md";                     title = "Planes y Precios";                  icon = "💳"; back = "../planes.md" }
+  @{ file = "precios.md";                    title = "Precios y Modelo Comercial";       icon = "📊"; back = "../precios.md" }
+  @{ file = "NALA.md";                       title = "Producto PawTrack CR";             icon = "🐾"; back = "../NALA.md" }
+  @{ file = "Manuales/MANUAL_USUARIO.md";            title = "Manual de Usuario";                icon = "📱"; back = "../Manuales/MANUAL_USUARIO.md" }
+  @{ file = "Manuales/MANUAL_ADMINISTRADOR.md";      title = "Manual de Administrador";          icon = "⚙️"; back = "../Manuales/MANUAL_ADMINISTRADOR.md" }
+  @{ file = "Manuales/MANUAL_ALIADOS.md";            title = "Manual de Aliados";                icon = "🤝"; back = "../Manuales/MANUAL_ALIADOS.md" }
+  @{ file = "Manuales/MANUAL_CLINICAS.md";           title = "Manual de Clínicas Veterinarias";  icon = "🏥"; back = "../Manuales/MANUAL_CLINICAS.md" }
+  @{ file = "Manuales/MANUAL_TECNICO.md";            title = "Manual Técnico";                   icon = "🛠️"; back = "../Manuales/MANUAL_TECNICO.md" }
   @{ file = "GUIA_ONBOARDING_DEV.md";       title = "Guía de Onboarding Dev";           icon = "🚀"; back = "../GUIA_ONBOARDING_DEV.md" }
   @{ file = "GUIA_DEPLOY_PASO_A_PASO.md";   title = "Guía de Deploy Paso a Paso";       icon = "☁️"; back = "../GUIA_DEPLOY_PASO_A_PASO.md" }
   @{ file = "RUNBOOK_OPERACIONES.md";       title = "Runbook de Operaciones";           icon = "📟"; back = "../RUNBOOK_OPERACIONES.md" }
@@ -24,10 +33,11 @@ $navLinks = $docs | ForEach-Object {
   $htmlFile = [System.IO.Path]::GetFileNameWithoutExtension($_.file) + ".html"
   "    <li><a href=`"$htmlFile`" class=`"h2`">$($_.icon) $($_.title)</a></li>"
 }
+$navLinks = @('    <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>') + $navLinks
 $navLinksStr = ($navLinks -join "`n")
 
 foreach ($doc in $docs) {
-  $mdPath  = Join-Path $DocsPath $doc.file
+  $mdPath  = Join-Path $sourceDir $doc.file
   $htmlOut = Join-Path $htmlDir ([System.IO.Path]::GetFileNameWithoutExtension($doc.file) + ".html")
 
   if (-not (Test-Path $mdPath)) {

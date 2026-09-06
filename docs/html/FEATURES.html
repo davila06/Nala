@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Features por Plan — PawTrack CR</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+</head>
+<body>
+<aside id="sidebar">
+  <div class="brand"><span>🐾</span><strong>PawTrack CR<br>Documentación</strong></div>
+  <nav><ul>
+    <li><a href="index.html" class="h2">← Inicio</a></li>
+    <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>
+    <li><a href="FEATURES.html" class="h2">🧭 Features por Plan</a></li>
+    <li><a href="planes.html" class="h2">💳 Planes y Precios</a></li>
+    <li><a href="precios.html" class="h2">📊 Precios y Modelo Comercial</a></li>
+    <li><a href="NALA.html" class="h2">🐾 Producto PawTrack CR</a></li>
+    <li><a href="MANUAL_USUARIO.html" class="h2">📱 Manual de Usuario</a></li>
+    <li><a href="MANUAL_ADMINISTRADOR.html" class="h2">⚙️ Manual de Administrador</a></li>
+    <li><a href="MANUAL_ALIADOS.html" class="h2">🤝 Manual de Aliados</a></li>
+    <li><a href="MANUAL_CLINICAS.html" class="h2">🏥 Manual de Clínicas Veterinarias</a></li>
+    <li><a href="MANUAL_TECNICO.html" class="h2">🛠️ Manual Técnico</a></li>
+    <li><a href="GUIA_ONBOARDING_DEV.html" class="h2">🚀 Guía de Onboarding Dev</a></li>
+    <li><a href="GUIA_DEPLOY_PASO_A_PASO.html" class="h2">☁️ Guía de Deploy Paso a Paso</a></li>
+    <li><a href="RUNBOOK_OPERACIONES.html" class="h2">📟 Runbook de Operaciones</a></li>
+    <li><a href="DEPLOY_INFO.html" class="h2">🗂️ Datos de Despliegue Beta</a></li>
+    <li><a href="POLITICA_DE_PRIVACIDAD.html" class="h2">🔒 Política de Privacidad</a></li>
+    <li><a href="TERMINOS_DE_USO.html" class="h2">📋 Términos de Uso</a></li>
+  </ul></nav>
+</aside>
+<main id="main">
+  <div id="content"><p style="color:#888;padding:2rem">Cargando…</p></div>
+</main>
+<script>
+const md = "# PawTrack CR — Matriz de features por plan\r\n\r\n> Fuente de verdad: enums y pricing del backend en `SubscriptionTier` y `SubscriptionPricing`.\r\n> Revisión: 2026-09-06\r\n> Estado: alineado con la implementación actual del código.\r\n\r\n## 1. Nota importante sobre tiers reales\r\n\r\nLa implementación actual del backend usa estas suscripciones activas:\r\n\r\n- B2C: `Free`, `UserPlus`, `UserFamilia`\r\n- Tiendas: `StorePlus`, `StorePartner`\r\n- Refugios/adopciones: `ShelterPlus`\r\n- Clínicas: `ClinicPlus`, `ClinicPartner`\r\n- Municipalidades: `MuniBasica`, `MuniFull`, `MuniRedRegional`\r\n\r\nLos valores `ClinicBasic`, `StoreBasic`, `ShelterBasic` existen como estados o marcadores libres de directorio, pero no forman el flujo de pago/activación principal del código actual. La documentación debe tratar esos estados como free/entry points, no como planes de compra activados en producción.\r\n\r\n---\r\n\r\n## 2. B2C — Dueños de mascotas\r\n\r\n| Feature                                      | Free           | UserPlus              | UserFamilia         |\r\n| -------------------------------------------- | -------------- | --------------------- | ------------------- |\r\n| Mascotas registradas                         | 1              | Hasta 3               | Ilimitadas          |\r\n| Historial de escaneos QR                     | 5 últimos      | Ilimitado             | Ilimitado           |\r\n| Búsqueda visual por IA                       | 3/mes          | Ilimitada             | Ilimitada           |\r\n| Alertas por radio                            | 1x (básico)    | 3.33x (aprox. 10km)   | Sin límite efectivo |\r\n| WhatsApp/Telegram/Facebook/Email             | No             | Sí                    | Sí                  |\r\n| Case Room / coordinación                     | No             | Sí                    | Sí                  |\r\n| GPS collar / Tractive / genérico             | No             | Sí                    | Sí                  |\r\n| Bounty / recompensa económica                | No             | Sí                    | Sí                  |\r\n| Miembros de familia                          | 1              | 1                     | Hasta 5             |\r\n| Expediente médico                            | Preview/cuenta | Preview (3 registros) | Completo            |\r\n| Peso por visita / medicación / recordatorios | No             | No                    | Sí                  |\r\n| Exportar PDF médico                          | No             | No                    | Sí                  |\r\n\r\n### Gates reales implementados\r\n\r\n- `SubscriptionService.GetPetLimitAsync`:\r\n  - `Free` = 1\r\n  - `UserPlus` = 3\r\n  - `UserFamilia` = -1 (ilimitado)\r\n- `SubscriptionService.GetScanHistoryLimitAsync`:\r\n  - `Free` = 5\r\n  - `UserPlus`/`UserFamilia` = ilimitado\r\n- `SubscriptionService.GetMonthlyAiSearchLimitAsync`:\r\n  - `Free` = 3/mes\r\n  - `UserPlus`/`UserFamilia` = sin límite\r\n- `SubscriptionService.GetAlertRadiusMultiplierAsync`:\r\n  - `Free` = 1.0\r\n  - `UserPlus` = 3.33\r\n  - `UserFamilia` = -1.0 (sin tope)\r\n\r\n---\r\n\r\n## 3. B2B — Tiendas de mascotas\r\n\r\n| Feature                         | StorePlus | StorePartner |\r\n| ------------------------------- | --------- | ------------ |\r\n| Directorio y catálogo público   | Sí        | Sí           |\r\n| Pedidos in-app                  | Sí        | Sí           |\r\n| Checkout SINPE Móvil            | Sí        | Sí           |\r\n| Gestión de pedidos              | Sí        | Sí           |\r\n| Badge / destaque en mapa        | Sí        | Sí           |\r\n| Analytics avanzados             | No        | Sí           |\r\n| Multi-sucursal / multi-location | No        | Sí           |\r\n| Posicionamiento prioritario     | No        | Sí           |\r\n\r\n### Gating real\r\n\r\n- El gate del backend exige `StorePlus` o `StorePartner` para pedidos, analytics y localizaciones avanzadas.\r\n- La activación de plan sincroniza `Store.IsFeatured` y, para `StorePartner`, habilita locales adicionales.\r\n\r\n---\r\n\r\n## 4. Refugios / adopciones\r\n\r\n| Feature                       | ShelterBasic    | ShelterPlus |\r\n| ----------------------------- | --------------- | ----------- |\r\n| Publicar animales en adopción | Hasta 5 activos | Ilimitado   |\r\n| Ferias de adopción            | No              | Sí          |\r\n| Pin destacado en mapa         | No              | Sí          |\r\n| Panel de gestión              | Sí              | Sí          |\r\n| Gestión de solicitudes        | Sí              | Sí          |\r\n\r\n### Gating real\r\n\r\n- `AdoptionCommands` usa `ShelterBasic` como límite de 5 animales activos y exige `ShelterPlus` para features premium de refugio.\r\n- El dominio usa `ShelterPlus` como tier pagado para adopciones avanzadas.\r\n\r\n---\r\n\r\n## 5. B2B — Clínicas veterinarias\r\n\r\n| Feature                           | ClinicPlus | ClinicPartner |\r\n| --------------------------------- | ---------- | ------------- |\r\n| Destacado en directorio/mapa      | Sí         | Sí            |\r\n| Badge verificado                  | Sí         | Sí            |\r\n| Estadísticas de escaneos          | Sí         | Sí            |\r\n| Visibilidad / métricas            | Sí         | Sí            |\r\n| Certificados PDF verificables     | Sí         | Sí            |\r\n| API keys para integración         | No         | Sí            |\r\n| Widget embebible                  | No         | Sí            |\r\n| Logo en alertas cercanas          | Sí         | Sí            |\r\n| Acceso a endpoints especializados | Sí         | Sí            |\r\n\r\n### Gating real\r\n\r\n- `TrackClinicView` y `GetClinicScanStats` exigen `ClinicPlus`.\r\n- `ManageApiKey` y `GetNearbyActiveAlerts` exigen `ClinicPartner`.\r\n- `IssueCertificate` / `IssueVaccinePassport` solo permiten `ClinicPartner`.\r\n\r\n---\r\n\r\n## 6. B2G — Municipalidades\r\n\r\n| Feature                              | MuniBasica | MuniFull | MuniRedRegional |\r\n| ------------------------------------ | ---------- | -------- | --------------- |\r\n| Portal básico                        | Sí         | Sí       | Sí              |\r\n| Fotos de animales capturados         | No         | Sí       | Sí              |\r\n| Estadísticas / reportes              | No         | Sí       | Sí              |\r\n| Multi-cantón                         | No         | No       | Sí              |\r\n| Red regional / dashboard consolidado | No         | No       | Sí              |\r\n\r\n### Facturación real\r\n\r\n- Se facturan anualmente.\r\n- Precios codificados en `SubscriptionPricing.AnnualPriceCrc`:\r\n  - `MuniBasica` = ₡150,000/año\r\n  - `MuniFull` = ₡300,000/año\r\n  - `MuniRedRegional` = ₡500,000/año\r\n\r\n---\r\n\r\n## 7. Criterio de feature gating actual\r\n\r\nEl backend es la autoridad final para validar plan activo. En la práctica, la lógica implementada consiste en:\r\n\r\n- Validar `IsActive` y `ExpiresAt` en repositorios/subscripciones antes de conceder acceso.\r\n- Usar comparaciones por tier (`>=`, `==`, `is not`) para activar flujos premium.\r\n- Mantener `Free` como acceso básico y no premium.\r\n- Permitir upgrades/downgrades según el tier actual, pero con la lógica comercial final aún pendiente de consolidación en documentación y factura.\r\n\r\n---\r\n\r\n## 8. Estado de los documentos\r\n\r\nLa suma de features por plan se debe interpretar como la realidad actual del app, no como objetivos futuros. Los documentos definitivos deben respetar la siguiente fuente de verdad:\r\n\r\n- `backend/src/PawTrack.Domain/Subscriptions/SubscriptionTier.cs`\r\n- `backend/src/PawTrack.Domain/Subscriptions/SubscriptionPricing.cs`\r\n- `backend/src/PawTrack.Infrastructure/Subscriptions/SubscriptionService.cs`\r\n- handlers de activación/cancelación y queries de feature gating\r\n\r\nEsto elimina contradicciones entre pricing, enums y feature gates del producto.\r\n\r\n| Keyword                                                   | Respuesta                                        |\r\n| --------------------------------------------------------- | ------------------------------------------------ |\r\n| \"adoptar\", \"adopcion\", \"quiero adoptar\"                   | Link al directorio + ferias                      |\r\n| \"dar en adopcion\", \"tengo animales\", \"shelter\", \"refugio\" | Instrucciones para registrarse como Ally Shelter |\r\n";
+const html = DOMPurify.sanitize(marked.parse(md));
+const content = document.getElementById('content');
+content.innerHTML = html;
+
+// Build sidebar nav from rendered headings
+const headings = content.querySelectorAll('h2, h3');
+const sidebar  = document.querySelector('#sidebar nav ul');
+headings.forEach((h, i) => {
+  if (!h.id) {
+    h.id = 'h-' + i + '-' + h.textContent.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').slice(0, 50);
+  }
+  const li = document.createElement('li');
+  const a  = document.createElement('a');
+  a.href      = '#' + h.id;
+  a.textContent = h.textContent.replace(/^#+\s*/, '');
+  a.className = h.tagName.toLowerCase();
+  li.appendChild(a);
+  sidebar.appendChild(li);
+});
+
+// Highlight active link on scroll
+const links = sidebar.querySelectorAll('a[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const active = sidebar.querySelector('a[href="#' + e.target.id + '"]');
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -75% 0px' });
+content.querySelectorAll('h2, h3').forEach(h => obs.observe(h));
+</script>
+</body>
+</html>

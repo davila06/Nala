@@ -179,8 +179,8 @@ El nombre de la organización y la zona de cobertura pueden ser visibles en el c
 3. Hacer clic en **Publicar animal**.
 4. Subir fotos desde el panel del shelter (hasta 5 fotos por animal).
 
-> **Plan ShelterBasic (gratis):** máximo 5 animales activos simultáneamente.
-> **Plan ShelterPlus (₡8,000/mes):** animales ilimitados + ferias de adopción + pin destacado en el mapa.
+> **Estado base / directorio gratuito (`ShelterBasic`):** máximo 5 animales activos simultáneamente.
+> **Plan activo (`ShelterPlus` ₡8,000/mes):** animales ilimitados + ferias de adopción + pin destacado en el mapa.
 
 ### 8.2 Gestionar solicitudes de adopción
 
@@ -202,10 +202,10 @@ En **/shelter/dashboard**, pestaña "Ferias":
 
 ### 8.4 Estados del animal
 
-| Estado | Descripción |
-|---|---|
-| **Disponible** | Visible en el directorio; acepta solicitudes |
-| **En proceso** | Una solicitud fue aprobada; no acepta nuevas solicitudes |
-| **Adoptado** | Cerrado exitosamente; sale del directorio activo |
-| **Pausado** | Temporalmente oculto del directorio (ej. el animal está en tratamiento) |
-| **Removido** | Borrado lógico; no aparece en ningún listado |
+| Estado         | Descripción                                                             |
+| -------------- | ----------------------------------------------------------------------- |
+| **Disponible** | Visible en el directorio; acepta solicitudes                            |
+| **En proceso** | Una solicitud fue aprobada; no acepta nuevas solicitudes                |
+| **Adoptado**   | Cerrado exitosamente; sale del directorio activo                        |
+| **Pausado**    | Temporalmente oculto del directorio (ej. el animal está en tratamiento) |
+| **Removido**   | Borrado lógico; no aparece en ningún listado                            |

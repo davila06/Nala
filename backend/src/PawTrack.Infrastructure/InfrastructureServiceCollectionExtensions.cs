@@ -234,6 +234,7 @@ public static class InfrastructureServiceCollectionExtensions
 
         // Subscriptions + payments
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+        services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
         services.AddScoped<ISubscriptionService, SubscriptionService>();
         services.AddSingleton<IPaymentService, SinpePaymentService>();
         services.AddHostedService<SubscriptionExpirationJob>();

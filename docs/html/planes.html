@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Planes y Precios — PawTrack CR</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+</head>
+<body>
+<aside id="sidebar">
+  <div class="brand"><span>🐾</span><strong>PawTrack CR<br>Documentación</strong></div>
+  <nav><ul>
+    <li><a href="index.html" class="h2">← Inicio</a></li>
+    <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>
+    <li><a href="FEATURES.html" class="h2">🧭 Features por Plan</a></li>
+    <li><a href="planes.html" class="h2">💳 Planes y Precios</a></li>
+    <li><a href="precios.html" class="h2">📊 Precios y Modelo Comercial</a></li>
+    <li><a href="NALA.html" class="h2">🐾 Producto PawTrack CR</a></li>
+    <li><a href="MANUAL_USUARIO.html" class="h2">📱 Manual de Usuario</a></li>
+    <li><a href="MANUAL_ADMINISTRADOR.html" class="h2">⚙️ Manual de Administrador</a></li>
+    <li><a href="MANUAL_ALIADOS.html" class="h2">🤝 Manual de Aliados</a></li>
+    <li><a href="MANUAL_CLINICAS.html" class="h2">🏥 Manual de Clínicas Veterinarias</a></li>
+    <li><a href="MANUAL_TECNICO.html" class="h2">🛠️ Manual Técnico</a></li>
+    <li><a href="GUIA_ONBOARDING_DEV.html" class="h2">🚀 Guía de Onboarding Dev</a></li>
+    <li><a href="GUIA_DEPLOY_PASO_A_PASO.html" class="h2">☁️ Guía de Deploy Paso a Paso</a></li>
+    <li><a href="RUNBOOK_OPERACIONES.html" class="h2">📟 Runbook de Operaciones</a></li>
+    <li><a href="DEPLOY_INFO.html" class="h2">🗂️ Datos de Despliegue Beta</a></li>
+    <li><a href="POLITICA_DE_PRIVACIDAD.html" class="h2">🔒 Política de Privacidad</a></li>
+    <li><a href="TERMINOS_DE_USO.html" class="h2">📋 Términos de Uso</a></li>
+  </ul></nav>
+</aside>
+<main id="main">
+  <div id="content"><p style="color:#888;padding:2rem">Cargando…</p></div>
+</main>
+<script>
+const md = "# PawTrack CR — Planes y precios\r\n\r\n> Fuente de verdad: backend (`SubscriptionTier` y `SubscriptionPricing`).\r\n> Revisión: 2026-09-06\r\n> Estado: alineado con la implementación actual.\r\n\r\n## 1. Resumen ejecutivo\r\n\r\nLa base real de planes implementada hoy es la siguiente:\r\n\r\n- B2C: `Free`, `UserPlus`, `UserFamilia`\r\n- Tiendas: `StorePlus`, `StorePartner`\r\n- Refugios: `ShelterPlus`\r\n- Clínicas: `ClinicPlus`, `ClinicPartner`\r\n- Municipalidades: `MuniBasica`, `MuniFull`, `MuniRedRegional`\r\n\r\nLos estados `ClinicBasic`, `StoreBasic` y `ShelterBasic` existen como marca libre o de directorio, pero no son la fuente final de billing ni de feature gating en la app actual. Es decir, el producto real se rige por los tiers activos pagados en producción y los free/public states no deben confundirse con planes de venta.\r\n\r\n---\r\n\r\n## 2. B2C — Dueños de mascotas\r\n\r\n### Explorador — Gratis\r\n\r\n- 1 mascota registrada\r\n- Historial de escaneos limitado a 5 entradas\r\n- Búsqueda visual por IA: 3 búsquedas/mes\r\n- Reporte de pérdida, mapa público y avistamientos anónimos\r\n- No incluye GPS ni funciones premium\r\n\r\n### Plus — ₡2,990/mes\r\n\r\n- Todo lo del plan Explorador\r\n- Hasta 3 mascotas\r\n- Historial de escaneos ilimitado\r\n- IA ilimitada\r\n- Alertas ampliadas y coordinación activa\r\n- Tab GPS, integraciones de collar, Case Room, Bounty\r\n\r\n### Familia — ₡4,990/mes\r\n\r\n- Todo lo de Plus\r\n- Mascotas ilimitadas\r\n- Hasta 5 miembros en la cuenta familiar\r\n- Historial médico completo\r\n- Peso por visita, medicación estructurada, recordatorios, calendario y exportación PDF\r\n\r\n---\r\n\r\n## 3. B2B — Tiendas de mascotas\r\n\r\n### StorePlus — ₡12,000/mes\r\n\r\n- Catálogo público de productos\r\n- Pedido in-app con SINPE Móvil\r\n- Gestión de pedidos\r\n- Badge / destaque base en directorio y mapa\r\n\r\n### StorePartner — ₡25,000/mes\r\n\r\n- Todo lo de StorePlus\r\n- Analytics avanzados\r\n- Multi-sucursal / multi-location\r\n- Mejor posicionamiento y funciones premium de gestión\r\n\r\n---\r\n\r\n## 4. Refugios / adopciones\r\n\r\n### ShelterPlus — ₡8,000/mes\r\n\r\n- Publicación ilimitada de animales en adopción\r\n- Ferias de adopción\r\n- Pin destacado en mapa\r\n- Gestión completa de solicitudes y panel del refugio\r\n\r\n> El tier `ShelterBasic` es un límite libre de 5 animales activos; no es el plan de pago principal del sistema actual.\r\n\r\n---\r\n\r\n## 5. B2B — Clínicas veterinarias\r\n\r\n### ClinicPlus — ₡15,000/mes\r\n\r\n- Destacado en mapa y directorio\r\n- Badge verificado\r\n- Estadísticas de escaneos y métricas de visibilidad\r\n- Certificados PDF verificables\r\n\r\n### ClinicPartner — ₡35,000/mes\r\n\r\n- Todo lo de ClinicPlus\r\n- API keys para integración\r\n- Widget embebible\r\n- Endpoints especializados y funciones premium de proveedor\r\n\r\n> El tier `ClinicBasic` aparece como un estado o descriptor de entrada, pero la app actual no usa ese nombre como flujo de pricing/activación en producción.\r\n\r\n---\r\n\r\n## 6. B2G — Municipalidades\r\n\r\n### MuniBasica — ₡150,000/año\r\n\r\n- Portal básico de gestión\r\n- Un cantón\r\n\r\n### MuniFull — ₡300,000/año\r\n\r\n- Todo lo de Básica\r\n- Fotos de animales capturados\r\n- Estadísticas y reportes\r\n\r\n### MuniRedRegional — ₡500,000/año\r\n\r\n- Todo lo de Full\r\n- Multi-cantón\r\n- Red regional y dashboard consolidado\r\n\r\n---\r\n\r\n## 7. Pricing oficial vigente en código\r\n\r\n| Tier              |   Precio | Modalidad |\r\n| ----------------- | -------: | --------- |\r\n| `UserPlus`        |   ₡2,990 | mensual   |\r\n| `UserFamilia`     |   ₡4,990 | mensual   |\r\n| `StorePlus`       |  ₡12,000 | mensual   |\r\n| `StorePartner`    |  ₡25,000 | mensual   |\r\n| `ShelterPlus`     |   ₡8,000 | mensual   |\r\n| `ClinicPlus`      |  ₡15,000 | mensual   |\r\n| `ClinicPartner`   |  ₡35,000 | mensual   |\r\n| `MuniBasica`      | ₡150,000 | anual     |\r\n| `MuniFull`        | ₡300,000 | anual     |\r\n| `MuniRedRegional` | ₡500,000 | anual     |\r\n\r\n---\r\n\r\n## 8. Regla para documentación\r\n\r\nEste documento es la fuente de verdad comercial del producto actual. Cualquier otro documento que describa precios o features debe alinearse con estos tiers y sus límites. Duplicar nombres, tarificaciones o planes fuera del código ha generado inconsistencias y debe corregirse si aparece en otra documentación interna.\r\n\r\n---\r\n\r\n## B2B — Clínicas Veterinarias\r\n\r\n> Facturación mensual. Sin permanencia mínima. Requiere registro SENASA activo.\r\n\r\n### 🏥 Afiliada Básica — Gratis\r\n\r\n| Feature                                                                          |\r\n| -------------------------------------------------------------------------------- |\r\n| Perfil en directorio público + mapa (posición estándar)                          |\r\n| Escanear QR de collar / microchip RFID                                           |\r\n| Ver perfil público y datos del dueño (si mascota perdida)                        |\r\n| Búsqueda por número de microchip                                                 |\r\n| **Acceso y escritura al expediente del paciente** _(con grant activo del dueño)_ |\r\n\r\n---\r\n\r\n### ⭐ Clínica Plus — ₡15,000/mes (~$29 USD)\r\n\r\nTodo lo de Básica, más:\r\n\r\n| Feature                                            |\r\n| -------------------------------------------------- |\r\n| Posición **destacada** en mapa de clínicas         |\r\n| Badge \"Clínica Verificada\" en directorio y alertas |\r\n| Logo en alertas de pérdida cercanas                |\r\n| Banner en Case Rooms de pacientes activos          |\r\n| Estadísticas de escaneos mensuales                 |\r\n| Métricas de visibilidad en directorio              |\r\n| Soporte prioritario por email + onboarding         |\r\n\r\n---\r\n\r\n### 🤝 Clínica Partner — ₡35,000/mes (~$67 USD)\r\n\r\nTodo lo de Plus, más:\r\n\r\n| Feature                                                          |\r\n| ---------------------------------------------------------------- |\r\n| Certificados veterinarios PDF verificables (QuestPDF + QR único) |\r\n| Verificación pública `/verificar/{código}`                       |\r\n| Firma digital de clínica y médico veterinario                    |\r\n| Widget embebible para sitio web propio                           |\r\n| API de consulta directa (microchip, perfil mascota)              |\r\n| RFID avanzado (lectores externos)                                |\r\n| Soporte prioritario 24/7 + gerente de cuenta                     |\r\n| Notificaciones en todos los Case Rooms del cantón                |\r\n| Primeros resultados en búsquedas por zona                        |\r\n\r\n---\r\n\r\n### Comparativa B2B\r\n\r\n| Feature                 | Básica | Plus ₡15k |  Partner ₡35k  |\r\n| ----------------------- | :----: | :-------: | :------------: |\r\n| Directorio + mapa       |   ✅   |    ✅     |       ✅       |\r\n| Escanear QR/RFID        |   ✅   |    ✅     |       ✅       |\r\n| Expediente del paciente |   ✅   |    ✅     |       ✅       |\r\n| Posición destacada      |   ✗    |    ✅     |       ✅       |\r\n| Badge Verificada        |   ✗    |    ✅     |       ✅       |\r\n| Estadísticas            |   ✗    |    ✅     |       ✅       |\r\n| Certificados PDF        |   ✗    |     ✗     |       ✅       |\r\n| API directa             |   ✗    |     ✗     |       ✅       |\r\n| Widget embebible        |   ✗    |     ✗     |       ✅       |\r\n| Soporte                 |   —    |   Email   | 24/7 + gerente |\r\n\r\n---\r\n\r\n## Red de Aliados — Gratis (verificación requerida)\r\n\r\nPara rescatistas, refugios, comercios pet-friendly, seguridad privada.\r\n\r\n| Feature                                             |\r\n| --------------------------------------------------- |\r\n| Bandeja operativa de alertas en la zona declarada   |\r\n| Dashboard KPI: alertas recibidas, tasa de respuesta |\r\n| Confirmación de acción en campo                     |\r\n| Perfil en red de aliados                            |\r\n\r\n---\r\n\r\n## B2G — Municipalidades (facturación anual)\r\n\r\n### 🏛️ Básica — ₡150,000/año (~$288)\r\n\r\nPortal control animal · registro de capturas · gestión de estados · reportes PDF · enlace con mascotas PawTrack · mapa del cantón · soporte email.\r\n\r\n### 🏛️ Full — ₡300,000/año (~$577)\r\n\r\nTodo Básica + API pública · dashboard tiempo real · estadísticas por barrio/distrito · exportación SENASA/PANI · SLA 99.5% · soporte telefónico.\r\n\r\n### 🌐 Red Regional — ₡500,000/año (~$962)\r\n\r\nTodo Full + múltiples cantones · capacitación presencial · personalización de marca · gerente de cuenta · integración PANI y SENASA · API inter-cantonal.\r\n\r\n---\r\n\r\n## Otros ingresos\r\n\r\n| Fuente                   | Modelo                                                          |\r\n| ------------------------ | --------------------------------------------------------------- |\r\n| **Bounty (recompensas)** | 10% comisión al liberar recompensa + ₡1,000 en reembolsos       |\r\n| **Afiliado Tractive**    | $20 USD fijo por tracker vendido vía link afiliado (Impact.com) |\r\n| **Collar físico QR**     | ₡4,500–₡8,000 · placa standalone ₡1,500–₡2,500                  |\r\n| **Combo GPS Pack**       | Collar + 12 meses Plus: ~₡55,000                                |\r\n\r\n---\r\n\r\n## Acceso al expediente médico — detalle por plan\r\n\r\n> El expediente médico tiene acceso **gradual** por diseño para facilitar el upsell.\r\n\r\n| Plan           | Qué ve                                                                                                                          |\r\n| -------------- | ------------------------------------------------------------------------------------------------------------------------------- |\r\n| **Explorador** | Solo count total de registros (cuántos existen, sin ver el contenido)                                                           |\r\n| **Plus**       | Últimos **3 registros** — tipo, fecha, descripción, veterinario · sin documentos adjuntos · sin peso · sin campos de medicación |\r\n| **Familia**    | Historial completo · todos los campos · editar/eliminar · PDF · weight trends · calendario                                      |\r\n| **Clínica**    | Historial completo (requiere grant del dueño) · puede agregar registros desde cualquier plan                                    |\r\n\r\n**Nota:** Las clínicas pueden **siempre escribir** registros en el expediente de un paciente con grant activo, independientemente del plan que tenga el dueño. El dueño necesita Plan Familia para leer lo que su veterinaria registró.\r\n\r\n---\r\n\r\n_PawTrack CR · Documento de Planes y Precios · Agosto 2026_\r\n";
+const html = DOMPurify.sanitize(marked.parse(md));
+const content = document.getElementById('content');
+content.innerHTML = html;
+
+// Build sidebar nav from rendered headings
+const headings = content.querySelectorAll('h2, h3');
+const sidebar  = document.querySelector('#sidebar nav ul');
+headings.forEach((h, i) => {
+  if (!h.id) {
+    h.id = 'h-' + i + '-' + h.textContent.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').slice(0, 50);
+  }
+  const li = document.createElement('li');
+  const a  = document.createElement('a');
+  a.href      = '#' + h.id;
+  a.textContent = h.textContent.replace(/^#+\s*/, '');
+  a.className = h.tagName.toLowerCase();
+  li.appendChild(a);
+  sidebar.appendChild(li);
+});
+
+// Highlight active link on scroll
+const links = sidebar.querySelectorAll('a[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const active = sidebar.querySelector('a[href="#' + e.target.id + '"]');
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -75% 0px' });
+content.querySelectorAll('h2, h3').forEach(h => obs.observe(h));
+</script>
+</body>
+</html>

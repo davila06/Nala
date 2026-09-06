@@ -120,7 +120,7 @@ Para usuarios que no tienen acceso a la app web, el sistema ofrece un **bot conv
 
 ### 10. Suscripciones y monetización
 
-PawTrack CR opera bajo un modelo freemium con tres planes para dueños de mascotas:
+PawTrack CR opera bajo un modelo freemium con tres planes para dueños de mascotas, según la implementación actual del backend:
 
 | Plan           | Precio     | Mascotas   | Diferenciador                             |
 | -------------- | ---------- | ---------- | ----------------------------------------- |
@@ -128,7 +128,14 @@ PawTrack CR opera bajo un modelo freemium con tres planes para dueños de mascot
 | **Plus**       | ₡2,990/mes | 3          | GPS, WhatsApp, IA ilimitada, coordinación |
 | **Familia**    | ₡4,990/mes | Ilimitadas | Multi-usuario (5), expediente médico, PDF |
 
-Adicionalmente existen planes B2B para clínicas veterinarias (₡15,000–₡35,000/mes) y licencias B2G para municipalidades (₡150,000–₡500,000/año). El sistema de feature gating está implementado tanto en el backend (enforcement por plan) como en el frontend (UI gates).
+Adicionalmente existen tiers B2B activos en producción:
+
+- Tiendas: `StorePlus` (₡12,000/mes) y `StorePartner` (₡25,000/mes)
+- Refugios: `ShelterPlus` (₡8,000/mes)
+- Clínicas: `ClinicPlus` (₡15,000/mes) y `ClinicPartner` (₡35,000/mes)
+- Municipalidades: `MuniBasica` (₡150,000/año), `MuniFull` (₡300,000/año), `MuniRedRegional` (₡500,000/año)
+
+El sistema de feature gating está implementado tanto en el backend (enforcement por plan) como en el frontend (UI gates).
 
 ### 11. Collar GPS y expediente médico
 
@@ -180,7 +187,7 @@ Clínicas veterinarias registradas ante SENASA que usan la plataforma para:
 - Recibir alertas de mascotas perdidas cercanas
 - Compartir expediente médico con dueños
 
-Tres planes disponibles (Básica, Plus, Partner) que se facturan mensualmente.
+Los planes activos del backend son `ClinicPlus` y `ClinicPartner`, con facturación mensual. El nombre `ClinicBasic` se usa como un estado base o de directorio, no como plan pagado principal del producto actual.
 
 ### Audiencia cuaternaria: Municipalidades (B2G)
 

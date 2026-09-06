@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Planes y Features Interactivos - PawTrack CR</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .hero {
+        background: linear-gradient(
+          135deg,
+          #0c1a4e 0%,
+          #193472 68%,
+          #e8521e 180%
+        );
+        color: #fff;
+        border-radius: 14px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 12px 30px rgba(12, 26, 78, 0.16);
+      }
+      .hero h1 {
+        color: #fff;
+        border: 0;
+        margin: 0 0 0.5rem;
+        padding: 0;
+      }
+      .hero p {
+        color: #d6e2f8;
+        max-width: 680px;
+        margin-bottom: 0;
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        align-items: center;
+        margin: 1.25rem 0;
+      }
+      .toolbar button,
+      .toolbar select {
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        border-radius: 7px;
+        padding: 0.55rem 0.8rem;
+        font: inherit;
+        cursor: pointer;
+      }
+      .toolbar button.active {
+        background: var(--brand);
+        color: #fff;
+        border-color: var(--brand);
+      }
+      .toolbar .spacer {
+        flex: 1;
+      }
+      .plan-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+        gap: 1rem;
+      }
+      .plan-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-top: 4px solid var(--brand);
+        border-radius: 10px;
+        padding: 1.1rem;
+        box-shadow: 0 4px 14px rgba(53, 40, 35, 0.06);
+        animation: rise 0.35s ease both;
+      }
+      .plan-card h2 {
+        border: 0;
+        margin: 0;
+        padding: 0;
+        font-size: 1.18rem;
+      }
+      .plan-card .tier {
+        color: var(--text-light);
+        font:
+          0.75rem ui-monospace,
+          SFMono-Regular,
+          Consolas,
+          monospace;
+      }
+      .price {
+        font:
+          700 1.45rem Georgia,
+          serif;
+        color: var(--brand-dark);
+        margin: 0.75rem 0;
+      }
+      .price small {
+        font:
+          0.75rem "Segoe UI",
+          sans-serif;
+        color: var(--text-light);
+      }
+      .plan-card ul {
+        font-size: 0.86rem;
+        min-height: 8.5rem;
+      }
+      .segment-label {
+        display: inline-block;
+        color: var(--brand-dark);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .note {
+        background: #fff6ed;
+        border-left: 4px solid var(--brand);
+        padding: 0.85rem 1rem;
+        margin: 1.5rem 0;
+        font-size: 0.88rem;
+      }
+      .empty {
+        padding: 2rem;
+        text-align: center;
+        color: var(--text-light);
+        background: var(--surface);
+        border: 1px dashed var(--border);
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @media (max-width: 640px) {
+        .hero {
+          padding: 1.35rem;
+        }
+        .toolbar .spacer {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <aside id="sidebar">
+      <div class="brand">
+        <span>🐾</span><strong>PawTrack CR<br />Documentación</strong>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html" class="h2">← Inicio</a></li>
+          <li>
+            <a href="PLANES_FEATURES.html" class="h2 active"
+              >🧭 Planes interactivos</a
+            >
+          </li>
+          <li><a href="FEATURES.html" class="h2">🧭 Features por Plan</a></li>
+          <li><a href="planes.html" class="h2">💳 Planes y Precios</a></li>
+          <li><a href="precios.html" class="h2">📊 Modelo Comercial</a></li>
+          <li>
+            <a href="MANUAL_USUARIO.html" class="h2">📱 Manual de Usuario</a>
+          </li>
+          <li>
+            <a href="MANUAL_ADMINISTRADOR.html" class="h2"
+              >⚙️ Manual de Administrador</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </aside>
+    <main id="main">
+      <section class="hero">
+        <h1>Planes y features</h1>
+        <p>
+          Comparador operativo basado en los tiers y precios definidos por el
+          backend. Los estados Basic son entradas gratuitas de directorio; los
+          planes comerciales aparecen como opciones activas.
+        </p>
+      </section>
+      <div class="toolbar" aria-label="Filtros de planes">
+        <button class="active" data-segment="all">Todos</button>
+        <button data-segment="B2C">Dueños</button>
+        <button data-segment="B2B">B2B</button>
+        <button data-segment="B2G">Municipalidades</button>
+        <span class="spacer"></span>
+        <label for="billing">Mostrar precio:</label>
+        <select id="billing">
+          <option value="monthly">Mensual</option>
+          <option value="annual">Anual</option>
+        </select>
+      </div>
+      <div id="plan-grid" class="plan-grid"></div>
+      <p class="note">
+        <strong>Fuente de verdad:</strong> <code>SubscriptionTier</code>,
+        <code>SubscriptionPricing</code> y los gates del backend. Los precios
+        que se muestran aquí son el catálogo vigente y pueden ser gestionados
+        desde el panel administrativo.
+      </p>
+    </main>
+    <script>
+      const plans = [
+        {
+          segment: "B2C",
+          tier: "Free",
+          name: "Explorador",
+          monthly: 0,
+          annual: 0,
+          cycle: "gratis",
+          features: [
+            "1 mascota",
+            "5 escaneos recientes",
+            "3 búsquedas IA al mes",
+            "Reporte de pérdida y mapa público",
+          ],
+        },
+        {
+          segment: "B2C",
+          tier: "UserPlus",
+          name: "Plus",
+          monthly: 2990,
+          annual: null,
+          cycle: "mensual",
+          features: [
+            "Hasta 3 mascotas",
+            "IA e historial de escaneos ilimitados",
+            "GPS, Case Room y Bounty",
+            "Difusión multicanal y alertas ampliadas",
+          ],
+        },
+        {
+          segment: "B2C",
+          tier: "UserFamilia",
+          name: "Familia",
+          monthly: 4990,
+          annual: null,
+          cycle: "mensual",
+          features: [
+            "Mascotas ilimitadas",
+            "Hasta 5 miembros",
+            "Expediente médico completo",
+            "Exportación PDF y recordatorios",
+          ],
+        },
+        {
+          segment: "B2B",
+          tier: "StorePlus",
+          name: "Tienda Plus",
+          monthly: 12000,
+          annual: null,
+          cycle: "mensual",
+          features: [
+            "Catálogo público",
+            "Pedidos in-app con SINPE",
+            "Gestión de pedidos",
+            "Destaque base en mapa",
+          ],
+        },
+        {
+          segment: "B2B",
+          tier: "StorePartner",
+          name: "Tienda Partner",
+          monthly: 25000,
+          annual: null,
+          cycle: "mensual",
+          features: [
+            "Todo StorePlus",
+            "Analytics avanzados",
+            "Multi-sucursal",
+            "Posicionamiento prioritario",
+          ],
+        },
+        {
+          segment: "B2B",
+          tier: "ShelterPlus",
+          name: "Refugio Plus",
+          monthly: 8000,
+          annual: null,
+          cycle: "mensual",
+          features: [
+            "Animales ilimitados",
+            "Ferias de adopción",
+            "Pin destacado en mapa",
+            "Panel y solicitudes completas",
+          ],
+        },
+        {
+          segment: "B2B",
+          tier: "ClinicPlus",
+          name: "Clínica Plus",
+          monthly: 15000,
+          annual: null,
+          cycle: "mensual",
+          features: [
+            "Destacado en mapa",
+            "Badge verificado",
+            "Estadísticas de escaneos",
+            "Certificados PDF verificables",
+          ],
+        },
+        {
+          segment: "B2B",
+          tier: "ClinicPartner",
+          name: "Clínica Partner",
+          monthly: 35000,
+          annual: null,
+          cycle: "mensual",
+          features: [
+            "Todo ClinicPlus",
+            "API keys",
+            "Widget embebible",
+            "Endpoints especializados",
+          ],
+        },
+        {
+          segment: "B2G",
+          tier: "MuniBasica",
+          name: "Municipal Básica",
+          monthly: null,
+          annual: 150000,
+          cycle: "anual",
+          features: [
+            "Portal básico",
+            "Un cantón",
+            "Gestión de capturas",
+            "Reportes operativos",
+          ],
+        },
+        {
+          segment: "B2G",
+          tier: "MuniFull",
+          name: "Municipal Full",
+          monthly: null,
+          annual: 300000,
+          cycle: "anual",
+          features: [
+            "Todo MuniBasica",
+            "Fotos de animales",
+            "Estadísticas",
+            "Reportes ampliados",
+          ],
+        },
+        {
+          segment: "B2G",
+          tier: "MuniRedRegional",
+          name: "Red Regional",
+          monthly: null,
+          annual: 500000,
+          cycle: "anual",
+          features: [
+            "Todo MuniFull",
+            "Multi-cantón",
+            "Dashboard regional",
+            "Red regional consolidada",
+          ],
+        },
+      ];
+      let segment = "all";
+      const money = (value) =>
+        value === 0
+          ? "Gratis"
+          : value === null
+            ? "No aplica"
+            : `₡${value.toLocaleString("es-CR")}`;
+      function render() {
+        const billing = document.getElementById("billing").value;
+        const visible = plans.filter(
+          (plan) => segment === "all" || plan.segment === segment,
+        );
+        const grid = document.getElementById("plan-grid");
+        grid.innerHTML = visible.length
+          ? visible
+              .map((plan, index) => {
+                const value = billing === "annual" ? plan.annual : plan.monthly;
+                const label =
+                  value === null
+                    ? plan.cycle === "anual"
+                      ? "Usa modalidad anual"
+                      : "Usa modalidad mensual"
+                    : `/${billing === "annual" ? "año" : "mes"}`;
+                return `<article class="plan-card" style="animation-delay:${index * 35}ms"><span class="segment-label">${plan.segment}</span><h2>${plan.name}</h2><div class="tier">${plan.tier}</div><div class="price">${money(value)} <small>${value === 0 ? "" : label}</small></div><ul>${plan.features.map((feature) => `<li>${feature}</li>`).join("")}</ul></article>`;
+              })
+              .join("")
+          : '<div class="empty">No hay planes para este filtro.</div>';
+      }
+      document.querySelectorAll("[data-segment]").forEach((button) =>
+        button.addEventListener("click", () => {
+          segment = button.dataset.segment;
+          document
+            .querySelectorAll("[data-segment]")
+            .forEach((item) =>
+              item.classList.toggle("active", item === button),
+            );
+          render();
+        }),
+      );
+      document.getElementById("billing").addEventListener("change", render);
+      render();
+    </script>
+  </body>
+</html>

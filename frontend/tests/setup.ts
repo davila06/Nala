@@ -2,37 +2,26 @@ import "@testing-library/jest-dom";
 import { afterAll, afterEach, beforeAll, vi } from "vitest";
 import { server } from "./mocks/server";
 
-class MockIntersectionObserver {
-  root = null;
-  rootMargin = "";
-  thresholds = [];
+class MockIntersectionObserver implements IntersectionObserver {
+  readonly root = null;
+  readonly rootMargin = "";
+  readonly thresholds: readonly number[] = [];
 
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-  takeRecords() {
+  constructor(
+    _callback: IntersectionObserverCallback,
+    _options?: IntersectionObserverInit,
+  ) {}
+
+  observe(_target: Element): void {}
+  unobserve(_target: Element): void {}
+  disconnect(): void {}
+  takeRecords(): IntersectionObserverEntry[] {
     return [];
   }
 }
 
-if (!("IntersectionObserver" in window)) {
-  (
-    window as Window &
-      typeof globalThis & {
-        IntersectionObserver: typeof MockIntersectionObserver;
-      }
-  ).IntersectionObserver =
-    MockIntersectionObserver as unknown as typeof IntersectionObserver;
-}
-
-if (!("IntersectionObserver" in globalThis)) {
-  (
-    globalThis as typeof globalThis & {
-      IntersectionObserver: typeof MockIntersectionObserver;
-    }
-  ).IntersectionObserver =
-    MockIntersectionObserver as unknown as typeof IntersectionObserver;
-}
+window.IntersectionObserver = MockIntersectionObserver;
+globalThis.IntersectionObserver = MockIntersectionObserver;
 
 if (!HTMLElement.prototype.scrollIntoView) {
   HTMLElement.prototype.scrollIntoView = vi.fn();

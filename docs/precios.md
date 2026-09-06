@@ -1,10 +1,13 @@
 # PawTrack CR — Estrategia de Precios
 
-> Versión: 2026-08-19 | Moneda: Colones costarricenses (₡) | Referencia de cambio: ~520 ₡/USD
+> Versión: 2026-09-06 | Moneda: Colones costarricenses (₡) | Referencia de cambio: ~520 ₡/USD
+> Fuente de verdad: `SubscriptionPricing` en el backend.
 
 ---
 
 ## Contexto de mercado
+
+La fuente de verdad comercial del producto actual no es un documento histórico ni una tabla duplicada en varios archivos; es el enum y pricing del backend (`SubscriptionTier` + `SubscriptionPricing`). Por ese motivo, los tiers activos son los que aparecen en código, no planificaciones históricas con estados básicos duplicados.
 
 ### Competidores globales identificados
 
@@ -453,11 +456,13 @@ Costa Rica tiene ~890,000 hogares con mascotas. La masa crítica de mascotas reg
 
 ## 4. Tiendas de Mascotas B2B — Planes Store
 
-| Plan             | Precio      | Capacidades                                             |
-| ---------------- | ----------- | ------------------------------------------------------- |
-| **StoreBasic**   | Gratis      | Listado en directorio + mapa, catálogo visible          |
-| **StorePlus**    | ₡12,000/mes | + Pedidos in-app SINPE + panel órdenes real-time        |
-| **StorePartner** | ₡25,000/mes | + Analytics + multi-sucursal + badge verificado premium |
+| Plan / estado                    | Precio      | Capacidades                                             |
+| -------------------------------- | ----------- | ------------------------------------------------------- |
+| **StoreBasic** (base/directorio) | Gratis      | Listado en directorio + mapa, catálogo visible          |
+| **StorePlus**                    | ₡12,000/mes | + Pedidos in-app SINPE + panel órdenes real-time        |
+| **StorePartner**                 | ₡25,000/mes | + Analytics + multi-sucursal + badge verificado premium |
+
+> `StoreBasic` es el estado gratuito de registro/directorio; los planes comerciales activos son `StorePlus` y `StorePartner`.
 
 ---
 

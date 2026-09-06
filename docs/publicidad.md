@@ -91,7 +91,7 @@ Usuarios que están activamente explorando tiendas de mascotas para comprar.
 Alta intención de compra. Ya está en modo "quiero comprar algo para mi mascota". Es el momento perfecto para interrumpir con una oferta.
 
 **Ideal para:**  
-Tiendas con plan StoreBasic que quieren más visibilidad, marcas de alimento o accesorios, tiendas que no están en PawTrack pero quieren capturar tráfico.
+Tiendas con estado base gratuito de directorio que quieren más visibilidad, marcas de alimento o accesorios, tiendas que no están en PawTrack pero quieren capturar tráfico.
 
 **Visibilidad estimada:** ★★★☆☆ (media — alta intención de compra)
 

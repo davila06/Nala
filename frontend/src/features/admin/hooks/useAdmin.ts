@@ -83,6 +83,58 @@ export function useAdminCancelSubscription() {
   });
 }
 
+export function useSubscriptionPlans() {
+  return useQuery({
+    queryKey: ["admin", "subscription-plans"],
+    queryFn: () => adminApi.getSubscriptionPlans(true),
+  });
+}
+
+export function useCreateSubscriptionPlan() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: adminApi.createSubscriptionPlan,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["admin", "subscription-plans"],
+      });
+    },
+  });
+}
+
+export function useUpdateSubscriptionPlan() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: Parameters<typeof adminApi.updateSubscriptionPlan>[0] extends never
+      ? never
+      : {
+          id: string;
+          payload: Parameters<typeof adminApi.updateSubscriptionPlan>[1];
+        }) => adminApi.updateSubscriptionPlan(id, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["admin", "subscription-plans"],
+      });
+    },
+  });
+}
+
+export function useDeleteSubscriptionPlan() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, version }: { id: string; version: string }) =>
+      adminApi.deleteSubscriptionPlan(id, version),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["admin", "subscription-plans"],
+      });
+    },
+  });
+}
+
 // ── Adoptions admin hooks ──────────────────────────────────────────────────────
 
 export function useAdoptionAdminStats() {

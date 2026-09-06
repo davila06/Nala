@@ -1,262 +1,159 @@
-# PawTrack CR — Features Completas del Producto
+# PawTrack CR — Matriz de features por plan
 
-> Versión: 4.0 | Última actualización: 2026-08-19  
-> Estado: MVP Completo + Enterprise Hardened
+> Fuente de verdad: enums y pricing del backend en `SubscriptionTier` y `SubscriptionPricing`.
+> Revisión: 2026-09-06
+> Estado: alineado con la implementación actual del código.
 
----
+## 1. Nota importante sobre tiers reales
 
-## 1. Identidad digital de mascotas
+La implementación actual del backend usa estas suscripciones activas:
 
-| Feature               | Plan                              | Descripción                                          |
-| --------------------- | --------------------------------- | ---------------------------------------------------- |
-| Registro de mascota   | Explorador                        | Nombre, especie, raza, fecha de nacimiento           |
-| Foto de perfil        | Explorador                        | Upload con resize automático a 800px                 |
-| QR de identidad       | Explorador                        | URL pública `/p/{id}` con toda la info de la mascota |
-| Microchip RFID        | Explorador                        | ISO 11784; campo libre de texto                      |
-| Perfil público        | Explorador                        | Visible a cualquier persona que escanea el QR        |
-| Historial de escaneos | Explorador (5) / Plus (ilimitado) | Quién y cuándo escaneó el QR                         |
-| Hasta 3 mascotas      | Plus                              | —                                                    |
-| Mascotas ilimitadas   | Familia                           | —                                                    |
-| Exportar actividad    | Plus                              | CSV de escaneos e historial                          |
-| Reactivar mascota     | Todos                             | Reunida → Activa                                     |
+- B2C: `Free`, `UserPlus`, `UserFamilia`
+- Tiendas: `StorePlus`, `StorePartner`
+- Refugios/adopciones: `ShelterPlus`
+- Clínicas: `ClinicPlus`, `ClinicPartner`
+- Municipalidades: `MuniBasica`, `MuniFull`, `MuniRedRegional`
+
+Los valores `ClinicBasic`, `StoreBasic`, `ShelterBasic` existen como estados o marcadores libres de directorio, pero no forman el flujo de pago/activación principal del código actual. La documentación debe tratar esos estados como free/entry points, no como planes de compra activados en producción.
 
 ---
 
-## 2. Emergencia y recuperación
+## 2. B2C — Dueños de mascotas
 
-| Feature                       | Plan                              | Descripción                                                   |
-| ----------------------------- | --------------------------------- | ------------------------------------------------------------- |
-| Reporte de pérdida            | Todos                             | GPS, foto, descripción, notas públicas, reward                |
-| Mapa público                  | Todos                             | Pin en mapa visible a la comunidad                            |
-| Avistamientos anónimos        | Todos                             | PiiScrubber automático; sin datos del reportante              |
-| Contacto seguro               | Todos                             | Número de contacto encriptado; sin exposición directa         |
-| Búsqueda visual por IA        | Explorador 3/mes · Plus ilimitado | Match de foto de mascota encontrada vs. perdidas activas      |
-| Chat enmascarado              | Todos                             | Conversación directa owner ↔ rescatador sin revelar identidad |
-| SignalR real-time chat        | Todos                             | Mensajes en tiempo real; sin polling visible                  |
-| Predicción de movimiento      | Plus                              | Modelo probabilístico de dónde puede estar                    |
-| Case Room activo              | Plus                              | Panel centralizado para el dueño: avistamientos, mapa, chat   |
-| Difusión multicanal           | Plus                              | WhatsApp · Telegram · Facebook · Email al mismo tiempo        |
-| Coordinación en campo         | Plus                              | Case Room con zonas 7×7 en tiempo real                        |
-| Bot WhatsApp                  | Todos                             | Reporte conversacional sin abrir la web                       |
-| Código de entrega segura      | Todos                             | 4 dígitos TOTP para reunificación física sin revelar datos    |
-| Recompensa económica (Bounty) | Plus                              | Escrow SINPE + release automático al verificar código         |
+| Feature                                      | Free           | UserPlus              | UserFamilia         |
+| -------------------------------------------- | -------------- | --------------------- | ------------------- |
+| Mascotas registradas                         | 1              | Hasta 3               | Ilimitadas          |
+| Historial de escaneos QR                     | 5 últimos      | Ilimitado             | Ilimitado           |
+| Búsqueda visual por IA                       | 3/mes          | Ilimitada             | Ilimitada           |
+| Alertas por radio                            | 1x (básico)    | 3.33x (aprox. 10km)   | Sin límite efectivo |
+| WhatsApp/Telegram/Facebook/Email             | No             | Sí                    | Sí                  |
+| Case Room / coordinación                     | No             | Sí                    | Sí                  |
+| GPS collar / Tractive / genérico             | No             | Sí                    | Sí                  |
+| Bounty / recompensa económica                | No             | Sí                    | Sí                  |
+| Miembros de familia                          | 1              | 1                     | Hasta 5             |
+| Expediente médico                            | Preview/cuenta | Preview (3 registros) | Completo            |
+| Peso por visita / medicación / recordatorios | No             | No                    | Sí                  |
+| Exportar PDF médico                          | No             | No                    | Sí                  |
 
----
+### Gates reales implementados
 
-## 3. Expediente médico digital
-
-| Feature                     | Plan                     | Descripción                                                           |
-| --------------------------- | ------------------------ | --------------------------------------------------------------------- |
-| Ver count de registros      | Explorador               | Solo el número total; sin acceso al contenido                         |
-| Vista previa 3 registros    | Plus                     | Tipo, fecha, descripción, veterinario                                 |
-| Historial completo          | Familia                  | Todos los registros; editar y eliminar                                |
-| 7 tipos de registros        | Plus/Familia             | Vaccine · Deworming · Checkup · Medication · Surgery · Dental · Other |
-| Peso por visita             | Familia                  | `WeightKg` con tendencia histórica en gráfica                         |
-| Medicación estructurada     | Familia                  | Dosis · frecuencia · duración · fecha fin                             |
-| Recordatorios veterinarios  | Familia                  | Push notification antes de la fecha de vencimiento                    |
-| Vista calendario            | Familia                  | Todos los recordatorios en vista mensual                              |
-| Dashboard multi-mascota     | Familia                  | Resumen de alertas de salud para todas las mascotas                   |
-| Exportar PDF anual          | Familia                  | Reporte completo por año con QR de verificación                       |
-| Acceso clínica veterinaria  | Familia + consentimiento | Clínica autorizada puede ver expediente en su portal                  |
-| Audit log de acceso         | Familia                  | Registro de cada acceso de clínica al expediente                      |
-| HealthScore                 | Plus                     | Score 0-100 basado en cumplimiento de protocolos por especie          |
-| Alertas proactivas de salud | Plus                     | Notificación cuando un protocolo está próximo a vencer                |
+- `SubscriptionService.GetPetLimitAsync`:
+  - `Free` = 1
+  - `UserPlus` = 3
+  - `UserFamilia` = -1 (ilimitado)
+- `SubscriptionService.GetScanHistoryLimitAsync`:
+  - `Free` = 5
+  - `UserPlus`/`UserFamilia` = ilimitado
+- `SubscriptionService.GetMonthlyAiSearchLimitAsync`:
+  - `Free` = 3/mes
+  - `UserPlus`/`UserFamilia` = sin límite
+- `SubscriptionService.GetAlertRadiusMultiplierAsync`:
+  - `Free` = 1.0
+  - `UserPlus` = 3.33
+  - `UserFamilia` = -1.0 (sin tope)
 
 ---
 
-## 4. Collar GPS
+## 3. B2B — Tiendas de mascotas
 
-| Feature                         | Plan  | Descripción                                                                      |
-| ------------------------------- | ----- | -------------------------------------------------------------------------------- |
-| Integración Tractive            | Plus  | OAuth2 → posición en tiempo real                                                 |
-| Soporte genérico OEM            | Plus  | HTTP push desde cualquier dispositivo                                            |
-| Activación por serial (tag)     | Plus  | QR o input manual del serial impreso en el collar + device key                   |
-| Historial de ubicación          | Plus  | Trayectoria por rango de fechas (no solo 24h)                                    |
-| Tab GPS en perfil               | Plus  | Vista de última posición + historial                                             |
-| Alertas de conectividad/batería | Plus  | Notificación cuando el collar queda offline o batería baja (umbral configurable) |
-| Modo perdido (Lost Mode)        | Plus  | Toggle que activa búsqueda intensiva y notificaciones a la red                   |
-| Zonas seguras (geofencing)      | Plus  | Alerta al salir de una zona segura definida en el mapa                           |
-| Transferencia segura (handover) | Plus  | Código de transferencia de propiedad del collar entre dueños                     |
-| Auditoría de eventos            | Plus  | Log de activaciones/desactivaciones/cambios del collar                           |
-| Dashboard de inventario (admin) | Admin | Métricas de collares activos, vendidos, revocados                                |
-| Ownership protegido             | —     | Solo el dueño puede ver el GPS de su mascota (BOLA fix)                          |
+| Feature                         | StorePlus | StorePartner |
+| ------------------------------- | --------- | ------------ |
+| Directorio y catálogo público   | Sí        | Sí           |
+| Pedidos in-app                  | Sí        | Sí           |
+| Checkout SINPE Móvil            | Sí        | Sí           |
+| Gestión de pedidos              | Sí        | Sí           |
+| Badge / destaque en mapa        | Sí        | Sí           |
+| Analytics avanzados             | No        | Sí           |
+| Multi-sucursal / multi-location | No        | Sí           |
+| Posicionamiento prioritario     | No        | Sí           |
 
----
+### Gating real
 
-## 5. Red colaborativa
-
-| Feature                           | Descripción                                                                 |
-| --------------------------------- | --------------------------------------------------------------------------- |
-| **Aliados verificados**           | Refugios, veterinarias, seguridad privada con zona de cobertura declarada   |
-| **Custodios temporales**          | Voluntarios que cuidan mascotas mientras el dueño no puede                  |
-| **Alertas geofenceadas**          | Push a vecinos dentro del radio cuando se reporta una pérdida               |
-| **Red vecinal (Guardia Vecinal)** | Vecinos que optan por recibir alertas ultra-locales de su cuadra            |
-| **Leaderboard**                   | Ranking público de rescatadores más activos (solo primer nombre)            |
-| **Score de contribución**         | Puntos por reunificaciones exitosas; badges: Helper/Rescuer/Guardian/Legend |
+- El gate del backend exige `StorePlus` o `StorePartner` para pedidos, analytics y localizaciones avanzadas.
+- La activación de plan sincroniza `Store.IsFeatured` y, para `StorePartner`, habilita locales adicionales.
 
 ---
 
-## 6. Tiendas de mascotas (B2B Store)
+## 4. Refugios / adopciones
 
-| Feature                       | Plan         | Descripción                                                                    |
-| ----------------------------- | ------------ | ------------------------------------------------------------------------------ |
-| Registro de tienda            | Público      | Formulario + ubicación en mapa + aprobación admin                              |
-| Directorio público `/tiendas` | Público      | Búsqueda por nombre y dirección                                                |
-| Mapa con pins de tiendas      | Público      | Click en pin → abre catálogo directamente                                      |
-| Deep-link `/mapa?storeId=X`   | Público      | Abre el mapa con la tienda seleccionada                                        |
-| Catálogo de productos         | Público      | 7 categorías: Food, Accessories, Grooming, Health, Toys, Clothing, Other       |
-| Imágenes de productos         | Store        | Upload con resize 800px; blob storage                                          |
-| Carrito multi-tienda guard    | Público auth | Zustand persist; aviso si se mezclan tiendas                                   |
-| Checkout SINPE Móvil          | StorePlus+   | Referencia de pago generada; cliente reporta pago                              |
-| Pedidos in-app                | StorePlus+   | Plan gate: solo StorePlus y StorePartner                                       |
-| Dashboard de tienda           | Store        | Stats, pedidos recientes, accesos rápidos                                      |
-| Gestión de pedidos            | Store        | Confirmar, avanzar estado, cancelar                                            |
-| Estado máquina de pedidos     | —            | PendingPayment→PaymentReported→Confirmed→Preparing→(Pickup/Delivery)→Delivered |
-| Mis pedidos `/mis-pedidos`    | Autenticado  | Historial paginado con progress bar por estado                                 |
-| Notificación nuevo pedido     | Store        | Push + in-app notification al recibir pedido                                   |
-| Aprobación admin              | Admin        | Tab "Tiendas" en panel admin                                                   |
+| Feature                       | ShelterBasic    | ShelterPlus |
+| ----------------------------- | --------------- | ----------- |
+| Publicar animales en adopción | Hasta 5 activos | Ilimitado   |
+| Ferias de adopción            | No              | Sí          |
+| Pin destacado en mapa         | No              | Sí          |
+| Panel de gestión              | Sí              | Sí          |
+| Gestión de solicitudes        | Sí              | Sí          |
+
+### Gating real
+
+- `AdoptionCommands` usa `ShelterBasic` como límite de 5 animales activos y exige `ShelterPlus` para features premium de refugio.
+- El dominio usa `ShelterPlus` como tier pagado para adopciones avanzadas.
 
 ---
 
-## 7. Vallas publicitarias (Billboard)
+## 5. B2B — Clínicas veterinarias
 
-| Feature              | Descripción                                  |
-| -------------------- | -------------------------------------------- |
-| 4 placements         | Map · Dashboard · Directory · Feed           |
-| Estado máquina       | Draft → Active ↔ Paused → Expired            |
-| Prioridad            | 0-100; mayor prioridad se muestra primero    |
-| Imagen               | Upload 5MB; resize automático a 1200px       |
-| CTA seguro           | URL validada: solo same-origin o HTTPS       |
-| Dismissal por sesión | sessionStorage; no vuelve hasta nueva sesión |
-| Max 5 por placement  | Cap para no saturar la UI                    |
-| Admin CRUD completo  | Crear · editar · activar · pausar · imagen   |
+| Feature                           | ClinicPlus | ClinicPartner |
+| --------------------------------- | ---------- | ------------- |
+| Destacado en directorio/mapa      | Sí         | Sí            |
+| Badge verificado                  | Sí         | Sí            |
+| Estadísticas de escaneos          | Sí         | Sí            |
+| Visibilidad / métricas            | Sí         | Sí            |
+| Certificados PDF verificables     | Sí         | Sí            |
+| API keys para integración         | No         | Sí            |
+| Widget embebible                  | No         | Sí            |
+| Logo en alertas cercanas          | Sí         | Sí            |
+| Acceso a endpoints especializados | Sí         | Sí            |
 
----
+### Gating real
 
-## 8. B2B Clínicas veterinarias
-
-| Feature               | Plan          | Descripción                                  |
-| --------------------- | ------------- | -------------------------------------------- |
-| Portal veterinario    | ClinicBasic+  | Escanear QR/RFID de mascotas                 |
-| Notificación al dueño | ClinicBasic+  | Push cuando la clínica escanea a su mascota  |
-| Directorio clínicas   | Público       | Listado con filtro de emergencia 24h         |
-| Expediente compartido | ClinicPlus+   | Con consentimiento explícito del dueño       |
-| Audit log acceso      | ClinicPlus+   | Registro de cada consulta al expediente      |
-| Certificados PDF      | ClinicPlus+   | Verificables con QR; hash en blockchain-lite |
-| API keys              | ClinicPartner | Integración con HIS propietario              |
-| Posición destacada    | ClinicPartner | Ícono 24h emergencia en mapa                 |
+- `TrackClinicView` y `GetClinicScanStats` exigen `ClinicPlus`.
+- `ManageApiKey` y `GetNearbyActiveAlerts` exigen `ClinicPartner`.
+- `IssueCertificate` / `IssueVaccinePassport` solo permiten `ClinicPartner`.
 
 ---
 
-## 9. B2G Municipalidades
+## 6. B2G — Municipalidades
 
-| Feature            | Plan        | Descripción                                |
-| ------------------ | ----------- | ------------------------------------------ |
-| Portal de capturas | Básica+     | Registro de animales capturados            |
-| Fotos de animales  | Full+       | Upload de fotos en capturas                |
-| Estadísticas       | Full+       | Reportes de capturas por período           |
-| Multi-cantón       | RedRegional | Coordinación entre cantones                |
-| Red regional       | RedRegional | Compartición de registros entre municipios |
+| Feature                              | MuniBasica | MuniFull | MuniRedRegional |
+| ------------------------------------ | ---------- | -------- | --------------- |
+| Portal básico                        | Sí         | Sí       | Sí              |
+| Fotos de animales capturados         | No         | Sí       | Sí              |
+| Estadísticas / reportes              | No         | Sí       | Sí              |
+| Multi-cantón                         | No         | No       | Sí              |
+| Red regional / dashboard consolidado | No         | No       | Sí              |
 
----
+### Facturación real
 
-## 10. Suscripciones y planes
-
-| Feature                             | Descripción                                                      |
-| ----------------------------------- | ---------------------------------------------------------------- |
-| Feature gating completo             | Todas las funciones premium verifican el plan activo             |
-| Freemium sin fricción               | Explorador completamente funcional para emergencias              |
-| SINPE Móvil nativo                  | Pago directo sin pasarela externa; referencia generada           |
-| Activación manual                   | Admin verifica pago y activa el plan                             |
-| Renovación                          | Manual; sin renovación automática en MVP                         |
-| Plan Familia multi-usuario          | Hasta 5 miembros; alertas push a todos                           |
-| Token de invitación CSPRNG          | `RandomNumberGenerator.GetBytes(16)` — criptográficamente seguro |
-| Verificación de email en invitación | El invitado debe tener el mismo email que la invitación          |
+- Se facturan anualmente.
+- Precios codificados en `SubscriptionPricing.AnnualPriceCrc`:
+  - `MuniBasica` = ₡150,000/año
+  - `MuniFull` = ₡300,000/año
+  - `MuniRedRegional` = ₡500,000/año
 
 ---
 
-## 11. Seguridad y privacidad
+## 7. Criterio de feature gating actual
 
-| Feature                     | Descripción                                                 |
-| --------------------------- | ----------------------------------------------------------- |
-| JWT + refresh tokens        | Access 15min; refresh 30 días; absolute max 90 días         |
-| Token theft detection       | Refresh rotado → detecta replay → revoca todas las sesiones |
-| Lockout de cuenta           | 5 intentos fallidos → 15 min lockout                        |
-| JTI Blocklist distribuido   | SQL-backed; funciona en multi-instancia                     |
-| bcrypt work factor 12       | OWASP recommended para 2026                                 |
-| Anti-enumeración            | Register, forgot-password siempre 201/Accepted              |
-| PiiScrubber                 | Notas de avistamiento y mensajes de chat                    |
-| Teléfonos hasheados         | HMAC-SHA256 con clave secreta — no SHA-256 plain            |
-| BOLA protegido              | Collars, Bounties, Family, Pets — ownership check           |
-| Leaderboard privacidad      | Solo primer nombre (max 20 chars)                           |
-| Push subscription ownership | No se puede registrar el endpoint de otro usuario           |
-| AllowedHosts restringido    | No `*`; hostnames específicos en producción                 |
-| CSP en SWA                  | globalHeaders en staticwebapp.config.json                   |
-| SW sin open redirect        | Validación de URL antes de navegar desde notificación       |
-| Auth excluida del SW cache  | `/api/auth/*` no se cachea en NetworkFirst                  |
+El backend es la autoridad final para validar plan activo. En la práctica, la lógica implementada consiste en:
+
+- Validar `IsActive` y `ExpiresAt` en repositorios/subscripciones antes de conceder acceso.
+- Usar comparaciones por tier (`>=`, `==`, `is not`) para activar flujos premium.
+- Mantener `Free` como acceso básico y no premium.
+- Permitir upgrades/downgrades según el tier actual, pero con la lógica comercial final aún pendiente de consolidación en documentación y factura.
 
 ---
 
-## 12. PWA y experiencia móvil
+## 8. Estado de los documentos
 
-| Feature                   | Descripción                                                   |
-| ------------------------- | ------------------------------------------------------------- |
-| Installable PWA           | Add to homescreen en Android/iOS                              |
-| Offline ready             | Caché de assets con Workbox                                   |
-| Push notifications web    | VAPID sin proveedor externo                                   |
-| Update banner inteligente | Muestra "Actualizar / Después" — no fuerza reload             |
-| Pull to refresh           | Dashboard y otras listas clave                                |
-| Mapa full-screen          | Leaflet con layers: eventos + clínicas + tiendas + adopciones |
-| SignalR real-time         | Chat de mensajes y coordinación de búsqueda                   |
+La suma de features por plan se debe interpretar como la realidad actual del app, no como objetivos futuros. Los documentos definitivos deben respetar la siguiente fuente de verdad:
 
----
+- `backend/src/PawTrack.Domain/Subscriptions/SubscriptionTier.cs`
+- `backend/src/PawTrack.Domain/Subscriptions/SubscriptionPricing.cs`
+- `backend/src/PawTrack.Infrastructure/Subscriptions/SubscriptionService.cs`
+- handlers de activación/cancelación y queries de feature gating
 
-## 13. Módulo de Adopciones
-
-### Para adoptantes (público / Owner)
-
-| Feature                        | Plan  | Descripción                                                                               |
-| ------------------------------ | ----- | ----------------------------------------------------------------------------------------- |
-| Directorio público de animales | Todos | Grid paginado filtrable por especie, tamaño, edad, vacunación, zona                       |
-| Filtro geográfico (GPS)        | Todos | Radio configurable 10–100 km desde la ubicación del visitante                             |
-| Pins de adopción en mapa       | Todos | Toggle "Adopciones" en el mapa público; pins morados distintos a los de mascotas perdidas |
-| Perfil detallado del animal    | Todos | Galería de fotos, historia, requisitos, notas médicas, badges de salud                    |
-| Solicitar adopción             | Owner | Formulario con nota personal; un solo pending por animal                                  |
-| Ver mis solicitudes            | Owner | Estado de cada solicitud; respuesta de la organización                                    |
-| Retirar solicitud              | Owner | Solo si está en Pending o UnderReview                                                     |
-| Ferias de adopción             | Todos | Listado geofenceado de eventos presenciales próximos                                      |
-
-### Para shelters (Ally verificado con AllyType.Shelter)
-
-| Feature                      | Plan                                                   | Descripción                                                            |
-| ---------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------- |
-| Publicar animal en adopción  | ShelterBasic (gratis, máx 5) / ShelterPlus (ilimitado) | Nombre, especie, tamaño, historia, fotos (hasta 5), zona de referencia |
-| Gestionar fotos              | Ally                                                   | Upload multi-foto a Azure Blob `adoption-photos/`; delete individual   |
-| Editar perfil del animal     | Ally                                                   | Actualizar texto, características y flags de salud                     |
-| Cambiar estado del animal    | Ally                                                   | Available → InProcess → Adopted / Paused / Removed                     |
-| Ver solicitudes por animal   | Ally                                                   | Lista de aplicantes con nota personal de cada uno                      |
-| Aprobar / rechazar solicitud | Ally                                                   | Con nota de respuesta opcional; se notifica al adoptante               |
-| Marcar como adoptado         | Ally                                                   | Cierra el ciclo; el animal desaparece del directorio activo            |
-| Crear ferias de adopción     | ShelterPlus                                            | Evento con fecha, lugar GPS, lista de animales presentes               |
-| Panel del shelter            | Ally                                                   | Lista paginada de todos sus animales con estado y acciones             |
-
-### Notificaciones de adopción
-
-| Tipo                | Destinatario           | Canal                              |
-| ------------------- | ---------------------- | ---------------------------------- |
-| `AdoptionInterest`  | Shelter                | In-app + push                      |
-| `AdoptionApproved`  | Adoptante              | In-app + push                      |
-| `AdoptionRejected`  | Adoptante              | In-app + push                      |
-| `AdoptionFairAlert` | Usuarios en radio 10km | Push geofenceado con rate limiting |
-
-### Monetización de adopciones
-
-| Plan         | Precio     | Límite                                                   |
-| ------------ | ---------- | -------------------------------------------------------- |
-| ShelterBasic | Gratis     | 5 animales activos simultáneos; sin ferias               |
-| ShelterPlus  | ₡8,000/mes | Animales ilimitados + ferias de adopción + pin destacado |
-
-### WhatsApp Bot — intents de adopción
+Esto elimina contradicciones entre pricing, enums y feature gates del producto.
 
 | Keyword                                                   | Respuesta                                        |
 | --------------------------------------------------------- | ------------------------------------------------ |
