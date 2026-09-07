@@ -23,6 +23,15 @@ public enum AuditAction
     StoreApproved,
     StoreRejected,
     StoreSuspended,
+
+    // Regulatory exports
+    RegulatoryExportRequested,
+    RegulatoryExportStarted,
+    RegulatoryExportCompleted,
+    RegulatoryExportFailed,
+    RegulatoryExportDownloaded,
+    RegulatoryExportExpired,
+    RegulatorySubmissionPrepared,
 }
 
 public sealed class AuditLogEntry

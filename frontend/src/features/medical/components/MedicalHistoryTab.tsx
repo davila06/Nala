@@ -13,6 +13,8 @@ import {
   useDeleteVetReminder,
   useExportMedicalPdf,
   useClinicAccessLog,
+  usePetSanitaryIdentity,
+  useUpdatePetSanitaryIdentity,
 } from "@/features/medical/hooks/useMedical";
 import { PetClinicAccessManager } from "./PetClinicAccessManager";
 import { ReminderCalendar } from "./ReminderCalendar";
@@ -32,6 +34,8 @@ import type {
   MedicalRecordType,
   MedicalRecordDto,
   VetReminderDto,
+  PetSex,
+  SterilizedStatus,
 } from "@/features/medical/api/medicalApi";
 
 // ── Locale maps ───────────────────────────────────────────────────────────────
@@ -55,6 +59,168 @@ const ALL_TYPES: MedicalRecordType[] = [
   "Allergy",
   "Other",
 ];
+
+function PetSanitaryIdentityPanel({ petId }: { petId: string }) {
+  const { data, isLoading } = usePetSanitaryIdentity(petId);
+  const update = useUpdatePetSanitaryIdentity(petId);
+  const [form, setForm] = useState({
+    sex: "Unknown" as PetSex,
+    color: "",
+    distinctiveMarks: "",
+    sterilizedStatus: "Unknown" as SterilizedStatus,
+    sterilizedAt: "",
+    residenceCanton: "",
+    microchipId: "",
+  });
+
+  const syncFromData = () => {
+    if (!data) return;
+    setForm({
+      sex: data.sex,
+      color: data.color ?? "",
+      distinctiveMarks: data.distinctiveMarks ?? "",
+      sterilizedStatus: data.sterilizedStatus,
+      sterilizedAt: data.sterilizedAt ?? "",
+      residenceCanton: data.residenceCanton ?? "",
+      microchipId: data.microchipId ?? "",
+    });
+  };
+
+  const handleSubmit = async () => {
+    await update.mutateAsync({
+      sex: form.sex,
+      color: form.color || undefined,
+      distinctiveMarks: form.distinctiveMarks || undefined,
+      sterilizedStatus: form.sterilizedStatus,
+      sterilizedAt: form.sterilizedAt || undefined,
+      residenceCanton: form.residenceCanton || undefined,
+      microchipId: form.microchipId || undefined,
+    });
+    toast.success("Identidad sanitaria actualizada");
+  };
+
+  return (
+    <section className="rounded-2xl border border-sand-100 bg-surface px-4 py-3">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-bold text-sand-800">
+            Identidad sanitaria
+          </h3>
+          <p className="text-xs text-sand-500">
+            Datos privados para certificados y atención clínica.
+          </p>
+        </div>
+        <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] font-bold text-sand-700">
+          {data?.microchipVerificationStatus ?? "Sin cargar"}
+        </span>
+      </div>
+
+      {isLoading ? (
+        <p className="text-xs text-sand-500">Cargando identidad sanitaria…</p>
+      ) : (
+        <div className="space-y-3">
+          <div className="grid gap-2 sm:grid-cols-2">
+            <select
+              value={form.sex}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, sex: e.target.value as PetSex }))
+              }
+              className="rounded-xl border border-sand-200 px-3 py-2 text-sm"
+            >
+              <option value="Unknown">Sexo no indicado</option>
+              <option value="Female">Hembra</option>
+              <option value="Male">Macho</option>
+              <option value="NotApplicable">No aplica</option>
+            </select>
+            <input
+              value={form.color}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, color: e.target.value }))
+              }
+              placeholder="Color principal"
+              className="rounded-xl border border-sand-200 px-3 py-2 text-sm"
+            />
+            <input
+              value={form.residenceCanton}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, residenceCanton: e.target.value }))
+              }
+              placeholder="Cantón de residencia"
+              className="rounded-xl border border-sand-200 px-3 py-2 text-sm"
+            />
+            <input
+              value={form.microchipId}
+              disabled={data?.microchipVerificationStatus === "Verified"}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, microchipId: e.target.value }))
+              }
+              placeholder="Microchip"
+              className="rounded-xl border border-sand-200 px-3 py-2 text-sm disabled:bg-sand-50"
+            />
+            <select
+              value={form.sterilizedStatus}
+              onChange={(e) =>
+                setForm((f) => ({
+                  ...f,
+                  sterilizedStatus: e.target.value as SterilizedStatus,
+                }))
+              }
+              className="rounded-xl border border-sand-200 px-3 py-2 text-sm"
+            >
+              <option value="Unknown">Esterilización no indicada</option>
+              <option value="Yes">Esterilizado/a</option>
+              <option value="No">No esterilizado/a</option>
+              <option value="NotApplicable">No aplica</option>
+            </select>
+            <input
+              type="date"
+              value={form.sterilizedAt}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, sterilizedAt: e.target.value }))
+              }
+              className="rounded-xl border border-sand-200 px-3 py-2 text-sm"
+            />
+          </div>
+          <textarea
+            value={form.distinctiveMarks}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, distinctiveMarks: e.target.value }))
+            }
+            placeholder="Señas particulares"
+            className="h-20 w-full rounded-xl border border-sand-200 px-3 py-2 text-sm"
+          />
+          {data?.microchipVerificationNotes && (
+            <p className="text-xs text-warn-700">
+              {data.microchipVerificationNotes}
+            </p>
+          )}
+          <p className="text-xs text-sand-400">
+            Usa cantón aproximado, no dirección exacta. Un microchip verificado
+            solo puede cambiarse por revisión.
+          </p>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => void handleSubmit()}
+              disabled={update.isPending}
+            >
+              Guardar identidad
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              onClick={syncFromData}
+            >
+              Restaurar
+            </Button>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
 
 function PetCertificatesPanel({ petId }: { petId: string }) {
   const { data: certificates, isLoading } = useCertificatesForPet(petId);
@@ -1204,6 +1370,8 @@ export function MedicalHistoryTab({
           <div className="h-10 rounded-xl bg-sand-100" />
         </div>
       )}
+
+      <PetSanitaryIdentityPanel petId={petId} />
 
       {/* ── Clinic access (Option C) ───────────────────────────────────── */}
       <hr className="border-sand-100" />

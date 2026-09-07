@@ -12,6 +12,7 @@ using PawTrack.Application.Pets.Queries.GetPetDetail;
 using PawTrack.Application.Pets.Queries.GetPublicPetProfile;
 using PawTrack.Application.Pets.Queries.GetPetByMicrochip;
 using PawTrack.Application.Pets.Queries.DownloadPetIdCard;
+using PawTrack.Application.Pets.SanitaryIdentity;
 using PawTrack.Domain.Pets;
 using System.Security.Claims;
 using Microsoft.AspNetCore.RateLimiting;
@@ -330,7 +331,58 @@ public sealed class PetsController(
         return NoContent();
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    [HttpGet("{id:guid}/sanitary-identity")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetSanitaryIdentity(Guid id, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetPetSanitaryIdentityQuery(id, userId), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value)
+            : StatusCode(403, new ProblemDetails { Detail = result.Errors.FirstOrDefault(), Status = 403 });
+    }
+
+    [HttpPut("{id:guid}/sanitary-identity")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(2048)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateSanitaryIdentity(
+        Guid id,
+        [FromBody] UpdatePetSanitaryIdentityRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        if (!Enum.TryParse<PetSex>(request.Sex, ignoreCase: true, out var sex))
+            return BadRequest(new ProblemDetails { Detail = "Sexo inválido.", Status = 400 });
+        if (!Enum.TryParse<SterilizedStatus>(request.SterilizedStatus, ignoreCase: true, out var sterilizedStatus))
+            return BadRequest(new ProblemDetails { Detail = "Estado de esterilización inválido.", Status = 400 });
+
+        var result = await sender.Send(new UpdatePetSanitaryIdentityCommand(
+            id,
+            userId,
+            sex,
+            request.Color,
+            request.DistinctiveMarks,
+            sterilizedStatus,
+            request.SterilizedAt,
+            request.ResidenceCanton,
+            request.MicrochipId), cancellationToken);
+
+        return result.IsSuccess ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpGet("{id:guid}/sanitary-audit")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetSanitaryAudit(Guid id, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetPetSanitaryAuditLogQuery(id, userId), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value)
+            : StatusCode(403, new ProblemDetails { Detail = result.Errors.FirstOrDefault(), Status = 403 });
+    }
+
     // ── GET /api/pets/by-microchip/{chipId} ──────────────────────────────
     [HttpGet("by-microchip/{chipId}")]
     [Authorize]
@@ -391,4 +443,13 @@ public sealed record UpdatePetRequest(
     string? Breed,
     DateOnly? BirthDate,
     IFormFile? Photo,
+    string? MicrochipId);
+
+public sealed record UpdatePetSanitaryIdentityRequest(
+    string Sex,
+    string? Color,
+    string? DistinctiveMarks,
+    string SterilizedStatus,
+    DateOnly? SterilizedAt,
+    string? ResidenceCanton,
     string? MicrochipId);

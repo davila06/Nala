@@ -13,6 +13,16 @@ public sealed record PetDto(
     string? PhotoUrl,
     string Status,
     string? MicrochipId,
+    string Sex,
+    string? Color,
+    string? DistinctiveMarks,
+    string SterilizedStatus,
+    string? SterilizedAt,
+    string? ResidenceCanton,
+    string MicrochipVerificationStatus,
+    string? MicrochipVerifiedAt,
+    string? MicrochipVerifiedByClinicId,
+    string? MicrochipVerificationNotes,
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt)
 {
@@ -26,6 +36,16 @@ public sealed record PetDto(
         pet.PhotoUrl,
         pet.Status.ToString(),
         pet.MicrochipId,
+        pet.Sex.ToString(),
+        pet.Color,
+        pet.DistinctiveMarks,
+        pet.SterilizedStatus.ToString(),
+        pet.SterilizedAt?.ToString("yyyy-MM-dd"),
+        pet.ResidenceCanton,
+        pet.MicrochipVerificationStatus.ToString(),
+        pet.MicrochipVerifiedAt?.ToString("O"),
+        pet.MicrochipVerifiedByClinicId?.ToString(),
+        pet.MicrochipVerificationNotes,
         pet.CreatedAt,
         pet.UpdatedAt);
 }

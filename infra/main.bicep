@@ -17,6 +17,12 @@ param alertEmailAddress string
 @description('Presupuesto mensual en USD para alertas de costo')
 param monthlyBudgetUsd int = 150
 
+@description('Habilita el catálogo y portal de reportes institucionales')
+param regulatoryReportsEnabled bool = false
+
+@description('Habilita el dashboard NALA para los roles autorizados')
+param nalaDashboardEnabled bool = false
+
 // ── Nombres de recursos ────────────────────────────────────────────────────────
 var resourcePrefix = '${appName}-${environment}'
 var keyVaultName = '${appName}-kv-${environment}'
@@ -135,6 +141,30 @@ resource whatsappAvatarsContainer 'Microsoft.Storage/storageAccounts/blobService
   name: 'whatsapp-avatars'
   properties: {
     publicAccess: 'None'  // Generados on-demand; no requieren acceso público directo
+  }
+}
+
+resource welfareEvidenceContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  parent: blobService
+  name: 'welfare-evidence'
+  properties: {
+    publicAccess: 'None'
+  }
+}
+
+resource regulatoryExportsContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  parent: blobService
+  name: 'regulatory-exports'
+  properties: {
+    publicAccess: 'None'
+  }
+}
+
+resource verificationDocumentsContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  parent: blobService
+  name: 'verification-documents'
+  properties: {
+    publicAccess: 'None'
   }
 }
 
@@ -290,6 +320,14 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
             {
               name: 'Cors__AllowedOrigins__0'
               value: frontendUrl
+            }
+            {
+              name: 'Features__RegulatoryReportsEnabled'
+              value: string(regulatoryReportsEnabled)
+            }
+            {
+              name: 'Features__NalaDashboardEnabled'
+              value: string(nalaDashboardEnabled)
             }
             // Secrets adicionales (AppInsights, SQL, Storage, JWT) se configuran
             // DESPUÉS de poblar Key Vault — ver docs/PENDIENTES_BETA.md

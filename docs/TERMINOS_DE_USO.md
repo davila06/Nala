@@ -19,8 +19,8 @@ Si no aceptas estos términos, debes abstenerte de utilizar la plataforma.
 PawTrack CR es una plataforma digital para identificación, seguimiento y recuperación de mascotas en Costa Rica. La plataforma se opera desde Costa Rica y está orientada a servicios de recuperación de mascotas, reportes de pérdida, coordinación comunitaria y gestión de aliados, clínicas, municipios y usuarios individuales.
 
 **Responsable de la operación y atención:** PawTrack CR  
-**Correo de contacto legal y consultas generales:** legal@pawtrack.cr  
-**Correo de soporte operativo:** soporte@pawtrack.cr  
+**Correo de contacto legal y consultas generales:** <legal@pawtrack.cr>  
+**Correo de soporte operativo:** <soporte@pawtrack.cr>  
 **Domicilio operativo:** Costa Rica
 
 ---
@@ -55,6 +55,8 @@ Para usar PawTrack CR con cuenta, debes:
 5. Notificar de inmediato cualquier uso no autorizado o sospecha de acceso indebido.
 6. Respetar la privacidad de terceros, especialmente en reportes de avistamiento, mensajes y datos de contacto.
 7. En el caso de clínicas y veterinarios, aportar información documental veraz, vigente y comprobable cuando se solicite verificación para emitir certificados o pasaportes SENASA-ready.
+8. En el caso de dueños de mascotas, mantener actualizados y veraces los datos sanitarios y de microchip que decidas registrar.
+9. Los reportes de bienestar animal deben realizarse de buena fe y con información razonablemente verificable. PawTrack puede aplicar rate limits, moderación, suppression, bloqueo o cierre de reportes abusivos o falsos.
 
 Si eres menor de edad, debes usar la plataforma con autorización y supervisión de tu padre, madre o tutor legal.
 
@@ -84,6 +86,7 @@ No puedes:
 6. Publicar datos personales de terceros sin base legal o consentimiento aplicable.
 7. Interferir con la operación de reportes, mapas, chat o validaciones del sistema.
 8. Presentar licencias, documentos veterinarios, firmas, sellos o respaldos alterados, vencidos, falsos o pertenecientes a terceros no autorizados.
+9. Declarar deliberadamente un microchip que no corresponde a la mascota o intentar modificar un microchip verificado sin el flujo de revisión correspondiente.
 
 PawTrack CR podrá suspender o eliminar cuentas por incumplimiento, sin perjuicio de otras medidas legales o administrativas que correspondan.
 
@@ -187,6 +190,6 @@ La continuidad del uso después de la entrada en vigor de los cambios implica la
 
 Para consultas legales, dudas sobre estos términos, reclamos o atención general:
 
-**Correo legal:** legal@pawtrack.cr  
-**Correo de soporte:** soporte@pawtrack.cr  
+**Correo legal:** <legal@pawtrack.cr>  
+**Correo de soporte:** <soporte@pawtrack.cr>  
 **Asunto recomendado:** Términos de Uso — PawTrack CR

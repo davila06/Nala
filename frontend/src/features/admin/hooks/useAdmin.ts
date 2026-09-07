@@ -108,6 +108,131 @@ export function useReviewClinicVeterinarian() {
   });
 }
 
+export function useMicrochipConflicts() {
+  return useQuery({
+    queryKey: ["admin", "microchip-conflicts"],
+    queryFn: () => adminApi.getMicrochipConflicts(),
+    staleTime: 30_000,
+  });
+}
+
+export function useRevokeMicrochipVerification() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ petId, reason }: { petId: string; reason: string }) =>
+      adminApi.revokeMicrochipVerification(petId, reason),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["admin", "microchip-conflicts"],
+      });
+    },
+  });
+}
+
+export function useResolveMicrochipConflict() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      petId,
+      confirmedChipId,
+      reason,
+    }: {
+      petId: string;
+      confirmedChipId: string;
+      reason: string;
+    }) => adminApi.resolveMicrochipConflict(petId, confirmedChipId, reason),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["admin", "microchip-conflicts"],
+      });
+    },
+  });
+}
+
+export function useAdminWelfareCases() {
+  return useQuery({
+    queryKey: ["admin", "welfare-cases"],
+    queryFn: () => adminApi.getWelfareCases({ page: 1, pageSize: 50 }),
+    staleTime: 30_000,
+  });
+}
+
+export function useStartWelfareCaseTriage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (caseId: string) => adminApi.startWelfareCaseTriage(caseId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["admin", "welfare-cases"],
+      });
+    },
+  });
+}
+
+export function useSetWelfareCaseSeverity() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      caseId,
+      severity,
+    }: {
+      caseId: string;
+      severity: Parameters<typeof adminApi.setWelfareCaseSeverity>[1];
+    }) => adminApi.setWelfareCaseSeverity(caseId, severity),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["admin", "welfare-cases"],
+      });
+    },
+  });
+}
+
+export function useAssignWelfareCase() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      caseId,
+      organizationUserId,
+      role,
+    }: {
+      caseId: string;
+      organizationUserId: string;
+      role: string;
+    }) => adminApi.assignWelfareCase(caseId, organizationUserId, role),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["admin", "welfare-cases"],
+      });
+    },
+  });
+}
+
+export function useResolveWelfareCase() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ caseId, reason }: { caseId: string; reason: string }) =>
+      adminApi.resolveWelfareCase(caseId, reason),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["admin", "welfare-cases"],
+      });
+    },
+  });
+}
+
+export function useDismissWelfareCase() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ caseId, reason }: { caseId: string; reason: string }) =>
+      adminApi.dismissWelfareCase(caseId, reason),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["admin", "welfare-cases"],
+      });
+    },
+  });
+}
+
 export function useAdminSubscriptions(pendingOnly = false) {
   return useQuery({
     queryKey: ["admin", "subscriptions", pendingOnly],

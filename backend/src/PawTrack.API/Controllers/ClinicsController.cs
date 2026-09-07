@@ -18,6 +18,7 @@ using PawTrack.Application.Certificates.Commands.ManageCertificateIssuers;
 using PawTrack.Application.Certificates.Queries.GetClinicCertificateIssuers;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Medical.ClinicAccess;
+using PawTrack.Application.Pets.SanitaryIdentity;
 using PawTrack.Domain.Auth;
 using PawTrack.Domain.Clinics;
 using PawTrack.Domain.Medical;
@@ -597,6 +598,42 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         return Ok(result.Value);
     }
 
+    [HttpGet("patients/{petId:guid}/sanitary-identity")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPatientSanitaryIdentity(Guid petId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(new GetClinicPetSanitaryIdentityQuery(petId, clinicResult.Value.Id, userId), ct);
+        return result.IsSuccess ? Ok(result.Value)
+            : StatusCode(403, new ProblemDetails { Detail = result.Errors.FirstOrDefault(), Status = 403 });
+    }
+
+    [HttpPost("patients/{petId:guid}/microchip/verify")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("clinic-scan")]
+    [RequestSizeLimit(512)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> VerifyPatientMicrochip(
+        Guid petId,
+        [FromBody] VerifyMicrochipRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(new VerifyPetMicrochipCommand(
+            petId, clinicResult.Value.Id, userId, request.ObservedChipId, request.Notes), ct);
+
+        return result.IsSuccess ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
     /// <summary>
     /// Adds a medical record to a pet's expediente from an authenticated clinic.
     /// Option A: petId is known from a previous scan (clinic has scan history for this pet).
@@ -974,3 +1011,4 @@ public sealed class ClinicAddMedicalRecordRequest
 
 public sealed record ClinicGenerateAccessCodeRequest(Guid PetId);
 public sealed record AcceptGrantCodeRequest(string Code);
+public sealed record VerifyMicrochipRequest(string ObservedChipId, string? Notes);

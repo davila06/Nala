@@ -28,6 +28,18 @@ public sealed class PetRepository(PawTrackDbContext dbContext) : IPetRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.MicrochipId == microchipId, cancellationToken);
 
+    public async Task<IReadOnlyList<Pet>> GetMicrochipConflictsAsync(
+        int skip,
+        int take,
+        CancellationToken cancellationToken = default) =>
+        await dbContext.Pets
+            .AsNoTracking()
+            .Where(p => p.MicrochipVerificationStatus == MicrochipVerificationStatus.Conflict)
+            .OrderByDescending(p => p.UpdatedAt)
+            .Skip(skip)
+            .Take(Math.Clamp(take, 1, 100))
+            .ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<Pet>> GetByIdsAsync(
         IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
     {

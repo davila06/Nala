@@ -20,6 +20,7 @@ using System.Threading.RateLimiting;
 using PawTrack.Application;
 using PawTrack.Application.Sightings.VisualMatch;
 using PawTrack.Infrastructure;
+using PawTrack.Infrastructure.Regulatory;
 using PawTrack.API.Middleware;
 using HO = Microsoft.AspNetCore.HttpOverrides;
 
@@ -251,6 +252,18 @@ builder.Services.AddRateLimiter(options =>
             {
                 PermitLimit = builder.Configuration.GetValue("RateLimiting:ResetPassword:PermitLimit", 10),
                 Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:ResetPassword:WindowSeconds", 600)),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0,
+            }));
+
+    // ── Public welfare reports — protects animal welfare intake from spam floods.
+    options.AddPolicy("welfare-report", ctx =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: RateLimiterIpKey.Get(ctx),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:WelfareReport:PermitLimit", 10),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:WelfareReport:WindowSeconds", 600)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                 QueueLimit = 0,
             }));
@@ -573,6 +586,7 @@ app.MapHub<ChatHub>("/hubs/chat");
 // ── Startup seeders ───────────────────────────────────────────────────────────
 var startupLogger = app.Services.GetRequiredService<ILogger<Program>>();
 await RiskCalendarEventSeeder.SeedAsync(app.Services, startupLogger);
+await ReportDefinitionSeeder.SeedAsync(app.Services, startupLogger);
 
 app.MapHealthChecks("/health", new HealthCheckOptions
 {

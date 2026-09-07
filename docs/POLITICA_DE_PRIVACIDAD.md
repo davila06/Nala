@@ -17,8 +17,8 @@ PawTrack CR es un servicio digital orientado a la identificación, recuperación
 ## 2. Responsable del tratamiento
 
 **Responsable de la operación y tratamiento de datos:** PawTrack CR  
-**Correo de privacidad:** privacidad@pawtrack.cr  
-**Correo de soporte:** soporte@pawtrack.cr  
+**Correo de privacidad:** <privacidad@pawtrack.cr>  
+**Correo de soporte:** <soporte@pawtrack.cr>  
 **Domicilio operativo:** Costa Rica
 
 ---
@@ -58,6 +58,22 @@ La ubicación exacta de una mascota o de una persona puede estar protegida por d
 Cuando se usa el módulo de expediente médico, historial clínico o certificados, PawTrack CR puede procesar datos relacionados con vacunas, desparasitaciones, visitas veterinarias, diagnósticos, tratamientos y documentos exportables con fines de cuidado y coordinación con clínicas afiliadas.
 
 Para la emisión de pasaportes veterinarios digitales SENASA-ready, las clínicas y veterinarios pueden aportar documentos de verificación, licencias, respaldos y firmas o sellos. Estos documentos se almacenan en contenedores privados y solo son accesibles para la clínica propietaria, usuarios autorizados de administración y procesos internos de auditoría.
+
+La identidad sanitaria de una mascota puede incluir sexo, color, señas particulares, estado de esterilización, cantón aproximado de residencia, microchip declarado y estado de verificación del microchip. Estos datos se usan para expediente, certificados, trazabilidad y atención clínica autorizada, y no se exponen completos en perfiles públicos.
+
+### 3.5 Casos de bienestar y reportes institucionales
+
+PawTrack CR puede procesar reportes de abandono, negligencia, maltrato presunto,
+animales heridos, capturas municipales y otros casos de bienestar animal. El
+reportante puede usar el flujo anónimo cuando esté disponible. Las descripciones
+se sanitizan para retirar PII innecesaria y la evidencia se almacena en Blob
+privado con acceso por rol y auditoría.
+
+Los reportes institucionales y NALA se generan de forma agregada por periodo,
+cantón, especie, estado u organización autorizada. Los datos públicos aplican
+supresión para grupos pequeños y no muestran domicilios, teléfonos, correos,
+identidad del reportante, evidencia ni coordenadas exactas. Estos exports son
+SENASA-ready y no constituyen envíos oficiales a SENASA.
 
 ### 3.5 Datos de pagos y facturación
 
@@ -177,7 +193,7 @@ La persona titular puede, según corresponda, solicitar:
 6. retiro del consentimiento cuando la base jurídica lo permita;
 7. portabilidad de ciertos datos cuando sea aplicable.
 
-Para ejercer estos derechos, escribe a: **privacidad@pawtrack.cr**.
+Para ejercer estos derechos, escribe a: **<privacidad@pawtrack.cr>**.
 
 PawTrack CR podrá solicitar verificación de identidad para proteger datos de terceros y evitar accesos indebidos.
 
@@ -221,8 +237,8 @@ Cuando el cambio sea material, notificaremos por medios razonables dentro de la 
 
 Consultas de privacidad, ejercicio de derechos, dudas sobre tratamiento de datos o atención general:
 
-**Correo de privacidad:** privacidad@pawtrack.cr  
-**Correo de soporte:** soporte@pawtrack.cr  
+**Correo de privacidad:** <privacidad@pawtrack.cr>  
+**Correo de soporte:** <soporte@pawtrack.cr>  
 **Asunto recomendado:** Privacidad de datos — PawTrack CR
 
 ---

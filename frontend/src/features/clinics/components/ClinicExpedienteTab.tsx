@@ -7,6 +7,10 @@ import {
   type MedicalRecordDto,
   type MedicalRecordType,
 } from "@/features/medical/api/medicalApi";
+import {
+  useClinicPetSanitaryIdentity,
+  useVerifyClinicPetMicrochip,
+} from "@/features/medical/hooks/useMedical";
 import { ClinicAccessPanel } from "./ClinicAccessPanel";
 
 // ── Locale helpers ────────────────────────────────────────────────────────────
@@ -243,6 +247,9 @@ export function ClinicExpedienteTab({
   });
 
   const [showAddForm, setShowAddForm] = useState(false);
+  const { data: sanitary } = useClinicPetSanitaryIdentity(petId);
+  const verifyMicrochip = useVerifyClinicPetMicrochip(petId);
+  const [observedChipId, setObservedChipId] = useState("");
   const forbidden =
     (error as { response?: { status?: number } } | null)?.response?.status ===
     403;
@@ -315,6 +322,54 @@ export function ClinicExpedienteTab({
       {showAddForm && (
         <AddRecordForm petId={petId} onClose={() => setShowAddForm(false)} />
       )}
+
+      <section className="rounded-2xl border border-sand-100 bg-surface-warm p-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-sand-500">
+              Identidad sanitaria
+            </p>
+            <p className="text-sm text-sand-800">
+              Microchip:{" "}
+              <span className="font-mono">
+                {sanitary?.microchipId ?? "No registrado"}
+              </span>{" "}
+              · {sanitary?.microchipVerificationStatus ?? "Sin cargar"}
+            </p>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Input
+            value={observedChipId}
+            onChange={(e) => setObservedChipId(e.target.value)}
+            placeholder="Microchip leído"
+            className="flex-1 text-sm"
+          />
+          <Button
+            size="sm"
+            disabled={verifyMicrochip.isPending || !observedChipId.trim()}
+            onClick={() =>
+              void verifyMicrochip
+                .mutateAsync({
+                  observedChipId,
+                  notes: "Verificado desde expediente clínico",
+                })
+                .then(() => {
+                  toast.success("Microchip verificado");
+                  setObservedChipId("");
+                })
+                .catch(() => toast.error("No se pudo verificar el microchip"))
+            }
+          >
+            Verificar
+          </Button>
+        </div>
+        {sanitary?.microchipVerificationNotes && (
+          <p className="mt-2 text-xs text-warn-700">
+            {sanitary.microchipVerificationNotes}
+          </p>
+        )}
+      </section>
 
       {/* Clinic records */}
       <div>

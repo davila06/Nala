@@ -153,6 +153,12 @@ const StoreLocationsPage = lazy(
 
 // Admin panel
 const AdminPage = lazy(() => import("@/features/admin/pages/AdminPage"));
+const NalaDashboardPage = lazy(
+  () => import("@/features/regulatory/pages/NalaDashboardPage"),
+);
+const InstitutionalReportsPage = lazy(
+  () => import("@/features/regulatory/pages/InstitutionalReportsPage"),
+);
 
 // Módulo de adopciones
 const AdoptionDirectoryPage = lazy(
@@ -655,6 +661,29 @@ export const router = createBrowserRouter([
                 element: (
                   <S>
                     <AdminPage />
+                  </S>
+                ),
+              },
+              {
+                path: "/nala",
+                element: (
+                  <S name="NALA Core">
+                    <NalaDashboardPage />
+                  </S>
+                ),
+              },
+            ],
+          },
+          {
+            element: (
+              <RoleGuard roles={["Admin", "Municipality", "Clinic", "Ally"]} />
+            ),
+            children: [
+              {
+                path: "/reportes-institucionales",
+                element: (
+                  <S name="Reportes institucionales">
+                    <InstitutionalReportsPage />
                   </S>
                 ),
               },

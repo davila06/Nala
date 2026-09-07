@@ -15,6 +15,9 @@ import {
   useAdminClinicVeterinariansForReview,
   useReviewClinicVerification,
   useReviewClinicVeterinarian,
+  useMicrochipConflicts,
+  useRevokeMicrochipVerification,
+  useResolveMicrochipConflict,
 } from "../hooks/useAdmin";
 import {
   useAdminBundleOrders,
@@ -40,12 +43,14 @@ import { AdminBillboardsTab } from "@/features/advertising/components/AdminBillb
 import { AdminAdoptionsTab } from "../components/AdminAdoptionsTab";
 import { CollarTagInventorySection } from "../components/CollarTagInventorySection";
 import { AdminSubscriptionPlansTab } from "../components/AdminSubscriptionPlansTab";
+import { AdminWelfareCasesTab } from "../components/AdminWelfareCasesTab";
 import { useAdoptionAdminStats } from "../hooks/useAdmin";
 
 type Tab =
   | "allies"
   | "clinics"
   | "verification"
+  | "microchips"
   | "subscriptions"
   | "subscription-plans"
   | "bundles"
@@ -53,6 +58,7 @@ type Tab =
   | "stores"
   | "billboards"
   | "adoptions"
+  | "welfare"
   | "collar-tags";
 
 const ALLY_TYPE_LABELS: Record<string, string> = {
@@ -463,6 +469,88 @@ function VerificationTab() {
           </ReviewCard>
         ))}
       </section>
+    </div>
+  );
+}
+
+function MicrochipConflictsTab() {
+  const { data, isLoading, isError } = useMicrochipConflicts();
+  const revoke = useRevokeMicrochipVerification();
+  const resolve = useResolveMicrochipConflict();
+  const [reason, setReason] = useState("Conflicto revisado por administración");
+  const [confirmedChip, setConfirmedChip] = useState<Record<string, string>>(
+    {},
+  );
+
+  if (isLoading) return <LoadingSkeleton />;
+  if (isError)
+    return (
+      <ErrorState msg="No se pudieron cargar los conflictos de microchip." />
+    );
+  if (!data || data.length === 0)
+    return <EmptyState msg="No hay conflictos de microchip pendientes." />;
+
+  return (
+    <div className="space-y-3">
+      <Input
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+        placeholder="Motivo de resolución/revocación"
+      />
+      <ul className="space-y-3">
+        {data.map((pet) => (
+          <li
+            key={pet.petId}
+            className="rounded-2xl border border-warn-200 bg-warn-50 p-4"
+          >
+            <p className="font-semibold text-sand-900">
+              Mascota {pet.petId.slice(0, 8).toUpperCase()}
+            </p>
+            <p className="mt-1 text-xs text-warn-800">
+              {pet.microchipVerificationNotes ?? "Conflicto sin notas."}
+            </p>
+            <Input
+              value={confirmedChip[pet.petId] ?? pet.microchipId ?? ""}
+              onChange={(e) =>
+                setConfirmedChip((current) => ({
+                  ...current,
+                  [pet.petId]: e.target.value,
+                }))
+              }
+              placeholder="Microchip correcto"
+              className="mt-3"
+            />
+            <button
+              type="button"
+              disabled={
+                resolve.isPending ||
+                !reason.trim() ||
+                !confirmedChip[pet.petId]?.trim()
+              }
+              onClick={() =>
+                void resolve.mutateAsync({
+                  petId: pet.petId,
+                  confirmedChipId: confirmedChip[pet.petId],
+                  reason,
+                })
+              }
+              className="mt-3 mr-2 rounded-xl bg-rescue-100 px-3 py-1.5 text-xs font-semibold text-rescue-700 disabled:opacity-50"
+            >
+              Confirmar chip
+            </button>
+            <button
+              type="button"
+              disabled={revoke.isPending || !reason.trim()}
+              onClick={() =>
+                void revoke.mutateAsync({ petId: pet.petId, reason })
+              }
+              className="mt-3 rounded-xl bg-danger-100 px-3 py-1.5 text-xs font-semibold text-danger-700 disabled:opacity-50"
+            >
+              Revocar verificación
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -964,11 +1052,13 @@ export default function AdminPage() {
             "allies",
             "clinics",
             "verification",
+            "microchips",
             "subscriptions",
             "subscription-plans",
             "bundles",
             "promotions",
             "adoptions",
+            "welfare",
             "stores",
             "billboards",
             "collar-tags",
@@ -991,21 +1081,25 @@ export default function AdminPage() {
                 ? "Clínicas"
                 : tab === "verification"
                   ? "Verificación"
-                  : tab === "subscriptions"
-                    ? "Suscripciones"
-                    : tab === "subscription-plans"
-                      ? "Planes y precios"
-                      : tab === "bundles"
-                        ? "Bundles"
-                        : tab === "promotions"
-                          ? "Promociones"
-                          : tab === "adoptions"
-                            ? "Adopciones"
-                            : tab === "stores"
-                              ? "Tiendas"
-                              : tab === "billboards"
-                                ? "Vallas"
-                                : "CollarTags";
+                  : tab === "microchips"
+                    ? "Microchips"
+                    : tab === "subscriptions"
+                      ? "Suscripciones"
+                      : tab === "subscription-plans"
+                        ? "Planes y precios"
+                        : tab === "bundles"
+                          ? "Bundles"
+                          : tab === "promotions"
+                            ? "Promociones"
+                            : tab === "adoptions"
+                              ? "Adopciones"
+                              : tab === "welfare"
+                                ? "Bienestar"
+                                : tab === "stores"
+                                  ? "Tiendas"
+                                  : tab === "billboards"
+                                    ? "Vallas"
+                                    : "CollarTags";
           return (
             <button
               key={tab}
@@ -1044,11 +1138,13 @@ export default function AdminPage() {
           {activeTab === "allies" && <AlliesTab />}
           {activeTab === "clinics" && <ClinicsTab />}
           {activeTab === "verification" && <VerificationTab />}
+          {activeTab === "microchips" && <MicrochipConflictsTab />}
           {activeTab === "subscriptions" && <SubscriptionsTab />}
           {activeTab === "subscription-plans" && <AdminSubscriptionPlansTab />}
           {activeTab === "bundles" && <BundlesTab />}
           {activeTab === "promotions" && <AdminPromotionManager />}
           {activeTab === "adoptions" && <AdminAdoptionsTab />}
+          {activeTab === "welfare" && <AdminWelfareCasesTab />}
           {activeTab === "stores" && <AdminStoresTab />}
           {activeTab === "billboards" && <AdminBillboardsTab />}
           {activeTab === "collar-tags" && <CollarTagInventorySection />}

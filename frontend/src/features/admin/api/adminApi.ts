@@ -118,6 +118,63 @@ export interface AdminClinicVeterinarianDto {
   suspensionReason: string | null;
 }
 
+export interface AdminPetSanitaryIdentityDto {
+  petId: string;
+  sex: string;
+  color: string | null;
+  distinctiveMarks: string | null;
+  sterilizedStatus: string;
+  sterilizedAt: string | null;
+  residenceCanton: string | null;
+  microchipId: string | null;
+  microchipVerificationStatus: string;
+  microchipVerifiedAt: string | null;
+  microchipVerifiedByClinicId: string | null;
+  microchipVerificationNotes: string | null;
+}
+
+export type WelfareCaseType =
+  | "Abandonment"
+  | "SuspectedAbuse"
+  | "Neglect"
+  | "InjuredAnimal"
+  | "AnimalAtRisk"
+  | "MunicipalCapture"
+  | "Hoarding"
+  | "IrregularAdoption"
+  | "InstitutionalSupport";
+
+export type WelfareCaseStatus =
+  | "Received"
+  | "Triage"
+  | "Assigned"
+  | "InProgress"
+  | "Referred"
+  | "Resolved"
+  | "Dismissed"
+  | "ClosedNoAction";
+
+export type WelfareSeverity = "Low" | "Medium" | "High" | "Critical";
+
+export interface AnimalWelfareCaseSummaryDto {
+  id: string;
+  publicCode: string;
+  type: WelfareCaseType;
+  status: WelfareCaseStatus;
+  severity: WelfareSeverity;
+  canton: string;
+  assignedOrganizationUserId: string | null;
+  assignedRole: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PagedAnimalWelfareCasesDto {
+  items: AnimalWelfareCaseSummaryDto[];
+  page: number;
+  pageSize: number;
+}
+
 export const adminApi = {
   getPendingAllies: () =>
     apiClient
@@ -190,6 +247,75 @@ export const adminApi = {
         { reason },
       )
       .then((r) => r.data),
+
+  getMicrochipConflicts: (page = 1, pageSize = 20) =>
+    apiClient
+      .get<
+        AdminPetSanitaryIdentityDto[]
+      >("/admin/pets/microchip-conflicts", { params: { page, pageSize } })
+      .then((r) => r.data),
+
+  revokeMicrochipVerification: (petId: string, reason: string) =>
+    apiClient
+      .post<AdminPetSanitaryIdentityDto>(
+        `/admin/pets/${petId}/microchip-verification/revoke`,
+        { reason },
+      )
+      .then((r) => r.data),
+
+  resolveMicrochipConflict: (
+    petId: string,
+    confirmedChipId: string,
+    reason: string,
+  ) =>
+    apiClient
+      .post<AdminPetSanitaryIdentityDto>(
+        `/admin/pets/${petId}/microchip-conflicts/resolve`,
+        {
+          confirmedChipId,
+          reason,
+        },
+      )
+      .then((r) => r.data),
+
+  getWelfareCases: (params?: {
+    status?: WelfareCaseStatus;
+    severity?: WelfareSeverity;
+    canton?: string;
+    page?: number;
+    pageSize?: number;
+  }) =>
+    apiClient
+      .get<PagedAnimalWelfareCasesDto>("/admin/welfare-cases", { params })
+      .then((r) => r.data),
+
+  startWelfareCaseTriage: (caseId: string) =>
+    apiClient.post<boolean>(`/admin/welfare-cases/${caseId}/triage`),
+
+  setWelfareCaseSeverity: (caseId: string, severity: WelfareSeverity) =>
+    apiClient.post<boolean>(`/admin/welfare-cases/${caseId}/severity`, {
+      severity,
+    }),
+
+  assignWelfareCase: (
+    caseId: string,
+    organizationUserId: string,
+    role: string,
+  ) =>
+    apiClient.post<boolean>(`/admin/welfare-cases/${caseId}/assign`, {
+      organizationUserId,
+      role,
+    }),
+
+  resolveWelfareCase: (caseId: string, reason: string) =>
+    apiClient.post<boolean>(`/admin/welfare-cases/${caseId}/resolve`, {
+      reason,
+    }),
+
+  dismissWelfareCase: (caseId: string, reason: string) =>
+    apiClient.post<boolean>(`/admin/welfare-cases/${caseId}/dismiss`, {
+      reason,
+    }),
 
   getAdminSubscriptions: (pendingOnly = false, skip = 0, take = 50) =>
     apiClient

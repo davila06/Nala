@@ -3,11 +3,17 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.AnimalWelfare.Interfaces;
+using PawTrack.Application.Regulatory.Interfaces;
+using PawTrack.Application.Regulatory.Renderers;
+using PawTrack.Application.Regulatory.Gateways;
 using PawTrack.Application.Common.Settings;
 using PawTrack.Application.Medical;
 using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Infrastructure.AI;
 using PawTrack.Infrastructure.Allies;
+using PawTrack.Infrastructure.AnimalWelfare;
+using PawTrack.Infrastructure.Regulatory;
 using PawTrack.Infrastructure.Auth;
 using PawTrack.Infrastructure.Bot;
 using PawTrack.Infrastructure.Broadcast;
@@ -88,6 +94,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IAllyProfileRepository, AllyProfileRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IPetRepository, PetRepository>();
+        services.AddScoped<IPetSanitaryIdentityAuditRepository, PetSanitaryIdentityAuditRepository>();
         services.AddScoped<IQrScanEventRepository, QrScanEventRepository>();
         services.AddScoped<ILostPetRepository, LostPetRepository>();
         services.AddScoped<IRecoveryStatsReadRepository, RecoveryStatsReadRepository>();
@@ -107,6 +114,17 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ICustodyRecordRepository, CustodyRecordRepository>();
         services.AddScoped<IStoreRepository, PawTrack.Infrastructure.Stores.StoreRepository>();
         services.AddScoped<IStoreOrderRepository, PawTrack.Infrastructure.Stores.StoreOrderRepository>();
+        services.AddScoped<IAnimalWelfareCaseRepository, AnimalWelfareCaseRepository>();
+        services.AddScoped<IAnimalWelfareEvidenceRepository, AnimalWelfareEvidenceRepository>();
+        services.AddScoped<IAnimalWelfareAuditRepository, AnimalWelfareAuditRepository>();
+        services.AddScoped<IRegulatoryExportRepository, RegulatoryExportRepository>();
+        services.AddScoped<IReportDefinitionRepository, ReportDefinitionRepository>();
+        services.AddScoped<IRegulatorySubmissionRepository, RegulatorySubmissionRepository>();
+        services.AddScoped<IRegulatoryReportQueryService, RegulatoryReportQueryService>();
+        services.AddScoped<IReportAuthorizationService, ReportAuthorizationService>();
+        services.AddScoped<IRegulatoryExportRenderer, QuestPdfRegulatoryExportRenderer>();
+        services.AddSingleton<IRegulatorySubmissionGateway, NoOpRegulatorySubmissionGateway>();
+        services.AddHostedService<RegulatoryExportHostedService>();
 
         // Adoptions
         services.AddScoped<IAdoptionRepository, PawTrack.Infrastructure.Adoptions.AdoptionRepository>();

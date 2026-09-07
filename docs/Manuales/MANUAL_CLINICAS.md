@@ -43,7 +43,7 @@ Completa el formulario con los siguientes datos:
 | **Número de licencia SENASA**      | Número de licencia veterinaria emitida por el SENASA                       | VET-2024-0123                           |
 | **Dirección**                      | Dirección descriptiva del establecimiento                                  | 300m norte del parque central, San José |
 | **Latitud / Longitud**             | Coordenadas geográficas de la clínica (pre-rellenadas con San José centro) | 9.9281 / -84.0908                       |
-| **Correo electrónico de contacto** | Email con el que se comunicará el equipo PawTrack                          | clinica@ejemplo.cr                      |
+| **Correo electrónico de contacto** | Email con el que se comunicará el equipo PawTrack                          | <clinica@ejemplo.cr>                    |
 | **Contraseña**                     | Contraseña para acceder al portal (mínimo 8 caracteres)                    | —                                       |
 | **Confirmar contraseña**           | Repetición de la contraseña para verificar                                 | —                                       |
 
@@ -79,7 +79,7 @@ _"Tu clínica está en revisión. PawTrack activará tu cuenta en 1-2 días háb
 Al iniciar sesión verás el mensaje:  
 _"Tu cuenta ha sido suspendida. Contacta al equipo de PawTrack para más información."_
 
-Escribe a **soporte@pawtrack.cr** indicando el nombre de tu clínica y número de licencia SENASA para gestionar la reactivación.
+Escribe a **<soporte@pawtrack.cr>** indicando el nombre de tu clínica y número de licencia SENASA para gestionar la reactivación.
 
 ## 3.4 Planes de clínica
 
@@ -211,7 +211,11 @@ El panel **Verificación SENASA-ready** permite:
 
 Los documentos no se publican ni se exponen en el verificador público.
 
-### 7.3 Revocación
+### 7.3 Identidad sanitaria y microchip
+
+Cuando una clínica tiene acceso al expediente de una mascota, puede ver la identidad sanitaria necesaria para atención y certificación: color, señas, estado de esterilización, cantón aproximado y microchip. Si lee físicamente el microchip, puede verificarlo desde el portal. Si el chip leído no coincide con el declarado, el sistema marca un conflicto para revisión administrativa.
+
+### 7.4 Revocación
 
 Si un pasaporte fue emitido con datos incorrectos, solicita o ejecuta la revocación con motivo. Un documento revocado seguirá siendo verificable públicamente, pero aparecerá como **Revocado**.
 

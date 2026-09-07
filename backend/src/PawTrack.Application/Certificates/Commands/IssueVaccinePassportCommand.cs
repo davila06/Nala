@@ -91,6 +91,9 @@ public sealed class IssueVaccinePassportCommandHandler(
         if (!await grantRepository.HasActiveGrantAsync(request.ClinicId, request.PetId, ct))
             return Result.Failure<CertificateDto>("La clínica no tiene acceso activo al expediente de esta mascota.");
 
+        if (pet.MicrochipVerificationStatus == Domain.Pets.MicrochipVerificationStatus.Conflict)
+            return Result.Failure<CertificateDto>("No se puede emitir un pasaporte mientras el microchip tiene un conflicto pendiente.");
+
         if (pet.Species == Domain.Pets.PetSpecies.Dog && !HasRabiesVaccine(request.Vaccines))
             return Result.Failure<CertificateDto>("La vacuna contra la rabia es requerida para perros.");
 
@@ -119,7 +122,7 @@ public sealed class IssueVaccinePassportCommandHandler(
             null, cert.IssuedAt, cert.ValidUntil,
             OwnerName: owner?.Name,
             MicrochipId: pet.MicrochipId,
-            PetColor: request.PetColor,
+            PetColor: request.PetColor ?? pet.Color,
             Vaccines: vaccines,
             ParasiteControl: parasite);
 
@@ -132,8 +135,8 @@ public sealed class IssueVaccinePassportCommandHandler(
                 pet.Name,
                 pet.Species.ToString(),
                 pet.Breed,
-                null,
-                request.PetColor,
+                pet.Sex.ToString(),
+                request.PetColor ?? pet.Color,
                 pet.MicrochipId,
                 owner?.Name),
             new VaccinePassportIssuerSnapshot(

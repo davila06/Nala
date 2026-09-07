@@ -61,8 +61,8 @@ curl -f https://api.pawtrack.cr/health
 ### Verificar métricas en Application Insights
 
 1. Portal Azure → `pawtrack-prod-insights` → **Failures** (panel izquierdo).
-2. Revisar tasa de errores por operación en los últimos 30 minutos.
-3. Si hay alertas disparadas, revisar la sección **Alerts** del workspace.
+1. Revisar tasa de errores por operación en los últimos 30 minutos.
+1. Si hay alertas disparadas, revisar la sección **Alerts** del workspace.
 
 ### Consultar errores recientes con KQL
 
@@ -96,9 +96,9 @@ exceptions
    - Si responde `200` → el proceso está vivo, el error puede ser parcial.
    - Si no responde → ir al paso 4 (reinicio).
 
-2. **Consultar Application Insights** (sección 2) para identificar qué operación está fallando.
+1. **Consultar Application Insights** (sección 2) para identificar qué operación está fallando.
 
-3. **Revisar los logs del App Service:**
+1. **Revisar los logs del App Service:**
 
 ```bash
 az webapp log tail \
@@ -106,7 +106,7 @@ az webapp log tail \
   --resource-group pawtrack-prod
 ```
 
-4. **Identificar la causa:**
+1. **Identificar la causa:**
 
 | Síntoma                                   | Causa probable                                             | Acción                                      |
 | ----------------------------------------- | ---------------------------------------------------------- | ------------------------------------------- |
@@ -116,7 +116,7 @@ az webapp log tail \
 | Errores 503 desde el load balancer        | App Service sin instancias disponibles                     | Escalar (sección 5) o reiniciar (sección 4) |
 | `Could not load file or assembly`         | Deploy incompleto                                          | Hacer redeploy desde la pipeline            |
 
-5. Si la causa no es identificable en 10 minutos, **escala** a la persona on-call senior (sección 15).
+1. Si la causa no es identificable en 10 minutos, **escala** a la persona on-call senior (sección 15).
 
 ---
 
@@ -141,9 +141,9 @@ curl -f https://api.pawtrack.cr/health
 ### Reinicio forzado (si el suave no responde)
 
 1. Portal Azure → `pawtrack-prod-api` → **Overview** → botón **Stop**.
-2. Esperar 10 segundos.
-3. Botón **Start**.
-4. Verificar health check cada 10 segundos hasta obtener `200 OK`.
+1. Esperar 10 segundos.
+1. Botón **Start**.
+1. Verificar health check cada 10 segundos hasta obtener `200 OK`.
 
 ### Verificar que la aplicación arrancó correctamente
 
@@ -199,7 +199,7 @@ az appservice plan update \
 [Convert]::ToBase64String([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(64))
 ```
 
-2. Actualiza el secreto en Key Vault:
+1. Actualiza el secreto en Key Vault:
 
 ```bash
 az keyvault secret set \
@@ -208,9 +208,9 @@ az keyvault secret set \
   --value "<nueva-clave-generada>"
 ```
 
-3. Reinicia el App Service para que tome el nuevo valor (sección 4).
+1. Reinicia el App Service para que tome el nuevo valor (sección 4).
 
-4. Verifica que el login funciona correctamente:
+1. Verifica que el login funciona correctamente:
 
 ```bash
 curl -X POST https://api.pawtrack.cr/auth/login \
@@ -218,14 +218,14 @@ curl -X POST https://api.pawtrack.cr/auth/login \
   -d '{"email":"test@test.com","password":"..."}'
 ```
 
-5. Purga la tabla `RefreshTokens` si los tokens anteriores pueden haberse filtrado:
+1. Purga la tabla `RefreshTokens` si los tokens anteriores pueden haberse filtrado:
 
 ```sql
 -- Conectar a Azure SQL (pawtrack DB)
 DELETE FROM RefreshTokens WHERE IsRevoked = 0;
 ```
 
-6. Registra el incidente (quién, cuándo, por qué se rotó la clave).
+1. Registra el incidente (quién, cuándo, por qué se rotó la clave).
 
 ### 6.2 Rotar el connection string de SQL
 
@@ -238,13 +238,13 @@ az sql server update \
   --admin-password "<nueva-contraseña>"
 ```
 
-2. Construye el nuevo connection string:
+1. Construye el nuevo connection string:
 
-```
+```text
 Server=tcp:pawtrack-prod-sql.database.windows.net,1433;Initial Catalog=pawtrack;User Id=pawtrackadmin;Password=<nueva-contraseña>;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
 ```
 
-3. Actualiza Key Vault:
+1. Actualiza Key Vault:
 
 ```bash
 az keyvault secret set \
@@ -253,16 +253,16 @@ az keyvault secret set \
   --value "<nuevo-connection-string>"
 ```
 
-4. Reinicia el App Service (sección 4).
+1. Reinicia el App Service (sección 4).
 
-5. Verifica el health check. Si el health check incluye una verificación de DB (`/health/ready`), confírmalo también.
+1. Verifica el health check. Si el health check incluye una verificación de DB (`/health/ready`), confírmalo también.
 
 ### 6.3 Rotar otros secretos de Key Vault
 
 Para cualquier otro secreto (`storage-connection-string`, `vision-key`, `whatsapp-access-token`, etc.):
 
 1. Genera o consigue el nuevo valor desde el proveedor correspondiente.
-2. Actualiza en Key Vault:
+1. Actualiza en Key Vault:
 
 ```bash
 az keyvault secret set \
@@ -271,8 +271,8 @@ az keyvault secret set \
   --value "<nuevo-valor>"
 ```
 
-3. Reinicia el App Service (sección 4).
-4. El App Service toma el nuevo valor en el siguiente ciclo de caché de Key Vault (máximo 24 h si no se reinicia).
+1. Reinicia el App Service (sección 4).
+1. El App Service toma el nuevo valor en el siguiente ciclo de caché de Key Vault (máximo 24 h si no se reinicia).
 
 ---
 
@@ -434,10 +434,10 @@ KILL <session_id>;
 Azure SQL retiene backups automáticos. Para restaurar:
 
 1. Portal Azure → `pawtrack-prod-sql` → `pawtrack` (database) → **Restore**.
-2. Selecciona el punto en el tiempo deseado.
-3. Introduce un nuevo nombre de base de datos de destino (no restaures sobre la producción directamente).
-4. Valida los datos en la base restaurada.
-5. Si es correcto, redirige las conexiones.
+1. Selecciona el punto en el tiempo deseado.
+1. Introduce un nuevo nombre de base de datos de destino (no restaures sobre la producción directamente).
+1. Valida los datos en la base restaurada.
+1. Si es correcto, redirige las conexiones.
 
 ---
 
@@ -502,8 +502,8 @@ WHERE Id = '<guid-de-la-clinica>';
 ### Antes del mantenimiento
 
 1. Publica un aviso en la plataforma si el downtime afecta a usuarios (si está implementado).
-2. Toma nota del estado actual del health check.
-3. Verifica que Application Insights está capturando métricas.
+1. Toma nota del estado actual del health check.
+1. Verifica que Application Insights está capturando métricas.
 
 ### Deploy de una nueva versión
 
@@ -587,26 +587,26 @@ Los pasaportes veterinarios digitales son documentos verificables emitidos por c
 ### 16.1 Fallo al generar PDF
 
 1. Confirmar que el certificado existe en `VetCertificates` y tiene `VerificationCode`.
-2. Revisar `CertificateAuditLogs` para eventos `Issued` sin `PdfGenerated`.
-3. Revisar errores de Blob Storage en Application Insights.
-4. Confirmar que el contenedor `certificates` existe y es privado.
-5. Reintentar emisión solo si no se generó PDF ni se entregó al usuario. Si ya existe un certificado emitido, preferir revocarlo con motivo y emitir uno nuevo.
+1. Revisar `CertificateAuditLogs` para eventos `Issued` sin `PdfGenerated`.
+1. Revisar errores de Blob Storage en Application Insights.
+1. Confirmar que el contenedor `certificates` existe y es privado.
+1. Reintentar emisión solo si no se generó PDF ni se entregó al usuario. Si ya existe un certificado emitido, preferir revocarlo con motivo y emitir uno nuevo.
 
 ### 16.2 Revocación urgente
 
 1. Confirmar identidad del solicitante: clínica emisora o admin.
-2. Registrar motivo claro: error de datos, lote equivocado, veterinario no autorizado, solicitud de corrección u otro motivo verificable.
-3. Ejecutar `POST /api/certificates/{id}/revoke` desde una sesión autorizada.
-4. Verificar que `/api/certificates/verify/{code}` responda con `isRevoked=true` e `isValid=false`.
-5. Revisar `CertificateAuditLogs` para evento `Revoked`.
+1. Registrar motivo claro: error de datos, lote equivocado, veterinario no autorizado, solicitud de corrección u otro motivo verificable.
+1. Ejecutar `POST /api/certificates/{id}/revoke` desde una sesión autorizada.
+1. Verificar que `/api/certificates/verify/{code}` responda con `isRevoked=true` e `isValid=false`.
+1. Revisar `CertificateAuditLogs` para evento `Revoked`.
 
 ### 16.3 Reporte de certificado falso
 
 1. Solicitar el código de verificación de 8 caracteres.
-2. Consultar `/api/certificates/verify/{code}`.
-3. Si no existe, responder que no corresponde a un documento emitido por PawTrack CR.
-4. Si existe pero los datos no coinciden, escalar a admin para revisión de clínica/veterinario y posible revocación.
-5. No compartir PDF completo ni datos privados por canales no autenticados.
+1. Consultar `/api/certificates/verify/{code}`.
+1. Si no existe, responder que no corresponde a un documento emitido por PawTrack CR.
+1. Si existe pero los datos no coinciden, escalar a admin para revisión de clínica/veterinario y posible revocación.
+1. No compartir PDF completo ni datos privados por canales no autenticados.
 
 ### 16.4 Auditoría rápida
 
@@ -622,18 +622,18 @@ ORDER BY CreatedAt DESC;
 Eventos esperados en un flujo normal:
 
 1. `Issued`
-2. `PdfGenerated`
-3. `Downloaded` cuando dueño/clínica descarga PDF
-4. `VerifiedPublicly` cuando se escanea el QR o se consulta el código
+1. `PdfGenerated`
+1. `Downloaded` cuando dueño/clínica descarga PDF
+1. `VerifiedPublicly` cuando se escanea el QR o se consulta el código
 
 ### 16.5 Verificación documental de clínicas y veterinarios
 
 1. La clínica solicita verificación desde `/clinica/portal` y sube documento privado.
-2. El admin revisa en **Admin → Verificación**.
-3. Al aprobar, siempre define fecha de vencimiento.
-4. Al rechazar o suspender, siempre registra motivo claro.
-5. Los documentos se descargan solo desde endpoints autenticados y cada descarga se audita en `VerificationAuditLogs`.
-6. El job `VerificationExpirationHostedService` marca verificaciones y veterinarios vencidos diariamente a las 03:20 hora CR.
+1. El admin revisa en **Admin → Verificación**.
+1. Al aprobar, siempre define fecha de vencimiento.
+1. Al rechazar o suspender, siempre registra motivo claro.
+1. Los documentos se descargan solo desde endpoints autenticados y cada descarga se audita en `VerificationAuditLogs`.
+1. El job `VerificationExpirationHostedService` marca verificaciones y veterinarios vencidos diariamente a las 03:20 hora CR.
 
 Consulta rápida:
 
@@ -641,5 +641,22 @@ Consulta rápida:
 SELECT EntityType, EntityId, Action, ActorUserId, Details, CreatedAt
 FROM VerificationAuditLogs
 WHERE EntityId = @EntityId
+ORDER BY CreatedAt DESC;
+```
+
+### 16.6 Conflicto de microchip
+
+1. Revisar la pestaña **Admin → Microchips**.
+1. Confirmar el chip declarado, el chip observado por la clínica y la nota de conflicto.
+1. Si el chip observado es correcto, resolver el conflicto confirmando el microchip.
+1. Si la evidencia es insuficiente, revocar la verificación con motivo.
+1. No publicar ni compartir microchips completos por canales no autenticados.
+
+Consulta rápida:
+
+```sql
+SELECT Action, FieldName, PreviousValue, NewValue, Reason, CreatedAt
+FROM PetSanitaryIdentityAuditLogs
+WHERE PetId = @PetId
 ORDER BY CreatedAt DESC;
 ```

@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using PawTrack.Application.AnimalWelfare.Commands;
 using PawTrack.Application.Municipalities;
 using PawTrack.Application.Municipalities.Commands.BulkUpdateStatus;
 using PawTrack.Application.Municipalities.Commands.RecordCapture;
@@ -12,6 +13,7 @@ using PawTrack.Application.Municipalities.Interfaces;
 using PawTrack.Application.Municipalities.Queries.GetCantonStatistics;
 using PawTrack.Application.Municipalities.Queries.GetRegionalDashboard;
 using PawTrack.Application.Municipalities.Queries.SearchCaptures;
+using PawTrack.Domain.AnimalWelfare;
 using PawTrack.Domain.Municipalities;
 using System.Security.Claims;
 
@@ -206,6 +208,29 @@ public sealed class MunicipalController(ISender sender, IMunicipalSubscriptionSe
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);
     }
 
+    // ── POST /api/municipalities/captures/{id}/welfare-case ─────────────────
+    [HttpPost("captures/{id:guid}/welfare-case")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(2048)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> ConvertToWelfareCase(
+        Guid id,
+        [FromBody] ConvertCaptureToWelfareCaseRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
+        var result = await sender.Send(new ConvertCapturedAnimalToWelfareCaseCommand(
+            id,
+            userId,
+            request.Severity,
+            request.Description), ct);
+
+        return result.IsSuccess ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors), Status = 422 });
+    }
+
     // ── Admin: POST /api/municipalities/admin/profiles ────────────────────────
     [HttpPost("admin/profiles")]
     [Authorize(Roles = "Admin")]
@@ -247,6 +272,7 @@ public sealed record BulkUpdateStatusRequest(
     Guid? MatchedPetId = null);
 
 public sealed record TransferRequest(string DestinationCanton, string? Notes);
+public sealed record ConvertCaptureToWelfareCaseRequest(WelfareSeverity Severity, string? Description);
 
 public sealed record UpsertProfileRequest(
     Guid UserId,

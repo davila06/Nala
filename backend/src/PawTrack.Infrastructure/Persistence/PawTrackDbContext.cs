@@ -31,6 +31,8 @@ using PawTrack.Domain.Stores;
 using PawTrack.Domain.Subscriptions;
 using PawTrack.Domain.Adoptions;
 using PawTrack.Domain.Audit;
+using PawTrack.Domain.AnimalWelfare;
+using PawTrack.Domain.Regulatory;
 using PawTrack.Domain.Bot;
 using PawTrack.Domain.Medical;
 using PawTrack.Domain.Outbox;
@@ -46,6 +48,7 @@ public sealed class PawTrackDbContext(
     public DbSet<AllyProfile> AllyProfiles => Set<AllyProfile>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<Pet> Pets => Set<Pet>();
+    public DbSet<PetSanitaryIdentityAuditLog> PetSanitaryIdentityAuditLogs => Set<PetSanitaryIdentityAuditLog>();
     public DbSet<QrScanEvent> QrScanEvents => Set<QrScanEvent>();
     public DbSet<LostPetEvent> LostPetEvents => Set<LostPetEvent>();
     public DbSet<Notification> Notifications => Set<Notification>();
@@ -117,6 +120,14 @@ public sealed class PawTrackDbContext(
     public DbSet<AuditLogEntry> AuditLog => Set<AuditLogEntry>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     public DbSet<BreedReference> BreedReferences => Set<BreedReference>();
+    public DbSet<AnimalWelfareCase> AnimalWelfareCases => Set<AnimalWelfareCase>();
+    public DbSet<AnimalWelfareEvidence> AnimalWelfareEvidence => Set<AnimalWelfareEvidence>();
+    public DbSet<AnimalWelfareCaseNote> AnimalWelfareCaseNotes => Set<AnimalWelfareCaseNote>();
+    public DbSet<AnimalWelfareReferral> AnimalWelfareReferrals => Set<AnimalWelfareReferral>();
+    public DbSet<AnimalWelfareCaseAuditLog> AnimalWelfareCaseAuditLogs => Set<AnimalWelfareCaseAuditLog>();
+    public DbSet<RegulatoryExport> RegulatoryExports => Set<RegulatoryExport>();
+    public DbSet<ReportDefinition> ReportDefinitions => Set<ReportDefinition>();
+    public DbSet<RegulatorySubmission> RegulatorySubmissions => Set<RegulatorySubmission>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

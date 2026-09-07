@@ -105,15 +105,30 @@ El codigo actual ya contiene una implementacion base:
 - `GET /api/certificates/verify/{code}` publico.
 - `QuestPdfCertificateService` con layout especifico para Vaccine Passport.
 
-Sin embargo, la version actual todavia debe endurecerse para nivel enterprise:
+El endurecimiento enterprise descrito arriba fue implementado en Sprint 1-3. Las
+validaciones, grants, snapshots estructurados, rabia, auditoría y separación
+legal están cubiertos por el código y sus pruebas. La integración oficial con
+SENASA continúa fuera de alcance hasta existir convenio y canal aprobado.
 
-- validar que la clinica solicitante sea realmente la misma del token;
-- verificar grant activo del expediente medico entre pet y clinica;
-- persistir datos estructurados del pasaporte, no solo PDF/certificado generico;
-- validar licencia de veterinario y formato requerido;
-- exigir rabia para perros cuando aplique;
-- agregar auditoria de emision, revocacion, descarga y verificacion publica;
-- separar claramente certificado PawTrack de certificado oficial SENASA.
+### 3.4 Estado verificado de los sprints SENASA-ready
+
+- **Sprint 1:** pasaporte estructurado, clínicas/veterinarios verificados,
+  grants médicos, validación de rabia, revocación y auditoría implementados.
+- **Sprint 2:** documentos privados, estados de revisión, vencimiento,
+  revalidación, jobs y paneles de clínica/admin implementados.
+- **Sprint 3:** identidad sanitaria opcional, estados de microchip, conflictos,
+  auditoría y UI progresiva implementados.
+- **Sprint 4:** casos de bienestar, evidencia privada, triage, asignación,
+  derivación, cierre, auditoría, integración municipal y UI administrativa base
+  implementados.
+- **Sprint 5:** exports CSV/JSON/PDF, hash, Blob privado, preview, filtros,
+  autorización institucional, NALA overview/tendencias/mapa agregado, cache,
+  ETag, retención y gateway `NoOp` implementados.
+
+Los pendientes de Sprint 5 son principalmente validación operativa: pruebas de
+carga, ejecución E2E contra un backend real, alertas KQL/Workbooks configuradas
+en Azure, revisión legal/privacidad, staging/rollback y piloto institucional.
+Ninguno de estos puntos debe describirse como integración oficial con SENASA.
 
 ---
 
@@ -926,7 +941,7 @@ Orden recomendado de sprints:
 
 - Sprint 1: Pasaporte/certificado enterprise-ready. Ver [`senasa-sprint1-todolist.md`](./senasa-sprint1-todolist.md).
 - Sprint 2: Verificacion de clinicas y veterinarios. Ver [`senasa-sprint2-todolist.md`](./senasa-sprint2-todolist.md).
-- Sprint 3: Identidad sanitaria extendida.
-- Sprint 4: Casos de bienestar animal.
-- Sprint 5: Reportes institucionales y NALA dashboard.
+- Sprint 3: Identidad sanitaria extendida. Ver [`senasa-sprint3-todolist.md`](./senasa-sprint3-todolist.md).
+- Sprint 4: Casos de bienestar animal. Ver [`senasa-sprint4-todolist.md`](./senasa-sprint4-todolist.md).
+- Sprint 5: Reportes institucionales y NALA dashboard. Ver [`senasa-sprint5-todolist.md`](./senasa-sprint5-todolist.md).
 - Sprint 6: Adaptador SENASA cuando exista convenio/canal.

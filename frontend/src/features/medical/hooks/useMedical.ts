@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  clinicMedicalApi,
   medicalApi,
   type AddMedicalRecordPayload,
   type UpdateMedicalRecordPayload,
   type CreateVetReminderPayload,
+  type UpdatePetSanitaryIdentityPayload,
 } from "../api/medicalApi";
 
 export function useMedicalHistory(petId: string) {
@@ -46,6 +48,56 @@ export function useHealthScore(petId: string) {
     retry: (count, err: { response?: { status?: number } } | unknown) =>
       (err as { response?: { status?: number } })?.response?.status !== 403 &&
       count < 2,
+  });
+}
+
+export function usePetSanitaryIdentity(petId: string) {
+  return useQuery({
+    queryKey: ["pet-sanitary-identity", petId],
+    queryFn: () => medicalApi.getSanitaryIdentity(petId),
+    enabled: !!petId,
+    staleTime: 30_000,
+  });
+}
+
+export function useUpdatePetSanitaryIdentity(petId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: UpdatePetSanitaryIdentityPayload) =>
+      medicalApi.updateSanitaryIdentity(petId, payload),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["pet-sanitary-identity", petId] });
+      void qc.invalidateQueries({ queryKey: ["pets"] });
+    },
+  });
+}
+
+export function useClinicPetSanitaryIdentity(petId: string) {
+  return useQuery({
+    queryKey: ["clinic-pet-sanitary-identity", petId],
+    queryFn: () => clinicMedicalApi.getPatientSanitaryIdentity(petId),
+    enabled: !!petId,
+    staleTime: 30_000,
+  });
+}
+
+export function useVerifyClinicPetMicrochip(petId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { observedChipId: string; notes?: string }) =>
+      clinicMedicalApi.verifyMicrochip(
+        petId,
+        payload.observedChipId,
+        payload.notes,
+      ),
+    onSuccess: () => {
+      void qc.invalidateQueries({
+        queryKey: ["clinic-pet-sanitary-identity", petId],
+      });
+      void qc.invalidateQueries({
+        queryKey: ["clinic-patient-history", petId],
+      });
+    },
   });
 }
 

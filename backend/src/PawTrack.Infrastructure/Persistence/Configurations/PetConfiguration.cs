@@ -30,6 +30,22 @@ public sealed class PetConfiguration : IEntityTypeConfiguration<Pet>
         builder.Property(p => p.Breed)
             .HasMaxLength(100);
 
+        builder.Property(p => p.Sex)
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(20);
+
+        builder.Property(p => p.Color).HasMaxLength(80);
+        builder.Property(p => p.DistinctiveMarks).HasMaxLength(300);
+
+        builder.Property(p => p.SterilizedStatus)
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(20);
+
+        builder.Property(p => p.SterilizedAt).HasColumnType("date");
+        builder.Property(p => p.ResidenceCanton).HasMaxLength(80);
+
         builder.Property(p => p.BirthDate)
             .HasColumnType("date");
 
@@ -47,6 +63,18 @@ public sealed class PetConfiguration : IEntityTypeConfiguration<Pet>
         builder.HasIndex(p => p.MicrochipId)
             .HasFilter("[MicrochipId] IS NOT NULL")
             .IsUnique();
+
+        builder.Property(p => p.MicrochipVerificationStatus)
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(20);
+        builder.Property(p => p.MicrochipVerifiedAt);
+        builder.Property(p => p.MicrochipVerifiedByClinicId);
+        builder.Property(p => p.MicrochipVerificationNotes).HasMaxLength(300);
+        builder.Property(p => p.ResponsibleOwnerId).IsRequired();
+
+        builder.HasIndex(p => p.MicrochipVerificationStatus);
+        builder.HasIndex(p => p.ResidenceCanton);
 
         builder.Property(p => p.CreatedAt).IsRequired();
         builder.Property(p => p.UpdatedAt).IsRequired();

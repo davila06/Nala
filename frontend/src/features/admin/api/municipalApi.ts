@@ -69,6 +69,18 @@ export interface RegionalDashboardDto {
   regionalRecoveryRate: number;
 }
 
+export type WelfareSeverity = "Low" | "Medium" | "High" | "Critical";
+
+export interface PublicWelfareCaseStatusDto {
+  publicCode: string;
+  status: string;
+  severity: WelfareSeverity;
+  canton: string;
+  createdAt: string;
+  updatedAt: string;
+  closedAt: string | null;
+}
+
 export interface BulkUpdateResultDto {
   updated: number;
   notFound: number;
@@ -174,5 +186,16 @@ export const municipalApi = {
         destinationCanton,
         notes,
       })
+      .then((r) => r.data),
+
+  convertToWelfareCase: (
+    id: string,
+    payload: { severity: WelfareSeverity; description?: string },
+  ): Promise<PublicWelfareCaseStatusDto> =>
+    apiClient
+      .post<PublicWelfareCaseStatusDto>(
+        `/municipalities/captures/${id}/welfare-case`,
+        payload,
+      )
       .then((r) => r.data),
 };

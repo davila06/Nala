@@ -156,6 +156,40 @@ export interface HealthScoreDto {
   breakdown: HealthScoreBreakdownItemDto[];
 }
 
+export type PetSex = "Unknown" | "Male" | "Female" | "NotApplicable";
+export type SterilizedStatus = "Unknown" | "Yes" | "No" | "NotApplicable";
+export type MicrochipVerificationStatus =
+  | "NotProvided"
+  | "Declared"
+  | "Verified"
+  | "Conflict"
+  | "Revoked";
+
+export interface PetSanitaryIdentityDto {
+  petId: string;
+  sex: PetSex;
+  color: string | null;
+  distinctiveMarks: string | null;
+  sterilizedStatus: SterilizedStatus;
+  sterilizedAt: string | null;
+  residenceCanton: string | null;
+  microchipId: string | null;
+  microchipVerificationStatus: MicrochipVerificationStatus;
+  microchipVerifiedAt: string | null;
+  microchipVerifiedByClinicId: string | null;
+  microchipVerificationNotes: string | null;
+}
+
+export interface UpdatePetSanitaryIdentityPayload {
+  sex: PetSex;
+  color?: string;
+  distinctiveMarks?: string;
+  sterilizedStatus: SterilizedStatus;
+  sterilizedAt?: string;
+  residenceCanton?: string;
+  microchipId?: string;
+}
+
 // ── API ───────────────────────────────────────────────────────────────────────
 
 export interface MedicalRecordCountDto {
@@ -182,6 +216,19 @@ export const medicalApi = {
   getHealthScore: (petId: string): Promise<HealthScoreDto> =>
     apiClient
       .get<HealthScoreDto>(`/pets/${petId}/medical/health-score`)
+      .then((r) => r.data),
+
+  getSanitaryIdentity: (petId: string): Promise<PetSanitaryIdentityDto> =>
+    apiClient
+      .get<PetSanitaryIdentityDto>(`/pets/${petId}/sanitary-identity`)
+      .then((r) => r.data),
+
+  updateSanitaryIdentity: (
+    petId: string,
+    payload: UpdatePetSanitaryIdentityPayload,
+  ): Promise<PetSanitaryIdentityDto> =>
+    apiClient
+      .put<PetSanitaryIdentityDto>(`/pets/${petId}/sanitary-identity`, payload)
       .then((r) => r.data),
 
   downloadAnnualReport: (petId: string, year: number): Promise<Blob> =>
@@ -312,6 +359,30 @@ export const clinicMedicalApi = {
   getPatientHistory: (petId: string): Promise<ClinicPatientHistoryDto> =>
     apiClient
       .get<ClinicPatientHistoryDto>(`/clinics/patients/${petId}/medical`)
+      .then((r) => r.data),
+
+  getPatientSanitaryIdentity: (
+    petId: string,
+  ): Promise<PetSanitaryIdentityDto> =>
+    apiClient
+      .get<PetSanitaryIdentityDto>(
+        `/clinics/patients/${petId}/sanitary-identity`,
+      )
+      .then((r) => r.data),
+
+  verifyMicrochip: (
+    petId: string,
+    observedChipId: string,
+    notes?: string,
+  ): Promise<PetSanitaryIdentityDto> =>
+    apiClient
+      .post<PetSanitaryIdentityDto>(
+        `/clinics/patients/${petId}/microchip/verify`,
+        {
+          observedChipId,
+          notes,
+        },
+      )
       .then((r) => r.data),
 
   addRecord: (
