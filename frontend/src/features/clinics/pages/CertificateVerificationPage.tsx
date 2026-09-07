@@ -209,34 +209,14 @@ export default function CertificateVerificationPage() {
                   </span>
                 }
               />
-              {cert.notes && (
-                <div className="mt-3 rounded-xl bg-surface-warm px-4 py-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sand-400">
-                    Observaciones
-                  </p>
-                  <p className="mt-1 text-sm text-sand-700">{cert.notes}</p>
-                </div>
-              )}
             </div>
-
-            {/* PDF download */}
-            {cert.pdfUrl && (
-              <a
-                href={cert.pdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 rounded-2xl border border-trust-200 bg-trust-50 py-3 text-sm font-semibold text-trust-700 hover:bg-trust-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400"
-              >
-                <span aria-hidden="true">📄</span>
-                Descargar certificado PDF
-              </a>
-            )}
 
             {/* Trust footer */}
             <div className="rounded-2xl border border-sand-100 bg-surface px-4 py-3 text-center">
               <p className="text-[10px] text-sand-400">
-                Este certificado fue emitido digitalmente por una clínica
-                verificada en{" "}
+                Verificación pública minimizada. El PDF completo solo está
+                disponible para usuarios autorizados. Emitido digitalmente por
+                una clínica verificada en{" "}
                 <span className="font-semibold text-brand-600">
                   PawTrack CR
                 </span>{" "}

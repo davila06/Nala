@@ -22,6 +22,9 @@ public sealed class VetCertificateConfiguration : IEntityTypeConfiguration<VetCe
         builder.Property(x => x.IssuedAt).IsRequired();
         builder.Property(x => x.ValidUntil);
         builder.Property(x => x.IsRevoked).IsRequired();
+        builder.Property(x => x.RevokedAt);
+        builder.Property(x => x.RevokedByUserId);
+        builder.Property(x => x.RevocationReason).HasMaxLength(300);
 
         builder.Ignore(x => x.IsValid); // computed
 

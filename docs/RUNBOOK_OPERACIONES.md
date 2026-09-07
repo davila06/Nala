@@ -28,6 +28,7 @@
 13. [Suspender o reactivar una clínica manualmente](#13-suspender-o-reactivar-una-clínica-manualmente)
 14. [Procedimientos de mantenimiento programado](#14-procedimientos-de-mantenimiento-programado)
 15. [Contactos y escalada](#15-contactos-y-escalada)
+16. [Pasaportes veterinarios SENASA-ready](#16-pasaportes-veterinarios-senasa-ready)
 
 ---
 
@@ -576,3 +577,69 @@ WHERE CreatedAt < DATEADD(DAY, -90, GETUTCDATE());
 | Azure (global)            | `https://azure.status.microsoft`                     |
 | Meta / WhatsApp Cloud API | `https://metastatus.com`                             |
 | Azure Maps                | Panel de Azure Portal → Azure Maps → Resource health |
+
+---
+
+## 16. Pasaportes veterinarios SENASA-ready
+
+Los pasaportes veterinarios digitales son documentos verificables emitidos por clínicas `ClinicPartner`. No representan integración oficial con SENASA; el lenguaje operativo correcto es **SENASA-ready**.
+
+### 16.1 Fallo al generar PDF
+
+1. Confirmar que el certificado existe en `VetCertificates` y tiene `VerificationCode`.
+2. Revisar `CertificateAuditLogs` para eventos `Issued` sin `PdfGenerated`.
+3. Revisar errores de Blob Storage en Application Insights.
+4. Confirmar que el contenedor `certificates` existe y es privado.
+5. Reintentar emisión solo si no se generó PDF ni se entregó al usuario. Si ya existe un certificado emitido, preferir revocarlo con motivo y emitir uno nuevo.
+
+### 16.2 Revocación urgente
+
+1. Confirmar identidad del solicitante: clínica emisora o admin.
+2. Registrar motivo claro: error de datos, lote equivocado, veterinario no autorizado, solicitud de corrección u otro motivo verificable.
+3. Ejecutar `POST /api/certificates/{id}/revoke` desde una sesión autorizada.
+4. Verificar que `/api/certificates/verify/{code}` responda con `isRevoked=true` e `isValid=false`.
+5. Revisar `CertificateAuditLogs` para evento `Revoked`.
+
+### 16.3 Reporte de certificado falso
+
+1. Solicitar el código de verificación de 8 caracteres.
+2. Consultar `/api/certificates/verify/{code}`.
+3. Si no existe, responder que no corresponde a un documento emitido por PawTrack CR.
+4. Si existe pero los datos no coinciden, escalar a admin para revisión de clínica/veterinario y posible revocación.
+5. No compartir PDF completo ni datos privados por canales no autenticados.
+
+### 16.4 Auditoría rápida
+
+Consultar por certificado:
+
+```sql
+SELECT Action, ActorUserId, Details, CreatedAt
+FROM CertificateAuditLogs
+WHERE CertificateId = @CertificateId
+ORDER BY CreatedAt DESC;
+```
+
+Eventos esperados en un flujo normal:
+
+1. `Issued`
+2. `PdfGenerated`
+3. `Downloaded` cuando dueño/clínica descarga PDF
+4. `VerifiedPublicly` cuando se escanea el QR o se consulta el código
+
+### 16.5 Verificación documental de clínicas y veterinarios
+
+1. La clínica solicita verificación desde `/clinica/portal` y sube documento privado.
+2. El admin revisa en **Admin → Verificación**.
+3. Al aprobar, siempre define fecha de vencimiento.
+4. Al rechazar o suspender, siempre registra motivo claro.
+5. Los documentos se descargan solo desde endpoints autenticados y cada descarga se audita en `VerificationAuditLogs`.
+6. El job `VerificationExpirationHostedService` marca verificaciones y veterinarios vencidos diariamente a las 03:20 hora CR.
+
+Consulta rápida:
+
+```sql
+SELECT EntityType, EntityId, Action, ActorUserId, Details, CreatedAt
+FROM VerificationAuditLogs
+WHERE EntityId = @EntityId
+ORDER BY CreatedAt DESC;
+```

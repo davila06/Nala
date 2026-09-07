@@ -9,7 +9,11 @@ import { ScanInput } from "../components/ScanInput";
 import { MatchResultCard } from "../components/MatchResultCard";
 import { ClinicTiersModal } from "../components/ClinicTiersModal";
 import { CertificateIssueModal } from "../components/CertificateIssueModal";
-import { useCertificatesForClinic } from "../hooks/useCertificates";
+import { ClinicVerificationPanel } from "../components/ClinicVerificationPanel";
+import {
+  useCertificatesForClinic,
+  useDownloadCertificatePdf,
+} from "../hooks/useCertificates";
 import {
   useClinicScanStats,
   useUploadClinicLogo,
@@ -275,6 +279,8 @@ export default function ClinicDashboardPage() {
               />
             )}
 
+            <ClinicVerificationPanel />
+
             {/* ── Partner: certificate issuing ──────────────────────────── */}
             {/* Shown only when clinic has Partner tier; gated by backend on issue */}
             <button
@@ -302,8 +308,6 @@ export default function ClinicDashboardPage() {
             {showCertificate && clinic && (
               <CertificateIssueModal
                 clinicId={clinic.id}
-                clinicName={clinic.name}
-                clinicLicense={clinic.licenseNumber}
                 onClose={() => setShowCertificate(false)}
               />
             )}
@@ -691,7 +695,7 @@ function ClinicStatsSection() {
               <div
                 key={d.day}
                 title={`${d.day}: ${d.total} escaneos`}
-                className="flex-1 rounded-sm bg-brand-400 hover:bg-brand-500 transition-colors min-h-[2px]"
+                className="flex-1 rounded-sm bg-brand-400 hover:bg-brand-500 transition-colors min-h-0.5"
                 style={{
                   height: `${Math.max(4, (d.total / maxTotal) * 100)}%`,
                 }}
@@ -870,6 +874,18 @@ function ClinicApiKeysSection(_: { clinicId: string }) {
 
 function ClinicCertificateHistory({ clinicId }: { clinicId: string }) {
   const { data: certs, isLoading } = useCertificatesForClinic(clinicId);
+  const { mutateAsync: downloadPdf, isPending: downloading } =
+    useDownloadCertificatePdf();
+
+  const handleDownload = async (certificateId: string, code: string) => {
+    const blob = await downloadPdf(certificateId);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `pawtrack-certificate-${code}.pdf`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   if (isLoading) return null;
   if (!certs || certs.length === 0) return null;
@@ -909,14 +925,16 @@ function ClinicCertificateHistory({ clinicId }: { clinicId: string }) {
                     : "Vencido"}
               </span>
               {cert.pdfUrl && (
-                <a
-                  href={cert.pdfUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={() =>
+                    void handleDownload(cert.id, cert.verificationCode)
+                  }
+                  disabled={downloading}
                   className="text-[10px] font-semibold text-trust-600 hover:underline"
                 >
                   PDF
-                </a>
+                </button>
               )}
             </div>
           </li>

@@ -46,6 +46,68 @@ export function useReviewClinic() {
   });
 }
 
+export function useAdminClinicVerifications() {
+  return useQuery({
+    queryKey: ["admin", "clinic-verifications"],
+    queryFn: () => adminApi.getClinicVerifications(),
+    staleTime: 30_000,
+  });
+}
+
+export function useReviewClinicVerification() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      verificationId,
+      payload,
+    }: {
+      verificationId: string;
+      payload: {
+        approve: boolean;
+        expiresAt?: string;
+        reason?: string;
+        notes?: string;
+      };
+    }) => adminApi.reviewClinicVerification(verificationId, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["admin", "clinic-verifications"],
+      });
+    },
+  });
+}
+
+export function useAdminClinicVeterinariansForReview() {
+  return useQuery({
+    queryKey: ["admin", "clinic-veterinarians-review"],
+    queryFn: () => adminApi.getClinicVeterinariansForReview(),
+    staleTime: 30_000,
+  });
+}
+
+export function useReviewClinicVeterinarian() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      veterinarianId,
+      payload,
+    }: {
+      veterinarianId: string;
+      payload: {
+        approve: boolean;
+        expiresAt?: string;
+        reason?: string;
+        notes?: string;
+      };
+    }) => adminApi.reviewClinicVeterinarian(veterinarianId, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["admin", "clinic-veterinarians-review"],
+      });
+    },
+  });
+}
+
 export function useAdminSubscriptions(pendingOnly = false) {
   return useQuery({
     queryKey: ["admin", "subscriptions", pendingOnly],

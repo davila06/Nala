@@ -14,7 +14,8 @@
 4. [Portal de escaneo](#4-portal-de-escaneo)
 5. [Cómo escanear una mascota](#5-cómo-escanear-una-mascota)
 6. [Resultado de escaneo](#6-resultado-de-escaneo)
-7. [Preguntas frecuentes](#7-preguntas-frecuentes)
+7. [Pasaporte veterinario SENASA-ready](#7-pasaporte-veterinario-senasa-ready)
+8. [Preguntas frecuentes](#8-preguntas-frecuentes)
 
 ---
 
@@ -89,7 +90,7 @@ El registro y el perfil de directorio son la entrada gratuita. Los planes comerc
 | `ClinicPlus`    | ₡15,000/mes | Destacado en mapa, badge verificado, estadísticas de escaneos, métricas de visibilidad y certificados PDF verificables |
 | `ClinicPartner` | ₡35,000/mes | Todo ClinicPlus, API keys, widget embebible y endpoints especializados                                                 |
 
-Los gates se validan en el backend con una suscripción activa y no solo desde la interfaz. `ClinicPartner` es necesario para API keys, widget e integraciones; `ClinicPlus` habilita las métricas y la visibilidad premium.
+Los gates se validan en el backend con una suscripción activa y no solo desde la interfaz. `ClinicPartner` es necesario para API keys, widget, integraciones y emisión de pasaportes veterinarios digitales SENASA-ready; `ClinicPlus` habilita las métricas y la visibilidad premium.
 
 ---
 
@@ -169,7 +170,54 @@ Después de ver el resultado (encontrada o no), haz clic en **Escanear otra masc
 
 ---
 
-## 7. Preguntas frecuentes
+## 7. Pasaporte veterinario SENASA-ready
+
+El portal de clínica permite emitir un pasaporte veterinario digital verificable cuando se cumplen todas estas condiciones:
+
+- la clínica está activa;
+- la clínica tiene plan `ClinicPartner` activo;
+- administración verificó la licencia de la clínica para emisión de certificados;
+- la clínica registró al menos un veterinario autorizado;
+- la mascota tiene un grant activo de acceso al expediente médico para la clínica;
+- el formulario incluye las vacunas requeridas, incluida rabia para perros.
+
+El documento generado incluye código y QR de verificación pública. Esa verificación muestra datos mínimos: estado, tipo, mascota, especie, clínica emisora, fecha y vigencia. El PDF completo se descarga solo desde una sesión autorizada.
+
+Este flujo es **SENASA-ready**: está preparado para trazabilidad sanitaria y revisión documental, pero no sustituye trámites oficiales ni implica integración o aprobación oficial de SENASA.
+
+### 7.1 Emisión
+
+1. Abre `/clinica/portal`.
+2. Confirma que el plan activo sea `ClinicPartner`.
+3. Solicita verificación de la clínica y sube el documento de respaldo si aún no está cargado.
+4. Registra el veterinario, sube su documento y espera aprobación administrativa.
+5. Selecciona un veterinario autorizado.
+6. Ingresa el ID PawTrack de la mascota con acceso médico activo.
+7. Completa color/señas visibles, vacuna, marca, lote, fecha de aplicación y vigencia.
+8. Agrega control antiparasitario si aplica.
+9. Presiona **Emitir pasaporte SENASA-ready**.
+
+### 7.2 Verificación documental
+
+El panel **Verificación SENASA-ready** permite:
+
+- solicitar revisión de la clínica;
+- subir documentos privados de respaldo;
+- ver si la verificación está pendiente, aprobada, rechazada o vencida;
+- registrar veterinarios para revisión;
+- subir documento de veterinario;
+- subir firma o sello opcional;
+- revocar un veterinario que ya no debe emitir.
+
+Los documentos no se publican ni se exponen en el verificador público.
+
+### 7.3 Revocación
+
+Si un pasaporte fue emitido con datos incorrectos, solicita o ejecuta la revocación con motivo. Un documento revocado seguirá siendo verificable públicamente, pero aparecerá como **Revocado**.
+
+---
+
+## 8. Preguntas frecuentes
 
 **¿Necesito instalar alguna aplicación para usar el portal?**  
 No. El portal es una aplicación web progresiva (PWA). Accedes desde el navegador de cualquier computadora, tableta o teléfono. Para usar la cámara QR, Chrome (Android o desktop) ofrece la mejor compatibilidad.

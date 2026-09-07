@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using PawTrack.Application.Certificates.Commands;
 using PawTrack.Application.Certificates.Commands.IssueCertificate;
+using PawTrack.Application.Certificates.Commands.RevokeCertificate;
 using PawTrack.Application.Certificates.Interfaces;
+using PawTrack.Application.Certificates.Queries.DownloadCertificatePdf;
 using PawTrack.Application.Certificates.Queries.GetCertificatesForClinic;
 using PawTrack.Application.Certificates.Queries.GetCertificatesForPet;
 using PawTrack.Application.Certificates.Queries.VerifyCertificate;
@@ -27,8 +29,10 @@ public sealed class CertificatesController(ISender sender) : ControllerBase
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var isAdmin = User.IsInRole("Admin");
         var result = await sender.Send(
-            new GetCertificatesForClinicQuery(clinicId, page, pageSize),
+            new GetCertificatesForClinicQuery(clinicId, userId, isAdmin, page, pageSize),
             cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);
     }
@@ -38,7 +42,9 @@ public sealed class CertificatesController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetForPet(Guid petId, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetCertificatesForPetQuery(petId), cancellationToken);
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var isAdmin = User.IsInRole("Admin");
+        var result = await sender.Send(new GetCertificatesForPetQuery(petId, userId, isAdmin), cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);
     }
 
@@ -88,6 +94,7 @@ public sealed class CertificatesController(ISender sender) : ControllerBase
     // ── POST /api/certificates/passport ───────────────────────────────────────
     // Emits an OIRSA-format vaccine passport (Clinic Partner only)
     [HttpPost("passport")]
+    [Authorize(Roles = "Clinic")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(2048)]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -106,12 +113,58 @@ public sealed class CertificatesController(ISender sender) : ControllerBase
         var result = await sender.Send(
             new IssueVaccinePassportCommand(
                 request.PetId, request.ClinicId, userId,
+                request.VeterinarianId,
                 request.VetName, request.VetLicense, request.PetColor,
                 vaccines!, parasite),
             cancellationToken);
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
         return Created($"api/certificates/verify/{result.Value!.VerificationCode}", result.Value);
+    }
+
+    // ── GET /api/certificates/{id}/download ──────────────────────────────────
+    [HttpGet("{id:guid}/download")]
+    [EnableRateLimiting("public-api")]
+    [Produces("application/pdf")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> Download(Guid id, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
+        var result = await sender.Send(
+            new DownloadCertificatePdfQuery(id, userId, User.IsInRole("Admin")),
+            cancellationToken);
+
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors), Status = 422 });
+
+        return File(result.Value!.Bytes, result.Value.ContentType, result.Value.FileName);
+    }
+
+    // ── POST /api/certificates/{id}/revoke ───────────────────────────────────
+    [HttpPost("{id:guid}/revoke")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(512)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> Revoke(
+        Guid id,
+        [FromBody] RevokeCertificateRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
+        var isAdmin = User.IsInRole("Admin");
+        var result = await sender.Send(
+            new RevokeCertificateCommand(id, userId, isAdmin, request.Reason),
+            cancellationToken);
+
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
+
+        return Ok(result.Value);
     }
 
     private bool TryGetUserId(out Guid userId)
@@ -137,6 +190,7 @@ public sealed record IssueCertificateRequest(
 public sealed record IssueVaccinePassportRequest(
     Guid PetId,
     Guid ClinicId,
+    Guid VeterinarianId,
     string VetName,
     string? VetLicense,
     string? PetColor,
@@ -154,3 +208,5 @@ public sealed record ParasiteControlRequest(
     string ProductName,
     DateOnly ApplicationDate,
     DateOnly? NextDueDate);
+
+public sealed record RevokeCertificateRequest(string Reason);

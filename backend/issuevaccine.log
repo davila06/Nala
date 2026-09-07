@@ -1,0 +1,31 @@
+  Determinando los proyectos que se van a restaurar...
+C:\Nala\backend\src\PawTrack.API\PawTrack.API.csproj : warning NU1603: PawTrack.Infrastructure depende de QuestPDF (>= 2025.3.2), pero no se encontr├│ QuestPDF 2025.3.2. QuestPDF 2025.4.0 se resolvi├│ en su lugar. [C:\Nala\backend\tests\PawTrack.UnitTests\PawTrack.UnitTests.csproj]
+C:\Nala\backend\src\PawTrack.Infrastructure\PawTrack.Infrastructure.csproj : warning NU1603: PawTrack.Infrastructure depende de QuestPDF (>= 2025.3.2), pero no se encontr├│ QuestPDF 2025.3.2. QuestPDF 2025.4.0 se resolvi├│ en su lugar. [C:\Nala\backend\tests\PawTrack.UnitTests\PawTrack.UnitTests.csproj]
+C:\Nala\backend\tests\PawTrack.UnitTests\PawTrack.UnitTests.csproj : warning NU1603: PawTrack.Infrastructure depends on QuestPDF (>= 2025.3.2) but QuestPDF 2025.3.2 was not found. QuestPDF 2025.4.0 was resolved instead.
+  Todos los proyectos est├ín actualizados para la restauraci├│n.
+C:\Nala\backend\tests\PawTrack.UnitTests\PawTrack.UnitTests.csproj : warning NU1603: PawTrack.Infrastructure depends on QuestPDF (>= 2025.3.2) but QuestPDF 2025.3.2 was not found. QuestPDF 2025.4.0 was resolved instead.
+C:\Nala\backend\src\PawTrack.Infrastructure\PawTrack.Infrastructure.csproj : warning NU1603: PawTrack.Infrastructure depende de QuestPDF (>= 2025.3.2), pero no se encontr├│ QuestPDF 2025.3.2. QuestPDF 2025.4.0 se resolvi├│ en su lugar.
+C:\Nala\backend\src\PawTrack.API\PawTrack.API.csproj : warning NU1603: PawTrack.Infrastructure depende de QuestPDF (>= 2025.3.2), pero no se encontr├│ QuestPDF 2025.3.2. QuestPDF 2025.4.0 se resolvi├│ en su lugar.
+  PawTrack.Domain -> C:\Nala\backend\src\PawTrack.Domain\bin\Debug\net9.0\PawTrack.Domain.dll
+  PawTrack.Application -> C:\Nala\backend\src\PawTrack.Application\bin\Debug\net9.0\PawTrack.Application.dll
+  PawTrack.Infrastructure -> C:\Nala\backend\src\PawTrack.Infrastructure\bin\Debug\net9.0\PawTrack.Infrastructure.dll
+  PawTrack.API -> C:\Nala\backend\src\PawTrack.API\bin\Debug\net9.0\PawTrack.API.dll
+  PawTrack.UnitTests -> C:\Nala\backend\tests\PawTrack.UnitTests\bin\Debug\net9.0\PawTrack.UnitTests.dll
+Serie de pruebas para C:\Nala\backend\tests\PawTrack.UnitTests\bin\Debug\net9.0\PawTrack.UnitTests.dll (.NETCoreApp,Version=v9.0)
+1 archivos de prueba en total coincidieron con el patr├│n especificado.
+[xUnit.net 00:00:00.56]     PawTrack.UnitTests.Certificates.Commands.IssueVaccinePassportCommandHandlerTests.Handle_ClinicHasNoMedicalGrantForPet_ReturnsFailureWithoutIssuingCertificate [FAIL]
+  Con error PawTrack.UnitTests.Certificates.Commands.IssueVaccinePassportCommandHandlerTests.Handle_ClinicHasNoMedicalGrantForPet_ReturnsFailureWithoutIssuingCertificate [149 ms]
+  Mensaje de error:
+   Expected result.IsFailure to be True, but found False.
+  Seguimiento de la pila:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
+   at FluentAssertions.Primitives.BooleanAssertions`1.BeTrue(String because, Object[] becauseArgs)
+   at PawTrack.UnitTests.Certificates.Commands.IssueVaccinePassportCommandHandlerTests.Handle_ClinicHasNoMedicalGrantForPet_ReturnsFailureWithoutIssuingCertificate() in C:\Nala\backend\tests\PawTrack.UnitTests\Certificates\Commands\IssueVaccinePassportCommandHandlerTests.cs:line 98
+--- End of stack trace from previous location ---
+
+Con error! - Con error:     1, Superado:     1, Omitido:     0, Total:     2, Duraci├│n: 158 ms - PawTrack.UnitTests.dll (net9.0)

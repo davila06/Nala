@@ -14,6 +14,8 @@ using PawTrack.Application.Clinics.Queries.GetNearbyActiveAlerts;
 using PawTrack.Application.Clinics.Queries.GetPendingClinics;
 using PawTrack.Application.Clinics.Queries.GetPetMedicalHistoryForClinic;
 using PawTrack.Application.Clinics.Queries.GetPublicClinics;
+using PawTrack.Application.Certificates.Commands.ManageCertificateIssuers;
+using PawTrack.Application.Certificates.Queries.GetClinicCertificateIssuers;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Medical.ClinicAccess;
 using PawTrack.Domain.Auth;
@@ -436,6 +438,135 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         return NoContent();
     }
 
+    [HttpPut("admin/{clinicId:guid}/certificate-verification")]
+    [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(512)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> VerifyClinicForCertificates(
+        Guid clinicId,
+        [FromBody] VerifyClinicForCertificatesRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var adminUserId)) return Unauthorized();
+
+        var result = await sender.Send(
+            new VerifyClinicForCertificatesCommand(clinicId, adminUserId, request.ExpiresAt),
+            cancellationToken);
+
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+
+        return Ok(result.Value);
+    }
+
+    [HttpGet("admin/verifications")]
+    [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetClinicVerificationsForAdmin(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await sender.Send(new GetClinicVerificationsForAdminQuery(page, pageSize), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);
+    }
+
+    [HttpPut("admin/verifications/{verificationId:guid}/review")]
+    [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(1024)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> ReviewClinicVerification(
+        Guid verificationId,
+        [FromBody] ReviewVerificationRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var adminUserId)) return Unauthorized();
+
+        var result = await sender.Send(new ReviewClinicVerificationCommand(
+            verificationId, adminUserId, request.Approve, request.ExpiresAt, request.Reason, request.Notes), cancellationToken);
+
+        return result.IsSuccess ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpGet("admin/verifications/{verificationId:guid}/document")]
+    [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> DownloadClinicVerificationDocument(Guid verificationId, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var adminUserId)) return Unauthorized();
+        var result = await sender.Send(new DownloadClinicVerificationDocumentQuery(verificationId, adminUserId, IsAdmin: true), cancellationToken);
+        return result.IsSuccess
+            ? File(result.Value!.Bytes, result.Value.ContentType, result.Value.FileName)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpGet("admin/veterinarians")]
+    [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetVeterinariansForAdmin(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await sender.Send(new GetClinicVeterinariansForAdminQuery(page, pageSize), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);
+    }
+
+    [HttpPut("admin/veterinarians/{veterinarianId:guid}/review")]
+    [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(1024)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> ReviewVeterinarian(
+        Guid veterinarianId,
+        [FromBody] ReviewVerificationRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var adminUserId)) return Unauthorized();
+        var result = await sender.Send(new ReviewClinicVeterinarianCommand(
+            veterinarianId, adminUserId, request.Approve, request.ExpiresAt, request.Reason, request.Notes), cancellationToken);
+
+        return result.IsSuccess ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpPost("admin/veterinarians/{veterinarianId:guid}/suspend")]
+    [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(512)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> SuspendVeterinarian(
+        Guid veterinarianId,
+        [FromBody] ReasonRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var adminUserId)) return Unauthorized();
+        var result = await sender.Send(new SuspendClinicVeterinarianCommand(veterinarianId, adminUserId, request.Reason), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpGet("admin/veterinarians/{veterinarianId:guid}/document")]
+    [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> DownloadVeterinarianDocumentForAdmin(Guid veterinarianId, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var adminUserId)) return Unauthorized();
+        var result = await sender.Send(new DownloadVeterinarianDocumentQuery(veterinarianId, adminUserId, IsAdmin: true), cancellationToken);
+        return result.IsSuccess
+            ? File(result.Value!.Bytes, result.Value.ContentType, result.Value.FileName)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
     // ── Expediente digital ─────────────────────────────────────────────────────
 
     /// <summary>
@@ -593,6 +724,212 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
 
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);
     }
+
+    [HttpGet("me/certificate-issuers")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCertificateIssuers(CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(
+            new GetClinicCertificateIssuersQuery(clinicResult.Value.Id, userId),
+            cancellationToken);
+
+        return result.IsSuccess ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpGet("me/verification")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetMyVerification(CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(new GetMyClinicVerificationQuery(clinicResult.Value.Id, userId), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);
+    }
+
+    [HttpPost("me/verification")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(128)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public async Task<IActionResult> SubmitMyVerification(CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(new SubmitClinicVerificationCommand(clinicResult.Value.Id, userId), cancellationToken);
+        return result.IsSuccess ? Created(string.Empty, result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpPost("me/verification/document")]
+    [Authorize(Roles = "Clinic")]
+    [Consumes("multipart/form-data")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(5_242_880)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> UploadMyVerificationDocument(IFormFile file, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        using var ms = new MemoryStream();
+        await file.CopyToAsync(ms, cancellationToken);
+        var result = await sender.Send(new UploadClinicVerificationDocumentCommand(
+            clinicResult.Value.Id, userId, ms.ToArray(), file.ContentType), cancellationToken);
+
+        return result.IsSuccess ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpGet("me/verification/document")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> DownloadMyVerificationDocument(CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var verification = await sender.Send(new GetMyClinicVerificationQuery(clinicResult.Value.Id, userId), cancellationToken);
+        if (verification.IsFailure || verification.Value is null)
+            return NotFound(new ProblemDetails { Detail = "Documento no disponible.", Status = 404 });
+
+        var result = await sender.Send(new DownloadClinicVerificationDocumentQuery(verification.Value.Id, userId, IsAdmin: false), cancellationToken);
+        return result.IsSuccess
+            ? File(result.Value!.Bytes, result.Value.ContentType, result.Value.FileName)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpGet("me/veterinarians")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetMyVeterinarians(CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(new GetMyClinicVeterinariansQuery(clinicResult.Value.Id, userId), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);
+    }
+
+    [HttpPost("me/veterinarians")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(512)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> CreateVeterinarian(
+        [FromBody] CreateClinicVeterinarianRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(
+            new CreateClinicVeterinarianCommand(
+                clinicResult.Value.Id,
+                userId,
+                request.FullName,
+                request.LicenseNumber),
+            cancellationToken);
+
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+
+        return Created(string.Empty, result.Value);
+    }
+
+    [HttpPost("me/veterinarians/{veterinarianId:guid}/document")]
+    [Authorize(Roles = "Clinic")]
+    [Consumes("multipart/form-data")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(5_242_880)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> UploadVeterinarianDocument(Guid veterinarianId, IFormFile file, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        using var ms = new MemoryStream();
+        await file.CopyToAsync(ms, cancellationToken);
+        var result = await sender.Send(new UploadVeterinarianDocumentCommand(
+            clinicResult.Value.Id, veterinarianId, userId, ms.ToArray(), file.ContentType), cancellationToken);
+
+        return result.IsSuccess ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpGet("me/veterinarians/{veterinarianId:guid}/document")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> DownloadVeterinarianDocument(Guid veterinarianId, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new DownloadVeterinarianDocumentQuery(veterinarianId, userId, IsAdmin: false), cancellationToken);
+        return result.IsSuccess
+            ? File(result.Value!.Bytes, result.Value.ContentType, result.Value.FileName)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpPost("me/veterinarians/{veterinarianId:guid}/signature")]
+    [Authorize(Roles = "Clinic")]
+    [Consumes("multipart/form-data")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(2_097_152)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> UploadVeterinarianSignature(Guid veterinarianId, IFormFile file, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        using var ms = new MemoryStream();
+        await file.CopyToAsync(ms, cancellationToken);
+        var result = await sender.Send(new UploadVeterinarianSignatureCommand(
+            clinicResult.Value.Id, veterinarianId, userId, ms.ToArray(), file.ContentType), cancellationToken);
+
+        return result.IsSuccess ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpPost("me/veterinarians/{veterinarianId:guid}/revoke")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(512)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> RevokeMyVeterinarian(
+        Guid veterinarianId,
+        [FromBody] ReasonRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(new RevokeMyClinicVeterinarianCommand(
+            clinicResult.Value.Id, veterinarianId, userId, request.Reason), cancellationToken);
+        return result.IsSuccess ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
 }
 
 // ── Request models ────────────────────────────────────────────────────────────
@@ -611,6 +948,10 @@ public sealed record ClinicScanRequest(
     string InputType);
 
 public sealed record ReviewClinicRequest(bool Approve);
+public sealed record VerifyClinicForCertificatesRequest(DateOnly? ExpiresAt);
+public sealed record ReviewVerificationRequest(bool Approve, DateOnly? ExpiresAt, string? Reason, string? Notes);
+public sealed record ReasonRequest(string Reason);
+public sealed record CreateClinicVeterinarianRequest(string FullName, string LicenseNumber);
 
 public sealed record CreateApiKeyRequest(string Label);
 

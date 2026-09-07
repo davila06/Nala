@@ -260,6 +260,15 @@ public static class InfrastructureServiceCollectionExtensions
 
         // PDF Certificates
         services.AddScoped<ICertificateRepository, CertificateRepository>();
+        services.AddScoped<IVaccinePassportRepository, VaccinePassportRepository>();
+        services.AddScoped<IClinicVeterinarianRepository, ClinicVeterinarianRepository>();
+        services.AddScoped<IClinicVerificationRepository, ClinicVerificationRepository>();
+        services.AddScoped<ICertificateAuditLogRepository, CertificateAuditLogRepository>();
+        services.AddScoped<IVerificationAuditLogRepository, VerificationAuditLogRepository>();
+        services.AddScoped<VerificationExpirationJob>();
+        services.AddHostedService<VerificationExpirationHostedService>();
+        services.AddScoped<VerificationRenewalReminderJob>();
+        services.AddHostedService<VerificationRenewalReminderHostedService>();
         services.AddScoped<ICertificateService, QuestPdfCertificateService>();
         services.AddScoped<IMedicalPdfExporter, QuestPdfMedicalExporter>();
         services.AddScoped<IAnnualReportPdfGenerator, QuestPdfAnnualReportGenerator>();

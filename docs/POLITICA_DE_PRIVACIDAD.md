@@ -57,6 +57,8 @@ La ubicación exacta de una mascota o de una persona puede estar protegida por d
 
 Cuando se usa el módulo de expediente médico, historial clínico o certificados, PawTrack CR puede procesar datos relacionados con vacunas, desparasitaciones, visitas veterinarias, diagnósticos, tratamientos y documentos exportables con fines de cuidado y coordinación con clínicas afiliadas.
 
+Para la emisión de pasaportes veterinarios digitales SENASA-ready, las clínicas y veterinarios pueden aportar documentos de verificación, licencias, respaldos y firmas o sellos. Estos documentos se almacenan en contenedores privados y solo son accesibles para la clínica propietaria, usuarios autorizados de administración y procesos internos de auditoría.
+
 ### 3.5 Datos de pagos y facturación
 
 Cuando existen compras de paquetes, bundles de collar, pagos o servicios asociadas, PawTrack CR puede registrar datos operativos de facturación necesarios para la gestión del servicio, la validación del pedido y la atención.

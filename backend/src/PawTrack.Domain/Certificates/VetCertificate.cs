@@ -1,3 +1,5 @@
+using PawTrack.Domain.Common;
+
 namespace PawTrack.Domain.Certificates;
 
 public sealed class VetCertificate
@@ -19,6 +21,9 @@ public sealed class VetCertificate
     /// <summary>Optional expiry (e.g. annual vaccination); null = no expiry.</summary>
     public DateTimeOffset? ValidUntil { get; private set; }
     public bool IsRevoked { get; private set; }
+    public DateTimeOffset? RevokedAt { get; private set; }
+    public Guid? RevokedByUserId { get; private set; }
+    public string? RevocationReason { get; private set; }
 
     // ── Factory ─────────────────────────────────────────────────────────────
 
@@ -50,6 +55,19 @@ public sealed class VetCertificate
     public void SetPdfUrl(string url) => PdfUrl = url;
 
     public void Revoke() => IsRevoked = true;
+
+    public Result<bool> Revoke(Guid revokedByUserId, string reason)
+    {
+        if (string.IsNullOrWhiteSpace(reason))
+            return Result.Failure<bool>("El motivo de revocación es requerido.");
+
+        IsRevoked = true;
+        RevokedAt = DateTimeOffset.UtcNow;
+        RevokedByUserId = revokedByUserId;
+        RevocationReason = reason.Trim();
+
+        return Result.Success(true);
+    }
 
     public bool IsValid => !IsRevoked && (ValidUntil is null || ValidUntil > DateTimeOffset.UtcNow);
 }

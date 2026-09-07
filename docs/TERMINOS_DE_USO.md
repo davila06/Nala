@@ -54,6 +54,7 @@ Para usar PawTrack CR con cuenta, debes:
 4. Ser responsable por toda actividad realizada desde tu cuenta.
 5. Notificar de inmediato cualquier uso no autorizado o sospecha de acceso indebido.
 6. Respetar la privacidad de terceros, especialmente en reportes de avistamiento, mensajes y datos de contacto.
+7. En el caso de clínicas y veterinarios, aportar información documental veraz, vigente y comprobable cuando se solicite verificación para emitir certificados o pasaportes SENASA-ready.
 
 Si eres menor de edad, debes usar la plataforma con autorización y supervisión de tu padre, madre o tutor legal.
 
@@ -82,6 +83,7 @@ No puedes:
 5. Utilizar la plataforma para acoso, amenazas, intimidación, extorsión o abuso.
 6. Publicar datos personales de terceros sin base legal o consentimiento aplicable.
 7. Interferir con la operación de reportes, mapas, chat o validaciones del sistema.
+8. Presentar licencias, documentos veterinarios, firmas, sellos o respaldos alterados, vencidos, falsos o pertenecientes a terceros no autorizados.
 
 PawTrack CR podrá suspender o eliminar cuentas por incumplimiento, sin perjuicio de otras medidas legales o administrativas que correspondan.
 

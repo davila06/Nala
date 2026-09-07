@@ -1,44 +1,52 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useIssueCertificate } from "../hooks/useCertificates";
 import {
-  CERTIFICATE_TYPE_LABELS,
-  type CertificateType,
-} from "../api/certificateApi";
-
-const TYPES = Object.entries(CERTIFICATE_TYPE_LABELS) as [
-  CertificateType,
-  string,
-][];
+  useCertificateIssuers,
+  useCreateVeterinarian,
+  useDownloadCertificatePdf,
+  useIssueVaccinePassport,
+} from "../hooks/useCertificates";
+import { type ClinicVeterinarianDto } from "../api/certificateApi";
 
 interface CertificateIssueModalProps {
   clinicId: string;
-  clinicName: string;
-  clinicLicense: string;
   onClose: () => void;
 }
 
 export function CertificateIssueModal({
   clinicId,
-  clinicName,
-  clinicLicense,
   onClose,
 }: CertificateIssueModalProps) {
   const [step, setStep] = useState<"form" | "done">("form");
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [certificateId, setCertificateId] = useState<string | null>(null);
   const [verificationCode, setVerificationCode] = useState("");
+  const [newVet, setNewVet] = useState({ fullName: "", licenseNumber: "" });
   const [form, setForm] = useState({
     petId: "",
-    petName: "",
-    petSpecies: "",
-    petBreed: "",
-    vetName: "",
-    type: "Vaccination" as CertificateType,
-    notes: "",
-    validUntil: "",
+    veterinarianId: "",
+    petColor: "",
+    vaccineName: "Rabia",
+    vaccineBrand: "",
+    vaccineLot: "",
+    vaccineDate: "",
+    vaccineValidUntil: "",
+    parasiteProduct: "",
+    parasiteDate: "",
+    parasiteNextDue: "",
   });
 
-  const { mutateAsync: issue, isPending, error } = useIssueCertificate();
+  const { data: issuers, isLoading: issuersLoading } = useCertificateIssuers();
+  const { mutateAsync: issue, isPending, error } = useIssueVaccinePassport();
+  const { mutateAsync: createVeterinarian, isPending: creatingVet } =
+    useCreateVeterinarian();
+  const { mutateAsync: downloadPdf, isPending: downloadingPdf } =
+    useDownloadCertificatePdf();
+
+  const activeVeterinarians = issuers?.veterinarians ?? [];
+  const selectedVeterinarian = activeVeterinarians.find(
+    (vet: ClinicVeterinarianDto) => vet.id === form.veterinarianId,
+  );
+  const isVerified = issuers?.verification?.status === "Verified";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,17 +54,28 @@ export function CertificateIssueModal({
       const cert = await issue({
         petId: form.petId,
         clinicId,
-        type: form.type,
-        notes: form.notes || undefined,
-        validUntil: form.validUntil || undefined,
-        petName: form.petName,
-        petSpecies: form.petSpecies,
-        petBreed: form.petBreed || undefined,
-        clinicName,
-        clinicLicense,
-        vetName: form.vetName,
+        veterinarianId: form.veterinarianId,
+        vetName: selectedVeterinarian?.fullName ?? "",
+        vetLicense: selectedVeterinarian?.licenseNumber,
+        petColor: form.petColor || undefined,
+        vaccines: [
+          {
+            vaccineName: form.vaccineName,
+            brand: form.vaccineBrand || undefined,
+            lotNumber: form.vaccineLot || undefined,
+            applicationDate: form.vaccineDate,
+            validUntil: form.vaccineValidUntil || undefined,
+          },
+        ],
+        parasiteControl: form.parasiteProduct
+          ? {
+              productName: form.parasiteProduct,
+              applicationDate: form.parasiteDate,
+              nextDueDate: form.parasiteNextDue || undefined,
+            }
+          : undefined,
       });
-      setPdfUrl(cert.pdfUrl);
+      setCertificateId(cert.id);
       setVerificationCode(cert.verificationCode);
       setStep("done");
     } catch {
@@ -72,6 +91,23 @@ export function CertificateIssueModal({
       >,
     ) => setForm((f) => ({ ...f, [key]: e.target.value })),
   });
+
+  const handleCreateVeterinarian = async () => {
+    if (!newVet.fullName.trim() || !newVet.licenseNumber.trim()) return;
+    await createVeterinarian(newVet);
+    setNewVet({ fullName: "", licenseNumber: "" });
+  };
+
+  const handleDownload = async () => {
+    if (!certificateId) return;
+    const blob = await downloadPdf(certificateId);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `pawtrack-certificate-${verificationCode}.pdf`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <AnimatePresence>
@@ -98,6 +134,9 @@ export function CertificateIssueModal({
               <h2 className="mt-1 text-xl font-black text-sand-900">
                 Emitir certificado veterinario
               </h2>
+              <p className="mt-1 text-xs text-sand-500">
+                SENASA-ready, verificable y sin integración oficial directa.
+              </p>
             </div>
             <button
               type="button"
@@ -118,6 +157,17 @@ export function CertificateIssueModal({
 
           {step === "form" && (
             <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
+              {!isVerified && (
+                <div className="rounded-2xl border border-warn-200 bg-warn-50 px-4 py-3 text-xs text-warn-800">
+                  La clínica debe estar verificada por administración para
+                  emitir pasaportes.
+                </div>
+              )}
+              {issuersLoading && (
+                <p className="text-xs text-sand-500">
+                  Cargando autorización de emisión…
+                </p>
+              )}
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="block text-xs font-semibold text-sand-700">
                   ID de mascota (PawTrack)
@@ -131,88 +181,150 @@ export function CertificateIssueModal({
                   />
                 </label>
                 <label className="block text-xs font-semibold text-sand-700">
-                  Nombre de la mascota
+                  Color / señas visibles
                   <input
                     required
                     className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
-                    placeholder="Firulais"
-                    {...field("petName")}
+                    placeholder="Dorado con pecho blanco"
+                    {...field("petColor")}
                   />
                 </label>
-                <label className="block text-xs font-semibold text-sand-700">
-                  Especie
-                  <input
-                    required
-                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
-                    placeholder="Perro / Gato"
-                    {...field("petSpecies")}
-                  />
-                </label>
-                <label className="block text-xs font-semibold text-sand-700">
-                  Raza (opcional)
-                  <input
-                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
-                    placeholder="Labrador"
-                    {...field("petBreed")}
-                  />
-                </label>
-                <label className="block text-xs font-semibold text-sand-700">
-                  Nombre del veterinario
-                  <input
-                    required
-                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
-                    placeholder="Dr. Pérez"
-                    {...field("vetName")}
-                  />
-                </label>
-                <label className="block text-xs font-semibold text-sand-700">
-                  Tipo de certificado
+                <label className="block text-xs font-semibold text-sand-700 sm:col-span-2">
+                  Veterinario autorizado
                   <select
                     required
                     className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
-                    value={form.type}
-                    onChange={(e) =>
-                      setForm((f) => ({
-                        ...f,
-                        type: e.target.value as CertificateType,
-                      }))
-                    }
+                    {...field("veterinarianId")}
                   >
-                    {TYPES.map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
+                    <option value="">Seleccionar veterinario</option>
+                    {activeVeterinarians.map((vet) => (
+                      <option key={vet.id} value={vet.id}>
+                        {vet.fullName} · {vet.licenseNumber}
                       </option>
                     ))}
                   </select>
                 </label>
+              </div>
+
+              <div className="rounded-2xl border border-sand-100 bg-surface-warm p-3">
+                <p className="mb-2 text-xs font-bold text-sand-700">
+                  Solicitar revisión de veterinario
+                </p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <input
+                    value={newVet.fullName}
+                    onChange={(e) =>
+                      setNewVet((v) => ({ ...v, fullName: e.target.value }))
+                    }
+                    placeholder="Nombre completo"
+                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
+                  />
+                  <input
+                    value={newVet.licenseNumber}
+                    onChange={(e) =>
+                      setNewVet((v) => ({
+                        ...v,
+                        licenseNumber: e.target.value,
+                      }))
+                    }
+                    placeholder="Licencia veterinaria"
+                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void handleCreateVeterinarian()}
+                  disabled={
+                    creatingVet ||
+                    !newVet.fullName.trim() ||
+                    !newVet.licenseNumber.trim()
+                  }
+                  className="mt-2 rounded-xl border border-trust-200 px-3 py-2 text-xs font-semibold text-trust-700 disabled:opacity-50"
+                >
+                  {creatingVet ? "Guardando…" : "Enviar a revisión"}
+                </button>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="block text-xs font-semibold text-sand-700">
+                  Vacuna
+                  <input
+                    required
+                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
+                    {...field("vaccineName")}
+                  />
+                </label>
+                <label className="block text-xs font-semibold text-sand-700">
+                  Marca
+                  <input
+                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
+                    {...field("vaccineBrand")}
+                  />
+                </label>
+                <label className="block text-xs font-semibold text-sand-700">
+                  Lote
+                  <input
+                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
+                    {...field("vaccineLot")}
+                  />
+                </label>
+                <label className="block text-xs font-semibold text-sand-700">
+                  Fecha de aplicación
+                  <input
+                    required
+                    type="date"
+                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
+                    {...field("vaccineDate")}
+                  />
+                </label>
                 <label className="block text-xs font-semibold text-sand-700 sm:col-span-2">
-                  Válido hasta (opcional)
+                  Vigencia de la vacuna
                   <input
                     type="date"
                     className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
-                    {...field("validUntil")}
+                    {...field("vaccineValidUntil")}
                   />
                 </label>
               </div>
-              <label className="block text-xs font-semibold text-sand-700">
-                Observaciones (max. 500 chars)
-                <textarea
-                  className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1 h-20 resize-none"
-                  maxLength={500}
-                  {...field("notes")}
+              <div className="grid gap-3 sm:grid-cols-3">
+                <label className="block text-xs font-semibold text-sand-700 sm:col-span-3">
+                  Control antiparasitario opcional
+                </label>
+                <input
+                  placeholder="Producto"
+                  className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input"
+                  {...field("parasiteProduct")}
                 />
-              </label>
+                <input
+                  type="date"
+                  className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input"
+                  {...field("parasiteDate")}
+                />
+                <input
+                  type="date"
+                  className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input"
+                  {...field("parasiteNextDue")}
+                />
+              </div>
+              <p className="rounded-2xl border border-sand-100 bg-sand-50 px-4 py-3 text-xs text-sand-600">
+                Documento preparado para trazabilidad sanitaria. No sustituye
+                trámites o certificaciones oficiales de la autoridad competente.
+              </p>
               {error && (
                 <p className="text-xs text-danger-600">
-                  Error al emitir el certificado. Intenta de nuevo.
+                  Error al emitir el pasaporte. Verifica plan Partner, acceso al
+                  expediente, clínica verificada, veterinario autorizado y
+                  vacuna requerida.
                 </p>
               )}
               <button
                 type="submit"
-                disabled={isPending}
+                disabled={isPending || !isVerified || !form.veterinarianId}
                 className="w-full rounded-2xl bg-trust-600 py-3 text-sm font-bold text-white hover:bg-trust-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400"
               >
-                {isPending ? "Generando PDF…" : "Emitir certificado →"}
+                {isPending
+                  ? "Generando PDF…"
+                  : "Emitir pasaporte SENASA-ready →"}
               </button>
             </form>
           )}
@@ -223,7 +335,7 @@ export function CertificateIssueModal({
                 ✅
               </div>
               <h3 className="text-lg font-black text-sand-900">
-                Certificado emitido
+                Pasaporte emitido
               </h3>
               <div className="w-full rounded-2xl bg-surface-warm p-4">
                 <p className="text-xs text-sand-500 mb-1">
@@ -236,15 +348,15 @@ export function CertificateIssueModal({
                   pawtrack.cr/verificar/{verificationCode}
                 </p>
               </div>
-              {pdfUrl && (
-                <a
-                  href={pdfUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+              {certificateId && (
+                <button
+                  type="button"
+                  onClick={() => void handleDownload()}
+                  disabled={downloadingPdf}
                   className="w-full rounded-2xl border border-trust-200 py-2.5 text-sm font-semibold text-trust-700 hover:bg-trust-50 transition-colors"
                 >
-                  Descargar PDF →
-                </a>
+                  {downloadingPdf ? "Descargando…" : "Descargar PDF →"}
+                </button>
               )}
               <button
                 type="button"

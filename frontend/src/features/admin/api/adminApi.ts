@@ -80,6 +80,44 @@ export interface PendingClinicDto {
   registeredAt: string;
 }
 
+export interface AdminClinicVerificationDto {
+  id: string;
+  clinicId: string;
+  licenseNumberSnapshot: string;
+  status: "Pending" | "Verified" | "Rejected" | "Expired";
+  submittedAt: string;
+  verifiedAt: string | null;
+  reviewedAt: string | null;
+  verifiedByAdminUserId: string | null;
+  reviewedByAdminUserId: string | null;
+  expiresAt: string | null;
+  hasDocument: boolean;
+  rejectionReason: string | null;
+  reviewNotes: string | null;
+  revalidationRequestedAt: string | null;
+}
+
+export interface AdminClinicVeterinarianDto {
+  id: string;
+  clinicId: string;
+  fullName: string;
+  licenseNumber: string;
+  status:
+    | "PendingReview"
+    | "Authorized"
+    | "Rejected"
+    | "Suspended"
+    | "Revoked"
+    | "Expired";
+  canIssueCertificates: boolean;
+  isActive: boolean;
+  hasDocument: boolean;
+  hasSignature: boolean;
+  expiresAt: string | null;
+  rejectionReason: string | null;
+  suspensionReason: string | null;
+}
+
 export const adminApi = {
   getPendingAllies: () =>
     apiClient
@@ -98,6 +136,60 @@ export const adminApi = {
 
   reviewClinic: (clinicId: string, approve: boolean) =>
     apiClient.put<void>(`/clinics/admin/${clinicId}/review`, { approve }),
+
+  getClinicVerifications: (page = 1, pageSize = 20) =>
+    apiClient
+      .get<
+        AdminClinicVerificationDto[]
+      >("/clinics/admin/verifications", { params: { page, pageSize } })
+      .then((r) => r.data),
+
+  reviewClinicVerification: (
+    verificationId: string,
+    payload: {
+      approve: boolean;
+      expiresAt?: string;
+      reason?: string;
+      notes?: string;
+    },
+  ) =>
+    apiClient
+      .put<AdminClinicVerificationDto>(
+        `/clinics/admin/verifications/${verificationId}/review`,
+        payload,
+      )
+      .then((r) => r.data),
+
+  getClinicVeterinariansForReview: (page = 1, pageSize = 20) =>
+    apiClient
+      .get<
+        AdminClinicVeterinarianDto[]
+      >("/clinics/admin/veterinarians", { params: { page, pageSize } })
+      .then((r) => r.data),
+
+  reviewClinicVeterinarian: (
+    veterinarianId: string,
+    payload: {
+      approve: boolean;
+      expiresAt?: string;
+      reason?: string;
+      notes?: string;
+    },
+  ) =>
+    apiClient
+      .put<AdminClinicVeterinarianDto>(
+        `/clinics/admin/veterinarians/${veterinarianId}/review`,
+        payload,
+      )
+      .then((r) => r.data),
+
+  suspendClinicVeterinarian: (veterinarianId: string, reason: string) =>
+    apiClient
+      .post<AdminClinicVeterinarianDto>(
+        `/clinics/admin/veterinarians/${veterinarianId}/suspend`,
+        { reason },
+      )
+      .then((r) => r.data),
 
   getAdminSubscriptions: (pendingOnly = false, skip = 0, take = 50) =>
     apiClient

@@ -20,6 +20,11 @@ import { WeightTrendChart } from "./WeightTrendChart";
 import { HealthScoreCard } from "./HealthScoreCard";
 import { usePublicClinics } from "@/features/clinics/hooks/useClinics";
 import {
+  useCertificatesForPet,
+  useDownloadCertificatePdf,
+} from "@/features/clinics/hooks/useCertificates";
+import { CERTIFICATE_TYPE_LABELS } from "@/features/clinics/api/certificateApi";
+import {
   useMyProfile,
   useGrantHealthDataConsent,
 } from "@/features/auth/hooks/useProfile";
@@ -50,6 +55,103 @@ const ALL_TYPES: MedicalRecordType[] = [
   "Allergy",
   "Other",
 ];
+
+function PetCertificatesPanel({ petId }: { petId: string }) {
+  const { data: certificates, isLoading } = useCertificatesForPet(petId);
+  const { mutateAsync: downloadPdf, isPending } = useDownloadCertificatePdf();
+
+  const handleDownload = async (certificateId: string, code: string) => {
+    const blob = await downloadPdf(certificateId);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `pawtrack-certificate-${code}.pdf`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <section className="rounded-2xl border border-sand-100 bg-surface-warm px-4 py-3">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-bold text-sand-800">
+            Certificados y pasaportes
+          </h3>
+          <p className="text-xs text-sand-500">
+            Documentos veterinarios verificables emitidos por clínicas
+            autorizadas.
+          </p>
+        </div>
+        <span aria-hidden="true" className="text-xl">
+          📋
+        </span>
+      </div>
+
+      {isLoading && (
+        <p className="mt-3 text-xs text-sand-500">Cargando documentos…</p>
+      )}
+
+      {!isLoading && (!certificates || certificates.length === 0) && (
+        <p className="mt-3 text-xs text-sand-500">
+          Aún no hay certificados emitidos para esta mascota.
+        </p>
+      )}
+
+      {certificates && certificates.length > 0 && (
+        <ul className="mt-3 space-y-2">
+          {certificates.map((certificate) => (
+            <li
+              key={certificate.id}
+              className="rounded-xl border border-sand-100 bg-surface px-3 py-2"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-sand-900">
+                    {CERTIFICATE_TYPE_LABELS[certificate.type] ??
+                      certificate.type}
+                  </p>
+                  <p className="text-[11px] text-sand-400">
+                    {new Date(certificate.issuedAt).toLocaleDateString("es-CR")}{" "}
+                    ·{" "}
+                    <span className="font-mono">
+                      {certificate.verificationCode}
+                    </span>
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${certificate.isRevoked ? "bg-danger-100 text-danger-700" : certificate.isValid ? "bg-rescue-100 text-rescue-800" : "bg-warn-100 text-warn-700"}`}
+                  >
+                    {certificate.isRevoked
+                      ? "Revocado"
+                      : certificate.isValid
+                        ? "Vigente"
+                        : "Vencido"}
+                  </span>
+                  {certificate.pdfUrl && (
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() =>
+                        void handleDownload(
+                          certificate.id,
+                          certificate.verificationCode,
+                        )
+                      }
+                      className="text-[10px] font-semibold text-trust-600 hover:underline disabled:opacity-50"
+                    >
+                      PDF
+                    </button>
+                  )}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
 
 // ── Record card ───────────────────────────────────────────────────────────────
 
@@ -1113,16 +1215,8 @@ export function MedicalHistoryTab({
       {/* ── Clinic access audit log ────────────────────────────────────── */}
       <ClinicAccessLogSection petId={petId} />
 
-      {/* ── Vaccine passports link ─────────────────────────────────────── */}
-      <a
-        href={`/api/certificates/pet/${petId}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-2 rounded-xl border border-sand-100 bg-surface-warm px-4 py-3 text-sm font-medium text-trust-700 hover:bg-trust-50 hover:border-trust-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400"
-      >
-        <span aria-hidden="true">📋</span>
-        Ver certificados y pasaportes emitidos
-      </a>
+      {/* ── Vaccine passports ──────────────────────────────────────────── */}
+      <PetCertificatesPanel petId={petId} />
     </div>
   );
 }

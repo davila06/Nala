@@ -19,4 +19,17 @@ public sealed record CertificateDto(
         c.Id, c.PetId, c.ClinicId, c.Type,
         c.VerificationCode, c.PdfUrl, c.Notes,
         c.IssuedAt, c.ValidUntil, c.IsRevoked, c.IsValid);
+
+    public static CertificateDto FromPublicVerification(VetCertificate certificate) => new(
+        certificate.Id,
+        certificate.PetId,
+        certificate.ClinicId,
+        certificate.Type,
+        certificate.VerificationCode,
+        PdfUrl: null,
+        Notes: null,
+        certificate.IssuedAt,
+        certificate.ValidUntil,
+        certificate.IsRevoked,
+        certificate.IsValid);
 }

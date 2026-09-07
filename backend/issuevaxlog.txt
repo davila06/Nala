@@ -1,0 +1,24 @@
+  Determinando los proyectos que se van a restaurar...
+C:\Nala\backend\tests\PawTrack.UnitTests\PawTrack.UnitTests.csproj : warning NU1603: PawTrack.Infrastructure depends on QuestPDF (>= 2025.3.2) but QuestPDF 2025.3.2 was not found. QuestPDF 2025.4.0 was resolved instead.
+C:\Nala\backend\src\PawTrack.API\PawTrack.API.csproj : warning NU1603: PawTrack.Infrastructure depende de QuestPDF (>= 2025.3.2), pero no se encontr├│ QuestPDF 2025.3.2. QuestPDF 2025.4.0 se resolvi├│ en su lugar. [C:\Nala\backend\tests\PawTrack.UnitTests\PawTrack.UnitTests.csproj]
+C:\Nala\backend\src\PawTrack.Infrastructure\PawTrack.Infrastructure.csproj : warning NU1603: PawTrack.Infrastructure depende de QuestPDF (>= 2025.3.2), pero no se encontr├│ QuestPDF 2025.3.2. QuestPDF 2025.4.0 se resolvi├│ en su lugar. [C:\Nala\backend\tests\PawTrack.UnitTests\PawTrack.UnitTests.csproj]
+  Todos los proyectos est├ín actualizados para la restauraci├│n.
+C:\Nala\backend\tests\PawTrack.UnitTests\PawTrack.UnitTests.csproj : warning NU1603: PawTrack.Infrastructure depends on QuestPDF (>= 2025.3.2) but QuestPDF 2025.3.2 was not found. QuestPDF 2025.4.0 was resolved instead.
+C:\Nala\backend\src\PawTrack.Infrastructure\PawTrack.Infrastructure.csproj : warning NU1603: PawTrack.Infrastructure depende de QuestPDF (>= 2025.3.2), pero no se encontr├│ QuestPDF 2025.3.2. QuestPDF 2025.4.0 se resolvi├│ en su lugar.
+C:\Nala\backend\src\PawTrack.API\PawTrack.API.csproj : warning NU1603: PawTrack.Infrastructure depende de QuestPDF (>= 2025.3.2), pero no se encontr├│ QuestPDF 2025.3.2. QuestPDF 2025.4.0 se resolvi├│ en su lugar.
+  PawTrack.Domain -> C:\Nala\backend\src\PawTrack.Domain\bin\Debug\net9.0\PawTrack.Domain.dll
+C:\Nala\backend\src\PawTrack.Application\Chat\Commands\SendChatMessage\SendChatMessageCommand.cs(109,82): warning CS8604: Posible argumento de referencia nulo para el par├ímetro "body" en "ChatMessage ChatMessage.Create(Guid threadId, Guid senderUserId, string body)". [C:\Nala\backend\src\PawTrack.Application\PawTrack.Application.csproj]
+C:\Nala\backend\src\PawTrack.Application\Chat\Queries\GetChatMessages\GetChatMessagesQuery.cs(35,17): warning CS9113: El par├ímetro 'unitOfWork' no est├í le├¡do. [C:\Nala\backend\src\PawTrack.Application\PawTrack.Application.csproj]
+C:\Nala\backend\src\PawTrack.Application\Sightings\VisualMatch\MatchSightingPhotoQuery.cs(144,33): warning CS8600: Se va a convertir un literal nulo o un posible valor nulo en un tipo que no acepta valores NULL [C:\Nala\backend\src\PawTrack.Application\PawTrack.Application.csproj]
+C:\Nala\backend\src\PawTrack.Application\Sightings\VisualMatch\MatchSightingPhotoQuery.cs(155,29): warning CS8600: Se va a convertir un literal nulo o un posible valor nulo en un tipo que no acepta valores NULL [C:\Nala\backend\src\PawTrack.Application\PawTrack.Application.csproj]
+C:\Nala\backend\src\PawTrack.Application\Medical\ClinicAccess\ClinicAccessGrantCommands.cs(85,21): warning CS9113: El par├ímetro 'userRepository' no est├í le├¡do. [C:\Nala\backend\src\PawTrack.Application\PawTrack.Application.csproj]
+C:\Nala\backend\src\PawTrack.Application\Sightings\VisualMatch\MatchSightingByIdQuery.cs(129,33): warning CS8600: Se va a convertir un literal nulo o un posible valor nulo en un tipo que no acepta valores NULL [C:\Nala\backend\src\PawTrack.Application\PawTrack.Application.csproj]
+C:\Nala\backend\src\PawTrack.Application\Sightings\VisualMatch\MatchSightingByIdQuery.cs(139,29): warning CS8600: Se va a convertir un literal nulo o un posible valor nulo en un tipo que no acepta valores NULL [C:\Nala\backend\src\PawTrack.Application\PawTrack.Application.csproj]
+  PawTrack.Application -> C:\Nala\backend\src\PawTrack.Application\bin\Debug\net9.0\PawTrack.Application.dll
+  PawTrack.Infrastructure -> C:\Nala\backend\src\PawTrack.Infrastructure\bin\Debug\net9.0\PawTrack.Infrastructure.dll
+  PawTrack.API -> C:\Nala\backend\src\PawTrack.API\bin\Debug\net9.0\PawTrack.API.dll
+  PawTrack.UnitTests -> C:\Nala\backend\tests\PawTrack.UnitTests\bin\Debug\net9.0\PawTrack.UnitTests.dll
+Serie de pruebas para C:\Nala\backend\tests\PawTrack.UnitTests\bin\Debug\net9.0\PawTrack.UnitTests.dll (.NETCoreApp,Version=v9.0)
+1 archivos de prueba en total coincidieron con el patr├│n especificado.
+
+Correctas! - Con error:     0, Superado:     3, Omitido:     0, Total:     3, Duraci├│n: 157 ms - PawTrack.UnitTests.dll (net9.0)

@@ -72,7 +72,7 @@ public sealed class QuestPdfCertificateService(IBlobStorageService blobStorage) 
                         });
                         row.ConstantItem(120).AlignRight().Column(c =>
                         {
-                            c.Item().Text("CERTIFICADO OFICIAL")
+                            c.Item().Text("CERTIFICADO VERIFICABLE")
                                 .Bold().FontSize(10).FontColor(Colors.Grey.Darken2);
                             c.Item().Text($"N° {data.VerificationCode}")
                                 .FontSize(9).FontColor(Colors.Grey.Medium);
@@ -206,7 +206,7 @@ public sealed class QuestPdfCertificateService(IBlobStorageService blobStorage) 
                         {
                             c.Item().Text("CERTIFICADO DE SALUD / HEALTH CERTIFICATE")
                                 .Bold().FontSize(14).FontColor(Navy);
-                            c.Item().Text("Formato OIRSA — Costa Rica")
+                            c.Item().Text("Formato SENASA-ready / OIRSA-compatible")
                                 .FontSize(9).FontColor(Gray);
                             c.Item().PaddingTop(2).Text($"PawTrack CR · pawtrack.cr · {d.IssuedAt:dd/MM/yyyy}")
                                 .FontSize(8).FontColor(Gray);

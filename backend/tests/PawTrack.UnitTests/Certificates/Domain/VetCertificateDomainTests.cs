@@ -57,4 +57,31 @@ public sealed class VetCertificateDomainTests
         cert.IsRevoked.Should().BeTrue();
         cert.IsValid.Should().BeFalse();
     }
+
+    [Fact]
+    public void Revoke_WithReason_CapturesEnterpriseRevocationMetadata()
+    {
+        var cert = MakeCert();
+        var revokedBy = Guid.NewGuid();
+
+        var result = cert.Revoke(revokedBy, "Error en lote de vacuna");
+
+        result.IsSuccess.Should().BeTrue();
+        cert.IsRevoked.Should().BeTrue();
+        cert.IsValid.Should().BeFalse();
+        cert.RevokedByUserId.Should().Be(revokedBy);
+        cert.RevocationReason.Should().Be("Error en lote de vacuna");
+        cert.RevokedAt.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Revoke_WithoutReason_ReturnsFailure()
+    {
+        var cert = MakeCert();
+
+        var result = cert.Revoke(Guid.NewGuid(), " ");
+
+        result.IsFailure.Should().BeTrue();
+        cert.IsRevoked.Should().BeFalse();
+    }
 }

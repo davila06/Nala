@@ -85,6 +85,11 @@ public sealed class PawTrackDbContext(
     public DbSet<CollarHandoverCode> CollarHandoverCodes => Set<CollarHandoverCode>();
     public DbSet<CollarSafeZone> CollarSafeZones => Set<CollarSafeZone>();
     public DbSet<VetCertificate> VetCertificates => Set<VetCertificate>();
+    public DbSet<VaccinePassport> VaccinePassports => Set<VaccinePassport>();
+    public DbSet<ClinicVeterinarian> ClinicVeterinarians => Set<ClinicVeterinarian>();
+    public DbSet<ClinicVerification> ClinicVerifications => Set<ClinicVerification>();
+    public DbSet<CertificateAuditLog> CertificateAuditLogs => Set<CertificateAuditLog>();
+    public DbSet<VerificationAuditLog> VerificationAuditLogs => Set<VerificationAuditLog>();
     public DbSet<CapturedAnimal> CapturedAnimals => Set<CapturedAnimal>();
     public DbSet<MunicipalityProfile> MunicipalityProfiles => Set<MunicipalityProfile>();
     public DbSet<AiSearchUsage> AiSearchUsages => Set<AiSearchUsage>();

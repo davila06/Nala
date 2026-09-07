@@ -370,6 +370,26 @@ Antes de activar una clínica verifica:
 3. El correo electrónico de contacto no pertenece a proveedores de email temporal o desechable.
 4. No existe otra clínica ya activa con el mismo número de licencia SENASA.
 
+### 3.5 Verificación para pasaportes SENASA-ready
+
+Activar una clínica no basta para que pueda emitir pasaportes veterinarios digitales. Para habilitar emisión SENASA-ready:
+
+1. Confirma que la clínica está `Activa`.
+2. Confirma que tiene suscripción `ClinicPartner` activa.
+3. Revisa que la clínica haya subido documento privado de respaldo.
+4. Verifica la licencia SENASA declarada y registra vencimiento.
+5. Aprueba o rechaza la verificación con motivo.
+6. Revisa cada veterinario pendiente, su licencia y documento.
+7. Autoriza, rechaza o suspende veterinarios según corresponda.
+
+El sistema bloquea emisión si falta cualquiera de estas condiciones. La verificación pública del pasaporte no muestra datos privados del dueño ni descarga el PDF completo.
+
+Las revisiones se administran desde la pestaña **Verificación** del panel admin. Todo cambio de estado y descarga documental queda auditado.
+
+### 3.6 Revocación de certificados
+
+Un certificado o pasaporte debe revocarse cuando fue emitido con error material, licencia incorrecta, veterinario no autorizado, datos sanitarios dudosos o solicitud legítima de corrección. Toda revocación requiere motivo y queda auditada. La verificación pública seguirá respondiendo, pero mostrará estado **Revocado**.
+
 ---
 
 ## 4. Flujo de revisión

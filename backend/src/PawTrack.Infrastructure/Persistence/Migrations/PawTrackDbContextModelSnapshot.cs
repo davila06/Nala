@@ -828,6 +828,330 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.ToTable("BundleOrders", (string)null);
                 });
 
+            modelBuilder.Entity("PawTrack.Domain.Certificates.CertificateAuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<Guid?>("ActorUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CertificateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Action");
+
+                    b.HasIndex("CertificateId", "CreatedAt");
+
+                    b.ToTable("CertificateAuditLogs", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Certificates.ClinicVerification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClinicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DocumentUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateOnly?>("ExpiresAt")
+                        .HasColumnType("date");
+
+                    b.Property<string>("LicenseNumberSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTimeOffset?>("RevalidationRequestedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ReviewNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset?>("ReviewedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("ReviewedByAdminUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTimeOffset>("SubmittedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("SubmittedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("SupersededAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("VerifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("VerifiedByAdminUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("SubmittedAt");
+
+                    b.HasIndex("ClinicId", "Status");
+
+                    b.ToTable("ClinicVerifications", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Certificates.ClinicVeterinarian", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClinicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("DocumentUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateOnly?>("ExpiresAt")
+                        .HasColumnType("date");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("LicenseNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("ReviewNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset?>("ReviewedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("ReviewedByAdminUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RevocationReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("RevokedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SignatureImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("SubmittedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SuspensionReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClinicId");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("ClinicId", "LicenseNumber")
+                        .IsUnique();
+
+                    b.HasIndex("ClinicId", "Status");
+
+                    b.ToTable("ClinicVeterinarians", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Certificates.VaccinePassport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CertificateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ClinicLicenseSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ClinicNameSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("FormatLabel")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<DateTimeOffset>("IssuedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("IssuingClinicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("IssuingVeterinarianId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("MicrochipSnapshot")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("OwnerNameSnapshot")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("PetBreedSnapshot")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("PetColorSnapshot")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<Guid>("PetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PetNameSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("PetSexSnapshot")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("PetSpeciesSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("SchemaVersion")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateOnly>("ValidUntil")
+                        .HasColumnType("date");
+
+                    b.Property<string>("VerificationCode")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<string>("VetLicenseSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("VetNameSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CertificateId")
+                        .IsUnique();
+
+                    b.HasIndex("VerificationCode")
+                        .IsUnique();
+
+                    b.HasIndex("IssuingClinicId", "IssuedAt");
+
+                    b.HasIndex("PetId", "IssuedAt");
+
+                    b.ToTable("VaccinePassports", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Certificates.VerificationAuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<Guid?>("ActorUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("EntityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Action");
+
+                    b.HasIndex("ActorUserId");
+
+                    b.HasIndex("EntityType", "EntityId", "CreatedAt");
+
+                    b.ToTable("VerificationAuditLogs", (string)null);
+                });
+
             modelBuilder.Entity("PawTrack.Domain.Certificates.VetCertificate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -854,6 +1178,16 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<Guid>("PetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RevocationReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("RevokedByUserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Type")
@@ -3412,6 +3746,75 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Certificates.VaccinePassport", b =>
+                {
+                    b.OwnsOne("PawTrack.Domain.Certificates.VaccinePassportParasiteControl", "ParasiteControl", b1 =>
+                        {
+                            b1.Property<Guid>("VaccinePassportId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<DateOnly>("ApplicationDate")
+                                .HasColumnType("date");
+
+                            b1.Property<DateOnly?>("NextDueDate")
+                                .HasColumnType("date");
+
+                            b1.Property<string>("ProductName")
+                                .IsRequired()
+                                .HasMaxLength(120)
+                                .HasColumnType("nvarchar(120)");
+
+                            b1.HasKey("VaccinePassportId");
+
+                            b1.ToTable("VaccinePassports");
+
+                            b1.WithOwner()
+                                .HasForeignKey("VaccinePassportId");
+                        });
+
+                    b.OwnsMany("PawTrack.Domain.Certificates.VaccinePassportVaccine", "Vaccines", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<DateOnly>("ApplicationDate")
+                                .HasColumnType("date");
+
+                            b1.Property<string>("Brand")
+                                .HasMaxLength(120)
+                                .HasColumnType("nvarchar(120)");
+
+                            b1.Property<string>("LotNumber")
+                                .HasMaxLength(80)
+                                .HasColumnType("nvarchar(80)");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasMaxLength(120)
+                                .HasColumnType("nvarchar(120)");
+
+                            b1.Property<Guid>("VaccinePassportId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<DateOnly?>("ValidUntil")
+                                .HasColumnType("date");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("VaccinePassportId");
+
+                            b1.ToTable("VaccinePassportVaccines", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("VaccinePassportId");
+                        });
+
+                    b.Navigation("ParasiteControl");
+
+                    b.Navigation("Vaccines");
                 });
 
             modelBuilder.Entity("PawTrack.Domain.Chat.ChatMessage", b =>

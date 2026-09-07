@@ -11,6 +11,10 @@ import {
   useAdminSubscriptions,
   useAdminActivateSubscription,
   useAdminCancelSubscription,
+  useAdminClinicVerifications,
+  useAdminClinicVeterinariansForReview,
+  useReviewClinicVerification,
+  useReviewClinicVeterinarian,
 } from "../hooks/useAdmin";
 import {
   useAdminBundleOrders,
@@ -25,6 +29,8 @@ import type {
   PendingAllyDto,
   PendingClinicDto,
   AdminSubscriptionDto,
+  AdminClinicVerificationDto,
+  AdminClinicVeterinarianDto,
 } from "../api/adminApi";
 import { toast } from "@/shared/lib/toast";
 import { Input } from "@/shared/ui";
@@ -39,6 +45,7 @@ import { useAdoptionAdminStats } from "../hooks/useAdmin";
 type Tab =
   | "allies"
   | "clinics"
+  | "verification"
   | "subscriptions"
   | "subscription-plans"
   | "bundles"
@@ -311,6 +318,152 @@ function ClinicsTab() {
         ))}
       </AnimatePresence>
     </ul>
+  );
+}
+
+function nextYearDate() {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() + 1);
+  return date.toISOString().slice(0, 10);
+}
+
+function VerificationTab() {
+  const {
+    data: verifications,
+    isLoading: loadingVerifications,
+    isError: verificationsError,
+  } = useAdminClinicVerifications();
+  const {
+    data: veterinarians,
+    isLoading: loadingVeterinarians,
+    isError: veterinariansError,
+  } = useAdminClinicVeterinariansForReview();
+  const { mutateAsync: reviewClinicVerification, isPending: reviewingClinic } =
+    useReviewClinicVerification();
+  const { mutateAsync: reviewVeterinarian, isPending: reviewingVet } =
+    useReviewClinicVeterinarian();
+  const [expiresAt, setExpiresAt] = useState(nextYearDate());
+  const [reason, setReason] = useState("Documento ilegible o incompleto");
+
+  const approveClinic = (verification: AdminClinicVerificationDto) =>
+    reviewClinicVerification({
+      verificationId: verification.id,
+      payload: {
+        approve: true,
+        expiresAt,
+        notes: "Revisión documental aprobada",
+      },
+    });
+
+  const rejectClinic = (verification: AdminClinicVerificationDto) =>
+    reviewClinicVerification({
+      verificationId: verification.id,
+      payload: { approve: false, reason },
+    });
+
+  const approveVet = (veterinarian: AdminClinicVeterinarianDto) =>
+    reviewVeterinarian({
+      veterinarianId: veterinarian.id,
+      payload: {
+        approve: true,
+        expiresAt,
+        notes: "Licencia/documento validado",
+      },
+    });
+
+  const rejectVet = (veterinarian: AdminClinicVeterinarianDto) =>
+    reviewVeterinarian({
+      veterinarianId: veterinarian.id,
+      payload: { approve: false, reason },
+    });
+
+  if (loadingVerifications || loadingVeterinarians) return <LoadingSkeleton />;
+  if (verificationsError || veterinariansError)
+    return <ErrorState msg="No se pudo cargar la cola de verificación." />;
+
+  const hasItems =
+    (verifications?.length ?? 0) > 0 || (veterinarians?.length ?? 0) > 0;
+  if (!hasItems)
+    return <EmptyState msg="No hay verificaciones documentales pendientes." />;
+
+  return (
+    <div className="space-y-5">
+      <div className="grid gap-3 rounded-2xl border border-sand-100 bg-surface-warm p-3 sm:grid-cols-2">
+        <label className="text-xs font-semibold text-sand-700">
+          Vencimiento al aprobar
+          <Input
+            type="date"
+            value={expiresAt}
+            onChange={(event) => setExpiresAt(event.target.value)}
+            className="mt-1"
+          />
+        </label>
+        <label className="text-xs font-semibold text-sand-700">
+          Motivo al rechazar
+          <Input
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            className="mt-1"
+          />
+        </label>
+      </div>
+
+      <section className="space-y-3">
+        <h2 className="text-sm font-bold text-sand-700">
+          Clínicas por verificar
+        </h2>
+        {verifications?.map((verification) => (
+          <ReviewCard
+            key={verification.id}
+            onApprove={() => void approveClinic(verification)}
+            onReject={() => void rejectClinic(verification)}
+            approveLabel="Aprobar"
+            rejectLabel="Rechazar"
+            loading={reviewingClinic}
+          >
+            <p className="font-semibold text-sand-900">
+              Licencia {verification.licenseNumberSnapshot}
+            </p>
+            <p className="mt-1 text-xs text-sand-500">
+              Documento: {verification.hasDocument ? "cargado" : "pendiente"} ·
+              Estado: {verification.status}
+            </p>
+            <p className="mt-0.5 text-[11px] text-sand-400">
+              Enviado:{" "}
+              {new Date(verification.submittedAt).toLocaleDateString("es-CR")}
+            </p>
+          </ReviewCard>
+        ))}
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-sm font-bold text-sand-700">
+          Veterinarios por revisar
+        </h2>
+        {veterinarians?.map((veterinarian) => (
+          <ReviewCard
+            key={veterinarian.id}
+            onApprove={() => void approveVet(veterinarian)}
+            onReject={() => void rejectVet(veterinarian)}
+            approveLabel="Autorizar"
+            rejectLabel="Rechazar"
+            loading={reviewingVet}
+          >
+            <p className="font-semibold text-sand-900">
+              {veterinarian.fullName}
+            </p>
+            <p className="mt-1 text-xs text-sand-500">
+              {veterinarian.licenseNumber} · Documento{" "}
+              {veterinarian.hasDocument ? "cargado" : "pendiente"} · Firma{" "}
+              {veterinarian.hasSignature ? "cargada" : "opcional"}
+            </p>
+            <p className="mt-0.5 text-[11px] text-sand-400">
+              Estado: {veterinarian.status}
+            </p>
+          </ReviewCard>
+        ))}
+      </section>
+    </div>
   );
 }
 
@@ -810,6 +963,7 @@ export default function AdminPage() {
           [
             "allies",
             "clinics",
+            "verification",
             "subscriptions",
             "subscription-plans",
             "bundles",
@@ -835,21 +989,23 @@ export default function AdminPage() {
               ? "Aliados"
               : tab === "clinics"
                 ? "Clínicas"
-                : tab === "subscriptions"
-                  ? "Suscripciones"
-                  : tab === "subscription-plans"
-                    ? "Planes y precios"
-                    : tab === "bundles"
-                      ? "Bundles"
-                      : tab === "promotions"
-                        ? "Promociones"
-                        : tab === "adoptions"
-                          ? "Adopciones"
-                          : tab === "stores"
-                            ? "Tiendas"
-                            : tab === "billboards"
-                              ? "Vallas"
-                              : "CollarTags";
+                : tab === "verification"
+                  ? "Verificación"
+                  : tab === "subscriptions"
+                    ? "Suscripciones"
+                    : tab === "subscription-plans"
+                      ? "Planes y precios"
+                      : tab === "bundles"
+                        ? "Bundles"
+                        : tab === "promotions"
+                          ? "Promociones"
+                          : tab === "adoptions"
+                            ? "Adopciones"
+                            : tab === "stores"
+                              ? "Tiendas"
+                              : tab === "billboards"
+                                ? "Vallas"
+                                : "CollarTags";
           return (
             <button
               key={tab}
@@ -887,6 +1043,7 @@ export default function AdminPage() {
         >
           {activeTab === "allies" && <AlliesTab />}
           {activeTab === "clinics" && <ClinicsTab />}
+          {activeTab === "verification" && <VerificationTab />}
           {activeTab === "subscriptions" && <SubscriptionsTab />}
           {activeTab === "subscription-plans" && <AdminSubscriptionPlansTab />}
           {activeTab === "bundles" && <BundlesTab />}

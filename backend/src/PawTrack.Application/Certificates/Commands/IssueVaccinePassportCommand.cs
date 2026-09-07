@@ -15,6 +15,7 @@ public sealed record IssueVaccinePassportCommand(
     Guid PetId,
     Guid ClinicId,
     Guid IssuedByUserId,
+    Guid VeterinarianId,
     string VetName,
     string? VetLicense,
     string? PetColor,
@@ -40,6 +41,7 @@ public sealed class IssueVaccinePassportCommandValidator : AbstractValidator<Iss
     {
         RuleFor(x => x.PetId).NotEmpty();
         RuleFor(x => x.ClinicId).NotEmpty();
+        RuleFor(x => x.VeterinarianId).NotEmpty();
         RuleFor(x => x.VetName).NotEmpty().MaximumLength(120);
         RuleFor(x => x.Vaccines).NotEmpty()
             .WithMessage("Al menos una vacuna es requerida para emitir el pasaporte.");
@@ -51,6 +53,11 @@ public sealed class IssueVaccinePassportCommandHandler(
     ICertificateService certificateService,
     IPetRepository petRepository,
     IClinicRepository clinicRepository,
+    IClinicMedicalAccessGrantRepository grantRepository,
+    IClinicVerificationRepository clinicVerificationRepository,
+    IClinicVeterinarianRepository veterinarianRepository,
+    IVaccinePassportRepository vaccinePassportRepository,
+    ICertificateAuditLogRepository auditLogRepository,
     IUserRepository userRepository,
     ISubscriptionRepository subscriptionRepository,
     IUnitOfWork unitOfWork)
@@ -66,8 +73,26 @@ public sealed class IssueVaccinePassportCommandHandler(
         var pet = await petRepository.GetByIdAsync(request.PetId, ct);
         if (pet is null) return Result.Failure<CertificateDto>("Mascota no encontrada.");
 
-        var clinic = await clinicRepository.GetByUserIdAsync(request.ClinicId, ct);
+        var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, ct);
         if (clinic is null) return Result.Failure<CertificateDto>("Clínica no encontrada.");
+        if (clinic.UserId != request.IssuedByUserId)
+            return Result.Failure<CertificateDto>("Acceso denegado.");
+        if (clinic.Status != Domain.Clinics.ClinicStatus.Active)
+            return Result.Failure<CertificateDto>("La clínica no está activa.");
+
+        var verification = await clinicVerificationRepository.GetActiveForClinicAsync(request.ClinicId, ct);
+        if (verification is null || !verification.IsActive)
+            return Result.Failure<CertificateDto>("La clínica no está verificada para emitir pasaportes.");
+
+        var veterinarian = await veterinarianRepository.GetByIdAsync(request.VeterinarianId, ct);
+        if (veterinarian is null || veterinarian.ClinicId != request.ClinicId || !veterinarian.IsActive)
+            return Result.Failure<CertificateDto>("El veterinario no está autorizado para emitir pasaportes.");
+
+        if (!await grantRepository.HasActiveGrantAsync(request.ClinicId, request.PetId, ct))
+            return Result.Failure<CertificateDto>("La clínica no tiene acceso activo al expediente de esta mascota.");
+
+        if (pet.Species == Domain.Pets.PetSpecies.Dog && !HasRabiesVaccine(request.Vaccines))
+            return Result.Failure<CertificateDto>("La vacuna contra la rabia es requerida para perros.");
 
         var owner = await userRepository.GetByIdAsync(pet.OwnerId, ct);
 
@@ -76,9 +101,6 @@ public sealed class IssueVaccinePassportCommandHandler(
             request.PetId, request.ClinicId, request.IssuedByUserId,
             CertificateType.VaccinePassport, code,
             validUntil: DateTimeOffset.UtcNow.AddYears(1));
-
-        await certificateRepository.AddAsync(cert, ct);
-        await unitOfWork.SaveChangesAsync(ct);
 
         var vaccines = request.Vaccines
             .Select(v => new PassportVaccineEntry(v.VaccineName, v.Brand, v.LotNumber, v.ApplicationDate, v.ValidUntil))
@@ -93,7 +115,7 @@ public sealed class IssueVaccinePassportCommandHandler(
             cert.Id.ToString(), code,
             pet.Name, pet.Species.ToString(), pet.Breed,
             clinic.Name, clinic.LicenseNumber,
-            request.VetName, CertificateType.VaccinePassport.ToString(),
+            veterinarian.FullName, CertificateType.VaccinePassport.ToString(),
             null, cert.IssuedAt, cert.ValidUntil,
             OwnerName: owner?.Name,
             MicrochipId: pet.MicrochipId,
@@ -101,8 +123,44 @@ public sealed class IssueVaccinePassportCommandHandler(
             Vaccines: vaccines,
             ParasiteControl: parasite);
 
+        var passport = VaccinePassport.Issue(
+            cert.Id,
+            request.PetId,
+            request.ClinicId,
+            request.VeterinarianId,
+            new VaccinePassportPetSnapshot(
+                pet.Name,
+                pet.Species.ToString(),
+                pet.Breed,
+                null,
+                request.PetColor,
+                pet.MicrochipId,
+                owner?.Name),
+            new VaccinePassportIssuerSnapshot(
+                clinic.Name,
+                clinic.LicenseNumber,
+                veterinarian.FullName,
+                veterinarian.LicenseNumber),
+            request.Vaccines
+                .Select(v => new VaccinePassportVaccine(v.VaccineName, v.Brand, v.LotNumber, v.ApplicationDate, v.ValidUntil))
+                .ToList()
+                .AsReadOnly(),
+            request.ParasiteControl is { } parasiteInput
+                ? new VaccinePassportParasiteControl(parasiteInput.ProductName, parasiteInput.ApplicationDate, parasiteInput.NextDueDate)
+                : null,
+            DateOnly.FromDateTime(cert.ValidUntil!.Value.UtcDateTime),
+            code);
+
+        await certificateRepository.AddAsync(cert, ct);
+        await vaccinePassportRepository.AddAsync(passport, ct);
+        await auditLogRepository.AddAsync(
+            CertificateAuditLog.Create(cert.Id, CertificateAuditAction.Issued, request.IssuedByUserId), ct);
+        await unitOfWork.SaveChangesAsync(ct);
+
         var pdfUrl = await certificateService.GenerateAndStoreAsync(pdfData, ct);
         cert.SetPdfUrl(pdfUrl);
+        await auditLogRepository.AddAsync(
+            CertificateAuditLog.Create(cert.Id, CertificateAuditAction.PdfGenerated, request.IssuedByUserId), ct);
         await unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success(CertificateDto.FromDomain(cert));
@@ -120,4 +178,9 @@ public sealed class IssueVaccinePassportCommandHandler(
                 span[i] = c[bytes[i] % c.Length];
         });
     }
+
+    private static bool HasRabiesVaccine(IReadOnlyList<PassportVaccineEntryInput> vaccines) =>
+        vaccines.Any(vaccine =>
+            vaccine.VaccineName.Contains("rabia", StringComparison.OrdinalIgnoreCase) ||
+            vaccine.VaccineName.Contains("rabies", StringComparison.OrdinalIgnoreCase));
 }
