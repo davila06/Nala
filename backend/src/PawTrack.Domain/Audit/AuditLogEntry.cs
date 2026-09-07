@@ -24,6 +24,21 @@ public enum AuditAction
     StoreRejected,
     StoreSuspended,
 
+    // Service providers
+    ServiceProviderApproved,
+    ServiceProviderRejected,
+    ServiceProviderSuspended,
+    ProviderBookingConfirmed,
+    ProviderBookingCancelled,
+    ProviderBookingCompleted,
+    ProviderVerificationApproved,
+    ProviderVerificationRejected,
+    ProviderVerificationDocumentDownloaded,
+    ProviderServicePublished,
+    ProviderServicePaused,
+    ProviderServiceArchived,
+    ProviderBookingRescheduled,
+
     // Regulatory exports
     RegulatoryExportRequested,
     RegulatoryExportStarted,

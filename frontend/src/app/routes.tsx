@@ -150,6 +150,40 @@ const StoreAnalyticsPage = lazy(
 const StoreLocationsPage = lazy(
   () => import("@/features/stores/pages/StoreLocationsPage"),
 );
+const ServiceProviderRegistrationPage = lazy(
+  () =>
+    import("@/features/service-providers/pages/ServiceProviderRegistrationPage"),
+);
+const ServiceProviderPendingPage = lazy(
+  () => import("@/features/service-providers/pages/ServiceProviderPendingPage"),
+);
+const ServiceProviderDirectoryPage = lazy(
+  () =>
+    import("@/features/service-providers/pages/ServiceProviderDirectoryPage"),
+);
+const ServiceProviderDetailPage = lazy(
+  () => import("@/features/service-providers/pages/ServiceProviderDetailPage"),
+);
+const ServiceProviderDashboardPage = lazy(
+  () =>
+    import("@/features/service-providers/pages/ServiceProviderDashboardPage"),
+);
+const ProviderServicesPage = lazy(
+  () => import("@/features/service-providers/pages/ProviderServicesPage"),
+);
+const ServiceProviderProfilePage = lazy(
+  () => import("@/features/service-providers/pages/ServiceProviderProfilePage"),
+);
+const MyProviderBookingsPage = lazy(
+  () => import("@/features/service-providers/pages/MyProviderBookingsPage"),
+);
+const IncomingProviderBookingsPage = lazy(
+  () =>
+    import("@/features/service-providers/pages/IncomingProviderBookingsPage"),
+);
+const ProviderVerificationPage = lazy(
+  () => import("@/features/service-providers/pages/ProviderVerificationPage"),
+);
 
 // Admin panel
 const AdminPage = lazy(() => import("@/features/admin/pages/AdminPage"));
@@ -348,6 +382,46 @@ export const router = createBrowserRouter([
             element: (
               <S>
                 <StoreDirectoryPage />
+              </S>
+            ),
+          },
+          {
+            path: "/servicio/registro",
+            element: (
+              <S>
+                <ServiceProviderRegistrationPage />
+              </S>
+            ),
+          },
+          {
+            path: "/servicio/pendiente",
+            element: (
+              <S>
+                <ServiceProviderPendingPage />
+              </S>
+            ),
+          },
+          {
+            path: "/servicios",
+            element: (
+              <S>
+                <ServiceProviderDirectoryPage />
+              </S>
+            ),
+          },
+          {
+            path: "/servicios/:id",
+            element: (
+              <S>
+                <ServiceProviderDetailPage />
+              </S>
+            ),
+          },
+          {
+            path: "/mis-reservas",
+            element: (
+              <S>
+                <MyProviderBookingsPage />
               </S>
             ),
           },
@@ -591,6 +665,52 @@ export const router = createBrowserRouter([
                 element: (
                   <S>
                     <StoreLocationsPage />
+                  </S>
+                ),
+              },
+            ],
+          },
+
+          {
+            element: <RoleGuard roles={["ServiceProvider", "Admin"]} />,
+            children: [
+              {
+                path: "/servicio/portal",
+                element: (
+                  <S>
+                    <ServiceProviderDashboardPage />
+                  </S>
+                ),
+              },
+              {
+                path: "/servicio/portal/servicios",
+                element: (
+                  <S>
+                    <ProviderServicesPage />
+                  </S>
+                ),
+              },
+              {
+                path: "/servicio/portal/perfil",
+                element: (
+                  <S>
+                    <ServiceProviderProfilePage />
+                  </S>
+                ),
+              },
+              {
+                path: "/servicio/portal/reservas",
+                element: (
+                  <S>
+                    <IncomingProviderBookingsPage />
+                  </S>
+                ),
+              },
+              {
+                path: "/servicio/portal/verificacion",
+                element: (
+                  <S>
+                    <ProviderVerificationPage />
                   </S>
                 ),
               },

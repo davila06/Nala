@@ -24,4 +24,7 @@ public enum NotificationType
     CollarOfflineAlert,   // collar stopped reporting past the configured threshold
     CollarLowBatteryAlert, // collar battery dropped below the configured threshold
     CollarSafeZoneBreach, // collar exited a defined safe zone
+    ProviderBookingReminder,
+    ProviderBookingUpdate,
+    ProviderStatusUpdate,
 }

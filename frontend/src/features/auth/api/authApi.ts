@@ -60,7 +60,8 @@ export type UserRole =
   | "Admin"
   | "Clinic"
   | "Municipality"
-  | "Store";
+  | "Store"
+  | "ServiceProvider";
 
 export function decodeRoleFromJwt(accessToken: string): UserRole {
   try {
@@ -73,7 +74,8 @@ export function decodeRoleFromJwt(accessToken: string): UserRole {
       raw === "Admin" ||
       raw === "Clinic" ||
       raw === "Municipality" ||
-      raw === "Store"
+      raw === "Store" ||
+      raw === "ServiceProvider"
     )
       return raw;
     return "Owner";

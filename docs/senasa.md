@@ -65,20 +65,20 @@ Terminologia recomendada antes del convenio:
 El producto actual ya incluye las piezas esenciales para construir una capa
 regulatoria:
 
-| Area                 | Estado                | Evidencia funcional                                                                  |
-| -------------------- | --------------------- | ------------------------------------------------------------------------------------ |
-| Identidad de mascota | Implementado          | Mascotas con QR, foto, especie, raza, fecha de nacimiento y microchip ISO 11784.     |
-| Recuperacion         | Implementado          | Reportes de perdida, avistamientos, case room, busqueda en campo y reunificacion.    |
-| Privacidad           | Implementado          | Avistamientos anonimos, chat enmascarado, PII scrubber, contacto protegido.          |
-| Clinicas             | Implementado          | Registro de clinicas con `LicenseNumber` SENASA, estado pendiente/activo/suspendido. |
-| Expediente medico    | Implementado          | Registros medicos, recordatorios, documentos en Blob Storage, exportacion PDF.       |
-| Consentimiento salud | Implementado          | Consentimiento diferenciado para datos de salud bajo Ley 8968.                       |
-| Certificados         | Implementado base     | `VetCertificate`, `CertificateType.VaccinePassport`, verificacion por codigo y PDF.  |
-| Municipalidades      | Implementado          | Capturas, fotos, estados, estadisticas, red regional y transferencias.               |
-| Adopciones/refugios  | Implementado          | Animales adoptables, solicitudes, ferias y estado de adopcion.                       |
-| Aliados              | Implementado          | Organizaciones verificadas por cobertura geografica.                                 |
-| Collares GPS         | Implementado          | Ubicacion, historial, zonas seguras, lost mode y auditoria.                          |
-| Proteccion de datos  | Implementado avanzado | Exportacion de datos, eliminacion de cuenta, retencion/purga y controles BOLA.       |
+| Area                 | Estado                  | Evidencia funcional                                                                             |
+| -------------------- | ----------------------- | ----------------------------------------------------------------------------------------------- |
+| Identidad de mascota | Implementado            | Mascotas con QR, foto, especie, raza, fecha de nacimiento y microchip ISO 11784.                |
+| Recuperacion         | Implementado            | Reportes de perdida, avistamientos, case room, busqueda en campo y reunificacion.               |
+| Privacidad           | Implementado            | Avistamientos anonimos, chat enmascarado, PII scrubber, contacto protegido.                     |
+| Clinicas             | Implementado            | Registro de clinicas con `LicenseNumber` SENASA, estado pendiente/activo/suspendido.            |
+| Expediente medico    | Implementado            | Registros medicos, recordatorios, documentos en Blob Storage, exportacion PDF.                  |
+| Consentimiento salud | Implementado            | Consentimiento diferenciado para datos de salud bajo Ley 8968.                                  |
+| Certificados         | Implementado enterprise | `VetCertificate`, pasaporte estructurado, verificacion por codigo, PDF, revocacion y auditoria. |
+| Municipalidades      | Implementado            | Capturas, fotos, estados, estadisticas, red regional y transferencias.                          |
+| Adopciones/refugios  | Implementado            | Animales adoptables, solicitudes, ferias y estado de adopcion.                                  |
+| Aliados              | Implementado            | Organizaciones verificadas por cobertura geografica.                                            |
+| Collares GPS         | Implementado            | Ubicacion, historial, zonas seguras, lost mode y auditoria.                                     |
+| Proteccion de datos  | Implementado avanzado   | Exportacion de datos, eliminacion de cuenta, retencion/purga y controles BOLA.                  |
 
 ### 3.2 Archivos y modulos relevantes
 
@@ -91,6 +91,13 @@ regulatoria:
 - Municipalidades: `backend/src/PawTrack.Domain/Municipalities/`
 - Clinicas: `backend/src/PawTrack.Domain/Clinics/Clinic.cs`
 - Mascotas: `backend/src/PawTrack.Domain/Pets/Pet.cs`
+- Casos de bienestar: `backend/src/PawTrack.Domain/AnimalWelfare/`
+- Reportes regulatorios: `backend/src/PawTrack.Domain/Regulatory/`
+- API institucional: `backend/src/PawTrack.API/Controllers/InstitutionalReportsController.cs`
+- API NALA: `backend/src/PawTrack.API/Controllers/NalaController.cs`
+- Portal de reportes: `frontend/src/features/regulatory/pages/InstitutionalReportsPage.tsx`
+- Dashboard NALA: `frontend/src/features/regulatory/pages/NalaDashboardPage.tsx`
+- Rollout Sprint 5: [`docs/ROLLOUT_SPRINT5.md`](./ROLLOUT_SPRINT5.md)
 
 ### 3.3 Lo que ya existe para pasaporte/certificado
 
@@ -129,6 +136,23 @@ Los pendientes de Sprint 5 son principalmente validación operativa: pruebas de
 carga, ejecución E2E contra un backend real, alertas KQL/Workbooks configuradas
 en Azure, revisión legal/privacidad, staging/rollback y piloto institucional.
 Ninguno de estos puntos debe describirse como integración oficial con SENASA.
+
+### 3.5 Fuente de verdad de pendientes
+
+Las listas históricas de diseño de los Sprints 1-4 conservan tareas originales
+para trazabilidad y no deben interpretarse automáticamente como estado actual.
+El estado técnico se determina por código, migraciones y pruebas; el estado
+operativo se determina por staging, Azure, revisión legal y piloto.
+
+| Área                      | Estado técnico                   | Pendiente real                                              |
+| ------------------------- | -------------------------------- | ----------------------------------------------------------- |
+| Certificados y pasaportes | Implementado y probado           | Aprobación legal/canal oficial futuro                       |
+| Clínica/veterinario       | Implementado                     | Malware scanning externo y operación continua               |
+| Identidad sanitaria       | Implementado                     | Catálogo formal de cantones y observabilidad adicional      |
+| Bienestar animal          | Implementado base                | Formulario público dedicado, SLA, moderación y E2E ampliado |
+| Reportes institucionales  | Implementado                     | Cobertura completa de filtros/reportes y pruebas de carga   |
+| NALA Core                 | Implementado inicial             | Workbooks Azure, piloto y validación regional               |
+| Integración SENASA        | No implementada intencionalmente | Convenio, canal, formato, autenticación y sandbox           |
 
 ---
 
@@ -788,6 +812,12 @@ Una funcionalidad SENASA/NALA se considera enterprise-ready cuando cumple:
 ---
 
 ## 14. Checklist de verificacion de avance
+
+> Nota de lectura: las casillas de esta sección son el checklist histórico de
+> gobierno y release. Para el estado técnico actual consultar §3.4, la matriz
+> §3.5 y los todolists de cada sprint. Las tareas de código cerradas en los
+> todolists no se consideran pendientes solo porque esta lista histórica no haya
+> sido reescrita.
 
 ### 14.1 Gobierno, legal y producto
 

@@ -26,6 +26,9 @@ const ALERT_TYPES: NotificationType[] = [
   "ResolveCheck",
   "CustodyStarted",
   "CustodyClosed",
+  "ProviderBookingReminder",
+  "ProviderBookingUpdate",
+  "ProviderStatusUpdate",
 ];
 const SIGHTING_TYPES: NotificationType[] = [
   "SightingAlert",

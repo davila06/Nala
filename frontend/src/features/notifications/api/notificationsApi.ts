@@ -14,7 +14,10 @@ export type NotificationType =
   | "FraudAlert"
   | "FoundPetMatch"
   | "CustodyStarted"
-  | "CustodyClosed";
+  | "CustodyClosed"
+  | "ProviderBookingReminder"
+  | "ProviderBookingUpdate"
+  | "ProviderStatusUpdate";
 
 export interface NotificationItem {
   id: string;
