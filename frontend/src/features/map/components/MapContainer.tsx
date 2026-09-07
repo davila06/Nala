@@ -78,7 +78,6 @@ function BBoxListener({
       east: b.getEast(),
       west: b.getWest(),
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // intentionally only on mount
 
   return null;

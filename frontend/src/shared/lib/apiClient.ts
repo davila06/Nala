@@ -28,11 +28,13 @@ apiClient.interceptors.response.use(
     // it like an expired session (silent refresh attempt, then hard redirect
     // to /login on failure) wipes out that error message via a full page
     // reload before React ever gets to render it.
-    const isLoginRequest = originalRequest?.url?.includes("/auth/login");
+    const isAuthRequest =
+      originalRequest?.url?.includes("/auth/login") ||
+      originalRequest?.url?.includes("/auth/refresh");
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !isLoginRequest
+      !isAuthRequest
     ) {
       originalRequest._retry = true;
       try {

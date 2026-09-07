@@ -63,7 +63,6 @@ export default function ReportFoundPetPage() {
     if (step === 3 && foundLat === null) {
       geo.request();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
   // Auto-fill map center when GPS resolves

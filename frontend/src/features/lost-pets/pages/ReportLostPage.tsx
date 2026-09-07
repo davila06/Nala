@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePetDetail } from "@/features/pets/hooks/usePets";
@@ -61,7 +61,6 @@ export default function ReportLostPage() {
   // Auto-request geolocation on mount and seed the pin with the first fix
   useEffect(() => {
     geo.request();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only on mount — geo.request is stable (useCallback)
 
   // Once geolocation resolves, auto-place the pin at the user's position

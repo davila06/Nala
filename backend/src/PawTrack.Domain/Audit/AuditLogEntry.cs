@@ -38,6 +38,15 @@ public enum AuditAction
     ProviderServicePaused,
     ProviderServiceArchived,
     ProviderBookingRescheduled,
+    ProviderPaymentReported,
+    ProviderPaymentConfirmed,
+    ProviderPaymentDisputed,
+    ProviderPaymentRefunded,
+    ProviderIncidentOpened,
+    ProviderIncidentInvestigationStarted,
+    ProviderIncidentResolved,
+    ProviderIncidentAppealed,
+    ProviderIncidentClosed,
 
     // Regulatory exports
     RegulatoryExportRequested,

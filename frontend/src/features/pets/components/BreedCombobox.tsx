@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { BREEDS_BY_SPECIES } from '../data/breeds'
 import type { PetSpecies } from '../api/petsApi'
 
@@ -120,7 +120,6 @@ export const BreedCombobox = ({ species, defaultValue = '', disabled, id }: Bree
           type="text"
           role="combobox"
           aria-autocomplete="list"
-          // eslint-disable-next-line jsx-a11y/aria-proptypes
           aria-expanded={isOpen ? 'true' : 'false'}
           aria-controls={listboxId}
           aria-activedescendant={activeIndex >= 0 ? `breed-option-${activeIndex}` : undefined}
@@ -195,7 +194,6 @@ export const BreedCombobox = ({ species, defaultValue = '', disabled, id }: Bree
                 key={breed}
                 id={`breed-option-${i}`}
                 role="option"
-                // eslint-disable-next-line jsx-a11y/aria-proptypes
               aria-selected={i === activeIndex ? 'true' : 'false'}
                 onMouseDown={(e) => { e.preventDefault(); select(breed) }}
                 onMouseEnter={() => setActiveIndex(i)}

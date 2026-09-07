@@ -44,7 +44,7 @@ public sealed class UpdateProviderBookingStatusCommandHandlerTests
         var providerOwnerId = Guid.NewGuid();
         var customerUserId = Guid.NewGuid();
         var provider = ServiceProvider.Create(providerOwnerId, "Grooming CR", "Cuidado", ServiceProviderCategory.Groomer, "Heredia", 10m, -84m, "provider@example.cr");
-        var booking = ProviderBooking.Request(provider.Id, Guid.NewGuid(), customerUserId, Guid.NewGuid(), "Bano", DateTimeOffset.UtcNow.AddDays(2), 60, 20_000m, 1, null);
+        var booking = ProviderBooking.Request(provider.Id, Guid.NewGuid(), customerUserId, Guid.NewGuid(), "Bano", DateTimeOffset.UtcNow.AddDays(3), 60, 20_000m, 1, null);
         providers.GetBookingByIdAsync(booking.Id, Arg.Any<CancellationToken>()).Returns(booking);
         providers.GetByUserIdAsync(customerUserId, Arg.Any<CancellationToken>()).Returns((ServiceProvider?)null);
         providers.GetByIdAsync(provider.Id, Arg.Any<CancellationToken>()).Returns(provider);

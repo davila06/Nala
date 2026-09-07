@@ -626,7 +626,7 @@ Eventos esperados en un flujo normal:
 1. `Downloaded` cuando dueño/clínica descarga PDF
 1. `VerifiedPublicly` cuando se escanea el QR o se consulta el código
 
-### 16.5 Verificación documental de clínicas y veterinarios
+### 16.5 Verificación documental de clínicas, veterinarios y proveedores de servicios
 
 1. La clínica solicita verificación desde `/clinica/portal` y sube documento privado.
 1. El admin revisa en **Admin → Verificación**.
@@ -643,6 +643,14 @@ FROM VerificationAuditLogs
 WHERE EntityId = @EntityId
 ORDER BY CreatedAt DESC;
 ```
+
+#### Proveedores de servicios
+
+1. Revisar evidencia desde **Admin → Verificación proveedores** y descargarla solo por el endpoint autenticado.
+1. Aprobar solo con fecha de vencimiento; rechazar y suspender siempre con motivo.
+1. Para reactivar un perfil, usar **Admin → Operación proveedores**; el motivo de suspensión queda en auditoría.
+1. Las verificaciones vencidas se marcan diariamente y los avisos de revalidación se envían 30 días antes.
+1. Consultar procedimientos y locks en `SERVICE_PROVIDERS_OPERABILITY.md`; nunca compartir URLs de Blob ni documentos privados.
 
 ### 16.6 Conflicto de microchip
 

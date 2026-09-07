@@ -54,6 +54,10 @@ PawTrack CR es un **MVP completo enterprise-hardened** con todos los módulos op
 | Estadísticas públicas de recuperación                                                                                  | ✅     |
 
 > Nota: los nombres históricos `ClinicBasic`, `StoreBasic`, `ShelterBasic` y los planes duplicados de documentación antigua no son la fuente de verdad del producto vigente; el backend actual define la fuente oficial de tiers y precios.
+>
+> Proveedores de servicios B2B: el módulo incluye directorio, catálogo, disponibilidad,
+> reservas, verificación y operación. Pagos, comisiones, disputas y filtros
+> geográficos siguen pendientes de decisión comercial e integración externa.
 
 ---
 
@@ -211,7 +215,30 @@ PendingPayment → PaymentReported → Confirmed → Preparing →
 
 Cancelación desde Confirmed, Preparing, ReadyForPickup, OutForDelivery.
 
-### 5.6 Billboards — Vallas publicitarias (`/api/billboards`)
+### 5.6 ServiceProviders (`/api/service-providers`, `/api/provider-bookings`, `/api/admin/service-providers`)
+
+| Endpoint                                                                 | Auth                  | Descripción                                                       |
+| ------------------------------------------------------------------------ | --------------------- | ----------------------------------------------------------------- |
+| `GET /api/public/service-providers`                                      | —                     | Directorio activo; filtros por categoría, modalidad y precio.     |
+| `GET /api/public/service-providers/{id}`                                 | —                     | Perfil público e indicador de verificación.                       |
+| `GET /api/public/service-providers/{id}/services`                        | —                     | Servicios publicados del proveedor.                               |
+| `POST /api/service-providers/register`                                   | —                     | Registro con perfil pendiente.                                    |
+| `GET /api/service-providers/mine` / `PUT /api/service-providers/profile` | ServiceProvider       | Consultar y actualizar perfil.                                    |
+| `GET/POST /api/service-providers/services`                               | ServiceProvider       | Consultar y publicar catálogo.                                    |
+| `PUT /api/service-providers/services/{id}` / `status`                    | ServiceProvider       | Editar, publicar, pausar o archivar.                              |
+| `GET/POST /api/service-providers/services/{id}/availability`             | ServiceProvider       | Reglas semanales de disponibilidad.                               |
+| `GET/POST /api/service-providers/services/{id}/availability-blocks`      | ServiceProvider       | Cierres excepcionales.                                            |
+| `POST /api/provider-bookings`                                            | JWT                   | Solicitar reserva; capacidad y horario se validan en transacción. |
+| `GET /api/provider-bookings/mine` / `incoming`                           | JWT / ServiceProvider | Reservas de cliente y reservas entrantes.                         |
+| `PUT /api/provider-bookings/{id}/status` / `reschedule`                  | JWT                   | Transiciones y reprogramación con ownership.                      |
+| `GET/POST /api/service-providers/verification/*`                         | ServiceProvider       | Estado y evidencia privada.                                       |
+| `GET/PUT /api/admin/service-providers/*`                                 | Admin                 | Operación, revisión y documentos privados.                        |
+
+Las reservas usan estados `Requested`, `Confirmed`, `InProgress`, `Completed`,
+`CancelledByCustomer`, `CancelledByProvider`, `NoShow` y `Expired`. Los jobs
+vencen solicitudes, envían recordatorios y revalidan documentos con lock distribuido.
+
+### 5.7 Billboards — Vallas publicitarias (`/api/billboards`)
 
 | Endpoint                            | Auth  | Descripción                 |
 | ----------------------------------- | ----- | --------------------------- |

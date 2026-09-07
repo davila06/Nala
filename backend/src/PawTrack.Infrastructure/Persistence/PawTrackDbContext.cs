@@ -116,6 +116,8 @@ public sealed class PawTrackDbContext(
     public DbSet<ServiceProvider> ServiceProviders => Set<ServiceProvider>();
     public DbSet<ProviderService> ProviderServices => Set<ProviderService>();
     public DbSet<ProviderBooking> ProviderBookings => Set<ProviderBooking>();
+    public DbSet<ProviderPayment> ProviderPayments => Set<ProviderPayment>();
+    public DbSet<ProviderIncident> ProviderIncidents => Set<ProviderIncident>();
     public DbSet<ServiceAvailabilityRule> ServiceAvailabilityRules => Set<ServiceAvailabilityRule>();
     public DbSet<ServiceAvailabilityBlock> ServiceAvailabilityBlocks => Set<ServiceAvailabilityBlock>();
     public DbSet<ProviderVerification> ProviderVerifications => Set<ProviderVerification>();

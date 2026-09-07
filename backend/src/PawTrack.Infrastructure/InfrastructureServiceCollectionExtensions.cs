@@ -10,6 +10,7 @@ using PawTrack.Application.Regulatory.Gateways;
 using PawTrack.Application.Common.Settings;
 using PawTrack.Application.Medical;
 using PawTrack.Application.ServiceProviders;
+using PawTrack.Application.ServiceProviders.Payments;
 using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Infrastructure.AI;
 using PawTrack.Infrastructure.Allies;
@@ -131,6 +132,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IReportDefinitionRepository, ReportDefinitionRepository>();
         services.AddScoped<IRegulatorySubmissionRepository, RegulatorySubmissionRepository>();
         services.AddScoped<IRegulatoryReportQueryService, RegulatoryReportQueryService>();
+        services.AddSingleton<IProviderPaymentGateway, ManualProviderPaymentGateway>();
         services.AddScoped<IReportAuthorizationService, ReportAuthorizationService>();
         services.AddScoped<IRegulatoryExportRenderer, QuestPdfRegulatoryExportRenderer>();
         services.AddSingleton<IRegulatorySubmissionGateway, NoOpRegulatorySubmissionGateway>();

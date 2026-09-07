@@ -33,8 +33,9 @@ export function useAuthInit() {
         );
       })
       .catch(() => {
-        // No valid cookie — clear any stale state and mark initialization done
-        clearAuth();
+        // A refresh begun during app mount can finish after an interactive login.
+        // Never let that stale failure erase the session the login just established.
+        if (!useAuthStore.getState().isAuthenticated) clearAuth();
       });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 }

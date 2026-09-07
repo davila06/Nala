@@ -43,7 +43,6 @@ export default function AcceptFamilyInvitationPage() {
         );
       },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, isAuthenticated]);
 
   return (

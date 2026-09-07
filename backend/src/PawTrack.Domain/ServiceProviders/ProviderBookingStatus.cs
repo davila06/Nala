@@ -10,4 +10,7 @@ public enum ProviderBookingStatus
     CancelledByProvider,
     NoShow,
     Expired,
+    AwaitingPayment,
+    Disputed,
+    Refunded,
 }

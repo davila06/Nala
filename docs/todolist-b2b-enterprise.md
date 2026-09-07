@@ -164,6 +164,18 @@ Estas tareas deben completarse antes de seguir agregando features, porque existe
 
 ---
 
+## 4.4 Proveedores de servicios B2B
+
+- [x] Módulo separado de tiendas con registro, aprobación, directorio y perfil.
+- [x] Catálogo editable, disponibilidad semanal, cierres excepcionales y reservas con control de capacidad.
+- [x] Verificación documental privada, vencimiento/revalidación, auditoría y consola admin.
+- [x] Notificaciones de solicitudes, cambios de reserva, recordatorios y estado de proveedor.
+- [x] Pruebas unitarias focalizadas e integración HTTP base.
+- [ ] Ejecutar concurrencia contra SQL Server real y E2E Playwright con backend/Azurite sembrados.
+- [ ] Definir y luego implementar tiers, cobro, comisiones, impuestos, conciliación, reembolsos y disputas.
+- [ ] Definir política por categoría para cancelación, no-show, evidencia y servicio a domicilio.
+- [ ] Añadir geofiltros/ranking sin revelar ubicaciones privadas.
+
 ## 5. Aliados, refugios y adopciones
 
 - [x] Registro/verificación de aliados y perfil público base.

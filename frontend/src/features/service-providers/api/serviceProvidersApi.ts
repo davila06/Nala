@@ -49,6 +49,9 @@ export interface ServiceProviderDirectoryFilter {
   modality?: ServiceModality;
   minPriceCrc?: number;
   maxPriceCrc?: number;
+  centerLat?: number;
+  centerLng?: number;
+  radiusKm?: number;
 }
 
 export type ProviderBookingStatus =

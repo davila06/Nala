@@ -68,7 +68,6 @@ export function useSearchCoordinationHub({
         .catch(() => {})
         .finally(() => connection.stop())
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lostEventId])
 
   const claimZone = useCallback(async (zoneId: string) => {

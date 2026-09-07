@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace PawTrack.Domain.Common;
 
 public sealed class Result<T>
@@ -10,6 +12,7 @@ public sealed class Result<T>
     }
 
     public T? Value { get; }
+    [MemberNotNullWhen(true, nameof(Value))]
     public bool IsSuccess { get; }
     public bool IsFailure => !IsSuccess;
     public IReadOnlyList<string> Errors { get; }

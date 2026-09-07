@@ -26,7 +26,7 @@ Todos los módulos de código están implementados. Los únicos pendientes son *
 
 ---
 
-## 2. Módulos completados (agosto 2026)
+## 2. Módulos completados (septiembre 2026)
 
 | Módulo                                     | Commit/Sprint | Tests       |
 | ------------------------------------------ | ------------- | ----------- |
@@ -54,6 +54,9 @@ Todos los módulos de código están implementados. Los únicos pendientes son *
 | Leaderboard + incentivos                   | base          | ✅          |
 | Mapa público con stores/clínicas           | base + aug    | ✅          |
 | Predicción de movimiento IA                | base          | —           |
+
+**Proveedores de servicios B2B:** `sprint-service-providers`; ✅ 33 pruebas
+unitarias y 4 de integración.
 
 ---
 

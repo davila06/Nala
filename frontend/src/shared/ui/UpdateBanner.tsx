@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-// @ts-expect-error — virtual module injected by vite-plugin-pwa at build time
 import { useRegisterSW } from "virtual:pwa-register/react";
 
 /**

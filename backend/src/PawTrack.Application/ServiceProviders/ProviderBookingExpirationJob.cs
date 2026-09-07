@@ -12,13 +12,22 @@ public sealed class ProviderBookingExpirationJob(
     {
         var expiredBookings = await repository.GetRequestedBookingsCreatedBeforeAsync(
             DateTimeOffset.UtcNow - RequestLifetime, 500, ct);
-        foreach (var booking in expiredBookings)
+        var paymentPendingBookings = await repository.GetPaymentPendingBookingsCreatedBeforeAsync(
+            DateTimeOffset.UtcNow - RequestLifetime, 500, ct);
+        var allExpiredBookings = expiredBookings.Concat(paymentPendingBookings).DistinctBy(booking => booking.Id).ToList();
+        foreach (var booking in allExpiredBookings)
         {
             booking.Expire();
             repository.UpdateBooking(booking);
+            var payment = await repository.GetPaymentByBookingAsync(booking.Id, ct);
+            if (payment is not null)
+            {
+                payment.Expire("La reserva vencio sin confirmacion de pago.");
+                repository.UpdatePayment(payment);
+            }
         }
 
-        if (expiredBookings.Count > 0)
+        if (allExpiredBookings.Count > 0)
             await unitOfWork.SaveChangesAsync(ct);
     }
 }

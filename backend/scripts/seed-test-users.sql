@@ -16,12 +16,20 @@ SET ANSI_NULLS ON;
 BEGIN TRANSACTION;
 
 -- ── Idempotent: remove existing test seed rows ────────────────────────────
+DELETE FROM [dbo].[ServiceAvailabilityRules]
+WHERE [ProviderServiceId] = '116079AB-3431-4246-B538-3B123B293B74';
+DELETE FROM [dbo].[ProviderServices]
+WHERE [Id] = '116079AB-3431-4246-B538-3B123B293B74';
+DELETE FROM [dbo].[ServiceProviders]
+WHERE [Id] = 'C81A79F1-6A56-4BD5-BE64-328E978786AA'
+   OR [UserId] = 'B4A3A5D3-08F5-45CE-91F4-EC013463A7D8';
 DELETE FROM [dbo].[Users]
 WHERE [Email] IN (
     'owner@pawtrack.test',
     'ally@pawtrack.test',
     'admin@pawtrack.test',
-    'clinic@pawtrack.test'
+    'clinic@pawtrack.test',
+    'provider@pawtrack.test'
 );
 
 -- ── Owner ─────────────────────────────────────────────────────────────────
@@ -37,6 +45,23 @@ INSERT INTO [dbo].[Users] (
     '$2a$12$S7/AoW/NeL4KIvhZO6p6TuWsgBuZQ6kymMD96.3.ALIKR/W51wAES',
     N'Ana P' + NCHAR(233) + N'rez (Owner)',
     'Owner',
+    1, NULL, NULL, NULL, NULL,
+    0, NULL, GETUTCDATE()
+);
+
+-- ── Service provider ─────────────────────────────────────────────────────
+-- Password: Test123!
+INSERT INTO [dbo].[Users] (
+    [Id], [Email], [PasswordHash], [Name], [Role],
+    [IsEmailVerified], [EmailVerificationToken], [EmailVerificationTokenExpiry],
+    [PasswordResetToken], [PasswordResetTokenExpiry],
+    [FailedLoginAttempts], [LockoutEnd], [CreatedAt]
+) VALUES (
+    'B4A3A5D3-08F5-45CE-91F4-EC013463A7D8',
+    'provider@pawtrack.test',
+    '$2a$12$S7/AoW/NeL4KIvhZO6p6TuWsgBuZQ6kymMD96.3.ALIKR/W51wAES',
+    'Grooming E2E',
+    'ServiceProvider',
     1, NULL, NULL, NULL, NULL,
     0, NULL, GETUTCDATE()
 );
@@ -115,6 +140,27 @@ INSERT INTO [dbo].[Clinics] (
     'clinic@pawtrack.test',
     'Active',
     GETUTCDATE()
+);
+
+-- ── Service provider profile + published service for E2E ──────────────────
+INSERT INTO [dbo].[ServiceProviders] (
+    [Id], [UserId], [Name], [Description], [Category], [Address], [Lat], [Lng],
+    [ContactEmail], [IsFeatured], [Status], [RegisteredAt]
+) VALUES (
+    'C81A79F1-6A56-4BD5-BE64-328E978786AA',
+    'B4A3A5D3-08F5-45CE-91F4-EC013463A7D8',
+    'Grooming E2E', 'Servicio de grooming para pruebas locales', 1,
+    'Heredia, Costa Rica', 9.998000, -84.117000,
+    'provider@pawtrack.test', 0, 1, GETUTCDATE()
+);
+
+INSERT INTO [dbo].[ProviderServices] (
+    [Id], [ServiceProviderId], [Name], [Description], [Modality], [DurationMinutes],
+    [PriceCrc], [Capacity], [Status], [CreatedAt]
+) VALUES (
+    '116079AB-3431-4246-B538-3B123B293B74',
+    'C81A79F1-6A56-4BD5-BE64-328E978786AA',
+    'Bano E2E', 'Servicio de prueba', 0, 60, 20000, 5, 0, GETUTCDATE()
 );
 
 -- ── Verify ────────────────────────────────────────────────────────────────

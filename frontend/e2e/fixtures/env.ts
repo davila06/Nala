@@ -5,4 +5,5 @@ export const API_URL = process.env.E2E_API_URL ?? "http://localhost:5199";
 export const TEST_USERS = {
   owner: { email: "owner@pawtrack.test", password: "Test123!" },
   admin: { email: "admin@pawtrack.test", password: "Admin123!" },
+  provider: { email: "provider@pawtrack.test", password: "Test123!" },
 } as const;

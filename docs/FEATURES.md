@@ -13,6 +13,7 @@ La implementación actual del backend usa estas suscripciones activas:
 - Refugios/adopciones: `ShelterPlus`
 - Clínicas: `ClinicPlus`, `ClinicPartner`
 - Municipalidades: `MuniBasica`, `MuniFull`, `MuniRedRegional`
+- Proveedores de servicios: no tienen tiers de suscripción ni pagos aprobados aún.
 
 Los valores `ClinicBasic`, `StoreBasic`, `ShelterBasic` existen como estados o marcadores libres de directorio, pero no forman el flujo de pago/activación principal del código actual. La documentación debe tratar esos estados como free/entry points, no como planes de compra activados en producción.
 
@@ -133,7 +134,26 @@ Los valores `ClinicBasic`, `StoreBasic`, `ShelterBasic` existen como estados o m
 
 ---
 
-## 7. Criterio de feature gating actual
+## 7. B2B — Proveedores de servicios
+
+| Feature                                           | Estado actual                       |
+| ------------------------------------------------- | ----------------------------------- |
+| Registro, aprobación y perfil público             | Sí                                  |
+| Directorio con categoría, modalidad y precio      | Sí                                  |
+| Catálogo de servicios y disponibilidad            | Sí                                  |
+| Reservas, capacidad, cancelación y reprogramación | Sí                                  |
+| Verificación documental privada                   | Sí                                  |
+| Notificaciones y jobs de vencimiento              | Sí                                  |
+| Pagos, comisiones, reembolsos y disputas          | No; pendiente de decisión comercial |
+| Tiers B2B de proveedores                          | No definidos                        |
+
+Las categorías actuales son `Trainer`, `Groomer`, `Hotel`, `Daycare`, `Walker`,
+`Photographer` y `Other`. La verificación visible se presenta como
+"Verificado por PawTrack CR", no como licencia estatal.
+
+---
+
+## 8. Criterio de feature gating actual
 
 El backend es la autoridad final para validar plan activo. En la práctica, la lógica implementada consiste en:
 
@@ -144,7 +164,7 @@ El backend es la autoridad final para validar plan activo. En la práctica, la l
 
 ---
 
-## 8. Estado de los documentos
+## 9. Estado de los documentos
 
 La suma de features por plan se debe interpretar como la realidad actual del app, no como objetivos futuros. Los documentos definitivos deben respetar la siguiente fuente de verdad:
 

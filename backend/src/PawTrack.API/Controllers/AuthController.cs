@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Hosting;
 using PawTrack.Application.Auth.Commands.ChangePassword;
 using PawTrack.Application.Auth.Commands.DeleteAccount;
 using PawTrack.Application.Auth.Commands.ForgotPassword;
@@ -21,7 +22,7 @@ namespace PawTrack.API.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public sealed class AuthController(ISender sender) : ControllerBase
+public sealed class AuthController(ISender sender, IHostEnvironment environment) : ControllerBase
 {
     [HttpPost("register")]
     [EnableRateLimiting("register")]
@@ -84,7 +85,7 @@ public sealed class AuthController(ISender sender) : ControllerBase
         Response.Cookies.Append("refreshToken", token.RefreshToken, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
+            Secure = !environment.IsDevelopment(),
             SameSite = SameSiteMode.Lax,
             Expires = DateTimeOffset.UtcNow.AddDays(30),
             // Scope to /api/auth so the cookie is NOT sent to /api/pets, /api/found-pets, etc.
@@ -162,7 +163,7 @@ public sealed class AuthController(ISender sender) : ControllerBase
         Response.Cookies.Append("refreshToken", token.RefreshToken, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
+            Secure = !environment.IsDevelopment(),
             SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddDays(30),
             Path = "/api/auth",

@@ -1,5 +1,6 @@
 using FluentValidation;
 using MediatR;
+using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Logging;
 using PawTrack.Application.Common;
 using PawTrack.Application.Common.Interfaces;
@@ -26,9 +27,15 @@ public sealed record PublicServiceProviderDto(
     string Status,
     bool IsVerified = false)
 {
-    public static PublicServiceProviderDto FromDomain(ServiceProvider provider, bool isVerified = false) => new(
+    public static PublicServiceProviderDto FromDomain(
+        ServiceProvider provider,
+        bool isVerified = false,
+        bool redactLocation = false) => new(
         provider.Id, provider.Name, provider.Description, provider.Category.ToString(),
-        provider.Address, provider.Lat, provider.Lng, provider.PhoneNumber,
+        redactLocation ? "Ubicacion aproximada" : provider.Address,
+        redactLocation ? Math.Round(provider.Lat, 2) : provider.Lat,
+        redactLocation ? Math.Round(provider.Lng, 2) : provider.Lng,
+        provider.PhoneNumber,
         provider.Website, provider.LogoUrl, provider.IsFeatured, provider.Status.ToString(), isVerified);
 }
 
@@ -60,7 +67,8 @@ public sealed class RegisterServiceProviderCommandHandler(
     IPasswordHasher passwordHasher,
     IEmailSender emailSender,
     IUnitOfWork unitOfWork,
-    ILogger<RegisterServiceProviderCommandHandler> logger)
+    ILogger<RegisterServiceProviderCommandHandler> logger,
+    TelemetryClient? telemetryClient = null)
     : IRequestHandler<RegisterServiceProviderCommand, Result<PublicServiceProviderDto>>
 {
     public const string DuplicateEmailError = "duplicate_email";
@@ -80,6 +88,11 @@ public sealed class RegisterServiceProviderCommandHandler(
             request.Lat, request.Lng, request.ContactEmail);
         await providerRepository.AddAsync(provider, ct);
         await unitOfWork.SaveChangesAsync(ct);
+        telemetryClient?.TrackEvent("ServiceProvider.Registered", new Dictionary<string, string>
+        {
+            ["category"] = provider.Category.ToString(),
+            ["status"] = provider.Status.ToString(),
+        });
 
         _ = emailSender.SendEmailVerificationAsync(user.Email, user.Name, rawToken, ct)
             .ContinueWith(task => logger.LogWarning(task.Exception,
@@ -95,10 +108,13 @@ public sealed record GetPublicServiceProvidersQuery(
     ServiceModality? Modality = null,
     decimal? MinPriceCrc = null,
     decimal? MaxPriceCrc = null,
+    decimal? CenterLat = null,
+    decimal? CenterLng = null,
+    int? RadiusKm = null,
     int Page = 1,
     int PageSize = 50) : IRequest<Result<IReadOnlyList<PublicServiceProviderDto>>>;
 
-public sealed class GetPublicServiceProvidersQueryHandler(IServiceProviderRepository repository)
+public sealed class GetPublicServiceProvidersQueryHandler(IServiceProviderRepository repository, TelemetryClient? telemetryClient = null)
     : IRequestHandler<GetPublicServiceProvidersQuery, Result<IReadOnlyList<PublicServiceProviderDto>>>
 {
     public async Task<Result<IReadOnlyList<PublicServiceProviderDto>>> Handle(
@@ -109,13 +125,26 @@ public sealed class GetPublicServiceProvidersQueryHandler(IServiceProviderReposi
         if (request.MinPriceCrc < 0 || request.MaxPriceCrc < 0 ||
             request.MinPriceCrc > request.MaxPriceCrc)
             return Result.Failure<IReadOnlyList<PublicServiceProviderDto>>("El rango de precio es invalido.");
-        var providers = await repository.GetActivePagedAsync(
-            request.Category, request.Modality, request.MinPriceCrc, request.MaxPriceCrc,
-            (page - 1) * pageSize, pageSize, ct);
+        var hasGeoFilter = request.CenterLat.HasValue || request.CenterLng.HasValue || request.RadiusKm.HasValue;
+        if (hasGeoFilter && (!request.CenterLat.HasValue || !request.CenterLng.HasValue || !request.RadiusKm.HasValue ||
+            request.CenterLat is < -90 or > 90 || request.CenterLng is < -180 or > 180 || request.RadiusKm is < 1 or > 100))
+            return Result.Failure<IReadOnlyList<PublicServiceProviderDto>>("El filtro geografico es invalido.");
+        var providers = hasGeoFilter
+            ? await repository.GetNearbyActivePagedAsync(request.Category, request.Modality, request.MinPriceCrc, request.MaxPriceCrc,
+                request.CenterLat!.Value, request.CenterLng!.Value, request.RadiusKm!.Value, (page - 1) * pageSize, pageSize, ct)
+            : await repository.GetActivePagedAsync(request.Category, request.Modality, request.MinPriceCrc, request.MaxPriceCrc,
+                (page - 1) * pageSize, pageSize, ct);
         var verifiedProviderIds = await repository.GetActiveVerifiedProviderIdsAsync(
             providers.Select(provider => provider.Id), ct);
+        telemetryClient?.TrackEvent("ServiceProviderDirectory.Searched", new Dictionary<string, string>
+        {
+            ["category"] = request.Category?.ToString() ?? "all",
+            ["modality"] = request.Modality?.ToString() ?? "all",
+            ["geoFilter"] = hasGeoFilter.ToString(),
+        }, new Dictionary<string, double> { ["results"] = providers.Count });
         return Result.Success<IReadOnlyList<PublicServiceProviderDto>>(
-            providers.Select(provider => PublicServiceProviderDto.FromDomain(provider, verifiedProviderIds.Contains(provider.Id))).ToList());
+            providers.Select(provider => PublicServiceProviderDto.FromDomain(
+                provider, verifiedProviderIds.Contains(provider.Id), redactLocation: true)).ToList());
     }
 }
 
@@ -131,7 +160,8 @@ public sealed class GetServiceProviderDetailQueryHandler(IServiceProviderReposit
         if (provider is null || provider.Status != ServiceProviderStatus.Active)
             return Result.Failure<PublicServiceProviderDto>("Proveedor no encontrado.");
         var verifiedProviderIds = await repository.GetActiveVerifiedProviderIdsAsync([provider.Id], ct);
-        return Result.Success(PublicServiceProviderDto.FromDomain(provider, verifiedProviderIds.Contains(provider.Id)));
+        return Result.Success(PublicServiceProviderDto.FromDomain(
+            provider, verifiedProviderIds.Contains(provider.Id), redactLocation: true));
     }
 }
 

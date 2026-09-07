@@ -19,6 +19,9 @@ La implementación real del producto usa estos tiers activos:
 | Municipalidades | `MuniBasica`, `MuniFull`, `MuniRedRegional` | ₡150k / ₡300k / ₡500k año |
 
 > `ClinicBasic`, `StoreBasic` y `ShelterBasic` existen como estados libres y de directorio, pero no representan el tier pagado principal del sistema actual. La doc debe describirlos como estado base y no como plan comercial activo.
+>
+> Proveedores de servicios: sin tier comercial aprobado; actualmente ofrecen
+> registro y reservas sin pago.
 
 ---
 

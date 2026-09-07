@@ -90,7 +90,6 @@ export function useSharePet({
       }
       resolveWithTimeout('error')
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canShare, shareTitle, shareText, publicUrl])
 
   // ── Clipboard copy ─────────────────────────────────────────────────────────
@@ -103,7 +102,6 @@ export function useSharePet({
       // Clipboard API unavailable (e.g. non-secure context) — silent fallback
       resolveWithTimeout('error')
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [publicUrl])
 
   // ── Social links ───────────────────────────────────────────────────────────

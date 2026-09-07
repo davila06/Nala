@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using PawTrack.Application.Common;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.ServiceProviders;
 using PawTrack.Infrastructure.Persistence;
@@ -34,6 +35,41 @@ public sealed class ServiceProviderRepository(PawTrackDbContext db) : IServicePr
             .OrderByDescending(provider => provider.IsFeatured).ThenBy(provider => provider.Name)
             .Skip(skip).Take(take)
             .ToListAsync(ct);
+
+    public async Task<IReadOnlyList<ServiceProvider>> GetNearbyActivePagedAsync(
+        ServiceProviderCategory? category,
+        ServiceModality? modality,
+        decimal? minPriceCrc,
+        decimal? maxPriceCrc,
+        decimal centerLat,
+        decimal centerLng,
+        int radiusKm,
+        int skip,
+        int take,
+        CancellationToken ct = default)
+    {
+        var (deltaLat, deltaLng) = GeoHelper.BoundingBoxDelta((double)centerLat, radiusKm * 1_000);
+        var candidates = await db.ServiceProviders.AsNoTracking()
+            .Where(provider => provider.Status == ServiceProviderStatus.Active &&
+                provider.Lat >= centerLat - (decimal)deltaLat && provider.Lat <= centerLat + (decimal)deltaLat &&
+                provider.Lng >= centerLng - (decimal)deltaLng && provider.Lng <= centerLng + (decimal)deltaLng &&
+                (!category.HasValue || provider.Category == category.Value) &&
+                (!modality.HasValue && !minPriceCrc.HasValue && !maxPriceCrc.HasValue ||
+                 db.ProviderServices.Any(service => service.ServiceProviderId == provider.Id &&
+                    service.Status == ProviderServiceStatus.Published &&
+                    (!modality.HasValue || service.Modality == modality.Value) &&
+                    (!minPriceCrc.HasValue || service.PriceCrc >= minPriceCrc.Value) &&
+                    (!maxPriceCrc.HasValue || service.PriceCrc <= maxPriceCrc.Value))))
+            .OrderByDescending(provider => provider.IsFeatured).ThenBy(provider => provider.Name)
+            .Take(5_000)
+            .ToListAsync(ct);
+
+        return candidates
+            .Select(provider => new { Provider = provider, Distance = GeoHelper.DistanceMetres((double)centerLat, (double)centerLng, (double)provider.Lat, (double)provider.Lng) })
+            .Where(candidate => candidate.Distance <= radiusKm * 1_000d)
+            .OrderBy(candidate => candidate.Distance).ThenByDescending(candidate => candidate.Provider.IsFeatured).ThenBy(candidate => candidate.Provider.Name)
+            .Skip(skip).Take(take).Select(candidate => candidate.Provider).ToList();
+    }
 
     public async Task<IReadOnlyList<ServiceProvider>> GetOperationalProvidersAsync(int skip, int take, CancellationToken ct = default) =>
         await db.ServiceProviders.AsNoTracking()
@@ -107,7 +143,9 @@ public sealed class ServiceProviderRepository(PawTrackDbContext db) : IServicePr
                 booking.StartsAt < rangeEnd && rangeStart < booking.EndsAt &&
                 booking.Status != ProviderBookingStatus.CancelledByCustomer &&
                 booking.Status != ProviderBookingStatus.CancelledByProvider &&
-                booking.Status != ProviderBookingStatus.NoShow)
+                booking.Status != ProviderBookingStatus.NoShow &&
+                booking.Status != ProviderBookingStatus.Disputed &&
+                booking.Status != ProviderBookingStatus.Refunded)
             .OrderBy(booking => booking.StartsAt)
             .Take(5_000)
             .ToListAsync(ct);
@@ -127,6 +165,10 @@ public sealed class ServiceProviderRepository(PawTrackDbContext db) : IServicePr
         await db.ProviderBookings.Where(booking => booking.Status == ProviderBookingStatus.Requested && booking.CreatedAt < cutoff)
             .OrderBy(booking => booking.CreatedAt).Take(take).ToListAsync(ct);
 
+    public async Task<IReadOnlyList<ProviderBooking>> GetPaymentPendingBookingsCreatedBeforeAsync(DateTimeOffset cutoff, int take, CancellationToken ct = default) =>
+        await db.ProviderBookings.Where(booking => booking.Status == ProviderBookingStatus.AwaitingPayment && booking.CreatedAt < cutoff)
+            .OrderBy(booking => booking.CreatedAt).Take(take).ToListAsync(ct);
+
     public async Task<IReadOnlyList<ProviderBooking>> GetConfirmedBookingsStartingBetweenAsync(
         DateTimeOffset startsAfter, DateTimeOffset startsBefore, int take, CancellationToken ct = default) =>
         await db.ProviderBookings.AsNoTracking()
@@ -140,6 +182,39 @@ public sealed class ServiceProviderRepository(PawTrackDbContext db) : IServicePr
 
     public Task<ProviderVerification?> GetVerificationByIdAsync(Guid verificationId, CancellationToken ct = default) =>
         db.ProviderVerifications.FirstOrDefaultAsync(verification => verification.Id == verificationId, ct);
+
+    public Task<ProviderPayment?> GetPaymentByIdAsync(Guid paymentId, CancellationToken ct = default) =>
+        db.ProviderPayments.FirstOrDefaultAsync(payment => payment.Id == paymentId, ct);
+
+    public Task<ProviderPayment?> GetPaymentByBookingAsync(Guid bookingId, CancellationToken ct = default) =>
+        db.ProviderPayments.AsNoTracking().FirstOrDefaultAsync(payment => payment.BookingId == bookingId, ct);
+
+    public Task<ProviderPayment?> GetPaymentByIdempotencyKeyAsync(string idempotencyKey, CancellationToken ct = default) =>
+        db.ProviderPayments.AsNoTracking().FirstOrDefaultAsync(payment => payment.IdempotencyKey == idempotencyKey, ct);
+
+    public async Task AddPaymentAsync(ProviderPayment payment, CancellationToken ct = default) =>
+        await db.ProviderPayments.AddAsync(payment, ct);
+
+    public void UpdatePayment(ProviderPayment payment) => db.ProviderPayments.Update(payment);
+
+    public Task<ProviderIncident?> GetIncidentByIdAsync(Guid incidentId, CancellationToken ct = default) =>
+        db.ProviderIncidents.FirstOrDefaultAsync(incident => incident.Id == incidentId, ct);
+
+    public async Task<IReadOnlyList<ProviderIncident>> GetIncidentsByProviderAsync(Guid serviceProviderId, int skip, int take, CancellationToken ct = default) =>
+        await db.ProviderIncidents.AsNoTracking()
+            .Where(incident => incident.ServiceProviderId == serviceProviderId)
+            .OrderByDescending(incident => incident.CreatedAt)
+            .Skip(skip).Take(take).ToListAsync(ct);
+
+    public async Task<IReadOnlyList<ProviderIncident>> GetOperationalIncidentsAsync(int skip, int take, CancellationToken ct = default) =>
+        await db.ProviderIncidents.AsNoTracking()
+            .OrderBy(incident => incident.Status).ThenBy(incident => incident.CreatedAt)
+            .Skip(skip).Take(take).ToListAsync(ct);
+
+    public async Task AddIncidentAsync(ProviderIncident incident, CancellationToken ct = default) =>
+        await db.ProviderIncidents.AddAsync(incident, ct);
+
+    public void UpdateIncident(ProviderIncident incident) => db.ProviderIncidents.Update(incident);
 
     public async Task<IReadOnlyList<ProviderVerification>> GetPendingVerificationsAsync(int skip, int take, CancellationToken ct = default) =>
         await db.ProviderVerifications.AsNoTracking()
@@ -194,50 +269,63 @@ public sealed class ServiceProviderRepository(PawTrackDbContext db) : IServicePr
 
     public async Task<bool> TryAddBookingAsync(ProviderBooking booking, int capacity, CancellationToken ct = default)
     {
-        await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, ct);
-        var reservedCapacity = await db.ProviderBookings
-            .Where(existing => existing.ProviderServiceId == booking.ProviderServiceId &&
-                existing.StartsAt < booking.EndsAt && booking.StartsAt < existing.EndsAt &&
-                existing.Status != ProviderBookingStatus.CancelledByCustomer &&
-                existing.Status != ProviderBookingStatus.CancelledByProvider &&
-                existing.Status != ProviderBookingStatus.NoShow)
-            .SumAsync(existing => (int?)existing.Quantity, ct) ?? 0;
-
-        if (reservedCapacity + booking.Quantity > capacity)
+        var strategy = db.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync(async () =>
         {
-            await transaction.RollbackAsync(ct);
-            return false;
-        }
+            await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, ct);
+            var reservedCapacity = await db.ProviderBookings
+                .Where(existing => existing.ProviderServiceId == booking.ProviderServiceId &&
+                    existing.StartsAt < booking.EndsAt && booking.StartsAt < existing.EndsAt &&
+                    existing.Status != ProviderBookingStatus.CancelledByCustomer &&
+                    existing.Status != ProviderBookingStatus.CancelledByProvider &&
+                    existing.Status != ProviderBookingStatus.NoShow &&
+                    existing.Status != ProviderBookingStatus.Expired &&
+                    existing.Status != ProviderBookingStatus.Disputed &&
+                    existing.Status != ProviderBookingStatus.Refunded)
+                .SumAsync(existing => (int?)existing.Quantity, ct) ?? 0;
 
-        await db.ProviderBookings.AddAsync(booking, ct);
-        await db.SaveChangesAsync(ct);
-        await transaction.CommitAsync(ct);
-        return true;
+            if (reservedCapacity + booking.Quantity > capacity)
+            {
+                await transaction.RollbackAsync(ct);
+                return false;
+            }
+
+            await db.ProviderBookings.AddAsync(booking, ct);
+            await db.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+            return true;
+        });
     }
 
     public async Task<bool> TryRescheduleBookingAsync(
         ProviderBooking booking, DateTimeOffset startsAt, int durationMinutes, int capacity, CancellationToken ct = default)
     {
         var endsAt = startsAt.AddMinutes(durationMinutes);
-        await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, ct);
-        var reservedCapacity = await db.ProviderBookings
-            .Where(existing => existing.ProviderServiceId == booking.ProviderServiceId && existing.Id != booking.Id &&
-                existing.StartsAt < endsAt && startsAt < existing.EndsAt &&
-                existing.Status != ProviderBookingStatus.CancelledByCustomer &&
-                existing.Status != ProviderBookingStatus.CancelledByProvider &&
-                existing.Status != ProviderBookingStatus.NoShow &&
-                existing.Status != ProviderBookingStatus.Expired)
-            .SumAsync(existing => (int?)existing.Quantity, ct) ?? 0;
-        if (reservedCapacity + booking.Quantity > capacity)
+        var strategy = db.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync(async () =>
         {
-            await transaction.RollbackAsync(ct);
-            return false;
-        }
+            await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, ct);
+            var reservedCapacity = await db.ProviderBookings
+                .Where(existing => existing.ProviderServiceId == booking.ProviderServiceId && existing.Id != booking.Id &&
+                    existing.StartsAt < endsAt && startsAt < existing.EndsAt &&
+                    existing.Status != ProviderBookingStatus.CancelledByCustomer &&
+                    existing.Status != ProviderBookingStatus.CancelledByProvider &&
+                    existing.Status != ProviderBookingStatus.NoShow &&
+                    existing.Status != ProviderBookingStatus.Expired &&
+                    existing.Status != ProviderBookingStatus.Disputed &&
+                    existing.Status != ProviderBookingStatus.Refunded)
+                .SumAsync(existing => (int?)existing.Quantity, ct) ?? 0;
+            if (reservedCapacity + booking.Quantity > capacity)
+            {
+                await transaction.RollbackAsync(ct);
+                return false;
+            }
 
-        booking.Reschedule(startsAt, durationMinutes);
-        db.ProviderBookings.Update(booking);
-        await db.SaveChangesAsync(ct);
-        await transaction.CommitAsync(ct);
-        return true;
+            booking.Reschedule(startsAt, durationMinutes);
+            db.ProviderBookings.Update(booking);
+            await db.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+            return true;
+        });
     }
 }

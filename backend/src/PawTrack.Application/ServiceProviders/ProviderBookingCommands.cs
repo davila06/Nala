@@ -1,5 +1,6 @@
 using FluentValidation;
 using MediatR;
+using Microsoft.ApplicationInsights;
 using PawTrack.Application.Common;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Audit;
@@ -18,6 +19,14 @@ public sealed record ProviderBookingDto(
     DateTimeOffset StartsAt,
     DateTimeOffset EndsAt,
     decimal PriceCrc,
+    decimal SubtotalCrc,
+    decimal TaxCrc,
+    decimal PlatformFeeCrc,
+    decimal TotalCrc,
+    string CancellationPolicySnapshot,
+    int FreeCancellationHours,
+    decimal CustomerRefundPercentage,
+    decimal ProviderCancellationRefundPercentage,
     int Quantity,
     string Status);
 
@@ -27,7 +36,13 @@ public sealed record CreateProviderBookingCommand(
     Guid PetId,
     DateTimeOffset StartsAt,
     int Quantity,
-    string? CustomerNote) : IRequest<Result<ProviderBookingDto>>;
+    string? CustomerNote,
+    decimal TaxCrc = 0,
+    decimal PlatformFeeCrc = 0,
+    string CancellationPolicySnapshot = "Standard",
+    int FreeCancellationHours = 48,
+    decimal CustomerRefundPercentage = 100,
+    decimal ProviderCancellationRefundPercentage = 100) : IRequest<Result<ProviderBookingDto>>;
 
 public sealed class CreateProviderBookingCommandValidator : AbstractValidator<CreateProviderBookingCommand>
 {
@@ -38,6 +53,12 @@ public sealed class CreateProviderBookingCommandValidator : AbstractValidator<Cr
         RuleFor(x => x.StartsAt).GreaterThan(DateTimeOffset.UtcNow);
         RuleFor(x => x.Quantity).InclusiveBetween(1, 100);
         RuleFor(x => x.CustomerNote).MaximumLength(500);
+        RuleFor(x => x.TaxCrc).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.PlatformFeeCrc).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.CancellationPolicySnapshot).NotEmpty().MaximumLength(1_000);
+        RuleFor(x => x.FreeCancellationHours).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.CustomerRefundPercentage).InclusiveBetween(0, 100);
+        RuleFor(x => x.ProviderCancellationRefundPercentage).InclusiveBetween(0, 100);
     }
 }
 
@@ -45,7 +66,8 @@ public sealed class CreateProviderBookingCommandHandler(
     IServiceProviderRepository providerRepository,
     IPetRepository petRepository,
     IUnitOfWork unitOfWork,
-    INotificationRepository? notificationRepository = null)
+    INotificationRepository? notificationRepository = null,
+    TelemetryClient? telemetryClient = null)
     : IRequestHandler<CreateProviderBookingCommand, Result<ProviderBookingDto>>
 {
     public async Task<Result<ProviderBookingDto>> Handle(CreateProviderBookingCommand request, CancellationToken ct)
@@ -75,9 +97,27 @@ public sealed class CreateProviderBookingCommandHandler(
         var booking = ProviderBooking.Request(
             provider.Id, service.Id, request.CustomerUserId, pet.Id, service.Name,
             request.StartsAt, service.DurationMinutes, service.PriceCrc, request.Quantity,
-            request.CustomerNote);
+            request.CustomerNote,
+            taxCrc: request.TaxCrc,
+            platformFeeCrc: request.PlatformFeeCrc,
+            cancellationPolicySnapshot: request.CancellationPolicySnapshot,
+            freeCancellationHours: request.FreeCancellationHours,
+            customerRefundPercentage: request.CustomerRefundPercentage,
+            providerCancellationRefundPercentage: request.ProviderCancellationRefundPercentage);
         if (!await providerRepository.TryAddBookingAsync(booking, service.Capacity, ct))
+        {
+            telemetryClient?.TrackEvent("ServiceProviderBooking.CapacityConflict", new Dictionary<string, string>
+            {
+                ["serviceId"] = service.Id.ToString(),
+                ["category"] = provider.Category.ToString(),
+            });
             return Result.Failure<ProviderBookingDto>("El horario seleccionado ya no tiene capacidad disponible.");
+        }
+        telemetryClient?.TrackEvent("ServiceProviderBooking.Created", new Dictionary<string, string>
+        {
+            ["serviceId"] = service.Id.ToString(),
+            ["category"] = provider.Category.ToString(),
+        }, new Dictionary<string, double> { ["quantity"] = request.Quantity });
         if (notificationRepository is not null)
         {
             await notificationRepository.AddAsync(Notification.Create(
@@ -94,6 +134,10 @@ public sealed class CreateProviderBookingCommandHandler(
     internal static ProviderBookingDto ToDto(ProviderBooking booking) => new(
         booking.Id, booking.ServiceProviderId, booking.ProviderServiceId, booking.PetId,
         booking.ServiceName, booking.StartsAt, booking.EndsAt, booking.PriceCrc,
+        booking.SubtotalCrc, booking.TaxCrc, booking.PlatformFeeCrc,
+        booking.TotalCrc, booking.CancellationPolicySnapshot,
+        booking.FreeCancellationHours, booking.CustomerRefundPercentage,
+        booking.ProviderCancellationRefundPercentage,
         booking.Quantity, booking.Status.ToString());
 }
 
@@ -149,6 +193,9 @@ public sealed class UpdateProviderBookingStatusCommandHandler(
             switch (request.TargetStatus)
             {
                 case ProviderBookingStatus.Confirmed when isProvider: booking.Confirm(); break;
+                case ProviderBookingStatus.AwaitingPayment when isProvider || isCustomer: booking.MarkAwaitingPayment(); break;
+                case ProviderBookingStatus.Disputed when isProvider || isCustomer: booking.MarkDisputed(request.Reason ?? "Disputa abierta."); break;
+                case ProviderBookingStatus.Refunded when isProvider: booking.IssueRefund(request.Reason ?? "Reembolso por solicitud del proveedor."); break;
                 case ProviderBookingStatus.InProgress when isProvider: booking.Start(); break;
                 case ProviderBookingStatus.Completed when isProvider: booking.Complete(); break;
                 case ProviderBookingStatus.NoShow when isProvider: booking.MarkNoShow(); break;
@@ -186,6 +233,9 @@ public sealed class UpdateProviderBookingStatusCommandHandler(
     private static string BookingStatusMessage(ProviderBooking booking, bool changedByCustomer) => booking.Status switch
     {
         ProviderBookingStatus.Confirmed => $"Tu reserva de {booking.ServiceName} fue confirmada.",
+        ProviderBookingStatus.AwaitingPayment => $"Tu reserva de {booking.ServiceName} queda pendiente de pago.",
+        ProviderBookingStatus.Disputed => $"Tu reserva de {booking.ServiceName} fue marcada en disputa.",
+        ProviderBookingStatus.Refunded => $"Tu reserva de {booking.ServiceName} fue reembolsada.",
         ProviderBookingStatus.InProgress => $"Tu reserva de {booking.ServiceName} esta en curso.",
         ProviderBookingStatus.Completed => $"Tu reserva de {booking.ServiceName} fue completada.",
         ProviderBookingStatus.CancelledByProvider => $"El proveedor cancelo tu reserva de {booking.ServiceName}.",

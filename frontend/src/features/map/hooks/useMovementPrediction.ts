@@ -39,6 +39,5 @@ export function useMovementPredictions(
       if (data !== undefined) map[id] = data;
     });
     return map;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [results, cappedIds.join(",")]);
 }

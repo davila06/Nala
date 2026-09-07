@@ -76,11 +76,17 @@ export default function ServiceProviderDirectoryPage() {
   const [minPriceCrc, setMinPriceCrc] = useState("");
   const [maxPriceCrc, setMaxPriceCrc] = useState("");
   const deferredQuery = useDeferredValue(query.trim().toLowerCase());
+  const [centerLat, setCenterLat] = useState("");
+  const [centerLng, setCenterLng] = useState("");
+  const [radiusKm, setRadiusKm] = useState("10");
   const { data: providers = [], isLoading } = usePublicServiceProviders({
     category: category === "All" ? undefined : category,
     modality: modality === "All" ? undefined : modality,
     minPriceCrc: minPriceCrc ? Number(minPriceCrc) : undefined,
     maxPriceCrc: maxPriceCrc ? Number(maxPriceCrc) : undefined,
+    centerLat: centerLat ? Number(centerLat) : undefined,
+    centerLng: centerLng ? Number(centerLng) : undefined,
+    radiusKm: centerLat && centerLng ? Number(radiusKm) : undefined,
   });
   const filtered = deferredQuery
     ? providers.filter((provider) =>
@@ -163,6 +169,33 @@ export default function ServiceProviderDirectoryPage() {
               value={maxPriceCrc}
               onChange={(event) => setMaxPriceCrc(event.target.value)}
               placeholder="Precio maximo (CRC)"
+              className="rounded-lg border border-sand-200 bg-surface px-3 py-2 text-sm"
+            />
+          </div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            <input
+              type="number"
+              step="any"
+              value={centerLat}
+              onChange={(event) => setCenterLat(event.target.value)}
+              placeholder="Latitud de referencia"
+              className="rounded-lg border border-sand-200 bg-surface px-3 py-2 text-sm"
+            />
+            <input
+              type="number"
+              step="any"
+              value={centerLng}
+              onChange={(event) => setCenterLng(event.target.value)}
+              placeholder="Longitud de referencia"
+              className="rounded-lg border border-sand-200 bg-surface px-3 py-2 text-sm"
+            />
+            <input
+              type="number"
+              min="1"
+              max="100"
+              value={radiusKm}
+              onChange={(event) => setRadiusKm(event.target.value)}
+              placeholder="Radio (km)"
               className="rounded-lg border border-sand-200 bg-surface px-3 py-2 text-sm"
             />
           </div>

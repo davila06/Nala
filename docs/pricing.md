@@ -340,7 +340,16 @@ GET /api/passport/verify/01970abc-...
 
 ## 8. Marketplace de Servicios de Mascota
 
-El sistema de custodios (fosters) ya existe. Extenderlo a:
+El módulo `ServiceProviders` ya implementa un MVP sin pago: perfiles,
+directorio, catálogo, disponibilidad, reservas, verificación documental y
+operación administrativa para adiestradores, groomers, hoteles, guarderías,
+paseadores y otros servicios. No reutiliza el modelo de inventario de tiendas.
+
+Las comisiones y el cobro por plataforma siguen siendo una propuesta, no una
+capacidad habilitada. No se debe publicar ni cobrar estas tarifas hasta aprobar
+el modelo de depósito/SINPE/tarjeta, impuestos, reembolsos y disputas.
+
+Propuesta comercial pendiente de validación:
 
 | Servicio                                          | Comisión PawTrack     |
 | ------------------------------------------------- | --------------------- |
@@ -349,7 +358,9 @@ El sistema de custodios (fosters) ya existe. Extenderlo a:
 | Custodia temporal durante viaje                   | 10%                   |
 | Peluquería canina (proveedor verifica vía el app) | 8%                    |
 
-Los providers son aliados ya verificados en el sistema. El pago pasa por la plataforma (SINPE / Stripe) para retener el fee.
+Los proveedores requieren revisión documental por PawTrack; esa revisión no es
+una licencia ni un aval estatal. El pago futuro debe pasar por una integración
+autorizada (SINPE o tarjeta) con conciliación y trazabilidad.
 
 **Potencial en CR**: Mercado de servicios de mascotas estimado en $8–12M/año. Tomar 1% = $80k–120k/año.
 

@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   useMyFosterProfile,
@@ -433,7 +433,6 @@ export default function ProfilePage() {
       setHomeLat(geo.coords.lat);
       setHomeLng(geo.coords.lng);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geo.coords]);
 
   const canSaveFoster = useMemo(

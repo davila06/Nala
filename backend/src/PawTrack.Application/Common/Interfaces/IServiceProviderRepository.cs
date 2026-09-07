@@ -14,6 +14,17 @@ public interface IServiceProviderRepository
         int skip,
         int take,
         CancellationToken ct = default);
+    Task<IReadOnlyList<ServiceProvider>> GetNearbyActivePagedAsync(
+        ServiceProviderCategory? category,
+        ServiceModality? modality,
+        decimal? minPriceCrc,
+        decimal? maxPriceCrc,
+        decimal centerLat,
+        decimal centerLng,
+        int radiusKm,
+        int skip,
+        int take,
+        CancellationToken ct = default);
     Task<IReadOnlyList<ServiceProvider>> GetOperationalProvidersAsync(int skip, int take, CancellationToken ct = default);
     Task AddAsync(ServiceProvider serviceProvider, CancellationToken ct = default);
     void Update(ServiceProvider serviceProvider);
@@ -41,10 +52,21 @@ public interface IServiceProviderRepository
     Task<IReadOnlyList<ProviderBooking>> GetBookingsByCustomerAsync(Guid customerUserId, int skip, int take, CancellationToken ct = default);
     Task<IReadOnlyList<ProviderBooking>> GetBookingsByProviderAsync(Guid serviceProviderId, int skip, int take, CancellationToken ct = default);
     Task<IReadOnlyList<ProviderBooking>> GetRequestedBookingsCreatedBeforeAsync(DateTimeOffset cutoff, int take, CancellationToken ct = default);
+    Task<IReadOnlyList<ProviderBooking>> GetPaymentPendingBookingsCreatedBeforeAsync(DateTimeOffset cutoff, int take, CancellationToken ct = default);
     Task<IReadOnlyList<ProviderBooking>> GetConfirmedBookingsStartingBetweenAsync(
         DateTimeOffset startsAfter, DateTimeOffset startsBefore, int take, CancellationToken ct = default);
     Task<ProviderVerification?> GetLatestVerificationAsync(Guid serviceProviderId, CancellationToken ct = default);
     Task<ProviderVerification?> GetVerificationByIdAsync(Guid verificationId, CancellationToken ct = default);
+    Task<ProviderPayment?> GetPaymentByIdAsync(Guid paymentId, CancellationToken ct = default);
+    Task<ProviderPayment?> GetPaymentByBookingAsync(Guid bookingId, CancellationToken ct = default);
+    Task<ProviderPayment?> GetPaymentByIdempotencyKeyAsync(string idempotencyKey, CancellationToken ct = default);
+    Task AddPaymentAsync(ProviderPayment payment, CancellationToken ct = default);
+    void UpdatePayment(ProviderPayment payment);
+    Task<ProviderIncident?> GetIncidentByIdAsync(Guid incidentId, CancellationToken ct = default);
+    Task<IReadOnlyList<ProviderIncident>> GetIncidentsByProviderAsync(Guid serviceProviderId, int skip, int take, CancellationToken ct = default);
+    Task<IReadOnlyList<ProviderIncident>> GetOperationalIncidentsAsync(int skip, int take, CancellationToken ct = default);
+    Task AddIncidentAsync(ProviderIncident incident, CancellationToken ct = default);
+    void UpdateIncident(ProviderIncident incident);
     Task<IReadOnlyList<ProviderVerification>> GetPendingVerificationsAsync(int skip, int take, CancellationToken ct = default);
     Task<IReadOnlyList<ProviderVerification>> GetVerifiedVerificationsExpiredBeforeAsync(DateOnly date, int take, CancellationToken ct = default);
     Task<IReadOnlyList<ProviderVerification>> GetVerificationsExpiringWithinAsync(int days, CancellationToken ct = default);

@@ -210,6 +210,57 @@ public sealed class ServiceProvidersController(ISender sender) : ControllerBase
         return result.IsSuccess ? NoContent() : UnprocessableEntity(result.Errors);
     }
 
+    [HttpPost("bookings/{bookingId:guid}/payment")]
+    [Authorize(Roles = "Owner")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> CreateBookingPayment(
+        Guid bookingId,
+        [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        if (string.IsNullOrWhiteSpace(idempotencyKey))
+            return BadRequest(new ProblemDetails { Detail = "Se requiere Idempotency-Key.", Status = 400 });
+        var result = await sender.Send(new CreateProviderBookingPaymentCommand(userId, bookingId, idempotencyKey), ct);
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpPost("payments/{paymentId:guid}/report")]
+    [Authorize(Roles = "Owner")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> ReportBookingPayment(Guid paymentId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new ReportProviderBookingPaymentCommand(userId, paymentId), ct);
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpGet("incidents")]
+    [Authorize(Roles = "ServiceProvider")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetMyIncidents([FromQuery] int page = 1, [FromQuery] int pageSize = 50, CancellationToken ct = default)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetMyProviderIncidentsQuery(userId, page, pageSize), ct);
+        return result.IsSuccess ? Ok(result.Value) : NotFound(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 404 });
+    }
+
+    [HttpPost("incidents/{serviceProviderId:guid}")]
+    [Authorize(Roles = "ServiceProvider")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> OpenIncident(Guid serviceProviderId, [FromBody] OpenProviderIncidentRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        if (!Enum.TryParse<ProviderIncidentType>(request.Type, true, out var type))
+            return BadRequest(new ProblemDetails { Detail = "Tipo de incidente invalido.", Status = 400 });
+        var result = await sender.Send(new OpenProviderIncidentCommand(userId, serviceProviderId, type, request.Description, request.EvidenceReference), ct);
+        return result.IsSuccess ? Created(string.Empty, result.Value) : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
     [HttpPost("verification/document")]
     [Authorize(Roles = "ServiceProvider")]
     [EnableRateLimiting("public-api")]
@@ -264,6 +315,8 @@ public sealed class ServiceProvidersController(ISender sender) : ControllerBase
     }
 }
 
+public sealed record OpenProviderIncidentRequest(string Type, string Description, string? EvidenceReference);
+
 [ApiController]
 [Route("api/public/service-providers")]
 [EnableRateLimiting("public-api")]
@@ -276,6 +329,9 @@ public sealed class PublicServiceProvidersController(ISender sender) : Controlle
         [FromQuery] string? modality,
         [FromQuery] decimal? minPriceCrc,
         [FromQuery] decimal? maxPriceCrc,
+        [FromQuery] decimal? centerLat,
+        [FromQuery] decimal? centerLng,
+        [FromQuery] int? radiusKm,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 50,
         CancellationToken ct = default)
@@ -296,7 +352,7 @@ public sealed class PublicServiceProvidersController(ISender sender) : Controlle
             selectedModality = parsedModality;
         }
         var result = await sender.Send(new GetPublicServiceProvidersQuery(
-            selectedCategory, selectedModality, minPriceCrc, maxPriceCrc, page, pageSize), ct);
+            selectedCategory, selectedModality, minPriceCrc, maxPriceCrc, centerLat, centerLng, radiusKm, page, pageSize), ct);
         return result.IsSuccess
             ? Ok(result.Value)
             : BadRequest(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = StatusCodes.Status400BadRequest });

@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card } from "@/shared/ui";
@@ -101,7 +101,6 @@ export default function LostReportConfirmationPage() {
   // by the time the user clicks the download button.
   useEffect(() => {
     void prepareAssets();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Execute capture AFTER React has committed the updated flyerData to the DOM.
@@ -187,7 +186,6 @@ export default function LostReportConfirmationPage() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [captureIntent, assets]);
 
   // ── Guard: invalid navigation ───────────────────────────────────────────────

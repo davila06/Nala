@@ -15,6 +15,14 @@ catálogo oficial.
 | `valid_certificates`  | `VetCertificate`         | estado actual    | conteo                       | sin datos del propietario   |
 | `network_coverage`    | clínicas/municipalidades | estado actual    | conteo                       | no direcciones privadas     |
 
+## Métricas de proveedores propuestas
+
+| Código                  | Fuente                 | Fecha de negocio | Agregación              | Privacidad                  |
+| ----------------------- | ---------------------- | ---------------- | ----------------------- | --------------------------- |
+| `service_providers`     | `ServiceProvider`      | `RegisteredAt`   | categoría/estado        | sin contacto ni dirección   |
+| `provider_bookings`     | `ProviderBooking`      | `StartsAt`       | estado/servicio/periodo | sin cliente, mascota o nota |
+| `provider_verification` | `ProviderVerification` | `SubmittedAt`    | estado/vencimiento      | sin evidencia ni revisor    |
+
 ## Reglas comunes
 
 - Los periodos se interpretan en `America/Costa_Rica` y se persisten como fechas

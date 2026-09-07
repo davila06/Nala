@@ -41,6 +41,7 @@ import { AdminPromotionManager } from "@/features/promotions/components/AdminPro
 import { AdminStoresTab } from "@/features/stores/components/AdminStoresTab";
 import { AdminProviderVerificationsTab } from "@/features/service-providers/components/AdminProviderVerificationsTab";
 import { AdminServiceProvidersTab } from "@/features/service-providers/components/AdminServiceProvidersTab";
+import { AdminProviderIncidentsTab } from "@/features/service-providers/components/AdminProviderIncidentsTab";
 import { AdminBillboardsTab } from "@/features/advertising/components/AdminBillboardsTab";
 import { AdminAdoptionsTab } from "../components/AdminAdoptionsTab";
 import { CollarTagInventorySection } from "../components/CollarTagInventorySection";
@@ -63,7 +64,8 @@ type Tab =
   | "welfare"
   | "collar-tags"
   | "provider-verifications"
-  | "service-provider-operations";
+  | "service-provider-operations"
+  | "provider-incidents";
 
 const ALLY_TYPE_LABELS: Record<string, string> = {
   VeterinaryClinic: "Veterinaria",
@@ -1066,6 +1068,7 @@ export default function AdminPage() {
             "stores",
             "provider-verifications",
             "service-provider-operations",
+            "provider-incidents",
             "billboards",
             "collar-tags",
           ] as const
@@ -1107,9 +1110,11 @@ export default function AdminPage() {
                                     ? "Verificación proveedores"
                                     : tab === "service-provider-operations"
                                       ? "Operación proveedores"
-                                      : tab === "billboards"
-                                        ? "Vallas"
-                                        : "CollarTags";
+                                      : tab === "provider-incidents"
+                                        ? "Incidentes proveedores"
+                                        : tab === "billboards"
+                                          ? "Vallas"
+                                          : "CollarTags";
           return (
             <button
               key={tab}
@@ -1162,6 +1167,7 @@ export default function AdminPage() {
           {activeTab === "service-provider-operations" && (
             <AdminServiceProvidersTab />
           )}
+          {activeTab === "provider-incidents" && <AdminProviderIncidentsTab />}
           {activeTab === "billboards" && <AdminBillboardsTab />}
           {activeTab === "collar-tags" && <CollarTagInventorySection />}
         </motion.div>

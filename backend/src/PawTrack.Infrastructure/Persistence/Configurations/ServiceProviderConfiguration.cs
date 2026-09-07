@@ -68,6 +68,14 @@ public sealed class ProviderBookingConfiguration : IEntityTypeConfiguration<Prov
         builder.Property(x => x.StartsAt).IsRequired();
         builder.Property(x => x.EndsAt).IsRequired();
         builder.Property(x => x.PriceCrc).IsRequired().HasColumnType("decimal(12,2)");
+        builder.Property(x => x.SubtotalCrc).IsRequired().HasColumnType("decimal(12,2)");
+        builder.Property(x => x.TaxCrc).IsRequired().HasColumnType("decimal(12,2)");
+        builder.Property(x => x.PlatformFeeCrc).IsRequired().HasColumnType("decimal(12,2)");
+        builder.Property(x => x.TotalCrc).IsRequired().HasColumnType("decimal(12,2)");
+        builder.Property(x => x.CancellationPolicySnapshot).IsRequired().HasMaxLength(1000);
+        builder.Property(x => x.FreeCancellationHours).IsRequired();
+        builder.Property(x => x.CustomerRefundPercentage).IsRequired().HasColumnType("decimal(5,2)");
+        builder.Property(x => x.ProviderCancellationRefundPercentage).IsRequired().HasColumnType("decimal(5,2)");
         builder.Property(x => x.Quantity).IsRequired();
         builder.Property(x => x.CustomerNote).HasMaxLength(500);
         builder.Property(x => x.Status).IsRequired().HasConversion<int>();
@@ -133,5 +141,52 @@ public sealed class ProviderVerificationConfiguration : IEntityTypeConfiguration
 
         builder.HasIndex(x => new { x.ServiceProviderId, x.SubmittedAt });
         builder.HasIndex(x => new { x.Status, x.SubmittedAt });
+    }
+}
+
+public sealed class ProviderPaymentConfiguration : IEntityTypeConfiguration<ProviderPayment>
+{
+    public void Configure(EntityTypeBuilder<ProviderPayment> builder)
+    {
+        builder.ToTable("ProviderPayments");
+        builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.BookingId).IsRequired();
+        builder.Property(x => x.CustomerUserId).IsRequired();
+        builder.Property(x => x.ServiceProviderId).IsRequired();
+        builder.Property(x => x.AmountCrc).IsRequired().HasColumnType("decimal(12,2)");
+        builder.Property(x => x.Currency).IsRequired().HasMaxLength(3);
+        builder.Property(x => x.PaymentReference).IsRequired().HasMaxLength(50);
+        builder.Property(x => x.IdempotencyKey).IsRequired().HasMaxLength(200);
+        builder.Property(x => x.Status).IsRequired().HasConversion<int>();
+        builder.Property(x => x.ExternalReference).HasMaxLength(200);
+        builder.Property(x => x.FailureReason).HasMaxLength(500);
+        builder.Property(x => x.DisputeReason).HasMaxLength(500);
+        builder.Property(x => x.RefundReason).HasMaxLength(500);
+        builder.Property(x => x.CreatedAt).IsRequired();
+
+        builder.HasIndex(x => x.BookingId).IsUnique();
+        builder.HasIndex(x => x.IdempotencyKey).IsUnique();
+        builder.HasIndex(x => new { x.Status, x.CreatedAt });
+    }
+}
+
+public sealed class ProviderIncidentConfiguration : IEntityTypeConfiguration<ProviderIncident>
+{
+    public void Configure(EntityTypeBuilder<ProviderIncident> builder)
+    {
+        builder.ToTable("ProviderIncidents");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.ServiceProviderId).IsRequired();
+        builder.Property(x => x.ReportedByUserId).IsRequired();
+        builder.Property(x => x.Type).IsRequired().HasConversion<int>();
+        builder.Property(x => x.Status).IsRequired().HasConversion<int>();
+        builder.Property(x => x.Description).IsRequired().HasMaxLength(4_000);
+        builder.Property(x => x.EvidenceReference).HasMaxLength(500);
+        builder.Property(x => x.Resolution).HasMaxLength(4_000);
+        builder.Property(x => x.AppealReason).HasMaxLength(2_000);
+        builder.Property(x => x.CreatedAt).IsRequired();
+        builder.HasIndex(x => new { x.Status, x.CreatedAt });
+        builder.HasIndex(x => new { x.ServiceProviderId, x.CreatedAt });
     }
 }

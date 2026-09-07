@@ -26,7 +26,6 @@ export const QRCodeDisplay = ({ petId, petName }: QRCodeDisplayProps) => {
     return () => {
       if (blobUrl) URL.revokeObjectURL(blobUrl)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [petId])
 
   const handleDownload = () => {
