@@ -21,6 +21,12 @@ export interface ClinicDto {
   registeredAt: string;
 }
 
+export interface ClinicAccessSearchResultDto {
+  id: string;
+  name: string;
+  licenseNumber: string;
+}
+
 export interface PublicClinicDto {
   id: string;
   name: string;
@@ -137,6 +143,13 @@ export const clinicsApi = {
   getPublicClinics: (lat?: number, lng?: number): Promise<PublicClinicDto[]> =>
     apiClient
       .get<PublicClinicDto[]>("/clinics/public", { params: { lat, lng } })
+      .then((r) => r.data),
+
+  searchForAccess: (query: string): Promise<ClinicAccessSearchResultDto[]> =>
+    apiClient
+      .get<
+        ClinicAccessSearchResultDto[]
+      >("/clinics/search", { params: { query } })
       .then((r) => r.data),
 
   getScanStats: (year?: number, month?: number): Promise<ClinicScanStatsDto> =>

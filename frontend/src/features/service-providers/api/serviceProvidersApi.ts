@@ -23,6 +23,9 @@ export interface PublicServiceProviderDto {
   isFeatured: boolean;
   status: "Pending" | "Active" | "Rejected" | "Suspended";
   isVerified: boolean;
+  membershipTier: "Free" | "Verified" | "Featured";
+  trialEndsAt: string | null;
+  hasCatalogAccess: boolean;
 }
 
 export type ServiceModality =

@@ -180,29 +180,33 @@ export default function AuthenticatedLayout() {
   const { isAuthenticated, isInitializing, user } = useAuthStore();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
   const { mutate: logout } = useLogout();
   const navigate = useNavigate();
   const location = useLocation();
   useScrollToTop();
 
-  // Close desktop dropdown on outside click
+  // Close desktop menus on outside click.
   useEffect(() => {
-    if (!dropdownOpen) return;
+    if (!dropdownOpen && !moreMenuOpen) return;
     function handleOutside(e: MouseEvent) {
       if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
+        !dropdownRef.current?.contains(e.target as Node) &&
+        !moreMenuRef.current?.contains(e.target as Node)
       ) {
         setDropdownOpen(false);
+        setMoreMenuOpen(false);
       }
     }
     document.addEventListener("mousedown", handleOutside);
     return () => document.removeEventListener("mousedown", handleOutside);
-  }, [dropdownOpen]);
+  }, [dropdownOpen, moreMenuOpen]);
 
   function handleLogout() {
     setDropdownOpen(false);
+    setMoreMenuOpen(false);
     setMenuOpen(false);
     logout(undefined, {
       onSuccess: () => {
@@ -269,7 +273,7 @@ export default function AuthenticatedLayout() {
           {/* Desktop nav */}
           <nav
             aria-label="Navegación principal"
-            className="hidden items-center gap-1 md:flex"
+            className="hidden min-w-0 items-center gap-1 md:flex"
           >
             {NAV_MAIN.map((item) => (
               <NavLink key={item.to} to={item.to} className={navLinkCls}>
@@ -281,15 +285,70 @@ export default function AuthenticatedLayout() {
                 )}
               </NavLink>
             ))}
-            {extraNav && (
-              <NavLink to={extraNav.to} className={navLinkPlainCls}>
-                {extraNav.label}
-              </NavLink>
-            )}
-            {adminStatsNav && (
-              <NavLink to={adminStatsNav.to} className={navLinkPlainCls}>
-                {adminStatsNav.label}
-              </NavLink>
+            {(extraNav || adminStatsNav) && (
+              <div className="relative" ref={moreMenuRef}>
+                <button
+                  type="button"
+                  aria-label="Más opciones"
+                  aria-haspopup="menu"
+                  aria-expanded={moreMenuOpen}
+                  onClick={() => {
+                    setMoreMenuOpen((isOpen) => !isOpen);
+                    setDropdownOpen(false);
+                  }}
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-sand-600 transition-base hover:bg-sand-50 hover:text-sand-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                >
+                  Más
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    className="h-3.5 w-3.5"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="m4 6 4 4 4-4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+
+                <AnimatePresence>
+                  {moreMenuOpen && (
+                    <motion.div
+                      role="menu"
+                      initial={{ opacity: 0, scale: 0.95, y: -6 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -6 }}
+                      transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
+                      className="absolute left-0 top-10 z-50 min-w-48 overflow-hidden rounded-lg border border-sand-200 bg-surface py-1 shadow-xl origin-top-left"
+                    >
+                      {extraNav && (
+                        <NavLink
+                          to={extraNav.to}
+                          role="menuitem"
+                          onClick={() => setMoreMenuOpen(false)}
+                          className={navLinkPlainCls}
+                        >
+                          {extraNav.label}
+                        </NavLink>
+                      )}
+                      {adminStatsNav && (
+                        <NavLink
+                          to={adminStatsNav.to}
+                          role="menuitem"
+                          onClick={() => setMoreMenuOpen(false)}
+                          className={navLinkPlainCls}
+                        >
+                          {adminStatsNav.label}
+                        </NavLink>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             )}
           </nav>
 
@@ -329,6 +388,7 @@ export default function AuthenticatedLayout() {
                 onClick={() => {
                   setDropdownOpen((v) => !v);
                   setMenuOpen(false);
+                  setMoreMenuOpen(false);
                 }}
                 aria-label="Menú de usuario"
                 aria-expanded={dropdownOpen}
@@ -499,6 +559,7 @@ export default function AuthenticatedLayout() {
               onClick={() => {
                 setMenuOpen((v) => !v);
                 setDropdownOpen(false);
+                setMoreMenuOpen(false);
               }}
               aria-label="Menú de usuario"
               aria-expanded={menuOpen}

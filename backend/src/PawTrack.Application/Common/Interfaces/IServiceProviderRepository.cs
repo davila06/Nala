@@ -26,6 +26,7 @@ public interface IServiceProviderRepository
         int take,
         CancellationToken ct = default);
     Task<IReadOnlyList<ServiceProvider>> GetOperationalProvidersAsync(int skip, int take, CancellationToken ct = default);
+    Task<IReadOnlyList<ServiceProvider>> GetProvidersWithExpiredTrialAsync(DateTimeOffset cutoff, int take, CancellationToken ct = default);
     Task AddAsync(ServiceProvider serviceProvider, CancellationToken ct = default);
     void Update(ServiceProvider serviceProvider);
 

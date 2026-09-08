@@ -122,6 +122,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddHostedService<PawTrack.Infrastructure.ServiceProviders.ProviderVerificationExpirationHostedService>();
         services.AddScoped<ProviderVerificationRenewalReminderJob>();
         services.AddHostedService<PawTrack.Infrastructure.ServiceProviders.ProviderVerificationRenewalReminderHostedService>();
+        services.AddScoped<ProviderTrialExpirationJob>();
+        services.AddHostedService<PawTrack.Infrastructure.ServiceProviders.ProviderTrialExpirationHostedService>();
         services.AddScoped<IAnimalWelfareCaseRepository, AnimalWelfareCaseRepository>();
         services.AddScoped<IAnimalWelfareEvidenceRepository, AnimalWelfareEvidenceRepository>();
         services.AddScoped<IAnimalWelfareAuditRepository, AnimalWelfareAuditRepository>();
@@ -187,9 +189,13 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddHttpClient("PushProvider")
             .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(10))
             .AddStandardResilienceHandler();
+        // External collar integrations are disabled. Preserve the client configuration for a
+        // future explicitly approved provider-integration release.
+        /*
         services.AddHttpClient("Tractive")
             .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(12))
             .AddStandardResilienceHandler();
+        */
         services.AddSingleton<IPushNotificationService, PushNotificationService>();
         services.AddSingleton<INotificationRateLimitService, DistributedNotificationRateLimitService>();
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
@@ -321,9 +327,12 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IMunicipalProfileRepository, MunicipalProfileRepository>();
         services.AddScoped<IMunicipalSubscriptionService, MunicipalSubscriptionService>();
 
-        // Tractive GPS polling (runs every 5 min)
+        // External GPS polling is disabled. PawTrack collars report via their verified serial
+        // and device key; retain these registrations for a future approved integration.
+        /*
         services.AddSingleton<ITractiveService, TractiveService>();
         services.AddHostedService<TractivePollingJob>();
+        */
         services.AddHostedService<CollarLocationPurgeJob>();
         services.AddHostedService<CollarConnectivityAlertJob>();
 

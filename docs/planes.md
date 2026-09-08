@@ -1,7 +1,7 @@
 # PawTrack CR — Planes y precios
 
 > Fuente de verdad: backend (`SubscriptionTier` y `SubscriptionPricing`).
-> Revisión: 2026-09-06
+> Revisión: 2026-09-08
 > Estado: alineado con la implementación actual.
 
 ## 1. Resumen ejecutivo
@@ -13,6 +13,8 @@ La base real de planes implementada hoy es la siguiente:
 - Refugios: `ShelterPlus`
 - Clínicas: `ClinicPlus`, `ClinicPartner`
 - Municipalidades: `MuniBasica`, `MuniFull`, `MuniRedRegional`
+- Proveedores de servicios: sin tier comercial aprobado; categorías `Trainer`,
+  `Groomer`, `Hotel`, `Daycare`, `Walker`, `Photographer`, `Other`
 
 Los estados `ClinicBasic`, `StoreBasic` y `ShelterBasic` existen como marca libre o de directorio, pero no son la fuente final de billing ni de feature gating en la app actual. Es decir, el producto real se rige por los tiers activos pagados en producción y los free/public states no deben confundirse con planes de venta.
 
@@ -85,20 +87,34 @@ Los estados `ClinicBasic`, `StoreBasic` y `ShelterBasic` existen como marca libr
 - Destacado en mapa y directorio
 - Badge verificado
 - Estadísticas de escaneos y métricas de visibilidad
-- Certificados PDF verificables
 
 ### ClinicPartner — ₡35,000/mes
 
 - Todo lo de ClinicPlus
 - API keys para integración
 - Widget embebible
+- Certificados veterinarios PDF verificables y pasaporte de vacunas
 - Endpoints especializados y funciones premium de proveedor
 
 > El tier `ClinicBasic` aparece como un estado o descriptor de entrada, pero la app actual no usa ese nombre como flujo de pricing/activación en producción.
 
 ---
 
-## 6. B2G — Municipalidades
+## 6. Marketplace de servicios para mascotas
+
+El marketplace está implementado como módulo separado de tiendas y no tiene
+precio o comisión aprobados. Las categorías disponibles son `Trainer`
+(adiestradores), `Groomer` (groomers), `Hotel`, `Daycare` (guarderías),
+`Walker` (paseadores), `Photographer` (fotógrafos) y `Other`.
+
+Capacidades actuales: perfil, directorio, mapa, filtros, catálogo, modalidad,
+precio, capacidad, disponibilidad, reservas, verificación documental, pagos
+manuales/SINPE, snapshots comerciales, disputas, reembolsos e incidentes.
+
+No comercializar todavía tiers, comisiones, payout automático, KYC empresarial
+ni SLA para proveedores. Esas decisiones están en el checklist enterprise.
+
+## 7. B2G — Municipalidades
 
 ### MuniBasica — ₡150,000/año
 
@@ -119,7 +135,7 @@ Los estados `ClinicBasic`, `StoreBasic` y `ShelterBasic` existen como marca libr
 
 ---
 
-## 7. Pricing oficial vigente en código
+## 8. Pricing oficial vigente en código
 
 | Tier              |   Precio | Modalidad |
 | ----------------- | -------: | --------- |
@@ -136,9 +152,12 @@ Los estados `ClinicBasic`, `StoreBasic` y `ShelterBasic` existen como marca libr
 
 ---
 
-## 8. Regla para documentación
+## Nota de consistencia documental
 
-Este documento es la fuente de verdad comercial del producto actual. Cualquier otro documento que describa precios o features debe alinearse con estos tiers y sus límites. Duplicar nombres, tarificaciones o planes fuera del código ha generado inconsistencias y debe corregirse si aparece en otra documentación interna.
+La fuente técnica de precios es `SubscriptionPricing`; la matriz actual de
+capacidades B2B está en [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md). Las
+secciones comerciales detalladas que siguen son un apéndice histórico y deben
+mantenerse alineadas con esos dos documentos antes de publicarse.
 
 ---
 

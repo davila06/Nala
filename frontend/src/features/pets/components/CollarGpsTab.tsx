@@ -10,11 +10,7 @@ import {
   useMap,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import {
-  useCollarHistory,
-  useCollarStatus,
-  useRegisterCollar,
-} from "../hooks/useCollar";
+import { useCollarHistory, useCollarStatus } from "../hooks/useCollar";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { collarApi } from "../api/collarApi";
 import { CollarStatusBadge } from "./CollarStatusBadge";
@@ -33,10 +29,13 @@ interface CollarGpsTabProps {
 
 const PROVIDER_LABELS = {
   Own: "PawTrack GPS",
-  Tractive: "Tractive",
-  Kippy: "Kippy",
-  Generic: "Genérico",
+  // External provider labels are retained in the API contract for legacy collars.
+  Tractive: "Proveedor externo",
+  Kippy: "Proveedor externo",
+  Generic: "Proveedor externo",
 };
+
+const LEGACY_DEVICE_KEY_UI_ENABLED = false;
 
 const HOURS_OPTIONS = [
   { value: 1, label: "Última hora" },
@@ -59,12 +58,9 @@ function FitBounds({ positions }: { positions: [number, number][] }) {
 export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
   const queryClient = useQueryClient();
   const { data: collar, isLoading } = useCollarStatus(petId);
-  const { mutateAsync: register, isPending } = useRegisterCollar();
-  const [showSetup, setShowSetup] = useState(false);
   const [showDeactivateConfirm, setShowDeactivateConfirm] = useState(false);
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
   const [keyCopied, setKeyCopied] = useState(false);
-  const [deviceId, setDeviceId] = useState("");
   const [hours, setHours] = useState(24);
   const [showNotificationPrefs, setShowNotificationPrefs] = useState(false);
   const [showAuditLog, setShowAuditLog] = useState(false);
@@ -113,17 +109,10 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
             >
               🏷️ Activar CollarTag PawTrack →
             </Link>
-            <button
-              type="button"
-              onClick={() => setShowSetup(true)}
-              className="text-xs text-sand-500 underline hover:text-sand-700"
-            >
-              Conectar Tractive / Kippy / genérico
-            </button>
           </div>
         )}
 
-        {/* Setup form */}
+        {/* External-provider setup is intentionally disabled. PawTrack collars use the serial activation route above.
         {showSetup && (
           <div className="mt-4 rounded-2xl border border-brand-200 bg-surface p-4 text-left space-y-3">
             <p className="text-sm font-semibold text-sand-800">
@@ -134,7 +123,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
               cualquier GPS genérico. Ingresa el ID del dispositivo impreso en
               el collar.
             </p>
-            {/* Tractive OAuth2 connect — redirects to Tractive consent screen */}
+            Tractive OAuth2 connect redirects to Tractive consent screen.
             <a
               href={`${import.meta.env.VITE_API_URL}/api/collars/tractive/connect?petId=${petId}`}
               className="flex items-center gap-2 rounded-xl border border-sand-200 bg-surface px-4 py-2.5 text-xs font-semibold text-sand-700 hover:bg-sand-50 transition-colors"
@@ -187,7 +176,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
               </button>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     );
   }
@@ -312,10 +301,12 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
         </div>
       )}
 
-      {/* Generar clave de dispositivo (collares Generic u Own sin CollarTag, para OEM push) */}
+      {/* Generic/OEM key generation is disabled. Verified CollarTag activation returns the key once. */}
       {isOwner &&
+        collar &&
         !collar.collarTagSerial &&
-        (collar.provider === "Generic" || collar.provider === "Own") && (
+        (collar.provider === "Generic" || collar.provider === "Own") &&
+        LEGACY_DEVICE_KEY_UI_ENABLED && (
           <div className="space-y-2">
             <button
               type="button"
@@ -339,7 +330,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
                   <button
                     type="button"
                     onClick={() => {
-                      void navigator.clipboard.writeText(generatedKey);
+                      void navigator.clipboard.writeText(generatedKey!);
                       setKeyCopied(true);
                       setTimeout(() => setKeyCopied(false), 2000);
                     }}

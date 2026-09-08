@@ -25,6 +25,14 @@ export default function ServiceProviderDashboardPage() {
     );
 
   const isActive = provider.status === "Active";
+  const trialEndsAt = provider.trialEndsAt
+    ? new Date(provider.trialEndsAt)
+    : null;
+  const trialDaysLeft = trialEndsAt
+    ? Math.max(0, Math.ceil((trialEndsAt.getTime() - Date.now()) / 86_400_000))
+    : null;
+  const isFreeTier = provider.membershipTier === "Free";
+
   return (
     <main className="mx-auto max-w-3xl space-y-6 px-4 py-8">
       <Helmet>
@@ -41,11 +49,33 @@ export default function ServiceProviderDashboardPage() {
         </div>
         <Link
           to="/servicio/portal/servicios"
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
+          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 aria-disabled:pointer-events-none aria-disabled:opacity-50"
+          aria-disabled={isFreeTier}
         >
           Gestionar servicios
         </Link>
       </header>
+      {trialDaysLeft !== null && (
+        <section className="rounded-xl border border-brand-200 bg-brand-50 p-4">
+          <p className="font-semibold text-brand-800">
+            Membresia Verificada de prueba activa
+          </p>
+          <p className="mt-1 text-sm text-brand-700">
+            {trialDaysLeft > 0
+              ? `Te quedan ${trialDaysLeft} dia${trialDaysLeft === 1 ? "" : "s"} de acceso gratis a catalogo, disponibilidad y reservas.`
+              : "Tu periodo de prueba termino y tu membresia volvera a Perfil base."}
+          </p>
+        </section>
+      )}
+      {isFreeTier && (
+        <section className="rounded-xl border border-warn-200 bg-warn-50 p-4">
+          <p className="font-semibold text-warn-800">Perfil base (gratis)</p>
+          <p className="mt-1 text-sm text-warn-700">
+            Solo tienes directorio y contacto basico. Contacta a PawTrack para
+            activar catalogo, disponibilidad y reservas.
+          </p>
+        </section>
+      )}
       <section
         className={`rounded-xl border p-4 ${isActive ? "border-rescue-200 bg-rescue-50" : "border-warn-200 bg-warn-50"}`}
       >
@@ -65,15 +95,26 @@ export default function ServiceProviderDashboardPage() {
         </p>
       </section>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Link
-          to="/servicio/portal/servicios"
-          className="rounded-xl border border-sand-100 bg-surface p-5 transition hover:border-brand-200 hover:bg-brand-50"
-        >
-          <p className="text-3xl font-semibold text-brand-700">
-            {services.length}
-          </p>
-          <p className="mt-1 text-sm text-sand-600">Servicios publicados</p>
-        </Link>
+        {isFreeTier ? (
+          <div className="rounded-xl border border-dashed border-sand-200 bg-sand-50 p-5 opacity-70">
+            <p className="text-3xl font-semibold text-sand-400">
+              {services.length}
+            </p>
+            <p className="mt-1 text-sm text-sand-500">
+              Servicios publicados (requiere membresia Verificada)
+            </p>
+          </div>
+        ) : (
+          <Link
+            to="/servicio/portal/servicios"
+            className="rounded-xl border border-sand-100 bg-surface p-5 transition hover:border-brand-200 hover:bg-brand-50"
+          >
+            <p className="text-3xl font-semibold text-brand-700">
+              {services.length}
+            </p>
+            <p className="mt-1 text-sm text-sand-600">Servicios publicados</p>
+          </Link>
+        )}
         <Link
           to="/servicio/portal/perfil"
           className="rounded-xl border border-sand-100 bg-surface p-5 transition hover:border-brand-200 hover:bg-brand-50"
@@ -83,17 +124,28 @@ export default function ServiceProviderDashboardPage() {
             Actualiza descripcion, categoria y ubicacion.
           </p>
         </Link>
-        <Link
-          to="/servicio/portal/reservas"
-          className="rounded-xl border border-sand-100 bg-surface p-5 transition hover:border-brand-200 hover:bg-brand-50"
-        >
-          <p className="text-sm font-semibold text-ink-900">
-            Reservas entrantes
-          </p>
-          <p className="mt-1 text-sm text-sand-600">
-            Confirma, inicia y completa los servicios solicitados.
-          </p>
-        </Link>
+        {isFreeTier ? (
+          <div className="rounded-xl border border-dashed border-sand-200 bg-sand-50 p-5 opacity-70">
+            <p className="text-sm font-semibold text-sand-400">
+              Reservas entrantes (requiere membresia Verificada)
+            </p>
+            <p className="mt-1 text-sm text-sand-500">
+              Activa tu membresia para recibir y gestionar reservas.
+            </p>
+          </div>
+        ) : (
+          <Link
+            to="/servicio/portal/reservas"
+            className="rounded-xl border border-sand-100 bg-surface p-5 transition hover:border-brand-200 hover:bg-brand-50"
+          >
+            <p className="text-sm font-semibold text-ink-900">
+              Reservas entrantes
+            </p>
+            <p className="mt-1 text-sm text-sand-600">
+              Confirma, inicia y completa los servicios solicitados.
+            </p>
+          </Link>
+        )}
         <Link
           to="/servicio/portal/verificacion"
           className="rounded-xl border border-sand-100 bg-surface p-5 transition hover:border-brand-200 hover:bg-brand-50"

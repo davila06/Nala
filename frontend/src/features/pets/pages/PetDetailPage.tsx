@@ -197,12 +197,12 @@ export default function PetDetailPage() {
       />
 
       {/* Tab bar */}
-      <div className="mb-5 overflow-x-auto no-scrollbar">
+      <div className="mb-5 overflow-x-auto no-scrollbar rounded-2xl bg-sand-100/80 p-1">
         <Tabs
           tabs={TABS}
           activeId={activeTab}
           onChange={setActiveTab}
-          variant="boxed"
+          variant="pills"
         />
       </div>
 

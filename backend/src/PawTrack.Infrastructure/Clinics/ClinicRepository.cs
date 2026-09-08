@@ -48,6 +48,20 @@ public sealed class ClinicRepository(PawTrackDbContext dbContext) : IClinicRepos
             .ThenBy(c => c.Name)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<Clinic>> SearchActiveByNameOrLicenseAsync(
+        string search, int take, CancellationToken cancellationToken = default)
+    {
+        var term = search.Trim();
+        return await dbContext.Clinics
+            .AsNoTracking()
+            .Where(c => c.Status == ClinicStatus.Active
+                && (EF.Functions.Like(c.Name, $"%{term}%") || EF.Functions.Like(c.LicenseNumber, $"%{term}%")))
+            .OrderByDescending(c => c.IsFeatured)
+            .ThenBy(c => c.Name)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<Clinic>> GetFeaturedNearAsync(
         double lat, double lng, double radiusKm,
         CancellationToken cancellationToken = default)

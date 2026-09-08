@@ -281,12 +281,12 @@ export default function RegisterPage() {
           </p>
 
           <p className="mt-2 text-center text-sm text-sand-500">
-            ¿Eres veterinaria?{" "}
+            ¿Tienes un negocio para mascotas?{" "}
             <Link
-              to="/clinica/registro"
+              to="/registro-negocio"
               className="rounded font-semibold text-brand-600 hover:text-brand-700 hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
             >
-              Registra tu clínica
+              Regístralo aquí
             </Link>
           </p>
 

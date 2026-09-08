@@ -26,6 +26,8 @@ public sealed class ServiceProviderConfiguration : IEntityTypeConfiguration<Serv
         builder.Property(x => x.SuspensionReason).HasMaxLength(500);
         builder.Property(x => x.IsFeatured).IsRequired();
         builder.Property(x => x.RegisteredAt).IsRequired();
+        builder.Property(x => x.MembershipTier).IsRequired().HasConversion<int>().HasDefaultValue(ProviderMembershipTier.Free);
+        builder.Property(x => x.IsMembershipManual).IsRequired().HasDefaultValue(false);
 
         builder.HasIndex(x => x.UserId).IsUnique();
         builder.HasIndex(x => new { x.Status, x.Category, x.IsFeatured });

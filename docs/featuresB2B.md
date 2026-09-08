@@ -1,8 +1,14 @@
 # PawTrack CR — Features B2B y planes actuales
 
-> **Fuente de verdad:** `SubscriptionTier` y `SubscriptionPricing` del backend.  
-> **Actualizado:** 2026-09-06  
-> **Estado:** Alineado con la app actual.
+> **Fuente de verdad:** `SubscriptionTier` y `SubscriptionPricing` del backend.
+> **Actualizado:** 2026-09-08
+> **Estado:** Resumen alineado con la app actual; el detalle histórico de este
+> archivo queda subordinado a la matriz verificable de `B2B_ESTADO_ACTUAL.md`.
+
+> Para el estado verificable del marketplace de servicios y la matriz completa
+> B2B/B2G, consultar [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md). Este archivo
+> conserva el detalle histórico de features, pero cualquier bloque que diga
+> "qué falta" debe interpretarse junto con esa matriz y con el código actual.
 
 ---
 
@@ -10,35 +16,42 @@
 
 La implementación real del producto usa estos tiers activos:
 
-| Segmento        | Tier actual del backend                     | Precio actual             |
-| --------------- | ------------------------------------------- | ------------------------- |
-| Dueños          | `Free`, `UserPlus`, `UserFamilia`           | ₡0 / ₡2,990 / ₡4,990      |
-| Tiendas         | `StorePlus`, `StorePartner`                 | ₡12,000 / ₡25,000 mes     |
-| Refugios        | `ShelterPlus`                               | ₡8,000 mes                |
-| Clínicas        | `ClinicPlus`, `ClinicPartner`               | ₡15,000 / ₡35,000 mes     |
-| Municipalidades | `MuniBasica`, `MuniFull`, `MuniRedRegional` | ₡150k / ₡300k / ₡500k año |
+| Segmento                 | Tier actual del backend                     | Precio actual                   |
+| ------------------------ | ------------------------------------------- | ------------------------------- |
+| Dueños                   | `Free`, `UserPlus`, `UserFamilia`           | ₡0 / ₡2,990 / ₡4,990            |
+| Tiendas                  | `StorePlus`, `StorePartner`                 | ₡12,000 / ₡25,000 mes           |
+| Refugios                 | `ShelterPlus`                               | ₡8,000 mes                      |
+| Clínicas                 | `ClinicPlus`, `ClinicPartner`               | ₡15,000 / ₡35,000 mes           |
+| Municipalidades          | `MuniBasica`, `MuniFull`, `MuniRedRegional` | ₡150k / ₡300k / ₡500k año       |
+| Proveedores de servicios | sin tier aprobado                           | Operación sin pricing comercial |
 
 > `ClinicBasic`, `StoreBasic` y `ShelterBasic` existen como estados libres y de directorio, pero no representan el tier pagado principal del sistema actual. La doc debe describirlos como estado base y no como plan comercial activo.
 >
 > Proveedores de servicios: sin tier comercial aprobado; actualmente ofrecen
-> registro y reservas sin pago.
+> operación de marketplace, pagos manuales/SINPE, verificación e incidentes,
+> pero no payout automático ni comisión aprobada.
 
 ---
 
 ## Estado real de features por segmento
 
-| Segmento        | Feature                       | Tier requerido    |
-| --------------- | ----------------------------- | ----------------- |
-| Clínicas        | Destacado en mapa             | `ClinicPlus`      |
-| Clínicas        | Badge verificado              | `ClinicPlus`      |
-| Clínicas        | Estadísticas de escaneos      | `ClinicPlus`      |
-| Clínicas        | Certificados PDF verificables | `ClinicPlus`      |
-| Clínicas        | API keys y widget embebible   | `ClinicPartner`   |
-| Tiendas         | Pedidos in-app                | `StorePlus`       |
-| Tiendas         | Analytics avanzados           | `StorePartner`    |
-| Municipalidades | Fotos y reportes              | `MuniFull`        |
-| Municipalidades | Multi-cantón / red regional   | `MuniRedRegional` |
-| Refugios        | Animales ilimitados + ferias  | `ShelterPlus`     |
+| Segmento        | Feature                                   | Tier requerido    |
+| --------------- | ----------------------------------------- | ----------------- |
+| Clínicas        | Destacado en mapa                         | `ClinicPlus`      |
+| Clínicas        | Badge verificado                          | `ClinicPlus`      |
+| Clínicas        | Estadísticas de escaneos                  | `ClinicPlus`      |
+| Clínicas        | Certificados PDF verificables             | `ClinicPartner`   |
+| Clínicas        | API keys y widget embebible               | `ClinicPartner`   |
+| Tiendas         | Pedidos in-app                            | `StorePlus`       |
+| Tiendas         | Analytics avanzados                       | `StorePartner`    |
+| Municipalidades | Fotos y reportes                          | `MuniFull`        |
+| Municipalidades | Multi-cantón / red regional               | `MuniRedRegional` |
+| Refugios        | Animales ilimitados + ferias              | `ShelterPlus`     |
+| Proveedores     | Directorio, mapa y filtros por categoría  | Sin tier          |
+| Proveedores     | Catálogo, disponibilidad y capacidad      | Sin tier          |
+| Proveedores     | Reservas, snapshots comerciales y estados | Sin tier          |
+| Proveedores     | Verificación documental e incidentes      | Sin tier          |
+| Proveedores     | Pago manual/SINPE, disputa y reembolso    | Sin tier          |
 
 **Leyenda:** ✅ Implementado y funcional en la app actual · ⚠️ Requiere validación de UX o contrato
 

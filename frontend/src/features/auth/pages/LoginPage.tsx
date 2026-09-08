@@ -168,13 +168,18 @@ function BrandPanel() {
     >
       <AmbientPaws paws={LOGIN_PAWS} />
 
-      <div className="flex items-center gap-3 relative z-10">
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 text-xl">
-          🐾
-        </span>
-        <span className="font-display text-2xl font-semibold tracking-tight">
-          PawTrack CR
-        </span>
+      <div className="relative z-10">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 text-xl">
+            🐾
+          </span>
+          <span className="font-display text-2xl font-semibold tracking-tight">
+            PawTrack CR
+          </span>
+        </div>
+        <p className="mt-1.5 pl-13 text-[11px] font-semibold uppercase tracking-widest text-brand-300">
+          NALA · Núcleo de Ayuda y Localización Animal
+        </p>
       </div>
 
       <div className="space-y-6 relative z-10">
@@ -184,8 +189,10 @@ function BrandPanel() {
           <em className="not-italic text-brand-400">a casa.</em>
         </p>
         <p className="text-trust-200 text-base leading-relaxed max-w-sm">
-          Identidad digital, seguimiento en tiempo real y una red comunitaria de
-          rescate para mascotas.
+          Identidad digital con QR y microchip, búsqueda por IA, GPS de collar y
+          alertas instantáneas por WhatsApp — respaldado por una red de
+          clínicas, aliados, municipalidades y servicios para mascotas en todo
+          Costa Rica.
         </p>
       </div>
 
@@ -522,16 +529,21 @@ export default function LoginPage() {
       {/* Form panel */}
       <div className="flex min-h-dvh flex-col items-center justify-center px-6 py-12 lg:px-12 bg-surface">
         {/* Mobile logo */}
-        <div className="mb-10 flex items-center gap-2.5 lg:hidden">
-          <span
-            className="flex h-9 w-9 items-center justify-center rounded-2xl bg-brand-500 text-lg text-white"
-            aria-hidden="true"
-          >
-            🐾
-          </span>
-          <span className="font-display text-xl font-semibold text-sand-900">
-            PawTrack CR
-          </span>
+        <div className="mb-10 flex flex-col items-center gap-1 lg:hidden">
+          <div className="flex items-center gap-2.5">
+            <span
+              className="flex h-9 w-9 items-center justify-center rounded-2xl bg-brand-500 text-lg text-white"
+              aria-hidden="true"
+            >
+              🐾
+            </span>
+            <span className="font-display text-xl font-semibold text-sand-900">
+              PawTrack CR
+            </span>
+          </div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-sand-400">
+            NALA · Núcleo de Ayuda y Localización Animal
+          </p>
         </div>
 
         {/* Outer tilt — flat perspective ±4°; no preserve-3d so the inner

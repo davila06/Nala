@@ -25,7 +25,10 @@ public sealed record PublicServiceProviderDto(
     string? LogoUrl,
     bool IsFeatured,
     string Status,
-    bool IsVerified = false)
+    bool IsVerified = false,
+    string MembershipTier = "Free",
+    DateTimeOffset? TrialEndsAt = null,
+    bool HasCatalogAccess = false)
 {
     public static PublicServiceProviderDto FromDomain(
         ServiceProvider provider,
@@ -36,7 +39,8 @@ public sealed record PublicServiceProviderDto(
         redactLocation ? Math.Round(provider.Lat, 2) : provider.Lat,
         redactLocation ? Math.Round(provider.Lng, 2) : provider.Lng,
         provider.PhoneNumber,
-        provider.Website, provider.LogoUrl, provider.IsFeatured, provider.Status.ToString(), isVerified);
+        provider.Website, provider.LogoUrl, provider.IsFeatured, provider.Status.ToString(), isVerified,
+        provider.MembershipTier.ToString(), provider.TrialEndsAt, provider.HasCatalogAccess);
 }
 
 public sealed record RegisterServiceProviderCommand(
@@ -315,6 +319,48 @@ public sealed class SetServiceProviderOperationalStatusCommandHandler(
     }
 }
 
+public sealed record SetServiceProviderMembershipCommand(
+    Guid AdminUserId,
+    Guid ServiceProviderId,
+    ProviderMembershipTier Tier,
+    bool Manual) : IRequest<Result<Unit>>;
+
+public sealed class SetServiceProviderMembershipCommandHandler(
+    IServiceProviderRepository repository,
+    IAuditLogRepository auditLog,
+    IUnitOfWork unitOfWork,
+    INotificationRepository? notificationRepository = null)
+    : IRequestHandler<SetServiceProviderMembershipCommand, Result<Unit>>
+{
+    public async Task<Result<Unit>> Handle(SetServiceProviderMembershipCommand request, CancellationToken ct)
+    {
+        var provider = await repository.GetByIdAsync(request.ServiceProviderId, ct);
+        if (provider is null) return Result.Failure<Unit>("Proveedor no encontrado.");
+
+        provider.SetMembership(request.Tier, request.Manual);
+        repository.Update(provider);
+        await auditLog.AddAsync(AuditLogEntry.Create(
+            request.AdminUserId,
+            AuditAction.ServiceProviderMembershipChanged,
+            "ServiceProvider",
+            provider.Id.ToString(),
+            $"{request.Tier} (manual={request.Manual})"), ct);
+        if (notificationRepository is not null)
+        {
+            await notificationRepository.AddAsync(Notification.Create(
+                provider.UserId,
+                NotificationType.ProviderStatusUpdate,
+                "Membresia actualizada",
+                request.Tier == ProviderMembershipTier.Free
+                    ? "Tu membresia paso a Perfil base. Actualiza tu plan para recuperar catalogo, disponibilidad y reservas."
+                    : $"Tu membresia ahora es {request.Tier}.",
+                provider.Id.ToString()), ct);
+        }
+        await unitOfWork.SaveChangesAsync(ct);
+        return Result.Success(Unit.Value);
+    }
+}
+
 public sealed record ServiceProviderAdminDto(
     Guid Id,
     string Name,
@@ -322,11 +368,15 @@ public sealed record ServiceProviderAdminDto(
     string Address,
     string Status,
     string? SuspensionReason,
-    DateTimeOffset RegisteredAt)
+    DateTimeOffset RegisteredAt,
+    string MembershipTier,
+    DateTimeOffset? TrialEndsAt,
+    bool IsMembershipManual)
 {
     public static ServiceProviderAdminDto FromDomain(ServiceProvider provider) => new(
         provider.Id, provider.Name, provider.Category.ToString(), provider.Address,
-        provider.Status.ToString(), provider.SuspensionReason, provider.RegisteredAt);
+        provider.Status.ToString(), provider.SuspensionReason, provider.RegisteredAt,
+        provider.MembershipTier.ToString(), provider.TrialEndsAt, provider.IsMembershipManual);
 }
 
 public sealed record GetServiceProvidersForAdminQuery(int Page = 1, int PageSize = 50)
@@ -391,6 +441,8 @@ public sealed class AddProviderServiceCommandHandler(IServiceProviderRepository 
         if (provider is null) return Result.Failure<ProviderServiceDto>("Proveedor no encontrado.");
         if (provider.Status != ServiceProviderStatus.Active)
             return Result.Failure<ProviderServiceDto>("El proveedor debe estar activo para publicar servicios.");
+        if (!provider.HasCatalogAccess)
+            return Result.Failure<ProviderServiceDto>("Se requiere membresia Verificada o superior para publicar servicios del catalogo.");
 
         var service = ProviderService.Create(
             provider.Id, request.Name, request.Description, request.Modality,
@@ -545,6 +597,8 @@ public sealed class AddServiceAvailabilityRuleCommandHandler(
     {
         var provider = await repository.GetByUserIdAsync(request.OwnerUserId, ct);
         if (provider is null) return Result.Failure<Guid>("Proveedor no encontrado.");
+        if (!provider.HasCatalogAccess)
+            return Result.Failure<Guid>("Se requiere membresia Verificada o superior para gestionar disponibilidad.");
 
         var service = await repository.GetServiceByIdAsync(request.ProviderServiceId, ct);
         if (service is null || service.ServiceProviderId != provider.Id)

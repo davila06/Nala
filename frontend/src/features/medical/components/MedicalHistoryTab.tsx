@@ -20,7 +20,6 @@ import { PetClinicAccessManager } from "./PetClinicAccessManager";
 import { ReminderCalendar } from "./ReminderCalendar";
 import { WeightTrendChart } from "./WeightTrendChart";
 import { HealthScoreCard } from "./HealthScoreCard";
-import { usePublicClinics } from "@/features/clinics/hooks/useClinics";
 import {
   useCertificatesForPet,
   useDownloadCertificatePdf,
@@ -1144,7 +1143,6 @@ export function MedicalHistoryTab({
   const { data: count } = useMedicalCount(petId);
   const { data: reminders, isLoading: loadingReminders } =
     useVetReminders(petId);
-  const { data: publicClinics } = usePublicClinics();
   const exportPdf = useExportMedicalPdf(petId);
 
   const [showAddForm, setShowAddForm] = useState(false);
@@ -1172,11 +1170,6 @@ export function MedicalHistoryTab({
         (r.clinicName?.toLowerCase().includes(q) ?? false)
       );
     });
-
-  const availableClinics = publicClinics?.map((c) => ({
-    id: c.id,
-    name: c.name,
-  }));
 
   return (
     <div className="space-y-5">
@@ -1414,10 +1407,7 @@ export function MedicalHistoryTab({
 
       {/* ── Clinic access (Option C) ───────────────────────────────────── */}
       <hr className="border-sand-100" />
-      <PetClinicAccessManager
-        petId={petId}
-        availableClinics={availableClinics}
-      />
+      <PetClinicAccessManager petId={petId} />
 
       {/* ── Clinic access audit log ────────────────────────────────────── */}
       <ClinicAccessLogSection petId={petId} />

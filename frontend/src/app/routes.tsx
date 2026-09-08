@@ -11,6 +11,9 @@ import { RouteShell as S } from "./routeShell";
 const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"));
 const ProfilePage = lazy(() => import("@/features/auth/pages/ProfilePage"));
 const RegisterPage = lazy(() => import("@/features/auth/pages/RegisterPage"));
+const BusinessRegistrationHubPage = lazy(
+  () => import("@/features/auth/pages/BusinessRegistrationHubPage"),
+);
 const ForgotPasswordPage = lazy(
   () => import("@/features/auth/pages/ForgotPasswordPage"),
 );
@@ -54,6 +57,9 @@ const VisualMatchPage = lazy(
   () => import("@/features/sightings/pages/VisualMatchPage"),
 );
 const PublicMapPage = lazy(() => import("@/features/map/pages/PublicMapPage"));
+const ReportWelfareCasePage = lazy(
+  () => import("@/features/animal-welfare/pages/ReportWelfareCasePage"),
+);
 const RecoveryStatsPage = lazy(
   () => import("@/features/lost-pets/pages/RecoveryStatsPage"),
 );
@@ -286,6 +292,14 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            path: "/bienestar/reportar",
+            element: (
+              <S>
+                <ReportWelfareCasePage />
+              </S>
+            ),
+          },
+          {
             path: "/map/match",
             element: (
               <S>
@@ -314,6 +328,14 @@ export const router = createBrowserRouter([
             element: (
               <S>
                 <FoundPetMatchResultPage />
+              </S>
+            ),
+          },
+          {
+            path: "/registro-negocio",
+            element: (
+              <S name="Registro de negocio">
+                <BusinessRegistrationHubPage />
               </S>
             ),
           },

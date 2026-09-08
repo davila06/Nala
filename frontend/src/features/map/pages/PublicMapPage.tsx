@@ -13,6 +13,7 @@ import { StoreDetailSheet } from "@/features/stores/components/StoreDetailSheet"
 import { CartDrawer } from "@/features/stores/components/CartDrawer";
 import { CheckoutModal } from "@/features/stores/components/CheckoutModal";
 import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
+import { usePublicServiceProviders } from "@/features/service-providers/hooks/useServiceProviders";
 
 export default function PublicMapPage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -31,6 +32,7 @@ export default function PublicMapPage() {
   const [showEmergencyOnly, setShowEmergencyOnly] = useState(false);
   const [showStores, setShowStores] = useState(false);
   const [showAdoptions, setShowAdoptions] = useState(false);
+  const [showServiceProviders, setShowServiceProviders] = useState(false);
   const [activeStoreId, setActiveStoreId] = useState<string | null>(() =>
     searchParams.get("storeId"),
   );
@@ -50,6 +52,10 @@ export default function PublicMapPage() {
   const { data: publicStores = [] } = usePublicStores(showStores, 500);
   const { data: adoptableAnimals = [] } =
     useAdoptableAnimalsForMap(showAdoptions);
+  const { data: serviceProviders = [] } = usePublicServiceProviders(
+    {},
+    showServiceProviders,
+  );
 
   const displayedClinics = showEmergencyOnly
     ? publicClinics.filter((c) => c.isEmergency24h)
@@ -200,6 +206,11 @@ export default function PublicMapPage() {
             },
             { color: "bg-trust-500", label: "Clínica", pulse: false },
             {
+              color: "bg-brand-500",
+              label: "Servicios para mascotas",
+              pulse: false,
+            },
+            {
               color: "bg-brand-300 border-2 border-brand-500",
               label: "Clínica Plus",
               pulse: false,
@@ -244,6 +255,12 @@ export default function PublicMapPage() {
         >
           🔍 ¿Encontraste un animal?
         </Link>
+        <Link
+          to="/bienestar/reportar"
+          className="flex items-center gap-2 rounded-xl border border-danger-300 bg-danger-50 px-4 py-2.5 text-sm font-bold text-danger-800 shadow-lg transition-colors hover:bg-danger-100"
+        >
+          ⚠️ Reportar maltrato
+        </Link>
         <button
           type="button"
           onClick={() => {
@@ -264,6 +281,14 @@ export default function PublicMapPage() {
           ) : (
             <>📍 Mi ubicación</>
           )}
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowServiceProviders((v) => !v)}
+          aria-pressed={showServiceProviders}
+          className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showServiceProviders ? "border-brand-400 bg-brand-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
+        >
+          ✂️ Servicios {showServiceProviders ? "✓" : ""}
         </button>
         {/* Clinics toggle */}
         <button
@@ -314,6 +339,7 @@ export default function PublicMapPage() {
           setShowStores(true);
         }}
         adoptions={showAdoptions ? adoptableAnimals : undefined}
+        serviceProviders={showServiceProviders ? serviceProviders : undefined}
         locateTrigger={locateTrigger}
         flyTarget={flyTarget}
         onLocated={() => setLocating(false)}

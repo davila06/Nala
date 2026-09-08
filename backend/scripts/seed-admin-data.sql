@@ -7,6 +7,9 @@
 -- Ejecutar DESPUÉS de seed-test-users.sql
 -- ============================================================
 
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_NULLS ON;
+
 BEGIN TRANSACTION;
 
 -- ── 1. Ally users adicionales ─────────────────────────────────────────────
@@ -22,7 +25,7 @@ SELECT
     'A0000001-0000-0000-0000-000000000001',
     'maria.garcia@pawtrack.test',
     '$2a$12$S7/AoW/NeL4KIvhZO6p6TuWsgBuZQ6kymMD96.3.ALIKR/W51wAES',
-    'María García',
+    N'Mar' + NCHAR(237) + N'a Garc' + NCHAR(237) + N'a',
     'Ally',
     1, NULL, NULL, NULL, NULL,
     0, NULL, GETUTCDATE()
@@ -41,7 +44,7 @@ SELECT
     'A0000001-0000-0000-0000-000000000002',
     'patitas.felices@pawtrack.test',
     '$2a$12$S7/AoW/NeL4KIvhZO6p6TuWsgBuZQ6kymMD96.3.ALIKR/W51wAES',
-    'Fundación Patitas Felices',
+    N'Fundaci' + NCHAR(243) + N'n Patitas Felices',
     'Ally',
     1, NULL, NULL, NULL, NULL,
     0, NULL, GETUTCDATE()
@@ -79,7 +82,7 @@ SELECT
     'E2984533-3A78-4C84-8286-7C91E69AE1B3',
     'Rescate Animal Carlos Mora',
     'PetFriendlyBusiness',
-    'San José Centro',
+    N'San Jos' + NCHAR(233) + N' Centro',
     9.9281, -84.0907, 5000,
     'Pending', DATEADD(DAY, -5, GETUTCDATE()), NULL
 WHERE NOT EXISTS (
@@ -150,7 +153,7 @@ SELECT
     'C0000001-0000-0000-0000-000000000001',
     'animal.house@pawtrack.test',
     '$2a$12$S7/AoW/NeL4KIvhZO6p6TuWsgBuZQ6kymMD96.3.ALIKR/W51wAES',
-    'Clínica Animal House',
+    N'Cl' + NCHAR(237) + N'nica Animal House',
     'Clinic',
     1, NULL, NULL, NULL, NULL,
     0, NULL, GETUTCDATE()
@@ -169,7 +172,7 @@ SELECT
     'C0000001-0000-0000-0000-000000000002',
     'vet.angeles@pawtrack.test',
     '$2a$12$S7/AoW/NeL4KIvhZO6p6TuWsgBuZQ6kymMD96.3.ALIKR/W51wAES',
-    'Veterinaria Los Ángeles',
+    N'Veterinaria Los ' + NCHAR(193) + N'ngeles',
     'Clinic',
     1, NULL, NULL, NULL, NULL,
     0, NULL, GETUTCDATE()
@@ -187,9 +190,9 @@ INSERT INTO [dbo].[Clinics] (
 SELECT
     'C0000002-0000-0000-0000-000000000001',
     'C0000001-0000-0000-0000-000000000001',
-    'Clínica Animal House',
+    N'Cl' + NCHAR(237) + N'nica Animal House',
     'SENASA-2024-0892',
-    'Av. Central, San José, 100m norte del Banco Nacional',
+    N'Av. Central, San Jos' + NCHAR(233) + N', 100m norte del Banco Nacional',
     9.9302, -84.0820,
     'animal.house@pawtrack.test',
     'Pending',

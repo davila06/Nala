@@ -18,9 +18,11 @@ import { SightingMarker } from "./SightingMarker";
 import { ClinicMarker } from "./ClinicMarker";
 import { StoreMarker } from "@/features/stores/components/StoreMarker";
 import { AdoptionMarker } from "@/features/adoptions/components/AdoptionMarker";
+import { ServiceProviderMarker } from "./ServiceProviderMarker";
 import type { PublicClinicDto } from "@/features/clinics/api/clinicsApi";
 import type { PublicStoreDto } from "@/features/stores/api/storesApi";
 import type { AdoptablePetDto } from "@/features/adoptions/api/adoptionsApi";
+import type { PublicServiceProviderDto } from "@/features/service-providers/api/serviceProvidersApi";
 
 // Leaflet's default icon images reference /images/ which bundlers break.
 // We reset the icon to null so divIcon-based markers (LostPetMarker, SightingMarker)
@@ -41,6 +43,8 @@ interface MapContainerProps {
   onStoreClick?: (storeId: string) => void;
   /** When set, renders adoption animal markers on the map. */
   adoptions?: AdoptablePetDto[];
+  /** When set, renders service provider markers on the map. */
+  serviceProviders?: PublicServiceProviderDto[];
   /** Increment to re-trigger fly-to-user */
   locateTrigger?: number;
   /** Called when GPS resolves or errors — used to reset loading state in the parent */
@@ -139,6 +143,7 @@ export function MapContainer({
   stores,
   onStoreClick,
   adoptions,
+  serviceProviders,
   locateTrigger = 0,
   onLocated,
   flyTarget,
@@ -191,6 +196,12 @@ export function MapContainer({
           ))}
           {adoptions?.map((animal) => (
             <AdoptionMarker key={`adoption-${animal.id}`} animal={animal} />
+          ))}
+          {serviceProviders?.map((provider) => (
+            <ServiceProviderMarker
+              key={`provider-${provider.id}`}
+              provider={provider}
+            />
           ))}
         </MarkerClusterGroup>
       </LeafletMapContainer>

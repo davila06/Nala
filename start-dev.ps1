@@ -16,16 +16,28 @@ function Stop-PawTrackApiProcesses {
     $procs = Get-Process -Name "PawTrack.API" -ErrorAction SilentlyContinue
     if ($null -eq $procs) {
         Write-Step "No hay procesos PawTrack.API bloqueando binarios."
-        return
+    }
+    else {
+        foreach ($proc in $procs) {
+            try {
+                Stop-Process -Id $proc.Id -Force
+                Write-Step "Proceso PawTrack.API detenido (PID $($proc.Id))."
+            }
+            catch {
+                Write-Warning "No se pudo detener PawTrack.API PID $($proc.Id): $($_.Exception.Message)"
+            }
+        }
     }
 
-    foreach ($proc in $procs) {
+    $portOwner = Get-NetTCPConnection -LocalPort 5199 -State Listen -ErrorAction SilentlyContinue |
+        Select-Object -First 1
+    if ($null -ne $portOwner) {
         try {
-            Stop-Process -Id $proc.Id -Force
-            Write-Step "Proceso PawTrack.API detenido (PID $($proc.Id))."
+            Stop-Process -Id $portOwner.OwningProcess -Force
+            Write-Step "Proceso del backend detenido en puerto 5199 (PID $($portOwner.OwningProcess))."
         }
         catch {
-            Write-Warning "No se pudo detener PawTrack.API PID $($proc.Id): $($_.Exception.Message)"
+            Write-Warning "No se pudo detener el proceso del puerto 5199: $($_.Exception.Message)"
         }
     }
 }
@@ -83,17 +95,31 @@ function Ensure-AzuriteRunning {
 
 function Start-Backend {
     $backendPath = "C:\Nala\backend"
+    $apiPath = Join-Path $backendPath "src\PawTrack.API"
+    $projectPath = Join-Path $apiPath "PawTrack.API.csproj"
+    $dllPath = Join-Path $apiPath "bin\Debug\net9.0\PawTrack.API.dll"
     Write-Step "Iniciando backend..."
-    Start-Process -FilePath "dotnet" -WorkingDirectory $backendPath -ArgumentList @(
-        "run",
-        "--project", "src/PawTrack.API",
-        "--launch-profile", "http"
+
+    & dotnet build $projectPath --no-restore --verbosity minimal
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $dllPath)) {
+        throw "No se pudo compilar el backend local."
+    }
+
+    $env:ASPNETCORE_ENVIRONMENT = "Development"
+    $env:ASPNETCORE_URLS = "http://localhost:5199"
+    $env:Jwt__Key = "dev-only-jwt-signing-key-minimum-32-characters-long!"
+    $env:Jwt__Issuer = "pawtrack-api"
+    $env:Jwt__Audience = "pawtrack-app"
+
+    Start-Process -FilePath "dotnet" -WorkingDirectory $apiPath -ArgumentList @(
+        $dllPath,
+        "--urls", "http://localhost:5199"
     ) -WindowStyle Normal | Out-Null
 
     $ok = $false
     for ($i = 0; $i -lt 180; $i++) {
         try {
-            $response = Invoke-WebRequest -Uri "http://localhost:5199/health" -UseBasicParsing -TimeoutSec 2
+            $response = Invoke-WebRequest -Uri "http://localhost:5199/health/live" -UseBasicParsing -TimeoutSec 2
             if ($response.StatusCode -eq 200) {
                 $ok = $true
                 break
@@ -105,7 +131,7 @@ function Start-Backend {
     }
 
     if (-not $ok) {
-        Write-Warning "El backend no confirmó salud en http://localhost:5199/health dentro del tiempo esperado."
+        Write-Warning "El backend no confirmó disponibilidad en http://localhost:5199/health/live dentro del tiempo esperado."
         return
     }
 

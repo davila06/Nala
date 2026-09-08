@@ -1,4 +1,5 @@
 using MediatR;
+using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Subscriptions.DTOs;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Domain.Common;
@@ -8,7 +9,7 @@ namespace PawTrack.Application.Subscriptions.Commands.DeleteSubscriptionPlan;
 public sealed record DeleteSubscriptionPlanCommand(Guid Id, Guid Version)
     : IRequest<Result<SubscriptionPlanDto>>;
 
-public sealed class DeleteSubscriptionPlanCommandHandler(ISubscriptionPlanRepository repository)
+public sealed class DeleteSubscriptionPlanCommandHandler(ISubscriptionPlanRepository repository, IUnitOfWork unitOfWork)
     : IRequestHandler<DeleteSubscriptionPlanCommand, Result<SubscriptionPlanDto>>
 {
     public async Task<Result<SubscriptionPlanDto>> Handle(
@@ -23,6 +24,7 @@ public sealed class DeleteSubscriptionPlanCommandHandler(ISubscriptionPlanReposi
 
         plan.Deactivate();
         repository.Update(plan);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         return Result.Success(SubscriptionPlanDto.FromDomain(plan));
     }
 }

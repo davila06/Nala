@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using PawTrack.Application.ServiceProviders;
+using PawTrack.Domain.ServiceProviders;
 using System.Security.Claims;
 
 namespace PawTrack.API.Controllers;
@@ -61,6 +62,22 @@ public sealed class AdminServiceProvidersController(ISender sender) : Controller
         if (!Guid.TryParse(claim, out var adminUserId)) return Unauthorized();
         var result = await sender.Send(new SetServiceProviderOperationalStatusCommand(
             adminUserId, serviceProviderId, request.Suspend, request.Reason), ct);
+        return result.IsSuccess
+            ? NoContent()
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpPut("{serviceProviderId:guid}/membership")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> SetMembership(
+        Guid serviceProviderId,
+        [FromBody] SetServiceProviderMembershipRequest request,
+        CancellationToken ct)
+    {
+        var claim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        if (!Guid.TryParse(claim, out var adminUserId)) return Unauthorized();
+        var result = await sender.Send(new SetServiceProviderMembershipCommand(
+            adminUserId, serviceProviderId, request.Tier, request.Manual), ct);
         return result.IsSuccess
             ? NoContent()
             : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
@@ -154,6 +171,7 @@ public sealed class AdminServiceProvidersController(ISender sender) : Controller
 
 public sealed record ReviewServiceProviderRequest(bool Approve);
 public sealed record SetServiceProviderOperationalStatusRequest(bool Suspend, string? Reason);
+public sealed record SetServiceProviderMembershipRequest(ProviderMembershipTier Tier, bool Manual);
 public sealed record ReviewProviderVerificationRequest(bool Approve, DateOnly? ExpiresAt, string? Reason);
 public sealed record ConfirmProviderPaymentRequest(string ExternalReference);
 public sealed record AssignProviderIncidentRequest(Guid AssignedToUserId);

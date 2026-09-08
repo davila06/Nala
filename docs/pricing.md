@@ -338,16 +338,56 @@ GET /api/passport/verify/01970abc-...
 
 ---
 
-## 8. Marketplace de Servicios de Mascota
+## 8. Marketplace de Servicios de Mascota — perfiles implementados, membresía propuesta
 
-El módulo `ServiceProviders` ya implementa un MVP sin pago: perfiles,
-directorio, catálogo, disponibilidad, reservas, verificación documental y
-operación administrativa para adiestradores, groomers, hoteles, guarderías,
-paseadores y otros servicios. No reutiliza el modelo de inventario de tiendas.
+El módulo `ServiceProviders` ya implementa el flujo operativo de perfiles,
+directorio, mapa, catálogo, disponibilidad, reservas, capacidad, verificación
+documental, pagos manuales/SINPE, disputas, reembolsos e incidentes. No
+reutiliza el modelo de inventario de tiendas.
 
-Las comisiones y el cobro por plataforma siguen siendo una propuesta, no una
-capacidad habilitada. No se debe publicar ni cobrar estas tarifas hasta aprobar
+Categorías canónicas implementadas: **adiestradores, groomers, hoteles,
+guarderías, paseadores, fotógrafos y otros servicios**. Las modalidades son
+establecimiento, domicilio, virtual, grupal y estadía nocturna.
+
+### Estado actual de los perfiles
+
+Los perfiles de proveedor sí están implementados:
+
+- Registro público con nombre comercial, descripción, categoría, correo,
+  dirección y ubicación pública.
+- Estado inicial pendiente de revisión administrativa.
+- Edición autenticada de nombre, descripción, categoría, dirección,
+  coordenadas, teléfono y website.
+- Publicación en directorio y mapa cuando el proveedor está activo y es
+  elegible para visibilidad pública.
+- Verificación documental privada, revisión administrativa, vencimiento y
+  recordatorios de renovación.
+
+El perfil implementado no equivale a una licencia estatal ni a un aval
+profesional. La verificación de PawTrack solo representa una revisión
+documental del flujo interno.
+
+Las comisiones por transacción siguen siendo una propuesta. Para el MVP se
+recomienda validar una membresía mensual:
+
+| Nivel propuesto      |     Precio | Valor entregado                                              |
+| -------------------- | ---------: | ------------------------------------------------------------ |
+| Perfil base          |     Gratis | Perfil y contacto básico en el directorio                    |
+| Proveedor verificado | ₡3,000/mes | Verificación documental, catálogo, disponibilidad y reservas |
+| Proveedor destacado  | ₡5,000/mes | Prioridad en búsquedas/mapa, badge y estadísticas            |
+
+Se recomienda ofrecer 60–90 días iniciales sin costo. Un único plan de
+₡3,990/mes también puede usarse para validar el mercado antes de separar los
+niveles.
+
+Este modelo es una propuesta pendiente de aprobación; todavía no existe
+billing, feature gate, cobro recurrente ni membresía activa para proveedores.
+No se debe publicar ni cobrar estas tarifas hasta aprobar
 el modelo de depósito/SINPE/tarjeta, impuestos, reembolsos y disputas.
+
+El gateway actual es manual: crea la intención, registra una referencia de
+SINPE, permite confirmación operativa y conserva idempotencia/auditoría. No hay
+todavía payout automático ni conexión con un adquirente externo.
 
 Propuesta comercial pendiente de validación:
 
@@ -359,14 +399,15 @@ Propuesta comercial pendiente de validación:
 | Peluquería canina (proveedor verifica vía el app) | 8%                    |
 
 Los proveedores requieren revisión documental por PawTrack; esa revisión no es
-una licencia ni un aval estatal. El pago futuro debe pasar por una integración
-autorizada (SINPE o tarjeta) con conciliación y trazabilidad.
+una licencia ni un aval estatal. Antes de activar el modelo comercial deben
+definirse KYC, responsabilidad por categoría, cancelación/no-show, custodia,
+conciliación, payout, impuestos, factura, reembolso y trazabilidad.
 
 **Potencial en CR**: Mercado de servicios de mascotas estimado en $8–12M/año. Tomar 1% = $80k–120k/año.
 
 ---
 
-## 9. API Pública para Terceros
+## 9. API Pública para Terceros — propuesta, no catálogo activo
 
 Empresas de veterinaria, apps de adopción, sistemas municipales de control animal podrían consumir la API de PawTrack:
 
@@ -780,16 +821,17 @@ Este es el elemento más crítico del modelo. La lógica:
 
 ## Hoja de ruta de implementación
 
-| Prioridad | Acción                                             | Requiere código | Tiempo    |
-| --------- | -------------------------------------------------- | --------------- | --------- |
-| 🟢 **1**  | Botón "Pedir collar" → WhatsApp con form           | No              | 1 día     |
-| 🟢 **2**  | Activar tier Plus con límite de mascotas           | Mínimo          | 1 semana  |
-| 🟡 **3**  | Portal de clínicas con tier de pago (Stripe/SINPE) | Sí              | 2 semanas |
-| 🟡 **4**  | Sistema de recompensas con SINPE en custodia       | Sí              | 3 semanas |
-| 🟠 **5**  | Contactar 5 municipalidades con deck de ventas     | No              | Inmediato |
-| 🟠 **6**  | Pasaporte digital PDF verificado                   | Sí (mínimo)     | 1 semana  |
-| 🔴 **7**  | Marketplace de servicios (pet sitting)             | Sí (mayor)      | 1–2 meses |
-| 🔴 **8**  | Kiosko físico piloto en 1 clínica                  | Hardware + BD   | 2–3 meses |
+| Prioridad | Acción                                             | Requiere código | Tiempo       |
+| --------- | -------------------------------------------------- | --------------- | ------------ |
+| 🟢 **1**  | Botón "Pedir collar" → WhatsApp con form           | No              | 1 día        |
+| 🟢 **2**  | Activar tier Plus con límite de mascotas           | Mínimo          | 1 semana     |
+| 🟡 **3**  | Portal de clínicas con tier de pago (Stripe/SINPE) | Sí              | 2 semanas    |
+| 🟡 **4**  | Sistema de recompensas con SINPE en custodia       | Sí              | 3 semanas    |
+| 🟠 **5**  | Contactar 5 municipalidades con deck de ventas     | No              | Inmediato    |
+| 🟠 **6**  | Pasaporte digital PDF verificado                   | Sí (mínimo)     | 1 semana     |
+| ✅ **7**  | Marketplace de servicios: operación base           | Sí              | Implementado |
+| 🔴 **8**  | Marketplace de servicios: pricing, payout y KYC    | Sí              | 3–6 semanas  |
+| 🔴 **8**  | Kiosko físico piloto en 1 clínica                  | Hardware + BD   | 2–3 meses    |
 
 ---
 

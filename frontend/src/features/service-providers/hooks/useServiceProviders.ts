@@ -6,10 +6,12 @@ import {
 
 export function usePublicServiceProviders(
   filter: ServiceProviderDirectoryFilter = {},
+  enabled = true,
 ) {
   return useQuery({
     queryKey: ["service-providers", "public", filter],
     queryFn: () => serviceProvidersApi.getAll(filter),
+    enabled,
     staleTime: 5 * 60_000,
   });
 }

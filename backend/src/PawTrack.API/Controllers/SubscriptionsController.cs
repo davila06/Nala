@@ -61,8 +61,14 @@ public sealed class SubscriptionsController(ISender sender) : ControllerBase
     }
 
     // ── PUT /api/subscriptions/activate ─────────────────────────────────────
-    /// <summary>Called after the user confirms they sent the SINPE payment.</summary>
+    /// <summary>
+    /// Admin-only: manually activates a subscription after verifying the SINPE deposit
+    /// out-of-band. NOT for self-service — real automated activation goes through the
+    /// signed payment webhook (see WebhooksController.SinpePayment).
+    /// </summary>
     [HttpPut("activate")]
+    [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> Activate(

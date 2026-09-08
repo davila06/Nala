@@ -85,6 +85,8 @@ public sealed class CreateProviderBookingCommandHandler(
         var provider = await providerRepository.GetByIdAsync(service.ServiceProviderId, ct);
         if (provider is null || provider.Status != ServiceProviderStatus.Active)
             return Result.Failure<ProviderBookingDto>("Proveedor no disponible.");
+        if (!provider.HasCatalogAccess)
+            return Result.Failure<ProviderBookingDto>("Este proveedor no tiene reservas habilitadas.");
 
         var endsAt = request.StartsAt.AddMinutes(service.DurationMinutes);
         var availabilityRules = await providerRepository.GetActiveAvailabilityRulesAsync(service.Id, ct);

@@ -134,7 +134,7 @@ INSERT INTO [dbo].[Clinics] (
     '2B9B9F17-39DD-42A7-B138-A00632ABE55A',
     N'Cl' + NCHAR(237) + N'nica VetCare CR',
     'VET-2024-TEST',
-    'San José, Costa Rica',
+    N'San Jos' + NCHAR(233) + N', Costa Rica',
     9.928100,
     -84.090800,
     'clinic@pawtrack.test',
@@ -145,13 +145,13 @@ INSERT INTO [dbo].[Clinics] (
 -- ── Service provider profile + published service for E2E ──────────────────
 INSERT INTO [dbo].[ServiceProviders] (
     [Id], [UserId], [Name], [Description], [Category], [Address], [Lat], [Lng],
-    [ContactEmail], [IsFeatured], [Status], [RegisteredAt]
+    [ContactEmail], [IsFeatured], [Status], [RegisteredAt], [MembershipTier], [IsMembershipManual]
 ) VALUES (
     'C81A79F1-6A56-4BD5-BE64-328E978786AA',
     'B4A3A5D3-08F5-45CE-91F4-EC013463A7D8',
     'Grooming E2E', 'Servicio de grooming para pruebas locales', 1,
     'Heredia, Costa Rica', 9.998000, -84.117000,
-    'provider@pawtrack.test', 0, 1, GETUTCDATE()
+    'provider@pawtrack.test', 0, 1, GETUTCDATE(), 1, 1
 );
 
 INSERT INTO [dbo].[ProviderServices] (

@@ -77,6 +77,13 @@ public sealed class ServiceProviderRepository(PawTrackDbContext db) : IServicePr
             .OrderBy(provider => provider.Status).ThenBy(provider => provider.Name)
             .Skip(skip).Take(take).ToListAsync(ct);
 
+    public async Task<IReadOnlyList<ServiceProvider>> GetProvidersWithExpiredTrialAsync(DateTimeOffset cutoff, int take, CancellationToken ct = default) =>
+        await db.ServiceProviders
+            .Where(provider => !provider.IsMembershipManual
+                && provider.MembershipTier != ProviderMembershipTier.Free
+                && provider.TrialEndsAt != null && provider.TrialEndsAt <= cutoff)
+            .Take(take).ToListAsync(ct);
+
     public async Task AddAsync(ServiceProvider serviceProvider, CancellationToken ct = default) =>
         await db.ServiceProviders.AddAsync(serviceProvider, ct);
 

@@ -14,6 +14,7 @@ using PawTrack.Application.Clinics.Queries.GetNearbyActiveAlerts;
 using PawTrack.Application.Clinics.Queries.GetPendingClinics;
 using PawTrack.Application.Clinics.Queries.GetPetMedicalHistoryForClinic;
 using PawTrack.Application.Clinics.Queries.GetPublicClinics;
+using PawTrack.Application.Clinics.Queries.SearchClinicsForAccess;
 using PawTrack.Application.Certificates.Commands.ManageCertificateIssuers;
 using PawTrack.Application.Certificates.Queries.GetClinicCertificateIssuers;
 using PawTrack.Application.Common.Interfaces;
@@ -164,6 +165,20 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     {
         var result = await sender.Send(new GetPublicClinicsQuery(lat, lng), cancellationToken);
         return Ok(result.Value);
+    }
+
+    /// <summary>Search active clinics by name or license number, for authorizing medical access to a pet's record.</summary>
+    [HttpGet("search")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> SearchForAccess([FromQuery] string query, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new SearchClinicsForAccessQuery(query), cancellationToken);
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
     }
 
     // ── View tracking — fire-and-forget, anonymous ────────────────────────────

@@ -1,7 +1,12 @@
 # PawTrack CR — Estrategia de Precios
 
-> Versión: 2026-09-06 | Moneda: Colones costarricenses (₡) | Referencia de cambio: ~520 ₡/USD
+> Versión: 2026-09-08 | Moneda: Colones costarricenses (₡) | Referencia de cambio: ~520 ₡/USD
 > Fuente de verdad: `SubscriptionPricing` en el backend.
+
+> Estado documental: los precios de suscripción de este documento reflejan el
+> catálogo técnico actual. El marketplace de proveedores tiene capacidades
+> operativas implementadas, pero todavía **no tiene tier, comisión ni cobro
+> comercial aprobado**. Ver [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md).
 
 ---
 
@@ -39,9 +44,47 @@ Ninguna plataforma ofrece hoy en Costa Rica o Centroamérica:
 │  B2C — Dueños de mascotas          ~890,000 hogares en CR   │
 │  B2B — Clínicas veterinarias       ~600 clínicas activas    │
 │  B2B — Aliados (refugios, etc.)    ~200 organizaciones      │
+│  B2B — Servicios para mascotas     proveedores por categoría│
 │  B2G — Municipalidades             82 cantones              │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+## Marketplace de servicios para mascotas
+
+El módulo `ServiceProviders` permite registrar, verificar y operar proveedores
+en estas categorías canónicas:
+
+| Categoría      | Servicios representados        |
+| -------------- | ------------------------------ |
+| `Trainer`      | Adiestradores                  |
+| `Groomer`      | Groomers y peluquería canina   |
+| `Hotel`        | Hoteles para mascotas          |
+| `Daycare`      | Guarderías                     |
+| `Walker`       | Paseadores                     |
+| `Photographer` | Fotógrafos de mascotas         |
+| `Other`        | Otros servicios especializados |
+
+Incluye directorio y mapa público, filtros por categoría/modalidad/precio/radio,
+catálogo, disponibilidad, reservas, capacidad, verificación documental privada,
+auditoría, pagos manuales/SINPE, disputas, reembolsos e incidentes operativos.
+
+Los perfiles sí están implementados: registro público, estado pendiente,
+edición autenticada, publicación pública cuando corresponde y verificación
+documental separada. La revisión de PawTrack no es una licencia estatal ni un
+aval profesional.
+
+**Modelo recomendado pendiente de aprobación:**
+
+| Nivel       | Precio sugerido | Alcance                                           |
+| ----------- | --------------: | ------------------------------------------------- |
+| Perfil base |          Gratis | Directorio y contacto básico                      |
+| Verificado  |      ₡3,000/mes | Verificación, catálogo, disponibilidad y reservas |
+| Destacado   |      ₡5,000/mes | Prioridad en mapa/búsqueda, badge y estadísticas  |
+
+Se recomienda un periodo inicial de 60–90 días sin costo. Actualmente no existe
+facturación recurrente ni gate de membresía para proveedores; estos importes no
+son precios activos. Las comisiones de `docs/pricing.md` permanecen como
+alternativa futura y no forman parte de este catálogo.
 
 ---
 
@@ -414,11 +457,6 @@ Costa Rica tiene ~890,000 hogares con mascotas. La masa crítica de mascotas reg
 
 ### ¿Por qué ₡2,990/mes para Plus?
 
-- Equivale a ~$5.75 USD — precio de una entrada al cine.
-- PawBoost cobra $14.95/alerta puntual (sin suscripción). PawTrack Plus ofrece alertas ilimitadas por mes.
-- Netflix en CR cuesta ₡9,900/mes. PawTrack Plus es 3x más barato que Netflix.
-- Umbral de dolor mínimo para la clase media costarricense.
-
 ### ¿Por qué las clínicas pagan más que los dueños?
 
 - El ROI es directo: una clínica verificada con posición destacada puede captar 5–10 nuevos clientes/mes.
@@ -454,7 +492,7 @@ Costa Rica tiene ~890,000 hogares con mascotas. La masa crítica de mascotas reg
 
 ---
 
-## 4. Tiendas de Mascotas B2B — Planes Store
+## 10. Tiendas de Mascotas B2B — Planes Store
 
 | Plan / estado                    | Precio      | Capacidades                                             |
 | -------------------------------- | ----------- | ------------------------------------------------------- |
@@ -466,7 +504,7 @@ Costa Rica tiene ~890,000 hogares con mascotas. La masa crítica de mascotas reg
 
 ---
 
-## 5. Vallas Publicitarias — Ingresos adicionales de la plataforma
+## 11. Vallas Publicitarias — Ingresos adicionales de la plataforma
 
 El sistema de vallas permite a tiendas, clínicas y negocios anunciarse dentro de la app. Cuatro placements disponibles:
 
@@ -481,7 +519,7 @@ El sistema de vallas permite a tiendas, clínicas y negocios anunciarse dentro d
 
 ---
 
-## 10. Política de cambios y cancelación
+## 12. Política de cambios y cancelación
 
 | Regla                      | Detalle                                                   |
 | -------------------------- | --------------------------------------------------------- |

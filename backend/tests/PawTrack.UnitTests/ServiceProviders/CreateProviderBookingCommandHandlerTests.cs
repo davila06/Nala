@@ -28,6 +28,34 @@ public sealed class CreateProviderBookingCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_ProviderOnFreeTier_ReturnsFailureWithoutCreatingBooking()
+    {
+        var providers = Substitute.For<IServiceProviderRepository>();
+        var pets = Substitute.For<IPetRepository>();
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var customerUserId = Guid.NewGuid();
+        var provider = ServiceProvider.Create(
+            Guid.NewGuid(), "Escuela Canina", "Adiestramiento", ServiceProviderCategory.Trainer,
+            "San Jose", 9.9m, -84m, "provider@example.cr");
+        provider.Activate();
+        provider.SetMembership(ProviderMembershipTier.Free, manual: true); // trial ended / never upgraded
+        var service = ProviderService.Create(
+            provider.Id, "Sesion", "Individual", ServiceModality.AtProviderLocation, 60, 25_000m, 1);
+        var pet = Pet.Create(customerUserId, "Luna", PetSpecies.Dog, null, null);
+
+        pets.GetByIdAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(pet);
+        providers.GetServiceByIdAsync(service.Id, Arg.Any<CancellationToken>()).Returns(service);
+        providers.GetByIdAsync(provider.Id, Arg.Any<CancellationToken>()).Returns(provider);
+
+        var handler = new CreateProviderBookingCommandHandler(providers, pets, unitOfWork);
+        var result = await handler.Handle(new CreateProviderBookingCommand(
+            customerUserId, service.Id, pet.Id, DateTimeOffset.UtcNow.AddDays(2), 1, null), default);
+
+        result.IsFailure.Should().BeTrue();
+        await providers.DidNotReceive().AddBookingAsync(Arg.Any<ProviderBooking>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task Handle_AtomicCapacityCheckRejectsFullSlot()
     {
         var providers = Substitute.For<IServiceProviderRepository>();

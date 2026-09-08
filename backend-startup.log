@@ -1,0 +1,20 @@
+Usando la configuración de inicio de .\backend\src\PawTrack.API\Properties\launchSettings.json...
+Compilando...
+[10:58:16 WRN]  The property 'AdoptablePet._photoUrls' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+[10:58:16 WRN]  The property 'AdoptionFair._animalIds' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+[10:58:17 INF]  [Migrations] Database is up to date. No migrations to apply.
+[10:58:18 INF]  ClinicProfileViewPurgeHostedService next run in 16:01:41.4831080
+[10:58:18 INF]  StaleReportCheckerHostedService next run in 21:01:41.4782377
+[10:58:18 INF]  RiskAlertHostedService started. First run in 00:01:00.
+[10:58:18 INF]  QrScanRetentionHostedService next run in 15:01:41.4758125
+[10:58:18 INF]  PersonalDataRetentionHostedService next run in 16:01:41.4745744
+[10:58:18 INF]  EmbeddingRefreshHostedService started. First run in 00:00:30.
+[10:58:18 INF]  VerificationExpirationHostedService next run in 16:21:41.4110751
+[10:58:18 INF]  VerificationRenewalReminderHostedService next run in 22:01:41.4096658
+[10:58:18 INF]  VetReminderHostedService: next run in 1.03:01:41.3977450
+[10:58:18 INF]  HealthAlertHostedService: next run at 09/09/2026 15:00:00
+[10:58:18 INF]  Now listening on: http://localhost:5199
+[10:58:18 INF]  Application started. Press Ctrl+C to shut down.
+[10:58:18 INF]  Hosting environment: Development
+[10:58:18 INF]  Content root path: C:\Nala\backend\src\PawTrack.API
+[10:58:19 WRN]  Failed to determine the https port for redirect.

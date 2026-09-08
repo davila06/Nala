@@ -1,4 +1,5 @@
 using MediatR;
+using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Subscriptions.DTOs;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Domain.Common;
@@ -13,7 +14,7 @@ public sealed record CreateSubscriptionPlanCommand(
     decimal? MonthlyPriceCrc,
     decimal? AnnualPriceCrc) : IRequest<Result<SubscriptionPlanDto>>;
 
-public sealed class CreateSubscriptionPlanCommandHandler(ISubscriptionPlanRepository repository)
+public sealed class CreateSubscriptionPlanCommandHandler(ISubscriptionPlanRepository repository, IUnitOfWork unitOfWork)
     : IRequestHandler<CreateSubscriptionPlanCommand, Result<SubscriptionPlanDto>>
 {
     public async Task<Result<SubscriptionPlanDto>> Handle(
@@ -32,6 +33,7 @@ public sealed class CreateSubscriptionPlanCommandHandler(ISubscriptionPlanReposi
                 request.MonthlyPriceCrc,
                 request.AnnualPriceCrc);
             await repository.AddAsync(plan, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
             return Result.Success(SubscriptionPlanDto.FromDomain(plan));
         }
         catch (ArgumentException exception)

@@ -11,7 +11,7 @@ namespace PawTrack.API.Controllers;
 
 [ApiController]
 [Route("api/admin/welfare-cases")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Support")]
 public sealed class AdminWelfareCasesController(ISender sender) : ControllerBase
 {
     [HttpGet]

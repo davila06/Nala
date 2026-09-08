@@ -14,7 +14,8 @@ public sealed class ManageSubscriptionPlansCommandHandlerTests
         var repository = Substitute.For<ISubscriptionPlanRepository>();
         repository.GetByTierAsync(SubscriptionTier.UserPlus, Arg.Any<CancellationToken>())
             .Returns((SubscriptionPlan?)null);
-        var handler = new CreateSubscriptionPlanCommandHandler(repository);
+        var unitOfWork = Substitute.For<PawTrack.Application.Common.Interfaces.IUnitOfWork>();
+        var handler = new CreateSubscriptionPlanCommandHandler(repository, unitOfWork);
 
         var result = await handler.Handle(
             new CreateSubscriptionPlanCommand(
@@ -37,7 +38,8 @@ public sealed class ManageSubscriptionPlansCommandHandlerTests
     public async Task Create_FreeState_ReturnsValidationFailure()
     {
         var repository = Substitute.For<ISubscriptionPlanRepository>();
-        var handler = new CreateSubscriptionPlanCommandHandler(repository);
+        var unitOfWork = Substitute.For<PawTrack.Application.Common.Interfaces.IUnitOfWork>();
+        var handler = new CreateSubscriptionPlanCommandHandler(repository, unitOfWork);
 
         var result = await handler.Handle(
             new CreateSubscriptionPlanCommand(

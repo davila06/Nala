@@ -236,6 +236,15 @@ export default function ClinicDirectoryPage() {
             Registrarse
           </a>
         </div>
+        <p className="text-center text-xs text-sand-400">
+          ¿Tienes otro tipo de negocio?{" "}
+          <a
+            href="/registro-negocio"
+            className="font-semibold text-brand-600 hover:underline"
+          >
+            Ver todos los perfiles →
+          </a>
+        </p>
       </div>
     </>
   );

@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/shared/lib/toast";
 import { Button, Input, Card } from "@/shared/ui";
 import { clinicAccessApi } from "@/features/medical/api/clinicAccessApi";
 import type { ClinicAccessGrantDto } from "@/features/medical/api/clinicAccessApi";
+import { useClinicAccessSearch } from "@/features/clinics/hooks/useClinics";
+import type { ClinicAccessSearchResultDto } from "@/features/clinics/api/clinicsApi";
 
 // ── Code display with auto-copy and countdown ─────────────────────────────────
 
@@ -154,15 +156,95 @@ function GrantRow({
   );
 }
 
+// ── Clinic search (by name or license number) ─────────────────────────────────
+
+function ClinicSearchPicker({
+  selected,
+  onSelect,
+}: {
+  selected: ClinicAccessSearchResultDto | null;
+  onSelect: (clinic: ClinicAccessSearchResultDto | null) => void;
+}) {
+  const [input, setInput] = useState("");
+  const [debounced, setDebounced] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(input), 300);
+    return () => clearTimeout(timer);
+  }, [input]);
+
+  const { data: results = [], isFetching } = useClinicAccessSearch(debounced);
+  const showResults = !selected && debounced.trim().length >= 2;
+
+  if (selected) {
+    return (
+      <div className="flex items-center justify-between gap-2 rounded-xl border border-brand-200 bg-brand-50 px-3 py-2">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-sand-900">
+            {selected.name}
+          </p>
+          <p className="text-xs text-sand-500">
+            Licencia: {selected.licenseNumber}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            onSelect(null);
+            setInput("");
+            setDebounced("");
+          }}
+          className="shrink-0 rounded-lg border border-sand-300 px-2 py-1 text-xs font-semibold text-sand-600 hover:bg-sand-100"
+        >
+          Cambiar
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <Input
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Buscar por nombre o número de licencia"
+        aria-label="Buscar clínica por nombre o número de licencia"
+      />
+      {showResults && (
+        <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-y-auto rounded-xl border border-sand-200 bg-white shadow-lg">
+          {isFetching && (
+            <li className="px-3 py-2 text-xs text-sand-500">Buscando…</li>
+          )}
+          {!isFetching && results.length === 0 && (
+            <li className="px-3 py-2 text-xs text-sand-500">
+              Sin resultados. Verifica el nombre o número de licencia.
+            </li>
+          )}
+          {results.map((clinic) => (
+            <li key={clinic.id}>
+              <button
+                type="button"
+                onClick={() => onSelect(clinic)}
+                className="block w-full px-3 py-2 text-left text-sm hover:bg-sand-50"
+              >
+                <span className="font-semibold text-sand-900">
+                  {clinic.name}
+                </span>
+                <span className="ml-2 text-xs text-sand-500">
+                  {clinic.licenseNumber}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function PetClinicAccessManager({
-  petId,
-  availableClinics,
-}: {
-  petId: string;
-  availableClinics?: { id: string; name: string }[];
-}) {
+export function PetClinicAccessManager({ petId }: { petId: string }) {
   const { data: grants, isLoading } = useQuery({
     queryKey: ["pet-clinic-grants", petId],
     queryFn: () => clinicAccessApi.getGrantsForPet(petId),
@@ -194,9 +276,8 @@ export function PetClinicAccessManager({
     },
   });
 
-  const [selectedClinicId, setSelectedClinicId] = useState(
-    availableClinics?.[0]?.id ?? "",
-  );
+  const [selectedClinic, setSelectedClinic] =
+    useState<ClinicAccessSearchResultDto | null>(null);
   const [generatedCode, setGeneratedCode] = useState<{
     rawCode: string;
     expiresAt: string;
@@ -260,40 +341,35 @@ export function PetClinicAccessManager({
       )}
 
       {/* Generate code for a specific clinic */}
-      {availableClinics && availableClinics.length > 0 && !generatedCode && (
+      {!generatedCode && (
         <div className="rounded-xl border border-sand-200 bg-sand-50 p-3 space-y-2">
           <p className="text-xs font-semibold text-sand-700">
             Autorizar una clínica específica
           </p>
-          <div className="flex gap-2">
-            <select
-              value={selectedClinicId}
-              onChange={(e) => setSelectedClinicId(e.target.value)}
-              className="flex-1 rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-            >
-              {availableClinics.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+          <ClinicSearchPicker
+            selected={selectedClinic}
+            onSelect={setSelectedClinic}
+          />
+          {selectedClinic && (
             <Button
               size="sm"
               loading={generateCode.isPending}
-              disabled={!selectedClinicId}
+              className="w-full"
               onClick={() => {
-                generateCode.mutate(selectedClinicId, {
-                  onSuccess: (dto) =>
+                generateCode.mutate(selectedClinic.id, {
+                  onSuccess: (dto) => {
                     setGeneratedCode({
                       rawCode: dto.rawCode,
                       expiresAt: dto.expiresAt,
-                    }),
+                    });
+                    setSelectedClinic(null);
+                  },
                 });
               }}
             >
               Generar código
             </Button>
-          </div>
+          )}
         </div>
       )}
 

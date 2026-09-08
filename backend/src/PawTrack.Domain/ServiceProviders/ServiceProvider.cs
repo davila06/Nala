@@ -21,6 +21,14 @@ public sealed class ServiceProvider
     public string? SuspensionReason { get; private set; }
     public DateTimeOffset RegisteredAt { get; private set; }
     public DateTimeOffset? UpdatedAt { get; private set; }
+    public ProviderMembershipTier MembershipTier { get; private set; }
+    public DateTimeOffset? TrialEndsAt { get; private set; }
+    public bool IsMembershipManual { get; private set; }
+
+    /// <summary>Perfil base (Free) solo incluye directorio/contacto; catalogo, disponibilidad y reservas requieren Verified+.</summary>
+    public bool HasCatalogAccess => MembershipTier != ProviderMembershipTier.Free;
+
+    public const int TrialDurationDays = 30;
 
     public static ServiceProvider Create(
         Guid userId,
@@ -43,12 +51,19 @@ public sealed class ServiceProvider
             ContactEmail = contactEmail.Trim().ToLowerInvariant(),
             Status = ServiceProviderStatus.Pending,
             RegisteredAt = DateTimeOffset.UtcNow,
+            MembershipTier = ProviderMembershipTier.Free,
         };
 
     public void Activate()
     {
         Status = ServiceProviderStatus.Active;
         SuspensionReason = null;
+        // First approval grants a one-time 30-day Verified trial (docs/precios.md).
+        if (TrialEndsAt is null && !IsMembershipManual)
+        {
+            MembershipTier = ProviderMembershipTier.Verified;
+            TrialEndsAt = DateTimeOffset.UtcNow.AddDays(TrialDurationDays);
+        }
     }
     public void Reject() => Status = ServiceProviderStatus.Rejected;
     public void Suspend(string reason)
@@ -60,6 +75,24 @@ public sealed class ServiceProvider
     }
     public void SetFeatured(bool value) => IsFeatured = value;
     public void SetLogoUrl(string url) => LogoUrl = url;
+
+    /// <summary>Admin grant/renewal. Manual assignments are exempt from automatic trial-expiration downgrades.</summary>
+    public void SetMembership(ProviderMembershipTier tier, bool manual)
+    {
+        MembershipTier = tier;
+        IsMembershipManual = manual;
+        if (tier == ProviderMembershipTier.Free) TrialEndsAt = null;
+    }
+
+    /// <summary>Downgrades an expired, non-manual trial back to Free. Returns true if a change was made.</summary>
+    public bool ExpireTrialIfDue(DateTimeOffset now)
+    {
+        if (IsMembershipManual || MembershipTier == ProviderMembershipTier.Free) return false;
+        if (TrialEndsAt is null || TrialEndsAt > now) return false;
+        MembershipTier = ProviderMembershipTier.Free;
+        IsFeatured = false;
+        return true;
+    }
 
     public void UpdateProfile(
         string name,

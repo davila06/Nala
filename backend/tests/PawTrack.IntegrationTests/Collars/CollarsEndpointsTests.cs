@@ -59,6 +59,21 @@ public sealed class CollarsEndpointsTests(PawTrackWebApplicationFactory factory)
     }
 
     [Fact]
+    public async Task Register_ThirdPartyCollar_Returns404()
+    {
+        var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+
+        var response = await client.PostAsJsonAsync("/api/collars", new
+        {
+            petId = Guid.NewGuid(),
+            provider = "Tractive",
+            externalDeviceId = "TRC-001",
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
     public async Task Register_EmptyPetId_Returns422()
     {
         var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);

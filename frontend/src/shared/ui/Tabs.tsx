@@ -40,7 +40,7 @@ function tabCls(
   isDisabled: boolean,
 ): string {
   const base =
-    "relative flex items-center justify-center gap-1.5 text-sm font-semibold transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400";
+    "relative flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap text-sm font-semibold transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400";
   const disabled = "opacity-40 cursor-not-allowed";
 
   const variants: Record<TabVariant, { active: string; inactive: string }> = {

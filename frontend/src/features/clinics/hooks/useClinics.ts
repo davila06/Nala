@@ -10,6 +10,17 @@ export function usePublicClinics(lat?: number, lng?: number, enabled = true) {
   });
 }
 
+/** Search active clinics by name or license number (min 2 chars) to authorize medical access. */
+export function useClinicAccessSearch(query: string) {
+  const trimmed = query.trim();
+  return useQuery({
+    queryKey: ["clinics", "search", trimmed],
+    queryFn: () => clinicsApi.searchForAccess(trimmed),
+    staleTime: 30_000,
+    enabled: trimmed.length >= 2,
+  });
+}
+
 export function useClinicScanStats(year?: number, month?: number) {
   const now = new Date();
   return useQuery({

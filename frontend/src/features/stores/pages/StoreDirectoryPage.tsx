@@ -172,6 +172,15 @@ export default function StoreDirectoryPage() {
             Registrar mi tienda →
           </Link>
         </div>
+        <p className="text-center text-xs text-sand-400">
+          ¿Tienes otro tipo de negocio?{" "}
+          <Link
+            to="/registro-negocio"
+            className="font-semibold text-brand-600 hover:underline"
+          >
+            Ver todos los perfiles →
+          </Link>
+        </p>
       </div>
     </>
   );

@@ -1,9 +1,13 @@
 # PawTrack CR — TODO B2B Enterprise
 
 > Checklist maestro para completar y endurecer todas las funciones B2B/B2G.
-> Fecha: 2026-08-25
-> Alcance: tiendas de mascotas, clínicas veterinarias, aliados/refugios, municipalidades, adopciones y publicidad.
+> Fecha: 2026-09-08
+> Alcance: tiendas de mascotas, clínicas veterinarias, proveedores de servicios, aliados/refugios, municipalidades, adopciones y publicidad.
 > Objetivo: no declarar B2B terminado hasta cumplir funcionalidad, seguridad, billing, UX, pruebas y operación enterprise.
+
+> Estado técnico consolidado: [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md).
+> El marketplace ya existe como operación base; el pricing y el payout de
+> proveedores siguen deliberadamente sin aprobación comercial.
 
 ## Cómo usar este documento
 
@@ -18,13 +22,11 @@
 
 Estas tareas deben completarse antes de seguir agregando features, porque existen contradicciones entre documentos y tiers.
 
-- [ ] Elegir la fuente única de precios y tiers: `docs/planes.md`, `docs/precios.md` o una tabla de producto aprobada.
+- [x] Usar `SubscriptionTier` + `SubscriptionPricing` como fuente técnica única; sincronizar catálogo comercial y aprobar cualquier cambio antes de publicarlo.
 - [ ] Eliminar duplicaciones de B2C en `docs/planes.md` y conservar una sola definición por plan.
-- [ ] Confirmar tiers finales de clínicas:
-  - [ ] Clínica afiliada/básica gratis, Plus ₡15,000 y Partner ₡35,000; o
-  - [ ] ClinicBasic ₡15,000, ClinicPlus ₡35,000 y ClinicPartner ₡60,000.
-- [ ] Confirmar si municipalidades se facturan mensual o anual y fijar un solo modelo.
-- [ ] Confirmar nombres canónicos de enums, tiers y productos entre dominio, frontend, documentación y billing.
+- [x] Confirmar tiers técnicos actuales de clínicas: estado base gratuito, `ClinicPlus` ₡15,000/mes y `ClinicPartner` ₡35,000/mes. Falta aprobación comercial formal solo si se modifica este catálogo.
+- [x] Confirmar periodicidad técnica actual de municipalidades: `MuniBasica`, `MuniFull` y `MuniRedRegional` se modelan como cobro anual. Falta implementar compra/renovación real.
+- [x] Confirmar nombres canónicos de enums y categorías del marketplace: `Trainer`, `Groomer`, `Hotel`, `Daycare`, `Walker`, `Photographer`, `Other`.
 - [ ] Crear catálogo centralizado de productos/precios/taxes/moneda/versiones; no dejar precios solo en comentarios o handlers.
 - [ ] Definir política de cambios de precio, grandfathering, upgrades, downgrades, cancelaciones, prorrateo y reembolsos.
 - [ ] Definir si B2B soporta únicamente CRC o también USD y facturación internacional.
@@ -166,13 +168,29 @@ Estas tareas deben completarse antes de seguir agregando features, porque existe
 
 ## 4.4 Proveedores de servicios B2B
 
+Categorías soportadas: **adiestradores, groomers, hoteles, guarderías,
+paseadores, fotógrafos y otros**. El proveedor no es una tienda y tiene su
+propio catálogo, disponibilidad, reservas, verificación y operación de
+incidentes.
+
 - [x] Módulo separado de tiendas con registro, aprobación, directorio y perfil.
+- [x] Perfiles de proveedor implementados: registro público, estado pendiente, edición autenticada y publicación pública condicionada al estado.
+- [x] Categorías canónicas implementadas en dominio, API y frontend.
+- [x] Directorio público, filtros por categoría/modalidad/precio/radio y capa de mapa.
 - [x] Catálogo editable, disponibilidad semanal, cierres excepcionales y reservas con control de capacidad.
 - [x] Verificación documental privada, vencimiento/revalidación, auditoría y consola admin.
+- [x] Snapshot comercial de reserva: subtotal, impuestos, fee, total y política.
+- [x] Pago manual/SINPE con idempotencia, confirmación, expiración, disputa y reembolso.
+- [x] Incidentes de bienestar, seguridad, política, pago y privacidad con soporte `Admin`/`Support`.
 - [x] Notificaciones de solicitudes, cambios de reserva, recordatorios y estado de proveedor.
 - [x] Pruebas unitarias focalizadas e integración HTTP base.
 - [ ] Ejecutar concurrencia contra SQL Server real y E2E Playwright con backend/Azurite sembrados.
-- [ ] Definir y luego implementar tiers, cobro, comisiones, impuestos, conciliación, reembolsos y disputas.
+- [ ] Aprobar tier o comisión de proveedor; actualmente no existe pricing comercial.
+- [ ] Aprobar membresía de proveedores: perfil base gratis, verificado ₡3,000/mes y destacado ₡5,000/mes, o validar un plan único de ₡3,990/mes.
+- [ ] Implementar billing recurrente, periodo gratuito inicial, feature gates, cancelación, expiración y renovación de la membresía.
+- [ ] Integrar gateway externo autorizado, payout, conciliación, factura e impuestos.
+- [ ] Completar KYC empresarial, contratos digitales y responsabilidad por categoría.
+- [ ] Implementar tiers, límites, ranking promocionado y SLA solo después de aprobar el catálogo.
 - [ ] Definir política por categoría para cancelación, no-show, evidencia y servicio a domicilio.
 - [ ] Añadir geofiltros/ranking sin revelar ubicaciones privadas.
 

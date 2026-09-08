@@ -47,6 +47,7 @@ public enum AuditAction
     ProviderIncidentResolved,
     ProviderIncidentAppealed,
     ProviderIncidentClosed,
+    ServiceProviderMembershipChanged,
 
     // Regulatory exports
     RegulatoryExportRequested,
