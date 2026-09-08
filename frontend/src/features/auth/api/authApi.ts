@@ -65,10 +65,13 @@ export type UserRole =
 
 export function decodeRoleFromJwt(accessToken: string): UserRole {
   try {
-    const payload = JSON.parse(
+    const payload: unknown = JSON.parse(
       atob(accessToken.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
     );
-    const raw = payload[ROLE_CLAIM] as string | undefined;
+    const raw =
+      typeof payload === "object" && payload !== null && ROLE_CLAIM in payload
+        ? (payload as Record<string, unknown>)[ROLE_CLAIM]
+        : undefined;
     if (
       raw === "Ally" ||
       raw === "Admin" ||

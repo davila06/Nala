@@ -11,6 +11,8 @@ PawTrack CR es una plataforma digital — disponible como aplicación web progre
 
 El problema que resuelve es cotidiano y doloroso: miles de mascotas se pierden cada año en Costa Rica. Sus dueños no saben qué hacer, la información se dispersa en grupos de Facebook, los avisos son estáticos, y la coordinación entre vecinos es caótica. PawTrack CR reemplaza ese caos con una infraestructura digital estructurada, colaborativa y segura.
 
+> Nota de alineación: la fuente de verdad del producto no es una tabla histórica o un documento comercial antiguo, sino la implementación actual del backend en `SubscriptionTier` y `SubscriptionPricing`. La app en producción hoy usa los tiers `Free`, `UserPlus`, `UserFamilia`, `StorePlus`, `StorePartner`, `ShelterPlus`, `ClinicPlus`, `ClinicPartner`, `MuniBasica`, `MuniFull` y `MuniRedRegional`.
+
 ---
 
 ## El ciclo de vida de una mascota en PawTrack CR
@@ -120,22 +122,35 @@ Para usuarios que no tienen acceso a la app web, el sistema ofrece un **bot conv
 
 ### 10. Suscripciones y monetización
 
-PawTrack CR opera bajo un modelo freemium con tres planes para dueños de mascotas, según la implementación actual del backend:
+La monetización actual de la app sigue la implementación real del backend y no una planilla histórica. En la base funcional actual existen cinco familias de tiers:
 
-| Plan           | Precio     | Mascotas   | Diferenciador                             |
-| -------------- | ---------- | ---------- | ----------------------------------------- |
-| **Explorador** | Gratis     | 1          | QR, reportes, avistamientos               |
-| **Plus**       | ₡2,990/mes | 3          | GPS, WhatsApp, IA ilimitada, coordinación |
-| **Familia**    | ₡4,990/mes | Ilimitadas | Multi-usuario (5), expediente médico, PDF |
+| Familia         | Tiers activos del backend                   | Cobro real | Observación                                           |
+| --------------- | ------------------------------------------- | ---------- | ----------------------------------------------------- |
+| B2C             | `Free`, `UserPlus`, `UserFamilia`           | Mensual    | `Free` = 1 mascota, `Plus` = 3, `Familia` = ilimitado |
+| Tiendas         | `StorePlus`, `StorePartner`                 | Mensual    | Catálogo, pedidos in-app y analítica avanzada         |
+| Refugios        | `ShelterPlus`                               | Mensual    | Publicación avanzada de adopciones y ferias           |
+| Clínicas        | `ClinicPlus`, `ClinicPartner`               | Mensual    | Acceso a mayor visibilidad y certificados PDF         |
+| Municipalidades | `MuniBasica`, `MuniFull`, `MuniRedRegional` | Anual      | Facturación anual por cantón / regional               |
 
-Adicionalmente existen tiers B2B activos en producción:
+#### Precios actuales del backend
 
-- Tiendas: `StorePlus` (₡12,000/mes) y `StorePartner` (₡25,000/mes)
-- Refugios: `ShelterPlus` (₡8,000/mes)
-- Clínicas: `ClinicPlus` (₡15,000/mes) y `ClinicPartner` (₡35,000/mes)
-- Municipalidades: `MuniBasica` (₡150,000/año), `MuniFull` (₡300,000/año), `MuniRedRegional` (₡500,000/año)
+| Tier              | Precio       | Uso principal                                 |
+| ----------------- | ------------ | --------------------------------------------- |
+| `Free`            | ₡0           | Registro base y acceso limitado               |
+| `UserPlus`        | ₡2,990/mes   | Mascotas + IA + coordinación + GPS            |
+| `UserFamilia`     | ₡4,990/mes   | Video / expediente médico / multi-usuario     |
+| `StorePlus`       | ₡12,000/mes  | Tienda con catálogo y pedidos                 |
+| `StorePartner`    | ₡25,000/mes  | Multi-sucursal + analytics                    |
+| `ShelterPlus`     | ₡8,000/mes   | Animales ilimitados + ferias                  |
+| `ClinicPlus`      | ₡15,000/mes  | Visibilidad y herramientas básicas del portal |
+| `ClinicPartner`   | ₡35,000/mes  | Certificados, widget e integración            |
+| `MuniBasica`      | ₡150,000/año | Portal básico municipal                       |
+| `MuniFull`        | ₡300,000/año | Fotos, estadísticas y panel completo          |
+| `MuniRedRegional` | ₡500,000/año | Cobertura regional                            |
 
-El sistema de feature gating está implementado tanto en el backend (enforcement por plan) como en el frontend (UI gates).
+> Importante: `ClinicBasic`, `StoreBasic` y `ShelterBasic` existen como estados gratuitos o de directorio, no como planes comercialmente activos principales del producto actual. El gating de acceso real depende del tier activo del usuario/entidad y no de una versión antigua del pricing en documentos estáticos.
+
+El sistema de feature gating está implementado tanto en el backend (enforcement por plan) como en el frontend (UI gates). La lógica real de permisos se valida con `SubscriptionTier` y `SubscriptionService`, no por tablas duplicadas en varios markdown.
 
 ### 11. Collar GPS y expediente médico
 
@@ -378,27 +393,33 @@ PawTrack CR se encuentra en **MVP ampliado**, con todos sus módulos principales
 
 **Monetización — B2C**
 
-- ✅ Sistema de suscripciones con 3 planes: Explorador (gratis), Plus (₡2,990/mes), Familia (₡4,990/mes)
+- ✅ Sistema de suscripciones con 3 planes activos: `Free`, `UserPlus`, `UserFamilia`
 - ✅ Feature gating completo por plan (UI gates + backend enforcement)
-- ✅ Cuentas familiares multi-usuario (hasta 5 miembros, Plan Familia)
-- ✅ Expediente médico digital: vacunas, visitas, recordatorios, exportación PDF (Plan Familia)
+- ✅ Cuentas familiares multi-usuario (hasta 5 miembros, plan `UserFamilia`)
+- ✅ Expediente médico digital: vacunas, visitas, recordatorios, exportación PDF (plan `UserFamilia`)
 - ✅ Integración collar GPS Tractive/genérico (OAuth2, polling, activación por tag/serial, historial por rango)
 - ✅ Alertas de conectividad/batería, modo perdido, zonas seguras (geofencing), transferencia segura y auditoría de eventos del collar
 - ✅ Bundle GPS on-demand
 
 **Monetización — B2B Clínicas veterinarias**
 
-- ✅ Portal de clínicas con 3 tiers: Básica (gratis), Plus (₡15,000/mes), Partner (₡35,000/mes)
-- ✅ Expediente digital compartido clínica ↔ dueño (Opciones A, B y C)
-- ✅ Certificados veterinarios PDF verificables con QR único (QuestPDF, Plan Partner)
-- ✅ Widget embebible y API de consulta para clínicas Partner
+- ✅ Portal de clínicas con tiers activos: `ClinicPlus` y `ClinicPartner`; `ClinicBasic` sigue siendo estado base/directorio gratis
+- ✅ Expediente digital compartido clínica ↔ dueño
+- ✅ Certificados veterinarios PDF verificables con QR único (QuestPDF, plan `ClinicPartner`)
+- ✅ Widget embebible y API de consulta para clínicas `ClinicPartner`
 - ✅ Integración microchip RFID avanzada
+
+**Monetización — B2B Tiendas / adopciones**
+
+- ✅ Tiendas con `StorePlus` y `StorePartner`: catálogo, pedidos in-app y analytics avanzados
+- ✅ Refugios con `ShelterPlus`: animales ilimitados, ferias y pin destacado de adopción
+- ✅ Estado base gratuito `ShelterBasic` para directorio/público con máximo 5 animales activos
 
 **Monetización — B2G Municipalidades**
 
-- ✅ Portal de control animal municipal con 3 planes: Básica, Full, Red Regional
+- ✅ Portal de control animal municipal con `MuniBasica`, `MuniFull` y `MuniRedRegional`
 - ✅ Registro digital de animales capturados, estados, reportes SENASA
-- ✅ API de consulta pública y estadísticas por cantón (plan Full+)
+- ✅ API de consulta pública y estadísticas por cantón (plan `MuniFull`+)
 
 **Infraestructura**
 

@@ -78,7 +78,7 @@ function BBoxListener({
       east: b.getEast(),
       west: b.getWest(),
     });
-  }, []); // intentionally only on mount
+  }, [map, onBBoxChange]);
 
   return null;
 }
@@ -98,7 +98,7 @@ function FlyToTarget({
   useEffect(() => {
     if (!target) return;
     map.flyTo([target.lat, target.lng], target.zoom ?? 14, { duration: 1.0 });
-  }, [map, target?.lat, target?.lng]);
+  }, [map, target]);
   return null;
 }
 
@@ -126,7 +126,7 @@ function LocateUser({
       () => onLocated?.(),
       { timeout: 8_000, maximumAge: 60_000 },
     );
-  }, [map, trigger]); // trigger=0 on mount = auto; increment = re-locate
+  }, [map, onLocated, trigger]); // trigger=0 on mount = auto; increment = re-locate
 
   return null;
 }

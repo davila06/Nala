@@ -107,7 +107,7 @@ public sealed class Round37SecurityRegressionTests
         await groupProxy.DidNotReceive()
                         .SendCoreAsync(
                             Arg.Any<string>(),
-                            Arg.Any<object?[]?>(),
+                            Arg.Any<object?[]>(),
                             Arg.Any<CancellationToken>());
     }
 
@@ -127,7 +127,7 @@ public sealed class Round37SecurityRegressionTests
         await groupProxy.Received(1)
                         .SendCoreAsync(
                             "LocationUpdated",
-                            Arg.Any<object?[]?>(),
+                            Arg.Any<object?[]>(),
                             Arg.Any<CancellationToken>());
     }
 

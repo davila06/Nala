@@ -102,7 +102,8 @@ function CapturesTab({
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
@@ -186,10 +187,14 @@ function CapturesTab({
           <div className="grid grid-cols-2 gap-2">
             {canMultiCanton && (
               <div>
-                <label className="mb-1 block text-xs font-medium text-sand-600">
+                <label
+                  htmlFor="capture-canton"
+                  className="mb-1 block text-xs font-medium text-sand-600"
+                >
                   Cantón
                 </label>
                 <Input
+                  id="capture-canton"
                   value={form.canton}
                   onChange={(e) =>
                     setForm((f) => ({ ...f, canton: e.target.value }))
@@ -199,10 +204,14 @@ function CapturesTab({
               </div>
             )}
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="capture-species"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Especie *
               </label>
               <Input
+                id="capture-species"
                 value={form.species}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, species: e.target.value }))
@@ -211,10 +220,14 @@ function CapturesTab({
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="capture-color"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Color *
               </label>
               <Input
+                id="capture-color"
                 value={form.color}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, color: e.target.value }))
@@ -223,10 +236,14 @@ function CapturesTab({
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="capture-breed"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Raza
               </label>
               <Input
+                id="capture-breed"
                 value={form.breed}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, breed: e.target.value }))
@@ -235,10 +252,14 @@ function CapturesTab({
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="capture-age"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Edad estimada
               </label>
               <Input
+                id="capture-age"
                 value={form.estimatedAge}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, estimatedAge: e.target.value }))
@@ -247,10 +268,14 @@ function CapturesTab({
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="capture-collar"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 N° chip/collar
               </label>
               <Input
+                id="capture-collar"
                 value={form.collarChipNumber}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, collarChipNumber: e.target.value }))
@@ -259,10 +284,14 @@ function CapturesTab({
             </div>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-sand-600">
+            <label
+              htmlFor="capture-notes"
+              className="mb-1 block text-xs font-medium text-sand-600"
+            >
               Notas
             </label>
             <textarea
+              id="capture-notes"
               value={form.notes}
               onChange={(e) =>
                 setForm((f) => ({ ...f, notes: e.target.value }))
@@ -615,7 +644,7 @@ export default function MunicipalDashboardPage() {
     );
   }
 
-  const tier = profile.tier as MunicipalTier;
+  const tier: MunicipalTier = profile.tier;
 
   const TABS = [
     { id: "capturas" as const, label: "📋 Capturas" },

@@ -6,7 +6,8 @@ import { Button } from "@/shared/ui/Button";
 import { Input } from "@/shared/ui/Input";
 import { Alert } from "@/shared/ui/Alert";
 import { useCountUp } from "@/shared/hooks/useCountUp";
-import { AmbientPaws, REGISTER_PAWS } from "@/shared/ui/AmbientPaws";
+import { AmbientPaws } from "@/shared/ui/AmbientPaws";
+import { REGISTER_PAWS } from "@/shared/ui/ambientPawsConfig";
 
 function StatItem({
   end,

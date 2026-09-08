@@ -77,8 +77,8 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
 
   const deactivate = useMutation({
     mutationFn: () => collarApi.deactivate(collar!.collarTagSerial!),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["collar", petId] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["collar", petId] });
       setShowDeactivateConfirm(false);
     },
   });
@@ -161,15 +161,17 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={async () => {
-                  await register({
-                    petId,
-                    provider: deviceId.toLowerCase().startsWith("tractive")
-                      ? "Tractive"
-                      : "Generic",
-                    externalDeviceId: deviceId || undefined,
-                  });
-                  setShowSetup(false);
+                onClick={() => {
+                  void (async () => {
+                    await register({
+                      petId,
+                      provider: deviceId.toLowerCase().startsWith("tractive")
+                        ? "Tractive"
+                        : "Generic",
+                      externalDeviceId: deviceId || undefined,
+                    });
+                    setShowSetup(false);
+                  })();
                 }}
                 disabled={isPending}
                 className="rounded-xl bg-brand-600 px-4 py-2 text-xs font-bold text-white hover:bg-brand-700 disabled:opacity-60"
@@ -337,7 +339,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
                   <button
                     type="button"
                     onClick={() => {
-                      navigator.clipboard.writeText(generatedKey);
+                      void navigator.clipboard.writeText(generatedKey);
                       setKeyCopied(true);
                       setTimeout(() => setKeyCopied(false), 2000);
                     }}

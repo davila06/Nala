@@ -90,8 +90,8 @@ export function CollarTagInventorySection() {
         serial: newSerial,
         firmwareVersion: newFw,
       }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin-collar-tags"] });
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["admin-collar-tags"] });
       setNewSerial("");
     },
   });
@@ -99,13 +99,17 @@ export function CollarTagInventorySection() {
   const markSold = useMutation({
     mutationFn: (serial: string) =>
       apiClient.post(`/admin/collar-tags/${serial}/mark-sold`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-collar-tags"] }),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["admin-collar-tags"] });
+    },
   });
 
   const revoke = useMutation({
     mutationFn: (serial: string) =>
       apiClient.post(`/admin/collar-tags/${serial}/revoke`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-collar-tags"] }),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["admin-collar-tags"] });
+    },
   });
 
   const bulkMarkSold = useMutation({
@@ -115,11 +119,11 @@ export function CollarTagInventorySection() {
           serials,
         })
         .then((r) => r.data),
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       setBulkResult(result);
       setSelected(new Set());
-      qc.invalidateQueries({ queryKey: ["admin-collar-tags"] });
-      qc.invalidateQueries({ queryKey: ["admin-collar-tags-metrics"] });
+      await qc.invalidateQueries({ queryKey: ["admin-collar-tags"] });
+      await qc.invalidateQueries({ queryKey: ["admin-collar-tags-metrics"] });
     },
   });
 
@@ -128,11 +132,11 @@ export function CollarTagInventorySection() {
       apiClient
         .post<BulkActionResult>("/admin/collar-tags/bulk-revoke", { serials })
         .then((r) => r.data),
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       setBulkResult(result);
       setSelected(new Set());
-      qc.invalidateQueries({ queryKey: ["admin-collar-tags"] });
-      qc.invalidateQueries({ queryKey: ["admin-collar-tags-metrics"] });
+      await qc.invalidateQueries({ queryKey: ["admin-collar-tags"] });
+      await qc.invalidateQueries({ queryKey: ["admin-collar-tags-metrics"] });
     },
   });
 
@@ -159,9 +163,9 @@ export function CollarTagInventorySection() {
         })
         .then((r) => r.data);
     },
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       setCsvResult(result);
-      qc.invalidateQueries({ queryKey: ["admin-collar-tags"] });
+      await qc.invalidateQueries({ queryKey: ["admin-collar-tags"] });
     },
     onError: (err) => setCsvError(String(err)),
   });

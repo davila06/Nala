@@ -93,7 +93,7 @@ export function NfcSetupGuide({
   petProfileUrl,
 }: NfcSetupGuideProps) {
   const [step, setStep] = useState(0);
-  const current = STEPS[step]!;
+  const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
 
   const handleClose = () => {
@@ -153,7 +153,9 @@ export function NfcSetupGuide({
               </code>
               <button
                 type="button"
-                onClick={() => navigator.clipboard.writeText(petProfileUrl)}
+                onClick={() => {
+                  void navigator.clipboard.writeText(petProfileUrl);
+                }}
                 className="shrink-0 rounded-lg bg-brand-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               >
                 Copiar

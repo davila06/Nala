@@ -122,11 +122,22 @@ public sealed class AdminWelfareCasesController(ISender sender) : ControllerBase
     public async Task<IActionResult> UploadEvidence(
         Guid caseId,
         IFormFile file,
-        [FromForm] WelfareEvidenceKind evidenceKind = WelfareEvidenceKind.Photo,
+        [FromForm] string evidenceKind = "Photo",
         [FromForm] bool isSensitive = true,
         CancellationToken cancellationToken = default)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
+
+        if (!Enum.TryParse<WelfareEvidenceKind>(evidenceKind, true, out var parsedEvidenceKind))
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid evidence kind",
+                Detail = $"Unsupported evidence kind '{evidenceKind}'. Valid values: {string.Join(", ", Enum.GetNames<WelfareEvidenceKind>())}",
+                Status = 400,
+            });
+        }
+
         await using var stream = file.OpenReadStream();
         using var ms = new MemoryStream();
         await stream.CopyToAsync(ms, cancellationToken);
@@ -136,7 +147,7 @@ public sealed class AdminWelfareCasesController(ISender sender) : ControllerBase
             ms.ToArray(),
             file.FileName,
             file.ContentType,
-            evidenceKind,
+            parsedEvidenceKind,
             isSensitive), cancellationToken);
 
         return result.IsSuccess ? Ok(result.Value)

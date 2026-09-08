@@ -38,7 +38,9 @@ export default function CollarHandoverRedeemPage() {
         </div>
         <button
           type="button"
-          onClick={() => navigate(`/collars/activate?serial=${releasedSerial}`)}
+          onClick={() => {
+            void navigate(`/collars/activate?serial=${releasedSerial}`);
+          }}
           className="w-full rounded-xl bg-brand-600 px-4 py-3 text-sm font-bold text-white hover:bg-brand-700 transition-colors"
         >
           Activar en mi mascota →

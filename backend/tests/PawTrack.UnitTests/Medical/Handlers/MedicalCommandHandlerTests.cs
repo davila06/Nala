@@ -211,7 +211,7 @@ public sealed class UpdateMedicalRecordCommandHandlerTests
         var result = await _sut.Handle(BuildUpdateCmd(record.Id, ownerId), default);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Description.Should().Be("Updated description");
+        result.Value!.Description.Should().Be("Updated description");
         _medRepo.Received(1).Update(record);
         await _uow.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
@@ -301,7 +301,7 @@ public sealed class CreateVetReminderCommandHandlerTests
         var result = await _sut.Handle(cmd, default);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Title.Should().Be("Annual rabies vaccine");
+        result.Value!.Title.Should().Be("Annual rabies vaccine");
         result.Value.IsCompleted.Should().BeFalse();
         await _medRepo.Received(1).AddReminderAsync(Arg.Any<VetReminder>(), Arg.Any<CancellationToken>());
         await _uow.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());

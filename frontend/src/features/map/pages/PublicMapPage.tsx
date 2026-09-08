@@ -77,10 +77,10 @@ export default function PublicMapPage() {
     );
     if (
       matches.length === 1 &&
-      matches[0]!.lat != null &&
-      matches[0]!.lng != null
+      matches[0].lat != null &&
+      matches[0].lng != null
     ) {
-      setFlyTarget({ lat: matches[0]!.lat, lng: matches[0]!.lng, zoom: 14 });
+      setFlyTarget({ lat: matches[0].lat, lng: matches[0].lng, zoom: 14 });
     }
   };
 

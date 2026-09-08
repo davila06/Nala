@@ -57,7 +57,7 @@ const NAV_ITEMS: NavItem[] = [
   {
     to: "/pets/new",
     label: "Agregar",
-    icon: (_active) => (
+    icon: () => (
       <span
         className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-500 text-white shadow-lg shadow-brand-500/30"
         aria-hidden="true"

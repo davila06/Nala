@@ -63,7 +63,7 @@ export interface CreatePetRequest {
   microchipId?: string;
 }
 
-export interface UpdatePetRequest extends CreatePetRequest {}
+export type UpdatePetRequest = CreatePetRequest;
 
 export interface CreatePetResponse {
   petId: string;

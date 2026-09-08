@@ -113,7 +113,7 @@ public sealed class MatchSightingByIdQueryHandler(
             if (profile.PhotoUrl is null) continue;
 
             var photoUrlHash = MatchSightingPhotoQueryHandler.ComputeUrlHash(profile.PhotoUrl);
-            float[] petVector;
+            float[]? petVector;
 
             if (embedded.TryGetValue(profile.PetId, out var cached)
                 && cached.PhotoUrlHash == photoUrlHash)

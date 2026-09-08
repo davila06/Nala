@@ -36,9 +36,7 @@ using PawTrack.Infrastructure.Subscriptions;
 using PawTrack.Infrastructure.Persistence;
 using PawTrack.Infrastructure.Pets;
 using PawTrack.Infrastructure.Safety;
-using PawTrack.Infrastructure.Sightings;
 using PawTrack.Infrastructure.Storage;
-using PawTrack.Application.Common.Settings;
 using PawTrack.Application.Bounties.Interfaces;
 using PawTrack.Application.Bundles.Interfaces;
 using PawTrack.Application.Certificates.Interfaces;
@@ -50,7 +48,6 @@ using PawTrack.Infrastructure.Bundles;
 using PawTrack.Infrastructure.Certificates;
 using PawTrack.Infrastructure.Collars;
 using PawTrack.Infrastructure.Municipalities;
-using PawTrack.Infrastructure.Subscriptions;
 
 namespace PawTrack.Infrastructure;
 

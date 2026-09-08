@@ -1,88 +1,95 @@
-import { useEffect, useRef, useState } from 'react'
-import { Alert } from '@/shared/ui/Alert'
+import { useEffect, useRef, useState } from "react";
+import { Alert } from "@/shared/ui/Alert";
 
 interface ScanInputProps {
-  onScan: (value: string, type: 'Qr' | 'RfidChip') => void
-  isLoading?: boolean
+  onScan: (value: string, type: "Qr" | "RfidChip") => void;
+  isLoading?: boolean;
 }
 
 // BarcodeDetector API type declaration for environments without lib.dom types
 interface BarcodeDetector {
-  detect(image: ImageBitmapSource): Promise<Array<{ rawValue: string }>>
+  detect(image: ImageBitmapSource): Promise<Array<{ rawValue: string }>>;
 }
 declare const BarcodeDetector: {
-  new (options?: { formats?: string[] }): BarcodeDetector
-}
+  new (options?: { formats?: string[] }): BarcodeDetector;
+};
 
 export function ScanInput({ onScan, isLoading = false }: ScanInputProps) {
-  const [manualInput, setManualInput] = useState('')
-  const [cameraActive, setCameraActive] = useState(false)
-  const [cameraError, setCameraError] = useState<string | null>(null)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const streamRef = useRef<MediaStream | null>(null)
-  const rafRef = useRef<number>(0)
-  const detectorRef = useRef<BarcodeDetector | null>(null)
+  const [manualInput, setManualInput] = useState("");
+  const [cameraActive, setCameraActive] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const rafRef = useRef<number>(0);
+  const detectorRef = useRef<BarcodeDetector | null>(null);
 
-  const barcodeApiSupported = typeof window !== 'undefined' && 'BarcodeDetector' in window
+  const barcodeApiSupported =
+    typeof window !== "undefined" && "BarcodeDetector" in window;
 
   // ── Camera QR scanning ────────────────────────────────────────────────────
 
   async function startCamera() {
-    setCameraError(null)
+    setCameraError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-      })
-      streamRef.current = stream
+        video: { facingMode: "environment" },
+      });
+      streamRef.current = stream;
       if (videoRef.current) {
-        videoRef.current.srcObject = stream
-        await videoRef.current.play()
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
       }
-      setCameraActive(true)
+      setCameraActive(true);
 
-      detectorRef.current = new BarcodeDetector({ formats: ['qr_code'] })
-      scanLoop()
+      detectorRef.current = new BarcodeDetector({ formats: ["qr_code"] });
+      scanLoop();
     } catch {
-      setCameraError('No se pudo acceder a la cámara. Usa el campo manual.')
+      setCameraError("No se pudo acceder a la cámara. Usa el campo manual.");
     }
   }
 
   function stopCamera() {
-    cancelAnimationFrame(rafRef.current)
-    streamRef.current?.getTracks().forEach((t) => t.stop())
-    streamRef.current = null
-    setCameraActive(false)
+    cancelAnimationFrame(rafRef.current);
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    setCameraActive(false);
   }
 
   function scanLoop() {
-    rafRef.current = requestAnimationFrame(async () => {
-      if (!videoRef.current || !detectorRef.current) return
-      try {
-        const results = await detectorRef.current.detect(videoRef.current)
-        if (results.length > 0) {
-          stopCamera()
-          onScan(results[0].rawValue, 'Qr')
-          return
+    rafRef.current = requestAnimationFrame(() => {
+      void (async () => {
+        if (!videoRef.current || !detectorRef.current) return;
+        try {
+          const results = await detectorRef.current.detect(videoRef.current);
+          if (results.length > 0) {
+            stopCamera();
+            onScan(results[0].rawValue, "Qr");
+            return;
+          }
+        } catch {
+          /* detection failed on this frame, try next */
         }
-      } catch { /* detection failed on this frame, try next */ }
-      scanLoop()
-    })
+        scanLoop();
+      })();
+    });
   }
 
   // Cleanup on unmount
-  useEffect(() => () => stopCamera(), [])
+  useEffect(() => () => stopCamera(), []);
 
   // ── Manual submit ─────────────────────────────────────────────────────────
 
   function handleManualSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    const value = manualInput.trim()
-    if (!value) return
+    e.preventDefault();
+    const value = manualInput.trim();
+    if (!value) return;
 
     // Heuristic: URLs are QR, otherwise treat as RFID chip ID
-    const type: 'Qr' | 'RfidChip' = value.startsWith('http') ? 'Qr' : 'RfidChip'
-    onScan(value, type)
-    setManualInput('')
+    const type: "Qr" | "RfidChip" = value.startsWith("http")
+      ? "Qr"
+      : "RfidChip";
+    onScan(value, type);
+    setManualInput("");
   }
 
   return (
@@ -113,7 +120,9 @@ export function ScanInput({ onScan, isLoading = false }: ScanInputProps) {
           ) : (
             <button
               type="button"
-              onClick={startCamera}
+              onClick={() => {
+                void startCamera();
+              }}
               disabled={isLoading}
               className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-brand-400 bg-brand-50 py-5 text-sm font-semibold text-brand-700 hover:bg-brand-100 disabled:opacity-50"
             >
@@ -122,7 +131,9 @@ export function ScanInput({ onScan, isLoading = false }: ScanInputProps) {
             </button>
           )}
           {cameraError && (
-            <Alert variant="error" className="mt-1">{cameraError}</Alert>
+            <Alert variant="error" className="mt-1">
+              {cameraError}
+            </Alert>
           )}
         </div>
       )}
@@ -149,10 +160,9 @@ export function ScanInput({ onScan, isLoading = false }: ScanInputProps) {
           disabled={!manualInput.trim() || isLoading}
           className="rounded-xl bg-brand-500 px-4 py-3 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
         >
-          {isLoading ? '…' : 'Buscar'}
+          {isLoading ? "…" : "Buscar"}
         </button>
       </form>
     </div>
-  )
+  );
 }
-

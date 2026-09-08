@@ -64,20 +64,28 @@ function ProductForm({
       </h3>
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2">
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="store-product-name"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Nombre *
           </label>
           <Input
+            id="store-product-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Alimento Premium 3kg"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="store-product-category"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Categoría *
           </label>
           <select
+            id="store-product-category"
             value={category}
             onChange={(e) => setCategory(e.target.value as ProductCategory)}
             className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
@@ -90,10 +98,14 @@ function ProductForm({
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="store-product-price"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Precio ₡ *
           </label>
           <Input
+            id="store-product-price"
             type="number"
             value={priceCrc}
             onChange={(e) => setPriceCrc(e.target.value)}
@@ -102,10 +114,14 @@ function ProductForm({
           />
         </div>
         <div className="col-span-2">
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="store-product-description"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Descripción
           </label>
           <textarea
+            id="store-product-description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={2}

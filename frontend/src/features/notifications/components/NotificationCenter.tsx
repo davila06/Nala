@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -74,11 +74,11 @@ export function NotificationCenter() {
   );
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
 
-  const closeResolveSheet = () => {
+  const closeResolveSheet = useCallback(() => {
     const next = new URLSearchParams(searchParams);
     next.delete("resolveCheckNotificationId");
     setSearchParams(next);
-  };
+  }, [searchParams, setSearchParams]);
 
   const handleResolveSheetAction = (foundAtHome: boolean) => {
     if (!resolveCheckNotificationId) return;
@@ -95,7 +95,7 @@ export function NotificationCenter() {
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [resolveCheckNotificationId]);
+  }, [closeResolveSheet, resolveCheckNotificationId]);
 
   const groups = useMemo(() => {
     if (!data?.items.length) return [];
@@ -201,10 +201,7 @@ export function NotificationCenter() {
               <p className="mb-2 text-xs font-bold uppercase tracking-wider text-sand-400 px-1">
                 {label}
               </p>
-              <ul
-                role="list"
-                className="list-none divide-y divide-sand-100 rounded-2xl border border-sand-200 bg-surface overflow-hidden p-0 m-0"
-              >
+              <ul className="list-none divide-y divide-sand-100 rounded-2xl border border-sand-200 bg-surface overflow-hidden p-0 m-0">
                 {items.map((n, i) => (
                   <motion.li
                     key={n.id}
@@ -225,16 +222,12 @@ export function NotificationCenter() {
       )}
 
       {resolveCheckNotificationId && (
-        <div
-          className="fixed inset-0 z-50 flex items-end bg-black/40 p-4 sm:items-center sm:justify-center"
-          onClick={closeResolveSheet}
-        >
+        <div className="fixed inset-0 z-50 flex items-end bg-black/40 p-4 sm:items-center sm:justify-center">
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="resolve-title"
             className="w-full max-w-md rounded-3xl field-input p-5 shadow-2xl max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
           >
             <h2
               id="resolve-title"

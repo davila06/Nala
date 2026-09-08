@@ -63,7 +63,7 @@ const TIERS: Tier[] = [
       { label: "Multi-usuario (familia)", included: false },
     ],
     cta: "Activar Plus",
-    subscriptionTier: "UserPlus" as SubscriptionTier,
+    subscriptionTier: "UserPlus",
   },
   {
     id: "familia",
@@ -85,7 +85,7 @@ const TIERS: Tier[] = [
       { label: "", included: true },
     ],
     cta: "Activar Familia",
-    subscriptionTier: "UserFamilia" as SubscriptionTier,
+    subscriptionTier: "UserFamilia",
   },
 ];
 
@@ -298,7 +298,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
           {/* Bundle modal (shown inline) */}
           {showBundle && (
             <div className="mt-4 rounded-2xl border border-sand-200 bg-surface p-4">
-              <BundleOrderModal onClose={() => setShowBundle(false)} />
+              <BundleOrderModal />
             </div>
           )}
         </motion.div>

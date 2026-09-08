@@ -56,7 +56,7 @@ const TIERS: Tier[] = [
       { label: "Banner en Case Rooms cercanos", included: false },
     ],
     cta: "Activar Plus",
-    subscriptionTier: "ClinicPlus" as SubscriptionTier,
+    subscriptionTier: "ClinicPlus",
   },
   {
     id: "partner",
@@ -76,7 +76,7 @@ const TIERS: Tier[] = [
       { label: "Gestor de cuenta dedicado", included: true },
     ],
     cta: "Activar Partner",
-    subscriptionTier: "ClinicPartner" as SubscriptionTier,
+    subscriptionTier: "ClinicPartner",
   },
 ];
 

@@ -153,7 +153,7 @@ export default function PublicPetProfilePage() {
 
   const handleRevealPhone = () => {
     if (!isAuthenticated) {
-      navigate(`/login?return=/p/${id ?? ""}`);
+      void navigate(`/login?return=/p/${id ?? ""}`);
       return;
     }
     setRevealPhone(true);

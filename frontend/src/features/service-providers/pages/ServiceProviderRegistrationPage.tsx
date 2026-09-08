@@ -55,7 +55,11 @@ export default function ServiceProviderRegistrationPage() {
         contactEmail: form.contactEmail,
         password: form.password,
       },
-      { onSuccess: () => navigate("/servicio/pendiente") },
+      {
+        onSuccess: () => {
+          void navigate("/servicio/pendiente");
+        },
+      },
     );
   };
 

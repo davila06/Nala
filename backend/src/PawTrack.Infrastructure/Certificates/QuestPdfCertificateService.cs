@@ -187,7 +187,6 @@ public sealed class QuestPdfCertificateService(IBlobStorageService blobStorage) 
         const string Navy = "#0c1a4e";
         const string Orange = "#e8521e";
         const string Sand = "#f9f5ef";
-        const string Green = "#17a26d";
         const string Gray = "#6e5244";
 
         return Document.Create(container =>

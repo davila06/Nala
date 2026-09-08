@@ -12,18 +12,16 @@ const API = "http://localhost:5000/api";
 describe("AdminPage", () => {
   it("redirects non-admin users to /dashboard", () => {
     act(() => {
-      useAuthStore
-        .getState()
-        .setAuth(
-          {
-            id: "u1",
-            name: "Owner",
-            email: "o@test.cr",
-            role: "Owner",
-            isAdmin: false,
-          },
-          "token",
-        );
+      useAuthStore.getState().setAuth(
+        {
+          id: "u1",
+          name: "Owner",
+          email: "o@test.cr",
+          role: "Owner",
+          isAdmin: false,
+        },
+        "token",
+      );
     });
 
     renderWithProviders(<AdminPage />, { initialEntries: ["/admin"] });
@@ -36,18 +34,16 @@ describe("AdminPage", () => {
 
   it("shows allies and clinics tabs for admin", async () => {
     act(() => {
-      useAuthStore
-        .getState()
-        .setAuth(
-          {
-            id: "admin-1",
-            name: "Admin",
-            email: "admin@test.cr",
-            role: "Admin",
-            isAdmin: true,
-          },
-          "admin-token",
-        );
+      useAuthStore.getState().setAuth(
+        {
+          id: "admin-1",
+          name: "Admin",
+          email: "admin@test.cr",
+          role: "Admin",
+          isAdmin: true,
+        },
+        "admin-token",
+      );
     });
 
     server.use(
@@ -76,12 +72,8 @@ describe("AdminPage", () => {
       expect(screen.getByText("Panel de administración")).toBeInTheDocument(),
     );
 
-    expect(
-      screen.getByRole("button", { name: /^Aliados/ }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /^Clínicas/ }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /^Aliados/ })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /^Clínicas/ })).toBeInTheDocument();
 
     await waitFor(() =>
       expect(screen.getByText("Rescate Animal CR")).toBeInTheDocument(),
@@ -92,18 +84,16 @@ describe("AdminPage", () => {
 
   it("shows empty state when no pending items", async () => {
     act(() => {
-      useAuthStore
-        .getState()
-        .setAuth(
-          {
-            id: "admin-1",
-            name: "Admin",
-            email: "admin@test.cr",
-            role: "Admin",
-            isAdmin: true,
-          },
-          "admin-token",
-        );
+      useAuthStore.getState().setAuth(
+        {
+          id: "admin-1",
+          name: "Admin",
+          email: "admin@test.cr",
+          role: "Admin",
+          isAdmin: true,
+        },
+        "admin-token",
+      );
     });
 
     server.use(

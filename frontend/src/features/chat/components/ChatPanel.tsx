@@ -158,7 +158,7 @@ export function ChatPanel({
   // Scroll to bottom when new messages arrive.
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length]);
+  }, [messages.length, messages]);
 
   // Haptic tap when new messages arrive from the other party
   const prevLengthRef = useRef(0);
@@ -168,10 +168,9 @@ export function ChatPanel({
       if (newest && !newest.isFromMe) tap();
     }
     prevLengthRef.current = messages.length;
-  }, [messages.length]);
+  }, [messages, tap]);
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSend = async () => {
     const body = text.trim();
     if (!body) return;
     setSendError(null);
@@ -252,7 +251,10 @@ export function ChatPanel({
 
       {/* Input */}
       <form
-        onSubmit={handleSend}
+        onSubmit={(event) => {
+          event.preventDefault();
+          void handleSend();
+        }}
         className="flex gap-2 border-t border-sand-200 px-4 py-3"
       >
         <textarea
@@ -261,7 +263,7 @@ export function ChatPanel({
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
-              void handleSend(e as unknown as React.FormEvent);
+              void handleSend();
             }
           }}
           placeholder="Escribe un mensaje…"

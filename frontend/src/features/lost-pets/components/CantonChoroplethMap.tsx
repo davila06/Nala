@@ -73,9 +73,12 @@ export function CantonChoroplethMap({
       layerRef.current = null;
     }
 
-    const layer = L.geoJSON(geoJson as GeoJSON.GeoJsonObject, {
+    const layer = L.geoJSON(geoJson, {
       style: (feature) => {
-        const stat = feature?.properties?.stat as CantonStat | undefined;
+        const properties = feature?.properties as
+          | { stat?: CantonStat }
+          | undefined;
+        const stat = properties?.stat;
         return {
           fillColor: stat
             ? rateToFill(stat.recoveryRate, maxRecoveryRate)
@@ -87,8 +90,11 @@ export function CantonChoroplethMap({
         };
       },
       onEachFeature: (feature, featureLayer) => {
-        const name: string = feature.properties?.shapeName ?? "Cantón";
-        const stat = feature.properties?.stat as CantonStat | undefined;
+        const properties = feature.properties as
+          | { shapeName?: string; stat?: CantonStat }
+          | undefined;
+        const name = properties?.shapeName ?? "Cantón";
+        const stat = properties?.stat;
 
         const tooltipContent = stat
           ? `<strong>${name}</strong><br/>

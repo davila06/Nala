@@ -208,7 +208,9 @@ function WeeklyChart({
           unit=" m"
         />
         <Tooltip
-          formatter={(v) => [`${v} min`, "Duración"] as [string, string]}
+          formatter={(v) =>
+            [`${String(v)} min`, "Duración"] as [string, string]
+          }
           contentStyle={{
             borderRadius: 12,
             border: "1px solid var(--color-sand-200)",
@@ -284,7 +286,7 @@ export function ActivityTab({ petId, petName }: ActivityTabProps) {
     return {
       day: d.toLocaleDateString("es-CR", { weekday: "short" }),
       minutes: totalMin,
-      type: dominantType as ActivityType,
+      type: dominantType,
     };
   });
 

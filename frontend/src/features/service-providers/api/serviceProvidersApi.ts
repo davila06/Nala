@@ -250,7 +250,9 @@ export const serviceProvidersApi = {
 
   downloadVerificationDocument: (): Promise<Blob> =>
     apiClient
-      .get("/service-providers/verification/document", { responseType: "blob" })
+      .get<Blob>("/service-providers/verification/document", {
+        responseType: "blob",
+      })
       .then((response) => response.data),
 
   addAvailabilityRule: (data: {

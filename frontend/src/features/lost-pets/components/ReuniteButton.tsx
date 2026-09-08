@@ -16,7 +16,7 @@ function fireCelebration() {
   const brandColors = ["#e8521e", "#17a26d", "#3056c2", "#ffd44d", "#ffffff"];
 
   // First burst — center
-  confetti({
+  void confetti({
     particleCount: 120,
     spread: 80,
     origin: { x: 0.5, y: 0.55 },
@@ -26,14 +26,14 @@ function fireCelebration() {
 
   // Delayed side bursts
   setTimeout(() => {
-    confetti({
+    void confetti({
       particleCount: 60,
       angle: 60,
       spread: 55,
       origin: { x: 0, y: 0.65 },
       colors: brandColors,
     });
-    confetti({
+    void confetti({
       particleCount: 60,
       angle: 120,
       spread: 55,
@@ -44,7 +44,7 @@ function fireCelebration() {
 
   // Emoji shapes — paw prints falling
   setTimeout(() => {
-    confetti({
+    void confetti({
       particleCount: 30,
       spread: 120,
       origin: { x: 0.5, y: 0.3 },
@@ -78,7 +78,7 @@ export function ReuniteButton({
       setCelebrating(false);
       onSuccess?.();
     }, 3500);
-  }, [mutation, onSuccess]);
+  }, [hapticSuccess, mutation, onSuccess]);
 
   return (
     <>

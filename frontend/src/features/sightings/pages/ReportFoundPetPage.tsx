@@ -63,7 +63,7 @@ export default function ReportFoundPetPage() {
     if (step === 3 && foundLat === null) {
       geo.request();
     }
-  }, [step]);
+  }, [foundLat, geo, step]);
 
   // Auto-fill map center when GPS resolves
   useEffect(() => {
@@ -111,7 +111,7 @@ export default function ReportFoundPetPage() {
     try {
       setSubmitError(null);
       const result = await mutateAsync(payload);
-      navigate("/encontre-mascota/resultados", { state: { result } });
+      void navigate("/encontre-mascota/resultados", { state: { result } });
     } catch (err: unknown) {
       // Extract validation message from backend 400 response
       const axiosErr = err as {
@@ -242,10 +242,14 @@ export default function ReportFoundPetPage() {
 
           {species && (
             <div>
-              <label className="mb-1 block text-sm font-medium text-sand-700">
+              <label
+                htmlFor="found-breed"
+                className="mb-1 block text-sm font-medium text-sand-700"
+              >
                 Raza
               </label>
               <select
+                id="found-breed"
                 value={breedEstimate}
                 onChange={(e) => setBreedEstimate(e.target.value)}
                 className="w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
@@ -261,10 +265,14 @@ export default function ReportFoundPetPage() {
           )}
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-sand-700">
+            <label
+              htmlFor="found-color"
+              className="mb-1 block text-sm font-medium text-sand-700"
+            >
               Color / descripción
             </label>
             <input
+              id="found-color"
               value={colorDescription}
               onChange={(e) => setColorDescription(e.target.value)}
               maxLength={200}
@@ -274,10 +282,14 @@ export default function ReportFoundPetPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-sand-700">
+            <label
+              htmlFor="found-size"
+              className="mb-1 block text-sm font-medium text-sand-700"
+            >
               Tamaño aproximado
             </label>
             <select
+              id="found-size"
               value={sizeEstimate}
               onChange={(e) => setSizeEstimate(e.target.value)}
               className="w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
@@ -290,10 +302,14 @@ export default function ReportFoundPetPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-sand-700">
+            <label
+              htmlFor="found-note"
+              className="mb-1 block text-sm font-medium text-sand-700"
+            >
               Nota adicional
             </label>
             <textarea
+              id="found-note"
               value={note}
               onChange={(e) => setNote(e.target.value)}
               maxLength={500}
@@ -396,10 +412,14 @@ export default function ReportFoundPetPage() {
           </p>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-sand-700">
+            <label
+              htmlFor="found-contact-name"
+              className="mb-1 block text-sm font-medium text-sand-700"
+            >
               Tu nombre <span className="text-danger-500">*</span>
             </label>
             <input
+              id="found-contact-name"
               value={contactName}
               onChange={(e) => setContactName(e.target.value)}
               maxLength={100}
@@ -410,10 +430,14 @@ export default function ReportFoundPetPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-sand-700">
+            <label
+              htmlFor="found-contact-phone"
+              className="mb-1 block text-sm font-medium text-sand-700"
+            >
               Teléfono <span className="text-danger-500">*</span>
             </label>
             <input
+              id="found-contact-phone"
               value={contactPhone}
               onChange={(e) => setContactPhone(e.target.value)}
               maxLength={30}
@@ -437,7 +461,9 @@ export default function ReportFoundPetPage() {
               Atrás
             </button>
             <button
-              onClick={handleSubmit}
+              onClick={() => {
+                void handleSubmit();
+              }}
               disabled={
                 !contactName.trim() ||
                 contactPhone.trim().length < 7 ||

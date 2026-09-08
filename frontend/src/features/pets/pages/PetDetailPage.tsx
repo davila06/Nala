@@ -19,7 +19,7 @@ import { petsApi } from "../api/petsApi";
 import { Alert } from "@/shared/ui/Alert";
 import { Card } from "@/shared/ui";
 import { Skeleton } from "@/shared/ui/Spinner";
-import { ProgressiveImg } from "@/shared/hooks/useProgressiveImage";
+import { ProgressiveImg } from "@/shared/ui/ProgressiveImg";
 import { Tabs, type TabItem } from "@/shared/ui/Tabs";
 import { CollarGpsTab } from "../components/CollarGpsTab";
 import { PlanGate } from "../components/PlanGate";
@@ -74,7 +74,7 @@ export default function PetDetailPage() {
     setDeleting(true);
     try {
       await petsApi.deletePet(pet.id);
-      navigate("/dashboard");
+      void navigate("/dashboard");
     } catch {
       setDeleting(false);
       setConfirmDelete(false);
@@ -335,7 +335,9 @@ export default function PetDetailPage() {
               lostEventId={activeReport.id}
               petId={pet.id}
               petName={pet.name}
-              onSuccess={() => navigate("/dashboard")}
+              onSuccess={() => {
+                void navigate("/dashboard");
+              }}
             />
           )}
           {activeReport && pet.status === "Lost" && (
@@ -419,7 +421,7 @@ export default function PetDetailPage() {
           {/* §6.5 — Hidden when VITE_COLLAR_WHATSAPP_NUMBER is not set */}
           {import.meta.env.VITE_COLLAR_WHATSAPP_NUMBER && (
             <a
-              href={`https://wa.me/${import.meta.env.VITE_COLLAR_WHATSAPP_NUMBER as string}?text=${encodeURIComponent(`Hola, quiero pedir un collar con placa QR para mi mascota ${pet.name} (ID: ${pet.id}). ¿Cuáles opciones tienen disponibles?`)}`}
+              href={`https://wa.me/${import.meta.env.VITE_COLLAR_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hola, quiero pedir un collar con placa QR para mi mascota ${pet.name} (ID: ${pet.id}). ¿Cuáles opciones tienen disponibles?`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 rounded-2xl border border-sand-200 bg-surface-warm px-4 py-3.5 text-sm font-semibold text-sand-700 transition-base hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"

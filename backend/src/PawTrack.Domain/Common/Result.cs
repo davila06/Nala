@@ -14,6 +14,7 @@ public sealed class Result<T>
     public T? Value { get; }
     [MemberNotNullWhen(true, nameof(Value))]
     public bool IsSuccess { get; }
+    [MemberNotNullWhen(false, nameof(Value))]
     public bool IsFailure => !IsSuccess;
     public IReadOnlyList<string> Errors { get; }
 

@@ -1,8 +1,12 @@
-import axios from "axios";
+import axios, { type InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { decodeRoleFromJwt } from "@/features/auth/api/authApi";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+
+type RetriableRequestConfig = InternalAxiosRequestConfig & {
+  _retry?: boolean;
+};
 
 export const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api`,
@@ -21,8 +25,14 @@ let refreshPromise: Promise<string> | null = null;
 
 apiClient.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+  async (error: unknown) => {
+    if (!axios.isAxiosError(error)) {
+      return Promise.reject(
+        error instanceof Error ? error : new Error("HTTP request failed"),
+      );
+    }
+
+    const originalRequest = error.config as RetriableRequestConfig | undefined;
     // A 401 from the login endpoint itself means "wrong credentials" — an
     // expected, user-facing error the login form already displays. Treating
     // it like an expired session (silent refresh attempt, then hard redirect
@@ -33,6 +43,7 @@ apiClient.interceptors.response.use(
       originalRequest?.url?.includes("/auth/refresh");
     if (
       error.response?.status === 401 &&
+      originalRequest &&
       !originalRequest._retry &&
       !isAuthRequest
     ) {

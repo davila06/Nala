@@ -178,10 +178,14 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
 
                   {fulfillment === "Delivery" && (
                     <div>
-                      <label className="mb-1 block text-xs font-medium text-sand-600">
+                      <label
+                        htmlFor="checkout-delivery-address"
+                        className="mb-1 block text-xs font-medium text-sand-600"
+                      >
                         Dirección de entrega *
                       </label>
                       <Input
+                        id="checkout-delivery-address"
                         value={deliveryAddress}
                         onChange={(e) => setDeliveryAddress(e.target.value)}
                         placeholder="200m norte del parque..."
@@ -190,10 +194,14 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                   )}
 
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-sand-600">
+                    <label
+                      htmlFor="checkout-store-note"
+                      className="mb-1 block text-xs font-medium text-sand-600"
+                    >
                       Nota para la tienda (opcional)
                     </label>
                     <Input
+                      id="checkout-store-note"
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
                       placeholder="Sin gluten, alérgico a..."
@@ -223,7 +231,9 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                     <button
                       type="button"
                       onClick={() => {
-                        navigator.clipboard.writeText(order.paymentReference);
+                        void navigator.clipboard.writeText(
+                          order.paymentReference,
+                        );
                         toast.success("Referencia copiada");
                       }}
                       className="rounded-xl bg-warn-200 px-4 py-1.5 text-xs font-semibold text-warn-800 hover:bg-warn-300"

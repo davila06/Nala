@@ -30,6 +30,8 @@
 - [x] Migraciones enterprise aplicadas en LocalDB.
 - [x] API de incidentes con ownership de proveedor, cola administrativa paginada, investigación, resolución y cierre auditados.
 - [x] Pestaña administrativa de incidentes integrada al panel existente.
+- [x] Rol `Support` separado de `Admin`, con provisioning Admin-only y permisos limitados a incidentes.
+- [x] Threat model versionado y workflow DAST OWASP agregado junto con CodeQL existente.
 
 Este avance implementa el flujo SINPE manual existente en PawTrack. No representa
 una integración adquirente/webhook: todavía requiere contratar/configurar el

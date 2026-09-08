@@ -66,7 +66,7 @@ export function StoreDetailSheet({
         <div className="space-y-4 pb-safe">
           {isLoading && (
             <div className="space-y-3 animate-pulse">
-              {[...Array(3)].map((_, i) => (
+              {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="h-16 rounded-xl bg-sand-100" />
               ))}
             </div>

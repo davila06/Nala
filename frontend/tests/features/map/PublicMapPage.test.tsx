@@ -6,7 +6,7 @@ import { renderWithProviders } from "../../utils/renderWithProviders";
 import { useAuthStore } from "@/features/auth/store/authStore";
 
 vi.mock("@/features/map/hooks/usePublicMap", () => ({
-  useDebouncedBBox: () => ({ debounce: (_set: unknown, _bbox: unknown) => {} }),
+  useDebouncedBBox: () => ({ debounce: () => {} }),
   usePublicMapEvents: () => ({ data: [], isFetching: false }),
 }));
 

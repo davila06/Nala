@@ -27,7 +27,7 @@ public sealed class Round49SecurityRegressionTests
         _repo.GetPagedWithCountsAsync(userId, Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns(Empty);
         var result = await _sut.Handle(new GetMyNotificationsQuery(userId, 1, requestedPageSize), CancellationToken.None);
         result.IsSuccess.Should().BeTrue();
-        result.Value.PageSize.Should().BeLessThanOrEqualTo(50);
+        result.Value!.PageSize.Should().BeLessThanOrEqualTo(50);
         await _repo.Received(1).GetPagedWithCountsAsync(userId, Arg.Any<int>(), Arg.Is<int>(t => t <= 50), Arg.Any<CancellationToken>());
     }
 
@@ -41,7 +41,7 @@ public sealed class Round49SecurityRegressionTests
         _repo.GetPagedWithCountsAsync(userId, Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns(Empty);
         var result = await _sut.Handle(new GetMyNotificationsQuery(userId, 1, requestedPageSize), CancellationToken.None);
         result.IsSuccess.Should().BeTrue();
-        result.Value.PageSize.Should().BeGreaterThanOrEqualTo(1);
+        result.Value!.PageSize.Should().BeGreaterThanOrEqualTo(1);
     }
 
     [Theory]
@@ -53,7 +53,7 @@ public sealed class Round49SecurityRegressionTests
         _repo.GetPagedWithCountsAsync(userId, Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns(Empty);
         var result = await _sut.Handle(new GetMyNotificationsQuery(userId, requestedPage, 20), CancellationToken.None);
         result.IsSuccess.Should().BeTrue();
-        result.Value.PageNumber.Should().BeGreaterThanOrEqualTo(1);
+        result.Value!.PageNumber.Should().BeGreaterThanOrEqualTo(1);
         await _repo.Received(1).GetPagedWithCountsAsync(userId, Arg.Is<int>(s => s >= 0), Arg.Any<int>(), Arg.Any<CancellationToken>());
     }
 }

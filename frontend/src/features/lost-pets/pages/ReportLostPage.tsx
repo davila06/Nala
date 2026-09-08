@@ -52,6 +52,10 @@ export default function ReportLostPage() {
   const [queuedOffline, setQueuedOffline] = useState(false);
   const [isQueuingOffline, setIsQueuingOffline] = useState(false);
 
+  // ── Wizard state ──────────────────────────────────────────────────────────
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [direction, setDirection] = useState<1 | -1>(1);
+
   const { data: neighborCount } = useNeighborCountInArea(
     coords?.lat,
     coords?.lng,
@@ -61,7 +65,7 @@ export default function ReportLostPage() {
   // Auto-request geolocation on mount and seed the pin with the first fix
   useEffect(() => {
     geo.request();
-  }, []); // Only on mount — geo.request is stable (useCallback)
+  }, [geo]);
 
   // Once geolocation resolves, auto-place the pin at the user's position
   // (only if the user hasn't already placed it manually)
@@ -151,7 +155,7 @@ export default function ReportLostPage() {
       const recentPhotoUrl = recentPhoto
         ? URL.createObjectURL(recentPhoto)
         : null;
-      navigate(`/pets/${pet.id}/lost-confirmed`, {
+      void navigate(`/pets/${pet.id}/lost-confirmed`, {
         state: {
           lostEventId: result.id,
           lastSeenAt: new Date(lastSeenAt).toISOString(),
@@ -174,10 +178,6 @@ export default function ReportLostPage() {
     heuristicRadius,
     localRecoveryStats?.p90DistanceMeters,
   );
-
-  // ── Wizard state ──────────────────────────────────────────────────────────
-  const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [direction, setDirection] = useState<1 | -1>(1);
 
   const goNext = () => {
     setDirection(1);
@@ -305,7 +305,11 @@ export default function ReportLostPage() {
           )}
 
           {/* ── Animated step panels ────────────────────────────────── */}
-          <form onSubmit={handleSubmit}>
+          <form
+            onSubmit={(event) => {
+              void handleSubmit(event);
+            }}
+          >
             <div className="overflow-hidden">
               <AnimatePresence mode="wait" custom={direction} initial={false}>
                 <motion.div

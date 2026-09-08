@@ -239,7 +239,12 @@ export default function ReportSightingPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5 px-5 py-6">
+      <form
+        onSubmit={(event) => {
+          void handleSubmit(event);
+        }}
+        className="space-y-5 px-5 py-6"
+      >
         {/* Location */}
         <div className="rounded-2xl border border-sand-200 p-4">
           <p className="mb-2 text-sm font-semibold text-sand-700">

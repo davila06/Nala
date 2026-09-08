@@ -106,6 +106,8 @@ public sealed class SendChatMessageCommandHandler(
         // ── Persist ────────────────────────────────────────────────────────────
         // Scrub as defence-in-depth — Guards check runs first, PiiScrubber catches edge cases
         var safeBody = piiScrubber.Scrub(command.Body);
+        if (string.IsNullOrWhiteSpace(safeBody))
+            return Result.Failure<Guid>("El mensaje no puede quedar vacío después de remover datos de contacto.");
         var message = ChatMessage.Create(command.ThreadId, command.SenderUserId, safeBody);
         await chatRepository.AddMessageAsync(message, cancellationToken);
 

@@ -316,7 +316,7 @@ function StepConfirm({ match }: { match: VisualMatchResult }) {
 
         <button
           type="button"
-          onClick={() => navigate("/encontre-mascota")}
+          onClick={() => void navigate("/encontre-mascota")}
           className="flex w-full items-center justify-between rounded-xl border border-sand-200 bg-surface px-4 py-3.5 text-sm font-semibold text-sand-700 hover:bg-sand-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
         >
           <span>Registrar avistamiento con ubicación y foto</span>
@@ -503,7 +503,9 @@ export default function QuickFoundPetPage() {
                     setSelected(m);
                     setStep("confirm");
                   }}
-                  onReportAnyway={() => navigate("/encontre-mascota")}
+                  onReportAnyway={() => {
+                    void navigate("/encontre-mascota");
+                  }}
                 />
               )}
               {step === "confirm" && selected && (

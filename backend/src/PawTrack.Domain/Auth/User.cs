@@ -220,6 +220,11 @@ public sealed class User
         Role = UserRole.ServiceProvider;
     }
 
+    public void AssignSupportRole()
+    {
+        Role = UserRole.Support;
+    }
+
     public void UpdateProfile(string name)
     {
         Name = name.Trim();

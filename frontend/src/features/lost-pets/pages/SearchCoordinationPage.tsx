@@ -137,7 +137,9 @@ export default function SearchCoordinationPage() {
         {total === 0 && (
           <button
             type="button"
-            onClick={handleActivate}
+            onClick={() => {
+              void handleActivate();
+            }}
             disabled={activating}
             className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
           >
@@ -205,9 +207,15 @@ export default function SearchCoordinationPage() {
               key={zone.id}
               zone={zone}
               currentUserId={currentUser?.id}
-              onClaim={claimZone}
-              onClear={clearZone}
-              onRelease={releaseZone}
+              onClaim={(zone) => {
+                void claimZone(zone);
+              }}
+              onClear={(zone) => {
+                void clearZone(zone);
+              }}
+              onRelease={(zone) => {
+                void releaseZone(zone);
+              }}
             />
           ))}
         </MapContainer>

@@ -53,6 +53,14 @@ export default function LostReportConfirmationPage() {
 
   const { data: pet, isLoading } = usePetDetail(id ?? "");
 
+  // All hooks must run before any early return (Rules of Hooks);
+  // useRecoveryRates depends on pet data, so use safe defaults while loading.
+  const { data: localRecoveryStats } = useRecoveryRates({
+    species: pet?.species ?? "Dog",
+    breed: pet?.breed ?? null,
+    canton: null,
+  });
+
   const flyerRef = useRef<HTMLDivElement>(null);
   const socialRef = useRef<HTMLDivElement>(null);
   const checklistRef = useRef<HTMLElement>(null);
@@ -101,7 +109,7 @@ export default function LostReportConfirmationPage() {
   // by the time the user clicks the download button.
   useEffect(() => {
     void prepareAssets();
-  }, []);
+  }, [prepareAssets]);
 
   // Execute capture AFTER React has committed the updated flyerData to the DOM.
   // The effect depends on `assets` so it re-fires when assets become non-null.
@@ -186,7 +194,16 @@ export default function LostReportConfirmationPage() {
     return () => {
       cancelled = true;
     };
-  }, [captureIntent, assets]);
+  }, [
+    assets,
+    buildFlyerBlob,
+    buildSocialImageBlob,
+    captureIntent,
+    downloadFlyer,
+    downloadSocialImage,
+    pet,
+    routeState,
+  ]);
 
   // ── Guard: invalid navigation ───────────────────────────────────────────────
 
@@ -267,12 +284,6 @@ export default function LostReportConfirmationPage() {
     pet.breed,
     hoursElapsedSince(routeState.lastSeenAt),
   );
-
-  const { data: localRecoveryStats } = useRecoveryRates({
-    species: pet.species,
-    breed: pet.breed,
-    canton: null,
-  });
 
   const searchRadiusMetres = resolveSearchRadiusWithLocalStats(
     heuristicRadius,

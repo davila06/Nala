@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PawTrack.Application.Bounties.Commands.ConfirmBountyDeposit;
-using PawTrack.Application.Bounties.Commands.ConfirmBountyDeposit;
 using PawTrack.Application.Subscriptions.Commands.ActivateSubscription;
 using System.Security.Cryptography;
 using System.Text;

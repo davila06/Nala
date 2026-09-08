@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using Microsoft.AspNetCore.Hosting;
 using PawTrack.IntegrationTests.Infrastructure;
 
 namespace PawTrack.IntegrationTests.Auth;
@@ -93,6 +94,16 @@ public sealed class AuthEndpointsTests(PawTrackWebApplicationFactory factory)
     {
         var response = await _client.PostAsync("/api/auth/refresh", null);
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task OpenApiDocument_Returns200()
+    {
+        var devClient = factory.WithWebHostBuilder(builder => builder.UseEnvironment("Development")).CreateClient();
+
+        var response = await devClient.GetAsync("/openapi/v1.json");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]

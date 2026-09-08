@@ -1,5 +1,6 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PawTrack.Application.Common.Interfaces;
 
@@ -13,6 +14,7 @@ namespace PawTrack.Infrastructure.Persistence;
 /// </summary>
 public sealed class SqlServerDistributedJobLock(
     IConfiguration configuration,
+    IHostEnvironment environment,
     ILogger<SqlServerDistributedJobLock> logger) : IDistributedJobLock
 {
     public async Task<IAsyncDisposable?> TryAcquireAsync(
@@ -20,6 +22,14 @@ public sealed class SqlServerDistributedJobLock(
         TimeSpan holdDuration,
         CancellationToken ct = default)
     {
+        if (environment.IsEnvironment("Testing"))
+        {
+            logger.LogDebug(
+                "DistributedJobLock: skipping SQL Server lock for testing job {Job}",
+                jobName);
+            return new NoopLock();
+        }
+
         var connStr = configuration.GetConnectionString("DefaultConnection");
         if (string.IsNullOrWhiteSpace(connStr))
         {

@@ -83,12 +83,14 @@ export function BountyWidget({ lostEventId, isOwner }: BountyWidgetProps) {
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={async () => {
+                onClick={() => {
                   const parsed = parseFloat(amount);
                   if (!parsed || parsed < 5000) return;
-                  await createBounty({ lostEventId, amount: parsed });
-                  setShowCreate(false);
-                  setShowConfirm(true);
+                  void (async () => {
+                    await createBounty({ lostEventId, amount: parsed });
+                    setShowCreate(false);
+                    setShowConfirm(true);
+                  })();
                 }}
                 disabled={isCreating || !amount}
                 className="rounded-xl bg-warn-600 px-4 py-2 text-xs font-bold text-white hover:bg-warn-700 disabled:opacity-60"

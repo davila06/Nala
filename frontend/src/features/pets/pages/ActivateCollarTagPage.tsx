@@ -51,7 +51,7 @@ export default function ActivateCollarTagPage() {
 
   const handleCopyKey = () => {
     if (!rawKey) return;
-    navigator.clipboard.writeText(rawKey);
+    void navigator.clipboard.writeText(rawKey);
     setKeyCopied(true);
     setTimeout(() => setKeyCopied(false), 2000);
   };
@@ -221,7 +221,7 @@ export default function ActivateCollarTagPage() {
             type="button"
             onClick={() => {
               setStep("done");
-              navigate(`/pets/${selectedPetId}?tab=gps&activated=true`);
+              void navigate(`/pets/${selectedPetId}?tab=gps&activated=true`);
             }}
             className="w-full rounded-xl bg-brand-600 px-4 py-3 text-sm font-bold text-white hover:bg-brand-700 transition-colors"
           >

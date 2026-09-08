@@ -84,9 +84,7 @@ export function QuietHoursForm({
       {/* Time inputs — only shown when enabled */}
       {enabled && value && (
         <div className="mt-2.5 flex flex-wrap items-center gap-2">
-          <label className="whitespace-nowrap text-xs text-sand-500">
-            Desde
-          </label>
+          <span className="whitespace-nowrap text-xs text-sand-500">Desde</span>
           <input
             type="time"
             value={value.start}
@@ -95,9 +93,7 @@ export function QuietHoursForm({
             className={timeInputCls}
             aria-label="Inicio del horario de silencio"
           />
-          <label className="whitespace-nowrap text-xs text-sand-500">
-            hasta
-          </label>
+          <span className="whitespace-nowrap text-xs text-sand-500">hasta</span>
           <input
             type="time"
             value={value.end}

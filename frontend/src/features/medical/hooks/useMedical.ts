@@ -24,7 +24,7 @@ export function useWeightHistory(petId: string) {
     queryFn: () => medicalApi.getWeightHistory(petId),
     staleTime: 5 * 60_000,
     enabled: !!petId,
-    retry: (count, err: { response?: { status?: number } } | unknown) =>
+    retry: (count, err: unknown) =>
       (err as { response?: { status?: number } })?.response?.status !== 403 &&
       count < 2,
   });
@@ -45,7 +45,7 @@ export function useHealthScore(petId: string) {
     queryFn: () => medicalApi.getHealthScore(petId),
     staleTime: 10 * 60_000,
     enabled: !!petId,
-    retry: (count, err: { response?: { status?: number } } | unknown) =>
+    retry: (count, err: unknown) =>
       (err as { response?: { status?: number } })?.response?.status !== 403 &&
       count < 2,
   });

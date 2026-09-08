@@ -145,7 +145,10 @@ function WeightChartInner({ petId, petName }: WeightTrendChartProps) {
               stroke="var(--color-brand-500)"
               strokeWidth={2}
               dot={(props) => {
-                const isClinic = props.payload?.source === "Clinic";
+                const payload = props.payload as
+                  | { source?: string }
+                  | undefined;
+                const isClinic = payload?.source === "Clinic";
                 const cx = props.cx ?? 0;
                 const cy = props.cy ?? 0;
                 return (

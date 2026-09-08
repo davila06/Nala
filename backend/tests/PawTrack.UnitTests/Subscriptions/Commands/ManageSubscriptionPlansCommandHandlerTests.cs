@@ -26,7 +26,7 @@ public sealed class ManageSubscriptionPlansCommandHandlerTests
             default);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Tier.Should().Be(SubscriptionTier.UserPlus);
+        result.Value!.Tier.Should().Be(SubscriptionTier.UserPlus);
         result.Value.MonthlyPriceCrc.Should().Be(2990m);
         await repository.Received(1).AddAsync(
             Arg.Is<SubscriptionPlan>(plan => plan.Tier == SubscriptionTier.UserPlus),

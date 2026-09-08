@@ -44,7 +44,7 @@ function RecordCard({ record }: { record: MedicalRecordDto }) {
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-sand-800">
-            {TYPE_LABEL[record.type as MedicalRecordType] ?? record.type}
+            {TYPE_LABEL[record.type] ?? record.type}
           </span>
           {isClinicRecord ? (
             <span className="rounded-full bg-trust-100 px-2 py-0.5 text-xs font-medium text-trust-700">
@@ -125,10 +125,14 @@ function AddRecordForm({
       </h3>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">
+        <label
+          htmlFor="clinic-record-type"
+          className="mb-1 block text-xs font-medium text-sand-600"
+        >
           Tipo
         </label>
         <select
+          id="clinic-record-type"
           value={type}
           onChange={(e) => setType(e.target.value as MedicalRecordType)}
           className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-trust-400"
@@ -143,10 +147,14 @@ function AddRecordForm({
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="clinic-record-date"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Fecha
           </label>
           <Input
+            id="clinic-record-date"
             type="date"
             value={date}
             max={today}
@@ -154,10 +162,14 @@ function AddRecordForm({
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="clinic-record-next-due"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Próxima cita
           </label>
           <Input
+            id="clinic-record-next-due"
             type="date"
             value={nextDueDate}
             min={today}
@@ -167,10 +179,14 @@ function AddRecordForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">
+        <label
+          htmlFor="clinic-record-description"
+          className="mb-1 block text-xs font-medium text-sand-600"
+        >
           Descripción *
         </label>
         <textarea
+          id="clinic-record-description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={2}
@@ -180,10 +196,14 @@ function AddRecordForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">
+        <label
+          htmlFor="clinic-record-vet"
+          className="mb-1 block text-xs font-medium text-sand-600"
+        >
           Veterinario
         </label>
         <Input
+          id="clinic-record-vet"
           placeholder="Dr/a. Nombre"
           value={vetName}
           onChange={(e) => setVetName(e.target.value)}
@@ -191,9 +211,9 @@ function AddRecordForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">
+        <span className="mb-1 block text-xs font-medium text-sand-600">
           Documento (PDF/foto, máx. 5 MB)
-        </label>
+        </span>
         <input
           type="file"
           accept=".pdf,image/jpeg,image/png"
@@ -251,7 +271,7 @@ export function ClinicExpedienteTab({
   const verifyMicrochip = useVerifyClinicPetMicrochip(petId);
   const [observedChipId, setObservedChipId] = useState("");
   const forbidden =
-    (error as { response?: { status?: number } } | null)?.response?.status ===
+    (error)?.response?.status ===
     403;
 
   if (isLoading) {

@@ -191,13 +191,28 @@ export function VisualMatchPanel() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} noValidate>
+      <form
+        onSubmit={(event) => {
+          void handleSubmit(event);
+        }}
+        noValidate
+      >
         {/* Photo drop-zone */}
         <div
           ref={dropZoneRef}
-          onDrop={handleDrop}
+          onDrop={(event) => {
+            void handleDrop(event);
+          }}
           onDragOver={handleDragOver}
           onClick={() => fileInputRef.current?.click()}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              fileInputRef.current?.click();
+            }
+          }}
+          role="button"
+          tabIndex={0}
           className="relative mb-4 flex h-48 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-sand-300 bg-sand-50 transition-colors hover:border-sand-400 hover:bg-sand-100"
         >
           {photoPreview ? (

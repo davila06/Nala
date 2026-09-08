@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { HolographicPetCard } from "../components/HolographicPetCard";
-import {
-  OnboardingWizard,
-  shouldShowOnboarding,
-} from "../components/OnboardingWizard";
+import { OnboardingWizard } from "../components/OnboardingWizard";
+import { shouldShowOnboarding } from "../components/onboardingStorage";
 import { FreemiumModal } from "../components/FreemiumModal";
 import { usePets } from "../hooks/usePets";
 import { useMyTier } from "../hooks/useMyTier";

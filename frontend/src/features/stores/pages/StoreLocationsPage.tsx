@@ -53,10 +53,14 @@ function LocationForm({
       className="space-y-3 rounded-2xl border border-sand-200 bg-surface p-4"
     >
       <div>
-        <label className="block text-xs font-semibold text-sand-700 mb-1">
+        <label
+          htmlFor="store-location-name"
+          className="block text-xs font-semibold text-sand-700 mb-1"
+        >
           Nombre de la sede *
         </label>
         <input
+          id="store-location-name"
           className={field}
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -66,10 +70,14 @@ function LocationForm({
         />
       </div>
       <div>
-        <label className="block text-xs font-semibold text-sand-700 mb-1">
+        <label
+          htmlFor="store-location-address"
+          className="block text-xs font-semibold text-sand-700 mb-1"
+        >
           Dirección *
         </label>
         <input
+          id="store-location-address"
           className={field}
           value={address}
           onChange={(e) => setAddress(e.target.value)}
@@ -80,10 +88,14 @@ function LocationForm({
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-semibold text-sand-700 mb-1">
+          <label
+            htmlFor="store-location-lat"
+            className="block text-xs font-semibold text-sand-700 mb-1"
+          >
             Latitud *
           </label>
           <input
+            id="store-location-lat"
             className={field}
             type="number"
             step="any"
@@ -93,10 +105,14 @@ function LocationForm({
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-sand-700 mb-1">
+          <label
+            htmlFor="store-location-lng"
+            className="block text-xs font-semibold text-sand-700 mb-1"
+          >
             Longitud *
           </label>
           <input
+            id="store-location-lng"
             className={field}
             type="number"
             step="any"
@@ -107,10 +123,14 @@ function LocationForm({
         </div>
       </div>
       <div>
-        <label className="block text-xs font-semibold text-sand-700 mb-1">
+        <label
+          htmlFor="store-location-phone"
+          className="block text-xs font-semibold text-sand-700 mb-1"
+        >
           Teléfono
         </label>
         <input
+          id="store-location-phone"
           className={field}
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
@@ -183,7 +203,7 @@ export default function StoreLocationsPage() {
 
       {isLoading && (
         <div className="space-y-3">
-          {[...Array(2)].map((_, i) => (
+          {Array.from({ length: 2 }).map((_, i) => (
             <div
               key={i}
               className="h-20 animate-pulse rounded-2xl bg-sand-100"

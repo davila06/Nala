@@ -37,5 +37,5 @@ export function useAuthInit() {
         // Never let that stale failure erase the session the login just established.
         if (!useAuthStore.getState().isAuthenticated) clearAuth();
       });
-  }, []);
+  }, [clearAuth, setAuth]);
 }

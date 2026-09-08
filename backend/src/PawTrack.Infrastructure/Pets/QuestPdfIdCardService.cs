@@ -48,7 +48,7 @@ public sealed class QuestPdfIdCardService : IPetIdCardService
                             if (!string.IsNullOrWhiteSpace(data.PhotoUrl))
                             {
                                 photo.Item().Height(48, Unit.Millimetre)
-                                    .Image(data.PhotoUrl, ImageScaling.FitArea);
+                                    .Image(data.PhotoUrl).FitArea();
                             }
                             else
                             {

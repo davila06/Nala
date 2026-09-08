@@ -388,10 +388,14 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
       {/* Collar model (only for GPS bundle) */}
       {requiresCollar && (
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="bundle-collar-model"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Modelo de collar *
           </label>
           <select
+            id="bundle-collar-model"
             value={collarModel}
             onChange={(e) => setCollarModel(e.target.value as CollarModel)}
             className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
@@ -411,20 +415,28 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
           Datos de envío
         </p>
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="bundle-full-name"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Nombre completo *
           </label>
           <Input
+            id="bundle-full-name"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Juan Pérez García"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="bundle-address"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Dirección completa *
           </label>
           <Input
+            id="bundle-address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             placeholder="200m norte de la iglesia…"
@@ -432,10 +444,14 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="mb-1 block text-xs font-medium text-sand-600">
+            <label
+              htmlFor="bundle-canton"
+              className="mb-1 block text-xs font-medium text-sand-600"
+            >
               Cantón *
             </label>
             <select
+              id="bundle-canton"
               value={canton}
               onChange={(e) => setCanton(e.target.value)}
               className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
@@ -448,10 +464,14 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-sand-600">
+            <label
+              htmlFor="bundle-phone"
+              className="mb-1 block text-xs font-medium text-sand-600"
+            >
               Teléfono *
             </label>
             <Input
+              id="bundle-phone"
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -460,10 +480,14 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
           </div>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="bundle-notes"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Notas de entrega
           </label>
           <textarea
+            id="bundle-notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
@@ -500,11 +524,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function BundleOrderModal({
-  onClose: _onClose,
-}: {
-  onClose: () => void;
-}) {
+export function BundleOrderModal() {
   const { data: orders, isLoading } = useMyBundleOrders();
   const [showForm, setShowForm] = useState(false);
   const [showNfcGuide, setShowNfcGuide] = useState(false);

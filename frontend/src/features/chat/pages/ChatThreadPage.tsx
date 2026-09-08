@@ -42,7 +42,7 @@ export default function ChatThreadPage() {
         </p>
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => void navigate(-1)}
           className="text-sm text-brand-600 hover:underline"
         >
           ← Volver
@@ -57,7 +57,7 @@ export default function ChatThreadPage() {
       <div className="flex items-center gap-3 border-b border-sand-200 px-4 py-3 bg-white dark:bg-sand-900">
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => void navigate(-1)}
           className="text-sm text-sand-500 hover:text-sand-800"
         >
           ← Volver

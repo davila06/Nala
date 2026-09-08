@@ -66,7 +66,7 @@ export default function ShelterPublishPage() {
 
   const handleUploadPhotos = async () => {
     if (!publishedId || !photoFiles.length) {
-      navigate("/shelter/dashboard");
+      void navigate("/shelter/dashboard");
       return;
     }
     setUploading(true);
@@ -75,7 +75,7 @@ export default function ShelterPublishPage() {
     }
     setUploading(false);
     toast.success("Fotos subidas correctamente ✓");
-    navigate("/shelter/dashboard");
+    void navigate("/shelter/dashboard");
   };
 
   return (
@@ -105,10 +105,14 @@ export default function ShelterPublishPage() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-sand-500 mb-1">
+              <label
+                htmlFor="adoption-species"
+                className="block text-xs text-sand-500 mb-1"
+              >
                 Especie *
               </label>
               <select
+                id="adoption-species"
                 value={form.species}
                 onChange={(e) => set({ species: e.target.value as PetSpecies })}
                 className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
@@ -123,10 +127,14 @@ export default function ShelterPublishPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs text-sand-500 mb-1">
+              <label
+                htmlFor="adoption-size"
+                className="block text-xs text-sand-500 mb-1"
+              >
                 Tamaño *
               </label>
               <select
+                id="adoption-size"
                 value={form.size}
                 onChange={(e) => set({ size: e.target.value as PetSize })}
                 className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
@@ -144,10 +152,14 @@ export default function ShelterPublishPage() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-sand-500 mb-1">
+              <label
+                htmlFor="adoption-age-category"
+                className="block text-xs text-sand-500 mb-1"
+              >
                 Categoría de edad *
               </label>
               <select
+                id="adoption-age-category"
                 value={form.ageCategory}
                 onChange={(e) =>
                   set({ ageCategory: e.target.value as AgeCategory })
@@ -178,10 +190,14 @@ export default function ShelterPublishPage() {
             Historia y personalidad
           </h2>
           <div>
-            <label className="block text-xs text-sand-500 mb-1">
+            <label
+              htmlFor="adoption-story"
+              className="block text-xs text-sand-500 mb-1"
+            >
               Historia *
             </label>
             <textarea
+              id="adoption-story"
               value={form.story}
               onChange={(e) => set({ story: e.target.value })}
               maxLength={2000}
@@ -194,10 +210,14 @@ export default function ShelterPublishPage() {
             </p>
           </div>
           <div>
-            <label className="block text-xs text-sand-500 mb-1">
+            <label
+              htmlFor="adoption-requirements"
+              className="block text-xs text-sand-500 mb-1"
+            >
               Requisitos para el adoptante
             </label>
             <textarea
+              id="adoption-requirements"
               value={form.requirements ?? ""}
               onChange={(e) => set({ requirements: e.target.value || null })}
               maxLength={500}
@@ -207,10 +227,14 @@ export default function ShelterPublishPage() {
             />
           </div>
           <div>
-            <label className="block text-xs text-sand-500 mb-1">
+            <label
+              htmlFor="adoption-medical-notes"
+              className="block text-xs text-sand-500 mb-1"
+            >
               Notas médicas
             </label>
             <textarea
+              id="adoption-medical-notes"
               value={form.medicalNotes ?? ""}
               onChange={(e) => set({ medicalNotes: e.target.value || null })}
               maxLength={500}
@@ -331,7 +355,9 @@ export default function ShelterPublishPage() {
 
             <div className="flex gap-3">
               <Button
-                onClick={handleUploadPhotos}
+                onClick={() => {
+                  void handleUploadPhotos();
+                }}
                 disabled={uploading}
                 className="flex-1"
               >

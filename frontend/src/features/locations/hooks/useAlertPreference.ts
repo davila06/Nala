@@ -82,7 +82,7 @@ export function useAlertPreference() {
 
   // ── Toggle opt-in ───────────────────────────────────────────────────────────
 
-  const toggle = useCallback(async () => {
+  const toggle = useCallback(() => {
     if (!isAuthenticated) return;
 
     const next = !receiveNearbyAlerts;

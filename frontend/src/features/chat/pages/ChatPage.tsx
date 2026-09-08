@@ -72,7 +72,7 @@ export default function ChatPage() {
         <p className="text-sm text-sand-500">
           Debes iniciar sesión para usar el chat.
         </p>
-        <Button onClick={() => navigate("/login")}>Iniciar sesión</Button>
+        <Button onClick={() => void navigate("/login")}>Iniciar sesión</Button>
       </div>
     );
   }
@@ -83,7 +83,7 @@ export default function ChatPage() {
       <div className="flex items-center gap-3 border-b border-sand-200 field-input px-4 py-3">
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => void navigate(-1)}
           className="text-sm text-sand-500 hover:text-sand-800"
         >
           ← Volver

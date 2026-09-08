@@ -356,9 +356,7 @@ export default function ClinicDashboardPage() {
 
         {activeSection === "stats" && <ClinicStatsSection />}
 
-        {activeSection === "api" && clinic && (
-          <ClinicApiKeysSection clinicId={clinic.id} />
-        )}
+        {activeSection === "api" && clinic && <ClinicApiKeysSection />}
 
         {activeSection === "alerts" && clinic && <ClinicNearbyAlertsSection />}
 
@@ -521,9 +519,7 @@ function ClinicVisibilidadSection() {
     isError,
     error,
   } = useClinicVisibilityStats(30);
-  const forbidden =
-    (error as { response?: { status?: number } } | null)?.response?.status ===
-    402;
+  const forbidden = error?.response?.status === 402;
 
   if (isLoading)
     return <div className="animate-pulse h-40 rounded-2xl bg-sand-100" />;
@@ -720,7 +716,7 @@ function ClinicStatsSection() {
 
 // ── API Keys section ──────────────────────────────────────────────────────────
 
-function ClinicApiKeysSection(_: { clinicId: string }) {
+function ClinicApiKeysSection() {
   const [newLabel, setNewLabel] = useState("");
   const [justCreated, setJustCreated] = useState<string | null>(null);
   const { data: keys, isLoading, isError } = useClinicApiKeys();

@@ -451,19 +451,21 @@ function CapturePortal() {
                 </h3>
                 <form
                   className="space-y-3"
-                  onSubmit={async (e) => {
+                  onSubmit={(e) => {
                     e.preventDefault();
-                    await record(form);
-                    setForm({
-                      canton: "",
-                      species: "",
-                      color: "",
-                      breed: "",
-                      estimatedAge: "",
-                      notes: "",
-                      collarChipNumber: "",
-                    });
-                    setShowForm(false);
+                    void (async () => {
+                      await record(form);
+                      setForm({
+                        canton: "",
+                        species: "",
+                        color: "",
+                        breed: "",
+                        estimatedAge: "",
+                        notes: "",
+                        collarChipNumber: "",
+                      });
+                      setShowForm(false);
+                    })();
                   }}
                 >
                   <div className="grid gap-3 sm:grid-cols-2">

@@ -9,4 +9,5 @@ public enum UserRole
     Municipality,
     Store,
     ServiceProvider,
+    Support,
 }

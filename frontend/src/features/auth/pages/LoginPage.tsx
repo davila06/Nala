@@ -8,7 +8,8 @@ import { Button } from "@/shared/ui/Button";
 import { Input } from "@/shared/ui/Input";
 import { Alert } from "@/shared/ui/Alert";
 import { useCountUp } from "@/shared/hooks/useCountUp";
-import { AmbientPaws, LOGIN_PAWS } from "@/shared/ui/AmbientPaws";
+import { AmbientPaws } from "@/shared/ui/AmbientPaws";
+import { LOGIN_PAWS } from "@/shared/ui/ambientPawsConfig";
 
 // ── Tilt hook — tracks mouse position relative to an element ─────────────────
 
@@ -444,7 +445,6 @@ function InlineForgotForm({ initialEmail, onBack }: InlineForgotFormProps) {
                 placeholder="tu@correo.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                autoFocus
               />
               <Button type="submit" loading={isPending} fullWidth size="lg">
                 Enviar enlace de recuperación
@@ -600,7 +600,6 @@ export default function LoginPage() {
                         autoCorrect="off"
                         spellCheck={false}
                         required
-                        autoFocus
                         placeholder="tu@correo.com"
                         value={form.email}
                         onChange={handleEmailChange}

@@ -23,7 +23,7 @@ export default function AcceptFamilyInvitationPage() {
 
     // Not logged in → redirect to login, return here after
     if (!isAuthenticated) {
-      navigate(
+      void navigate(
         `/login?redirect=${encodeURIComponent(`/familia/invitacion/${token}`)}`,
         { replace: true },
       );
@@ -33,7 +33,9 @@ export default function AcceptFamilyInvitationPage() {
     accept.mutate(token, {
       onSuccess: () => {
         setStatus("success");
-        setTimeout(() => navigate("/perfil", { replace: true }), 2000);
+        setTimeout(() => {
+          void navigate("/perfil", { replace: true });
+        }, 2000);
       },
       onError: (err: unknown) => {
         const apiErr = err as { response?: { data?: { detail?: string } } };
@@ -43,7 +45,7 @@ export default function AcceptFamilyInvitationPage() {
         );
       },
     });
-  }, [token, isAuthenticated]);
+  }, [accept, isAuthenticated, navigate, token]);
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4">

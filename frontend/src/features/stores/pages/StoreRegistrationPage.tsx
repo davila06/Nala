@@ -42,7 +42,11 @@ export default function StoreRegistrationPage() {
         contactEmail: form.contactEmail,
         password: form.password,
       },
-      { onSuccess: () => navigate("/tienda/pendiente") },
+      {
+        onSuccess: () => {
+          void navigate("/tienda/pendiente");
+        },
+      },
     );
   };
 
@@ -122,20 +126,28 @@ export default function StoreRegistrationPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="store-register-name"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Nombre de la tienda *
               </label>
               <Input
+                id="store-register-name"
                 placeholder="Petshop La Patita"
                 {...field("name")}
                 required
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="store-register-description"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Descripción *
               </label>
               <textarea
+                id="store-register-description"
                 {...field("description")}
                 required
                 rows={3}
@@ -144,22 +156,26 @@ export default function StoreRegistrationPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="store-register-address"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Dirección *
               </label>
               <Input
+                id="store-register-address"
                 placeholder="100m sur del parque central"
                 {...field("address")}
                 required
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-sand-600">
+              <span className="mb-1.5 block text-xs font-medium text-sand-600">
                 Ubicación en el mapa *
                 <span className="ml-1 text-sand-400 font-normal">
                   (toca para marcar)
                 </span>
-              </label>
+              </span>
               <div className="h-48 rounded-2xl overflow-hidden border border-sand-200">
                 {/* Provide safe defaults — store registration doesn't need geo tracking */}
                 <LastSeenMap
@@ -172,10 +188,14 @@ export default function StoreRegistrationPage() {
               </div>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="store-register-email"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Correo electrónico *
               </label>
               <Input
+                id="store-register-email"
                 type="email"
                 placeholder="tienda@ejemplo.com"
                 {...field("contactEmail")}
@@ -183,10 +203,14 @@ export default function StoreRegistrationPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="store-register-password"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Contraseña *
               </label>
               <Input
+                id="store-register-password"
                 type="password"
                 placeholder="Mínimo 8 caracteres"
                 {...field("password")}
@@ -194,10 +218,14 @@ export default function StoreRegistrationPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="store-register-confirm-password"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Confirmar contraseña *
               </label>
               <Input
+                id="store-register-confirm-password"
                 type="password"
                 placeholder="Repetir contraseña"
                 {...field("confirmPassword")}

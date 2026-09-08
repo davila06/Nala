@@ -12,7 +12,7 @@ namespace PawTrack.API.Controllers;
 
 [ApiController]
 [Route("api/adoptions")]
-public sealed class AdoptionsController(ISender sender, IBlobStorageService blobStorage) : ControllerBase
+public sealed class AdoptionsController(ISender sender) : ControllerBase
 {
     // ── Public — anyone ───────────────────────────────────────────────────────
 

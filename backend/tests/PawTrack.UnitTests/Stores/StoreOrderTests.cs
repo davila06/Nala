@@ -222,7 +222,7 @@ public sealed class PlaceStoreOrderCommandHandlerTests
         var result = await _sut.Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.TotalCrc.Should().Be(4000m);
+        result.Value!.TotalCrc.Should().Be(4000m);
         result.Value.PaymentReference.Should().Be("SINPE001");
         await _orderRepo.Received(1).AddAsync(Arg.Any<StoreOrder>(), Arg.Any<CancellationToken>());
     }

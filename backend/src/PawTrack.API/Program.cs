@@ -1,7 +1,6 @@
 using PawTrack.Infrastructure.Notifications;
 using PawTrack.API;
 using PawTrack.API.Hubs;
-using PawTrack.API.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;

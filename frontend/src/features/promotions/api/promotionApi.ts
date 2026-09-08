@@ -55,7 +55,10 @@ export const promotionApi = {
 
   redeem: (code: string, selectedTier?: string): Promise<unknown> =>
     apiClient
-      .post("/promotions/redeem", { code, selectedTier: selectedTier ?? null })
+      .post<unknown>("/promotions/redeem", {
+        code,
+        selectedTier: selectedTier ?? null,
+      })
       .then((r) => r.data),
 
   // Admin

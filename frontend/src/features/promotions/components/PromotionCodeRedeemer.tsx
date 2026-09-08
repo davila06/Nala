@@ -103,10 +103,14 @@ export function PromotionCodeRedeemer() {
           {validation.type === "PercentageDiscount" &&
             !validation.targetTier && (
               <div>
-                <label className="mb-1 block text-xs font-medium text-sand-600">
+                <label
+                  htmlFor="promotion-target-tier"
+                  className="mb-1 block text-xs font-medium text-sand-600"
+                >
                   Seleccioná el plan al que aplicar el descuento
                 </label>
                 <select
+                  id="promotion-target-tier"
                   value={selectedTier}
                   onChange={(e) => setSelectedTier(e.target.value)}
                   className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-brand-400"

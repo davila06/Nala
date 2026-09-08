@@ -1,54 +1,55 @@
-import { useEffect, useState } from 'react'
-import { petsApi } from '../api/petsApi'
+import { useEffect, useState } from "react";
+import { petsApi } from "../api/petsApi";
 
 interface QRCodeDisplayProps {
-  petId: string
-  petName: string
+  petId: string;
+  petName: string;
 }
 
 export const QRCodeDisplay = ({ petId, petName }: QRCodeDisplayProps) => {
-  const [blobUrl, setBlobUrl] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    setLoading(true)
-    setError(false)
+    setLoading(true);
+    setError(false);
+    let url: string | null = null;
     petsApi
       .getQrCode(petId)
       .then((blob) => {
-        const url = URL.createObjectURL(blob)
-        setBlobUrl(url)
+        url = URL.createObjectURL(blob);
+        setBlobUrl(url);
       })
       .catch(() => setError(true))
-      .finally(() => setLoading(false))
+      .finally(() => setLoading(false));
 
     return () => {
-      if (blobUrl) URL.revokeObjectURL(blobUrl)
-    }
-  }, [petId])
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [petId]);
 
   const handleDownload = () => {
-    if (!blobUrl) return
-    const a = document.createElement('a')
-    a.href = blobUrl
-    a.download = `qr-${petName.replace(/\s+/g, '-').toLowerCase()}.png`
-    a.click()
-  }
+    if (!blobUrl) return;
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = `qr-${petName.replace(/\s+/g, "-").toLowerCase()}.png`;
+    a.click();
+  };
 
   if (loading)
     return (
       <div className="flex h-40 items-center justify-center text-sm text-sand-400">
         Generando QR…
       </div>
-    )
+    );
 
   if (error)
     return (
       <div className="flex h-40 items-center justify-center text-sm text-danger-500">
         No se pudo cargar el código QR.
       </div>
-    )
+    );
 
   return (
     <div className="flex flex-col items-center gap-3">
@@ -71,6 +72,5 @@ export const QRCodeDisplay = ({ petId, petName }: QRCodeDisplayProps) => {
         Imprime este QR y adjúntalo al collar de {petName}.
       </p>
     </div>
-  )
-}
-
+  );
+};

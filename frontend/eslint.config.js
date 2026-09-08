@@ -46,6 +46,10 @@ export default tseslint.config(
         "warn",
         { allowConstantExport: true },
       ],
+      "jsx-a11y/label-has-associated-control": [
+        "error",
+        { controlComponents: ["Input"], depth: 3 },
+      ],
     },
   },
   {

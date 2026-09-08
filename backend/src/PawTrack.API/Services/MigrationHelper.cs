@@ -43,6 +43,14 @@ public static class MigrationHelper
         await using var scope = services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<PawTrackDbContext>();
 
+        if (!db.Database.IsRelational())
+        {
+            logger.LogInformation(
+                "[Migrations] Skipping relational migrations because the configured provider is non-relational ({Provider}).",
+                db.Database.ProviderName);
+            return;
+        }
+
         try
         {
             // Keep ONE connection open for the entire acquire→migrate→release

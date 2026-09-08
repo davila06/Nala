@@ -22,7 +22,7 @@ export default function MyAdoptionApplicationsPage() {
   const { data, isLoading } = useMyAdoptionApplications(page);
   const withdraw = useWithdrawApplication();
 
-  const apps = (data?.items ?? []) as AdoptionApplicationDto[];
+  const apps = (data?.items ?? []);
 
   const handleWithdraw = (id: string) => {
     if (!confirm("¿Retirar esta solicitud?")) return;

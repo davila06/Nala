@@ -194,30 +194,42 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
       </h3>
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2">
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="billboard-title"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Título *
           </label>
           <input
+            id="billboard-title"
             {...field("title")}
             placeholder="Cuida a tu mascota con..."
             className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
           />
         </div>
         <div className="col-span-2">
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="billboard-body"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Descripción
           </label>
           <textarea
+            id="billboard-body"
             {...field("body")}
             rows={2}
             className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="billboard-placement"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Ubicación *
           </label>
           <select
+            id="billboard-placement"
             {...field("placement")}
             className="w-full rounded-xl border border-sand-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
           >
@@ -229,52 +241,72 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="billboard-priority"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Prioridad (0-100)
           </label>
           <input
             type="number"
             min="0"
             max="100"
+            id="billboard-priority"
             {...field("priority")}
             className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="billboard-start"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Inicio
           </label>
           <input
             type="datetime-local"
+            id="billboard-start"
             {...field("startsAt")}
             className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="billboard-end"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Fin
           </label>
           <input
             type="datetime-local"
+            id="billboard-end"
             {...field("endsAt")}
             className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="billboard-cta-label"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             CTA texto
           </label>
           <input
+            id="billboard-cta-label"
             {...field("ctaLabel")}
             placeholder="Ver más →"
             className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="billboard-cta-url"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             CTA URL
           </label>
           <input
+            id="billboard-cta-url"
             {...field("ctaUrl")}
             placeholder="https://..."
             className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
@@ -316,7 +348,7 @@ export function AdminBillboardsTab() {
 
       {isLoading && (
         <div className="space-y-3">
-          {[...Array(3)].map((_, i) => (
+          {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="h-24 rounded-xl" />
           ))}
         </div>

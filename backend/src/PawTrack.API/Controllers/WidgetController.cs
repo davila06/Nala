@@ -15,7 +15,7 @@ namespace PawTrack.API.Controllers;
 [ApiController]
 [Route("api/widget")]
 [AllowAnonymous]
-public sealed class WidgetController(ISender sender, ISubscriptionRepository subscriptionRepository) : ControllerBase
+public sealed class WidgetController(ISubscriptionRepository subscriptionRepository) : ControllerBase
 {
     [HttpGet("clinic/{clinicId:guid}/config")]
     [EnableRateLimiting("public-api")]

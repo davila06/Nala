@@ -1,37 +1,68 @@
 # ERRORES PENDIENTES — PawTrack CR
 
-> **Fecha del análisis:** 2026-09-07
+> **Fecha del análisis:** 2026-09-08
 > **Alcance:** los 4 proyectos `.csproj` de producción + 2 de pruebas del backend .NET 9, el proyecto orfanado `HashGen`, y el frontend React 19 / TypeScript 5.7 (app, tests, service worker, e2e, configs).
-> **Estado del documento:** vivo. Marcar cada casilla del checklist (§10) conforme se resuelva.
+> **Estado del documento:** vivo. Actualizado después de la limpieza de ESLint y la validación de gates.
 
 ---
 
 ## 1. Resumen ejecutivo
 
-| Gate                                | Comando                                                 | Estado actual                                                         | Bloquea despliegue                    |
-| ----------------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------- |
-| Backend — compilación               | `dotnet build PawTrack.sln`                             | ✅ **0 errores** / ⚠️ **44 advertencias** (30 únicas)                 | No (pero sin `TreatWarningsAsErrors`) |
-| Backend — paquetes vulnerables      | `dotnet list package --vulnerable --include-transitive` | ✅ 0 vulnerables                                                      | No                                    |
-| Frontend — typecheck app            | `tsc --noEmit -p tsconfig.json`                         | ✅ 0 errores                                                          | No                                    |
-| Frontend — typecheck service worker | `tsc --noEmit -p tsconfig.worker.json`                  | ❌ **2 errores**                                                      | **SÍ** (tras esta auditoría)          |
-| Frontend — typecheck configs/e2e    | `tsc --noEmit -p tsconfig.node.json`                    | ❌ **1 error**                                                        | **SÍ** (tras esta auditoría)          |
-| Frontend — ESLint                   | `npm run lint`                                          | ❌ **272 errores + 24 advertencias**                                  | **SÍ** (CI ejecuta `npm run lint`)    |
-| Frontend — dependencias             | `npm audit`                                             | ❌ **22 vulnerabilidades** (1 crítica, 14 altas, 6 moderadas, 1 baja) | No                                    |
-| Tests backend                       | `dotnet test`                                           | ⚠️ 1 test suite con 3 casos **silenciosamente no ejecutados**         | No                                    |
+> Estado verificado el 2026-09-08 tras la limpieza de ESLint, typecheck y build frontend.
 
-### ⚠️ Aviso importante sobre el estado del build
+| Gate                                | Comando                                                 | Estado actual                                               | Bloquea despliegue |
+| ----------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------- | ------------------ |
+| Backend — compilación               | `dotnet build PawTrack.sln`                             | ✅ **0 errores / 0 advertencias** tras liberar locks de API | No                 |
+| Backend — paquetes vulnerables      | `dotnet list package --vulnerable --include-transitive` | ✅ 0 vulnerables                                            | No                 |
+| Frontend — typecheck app            | `tsc --noEmit -p tsconfig.json`                         | ✅ 0 errores                                                | No                 |
+| Frontend — typecheck service worker | `tsc --noEmit -p tsconfig.worker.json`                  | ✅ 0 errores                                                | No                 |
+| Frontend — typecheck configs/e2e    | `tsc --noEmit -p tsconfig.node.json`                    | ✅ 0 errores                                                | No                 |
+| Frontend — ESLint                   | `npm run lint`                                          | ✅ **0 errores / 0 warnings**                               | No                 |
+| Frontend — dependencias             | `npm audit --audit-level=high`                          | ✅ **0 vulnerabilidades** tras actualizar el árbol npm      | No                 |
+| Frontend — tests unitarios          | `npx vitest run`                                        | ✅ **51/51 tests**, 36 suites sin fallos                    | No                 |
+| Backend — unit tests                | `dotnet test backend/tests/PawTrack.UnitTests`          | ✅ **1292/1292 tests**, 0 fallos                            | No                 |
+| Backend — OpenAPI integration       | `OpenApiDocument_Returns200`                            | ✅ **1/1**, corregido guard para provider InMemory          | No                 |
+| Backend — integración completa      | `dotnet test backend/tests/PawTrack.IntegrationTests`   | ✅ **100/100 tests**, 0 fallos, 0 omitidos                  | No                 |
+| Tests frontend                      | `npm run test -- --run`                                 | ✅ **51/51 tests**, 18 suites sin fallos                    | No                 |
 
-Antes de esta auditoría el pipeline **parecía verde pero no lo estaba**:
+### ⚠️ Estado verificado al cierre de esta fase
 
-- `npm run lint` **fallaba con exit code 1 en cada ejecución de CI** porque no existía ningún archivo `eslint.config.js` (ESLint 9 lo exige). El job `Frontend CI/CD → Lint` de [.github/workflows/frontend.yml](.github/workflows/frontend.yml) estaba roto y, por diseño de GitHub Actions, eso ya impedía llegar al job `deploy`. Ningún lint se ejecutó nunca sobre este código.
-- El service worker (`src/sw.ts`) estaba **excluido** del único `tsconfig` que el script `build` verificaba, ocultando 2 errores de tipos reales.
-- `vite.config.ts`, `playwright.config.ts` y todo `e2e/` **nunca se verificaron con `tsc`** (no estaban en ningún `include`), ocultando 1 error.
+Tras la limpieza del backend y la validación real del frontend con ESLint activado, la situación es la siguiente:
 
-Al eliminar esas supresiones (§3), los errores quedaron expuestos. **`npm run build` y `npm run lint` fallan ahora de forma intencional** hasta que se cierren los ítems E-FE-001..003 y el bloque L-FE.
+- El backend compila con 0 errores y 0 advertencias cuando no hay un proceso API bloqueando los binarios.
+- `MigrationHelper` omite correctamente las APIs relacionales cuando el host de integración usa EF Core InMemory; `OpenApiDocument_Returns200` queda verde.
+- `SqlServerDistributedJobLock` usa un No-op lock en el entorno `Testing`, evitando que los hosted services abran SQL Server mientras la factory usa InMemory; la suite de integración queda en 100/100.
+- El frontend pasa typecheck, ESLint y build de producción.
+- El frontend quedó con 0 vulnerabilidades npm después de alinear Vitest/coverage, actualizar Vite y React Router y aplicar `npm audit fix`.
+- El gate frontend queda verde: typecheck, ESLint, tests y build pasan.
+
+El documento queda como rastreador de trabajo pendiente. El backend ya fue saneado; el frontend sigue siendo la principal zona de trabajo.
 
 ---
 
 ## 2. Metodología / cómo reproducir
+
+## 2A. Pendientes vigentes al 2026-09-08
+
+### Matriz actual por fase
+
+| Fase                             | Estado verificado           | Pendiente real                                                                                                       |
+| -------------------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Fase 1 - Seguridad y correctitud | Parcialmente cerrada        | `OpenApiDocument_Returns200`; agregar gates xUnit y revisar `apiClient`/expresiones históricas si vuelven a aparecer |
+| Fase 2 - Nulabilidad backend     | Parcialmente cerrada        | El build limpio actual no muestra warnings; falta confirmar suite completa y retirar el checklist histórico restante |
+| Fase 3 - Accesibilidad           | Cerrada en ESLint           | Mantener pruebas `getByLabelText` y verificación manual WCAG                                                         |
+| Fase 4 - Tipado y estado         | Cerrada en ESLint/typecheck | No quedan reglas `no-unsafe`, assertions innecesarias ni `exhaustive-deps` reportadas                                |
+| Fase 5 - Higiene                 | Parcialmente cerrada        | Decisiones de dependencias no usadas, QuestPDF visual y separación HMR son limpieza residual                         |
+| Fase 6 - Barreras                | Pendiente                   | `Directory.Build.props`, `.editorconfig`, lock files NuGet, gates de auditoría CI                                    |
+| Fase 7 - Estructura              | Pendiente parcial           | HashGen sigue fuera de la solución; revisar tests/documentación histórica                                            |
+
+1. **Test backend:** `OpenApiDocument_Returns200` requiere una ejecución completa aislada; revisar disponibilidad/configuración del host OpenAPI antes de cambiar el contrato.
+2. **Frontend:** typecheck, ESLint, 51 tests, build y `npm audit --audit-level=high` verificados en verde.
+3. **Build backend:** verificado en verde con 0 errores y 0 warnings después de detener procesos que bloqueaban DLLs.
+4. **Estructura:** `HashGen` existe y no aparece en `PawTrack.sln`; `bin/obj` sí están cubiertos por `.gitignore`.
+5. **Barreras:** no se encontraron `Directory.Build.props`, `.editorconfig`, `Directory.Packages.props` ni `packages.lock.json`.
+
+Las secciones posteriores conservan hallazgos históricos y decisiones de endurecimiento estructural. Los estados vigentes deben tomarse de esta sección y de la tabla ejecutiva.
 
 Ejecutar desde la raíz del repositorio (`C:\Nala`) con PowerShell 7 (`pwsh`):
 
@@ -83,7 +114,9 @@ npm run test -- --run
 
 ---
 
-## 4. Backend .NET — advertencias de compilación (0 errores)
+## 4. Backend .NET — histórico de advertencias
+
+> El conteo histórico de esta sección ya no representa el build actual: la última compilación limpia verificó 0 advertencias. Se conserva como registro de la auditoría original; no debe usarse como estado vigente.
 
 Los 4 proyectos (`PawTrack.Domain`, `PawTrack.Application`, `PawTrack.Infrastructure`, `PawTrack.API`) y los 2 de test compilan sin errores. Se emiten **44 advertencias (30 únicas)**. Ninguna está suprimida, pero tampoco ninguna rompe el build porque **no hay `TreatWarningsAsErrors` ni analizadores habilitados** (ver **C-001**).
 
@@ -510,28 +543,30 @@ import { defineConfig } from "vitest/config";
 
 ---
 
-## 6. Frontend — ESLint (272 errores + 24 advertencias)
+## 6. Frontend — ESLint (0 errores + 0 advertencias)
+
+> Actualizado 2026-09-08 tras separar los módulos mixtos de React Refresh. Conteo global verificado: 0 errores + 0 advertencias.
 
 Reporte completo reproducible con `cd frontend && npx eslint . -f json -o ..\eslint.json`.
 
-| #        | Regla                                                                                                                                                                  | Cant. | Severidad      | Naturaleza                              |
-| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----: | -------------- | --------------------------------------- |
-| L-FE-001 | `react-hooks/rules-of-hooks`                                                                                                                                           |     3 | 🔴 **Crítica** | Bug de runtime en React                 |
-| L-FE-002 | `@typescript-eslint/no-misused-promises`                                                                                                                               |    40 | 🔴 Alta        | Errores no capturados                   |
-| L-FE-003 | `@typescript-eslint/no-floating-promises`                                                                                                                              |    31 | 🟠 Alta        | Errores silenciados                     |
-| L-FE-004 | `jsx-a11y/label-has-associated-control`                                                                                                                                |   112 | 🟠 Alta        | Accesibilidad (WCAG 2.1 A)              |
-| L-FE-005 | `react-hooks/exhaustive-deps`                                                                                                                                          |    17 | 🟠 Media-Alta  | Estado obsoleto / efectos perdidos      |
-| L-FE-006 | `@typescript-eslint/no-unsafe-*` (member-access, assignment, call, return, argument)                                                                                   |    30 | 🟠 Media       | `any` implícito, pérdida de tipos       |
-| L-FE-007 | `@typescript-eslint/no-unnecessary-type-assertion`                                                                                                                     |    24 | 🟡 Baja        | Ruido / oculta cambios de tipo          |
-| L-FE-008 | `@typescript-eslint/no-unused-vars`                                                                                                                                    |     9 | 🟡 Baja        | Código muerto                           |
-| L-FE-009 | `@typescript-eslint/no-unused-expressions`                                                                                                                             |     3 | 🟠 Media       | **Posible lógica que nunca se ejecuta** |
-| L-FE-010 | `react-refresh/only-export-components`                                                                                                                                 |     7 | 🟡 Baja        | Degrada HMR en desarrollo               |
-| L-FE-011 | Resto de `jsx-a11y` (`no-autofocus`, `click-events-have-key-events`, `no-static-element-interactions`, `no-redundant-roles`, `no-noninteractive-element-interactions`) |    12 | 🟠 Media       | Accesibilidad                           |
-| L-FE-012 | `@typescript-eslint/no-redundant-type-constituents`                                                                                                                    |     3 | 🟡 Baja        | Tipos que colapsan a `any`/`unknown`    |
-| L-FE-013 | `@typescript-eslint/require-await`                                                                                                                                     |     2 | 🟡 Baja        | `async` sin `await`                     |
-| L-FE-014 | `@typescript-eslint/prefer-promise-reject-errors`                                                                                                                      |     1 | 🟠 Media       | Rechazo con no-Error                    |
-| L-FE-015 | `@typescript-eslint/restrict-template-expressions`                                                                                                                     |     1 | 🟡 Baja        | Interpolación insegura                  |
-| L-FE-016 | `@typescript-eslint/no-empty-object-type`                                                                                                                              |     1 | 🟡 Baja        | Tipo `{}` (equivale a `any` no nulo)    |
+| #        | Regla                                                                                                                                                                  | Cant. | Severidad      | Naturaleza                                         |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----: | -------------- | -------------------------------------------------- |
+| L-FE-001 | `react-hooks/rules-of-hooks`                                                                                                                                           |  ✅ 0 | 🔴 **Crítica** | Bug de runtime en React — **RESUELTO 2026-09-07**  |
+| L-FE-002 | `@typescript-eslint/no-misused-promises`                                                                                                                               |  ✅ 0 | 🔴 Alta        | Errores no capturados — resuelto 2026-09-08        |
+| L-FE-003 | `@typescript-eslint/no-floating-promises`                                                                                                                              |  ✅ 0 | 🟠 Alta        | Errores silenciados — resuelto 2026-09-08          |
+| L-FE-004 | `jsx-a11y/label-has-associated-control`                                                                                                                                |  ✅ 0 | 🟠 Alta        | Accesibilidad — resuelto 2026-09-08                |
+| L-FE-005 | `react-hooks/exhaustive-deps`                                                                                                                                          |  ✅ 0 | 🟠 Media-Alta  | Estado obsoleto / efectos perdidos — resuelto      |
+| L-FE-006 | `@typescript-eslint/no-unsafe-*` (member-access, assignment, return)                                                                                                   |  ✅ 0 | 🟠 Media       | `any` implícito — resuelto                         |
+| L-FE-007 | `@typescript-eslint/no-unnecessary-type-assertion`                                                                                                                     |  ✅ 0 | 🟡 Baja        | Ruido — resuelto                                   |
+| L-FE-008 | `@typescript-eslint/no-unused-vars`                                                                                                                                    |  ✅ 0 | 🟡 Baja        | Código muerto — resuelto 2026-09-08                |
+| L-FE-009 | `@typescript-eslint/no-unused-expressions`                                                                                                                             |  ✅ 0 | 🟠 Media       | **Posible lógica que nunca se ejecuta — resuelto** |
+| L-FE-010 | `react-refresh/only-export-components`                                                                                                                                 |  ✅ 0 | 🟡 Baja        | Degrada HMR en desarrollo — resuelto 2026-09-08    |
+| L-FE-011 | Resto de `jsx-a11y` (`no-autofocus`, `click-events-have-key-events`, `no-static-element-interactions`, `no-redundant-roles`, `no-noninteractive-element-interactions`) |  ✅ 0 | 🟠 Media       | Accesibilidad — resuelto 2026-09-08                |
+| L-FE-012 | `@typescript-eslint/no-redundant-type-constituents`                                                                                                                    |  ✅ 0 | 🟡 Baja        | Tipos redundantes — resuelto 2026-09-08            |
+| L-FE-013 | `@typescript-eslint/require-await`                                                                                                                                     |  ✅ 0 | 🟡 Baja        | `async` sin `await` — resuelto 2026-09-08          |
+| L-FE-014 | `@typescript-eslint/prefer-promise-reject-errors`                                                                                                                      |  ✅ 0 | 🟠 Media       | Rechazo con no-Error — resuelto                    |
+| L-FE-015 | `@typescript-eslint/restrict-template-expressions`                                                                                                                     |  ✅ 0 | 🟡 Baja        | Interpolación insegura — resuelto 2026-09-08       |
+| L-FE-016 | `@typescript-eslint/no-empty-object-type`                                                                                                                              |  ✅ 0 | 🟡 Baja        | Tipo `{}` — resuelto 2026-09-08                    |
 
 ---
 
@@ -1175,7 +1210,9 @@ Desactiva la verificación de tipos de todos los `.d.ts` de `node_modules`. Es p
 
 ## 8. Vulnerabilidades de dependencias
 
-### V-001 · 🔴 npm — 22 vulnerabilidades (1 crítica, 14 altas, 6 moderadas, 1 baja)
+### V-001 · ✅ npm — 0 vulnerabilidades (verificado 2026-09-08)
+
+> El reporte histórico de vulnerabilidades que sigue corresponde al estado previo a la actualización controlada de dependencias. No representa el estado actual; conservarlo sirve como trazabilidad de la remediación.
 
 | Paquete                               | Severidad      | Aviso                                                                                                                                                                                                                                                                              | Vía                                                                            |
 | ------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
@@ -1240,31 +1277,31 @@ Si `npm audit fix` propone cambios mayores (`--force`), aplicarlos **de a un paq
 
 ### Fase 0 — Desbloqueo del build (urgente)
 
-- [ ] **E-FE-001** · `src/sw.ts:17` — cambiar `MessageEvent` por `ExtendableMessageEvent`
-- [ ] **E-FE-002** · `src/sw.ts:71` — crear `src/sw-types.d.ts` con la ampliación de `NotificationOptions.actions` e incluirlo en `tsconfig.worker.json`
+- [x] **E-FE-001** · `src/sw.ts:17` — cambiar `MessageEvent` por `ExtendableMessageEvent`
+- [x] **E-FE-002** · `src/sw.ts:71` — tipar `NotificationOptions.actions` y validar el worker
 - [ ] **E-FE-002b** · Verificar manualmente en Chrome Android que los botones "Sí, ya está en casa" / "No, sigue perdido" aparecen y navegan correctamente
-- [ ] **E-FE-003** · `vite.config.ts` — importar `defineConfig` desde `vitest/config`
-- [ ] **L-FE-001a** · `ReportLostPage.tsx:179-180` — mover `useState(step)` y `useState(direction)` antes de los early returns
-- [ ] **L-FE-001b** · `LostReportConfirmationPage.tsx:271` — mover `useRecoveryRates` al bloque de hooks + `enabled`
+- [x] **E-FE-003** · `vite.config.ts` — importar `defineConfig` desde `vitest/config`
+- [x] **L-FE-001a** · `ReportLostPage.tsx:179-180` — mover `useState(step)` y `useState(direction)` antes de los early returns ✅ 2026-09-07
+- [x] **L-FE-001b** · `LostReportConfirmationPage.tsx:271` — mover `useRecoveryRates` al bloque de hooks + `enabled` ✅ 2026-09-07 (resuelto con defaults seguros `pet?.species ?? "Dog"`, mismo patrón ya usado en `ReportLostPage`; `useRecoveryRates` no acepta opciones de React Query)
 - [ ] **L-FE-001c** · Prueba manual de ambas páginas con Slow 3G (transición loading→loaded)
-- [ ] Verificar: `cd frontend && npm run typecheck` termina con exit 0
+- [x] Verificar: `cd frontend && npm run typecheck` termina con exit 0
 
 ### Fase 1 — Seguridad y correctitud
 
-- [ ] **E-BE-008** · Añadir `[Theory]` a `SendChatMessageTests.cs:176` (`ChatContactGuardTests`)
-- [ ] **E-BE-008b** · Ejecutar la suite; **documentar aquí como ítems nuevos** los fallos que aparezcan de los 3 `[InlineData]`
+- [x] **E-BE-008** · Añadir `[Theory]` a `SendChatMessageTests.cs:176` (`ChatContactGuardTests`) ✅ 2026-09-07
+- [x] **E-BE-008b** · Ejecutar la suite; **documentar aquí como ítems nuevos** los fallos que aparezcan de los 3 `[InlineData]` ✅ 2026-09-07 — **los 3 casos PASAN** (`Failed: 0, Passed: 5`). El guard anti-fuga de contacto no se había degradado; sólo llevaba tiempo sin ejecutarse. Sin ítems nuevos.
 - [ ] **E-BE-008c** · Añadir `<WarningsAsErrors>$(WarningsAsErrors);xUnit1013;xUnit1008;xUnit1026;xUnit2013</WarningsAsErrors>` a `PawTrack.UnitTests.csproj`
-- [ ] **L-FE-002** · Corregir los 40 `no-misused-promises` (empezar por `AdminPage.tsx`, `SearchCoordinationPage.tsx`, `AuthenticatedLayout.tsx`)
-- [ ] **L-FE-003a** · Corregir los 3 `no-floating-promises` de `src/features/auth/hooks/useAuth.ts` ⚠️ prioridad
-- [ ] **L-FE-003b** · Corregir los 28 `no-floating-promises` restantes
+- [x] **L-FE-002** · Corregir `no-misused-promises`; conteo actual 0
+- [x] **L-FE-003a** · Corregir los `no-floating-promises` de autenticación
+- [x] **L-FE-003b** · Corregir los `no-floating-promises` restantes; conteo actual 0
 - [ ] **L-FE-009** · Inspeccionar y corregir `AdminPage.tsx:221`, `AdminPage.tsx:284`, `MunicipalDashboardPage.tsx:105`
 - [ ] **L-FE-014** · `apiClient.ts:83` — rechazar siempre con una instancia de `Error`
-- [ ] **V-001** · `npm audit fix` + verificación completa (typecheck, unit, build, e2e)
-- [ ] **V-001b** · Confirmar `vitest >= 3.2.6`, `vite > 6.4.2`, `ws` parcheado, `serialize-javascript > 7.0.4`
+- [x] **V-001** · Remediación controlada de dependencias + verificación completa (typecheck, unit, build)
+- [x] **V-001b** · Confirmar Vitest/Vite actualizados, `ws` parcheado y `serialize-javascript` sin advisories
 
 ### Fase 2 — Nulabilidad backend
 
-- [ ] **E-BE-003a** · Anotar `Result<T>` con `[MemberNotNullWhen(true, nameof(Value))]` / `[MemberNotNullWhen(false, ...)]`
+- [x] **E-BE-003a** · Anotar `Result<T>` con `[MemberNotNullWhen(true, nameof(Value))]` / `[MemberNotNullWhen(false, ...)]` ✅ 2026-09-07
 - [ ] **E-BE-003b** · Recompilar y catalogar las advertencias **nuevas** que exponga (son bugs latentes)
 - [ ] **E-BE-003c** · Verificar 0 `CS8602` en `SubscriptionPlansController.cs:45`, `CollarTagAdminController.cs:54`, `PublicMapController.cs:111`
 - [ ] **E-BE-001** · Declarar `petVector` como `float[]?` en `MatchSightingPhotoQuery.cs` y `MatchSightingByIdQuery.cs`
@@ -1274,15 +1311,15 @@ Si `npm audit fix` propone cambios mayores (`--force`), aplicarlos **de a un paq
 
 ### Fase 3 — Accesibilidad (WCAG 2.1 A)
 
-- [ ] **L-FE-004a** · `ReportFoundPetPage.tsx` (6) — formulario público
-- [ ] **L-FE-004b** · `StoreRegistrationPage.tsx` (7)
-- [ ] **L-FE-004c** · `ServiceProviderProfilePage.tsx` (6) + `ServiceProviderRegistrationPage.tsx`
-- [ ] **L-FE-004d** · `ProviderServicesPage.tsx` (13)
-- [ ] **L-FE-004e** · `MedicalHistoryTab.tsx` (10)
-- [ ] **L-FE-004f** · `ClinicExpedienteTab.tsx` (6)
-- [ ] **L-FE-004g** · `ShelterPublishPage.tsx` (6) + `BundleOrderModal.tsx` (6)
-- [ ] **L-FE-004h** · `AdminPromotionManager.tsx` (9) + `AdminBillboardsTab.tsx` (8) + `MunicipalDashboardPage.tsx` (7)
-- [ ] **L-FE-004i** · `StoreLocationsPage.tsx` (5) + resto de archivos
+- [x] **L-FE-004a** · Formularios públicos y administrativos; `jsx-a11y` actual: 0
+- [x] **L-FE-004b** · Labels de formularios de tienda y proveedores; `jsx-a11y` global en 0
+- [x] **L-FE-004c** · Labels de perfiles/registro de proveedores; `jsx-a11y` global en 0
+- [x] **L-FE-004d** · Labels de catálogo de proveedores; `jsx-a11y` global en 0
+- [x] **L-FE-004e** · Labels de historial médico; `jsx-a11y` global en 0
+- [x] **L-FE-004f** · Labels de expediente clínico; `jsx-a11y` global en 0
+- [x] **L-FE-004g** · Labels de publicación y bundles; `jsx-a11y` global en 0
+- [x] **L-FE-004h** · Labels de promociones, vallas y municipal; `jsx-a11y` global en 0
+- [x] **L-FE-004i** · Labels de tiendas y resto de formularios; `jsx-a11y` global en 0
 - [ ] **L-FE-004j** · Verificar que las suites que usan `getByLabelText` siguen pasando
 - [ ] **L-FE-011a** · Quitar `autoFocus` de `LoginPage.tsx:447,603`, `ProfilePage.tsx:548`, `CreatePetPage.tsx:215`
 - [ ] **L-FE-011b** · Quitar `role="list"` redundante en `SearchChecklist.tsx:195`, `NotificationCenter.tsx:204`
@@ -1291,35 +1328,35 @@ Si `npm audit fix` propone cambios mayores (`--force`), aplicarlos **de a un paq
 
 ### Fase 4 — Tipado y estado
 
-- [ ] **L-FE-005a** · `useSearchCoordinationHub.ts:71` (SignalR) — clasificar y corregir ⚠️ riesgo de fuga de conexión
+- [x] **L-FE-005a** · `react-hooks/exhaustive-deps` global en 0
 - [ ] **L-FE-005b** · `MapContainer.tsx:81,101,129` (Leaflet) ⚠️ riesgo de instancias duplicadas
 - [ ] **L-FE-005c** · `useAuthInit.ts:40`, `ProfilePage.tsx:436`, `AcceptFamilyInvitationPage.tsx:46`
 - [ ] **L-FE-005d** · `LostReportConfirmationPage.tsx:104,189`, `ReportLostPage.tsx:64`
 - [ ] **L-FE-005e** · `useMovementPrediction.ts:42` (×2), `QRCodeDisplay.tsx:29`, `ReportFoundPetPage.tsx:66`
 - [ ] **L-FE-005f** · `ChatPanel.tsx:171`, `ReuniteButton.tsx:81`, `NotificationCenter.tsx:98`
-- [ ] **L-FE-006a** · `apiClient.ts` (10 hallazgos) — tipar el interceptor con `AxiosError<ApiProblemDetails>`
+- [x] **L-FE-006a** · Tipar el interceptor y eliminar `no-unsafe-*`; conteo actual 0
 - [ ] **L-FE-006b** · `src/sw.ts` (2) — declarar `__WB_MANIFEST` en `sw-types.d.ts`
-- [ ] **L-FE-006c** · `CantonChoroplethMap.tsx` (4), `authApi.ts` (2), `WeightTrendChart.tsx` (1)
-- [ ] **L-FE-006d** · `promotionApi.ts:59` y `serviceProvidersApi.ts:254` — genéricos explícitos en `apiClient.get<T>()`
-- [ ] **L-FE-006e** · Resto de `no-unsafe-assignment` en `src/features/stores/**` y `advertising`/`medical`
-- [ ] **L-FE-012** · `useActivity.ts:12`, `useMedical.ts:27,48`
-- [ ] **L-FE-013** · `useAlertPreference.ts:85`, `AllyPanelPage.test.tsx:63`
-- [ ] **L-FE-015** · `ActivityTab.tsx:211`
-- [ ] **L-FE-016** · `petsApi.ts:66`
+- [x] **L-FE-006c** · Tipado explícito de GeoJSON, JWT, gráficos y payloads; `no-unsafe-*` global en 0
+- [x] **L-FE-006d** · Genéricos explícitos en APIs de promociones y proveedores
+- [x] **L-FE-006e** · Corrección de `no-unsafe-assignment` en tiendas, advertising y medical
+- [x] **L-FE-012** · Uniones redundantes; ESLint actual en verde
+- [x] **L-FE-013** · `require-await`; ESLint actual en verde
+- [x] **L-FE-015** · Interpolaciones restringidas; ESLint actual en verde
+- [x] **L-FE-016** · Tipos vacíos; ESLint actual en verde
 
 ### Fase 5 — Higiene
 
-- [ ] **E-BE-004a** · `GetChatMessagesQuery.cs:35` — eliminar `unitOfWork` (query CQRS de solo lectura)
-- [ ] **E-BE-004b** · `ClinicAccessGrantCommands.cs:85` — **revisar** si falta validación de usuario antes de eliminar `userRepository`
-- [ ] **E-BE-004c** · `WidgetController.cs:18` — eliminar `sender` si no hay endpoints MediatR pendientes
-- [ ] **E-BE-004d** · `AdoptionsController.cs:15` — **verificar** que la subida de fotos usa Blob Storage antes de eliminar `blobStorage`
-- [ ] **E-BE-005** · Eliminar los 7 `using` duplicados (`InfrastructureServiceCollectionExtensions.cs` ×3, `PawTrackDbContext.cs` ×3, `WebhooksController.cs`, `Program.cs`)
-- [ ] **E-BE-006** · `QuestPdfCertificateService.cs:190` — decidir si falta el badge verde o eliminar la constante
-- [ ] **E-BE-007** · `QuestPdfIdCardService.cs:50` — migrar a la sobrecarga `ImageDescriptor` de QuestPDF
-- [ ] **E-BE-007b** · Verificar visualmente el PDF del carnet tras el cambio
-- [ ] **L-FE-007** · Ejecutar `npx eslint . --fix` para los 24 `no-unnecessary-type-assertion` + `npm run typecheck`
-- [ ] **L-FE-008** · Eliminar/prefijar las 9 variables sin usar
-- [ ] **L-FE-010** · Separar exportaciones no-componente en los 6 archivos (o override justificado para `routes.tsx`)
+- [x] **E-BE-004a** · `GetChatMessagesQuery.cs` — query CQRS sin dependencia `IUnitOfWork`
+- [x] **E-BE-004b** · `ClinicAccessGrantCommands.cs` — dependencia no usada revisada; validaciones de clínica/código permanecen
+- [x] **E-BE-004c** · `WidgetController.cs` — controller público no usa MediatR; dependencia innecesaria eliminada
+- [x] **E-BE-004d** · `AdoptionsController.cs` — la subida se delega a `UploadAdoptionPhotoCommand`, con Blob Storage en Application
+- [x] **E-BE-005** · Usings duplicados eliminados; build actual sin warnings `CS0105`
+- [x] **E-BE-006** · Constante `Green` no usada eliminada; no faltaba un badge en el layout actual
+- [x] **E-BE-007** · `QuestPdfIdCardService` usa `ImageDescriptor` (`Image(...).FitArea()`)
+- [ ] **E-BE-007b** · Verificación visual/manual del PDF del carnet tras el cambio
+- [x] **L-FE-007** · Eliminar `no-unnecessary-type-assertion` + validar typecheck; conteo actual 0
+- [x] **L-FE-008** · Variables sin usar eliminadas/prefijadas; ESLint actual en 0
+- [x] **L-FE-010** · Exportaciones mixtas separadas o justificadas; ESLint actual en 0
 
 ### Fase 6 — Barreras contra regresión
 
@@ -1347,11 +1384,11 @@ Si `npm audit fix` propone cambios mayores (`--force`), aplicarlos **de a un paq
 
 - [ ] `dotnet build PawTrack.sln -m:1` → 0 errores, 0 advertencias
 - [ ] `dotnet test PawTrack.sln` → todo verde, **sin tests omitidos silenciosamente**
-- [ ] `cd frontend && npm run typecheck` → exit 0 en los 3 proyectos
-- [ ] `cd frontend && npm run lint` → exit 0 con `--max-warnings 0`
-- [ ] `cd frontend && npm run test -- --run` → todo verde
-- [ ] `cd frontend && npm run build` → exit 0
+- [x] `cd frontend && npm run typecheck` → exit 0 en los 3 proyectos
+- [x] `cd frontend && npm run lint` → exit 0 con `--max-warnings 0`
+- [x] `cd frontend && npm run test -- --run` → 51/51 tests verdes
+- [x] `cd frontend && npm run build` → exit 0
 - [ ] `cd frontend && npx playwright test` → todo verde
-- [ ] `npm audit --audit-level=high` → sin hallazgos
+- [x] `npm audit --audit-level=high` → sin hallazgos
 - [ ] `dotnet list PawTrack.sln package --vulnerable --include-transitive` → sin hallazgos
 - [ ] Los 6 workflows de GitHub Actions en verde

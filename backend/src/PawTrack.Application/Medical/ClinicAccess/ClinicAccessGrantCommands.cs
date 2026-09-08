@@ -82,7 +82,6 @@ public sealed record ClinicAcceptOwnerCodeCommand(
 public sealed class ClinicAcceptOwnerCodeCommandHandler(
     IClinicRepository clinicRepository,
     IClinicMedicalAccessGrantRepository grantRepository,
-    IUserRepository userRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<ClinicAcceptOwnerCodeCommand, Result<ClinicAccessGrantDto>>
 {

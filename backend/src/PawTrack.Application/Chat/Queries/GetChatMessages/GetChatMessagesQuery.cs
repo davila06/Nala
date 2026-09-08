@@ -31,8 +31,7 @@ public sealed record GetChatMessagesQuery(
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 public sealed class GetChatMessagesQueryHandler(
-    IChatRepository chatRepository,
-    IUnitOfWork unitOfWork)
+    IChatRepository chatRepository)
     : IRequestHandler<GetChatMessagesQuery, Result<IReadOnlyList<ChatMessageDto>>>
 {
     private const int MaxPageSize = 100;

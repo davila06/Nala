@@ -62,7 +62,7 @@ public sealed class ActivateCollarTagCommandHandlerTests
         var result = await _sut.Handle(new ActivateCollarTagCommand(ValidSerial, PetId, OwnerId), default);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.CollarApiKey.Should().StartWith("ptwk_collar_");
+        result.Value!.CollarApiKey.Should().StartWith("ptwk_collar_");
         result.Value.Serial.Should().Be(ValidSerial);
         tag.Status.Should().Be(CollarTagStatus.Activated);
         await _uow.Received(1).SaveChangesAsync(default);

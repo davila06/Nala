@@ -1,12 +1,26 @@
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import { server } from "../../mocks/server";
 import { renderWithProviders } from "../../utils/renderWithProviders";
 
 describe("LoginPage", () => {
+  beforeEach(() => {
+    server.use(
+      http.get("http://localhost:5000/api/public/stats/recovery-overview", () =>
+        HttpResponse.json({
+          totalReports: 0,
+          recoveredCount: 0,
+          overallRecoveryRate: 0,
+          cantonRecovery: [],
+          speciesRecovery: [],
+        }),
+      ),
+    );
+  });
+
   it("renders email, password fields and submit button", () => {
     renderWithProviders(<LoginPage />);
 
@@ -38,7 +52,7 @@ describe("LoginPage", () => {
 
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent(
-        /credenciales incorrectas/i,
+        /correo o contraseña incorrectos/i,
       ),
     );
   });

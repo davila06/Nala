@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { markOnboardingDone } from "./onboardingStorage";
 
 const STEPS = [
   {
@@ -24,8 +25,6 @@ const STEPS = [
   },
 ];
 
-const STORAGE_KEY = "pawtrack_onboarding_done";
-
 interface OnboardingWizardProps {
   onDismiss?: () => void;
 }
@@ -34,11 +33,11 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
   const [step, setStep] = useState(0);
 
   const dismiss = () => {
-    localStorage.setItem(STORAGE_KEY, "1");
+    markOnboardingDone();
     onDismiss?.();
   };
 
-  const current = STEPS[step]!;
+  const current = STEPS[step];
 
   return (
     <div
@@ -127,6 +126,3 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
   );
 }
 
-export function shouldShowOnboarding(): boolean {
-  return !localStorage.getItem(STORAGE_KEY);
-}

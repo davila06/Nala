@@ -41,7 +41,7 @@ public sealed class RegisterServiceProviderCommandHandlerTests
             "SecurePass1!"), default);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Status.Should().Be("Pending");
+        result.Value!.Status.Should().Be("Pending");
         await users.Received(1).AddAsync(
             Arg.Is<User>(user => user.Role == UserRole.ServiceProvider), Arg.Any<CancellationToken>());
         await providers.Received(1).AddAsync(

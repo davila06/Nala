@@ -34,9 +34,6 @@ using PawTrack.Domain.Audit;
 using PawTrack.Domain.AnimalWelfare;
 using PawTrack.Domain.Regulatory;
 using PawTrack.Domain.ServiceProviders;
-using PawTrack.Domain.Bot;
-using PawTrack.Domain.Medical;
-using PawTrack.Domain.Outbox;
 
 namespace PawTrack.Infrastructure.Persistence;
 

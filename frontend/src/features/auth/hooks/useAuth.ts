@@ -28,7 +28,7 @@ export function useLogin(returnTo?: string) {
           : role === "Ally"
             ? "/allies/panel"
             : "/dashboard";
-      navigate(destination, { replace: true });
+      void navigate(destination, { replace: true });
     },
   });
 }
@@ -39,7 +39,7 @@ export function useRegister() {
   return useMutation({
     mutationFn: authApi.register,
     onSuccess: () => {
-      navigate("/login?registered=true");
+      void navigate("/login?registered=true");
     },
   });
 }
@@ -64,7 +64,7 @@ export function useLogout() {
     mutationFn: authApi.logout,
     onSettled: () => {
       clearAuth();
-      navigate("/login");
+      void navigate("/login");
     },
   });
 }

@@ -2,7 +2,7 @@
 
 > **Única fuente de verdad** sobre hardware de collar, proveedores, integración de código, CollarTag (activación tipo AirTag) y sourcing.  
 > Consolida: `collar.md`, `collar-china-sourcing.md`, `collarTag.md`.  
-> Última actualización: 2026-09-03 — CollarTag **implementado** (fases 1–3); Fase 4 Enterprise **COMPLETA**: Alertas de conectividad, Auditoría de eventos, Transferencia segura (Handover) y Lost Mode **implementados**. Fase 5 **COMPLETA** (4/4): Geofencing (Safe Zones), Historial de ubicaciones + export, Admin Dashboard mejorado, y E2E Testing Suite (Playwright) **implementados**. Conversación activa con **Jimi IoT** (RFQ enviado, respuesta recibida 2026-09-03) — ver `docs/jimiiot.md`.
+> Última actualización: 2026-09-07 — CollarTag **implementado** (fases 1–3); Fase 4 Enterprise **COMPLETA**: Alertas de conectividad, Auditoría de eventos, Transferencia segura (Handover) y Lost Mode **implementados**. Fase 5 **COMPLETA** (4/4): Geofencing (Safe Zones), Historial de ubicaciones + export, Admin Dashboard mejorado, y E2E Testing Suite (Playwright) **implementados**. La plataforma base para telemetría HTTP autenticada existe; la infraestructura IoT de producción para hardware propio se define en §3.4. Conversación activa con **Jimi IoT** (RFQ enviado, respuesta recibida 2026-09-03) — ver `docs/jimiiot.md`.
 
 ---
 
@@ -31,7 +31,8 @@
 | **E2E Testing Suite**                           | `frontend/e2e/*.spec.ts` (Playwright), `frontend/playwright.config.ts`, `.github/workflows/e2e.yml`                                                                            | ✅ Completo (alcance ajustado) — ver `docs/COLLAR_IMPLEMENTATION_PLAN.md` §Semana 8-9 |
 | **CollarTag (activación + inventario)**         | `CollarTags`, `CollarDeviceCredentials`, bulk import, activate/deactivate, device key generation                                                                               | ✅ Completo (fases 1–3) — §6                                                          |
 | **Kippy**                                       | `KippyService.cs`                                                                                                                                                              | ❌ Sin viabilidad en CR — ver §3.2                                                    |
-| **Hardware propio**                             | PCB ESP32-S3 + SIM7080G                                                                                                                                                        | ❌ Roadmap futuro (fase 4)                                                            |
+| **Hardware propio: activación e ingesta HTTP**  | `CollarProvider.Own`, CollarTag, `CollarDeviceKeyMiddleware`, `POST /api/collars/pet/{petId}/location`                                                                         | ✅ Base de plataforma completa                                                        |
+| **Hardware propio: flota IoT de producción**    | Firmware, DPS, Azure IoT Hub, procesador de telemetría, comandos y OTA                                                                                                         | ❌ Pendiente — diseño en §3.4                                                         |
 
 ---
 
@@ -244,7 +245,38 @@ Jimi IoT opera dos productos con propósitos opuestos — solo uno es viable com
 
 ### 3.4 Hardware propio PawTrack (roadmap futuro)
 
-`CollarProvider.Own = 0` reservado. Arquitectura recomendada:
+`CollarProvider.Own = 0` ya se usa durante la activación de un CollarTag. La plataforma actual genera una clave única por dispositivo (solo se persiste su hash), la acepta mediante `X-Collar-Key` y autoriza la publicación HTTP de ubicación en `POST /api/collars/pet/{petId}/location`. Esto permite prototipos y equipos OEM compatibles, pero no sustituye una plataforma de flota IoT.
+
+#### Arquitectura de producción objetivo
+
+```text
+Collar GPS + firmware
+  -> MQTT sobre TLS
+  -> Azure Device Provisioning Service (DPS)
+  -> Azure IoT Hub
+  -> procesador de telemetría (Azure Function o Container App)
+  -> comandos y servicios de Application de PawTrack
+  -> Azure SQL: estado actual + historial de ubicaciones
+
+PawTrack API -> mensajes cloud-to-device / device twin -> collar
+```
+
+| Capa                     | Responsabilidad de producción                                                                                                         | Estado                |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
+| Collar y firmware        | GPS, LTE-M/NB-IoT/4G, buffer offline, reintentos con backoff, timestamp UTC, contador secuencial, batería y versión de firmware       | Pendiente             |
+| Identidad de dispositivo | Serial, IMEI/eSIM, lote e identidad criptográfica única creados en fábrica; DPS asigna el dispositivo al IoT Hub del ambiente         | Pendiente             |
+| Transporte               | MQTT sobre TLS hacia IoT Hub; certificados X.509 o claves simétricas rotables por dispositivo                                         | Pendiente             |
+| Ingesta                  | Validar esquema, deduplicar por contador, rechazar posiciones imposibles y persistir mediante el módulo `Collars`                     | Pendiente             |
+| Estado y alertas         | Actualizar última posición/batería y disparar evaluaciones de zona segura, conectividad y modo perdido ya implementadas               | Integración pendiente |
+| Comandos                 | Frecuencia GPS, solicitud de posición, modo perdido y configuración mediante cloud-to-device y device twin, con acuse por `commandId` | Pendiente             |
+| OTA                      | Paquetes firmados, despliegue gradual, rollback y reporte de versión                                                                  | Pendiente             |
+| Observabilidad           | Métricas de conexión, retraso de ingesta, batería, comandos fallidos y dispositivos silenciosos en Azure Monitor/Application Insights | Pendiente             |
+
+**Límites de seguridad:** la app móvil nunca se conecta directamente al IoT Hub; consulta el API PawTrack. Cada mensaje debe incluir identidad del dispositivo, instante UTC y contador monotónico. El procesador valida el contrato y opera mediante comandos o servicios del módulo `Collars`, sin escribir tablas ajenas directamente.
+
+**Orden recomendado de entrega:** primero un piloto MQTT con DPS, IoT Hub, telemetría y alerta de desconexión; después comandos bidireccionales; finalmente OTA y operación de flota. Mantener la ingesta HTTP actual como herramienta de prototipo, diagnóstico o integración OEM que no soporte MQTT.
+
+#### Referencia de prototipo físico
 
 ```
 ESP32-S3 + SIM7080G → MQTT/TLS → Azure IoT Hub → Azure Function → POST /api/collars/ingest
@@ -294,17 +326,17 @@ Clonar `TractivePollingJob` para el proveedor elegido. Esfuerzo: ~1–2 días.
 
 **Lo que puede aumentar el esfuerzo:** firma HMAC manual, o suscripción previa a webhook del proveedor para habilitar el polling.
 
-### Camino B — Push directo HTTP (gap de seguridad pendiente)
+### Camino B — Push directo HTTP (implementado para prototipos y OEM)
 
-El collar (o gateway del proveedor) hace `POST /api/collars/ingest` directamente.
+El collar (o gateway del proveedor) hace `POST /api/collars/pet/{petId}/location` directamente.
 
-**Gap a cerrar antes de producción:** el endpoint actual hereda `[Authorize]` y exige JWT de usuario. Solución:
+**Implementación actual:**
 
-1. Tabla `CollarDeviceCredentials` (`CollarId`, `KeyHash`, `CreatedAt`, `RevokedAt`).
-2. Endpoint con `[AllowAnonymous]` + `CollarDeviceKeyMiddleware` validando header `X-Collar-Key`.
-3. Reutilizar el patrón de `ClinicApiKeyMiddleware` (secreto hash SHA-256, nunca en texto plano en DB).
+1. `CollarDeviceCredentials` persiste `CollarId`, hash SHA-256, creación, revocación y último uso; la clave en texto se muestra una sola vez.
+2. `CollarDeviceKeyMiddleware` valida el header `X-Collar-Key` y agrega el claim `CollarId` a la identidad del dispositivo.
+3. El endpoint exige que el claim corresponda al collar activo de la mascota; un propietario autenticado también puede registrar una ubicación manualmente. Otro usuario recibe `403`.
 
-> **Recomendación:** arrancar con Camino A en el primer lote; evaluar Camino B solo con hardware 100% propio.
+**Límite:** HTTP autenticado es suficiente para pruebas, diagnósticos y ciertos OEM, pero MQTT/TLS con DPS e IoT Hub es el canal previsto para una flota de hardware propio en producción.
 
 ---
 

@@ -152,7 +152,7 @@ export default function MyStoreOrdersPage() {
 
         {isLoading && (
           <div className="space-y-3">
-            {[...Array(3)].map((_, i) => (
+            {Array.from({ length: 3 }).map((_, i) => (
               <Skeleton key={i} className="h-32 rounded-2xl" />
             ))}
           </div>

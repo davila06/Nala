@@ -336,9 +336,7 @@ function RecordCard({
   const [editOpen, setEditOpen] = useState(false);
 
   // Edit form state — kept in RecordCard so it resets cleanly
-  const [editType, setEditType] = useState<MedicalRecordType>(
-    record.type as MedicalRecordType,
-  );
+  const [editType, setEditType] = useState<MedicalRecordType>(record.type);
   const [editDate, setEditDate] = useState(record.date);
   const [editDesc, setEditDesc] = useState(record.description);
   const [editDescError, setEditDescError] = useState("");
@@ -389,7 +387,7 @@ function RecordCard({
   const closeEdit = () => {
     setEditOpen(false);
     setEditDescError("");
-    setEditType(record.type as MedicalRecordType);
+    setEditType(record.type);
     setEditDate(record.date);
     setEditDesc(record.description);
     setEditVet(record.vetName ?? "");
@@ -547,7 +545,7 @@ function RecordCard({
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-sm font-semibold text-sand-800">
-              {TYPE_LABEL[record.type as MedicalRecordType] ?? record.type}
+              {TYPE_LABEL[record.type] ?? record.type}
             </span>
             {isClinic && (
               <span className="shrink-0 rounded-full bg-trust-100 px-2 py-0.5 text-xs font-medium text-trust-700">
@@ -830,10 +828,14 @@ function AddRecordForm({
       ) : (
         <>
           <div>
-            <label className="mb-1 block text-xs font-medium text-sand-600">
+            <label
+              htmlFor="medical-record-type"
+              className="mb-1 block text-xs font-medium text-sand-600"
+            >
               Tipo
             </label>
             <select
+              id="medical-record-type"
               value={type}
               onChange={(e) => setType(e.target.value as MedicalRecordType)}
               className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
@@ -848,10 +850,14 @@ function AddRecordForm({
 
           {/* Date */}
           <div>
-            <label className="mb-1 block text-xs font-medium text-sand-600">
+            <label
+              htmlFor="medical-record-date"
+              className="mb-1 block text-xs font-medium text-sand-600"
+            >
               Fecha
             </label>
             <Input
+              id="medical-record-date"
               type="date"
               value={date}
               max={today}
@@ -861,10 +867,14 @@ function AddRecordForm({
 
           {/* Description */}
           <div>
-            <label className="mb-1 block text-xs font-medium text-sand-600">
+            <label
+              htmlFor="medical-record-description"
+              className="mb-1 block text-xs font-medium text-sand-600"
+            >
               Descripción *
             </label>
             <textarea
+              id="medical-record-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
@@ -876,20 +886,28 @@ function AddRecordForm({
           {/* Vet / Clinic */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="medical-record-vet"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Veterinario
               </label>
               <Input
+                id="medical-record-vet"
                 placeholder="Dr. Nombre"
                 value={vetName}
                 onChange={(e) => setVetName(e.target.value)}
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="medical-record-clinic"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Clínica
               </label>
               <Input
+                id="medical-record-clinic"
                 placeholder="Nombre clínica"
                 value={clinicName}
                 onChange={(e) => setClinicName(e.target.value)}
@@ -899,10 +917,14 @@ function AddRecordForm({
 
           {/* Next due */}
           <div>
-            <label className="mb-1 block text-xs font-medium text-sand-600">
+            <label
+              htmlFor="medical-record-next-due"
+              className="mb-1 block text-xs font-medium text-sand-600"
+            >
               Próxima cita (opcional)
             </label>
             <Input
+              id="medical-record-next-due"
               type="date"
               value={nextDueDate}
               min={today}
@@ -912,10 +934,14 @@ function AddRecordForm({
 
           {/* Document */}
           <div>
-            <label className="mb-1 block text-xs font-medium text-sand-600">
+            <label
+              htmlFor="medical-record-document"
+              className="mb-1 block text-xs font-medium text-sand-600"
+            >
               Documento (PDF / foto, máx. 5MB)
             </label>
             <input
+              id="medical-record-document"
               type="file"
               accept=".pdf,image/jpeg,image/png"
               onChange={(e) => setDocument(e.target.files?.[0] ?? null)}
@@ -981,6 +1007,7 @@ function AddReminderForm({
         Nuevo recordatorio
       </h3>
       <select
+        id="medical-reminder-type"
         value={type}
         onChange={(e) => setType(e.target.value as MedicalRecordType)}
         className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-trust-400"
@@ -992,20 +1019,28 @@ function AddReminderForm({
         ))}
       </select>
       <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">
+        <label
+          htmlFor="medical-reminder-title"
+          className="mb-1 block text-xs font-medium text-sand-600"
+        >
           Título *
         </label>
         <Input
+          id="medical-reminder-title"
           placeholder="Ej. Refuerzo vacuna antirrábica"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">
+        <label
+          htmlFor="medical-reminder-date"
+          className="mb-1 block text-xs font-medium text-sand-600"
+        >
           Fecha *
         </label>
         <Input
+          id="medical-reminder-date"
           type="date"
           value={dueDate}
           min={tomorrow}
@@ -1013,10 +1048,14 @@ function AddReminderForm({
         />
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">
+        <label
+          htmlFor="medical-reminder-notes"
+          className="mb-1 block text-xs font-medium text-sand-600"
+        >
           Notas
         </label>
         <textarea
+          id="medical-reminder-notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={2}

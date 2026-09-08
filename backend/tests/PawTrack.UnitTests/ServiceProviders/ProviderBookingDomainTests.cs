@@ -8,7 +8,7 @@ public sealed class ProviderBookingDomainTests
     [Fact]
     public void Request_CapturesServiceTermsAndCanBeCancelled()
     {
-        var startsAt = new DateTimeOffset(2026, 9, 10, 14, 0, 0, TimeSpan.Zero);
+        var startsAt = DateTimeOffset.UtcNow.AddHours(72);
 
         var booking = ProviderBooking.Request(
             Guid.NewGuid(),

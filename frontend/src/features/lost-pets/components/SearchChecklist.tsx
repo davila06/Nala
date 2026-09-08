@@ -192,7 +192,7 @@ function PhaseSection({
 
       {/* Accordion body */}
       {isOpen && (
-        <ul id={sectionId} role="list" className="px-4 pb-3 pt-1 space-y-2">
+        <ul id={sectionId} className="px-4 pb-3 pt-1 space-y-2">
           {items.map((item) => {
             const checked = checkedIds.has(item.id);
             return (

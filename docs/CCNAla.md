@@ -10,6 +10,8 @@
 
 **PawTrack CR** es una plataforma digital costarricense— disponible como aplicación web progresiva (PWA), funciona en cualquier smartphone sin necesidad de instalar nada— cuyo propósito es **reducir el tiempo que una mascota pasa perdida y aumentar las probabilidades de que vuelva a casa**.
 
+> Nota de alineación: la fuente de verdad del producto es la implementación actual del backend en `SubscriptionTier` y `SubscriptionPricing`. Los tiers vigentes no son una tabla histórica: hoy existen `Free`, `UserPlus`, `UserFamilia`, `StorePlus`, `StorePartner`, `ShelterPlus`, `ClinicPlus`, `ClinicPartner`, `MuniBasica`, `MuniFull` y `MuniRedRegional`.
+
 La propuesta de valor en una línea:
 
 > _"Cuando tu mascota se pierde, PawTrack CR activa una red inteligente de búsqueda en tiempo real para traerla de vuelta."_
@@ -128,6 +130,8 @@ Estos datos son públicos y refuerzan la credibilidad de la plataforma.
 
 ### Para dueños de mascotas
 
+La app usa la nomenclatura técnica del backend `Free`, `UserPlus` y `UserFamilia`; la presentación visible para el usuario se mantiene como **Explorador**, **Plus** y **Familia**.
+
 |                                | **Free**  | **Plus** ₡2,990/mes      | **Familia** ₡4,990/mes |
 | ------------------------------ | --------- | ------------------------ | ---------------------- |
 | Mascotas registradas           | 1         | 3                        | Ilimitadas             |
@@ -141,7 +145,9 @@ Estos datos son públicos y refuerzan la credibilidad de la plataforma.
 
 ### Para clínicas veterinarias
 
-|                                     | **Afiliada básica** (gratis) | **Clínica Plus** ₡15,000/mes | **Clínica Partner** ₡35,000/mes |
+El registro público/directorio gratuito se comporta como `ClinicBasic`; los planes comerciales activos en la implementación actual son `ClinicPlus` y `ClinicPartner`.
+
+|                                     | **Estado base / directorio** | **Clínica Plus** ₡15,000/mes | **Clínica Partner** ₡35,000/mes |
 | ----------------------------------- | ---------------------------- | ---------------------------- | ------------------------------- |
 | Directorio y escaneo QR/microchip   | ✅                           | ✅                           | ✅                              |
 | Posición destacada en mapa          | —                            | ✅                           | ✅                              |
@@ -151,14 +157,19 @@ Estos datos son públicos y refuerzan la credibilidad de la plataforma.
 
 ### Para tiendas de mascotas
 
-|                                | **Básica** (gratis) | **StorePlus** ₡12,000/mes |
-| ------------------------------ | ------------------- | ------------------------- |
-| Listing en directorio y mapa   | ✅                  | ✅                        |
-| Catálogo de productos in-app   | —                   | ✅                        |
-| Pedidos y pago con SINPE Móvil | —                   | ✅                        |
-| Pin destacado en el mapa       | —                   | ✅                        |
+`StoreBasic` representa el estado base/directorio gratuito; la venta activa del producto real corresponde a `StorePlus` y `StorePartner`.
+
+|                                | **StoreBasic** (gratis) | **StorePlus** ₡12,000/mes | **StorePartner** ₡25,000/mes |
+| ------------------------------ | ----------------------- | ------------------------- | ---------------------------- |
+| Listing en directorio y mapa   | ✅                      | ✅                        | ✅                           |
+| Catálogo de productos in-app   | —                       | ✅                        | ✅                           |
+| Pedidos y pago con SINPE Móvil | —                       | ✅                        | ✅                           |
+| Pin destacado en el mapa       | —                       | ✅                        | ✅                           |
+| Analytics avanzados            | —                       | —                         | ✅                           |
 
 ### Para refugios y organizaciones de adopción
+
+`ShelterBasic` es el estado base/directorio gratuito; el plan comercial activo del producto es `ShelterPlus`.
 
 | Feature                                     | ShelterBasic (base/directorio) | ShelterPlus (₡8,000/mes) |
 | ------------------------------------------- | ------------------------------ | ------------------------ |
@@ -195,6 +206,8 @@ Ciudadanos que encuentran mascotas, rescatistas independientes, organizaciones d
 ### Refugios y organizaciones de adopción
 
 Refugios, perreras privadas y grupos de rescate que quieren digitalizar sus campañas de adopción. Con el estado base/directorio `ShelterBasic` (gratuito) pueden publicar hasta 5 animales. Con `ShelterPlus` (₡8,000/mes) obtienen animales ilimitados, ferias de adopción geofenceadas y pin destacado en el mapa.
+
+> Los estados `ShelterBasic`, `StoreBasic` y `ClinicBasic` no sustituyen a los planes pagados activos: el performance real del producto se rige por `ShelterPlus`, `StorePlus` / `StorePartner`, y `ClinicPlus` / `ClinicPartner`.
 
 ### Municipalidades e instituciones
 

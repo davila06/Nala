@@ -59,10 +59,14 @@ function SpecRow({
       <div className="grid grid-cols-2 gap-3">
         {/* Type */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="promotion-type"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Tipo de beneficio
           </label>
           <select
+            id="promotion-type"
             value={spec.type}
             onChange={(e) => {
               const t = e.target.value as PromotionType;
@@ -93,10 +97,14 @@ function SpecRow({
         {/* Type-specific config */}
         {spec.type === "PercentageDiscount" && (
           <div>
-            <label className="mb-1 block text-xs font-medium text-sand-600">
+            <label
+              htmlFor="promotion-discount"
+              className="mb-1 block text-xs font-medium text-sand-600"
+            >
               Porcentaje de descuento
             </label>
             <select
+              id="promotion-discount"
               value={spec.discountPercent ?? 10}
               onChange={(e) =>
                 update({ discountPercent: Number(e.target.value) })
@@ -111,10 +119,14 @@ function SpecRow({
 
         {spec.type === "FreeTier" && (
           <div>
-            <label className="mb-1 block text-xs font-medium text-sand-600">
+            <label
+              htmlFor="promotion-free-tier"
+              className="mb-1 block text-xs font-medium text-sand-600"
+            >
               Plan gratuito
             </label>
             <select
+              id="promotion-free-tier"
               value={spec.targetTier ?? "UserPlus"}
               onChange={(e) => update({ targetTier: e.target.value })}
               className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
@@ -128,10 +140,14 @@ function SpecRow({
         {spec.type === "FreeMonths" && (
           <>
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="promotion-duration"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Duración
               </label>
               <select
+                id="promotion-duration"
                 value={spec.freeMonths ?? 1}
                 onChange={(e) => update({ freeMonths: Number(e.target.value) })}
                 className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
@@ -142,10 +158,14 @@ function SpecRow({
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="promotion-duration-tier"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Plan
               </label>
               <select
+                id="promotion-duration-tier"
                 value={spec.targetTier ?? "UserPlus"}
                 onChange={(e) => update({ targetTier: e.target.value })}
                 className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
@@ -161,10 +181,14 @@ function SpecRow({
       <div className="grid grid-cols-3 gap-3">
         {/* Max redemptions */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="promotion-max-redemptions"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Usos máx. (-1 = ∞)
           </label>
           <Input
+            id="promotion-max-redemptions"
             type="number"
             min={-1}
             value={spec.maxRedemptions}
@@ -174,10 +198,14 @@ function SpecRow({
 
         {/* Quantity */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="promotion-quantity"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Cantidad de códigos
           </label>
           <Input
+            id="promotion-quantity"
             type="number"
             min={1}
             max={100}
@@ -188,10 +216,14 @@ function SpecRow({
 
         {/* Expiry */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-sand-600">
+          <label
+            htmlFor="promotion-expiry"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
             Vence (opcional)
           </label>
           <Input
+            id="promotion-expiry"
             type="date"
             value={spec.expiresAt ? spec.expiresAt.slice(0, 10) : ""}
             onChange={(e) =>
@@ -207,10 +239,14 @@ function SpecRow({
 
       {/* Admin note */}
       <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">
+        <label
+          htmlFor="promotion-admin-note"
+          className="mb-1 block text-xs font-medium text-sand-600"
+        >
           Nota interna
         </label>
         <Input
+          id="promotion-admin-note"
           placeholder="Ej: Campaña influencers agosto 2026"
           value={spec.adminNote ?? ""}
           onChange={(e) => update({ adminNote: e.target.value || undefined })}

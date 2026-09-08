@@ -104,7 +104,7 @@ export default function StoreDirectoryPage() {
         {/* Loading */}
         {isLoading && (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {[...Array(6)].map((_, i) => (
+            {Array.from({ length: 6 }).map((_, i) => (
               <Skeleton key={i} className="h-52 rounded-2xl" />
             ))}
           </div>

@@ -189,7 +189,7 @@ export function CertificateIssueModal({
                     {...field("petColor")}
                   />
                 </label>
-                <label className="block text-xs font-semibold text-sand-700 sm:col-span-2">
+                <span className="block text-xs font-semibold text-sand-700 sm:col-span-2">
                   Veterinario autorizado
                   <select
                     required
@@ -203,7 +203,7 @@ export function CertificateIssueModal({
                       </option>
                     ))}
                   </select>
-                </label>
+                </span>
               </div>
 
               <div className="rounded-2xl border border-sand-100 bg-surface-warm p-3">
@@ -287,9 +287,9 @@ export function CertificateIssueModal({
                 </label>
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
-                <label className="block text-xs font-semibold text-sand-700 sm:col-span-3">
+                <span className="block text-xs font-semibold text-sand-700 sm:col-span-3">
                   Control antiparasitario opcional
-                </label>
+                </span>
                 <input
                   placeholder="Producto"
                   className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input"

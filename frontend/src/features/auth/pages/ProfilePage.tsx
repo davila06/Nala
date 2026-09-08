@@ -419,7 +419,7 @@ export default function ProfilePage() {
     try {
       await deleteAccountMutation({ confirmPassword: deletePassword });
       toast.success("Cuenta eliminada.");
-      navigate("/login");
+      void navigate("/login");
     } catch {
       toast.error("No se pudo eliminar la cuenta. Verifica tu contraseña.");
     }
@@ -433,7 +433,7 @@ export default function ProfilePage() {
       setHomeLat(geo.coords.lat);
       setHomeLng(geo.coords.lng);
     }
-  }, [geo.coords]);
+  }, [geo.coords, homeLat, homeLng]);
 
   const canSaveFoster = useMemo(
     () => isVolunteer && acceptedSpecies.length > 0 && maxDays > 0,
@@ -545,7 +545,6 @@ export default function ProfilePage() {
                   value={nameInput}
                   onChange={(e) => setNameInput(e.target.value)}
                   maxLength={100}
-                  autoFocus
                   onKeyDown={(e) => {
                     if (e.key === "Enter") void handleSaveName();
                     if (e.key === "Escape") setEditingName(false);
@@ -760,10 +759,14 @@ export default function ProfilePage() {
         {showChangePwd && (
           <div className="mt-4 space-y-3">
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="current-password"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Contraseña actual
               </label>
               <Input
+                id="current-password"
                 type="password"
                 value={currentPwd}
                 onChange={(e) => setCurrentPwd(e.target.value)}
@@ -771,10 +774,14 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="new-password"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Nueva contraseña
               </label>
               <Input
+                id="new-password"
                 type="password"
                 value={newPwd}
                 onChange={(e) => setNewPwd(e.target.value)}
@@ -804,10 +811,14 @@ export default function ProfilePage() {
               )}
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-sand-600">
+              <label
+                htmlFor="confirm-new-password"
+                className="mb-1 block text-xs font-medium text-sand-600"
+              >
                 Confirmar nueva contraseña
               </label>
               <Input
+                id="confirm-new-password"
                 type="password"
                 value={confirmNewPwd}
                 onChange={(e) => setConfirmNewPwd(e.target.value)}

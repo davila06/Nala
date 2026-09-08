@@ -220,7 +220,8 @@ function AlliesTab() {
     return <EmptyState msg="No hay solicitudes de aliados pendientes." />;
 
   const handle = async (ally: PendingAllyDto, approve: boolean) => {
-    approve ? tap() : warning();
+    if (approve) tap();
+    else warning();
     setProcessingId(ally.userId);
     try {
       await review({ userId: ally.userId, approve });
@@ -283,7 +284,8 @@ function ClinicsTab() {
     return <EmptyState msg="No hay clínicas pendientes de aprobación." />;
 
   const handle = async (clinic: PendingClinicDto, approve: boolean) => {
-    approve ? tap() : warning();
+    if (approve) tap();
+    else warning();
     setProcessingId(clinic.id);
     try {
       await review({ clinicId: clinic.id, approve });
@@ -401,18 +403,26 @@ function VerificationTab() {
   return (
     <div className="space-y-5">
       <div className="grid gap-3 rounded-2xl border border-sand-100 bg-surface-warm p-3 sm:grid-cols-2">
-        <label className="text-xs font-semibold text-sand-700">
+        <label
+          htmlFor="verification-expires-at"
+          className="text-xs font-semibold text-sand-700"
+        >
           Vencimiento al aprobar
           <Input
+            id="verification-expires-at"
             type="date"
             value={expiresAt}
             onChange={(event) => setExpiresAt(event.target.value)}
             className="mt-1"
           />
         </label>
-        <label className="text-xs font-semibold text-sand-700">
+        <label
+          htmlFor="verification-rejection-reason"
+          className="text-xs font-semibold text-sand-700"
+        >
           Motivo al rechazar
           <Input
+            id="verification-rejection-reason"
             value={reason}
             onChange={(event) => setReason(event.target.value)}
             className="mt-1"
@@ -860,9 +870,11 @@ function BundlesTab() {
                 <button
                   type="button"
                   disabled={processingId === order.id}
-                  onClick={() =>
-                    handle(order.id, () => confirmPayment.mutateAsync(order.id))
-                  }
+                  onClick={() => {
+                    void handle(order.id, () =>
+                      confirmPayment.mutateAsync(order.id),
+                    );
+                  }}
                   className="rounded-lg bg-rescue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-rescue-700 disabled:opacity-50"
                 >
                   ✅ Confirmar pago
@@ -884,14 +896,14 @@ function BundlesTab() {
                   <button
                     type="button"
                     disabled={processingId === order.id}
-                    onClick={() =>
-                      handle(order.id, () =>
+                    onClick={() => {
+                      void handle(order.id, () =>
                         markSourced.mutateAsync({
                           id: order.id,
                           adminNotes: notesInput[order.id],
                         }),
-                      )
-                    }
+                      );
+                    }}
                     className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-700 disabled:opacity-50 shrink-0"
                   >
                     📦 Marcar en adquisición
@@ -917,15 +929,15 @@ function BundlesTab() {
                       processingId === order.id ||
                       !trackingInput[order.id]?.trim()
                     }
-                    onClick={() =>
-                      handle(order.id, () =>
+                    onClick={() => {
+                      void handle(order.id, () =>
                         markShipped.mutateAsync({
                           id: order.id,
                           trackingNumber: trackingInput[order.id],
                           adminNotes: notesInput[order.id],
                         }),
-                      )
-                    }
+                      );
+                    }}
                     className="rounded-lg bg-trust-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-trust-700 disabled:opacity-50 shrink-0"
                   >
                     🚚 Marcar enviado
@@ -936,9 +948,11 @@ function BundlesTab() {
                 <button
                   type="button"
                   disabled={processingId === order.id}
-                  onClick={() =>
-                    handle(order.id, () => markDelivered.mutateAsync(order.id))
-                  }
+                  onClick={() => {
+                    void handle(order.id, () =>
+                      markDelivered.mutateAsync(order.id),
+                    );
+                  }}
                   className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-green-700 disabled:opacity-50"
                 >
                   ✅ Marcar entregado
@@ -948,14 +962,14 @@ function BundlesTab() {
                 <button
                   type="button"
                   disabled={processingId === order.id}
-                  onClick={() =>
-                    handle(order.id, () =>
+                  onClick={() => {
+                    void handle(order.id, () =>
                       cancelOrder.mutateAsync({
                         id: order.id,
                         adminNotes: "Cancelado por administrador",
                       }),
-                    )
-                  }
+                    );
+                  }}
                   className="rounded-lg border border-danger-200 px-3 py-1.5 text-xs font-semibold text-danger-600 hover:bg-danger-50 disabled:opacity-50"
                 >
                   Cancelar

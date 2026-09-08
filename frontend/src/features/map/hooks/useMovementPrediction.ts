@@ -19,7 +19,10 @@ export function useMovementPredictions(
   lostPetEventIds: string[],
 ): Record<string, MovementPrediction> {
   // Cap to the most-recent N pets visible on screen to avoid request storms.
-  const cappedIds = lostPetEventIds.slice(0, MAX_PREDICTIONS_IN_FLIGHT);
+  const cappedIds = useMemo(
+    () => lostPetEventIds.slice(0, MAX_PREDICTIONS_IN_FLIGHT),
+    [lostPetEventIds],
+  );
 
   const results = useQueries({
     queries: cappedIds.map((id) => ({
@@ -39,5 +42,5 @@ export function useMovementPredictions(
       if (data !== undefined) map[id] = data;
     });
     return map;
-  }, [results, cappedIds.join(",")]);
+  }, [results, cappedIds]);
 }

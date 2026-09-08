@@ -43,7 +43,7 @@ public sealed class GenerateCollarDeviceKeyCommandHandlerTests
         var result = await _sut.Handle(new GenerateCollarDeviceKeyCommand(CollarId, OwnerId), default);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.CollarDeviceKey.Should().StartWith("ptwk_collar_");
+        result.Value!.CollarDeviceKey.Should().StartWith("ptwk_collar_");
         existingCred.IsRevoked.Should().BeTrue("existing credential must be revoked before issuing a new one");
         await _credRepo.Received(1).AddAsync(Arg.Any<CollarDeviceCredential>(), default);
         await _uow.Received(1).SaveChangesAsync(default);

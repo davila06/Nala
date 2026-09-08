@@ -142,7 +142,7 @@ public sealed class CreateBountyCommandHandlerTests
             new CreateBountyCommand(Guid.NewGuid(), Guid.NewGuid(), 15_000m), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Amount.Should().Be(15_000m);
+        result.Value!.Amount.Should().Be(15_000m);
     }
 
     [Fact]

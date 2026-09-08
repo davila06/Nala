@@ -170,6 +170,8 @@ public sealed class ChatContactGuardTests
     private SendChatMessageCommandHandler MakeSut() =>
         new(_chatRepo, _userRepo, _notifications, _lostPetRepo, _petRepo,
           _pii, Substitute.For<IChatNotifier>(), _uow, NullLogger<SendChatMessageCommandHandler>.Instance);
+
+    [Theory]
     [InlineData("Escríbeme a user@example.com")]
     [InlineData("llama al 8888-1234")]
     [InlineData("mi tel: +506 8881 2345")]

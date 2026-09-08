@@ -205,7 +205,9 @@ export default function AuthenticatedLayout() {
     setDropdownOpen(false);
     setMenuOpen(false);
     logout(undefined, {
-      onSuccess: () => navigate("/login", { replace: true }),
+      onSuccess: () => {
+        void navigate("/login", { replace: true });
+      },
     });
   }
 
@@ -660,7 +662,9 @@ export default function AuthenticatedLayout() {
             {isSubPage && (
               <button
                 type="button"
-                onClick={() => navigate(-1)}
+                onClick={() => {
+                  void navigate(-1);
+                }}
                 aria-label="Volver atrás"
                 className="mr-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-sand-500 hover:bg-sand-100 hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-base"
               >

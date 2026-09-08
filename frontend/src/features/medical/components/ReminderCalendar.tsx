@@ -30,7 +30,7 @@ const DAY_NAMES = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 function buildCalendarDays(year: number, month: number) {
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const cells: (number | null)[] = Array(firstDay).fill(null);
+  const cells: (number | null)[] = Array.from({ length: firstDay }, () => null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
   while (cells.length % 7 !== 0) cells.push(null);
   return cells;

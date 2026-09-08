@@ -32,7 +32,7 @@ export function CollarHandoverDialog({
 
   const handleCopyPin = () => {
     if (!pin) return;
-    navigator.clipboard.writeText(pin);
+    void navigator.clipboard.writeText(pin);
     setPinCopied(true);
     setTimeout(() => setPinCopied(false), 2000);
   };

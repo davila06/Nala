@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getCookieConsent, type ConsentState } from "./cookieConsent";
 
 const STORAGE_KEY = "pawtrack_cookie_consent";
-
-type ConsentState = "accepted" | "rejected" | null;
 
 export function CookieConsentBanner() {
   const [consent, setConsent] = useState<ConsentState>(() => {
     try {
-      return (localStorage.getItem(STORAGE_KEY) as ConsentState) ?? null;
+      return getCookieConsent();
     } catch {
       return null;
     }
@@ -74,11 +73,3 @@ export function CookieConsentBanner() {
   );
 }
 
-/** Returns the stored consent value without causing a re-render. */
-export function getCookieConsent(): ConsentState {
-  try {
-    return (localStorage.getItem(STORAGE_KEY) as ConsentState) ?? null;
-  } catch {
-    return null;
-  }
-}

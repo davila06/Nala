@@ -72,11 +72,11 @@ export default function CreatePetPage() {
       if (isEditMode && id) {
         await updateMutation.mutateAsync(data);
         success();
-        navigate(`/pets/${id}`);
+        void navigate(`/pets/${id}`);
       } else {
         const response = await createMutation.mutateAsync(data);
         success();
-        navigate(`/pets/${response.petId}`);
+        void navigate(`/pets/${response.petId}`);
       }
     } catch {
       /* errors shown via mutation state */
@@ -104,7 +104,9 @@ export default function CreatePetPage() {
       {/* Back button */}
       <button
         type="button"
-        onClick={() => navigate(-1)}
+        onClick={() => {
+          void navigate(-1);
+        }}
         className="mb-5 flex items-center gap-1.5 rounded-lg text-sm text-sand-500 hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
       >
         ← Volver
@@ -212,7 +214,6 @@ export default function CreatePetPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Ej. Firulais"
-                    autoFocus
                     className="block w-full rounded-xl border border-sand-300 px-3.5 py-2.5 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
                   />
                 </div>

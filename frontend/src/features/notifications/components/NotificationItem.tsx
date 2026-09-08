@@ -33,7 +33,7 @@ export function NotificationItemCard({ notification }: NotificationItemProps) {
     }
     // Deep-link: chat messages navigate directly to the thread
     if (notification.type === "ChatMessage" && notification.relatedEntityId) {
-      navigate(`/chat/t/${notification.relatedEntityId}`);
+      void navigate(`/chat/t/${notification.relatedEntityId}`);
     }
   };
 
