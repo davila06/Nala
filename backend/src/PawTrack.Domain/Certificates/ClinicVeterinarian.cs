@@ -2,6 +2,14 @@ using PawTrack.Domain.Common;
 
 namespace PawTrack.Domain.Certificates;
 
+public static class ClinicVeterinarianPermission
+{
+    public const string ViewMedical = "medical:read";
+    public const string WriteMedical = "medical:write";
+    public const string ExportMedical = "medical:export";
+    public const string IssueCertificates = "certificates:issue";
+}
+
 public enum ClinicVeterinarianStatus
 {
     PendingReview,
@@ -35,11 +43,32 @@ public sealed class ClinicVeterinarian
     public DateTimeOffset? RevokedAt { get; private set; }
     public Guid? RevokedByUserId { get; private set; }
     public string? RevocationReason { get; private set; }
+    public string Permissions { get; private set; } = "[\"medical:read\",\"medical:write\",\"certificates:issue\"]";
 
     public bool IsActive =>
         Status == ClinicVeterinarianStatus.Authorized &&
         RevokedAt is null &&
         (!ExpiresAt.HasValue || ExpiresAt.Value >= DateOnly.FromDateTime(DateTime.UtcNow));
+
+    public bool HasPermission(string permission) =>
+        IsActive && Permissions.Contains($"\"{permission}\"", StringComparison.Ordinal);
+
+    public Result<bool> SetPermissions(Guid requestingUserId, IReadOnlyCollection<string> permissions)
+    {
+        if (requestingUserId == Guid.Empty) return Result.Failure<bool>("Usuario requerido.");
+        var allowed = new[]
+        {
+            ClinicVeterinarianPermission.ViewMedical,
+            ClinicVeterinarianPermission.WriteMedical,
+            ClinicVeterinarianPermission.ExportMedical,
+            ClinicVeterinarianPermission.IssueCertificates,
+        };
+        var normalized = permissions.Distinct(StringComparer.Ordinal).ToArray();
+        if (normalized.Any(permission => !allowed.Contains(permission, StringComparer.Ordinal)))
+            return Result.Failure<bool>("Permiso de veterinario no válido.");
+        Permissions = System.Text.Json.JsonSerializer.Serialize(normalized);
+        return Result.Success(true);
+    }
 
     public static ClinicVeterinarian Create(Guid clinicId, string fullName, string licenseNumber)
     {

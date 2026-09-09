@@ -17,6 +17,8 @@ public sealed class VetCertificate
     public string VerificationCode { get; private set; } = string.Empty;
     /// <summary>Blob Storage URL to the generated PDF/A file.</summary>
     public string? PdfUrl { get; private set; }
+    public string? SignatureUrl { get; private set; }
+    public string? SignatureAlgorithm { get; private set; }
     public DateTimeOffset IssuedAt { get; private set; }
     /// <summary>Optional expiry (e.g. annual vaccination); null = no expiry.</summary>
     public DateTimeOffset? ValidUntil { get; private set; }
@@ -53,6 +55,11 @@ public sealed class VetCertificate
     // ── Behaviour ───────────────────────────────────────────────────────────
 
     public void SetPdfUrl(string url) => PdfUrl = url;
+    public void SetSignature(string url, string algorithm)
+    {
+        SignatureUrl = url;
+        SignatureAlgorithm = algorithm;
+    }
 
     public void Revoke() => IsRevoked = true;
 

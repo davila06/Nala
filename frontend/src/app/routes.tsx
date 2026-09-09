@@ -101,6 +101,9 @@ const ClinicRegisterPage = lazy(
 const ClinicDirectoryPage = lazy(
   () => import("@/features/clinics/pages/ClinicDirectoryPage"),
 );
+const ClinicPublicProfilePage = lazy(
+  () => import("@/features/clinics/pages/ClinicPublicProfilePage"),
+);
 const ClinicPendingPage = lazy(
   () => import("@/features/clinics/pages/ClinicPendingPage"),
 );
@@ -352,6 +355,14 @@ export const router = createBrowserRouter([
             element: (
               <S name="Directorio de clínicas">
                 <ClinicDirectoryPage />
+              </S>
+            ),
+          },
+          {
+            path: "/clinicas/:clinicId",
+            element: (
+              <S name="Perfil público de clínica">
+                <ClinicPublicProfilePage />
               </S>
             ),
           },

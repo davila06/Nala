@@ -78,6 +78,7 @@ builder.Services.AddApplicationInsightsTelemetry();
 // ── Application + Infrastructure ─────────────────────────────────────────────
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddDataProtection();
 builder.Services.AddScoped<PawTrack.Application.Common.Interfaces.IChatNotifier,
     PawTrack.API.Hubs.SignalRChatNotifier>();
 builder.Services.AddSingleton(new VisualMatchSettings(
@@ -198,7 +199,7 @@ builder.Services.AddRateLimiter(options =>
     // ── Auth: login — 5 attempts/min per IP (brute-force protection) ──────────
     options.AddPolicy("login", ctx =>
         RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: RateLimiterIpKey.Get(ctx),
+            partitionKey: RateLimiterIpKey.GetClient(ctx),
             factory: _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = builder.Configuration.GetValue("RateLimiting:Login:PermitLimit", 5),
@@ -342,6 +343,20 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = 0,
             }));
 
+    // ── Billboard delivery events — 12/min per campaign and client IP ───────
+    // Campaign-specific partitions prevent one client from inflating delivery
+    // metrics while preserving independent capacity for other campaigns.
+    options.AddPolicy("billboard-events", ctx =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: $"{RateLimiterIpKey.Get(ctx)}:{ctx.Request.RouteValues["id"] ?? "unknown"}",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:BillboardEvents:PermitLimit", 12),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:BillboardEvents:WindowSeconds", 60)),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0,
+            }));
+
     // ── Handover code verify — brute-force protection ─────────────────────────
     // 4-digit PIN (10 000 combos): capped at 5 attempts/min per IP.
     options.AddPolicy("handover-verify", ctx =>
@@ -351,6 +366,18 @@ builder.Services.AddRateLimiter(options =>
             {
                 PermitLimit = builder.Configuration.GetValue("RateLimiting:HandoverVerify:PermitLimit", 5),
                 Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:HandoverVerify:WindowSeconds", 60)),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0,
+            }));
+
+    // ── Public certificate verification — brute-force protection ─────────────
+    options.AddPolicy("certificate-verify", ctx =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: RateLimiterIpKey.Get(ctx),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:CertificateVerify:PermitLimit", 5),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:CertificateVerify:WindowSeconds", 60)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                 QueueLimit = 0,
             }));

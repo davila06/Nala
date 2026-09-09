@@ -60,11 +60,59 @@ public sealed class StoreOrderStateMachineTests
     }
 
     [Fact]
-    public void Confirm_FromPendingPayment_Throws()
+    public void Confirm_FromInitialRequest_TransitionsWithoutPaymentReport()
     {
         var order = MakeOrder();
-        var act = () => order.Confirm();
+
+        order.Confirm("Disponibilidad confirmada");
+
+        order.Status.Should().Be(StoreOrderStatus.Confirmed);
+        order.PaymentReportedByCustomer.Should().BeFalse();
+        order.StoreNote.Should().Be("Disponibilidad confirmada");
+    }
+
+    [Fact]
+    public void Reject_FromInitialRequest_TransitionsToRejected()
+    {
+        var order = MakeOrder();
+
+        order.Reject("Producto no disponible");
+
+        order.Status.Should().Be(StoreOrderStatus.Rejected);
+        order.StoreNote.Should().Be("Producto no disponible");
+    }
+
+    [Fact]
+    public void Reject_WithoutReason_Throws()
+    {
+        var order = MakeOrder();
+
+        var act = () => order.Reject(" ");
+
         act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void Cancel_WithoutReason_Throws()
+    {
+        var order = MakeOrder();
+        order.Confirm();
+
+        var act = () => order.UpdateStatus(StoreOrderStatus.Cancelled);
+
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void Cancel_WithReason_StoresReason()
+    {
+        var order = MakeOrder();
+        order.Confirm();
+
+        order.UpdateStatus(StoreOrderStatus.Cancelled, "Cliente no disponible");
+
+        order.Status.Should().Be(StoreOrderStatus.Cancelled);
+        order.StoreNote.Should().Be("Cliente no disponible");
     }
 
     [Fact]
@@ -119,7 +167,7 @@ public sealed class StoreOrderStateMachineTests
         var order = MakeOrder();
         order.ReportPayment();
         order.Confirm();
-        order.UpdateStatus(StoreOrderStatus.Cancelled);
+        order.UpdateStatus(StoreOrderStatus.Cancelled, "Cancelado por la tienda");
         order.Status.Should().Be(StoreOrderStatus.Cancelled);
     }
 
@@ -134,7 +182,7 @@ public sealed class StoreOrderStateMachineTests
         order.UpdateStatus(StoreOrderStatus.Preparing);
         order.UpdateStatus(from == StoreOrderStatus.Delivered
             ? StoreOrderStatus.ReadyForPickup
-            : StoreOrderStatus.Cancelled);
+            : StoreOrderStatus.Cancelled, "Cancelado para probar estado terminal");
         if (from == StoreOrderStatus.Delivered)
             order.UpdateStatus(StoreOrderStatus.Delivered);
 
@@ -338,5 +386,51 @@ public sealed class PlaceStoreOrderCommandHandlerTests
 
         var result = await validator.ValidateAsync(cmd);
         result.IsValid.Should().BeFalse();
+    }
+}
+
+public sealed class StoreOrderAuthorizationTests
+{
+    private readonly IStoreRepository _storeRepo = Substitute.For<IStoreRepository>();
+    private readonly IStoreOrderRepository _orderRepo = Substitute.For<IStoreOrderRepository>();
+    private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
+
+    [Fact]
+    public async Task ConfirmOrder_FromDifferentStoreOwner_ReturnsNotFoundAndDoesNotMutate()
+    {
+        var realOwnerId = Guid.NewGuid();
+        var attackerId = Guid.NewGuid();
+        var store = Store.Create(realOwnerId, "Real Store", "Desc", "Address", 9.9m, -84m, "store@example.com");
+        var order = StoreOrder.Place(store.Id, Guid.NewGuid(), "REF12345", OrderFulfillmentType.Pickup,
+            null, null, [(Guid.NewGuid(), "Food", 1, 1000m)]);
+        _storeRepo.GetByUserIdAsync(attackerId, Arg.Any<CancellationToken>()).Returns((Store?)null);
+
+        var handler = new ConfirmStoreOrderCommandHandler(_storeRepo, _orderRepo, _uow);
+
+        var result = await handler.Handle(
+            new ConfirmStoreOrderCommand(attackerId, order.Id, "forged"), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        _orderRepo.DidNotReceive().Update(Arg.Any<StoreOrder>());
+        await _uow.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task GetMyOrders_DoesNotReturnAnotherCustomersOrders()
+    {
+        var customerId = Guid.NewGuid();
+        var foreignOrder = StoreOrder.Place(Guid.NewGuid(), Guid.NewGuid(), "REF54321",
+            OrderFulfillmentType.Pickup, null, "private", [(Guid.NewGuid(), "Food", 1, 1000m)]);
+        _orderRepo.CountByCustomerAsync(customerId, Arg.Any<CancellationToken>()).Returns(0);
+        _orderRepo.GetByCustomerPagedAsync(customerId, 0, 20, Arg.Any<CancellationToken>())
+            .Returns(Array.Empty<StoreOrder>());
+
+        var handler = new GetMyStoreOrdersQueryHandler(_orderRepo, _storeRepo);
+
+        var result = await handler.Handle(new GetMyStoreOrdersQuery(customerId), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.Items.Should().NotContain(item => item.Id == foreignOrder.Id);
+        await _orderRepo.Received(1).GetByCustomerPagedAsync(customerId, 0, 20, Arg.Any<CancellationToken>());
     }
 }

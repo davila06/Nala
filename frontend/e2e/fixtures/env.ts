@@ -6,4 +6,6 @@ export const TEST_USERS = {
   owner: { email: "owner@pawtrack.test", password: "Test123!" },
   admin: { email: "admin@pawtrack.test", password: "Admin123!" },
   provider: { email: "provider@pawtrack.test", password: "Test123!" },
+  store: { email: "tienda_activa@test.cr", password: "Test123!" },
+  clinic: { email: "clinica_partner@test.cr", password: "Test123!" },
 } as const;

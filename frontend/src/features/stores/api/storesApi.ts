@@ -20,7 +20,8 @@ export type StoreOrderStatus =
   | "ReadyForPickup"
   | "OutForDelivery"
   | "Delivered"
-  | "Cancelled";
+  | "Cancelled"
+  | "Rejected";
 
 export interface PublicStoreDto {
   id: string;
@@ -30,6 +31,7 @@ export interface PublicStoreDto {
   lat: number;
   lng: number;
   phoneNumber: string | null;
+  whatsAppNumber: string | null;
   website: string | null;
   logoUrl: string | null;
   isFeatured: boolean;
@@ -93,25 +95,27 @@ export const CATEGORY_LABELS: Record<ProductCategory, string> = {
 };
 
 export const ORDER_STATUS_LABELS: Record<StoreOrderStatus, string> = {
-  PendingPayment: "Pendiente de pago",
-  PaymentReported: "Pago reportado",
+  PendingPayment: "Solicitud pendiente",
+  PaymentReported: "Solicitud pendiente",
   Confirmed: "Confirmado",
   Preparing: "Preparando",
   ReadyForPickup: "Listo para recoger",
   OutForDelivery: "En camino",
   Delivered: "Entregado",
   Cancelled: "Cancelado",
+  Rejected: "Rechazado por la tienda",
 };
 
 export const ORDER_STATUS_COLORS: Record<StoreOrderStatus, string> = {
   PendingPayment: "bg-warn-100 text-warn-700",
-  PaymentReported: "bg-trust-100 text-trust-700",
+  PaymentReported: "bg-warn-100 text-warn-700",
   Confirmed: "bg-brand-100 text-brand-700",
   Preparing: "bg-sand-100 text-sand-700",
   ReadyForPickup: "bg-rescue-100 text-rescue-700",
   OutForDelivery: "bg-rescue-200 text-rescue-800",
   Delivered: "bg-rescue-50 text-rescue-600",
   Cancelled: "bg-danger-100 text-danger-700",
+  Rejected: "bg-danger-100 text-danger-700",
 };
 
 // ── Analytics types (StorePlus = totals only, StorePartner = full breakdown) ──

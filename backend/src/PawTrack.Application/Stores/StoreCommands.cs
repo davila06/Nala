@@ -23,12 +23,13 @@ public sealed record PublicStoreDto(
     string? Website,
     string? LogoUrl,
     bool IsFeatured,
+    string? WhatsAppNumber,
     string Status)
 {
     public static PublicStoreDto FromDomain(Store s) => new(
         s.Id, s.Name, s.Description, s.Address,
         s.Lat, s.Lng, s.PhoneNumber, s.Website, s.LogoUrl,
-        s.IsFeatured, s.Status.ToString());
+        s.IsFeatured, s.IsWhatsAppContactEnabled ? s.WhatsAppNumber : null, s.Status.ToString());
 }
 
 public sealed record StoreProductDto(
@@ -115,7 +116,9 @@ public sealed record UpdateStoreProfileCommand(
     decimal Lat,
     decimal Lng,
     string? PhoneNumber,
-    string? Website) : IRequest<Result<PublicStoreDto>>;
+    string? Website,
+    string? WhatsAppNumber = null,
+    bool IsWhatsAppContactEnabled = false) : IRequest<Result<PublicStoreDto>>;
 
 public sealed class UpdateStoreProfileCommandValidator : AbstractValidator<UpdateStoreProfileCommand>
 {
@@ -138,6 +141,7 @@ public sealed class UpdateStoreProfileCommandHandler(IStoreRepository repo, IUni
         store.UpdateProfile(
             request.Name, request.Description, request.Address,
             request.Lat, request.Lng, request.PhoneNumber, request.Website);
+        store.UpdateWhatsAppContact(request.WhatsAppNumber, request.IsWhatsAppContactEnabled);
         repo.Update(store);
         await uow.SaveChangesAsync(ct);
         return Result.Success(PublicStoreDto.FromDomain(store));

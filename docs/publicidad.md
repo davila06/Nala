@@ -38,7 +38,7 @@ Las vallas publicitarias de PawTrack CR son **tarjetas visuales dismissibles** q
 
 ---
 
-## 2. Los 4 placements disponibles
+## 2. Placements disponibles
 
 ### 🗺️ Placement: MAP — Mapa público
 
@@ -151,6 +151,19 @@ Si un anunciante quiere ser el **único de su categoría** visible en un placeme
 | 3 meses  |    +₡50,000     |
 
 Ejemplo: una veterinaria paga la exclusividad de categoría en Map — ninguna otra veterinaria puede tener valla en Map durante ese período.
+
+### 3.4 Inventario contextual
+
+| Placement                               |                 Tarifa mensual base |
+| --------------------------------------- | ----------------------------------: |
+| Perfil público QR                       | ₡40,000 o ₡1,500 por clic atribuido |
+| Historial de escaneos                   |                             ₡25,000 |
+| Case Room de recuperación               |                  ₡50,000 por cantón |
+| Directorio/perfil de clínica o servicio |                             ₡35,000 |
+| Adopciones o ferias                     |                             ₡30,000 |
+| Confirmación de registro o CollarTag    |                             ₡25,000 |
+
+> Este documento es la fuente comercial única para vallas. Los valores no incluyen IVA; las campañas de Feed y Case Room solo admiten categorías de recuperación aprobadas.
 
 ---
 

@@ -5,6 +5,7 @@ import type { PetSpecies, ReportFoundPetPayload } from "../api/foundPetsApi";
 import { BREEDS_BY_SPECIES } from "@/features/pets/data/breeds";
 import { LastSeenMap } from "@/features/lost-pets/components/LastSeenMap";
 import { useGeolocation } from "@/features/lost-pets/hooks/useGeolocation";
+import { trackProductEvent } from "@/shared/lib/telemetry";
 
 // ── Step types ────────────────────────────────────────────────────────────────
 
@@ -111,6 +112,9 @@ export default function ReportFoundPetPage() {
     try {
       setSubmitError(null);
       const result = await mutateAsync(payload);
+      trackProductEvent("FoundPetReported", {
+        source: "report-found-pet",
+      });
       void navigate("/encontre-mascota/resultados", { state: { result } });
     } catch (err: unknown) {
       // Extract validation message from backend 400 response

@@ -28,6 +28,7 @@ import { HealthAlertBanner } from "@/features/medical/components/HealthAlertBann
 import { AnnualReportButton } from "@/features/medical/components/AnnualReportButton";
 import { ActivityTab } from "@/features/medical/components/ActivityTab";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
 
 export default function PetDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -145,7 +146,7 @@ export default function PetDetailPage() {
     { id: "qr", label: "QR", icon: "🏷️" },
     { id: "avistamientos", label: "Avistamientos", icon: "📍" },
     { id: "actividad", label: "Actividad", icon: "🏃" },
-    { id: "salud", label: "Salud", icon: "🏥" },
+    { id: "salud", label: "Registro médico", icon: "🏥" },
     { id: "gps", label: "GPS", icon: "📡" },
   ];
 
@@ -252,6 +253,13 @@ export default function PetDetailPage() {
 
           {/* Edit / Delete */}
           <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => setActiveTab("salud")}
+              className="flex-1 rounded-xl border border-brand-200 bg-brand-50 py-3 text-sm font-semibold text-brand-700 hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            >
+              🏥 Ver registro médico
+            </button>
             <Link
               to={`/pets/${pet.id}/edit`}
               className="flex-1 rounded-xl border border-sand-300 py-3 text-center text-sm font-semibold text-sand-700 hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
@@ -489,6 +497,7 @@ export default function PetDetailPage() {
               </p>
             )}
           </Card>
+          <BillboardBanner placement="ScanHistory" />
         </div>
       )}
 

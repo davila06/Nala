@@ -101,6 +101,10 @@ export default function PublicMapPage() {
     (newBBox: MapBBox) => debounce(setBbox, newBBox),
     [debounce],
   );
+  // Stable reference — an inline arrow here would re-run LocateUser's effect
+  // (and re-fly to the GPS position) on every unrelated re-render, fighting
+  // any manual zoom/pan the user does.
+  const handleLocated = useCallback(() => setLocating(false), []);
 
   return (
     <div className="relative h-screen w-full">
@@ -118,8 +122,8 @@ export default function PublicMapPage() {
         <meta property="og:type" content="website" />
       </Helmet>
       {/* Glassmorphism header strip */}
-      <div className="absolute left-0 right-0 top-0 z-[1000] flex flex-col border-b border-white/10 bg-zinc-900/70 px-4 pt-2.5 backdrop-blur-md">
-        <div className="flex items-center justify-between pb-2.5">
+      <div className="pointer-events-none absolute left-0 right-0 top-0 z-[1000] flex flex-col border-b border-white/10 bg-zinc-900/70 px-4 pt-2.5 backdrop-blur-md">
+        <div className="pointer-events-auto flex items-center justify-between pb-2.5">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rescue-400 opacity-75" />
@@ -143,7 +147,7 @@ export default function PublicMapPage() {
           </span>
         </div>
         {/* Search bar */}
-        <div className="relative pb-2.5">
+        <div className="pointer-events-auto relative pb-2.5">
           <span
             className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-zinc-400 text-sm"
             aria-hidden="true"
@@ -175,7 +179,7 @@ export default function PublicMapPage() {
       </div>
 
       {/* Legend — collapsible on mobile, always visible on sm+ */}
-      <div className="absolute bottom-6 left-3 z-[1000] rounded-2xl border border-white/10 bg-zinc-900/70 shadow-xl backdrop-blur-md">
+      <div className="pointer-events-auto absolute bottom-6 left-3 z-[1000] rounded-2xl border border-white/10 bg-zinc-900/70 shadow-xl backdrop-blur-md">
         {/* Toggle button visible only on mobile */}
         <button
           type="button"
@@ -234,30 +238,30 @@ export default function PublicMapPage() {
       </div>
 
       {/* Controls panel */}
-      <div className="absolute bottom-6 right-3 z-[1000] flex flex-col gap-2">
+      <div className="pointer-events-none absolute bottom-6 right-3 z-[1000] flex flex-col gap-2">
         {isAuthenticated && (
           <Link
             to="/dashboard"
-            className="flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/70 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-colors hover:bg-zinc-800/80"
+            className="pointer-events-auto flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/70 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-colors hover:bg-zinc-800/80"
           >
             ← Dashboard
           </Link>
         )}
         <Link
           to="/estadisticas"
-          className="flex items-center gap-2 rounded-xl border border-sand-300 bg-white/95 px-4 py-2.5 text-sm font-semibold text-sand-700 shadow-lg transition-colors hover:bg-sand-50"
+          className="pointer-events-auto flex items-center gap-2 rounded-xl border border-sand-300 bg-white/95 px-4 py-2.5 text-sm font-semibold text-sand-700 shadow-lg transition-colors hover:bg-sand-50"
         >
           📊 Ver estadísticas
         </Link>
         <Link
           to="/map/match"
-          className="flex items-center gap-2 rounded-xl bg-sand-900 px-4 py-2.5 text-sm font-bold text-white shadow-lg transition-colors hover:bg-sand-700"
+          className="pointer-events-auto flex items-center gap-2 rounded-xl bg-sand-900 px-4 py-2.5 text-sm font-bold text-white shadow-lg transition-colors hover:bg-sand-700"
         >
           🔍 ¿Encontraste un animal?
         </Link>
         <Link
           to="/bienestar/reportar"
-          className="flex items-center gap-2 rounded-xl border border-danger-300 bg-danger-50 px-4 py-2.5 text-sm font-bold text-danger-800 shadow-lg transition-colors hover:bg-danger-100"
+          className="pointer-events-auto flex items-center gap-2 rounded-xl border border-danger-300 bg-danger-50 px-4 py-2.5 text-sm font-bold text-danger-800 shadow-lg transition-colors hover:bg-danger-100"
         >
           ⚠️ Reportar maltrato
         </Link>
@@ -270,7 +274,7 @@ export default function PublicMapPage() {
             setTimeout(() => setLocating(false), 8_000);
           }}
           disabled={locating}
-          className="flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/70 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-colors hover:bg-zinc-800/80 disabled:opacity-60"
+          className="pointer-events-auto flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/70 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-colors hover:bg-zinc-800/80 disabled:opacity-60"
           aria-label="Centrar mapa en mi ubicación"
         >
           {locating ? (
@@ -286,7 +290,7 @@ export default function PublicMapPage() {
           type="button"
           onClick={() => setShowServiceProviders((v) => !v)}
           aria-pressed={showServiceProviders}
-          className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showServiceProviders ? "border-brand-400 bg-brand-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
+          className={`pointer-events-auto flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showServiceProviders ? "border-brand-400 bg-brand-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
         >
           ✂️ Servicios {showServiceProviders ? "✓" : ""}
         </button>
@@ -294,7 +298,7 @@ export default function PublicMapPage() {
         <button
           type="button"
           onClick={() => setShowClinics((v) => !v)}
-          className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showClinics ? "border-trust-400 bg-trust-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
+          className={`pointer-events-auto flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showClinics ? "border-trust-400 bg-trust-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
         >
           🏥 Clínicas {showClinics ? "✓" : ""}
         </button>
@@ -304,7 +308,7 @@ export default function PublicMapPage() {
             type="button"
             onClick={() => setShowEmergencyOnly((v) => !v)}
             aria-pressed={showEmergencyOnly}
-            className={`flex items-center gap-1.5 rounded-xl border px-3 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showEmergencyOnly ? "border-danger-400 bg-danger-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
+            className={`pointer-events-auto flex items-center gap-1.5 rounded-xl border px-3 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showEmergencyOnly ? "border-danger-400 bg-danger-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
           >
             🚨 Solo emergencias
           </button>
@@ -314,7 +318,7 @@ export default function PublicMapPage() {
           type="button"
           onClick={() => setShowStores((v) => !v)}
           aria-pressed={showStores}
-          className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showStores ? "border-rescue-400 bg-rescue-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
+          className={`pointer-events-auto flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showStores ? "border-rescue-400 bg-rescue-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
         >
           🛒 Tiendas {showStores ? "✓" : ""}
         </button>
@@ -323,7 +327,7 @@ export default function PublicMapPage() {
           type="button"
           onClick={() => setShowAdoptions((v) => !v)}
           aria-pressed={showAdoptions}
-          className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showAdoptions ? "border-purple-400 bg-purple-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
+          className={`pointer-events-auto flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showAdoptions ? "border-purple-400 bg-purple-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
         >
           🐾 Adopciones {showAdoptions ? "✓" : ""}
         </button>
@@ -340,11 +344,12 @@ export default function PublicMapPage() {
         }}
         adoptions={showAdoptions ? adoptableAnimals : undefined}
         serviceProviders={showServiceProviders ? serviceProviders : undefined}
+        isAuthenticated={isAuthenticated}
         locateTrigger={locateTrigger}
         flyTarget={flyTarget}
-        onLocated={() => setLocating(false)}
+        onLocated={handleLocated}
         onBBoxChange={handleBBoxChange}
-        className="h-full w-full"
+        className="public-map-leaflet h-full w-full"
       />
 
       {/* Store detail sheet */}
@@ -372,10 +377,13 @@ export default function PublicMapPage() {
         onClose={() => setCheckoutOpen(false)}
       />
 
-      {/* Billboard for the map placement — subtle non-intrusive slot */}
-      {showStores && (
-        <div className="absolute bottom-36 left-3 z-[999] w-72">
-          <BillboardBanner placement="Map" />
+      {/* Public map inventory remains visible independently of map layers. */}
+      <div className="absolute bottom-36 left-3 z-[999] w-72">
+        <BillboardBanner placement="Map" />
+      </div>
+      {filteredEvents.some((event) => event.eventType === "LostPet") && (
+        <div className="absolute bottom-3 left-3 z-[999] w-72">
+          <BillboardBanner placement="Feed" />
         </div>
       )}
 

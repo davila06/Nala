@@ -86,6 +86,21 @@ export function ClinicMarker({ clinic }: { clinic: PublicClinicDto }) {
               📞 {clinic.phoneNumber}
             </a>
           )}
+          {clinic.whatsAppNumber && (
+            <a
+              href={`https://wa.me/${clinic.whatsAppNumber}?text=${encodeURIComponent(`Hola, encontré su clínica en PawTrack y necesito información.`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "block",
+                color: "#128c7e",
+                fontWeight: 700,
+                fontSize: 12,
+              }}
+            >
+              WhatsApp {clinic.isEmergency24h ? "emergencias" : ""} →
+            </a>
+          )}
           {clinic.website && (
             <a
               href={clinic.website}

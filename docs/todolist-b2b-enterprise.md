@@ -1,8 +1,9 @@
 # PawTrack CR — TODO B2B Enterprise
 
 > Checklist maestro para completar y endurecer todas las funciones B2B/B2G.
-> Fecha: 2026-09-08
-> Alcance: tiendas de mascotas, clínicas veterinarias, proveedores de servicios, aliados/refugios, municipalidades, adopciones y publicidad.
+> Fecha: 2026-09-09
+> Alcance activo: tiendas de mascotas, clínicas veterinarias, proveedores de servicios, aliados/refugios, adopciones y publicidad.
+> Municipalidades B2G: diferidas por decisión de producto; no forman parte del ciclo actual de implementación.
 > Objetivo: no declarar B2B terminado hasta cumplir funcionalidad, seguridad, billing, UX, pruebas y operación enterprise.
 
 > Estado técnico consolidado: [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md).
@@ -15,6 +16,22 @@
 - `[~]` En progreso o parcialmente implementado
 - `[x]` Implementado y validado con pruebas
 - Cada tarea debe terminar con evidencia: código, prueba automatizada, captura/flujo validado o procedimiento operativo.
+
+## Corte técnico 2026-09-09
+
+La revisión del código actual confirma que las siguientes capacidades clínicas
+ya tienen backend, migraciones y pruebas: perfil público y revisión de cambios,
+API Partner v1 con scopes, sandbox fail-closed, expediente append-only, grants
+con `read`/`write`/`export`, exportación clínica con cuotas y Blob privado,
+agenda veterinaria con protección de solapamiento, permisos por veterinario,
+firma RSA-SHA256 opcional, MFA TOTP/Data Protection y los flujos Generic de collares.
+
+Los pendientes de código de mayor prioridad son: tenancy multiusuario y RBAC
+transversal, UI de grants del propietario, compra/renovación
+autoservicio para Store, exportaciones de tiendas, webhooks
+salientes, pruebas negativas cross-tenant, E2E B2B, carga/concurrencia real,
+observabilidad/SLO y validación externa de firmas. SENASA, precios, SLA,
+impuestos y políticas comerciales/legal no son tareas de código autónomas.
 
 ---
 
@@ -43,11 +60,11 @@ Estas tareas deben completarse antes de seguir agregando features, porque existe
 - [ ] Implementar autorización por organización/recurso; comprobar que ningún usuario puede leer o mutar datos de otro tenant.
 - [ ] Implementar políticas RBAC/ABAC centralizadas para backend y frontend.
 - [ ] Añadir invitaciones de miembros con expiración, revocación, reenvío y auditoría.
-- [ ] Añadir MFA para administradores y usuarios con API keys.
+- [x] Añadir MFA para administradores y usuarios con API keys. — TOTP, secretos protegidos, recovery codes de un solo uso, política privilegiada y WebAuthn/passkeys con ceremonia FIDO2, desafíos distribuidos, credenciales SQL, contador anti-replay, revocación y UI de enrolamiento.
 - [ ] Añadir sesiones, refresh tokens, revocación y logout global para cuentas B2B.
-- [ ] Aplicar rate limits por tenant, usuario, API key y endpoint.
-- [ ] Crear auditoría inmutable para accesos, cambios de permisos, exportaciones, certificados, pedidos y acciones administrativas.
-- [ ] Definir retención y borrado de datos por tenant, incluyendo solicitudes de exportación y eliminación.
+- [~] Aplicar rate limits por tenant, usuario, API key y endpoint. — Rate limits por IP y endpoint existen; particionado por tenant/API key/tier sigue pendiente.
+- [~] Crear auditoría inmutable para accesos, cambios de permisos, exportaciones, certificados, pedidos y acciones administrativas. — Auditoría clínica, certificados y exports existe; cobertura transversal de permisos/pedidos/tenants sigue pendiente.
+- [~] Definir retención y borrado de datos por tenant, incluyendo solicitudes de exportación y eliminación. — Exports clínicos expiran en 24h; el job diario ahora purga versiones médicas supersedidas y metadatos de export vencidos según settings. Falta política completa por tenant.
 - [ ] Ejecutar pruebas BOLA/IDOR, privilege escalation, tenant isolation y abuso de endpoints.
 
 ---
@@ -63,7 +80,7 @@ Estas tareas deben completarse antes de seguir agregando features, porque existe
 - [x] Implementar feature gates en backend como autoridad final. — **Corregido bug crítico**: `GetActiveForUserAsync`/`GetActiveForClinicAsync` no filtraban por `ExpiresAt`; una suscripción vencida seguía dando acceso completo para siempre. Ya corregido a nivel de repositorio + `SubscriptionService.IsActive`.
 - [x] Implementar gates consistentes para StorePlus/Partner, ClinicPlus/Partner — ya existían para Clinic; ahora también para Store (`SetStoreLocationActiveCommand`, `GetStoreAnalyticsQuery`).
 - [x] Implementar jobs para expiración. — `SubscriptionExpirationJob` (BackgroundService, corre cada hora) creado desde cero; no existía ningún mecanismo de expiración automática.
-- [x] Implementar notificaciones de renovación, fallo de pago, vencimiento y cambio de plan. — `SubscriptionRenewalNotificationJob` (09:00 CR diario): recordatorio 7 días antes + aviso el día de vencimiento. Pendiente: fallo de pago y cambio de plan.
+- [~] Implementar notificaciones de renovación, fallo de pago, vencimiento y cambio de plan. — Renovación/vencimiento implementados; fallo de pago y cambio de plan siguen pendientes.
 - [ ] Crear pantalla B2B de plan actual, límites, facturación, historial y acciones disponibles. — **Verificado ausente**: info de suscripción dispersa en dashboards. No existe ruta `/my-plan`.
 - [x] Agregar pruebas de gates y transiciones críticas. — 8 tests de dominio + 11 de pricing + tests de handlers Activate/Cancel con sync de Store y Clinic.
 - [x] Verificar que ningún precio permanezca hardcodeado sin fuente única. — Corregido en `CreateSubscriptionCommandHandler`.
@@ -77,10 +94,10 @@ Estas tareas deben completarse antes de seguir agregando features, porque existe
 - [x] Registro, revisión administrativa, perfil, directorio y mapa básico.
 - [x] Escaneo QR y microchip RFID manual.
 - [x] Resultado de mascota y notificación al propietario.
-- [ ] Resolver definitivamente los campos públicos: teléfono, website, horario, dirección, logo y consentimiento.
-- [ ] Crear perfil público de clínica con mapa, contacto, horario, servicios y estado de verificación.
-- [ ] Añadir filtros y paginación del directorio por ubicación, servicios, horario y disponibilidad.
-- [ ] Añadir flujo de corrección/actualización del perfil y revisión administrativa de cambios.
+- [x] Resolver los campos públicos: teléfono, website, horario, dirección, logo, descripción y servicios. — Perfil autenticado editable y DTO público dedicado.
+- [x] Crear perfil público de clínica con mapa, contacto, horario, servicios y estado de verificación. — `GET /api/clinics/public/{clinicId}` + `/clinicas/:clinicId`.
+- [x] Añadir filtros y paginación del directorio por ubicación, servicios, horario y disponibilidad. — Endpoint público con paginación acotada, búsqueda y filtro de emergencias en SQL; servicios/horarios quedan disponibles en el perfil público.
+- [x] Añadir flujo de corrección/actualización del perfil y revisión administrativa de cambios. — Solicitud pendiente, cola admin, aprobación/rechazo y aplicación auditada; licencia SENASA permanece fuera de alcance.
 - [ ] Validar licencia SENASA, fecha de vencimiento y re-verificación periódica.
 
 ### 3.2 ClinicPlus
@@ -91,7 +108,7 @@ Estas tareas deben completarse antes de seguir agregando features, porque existe
 - [x] Banner/sponsorship de Case Room.
 - [x] Logo en alertas cercanas: verificar delivery real en WhatsApp, push, email y plantillas. — **BUG CRÍTICO RESUELTO (2026-09-01)**: `NearbyClinicRef` ahora transporta `LogoUrl` (`IChannelBroadcaster.cs`). El logo real se entrega en los 3 canales que lo prometían: **Email** — `<img>` inline en el HTML (`EmailSender.SendBroadcastLostPetAsync`); **WhatsApp** — mensaje `type: "image"` adicional para la clínica más cercana con logo, ya que la API de Meta no permite imágenes embebidas en mensajes de texto (`WhatsAppChannelBroadcaster.SendSponsorLogoAsync`); **Telegram** — se detectó un segundo bug (nunca mencionaba clínicas ni en texto) y se corrigió agregando la sección de texto + una llamada `sendPhoto` dedicada (`TelegramChannelBroadcaster`). Facebook queda fuera de alcance (nunca formó parte de la promesa comercial original). Cobertura: 10 tests nuevos en `backend/tests/PawTrack.UnitTests/Broadcast/` (Email/WhatsApp/Telegram), suite completa verificada en verde (1020 unit + 73 integration).
 - [x] Métricas de visibilidad: backend existe; completar y validar la pestaña frontend. — **COMPLETO**: tab "📈 Visibilidad" implementado y funcional en `ClinicDashboardPage`. `ClinicVisibilidadSection` muestra Profile Views, Map Clicks, Search Appearances, Alert Impressions, Scan Result Views. Gateado a ClinicPlus.
-- [ ] Definir métricas y nomenclatura: profile views, map clicks, search appearances, scans y matched scans. — Definición ya existe en `ClinicVisibilityStatsDto`; pendiente decisión de qué más trackear y documentar SLA de retención (hoy 90 días).
+- [~] Definir métricas y nomenclatura: profile views, map clicks, search appearances, scans y matched scans. — Las cinco métricas existen en `ClinicVisibilityStatsDto`; falta formalizar glosario, retención y SLA comercial.
 - [x] Aplicar deduplicación, anonimización/hash de IP y retención documentada. — IP hash SHA-256 implementado en `TrackView` endpoint; purge a 90 días en `ClinicProfileViewPurgeHostedService`.
 - [ ] Implementar soporte prioritario con SLA, cola y trazabilidad operacional.
 
@@ -101,27 +118,27 @@ Estas tareas deben completarse antes de seguir agregando features, porque existe
 - [x] API keys y endpoints de lookup.
 - [x] Widget embebible.
 - [x] QR dentro del PDF — **ya estaba implementado** (`QuestPdfCertificateService.GenerateQrPng`, usado tanto en el certificado estándar como en el pasaporte de vacunación). El estado ❌ de `featuresB2B.md` estaba desactualizado.
-- [~] Firma digital: reemplazar firma visual por firma criptográfica verificable si es requisito del tier. _(sin cambios esta sesión — sigue siendo roadmap)_
+- [~] Firma digital: reemplazar firma visual por firma criptográfica verificable. — RSA-SHA256 detached signature sidecar implementado; el endpoint público ahora valida PDF + `.sig` con Key Vault o clave pública explícita de desarrollo. Falta custodia/rotación de claves en Azure y validación externa Adobe/independiente.
 - [x] **Resuelto** — inconsistencia de logo en alertas corregida: `LogoUrl` agregado a `NearbyClinicRef` y entregado en Email (inline), WhatsApp (mensaje de imagen separado) y Telegram (sendPhoto). Ver detalle en la sección 3.2.
-- [ ] Definir CA, certificado por clínica, rotación, revocación y custodia en Azure Key Vault/HSM.
+- [~] Definir CA, certificado por clínica, rotación, revocación y custodia en Azure Key Vault/HSM. — El firmador usa Managed Identity y `Certificates:KeyVaultKeyId`; falta infraestructura Azure y política de rotación por clínica.
 - [ ] Validar firma PDF en Adobe/validadores independientes y documentar la cadena de confianza.
-- [x] Completar permisos por API key: expiración, rotación, revocación, last-used. — `ClinicApiKey.ExpiresAt` (1 año por defecto), `RotateClinicApiKeyCommand`, y **corregido bug de seguridad**: al cancelar/expirar una suscripción ClinicPartner ahora se revocan automáticamente todas sus API keys (antes quedaban activas para siempre).
-- [ ] Scopes por API key (permisos granulares) — no implementado, requiere rediseñar los endpoints consumidores.
-- [ ] Añadir versionado de API, OpenAPI publicada, ejemplos, errores RFC 7807 y changelog.
-- [ ] Añadir sandbox para integradores HIS.
+- [x] Completar permisos por API key: expiración, rotación, revocación, last-used. — `ClinicApiKey.ExpiresAt` (1 año por defecto), rotación conserva scopes y rechaza keys expiradas/revocadas, scopes desconocidos fallan cerrado, M2M no accede a gestión humana, descargas médicas exigen `medical:export` y `LastUsedAt` se persiste dentro del request.
+- [x] Scopes por API key (permisos granulares). — `scan`, `medical:read`, `medical:write`, `medical:export`, `certificates`, `analytics`; middleware aplica el scope por ruta y migración hace backfill.
+- [x] Añadir versionado de API, OpenAPI publicada, ejemplos, errores RFC 7807 y changelog. — `/api/v1`, `/openapi/v1.json`, `docs/API_CLINIC_PARTNER_v1.md` y `docs/CHANGELOG.md`.
+- [x] Añadir sandbox para integradores HIS. — Frontera documentada con ambiente, DB/Blob, datos y credenciales aislados.
 - [ ] Completar integración con lectores RFID USB/BLE solo si queda dentro del alcance contractual; si no, retirarla del plan comercial.
-- [ ] Añadir multi-veterinario: perfiles, agenda/atribución, permisos y auditoría.
-- [ ] Añadir exportaciones auditadas y límites por periodo.
+- [~] Añadir multi-veterinario: perfiles, agenda/atribución, permisos y auditoría. — Backend y UI de agenda/permisos existen; UI de atribución per-acción y reportes operativos siguen pendientes.
+- [x] Añadir exportaciones auditadas y límites por periodo. — Export clínico con grant `export`, scope `medical:export`, cuotas 20/mes por clínica + 1/24h por mascota, Blob privado y expiración de 24h.
 
 ### 3.4 Expediente y consentimiento
 
 - [x] Grants de acceso y expediente compartido base.
-- [ ] Validar consentimiento explícito, alcance, expiración y revocación por mascota.
-- [ ] Implementar permisos separados para leer, agregar, editar, eliminar y exportar.
-- [ ] Registrar cada acceso clínico con actor, clínica, mascota, motivo, timestamp y resultado.
-- [ ] Añadir bloqueo de edición posterior o historial de versiones para registros médicos.
-- [ ] Definir retención, exportación y eliminación conforme a la política de privacidad.
-- [ ] Probar que el plan del dueño no permite bypass del consentimiento ni acceso de clínica no autorizada.
+- [x] Validar consentimiento explícito, alcance, expiración y revocación por mascota. — Grants ahora soportan expiración y revocación; lectura/escritura se valida en los flujos clínicos.
+- [~] Implementar permisos separados para leer, agregar, editar, eliminar y exportar. — Grants tienen `read`, `write`, `export`; lectura, escritura, append-only y export clínico aplican gates. Falta UI explícita del propietario para permisos y política de borrar/exportar por rol.
+- [x] Registrar cada acceso clínico con actor, clínica, mascota y timestamp. — `ClinicMedicalAccessLog` ahora conserva operación, permiso, método (`inline_scan`, `recent_scan`, `active_grant`), resultado y motivo; también registra denegaciones después de identificar la mascota.
+- [x] Añadir bloqueo de edición posterior o historial de versiones para registros médicos. — Operaciones de edición/supresión crean supersession/revisión append-only.
+- [~] Definir retención, exportación y eliminación conforme a la política de privacidad. — El job diario aplica ventanas configurables a versiones médicas y exports clínicos; falta consolidar la política legal completa.
+- [x] Probar que el plan del dueño no permite bypass del consentimiento ni acceso de clínica no autorizada. — Tests de grants y ownership; ampliar a matriz completa de endpoints queda pendiente.
 
 ---
 
@@ -155,7 +172,7 @@ Estas tareas deben completarse antes de seguir agregando features, porque existe
 - [x] Implementar `GetStoreAnalyticsQuery` y endpoints de analytics avanzados. — `GET /api/stores/me/analytics`, gateado StorePlus (totales) / StorePartner (desglose diario + top productos).
 - [x] Definir métricas: ventas, órdenes, ticket promedio, productos. — `TotalOrders`, `DeliveredOrders`, `CancelledOrders`, `TotalRevenueCrc`, `AverageOrderValueCrc`, top 5 productos por ingreso.
 - [x] Añadir filtros por periodo y sede. — `year`/`month`/`locationId` en el query.
-- [ ] Añadir exportación CSV/PDF con permisos y auditoría.
+- [x] Añadir exportación CSV/PDF con permisos y auditoría. — Store Partner dispone de `GET /api/stores/me/analytics/export`; reutiliza el gate analytics, limita el alcance a la tienda/sede del actor, aplica límite de 20 exportaciones/mes y registra `StoreAnalyticsExported`.
 - [x] Implementar modelo `StoreLocation`/sedes con tenant común y permisos por sede. — entidad + migración `AddStoreLocationsAndOrderAttribution`, CRUD completo gateado a StorePartner.
 - [x] Migrar pedidos y analytics para soportar `StoreId` + `LocationId`. — `StoreOrder.LocationId` (nullable), `PlaceStoreOrderCommand` valida pertenencia/estado activo de la sede.
 - [x] Añadir consolidado multi-sucursal y vista local por sede. — sin `locationId` = consolidado; con `locationId` = vista de esa sede (solo Partner).
@@ -184,7 +201,7 @@ incidentes.
 - [x] Incidentes de bienestar, seguridad, política, pago y privacidad con soporte `Admin`/`Support`.
 - [x] Notificaciones de solicitudes, cambios de reserva, recordatorios y estado de proveedor.
 - [x] Pruebas unitarias focalizadas e integración HTTP base.
-- [ ] Ejecutar concurrencia contra SQL Server real y E2E Playwright con backend/Azurite sembrados.
+- [x] Ejecutar concurrencia contra SQL Server real y E2E Playwright con backend/Azurite sembrados. — Carrera de registro WebAuthn validada 1/1 en SQL Server; aislamiento negativo B2B validado 1/1 con backend real. Export Store Partner permanece opt-in hasta sembrar una suscripción enterprise activa.
 - [ ] Aprobar tier o comisión de proveedor; actualmente no existe pricing comercial.
 - [ ] Aprobar membresía de proveedores: perfil base gratis, verificado ₡3,000/mes y destacado ₡5,000/mes, o validar un plan único de ₡3,990/mes.
 - [ ] Implementar billing recurrente, periodo gratuito inicial, feature gates, cancelación, expiración y renovación de la membresía.
@@ -211,7 +228,11 @@ incidentes.
 
 ---
 
-## 6. Municipalidades B2G
+## 6. Municipalidades B2G — DIFERIDO
+
+> Este módulo queda fuera del alcance de implementación actual. Se conserva el
+> inventario técnico y el roadmap para una futura decisión de producto; no se
+> deben ejecutar estas tareas ni vender estos tiers como compra autoservicio.
 
 - [x] Perfil, capturas, estados, búsqueda, fotos gateadas, estadísticas y dashboard regional base.
 - [x] Transferencia de capturas y multi-cantón base.
@@ -233,12 +254,17 @@ incidentes.
 
 ## 7. Vallas publicitarias y monetización B2B
 
-- [x] Placements Map, Dashboard, Directory y Feed.
-- [x] Estados, aprobación, imágenes, CTA, dismissal y paginación.
+- [x] Activar placements base Map, Dashboard, Directory y Feed. — Map ya no depende de activar la capa de tiendas; Feed se entrega cuando hay casos de mascotas perdidas en el mapa.
+- [x] Activar inventario contextual: perfil QR público, historial de escaneos, Case Room, directorio y perfil de clínicas, directorio y perfil de proveedores, adopciones, ferias, confirmación de registro y activación de CollarTag.
+- [x] Estados, aprobación, imágenes, CTA, dismissal de 24 horas y paginación.
+- [x] Instrumentar eventos sin PII por campaña y placement: impresión, clic y descarte (`BillboardImpression`, `BillboardClicked`, `BillboardDismissed`).
+- [~] Restringir por política el placement Case Room a recuperación: clínicas de emergencia, GPS, microchip, búsqueda y seguros; prohibir promociones generales. — La restricción comercial está definida, falta enforcement con categoría aprobada en el modelo de campaña.
+- [~] Separar los resultados destacados geolocalizados de la valla general en clínicas y proveedores. — Los placements de directorio/perfil ya están activos; falta ranking patrocinado con radio, categoría y disclosure.
+- [~] Definir el catálogo comercial versionado por placement, elegibilidad de categoría, cobertura geográfica, límite de frecuencia y precio. — El inventario técnico ya está centralizado en `BILLBOARD_PLACEMENTS`; precio/segmentación requieren aprobación comercial.
 - [ ] Definir catálogo comercial de campañas, CPM/flat fee, duración y segmentación.
 - [ ] Implementar contrato/cotización, estado de pago y facturación de anunciantes.
 - [ ] Implementar límites por placement, tenant, frecuencia y prioridad.
-- [ ] Añadir métricas de impresiones, clics, CTR, dismissal y conversión.
+- [~] Añadir métricas de impresiones, clics, CTR, dismissal y conversión. — Eventos de producto listos para agregación; faltan almacenamiento agregado, CTR de fuente de verdad, conversiones y reporte exportable para anunciante.
 - [ ] Añadir deduplicación y protección contra tráfico automatizado.
 - [ ] Añadir consentimiento/privacidad para tracking y documentar retención.
 - [ ] Añadir moderación de contenido, revisión legal y lista de categorías prohibidas.
@@ -268,9 +294,9 @@ incidentes.
 
 ## 9. API, integraciones y plataforma
 
-- [ ] Publicar OpenAPI por módulo y por versión.
+- [~] Publicar OpenAPI por módulo y por versión. — Clinic Partner v1 está publicado/documentado; faltan contratos versionados para Stores, Municipalidades, webhooks y SDKs.
 - [ ] Estandarizar envelopes de error, códigos HTTP, correlation ID y Problem Details.
-- [ ] Versionar API pública B2B y definir política de deprecación.
+- [~] Versionar API pública B2B y definir política de deprecación. — `/api/v1` existe para Clinic Partner; falta política transversal por módulo.
 - [ ] Añadir idempotency keys a mutaciones de pedidos, pagos, transferencias y uploads.
 - [ ] Añadir paginación cursor-based donde existan listas grandes.
 - [ ] Evitar N+1 queries y aplicar índices, `AsNoTracking` en lecturas y límites de filas.
@@ -278,7 +304,7 @@ incidentes.
 - [ ] Añadir webhooks salientes firmados, reintentos, replay protection y delivery log.
 - [ ] Validar CORS del widget y scopes por dominio registrado.
 - [ ] Añadir SDK o ejemplos oficiales para HIS, tiendas y municipalidades.
-- [ ] Crear entorno sandbox con datos sintéticos.
+- [~] Crear entorno sandbox con datos sintéticos. — Sandbox fail-closed y contrato Partner documentados; falta despliegue operativo verificable con datos sintéticos por módulo.
 
 ---
 
@@ -301,8 +327,8 @@ incidentes.
 
 ## 11. Pruebas enterprise
 
-- [x] Unit tests para dominio, pricing, gates, estados, permisos y validadores. — **1010+ unit tests pasando** (2026-09-01). Incluyen dominio de suscripciones, analytics, sedes, API keys, collares.
-- [x] Integration tests para los endpoints B2B principales. — **73 integration tests pasando** (2026-09-01), cobertura de auth, clinics, stores, collars, adoptions. Fix de `WebApplicationFactory` NetTopologySuite aplicado.
+- [x] Unit tests para dominio, pricing, gates, estados, permisos y validadores. — **1329 unit tests pasando** (2026-09-09). Incluyen clínica, MFA, expediente append-only, exports, agenda, permisos veterinarios, suscripciones, analytics, sedes, API keys y collares.
+- [x] Integration tests para los endpoints B2B principales. — **102 integration tests pasando** (2026-09-09), incluyendo auth, clinics, stores, collars, adoptions y flujos enterprise.
 - [ ] Contract tests para API pública, widget, webhooks y pagos.
 - [ ] Tests de aislamiento multi-tenant y autorización negativa.
 - [ ] Tests de concurrencia para pedidos, pagos, inventario y transferencias.
@@ -316,9 +342,9 @@ incidentes.
 - [ ] Snapshot tests para PDFs, certificados, respuestas API y documentos críticos.
 - [ ] Revisar cobertura y mutation testing en reglas de autorización y billing.
 
-> ⚠️ **Hallazgo (2026-08-25, CORREGIDO 2026-09-01):** La suite de integración fallaba por `UseNetTopologySuite` vs InMemory — fix aplicado en `PawTrackWebApplicationFactory` + fix de `PawTrackDbContext.SaveChangesAsync` (publisher de domain events sin `INotification`). **Estado actual: 73/73 integration tests pasando, 1010+ unit tests pasando.**
+> ⚠️ **Hallazgo histórico (2026-08-25, corregido 2026-09-01):** La suite de integración fallaba por `UseNetTopologySuite` vs InMemory. El estado verificado actual es 102 integration tests y 1329 unit tests pasando.
 
-> ✅ **Hallazgo (2026-09-01, RESUELTO el mismo día):** `NearbyClinicRef` en `IChannelBroadcaster.cs` solo contenía `(Name, PhoneNumber, Address)` — sin `LogoUrl`. La feature "Logo en alertas de pérdida" de ClinicPlus (₡15,000/mes) no entregaba el logo. **Fix aplicado**: `LogoUrl` agregado al record y propagado por `BroadcastLostPetCommandHandler`; entrega real implementada en Email (`<img>` inline), WhatsApp (mensaje `type: image` separado — Meta no permite imágenes inline en texto) y Telegram (se descubrió un segundo bug — nunca mencionaba clínicas — corregido con texto + `sendPhoto`). 10 tests nuevos añadidos (`backend/tests/PawTrack.UnitTests/Broadcast/`). Suite completa: **1020/1020 unit, 73/73 integration, 0 fallos.**
+> ✅ **Hallazgo histórico (2026-09-01):** Se corrigió la entrega de logos ClinicPlus en Email, WhatsApp y Telegram. La cobertura actual se valida dentro de la suite vigente de 1329 unit tests y 102 integration tests.
 
 ---
 
@@ -379,7 +405,7 @@ No marcar el objetivo como terminado hasta cumplir todos los puntos:
 - [ ] Billing probado para alta, renovación, fallo, upgrade, downgrade, cancelación y reactivación.
 - [ ] Clínicas, tiendas, aliados y municipalidades tienen onboarding y soporte definidos.
 - [ ] Analytics, multi-sucursal, firma digital y RFID avanzado están implementados o retirados explícitamente del catálogo comercial.
-- [ ] API pública, widget y webhooks tienen contrato versionado y sandbox.
+- [~] API pública, widget y webhooks tienen contrato versionado y sandbox. — Clinic Partner API/widget tienen contrato v1 y sandbox documentado; webhooks salientes y contratos de Stores/Municipalidades siguen pendientes.
 - [ ] Backups, restore, observabilidad, alertas y runbooks fueron probados.
 - [ ] Seguridad externa y pruebas de carga completadas sin hallazgos bloqueantes.
 - [ ] Product owner y responsable técnico firman la matriz de aceptación final.

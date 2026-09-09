@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using PawTrack.Application.Clinics.Queries.GetPublicClinics;
 using PawTrack.Application.Pets.Commands.RecordPublicQrScan;
 using PawTrack.Application.Pets.Queries.GetPublicPetProfile;
+using PawTrack.Application.Safety.Commands.CreateAnonymousContactRequest;
 using System.Security.Claims;
 
 namespace PawTrack.API.Controllers;
@@ -13,6 +14,27 @@ namespace PawTrack.API.Controllers;
 [EnableRateLimiting("public-api")] // 30 req/min per IP — prevents QR-scan farming
 public sealed class PublicController(ISender sender, ILogger<PublicController> logger) : ControllerBase
 {
+    [HttpPost("lost-pets/{id:guid}/contact")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(4096)]
+    public async Task<IActionResult> ContactOwner(
+        Guid id,
+        [FromBody] AnonymousContactRequestModel request,
+        CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(
+            new CreateAnonymousContactRequestCommand(id, request.FinderName, request.Message),
+            cancellationToken);
+
+        return result.IsSuccess
+            ? Accepted(new { requestId = result.Value })
+            : UnprocessableEntity(new ProblemDetails
+            {
+                Title = "No se pudo enviar el mensaje",
+                Detail = string.Join("; ", result.Errors),
+                Status = StatusCodes.Status422UnprocessableEntity,
+            });
+    }
     // ── GET /api/public/pets/{id} ─────────────────────────────────────────────
     [HttpGet("pets/{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -118,6 +140,8 @@ public sealed class PublicController(ISender sender, ILogger<PublicController> l
             ? parsed
             : null;
     }
+
+    public sealed record AnonymousContactRequestModel(string? FinderName, string Message);
 
     private string? ResolveUserAgent()
     {

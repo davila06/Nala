@@ -37,7 +37,45 @@ public sealed class User
     /// </summary>
     public DateTimeOffset? HealthDataConsentedAt { get; private set; }
 
+    public bool MfaEnabled { get; private set; }
+    public string? MfaSecretProtected { get; private set; }
+    public DateTimeOffset? MfaConfiguredAt { get; private set; }
+    public string? MfaRecoveryCodeHashes { get; private set; }
     public bool HasHealthDataConsent => HealthDataConsentedAt.HasValue;
+
+    public bool HasMfa => MfaEnabled && !string.IsNullOrWhiteSpace(MfaSecretProtected);
+
+    public IReadOnlyList<string> ConfigureMfa(string protectedSecret)
+    {
+        if (string.IsNullOrWhiteSpace(protectedSecret)) throw new ArgumentException("MFA secret is required.", nameof(protectedSecret));
+        MfaSecretProtected = protectedSecret;
+        MfaEnabled = true;
+        MfaConfiguredAt = DateTimeOffset.UtcNow;
+        var rawCodes = Enumerable.Range(0, 10)
+            .Select(_ => Convert.ToHexString(RandomNumberGenerator.GetBytes(8)).ToLowerInvariant())
+            .ToArray();
+        MfaRecoveryCodeHashes = System.Text.Json.JsonSerializer.Serialize(rawCodes.Select(ToHexHash).ToArray());
+        return rawCodes;
+    }
+
+    public void DisableMfa()
+    {
+        MfaEnabled = false;
+        MfaSecretProtected = null;
+        MfaConfiguredAt = null;
+        MfaRecoveryCodeHashes = null;
+    }
+
+    public bool ConsumeMfaRecoveryCode(string code)
+    {
+        if (string.IsNullOrWhiteSpace(MfaRecoveryCodeHashes)) return false;
+        var hashes = System.Text.Json.JsonSerializer.Deserialize<string[]>(MfaRecoveryCodeHashes) ?? [];
+        var hash = ToHexHash(code.Trim().ToLowerInvariant());
+        var index = Array.FindIndex(hashes, value => string.Equals(value, hash, StringComparison.Ordinal));
+        if (index < 0) return false;
+        MfaRecoveryCodeHashes = System.Text.Json.JsonSerializer.Serialize(hashes.Where((_, i) => i != index).ToArray());
+        return true;
+    }
 
     // ── Account lockout ───────────────────────────────────────────────────────
     public int FailedLoginAttempts { get; private set; }

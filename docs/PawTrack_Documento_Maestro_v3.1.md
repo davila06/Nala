@@ -1,16 +1,18 @@
-# PawTrack CR — Documento Maestro Consolidado (v4.0)
+# PawTrack CR - Documento Maestro Consolidado (v4.0)
 
 Proyecto: PawTrack CR  
 Autor: Denis Avila Umaña  
-Versión: 4.0 (agosto 2026 — producción-ready)  
-Fecha de actualización: 2026-08-19  
-Estado: MVP completo — enterprise hardened — listo para producción
+Version: 4.0 (septiembre 2026)
+Fecha de actualizacion: 2026-09-09
+Estado: MVP amplio con hardening enterprise en progreso; consultar `docs/STATUS.md`
 
 ---
 
 ## 1. Propósito de este documento
 
-Fuente única de referencia funcional y técnica del proyecto. Reemplaza todos los documentos de planificación y manuales separados.
+Especificacion consolidada de arquitectura y producto. El estado verificable
+actual vive en `docs/STATUS.md`; la estrategia vive en
+`docs/PRODUCT_STRATEGY_TOP1.md` y la navegacion documental en `docs/README.md`.
 
 Ciclo central del producto:
 
@@ -20,7 +22,10 @@ Ciclo central del producto:
 
 ## 2. Estado actual (resumen ejecutivo)
 
-PawTrack CR es un **MVP completo enterprise-hardened** con todos los módulos operativos, 916 tests unitarios pasando y seguridad auditada en múltiples rondas.
+PawTrack CR es un MVP amplio con modulos operativos, 1315 pruebas unitarias de
+backend y 52 pruebas frontend verificadas en el ultimo corte. La preparacion
+para produccion depende de los gates de `docs/STATUS.md` y
+`docs/ERRORES_PENDIENTES.md`.
 
 ### Módulos implementados (septiembre 2026)
 
@@ -717,7 +722,8 @@ Pendientes de producto de alto nivel (no observados como módulos completos en e
 
 ## 12. Decisiones de gobierno documental
 
-- Este archivo (`PawTrack_Documento_Maestro_v3.1.md`) queda como documento maestro único del proyecto.
+- Este archivo conserva la especificacion consolidada; el estado vigente y los
+  documentos activos se indexan desde `docs/README.md`.
 - Cualquier actualización funcional o técnica debe reflejarse aquí primero.
 - La documentación auxiliar temporal debe consolidarse y luego eliminarse para evitar divergencia.
 

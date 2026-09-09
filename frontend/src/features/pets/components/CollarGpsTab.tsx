@@ -330,7 +330,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
                   <button
                     type="button"
                     onClick={() => {
-                      void navigator.clipboard.writeText(generatedKey!);
+                      void navigator.clipboard.writeText(generatedKey);
                       setKeyCopied(true);
                       setTimeout(() => setKeyCopied(false), 2000);
                     }}

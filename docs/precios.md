@@ -1,12 +1,17 @@
 # PawTrack CR — Estrategia de Precios
 
+> **Estado: HISTORICO/DRAFT.** Consultar [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md)
+> para la matriz consolidada. Las propuestas de este archivo requieren nueva
+> aprobacion comercial y legal.
+
 > Versión: 2026-09-08 | Moneda: Colones costarricenses (₡) | Referencia de cambio: ~520 ₡/USD
 > Fuente de verdad: `SubscriptionPricing` en el backend.
 
 > Estado documental: los precios de suscripción de este documento reflejan el
-> catálogo técnico actual. El marketplace de proveedores tiene capacidades
-> operativas implementadas, pero todavía **no tiene tier, comisión ni cobro
-> comercial aprobado**. Ver [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md).
+> catálogo técnico actual de dueños, clínicas, tiendas, refugios y
+> municipalidades. El marketplace de proveedores tiene tiers técnicos y una
+> prueba operativa, pero todavía **no tiene precio comercial recurrente,
+> comisión ni cobro aprobado**. Ver [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md).
 
 ---
 
@@ -73,18 +78,21 @@ edición autenticada, publicación pública cuando corresponde y verificación
 documental separada. La revisión de PawTrack no es una licencia estatal ni un
 aval profesional.
 
-**Modelo recomendado pendiente de aprobación:**
+**Estado técnico actual y modelo comercial pendiente:**
 
-| Nivel       | Precio sugerido | Alcance                                           |
-| ----------- | --------------: | ------------------------------------------------- |
-| Perfil base |          Gratis | Directorio y contacto básico                      |
-| Verificado  |      ₡3,000/mes | Verificación, catálogo, disponibilidad y reservas |
-| Destacado   |      ₡5,000/mes | Prioridad en mapa/búsqueda, badge y estadísticas  |
+| Nivel técnico | Precio comercial | Estado y alcance                                                                 |
+| ------------- | ---------------- | -------------------------------------------------------------------------------- |
+| `Free`        | Gratis           | Directorio y contacto básico                                                     |
+| `Verified`    | Pendiente        | Catálogo, disponibilidad y reservas; se habilita con aprobación y prueba inicial |
+| `Featured`    | Pendiente        | Nivel técnico para prioridad, badge y estadísticas; sin checkout comercial       |
 
-Se recomienda un periodo inicial de 60–90 días sin costo. Actualmente no existe
-facturación recurrente ni gate de membresía para proveedores; estos importes no
-son precios activos. Las comisiones de `docs/pricing.md` permanecen como
-alternativa futura y no forman parte de este catálogo.
+La aprobación inicial del proveedor activa una prueba única de **30 días en
+`Verified`**. Al vencer, el job operativo lo devuelve a `Free` salvo que un
+administrador haya asignado una membresía manual. `Free` conserva directorio y
+contacto, pero no puede publicar catálogo, disponibilidad ni recibir reservas.
+Actualmente no existe facturación recurrente para proveedores; los importes de
+₡3.000–₡5.000/mes y las comisiones de `docs/pricing.md` siguen siendo
+propuestas y no forman parte del catálogo activo.
 
 ---
 

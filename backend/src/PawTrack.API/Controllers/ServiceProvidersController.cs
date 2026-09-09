@@ -56,7 +56,8 @@ public sealed class ServiceProvidersController(ISender sender) : ControllerBase
 
         var result = await sender.Send(new UpdateServiceProviderProfileCommand(
             userId, request.Name, request.Description, category, request.Address, request.Lat,
-            request.Lng, request.PhoneNumber, request.Website), ct);
+            request.Lng, request.PhoneNumber, request.Website, request.WhatsAppNumber,
+            request.IsWhatsAppContactEnabled), ct);
         return result.IsSuccess
             ? Ok(result.Value)
             : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
@@ -397,7 +398,9 @@ public sealed record UpdateServiceProviderProfileRequest(
     decimal Lat,
     decimal Lng,
     string? PhoneNumber,
-    string? Website);
+    string? Website,
+    string? WhatsAppNumber = null,
+    bool IsWhatsAppContactEnabled = false);
 
 public sealed record AddProviderServiceRequest(
     string Name,

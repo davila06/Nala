@@ -21,6 +21,12 @@ public sealed class MedicalRecord
     public Guid CreatedByUserId { get; private set; }
     /// <summary>Set when a Clinic account added this record; null for owner-created records.</summary>
     public Guid? ClinicId { get; private set; }
+    public int Version { get; private set; }
+    public Guid? SupersedesRecordId { get; private set; }
+    public bool IsSuperseded { get; private set; }
+    public DateTimeOffset? SupersededAt { get; private set; }
+    public Guid? SupersededByUserId { get; private set; }
+    public string? SupersessionReason { get; private set; }
     public MedicalRecordType Type { get; private set; }
     public DateOnly Date { get; private set; }
     public string Description { get; private set; } = string.Empty;
@@ -60,6 +66,7 @@ public sealed class MedicalRecord
             PetId = petId,
             CreatedByUserId = createdByUserId,
             ClinicId = clinicId,
+            Version = 1,
             Type = type,
             Date = date,
             Description = description.Trim(),
@@ -75,6 +82,52 @@ public sealed class MedicalRecord
         };
 
     public void SetDocumentUrl(string url) => DocumentUrl = url;
+
+    public void Supersede(Guid supersededByUserId, string reason)
+    {
+        if (IsSuperseded) throw new InvalidOperationException("The medical record is already superseded.");
+        if (string.IsNullOrWhiteSpace(reason)) throw new ArgumentException("A supersession reason is required.", nameof(reason));
+
+        IsSuperseded = true;
+        SupersededAt = DateTimeOffset.UtcNow;
+        SupersededByUserId = supersededByUserId;
+        SupersessionReason = reason.Trim();
+    }
+
+    public static MedicalRecord CreateRevision(
+        MedicalRecord source,
+        Guid createdByUserId,
+        MedicalRecordType type,
+        DateOnly date,
+        string description,
+        string? vetName,
+        string? clinicName,
+        DateOnly? nextDueDate,
+        decimal? weightKg = null,
+        string? dosageDescription = null,
+        string? frequency = null,
+        int? durationDays = null,
+        DateOnly? medicationEndDate = null) => new()
+        {
+            Id = Guid.CreateVersion7(),
+            PetId = source.PetId,
+            CreatedByUserId = createdByUserId,
+            ClinicId = source.ClinicId,
+            SupersedesRecordId = source.Id,
+            Version = source.Version + 1,
+            Type = type,
+            Date = date,
+            Description = description.Trim(),
+            VetName = vetName?.Trim(),
+            ClinicName = clinicName?.Trim(),
+            NextDueDate = nextDueDate,
+            CreatedAt = DateTimeOffset.UtcNow,
+            WeightKg = weightKg,
+            DosageDescription = dosageDescription?.Trim(),
+            Frequency = frequency?.Trim(),
+            DurationDays = durationDays,
+            MedicationEndDate = medicationEndDate,
+        };
 
     public void Update(
         MedicalRecordType type,

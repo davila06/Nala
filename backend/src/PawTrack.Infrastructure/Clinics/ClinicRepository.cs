@@ -46,7 +46,39 @@ public sealed class ClinicRepository(PawTrackDbContext dbContext) : IClinicRepos
             .Where(c => c.Status == ClinicStatus.Active)
             .OrderByDescending(c => c.IsFeatured)
             .ThenBy(c => c.Name)
+            .Take(500)
             .ToListAsync(cancellationToken);
+
+    public async Task<(IReadOnlyList<Clinic> Items, int Total)> GetActivePageAsync(
+        string? search,
+        bool emergencyOnly,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+        var query = dbContext.Clinics.AsNoTracking()
+            .Where(c => c.Status == ClinicStatus.Active);
+
+        if (emergencyOnly) query = query.Where(c => c.IsEmergency24h);
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(c => EF.Functions.Like(c.Name, $"%{term}%")
+                || EF.Functions.Like(c.Address, $"%{term}%"));
+        }
+
+        var total = await query.CountAsync(cancellationToken);
+        var items = await query
+            .OrderByDescending(c => c.IsFeatured)
+            .ThenBy(c => c.Name)
+            .ThenBy(c => c.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+        return (items, total);
+    }
 
     public async Task<IReadOnlyList<Clinic>> SearchActiveByNameOrLicenseAsync(
         string search, int take, CancellationToken cancellationToken = default)

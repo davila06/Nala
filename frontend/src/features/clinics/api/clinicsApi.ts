@@ -16,7 +16,14 @@ export interface ClinicDto {
   phoneNumber: string | null;
   website: string | null;
   logoUrl: string | null;
+  description: string | null;
+  services: string | null;
+  openingHours: string | null;
   isFeatured: boolean;
+  isEmergency24h: boolean;
+  emergencyPhone: string | null;
+  whatsAppNumber: string | null;
+  isWhatsAppContactEnabled: boolean;
   status: ClinicStatus;
   registeredAt: string;
 }
@@ -31,7 +38,6 @@ export interface PublicClinicDto {
   id: string;
   name: string;
   address: string;
-  contactEmail: string;
   phoneNumber: string | null;
   website: string | null;
   logoUrl: string | null;
@@ -40,7 +46,25 @@ export interface PublicClinicDto {
   isFeatured: boolean;
   isEmergency24h: boolean;
   emergencyPhone: string | null;
+  whatsAppNumber: string | null;
   status: string;
+}
+
+export interface PublicClinicProfileDto {
+  id: string;
+  name: string;
+  address: string;
+  phoneNumber: string | null;
+  website: string | null;
+  logoUrl: string | null;
+  description: string | null;
+  services: string | null;
+  openingHours: string | null;
+  lat: number;
+  lng: number;
+  isFeatured: boolean;
+  isEmergency24h: boolean;
+  emergencyPhone: string | null;
 }
 
 export interface EmergencyVetDto {
@@ -91,6 +115,8 @@ export interface ClinicApiKeyDto {
   isRevoked: boolean;
   createdAt: string;
   lastUsedAt: string | null;
+  expiresAt: string;
+  scopes: string[];
   rawKey?: string;
 }
 
@@ -102,6 +128,20 @@ export interface RegisterClinicRequest {
   lng: number;
   contactEmail: string;
   password: string;
+}
+
+export interface UpdateClinicProfileRequest {
+  name: string;
+  address: string;
+  phoneNumber: string | null;
+  website: string | null;
+  isEmergency24h: boolean | null;
+  emergencyPhone: string | null;
+  description?: string | null;
+  services?: string | null;
+  openingHours?: string | null;
+  whatsAppNumber?: string | null;
+  isWhatsAppContactEnabled?: boolean;
 }
 
 export interface NearbyAlertDto {
@@ -132,6 +172,11 @@ export const clinicsApi = {
   getMyClinic: (): Promise<ClinicDto> =>
     apiClient.get<ClinicDto>("/clinics/me").then((r) => r.data),
 
+  updateMyProfile: (payload: UpdateClinicProfileRequest): Promise<ClinicDto> =>
+    apiClient
+      .put<ClinicDto>("/clinics/me/profile", payload)
+      .then((r) => r.data),
+
   scan: (
     input: string,
     inputType: ScanInputType,
@@ -140,9 +185,25 @@ export const clinicsApi = {
       .post<ClinicScanResultDto>("/clinics/scan", { input, inputType })
       .then((r) => r.data),
 
-  getPublicClinics: (lat?: number, lng?: number): Promise<PublicClinicDto[]> =>
+  getPublicClinics: (
+    lat?: number,
+    lng?: number,
+    options?: {
+      search?: string;
+      emergencyOnly?: boolean;
+      page?: number;
+      pageSize?: number;
+    },
+  ): Promise<PublicClinicDto[]> =>
     apiClient
-      .get<PublicClinicDto[]>("/clinics/public", { params: { lat, lng } })
+      .get<PublicClinicDto[]>("/clinics/public", {
+        params: { lat, lng, ...options },
+      })
+      .then((r) => r.data),
+
+  getPublicProfile: (clinicId: string): Promise<PublicClinicProfileDto> =>
+    apiClient
+      .get<PublicClinicProfileDto>(`/clinics/public/${clinicId}`)
       .then((r) => r.data),
 
   searchForAccess: (query: string): Promise<ClinicAccessSearchResultDto[]> =>
@@ -172,9 +233,9 @@ export const clinicsApi = {
       .get<ClinicApiKeyDto[]>("/clinics/me/api-keys")
       .then((r) => r.data),
 
-  createApiKey: (label: string): Promise<ClinicApiKeyDto> =>
+  createApiKey: (label: string, scopes?: string[]): Promise<ClinicApiKeyDto> =>
     apiClient
-      .post<ClinicApiKeyDto>("/clinics/me/api-keys", { label })
+      .post<ClinicApiKeyDto>("/clinics/me/api-keys", { label, scopes })
       .then((r) => r.data),
 
   revokeApiKey: (keyId: string): Promise<void> =>

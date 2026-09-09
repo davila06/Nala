@@ -13,6 +13,8 @@ public sealed class VerifyCertificateQueryHandlerTests
     private readonly IVaccinePassportRepository _passports = Substitute.For<IVaccinePassportRepository>();
     private readonly ICertificateAuditLogRepository _auditLogs = Substitute.For<ICertificateAuditLogRepository>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
+    private readonly IBlobStorageService _blobStorage = Substitute.For<IBlobStorageService>();
+    private readonly ICertificateDigitalSigner _digitalSigner = Substitute.For<ICertificateDigitalSigner>();
 
     [Fact]
     public async Task Handle_ExistingPassportCertificate_ReturnsPublicVerificationDtoFromSnapshots()
@@ -25,6 +27,7 @@ public sealed class VerifyCertificateQueryHandlerTests
             "ABCD1234",
             notes: "Nota interna sensible");
         certificate.SetPdfUrl("https://storage.example/certificates/private.pdf");
+        certificate.SetSignature("https://storage.example/certificates/private.sig", "RSA-SHA256-PKCS1-KeyVault");
         var passport = VaccinePassport.Issue(
             certificate.Id,
             certificate.PetId,
@@ -39,8 +42,13 @@ public sealed class VerifyCertificateQueryHandlerTests
 
         _certificates.GetByVerificationCodeAsync("ABCD1234", Arg.Any<CancellationToken>()).Returns(certificate);
         _passports.GetByCertificateIdAsync(certificate.Id, Arg.Any<CancellationToken>()).Returns(passport);
+        _blobStorage.DownloadAsync(certificate.PdfUrl!, Arg.Any<CancellationToken>()).Returns([1, 2, 3]);
+        _blobStorage.DownloadAsync(certificate.SignatureUrl!, Arg.Any<CancellationToken>())
+            .Returns(System.Text.Encoding.UTF8.GetBytes(Convert.ToBase64String([4, 5, 6])));
+        _digitalSigner.VerifyAsync(Arg.Any<ReadOnlyMemory<byte>>(), Arg.Any<ReadOnlyMemory<byte>>(), Arg.Any<CancellationToken>())
+            .Returns(true);
 
-        var result = await new VerifyCertificateQueryHandler(_certificates, _passports, _auditLogs, _unitOfWork)
+        var result = await new VerifyCertificateQueryHandler(_certificates, _passports, _auditLogs, _unitOfWork, _blobStorage, _digitalSigner)
             .Handle(new VerifyCertificateQuery("ABCD1234"), default);
 
         result.IsSuccess.Should().BeTrue();
@@ -50,6 +58,7 @@ public sealed class VerifyCertificateQueryHandlerTests
         result.Value.PetName.Should().Be("Nala");
         result.Value.PetSpecies.Should().Be("Dog");
         result.Value.ClinicName.Should().Be("VetSalud");
+        result.Value.SignatureVerified.Should().BeTrue();
         await _auditLogs.Received(1).AddAsync(
             Arg.Is<CertificateAuditLog>(log => log.Action == CertificateAuditAction.VerifiedPublicly && log.CertificateId == certificate.Id),
             Arg.Any<CancellationToken>());

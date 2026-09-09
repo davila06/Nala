@@ -18,11 +18,14 @@ public sealed class PersonalDataRetentionJobTests
     private readonly ISightingRepository _sightingRepo = Substitute.For<ISightingRepository>();
     private readonly IChatRepository _chatRepo = Substitute.For<IChatRepository>();
     private readonly INotificationRepository _notificationRepo = Substitute.For<INotificationRepository>();
+    private readonly IProductEventRepository _productEventRepo = Substitute.For<IProductEventRepository>();
+    private readonly IMedicalRepository _medicalRepo = Substitute.For<IMedicalRepository>();
+    private readonly IClinicMedicalExportRepository _exportRepo = Substitute.For<IClinicMedicalExportRepository>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
     private readonly ILogger<PersonalDataRetentionJob> _logger = Substitute.For<ILogger<PersonalDataRetentionJob>>();
 
     private PersonalDataRetentionJob CreateSut(PersonalDataRetentionSettings settings) =>
-        new(_sightingRepo, _chatRepo, _notificationRepo, _unitOfWork, Options.Create(settings), _logger);
+        new(_sightingRepo, _chatRepo, _notificationRepo, _productEventRepo, _medicalRepo, _exportRepo, _unitOfWork, Options.Create(settings), _logger);
 
     [Fact]
     public async Task ExecuteAsync_UsesConfiguredRetentionWindows()
@@ -36,6 +39,7 @@ public sealed class PersonalDataRetentionJobTests
         _sightingRepo.DeleteReportedBeforeAsync(Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>()).Returns(0);
         _chatRepo.DeleteClosedThreadsOlderThanAsync(Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>()).Returns(0);
         _notificationRepo.DeleteReadBeforeAsync(Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>()).Returns(0);
+        _productEventRepo.DeleteOccurredBeforeAsync(Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>()).Returns(0);
 
         var sut = CreateSut(settings);
         var before = DateTimeOffset.UtcNow;

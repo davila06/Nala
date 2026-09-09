@@ -907,4 +907,4 @@ SEMANA 9  |████| E2E Tests + Load Testing + Documentation
 
 ---
 
-**Questions or concerns? Open an issue in docs/COLLAR_IMPLEMENTATION_GAPS.md** ✅
+**Questions or concerns? Review the current collar status in `docs/collarFinal.md`.**

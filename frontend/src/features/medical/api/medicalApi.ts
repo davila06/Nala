@@ -60,6 +60,11 @@ export interface ClinicAccessLogEntryDto {
   clinicId: string;
   clinicName: string | null;
   accessedAt: string;
+  operation: string;
+  permission: string;
+  accessMethod: string;
+  outcome: string;
+  reason: string | null;
 }
 
 export interface VetReminderDto {

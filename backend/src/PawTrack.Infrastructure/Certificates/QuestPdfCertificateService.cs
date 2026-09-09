@@ -4,11 +4,17 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using QRCoder;
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.Extensions.Configuration;
 
 namespace PawTrack.Infrastructure.Certificates;
 
 /// <summary>Generates a PDF/A certificate with QuestPDF and stores it in Azure Blob Storage.</summary>
-public sealed class QuestPdfCertificateService(IBlobStorageService blobStorage) : ICertificateService
+public sealed class QuestPdfCertificateService(
+    IBlobStorageService blobStorage,
+    IConfiguration configuration,
+    ICertificateDigitalSigner digitalSigner) : ICertificateService
 {
     static QuestPdfCertificateService()
     {
@@ -16,7 +22,7 @@ public sealed class QuestPdfCertificateService(IBlobStorageService blobStorage) 
         QuestPDF.Settings.License = LicenseType.Community;
     }
 
-    public async Task<string> GenerateAndStoreAsync(
+    public async Task<CertificateArtifact> GenerateAndStoreAsync(
         CertificatePdfData data,
         CancellationToken cancellationToken = default)
     {
@@ -31,7 +37,25 @@ public sealed class QuestPdfCertificateService(IBlobStorageService blobStorage) 
             "application/pdf",
             cancellationToken);
 
-        return url;
+        var keyVaultSignature = await digitalSigner.SignAsync(pdfBytes, cancellationToken);
+        if (keyVaultSignature is not null)
+        {
+            var keyVaultSignatureName = $"{data.CertificateId}.sig";
+            using var keyVaultSignatureStream = new MemoryStream(Encoding.UTF8.GetBytes(Convert.ToBase64String(keyVaultSignature.Bytes)));
+            var keyVaultSignatureUrl = await blobStorage.UploadAsync("certificates", keyVaultSignatureName, keyVaultSignatureStream, "application/pkcs8-signature", cancellationToken);
+            return new CertificateArtifact(url, keyVaultSignatureUrl, keyVaultSignature.Algorithm);
+        }
+
+        var signingKey = configuration["Certificates:SigningPrivateKeyBase64"];
+        if (string.IsNullOrWhiteSpace(signingKey)) return new CertificateArtifact(url, null, null);
+        using var rsa = RSA.Create();
+        rsa.ImportPkcs8PrivateKey(Convert.FromBase64String(signingKey), out _);
+        var signature = rsa.SignData(pdfBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        var signatureName = $"{data.CertificateId}.sig";
+        using var signatureStream = new MemoryStream(Encoding.UTF8.GetBytes(Convert.ToBase64String(signature)));
+        var signatureUrl = await blobStorage.UploadAsync(
+            "certificates", signatureName, signatureStream, "application/pkcs8-signature", cancellationToken);
+        return new CertificateArtifact(url, signatureUrl, "RSA-SHA256-PKCS1");
     }
 
     private static byte[] GeneratePdf(CertificatePdfData data)

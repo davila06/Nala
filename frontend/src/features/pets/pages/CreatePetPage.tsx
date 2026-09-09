@@ -10,6 +10,8 @@ import type { CreatePetRequest, PetSpecies } from "../api/petsApi";
 import { Alert } from "@/shared/ui/Alert";
 import { Card } from "@/shared/ui";
 import { useHaptic } from "@/shared/hooks/useHaptic";
+import { trackProductEvent } from "@/shared/lib/telemetry";
+import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
 
 const SPECIES_OPTIONS: { value: PetSpecies; label: string; emoji: string }[] = [
   { value: "Dog", label: "Perro", emoji: "🐶" },
@@ -37,6 +39,7 @@ export default function CreatePetPage() {
   const isLoading = createMutation.isPending || updateMutation.isPending;
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [direction, setDirection] = useState<1 | -1>(1);
+  const [createdPetId, setCreatedPetId] = useState<string | null>(null);
 
   // Form state
   const [name, setName] = useState(existing?.name ?? "");
@@ -75,8 +78,18 @@ export default function CreatePetPage() {
         void navigate(`/pets/${id}`);
       } else {
         const response = await createMutation.mutateAsync(data);
+        trackProductEvent("PetRegistered", {
+          source: "create-pet",
+          petId: response.petId,
+        });
+        if (data.breed && data.photo) {
+          trackProductEvent("PetProfileCompleted", {
+            source: "create-pet",
+            petId: response.petId,
+          });
+        }
         success();
-        void navigate(`/pets/${response.petId}`);
+        setCreatedPetId(response.petId);
       }
     } catch {
       /* errors shown via mutation state */
@@ -96,6 +109,41 @@ export default function CreatePetPage() {
       <div className="mx-auto max-w-md px-4 py-12">
         <div className="h-8 w-48 animate-pulse rounded-lg bg-sand-100" />
       </div>
+    );
+  }
+
+  if (createdPetId) {
+    return (
+      <main className="mx-auto max-w-md space-y-5 px-4 py-12 animate-fade-in-up">
+        <section className="rounded-2xl border border-rescue-200 bg-rescue-50 p-6 text-center">
+          <p className="text-3xl" aria-hidden="true">
+            ✓
+          </p>
+          <h1 className="mt-2 font-display text-2xl font-semibold text-rescue-800">
+            {name.trim()} ya tiene identidad PawTrack
+          </h1>
+          <p className="mt-2 text-sm text-rescue-700">
+            Genera su placa QR y mantenla visible para facilitar un reencuentro.
+          </p>
+        </section>
+        <BillboardBanner placement="PetRegistration" />
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => void navigate(`/pets/${createdPetId}`)}
+            className="rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+          >
+            Ver placa QR
+          </button>
+          <button
+            type="button"
+            onClick={() => void navigate("/dashboard")}
+            className="rounded-xl border border-sand-300 px-4 py-3 text-sm font-semibold text-sand-700 transition-colors hover:bg-sand-50"
+          >
+            Ir al dashboard
+          </button>
+        </div>
+      </main>
     );
   }
 

@@ -3,6 +3,7 @@ import confetti from "canvas-confetti";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUpdateLostPetStatus } from "../hooks/useLostPets";
 import { useHaptic } from "@/shared/hooks/useHaptic";
+import { trackProductEvent } from "@/shared/lib/telemetry";
 
 interface ReuniteButtonProps {
   lostEventId: string;
@@ -69,6 +70,10 @@ export function ReuniteButton({
 
   const handleReunite = useCallback(async () => {
     await mutation.mutateAsync("Reunited");
+    trackProductEvent("PetReunited", {
+      source: "lost-pet-owner",
+      petId,
+    });
     setConfirming(false);
     setCelebrating(true);
     hapticSuccess();
@@ -78,7 +83,7 @@ export function ReuniteButton({
       setCelebrating(false);
       onSuccess?.();
     }, 3500);
-  }, [hapticSuccess, mutation, onSuccess]);
+  }, [hapticSuccess, mutation, onSuccess, petId]);
 
   return (
     <>

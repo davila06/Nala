@@ -18,4 +18,13 @@ public sealed class PersonalDataRetentionSettings
 
     /// <summary>Days to keep a notification after it has been read. Default: 365 (1 year).</summary>
     public int ReadNotificationRetentionDays { get; init; } = 365;
+
+    /// <summary>Days to retain product funnel events. Default: 730 (2 years).</summary>
+    public int ProductEventRetentionDays { get; init; } = 730;
+
+    /// <summary>Days to retain superseded medical versions. Default: 2555 (7 years).</summary>
+    public int SupersededMedicalRecordRetentionDays { get; init; } = 2555;
+
+    /// <summary>Days to retain export metadata after expiry. Default: 2555 (7 years).</summary>
+    public int ExpiredClinicExportRetentionDays { get; init; } = 2555;
 }

@@ -34,6 +34,8 @@ using PawTrack.Domain.Audit;
 using PawTrack.Domain.AnimalWelfare;
 using PawTrack.Domain.Regulatory;
 using PawTrack.Domain.ServiceProviders;
+using PawTrack.Domain.Webhooks;
+using PawTrack.Domain.ProductAnalytics;
 
 namespace PawTrack.Infrastructure.Persistence;
 
@@ -45,6 +47,7 @@ public sealed class PawTrackDbContext(
     public DbSet<User> Users => Set<User>();
     public DbSet<AllyProfile> AllyProfiles => Set<AllyProfile>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<WebAuthnCredential> WebAuthnCredentials => Set<WebAuthnCredential>();
     public DbSet<Pet> Pets => Set<Pet>();
     public DbSet<PetSanitaryIdentityAuditLog> PetSanitaryIdentityAuditLogs => Set<PetSanitaryIdentityAuditLog>();
     public DbSet<QrScanEvent> QrScanEvents => Set<QrScanEvent>();
@@ -70,6 +73,7 @@ public sealed class PawTrackDbContext(
     public DbSet<WhatsAppProcessedMessage> WhatsAppProcessedMessages => Set<WhatsAppProcessedMessage>();
     public DbSet<SearchZone> SearchZones => Set<SearchZone>();
     public DbSet<Clinic> Clinics => Set<Clinic>();
+    public DbSet<ClinicProfileChange> ClinicProfileChanges => Set<ClinicProfileChange>();
     public DbSet<ClinicScan> ClinicScans => Set<ClinicScan>();
     public DbSet<ClinicProfileView> ClinicProfileViews => Set<ClinicProfileView>();
     public DbSet<ClinicApiKey> ClinicApiKeys => Set<ClinicApiKey>();
@@ -88,6 +92,7 @@ public sealed class PawTrackDbContext(
     public DbSet<VetCertificate> VetCertificates => Set<VetCertificate>();
     public DbSet<VaccinePassport> VaccinePassports => Set<VaccinePassport>();
     public DbSet<ClinicVeterinarian> ClinicVeterinarians => Set<ClinicVeterinarian>();
+    public DbSet<VeterinarianAppointment> VeterinarianAppointments => Set<VeterinarianAppointment>();
     public DbSet<ClinicVerification> ClinicVerifications => Set<ClinicVerification>();
     public DbSet<CertificateAuditLog> CertificateAuditLogs => Set<CertificateAuditLog>();
     public DbSet<VerificationAuditLog> VerificationAuditLogs => Set<VerificationAuditLog>();
@@ -103,6 +108,9 @@ public sealed class PawTrackDbContext(
     public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
     public DbSet<ClinicMedicalAccessGrant> ClinicMedicalAccessGrants => Set<ClinicMedicalAccessGrant>();
     public DbSet<ClinicMedicalAccessLog> ClinicMedicalAccessLogs => Set<ClinicMedicalAccessLog>();
+    public DbSet<ClinicMedicalExport> ClinicMedicalExports => Set<ClinicMedicalExport>();
+    public DbSet<WebhookSubscription> WebhookSubscriptions => Set<WebhookSubscription>();
+    public DbSet<WebhookDelivery> WebhookDeliveries => Set<WebhookDelivery>();
     public DbSet<PromotionCode> PromotionCodes => Set<PromotionCode>();
     public DbSet<PromotionCodeRedemption> PromotionCodeRedemptions => Set<PromotionCodeRedemption>();
     public DbSet<Store> Stores => Set<Store>();
@@ -120,6 +128,7 @@ public sealed class PawTrackDbContext(
     public DbSet<ProviderVerification> ProviderVerifications => Set<ProviderVerification>();
     public DbSet<RevokedToken> RevokedTokens => Set<RevokedToken>();
     public DbSet<PawTrack.Domain.Advertising.Billboard> Billboards => Set<PawTrack.Domain.Advertising.Billboard>();
+    public DbSet<PawTrack.Domain.Advertising.BillboardDeliveryEvent> BillboardDeliveryEvents => Set<PawTrack.Domain.Advertising.BillboardDeliveryEvent>();
     public DbSet<AdoptablePet> AdoptableAnimals => Set<AdoptablePet>();
     public DbSet<AdoptionApplication> AdoptionApplications => Set<AdoptionApplication>();
     public DbSet<AdoptionFair> AdoptionFairs => Set<AdoptionFair>();
@@ -134,6 +143,8 @@ public sealed class PawTrackDbContext(
     public DbSet<RegulatoryExport> RegulatoryExports => Set<RegulatoryExport>();
     public DbSet<ReportDefinition> ReportDefinitions => Set<ReportDefinition>();
     public DbSet<RegulatorySubmission> RegulatorySubmissions => Set<RegulatorySubmission>();
+    public DbSet<ProductEvent> ProductEvents => Set<ProductEvent>();
+    public DbSet<AnonymousContactRequest> AnonymousContactRequests => Set<AnonymousContactRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

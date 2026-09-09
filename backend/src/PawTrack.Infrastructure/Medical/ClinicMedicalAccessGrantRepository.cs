@@ -17,7 +17,8 @@ public sealed class ClinicMedicalAccessGrantRepository(PawTrackDbContext dbConte
             .FirstOrDefaultAsync(g => g.ClinicId == clinicId
                                    && g.PetId == petId
                                    && g.IsActive
-                                   && g.AcceptedAt != null, ct);
+                                   && g.AcceptedAt != null
+                                   && (g.AccessExpiresAt == null || g.AccessExpiresAt > DateTimeOffset.UtcNow), ct);
 
     public async Task<IReadOnlyList<ClinicMedicalAccessGrant>> GetByPetIdAsync(
         Guid petId, CancellationToken ct = default) =>
@@ -31,7 +32,8 @@ public sealed class ClinicMedicalAccessGrantRepository(PawTrackDbContext dbConte
         Guid clinicId, CancellationToken ct = default) =>
         await dbContext.ClinicMedicalAccessGrants
             .AsNoTracking()
-            .Where(g => g.ClinicId == clinicId && g.IsActive && g.AcceptedAt != null)
+            .Where(g => g.ClinicId == clinicId && g.IsActive && g.AcceptedAt != null
+                     && (g.AccessExpiresAt == null || g.AccessExpiresAt > DateTimeOffset.UtcNow))
             .OrderByDescending(g => g.AcceptedAt)
             .ToListAsync(ct);
 
@@ -42,7 +44,8 @@ public sealed class ClinicMedicalAccessGrantRepository(PawTrackDbContext dbConte
             .AnyAsync(g => g.ClinicId == clinicId
                         && g.PetId == petId
                         && g.IsActive
-                        && g.AcceptedAt != null, ct);
+                        && g.AcceptedAt != null
+                        && (g.AccessExpiresAt == null || g.AccessExpiresAt > DateTimeOffset.UtcNow), ct);
 
     public Task<ClinicMedicalAccessGrant?> FindPendingByCodeHashAsync(
         string codeHash, CancellationToken ct = default) =>

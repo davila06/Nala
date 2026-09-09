@@ -1,13 +1,17 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PawTrack.Application.Bounties.Commands.ConfirmBountyDeposit;
+using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Subscriptions.Commands.ActivateSubscription;
+using PawTrack.Application.Webhooks.Commands;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Security.Claims;
 
 namespace PawTrack.API.Controllers;
 
@@ -17,7 +21,10 @@ namespace PawTrack.API.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/webhooks")]
-public sealed class WebhooksController(ISender sender, IConfiguration configuration, ILogger<WebhooksController> logger) : ControllerBase
+public sealed class WebhooksController(
+    ISender sender,
+    IConfiguration configuration,
+    ILogger<WebhooksController> logger) : ControllerBase
 {
     // ── POST /api/webhooks/sinpe ──────────────────────────────────────────────
     [HttpPost("sinpe")]
@@ -56,6 +63,22 @@ public sealed class WebhooksController(ISender sender, IConfiguration configurat
         return Ok(new { message = "Reference not found; acknowledged." });
     }
 
+    [HttpPost]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> CreateSubscription(
+        [FromBody] CreateWebhookRequest request,
+        CancellationToken cancellationToken)
+    {
+        var rawUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(rawUserId, out var userId)) return Unauthorized();
+        var result = await sender.Send(new CreateWebhookSubscriptionCommand(
+            userId, request.EndpointUrl, request.Secret, request.EventTypes), cancellationToken);
+        return result.IsSuccess
+            ? Created($"/api/webhooks/{result.Value}", new { id = result.Value })
+            : UnprocessableEntity(result.Errors);
+    }
+
     private bool ValidateSignature(SinpePaymentNotification notification)
     {
         var secret = configuration["Webhooks:SinpeSecret"];
@@ -85,3 +108,5 @@ public sealed record SinpePaymentNotification(
     [property: JsonPropertyName("amount_crc")] decimal AmountCrc,
     [property: JsonPropertyName("sender_name")] string? SenderName,
     [property: JsonPropertyName("timestamp")] DateTimeOffset Timestamp);
+
+public sealed record CreateWebhookRequest(string EndpointUrl, string Secret, IReadOnlyList<string> EventTypes);

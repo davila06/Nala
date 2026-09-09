@@ -10,4 +10,5 @@ public enum StoreOrderStatus
     OutForDelivery = 5, // on the way (delivery orders)
     Delivered = 6, // completed
     Cancelled = 7, // cancelled by store or customer
+    Rejected = 8, // rejected by the store before preparation
 }

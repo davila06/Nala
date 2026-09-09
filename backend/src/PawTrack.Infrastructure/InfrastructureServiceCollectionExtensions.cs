@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Fido2NetLib;
+using Fido2NetLib.Objects;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.AnimalWelfare.Interfaces;
 using PawTrack.Application.Regulatory.Interfaces;
@@ -48,6 +50,7 @@ using PawTrack.Infrastructure.Bundles;
 using PawTrack.Infrastructure.Certificates;
 using PawTrack.Infrastructure.Collars;
 using PawTrack.Infrastructure.Municipalities;
+using PawTrack.Infrastructure.Webhooks;
 
 namespace PawTrack.Infrastructure;
 
@@ -64,6 +67,15 @@ public static class InfrastructureServiceCollectionExtensions
         services.Configure<AvatarTokenSettings>(configuration.GetSection("AvatarToken"));
         services.Configure<PetScanExportSettings>(configuration.GetSection("PetScanExport"));
         services.Configure<PawTrack.Application.Common.Settings.BotSettings>(configuration.GetSection("Bot"));
+
+        services.AddSingleton(_ => new Fido2(new Fido2Configuration
+        {
+            ServerDomain = configuration["WebAuthn:ServerDomain"] ?? "localhost",
+            ServerName = configuration["WebAuthn:ServerName"] ?? "PawTrack CR",
+            Origins = new HashSet<string>(
+                configuration.GetSection("WebAuthn:Origins").Get<string[]>()
+                    ?? ["http://localhost:5173"]),
+        }, null!));
 
         // EF Core
         services.AddDbContext<PawTrackDbContext>(options =>
@@ -92,6 +104,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAllyProfileRepository, AllyProfileRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IWebAuthnCredentialRepository, WebAuthnCredentialRepository>();
         services.AddScoped<IPetRepository, PetRepository>();
         services.AddScoped<IPetSanitaryIdentityAuditRepository, PetSanitaryIdentityAuditRepository>();
         services.AddScoped<IQrScanEventRepository, QrScanEventRepository>();
@@ -113,6 +126,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ICustodyRecordRepository, CustodyRecordRepository>();
         services.AddScoped<IStoreRepository, PawTrack.Infrastructure.Stores.StoreRepository>();
         services.AddScoped<IStoreOrderRepository, PawTrack.Infrastructure.Stores.StoreOrderRepository>();
+        services.AddScoped<IProductEventRepository, PawTrack.Infrastructure.ProductAnalytics.ProductEventRepository>();
+        services.AddScoped<IAnonymousContactRequestRepository, PawTrack.Infrastructure.Safety.AnonymousContactRequestRepository>();
         services.AddScoped<IServiceProviderRepository, PawTrack.Infrastructure.ServiceProviders.ServiceProviderRepository>();
         services.AddScoped<ProviderBookingExpirationJob>();
         services.AddHostedService<PawTrack.Infrastructure.ServiceProviders.ProviderBookingExpirationHostedService>();
@@ -149,6 +164,18 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IClinicProfileViewRepository, ClinicProfileViewRepository>();
         services.AddHostedService<ClinicProfileViewPurgeHostedService>();
         services.AddScoped<IClinicApiKeyRepository, ClinicApiKeyRepository>();
+        services.AddScoped<IClinicProfileChangeRepository, ClinicProfileChangeRepository>();
+        services.AddScoped<IVeterinarianAppointmentRepository, VeterinarianAppointmentRepository>();
+        services.AddScoped<IClinicMedicalExportRepository, ClinicMedicalExportRepository>();
+        services.AddScoped<IWebhookRepository, WebhookRepository>();
+        services.AddScoped<IWebhookFanout, WebhookFanout>();
+        services.AddHttpClient("OutboundWebhooks", client => client.Timeout = TimeSpan.FromSeconds(15));
+        services.AddHostedService<OutboundWebhookHostedService>();
+        services.AddSingleton<IMfaService, TotpMfaService>();
+        services.AddSingleton<IDataProtectionService, DataProtectionService>();
+        services.AddSingleton<ICertificateDigitalSigner, AzureKeyVaultCertificateDigitalSigner>();
+        services.AddSingleton<IMfaPolicy>(new ConfiguredMfaPolicy(
+            configuration.GetValue("Security:Mfa:RequireForPrivilegedRoles", true)));
 
         // Push subscriptions
         services.AddScoped<IPushSubscriptionRepository, PushSubscriptionRepository>();

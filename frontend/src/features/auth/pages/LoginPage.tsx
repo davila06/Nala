@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
-import { useLogin, useForgotPassword } from "../hooks/useAuth";
+import { useLogin, useForgotPassword, usePasskeyLogin } from "../hooks/useAuth";
 import { useRecoveryOverview } from "@/features/lost-pets/hooks/useRecoveryStats";
 import { Button } from "@/shared/ui/Button";
 import { Input } from "@/shared/ui/Input";
@@ -472,6 +472,11 @@ export default function LoginPage() {
   const justRegistered = searchParams.get("registered") === "true";
 
   const { mutate: login, isPending, error } = useLogin(returnTo);
+  const {
+    mutate: passkeyLogin,
+    isPending: isPasskeyPending,
+    error: passkeyError,
+  } = usePasskeyLogin(returnTo);
   const [showForgot, setShowForgot] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
 
@@ -699,6 +704,24 @@ export default function LoginPage() {
                     >
                       {isPending ? "Ingresando…" : "Ingresar"}
                     </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      fullWidth
+                      loading={isPasskeyPending}
+                      onClick={() => passkeyLogin(form.email)}
+                      disabled={!form.email || isPending}
+                    >
+                      {isPasskeyPending
+                        ? "Verificando passkey…"
+                        : "Ingresar con passkey"}
+                    </Button>
+                    {passkeyError && (
+                      <p className="text-xs text-danger-600" role="alert">
+                        No se pudo autenticar con passkey. Usa tu contraseña o
+                        MFA.
+                      </p>
+                    )}
                   </form>
 
                   <p className="mt-8 text-center text-sm text-sand-500">

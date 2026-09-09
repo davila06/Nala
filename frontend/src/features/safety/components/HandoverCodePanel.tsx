@@ -5,6 +5,7 @@ import {
 } from "../hooks/useSafety";
 import { Alert } from "@/shared/ui/Alert";
 import { Card } from "@/shared/ui";
+import { trackProductEvent } from "@/shared/lib/telemetry";
 
 // ── Owner panel — generates + displays the code ───────────────────────────────
 
@@ -27,6 +28,9 @@ export function OwnerHandoverPanel({
     setGenError(null);
     try {
       await generate(lostPetEventId);
+      trackProductEvent("HandoverStarted", {
+        source: "handover-owner",
+      });
     } catch {
       setGenError("No se pudo generar el código. Intenta de nuevo.");
     }
@@ -120,6 +124,9 @@ export function RescuerHandoverPanel({
     setVerifyError(null);
     try {
       await verify({ lostPetEventId, code: trimmed });
+      trackProductEvent("HandoverCompleted", {
+        source: "handover-rescuer",
+      });
     } catch {
       setVerifyError("No se pudo verificar el código. Intenta de nuevo.");
     }

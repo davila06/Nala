@@ -16,20 +16,21 @@
 
 La implementación real del producto usa estos tiers activos:
 
-| Segmento                 | Tier actual del backend                     | Precio actual                   |
-| ------------------------ | ------------------------------------------- | ------------------------------- |
-| Dueños                   | `Free`, `UserPlus`, `UserFamilia`           | ₡0 / ₡2,990 / ₡4,990            |
-| Tiendas                  | `StorePlus`, `StorePartner`                 | ₡12,000 / ₡25,000 mes           |
-| Refugios                 | `ShelterPlus`                               | ₡8,000 mes                      |
-| Clínicas                 | `ClinicPlus`, `ClinicPartner`               | ₡15,000 / ₡35,000 mes           |
-| Municipalidades          | `MuniBasica`, `MuniFull`, `MuniRedRegional` | ₡150k / ₡300k / ₡500k año       |
-| Proveedores de servicios | sin tier aprobado                           | Operación sin pricing comercial |
+| Segmento                 | Tier actual del backend                     | Precio actual                                    |
+| ------------------------ | ------------------------------------------- | ------------------------------------------------ |
+| Dueños                   | `Free`, `UserPlus`, `UserFamilia`           | ₡0 / ₡2,990 / ₡4,990                             |
+| Tiendas                  | `StorePlus`, `StorePartner`                 | ₡12,000 / ₡25,000 mes                            |
+| Refugios                 | `ShelterPlus`                               | ₡8,000 mes                                       |
+| Clínicas                 | `ClinicPlus`, `ClinicPartner`               | ₡15,000 / ₡35,000 mes                            |
+| Municipalidades          | `MuniBasica`, `MuniFull`, `MuniRedRegional` | ₡150k / ₡300k / ₡500k año                        |
+| Proveedores de servicios | `Free`, `Verified`, `Featured` técnicos     | Trial de 30 días; sin precio recurrente aprobado |
 
 > `ClinicBasic`, `StoreBasic` y `ShelterBasic` existen como estados libres y de directorio, pero no representan el tier pagado principal del sistema actual. La doc debe describirlos como estado base y no como plan comercial activo.
 >
-> Proveedores de servicios: sin tier comercial aprobado; actualmente ofrecen
-> operación de marketplace, pagos manuales/SINPE, verificación e incidentes,
-> pero no payout automático ni comisión aprobada.
+> Proveedores de servicios: los tiers técnicos ya aplican gates. `Free` ofrece
+> directorio/contacto; `Verified` y `Featured` habilitan catálogo,
+> disponibilidad y reservas. La aprobación inicial concede 30 días de prueba
+> en `Verified`; no hay precio recurrente ni comisión comercial aprobados.
 
 ---
 
@@ -48,10 +49,10 @@ La implementación real del producto usa estos tiers activos:
 | Municipalidades | Multi-cantón / red regional               | `MuniRedRegional` |
 | Refugios        | Animales ilimitados + ferias              | `ShelterPlus`     |
 | Proveedores     | Directorio, mapa y filtros por categoría  | Sin tier          |
-| Proveedores     | Catálogo, disponibilidad y capacidad      | Sin tier          |
-| Proveedores     | Reservas, snapshots comerciales y estados | Sin tier          |
-| Proveedores     | Verificación documental e incidentes      | Sin tier          |
-| Proveedores     | Pago manual/SINPE, disputa y reembolso    | Sin tier          |
+| Proveedores     | Catálogo, disponibilidad y capacidad      | `Verified`+       |
+| Proveedores     | Reservas, snapshots comerciales y estados | `Verified`+       |
+| Proveedores     | Verificación documental e incidentes      | Operativo         |
+| Proveedores     | Pago manual/SINPE, disputa y reembolso    | Operativo         |
 
 **Leyenda:** ✅ Implementado y funcional en la app actual · ⚠️ Requiere validación de UX o contrato
 

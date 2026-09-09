@@ -18,7 +18,9 @@ public sealed record ClinicAccessGrantDto(
     bool IsActive,
     DateTimeOffset? AcceptedAt,
     DateTimeOffset CodeExpiresAt,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? AccessExpiresAt,
+    IReadOnlyList<string> Permissions);
 
 public sealed record GeneratedAccessCodeDto(
     Guid GrantId,
@@ -112,7 +114,9 @@ public sealed class ClinicAcceptOwnerCodeCommandHandler(
         return Result.Success(new ClinicAccessGrantDto(
             grant.Id, grant.PetId, grant.ClinicId, clinic.Name,
             grant.InitiatedBy, grant.IsPending, grant.IsEffectivelyActive,
-            grant.AcceptedAt, grant.CodeExpiresAt, grant.CreatedAt));
+            grant.AcceptedAt, grant.CodeExpiresAt, grant.CreatedAt, grant.AccessExpiresAt,
+            new[] { ClinicMedicalAccessPermission.Read, ClinicMedicalAccessPermission.Write, ClinicMedicalAccessPermission.Export }
+                .Where(grant.HasPermission).ToList()));
     }
 
     private static string ComputeHash(string raw)
@@ -214,7 +218,9 @@ public sealed class OwnerAcceptClinicCodeCommandHandler(
         return Result.Success(new ClinicAccessGrantDto(
             grant.Id, grant.PetId, grant.ClinicId, clinic?.Name ?? "Clínica",
             grant.InitiatedBy, grant.IsPending, grant.IsEffectivelyActive,
-            grant.AcceptedAt, grant.CodeExpiresAt, grant.CreatedAt));
+            grant.AcceptedAt, grant.CodeExpiresAt, grant.CreatedAt, grant.AccessExpiresAt,
+            new[] { ClinicMedicalAccessPermission.Read, ClinicMedicalAccessPermission.Write, ClinicMedicalAccessPermission.Export }
+                .Where(grant.HasPermission).ToList()));
     }
 
     private static string ComputeHash(string raw)
@@ -285,7 +291,9 @@ public sealed class GetPetClinicGrantsQueryHandler(
             g.Id, g.PetId, g.ClinicId,
             clinics.TryGetValue(g.ClinicId, out var c) ? c.Name : "Clínica desconocida",
             g.InitiatedBy, g.IsPending, g.IsEffectivelyActive,
-            g.AcceptedAt, g.CodeExpiresAt, g.CreatedAt)).ToList();
+            g.AcceptedAt, g.CodeExpiresAt, g.CreatedAt, g.AccessExpiresAt,
+            new[] { ClinicMedicalAccessPermission.Read, ClinicMedicalAccessPermission.Write, ClinicMedicalAccessPermission.Export }
+                .Where(g.HasPermission).ToList())).ToList();
 
         return Result.Success<IReadOnlyList<ClinicAccessGrantDto>>(result);
     }

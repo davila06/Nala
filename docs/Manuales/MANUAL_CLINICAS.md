@@ -2,7 +2,7 @@
 
 **Versión:** 2.0  
 **Audiencia:** Clínicas veterinarias afiliadas a la red PawTrack CR  
-**Última actualización:** 2026-09-06
+**Última actualización:** 2026-09-09
 
 ---
 
@@ -92,6 +92,20 @@ El registro y el perfil de directorio son la entrada gratuita. Los planes comerc
 
 Los gates se validan en el backend con una suscripción activa y no solo desde la interfaz. `ClinicPartner` es necesario para API keys, widget, integraciones y emisión de pasaportes veterinarios digitales SENASA-ready; `ClinicPlus` habilita las métricas y la visibilidad premium.
 
+### 3.5 Perfil y permisos de integración
+
+Desde la pestaña **Perfil** puedes actualizar nombre comercial, dirección,
+teléfono, sitio web, emergencias 24/7, descripción, servicios y horario. Cada
+cambio queda auditado; la licencia SENASA no puede modificarse desde el portal.
+
+Las API keys de Partner se crean con permisos separados: `scan`,
+`medical:read`, `medical:write`, `certificates` y `analytics`. La key solo se
+muestra una vez, expira en un año y puede revocarse o rotarse. El directorio
+público aplica búsqueda, filtro de emergencias y paginación desde el servidor.
+
+Los grants de expediente médico tienen permisos de lectura/escritura y pueden
+tener fecha de expiración. Revocar un grant corta el acceso efectivo.
+
 ---
 
 ## 4. Portal de escaneo
@@ -149,7 +163,7 @@ Si PawTrack tiene registrada la mascota, aparece una tarjeta verde con:
 - **Nombre de la mascota**
 - **Especie**
 - **Nombre del dueño**
-- **Correo electrónico del dueño** (enlace `mailto:` para abrir tu cliente de correo directamente)
+- El propietario es notificado server-side; el correo del dueño no se expone en la tarjeta de resultado.
 - Nota de confirmación: _"Se ha notificado al dueño que su mascota fue vista aquí."_
 
 El dueño recibe una notificación automática en la plataforma en ese mismo momento.

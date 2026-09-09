@@ -40,6 +40,262 @@ export async function createPet(
   return body.petId;
 }
 
+/** Reports a pet lost and returns the real lost-event ID. */
+export async function reportLostPet(
+  request: APIRequestContext,
+  ownerToken: string,
+  petId: string,
+): Promise<string> {
+  const res = await request.post(`${API_URL}/api/lost-pets`, {
+    headers: authHeaders(ownerToken),
+    multipart: {
+      petId,
+      description: "E2E recovery flow",
+      publicMessage: "E2E recovery flow",
+      lastSeenAt: new Date().toISOString(),
+      lastSeenLat: "9.935",
+      lastSeenLng: "-84.091",
+      contactName: "E2E Owner",
+      contactPhone: "+50688880000",
+    },
+  });
+  if (res.status() !== 201) {
+    throw new Error(
+      `reportLostPet failed: ${res.status()} ${await res.text()}`,
+    );
+  }
+  const body = (await res.json()) as { id: string };
+  return body.id;
+}
+
+export async function getPublicPetProfile(
+  request: APIRequestContext,
+  petId: string,
+): Promise<{ id: string; status: string; name: string }> {
+  const res = await request.get(`${API_URL}/api/public/pets/${petId}`);
+  if (!res.ok()) {
+    throw new Error(
+      `getPublicPetProfile failed: ${res.status()} ${await res.text()}`,
+    );
+  }
+  return (await res.json()) as { id: string; status: string; name: string };
+}
+
+export async function generateHandoverCode(
+  request: APIRequestContext,
+  ownerToken: string,
+  lostEventId: string,
+): Promise<string> {
+  const res = await request.post(
+    `${API_URL}/api/lost-pets/${lostEventId}/handover/code`,
+    {
+      headers: authHeaders(ownerToken),
+    },
+  );
+  if (!res.ok()) {
+    throw new Error(
+      `generateHandoverCode failed: ${res.status()} ${await res.text()}`,
+    );
+  }
+  return ((await res.json()) as { code: string }).code;
+}
+
+export async function verifyHandoverCode(
+  request: APIRequestContext,
+  rescuerToken: string,
+  lostEventId: string,
+  code: string,
+): Promise<void> {
+  const res = await request.post(
+    `${API_URL}/api/lost-pets/${lostEventId}/handover/verify`,
+    {
+      headers: authHeaders(rescuerToken),
+      data: { code },
+    },
+  );
+  if (!res.ok()) {
+    throw new Error(
+      `verifyHandoverCode failed: ${res.status()} ${await res.text()}`,
+    );
+  }
+}
+
+export async function openMaskedChat(
+  request: APIRequestContext,
+  finderToken: string,
+  lostEventId: string,
+): Promise<string> {
+  const res = await request.post(`${API_URL}/api/chat/threads`, {
+    headers: authHeaders(finderToken),
+    data: { lostPetEventId: lostEventId },
+  });
+  if (!res.ok()) {
+    throw new Error(
+      `openMaskedChat failed: ${res.status()} ${await res.text()}`,
+    );
+  }
+  return ((await res.json()) as { threadId: string }).threadId;
+}
+
+export async function sendMaskedChatMessage(
+  request: APIRequestContext,
+  finderToken: string,
+  threadId: string,
+  body: string,
+): Promise<void> {
+  const res = await request.post(
+    `${API_URL}/api/chat/threads/${threadId}/messages`,
+    {
+      headers: authHeaders(finderToken),
+      data: { body },
+    },
+  );
+  if (!res.ok()) {
+    throw new Error(
+      `sendMaskedChatMessage failed: ${res.status()} ${await res.text()}`,
+    );
+  }
+}
+
+export async function getMaskedChatMessages(
+  request: APIRequestContext,
+  ownerToken: string,
+  threadId: string,
+): Promise<Array<{ body: string; isFromMe: boolean }>> {
+  const res = await request.get(
+    `${API_URL}/api/chat/threads/${threadId}/messages`,
+    {
+      headers: authHeaders(ownerToken),
+    },
+  );
+  if (!res.ok()) {
+    throw new Error(
+      `getMaskedChatMessages failed: ${res.status()} ${await res.text()}`,
+    );
+  }
+  return (await res.json()) as Array<{ body: string; isFromMe: boolean }>;
+}
+
+export async function reuniteLostPet(
+  request: APIRequestContext,
+  ownerToken: string,
+  lostEventId: string,
+): Promise<void> {
+  const res = await request.put(
+    `${API_URL}/api/lost-pets/${lostEventId}/status`,
+    {
+      headers: authHeaders(ownerToken),
+      data: { newStatus: "Reunited" },
+    },
+  );
+  if (!res.ok()) {
+    throw new Error(
+      `reuniteLostPet failed: ${res.status()} ${await res.text()}`,
+    );
+  }
+}
+
+export async function triggerLostPetBroadcast(
+  request: APIRequestContext,
+  ownerToken: string,
+  lostEventId: string,
+): Promise<void> {
+  const res = await request.post(
+    `${API_URL}/api/broadcast/lost-pets/${lostEventId}`,
+    {
+      headers: authHeaders(ownerToken),
+    },
+  );
+  if (!res.ok()) {
+    throw new Error(
+      `triggerLostPetBroadcast failed: ${res.status()} ${await res.text()}`,
+    );
+  }
+}
+
+export async function getLostPetBroadcastStatus(
+  request: APIRequestContext,
+  ownerToken: string,
+  lostEventId: string,
+): Promise<unknown> {
+  const res = await request.get(
+    `${API_URL}/api/broadcast/lost-pets/${lostEventId}`,
+    {
+      headers: authHeaders(ownerToken),
+    },
+  );
+  if (!res.ok()) {
+    throw new Error(
+      `getLostPetBroadcastStatus failed: ${res.status()} ${await res.text()}`,
+    );
+  }
+  return res.json();
+}
+
+export async function createClinicApiKey(
+  request: APIRequestContext,
+  clinicToken: string,
+  label = `E2E ${Date.now()}`,
+): Promise<{ id: string; key: string }> {
+  const res = await request.post(`${API_URL}/api/clinics/me/api-keys`, {
+    headers: authHeaders(clinicToken),
+    data: { label, scopes: ["scan"] },
+  });
+  if (!res.ok())
+    throw new Error(
+      `createClinicApiKey failed: ${res.status()} ${await res.text()}`,
+    );
+  const body = (await res.json()) as { id: string; rawKey?: string };
+  if (!body.rawKey)
+    throw new Error("createClinicApiKey did not return the one-time raw key.");
+  return { id: body.id, key: body.rawKey };
+}
+
+export async function rotateClinicApiKey(
+  request: APIRequestContext,
+  clinicToken: string,
+  keyId: string,
+): Promise<{ id: string; key: string }> {
+  const res = await request.post(
+    `${API_URL}/api/clinics/me/api-keys/${keyId}/rotate`,
+    {
+      headers: authHeaders(clinicToken),
+    },
+  );
+  if (!res.ok())
+    throw new Error(
+      `rotateClinicApiKey failed: ${res.status()} ${await res.text()}`,
+    );
+  const body = (await res.json()) as { id: string; rawKey?: string };
+  if (!body.rawKey)
+    throw new Error("rotateClinicApiKey did not return the one-time raw key.");
+  return { id: body.id, key: body.rawKey };
+}
+
+export async function lookupWithClinicApiKey(
+  request: APIRequestContext,
+  apiKey: string,
+  chip = `E2E-NOT-FOUND-${Date.now()}`,
+): Promise<number> {
+  const res = await request.get(
+    `${API_URL}/api/v1/pets/lookup?chip=${encodeURIComponent(chip)}`,
+    {
+      headers: { "X-PawTrack-Key": apiKey },
+    },
+  );
+  return res.status();
+}
+
+export function getB2BSeedStatus(): {
+  enabled: boolean;
+  reason?: string;
+} {
+  if (!process.env.E2E_B2B_ENABLED) {
+    return { enabled: false, reason: "E2E_B2B_ENABLED is not set." };
+  }
+  return { enabled: true };
+}
+
 /**
  * Grants the owner a UserFamilia subscription (unlimited pets, and satisfies the
  * "Plus" PlanGate too — UserFamilia is a superset tier) so the collar/GPS tab is

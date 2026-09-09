@@ -9,7 +9,7 @@ public sealed class MedicalRepository(PawTrackDbContext db) : IMedicalRepository
 {
     public async Task<IReadOnlyList<MedicalRecord>> GetByPetIdAsync(Guid petId, CancellationToken ct = default) =>
         await db.MedicalRecords.AsNoTracking()
-            .Where(r => r.PetId == petId)
+            .Where(r => r.PetId == petId && !r.IsSuperseded)
             .OrderByDescending(r => r.Date)
             .ToListAsync(ct);
 
@@ -64,4 +64,7 @@ public sealed class MedicalRepository(PawTrackDbContext db) : IMedicalRepository
             .Where(r => r.PetId == petId && r.Type == type && !r.IsCompleted)
             .OrderByDescending(r => r.DueDate)
             .FirstOrDefaultAsync(ct);
+
+    public Task<int> DeleteSupersededBeforeAsync(DateTimeOffset cutoff, CancellationToken ct = default) =>
+        db.MedicalRecords.Where(r => r.IsSuperseded && r.SupersededAt < cutoff).ExecuteDeleteAsync(ct);
 }

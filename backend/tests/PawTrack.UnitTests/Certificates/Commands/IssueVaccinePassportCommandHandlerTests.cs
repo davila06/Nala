@@ -68,7 +68,7 @@ public sealed class IssueVaccinePassportCommandHandlerTests
         _clinicVerifications.GetActiveForClinicAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(verification);
         _veterinarians.GetByIdAsync(veterinarian.Id, Arg.Any<CancellationToken>()).Returns(veterinarian);
         _certificateService.GenerateAndStoreAsync(Arg.Any<CertificatePdfData>(), Arg.Any<CancellationToken>())
-            .Returns("https://storage.example/certificates/passport.pdf");
+            .Returns(new CertificateArtifact("https://storage.example/certificates/passport.pdf", null, null));
 
         var result = await BuildHandler().Handle(
             new IssueVaccinePassportCommand(
@@ -108,7 +108,7 @@ public sealed class IssueVaccinePassportCommandHandlerTests
         _clinicVerifications.GetActiveForClinicAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(verification);
         _veterinarians.GetByIdAsync(veterinarian.Id, Arg.Any<CancellationToken>()).Returns(veterinarian);
         _certificateService.GenerateAndStoreAsync(Arg.Any<CertificatePdfData>(), Arg.Any<CancellationToken>())
-            .Returns("https://storage.example/certificates/passport.pdf");
+            .Returns(new CertificateArtifact("https://storage.example/certificates/passport.pdf", null, null));
 
         var result = await BuildHandler().Handle(
             new IssueVaccinePassportCommand(
@@ -332,7 +332,7 @@ public sealed class IssueVaccinePassportCommandHandlerTests
         _veterinarians.GetByIdAsync(veterinarian.Id, Arg.Any<CancellationToken>()).Returns(veterinarian);
         _grants.HasActiveGrantAsync(clinic.Id, pet.Id, Arg.Any<CancellationToken>()).Returns(true);
         _certificateService.GenerateAndStoreAsync(Arg.Any<CertificatePdfData>(), Arg.Any<CancellationToken>())
-            .Returns("https://storage.example/certificates/passport.pdf");
+            .Returns(new CertificateArtifact("https://storage.example/certificates/passport.pdf", null, null));
 
         var result = await BuildHandler().Handle(
             new IssueVaccinePassportCommand(

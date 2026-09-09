@@ -81,4 +81,44 @@ public sealed class RotateClinicApiKeyCommandHandlerTests
 
         result.IsFailure.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task Handle_ValidKey_PreservesOriginalScopes()
+    {
+        var userId = Guid.NewGuid();
+        var clinic = MakeClinic(userId);
+        var oldKey = ClinicApiKey.Create(
+            clinic.Id,
+            "hash",
+            "Read-only HIS",
+            scopes: [ClinicApiScope.MedicalRead]);
+        _clinics.GetByIdAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(clinic);
+        _keys.GetForClinicAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns([oldKey]);
+
+        var result = await BuildHandler().Handle(
+            new RotateClinicApiKeyCommand(oldKey.Id, clinic.Id, userId), default);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.Scopes.Should().BeEquivalentTo([ClinicApiScope.MedicalRead]);
+    }
+
+    [Fact]
+    public async Task Handle_ExpiredKey_ReturnsFailure()
+    {
+        var userId = Guid.NewGuid();
+        var clinic = MakeClinic(userId);
+        var expiredKey = ClinicApiKey.Create(
+            clinic.Id,
+            "hash",
+            "Expired",
+            lifetime: TimeSpan.FromMilliseconds(-1));
+        _clinics.GetByIdAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(clinic);
+        _keys.GetForClinicAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns([expiredKey]);
+
+        var result = await BuildHandler().Handle(
+            new RotateClinicApiKeyCommand(expiredKey.Id, clinic.Id, userId), default);
+
+        result.IsFailure.Should().BeTrue();
+        await _keys.DidNotReceive().AddAsync(Arg.Any<ClinicApiKey>(), Arg.Any<CancellationToken>());
+    }
 }

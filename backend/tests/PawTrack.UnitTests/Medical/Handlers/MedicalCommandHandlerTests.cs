@@ -48,7 +48,7 @@ public sealed class DeleteMedicalRecordCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_CreatorDeletes_SucceedsAndCallsRepoDelete()
+    public async Task Handle_CreatorDeletes_SucceedsBySupersedingRecord()
     {
         var ownerId = Guid.NewGuid();
         var pet = Pet.Create(ownerId, "Max", PetSpecies.Dog, null, null);
@@ -60,12 +60,13 @@ public sealed class DeleteMedicalRecordCommandHandlerTests
         var result = await _sut.Handle(new DeleteMedicalRecordCommand(record.Id, ownerId), default);
 
         result.IsSuccess.Should().BeTrue();
-        _medRepo.Received(1).Delete(record);
+        record.IsSuperseded.Should().BeTrue();
+        _medRepo.Received(1).Update(record);
         await _uow.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public async Task Handle_PetOwnerNotCreator_CanStillDelete()
+    public async Task Handle_PetOwnerNotCreator_CanStillSupersede()
     {
         var ownerId = Guid.NewGuid();
         var vetUserId = Guid.NewGuid();   // clinic user created this record
@@ -78,7 +79,8 @@ public sealed class DeleteMedicalRecordCommandHandlerTests
         var result = await _sut.Handle(new DeleteMedicalRecordCommand(record.Id, ownerId), default);
 
         result.IsSuccess.Should().BeTrue();
-        _medRepo.Received(1).Delete(record);
+        record.IsSuperseded.Should().BeTrue();
+        _medRepo.Received(1).Update(record);
     }
 
     [Fact]

@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useBillboards } from "../hooks/useBillboards";
-import type { BillboardDto, BillboardPlacement } from "../api/billboardsApi";
+import {
+  billboardsApi,
+  type BillboardDto,
+  type BillboardPlacement,
+} from "../api/billboardsApi";
+import { trackProductEvent } from "@/shared/lib/telemetry";
 
 interface BillboardBannerProps {
   placement: BillboardPlacement;
@@ -10,6 +15,31 @@ interface BillboardBannerProps {
 
 const DISMISS_KEY = (id: string) => `pawtrack:billboard:dismissed:${id}`;
 const DISMISS_TTL_MS = 24 * 60 * 60_000; // 24h — persists across tab closes
+
+function deliveryKey(billboardId: string, eventType: string): string {
+  const visitorKey = "pawtrack:billboard:visitor";
+  let visitorId = localStorage.getItem(visitorKey);
+  if (!visitorId) {
+    visitorId = crypto.randomUUID();
+    localStorage.setItem(visitorKey, visitorId);
+  }
+  return `${visitorId}:${billboardId}:${eventType}:${new Date().toISOString().slice(0, 10)}`;
+}
+
+function trackDelivery(
+  billboardId: string,
+  eventType: "Impression" | "Click" | "Conversion",
+) {
+  try {
+    void billboardsApi.trackDelivery(
+      billboardId,
+      eventType,
+      deliveryKey(billboardId, eventType),
+    );
+  } catch {
+    // Commercial telemetry must never block the customer journey.
+  }
+}
 
 function isDismissed(id: string): boolean {
   try {
@@ -34,13 +64,21 @@ function setDismissed(id: string) {
 
 function BillboardCard({
   bill,
+  placement,
   onDismiss,
 }: {
   bill: BillboardDto;
+  placement: BillboardPlacement;
   onDismiss: () => void;
 }) {
   const handleCta = () => {
     if (!bill.ctaUrl) return;
+    trackProductEvent("BillboardClicked", {
+      source: "billboard",
+      billboardId: bill.id,
+      placement,
+    });
+    trackDelivery(bill.id, "Click");
     // Only open same-origin or https links
     try {
       const url = new URL(bill.ctaUrl);
@@ -118,6 +156,7 @@ export function BillboardBanner({
 }: BillboardBannerProps) {
   const { data: billboards = [] } = useBillboards(placement);
   const [dismissed, setDismissedState] = useState<Set<string>>(new Set());
+  const [rotationOffset, setRotationOffset] = useState(0);
 
   // Sync localStorage on mount — filter already-dismissed billboards
   useEffect(() => {
@@ -129,21 +168,49 @@ export function BillboardBanner({
   }, [billboards]);
 
   const visible = billboards.filter((b) => !dismissed.has(b.id));
-  const current = visible[0] ?? null;
+  const current =
+    visible.length > 0 ? visible[rotationOffset % visible.length] : null;
+
+  useEffect(() => {
+    if (billboards.length < 2) return;
+    const cursorKey = `pawtrack:billboard:cursor:${placement}`;
+    const next = Number(localStorage.getItem(cursorKey) ?? "0");
+    setRotationOffset(Number.isFinite(next) ? next : 0);
+    localStorage.setItem(
+      cursorKey,
+      String((Number.isFinite(next) ? next : 0) + 1),
+    );
+  }, [billboards, placement]);
+
+  useEffect(() => {
+    if (!current) return;
+    trackProductEvent("BillboardImpression", {
+      source: "billboard",
+      billboardId: current.id,
+      placement,
+    });
+    trackDelivery(current.id, "Impression");
+  }, [current, placement]);
 
   const dismiss = (id: string) => {
     setDismissed(id);
+    trackProductEvent("BillboardDismissed", {
+      source: "billboard",
+      billboardId: id,
+      placement,
+    });
     setDismissedState((prev) => new Set([...prev, id]));
   };
 
   if (!current) return null;
 
   return (
-    <div className={className}>
+    <div className={className} data-billboard-placement={placement}>
       <AnimatePresence mode="wait">
         <BillboardCard
           key={current.id}
           bill={current}
+          placement={placement}
           onDismiss={() => dismiss(current.id)}
         />
       </AnimatePresence>

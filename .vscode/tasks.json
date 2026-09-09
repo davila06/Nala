@@ -55,7 +55,7 @@
     {
       "label": "test-backend",
       "type": "shell",
-      "command": "dotnet test \"${workspaceFolder}/backend\" --verbosity minimal",
+      "command": "dotnet test \"${workspaceFolder}/PawTrack.sln\" --verbosity minimal",
       "group": "test",
       "presentation": {
         "reveal": "always",

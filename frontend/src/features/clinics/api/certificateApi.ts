@@ -113,6 +113,13 @@ export interface ClinicVeterinarianDto {
   expiresAt: string | null;
   rejectionReason: string | null;
   suspensionReason: string | null;
+  permissions?: string[];
+}
+
+export interface VeterinarianAppointmentRequest {
+  petId: string;
+  startsAt: string;
+  durationMinutes: number;
 }
 
 export interface ClinicCertificateIssuersDto {
@@ -230,6 +237,23 @@ export const certificateApi = {
         `/clinics/me/veterinarians/${veterinarianId}/revoke`,
         { reason },
       )
+      .then((r) => r.data),
+
+  setVeterinarianPermissions: (veterinarianId: string, permissions: string[]) =>
+    apiClient
+      .put(`/clinics/me/veterinarians/${veterinarianId}/permissions`, {
+        permissions,
+      })
+      .then(() => undefined),
+
+  scheduleAppointment: (
+    veterinarianId: string,
+    request: VeterinarianAppointmentRequest,
+  ) =>
+    apiClient
+      .post<{
+        appointmentId: string;
+      }>(`/clinics/me/veterinarians/${veterinarianId}/appointments`, request)
       .then((r) => r.data),
 
   downloadPdf: async (certificateId: string) => {

@@ -116,6 +116,16 @@ function GrantRow({
               ? `Código expira ${new Date(grant.codeExpiresAt).toLocaleString("es-CR")}`
               : "Código expirado sin activar"}
         </p>
+        {grant.isActive && (
+          <p className="mt-1 text-[11px] text-sand-500">
+            Permisos:{" "}
+            {grant.permissions.length > 0
+              ? grant.permissions.join(", ")
+              : "ninguno"}
+            {grant.accessExpiresAt &&
+              ` · vence ${new Date(grant.accessExpiresAt).toLocaleDateString("es-CR")}`}
+          </p>
+        )}
       </div>
       <div className="flex shrink-0 items-center gap-2">
         <span

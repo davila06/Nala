@@ -16,6 +16,7 @@ import {
   usePublicProviderServices,
   useServiceProviderDetail,
 } from "../hooks/useServiceProviders";
+import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
 
 function todayCostaRica() {
   return new Intl.DateTimeFormat("en-CA", {
@@ -27,8 +28,10 @@ export default function ServiceProviderDetailPage() {
   const { id = "" } = useParams();
   const { data: provider, isLoading, isError } = useServiceProviderDetail(id);
   const { data: services = [] } = usePublicProviderServices(id);
-  const { data: pets = [] } = usePets();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  // Anonymous visitors can't call GET /api/pets — gating avoids a 401 that
+  // would otherwise hard-redirect them away from this public page.
+  const { data: pets = [] } = usePets(isAuthenticated);
   const createBooking = useCreateProviderBooking();
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [date, setDate] = useState(todayCostaRica);
@@ -85,6 +88,7 @@ export default function ServiceProviderDetailPage() {
       <Link to="/servicios" className="text-sm font-medium text-brand-600">
         Volver a servicios
       </Link>
+      <BillboardBanner placement="ServiceProviderProfile" />
       <section className="rounded-xl border border-sand-100 bg-surface p-6">
         <p className="text-sm font-semibold text-brand-600">
           {SERVICE_PROVIDER_CATEGORY_LABELS[provider.category]}
@@ -115,7 +119,10 @@ export default function ServiceProviderDetailPage() {
           </a>
         ) : null}
       </section>
-      <section className="space-y-4 rounded-xl border border-sand-100 bg-surface p-6">
+      <section
+        id="reservas"
+        className="space-y-4 rounded-xl border border-sand-100 bg-surface p-6"
+      >
         <div>
           <h2 className="font-display text-2xl font-semibold text-ink-900">
             Servicios y disponibilidad

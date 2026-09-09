@@ -21,4 +21,18 @@ public static class RateLimiterIpKey
     /// </summary>
     public static string Get(HttpContext ctx) =>
         ctx.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
+
+    /// <summary>
+    /// Uses the machine credential or authenticated subject when available so one
+    /// tenant cannot consume another tenant's quota. Anonymous callers remain IP-based.
+    /// </summary>
+    public static string GetClient(HttpContext ctx)
+    {
+        var apiKeyId = ctx.User.FindFirst("ClinicApiKeyId")?.Value;
+        if (!string.IsNullOrWhiteSpace(apiKeyId)) return $"api-key:{apiKeyId}";
+        var subject = ctx.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+            ?? ctx.User.FindFirst("sub")?.Value;
+        if (!string.IsNullOrWhiteSpace(subject)) return $"user:{subject}";
+        return Get(ctx);
+    }
 }

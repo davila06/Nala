@@ -89,6 +89,11 @@ ClinicMedicalAccessLog
 ├── PetId → Pets.Id
 ├── ClinicId → ClinicProfiles.Id
 ├── AccessedByUserId → Users.Id
+├── Operation (string)
+├── Permission (read/write/export)
+├── AccessMethod (inline_scan/recent_scan/active_grant)
+├── Outcome (allowed/denied)
+├── Reason (string, nullable)
 ├── AccessedAt (DateTimeOffset)
 └── INDEX (PetId, AccessedAt DESC)
 ```

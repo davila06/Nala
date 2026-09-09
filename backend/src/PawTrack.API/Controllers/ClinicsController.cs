@@ -8,6 +8,9 @@ using PawTrack.Application.Clinics.Commands.PerformClinicScan;
 using PawTrack.Application.Clinics.Commands.RegisterClinic;
 using PawTrack.Application.Clinics.Commands.ReviewClinic;
 using PawTrack.Application.Clinics.Commands.TrackClinicView;
+using PawTrack.Application.Clinics.Commands.UpdateClinicProfile;
+using PawTrack.Application.Clinics.Commands.SubmitClinicProfileChange;
+using PawTrack.Application.Clinics.Commands.ReviewClinicProfileChange;
 using PawTrack.Application.Clinics.Queries.GetClinicScanStats;
 using PawTrack.Application.Clinics.Queries.GetMyClinic;
 using PawTrack.Application.Clinics.Queries.GetNearbyActiveAlerts;
@@ -17,6 +20,9 @@ using PawTrack.Application.Clinics.Queries.GetPublicClinics;
 using PawTrack.Application.Clinics.Queries.SearchClinicsForAccess;
 using PawTrack.Application.Certificates.Commands.ManageCertificateIssuers;
 using PawTrack.Application.Certificates.Queries.GetClinicCertificateIssuers;
+using PawTrack.Application.Certificates.Commands.ScheduleVeterinarianAppointment;
+using PawTrack.Application.Certificates.Commands.SetVeterinarianPermissions;
+using PawTrack.Application.Clinics.Commands.ExportClinicMedical;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Medical.ClinicAccess;
 using PawTrack.Application.Pets.SanitaryIdentity;
@@ -106,6 +112,56 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         return Ok(result.Value);
     }
 
+    [HttpPut("me/profile")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(2048)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> UpdateMyProfile(
+        [FromBody] UpdateClinicProfileRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
+        var result = await sender.Send(new UpdateClinicProfileCommand(
+            userId,
+            request.Name,
+            request.Address,
+            request.PhoneNumber,
+            request.Website,
+            request.IsEmergency24h,
+            request.EmergencyPhone,
+            request.Description,
+            request.Services,
+            request.OpeningHours,
+            request.WhatsAppNumber,
+            request.IsWhatsAppContactEnabled), cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : StatusCode(StatusCodes.Status403Forbidden,
+                new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 403 });
+    }
+
+    [HttpPost("me/profile-changes")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> SubmitProfileChange(
+        [FromBody] UpdateClinicProfileRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), cancellationToken);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        var result = await sender.Send(new SubmitClinicProfileChangeCommand(
+            clinicResult.Value.Id, userId, request.Name, request.Address,
+            request.PhoneNumber, request.Website, request.IsEmergency24h,
+            request.EmergencyPhone, request.Description, request.Services,
+            request.OpeningHours), cancellationToken);
+        return result.IsSuccess ? Accepted(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
     // ── Scan ─────────────────────────────────────────────────────────────────
 
     /// <summary>
@@ -161,10 +217,28 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     public async Task<IActionResult> GetPublicClinics(
         [FromQuery] double? lat,
         [FromQuery] double? lng,
+        [FromQuery] string? search,
+        [FromQuery] bool emergencyOnly = false,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 24,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await sender.Send(new GetPublicClinicsQuery(
+            lat, lng, Search: search, EmergencyOnly: emergencyOnly, Page: page, PageSize: pageSize), cancellationToken);
+        return Ok(result.Value);
+    }
+
+    [HttpGet("public/{clinicId:guid}")]
+    [AllowAnonymous]
+    [EnableRateLimiting("public-api")]
+    [ResponseCache(Duration = 60)]
+    public async Task<IActionResult> GetPublicClinicProfile(
+        Guid clinicId,
         CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetPublicClinicsQuery(lat, lng), cancellationToken);
-        return Ok(result.Value);
+        var result = await sender.Send(
+            new GetPublicClinicProfileQuery(clinicId), cancellationToken);
+        return result.Value is null ? NotFound() : Ok(result.Value);
     }
 
     /// <summary>Search active clinics by name or license number, for authorizing medical access to a pet's record.</summary>
@@ -363,7 +437,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
 
         var result = await sender.Send(
-            new CreateClinicApiKeyCommand(clinicResult.Value.Id, userId, request.Label),
+            new CreateClinicApiKeyCommand(clinicResult.Value.Id, userId, request.Label, request.Scopes),
             cancellationToken);
 
         if (result.IsFailure)
@@ -452,6 +526,30 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
             return NotFound(new ProblemDetails { Title = "Clinic not found", Status = 404 });
 
         return NoContent();
+    }
+
+    [HttpPut("admin/profile-changes/{changeId:guid}/review")]
+    [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> ReviewProfileChange(
+        Guid changeId,
+        [FromBody] ReviewProfileChangeRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var adminUserId)) return Unauthorized();
+        var result = await sender.Send(new ReviewClinicProfileChangeCommand(
+            changeId, adminUserId, request.Approve, request.Reason), cancellationToken);
+        return result.IsSuccess ? Ok() : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("admin/profile-changes/pending")]
+    [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetPendingProfileChanges(CancellationToken cancellationToken)
+    {
+        var repository = HttpContext.RequestServices.GetRequiredService<IClinicProfileChangeRepository>();
+        var changes = await repository.GetPendingAsync(100, cancellationToken);
+        return Ok(changes.Select(SubmitClinicProfileChangeCommandHandler.ToDto));
     }
 
     [HttpPut("admin/{clinicId:guid}/certificate-verification")]
@@ -605,7 +703,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
 
         var result = await sender.Send(
-            new GetPetMedicalHistoryForClinicQuery(clinicResult.Value.Id, petId, null, null), ct);
+            new GetPetMedicalHistoryForClinicQuery(clinicResult.Value.Id, petId, null, null, userId), ct);
 
         if (result.IsFailure)
             return StatusCode(403, new ProblemDetails { Detail = result.Errors.FirstOrDefault(), Status = 403 });
@@ -793,6 +891,69 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
 
         return result.IsSuccess ? Ok(result.Value)
             : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpPost("me/veterinarians/{veterinarianId:guid}/appointments")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> ScheduleVeterinarianAppointment(
+        Guid veterinarianId,
+        [FromBody] ScheduleVeterinarianAppointmentRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        var result = await sender.Send(new ScheduleVeterinarianAppointmentCommand(
+            clinicResult.Value.Id, userId, veterinarianId, request.PetId,
+            request.StartsAt, request.DurationMinutes), ct);
+        return result.IsSuccess ? Created(string.Empty, new { appointmentId = result.Value }) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPut("me/veterinarians/{veterinarianId:guid}/permissions")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> SetVeterinarianPermissions(
+        Guid veterinarianId,
+        [FromBody] SetVeterinarianPermissionsRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        var result = await sender.Send(new SetVeterinarianPermissionsCommand(
+            clinicResult.Value.Id, userId, veterinarianId, request.Permissions), ct);
+        return result.IsSuccess ? NoContent() : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("patients/{petId:guid}/medical/export")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> ExportPatientMedical(Guid petId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        var result = await sender.Send(new ExportClinicMedicalCommand(clinicResult.Value.Id, userId, petId), ct);
+        return result.IsSuccess ? Accepted(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("medical-exports/{exportId:guid}/download")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> DownloadPatientMedicalExport(
+        Guid exportId,
+        [FromServices] IClinicMedicalExportRepository exportRepository,
+        [FromServices] IBlobStorageService blobStorage,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var export = await exportRepository.GetByIdAsync(exportId, ct);
+        if (export is null || !export.IsDownloadable) return NotFound();
+        var clinic = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinic.IsFailure || clinic.Value is null || clinic.Value.Id != export.ClinicId) return Forbid();
+        var bytes = await blobStorage.DownloadAsync(export.BlobUrl, ct);
+        return bytes is null ? NotFound() : File(bytes, "application/pdf", $"expediente-{export.PetId}.pdf");
     }
 
     [HttpGet("me/verification")]
@@ -995,6 +1156,23 @@ public sealed record RegisterClinicRequest(
     string ContactEmail,
     string Password);
 
+public sealed record UpdateClinicProfileRequest(
+    string Name,
+    string Address,
+    string? PhoneNumber,
+    string? Website,
+    bool? IsEmergency24h,
+    string? EmergencyPhone,
+    string? Description,
+    string? Services,
+    string? OpeningHours,
+    string? WhatsAppNumber = null,
+    bool IsWhatsAppContactEnabled = false);
+
+public sealed record ReviewProfileChangeRequest(bool Approve, string? Reason);
+public sealed record ScheduleVeterinarianAppointmentRequest(Guid PetId, DateTimeOffset StartsAt, int DurationMinutes);
+public sealed record SetVeterinarianPermissionsRequest(IReadOnlyList<string> Permissions);
+
 public sealed record ClinicScanRequest(
     string Input,
     string InputType);
@@ -1005,7 +1183,7 @@ public sealed record ReviewVerificationRequest(bool Approve, DateOnly? ExpiresAt
 public sealed record ReasonRequest(string Reason);
 public sealed record CreateClinicVeterinarianRequest(string FullName, string LicenseNumber);
 
-public sealed record CreateApiKeyRequest(string Label);
+public sealed record CreateApiKeyRequest(string Label, IReadOnlyList<string>? Scopes = null);
 
 /// <summary>
 /// Multipart form for POST /api/clinics/patients/medical.

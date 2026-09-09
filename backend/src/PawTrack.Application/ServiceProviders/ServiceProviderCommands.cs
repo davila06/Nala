@@ -24,6 +24,7 @@ public sealed record PublicServiceProviderDto(
     string? Website,
     string? LogoUrl,
     bool IsFeatured,
+    string? WhatsAppNumber,
     string Status,
     bool IsVerified = false,
     string MembershipTier = "Free",
@@ -39,7 +40,7 @@ public sealed record PublicServiceProviderDto(
         redactLocation ? Math.Round(provider.Lat, 2) : provider.Lat,
         redactLocation ? Math.Round(provider.Lng, 2) : provider.Lng,
         provider.PhoneNumber,
-        provider.Website, provider.LogoUrl, provider.IsFeatured, provider.Status.ToString(), isVerified,
+        provider.Website, provider.LogoUrl, provider.IsFeatured, provider.IsWhatsAppContactEnabled ? provider.WhatsAppNumber : null, provider.Status.ToString(), isVerified,
         provider.MembershipTier.ToString(), provider.TrialEndsAt, provider.HasCatalogAccess);
 }
 
@@ -192,7 +193,9 @@ public sealed record UpdateServiceProviderProfileCommand(
     decimal Lat,
     decimal Lng,
     string? PhoneNumber,
-    string? Website) : IRequest<Result<PublicServiceProviderDto>>;
+    string? Website,
+    string? WhatsAppNumber = null,
+    bool IsWhatsAppContactEnabled = false) : IRequest<Result<PublicServiceProviderDto>>;
 
 public sealed class UpdateServiceProviderProfileCommandValidator : AbstractValidator<UpdateServiceProviderProfileCommand>
 {
@@ -217,6 +220,7 @@ public sealed class UpdateServiceProviderProfileCommandHandler(
         provider.UpdateProfile(
             request.Name, request.Description, request.Category, request.Address,
             request.Lat, request.Lng, request.PhoneNumber, request.Website);
+        provider.UpdateWhatsAppContact(request.WhatsAppNumber, request.IsWhatsAppContactEnabled);
         repository.Update(provider);
         await unitOfWork.SaveChangesAsync(ct);
         return Result.Success(PublicServiceProviderDto.FromDomain(provider));

@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { authApi, decodeRoleFromJwt } from "../api/authApi";
+import { authenticateWithPasskey } from "../api/webauthn";
 import { useAuthStore } from "../store/authStore";
 
 export function useLogin(returnTo?: string) {
@@ -40,6 +41,33 @@ export function useRegister() {
     mutationFn: authApi.register,
     onSuccess: () => {
       void navigate("/login?registered=true");
+    },
+  });
+}
+
+export function usePasskeyLogin(returnTo?: string) {
+  const setAuth = useAuthStore((s) => s.setAuth);
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: (email: string) => authenticateWithPasskey(email),
+    onSuccess: ({ data }) => {
+      const role = decodeRoleFromJwt(data.accessToken);
+      setAuth(
+        {
+          id: data.user.id,
+          name: data.user.name,
+          email: data.user.email,
+          role,
+          isAdmin: data.user.isAdmin,
+        },
+        data.accessToken,
+      );
+      const destination =
+        returnTo && returnTo.startsWith("/") && !returnTo.startsWith("/login")
+          ? returnTo
+          : "/dashboard";
+      void navigate(destination, { replace: true });
     },
   });
 }

@@ -1,6 +1,10 @@
 # PawTrack CR — Estrategia de Monetización
 
-> Documento de trabajo — actualizado 2026-08-19  
+> **Estado: HISTORICO/DRAFT.** La fuente tecnica consolidada es
+> [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md). Las hipotesis de este archivo no
+> son precios ni comisiones activas.
+
+> Documento de trabajo — actualizado 2026-09-08
 > Uso interno. No publicar.
 
 ---
@@ -36,7 +40,7 @@ El QR ya es SVG/PNG generado en el app (`/api/pets/{id}/qr`). El flujo operativo
 
 ## 2. Plan Freemium — Suscripción de Dueños
 
-### Estructura de tiers
+### Estructura de tiers activa
 
 | Feature                                      | **Free**  | **Plus** ₡2,990/mes      | **Familia** ₡4,990/mes |
 | -------------------------------------------- | --------- | ------------------------ | ---------------------- |
@@ -51,13 +55,18 @@ El QR ya es SVG/PNG generado en el app (`/api/pets/{id}/qr`). El flujo operativo
 | Registros médicos/vacunación en QR           | ✗         | ✗                        | ✔                      |
 | Acceso multi-usuario (ej. familia)           | ✗         | ✗                        | ✔                      |
 
-Lo que ya está construido y puede activarse: predicción de movimiento, historial de escaneos, sala de coordinación, radio de alertas.
+Estos tiers están representados en `SubscriptionTier` y sus precios mensuales
+son la fuente técnica actual. El registro médico completo y su exportación PDF
+requieren Familia; Plus dispone de preview limitado cuando corresponde. El GPS
+requiere Plus o Familia.
 
 ---
 
 ## 3. Clínicas Veterinarias — B2B
 
-El portal de clínicas ya existe. Solo falta activar tiers de pago.
+El portal y los gates principales existen. Los precios se encuentran en
+`SubscriptionPricing`; billing, compra, renovación y operación comercial aún
+requieren completar flujos según el entorno.
 
 | Tier                | Precio      | Incluye                                                                                                                                     |
 | ------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -71,7 +80,9 @@ El portal de clínicas ya existe. Solo falta activar tiers de pago.
 
 ## 4. Municipalidades y Perreras — Licencia Institucional
 
-Mencionado en el documento maestro como pendiente. Este es el canal de mayor ticket.
+El portal municipal y los tiers anuales están representados en el catálogo
+técnico. La contratación, renovación, roles y aislamiento institucional siguen
+siendo trabajo comercial/enterprise pendiente.
 
 | Paquete                  | Precio anual | Incluye                                                                        |
 | ------------------------ | ------------ | ------------------------------------------------------------------------------ |
@@ -338,7 +349,7 @@ GET /api/passport/verify/01970abc-...
 
 ---
 
-## 8. Marketplace de Servicios de Mascota — perfiles implementados, membresía propuesta
+## 8. Marketplace de Servicios de Mascota — operación implementada, precio pendiente
 
 El módulo `ServiceProviders` ya implementa el flujo operativo de perfiles,
 directorio, mapa, catálogo, disponibilidad, reservas, capacidad, verificación
@@ -349,7 +360,7 @@ Categorías canónicas implementadas: **adiestradores, groomers, hoteles,
 guarderías, paseadores, fotógrafos y otros servicios**. Las modalidades son
 establecimiento, domicilio, virtual, grupal y estadía nocturna.
 
-### Estado actual de los perfiles
+### Estado actual de los perfiles y membresías técnicas
 
 Los perfiles de proveedor sí están implementados:
 
@@ -362,6 +373,15 @@ Los perfiles de proveedor sí están implementados:
   elegible para visibilidad pública.
 - Verificación documental privada, revisión administrativa, vencimiento y
   recordatorios de renovación.
+
+La membresía técnica del proveedor tiene tres estados: `Free`, `Verified` y
+`Featured`. La aprobación inicial concede una prueba única de 30 días en
+`Verified`; después, el job de expiración devuelve el perfil a `Free` salvo
+asignación manual del administrador. `Free` mantiene directorio y contacto,
+mientras `Verified` y `Featured` habilitan catálogo, disponibilidad y reservas.
+
+Estos estados son gates operativos, no precios publicados ni una suscripción
+recurrente ya cobrada.
 
 El perfil implementado no equivale a una licencia estatal ni a un aval
 profesional. La verificación de PawTrack solo representa una revisión
@@ -376,9 +396,9 @@ recomienda validar una membresía mensual:
 | Proveedor verificado | ₡3,000/mes | Verificación documental, catálogo, disponibilidad y reservas |
 | Proveedor destacado  | ₡5,000/mes | Prioridad en búsquedas/mapa, badge y estadísticas            |
 
-Se recomienda ofrecer 60–90 días iniciales sin costo. Un único plan de
-₡3,990/mes también puede usarse para validar el mercado antes de separar los
-niveles.
+La implementación actual usa 30 días de prueba. Un plan de ₡3,990/mes o la
+separación de `Verified` y `Featured` en ₡3,000/₡5,000 mensuales son opciones
+de validación comercial, no tarifas activas.
 
 Este modelo es una propuesta pendiente de aprobación; todavía no existe
 billing, feature gate, cobro recurrente ni membresía activa para proveedores.

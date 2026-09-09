@@ -86,6 +86,21 @@ export function StoreMarker({
               📞 {store.phoneNumber}
             </a>
           )}
+          {store.whatsAppNumber && (
+            <a
+              href={`https://wa.me/${store.whatsAppNumber}?text=${encodeURIComponent(`Hola, encontré ${store.name} en PawTrack y quiero consultar productos.`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "block",
+                color: "#128c7e",
+                fontWeight: 700,
+                fontSize: 12,
+              }}
+            >
+              WhatsApp →
+            </a>
+          )}
           <Link
             to={`/map?storeId=${store.id}`}
             style={{

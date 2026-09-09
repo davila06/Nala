@@ -30,6 +30,8 @@ export default function ServiceProviderProfilePage() {
     lng: "",
     phoneNumber: "",
     website: "",
+    whatsAppNumber: "",
+    isWhatsAppContactEnabled: false,
   });
   useEffect(() => {
     if (!provider) return;
@@ -42,6 +44,8 @@ export default function ServiceProviderProfilePage() {
       lng: String(provider.lng),
       phoneNumber: provider.phoneNumber ?? "",
       website: provider.website ?? "",
+      whatsAppNumber: provider.whatsAppNumber ?? "",
+      isWhatsAppContactEnabled: false,
     });
   }, [provider]);
   const setField = (key: keyof typeof form, value: string) =>
@@ -58,6 +62,8 @@ export default function ServiceProviderProfilePage() {
         lng: Number(form.lng),
         phoneNumber: form.phoneNumber || undefined,
         website: form.website || undefined,
+        whatsAppNumber: form.whatsAppNumber || undefined,
+        isWhatsAppContactEnabled: form.isWhatsAppContactEnabled,
       },
       {
         onSuccess: () => toast.success("Perfil actualizado"),
@@ -160,6 +166,27 @@ export default function ServiceProviderProfilePage() {
             />
           </label>
         </div>
+        <label className="block text-sm font-medium text-sand-700">
+          WhatsApp de atención
+          <Input
+            value={form.whatsAppNumber}
+            onChange={(event) => setField("whatsAppNumber", event.target.value)}
+            placeholder="50688881234"
+          />
+        </label>
+        <label className="flex items-center gap-2 text-sm text-sand-700">
+          <input
+            type="checkbox"
+            checked={form.isWhatsAppContactEnabled}
+            onChange={(event) =>
+              setForm((current) => ({
+                ...current,
+                isWhatsAppContactEnabled: event.target.checked,
+              }))
+            }
+          />
+          Permitir contacto por WhatsApp desde el mapa
+        </label>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block text-sm font-medium text-sand-700">
             Telefono

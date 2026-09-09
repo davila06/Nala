@@ -10,6 +10,17 @@ public sealed class AuditLogRepository(PawTrackDbContext db) : IAuditLogReposito
     public async Task AddAsync(AuditLogEntry entry, CancellationToken ct = default) =>
         await db.AuditLog.AddAsync(entry, ct);
 
+    public Task<int> CountByActionSinceAsync(
+        AuditAction action,
+        Guid actorId,
+        DateTimeOffset since,
+        CancellationToken ct = default) =>
+        db.AuditLog.CountAsync(
+            entry => entry.Action == action
+                && entry.AdminUserId == actorId
+                && entry.PerformedAt >= since,
+            ct);
+
     public async Task<IReadOnlyList<AuditLogEntry>> GetRecentAsync(int take = 100, CancellationToken ct = default) =>
         await db.AuditLog.AsNoTracking()
             .OrderByDescending(a => a.PerformedAt)

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { petsApi } from "../api/petsApi";
+import { trackProductEvent } from "@/shared/lib/telemetry";
 
 interface QRCodeDisplayProps {
   petId: string;
@@ -20,6 +21,10 @@ export const QRCodeDisplay = ({ petId, petName }: QRCodeDisplayProps) => {
       .then((blob) => {
         url = URL.createObjectURL(blob);
         setBlobUrl(url);
+        trackProductEvent("QrGenerated", {
+          source: "pet-profile",
+          petId,
+        });
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));

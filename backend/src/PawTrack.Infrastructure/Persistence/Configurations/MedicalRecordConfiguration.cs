@@ -12,6 +12,13 @@ public sealed class MedicalRecordConfiguration : IEntityTypeConfiguration<Medica
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.PetId).IsRequired();
+        builder.Property(x => x.Version).IsRequired().HasDefaultValue(1);
+        builder.Property(x => x.SupersedesRecordId);
+        builder.Property(x => x.IsSuperseded).IsRequired().HasDefaultValue(false);
+        builder.Property(x => x.SupersededAt);
+        builder.Property(x => x.SupersededByUserId);
+        builder.Property(x => x.SupersessionReason).HasMaxLength(500);
+        builder.HasIndex(x => new { x.PetId, x.IsSuperseded });
         builder.Property(x => x.CreatedByUserId).IsRequired();
         builder.Property(x => x.ClinicId); // nullable FK to Clinics
 

@@ -3,22 +3,19 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Button, Input } from "@/shared/ui";
 import { toast } from "@/shared/lib/toast";
 import { useCartStore } from "../store/cartStore";
-import { usePlaceOrder, useReportPayment } from "../hooks/useStoreOrders";
-import type { StoreOrderDto } from "../api/storesApi";
+import { usePlaceOrder } from "../hooks/useStoreOrders";
 
 interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-type Step = "form" | "payment" | "done";
+type Step = "form" | "done";
 
 export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
   const { items, storeId, totalCrc, clear } = useCartStore();
   const placeOrder = usePlaceOrder();
-  const reportPayment = useReportPayment();
   const [step, setStep] = useState<Step>("form");
-  const [order, setOrder] = useState<StoreOrderDto | null>(null);
   const [fulfillment, setFulfillment] = useState<"Pickup" | "Delivery">(
     "Pickup",
   );
@@ -44,9 +41,8 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
         })),
       },
       {
-        onSuccess: (data) => {
-          setOrder(data);
-          setStep("payment");
+        onSuccess: () => {
+          setStep("done");
           clear();
         },
         onError: () =>
@@ -55,25 +51,8 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
     );
   };
 
-  const handleReportPayment = () => {
-    if (!order) return;
-    reportPayment.mutate(order.id, {
-      onSuccess: () => setStep("done"),
-      onError: () => toast.error("Error al reportar el pago."),
-    });
-  };
-
   const handleClose = () => {
-    // Warn if user tries to close while the payment reference is on screen
-    if (step === "payment") {
-      toast.error(
-        "Guarda la referencia antes de cerrar",
-        `SINPE: ${order?.paymentReference ?? ""}`,
-      );
-      return;
-    }
     setStep("form");
-    setOrder(null);
     setFulfillment("Pickup");
     setDeliveryAddress("");
     setNote("");
@@ -102,11 +81,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-sand-100">
               <h2 className="font-display text-base font-semibold text-sand-900">
-                {step === "form"
-                  ? "Confirmar pedido"
-                  : step === "payment"
-                    ? "Realizar pago SINPE"
-                    : "¡Pedido enviado!"}
+                {step === "form" ? "Confirmar pedido" : "¡Solicitud enviada!"}
               </h2>
               <button
                 type="button"
@@ -218,58 +193,19 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                 </>
               )}
 
-              {/* Step 2: SINPE payment */}
-              {step === "payment" && order && (
-                <div className="space-y-4">
-                  <div className="rounded-2xl border border-warn-200 bg-warn-50 p-5 space-y-3 text-center">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-warn-600">
-                      Referencia SINPE Móvil
-                    </p>
-                    <p className="font-mono text-3xl font-black tracking-widest text-sand-900">
-                      {order.paymentReference}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        void navigator.clipboard.writeText(
-                          order.paymentReference,
-                        );
-                        toast.success("Referencia copiada");
-                      }}
-                      className="rounded-xl bg-warn-200 px-4 py-1.5 text-xs font-semibold text-warn-800 hover:bg-warn-300"
-                    >
-                      Copiar referencia
-                    </button>
-                  </div>
-                  <p className="text-center text-sm text-sand-500">
-                    Realiza el SINPE Móvil y toca <strong>"Ya pagué"</strong>{" "}
-                    cuando termines. La tienda confirmará tu pedido en breve.
-                  </p>
-                  <p className="text-center font-bold text-sand-700">
-                    Monto: ₡{order.totalCrc.toLocaleString("es-CR")}
-                  </p>
-                  <Button
-                    fullWidth
-                    onClick={handleReportPayment}
-                    loading={reportPayment.isPending}
-                  >
-                    ✓ Ya realicé el pago
-                  </Button>
-                </div>
-              )}
-
-              {/* Step 3: Done */}
+              {/* Confirmation */}
               {step === "done" && (
                 <div className="space-y-4 text-center py-4">
                   <p className="text-5xl" aria-hidden="true">
                     🎉
                   </p>
                   <h3 className="font-display text-xl font-bold text-sand-900">
-                    ¡Pago reportado!
+                    ¡Solicitud enviada!
                   </h3>
                   <p className="text-sm text-sand-500">
-                    La tienda verificará tu pago y confirmará el pedido.
-                    Recibirás una notificación.
+                    La tienda revisará la disponibilidad y confirmará el pedido.
+                    PawTrack no procesa pagos ni garantiza la existencia del
+                    producto.
                   </p>
                   <Button fullWidth variant="secondary" onClick={handleClose}>
                     Cerrar

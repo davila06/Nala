@@ -28,6 +28,8 @@ public sealed class ClinicVeterinarianConfiguration : IEntityTypeConfiguration<C
         builder.Property(veterinarian => veterinarian.RevokedAt);
         builder.Property(veterinarian => veterinarian.RevokedByUserId);
         builder.Property(veterinarian => veterinarian.RevocationReason).HasMaxLength(300);
+        builder.Property(veterinarian => veterinarian.Permissions).IsRequired().HasMaxLength(300)
+            .HasDefaultValue("[\"medical:read\",\"medical:write\",\"certificates:issue\"]");
 
         builder.Ignore(veterinarian => veterinarian.CanIssueCertificates);
         builder.Ignore(veterinarian => veterinarian.IsActive);

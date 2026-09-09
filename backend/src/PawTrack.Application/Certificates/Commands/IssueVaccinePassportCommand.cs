@@ -160,8 +160,10 @@ public sealed class IssueVaccinePassportCommandHandler(
             CertificateAuditLog.Create(cert.Id, CertificateAuditAction.Issued, request.IssuedByUserId), ct);
         await unitOfWork.SaveChangesAsync(ct);
 
-        var pdfUrl = await certificateService.GenerateAndStoreAsync(pdfData, ct);
-        cert.SetPdfUrl(pdfUrl);
+        var artifact = await certificateService.GenerateAndStoreAsync(pdfData, ct);
+        cert.SetPdfUrl(artifact.PdfUrl);
+        if (artifact.SignatureUrl is not null)
+            cert.SetSignature(artifact.SignatureUrl, artifact.SignatureAlgorithm!);
         await auditLogRepository.AddAsync(
             CertificateAuditLog.Create(cert.Id, CertificateAuditAction.PdfGenerated, request.IssuedByUserId), ct);
         await unitOfWork.SaveChangesAsync(ct);

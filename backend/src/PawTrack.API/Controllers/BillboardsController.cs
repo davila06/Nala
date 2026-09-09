@@ -53,7 +53,9 @@ public sealed class BillboardsController(ISender sender) : ControllerBase
         var result = await sender.Send(new CreateBillboardCommand(
             userId, request.Title, request.Body, request.Placement,
             request.StartsAt, request.EndsAt, request.CtaLabel, request.CtaUrl,
-            request.Priority), ct);
+            request.Priority, request.AdvertiserName, request.Category, request.TargetCanton,
+            request.ContractReference, request.BudgetCrc, request.FrequencyCapPerDay,
+            request.IsCategoryExclusive, request.IsVip), ct);
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
         return Created(string.Empty, result.Value);
@@ -69,10 +71,21 @@ public sealed class BillboardsController(ISender sender) : ControllerBase
     {
         var result = await sender.Send(new UpdateBillboardCommand(
             id, request.Title, request.Body, request.CtaLabel, request.CtaUrl,
-            request.StartsAt, request.EndsAt, request.Priority), ct);
+            request.StartsAt, request.EndsAt, request.Priority, request.AdvertiserName,
+            request.Category, request.TargetCanton, request.ContractReference,
+            request.BudgetCrc, request.FrequencyCapPerDay, request.IsCategoryExclusive, request.IsVip), ct);
         if (result.IsFailure)
             return NotFound(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 404 });
         return Ok(result.Value);
+    }
+
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new DeleteBillboardCommand(id, userId), ct);
+        return result.IsSuccess ? NoContent() : NotFound(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 404 });
     }
 
     // ── PATCH /api/billboards/{id}/status — Admin: activate/pause/expire ──────
@@ -86,6 +99,51 @@ public sealed class BillboardsController(ISender sender) : ControllerBase
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
         return Ok(result.Value);
+    }
+
+    [HttpPost("{id:guid}/submit")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Submit(Guid id, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new SubmitBillboardCampaignCommand(id, userId), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpPost("{id:guid}/review")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Review(Guid id, [FromBody] ReviewBillboardRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new ReviewBillboardCampaignCommand(id, userId, request.Approve, request.Note), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpPost("{id:guid}/events")]
+    [AllowAnonymous]
+    [EnableRateLimiting("billboard-events")]
+    public async Task<IActionResult> TrackDelivery(Guid id, [FromBody] BillboardDeliveryRequest request, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(request.EventKey) || request.EventKey.Length > 128 ||
+            !Guid.TryParse(request.EventKey.Split(':')[0], out _) ||
+            (request.Canton?.Length ?? 0) > 100 || request.Canton?.Any(char.IsControl) == true)
+            return BadRequest(new ProblemDetails { Detail = "Evento de entrega inválido.", Status = 400 });
+
+        var rawIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
+        var visitorHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(rawIp))).ToLowerInvariant();
+        var hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes($"{visitorHash}:{request.EventKey}"))).ToLowerInvariant();
+        var result = await sender.Send(new TrackBillboardDeliveryCommand(id, request.EventType, hash, visitorHash, request.Canton), ct);
+        return result.IsSuccess ? NoContent() : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpGet("{id:guid}/metrics")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetMetrics(Guid id, [FromQuery] DateOnly? from, [FromQuery] DateOnly? to, CancellationToken ct)
+    {
+        var end = to ?? DateOnly.FromDateTime(DateTime.UtcNow);
+        var start = from ?? end.AddDays(-30);
+        if (start > end || start < end.AddDays(-366)) return BadRequest(new ProblemDetails { Detail = "Rango de fechas inválido.", Status = 400 });
+        return Ok(await sender.Send(new GetBillboardCampaignMetricsQuery(id, start, end), ct));
     }
 
     // ── POST /api/billboards/{id}/image — Admin: upload image ─────────────────
@@ -123,10 +181,19 @@ public sealed class BillboardsController(ISender sender) : ControllerBase
 public sealed record CreateBillboardRequest(
     string Title, string? Body, string Placement,
     DateTimeOffset StartsAt, DateTimeOffset EndsAt,
-    string? CtaLabel, string? CtaUrl, int Priority = 0);
+    string? CtaLabel, string? CtaUrl, int Priority = 0,
+    string AdvertiserName = "Pendiente de anunciante", string Category = "PetCare",
+    string? TargetCanton = null, string? ContractReference = null,
+    decimal BudgetCrc = 0, int FrequencyCapPerDay = 1, bool IsCategoryExclusive = false,
+    bool IsVip = false);
 
 public sealed record UpdateBillboardRequest(
     string Title, string? Body, string? CtaLabel, string? CtaUrl,
-    DateTimeOffset StartsAt, DateTimeOffset EndsAt, int Priority);
+    DateTimeOffset StartsAt, DateTimeOffset EndsAt, int Priority,
+    string AdvertiserName, string Category, string? TargetCanton,
+    string? ContractReference, decimal BudgetCrc, int FrequencyCapPerDay,
+    bool IsCategoryExclusive, bool IsVip);
 
 public sealed record SetStatusRequest(string Status);
+public sealed record ReviewBillboardRequest(bool Approve, string? Note);
+public sealed record BillboardDeliveryRequest(string EventType, string EventKey, string? Canton);

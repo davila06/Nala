@@ -3,6 +3,13 @@ using System.Text;
 
 namespace PawTrack.Domain.Medical;
 
+public static class ClinicMedicalAccessPermission
+{
+    public const string Read = "read";
+    public const string Write = "write";
+    public const string Export = "export";
+}
+
 /// <summary>
 /// Explicit consent grant that allows a clinic permanent read+write access
 /// to a specific pet's medical expediente.
@@ -32,6 +39,8 @@ public sealed class ClinicMedicalAccessGrant
     public DateTimeOffset CodeExpiresAt { get; private set; }
     public DateTimeOffset? AcceptedAt { get; private set; }
     public bool IsActive { get; private set; }
+    public DateTimeOffset? AccessExpiresAt { get; private set; }
+    public string Permissions { get; private set; } = "[\"read\",\"write\"]";
     public DateTimeOffset? RevokedAt { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
 
@@ -39,7 +48,14 @@ public sealed class ClinicMedicalAccessGrant
 
     public bool IsPending => AcceptedAt is null && DateTimeOffset.UtcNow < CodeExpiresAt;
     public bool IsCodeExpired => AcceptedAt is null && DateTimeOffset.UtcNow >= CodeExpiresAt;
-    public bool IsEffectivelyActive => IsActive && AcceptedAt.HasValue;
+    public bool IsEffectivelyActive => IsActive
+        && AcceptedAt.HasValue
+        && (!AccessExpiresAt.HasValue || AccessExpiresAt.Value > DateTimeOffset.UtcNow);
+
+    public bool HasPermission(string permission) =>
+        IsEffectivelyActive
+        && (Permissions.Contains($"\"{permission}\"", StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(Permissions));
 
     // ── Factory ───────────────────────────────────────────────────────────────
 
@@ -48,7 +64,12 @@ public sealed class ClinicMedicalAccessGrant
     /// The raw code must never be stored — only its hash is persisted.
     /// </summary>
     public static (ClinicMedicalAccessGrant Grant, string RawCode) Generate(
-        Guid petId, Guid clinicId, Guid petOwnerId, string initiatedBy)
+        Guid petId,
+        Guid clinicId,
+        Guid petOwnerId,
+        string initiatedBy,
+        DateTimeOffset? accessExpiresAt = null,
+        IReadOnlyCollection<string>? permissions = null)
     {
         var rawCode = GenerateCode();
         var hash = HashCode(rawCode);
@@ -65,6 +86,9 @@ public sealed class ClinicMedicalAccessGrant
             CodeExpiresAt = now.AddHours(24),
             AcceptedAt = null,
             IsActive = false,
+            AccessExpiresAt = accessExpiresAt,
+            Permissions = System.Text.Json.JsonSerializer.Serialize(
+                permissions ?? [ClinicMedicalAccessPermission.Read, ClinicMedicalAccessPermission.Write]),
             CreatedAt = now,
         };
 

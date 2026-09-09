@@ -14,6 +14,9 @@ import { FraudReportButton } from "@/features/safety/components/FraudReportButto
 import { PetStatusBadge } from "../components/PetStatusBadge";
 import { usePublicPetProfile } from "../hooks/usePets";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import { trackProductEvent } from "@/shared/lib/telemetry";
+import { petsApi } from "../api/petsApi";
+import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
 
 // Lazy-load the 3D tag (Three.js is heavy — only load when needed)
 const PetTag3D = lazy(() =>
@@ -145,11 +148,26 @@ export default function PublicPetProfilePage() {
   const { data: pet, isLoading, isError } = usePublicPetProfile(id ?? "");
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const currentUserId = useAuthStore((s) => s.user?.id);
+  const scanTrackedPetId = useRef<string | null>(null);
 
   const [revealPhone, setRevealPhone] = useState(false);
+  const [finderName, setFinderName] = useState("");
+  const [finderMessage, setFinderMessage] = useState("");
+  const [contactSent, setContactSent] = useState(false);
+  const [contactSending, setContactSending] = useState(false);
+  const [contactError, setContactError] = useState<string | null>(null);
   const { data: contact, isLoading: contactLoading } = useGetLostPetContact(
     revealPhone ? (pet?.activeLostEventId ?? null) : null,
   );
+
+  useEffect(() => {
+    if (!pet || scanTrackedPetId.current === pet.id) return;
+    trackProductEvent("QrScanned", {
+      source: "public-pet-profile",
+      petId: pet.id,
+    });
+    scanTrackedPetId.current = pet.id;
+  }, [pet]);
 
   const handleRevealPhone = () => {
     if (!isAuthenticated) {
@@ -157,6 +175,24 @@ export default function PublicPetProfilePage() {
       return;
     }
     setRevealPhone(true);
+  };
+
+  const handleAnonymousContact = async () => {
+    if (!pet?.activeLostEventId || finderMessage.trim().length < 5) return;
+    setContactSending(true);
+    setContactError(null);
+    try {
+      await petsApi.sendAnonymousContact(pet.activeLostEventId, {
+        finderName: finderName.trim() || undefined,
+        message: finderMessage.trim(),
+      });
+      setContactSent(true);
+      setFinderMessage("");
+    } catch {
+      setContactError("No se pudo enviar el mensaje. Intenta de nuevo.");
+    } finally {
+      setContactSending(false);
+    }
   };
 
   if (isLoading) {
@@ -323,6 +359,7 @@ export default function PublicPetProfilePage() {
           variant="outline"
           className="mb-4"
         />
+        <BillboardBanner placement="PublicPetProfile" className="mb-4" />
 
         {/* Safe chat CTA (hidden for the pet's owner — no self-chat) */}
         {!isOwner && isLost && pet.activeLostEventId && pet.ownerId && (
@@ -332,6 +369,57 @@ export default function PublicPetProfilePage() {
           >
             <span aria-hidden="true">💬</span> Contactar al dueño (chat seguro)
           </Link>
+        )}
+
+        {!isOwner && isLost && pet.activeLostEventId && (
+          <div className="mb-4 rounded-2xl border border-rescue-200 bg-rescue-50 p-4 shadow-sm">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-rescue-700">
+              Contacto seguro sin revelar tu identidad
+            </p>
+            <p className="mb-3 text-sm text-sand-700">
+              Envía un mensaje al dueño. PawTrack no mostrará su teléfono ni tu
+              información de contacto.
+            </p>
+            {contactSent ? (
+              <p
+                className="text-sm font-semibold text-rescue-700"
+                role="status"
+              >
+                Mensaje enviado al propietario.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                <input
+                  value={finderName}
+                  onChange={(event) => setFinderName(event.target.value)}
+                  maxLength={100}
+                  placeholder="Tu nombre (opcional)"
+                  className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm"
+                />
+                <textarea
+                  value={finderMessage}
+                  onChange={(event) => setFinderMessage(event.target.value)}
+                  maxLength={800}
+                  rows={3}
+                  placeholder="¿Dónde viste a la mascota?"
+                  className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm"
+                />
+                {contactError && (
+                  <p className="text-xs text-danger-600" role="alert">
+                    {contactError}
+                  </p>
+                )}
+                <button
+                  type="button"
+                  disabled={contactSending || finderMessage.trim().length < 5}
+                  onClick={() => void handleAnonymousContact()}
+                  className="w-full rounded-xl bg-rescue-600 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+                >
+                  {contactSending ? "Enviando..." : "Enviar mensaje seguro"}
+                </button>
+              </div>
+            )}
+          </div>
         )}
 
         {/* Contact card (hidden for owner) */}

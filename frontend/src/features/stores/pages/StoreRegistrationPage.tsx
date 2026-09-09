@@ -82,7 +82,7 @@ export default function StoreRegistrationPage() {
             {[
               "Aparece en el mapa de PawTrack CR",
               "Catálogo de productos visible al público",
-              "Recibe pedidos in-app con pago SINPE",
+              "Recibe solicitudes de pedido dentro de PawTrack",
               "Panel de órdenes en tiempo real",
             ].map((f) => (
               <li key={f} className="flex items-start gap-2.5">

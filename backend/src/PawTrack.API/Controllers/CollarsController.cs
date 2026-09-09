@@ -2,10 +2,10 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-// External collar integrations are intentionally disabled. Reactivate only with a product decision.
-// using PawTrack.Application.Collars.Commands.RegisterCollar;
-// Generic/OEM device-key generation is disabled; verified CollarTag activation creates the key.
-// using PawTrack.Application.Collars.Commands.GenerateCollarDeviceKey;
+// External provider integrations remain disabled. Generic/OEM collars use the
+// owner-controlled registration and device-key flows below.
+using PawTrack.Application.Collars.Commands.RegisterCollar;
+using PawTrack.Application.Collars.Commands.GenerateCollarDeviceKey;
 using PawTrack.Application.Collars.Commands.ActivateCollarLostMode;
 using PawTrack.Application.Collars.Commands.CancelCollarHandoverCode;
 using PawTrack.Application.Collars.Commands.CreateCollarSafeZone;
@@ -46,9 +46,6 @@ public sealed class CollarsController(ISender sender) : ControllerBase
         return Ok(result.Value);
     }
 
-    // External provider registration is disabled. PawTrack collars are activated exclusively
-    // through POST /api/collars/tag/{serial}/activate after serial verification.
-    /*
     [HttpPost]
     [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -59,6 +56,11 @@ public sealed class CollarsController(ISender sender) : ControllerBase
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
 
+        // Tractive and other external providers require a separate commercial
+        // integration. Generic collars remain supported through the native API.
+        if (request.Provider != CollarProvider.Generic)
+            return NotFound();
+
         var result = await sender.Send(
             new RegisterCollarCommand(request.PetId, userId, request.Provider, request.ExternalDeviceId),
             cancellationToken);
@@ -68,7 +70,6 @@ public sealed class CollarsController(ISender sender) : ControllerBase
 
         return Created($"api/collars/pet/{request.PetId}", result.Value);
     }
-    */
 
     // ── GET /api/collars/pet/{petId}/history?hours=24 ────────────────────────
     [HttpGet("pet/{petId:guid}/history")]
@@ -190,9 +191,6 @@ public sealed class CollarsController(ISender sender) : ControllerBase
         return Guid.TryParse(raw, out userId);
     }
 
-    // Generic/OEM device-key generation is disabled. The only supported way to create a
-    // device credential is verified CollarTag activation, which returns the key once.
-    /*
     [HttpPost("{collarId:guid}/generate-key")]
     [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -211,7 +209,6 @@ public sealed class CollarsController(ISender sender) : ControllerBase
 
         return Ok(result.Value);
     }
-    */
 
     // ── GET /api/collars/{collarId}/connectivity-status ────────────────────────
     [HttpGet("{collarId:guid}/connectivity-status")]

@@ -15,7 +15,14 @@ public sealed record ClinicDto(
     string? LogoUrl,
     bool IsFeatured,
     string Status,
-    DateTimeOffset RegisteredAt)
+    DateTimeOffset RegisteredAt,
+    bool IsEmergency24h = false,
+    string? EmergencyPhone = null,
+    string? Description = null,
+    string? Services = null,
+    string? OpeningHours = null,
+    string? WhatsAppNumber = null,
+    bool IsWhatsAppContactEnabled = false)
 {
     public static ClinicDto FromDomain(Clinic clinic) => new(
         clinic.Id,
@@ -30,7 +37,14 @@ public sealed record ClinicDto(
         clinic.LogoUrl,
         clinic.IsFeatured,
         clinic.Status.ToString(),
-        clinic.RegisteredAt);
+        clinic.RegisteredAt,
+        clinic.IsEmergency24h,
+        clinic.EmergencyPhone,
+        clinic.Description,
+        clinic.Services,
+        clinic.OpeningHours,
+        clinic.WhatsAppNumber,
+        clinic.IsWhatsAppContactEnabled);
 }
 
 /// <summary>

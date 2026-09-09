@@ -1,6 +1,6 @@
 # PawTrack CR — Workspace Instructions
 
-> Full project spec: [`PawTrack_Documento_Maestro_v3.1.md`](../PawTrack_Documento_Maestro_v3.1.md)  
+> Full project spec: [`PawTrack_Documento_Maestro_v3.1.md`](../docs/PawTrack_Documento_Maestro_v3.1.md)
 > Skills manifest: [`skills.json`](../skills.json)
 
 ---
@@ -8,20 +8,20 @@
 ## Project overview
 
 PawTrack CR is a **pet identity + lost-pet recovery platform** for Costa Rica.  
-Core loop: *register pet → generate QR → report lost → log sighting → reunite*.
+Core loop: _register pet → generate QR → report lost → log sighting → reunite_.
 
-**Current phase:** Sprint 1 — Auth foundations (backend + frontend UI).
+**Current phase:** Product consolidation and enterprise readiness (September 2026).
 
 ---
 
 ## Primary stack
 
-| Layer | Technology |
-|-------|-----------|
-| Backend | .NET 8 · Clean Architecture · CQRS via MediatR |
-| Frontend | React PWA · TypeScript |
-| Database | Azure SQL · EF Core |
-| Cloud | Azure App Service · Blob Storage · Notification Hubs · Key Vault · Application Insights |
+| Layer    | Technology                                                                              |
+| -------- | --------------------------------------------------------------------------------------- |
+| Backend  | .NET 9 · Clean Architecture · CQRS via MediatR                                          |
+| Frontend | React PWA · TypeScript                                                                  |
+| Database | Azure SQL · EF Core                                                                     |
+| Cloud    | Azure App Service · Blob Storage · Notification Hubs · Key Vault · Application Insights |
 
 ---
 
@@ -32,12 +32,12 @@ Core loop: *register pet → generate QR → report lost → log sighting → re
 
 ### Backend module boundaries (MVP)
 
-| Module | Responsibility |
-|--------|---------------|
-| `Auth` | Registration, email verification, login, JWT |
-| `Pets` | CRUD, photo upload, QR generation, public profile |
-| `LostPets` | Loss reports, status state machine |
-| `Sightings` | Geo-tagged sightings, anonymous protection, photo |
+| Module          | Responsibility                                      |
+| --------------- | --------------------------------------------------- |
+| `Auth`          | Registration, email verification, login, JWT        |
+| `Pets`          | CRUD, photo upload, QR generation, public profile   |
+| `LostPets`      | Loss reports, status state machine                  |
+| `Sightings`     | Geo-tagged sightings, anonymous protection, photo   |
 | `Notifications` | Push / email / in-app delivery, notification center |
 
 Each module owns its own EF Core entities, commands, queries, and validators — **never reach across module boundaries directly; use MediatR notifications or domain events for cross-module communication**.
@@ -107,7 +107,7 @@ See `skills.json → sprints` for the skill set per sprint.
 
 ---
 
-## What *not* to do
+## What _not_ to do
 
 - Do not add EF Core `DbSet`s to a module's `DbContext` that belong to another module.
 - Do not call a module's internal services directly from another module — use MediatR.

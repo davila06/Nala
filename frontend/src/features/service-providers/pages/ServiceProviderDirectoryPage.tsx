@@ -10,6 +10,7 @@ import {
   type ServiceModality,
 } from "../api/serviceProvidersApi";
 import { usePublicServiceProviders } from "../hooks/useServiceProviders";
+import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
 
 const categories: Array<ServiceProviderCategory | "All"> = [
   "All",
@@ -106,18 +107,28 @@ export default function ServiceProviderDirectoryPage() {
         />
       </Helmet>
       <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
-        <header className="max-w-2xl space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">
-            Directorio local
-          </p>
-          <h1 className="font-display text-3xl font-semibold text-ink-900">
-            Servicios para tu mascota
-          </h1>
-          <p className="text-sm text-sand-600">
-            Encuentra apoyo confiable para el cuidado, entrenamiento y bienestar
-            de tu companero.
-          </p>
+        <header className="space-y-4">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-brand-600 transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          >
+            <span aria-hidden="true">←</span>
+            Ir a inicio
+          </Link>
+          <div className="max-w-2xl space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">
+              Directorio local
+            </p>
+            <h1 className="font-display text-3xl font-semibold text-ink-900">
+              Servicios para tu mascota
+            </h1>
+            <p className="text-sm text-sand-600">
+              Encuentra apoyo confiable para el cuidado, entrenamiento y
+              bienestar de tu companero.
+            </p>
+          </div>
         </header>
+        <BillboardBanner placement="ServiceProviderDirectory" />
         <div className="space-y-3 border-y border-sand-100 py-4">
           <input
             type="search"

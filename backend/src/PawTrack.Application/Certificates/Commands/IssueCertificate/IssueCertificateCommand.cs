@@ -39,10 +39,10 @@ public sealed class IssueCertificateCommandValidator : AbstractValidator<IssueCe
 }
 
 public sealed class IssueCertificateCommandHandler(
-    ICertificateRepository  certificateRepository,
-    ICertificateService     certificateService,
+    ICertificateRepository certificateRepository,
+    ICertificateService certificateService,
     ISubscriptionRepository subscriptionRepository,
-    IUnitOfWork             unitOfWork)
+    IUnitOfWork unitOfWork)
     : IRequestHandler<IssueCertificateCommand, Result<CertificateDto>>
 {
     public async Task<Result<CertificateDto>> Handle(
@@ -67,7 +67,7 @@ public sealed class IssueCertificateCommandHandler(
         await certificateRepository.AddAsync(certificate, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken); // get ID persisted before PDF generation
 
-        var pdfUrl = await certificateService.GenerateAndStoreAsync(
+        var artifact = await certificateService.GenerateAndStoreAsync(
             new CertificatePdfData(
                 certificate.Id.ToString(),
                 code,
@@ -83,7 +83,9 @@ public sealed class IssueCertificateCommandHandler(
                 request.ValidUntil),
             cancellationToken);
 
-        certificate.SetPdfUrl(pdfUrl);
+        certificate.SetPdfUrl(artifact.PdfUrl);
+        if (artifact.SignatureUrl is not null)
+            certificate.SetSignature(artifact.SignatureUrl, artifact.SignatureAlgorithm!);
         certificateRepository.Update(certificate);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

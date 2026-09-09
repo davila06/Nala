@@ -84,17 +84,17 @@ A diferencia de la mayoría de startups en etapa de inversión ángel, **PawTrac
 
 A diferencia de plataformas de una sola fuente, PawTrack CR tiene **9 líneas de monetización operativas**:
 
-| #   | Fuente                                       | Modelo       | Precio                 |
-| --- | -------------------------------------------- | ------------ | ---------------------- |
-| 1   | **Plan Plus** — dueños de mascotas           | Suscripción  | ₡2,990/mes (~$5.75)    |
-| 2   | **Plan Familia** — multi-mascota + historial | Suscripción  | ₡4,990/mes (~$9.60)    |
-| 3   | **Clínica Básica** — portal veterinario      | Suscripción  | ₡15,000/mes            |
-| 4   | **Clínica Plus** — expediente + alertas      | Suscripción  | ₡35,000/mes            |
-| 5   | **Clínica Partner** — API + certificados     | Suscripción  | ₡60,000/mes            |
-| 6   | **Tiendas StorePlus** — pedidos in-app       | Suscripción  | ₡12,000/mes            |
-| 7   | **Municipalidades** — 3 tiers B2G            | Suscripción  | ₡150,000–₡500,000/año  |
-| 8   | **Sistema de recompensas (Bounty)** — SINPE  | Comisión 10% | Por transacción        |
-| 9   | **Vallas publicitarias in-app**              | Tarifa fija  | ₡18,000–₡65,000/semana |
+| #   | Fuente                                       | Modelo       | Precio                                    |
+| --- | -------------------------------------------- | ------------ | ----------------------------------------- |
+| 1   | **Plan Plus** — dueños de mascotas           | Suscripción  | ₡2,990/mes (~$5.75)                       |
+| 2   | **Plan Familia** — multi-mascota + historial | Suscripción  | ₡4,990/mes (~$9.60)                       |
+| 3   | **Clínica Básica** — portal veterinario      | Suscripción  | ₡15,000/mes                               |
+| 4   | **Clínica Plus** — expediente + alertas      | Suscripción  | ₡35,000/mes                               |
+| 5   | **Clínica Partner** — API + certificados     | Suscripción  | ₡60,000/mes                               |
+| 6   | **Tiendas StorePlus** — pedidos in-app       | Suscripción  | ₡12,000/mes                               |
+| 7   | **Municipalidades** — 3 tiers B2G            | Suscripción  | ₡150,000–₡500,000/año                     |
+| 8   | **Sistema de recompensas (Bounty)** — SINPE  | Comisión 10% | Por transacción                           |
+| 9   | **Vallas publicitarias in-app**              | Tarifa fija  | Según [catálogo comercial](publicidad.md) |
 
 > **Nota:** Bundle GPS (collar Tractive + suscripción, ₲49,900 único) es ingreso adicional una vez se establezca el proveedor de hardware. El collar GPS ya incluye, más allá de la posición en tiempo real, diferenciadores vs. Tractive/competencia: alertas de conectividad y batería, modo perdido coordinado con la red de búsqueda, zonas seguras (geofencing), transferencia segura entre dueños y auditoría de eventos.
 

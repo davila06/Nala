@@ -7,7 +7,7 @@ namespace PawTrack.Infrastructure.Compliance;
 
 /// <summary>
 /// Purges personal data categories that have no automatic short-term expiry —
-/// sightings, closed chat threads, and read notifications — once they exceed the
+/// sightings, closed chat threads, read notifications, and product events — once they exceed the
 /// configured retention window. Runs once daily via
 /// <see cref="PersonalDataRetentionHostedService"/>.
 /// Implements the Ley 8968 (Costa Rica) proportional conservation principle.
@@ -16,6 +16,9 @@ public sealed class PersonalDataRetentionJob(
     ISightingRepository sightingRepository,
     IChatRepository chatRepository,
     INotificationRepository notificationRepository,
+    IProductEventRepository productEventRepository,
+    IMedicalRepository medicalRepository,
+    IClinicMedicalExportRepository clinicMedicalExportRepository,
     IUnitOfWork unitOfWork,
     IOptions<PersonalDataRetentionSettings> settings,
     ILogger<PersonalDataRetentionJob> logger)
@@ -34,7 +37,16 @@ public sealed class PersonalDataRetentionJob(
         var notificationCutoff = now.AddDays(-config.ReadNotificationRetentionDays);
         var deletedNotifications = await notificationRepository.DeleteReadBeforeAsync(notificationCutoff, cancellationToken);
 
-        if (deletedSightings > 0 || deletedThreads > 0 || deletedNotifications > 0)
+        var productEventCutoff = now.AddDays(-config.ProductEventRetentionDays);
+        var deletedProductEvents = await productEventRepository.DeleteOccurredBeforeAsync(productEventCutoff, cancellationToken);
+
+        var medicalCutoff = now.AddDays(-config.SupersededMedicalRecordRetentionDays);
+        var deletedMedicalVersions = await medicalRepository.DeleteSupersededBeforeAsync(medicalCutoff, cancellationToken);
+        var expiredExports = await clinicMedicalExportRepository.ExpireBeforeAsync(now, cancellationToken);
+        var exportMetadataCutoff = now.AddDays(-config.ExpiredClinicExportRetentionDays);
+        var deletedExportMetadata = await clinicMedicalExportRepository.DeleteExpiredBeforeAsync(exportMetadataCutoff, cancellationToken);
+
+        if (deletedSightings > 0 || deletedThreads > 0 || deletedNotifications > 0 || deletedProductEvents > 0 || deletedMedicalVersions > 0 || expiredExports > 0 || deletedExportMetadata > 0)
         {
             // All three deletes use ExecuteDeleteAsync which bypasses the change tracker,
             // so SaveChangesAsync here only commits any other pending changes.
@@ -42,7 +54,7 @@ public sealed class PersonalDataRetentionJob(
         }
 
         logger.LogInformation(
-            "PersonalDataRetentionJob finished. Sightings={Sightings} ChatThreads={Threads} Notifications={Notifications}",
-            deletedSightings, deletedThreads, deletedNotifications);
+            "PersonalDataRetentionJob finished. Sightings={Sightings} ChatThreads={Threads} Notifications={Notifications} ProductEvents={ProductEvents} MedicalVersions={MedicalVersions} ExpiredExports={ExpiredExports} ExportMetadata={ExportMetadata}",
+            deletedSightings, deletedThreads, deletedNotifications, deletedProductEvents, deletedMedicalVersions, expiredExports, deletedExportMetadata);
     }
 }

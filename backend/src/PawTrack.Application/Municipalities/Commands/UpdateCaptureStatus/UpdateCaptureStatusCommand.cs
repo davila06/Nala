@@ -8,6 +8,7 @@ using PawTrack.Domain.Municipalities;
 namespace PawTrack.Application.Municipalities.Commands.UpdateCaptureStatus;
 
 public sealed record UpdateCaptureStatusCommand(
+    Guid RequestingUserId,
     Guid AnimalId,
     CapturedAnimalStatus Status,
     Guid? MatchedPetId = null) : IRequest<Result<CapturedAnimalDto>>;
@@ -23,6 +24,8 @@ public sealed class UpdateCaptureStatusCommandHandler(
     {
         var animal = await repository.GetByIdAsync(request.AnimalId, cancellationToken);
         if (animal is null) return Result.Failure<CapturedAnimalDto>("Animal record not found.");
+        if (animal.RecordedByUserId != request.RequestingUserId)
+            return Result.Failure<CapturedAnimalDto>("Access denied.");
 
         animal.UpdateStatus(request.Status);
         if (request.MatchedPetId.HasValue) animal.LinkToPet(request.MatchedPetId.Value);

@@ -15,6 +15,7 @@ import { useAuthStore } from "../store/authStore";
 import type { PetSpecies } from "@/features/sightings/api/fostersApi";
 import { Button, Input, Badge, PageSpinner, Card } from "@/shared/ui";
 import { toast } from "@/shared/lib/toast";
+import { registerPasskey } from "../api/webauthn";
 import { LastSeenMap } from "@/features/lost-pets/components/LastSeenMap";
 import { useGeolocation } from "@/features/lost-pets/hooks/useGeolocation";
 import { usePushSubscription } from "@/features/notifications/hooks/usePushSubscription";
@@ -363,6 +364,21 @@ export default function ProfilePage() {
     fosterProfile?.sizePreference ?? "",
   );
   const [maxDays, setMaxDays] = useState<number>(fosterProfile?.maxDays ?? 3);
+  const [registeringPasskey, setRegisteringPasskey] = useState(false);
+
+  const handleRegisterPasskey = async () => {
+    setRegisteringPasskey(true);
+    try {
+      await registerPasskey("PawTrack device");
+      toast.success("Passkey registrada correctamente.");
+    } catch {
+      toast.error(
+        "No se pudo registrar la passkey. Verifica el navegador y vuelve a intentar.",
+      );
+    } finally {
+      setRegisteringPasskey(false);
+    }
+  };
 
   // Change password state
   const [showChangePwd, setShowChangePwd] = useState(false);
@@ -592,6 +608,24 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
+        </div>
+      </Card>
+
+      <Card>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-base font-semibold text-sand-800">Passkeys</h2>
+            <p className="mt-0.5 text-sm text-sand-500">
+              Añade una credencial del dispositivo para iniciar sesión sin
+              contraseña.
+            </p>
+          </div>
+          <Button
+            loading={registeringPasskey}
+            onClick={() => void handleRegisterPasskey()}
+          >
+            Registrar passkey
+          </Button>
         </div>
       </Card>
 

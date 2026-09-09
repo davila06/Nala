@@ -53,18 +53,6 @@ public sealed class StoreOrdersController(ISender sender) : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);
     }
 
-    // ── PUT /api/store-orders/{id}/report-payment ─────────────────────────────
-    [HttpPut("{orderId:guid}/report-payment")]
-    [EnableRateLimiting("public-api")]
-    public async Task<IActionResult> ReportPayment(Guid orderId, CancellationToken ct)
-    {
-        if (!TryGetUserId(out var customerId)) return Unauthorized();
-        var result = await sender.Send(new ReportStoreOrderPaymentCommand(customerId, orderId), ct);
-        if (result.IsFailure)
-            return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
-        return NoContent();
-    }
-
     // ── GET /api/store-orders/incoming — store owner's orders ─────────────────
     [HttpGet("incoming")]
     [Authorize(Roles = "Store")]
@@ -79,7 +67,7 @@ public sealed class StoreOrdersController(ISender sender) : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
     }
 
-    // ── PUT /api/store-orders/{id}/confirm — store confirms after payment ──────
+    // ── PUT /api/store-orders/{id}/confirm — store confirms availability ───────
     [HttpPut("{orderId:guid}/confirm")]
     [Authorize(Roles = "Store")]
     [EnableRateLimiting("public-api")]

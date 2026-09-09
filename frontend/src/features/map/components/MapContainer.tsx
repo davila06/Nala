@@ -2,7 +2,7 @@ import "leaflet/dist/leaflet.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 import L from "leaflet";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   MapContainer as LeafletMapContainer,
   TileLayer,
@@ -45,6 +45,8 @@ interface MapContainerProps {
   adoptions?: AdoptablePetDto[];
   /** When set, renders service provider markers on the map. */
   serviceProviders?: PublicServiceProviderDto[];
+  /** Controls authenticated-only actions in service provider popups. */
+  isAuthenticated?: boolean;
   /** Increment to re-trigger fly-to-user */
   locateTrigger?: number;
   /** Called when GPS resolves or errors — used to reset loading state in the parent */
@@ -114,10 +116,14 @@ function LocateUser({
   onLocated?: () => void;
 }) {
   const map = useMap();
+  // Ref-latched so an unstable (inline) onLocated identity from the caller
+  // never re-triggers this effect and re-flies the map — only `trigger` should.
+  const onLocatedRef = useRef(onLocated);
+  onLocatedRef.current = onLocated;
 
   useEffect(() => {
     if (!navigator.geolocation) {
-      onLocated?.();
+      onLocatedRef.current?.();
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -125,12 +131,12 @@ function LocateUser({
         map.flyTo([pos.coords.latitude, pos.coords.longitude], 13, {
           duration: 1.2,
         });
-        onLocated?.();
+        onLocatedRef.current?.();
       },
-      () => onLocated?.(),
+      () => onLocatedRef.current?.(),
       { timeout: 8_000, maximumAge: 60_000 },
     );
-  }, [map, onLocated, trigger]); // trigger=0 on mount = auto; increment = re-locate
+  }, [map, trigger]); // trigger=0 on mount = auto; increment = re-locate
 
   return null;
 }
@@ -144,6 +150,7 @@ export function MapContainer({
   onStoreClick,
   adoptions,
   serviceProviders,
+  isAuthenticated = false,
   locateTrigger = 0,
   onLocated,
   flyTarget,
@@ -201,6 +208,7 @@ export function MapContainer({
             <ServiceProviderMarker
               key={`provider-${provider.id}`}
               provider={provider}
+              isAuthenticated={isAuthenticated}
             />
           ))}
         </MarkerClusterGroup>

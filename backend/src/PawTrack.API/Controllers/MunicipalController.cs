@@ -93,8 +93,9 @@ public sealed class MunicipalController(ISender sender, IMunicipalSubscriptionSe
         [FromBody] UpdateStatusRequest request,
         CancellationToken cancellationToken)
     {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
         var result = await sender.Send(
-            new UpdateCaptureStatusCommand(id, request.Status, request.MatchedPetId),
+            new UpdateCaptureStatusCommand(userId, id, request.Status, request.MatchedPetId),
             cancellationToken);
 
         if (result.IsFailure)

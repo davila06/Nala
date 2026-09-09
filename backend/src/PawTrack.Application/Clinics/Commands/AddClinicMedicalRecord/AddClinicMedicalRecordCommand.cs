@@ -79,7 +79,7 @@ public sealed class AddClinicMedicalRecordCommandHandler(
     {
         // Verify clinic is active
         var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, ct);
-        if (clinic is null || clinic.Status != ClinicStatus.Active)
+        if (clinic is null || clinic.Status != ClinicStatus.Active || clinic.UserId != request.ClinicUserId)
             return Result.Failure<MedicalRecordDto>("La clínica no está activa.");
 
         // ── Resolve pet + create inline scan if needed (Option B) ────────────
@@ -93,7 +93,8 @@ public sealed class AddClinicMedicalRecordCommandHandler(
         {
             var hasAccess =
                 await clinicScanRepository.HasRecentScanAsync(request.ClinicId, pet.Id, RecentScanWindowDays, ct)
-                || await grantRepository.HasActiveGrantAsync(request.ClinicId, pet.Id, ct);
+                || (await grantRepository.GetActiveGrantAsync(request.ClinicId, pet.Id, ct))
+                    is { } grant && grant.HasPermission(ClinicMedicalAccessPermission.Write);
             if (!hasAccess)
                 return Result.Failure<MedicalRecordDto>(
                     $"La clínica no tiene acceso a esta mascota. " +
@@ -150,35 +151,31 @@ public sealed class AddClinicMedicalRecordCommandHandler(
     private async Task<(Domain.Pets.Pet? pet, ClinicScan? inlineScan)> ResolvePetAsync(
         AddClinicMedicalRecordCommand request, CancellationToken ct)
     {
-        // Option A: petId already known
-        if (request.PetId.HasValue)
+        // QR/chip identifies the consulted pet and must override a client-supplied ID.
+        if (!string.IsNullOrWhiteSpace(request.QrOrChipInput))
         {
-            var pet = await petRepository.GetByIdAsync(request.PetId.Value, ct);
-            return (pet, null);
+            Domain.Pets.Pet? resolvedPet = null;
+            var inputType = request.InputType ?? ScanInputType.Qr;
+
+            if (inputType == ScanInputType.Qr)
+            {
+                var match = PetIdFromQrPattern.Match(request.QrOrChipInput);
+                if (match.Success && Guid.TryParse(match.Groups[1].Value, out var petId))
+                    resolvedPet = await petRepository.GetByIdAsync(petId, ct);
+            }
+            else if (inputType == ScanInputType.RfidChip)
+            {
+                resolvedPet = await petRepository.GetByMicrochipIdAsync(
+                    request.QrOrChipInput.Trim().ToUpperInvariant(), ct);
+            }
+
+            return resolvedPet is null
+                ? (null, null)
+                : (resolvedPet, ClinicScan.Create(request.ClinicId, request.QrOrChipInput, inputType, resolvedPet.Id));
         }
 
-        // Option B: resolve from QR URL or RFID chip
-        if (string.IsNullOrWhiteSpace(request.QrOrChipInput)) return (null, null);
-
-        Domain.Pets.Pet? resolvedPet = null;
-        var inputType = request.InputType ?? ScanInputType.Qr;
-
-        if (inputType == ScanInputType.Qr)
-        {
-            var m = PetIdFromQrPattern.Match(request.QrOrChipInput);
-            if (m.Success && Guid.TryParse(m.Groups[1].Value, out var petId))
-                resolvedPet = await petRepository.GetByIdAsync(petId, ct);
-        }
-        else if (inputType == ScanInputType.RfidChip)
-        {
-            resolvedPet = await petRepository.GetByMicrochipIdAsync(
-                request.QrOrChipInput.Trim().ToUpperInvariant(), ct);
-        }
-
-        if (resolvedPet is null) return (null, null);
-
-        // Create the inline scan (records the consult visit)
-        var scan = ClinicScan.Create(request.ClinicId, request.QrOrChipInput, inputType, resolvedPet.Id);
-        return (resolvedPet, scan);
+        return request.PetId.HasValue
+            ? (await petRepository.GetByIdAsync(request.PetId.Value, ct), null)
+            : (null, null);
     }
 }

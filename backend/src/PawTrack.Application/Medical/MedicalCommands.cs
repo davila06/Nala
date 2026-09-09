@@ -350,7 +350,8 @@ public sealed class DeleteMedicalRecordCommandHandler(
             catch { /* intentional: storage cleanup is non-critical */ }
         }
 
-        medicalRepository.Delete(record);
+        record.Supersede(request.RequestingUserId, "Medical record removed by authorized user.");
+        medicalRepository.Update(record);
         await unitOfWork.SaveChangesAsync(ct);
         return Result.Success(Unit.Value);
     }
@@ -411,13 +412,25 @@ public sealed class UpdateMedicalRecordCommandHandler(
         if (!canEdit)
             return Result.Failure<MedicalRecordDto>("Solo el creador del registro puede editarlo.");
 
-        record.Update(request.Type, request.Date, request.Description,
-            request.VetName, request.ClinicName, request.NextDueDate,
-            request.WeightKg, request.DosageDescription,
-            request.Frequency, request.DurationDays, request.MedicationEndDate);
+        record.Supersede(request.RequestingUserId, "Medical record corrected by authorized user.");
+        var revision = MedicalRecord.CreateRevision(
+            record,
+            request.RequestingUserId,
+            request.Type,
+            request.Date,
+            request.Description,
+            request.VetName,
+            request.ClinicName,
+            request.NextDueDate,
+            request.WeightKg,
+            request.DosageDescription,
+            request.Frequency,
+            request.DurationDays,
+            request.MedicationEndDate);
         medicalRepository.Update(record);
+        await medicalRepository.AddAsync(revision, ct);
         await unitOfWork.SaveChangesAsync(ct);
-        return Result.Success(MedicalRecordDto.FromDomain(record));
+        return Result.Success(MedicalRecordDto.FromDomain(revision));
     }
 }
 
@@ -515,7 +528,12 @@ public sealed record ClinicAccessLogEntryDto(
     Guid LogId,
     Guid ClinicId,
     string? ClinicName,
-    DateTimeOffset AccessedAt);
+    DateTimeOffset AccessedAt,
+    string Operation,
+    string Permission,
+    string AccessMethod,
+    string Outcome,
+    string? Reason);
 
 public sealed record GetClinicAccessLogQuery(Guid PetId, Guid RequestingUserId, int Limit = 50)
     : IRequest<Result<IReadOnlyList<ClinicAccessLogEntryDto>>>;
@@ -539,12 +557,18 @@ public sealed class GetClinicAccessLogQueryHandler(
 
         var logs = await accessLogRepository.GetByPetIdAsync(request.PetId, request.Limit, ct);
 
-        var entries = new List<ClinicAccessLogEntryDto>();
-        foreach (var log in logs)
-        {
-            var clinic = await clinicRepository.GetByIdAsync(log.ClinicId, ct);
-            entries.Add(new ClinicAccessLogEntryDto(log.Id, log.ClinicId, clinic?.Name, log.AccessedAt));
-        }
+        var clinics = await clinicRepository.GetByIdsAsync(logs.Select(log => log.ClinicId), ct);
+        var clinicNames = clinics.ToDictionary(clinic => clinic.Id, clinic => clinic.Name);
+        var entries = logs.Select(log => new ClinicAccessLogEntryDto(
+            log.Id,
+            log.ClinicId,
+            clinicNames.GetValueOrDefault(log.ClinicId),
+            log.AccessedAt,
+            log.Operation,
+            log.Permission,
+            log.AccessMethod,
+            log.Outcome,
+            log.Reason)).ToList();
 
         return Result.Success<IReadOnlyList<ClinicAccessLogEntryDto>>(entries);
     }

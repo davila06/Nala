@@ -12,6 +12,24 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface WebAuthnRegisterRequest {
+  response: PublicKeyCredentialJSON;
+  deviceName?: string;
+}
+
+export interface WebAuthnAuthenticateRequest {
+  email: string;
+  response: PublicKeyCredentialJSON;
+}
+
+export interface PublicKeyCredentialJSON {
+  id: string;
+  rawId: string;
+  type: string;
+  response: Record<string, string>;
+  clientExtensionResults?: Record<string, unknown>;
+}
+
 export interface ForgotPasswordRequest {
   email: string;
 }
@@ -93,6 +111,24 @@ export const authApi = {
 
   login: (data: LoginRequest) =>
     apiClient.post<AuthTokenResponse>("/auth/login", data),
+
+  webauthnRegisterOptions: () =>
+    apiClient.post<Record<string, unknown>>("/auth/webauthn/register/options"),
+
+  webauthnRegister: (data: WebAuthnRegisterRequest) =>
+    apiClient.post<{ credentialId: string }>("/auth/webauthn/register", data),
+
+  webauthnAuthenticateOptions: (email: string) =>
+    apiClient.post<Record<string, unknown>>(
+      "/auth/webauthn/authenticate/options",
+      { email },
+    ),
+
+  webauthnAuthenticate: (data: WebAuthnAuthenticateRequest) =>
+    apiClient.post<{ accessToken: string; user: AuthTokenResponse["user"] }>(
+      "/auth/webauthn/authenticate",
+      data,
+    ),
 
   verifyEmail: (token: string) =>
     apiClient.get<void>(

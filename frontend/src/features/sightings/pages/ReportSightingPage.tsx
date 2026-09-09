@@ -4,6 +4,7 @@ import { Alert } from "@/shared/ui/Alert";
 import { useReportSighting } from "../hooks/useSightings";
 import { useVisualMatchBySighting } from "../hooks/useVisualMatch";
 import type { VisualMatchResult } from "../api/matchingApi";
+import { trackProductEvent } from "@/shared/lib/telemetry";
 
 // ── Auto-match panel shown on success when photo was uploaded ─────────────────
 
@@ -180,6 +181,10 @@ export default function ReportSightingPage() {
         note: note.trim() || null,
         sightedAt: new Date().toISOString(),
         photo,
+      });
+      trackProductEvent("SightingCreated", {
+        source: "report-sighting",
+        petId,
       });
       setSubmittedSightingId(result.id);
     } catch {

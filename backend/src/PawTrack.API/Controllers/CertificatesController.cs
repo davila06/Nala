@@ -51,6 +51,7 @@ public sealed class CertificatesController(ISender sender) : ControllerBase
     // ── GET /api/certificates/verify/{code} ───────────────────────────────────
     [HttpGet("verify/{code}")]
     [AllowAnonymous]
+    [EnableRateLimiting("certificate-verify")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Verify(string code, CancellationToken cancellationToken)

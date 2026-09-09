@@ -5,6 +5,6 @@ namespace PawTrack.IntegrationTests.Infrastructure;
 [Collection("Integration")]
 public sealed class StubCertificateService : ICertificateService
 {
-    public Task<string> GenerateAndStoreAsync(CertificatePdfData data, CancellationToken cancellationToken = default) =>
-        Task.FromResult("https://test-storage/certs/test.pdf");
+    public Task<CertificateArtifact> GenerateAndStoreAsync(CertificatePdfData data, CancellationToken cancellationToken = default) =>
+        Task.FromResult(new CertificateArtifact("https://test-storage/certs/test.pdf", null, null));
 }

@@ -3,6 +3,7 @@ using MediatR;
 using PawTrack.Application.Common;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Advertising;
+using PawTrack.Domain.Audit;
 using PawTrack.Domain.Common;
 
 namespace PawTrack.Application.Advertising;
@@ -21,12 +22,24 @@ public sealed record BillboardDto(
     DateTimeOffset StartsAt,
     DateTimeOffset EndsAt,
     int Priority,
-    DateTimeOffset CreatedAt)
+    DateTimeOffset CreatedAt,
+    string AdvertiserName,
+    string Category,
+    string? TargetCanton,
+    string? ContractReference,
+    decimal BudgetCrc,
+    int FrequencyCapPerDay,
+    bool IsCategoryExclusive,
+    bool IsVip,
+    string CampaignStatus,
+    string? ReviewNote)
 {
     public static BillboardDto FromDomain(Billboard b) => new(
         b.Id, b.Title, b.Body, b.ImageUrl, b.CtaLabel, b.CtaUrl,
         b.Placement.ToString(), b.Status.ToString(),
-        b.StartsAt, b.EndsAt, b.Priority, b.CreatedAt);
+        b.StartsAt, b.EndsAt, b.Priority, b.CreatedAt, b.AdvertiserName,
+        b.Category.ToString(), b.TargetCanton, b.ContractReference, b.BudgetCrc,
+        b.FrequencyCapPerDay, b.IsCategoryExclusive, b.IsVip, b.CampaignStatus.ToString(), b.ReviewNote);
 }
 
 // ── Get active billboards (public, by placement) ──────────────────────────────
@@ -79,7 +92,15 @@ public sealed record CreateBillboardCommand(
     DateTimeOffset EndsAt,
     string? CtaLabel,
     string? CtaUrl,
-    int Priority = 0) : IRequest<Result<BillboardDto>>;
+    int Priority = 0,
+    string AdvertiserName = "Pendiente de anunciante",
+    string Category = "PetCare",
+    string? TargetCanton = null,
+    string? ContractReference = null,
+    decimal BudgetCrc = 0,
+    int FrequencyCapPerDay = 1,
+    bool IsCategoryExclusive = false,
+    bool IsVip = false) : IRequest<Result<BillboardDto>>;
 
 public sealed class CreateBillboardCommandValidator : AbstractValidator<CreateBillboardCommand>
 {
@@ -88,14 +109,21 @@ public sealed class CreateBillboardCommandValidator : AbstractValidator<CreateBi
         RuleFor(x => x.Title).NotEmpty().MaximumLength(120);
         RuleFor(x => x.Body).MaximumLength(300);
         RuleFor(x => x.CtaLabel).MaximumLength(60);
-        RuleFor(x => x.CtaUrl).Must(u => u is null || Uri.TryCreate(u, UriKind.Absolute, out _))
-            .WithMessage("CtaUrl must be a valid absolute URL.");
+        RuleFor(x => x.CtaUrl).Must(u => u is null ||
+                (Uri.TryCreate(u, UriKind.Absolute, out var uri) && uri.Scheme == Uri.UriSchemeHttps))
+            .WithMessage("CtaUrl must be a valid HTTPS URL.");
         RuleFor(x => x.EndsAt).GreaterThan(x => x.StartsAt)
             .WithMessage("EndsAt must be after StartsAt.");
         RuleFor(x => x.Placement)
             .Must(p => Enum.TryParse<BillboardPlacement>(p, ignoreCase: true, out _))
             .WithMessage("Invalid placement value.");
         RuleFor(x => x.Priority).InclusiveBetween(0, 100);
+        RuleFor(x => x.AdvertiserName).NotEmpty().MaximumLength(120);
+        RuleFor(x => x.Category).Must(c => Enum.TryParse<BillboardCategory>(c, true, out _));
+        RuleFor(x => x.TargetCanton).MaximumLength(100);
+        RuleFor(x => x.ContractReference).MaximumLength(100);
+        RuleFor(x => x.BudgetCrc).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.FrequencyCapPerDay).InclusiveBetween(1, 10);
     }
 }
 
@@ -106,10 +134,14 @@ public sealed class CreateBillboardCommandHandler(IBillboardRepository repo, IUn
     {
         if (!Enum.TryParse<BillboardPlacement>(request.Placement, ignoreCase: true, out var placement))
             return Result.Failure<BillboardDto>("Placement inválido.");
+        if (!Enum.TryParse<BillboardCategory>(request.Category, ignoreCase: true, out var category))
+            return Result.Failure<BillboardDto>("Categoría inválida.");
 
         var billboard = Billboard.Create(
             request.RequestingUserId, request.Title, request.Body, placement,
-            request.StartsAt, request.EndsAt, request.CtaLabel, request.CtaUrl, request.Priority);
+            request.StartsAt, request.EndsAt, request.CtaLabel, request.CtaUrl, request.Priority,
+            request.AdvertiserName, category, request.TargetCanton, request.ContractReference,
+            request.BudgetCrc, request.FrequencyCapPerDay, request.IsCategoryExclusive, request.IsVip);
 
         await repo.AddAsync(billboard, ct);
         await uow.SaveChangesAsync(ct);
@@ -127,7 +159,15 @@ public sealed record UpdateBillboardCommand(
     string? CtaUrl,
     DateTimeOffset StartsAt,
     DateTimeOffset EndsAt,
-    int Priority) : IRequest<Result<BillboardDto>>;
+    int Priority,
+    string AdvertiserName,
+    string Category,
+    string? TargetCanton,
+    string? ContractReference,
+    decimal BudgetCrc,
+    int FrequencyCapPerDay,
+    bool IsCategoryExclusive,
+    bool IsVip) : IRequest<Result<BillboardDto>>;
 
 public sealed class UpdateBillboardCommandHandler(IBillboardRepository repo, IUnitOfWork uow)
     : IRequestHandler<UpdateBillboardCommand, Result<BillboardDto>>
@@ -136,9 +176,15 @@ public sealed class UpdateBillboardCommandHandler(IBillboardRepository repo, IUn
     {
         var b = await repo.GetByIdAsync(request.BillboardId, ct);
         if (b is null) return Result.Failure<BillboardDto>("Billboard no encontrado.");
+        if (!Enum.TryParse<BillboardCategory>(request.Category, true, out var category))
+            return Result.Failure<BillboardDto>("Categoría inválida.");
+        if (request.BudgetCrc < 0 || request.FrequencyCapPerDay is < 1 or > 10)
+            return Result.Failure<BillboardDto>("Los términos comerciales son inválidos.");
 
-        b.Update(request.Title, request.Body, request.CtaLabel, request.CtaUrl,
-            request.StartsAt, request.EndsAt, request.Priority);
+        b.UpdateCampaign(request.Title, request.Body, request.CtaLabel, request.CtaUrl,
+            request.StartsAt, request.EndsAt, request.Priority, request.AdvertiserName,
+            category, request.TargetCanton, request.ContractReference, request.BudgetCrc,
+            request.FrequencyCapPerDay, request.IsCategoryExclusive, request.IsVip);
         repo.Update(b);
         await uow.SaveChangesAsync(ct);
         return Result.Success(BillboardDto.FromDomain(b));
@@ -170,6 +216,107 @@ public sealed class SetBillboardStatusCommandHandler(IBillboardRepository repo, 
         await uow.SaveChangesAsync(ct);
         return Result.Success(BillboardDto.FromDomain(b));
     }
+}
+
+public sealed record DeleteBillboardCommand(Guid BillboardId, Guid ActorUserId) : IRequest<Result<bool>>;
+
+public sealed class DeleteBillboardCommandHandler(
+    IBillboardRepository repo, IBlobStorageService blobStorage, IAuditLogRepository auditLog, IUnitOfWork uow)
+    : IRequestHandler<DeleteBillboardCommand, Result<bool>>
+{
+    public async Task<Result<bool>> Handle(DeleteBillboardCommand request, CancellationToken ct)
+    {
+        var billboard = await repo.GetByIdAsync(request.BillboardId, ct);
+        if (billboard is null) return Result.Failure<bool>("Billboard no encontrado.");
+        if (!string.IsNullOrWhiteSpace(billboard.ImageUrl)) await blobStorage.DeleteAsync(billboard.ImageUrl, ct);
+        await repo.DeleteAsync(billboard, ct);
+        await auditLog.AddAsync(AuditLogEntry.Create(request.ActorUserId, AuditAction.BillboardDeleted, "Billboard", billboard.Id.ToString()), ct);
+        await uow.SaveChangesAsync(ct);
+        return Result.Success(true);
+    }
+}
+
+public sealed record ReviewBillboardCampaignCommand(Guid BillboardId, Guid ReviewerUserId, bool Approve, string? Note)
+    : IRequest<Result<BillboardDto>>;
+
+public sealed class ReviewBillboardCampaignCommandHandler(
+    IBillboardRepository repo, IAuditLogRepository auditLog, IUnitOfWork uow)
+    : IRequestHandler<ReviewBillboardCampaignCommand, Result<BillboardDto>>
+{
+    public async Task<Result<BillboardDto>> Handle(ReviewBillboardCampaignCommand request, CancellationToken ct)
+    {
+        var billboard = await repo.GetByIdAsync(request.BillboardId, ct);
+        if (billboard is null) return Result.Failure<BillboardDto>("Billboard no encontrado.");
+
+        if (request.Approve)
+        {
+            if (!billboard.Approve(request.ReviewerUserId, request.Note))
+                return Result.Failure<BillboardDto>(billboard.ReviewNote ?? "No se pudo aprobar la campaña.");
+            await auditLog.AddAsync(AuditLogEntry.Create(request.ReviewerUserId, AuditAction.BillboardApproved, "Billboard", billboard.Id.ToString(), request.Note), ct);
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(request.Note)) return Result.Failure<BillboardDto>("El rechazo requiere una razón.");
+            billboard.Reject(request.ReviewerUserId, request.Note);
+            await auditLog.AddAsync(AuditLogEntry.Create(request.ReviewerUserId, AuditAction.BillboardRejected, "Billboard", billboard.Id.ToString(), request.Note), ct);
+        }
+
+        repo.Update(billboard);
+        await uow.SaveChangesAsync(ct);
+        return Result.Success(BillboardDto.FromDomain(billboard));
+    }
+}
+
+public sealed record SubmitBillboardCampaignCommand(Guid BillboardId, Guid ActorUserId)
+    : IRequest<Result<BillboardDto>>;
+
+public sealed class SubmitBillboardCampaignCommandHandler(
+    IBillboardRepository repo, IAuditLogRepository auditLog, IUnitOfWork uow)
+    : IRequestHandler<SubmitBillboardCampaignCommand, Result<BillboardDto>>
+{
+    public async Task<Result<BillboardDto>> Handle(SubmitBillboardCampaignCommand request, CancellationToken ct)
+    {
+        var billboard = await repo.GetByIdAsync(request.BillboardId, ct);
+        if (billboard is null) return Result.Failure<BillboardDto>("Billboard no encontrado.");
+        if (!billboard.SubmitForReview()) return Result.Failure<BillboardDto>("La campaña requiere anunciante e imagen antes de revisión.");
+        repo.Update(billboard);
+        await auditLog.AddAsync(AuditLogEntry.Create(request.ActorUserId, AuditAction.BillboardSubmittedForReview, "Billboard", billboard.Id.ToString()), ct);
+        await uow.SaveChangesAsync(ct);
+        return Result.Success(BillboardDto.FromDomain(billboard));
+    }
+}
+
+public sealed record TrackBillboardDeliveryCommand(Guid BillboardId, string EventType, string EventKeyHash, string VisitorHash, string? Canton)
+    : IRequest<Result<bool>>;
+
+public sealed class TrackBillboardDeliveryCommandHandler(IBillboardRepository repo, IUnitOfWork uow)
+    : IRequestHandler<TrackBillboardDeliveryCommand, Result<bool>>
+{
+    public async Task<Result<bool>> Handle(TrackBillboardDeliveryCommand request, CancellationToken ct)
+    {
+        if (!Enum.TryParse<BillboardDeliveryEventType>(request.EventType, true, out var eventType))
+            return Result.Failure<bool>("Tipo de evento inválido.");
+        var billboard = await repo.GetByIdAsync(request.BillboardId, ct);
+        if (billboard is null || !billboard.IsCurrentlyActive) return Result.Failure<bool>("Campaña no activa.");
+        if (await repo.HasDeliveryEventAsync(billboard.Id, eventType, request.EventKeyHash, ct)) return Result.Success(false);
+        if (eventType == BillboardDeliveryEventType.Impression &&
+            await repo.CountImpressionsByVisitorTodayAsync(billboard.Id, request.VisitorHash, ct) >= billboard.FrequencyCapPerDay)
+            return Result.Failure<bool>("Límite diario de impresiones alcanzado.");
+
+        await repo.AddDeliveryEventAsync(BillboardDeliveryEvent.Record(billboard.Id, eventType, request.EventKeyHash, request.VisitorHash, request.Canton), ct);
+        await uow.SaveChangesAsync(ct);
+        return Result.Success(true);
+    }
+}
+
+public sealed record GetBillboardCampaignMetricsQuery(Guid BillboardId, DateOnly From, DateOnly To)
+    : IRequest<BillboardCampaignMetrics>;
+
+public sealed class GetBillboardCampaignMetricsQueryHandler(IBillboardRepository repo)
+    : IRequestHandler<GetBillboardCampaignMetricsQuery, BillboardCampaignMetrics>
+{
+    public Task<BillboardCampaignMetrics> Handle(GetBillboardCampaignMetricsQuery request, CancellationToken ct) =>
+        repo.GetMetricsAsync(request.BillboardId, request.From, request.To, ct);
 }
 
 // ── Upload billboard image (Admin) ────────────────────────────────────────────

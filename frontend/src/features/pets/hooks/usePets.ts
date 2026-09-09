@@ -3,11 +3,12 @@ import { petsApi } from "../api/petsApi";
 
 export const PETS_QUERY_KEY = ["pets"] as const;
 
-export const usePets = () =>
+export const usePets = (enabled = true) =>
   useQuery({
     queryKey: PETS_QUERY_KEY,
     queryFn: () => petsApi.getMyPets(),
     staleTime: 30_000,
+    enabled,
   });
 
 export const usePetDetail = (id: string) =>

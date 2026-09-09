@@ -18,6 +18,7 @@ export interface PublicServiceProviderDto {
   lat: number;
   lng: number;
   phoneNumber: string | null;
+  whatsAppNumber: string | null;
   website: string | null;
   logoUrl: string | null;
   isFeatured: boolean;
@@ -160,6 +161,8 @@ export const serviceProvidersApi = {
     lng: number;
     phoneNumber?: string;
     website?: string;
+    whatsAppNumber?: string;
+    isWhatsAppContactEnabled?: boolean;
   }): Promise<PublicServiceProviderDto> =>
     apiClient
       .put<PublicServiceProviderDto>("/service-providers/profile", data)

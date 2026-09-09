@@ -12,11 +12,16 @@ namespace PawTrack.Application.Clinics.Commands.ManageApiKey;
 public sealed record ClinicApiKeyDto(
     Guid Id, string Label, bool IsRevoked,
     DateTimeOffset CreatedAt, DateTimeOffset? LastUsedAt, DateTimeOffset ExpiresAt,
+    IReadOnlyList<string> Scopes,
     string? RawKey = null);  // only populated on create
 
 // ── Create ────────────────────────────────────────────────────────────────────
 
-public sealed record CreateClinicApiKeyCommand(Guid ClinicId, Guid RequestingUserId, string Label)
+public sealed record CreateClinicApiKeyCommand(
+    Guid ClinicId,
+    Guid RequestingUserId,
+    string Label,
+    IReadOnlyList<string>? Scopes = null)
     : IRequest<Result<ClinicApiKeyDto>>;
 
 public sealed class CreateClinicApiKeyCommandHandler(
@@ -36,6 +41,8 @@ public sealed class CreateClinicApiKeyCommandHandler(
         var sub = await subscriptionRepository.GetActiveForClinicAsync(request.ClinicId, cancellationToken);
         if (sub is null || sub.Tier < SubscriptionTier.ClinicPartner)
             return Result.Failure<ClinicApiKeyDto>("Las API Keys requieren el plan Clínica Partner.");
+        if (request.Scopes is not null && request.Scopes.Any(scope => !ClinicApiScope.All.Contains(scope)))
+            return Result.Failure<ClinicApiKeyDto>("La solicitud contiene un scope de API no permitido.");
 
         // Generate a random 32-byte key and hash it for storage
         var rawBytes = RandomNumberGenerator.GetBytes(32);
@@ -43,11 +50,11 @@ public sealed class CreateClinicApiKeyCommandHandler(
             .Replace("+", "-").Replace("/", "_").Replace("=", "");
         var hash = ClinicApiKeyHasher.Compute(rawKey);
 
-        var key = ClinicApiKey.Create(request.ClinicId, hash, request.Label);
+        var key = ClinicApiKey.Create(request.ClinicId, hash, request.Label, scopes: request.Scopes);
         await keyRepository.AddAsync(key, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(new ClinicApiKeyDto(key.Id, key.Label, false, key.CreatedAt, null, key.ExpiresAt, rawKey));
+        return Result.Success(new ClinicApiKeyDto(key.Id, key.Label, false, key.CreatedAt, null, key.ExpiresAt, key.GetScopes(), rawKey));
     }
 }
 
@@ -105,7 +112,7 @@ public sealed class GetClinicApiKeysQueryHandler(
 
         var keys = await keyRepository.GetForClinicAsync(request.ClinicId, cancellationToken);
         var dtos = keys
-            .Select(k => new ClinicApiKeyDto(k.Id, k.Label, k.IsRevoked, k.CreatedAt, k.LastUsedAt, k.ExpiresAt))
+            .Select(k => new ClinicApiKeyDto(k.Id, k.Label, k.IsRevoked, k.CreatedAt, k.LastUsedAt, k.ExpiresAt, k.GetScopes()))
             .ToList()
             .AsReadOnly();
 
@@ -135,15 +142,19 @@ public sealed class RotateClinicApiKeyCommandHandler(
         var oldKey = keys.FirstOrDefault(k => k.Id == request.KeyId);
         if (oldKey is null)
             return Result.Failure<ClinicApiKeyDto>("API key not found.");
-        if (oldKey.IsRevoked)
-            return Result.Failure<ClinicApiKeyDto>("Esta key ya fue revocada o rotada.");
+        if (!oldKey.IsUsable)
+            return Result.Failure<ClinicApiKeyDto>("Esta key ya fue revocada, rotada o expirada.");
 
         var rawBytes = RandomNumberGenerator.GetBytes(32);
         var rawKey = "ptwk_" + Convert.ToBase64String(rawBytes)
             .Replace("+", "-").Replace("/", "_").Replace("=", "");
         var hash = ClinicApiKeyHasher.Compute(rawKey);
 
-        var newKey = ClinicApiKey.Create(request.ClinicId, hash, oldKey.Label);
+        var newKey = ClinicApiKey.Create(
+            request.ClinicId,
+            hash,
+            oldKey.Label,
+            scopes: oldKey.GetScopes());
         await keyRepository.AddAsync(newKey, cancellationToken);
 
         oldKey.MarkRotatedTo(newKey.Id);
@@ -152,6 +163,6 @@ public sealed class RotateClinicApiKeyCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new ClinicApiKeyDto(
-            newKey.Id, newKey.Label, false, newKey.CreatedAt, null, newKey.ExpiresAt, rawKey));
+            newKey.Id, newKey.Label, false, newKey.CreatedAt, null, newKey.ExpiresAt, newKey.GetScopes(), rawKey));
     }
 }

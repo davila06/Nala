@@ -558,6 +558,15 @@ select option {
   animation: stagger-in 0.4s var(--ease-spring) both;
 }
 
+/* ── Public map: Leaflet zoom control offset ─────────────────────────────────
+   Must stay OUTSIDE any @layer — leaflet.css is an unlayered stylesheet, and
+   per the CSS Cascade spec, unlayered rules always beat layered ones
+   regardless of specificity, so a rule inside @layer utilities can never
+   override Leaflet's own `.leaflet-top { top: 0 }`. */
+.public-map-leaflet .leaflet-top {
+  top: 104px !important;
+}
+
 .stagger-grid > *:nth-child(1) {
   animation-delay: 0ms;
 }

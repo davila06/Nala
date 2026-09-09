@@ -9,10 +9,19 @@ public enum AuditAction
     // Clinics
     ClinicApproved,
     ClinicRejected,
+    ClinicProfileUpdated,
 
     // Subscriptions
     SubscriptionActivated,
     SubscriptionCancelled,
+
+    // Advertising
+    BillboardSubmittedForReview,
+    BillboardApproved,
+    BillboardRejected,
+    BillboardActivated,
+    BillboardPaused,
+    BillboardDeleted,
 
     // Adoptions
     AnimalRemoved,
@@ -23,6 +32,7 @@ public enum AuditAction
     StoreApproved,
     StoreRejected,
     StoreSuspended,
+    StoreAnalyticsExported,
 
     // Service providers
     ServiceProviderApproved,

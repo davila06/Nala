@@ -5,6 +5,7 @@ import { AnimalCard } from "../components/AnimalCard";
 import { AdoptionFiltersBar } from "../components/AdoptionFiltersBar";
 import { useAdoptableAnimals } from "../hooks/useAdoptions";
 import type { AdoptionFilters } from "../api/adoptionsApi";
+import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
 
 export default function AdoptionDirectoryPage() {
   const [filters, setFilters] = useState<AdoptionFilters>({
@@ -36,6 +37,7 @@ export default function AdoptionDirectoryPage() {
             {data && ` · ${data.totalCount} disponibles`}
           </p>
         </div>
+        <BillboardBanner placement="AdoptionDirectory" />
 
         {/* Filters */}
         <AdoptionFiltersBar filters={filters} onChange={setFilters} />

@@ -14,6 +14,8 @@ public sealed class ServiceProvider
     public decimal Lng { get; private set; }
     public string ContactEmail { get; private set; } = string.Empty;
     public string? PhoneNumber { get; private set; }
+    public string? WhatsAppNumber { get; private set; }
+    public bool IsWhatsAppContactEnabled { get; private set; }
     public string? Website { get; private set; }
     public string? LogoUrl { get; private set; }
     public bool IsFeatured { get; private set; }
@@ -58,7 +60,7 @@ public sealed class ServiceProvider
     {
         Status = ServiceProviderStatus.Active;
         SuspensionReason = null;
-        // First approval grants a one-time 30-day Verified trial (docs/precios.md).
+        // First approval grants a one-time 30-day Verified trial.
         if (TrialEndsAt is null && !IsMembershipManual)
         {
             MembershipTier = ProviderMembershipTier.Verified;
@@ -75,6 +77,14 @@ public sealed class ServiceProvider
     }
     public void SetFeatured(bool value) => IsFeatured = value;
     public void SetLogoUrl(string url) => LogoUrl = url;
+
+    public void UpdateWhatsAppContact(string? whatsAppNumber, bool enabled)
+    {
+        var normalized = NormalizeCostaRicaMobile(whatsAppNumber);
+        WhatsAppNumber = normalized;
+        IsWhatsAppContactEnabled = enabled && normalized is not null;
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
 
     /// <summary>Admin grant/renewal. Manual assignments are exempt from automatic trial-expiration downgrades.</summary>
     public void SetMembership(ProviderMembershipTier tier, bool manual)
@@ -113,5 +123,15 @@ public sealed class ServiceProvider
         PhoneNumber = phoneNumber is null ? PhoneNumber : (phoneNumber.Trim() is { Length: > 0 } phone ? phone : null);
         Website = website is null ? Website : (website.Trim() is { Length: > 0 } site ? site : null);
         UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    private static string? NormalizeCostaRicaMobile(string? number)
+    {
+        if (string.IsNullOrWhiteSpace(number)) return null;
+        var digits = new string(number.Where(char.IsDigit).ToArray());
+        if (digits.Length == 8) digits = $"506{digits}";
+        if (digits.Length != 11 || !digits.StartsWith("506", StringComparison.Ordinal) || digits[3] is not ('6' or '7' or '8'))
+            throw new ArgumentException("El WhatsApp debe ser un número móvil de Costa Rica.");
+        return digits;
     }
 }

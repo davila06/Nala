@@ -15,6 +15,7 @@ import { EmergencyVetPanel } from "../components/EmergencyVetPanel";
 import { useCaseRoom } from "../hooks/useCaseRoom";
 import { EmptyState } from "@/shared/ui/Card";
 import type { SponsoredClinicDto } from "../api/caseRoomApi";
+import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
 
 // Lazy-load the 3D radar (heavy WebGL — load only for map tab)
 const SearchRadar3D = lazy(() =>
@@ -156,6 +157,7 @@ export default function CaseRoomPage() {
 
       {/* ── Sponsored clinic banner ──────────────────────────────────────────── */}
       {sponsoredClinic && <SponsoredClinicBanner clinic={sponsoredClinic} />}
+      <BillboardBanner placement="CaseRoom" className="mb-4" />
 
       {/* ── Emergency vet panel ─────────────────────────────────────────────── */}
       <div className="mb-4">

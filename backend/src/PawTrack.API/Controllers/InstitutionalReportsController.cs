@@ -22,6 +22,8 @@ public sealed class InstitutionalReportsController(ISender sender, IConfiguratio
         CancellationToken cancellationToken = default)
     {
         if (!configuration.GetValue("Features:RegulatoryReportsEnabled", true)) return NotFound();
+        if (scope is ExportScope.Admin or ExportScope.Nala && !User.IsInRole("Admin"))
+            return Forbid();
         var result = await sender.Send(new GetReportCatalogQuery(scope), cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);
     }

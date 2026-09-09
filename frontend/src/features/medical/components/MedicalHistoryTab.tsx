@@ -1114,15 +1114,25 @@ function ClinicAccessLogSection({ petId }: { petId: string }) {
           >
             <span className="text-xs font-medium text-sand-700">
               🏥 {l.clinicName ?? "Clínica"}
+              <span
+                className={`ml-2 ${l.outcome === "allowed" ? "text-rescue-600" : "text-danger-600"}`}
+              >
+                {l.outcome === "allowed" ? "Permitido" : "Denegado"}
+              </span>
             </span>
-            <span className="text-xs text-sand-400">
-              {new Date(l.accessedAt).toLocaleDateString("es-CR", {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+            <span className="text-right text-xs text-sand-400">
+              <span className="block">
+                {new Date(l.accessedAt).toLocaleDateString("es-CR", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+              <span className="block text-[10px] text-sand-500">
+                {l.accessMethod.replaceAll("_", " ")} · {l.permission}
+              </span>
             </span>
           </li>
         ))}

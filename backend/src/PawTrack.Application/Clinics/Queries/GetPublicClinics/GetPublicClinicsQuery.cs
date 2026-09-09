@@ -9,7 +9,6 @@ public sealed record PublicClinicDto(
     Guid Id,
     string Name,
     string Address,
-    string ContactEmail,
     string? PhoneNumber,
     string? Website,
     string? LogoUrl,
@@ -18,16 +17,75 @@ public sealed record PublicClinicDto(
     bool IsFeatured,
     bool IsEmergency24h,
     string? EmergencyPhone,
+    string? WhatsAppNumber,
     string Status)
 {
     public static PublicClinicDto FromDomain(Clinic c) => new(
-        c.Id, c.Name, c.Address, c.ContactEmail,
+        c.Id, c.Name, c.Address,
         c.PhoneNumber, c.Website, c.LogoUrl,
         c.Lat, c.Lng, c.IsFeatured,
-        c.IsEmergency24h, c.EmergencyPhone, c.Status.ToString());
+        c.IsEmergency24h, c.EmergencyPhone, c.IsWhatsAppContactEnabled ? c.WhatsAppNumber : null, c.Status.ToString());
 }
 
-public sealed record GetPublicClinicsQuery(double? Lat, double? Lng, double RadiusKm = 80)
+public sealed record PublicClinicProfileDto(
+    Guid Id,
+    string Name,
+    string Address,
+    string? PhoneNumber,
+    string? Website,
+    string? LogoUrl,
+    string? Description,
+    string? Services,
+    string? OpeningHours,
+    decimal Lat,
+    decimal Lng,
+    bool IsFeatured,
+    bool IsEmergency24h,
+    string? EmergencyPhone,
+    string? WhatsAppNumber)
+{
+    public static PublicClinicProfileDto FromDomain(Clinic clinic) => new(
+        clinic.Id,
+        clinic.Name,
+        clinic.Address,
+        clinic.PhoneNumber,
+        clinic.Website,
+        clinic.LogoUrl,
+        clinic.Description,
+        clinic.Services,
+        clinic.OpeningHours,
+        clinic.Lat,
+        clinic.Lng,
+        clinic.IsFeatured,
+        clinic.IsEmergency24h,
+        clinic.EmergencyPhone, clinic.IsWhatsAppContactEnabled ? clinic.WhatsAppNumber : null);
+}
+
+public sealed record GetPublicClinicProfileQuery(Guid ClinicId)
+    : IRequest<Result<PublicClinicProfileDto?>>;
+
+public sealed class GetPublicClinicProfileQueryHandler(IClinicRepository clinicRepository)
+    : IRequestHandler<GetPublicClinicProfileQuery, Result<PublicClinicProfileDto?>>
+{
+    public async Task<Result<PublicClinicProfileDto?>> Handle(
+        GetPublicClinicProfileQuery request,
+        CancellationToken cancellationToken)
+    {
+        var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
+        return Result.Success(clinic?.Status == ClinicStatus.Active
+            ? PublicClinicProfileDto.FromDomain(clinic)
+            : null);
+    }
+}
+
+public sealed record GetPublicClinicsQuery(
+    double? Lat,
+    double? Lng,
+    double RadiusKm = 80,
+    string? Search = null,
+    bool EmergencyOnly = false,
+    int Page = 1,
+    int PageSize = 24)
     : IRequest<Result<IReadOnlyList<PublicClinicDto>>>;
 
 public sealed class GetPublicClinicsQueryHandler(IClinicRepository clinicRepository)
@@ -36,7 +94,8 @@ public sealed class GetPublicClinicsQueryHandler(IClinicRepository clinicReposit
     public async Task<Result<IReadOnlyList<PublicClinicDto>>> Handle(
         GetPublicClinicsQuery request, CancellationToken cancellationToken)
     {
-        var clinics = await clinicRepository.GetAllActiveAsync(cancellationToken);
+        var (clinics, _) = await clinicRepository.GetActivePageAsync(
+            request.Search, request.EmergencyOnly, request.Page, request.PageSize, cancellationToken);
 
         IReadOnlyList<PublicClinicDto> result = clinics
             .Select(PublicClinicDto.FromDomain)

@@ -54,4 +54,29 @@ public sealed class ClinicApiKeyDomainTests
         oldKey.IsRevoked.Should().BeTrue();
         oldKey.RotatedToKeyId.Should().Be(newKeyId);
     }
+
+    [Fact]
+    public void HasScope_OnlyAllowsGrantedOperations()
+    {
+        var key = ClinicApiKey.Create(
+            Guid.NewGuid(),
+            "hash",
+            "HIS read",
+            scopes: [ClinicApiScope.MedicalRead, ClinicApiScope.Certificates]);
+
+        key.HasScope(ClinicApiScope.MedicalRead).Should().BeTrue();
+        key.HasScope(ClinicApiScope.MedicalWrite).Should().BeFalse();
+        key.HasScope(ClinicApiScope.Certificates).Should().BeTrue();
+    }
+
+    [Fact]
+    public void MedicalReadKey_DoesNotGrantMedicalExport()
+    {
+        var key = ClinicApiKey.Create(
+            Guid.NewGuid(), "hash", "Read-only HIS",
+            scopes: [ClinicApiScope.MedicalRead]);
+
+        key.HasScope(ClinicApiScope.MedicalRead).Should().BeTrue();
+        key.HasScope(ClinicApiScope.MedicalExport).Should().BeFalse();
+    }
 }

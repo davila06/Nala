@@ -5,25 +5,38 @@ import { Skeleton } from "@/shared/ui/Spinner";
 import {
   useAdminBillboards,
   useCreateBillboard,
+  useDeleteBillboard,
+  useBillboardMetrics,
+  useReviewBillboard,
   useSetBillboardStatus,
+  useSubmitBillboard,
+  useUpdateBillboard,
   useUploadBillboardImage,
 } from "@/features/advertising/hooks/useBillboards";
 import type {
   BillboardDto,
+  BillboardCategory,
   BillboardPlacement,
 } from "@/features/advertising/api/billboardsApi";
+import { BILLBOARD_PLACEMENTS } from "@/features/advertising/api/billboardsApi";
 
-const PLACEMENTS: BillboardPlacement[] = [
-  "Map",
-  "Dashboard",
-  "Directory",
-  "Feed",
-];
+const PLACEMENTS: readonly BillboardPlacement[] = BILLBOARD_PLACEMENTS;
 const PLACEMENT_LABELS: Record<BillboardPlacement, string> = {
   Map: "🗺️ Mapa",
   Dashboard: "🏠 Dashboard",
   Directory: "🗂️ Directorio",
   Feed: "📋 Feed",
+  PublicPetProfile: "🏷️ Perfil público de mascota",
+  ScanHistory: "📈 Historial de escaneos",
+  CaseRoom: "🚨 Centro de comando",
+  ClinicDirectory: "🏥 Directorio de clínicas",
+  ClinicProfile: "🏥 Perfil de clínica",
+  ServiceProviderDirectory: "🧰 Directorio de servicios",
+  ServiceProviderProfile: "🧰 Perfil de servicio",
+  AdoptionDirectory: "🐾 Directorio de adopciones",
+  AdoptionFair: "🎪 Ferias de adopción",
+  PetRegistration: "✅ Registro de mascota",
+  CollarActivation: "📡 Activación de collar",
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -35,9 +48,39 @@ const STATUS_COLORS: Record<string, string> = {
 
 function BillboardRow({ b }: { b: BillboardDto }) {
   const setStatus = useSetBillboardStatus();
+  const submit = useSubmitBillboard();
+  const review = useReviewBillboard();
+  const { data: metrics } = useBillboardMetrics(
+    b.id,
+    b.campaignStatus === "Approved" || b.status === "Active",
+  );
   const uploadImg = useUploadBillboardImage();
+  const remove = useDeleteBillboard();
+  const update = useUpdateBillboard();
   const fileRef = useRef<HTMLInputElement>(null);
+  const [rejectionNote, setRejectionNote] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState({
+    title: b.title,
+    body: b.body ?? "",
+    ctaLabel: b.ctaLabel ?? "",
+    ctaUrl: b.ctaUrl ?? "",
+    startsAt: b.startsAt.slice(0, 16),
+    endsAt: b.endsAt.slice(0, 16),
+    priority: b.priority,
+    advertiserName: b.advertiserName,
+    category: b.category,
+    targetCanton: b.targetCanton ?? "",
+    contractReference: b.contractReference ?? "",
+    budgetCrc: b.budgetCrc,
+    frequencyCapPerDay: b.frequencyCapPerDay,
+    isCategoryExclusive: b.isCategoryExclusive,
+    isVip: b.isVip,
+  });
   const MAX_BYTES = 5 * 1024 * 1024;
+  const daysRemaining = Math.ceil(
+    (new Date(b.endsAt).getTime() - Date.now()) / 86_400_000,
+  );
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -87,25 +130,147 @@ function BillboardRow({ b }: { b: BillboardDto }) {
             {new Date(b.startsAt).toLocaleDateString("es-CR")} →{" "}
             {new Date(b.endsAt).toLocaleDateString("es-CR")}
           </p>
+          <p className="text-[10px] font-medium text-sand-500">
+            {b.advertiserName} · {b.category} · {b.campaignStatus}
+          </p>
+          <p className="text-[10px] text-sand-500">
+            {b.targetCanton ?? "Cobertura nacional"} · {b.frequencyCapPerDay}{" "}
+            por día · ₡{b.budgetCrc.toLocaleString("es-CR")}
+            {b.isCategoryExclusive ? " · Exclusiva" : ""}
+            {b.isVip ? " · VIP" : ""}
+          </p>
+          {daysRemaining <= 7 && b.status === "Active" && (
+            <p className="text-[10px] font-semibold text-warn-700">
+              Vence en {Math.max(daysRemaining, 0)} días. Renovar o pausar.
+            </p>
+          )}
+          {b.budgetCrc === 0 && (
+            <p className="text-[10px] font-semibold text-danger-600">
+              Sin presupuesto registrado: no usar para facturación.
+            </p>
+          )}
+          {metrics && (
+            <p className="text-[10px] text-sand-500">
+              {metrics.impressions} impresiones · {metrics.clicks} clics · CTR{" "}
+              {metrics.clickThroughRate}% · {metrics.conversions} conversiones
+            </p>
+          )}
         </div>
       </div>
 
       <div className="flex gap-2 flex-wrap">
-        {b.status !== "Active" && b.status !== "Expired" && (
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => setEditing((value) => !value)}
+        >
+          {editing ? "Cancelar edición" : "Editar"}
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => {
+            if (
+              !window.confirm(
+                `Eliminar la campaña ${b.title}? Esta acción no se puede deshacer.`,
+              )
+            )
+              return;
+            remove.mutate(b.id, {
+              onSuccess: () => toast.success("Campaña eliminada"),
+              onError: () => toast.error("No se pudo eliminar"),
+            });
+          }}
+        >
+          Eliminar
+        </Button>
+        {b.campaignStatus === "Draft" && b.imageUrl && (
           <Button
             size="sm"
+            variant="secondary"
             onClick={() =>
-              setStatus.mutate(
-                { id: b.id, status: "active" },
-                {
-                  onSuccess: () => toast.success("Activada"),
-                },
-              )
+              submit.mutate(b.id, {
+                onSuccess: () => toast.success("Enviada a revisión"),
+                onError: () => toast.error("Completa los datos de campaña"),
+              })
             }
           >
-            Activar
+            Enviar a revisión
           </Button>
         )}
+        {b.campaignStatus === "PendingReview" && (
+          <>
+            <div className="w-full">
+              <label
+                htmlFor={`billboard-rejection-${b.id}`}
+                className="sr-only"
+              >
+                Motivo de rechazo
+              </label>
+              <textarea
+                id={`billboard-rejection-${b.id}`}
+                value={rejectionNote}
+                onChange={(event) => setRejectionNote(event.target.value)}
+                rows={2}
+                placeholder="Motivo de rechazo o ajustes requeridos"
+                className="w-full rounded-lg border border-sand-200 px-3 py-2 text-xs"
+              />
+            </div>
+            <Button
+              size="sm"
+              onClick={() =>
+                review.mutate(
+                  { id: b.id, approve: true },
+                  {
+                    onSuccess: () => toast.success("Campaña aprobada"),
+                    onError: () =>
+                      toast.error(
+                        "Requiere otro operador y categoría permitida",
+                      ),
+                  },
+                )
+              }
+            >
+              Aprobar
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() =>
+                review.mutate(
+                  {
+                    id: b.id,
+                    approve: false,
+                    note: rejectionNote,
+                  },
+                  {
+                    onSuccess: () => toast.success("Campaña rechazada"),
+                    onError: () => toast.error("Describe el motivo de rechazo"),
+                  },
+                )
+              }
+            >
+              Rechazar
+            </Button>
+          </>
+        )}
+        {b.campaignStatus === "Approved" &&
+          b.status !== "Active" &&
+          b.status !== "Expired" && (
+            <Button
+              size="sm"
+              onClick={() =>
+                setStatus.mutate(
+                  { id: b.id, status: "active" },
+                  {
+                    onSuccess: () => toast.success("Activada"),
+                  },
+                )
+              }
+            >
+              Activar
+            </Button>
+          )}
         {b.status === "Active" && (
           <Button
             size="sm"
@@ -137,6 +302,160 @@ function BillboardRow({ b }: { b: BillboardDto }) {
           onChange={handleFile}
         />
       </div>
+      {editing && (
+        <div className="grid grid-cols-2 gap-2 border-t border-sand-100 pt-3">
+          <input
+            value={draft.title}
+            onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+            aria-label="Editar título"
+            className="col-span-2 rounded-lg border border-sand-200 px-3 py-2 text-sm"
+          />
+          <textarea
+            value={draft.body}
+            onChange={(e) => setDraft({ ...draft, body: e.target.value })}
+            aria-label="Editar descripción"
+            className="col-span-2 rounded-lg border border-sand-200 px-3 py-2 text-sm"
+          />
+          <input
+            value={draft.ctaLabel}
+            onChange={(e) => setDraft({ ...draft, ctaLabel: e.target.value })}
+            placeholder="CTA"
+            className="rounded-lg border border-sand-200 px-3 py-2 text-sm"
+          />
+          <input
+            value={draft.ctaUrl}
+            onChange={(e) => setDraft({ ...draft, ctaUrl: e.target.value })}
+            placeholder="https://"
+            className="rounded-lg border border-sand-200 px-3 py-2 text-sm"
+          />
+          <input
+            value={draft.advertiserName}
+            onChange={(e) =>
+              setDraft({ ...draft, advertiserName: e.target.value })
+            }
+            placeholder="Anunciante"
+            className="rounded-lg border border-sand-200 px-3 py-2 text-sm"
+          />
+          <select
+            value={draft.category}
+            onChange={(e) =>
+              setDraft({
+                ...draft,
+                category: e.target.value as BillboardCategory,
+              })
+            }
+            className="rounded-lg border border-sand-200 px-3 py-2 text-sm"
+          >
+            <option value="PetCare">Cuidado</option>
+            <option value="EmergencyVeterinary">Emergencia veterinaria</option>
+            <option value="RecoveryService">Recuperación</option>
+            <option value="GpsAndIdentification">GPS e identificación</option>
+            <option value="PetInsurance">Seguro</option>
+            <option value="FoodAndNutrition">Alimentación</option>
+            <option value="AdoptionSupport">Adopción responsable</option>
+          </select>
+          <input
+            value={draft.targetCanton}
+            onChange={(e) =>
+              setDraft({ ...draft, targetCanton: e.target.value })
+            }
+            placeholder="Cantón"
+            className="rounded-lg border border-sand-200 px-3 py-2 text-sm"
+          />
+          <input
+            value={draft.contractReference}
+            onChange={(e) =>
+              setDraft({ ...draft, contractReference: e.target.value })
+            }
+            placeholder="Contrato"
+            className="rounded-lg border border-sand-200 px-3 py-2 text-sm"
+          />
+          <input
+            type="number"
+            min="0"
+            value={draft.budgetCrc}
+            onChange={(e) =>
+              setDraft({ ...draft, budgetCrc: Number(e.target.value) })
+            }
+            aria-label="Presupuesto CRC"
+            className="rounded-lg border border-sand-200 px-3 py-2 text-sm"
+          />
+          <input
+            type="number"
+            min="1"
+            max="10"
+            value={draft.frequencyCapPerDay}
+            onChange={(e) =>
+              setDraft({ ...draft, frequencyCapPerDay: Number(e.target.value) })
+            }
+            aria-label="Frecuencia diaria"
+            className="rounded-lg border border-sand-200 px-3 py-2 text-sm"
+          />
+          <input
+            type="datetime-local"
+            value={draft.startsAt}
+            onChange={(e) => setDraft({ ...draft, startsAt: e.target.value })}
+            className="rounded-lg border border-sand-200 px-3 py-2 text-sm"
+          />
+          <input
+            type="datetime-local"
+            value={draft.endsAt}
+            onChange={(e) => setDraft({ ...draft, endsAt: e.target.value })}
+            className="rounded-lg border border-sand-200 px-3 py-2 text-sm"
+          />
+          <label className="col-span-2 flex items-center gap-2 text-xs text-sand-700">
+            <input
+              type="checkbox"
+              checked={draft.isCategoryExclusive}
+              onChange={(e) =>
+                setDraft({ ...draft, isCategoryExclusive: e.target.checked })
+              }
+            />{" "}
+            Exclusividad de categoría
+          </label>
+          <label className="col-span-2 flex items-center gap-2 text-xs font-semibold text-warn-700">
+            <input
+              type="checkbox"
+              checked={draft.isVip}
+              onChange={(e) => setDraft({ ...draft, isVip: e.target.checked })}
+            />
+            Servicio VIP: prioridad destacada sobre campañas estándar
+          </label>
+          <Button
+            size="sm"
+            className="col-span-2"
+            loading={update.isPending}
+            onClick={() =>
+              update.mutate(
+                {
+                  id: b.id,
+                  data: {
+                    ...draft,
+                    body: draft.body || undefined,
+                    ctaLabel: draft.ctaLabel || undefined,
+                    ctaUrl: draft.ctaUrl || undefined,
+                    targetCanton: draft.targetCanton || undefined,
+                    contractReference: draft.contractReference || undefined,
+                    startsAt: new Date(draft.startsAt).toISOString(),
+                    endsAt: new Date(draft.endsAt).toISOString(),
+                  },
+                },
+                {
+                  onSuccess: () => {
+                    toast.success(
+                      "Campaña actualizada; requiere nueva revisión",
+                    );
+                    setEditing(false);
+                  },
+                  onError: () => toast.error("No se pudo actualizar"),
+                },
+              )
+            }
+          >
+            Guardar cambios
+          </Button>
+        </div>
+      )}
     </li>
   );
 }
@@ -152,6 +471,14 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
     ctaLabel: "",
     ctaUrl: "",
     priority: 0,
+    advertiserName: "",
+    category: "PetCare" as BillboardCategory,
+    targetCanton: "",
+    contractReference: "",
+    budgetCrc: 0,
+    frequencyCapPerDay: 1,
+    isCategoryExclusive: false,
+    isVip: false,
   });
 
   const handleSubmit = () => {
@@ -193,6 +520,57 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         Nueva valla publicitaria
       </h3>
       <div className="grid grid-cols-2 gap-3">
+        <div className="col-span-2">
+          <label
+            htmlFor="billboard-advertiser"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
+            Anunciante *
+          </label>
+          <input
+            id="billboard-advertiser"
+            {...field("advertiserName")}
+            placeholder="Nombre comercial del anunciante"
+            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+          />
+        </div>
+        <div>
+          <label
+            htmlFor="billboard-category"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
+            Categoría *
+          </label>
+          <select
+            id="billboard-category"
+            {...field("category")}
+            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm"
+          >
+            <option value="PetCare">Cuidado</option>
+            <option value="EmergencyVeterinary">
+              Veterinaria de emergencia
+            </option>
+            <option value="RecoveryService">Recuperación</option>
+            <option value="GpsAndIdentification">GPS e identificación</option>
+            <option value="PetInsurance">Seguro</option>
+            <option value="FoodAndNutrition">Alimentación</option>
+            <option value="AdoptionSupport">Adopción responsable</option>
+          </select>
+        </div>
+        <div>
+          <label
+            htmlFor="billboard-canton"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
+            Cantón objetivo
+          </label>
+          <input
+            id="billboard-canton"
+            {...field("targetCanton")}
+            placeholder="Ej. Heredia"
+            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm"
+          />
+        </div>
         <div className="col-span-2">
           <label
             htmlFor="billboard-title"
@@ -258,6 +636,80 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         </div>
         <div>
           <label
+            htmlFor="billboard-budget"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
+            Presupuesto CRC
+          </label>
+          <input
+            type="number"
+            min="0"
+            id="billboard-budget"
+            {...field("budgetCrc")}
+            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label
+            htmlFor="billboard-frequency"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
+            Máx. por día
+          </label>
+          <input
+            type="number"
+            min="1"
+            max="10"
+            id="billboard-frequency"
+            {...field("frequencyCapPerDay")}
+            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm"
+          />
+        </div>
+        <div className="col-span-2">
+          <label
+            htmlFor="billboard-contract"
+            className="mb-1 block text-xs font-medium text-sand-600"
+          >
+            Contrato / orden de compra
+          </label>
+          <input
+            id="billboard-contract"
+            {...field("contractReference")}
+            placeholder="CTR-2026-001"
+            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm"
+          />
+        </div>
+        <label className="col-span-2 flex items-center gap-2 text-sm text-sand-700">
+          <input
+            type="checkbox"
+            checked={form.isCategoryExclusive}
+            onChange={(event) =>
+              setForm((current) => ({
+                ...current,
+                isCategoryExclusive: event.target.checked,
+              }))
+            }
+            className="rounded border-sand-300"
+          />
+          Exclusividad de categoría para este placement y período
+        </label>
+        <label className="col-span-2 flex items-center gap-2 text-sm font-semibold text-warn-700">
+          <input
+            type="checkbox"
+            checked={form.isVip}
+            onChange={(event) =>
+              setForm((current) => ({
+                ...current,
+                isVip: event.target.checked,
+              }))
+            }
+            className="rounded border-sand-300"
+          />
+          Servicio VIP: se destaca sobre campañas estándar sin bloquear otras
+          campañas
+        </label>
+        <div>
+          <label
             htmlFor="billboard-start"
             className="mb-1 block text-xs font-medium text-sand-600"
           >
@@ -313,6 +765,30 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
           />
         </div>
       </div>
+      <section
+        className="border-t border-sand-200 pt-3"
+        aria-label="Vista previa de la valla"
+      >
+        <p className="mb-2 text-xs font-semibold text-sand-600">
+          Vista previa móvil
+        </p>
+        <div className="max-w-xs overflow-hidden rounded-xl border border-sand-200 bg-surface shadow-sm">
+          <div className="px-4 py-3 space-y-1.5">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-sand-400">
+              Publicidad
+            </span>
+            <p className="text-sm font-semibold text-ink-900">
+              {form.title || "Título de campaña"}
+            </p>
+            {form.body && <p className="text-xs text-sand-600">{form.body}</p>}
+            {form.ctaLabel && (
+              <span className="inline-block rounded-xl bg-brand-500 px-4 py-1.5 text-xs font-semibold text-white">
+                {form.ctaLabel}
+              </span>
+            )}
+          </div>
+        </div>
+      </section>
       <div className="flex gap-2">
         <Button onClick={handleSubmit} loading={create.isPending} size="sm">
           Crear valla

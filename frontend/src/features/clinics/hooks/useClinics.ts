@@ -1,12 +1,31 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { clinicsApi } from "../api/clinicsApi";
+import { clinicsApi, type UpdateClinicProfileRequest } from "../api/clinicsApi";
 
-export function usePublicClinics(lat?: number, lng?: number, enabled = true) {
+export function usePublicClinics(
+  lat?: number,
+  lng?: number,
+  enabled = true,
+  options?: {
+    search?: string;
+    emergencyOnly?: boolean;
+    page?: number;
+    pageSize?: number;
+  },
+) {
   return useQuery({
-    queryKey: ["clinics", "public", lat, lng],
-    queryFn: () => clinicsApi.getPublicClinics(lat, lng),
+    queryKey: ["clinics", "public", lat, lng, options],
+    queryFn: () => clinicsApi.getPublicClinics(lat, lng, options),
     staleTime: 60_000,
     enabled,
+  });
+}
+
+export function usePublicClinicProfile(clinicId: string) {
+  return useQuery({
+    queryKey: ["clinics", "public-profile", clinicId],
+    queryFn: () => clinicsApi.getPublicProfile(clinicId),
+    staleTime: 60_000,
+    enabled: Boolean(clinicId),
   });
 }
 
@@ -45,6 +64,17 @@ export function useUploadClinicLogo() {
   });
 }
 
+export function useUpdateClinicProfile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: UpdateClinicProfileRequest) =>
+      clinicsApi.updateMyProfile(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["my-clinic"] });
+    },
+  });
+}
+
 export function useClinicApiKeys() {
   return useQuery({
     queryKey: ["clinics", "api-keys"],
@@ -56,7 +86,8 @@ export function useClinicApiKeys() {
 export function useCreateClinicApiKey() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (label: string) => clinicsApi.createApiKey(label),
+    mutationFn: ({ label, scopes }: { label: string; scopes?: string[] }) =>
+      clinicsApi.createApiKey(label, scopes),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["clinics", "api-keys"] });
     },

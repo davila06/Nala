@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { resolve } from "path";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     tailwindcss(),
     react(),
@@ -62,6 +62,14 @@ export default defineConfig({
       "@": resolve(__dirname, "src"),
     },
   },
+  define:
+    mode === "test" || process.env.VITEST
+      ? {
+          "import.meta.env.VITE_API_URL": JSON.stringify(
+            "http://localhost:5000",
+          ),
+        }
+      : undefined,
   server: {
     watch: {
       // Playwright writes trace/screenshot/report files under these dirs while
@@ -86,10 +94,15 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
+    environmentOptions: {
+      jsdom: {
+        url: "http://localhost:5000",
+      },
+    },
     setupFiles: ["./tests/setup.ts"],
     // Playwright specs live under e2e/ and use @playwright/test's test/expect —
     // incompatible with Vitest; Vitest's default include glob would otherwise
     // pick them up too since they also match *.spec.ts.
     exclude: ["**/node_modules/**", "**/dist/**", "e2e/**"],
   },
-});
+}));

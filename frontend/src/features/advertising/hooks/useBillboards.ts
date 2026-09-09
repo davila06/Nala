@@ -45,6 +45,14 @@ export function useUpdateBillboard() {
   });
 }
 
+export function useDeleteBillboard() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: billboardsApi.delete,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: adminKey() }),
+  });
+}
+
 export function useSetBillboardStatus() {
   const qc = useQueryClient();
   return useMutation({
@@ -65,5 +73,38 @@ export function useUploadBillboardImage() {
     mutationFn: ({ id, file }: { id: string; file: File }) =>
       billboardsApi.uploadImage(id, file),
     onSuccess: () => void qc.invalidateQueries({ queryKey: adminKey() }),
+  });
+}
+
+export function useSubmitBillboard() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: billboardsApi.submit,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: adminKey() }),
+  });
+}
+
+export function useReviewBillboard() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      approve,
+      note,
+    }: {
+      id: string;
+      approve: boolean;
+      note?: string;
+    }) => billboardsApi.review(id, approve, note),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: adminKey() }),
+  });
+}
+
+export function useBillboardMetrics(id: string, enabled = true) {
+  return useQuery({
+    queryKey: ["billboards", "metrics", id],
+    queryFn: () => billboardsApi.getMetrics(id),
+    enabled,
+    staleTime: 60_000,
   });
 }

@@ -30,15 +30,6 @@ export function usePlaceOrder() {
   });
 }
 
-export function useReportPayment() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (orderId: string) => storeOrdersApi.reportPayment(orderId),
-    onSuccess: () =>
-      void qc.invalidateQueries({ queryKey: ["my-store-orders"] }),
-  });
-}
-
 export function useConfirmOrder() {
   const qc = useQueryClient();
   return useMutation({

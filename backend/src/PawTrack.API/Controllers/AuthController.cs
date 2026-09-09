@@ -14,6 +14,7 @@ using PawTrack.Application.Auth.Commands.Register;
 using PawTrack.Application.Auth.Commands.ResetPassword;
 using PawTrack.Application.Auth.Commands.UpdateUserProfile;
 using PawTrack.Application.Auth.Commands.VerifyEmail;
+using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Auth.Queries.ExportMyData;
 using PawTrack.Application.Auth.Queries.GetMyProfile;
 using System.Security.Claims;
@@ -22,7 +23,12 @@ namespace PawTrack.API.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public sealed class AuthController(ISender sender, IHostEnvironment environment) : ControllerBase
+public sealed class AuthController(
+    ISender sender,
+    IHostEnvironment environment,
+    IUserRepository userRepository,
+    IMfaService mfaService,
+    IUnitOfWork unitOfWork) : ControllerBase
 {
     [HttpPost("register")]
     [EnableRateLimiting("register")]
@@ -71,7 +77,7 @@ public sealed class AuthController(ISender sender, IHostEnvironment environment)
         [FromBody] LoginRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new LoginCommand(request.Email, request.Password), cancellationToken);
+        var result = await sender.Send(new LoginCommand(request.Email, request.Password, request.MfaCode), cancellationToken);
 
         if (result.IsFailure)
             return Unauthorized(new ProblemDetails { Title = "Authentication failed", Detail = string.Join("; ", result.Errors), Status = 401 });
@@ -99,6 +105,49 @@ public sealed class AuthController(ISender sender, IHostEnvironment environment)
             expiresIn = token.ExpiresIn,
             user = token.User,
         });
+    }
+
+    [HttpPost("mfa/setup")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> SetupMfa(CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var user = await userRepository.GetByIdAsync(userId, ct);
+        if (user is null) return Unauthorized();
+        var setup = mfaService.CreateSetup(user.Email);
+        return Ok(new { secret = setup.Secret, otpauthUri = setup.OtpAuthUri });
+    }
+
+    [HttpPost("mfa/enable")]
+    [Authorize]
+    [EnableRateLimiting("handover-verify")]
+    public async Task<IActionResult> EnableMfa([FromBody] EnableMfaRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var user = await userRepository.GetByIdAsync(userId, ct);
+        if (user is null) return Unauthorized();
+        var protectedSecret = mfaService.ProtectSecret(request.Secret);
+        if (!mfaService.Verify(protectedSecret, request.Code))
+            return UnprocessableEntity(new ProblemDetails { Detail = "El código MFA no es válido.", Status = 422 });
+        var recoveryCodes = user.ConfigureMfa(protectedSecret);
+        userRepository.Update(user);
+        await unitOfWork.SaveChangesAsync(ct);
+        return Ok(new { recoveryCodes });
+    }
+
+    [HttpDelete("mfa")]
+    [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("change-password")]
+    public async Task<IActionResult> DisableMfa(CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var user = await userRepository.GetByIdAsync(userId, ct);
+        if (user is null) return Unauthorized();
+        user.DisableMfa();
+        userRepository.Update(user);
+        await unitOfWork.SaveChangesAsync(ct);
+        return NoContent();
     }
 
     [HttpPost("forgot-password")]
@@ -367,11 +416,19 @@ public sealed class AuthController(ISender sender, IHostEnvironment environment)
 
         return Ok(result.Value);
     }
+
+    private bool TryGetUserId(out Guid userId)
+    {
+        var raw = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        return Guid.TryParse(raw, out userId);
+    }
 }
+
+public sealed record EnableMfaRequest(string Secret, string Code);
 
 // Request models — co-located with controller
 public sealed record RegisterRequest(string Name, string Email, string Password, bool IsAdultConfirmed);
-public sealed record LoginRequest(string Email, string Password);
+public sealed record LoginRequest(string Email, string Password, string? MfaCode = null);
 public sealed record ForgotPasswordRequest(string Email);
 public sealed record ResetPasswordRequest(string Token, string NewPassword);
 public sealed record UpdateMyProfileRequest(string Name);

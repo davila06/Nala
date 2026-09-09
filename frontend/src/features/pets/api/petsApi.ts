@@ -79,6 +79,16 @@ export const petsApi = {
   getPublicProfile: (id: string) =>
     apiClient.get<PublicPetProfile>(`/public/pets/${id}`).then((r) => r.data),
 
+  sendAnonymousContact: (
+    lostPetEventId: string,
+    payload: { finderName?: string; message: string },
+  ) =>
+    apiClient
+      .post<{
+        requestId: string;
+      }>(`/public/lost-pets/${lostPetEventId}/contact`, payload)
+      .then((r) => r.data),
+
   createPet: (data: CreatePetRequest) => {
     const form = buildFormData(data);
     return apiClient

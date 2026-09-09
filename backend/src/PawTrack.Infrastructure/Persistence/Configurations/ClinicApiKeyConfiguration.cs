@@ -22,6 +22,8 @@ public sealed class ClinicApiKeyConfiguration : IEntityTypeConfiguration<ClinicA
         // backfilled once by the AddClinicApiKeyExpirationAndRotation migration.
         builder.Property(k => k.ExpiresAt).IsRequired();
         builder.Property(k => k.RotatedToKeyId);
+        builder.Property(k => k.Scopes).IsRequired().HasMaxLength(500)
+            .HasDefaultValue("[\"scan\",\"medical:read\",\"medical:write\",\"medical:export\",\"certificates\",\"analytics\"]");
 
         // partial index — only non-revoked hashes need fast lookup
         builder.HasIndex(k => k.KeyHash)

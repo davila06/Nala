@@ -1,5 +1,9 @@
 # PawTrack CR — Planes y precios
 
+> **Estado: HISTORICO.** La fuente consolidada es
+> [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md). Este archivo se conserva por
+> trazabilidad y no debe usarse para nuevas decisiones comerciales.
+
 > Fuente de verdad: backend (`SubscriptionTier` y `SubscriptionPricing`).
 > Revisión: 2026-09-08
 > Estado: alineado con la implementación actual.
@@ -13,8 +17,9 @@ La base real de planes implementada hoy es la siguiente:
 - Refugios: `ShelterPlus`
 - Clínicas: `ClinicPlus`, `ClinicPartner`
 - Municipalidades: `MuniBasica`, `MuniFull`, `MuniRedRegional`
-- Proveedores de servicios: sin tier comercial aprobado; categorías `Trainer`,
-  `Groomer`, `Hotel`, `Daycare`, `Walker`, `Photographer`, `Other`
+- Proveedores de servicios: tiers técnicos `Free`, `Verified`, `Featured`, con
+  prueba única de 30 días en `Verified`; categorías `Trainer`, `Groomer`,
+  `Hotel`, `Daycare`, `Walker`, `Photographer`, `Other`
 
 Los estados `ClinicBasic`, `StoreBasic` y `ShelterBasic` existen como marca libre o de directorio, pero no son la fuente final de billing ni de feature gating en la app actual. Es decir, el producto real se rige por los tiers activos pagados en producción y los free/public states no deben confundirse con planes de venta.
 

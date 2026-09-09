@@ -30,11 +30,6 @@ export const storeOrdersApi = {
       })
       .then((r) => r.data),
 
-  reportPayment: (orderId: string): Promise<void> =>
-    apiClient
-      .put(`/store-orders/${orderId}/report-payment`)
-      .then(() => undefined),
-
   // Store owner
   getIncoming: (page = 1, pageSize = 20): Promise<StoreOrderDto[]> =>
     apiClient

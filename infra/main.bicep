@@ -241,8 +241,25 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
     tenantId: subscription().tenantId
     enableRbacAuthorization: true
     enableSoftDelete: true
-    softDeleteRetentionInDays: 7
+    softDeleteRetentionInDays: 90
+    enablePurgeProtection: true
     publicNetworkAccess: 'Enabled'
+  }
+}
+
+// Signing key for detached certificate signatures. The private material never
+// leaves Key Vault; the application receives only cryptographic operation access.
+resource certificateSigningKey 'Microsoft.KeyVault/vaults/keys@2023-07-01' = {
+  parent: keyVault
+  name: 'pawtrack-certificate-signing'
+  properties: {
+    kty: 'RSA'
+    keySize: 2048
+    keyOps: [ 'sign', 'verify' ]
+    attributes: {
+      enabled: true
+      exp: 4102444800
+    }
   }
 }
 
@@ -318,6 +335,10 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
               value: keyVault.properties.vaultUri
             }
             {
+              name: 'Certificates__KeyVaultKeyId'
+              value: certificateSigningKey.properties.keyUri
+            }
+            {
               name: 'Cors__AllowedOrigins__0'
               value: frontendUrl
             }
@@ -354,6 +375,43 @@ resource containerAppKeyVaultAccess 'Microsoft.Authorization/roleAssignments@202
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', keyVaultSecretsUserRoleId)
     principalId: containerApp.identity.principalId
     principalType: 'ServicePrincipal'
+  }
+}
+
+var keyVaultCryptoUserRoleId = '12338af0-0e69-4776-bea7-57ae8d297424'
+
+resource containerAppKeyVaultCryptoAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(keyVault.id, containerApp.id, keyVaultCryptoUserRoleId)
+  scope: keyVault
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', keyVaultCryptoUserRoleId)
+    principalId: containerApp.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// Explicitly export the Meter/Application Insights stream from the workload.
+resource containerAppDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: '${resourcePrefix}-api-diagnostics'
+  scope: containerApp
+  properties: {
+    workspaceId: logAnalytics.properties.customerId
+    logs: [
+      {
+        category: 'ContainerAppConsoleLogs'
+        enabled: true
+      }
+      {
+        category: 'ContainerAppSystemLogs'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
   }
 }
 

@@ -25,5 +25,8 @@ if (!HTMLElement.prototype.scrollIntoView) {
 }
 
 beforeAll(() => server.listen({ onUnhandledRequest: "warn" }));
-afterEach(() => server.resetHandlers());
+afterEach(() => {
+  server.resetHandlers();
+  window.localStorage.clear();
+});
 afterAll(() => server.close());

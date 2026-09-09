@@ -1,14 +1,19 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Skeleton } from "@/shared/ui/Spinner";
 import { usePublicClinics } from "../hooks/useClinics";
 import type { PublicClinicDto } from "../api/clinicsApi";
+import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
 
 // ── Clinic card ───────────────────────────────────────────────────────────────
 
 function ClinicCard({ clinic }: { clinic: PublicClinicDto }) {
   return (
-    <div className="group rounded-2xl border border-sand-100 bg-surface hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
+    <Link
+      to={`/clinicas/${clinic.id}`}
+      className="group rounded-2xl border border-sand-100 bg-surface hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
+    >
       {/* Logo / placeholder */}
       <div className="relative h-24 bg-sand-100 flex items-center justify-center overflow-hidden">
         {clinic.logoUrl ? (
@@ -67,7 +72,7 @@ function ClinicCard({ clinic }: { clinic: PublicClinicDto }) {
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -85,6 +90,12 @@ export default function ClinicDirectoryPage() {
     coords?.lat,
     coords?.lng,
     true,
+    {
+      search: query || undefined,
+      emergencyOnly: showEmergencyOnly,
+      page: 1,
+      pageSize: 24,
+    },
   );
 
   const filtered = clinics.filter((c) => {
@@ -139,6 +150,7 @@ export default function ClinicDirectoryPage() {
             {clinics.length > 0 && ` · ${clinics.length} registradas`}
           </p>
         </div>
+        <BillboardBanner placement="ClinicDirectory" />
 
         {/* Filters */}
         <div className="flex flex-wrap gap-3 items-center">

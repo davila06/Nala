@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { Skeleton } from "@/shared/ui/Spinner";
 import { FairCard } from "../components/FairCard";
 import { useUpcomingFairs } from "../hooks/useAdoptions";
+import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
 
 export default function AdoptionFairsPage() {
   const [locating, setLocating] = useState(false);
@@ -54,6 +55,7 @@ export default function AdoptionFairsPage() {
             Ver animales →
           </Link>
         </div>
+        <BillboardBanner placement="AdoptionFair" />
 
         <button
           onClick={locate}

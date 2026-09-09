@@ -14,6 +14,7 @@ import {
   type ICustomProperties,
   type SeverityLevel,
 } from "@microsoft/applicationinsights-web";
+import { apiClient } from "./apiClient";
 
 const connectionString = import.meta.env.VITE_APPINSIGHTS_CONNECTION_STRING as
   | string
@@ -59,6 +60,76 @@ export function trackEvent(name: string, properties?: ICustomProperties): void {
     appInsights.trackEvent({ name }, properties);
   } else if (import.meta.env.VITE_DEBUG === "true") {
     console.info("[telemetry] event", name, properties);
+  }
+}
+
+export type ProductEventName =
+  | "PetRegistered"
+  | "PetProfileCompleted"
+  | "QrGenerated"
+  | "QrActivated"
+  | "QrScanned"
+  | "LostPetReported"
+  | "SightingCreated"
+  | "FoundPetReported"
+  | "FirstResponseRecorded"
+  | "HandoverStarted"
+  | "HandoverCompleted"
+  | "PetReunited"
+  | "BillboardImpression"
+  | "BillboardClicked"
+  | "BillboardDismissed";
+
+export interface ProductEventProperties extends ICustomProperties {
+  schemaVersion: "1";
+  eventId: string;
+  occurredAt: string;
+  anonymousId: string;
+  source: string;
+  petId?: string;
+  canton?: string;
+  correlationId?: string;
+  billboardId?: string;
+  placement?: string;
+}
+
+/** Emits the privacy-safe, versioned events used by the activation funnel. */
+export function trackProductEvent(
+  name: ProductEventName,
+  properties: Omit<
+    ProductEventProperties,
+    "schemaVersion" | "eventId" | "occurredAt" | "anonymousId"
+  >,
+): void {
+  const anonymousId = getAnonymousId();
+  const event: ProductEventProperties & { eventName: ProductEventName } = {
+    schemaVersion: "1",
+    eventId: crypto.randomUUID(),
+    occurredAt: new Date().toISOString(),
+    anonymousId,
+    eventName: name,
+    ...properties,
+    source: properties.source as string,
+  };
+
+  trackEvent(name, event);
+  void apiClient.post("/product-events", event).catch(() => {
+    // Product analytics must never block a user action or surface an error.
+  });
+}
+
+const ANONYMOUS_ID_KEY = "pawtrack:anonymous-id";
+
+function getAnonymousId(): string {
+  try {
+    const existing = window.localStorage.getItem(ANONYMOUS_ID_KEY);
+    if (existing) return existing;
+
+    const generated = crypto.randomUUID();
+    window.localStorage.setItem(ANONYMOUS_ID_KEY, generated);
+    return generated;
+  } catch {
+    return crypto.randomUUID();
   }
 }
 

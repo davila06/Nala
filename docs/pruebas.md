@@ -152,6 +152,13 @@ sqlcmd -S "(localdb)\MSSQLLocalDB" -d PawTrackDev `
   -i "backend\scripts\seed-admin-data.sql"
 ```
 
+Para poblar escenarios enterprise de collares, GPS, zonas seguras y vallas (ejecutar después del seed extendido):
+
+```powershell
+sqlcmd -S "(localdb)\MSSQLLocalDB" -d PawTrackDev -f 65001 `
+  -i "backend\scripts\seed-enterprise-demo-data.sql"
+```
+
 > Si tu entorno local usa `PawTrackLocal` en `CPC-davil-ECEKS\SQLEXPRESS` en vez de LocalDB (por ejemplo, si cambiaste `ASPNETCORE_ENVIRONMENT` a `Local`), sustituye `-S "(localdb)\MSSQLLocalDB" -d PawTrackDev` por `-S "CPC-davil-ECEKS\SQLEXPRESS" -d PawTrackLocal -E` en los tres comandos.
 
 ---
@@ -259,6 +266,24 @@ medicación estructurada, peso y una alergia registrada.
 | Registrar captura     | Formulario activo, crea registro                                            |
 | Filtrar por cantón    | Solo "Desamparados" disponible (tier Básica)                                |
 | Vincular con PawTrack | Campo "N° chip/collar" → si coincide con mascota registrada, aparece enlace |
+
+---
+
+## Datos enterprise sembrados: collares y vallas
+
+Ejecutar `seed-enterprise-demo-data.sql` deja estos escenarios idempotentes:
+
+| Escenario                 | Cuenta / dato                        | Qué probar                                                                                                                                   |
+| ------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| GPS activo                | `owner_plus@test.cr` → `Toby GPS`    | Última ubicación en Heredia, batería 76%, historial de 4 puntos y zona segura `Casa Heredia`.                                                |
+| Collar offline            | `owner_plus@test.cr` → `Toby GPS`    | Segundo collar genérico sin reportar durante 5 horas, batería 12% y alertas de conectividad/batería.                                         |
+| Tag activado              | `PT-A3F9-0001234`                    | Estado `Activated`, vinculado al collar GPS activo.                                                                                          |
+| Tags disponibles          | `PT-B4E1-0001235`, `PT-C7D2-0001236` | Activación de CollarTag desde la UI.                                                                                                         |
+| Credencial de dispositivo | Collar de `Toby GPS`                 | Prueba de ingestión: la clave de demostración se almacena solo como hash; crear una nueva clave por API/UI para pruebas de ingestión reales. |
+| Valla VIP                 | `PawTrack GPS`                       | Placement Map, VIP, Heredia, aprobada y activa; permite probar prioridad, métricas y límite diario.                                          |
+| Valla de recuperación     | `Red de Recuperación CR`             | Placement Feed, San José, aprobada y activa; verifica el filtro de categorías de recuperación.                                               |
+
+> Los seeds no cargan binarios a Azurite. Las vallas usan imágenes remotas de placeholder para que el flujo visual funcione; subir una imagen desde Admin reemplaza el creativo por Blob Storage.
 
 ---
 

@@ -163,6 +163,13 @@ INSERT INTO [dbo].[ProviderServices] (
     'Bano E2E', 'Servicio de prueba', 0, 60, 20000, 5, 0, GETUTCDATE()
 );
 
+-- Availability every day 09:00-17:00 so booking slots exist for E2E/manual tests.
+INSERT INTO [dbo].[ServiceAvailabilityRules] (
+    [Id], [ProviderServiceId], [DayOfWeek], [StartsAtLocalTime], [EndsAtLocalTime], [IsActive], [CreatedAt]
+)
+SELECT NEWID(), '116079AB-3431-4246-B538-3B123B293B74', d, '09:00', '17:00', 1, GETUTCDATE()
+FROM (VALUES (0),(1),(2),(3),(4),(5),(6)) AS Days(d);
+
 -- ── Verify ────────────────────────────────────────────────────────────────
 SELECT [Id], [Email], [Name], [Role], [IsEmailVerified], [CreatedAt]
 FROM [dbo].[Users]

@@ -33,6 +33,11 @@ const CANCELLABLE: StoreOrderStatus[] = [
   "OutForDelivery",
 ];
 
+const REQUEST_STATUSES: StoreOrderStatus[] = [
+  "PendingPayment",
+  "PaymentReported",
+];
+
 function getNextStatus(order: StoreOrderDto): StoreOrderStatus | undefined {
   const map =
     order.fulfillmentType === "Delivery"
@@ -44,6 +49,7 @@ function getNextStatus(order: StoreOrderDto): StoreOrderStatus | undefined {
 function OrderCard({ order }: { order: StoreOrderDto }) {
   const confirm = useConfirmOrder();
   const updateStatus = useUpdateOrderStatus();
+  const [reason, setReason] = useState("");
 
   const nextStatus = getNextStatus(order);
 
@@ -85,18 +91,12 @@ function OrderCard({ order }: { order: StoreOrderDto }) {
         </li>
       </ul>
 
-      <div className="rounded-xl border border-warn-200 bg-warn-50 p-3 space-y-1">
-        <p className="text-xs font-bold text-warn-800">
-          SINPE: <span className="font-mono">{order.paymentReference}</span>
+      {REQUEST_STATUSES.includes(order.status) && (
+        <p className="rounded-xl border border-warn-200 bg-warn-50 p-3 text-xs text-warn-800">
+          Solicitud pendiente de revisión. Verifica disponibilidad y condiciones
+          antes de confirmarla.
         </p>
-        <p
-          className={`text-xs font-semibold ${order.paymentReportedByCustomer ? "text-rescue-700" : "text-sand-500"}`}
-        >
-          {order.paymentReportedByCustomer
-            ? "✓ Pago reportado por el cliente"
-            : "⏳ Esperando reporte de pago"}
-        </p>
-      </div>
+      )}
 
       {order.deliveryAddress && (
         <p className="text-xs text-sand-600">📍 {order.deliveryAddress}</p>
@@ -105,15 +105,29 @@ function OrderCard({ order }: { order: StoreOrderDto }) {
         <p className="text-xs text-sand-600">💬 "{order.customerNote}"</p>
       )}
 
+      {(REQUEST_STATUSES.includes(order.status) ||
+        CANCELLABLE.includes(order.status)) && (
+        <label className="block text-xs font-medium text-sand-600">
+          Motivo o nota para el cliente *
+          <input
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            className="mt-1 w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm font-normal text-sand-800 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-200"
+            placeholder="Ej. producto no disponible o instrucciones de retiro"
+            maxLength={500}
+          />
+        </label>
+      )}
+
       {/* Actions */}
       <div className="flex gap-2">
-        {order.status === "PaymentReported" && (
+        {REQUEST_STATUSES.includes(order.status) && (
           <Button
             size="sm"
             loading={confirm.isPending}
             onClick={() =>
               confirm.mutate(
-                { orderId: order.id },
+                { orderId: order.id, note: reason.trim() || undefined },
                 {
                   onSuccess: () => toast.success("Pedido confirmado"),
                   onError: () => toast.error("Error al confirmar"),
@@ -121,10 +135,10 @@ function OrderCard({ order }: { order: StoreOrderDto }) {
               )
             }
           >
-            ✓ Confirmar pago
+            ✓ Confirmar solicitud
           </Button>
         )}
-        {nextStatus && order.status !== "PaymentReported" && (
+        {nextStatus && !REQUEST_STATUSES.includes(order.status) && (
           <Button
             size="sm"
             variant="secondary"
@@ -142,20 +156,46 @@ function OrderCard({ order }: { order: StoreOrderDto }) {
             → {ORDER_STATUS_LABELS[nextStatus]}
           </Button>
         )}
+        {REQUEST_STATUSES.includes(order.status) && (
+          <Button
+            size="sm"
+            variant="danger"
+            loading={updateStatus.isPending}
+            onClick={() => {
+              if (!reason.trim()) {
+                toast.error("Escribe un motivo para rechazar la solicitud.");
+                return;
+              }
+              updateStatus.mutate(
+                { orderId: order.id, status: "Rejected", note: reason.trim() },
+                {
+                  onSuccess: () => toast.success("Solicitud rechazada"),
+                  onError: () => toast.error("Error al rechazar"),
+                },
+              );
+            }}
+          >
+            Rechazar
+          </Button>
+        )}
         {CANCELLABLE.includes(order.status) && (
           <Button
             size="sm"
             variant="danger"
             loading={updateStatus.isPending}
-            onClick={() =>
+            onClick={() => {
+              if (!reason.trim()) {
+                toast.error("Escribe un motivo para cancelar el pedido.");
+                return;
+              }
               updateStatus.mutate(
-                { orderId: order.id, status: "Cancelled" },
+                { orderId: order.id, status: "Cancelled", note: reason.trim() },
                 {
                   onSuccess: () => toast.success("Pedido cancelado"),
                   onError: () => toast.error("Error al cancelar"),
                 },
-              )
-            }
+              );
+            }}
           >
             Cancelar
           </Button>
@@ -171,7 +211,9 @@ export default function StoreOrdersPage() {
 
   const displayed =
     filter === "active"
-      ? orders.filter((o) => !["Delivered", "Cancelled"].includes(o.status))
+      ? orders.filter(
+          (o) => !["Delivered", "Cancelled", "Rejected"].includes(o.status),
+        )
       : orders;
 
   return (

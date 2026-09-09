@@ -5,7 +5,7 @@ import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "../api/storesApi";
 import type { StoreOrderDto, StoreOrderStatus } from "../api/storesApi";
 import { useMyOrders } from "../hooks/useStoreOrders";
 
-const TERMINAL: StoreOrderStatus[] = ["Delivered", "Cancelled"];
+const TERMINAL: StoreOrderStatus[] = ["Delivered", "Cancelled", "Rejected"];
 
 const ICON: Record<StoreOrderStatus, string> = {
   PendingPayment: "💳",
@@ -16,6 +16,7 @@ const ICON: Record<StoreOrderStatus, string> = {
   OutForDelivery: "🚚",
   Delivered: "🎉",
   Cancelled: "❌",
+  Rejected: "🚫",
 };
 
 function OrderRow({ order }: { order: StoreOrderDto }) {
@@ -83,7 +84,6 @@ function OrderRow({ order }: { order: StoreOrderDto }) {
 
 const STEPS_DELIVERY: StoreOrderStatus[] = [
   "PendingPayment",
-  "PaymentReported",
   "Confirmed",
   "Preparing",
   "OutForDelivery",
@@ -91,7 +91,6 @@ const STEPS_DELIVERY: StoreOrderStatus[] = [
 ];
 const STEPS_PICKUP: StoreOrderStatus[] = [
   "PendingPayment",
-  "PaymentReported",
   "Confirmed",
   "Preparing",
   "ReadyForPickup",

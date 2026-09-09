@@ -1,5 +1,9 @@
 # PawTrack CR — TODOs y Mejoras Enterprise
 
+> **Estado: HISTORICO.** No usar como backlog vigente. Consultar
+> [STATUS.md](STATUS.md), [ERRORES_PENDIENTES.md](ERRORES_PENDIENTES.md) y
+> [PRODUCT_STRATEGY_TOP1.md](PRODUCT_STRATEGY_TOP1.md).
+
 > **Fecha:** 2026-08-24 | Análisis exhaustivo del codebase completo  
 > **Metodología:** grep de TODOs/STUBs/`.Result`/`.Wait()`/anti-patrones + revisión manual de arquitectura  
 > **Prioridad:** 🔴 Crítico · 🟡 Alto · 🟢 Medio · ⚪ Bajo/Futuro  

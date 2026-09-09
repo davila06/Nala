@@ -58,4 +58,53 @@ public sealed class UpdateProviderBookingStatusCommandHandlerTests
             Arg.Is<Notification>(notification => notification.UserId == providerOwnerId && notification.Type == NotificationType.ProviderBookingUpdate),
             Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task Handle_UnrelatedProviderCannotConfirmBooking()
+    {
+        var providers = Substitute.For<IServiceProviderRepository>();
+        var audit = Substitute.For<IAuditLogRepository>();
+        var notifications = Substitute.For<INotificationRepository>();
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var ownerId = Guid.NewGuid();
+        var otherOwnerId = Guid.NewGuid();
+        var provider = ServiceProvider.Create(ownerId, "Grooming CR", "Cuidado", ServiceProviderCategory.Groomer, "Heredia", 10m, -84m, "provider@example.cr");
+        var otherProvider = ServiceProvider.Create(otherOwnerId, "Otra Tienda", "Cuidado", ServiceProviderCategory.Other, "Alajuela", 10m, -84m, "other@example.cr");
+        var booking = ProviderBooking.Request(provider.Id, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Bano", DateTimeOffset.UtcNow.AddDays(2), 60, 20_000m, 1, null);
+        providers.GetBookingByIdAsync(booking.Id, Arg.Any<CancellationToken>()).Returns(booking);
+        providers.GetByUserIdAsync(otherOwnerId, Arg.Any<CancellationToken>()).Returns(otherProvider);
+
+        var handler = new UpdateProviderBookingStatusCommandHandler(providers, audit, unitOfWork, notifications);
+        var result = await handler.Handle(new UpdateProviderBookingStatusCommand(
+            otherOwnerId, booking.Id, ProviderBookingStatus.Confirmed, null), default);
+
+        result.IsFailure.Should().BeTrue();
+        booking.Status.Should().Be(ProviderBookingStatus.Requested);
+        providers.DidNotReceive().UpdateBooking(Arg.Any<ProviderBooking>());
+        await notifications.DidNotReceive().AddAsync(Arg.Any<Notification>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_UnrelatedCustomerCannotCancelBooking()
+    {
+        var providers = Substitute.For<IServiceProviderRepository>();
+        var audit = Substitute.For<IAuditLogRepository>();
+        var notifications = Substitute.For<INotificationRepository>();
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var providerOwnerId = Guid.NewGuid();
+        var customerId = Guid.NewGuid();
+        var attackerId = Guid.NewGuid();
+        var provider = ServiceProvider.Create(providerOwnerId, "Grooming CR", "Cuidado", ServiceProviderCategory.Groomer, "Heredia", 10m, -84m, "provider@example.cr");
+        var booking = ProviderBooking.Request(provider.Id, Guid.NewGuid(), customerId, Guid.NewGuid(), "Bano", DateTimeOffset.UtcNow.AddDays(2), 60, 20_000m, 1, null);
+        providers.GetBookingByIdAsync(booking.Id, Arg.Any<CancellationToken>()).Returns(booking);
+        providers.GetByUserIdAsync(attackerId, Arg.Any<CancellationToken>()).Returns((ServiceProvider?)null);
+
+        var handler = new UpdateProviderBookingStatusCommandHandler(providers, audit, unitOfWork, notifications);
+        var result = await handler.Handle(new UpdateProviderBookingStatusCommand(
+            attackerId, booking.Id, ProviderBookingStatus.CancelledByCustomer, "Cambio"), default);
+
+        result.IsFailure.Should().BeTrue();
+        booking.Status.Should().Be(ProviderBookingStatus.Requested);
+        providers.DidNotReceive().UpdateBooking(Arg.Any<ProviderBooking>());
+    }
 }

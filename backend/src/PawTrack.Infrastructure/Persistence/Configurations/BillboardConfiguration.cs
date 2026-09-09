@@ -21,6 +21,15 @@ public sealed class BillboardConfiguration : IEntityTypeConfiguration<Billboard>
         builder.Property(x => x.StartsAt).IsRequired();
         builder.Property(x => x.EndsAt).IsRequired();
         builder.Property(x => x.Priority).IsRequired();
+        builder.Property(x => x.AdvertiserName).IsRequired().HasMaxLength(120);
+        builder.Property(x => x.Category).IsRequired().HasConversion<string>().HasMaxLength(40);
+        builder.Property(x => x.TargetCanton).HasMaxLength(100);
+        builder.Property(x => x.ContractReference).HasMaxLength(100);
+        builder.Property(x => x.BudgetCrc).HasPrecision(18, 2);
+        builder.Property(x => x.FrequencyCapPerDay).IsRequired();
+        builder.Property(x => x.IsVip).IsRequired().HasDefaultValue(false);
+        builder.Property(x => x.CampaignStatus).IsRequired().HasConversion<string>().HasMaxLength(20);
+        builder.Property(x => x.ReviewNote).HasMaxLength(500);
         builder.Property(x => x.CreatedAt).IsRequired();
 
         builder.HasIndex(x => new { x.Placement, x.Status, x.StartsAt, x.EndsAt });

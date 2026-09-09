@@ -27,8 +27,10 @@ function providerIcon(category: PublicServiceProviderDto["category"]) {
 
 export function ServiceProviderMarker({
   provider,
+  isAuthenticated,
 }: {
   provider: PublicServiceProviderDto;
+  isAuthenticated: boolean;
 }) {
   return (
     <Marker
@@ -52,6 +54,21 @@ export function ServiceProviderMarker({
               📞 {provider.phoneNumber}
             </a>
           )}
+          {provider.whatsAppNumber && (
+            <a
+              href={`https://wa.me/${provider.whatsAppNumber}?text=${encodeURIComponent(`Hola, encontré ${provider.name} en PawTrack y quiero consultar sus servicios.`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "block",
+                color: "#128c7e",
+                fontWeight: 700,
+                fontSize: 12,
+              }}
+            >
+              WhatsApp →
+            </a>
+          )}
           {provider.website && (
             <a
               href={provider.website}
@@ -60,6 +77,24 @@ export function ServiceProviderMarker({
               style={{ display: "block", color: "#1a3484", fontSize: 11 }}
             >
               🌐 Sitio web
+            </a>
+          )}
+          {isAuthenticated && (
+            <a
+              href={`/servicios/${provider.id}#reservas`}
+              style={{
+                display: "block",
+                marginTop: 6,
+                borderRadius: 6,
+                background: "#e8521e",
+                color: "#fff",
+                fontWeight: 700,
+                fontSize: 12,
+                padding: "6px 8px",
+                textAlign: "center",
+              }}
+            >
+              Reservar servicio
             </a>
           )}
         </div>

@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { collarApi } from "../api/collarApi";
 import { usePets } from "../hooks/usePets";
 import { ScanInput } from "@/features/clinics/components/ScanInput";
+import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
 
 /** Extract a PT-XXXX-NNNNNNN serial from either a raw serial or a URL containing it. */
 function extractSerial(raw: string): string {
@@ -63,6 +64,7 @@ export default function ActivateCollarTagPage() {
       <h1 className="mb-6 text-xl font-bold text-sand-900">
         Activar CollarTag PawTrack
       </h1>
+      <BillboardBanner placement="CollarActivation" className="mb-6" />
 
       {/* Step 1 — Serial via QR scan or manual input */}
       {step === "serial" && (

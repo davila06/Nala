@@ -22,4 +22,5 @@ public interface IMedicalRepository
     Task<IReadOnlyList<Guid>> GetPetIdsWithRecordsAsync(CancellationToken ct = default);
     /// <summary>Returns the most recent VetReminder of a given type for a pet, or null.</summary>
     Task<VetReminder?> GetLatestReminderByTypeAsync(Guid petId, MedicalRecordType type, CancellationToken ct = default);
+    Task<int> DeleteSupersededBeforeAsync(DateTimeOffset cutoff, CancellationToken ct = default);
 }

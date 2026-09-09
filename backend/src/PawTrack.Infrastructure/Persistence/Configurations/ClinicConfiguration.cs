@@ -44,6 +44,9 @@ public sealed class ClinicConfiguration : IEntityTypeConfiguration<Clinic>
         builder.Property(c => c.PhoneNumber).HasMaxLength(20);
         builder.Property(c => c.Website).HasMaxLength(300);
         builder.Property(c => c.LogoUrl).HasMaxLength(500);
+        builder.Property(c => c.Description).HasMaxLength(500);
+        builder.Property(c => c.Services).HasMaxLength(2000);
+        builder.Property(c => c.OpeningHours).HasMaxLength(2000);
         builder.Property(c => c.IsFeatured).IsRequired().HasDefaultValue(false);
 
         builder.Property(c => c.Status)

@@ -19,13 +19,16 @@ public sealed record CertificateVerificationDto(
     DateTimeOffset IssuedAt,
     DateTimeOffset? ValidUntil,
     bool IsRevoked,
-    bool IsValid);
+    bool IsValid,
+    bool SignatureVerified = false);
 
 public sealed class VerifyCertificateQueryHandler(
     ICertificateRepository certificateRepository,
     IVaccinePassportRepository vaccinePassportRepository,
     ICertificateAuditLogRepository auditLogRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IBlobStorageService blobStorage,
+    ICertificateDigitalSigner digitalSigner)
     : IRequestHandler<VerifyCertificateQuery, Result<CertificateVerificationDto?>>
 {
     public async Task<Result<CertificateVerificationDto?>> Handle(
@@ -42,6 +45,25 @@ public sealed class VerifyCertificateQueryHandler(
             cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
+        var signatureVerified = false;
+        if (!string.IsNullOrWhiteSpace(cert.PdfUrl) && !string.IsNullOrWhiteSpace(cert.SignatureUrl))
+        {
+            var pdf = await blobStorage.DownloadAsync(cert.PdfUrl, cancellationToken);
+            var signature = await blobStorage.DownloadAsync(cert.SignatureUrl, cancellationToken);
+            if (pdf is not null && signature is not null)
+            {
+                try
+                {
+                    signatureVerified = await digitalSigner.VerifyAsync(
+                        pdf, DecodeSignature(signature), cancellationToken);
+                }
+                catch (FormatException)
+                {
+                    signatureVerified = false;
+                }
+            }
+        }
+
         return Result.Success<CertificateVerificationDto?>(new CertificateVerificationDto(
             cert.Id,
             cert.Type.ToString(),
@@ -52,6 +74,13 @@ public sealed class VerifyCertificateQueryHandler(
             cert.IssuedAt,
             cert.ValidUntil,
             cert.IsRevoked,
-            cert.IsValid));
+            cert.IsValid,
+            signatureVerified));
+    }
+
+    private static byte[] DecodeSignature(byte[] storedSignature)
+    {
+        var encoded = System.Text.Encoding.UTF8.GetString(storedSignature);
+        return Convert.FromBase64String(encoded);
     }
 }

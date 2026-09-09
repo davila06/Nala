@@ -74,11 +74,23 @@ public sealed class StoreOrder
 
     public void Confirm(string? storeNote = null)
     {
-        if (Status != StoreOrderStatus.PaymentReported)
-            throw new InvalidOperationException("Solo se pueden confirmar pedidos con pago reportado.");
+        if (Status is not (StoreOrderStatus.PendingPayment or StoreOrderStatus.PaymentReported))
+            throw new InvalidOperationException("Solo se pueden confirmar solicitudes pendientes.");
         Status = StoreOrderStatus.Confirmed;
         StoreNote = storeNote?.Trim();
         ConfirmedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void Reject(string reason)
+    {
+        if (Status is not (StoreOrderStatus.PendingPayment or StoreOrderStatus.PaymentReported))
+            throw new InvalidOperationException("Solo se pueden rechazar solicitudes pendientes.");
+        if (string.IsNullOrWhiteSpace(reason))
+            throw new InvalidOperationException("El rechazo debe incluir un motivo.");
+
+        Status = StoreOrderStatus.Rejected;
+        StoreNote = reason.Trim();
+        CancelledAt = DateTimeOffset.UtcNow;
     }
 
     public void UpdateStatus(StoreOrderStatus newStatus, string? storeNote = null)
@@ -86,6 +98,8 @@ public sealed class StoreOrder
         if (!IsValidTransition(Status, newStatus))
             throw new InvalidOperationException(
                 $"Transición de estado inválida: {Status} → {newStatus}.");
+        if (newStatus is StoreOrderStatus.Cancelled && string.IsNullOrWhiteSpace(storeNote))
+            throw new InvalidOperationException("La cancelación debe incluir un motivo.");
 
         Status = newStatus;
         if (storeNote is not null) StoreNote = storeNote.Trim();
@@ -97,6 +111,8 @@ public sealed class StoreOrder
     /// <summary>Allowed forward-only state machine — prevents skipping steps or reversals.</summary>
     private static bool IsValidTransition(StoreOrderStatus from, StoreOrderStatus to) => (from, to) switch
     {
+        (StoreOrderStatus.PendingPayment, StoreOrderStatus.Rejected) => true,
+        (StoreOrderStatus.PaymentReported, StoreOrderStatus.Rejected) => true,
         (StoreOrderStatus.Confirmed, StoreOrderStatus.Preparing) => true,
         (StoreOrderStatus.Confirmed, StoreOrderStatus.Cancelled) => true,
         (StoreOrderStatus.Preparing, StoreOrderStatus.ReadyForPickup) => true,
@@ -109,10 +125,13 @@ public sealed class StoreOrder
         _ => false,
     };
 
-    public void Cancel(string? reason = null)
+    public void Cancel(string reason)
     {
+        if (string.IsNullOrWhiteSpace(reason))
+            throw new InvalidOperationException("La cancelación debe incluir un motivo.");
+
         Status = StoreOrderStatus.Cancelled;
-        if (reason is not null) StoreNote = reason.Trim();
+        StoreNote = reason.Trim();
         CancelledAt = DateTimeOffset.UtcNow;
     }
 }

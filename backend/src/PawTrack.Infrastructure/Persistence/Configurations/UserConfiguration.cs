@@ -71,6 +71,10 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDefaultValue(false);
 
         builder.Property(u => u.HealthDataConsentedAt);
+        builder.Property(u => u.MfaEnabled).IsRequired().HasDefaultValue(false);
+        builder.Property(u => u.MfaSecretProtected).HasMaxLength(1000);
+        builder.Property(u => u.MfaConfiguredAt);
+        builder.Property(u => u.MfaRecoveryCodeHashes).HasMaxLength(2000);
 
         // Soft-deleted accounts are excluded from default queries
         builder.HasQueryFilter(u => !u.IsDeleted);

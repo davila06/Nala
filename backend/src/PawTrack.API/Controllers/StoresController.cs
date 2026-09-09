@@ -60,7 +60,8 @@ public sealed class StoresController(ISender sender) : ControllerBase
         if (!TryGetUserId(out var userId)) return Unauthorized();
         var result = await sender.Send(new UpdateStoreProfileCommand(
             userId, request.Name, request.Description, request.Address,
-            request.Lat, request.Lng, request.PhoneNumber, request.Website), ct);
+            request.Lat, request.Lng, request.PhoneNumber, request.Website,
+            request.WhatsAppNumber, request.IsWhatsAppContactEnabled), ct);
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
         return Ok(result.Value);
@@ -83,6 +84,24 @@ public sealed class StoresController(ISender sender) : ControllerBase
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
         return Ok(result.Value);
+    }
+
+    [HttpGet("me/analytics/export")]
+    [Authorize(Roles = "Store")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> ExportAnalytics(
+        [FromQuery] int? year,
+        [FromQuery] int? month,
+        [FromQuery] Guid? locationId,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var now = DateTimeOffset.UtcNow;
+        var result = await sender.Send(new ExportStoreAnalyticsCommand(
+            userId, year ?? now.Year, month ?? now.Month, locationId), ct);
+        return result.IsSuccess
+            ? File(result.Value!, "text/csv; charset=utf-8", $"store-analytics-{year ?? now.Year}-{month ?? now.Month:00}.csv")
+            : UnprocessableEntity(result.Errors);
     }
 
     // ── GET /api/stores/me/locations — StorePartner gate ──────────────────────
@@ -282,7 +301,8 @@ public sealed record RegisterStoreRequest(
 
 public sealed record UpdateStoreProfileRequest(
     string Name, string Description, string Address,
-    decimal Lat, decimal Lng, string? PhoneNumber, string? Website);
+    decimal Lat, decimal Lng, string? PhoneNumber, string? Website,
+    string? WhatsAppNumber = null, bool IsWhatsAppContactEnabled = false);
 
 public sealed record AddProductRequest(
     string Name, string? Description, string Category, decimal PriceCrc);

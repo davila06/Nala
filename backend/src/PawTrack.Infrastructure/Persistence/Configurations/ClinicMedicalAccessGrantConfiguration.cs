@@ -21,6 +21,9 @@ public sealed class ClinicMedicalAccessGrantConfiguration
         builder.Property(x => x.CodeExpiresAt).IsRequired();
         builder.Property(x => x.AcceptedAt);
         builder.Property(x => x.IsActive).IsRequired();
+        builder.Property(x => x.AccessExpiresAt);
+        builder.Property(x => x.Permissions).IsRequired().HasMaxLength(200)
+            .HasDefaultValue("[\"read\",\"write\"]");
         builder.Property(x => x.RevokedAt);
         builder.Property(x => x.CreatedAt).IsRequired();
 

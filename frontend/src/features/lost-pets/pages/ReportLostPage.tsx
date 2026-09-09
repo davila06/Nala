@@ -16,6 +16,7 @@ import { useRecoveryRates } from "../hooks/useRecoveryStats";
 import { addQueuedReport } from "@/shared/lib/offlineQueue";
 import { Skeleton } from "@/shared/ui/Spinner";
 import type { LastSeenCoords } from "../components/LastSeenMap";
+import { trackProductEvent } from "@/shared/lib/telemetry";
 
 /** datetime-local inputs need LOCAL time, not UTC */
 const toLocalDatetime = (d: Date) =>
@@ -155,6 +156,10 @@ export default function ReportLostPage() {
       const recentPhotoUrl = recentPhoto
         ? URL.createObjectURL(recentPhoto)
         : null;
+      trackProductEvent("LostPetReported", {
+        source: "report-lost",
+        petId: pet.id,
+      });
       void navigate(`/pets/${pet.id}/lost-confirmed`, {
         state: {
           lostEventId: result.id,

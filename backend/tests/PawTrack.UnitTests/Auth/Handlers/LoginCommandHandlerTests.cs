@@ -12,14 +12,17 @@ public sealed class LoginCommandHandlerTests
     private readonly IUserRepository _userRepo = Substitute.For<IUserRepository>();
     private readonly IPasswordHasher _hasher = Substitute.For<IPasswordHasher>();
     private readonly IJwtTokenService _jwtService = Substitute.For<IJwtTokenService>();
+    private readonly IMfaService _mfaService = Substitute.For<IMfaService>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
     private readonly ILogger<LoginCommandHandler> _logger = Substitute.For<ILogger<LoginCommandHandler>>();
+    private readonly IMfaPolicy _mfaPolicy = Substitute.For<IMfaPolicy>();
 
     private readonly LoginCommandHandler _sut;
 
     public LoginCommandHandlerTests()
     {
-        _sut = new LoginCommandHandler(_userRepo, _hasher, _jwtService, _uow, _logger);
+        _mfaPolicy.RequireForPrivilegedRoles.Returns(false);
+        _sut = new LoginCommandHandler(_userRepo, _hasher, _jwtService, _mfaService, _uow, _logger, _mfaPolicy);
     }
 
     [Fact]

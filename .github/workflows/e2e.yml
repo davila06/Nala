@@ -96,6 +96,21 @@ jobs:
         run: npm ci --legacy-peer-deps
         working-directory: frontend
 
+      - name: Verify OpenAPI contract surface
+        run: |
+          curl --fail --silent http://localhost:5199/openapi/v1.json -o /tmp/openapi.json
+          grep -q 'product-events' /tmp/openapi.json
+          grep -q 'public/pets' /tmp/openapi.json
+          grep -q '"openapi":"3.' /tmp/openapi.json
+          grep -q '"/api/product-events' /tmp/openapi.json
+          npx --yes @redocly/cli lint /tmp/openapi.json
+
+      - name: Upload OpenAPI contract
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-v1-${{ github.sha }}
+          path: /tmp/openapi.json
+
       - name: Get Playwright version
         id: pw-version
         run: |

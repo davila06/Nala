@@ -13,6 +13,8 @@ export interface ClinicAccessGrantDto {
   acceptedAt: string | null;
   codeExpiresAt: string;
   createdAt: string;
+  accessExpiresAt: string | null;
+  permissions: string[];
 }
 
 export interface GeneratedAccessCodeDto {

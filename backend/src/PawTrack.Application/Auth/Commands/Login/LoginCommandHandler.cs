@@ -11,8 +11,10 @@ public sealed class LoginCommandHandler(
     IUserRepository userRepository,
     IPasswordHasher passwordHasher,
     IJwtTokenService jwtTokenService,
+    IMfaService mfaService,
     IUnitOfWork unitOfWork,
-    ILogger<LoginCommandHandler> logger)
+    ILogger<LoginCommandHandler> logger,
+    IMfaPolicy mfaPolicy)
     : IRequestHandler<LoginCommand, Result<AuthTokenDto>>
 {
     private static readonly int RefreshTokenExpiryDays = 30;
@@ -58,8 +60,21 @@ public sealed class LoginCommandHandler(
             return Result.Failure<AuthTokenDto>("Email address not yet verified. Please check your inbox.");
         }
 
+        var privilegedMfaRequired = user.Role is PawTrack.Domain.Auth.UserRole.Admin or PawTrack.Domain.Auth.UserRole.Support
+            && mfaPolicy.RequireForPrivilegedRoles;
+        var mfaRequired = user.HasMfa || privilegedMfaRequired;
+        var mfaValid = !mfaRequired || (user.HasMfa && !string.IsNullOrWhiteSpace(request.MfaCode)
+            && (mfaService.Verify(user.MfaSecretProtected!, request.MfaCode)
+                || user.ConsumeMfaRecoveryCode(request.MfaCode)));
+        if (!mfaValid)
+        {
+            logger.LogWarning("Auth.Login.MfaRequiredOrInvalid UserId={UserId}", user.Id);
+            return Result.Failure<AuthTokenDto>("MFA_REQUIRED");
+        }
+
         // Successful login — reset lockout counter.
         user.ResetFailedLogins();
+        userRepository.Update(user);
 
         var (rawToken, tokenHash) = jwtTokenService.GenerateRefreshToken();
         var expiresAt = DateTimeOffset.UtcNow.AddDays(RefreshTokenExpiryDays);

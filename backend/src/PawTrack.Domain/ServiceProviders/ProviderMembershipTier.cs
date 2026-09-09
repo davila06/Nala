@@ -1,6 +1,6 @@
 namespace PawTrack.Domain.ServiceProviders;
 
-/// <summary>Commercial tier per docs/precios.md §"Marketplace de servicios para mascotas".</summary>
+/// <summary>Technical membership tier; commercial pricing is consolidated in docs/PRICING_AND_PLANS.md.</summary>
 public enum ProviderMembershipTier
 {
     Free,

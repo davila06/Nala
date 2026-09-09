@@ -11,6 +11,9 @@ public interface IClinicRepository
     Task<Clinic?> GetByLicenseNumberAsync(string licenseNumber, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Clinic>> GetAllPendingAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Clinic>> GetAllActiveAsync(CancellationToken cancellationToken = default);
+    Task<(IReadOnlyList<Clinic> Items, int Total)> GetActivePageAsync(
+        string? search, bool emergencyOnly, int page, int pageSize,
+        CancellationToken cancellationToken = default);
     /// <summary>Active clinics whose name or license number contains <paramref name="search"/> (case-insensitive).</summary>
     Task<IReadOnlyList<Clinic>> SearchActiveByNameOrLicenseAsync(string search, int take, CancellationToken cancellationToken = default);
     /// <summary>Returns active clinics at ClinicPlus or ClinicPartner tier within <paramref name="radiusKm"/> km.</summary>

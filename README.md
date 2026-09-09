@@ -4,7 +4,7 @@
 
 Register your pet → Generate a QR → Report it lost → Log sightings → Coordinate the search → Reunite.
 
-> **Status:** Production-ready · Last updated: August 2026  
+> **Status:** Active MVP with enterprise hardening in progress · Last updated: September 2026
 > All docs have been moved to [`docs/`](./docs/).
 
 ---
@@ -13,13 +13,14 @@ Register your pet → Generate a QR → Report it lost → Log sightings → Coo
 
 PawTrack CR is a full-stack Progressive Web App (PWA) that provides structured, real-time tooling for the entire lifecycle of a lost-pet event — from QR-based identity and sighting reports to AI-powered visual matching, field coordination, and secure physical handover.
 
-For the full product vision see [docs/NALA.md](./docs/NALA.md).  
-For production prerequisites see [docs/pre.md](./docs/pre.md).  
+For the product strategy see [docs/PRODUCT_STRATEGY_TOP1.md](./docs/PRODUCT_STRATEGY_TOP1.md).
+For the verified product state see [docs/STATUS.md](./docs/STATUS.md).
 For the technical spec see [docs/PawTrack_Documento_Maestro_v3.1.md](./docs/PawTrack_Documento_Maestro_v3.1.md).
+For the documentation map see [docs/README.md](./docs/README.md).
 
 ---
 
-## Feature overview (August 2026 — complete)
+## Feature overview (September 2026 — implementation status)
 
 | Module                   | Status | What it does                                                              |
 | ------------------------ | ------ | ------------------------------------------------------------------------- |
@@ -112,8 +113,9 @@ PawTrack.sln
 │   ├── main.bicep         # Azure infrastructure declaration
 │   └── parameters.prod.bicepparam
 ├── docs/
-│   ├── MANUAL_USUARIO.md  # User manual (Spanish)
-│   └── MANUAL_TECNICO.md  # Technical manual
+│   ├── README.md          # Documentation index
+│   ├── STATUS.md          # Verified current state
+│   └── Manuales/          # Manuals by audience
 ├── NALA.md                # Vision, purpose, and target audience
 └── docker-compose.yml     # Local SQL Server + Azurite
 ```
@@ -302,12 +304,12 @@ az staticwebapp deploy --source dist/
 
 ## Documentation
 
-| Document                   | Location                                                                   | Audience      |
-| -------------------------- | -------------------------------------------------------------------------- | ------------- |
-| Vision + target audience   | [NALA.md](./NALA.md)                                                       | Everyone      |
-| Full product specification | [PawTrack_Documento_Maestro_v3.1.md](./PawTrack_Documento_Maestro_v3.1.md) | Product + Dev |
-| User manual                | [docs/MANUAL_USUARIO.md](./docs/MANUAL_USUARIO.md)                         | End users     |
-| Technical manual           | [docs/MANUAL_TECNICO.md](./docs/MANUAL_TECNICO.md)                         | Developers    |
+| Document                   | Location                                                                             | Audience      |
+| -------------------------- | ------------------------------------------------------------------------------------ | ------------- |
+| Vision + target audience   | [NALA.md](./NALA.md)                                                                 | Everyone      |
+| Full product specification | [docs/PawTrack_Documento_Maestro_v3.1.md](./docs/PawTrack_Documento_Maestro_v3.1.md) | Product + Dev |
+| User manuals               | [docs/Manuales/](./docs/Manuales/)                                                   | End users     |
+| Technical manual           | [docs/Manuales/MANUAL_TECNICO.md](./docs/Manuales/MANUAL_TECNICO.md)                 | Developers    |
 
 ---
 

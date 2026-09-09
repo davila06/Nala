@@ -22,10 +22,12 @@ import {
   useRevokeClinicApiKey,
   useClinicNearbyAlerts,
   useClinicVisibilityStats,
+  useUpdateClinicProfile,
 } from "../hooks/useClinics";
 import { CERTIFICATE_TYPE_LABELS } from "../api/certificateApi";
 import { ClinicExpedienteTab } from "../components/ClinicExpedienteTab";
 import { ClinicAccessPanel } from "../components/ClinicAccessPanel";
+import { ClinicOperationsPanel } from "../components/ClinicOperationsPanel";
 import { toast } from "@/shared/lib/toast";
 import { useMySubscription } from "@/features/pets/hooks/useSubscription";
 
@@ -36,7 +38,14 @@ export default function ClinicDashboardPage() {
   const [showTiers, setShowTiers] = useState(false);
   const [showCertificate, setShowCertificate] = useState(false);
   const [activeSection, setActiveSection] = useState<
-    "scan" | "stats" | "api" | "alerts" | "expediente" | "visibilidad"
+    | "scan"
+    | "stats"
+    | "api"
+    | "alerts"
+    | "expediente"
+    | "visibilidad"
+    | "perfil"
+    | "operacion"
   >("scan");
   const logoInputRef = useRef<HTMLInputElement>(null);
 
@@ -199,6 +208,8 @@ export default function ClinicDashboardPage() {
               "alerts",
               "expediente",
               "visibilidad",
+              "perfil",
+              "operacion",
             ] as const
           ).map((s) => (
             <button
@@ -222,7 +233,11 @@ export default function ClinicDashboardPage() {
                       ? "🚨 Alertas"
                       : s === "expediente"
                         ? "📋 Expediente"
-                        : "📈 Visibilidad"}
+                        : s === "visibilidad"
+                          ? "📈 Visibilidad"
+                          : s === "perfil"
+                            ? "⚙️ Perfil"
+                            : "🩺 Operación"}
             </button>
           ))}
         </div>
@@ -362,6 +377,12 @@ export default function ClinicDashboardPage() {
 
         {activeSection === "visibilidad" && <ClinicVisibilidadSection />}
 
+        {activeSection === "perfil" && clinic && (
+          <ClinicProfileSection clinic={clinic} />
+        )}
+
+        {activeSection === "operacion" && <ClinicOperationsPanel />}
+
         {activeSection === "expediente" && (
           <div className="space-y-4">
             <h2 className="font-display text-base font-semibold text-sand-800">
@@ -417,6 +438,184 @@ export default function ClinicDashboardPage() {
         )}
       </main>
     </div>
+  );
+}
+
+function ClinicProfileSection({
+  clinic,
+}: {
+  clinic: NonNullable<Awaited<ReturnType<typeof clinicsApi.getMyClinic>>>;
+}) {
+  const { mutateAsync: updateProfile, isPending } = useUpdateClinicProfile();
+  const [name, setName] = useState(clinic.name);
+  const [address, setAddress] = useState(clinic.address);
+  const [phoneNumber, setPhoneNumber] = useState(clinic.phoneNumber ?? "");
+  const [website, setWebsite] = useState(clinic.website ?? "");
+  const [isEmergency24h, setIsEmergency24h] = useState(clinic.isEmergency24h);
+  const [emergencyPhone, setEmergencyPhone] = useState(
+    clinic.emergencyPhone ?? "",
+  );
+  const [description, setDescription] = useState(clinic.description ?? "");
+  const [services, setServices] = useState(clinic.services ?? "");
+  const [openingHours, setOpeningHours] = useState(clinic.openingHours ?? "");
+  const [whatsAppNumber, setWhatsAppNumber] = useState(
+    clinic.whatsAppNumber ?? "",
+  );
+  const [isWhatsAppContactEnabled, setIsWhatsAppContactEnabled] = useState(
+    clinic.isWhatsAppContactEnabled,
+  );
+
+  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    try {
+      await updateProfile({
+        name,
+        address,
+        phoneNumber: phoneNumber || null,
+        website: website || null,
+        isEmergency24h,
+        emergencyPhone: emergencyPhone || null,
+        description: description || null,
+        services: services || null,
+        openingHours: openingHours || null,
+        whatsAppNumber: whatsAppNumber || null,
+        isWhatsAppContactEnabled,
+      });
+      toast.success("Perfil actualizado.");
+    } catch {
+      toast.error("No se pudo actualizar el perfil.");
+    }
+  };
+
+  return (
+    <form className="space-y-4" onSubmit={(event) => void submit(event)}>
+      <div>
+        <h2 className="text-base font-bold text-sand-800">Perfil de clínica</h2>
+        <p className="mt-1 text-xs text-sand-500">
+          La licencia SENASA y la identidad regulatoria solo pueden ser
+          modificadas por administración.
+        </p>
+      </div>
+      <div className="space-y-3 rounded-2xl border border-sand-200 bg-surface p-4">
+        <label className="block text-xs font-semibold text-sand-600">
+          Nombre comercial
+          <input
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            required
+            maxLength={200}
+            className="field-input mt-1 w-full"
+          />
+        </label>
+        <label className="block text-xs font-semibold text-sand-600">
+          Dirección
+          <input
+            value={address}
+            onChange={(event) => setAddress(event.target.value)}
+            required
+            maxLength={500}
+            className="field-input mt-1 w-full"
+          />
+        </label>
+        <label className="block text-xs font-semibold text-sand-600">
+          Teléfono
+          <input
+            value={phoneNumber}
+            onChange={(event) => setPhoneNumber(event.target.value)}
+            maxLength={20}
+            className="field-input mt-1 w-full"
+          />
+        </label>
+        <label className="block text-xs font-semibold text-sand-600">
+          WhatsApp de atención
+          <input
+            value={whatsAppNumber}
+            onChange={(event) => setWhatsAppNumber(event.target.value)}
+            placeholder="50688881234"
+            maxLength={20}
+            className="field-input mt-1 w-full"
+          />
+        </label>
+        <label className="flex items-center gap-2 text-sm text-sand-700">
+          <input
+            type="checkbox"
+            checked={isWhatsAppContactEnabled}
+            onChange={(event) =>
+              setIsWhatsAppContactEnabled(event.target.checked)
+            }
+          />
+          Permitir contacto por WhatsApp desde el mapa
+        </label>
+        <label className="block text-xs font-semibold text-sand-600">
+          Sitio web
+          <input
+            type="url"
+            value={website}
+            onChange={(event) => setWebsite(event.target.value)}
+            maxLength={300}
+            className="field-input mt-1 w-full"
+          />
+        </label>
+        <label className="flex items-center gap-2 text-sm text-sand-700">
+          <input
+            type="checkbox"
+            checked={isEmergency24h}
+            onChange={(event) => setIsEmergency24h(event.target.checked)}
+          />
+          Atención de emergencias 24/7
+        </label>
+        {isEmergency24h && (
+          <label className="block text-xs font-semibold text-sand-600">
+            Teléfono de emergencias
+            <input
+              value={emergencyPhone}
+              onChange={(event) => setEmergencyPhone(event.target.value)}
+              maxLength={20}
+              className="field-input mt-1 w-full"
+            />
+          </label>
+        )}
+        <label className="block text-xs font-semibold text-sand-600">
+          Descripción pública
+          <textarea
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            maxLength={500}
+            rows={3}
+            className="field-input mt-1 w-full"
+          />
+        </label>
+        <label className="block text-xs font-semibold text-sand-600">
+          Servicios
+          <textarea
+            value={services}
+            onChange={(event) => setServices(event.target.value)}
+            maxLength={2000}
+            rows={3}
+            placeholder="Consulta general, vacunas, cirugía..."
+            className="field-input mt-1 w-full"
+          />
+        </label>
+        <label className="block text-xs font-semibold text-sand-600">
+          Horario
+          <textarea
+            value={openingHours}
+            onChange={(event) => setOpeningHours(event.target.value)}
+            maxLength={2000}
+            rows={3}
+            placeholder="Lun-Vie 8:00-18:00"
+            className="field-input mt-1 w-full"
+          />
+        </label>
+      </div>
+      <button
+        type="submit"
+        disabled={isPending}
+        className="w-full rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+      >
+        {isPending ? "Guardando..." : "Guardar cambios"}
+      </button>
+    </form>
   );
 }
 
@@ -718,6 +917,14 @@ function ClinicStatsSection() {
 
 function ClinicApiKeysSection() {
   const [newLabel, setNewLabel] = useState("");
+  const [newScopes, setNewScopes] = useState([
+    "scan",
+    "medical:read",
+    "medical:write",
+    "medical:export",
+    "certificates",
+    "analytics",
+  ]);
   const [justCreated, setJustCreated] = useState<string | null>(null);
   const { data: keys, isLoading, isError } = useClinicApiKeys();
   const { mutateAsync: createKey, isPending: creating } =
@@ -737,7 +944,10 @@ function ClinicApiKeysSection() {
   const handleCreate = async () => {
     if (!newLabel.trim()) return;
     try {
-      const key = await createKey(newLabel.trim());
+      const key = await createKey({
+        label: newLabel.trim(),
+        scopes: newScopes,
+      });
       setNewLabel("");
       if (key.rawKey) setJustCreated(key.rawKey);
     } catch {
@@ -756,6 +966,39 @@ function ClinicApiKeysSection() {
           </code>{" "}
           para integrar tu sistema.
         </p>
+      </div>
+      <div className="rounded-2xl border border-sand-200 bg-surface p-4">
+        <p className="text-xs font-bold text-sand-700">
+          Permisos de la nueva clave
+        </p>
+        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+          {[
+            ["scan", "Escaneos QR/RFID"],
+            ["medical:read", "Lectura de expedientes"],
+            ["medical:write", "Escritura de expedientes"],
+            ["medical:export", "Exportación de expedientes"],
+            ["certificates", "Certificados"],
+            ["analytics", "Analítica"],
+          ].map(([scope, label]) => (
+            <label
+              key={scope}
+              className="flex items-center gap-2 text-xs text-sand-600"
+            >
+              <input
+                type="checkbox"
+                checked={newScopes.includes(scope)}
+                onChange={(event) =>
+                  setNewScopes((current) =>
+                    event.target.checked
+                      ? [...current, scope]
+                      : current.filter((item) => item !== scope),
+                  )
+                }
+              />
+              {label}
+            </label>
+          ))}
+        </div>
       </div>
 
       {/* Widget snippet */}
