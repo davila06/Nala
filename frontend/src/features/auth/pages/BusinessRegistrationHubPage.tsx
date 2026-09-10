@@ -80,6 +80,20 @@ export default function BusinessRegistrationHubPage() {
         <title>Registra tu negocio · PawTrack CR</title>
       </Helmet>
       <main className="mx-auto max-w-5xl px-4 py-12">
+        <nav className="mb-8 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
+          <Link
+            to="/register"
+            className="text-brand-600 transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          >
+            Volver
+          </Link>
+          <Link
+            to={isAuthenticated ? "/dashboard" : "/login"}
+            className="text-sand-600 transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          >
+            Ir al inicio
+          </Link>
+        </nav>
         <div className="text-center">
           <p className="text-xs font-bold uppercase tracking-wide text-brand-600">
             Para negocios

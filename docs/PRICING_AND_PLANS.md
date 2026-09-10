@@ -18,6 +18,18 @@
 Los precios B2C deben mantenerse sincronizados con `SubscriptionPricing` y
 aprobarse antes de publicarse.
 
+### Plazos de compra B2C
+
+`UserPlus` y `UserFamilia` se pueden comprar por **1, 3, 6 o 12 meses**. El
+importe se calcula sobre el precio mensual vigente:
+
+- 1, 3 y 6 meses: precio mensual multiplicado por la cantidad de meses.
+- 12 meses: precio mensual por 12 con **20% de descuento**.
+
+El plazo y el importe se guardan en la suscripcion pendiente antes de reportar
+el SINPE. La activacion administrativa respeta el plazo comprado. Esta opcion
+no aplica a clinicas, tiendas, refugios ni municipalidades.
+
 ### Cambios de plan
 
 - Cancelar una suscripcion cancela su renovacion, pero conserva el plan actual

@@ -52,7 +52,8 @@ public sealed class SubscriptionsController(ISender sender) : ControllerBase
                 request.ClinicId is null ? userId : null,
                 request.ClinicId,
                 userId,
-                request.Tier),
+                request.Tier,
+                request.BillingMonths),
             cancellationToken);
 
         if (result.IsFailure)
@@ -194,7 +195,10 @@ public sealed class SubscriptionsController(ISender sender) : ControllerBase
     }
 }
 
-public sealed record CreateSubscriptionRequest(SubscriptionTier Tier, Guid? ClinicId);
+public sealed record CreateSubscriptionRequest(
+    SubscriptionTier Tier,
+    Guid? ClinicId,
+    int BillingMonths = 1);
 public sealed record ActivateSubscriptionRequest(string PaymentReference);
 public sealed record AdminActivateRequest(int BillingMonths = 1);
 public sealed record ScheduleDowngradeRequest(SubscriptionTier TargetTier);

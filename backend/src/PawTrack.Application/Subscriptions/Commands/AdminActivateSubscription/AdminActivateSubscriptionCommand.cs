@@ -35,7 +35,9 @@ public sealed class AdminActivateSubscriptionCommandHandler(
 
         var billingMonths = SubscriptionPricing.IsMunicipalTier(sub.Tier)
             ? 12
-            : Math.Max(1, request.BillingMonths);
+            : SubscriptionPricing.IsUserTermTier(sub.Tier) && sub.BillingMonths > 1
+                ? sub.BillingMonths
+                : Math.Max(1, request.BillingMonths);
         sub.Activate(billingMonths);
         subscriptionRepository.Update(sub);
         await SyncClinicFeaturedAsync(sub, true, cancellationToken);

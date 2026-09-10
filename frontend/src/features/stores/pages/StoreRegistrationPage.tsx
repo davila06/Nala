@@ -4,11 +4,13 @@ import { Helmet } from "react-helmet-async";
 import { Button, Input } from "@/shared/ui";
 import { Alert } from "@/shared/ui/Alert";
 import { useRegisterStore } from "../hooks/useStores";
+import { useAuthStore } from "@/features/auth/store/authStore";
 import { LastSeenMap } from "@/features/lost-pets/components/LastSeenMap";
 import type { LastSeenCoords } from "@/features/lost-pets/components/LastSeenMap";
 
 export default function StoreRegistrationPage() {
   const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { mutate: register, isPending, error } = useRegisterStore();
   const [coords, setCoords] = useState<LastSeenCoords | null>(null);
   const [form, setForm] = useState({
@@ -101,6 +103,20 @@ export default function StoreRegistrationPage() {
       <div className="flex min-h-dvh flex-col items-center justify-center px-6 py-12 lg:px-12 bg-surface">
         <div className="w-full max-w-sm">
           <div className="mb-8">
+            <nav className="mb-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
+              <Link
+                to="/registro-negocio"
+                className="text-brand-600 transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              >
+                Volver
+              </Link>
+              <Link
+                to={isAuthenticated ? "/dashboard" : "/login"}
+                className="text-sand-600 transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              >
+                Ir al inicio
+              </Link>
+            </nav>
             <h1 className="font-display text-3xl font-semibold text-sand-900">
               Registra tu tienda
             </h1>

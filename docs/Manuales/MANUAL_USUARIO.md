@@ -114,6 +114,11 @@ Los precios y gates vigentes se mantienen en
 [FEATURES.md](../FEATURES.md). La interfaz puede ocultar una funcion, pero el
 backend es la autoridad final del plan activo.
 
+Al comprar `UserPlus` o `UserFamilia` puedes elegir 1, 3, 6 o 12 meses. Los
+plazos de 1, 3 y 6 meses mantienen el precio mensual proporcional; el plazo de
+12 meses aplica un descuento del 20%. Esta seleccion se refleja en el monto de
+SINPE y queda vigente durante todo el periodo comprado.
+
 ### Cambiar de Familia a Plus
 
 Desde `/perfil`, elige **Programar cambio a Plus al vencimiento**. Mantienes

@@ -13,9 +13,6 @@ interface BillboardBannerProps {
   className?: string;
 }
 
-const DISMISS_KEY = (id: string) => `pawtrack:billboard:dismissed:${id}`;
-const DISMISS_TTL_MS = 24 * 60 * 60_000; // 24h — persists across tab closes
-
 function deliveryKey(billboardId: string, eventType: string): string {
   const visitorKey = "pawtrack:billboard:visitor";
   let visitorId = localStorage.getItem(visitorKey);
@@ -41,24 +38,18 @@ function trackDelivery(
   }
 }
 
-function isDismissed(id: string): boolean {
+function hasAllowedImageSource(imageUrl: string | null): imageUrl is string {
+  if (!imageUrl) return false;
+
   try {
-    const raw = localStorage.getItem(DISMISS_KEY(id));
-    if (!raw) return false;
-    if (Date.now() > Number(raw)) {
-      localStorage.removeItem(DISMISS_KEY(id));
-      return false;
-    }
-    return true;
+    const url = new URL(imageUrl, window.location.origin);
+    return (
+      url.origin === window.location.origin ||
+      url.protocol === "blob:" ||
+      url.hostname.endsWith(".blob.core.windows.net")
+    );
   } catch {
     return false;
-  }
-}
-function setDismissed(id: string) {
-  try {
-    localStorage.setItem(DISMISS_KEY(id), String(Date.now() + DISMISS_TTL_MS));
-  } catch {
-    /* ignore */
   }
 }
 
@@ -110,7 +101,7 @@ function BillboardCard({
       </button>
 
       {/* Image */}
-      {bill.imageUrl && (
+      {hasAllowedImageSource(bill.imageUrl) && (
         <img
           src={bill.imageUrl}
           alt={bill.title}
@@ -120,7 +111,9 @@ function BillboardCard({
       )}
 
       {/* Content */}
-      <div className={`px-4 py-3 space-y-1.5 ${!bill.imageUrl ? "pt-4" : ""}`}>
+      <div
+        className={`px-4 py-3 space-y-1.5 ${!hasAllowedImageSource(bill.imageUrl) ? "pt-4" : ""}`}
+      >
         <div className="flex items-center gap-2">
           <span className="text-[9px] font-bold uppercase tracking-widest text-sand-400">
             Publicidad
@@ -148,7 +141,8 @@ function BillboardCard({
 
 /**
  * Renders the highest-priority active billboard for the given placement.
- * Dismissals persist 24h in localStorage — survive tab closes.
+ * Dismissals only affect the current mounted view. Returning to the page or
+ * reloading it makes active billboards eligible to appear again.
  */
 export function BillboardBanner({
   placement,
@@ -157,15 +151,6 @@ export function BillboardBanner({
   const { data: billboards = [] } = useBillboards(placement);
   const [dismissed, setDismissedState] = useState<Set<string>>(new Set());
   const [rotationOffset, setRotationOffset] = useState(0);
-
-  // Sync localStorage on mount — filter already-dismissed billboards
-  useEffect(() => {
-    const preFiltered = new Set<string>();
-    billboards.forEach((b) => {
-      if (isDismissed(b.id)) preFiltered.add(b.id);
-    });
-    if (preFiltered.size > 0) setDismissedState(preFiltered);
-  }, [billboards]);
 
   const visible = billboards.filter((b) => !dismissed.has(b.id));
   const current =
@@ -193,7 +178,6 @@ export function BillboardBanner({
   }, [current, placement]);
 
   const dismiss = (id: string) => {
-    setDismissed(id);
     trackProductEvent("BillboardDismissed", {
       source: "billboard",
       billboardId: id,

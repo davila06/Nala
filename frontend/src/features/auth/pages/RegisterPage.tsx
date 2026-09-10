@@ -8,6 +8,7 @@ import { Alert } from "@/shared/ui/Alert";
 import { useCountUp } from "@/shared/hooks/useCountUp";
 import { AmbientPaws } from "@/shared/ui/AmbientPaws";
 import { REGISTER_PAWS } from "@/shared/ui/ambientPawsConfig";
+import { useAuthStore } from "@/features/auth/store/authStore";
 
 function StatItem({
   end,
@@ -34,6 +35,7 @@ function StatItem({
 
 export default function RegisterPage() {
   const { mutate: register, isPending, error } = useRegister();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -168,6 +170,20 @@ export default function RegisterPage() {
 
         <div className="w-full max-w-sm">
           <div className="mb-8">
+            <nav className="mb-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
+              <Link
+                to="/login"
+                className="text-brand-600 transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              >
+                Volver
+              </Link>
+              <Link
+                to={isAuthenticated ? "/dashboard" : "/login"}
+                className="text-sand-600 transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              >
+                Ir al inicio
+              </Link>
+            </nav>
             <h1 className="font-display text-3xl font-semibold text-sand-900">
               Crear cuenta
             </h1>

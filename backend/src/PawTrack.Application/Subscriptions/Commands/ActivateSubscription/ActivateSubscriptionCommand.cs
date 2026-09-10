@@ -32,7 +32,7 @@ public sealed class ActivateSubscriptionCommandHandler(
         if (subscription.Status != SubscriptionStatus.PendingPayment)
             return Result.Failure<SubscriptionDto>("Subscription is not in a pending state.");
 
-        subscription.Activate();
+        subscription.Activate(subscription.BillingMonths);
         subscriptionRepository.Update(subscription);
         await SyncClinicFeaturedAsync(subscription, true, cancellationToken);
         await SyncStoreFeaturedAsync(subscription, true, cancellationToken);

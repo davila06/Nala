@@ -24,8 +24,12 @@ DELETE FROM dbo.CollarTags WHERE CollarId IN (@activeCollarId, @offlineCollarId)
    OR Serial IN ('PT-A3F9-0001234', 'PT-B4E1-0001235', 'PT-C7D2-0001236');
 DELETE FROM dbo.Collars WHERE Id IN (@activeCollarId, @offlineCollarId);
 DELETE FROM dbo.Pets WHERE Id IN (@plusPetId, @freePetId);
-DELETE FROM dbo.BillboardDeliveryEvents WHERE BillboardId IN ('CC200001-0000-0000-0000-000000000001', 'CC200002-0000-0000-0000-000000000002');
-DELETE FROM dbo.Billboards WHERE Id IN ('CC200001-0000-0000-0000-000000000001', 'CC200002-0000-0000-0000-000000000002');
+DELETE FROM dbo.BillboardDeliveryEvents WHERE BillboardId IN (
+    'CC200001-0000-0000-0000-000000000001', 'CC200002-0000-0000-0000-000000000002',
+    'CC200003-0000-0000-0000-000000000003', 'CC200004-0000-0000-0000-000000000004');
+DELETE FROM dbo.Billboards WHERE Id IN (
+    'CC200001-0000-0000-0000-000000000001', 'CC200002-0000-0000-0000-000000000002',
+    'CC200003-0000-0000-0000-000000000003', 'CC200004-0000-0000-0000-000000000004');
 
 INSERT INTO dbo.Pets (
     Id, OwnerId, Name, Species, Breed, BirthDate, Status, MicrochipId, CreatedAt,
@@ -90,7 +94,17 @@ VALUES
      'Servicios de recuperación y orientación veterinaria.', 'https://placehold.co/1200x628/png?text=Recuperacion',
      'Ver ayuda', 'https://pawtrack.cr', 3, 1, DATEADD(DAY, -1, SYSDATETIMEOFFSET()), DATEADD(DAY, 14, SYSDATETIMEOFFSET()),
     50, 'Red de Recuperación CR', 'RecoveryService', 'San Jose', 'DEMO-REC-001', 50000, 1, 0, 0, 'Approved', @reviewerId,
-     DATEADD(DAY, -2, SYSDATETIMEOFFSET()), 'Categoría permitida', DATEADD(DAY, -3, SYSDATETIMEOFFSET()), DATEADD(DAY, -2, SYSDATETIMEOFFSET()));
+        DATEADD(DAY, -2, SYSDATETIMEOFFSET()), 'Categoría permitida', DATEADD(DAY, -3, SYSDATETIMEOFFSET()), DATEADD(DAY, -2, SYSDATETIMEOFFSET())),
+        ('CC200003-0000-0000-0000-000000000003', @adminId, 'Protege cada paseo',
+        'Activa herramientas para cuidar mejor la identidad y seguridad de tus mascotas.', NULL,
+        'Ver planes', '/perfil', 1, 1, DATEADD(DAY, -1, SYSDATETIMEOFFSET()), DATEADD(DAY, 30, SYSDATETIMEOFFSET()),
+        30, 'PawTrack CR', 'GpsAndIdentification', NULL, 'DEMO-DASH-001', 25000, 2, 0, 0, 'Approved', @reviewerId,
+        DATEADD(DAY, -2, SYSDATETIMEOFFSET()), 'Campaña demo dashboard', DATEADD(DAY, -3, SYSDATETIMEOFFSET()), DATEADD(DAY, -2, SYSDATETIMEOFFSET())),
+        ('CC200004-0000-0000-0000-000000000004', @adminId, 'Encuentra apoyo para tu mascota',
+        'Conoce servicios de confianza para su cuidado, bienestar y entrenamiento.', NULL,
+        'Explorar servicios', '/servicios', 9, 1, DATEADD(DAY, -1, SYSDATETIMEOFFSET()), DATEADD(DAY, 30, SYSDATETIMEOFFSET()),
+        30, 'PawTrack CR', 'PetCare', NULL, 'DEMO-SERV-001', 25000, 2, 0, 0, 'Approved', @reviewerId,
+        DATEADD(DAY, -2, SYSDATETIMEOFFSET()), 'Campaña demo servicios', DATEADD(DAY, -3, SYSDATETIMEOFFSET()), DATEADD(DAY, -2, SYSDATETIMEOFFSET()));
 
 COMMIT;
 
@@ -99,4 +113,6 @@ UNION ALL SELECT 'Collars', COUNT(*) FROM dbo.Collars WHERE Id IN (@activeCollar
 UNION ALL SELECT 'CollarTags', COUNT(*) FROM dbo.CollarTags WHERE Serial IN ('PT-A3F9-0001234', 'PT-B4E1-0001235', 'PT-C7D2-0001236')
 UNION ALL SELECT 'CollarLocations', COUNT(*) FROM dbo.CollarLocations WHERE CollarId = @activeCollarId
 UNION ALL SELECT 'CollarSafeZones', COUNT(*) FROM dbo.CollarSafeZones WHERE CollarId = @activeCollarId
-UNION ALL SELECT 'Billboards', COUNT(*) FROM dbo.Billboards WHERE Id IN ('CC200001-0000-0000-0000-000000000001', 'CC200002-0000-0000-0000-000000000002');
+UNION ALL SELECT 'Billboards', COUNT(*) FROM dbo.Billboards WHERE Id IN (
+    'CC200001-0000-0000-0000-000000000001', 'CC200002-0000-0000-0000-000000000002',
+    'CC200003-0000-0000-0000-000000000003', 'CC200004-0000-0000-0000-000000000004');

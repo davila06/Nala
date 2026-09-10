@@ -249,15 +249,34 @@ export default function PublicMapPage() {
         )}
         <Link
           to="/estadisticas"
-          className="pointer-events-auto flex items-center gap-2 rounded-xl border border-sand-300 bg-white/95 px-4 py-2.5 text-sm font-semibold text-sand-700 shadow-lg transition-colors hover:bg-sand-50"
+          className="pointer-events-auto flex items-center gap-2.5 rounded-2xl border border-white/80 bg-white/95 px-4 py-3 text-sm font-semibold text-sand-800 shadow-[0_8px_24px_rgba(15,23,42,0.18)] transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_28px_rgba(15,23,42,0.24)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
         >
-          📊 Ver estadísticas
+          <span
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-100 text-base text-brand-700"
+            aria-hidden="true"
+          >
+            ↗
+          </span>
+          <span>Ver estadísticas</span>
         </Link>
         <Link
           to="/map/match"
-          className="pointer-events-auto flex items-center gap-2 rounded-xl bg-sand-900 px-4 py-2.5 text-sm font-bold text-white shadow-lg transition-colors hover:bg-sand-700"
+          className="pointer-events-auto flex min-w-0 items-center gap-3 rounded-2xl border border-rescue-300/80 bg-rescue-600 px-4 py-3 text-white shadow-[0_10px_28px_rgba(220,78,63,0.34)] transition duration-200 hover:-translate-y-0.5 hover:bg-rescue-700 hover:shadow-[0_14px_32px_rgba(220,78,63,0.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
         >
-          🔍 ¿Encontraste un animal?
+          <span
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/20 text-xl leading-none ring-1 ring-white/30"
+            aria-hidden="true"
+          >
+            ♡
+          </span>
+          <span className="min-w-0">
+            <span className="block text-sm font-extrabold leading-tight">
+              ¿Encontraste una mascota?
+            </span>
+            <span className="mt-0.5 block text-[11px] font-medium leading-tight text-white/80">
+              Ayuda a encontrar a su familia
+            </span>
+          </span>
         </Link>
         <Link
           to="/bienestar/reportar"
@@ -377,25 +396,52 @@ export default function PublicMapPage() {
         onClose={() => setCheckoutOpen(false)}
       />
 
-      {/* Public map inventory remains visible independently of map layers. */}
-      <div className="absolute bottom-36 left-3 z-[999] w-72">
-        <BillboardBanner placement="Map" />
+      {/* Public map inventory sits below the header, separate from the legend. */}
+      <div className="pointer-events-none absolute left-3 right-3 top-[124px] z-[999] flex max-w-72 flex-col gap-2 sm:top-28">
+        <BillboardBanner
+          placement="Map"
+          className="pointer-events-auto w-72 max-w-full"
+        />
+        {filteredEvents.some((event) => event.eventType === "LostPet") && (
+          <BillboardBanner
+            placement="Feed"
+            className="pointer-events-auto w-72 max-w-full"
+          />
+        )}
       </div>
-      {filteredEvents.some((event) => event.eventType === "LostPet") && (
-        <div className="absolute bottom-3 left-3 z-[999] w-72">
-          <BillboardBanner placement="Feed" />
-        </div>
-      )}
 
-      {/* Clinic count badge when layer is active */}
-      {showClinics && (
-        <div className="absolute bottom-28 right-3 z-[1000] rounded-full bg-trust-700 px-3 py-1 text-xs font-bold text-white shadow-lg">
-          {showEmergencyOnly ? "🚨" : "🏥"} {displayedClinics.length} clínica
-          {displayedClinics.length !== 1 ? "s" : ""}
-          {showEmergencyOnly && " · 24h"}
-          {!showEmergencyOnly &&
-            displayedClinics.filter((c) => c.isFeatured).length > 0 &&
-            ` · ${displayedClinics.filter((c) => c.isFeatured).length} verificada${displayedClinics.filter((c) => c.isFeatured).length !== 1 ? "s" : ""}`}
+      {/* Active layer counts */}
+      {(showClinics || showServiceProviders || showStores || showAdoptions) && (
+        <div className="absolute bottom-28 right-3 z-[1000] flex flex-col items-end gap-1.5">
+          {showClinics && (
+            <div className="rounded-full bg-trust-700 px-3 py-1 text-xs font-bold text-white shadow-lg">
+              {showEmergencyOnly ? "🚨" : "🏥"} {displayedClinics.length}{" "}
+              clínica
+              {displayedClinics.length !== 1 ? "s" : ""}
+              {showEmergencyOnly && " · 24h"}
+              {!showEmergencyOnly &&
+                displayedClinics.filter((c) => c.isFeatured).length > 0 &&
+                ` · ${displayedClinics.filter((c) => c.isFeatured).length} verificada${displayedClinics.filter((c) => c.isFeatured).length !== 1 ? "s" : ""}`}
+            </div>
+          )}
+          {showServiceProviders && (
+            <div className="rounded-full bg-brand-700 px-3 py-1 text-xs font-bold text-white shadow-lg">
+              ✂️ {serviceProviders.length} servicio
+              {serviceProviders.length !== 1 ? "s" : ""}
+            </div>
+          )}
+          {showStores && (
+            <div className="rounded-full bg-rescue-700 px-3 py-1 text-xs font-bold text-white shadow-lg">
+              🛒 {publicStores.length} tienda
+              {publicStores.length !== 1 ? "s" : ""}
+            </div>
+          )}
+          {showAdoptions && (
+            <div className="rounded-full bg-purple-700 px-3 py-1 text-xs font-bold text-white shadow-lg">
+              🐾 {adoptableAnimals.length} adopción
+              {adoptableAnimals.length !== 1 ? "es" : ""}
+            </div>
+          )}
         </div>
       )}
     </div>

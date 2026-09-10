@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
 import { Alert } from "@/shared/ui/Alert";
 import { Button, Input } from "@/shared/ui";
+import { useAuthStore } from "@/features/auth/store/authStore";
 import {
   LastSeenMap,
   type LastSeenCoords,
@@ -20,6 +21,7 @@ const categories = Object.entries(SERVICE_PROVIDER_CATEGORY_LABELS) as [
 
 export default function ServiceProviderRegistrationPage() {
   const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { mutate: register, isPending, error } = useRegisterServiceProvider();
   const [coords, setCoords] = useState<LastSeenCoords | null>(null);
   const [validationError, setValidationError] = useState("");
@@ -70,6 +72,20 @@ export default function ServiceProviderRegistrationPage() {
       </Helmet>
       <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[0.8fr_1.2fr]">
         <aside className="border-b border-sand-200 pb-6 lg:border-b-0 lg:border-r lg:pr-8">
+          <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
+            <Link
+              to="/servicios"
+              className="text-brand-600 transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            >
+              Volver
+            </Link>
+            <Link
+              to={isAuthenticated ? "/dashboard" : "/login"}
+              className="text-sand-600 transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            >
+              Ir al inicio
+            </Link>
+          </nav>
           <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">
             Directorio PawTrack
           </p>

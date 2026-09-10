@@ -1,6 +1,6 @@
 # PawTrack CR - Vallas Publicitarias: Pendientes Enterprise
 
-> Estado: 2026-09-09
+> Estado: 2026-09-10
 > Base local validada: `PawTrackDev` en `(localdb)\MSSQLLocalDB`; las migraciones de vallas y dependencias se aplicaron correctamente.
 > Alcance: campañas in-app, inventario, entrega, métricas, operación administrativa y monetización.
 
@@ -17,6 +17,9 @@ La plataforma ya cuenta con:
 - Eventos de impresión, clic y conversión con deduplicación, rate limit por IP+campaña y contador diario por visitante pseudonimizado.
 - Métricas de impresiones, clics, CTR, conversiones, cantón y placement.
 - CTA de WhatsApp en los popups del mapa cuando clínica, tienda o proveedor configura un número móvil CR y da consentimiento explícito.
+- Renderizado de banners en los 15 placements; el dashboard y el directorio de servicios tienen campañas demo activas en el seed local.
+- En `/map`, las vallas flotantes se muestran en una pila separada del panel de leyenda para evitar solapamientos; los cierres solo aplican a la vista montada actual.
+- Las imágenes de campaña se sirven desde orígenes compatibles con la CSP; las URLs externas no permitidas se omiten en el cliente para evitar errores de consola.
 
 ## Pendientes priorizados
 
@@ -162,7 +165,7 @@ El presupuesto se guarda y se muestra, pero una campaña no se pausa al alcanzar
 
 #### Creativos y moderación
 
-**Estado:** revisión humana y validación de MIME/tamaño; no hay workflow completo.
+**Estado:** revisión humana, validación de MIME/tamaño y redimensionado a JPEG al subir el creativo; no hay workflow completo.
 
 **Pendiente:**
 
@@ -170,6 +173,23 @@ El presupuesto se guarda y se muestra, pero una campaña no se pausa al alcanzar
 - Motivos normalizados de rechazo, historial de versiones de creativo y SLA de revisión.
 - Preview móvil y escritorio contra cada placement.
 - Política de contenido vinculada desde el formulario de campaña.
+
+## Datos demo locales
+
+El seed `backend/scripts/seed-enterprise-demo-data.sql` crea cuatro campañas
+activas para probar `Map`, `Feed`, `Dashboard` y
+`ServiceProviderDirectory`. Las campañas de dashboard y servicios usan CTA
+interno y no dependen de imágenes externas.
+
+Para probar el inventario de adopciones se puede ejecutar:
+
+```powershell
+sqllocaldb start MSSQLLocalDB
+sqlcmd -S "(localdb)\MSSQLLocalDB" -d PawTrackDev -E -f 65001 -i backend/scripts/seed-adoption-demo-data.sql
+```
+
+Ese seed es idempotente y crea cuatro animales disponibles y una feria próxima
+para el refugio verificado `ally@test.cr` / `Refugio Central CR`.
 
 ## Operación local
 

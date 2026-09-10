@@ -17,6 +17,7 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
         builder.Property(x => x.ClinicOwnerId);
         builder.Property(x => x.Tier).IsRequired().HasConversion<string>().HasMaxLength(20);
         builder.Property(x => x.Status).IsRequired().HasConversion<string>().HasMaxLength(20);
+        builder.Property(x => x.BillingMonths).IsRequired();
         builder.Property(x => x.PaymentReference).IsRequired().HasMaxLength(8);
         builder.Property(x => x.AmountCrc).HasColumnType("decimal(12,2)");
         builder.Property(x => x.CreatedAt).IsRequired();

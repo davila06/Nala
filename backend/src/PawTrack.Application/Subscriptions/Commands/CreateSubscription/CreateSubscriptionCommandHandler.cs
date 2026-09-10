@@ -22,7 +22,15 @@ public sealed class CreateSubscriptionCommandHandler(
         if (plan is null || !plan.IsActive)
             return Result.Failure<SubscriptionDto>($"Tier {request.Tier} is not an active paid plan.");
 
-        var amount = plan.AnnualPriceCrc ?? plan.MonthlyPriceCrc!.Value;
+        if (SubscriptionPricing.IsUserTermTier(request.Tier) && plan.MonthlyPriceCrc is null)
+            return Result.Failure<SubscriptionDto>("This user plan has no monthly price configured.");
+
+        var billingMonths = SubscriptionPricing.IsUserTermTier(request.Tier)
+            ? request.BillingMonths
+            : SubscriptionPricing.IsMunicipalTier(request.Tier) ? 12 : 1;
+        var amount = SubscriptionPricing.IsUserTermTier(request.Tier)
+            ? SubscriptionPricing.CalculateTermPriceCrc(plan.MonthlyPriceCrc!.Value, billingMonths)
+            : plan.AnnualPriceCrc ?? plan.MonthlyPriceCrc!.Value;
 
         // Cancel any existing pending subscription for the same owner before creating a new one
         Subscription? existing = request.UserId.HasValue
@@ -36,8 +44,14 @@ public sealed class CreateSubscriptionCommandHandler(
 
         var reference = paymentService.GenerateReference();
         var subscription = request.UserId.HasValue
-            ? Subscription.CreateForUser(request.UserId.Value, request.Tier, reference, amount)
-            : Subscription.CreateForClinic(request.ClinicId!.Value, request.RequestingUserId, request.Tier, reference, amount);
+            ? Subscription.CreateForUser(request.UserId.Value, request.Tier, reference, amount, billingMonths)
+            : Subscription.CreateForClinic(
+                request.ClinicId!.Value,
+                request.RequestingUserId,
+                request.Tier,
+                reference,
+                amount,
+                billingMonths);
 
         await subscriptionRepository.AddAsync(subscription, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);

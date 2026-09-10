@@ -202,6 +202,11 @@ export default function DashboardPage() {
           )}
         </div>
 
+        {/* Billboard — visible near the dashboard entry actions */}
+        {!isLoading && (
+          <BillboardBanner placement="Dashboard" className="mb-8" />
+        )}
+
         {/* Freemium upsell — only for non-admin, non-paying users with at least 1 pet */}
         {!isLoading &&
           user?.role !== "Admin" &&
@@ -396,11 +401,6 @@ export default function DashboardPage() {
             </h2>
             <AlertPreferencesToggle />
           </div>
-        )}
-
-        {/* Billboard — Dashboard placement */}
-        {!isLoading && (
-          <BillboardBanner placement="Dashboard" className="mt-4" />
         )}
 
         {/* Leaderboard */}

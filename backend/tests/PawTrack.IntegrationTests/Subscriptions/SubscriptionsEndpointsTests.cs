@@ -47,6 +47,21 @@ public sealed class SubscriptionsEndpointsTests(PawTrackWebApplicationFactory fa
     }
 
     [Fact]
+    public async Task Create_UserPlanWithUnsupportedBillingTerm_Returns422()
+    {
+        var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+
+        var response = await client.PostAsJsonAsync("/api/subscriptions", new
+        {
+            tier = "UserPlus",
+            billingMonths = 2,
+            clinicId = (Guid?)null,
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+    }
+
+    [Fact]
     public async Task Cancel_UnknownId_Returns422()
     {
         var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);

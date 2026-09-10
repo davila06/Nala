@@ -9,4 +9,5 @@ public sealed record CreateSubscriptionCommand(
     Guid?            UserId,
     Guid?            ClinicId,
     Guid             RequestingUserId,
-    SubscriptionTier Tier) : IRequest<Result<SubscriptionDto>>;
+    SubscriptionTier Tier,
+    int              BillingMonths = 1) : IRequest<Result<SubscriptionDto>>;

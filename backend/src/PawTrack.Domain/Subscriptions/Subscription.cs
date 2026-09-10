@@ -13,6 +13,7 @@ public sealed class Subscription
     public Guid? ClinicOwnerId { get; private set; }
     public SubscriptionTier Tier { get; private set; }
     public SubscriptionStatus Status { get; private set; }
+    public int BillingMonths { get; private set; } = 1;
     /// <summary>SINPE Móvil reference code (8 uppercase alphanum) shown to the subscriber.</summary>
     public string PaymentReference { get; private set; } = string.Empty;
     public decimal AmountCrc { get; private set; }
@@ -29,7 +30,12 @@ public sealed class Subscription
 
     // ── Factories ─────────────────────────────────────────────────────────────
 
-    public static Subscription CreateForUser(Guid userId, SubscriptionTier tier, string paymentReference, decimal amountCrc)
+    public static Subscription CreateForUser(
+        Guid userId,
+        SubscriptionTier tier,
+        string paymentReference,
+        decimal amountCrc,
+        int billingMonths = 1)
     {
         ValidateUserTier(tier);
         return new Subscription
@@ -40,6 +46,7 @@ public sealed class Subscription
             Status = SubscriptionStatus.PendingPayment,
             PaymentReference = paymentReference,
             AmountCrc = amountCrc,
+            BillingMonths = billingMonths,
             CreatedAt = DateTimeOffset.UtcNow,
         };
     }
@@ -49,7 +56,8 @@ public sealed class Subscription
         SubscriptionTier tier,
         string paymentReference,
         decimal amountCrc,
-        DateTimeOffset startsAt)
+        DateTimeOffset startsAt,
+        int billingMonths = 1)
     {
         ValidateUserTier(tier);
         if (startsAt <= DateTimeOffset.UtcNow)
@@ -63,12 +71,19 @@ public sealed class Subscription
             Status = SubscriptionStatus.PendingPayment,
             PaymentReference = paymentReference,
             AmountCrc = amountCrc,
+            BillingMonths = billingMonths,
             StartsAt = startsAt,
             CreatedAt = DateTimeOffset.UtcNow,
         };
     }
 
-    public static Subscription CreateForClinic(Guid clinicId, Guid ownerId, SubscriptionTier tier, string paymentReference, decimal amountCrc)
+    public static Subscription CreateForClinic(
+        Guid clinicId,
+        Guid ownerId,
+        SubscriptionTier tier,
+        string paymentReference,
+        decimal amountCrc,
+        int billingMonths = 1)
     {
         ValidateClinicTier(tier);
         return new Subscription
@@ -80,6 +95,7 @@ public sealed class Subscription
             Status = SubscriptionStatus.PendingPayment,
             PaymentReference = paymentReference,
             AmountCrc = amountCrc,
+            BillingMonths = billingMonths,
             CreatedAt = DateTimeOffset.UtcNow,
         };
     }
@@ -97,6 +113,7 @@ public sealed class Subscription
             Status = SubscriptionStatus.Active,
             PaymentReference = string.Empty,
             AmountCrc = 0,
+            BillingMonths = months,
             RedeemedPromotionCodeId = promotionCodeId,
             CreatedAt = now,
             ActivatedAt = now,

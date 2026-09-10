@@ -22,11 +22,13 @@ export function useCreateSubscription() {
   return useMutation({
     mutationFn: ({
       tier,
+      billingMonths,
       clinicId,
     }: {
       tier: SubscriptionTier;
+      billingMonths: number;
       clinicId?: string;
-    }) => subscriptionApi.create(tier, clinicId),
+    }) => subscriptionApi.create(tier, billingMonths, clinicId),
     onSuccess: (_data, { clinicId }) => {
       void queryClient.invalidateQueries({
         queryKey: ["subscription", "me", clinicId ?? "user"],

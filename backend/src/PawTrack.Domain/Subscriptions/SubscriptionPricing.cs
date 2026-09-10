@@ -7,6 +7,9 @@ namespace PawTrack.Domain.Subscriptions;
 /// </summary>
 public static class SubscriptionPricing
 {
+    public const int AnnualTerm = 12;
+    public const decimal AnnualDiscount = 0.20m;
+
     public static readonly IReadOnlyDictionary<SubscriptionTier, decimal> MonthlyPriceCrc =
         new Dictionary<SubscriptionTier, decimal>
         {
@@ -39,4 +42,23 @@ public static class SubscriptionPricing
 
     public static bool IsMunicipalTier(SubscriptionTier tier) =>
         AnnualPriceCrc.ContainsKey(tier);
+
+    public static bool IsUserTermTier(SubscriptionTier tier) =>
+        tier is SubscriptionTier.UserPlus or SubscriptionTier.UserFamilia;
+
+    public static bool IsSupportedBillingMonths(int billingMonths) =>
+        billingMonths is 1 or 3 or 6 or AnnualTerm;
+
+    public static decimal CalculateTermPriceCrc(decimal monthlyPriceCrc, int billingMonths)
+    {
+        if (monthlyPriceCrc <= 0)
+            throw new ArgumentOutOfRangeException(nameof(monthlyPriceCrc));
+        if (!IsSupportedBillingMonths(billingMonths))
+            throw new ArgumentOutOfRangeException(nameof(billingMonths));
+
+        var undiscountedAmount = monthlyPriceCrc * billingMonths;
+        return billingMonths == AnnualTerm
+            ? undiscountedAmount * (1 - AnnualDiscount)
+            : undiscountedAmount;
+    }
 }

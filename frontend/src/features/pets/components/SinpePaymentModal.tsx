@@ -16,6 +16,7 @@ interface SinpePaymentModalProps {
 }
 
 const SINPE_NUMBER = import.meta.env.VITE_SINPE_PHONE ?? "7000-0000";
+const USER_BILLING_TERMS = [1, 3, 6, 12] as const;
 const TIER_LABELS: Record<SubscriptionTier, string> = {
   Free: "Explorador",
   UserPlus: "Plus",
@@ -44,6 +45,7 @@ export function SinpePaymentModal({
   >("confirm");
   const [reference, setReference] = useState<string | null>(null);
   const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
+  const [billingMonths, setBillingMonths] = useState(1);
   const [error, setError] = useState<string | null>(null);
 
   const { mutateAsync: createSub, isPending: isCreating } =
@@ -53,17 +55,22 @@ export function SinpePaymentModal({
   const { data: catalog } = useSubscriptionCatalog();
 
   const catalogPlan = catalog?.find((plan) => plan.tier === tier);
-  const price =
-    catalogPlan?.annualPriceCrc ??
-    catalogPlan?.monthlyPriceCrc ??
-    TIER_PRICE_CRC[tier];
+  const isUserPlan = tier === "UserPlus" || tier === "UserFamilia";
+  const monthlyPrice = catalogPlan?.monthlyPriceCrc ?? TIER_PRICE_CRC[tier];
+  const price = isUserPlan
+    ? monthlyPrice * billingMonths * (billingMonths === 12 ? 0.8 : 1)
+    : catalogPlan?.annualPriceCrc ?? monthlyPrice;
   const label = catalogPlan?.displayName ?? TIER_LABELS[tier];
-  const pricePeriod = catalogPlan?.annualPriceCrc ? "año" : "mes";
+  const pricePeriod = isUserPlan
+    ? `${billingMonths} ${billingMonths === 1 ? "mes" : "meses"}`
+    : catalogPlan?.annualPriceCrc
+      ? "año"
+      : "mes";
 
   async function handleStartPayment() {
     setError(null);
     try {
-      const sub = await createSub({ tier, clinicId });
+      const sub = await createSub({ tier, billingMonths, clinicId });
       setReference(sub.paymentReference);
       setSubscriptionId(sub.id);
       setStep("payment");
@@ -136,6 +143,35 @@ export function SinpePaymentModal({
           {step === "confirm" && (
             <div className="space-y-4">
               <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4">
+                {isUserPlan && (
+                  <fieldset className="mb-3">
+                    <legend className="mb-2 text-sm font-semibold text-brand-900">
+                      Duración del plan
+                    </legend>
+                    <div className="grid grid-cols-4 gap-2">
+                      {USER_BILLING_TERMS.map((months) => (
+                        <button
+                          key={months}
+                          type="button"
+                          onClick={() => setBillingMonths(months)}
+                          aria-pressed={billingMonths === months}
+                          className={`rounded-xl border px-2 py-2 text-xs font-bold transition-colors ${
+                            billingMonths === months
+                              ? "border-brand-600 bg-brand-600 text-white"
+                              : "border-brand-200 bg-white text-brand-700 hover:border-brand-400"
+                          }`}
+                        >
+                          {months === 12 ? "1 año" : `${months} mes${months === 1 ? "" : "es"}`}
+                          {months === 12 && (
+                            <span className="mt-0.5 block text-[10px] font-medium">
+                              -20%
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
+                )}
                 <p className="text-sm text-brand-800">
                   Activarás el plan <strong>{label}</strong> por{" "}
                   <strong>

@@ -1,12 +1,30 @@
-import { screen, waitFor } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import RegisterPage from "@/features/auth/pages/RegisterPage";
+import { useAuthStore } from "@/features/auth/store/authStore";
 import { server } from "../../mocks/server";
 import { renderWithProviders } from "../../utils/renderWithProviders";
 
+afterEach(() => {
+  act(() => useAuthStore.getState().clearAuth());
+});
+
 describe("RegisterPage", () => {
+  it("offers anonymous visitors a way back to sign-in", () => {
+    renderWithProviders(<RegisterPage />);
+
+    expect(screen.getByRole("link", { name: "Volver" })).toHaveAttribute(
+      "href",
+      "/login",
+    );
+    expect(screen.getByRole("link", { name: "Ir al inicio" })).toHaveAttribute(
+      "href",
+      "/login",
+    );
+  });
+
   it("renders all form fields", () => {
     renderWithProviders(<RegisterPage />);
 

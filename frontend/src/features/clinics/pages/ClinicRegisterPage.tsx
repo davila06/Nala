@@ -1,59 +1,66 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useMutation } from '@tanstack/react-query'
-import { clinicsApi, type RegisterClinicRequest } from '../api/clinicsApi'
-import { Alert } from '@/shared/ui/Alert'
-import { Input } from '@/shared/ui/Input'
-import { Button } from '@/shared/ui/Button'
-import PasswordStrengthIndicator from '@/features/auth/components/PasswordStrengthIndicator'
-import { ClinicLocationPicker } from '../components/ClinicLocationPicker'
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { clinicsApi, type RegisterClinicRequest } from "../api/clinicsApi";
+import { Alert } from "@/shared/ui/Alert";
+import { Input } from "@/shared/ui/Input";
+import { Button } from "@/shared/ui/Button";
+import PasswordStrengthIndicator from "@/features/auth/components/PasswordStrengthIndicator";
+import { useAuthStore } from "@/features/auth/store/authStore";
+import { ClinicLocationPicker } from "../components/ClinicLocationPicker";
 
 export default function ClinicRegisterPage() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [form, setForm] = useState<RegisterClinicRequest>({
-    name: '',
-    licenseNumber: '',
-    address: '',
+    name: "",
+    licenseNumber: "",
+    address: "",
     lat: 9.9281,
     lng: -84.0908,
-    contactEmail: '',
-    password: '',
-  })
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [validationError, setValidationError] = useState<string | null>(null)
+    contactEmail: "",
+    password: "",
+  });
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const { mutate, isPending, error } = useMutation({
-    mutationFn: (payload: RegisterClinicRequest) => clinicsApi.register(payload),
-    onSuccess: () => navigate('/clinica/pendiente'),
-  })
+    mutationFn: (payload: RegisterClinicRequest) =>
+      clinicsApi.register(payload),
+    onSuccess: () => navigate("/clinica/pendiente"),
+  });
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const { name, value, type } = e.target
+    const { name, value, type } = e.target;
     setForm((prev) => ({
       ...prev,
-      [name]: type === 'number' ? parseFloat(value) || 0 : value,
-    }))
+      [name]: type === "number" ? parseFloat(value) || 0 : value,
+    }));
   }
 
   function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setValidationError(null)
+    e.preventDefault();
+    setValidationError(null);
 
     if (form.password !== confirmPassword) {
-      setValidationError('Las contraseñas no coinciden.')
-      return
+      setValidationError("Las contraseñas no coinciden.");
+      return;
     }
     if (form.password.length < 8) {
-      setValidationError('La contraseña debe tener al menos 8 caracteres.')
-      return
+      setValidationError("La contraseña debe tener al menos 8 caracteres.");
+      return;
     }
 
-    mutate(form)
+    mutate(form);
   }
 
   const serverError =
-    error instanceof Error ? error.message : error ? 'Error al registrar la clínica.' : null
+    error instanceof Error
+      ? error.message
+      : error
+        ? "Error al registrar la clínica."
+        : null;
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[1fr_560px]">
@@ -66,23 +73,31 @@ export default function ClinicRegisterPage() {
           <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 text-xl">
             🐾
           </span>
-          <span className="font-display text-2xl font-semibold tracking-tight">PawTrack CR</span>
+          <span className="font-display text-2xl font-semibold tracking-tight">
+            PawTrack CR
+          </span>
         </div>
 
         <div className="space-y-6">
           <p className="font-display text-4xl leading-snug font-medium text-balance">
-            Únete a la red<br />
+            Únete a la red
+            <br />
             <em className="not-italic text-rescue-400">veterinaria oficial.</em>
           </p>
           <ul className="space-y-3 text-trust-200 text-sm leading-relaxed">
             {[
-              'Escanea QR y microchips de mascotas perdidas',
-              'Notifica al dueño de forma instantánea',
-              'Directorio público de clínicas afiliadas',
-              'Revisión y activación en 1-2 días hábiles',
+              "Escanea QR y microchips de mascotas perdidas",
+              "Notifica al dueño de forma instantánea",
+              "Directorio público de clínicas afiliadas",
+              "Revisión y activación en 1-2 días hábiles",
             ].map((feat) => (
               <li key={feat} className="flex items-start gap-2.5">
-                <span className="mt-0.5 text-rescue-400 text-base" aria-hidden="true">✓</span>
+                <span
+                  className="mt-0.5 text-rescue-400 text-base"
+                  aria-hidden="true"
+                >
+                  ✓
+                </span>
                 {feat}
               </li>
             ))}
@@ -98,14 +113,33 @@ export default function ClinicRegisterPage() {
       <div className="flex min-h-dvh flex-col items-center justify-center px-6 py-12 lg:px-12 bg-surface">
         {/* Mobile logo */}
         <div className="mb-8 flex items-center gap-2.5 lg:hidden">
-          <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-brand-500 text-lg text-white" aria-hidden="true">
+          <span
+            className="flex h-9 w-9 items-center justify-center rounded-2xl bg-brand-500 text-lg text-white"
+            aria-hidden="true"
+          >
             🐾
           </span>
-          <span className="font-display text-xl font-semibold text-sand-900">PawTrack CR</span>
+          <span className="font-display text-xl font-semibold text-sand-900">
+            PawTrack CR
+          </span>
         </div>
 
         <div className="w-full max-w-sm">
           <div className="mb-8">
+            <nav className="mb-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
+              <Link
+                to="/registro-negocio"
+                className="text-brand-600 transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              >
+                Volver
+              </Link>
+              <Link
+                to={isAuthenticated ? "/dashboard" : "/login"}
+                className="text-sand-600 transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              >
+                Ir al inicio
+              </Link>
+            </nav>
             <h1 className="font-display text-3xl font-semibold text-sand-900">
               Registrar clínica
             </h1>
@@ -121,7 +155,6 @@ export default function ClinicRegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
-
             {/* ── Datos de la clínica ── */}
             <p className="text-xs font-semibold uppercase tracking-widest text-sand-400">
               Datos de la clínica
@@ -166,7 +199,9 @@ export default function ClinicRegisterPage() {
             <ClinicLocationPicker
               lat={form.lat}
               lng={form.lng}
-              onChange={(lat, lng) => setForm((prev) => ({ ...prev, lat, lng }))}
+              onChange={(lat, lng) =>
+                setForm((prev) => ({ ...prev, lat, lng }))
+              }
             />
 
             {/* Coordinates */}
@@ -216,7 +251,7 @@ export default function ClinicRegisterPage() {
             <div className="space-y-1.5">
               <Input
                 label="Contraseña"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 name="password"
                 id="password"
                 autoComplete="new-password"
@@ -232,13 +267,13 @@ export default function ClinicRegisterPage() {
                 onClick={() => setShowPassword((v) => !v)}
                 className="rounded px-1 py-2 text-xs text-sand-500 hover:text-sand-700 transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               >
-                {showPassword ? 'Ocultar' : 'Mostrar'} contraseña
+                {showPassword ? "Ocultar" : "Mostrar"} contraseña
               </button>
             </div>
 
             <Input
               label="Confirmar contraseña"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               id="confirmPassword"
               autoComplete="new-password"
               required
@@ -249,13 +284,13 @@ export default function ClinicRegisterPage() {
 
             <div className="pt-1">
               <Button type="submit" loading={isPending} fullWidth size="lg">
-                {isPending ? 'Enviando solicitud…' : 'Solicitar registro'}
+                {isPending ? "Enviando solicitud…" : "Solicitar registro"}
               </Button>
             </div>
           </form>
 
           <p className="mt-8 text-center text-sm text-sand-500">
-            ¿Ya tienes cuenta?{' '}
+            ¿Ya tienes cuenta?{" "}
             <Link
               to="/login"
               className="rounded font-semibold text-brand-600 hover:text-brand-700 hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
@@ -265,11 +300,11 @@ export default function ClinicRegisterPage() {
           </p>
 
           <p className="mt-4 text-center text-xs text-sand-400">
-            El equipo PawTrack revisará y activará tu cuenta en 1-2 días hábiles.
+            El equipo PawTrack revisará y activará tu cuenta en 1-2 días
+            hábiles.
           </p>
         </div>
       </div>
     </div>
-  )
+  );
 }
-

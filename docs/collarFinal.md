@@ -172,55 +172,81 @@ public sealed class KippyService(IHttpClientFactory factory, IConfiguration conf
 
 ---
 
-### 3.3 OEM China — Fabricantes candidatos
+### 3.3 OEM China — Fabricante
 
-Para el collar de marca PawTrack, cuatro fabricantes candidatos clasificados por prioridad:
+> **Collar base y única opción actual de PawTrack: Jimi IoT AL600.**
 
-| Fabricante    | Modelo ref.        | API                     | MOQ    | Fortaleza                                                                                                               | Prioridad          |
-| ------------- | ------------------ | ----------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| **Concox**    | AT4 (GPS+WiFi+LTE) | REST propia documentada | 50 u.  | `sales@concox.com` verificado, FCC/CE/ROHS                                                                              | **1°**             |
-| **Jimi IoT**  | JM-VL01 / LL01     | REST + MQTT             | 50 u.  | Push (MQTT) + polling — más flexible; **en conversación activa, respondieron RFQ 2026-09-03, ver `docs/jimiiot.md` §8** | **1°** (promovido) |
-| **Queclink**  | GL300 miniatura    | REST + binario propio   | 50 u.  | Hardware robusto y compacto                                                                                             | 3°                 |
-| **ThinkRace** | TK115 pet-specific | REST + WebSocket        | 100 u. | Diseño pensado para collar                                                                                              | 4°                 |
+Fabricante seleccionado para el collar de marca PawTrack:
 
-**Precios detallados (Concox AT4 como referencia):**
+| Fabricante    | Modelo ref.                     | API                                                                                                             | MOQ               | Fortaleza                                                                                                                         | Prioridad            |
+| ------------- | ------------------------------- | --------------------------------------------------------------------------------------------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| **Jimi IoT**  | AL600 (recomendado para piloto) | TrackSolid Pro (REST, confirmada) — AL600 estándar NO soporta MQTT/HTTPS API propio, requiere desarrollo custom | 100 u. (estándar) | Respuesta estructurada completa al RFQ recibida 2026-09-10 — ver `docs/jimiiot.md` §8; línea propia de pet wearables ya existente | **1° — collar base** |
+| **Queclink**  | GL300 miniatura                 | REST + binario propio                                                                                           | 50 u.             | Hardware robusto y compacto                                                                                                       | 2°                   |
+| **ThinkRace** | TK115 pet-specific              | REST + WebSocket                                                                                                | 100 u.            | Diseño pensado para collar                                                                                                        | 3°                   |
 
-| Concepto                       | Costo USD                 |
-| ------------------------------ | ------------------------- |
-| Unidad FCA Shenzhen            | $18                       |
-| Flete DHL (50 u.)              | $4/u                      |
-| Impuestos CR (~15%)            | $2.70/u                   |
-| SIM IoT mensual                | $2/mes/u                  |
-| **Total landed CR (hardware)** | **~$24.70/u**             |
-| Precio venta sugerido          | ₡20,000–25,000 (~$38–$48) |
-| Margen bruto hardware          | ~$13–$23/u                |
-
-**Inversión mínimo viable (50 u.):**
-
-- $900 hardware + $200 flete + $135 impuestos ≈ **$1,235 USD**
-- SIM activación 50 collares: ~$100 primer mes
-- **Total primer lote: ~$1,335 USD**
-
-**SIMs IoT recomendadas para CR:**
-
-| Proveedor    | Cobertura CR     | USD/mes/SIM | Dashboard   |
-| ------------ | ---------------- | ----------- | ----------- |
-| **Emnify**   | Movistar + Kölbi | $1.50–$2.50 | REST API ✅ |
-| **Hologram** | Claro + Kölbi    | $1.00–$2.00 | REST API ✅ |
-
-**Proceso de importación China → CR:**
+**Proceso de importación China → CR (Jimi IoT AL600, MOQ 100 u.):**
 
 ```
 Semana 1   → Pedir muestras ($50–100 + DHL $30), validar GPS/batería/waterproof
-Semana 2–3 → Integrar API como CollarProvider.Generic, confirmar polling funciona
-Semana 4   → Confirmar orden 50 u. (T/T 30% adelanto / 70% antes embarque)
+Semana 2–3 → Integrar API TrackSolid Pro, confirmar polling funciona
+Semana 4   → Confirmar orden 100 u. (T/T 30% adelanto / 70% antes embarque)
              Producción: 15–20 días
 Semana 6–7 → DHL Shenzhen → SJO 3–5 días; agente aduanal obligatorio >$1,000 CIF
-             Código arancelario: 8526.91.00 | Impuestos: ~15% CIF
-Semana 8   → QA (testear 5–10% unidades), activar SIMs, configurar endpoint
+             Código arancelario: 8526.91.00 | Impuestos: ver desglose de aduanas abajo
+Semana 8   → QA (testear 5–10% unidades), activar dispositivos en TrackSolid Pro, configurar endpoint
 ```
 
 Agentes aduanales en CR (referencia): Grupo Logístico Aduanero (`logisticaaduanera.cr`), costo ~$80–$120/trámite.
+
+**Costeo confirmado — Jimi IoT AL600 (2026-09-10, sobre 100 u. — su MOQ estándar):**
+
+> ⚠️ Estimación conservadora: Jimi IoT solo cotizó el **precio de muestra** ($32/u).
+> El precio en volumen a 100 u. aún no está confirmado — usar $32/u como techo
+> conservador hasta recibir la cotización de lote real (pendiente en el correo de
+> seguimiento del 2026-09-10, ver `docs/jimiiot.md` §8). Flete DHL para 100 u. y el
+> costo de renovación de datos año 2+ tampoco están confirmados — se estiman
+> por defecto de mercado, marcados abajo.
+
+**Desglose de aduanas Costa Rica (partida 8526.91.00.00):**
+
+| Concepto                                                                                               | Costo USD (año 1)                                           |
+| ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| FOB unidad + 1 año de datos (30MB/mes) — precio muestra                                                | $32.00 (bulk 100u aún sin cotizar)                          |
+| Flete DHL (100 u.) — _estimado, no cotizado_                                                           | $3.50/u (estimado)                                          |
+| Seguro de carga (~1% FOB+flete)                                                                        | $0.36/u                                                     |
+| **CIF (base aduanera)**                                                                                | **$35.86/u**                                                |
+| DAI — Derecho Arancelario de Importación (15% conservador, sin Certificado de Origen del TLC CR-China) | $5.38/u                                                     |
+| Ley 6946 — Timbre de Educación y Cultura (1% CIF)                                                      | $0.36/u                                                     |
+| IVA (13% sobre CIF + DAI + Ley 6946)                                                                   | $5.41/u                                                     |
+| **Total impuestos**                                                                                    | **$11.15/u**                                                |
+| Agente aduanal (obligatorio >$1,000 CIF, prorateado ~$100/trámite ÷ 100 u.)                            | $1.00/u                                                     |
+| **Total landed CR (hardware + impuestos + agente)**                                                    | **~$48.01/u**                                               |
+| Licencia de plataforma TrackSolid Pro (año 1 — servicio, no aduanable, no forma parte del CIF)         | $3.50/u                                                     |
+| **TOTAL COSTO UNITARIO AÑO 1 (conservador)**                                                           | **~$51.50/u**                                               |
+| Licencia de plataforma (renovación año 2+)                                                             | $6.00/u/año — **no incluye renovación de datos, monto TBD** |
+
+> 🇨🇷 **Nota de aduanas:** Costa Rica tiene un TLC vigente con China desde 2011. Si
+> Jimi IoT emite un **Certificado de Origen** válido bajo ese TLC, el DAI podría
+> bajar a 0%, reduciendo el costo total unitario a **~$45.40/u** (ahorro de ~$6/u).
+> Esto está pendiente de gestionar con Jimi IoT — agregarlo a la lista de
+> preguntas del correo de seguimiento (`docs/jimiiot.md` §8). Hasta confirmarlo,
+> se usa el escenario conservador (sin certificado, DAI 15%) para no sobre-prometer
+> margen. Verificar también con un agente aduanal la tarifa DAI vigente exacta
+> para la partida 8526.91.00.00, ya que puede variar por actualización arancelaria.
+
+**Decisión (2026-09-10): se sube el precio de venta al público a ₡35,000 (~$67)**
+para garantizar un margen neto mínimo de **$15/u** incluso en el escenario más caro
+y más realista (Jimi IoT AL600, $51.50/u landed + licencia, con el desglose completo
+de aduanas de Costa Rica). Esto reemplaza el precio anterior de ₡31,000 (que solo
+cubría un estimado simplificado de impuestos al 15% plano, sin DAI, Ley 6946 ni
+seguro desglosados).
+
+**Decisión (2026-09-10, revisión): la renovación de licencia año 2+ ($6.00/u/año) NO
+se mezcla en el recurrente mensual.** En su lugar, todo paquete que incluya un collar
+físico (Jimi IoT o Hardware PawTrack) cobra una **renovación anual de
+activación del collar de $8 USD/u/año** (~₡4,200), separada de la suscripción Plus/
+Familia. Para Jimi IoT esto cubre el $6.00/u/año de licencia con ~$2/año de buffer.
+Ver §10 para las tablas actualizadas.
 
 ---
 
@@ -240,9 +266,82 @@ Jimi IoT opera dos productos con propósitos opuestos — solo uno es viable com
 - **Camino B (push directo) soportado nativamente**, sin necesitar firmware OEM custom: sección "Webhook Push Function" de su API expone `/location/push` (posición GPS), `/api/v1/tag/data/push` (dispositivos tipo Tag) y push de alarmas/estado — todos configurables hacia una URL propia (la nuestra). **Esto responde la pregunta que dejamos abierta en `jimiiot.md` §8** sobre si Jimi IoT podía soportar push directo a nuestro backend.
 - Autenticación: token tipo OAuth (usuario/password + `appKey`/`appSecret`, firma MD5, token válido ~2h) — mismo nivel de complejidad que la integración Tractive ya implementada.
 - Nodos regionales: US/EU/HK-SG — el nodo US es el candidato natural por latencia desde Costa Rica.
-- Alternativa de middleware (no evaluada a fondo): `flespi.com/manufacturers/jimi-iot` normaliza el protocolo nativo Concox/Jimi IoT a JSON/MQTT sin pasar por TrackSolid — opción de respaldo si TrackSolid Pro no cubre algún caso.
+- Alternativa de middleware (no evaluada a fondo): `flespi.com/manufacturers/jimi-iot` normaliza el protocolo nativo de Jimi IoT a JSON/MQTT sin pasar por TrackSolid — opción de respaldo si TrackSolid Pro no cubre algún caso.
 
 **Recomendación:** usar TrackSolid Pro (no Jimi Life) como ruta de integración con hardware Jimi IoT existente, en paralelo a la conversación OEM/ODM de largo plazo ya en curso (`jimiiot.md` §8). Empezar con Camino A (clonar `TractivePollingJob`, ~1–2 días de esfuerzo); evaluar Camino B una vez resuelto cómo verificar el origen del webhook (Jimi IoT no documenta firma de webhook — mitigar con allowlist de IP o un token acordado en el onboarding).
+
+### 3.3.2 Respuesta estructurada de Jimi IoT confirmada (2026-09-10)
+
+Jimi IoT respondió punto por punto al RFQ + al correo de seguimiento sobre TrackSolid Pro. Confirma lo investigado de forma independiente y añade datos concretos de producto. Detalle completo de la respuesta en `docs/jimiiot.md` §8.
+
+**Confirmaciones clave:**
+
+- **JimiLife (su app de consumidor) no soporta APIs — TrackSolid Pro sí.** Confirma exactamente el hallazgo de la §3.3.1: JimiLife no es ruta de integración, TrackSolid Pro es la única viable de sus plataformas existentes.
+- **El modelo recomendado para el piloto (AL600) NO soporta MQTT ni HTTPS API en firmware estándar.** Sí permite configurar un servidor propio (IP/Dominio + Puerto), pero eso solo redirige su protocolo binario propietario — para hablar JSON/HTTPS o MQTT directo con nuestro backend (Camino B "puro") se necesita desarrollo de firmware custom, no viene de fábrica. **Esto ajusta la recomendación: para el piloto con AL600 estándar, la única ruta realista de corto plazo es TrackSolid Pro (Camino A/B vía su API), no un push binario directo a `POST /api/collars/ingest`.**
+- Mencionan una plataforma adicional, **TurboHive**, que "facilita la integración con la plataforma del cliente" — no evaluada aún, pendiente de más detalle.
+- SDK propio disponible (costo adicional) si en el futuro se quiere una app 100% propia en vez de JimiLife/TrackSolid.
+
+**Datos de producto — AL600 (modelo recomendado para el piloto de 50 u.):**
+
+| Ítem                             | Dato                                                                                                                                                       |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Conectividad                     | LTE Cat.1 (**sin LTE-M/NB-IoT**), SIM embebida (eSIM)                                                                                                      |
+| Posicionamiento                  | GPS + BDS, Wi-Fi, LBS, Bluetooth, A-GPS (híbrido)                                                                                                          |
+| Batería                          | USB-C · hasta 10 días en seguimiento activo, hasta 60 días en standby                                                                                      |
+| Certificaciones                  | IP67, 0–45 °C operación, FCC/CE según región                                                                                                               |
+| Historial / geocercas            | Historial de ubicaciones 7 días, triple geocerca con alertas, búsqueda sonoro-lumínica                                                                     |
+| **MOQ producto estándar**        | **100 unidades** (más alto que las 50 u. planeadas para el piloto — a negociar o ajustar)                                                                  |
+| MOQ personalización básica       | 500 u. (empaque, grabado láser, etiqueta)                                                                                                                  |
+| MOQ serigrafía en carcasa        | ≥1,000 u.                                                                                                                                                  |
+| MOQ cambio de color              | ≥3,000 u.                                                                                                                                                  |
+| Costo muestreo de carcasa        | $200 USD/modelo                                                                                                                                            |
+| Precio muestra                   | $32 USD c/u — incluye 1 año de datos (30 MB/mes), **no incluye licencia de plataforma**                                                                    |
+| **Licencia plataforma JimiLife** | $3.50 USD/dispositivo primer año, $6.00 USD/dispositivo renovación anual — **pendiente confirmar si TrackSolid Pro tiene el mismo esquema o uno distinto** |
+| Lead time (stock)                | 3 días                                                                                                                                                     |
+| Lead time (sin stock)            | 30–45 días                                                                                                                                                 |
+| Lead time custom (muestra)       | ~10 días tras confirmar requisitos/documentación                                                                                                           |
+| Lead time custom (producción)    | ~45 días tras aprobación de muestra                                                                                                                        |
+
+**OEM confirmado:** logo, empaque, manuales, nombre de dispositivo, QR, formato de seriales — todo disponible de forma estándar. Personalización de firmware requiere evaluación previa de su equipo de ingeniería (no es automático ni gratis).
+
+### 3.3.3 Datasheet oficial AL600 — specs confirmadas (adjuntos del correo, 2026-09-10)
+
+Jimi IoT envió dos PDFs junto con su respuesta: un deck de producto (marketing,
+8 páginas) y un datasheet técnico de una página ("Standard Configuration"),
+este último ya con **marca blanca de ejemplo** ("PawBasis") — buena señal de
+que el proceso de white-label que necesitamos ya es rutina para ellos. El
+datasheet precisa/corrige algunas cifras que veníamos usando de su correo:
+
+| Ítem                      | Dato del datasheet oficial                                                                                     |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Posicionamiento           | GPS/BDS/Wi-Fi/LBS/BT/A-GPS                                                                                     |
+| Comunicación              | 4G LTE Cat 1                                                                                                   |
+| **Bandas LTE soportadas** | **B1/B3/B5/B7/B8/B20/B28/B38/B40/B41**                                                                         |
+| IP Rating                 | IP67                                                                                                           |
+| Batería                   | 530 mAh recargable                                                                                             |
+| Duración de batería       | 10+ días (seguimiento activo); 60+ días (standby/sleep)                                                        |
+| Carga                     | USB Type-C                                                                                                     |
+| Dimensiones               | 51 × 32 × 14 mm                                                                                                |
+| **Temperatura operativa** | **-20 °C a +60 °C** (más amplio que los 0–45 °C mencionados en el correo — el datasheet es la fuente correcta) |
+
+**⚠️ Hallazgo crítico a validar:** las bandas LTE listadas (B1/B3/B5/B7/B8/B20/B28/B38/B40/B41)
+**no incluyen B2 ni B4** — las bandas primarias históricas de operadores
+latinoamericanos (PCS 1900 / AWS 1700-2100). Sí incluye **B28** (700 MHz) y
+**B7** (2600 MHz), que Kölbi/Movistar/Claro también usan para LTE en Costa
+Rica, así que es probable que funcione, pero **hay que confirmarlo
+explícitamente antes de comprometer el piloto** — no asumir compatibilidad
+solo por ser "4G LTE". Este es el ítem más importante de los pendientes de la
+§3.3.2, más concreto ahora que tenemos la lista exacta de bandas para
+preguntarle directamente a cada operador o a Jimi IoT.
+
+**ODM (roadmap de hardware propio, largo plazo):** Jimi IoT opera un modelo ODM integral (diseño + hardware + firmware + certificaciones + manufactura propia, 300+ ingenieros I+D, 8M dispositivos/año). **Ya tienen una línea propia de "smart pet collar" wearable con IA de cuidados** — precedente directo relevante para nuestro roadmap de hardware propio. MOQ típico ODM desde 1,000 u. (desarrollos sobre plataforma existente permiten umbrales menores). Proceso: requisitos conjuntos → propuesta de diseño → prototipo/validación → refinamiento → preparación de producción/QC → producción en serie → soporte continuo. **Ofrecen firmar NDA** para compartir documentación técnica detallada del protocolo y requisitos de plataforma — paso pendiente antes de profundizar en integración de bajo nivel.
+
+**Decisiones pendientes:**
+
+- [ ] Negociar MOQ 100 → 50 para el piloto, o ajustar el piloto a 100 unidades.
+- [ ] Confirmar si el costo de licencia de plataforma ($3.50–$6.00/dispositivo/año) aplica igual bajo TrackSolid Pro o es exclusivo de JimiLife.
+- [ ] Evaluar si firmar el NDA de Jimi IoT para acceder a documentación de protocolo más profunda (relevante solo si se explora firmware custom o ODM, no bloquea el piloto vía TrackSolid Pro).
+- [ ] LTE Cat.1 (no NB-IoT/LTE-M) — validar cobertura/costo real con Kölbi/Movistar/Claro antes de comprometer el piloto.
 
 ---
 
@@ -565,10 +664,10 @@ Para el primer lote: usar módulo OEM (§3.3) en **Camino A (polling)** mientras
 
 **Módulos recomendados:**
 
-| Módulo                    | Por qué                                                      |
-| ------------------------- | ------------------------------------------------------------ |
-| **Concox AT4**            | API REST documentada, MOQ 50 u., FCC/CE, contacto verificado |
-| **SIM7080G (PCB propio)** | Para firmware totalmente propio con JLCPCB                   |
+| Módulo                    | Por qué                                                        |
+| ------------------------- | -------------------------------------------------------------- |
+| **Jimi IoT AL600**        | API TrackSolid Pro documentada, MOQ 100 u., collar base actual |
+| **SIM7080G (PCB propio)** | Para firmware totalmente propio con JLCPCB                     |
 
 **Pseudofirmware para el ingest:**
 
@@ -652,7 +751,7 @@ void reportLocation() {
 
 ### Fase 4 — Hardware físico + firmware (pendiente)
 
-- [ ] Contactar Concox para muestras AT4 con API REST
+- [ ] Contactar Jimi IoT para muestras AL600 con acceso TrackSolid Pro
 - [ ] O diseñar PCB ESP32-S3 + SIM7080G para hardware propio
 - [ ] Implementar provisioning por BLE o QR paper
 - [ ] Prueba de campo (movimiento, batería, edge cases)
@@ -672,24 +771,42 @@ void reportLocation() {
 
 ### Opciones de distribución
 
-| Opción                    | Inversión inicial   | Costo/unidad       | Precio venta sugerido     | Margen neto          | Tiempo al mercado |
-| ------------------------- | ------------------- | ------------------ | ------------------------- | -------------------- | ----------------- |
-| **A — Afiliado Tractive** | $0                  | N/A                | $79 USD (Amazon)          | $20 USD fijo/tracker | **Inmediato**     |
-| **B — Hardware propio**   | $3,000+ USD         | ~$30 USD           | $60–80 USD                | $30–50 USD           | 3–4 meses         |
-| **C — OEM Concox/Jimi**   | ~$1,335 USD (50 u.) | ~$27 USD landed CR | ₡20,000–25,000 (~$38–$48) | $10–20 USD           | 2–3 meses         |
+| Opción                       | Inversión inicial      | Costo/unidad                   | Precio venta sugerido | Margen neto          | Tiempo al mercado |
+| ---------------------------- | ---------------------- | ------------------------------ | --------------------- | -------------------- | ----------------- |
+| **A — Afiliado Tractive**    | $0                     | N/A                            | $79 USD (Amazon)      | $20 USD fijo/tracker | **Inmediato**     |
+| **B — Hardware propio**      | $3,000+ USD            | ~$30 USD                       | $60–80 USD            | $30–50 USD           | 3–4 meses         |
+| **C — OEM Jimi IoT (AL600)** | ~$5,150 USD (100 u.)\* | ~$51.50 USD landed CR + lic.\* | ₡35,000 (~$67)        | ~$15 USD\*           | 2–3 meses         |
 
-**Recomendación:** arrancar con Opción A (cero riesgo) y pivotar a C cuando haya >100 suscriptores Plus que justifiquen el MOQ de 50 unidades.
+> \* Costo recalculado con desglose completo de aduanas CR (DAI 15% conservador,
+> Ley 6946, IVA, seguro, agente aduanal — ver `docs/collarFinal.md` §3.3 "Costeo
+> confirmado — Jimi IoT AL600"). Jimi IoT solo cotizó precio de muestra, no de lote
+> a 100 u. **El precio de venta al público se fija en ₡35,000 (~$67) para
+> garantizar un margen mínimo de $15/u.** Si Jimi IoT confirma Certificado de
+> Origen del TLC CR-China (DAI 0%), el costo baja a ~$45.40/u y el margen sube a
+> ~$21/u al mismo precio de venta.
+
+**Recomendación:** el collar base y única opción actual de PawTrack es el **Jimi IoT AL600**, con margen garantizado ~$15 USD/u (conservador) a ~$21 USD/u (si se confirma Certificado de Origen del TLC CR-China) al precio de ₡35,000. Arrancar con Opción A (cero riesgo) y pivotar a Jimi IoT AL600 cuando haya >100 suscriptores Plus que justifiquen el MOQ de 100 unidades.
 
 ### Comparativa de productos disponibles en CR
 
-| Opción                   | Precio inicial  | Total/mes | QR                | GPS        | Cuentas requeridas                  |
-| ------------------------ | --------------- | --------- | ----------------- | ---------- | ----------------------------------- |
-| 🏷️ Placa QR + Explorador | ₡1,500–4,500    | ₡0        | ✅                | ❌         | Solo PawTrack                       |
-| 🏷️ Placa QR + Plus       | ₡1,500–4,500    | ₡2,990    | ✅                | ❌         | Solo PawTrack                       |
-| 📡 OEM Concox + QR láser | ₡22,000–26,000  | ~₡4,030   | ✅ grabado        | ✅ Básico  | PawTrack + Emnify/Hologram          |
-| ⭐ Tractive DOG 6        | ₡41,000 + placa | ~₡8,190   | ⚠️ pieza separada | ✅ Premium | PawTrack + **Tractive obligatorio** |
-| 🔧 Hardware PawTrack     | ₡35,000–50,000  | ~₡4,030   | ✅ integrado      | ✅ Custom  | PawTrack + SIM gestionada           |
+| Opción                           | Precio inicial  | Total/mes | Renovación anual collar\* | QR                | GPS        | Cuentas requeridas                  |
+| -------------------------------- | --------------- | --------- | ------------------------- | ----------------- | ---------- | ----------------------------------- |
+| 🏷️ Placa QR + Explorador         | ₡1,500–4,500    | ₡0        | —                         | ✅                | ❌         | Solo PawTrack                       |
+| 🏷️ Placa QR + Plus               | ₡1,500–4,500    | ₡2,990    | —                         | ✅                | ❌         | Solo PawTrack                       |
+| 📡 OEM Jimi IoT AL600 + QR láser | ₡37,000         | ~₡2,990   | ₡4,200 (~$8)              | ✅ grabado        | ✅ Básico  | PawTrack + cuenta TrackSolid Pro    |
+| ⭐ Tractive DOG 6                | ₡41,000 + placa | ~₡8,190   | —                         | ⚠️ pieza separada | ✅ Premium | PawTrack + **Tractive obligatorio** |
+| 🔧 Hardware PawTrack             | ₡35,000–50,000  | ~₡4,030   | ₡4,200 (~$8)              | ✅ integrado      | ✅ Custom  | PawTrack + SIM gestionada           |
 
+> \* Renovación anual de activación del collar (nueva, 2026-09-10) — separada de
+> la suscripción Plus/Familia, cobrada una vez al año a cualquier paquete con
+> collar físico. Cubre el costo confirmado de licencia de plataforma de Jimi IoT
+> ($6.00/u/año) con ~$2/año de buffer; en Hardware PawTrack (sin licencia
+> recurrente de plataforma) es margen adicional puro. La renovación de datos año
+> 2+ de Jimi IoT sigue sin cotizar ("monto TBD", ver §3.3); si resulta mayor a lo
+> estimado, este fee anual podría ajustarse. El costo de importación real de Jimi
+> IoT ya incluye el desglose completo de aduanas CR (DAI, Ley 6946, IVA, seguro,
+> agente aduanal — ver §3.3).
+>
 > Tractive es el único segmento donde el usuario **debe** abrir y pagar una suscripción externa obligatoria (₡5,200/mes directos a Tractive). Aclararlo en el onboarding.
 
 ### Plan de suscripción PawTrack
@@ -707,7 +824,7 @@ void reportLocation() {
 - Vender PawTrack por su red de avistamientos y QR — diferenciador único, sin hardware.
 - El GPS es el upsell para quienes ya tienen o quieren un tracker.
 - El afiliado Tractive genera ₡10,400 una sola vez por usuario, sin costo operativo.
-- OEM con SIM IoT gestionada por PawTrack (Emnify) elimina la fricción de cuenta externa y habilita el CollarTag como producto propio.
+- El AL600 de Jimi IoT ya trae el dato incluido en el precio del collar (sin SIM gestionada aparte) — solo requiere cuenta TrackSolid Pro. Una futura línea de hardware 100% propio (§7, PCB ESP32-S3 + SIM7080G) sí necesitaría SIM IoT gestionada por PawTrack (Emnify/Hologram).
 
 ---
 

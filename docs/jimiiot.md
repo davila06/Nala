@@ -268,7 +268,7 @@ https://pawtrack.cr
 
 **Próximos pasos de nuestro lado (pendiente):**
 
-- [ ] Esperar la respuesta estructurada de Jimi IoT a las preguntas de §5.
+- [x] Esperar la respuesta estructurada de Jimi IoT a las preguntas de §5. **Recibida 2026-09-10, ver entrada de esa fecha más abajo.**
 - [x] Cuando llegue, decidir si el **Camino B (push directo)** — que ellos ya
       confirmaron poder soportar — se vuelve la ruta preferida para el piloto en
       vez del Camino A (polling), ya que evitaría depender de la nube de Jimi IoT
@@ -334,3 +334,114 @@ sin reemplazarla.
 
 **Pendiente:** respuesta de Jimi IoT a este correo de seguimiento + su
 respuesta estructurada original a §5.
+
+### 2026-09-10 — Respuesta estructurada completa de Jimi IoT (RFQ §5 + seguimiento TrackSolid Pro)
+
+Jimi IoT respondió punto por punto tanto al RFQ original (§5 de este documento)
+como al correo de seguimiento sobre TrackSolid Pro. Resumen completo — detalle
+técnico y comercial del producto recomendado (AL600) en `collarFinal.md` §3.3.2.
+
+**1. Arquitectura e integración:**
+
+- El AL600 permite configurar un servidor propio (IP/Dominio + Puerto) para que
+  el dispositivo envíe datos directo a infraestructura gestionada por NALA —
+  **pero** la versión estándar **no soporta MQTT ni HTTPS API**; hablar JSON/HTTPS
+  o MQTT con nuestro backend requiere **desarrollo de firmware personalizado**,
+  no viene de fábrica en el modelo recomendado para el piloto.
+- **Confirman explícitamente que JimiLife (su app) no soporta APIs, pero
+  TrackSolid Pro sí** — validación directa de nuestro análisis independiente
+  del 2026-09-04 (`collarFinal.md` §3.3.1).
+- No hay integración nativa con Azure IoT Hub — se evaluaría solo dentro de un
+  desarrollo personalizado.
+- Mencionan una plataforma adicional, **TurboHive**, que facilita integración
+  con la plataforma del cliente — pendiente de más detalle, no evaluada aún.
+- SDK propio disponible (costo adicional) si en el futuro queremos una app
+  100% propia en lugar de JimiLife/TrackSolid Pro.
+
+**2. Producto recomendado para el piloto (Fase 1): modelo AL600**
+
+Conectividad LTE Cat.1 (sin LTE-M/NB-IoT), SIM embebida, GPS+BDS+WiFi+LBS+BT+A-GPS,
+batería hasta 10 días activo / 60 días standby, IP67, historial 7 días, triple
+geocerca. **MOQ estándar: 100 unidades** (más alto que las 50 planeadas). Precio
+de muestra $32 USD (incluye 1 año de datos, 30MB/mes, sin licencia de
+plataforma). Licencia JimiLife: $3.50 USD/dispositivo primer año, $6.00 USD
+renovación anual — pendiente confirmar si aplica igual bajo TrackSolid Pro.
+Lead times: 3 días si hay stock, 30–45 días si no; personalización ~10 días
+(muestra) + ~45 días (producción) tras aprobar muestra. Tabla completa de MOQs
+por nivel de personalización en `collarFinal.md` §3.3.2.
+
+**3. Capacidades OEM confirmadas:** logo, empaque, manuales, nombre de
+dispositivo, QR, formato de seriales — todo estándar. Personalización de
+firmware requiere evaluación previa de su equipo de ingeniería (no automático).
+
+**4. Roadmap ODM (hardware propio, largo plazo):** modelo ODM integral
+(diseño+hardware+firmware+certificaciones+manufactura, 300+ ingenieros I+D,
+8M dispositivos/año, clientes Fortune 500). **Ya tienen una línea propia de
+"smart pet collar" wearable con IA de cuidados** — precedente directo
+relevante. MOQ ODM típico desde 1,000 u. Proceso: requisitos conjuntos →
+diseño → prototipo/validación → refinamiento → producción/QC → serie →
+soporte. **Ofrecen firmar NDA** para compartir documentación de protocolo más
+profunda — paso pendiente si se explora firmware custom u ODM.
+
+**Próximos pasos de nuestro lado:**
+
+- [x] Decidir si negociamos MOQ 100→50, o ajustamos el piloto a 100 unidades. **Enviado en correo de seguimiento 2026-09-10, ver entrada de esa fecha abajo.**
+- [x] Confirmar costo de licencia de plataforma bajo TrackSolid Pro (no solo JimiLife). **Ídem.**
+- [x] Evaluar firmar el NDA si se quiere profundizar en protocolo/firmware custom u ODM. **Ídem — pedimos su borrador estándar.**
+- [x] Validar cobertura/costo real de LTE Cat.1 con Kölbi/Movistar/Claro antes de comprometer el piloto. **Ídem — pedido directamente a Jimi IoT.**
+- [ ] Aún pendiente: respuesta específica sobre acceso a cuenta TrackSolid Pro (appKey/appSecret, nodo regional, costo de API) del correo de seguimiento — no vino en esta respuesta, insistir en el próximo intercambio. **Reiterado en el correo de seguimiento 2026-09-10.**
+
+### 2026-09-10 — Segundo correo de seguimiento enviado: MOQ, licencia TrackSolid Pro, cuenta, LTE Cat.1, NDA
+
+En el mismo hilo (asunto: "Re: RFQ — GPS Pet Tracker Collar (OEM/Custom
+Branding) — AL600 pilot & TrackSolid Pro follow-up"), en respuesta directa a
+la respuesta estructurada del mismo día. Pide, en orden:
+
+1. **MOQ del piloto**: si hay flexibilidad para arrancar en 50 unidades (aunque
+   sea a precio unitario algo más alto) en vez del MOQ estándar de 100.
+2. **Licencia de plataforma bajo TrackSolid Pro**: si el esquema de $3.50
+   (primer año) / $6.00 (renovación) por dispositivo cotizado para JimiLife
+   aplica igual integrando vía TrackSolid Pro, o tiene un precio distinto.
+3. **Acceso a cuenta TrackSolid Pro** (reiterado, no respondido en el correo
+   anterior): cuenta distribuidor/reseller con `appKey`/`appSecret`, nodo
+   regional recomendado desde Costa Rica (US/EU/HK-SG), activación de las
+   unidades piloto bajo `mcTypeUseScope = "pet"`, pasos exactos para habilitar
+   polling (`jimi.device.location.get`) o push (`/location/push`) con el
+   AL600, y disponibilidad de una cuenta sandbox/de prueba antes de confirmar
+   la orden.
+4. **Conectividad**: qué operadores costarricenses (Kölbi, Movistar, Claro)
+   tienen validados para LTE Cat.1 del AL600, o qué proveedor de SIM IoT
+   recomiendan para la región.
+5. **NDA**: confirmamos apertura a firmar y pedimos que compartan su borrador
+   estándar para revisión.
+
+Se dejó claro que, una vez resueltos los puntos 1–3, quedaríamos listos para
+confirmar la orden del piloto.
+
+También se preparó una versión en español, formato WhatsApp, del mismo
+contenido (mismos 5 puntos, tono más directo) para enviar por ese canal si el
+contacto de Jimi IoT lo prefiere sobre correo.
+
+**Pendiente:** respuesta de Jimi IoT a este segundo correo de seguimiento.
+
+### 2026-09-10 — Adjuntos analizados: deck de producto + datasheet AL600
+
+El correo estructurado vino con dos PDFs adjuntos, ya revisados a fondo (ver
+`collarFinal.md` §3.3.3 para la tabla completa):
+
+- **Deck de producto** (8 páginas, marketing): confirma las features ya
+  conocidas (posicionamiento híbrido, buzzer/LED de búsqueda, modo "Live
+  Finder" de 5s, geocercas Wi-Fi/virtuales, correa virtual Bluetooth,
+  reportes de actividad/calorías) y precisa la batería en **530 mAh**.
+- **Datasheet técnico** (1 página "Standard Configuration"): ya trae una
+  **marca blanca de ejemplo ("PawBasis")** — confirma que el proceso de
+  white-label es rutinario para ellos. Corrige la temperatura operativa a
+  **-20 °C a +60 °C** (más amplio que el "0–45 °C" mencionado en el correo) y
+  lista las **bandas LTE exactas**: B1/B3/B5/B7/B8/B20/B28/B38/B40/B41.
+
+**Hallazgo a validar:** esa lista de bandas no incluye B2 ni B4 (las bandas
+históricas más usadas en Latinoamérica), aunque sí incluye B28 y B7 que
+Kölbi/Movistar/Claro también usan. Hay que confirmar compatibilidad exacta
+antes de comprometer el piloto — se puede preguntar directamente a los
+operadores o pedirle a Jimi IoT que lo confirmen contra estas bandas
+específicas en el próximo intercambio.

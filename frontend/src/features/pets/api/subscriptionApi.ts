@@ -26,6 +26,7 @@ export interface SubscriptionDto {
   id: string;
   tier: SubscriptionTier;
   status: SubscriptionStatus;
+  billingMonths: number;
   paymentReference: string;
   amountCrc: number;
   createdAt: string;
@@ -78,11 +79,12 @@ export const subscriptionApi = {
       })
       .then((r) => r.data),
 
-  create: (tier: SubscriptionTier, clinicId?: string) =>
+  create: (tier: SubscriptionTier, billingMonths: number, clinicId?: string) =>
     apiClient
       .post<SubscriptionDto>("/subscriptions", {
         tier,
         clinicId: clinicId ?? null,
+        billingMonths,
       })
       .then((r) => r.data),
 
