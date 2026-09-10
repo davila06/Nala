@@ -2,7 +2,7 @@
 
 **Versión:** 3.0
 **Audiencia:** Organizaciones aliadas verificadas y solicitantes  
-**Última actualización:** 2026-09-09
+**Última actualización:** 2026-09-10
 
 > Rol del sistema: `Ally`. Los refugios aprobados (`AllyType = Shelter`) usan
 > además el flujo de adopciones descrito al final de este manual.
@@ -57,7 +57,9 @@ Necesitas tener una cuenta registrada en PawTrack CR con rol habitual (propietar
 
 1. Inicia sesión en `https://pawtrack.cr`.
 2. El enlace al panel de aliados **solo aparece en tu navegación una vez que el equipo PawTrack te ha dado acceso** al módulo. Si no ves el enlace, no tienes acceso habilitado aún.
-3. Accede directamente a `/allies/panel`.
+3. Accede directamente a `/allies/panel`. El mismo grupo de acceso incluye
+   `/shelter/dashboard`, `/shelter/publicar` y la gestión de solicitudes de
+   adopción para aliados verificados cuyo tipo sea `Shelter`.
 
 ### 3.3 Completar el formulario de postulación
 
@@ -184,6 +186,11 @@ El nombre de la organización y la zona de cobertura pueden ser visibles en el c
 
 > **Estado base / directorio gratuito (`ShelterBasic`):** máximo 5 animales activos simultáneamente.
 > **Plan activo (`ShelterPlus` ₡8,000/mes):** animales ilimitados + ferias de adopción + pin destacado en el mapa.
+
+El listado público está disponible en `/adopciones`, el detalle de cada animal
+en `/adopciones/:id` y las ferias en `/adopciones/ferias`. Un visitante puede
+consultar el catálogo sin iniciar sesión; para enviar una solicitud debe usar
+una cuenta `Owner`.
 
 ### 8.2 Gestionar solicitudes de adopción
 

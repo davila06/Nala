@@ -3,7 +3,7 @@
 **Version:** 1.0  
 **Rol:** `Store`  
 **Audiencia:** propietarios y operadores de tiendas aprobadas  
-**Ultima actualizacion:** 2026-09-09
+**Ultima actualizacion:** 2026-09-10
 
 ## 1. Alcance y registro
 
@@ -66,5 +66,6 @@ cliente y tienda; la integracion de pagos no forma parte del alcance vigente.
 
 ## 6. Rutas publicas relacionadas
 
-Los clientes consultan `/tiendas` y los perfiles publicos. La tienda no debe
+Los clientes consultan `/tiendas` y los perfiles publicos. El directorio puede
+mostrar el placement publicitario `Directory`. La tienda no debe
 intentar usar endpoints de otra tienda: el backend valida ownership por cuenta.

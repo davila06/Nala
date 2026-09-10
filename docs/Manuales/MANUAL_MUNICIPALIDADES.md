@@ -3,7 +3,7 @@
 **Version:** 1.0  
 **Rol:** `Municipality`  
 **Audiencia:** personal municipal autorizado  
-**Ultima actualizacion:** 2026-09-09
+**Ultima actualizacion:** 2026-09-10
 
 ## 1. Alcance
 
@@ -18,8 +18,8 @@ de una cuenta individual.
 ## 2. Acceso
 
 1. Inicia sesion con la cuenta municipal.
-2. Abre `/municipalidad/portal` para el portal operativo o
-   `/municipalidad/dashboard` para el tablero.
+2. Abre `/municipalidad` para la vista pública de información o
+   `/municipalidad/portal` para el portal operativo y tablero autenticado.
 3. Si la cuenta esta pendiente, vencida o sin perfil municipal, solicita al
    administrador revisar el perfil y la suscripcion.
 

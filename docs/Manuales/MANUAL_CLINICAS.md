@@ -2,7 +2,7 @@
 
 **Versión:** 3.0
 **Audiencia:** Rol `Clinic`: clínicas veterinarias afiliadas a la red PawTrack CR
-**Última actualización:** 2026-09-09
+**Última actualización:** 2026-09-10
 
 ---
 
@@ -21,7 +21,7 @@
 
 ## 1. ¿Qué es una clínica afiliada PawTrack?
 
-Las clínicas veterinarias afiliadas a PawTrack CR forman parte de la red de identificación de mascotas. Cuando una mascota llega a tu consultorio y no conoces quién es su dueño, puedes escanear su código QR del collar o leer su microchip RFID para obtener de forma inmediata el nombre de la mascota y los datos de contacto de su dueño.
+Las clínicas veterinarias afiliadas a PawTrack CR forman parte de la red de identificación de mascotas. Cuando una mascota llega a tu consultorio y no conoces quién es su dueño, puedes escanear su código QR del collar o ingresar su microchip RFID para consultar la coincidencia disponible. El sistema notifica al dueño sin exponer el correo ni otros datos privados en la tarjeta de resultado.
 
 Al identificarla, el sistema **notifica automáticamente al dueño** que su mascota fue vista en tu clínica.
 
@@ -166,7 +166,7 @@ Si PawTrack tiene registrada la mascota, aparece una tarjeta verde con:
 - El propietario es notificado server-side; el correo del dueño no se expone en la tarjeta de resultado.
 - Nota de confirmación: _"Se ha notificado al dueño que su mascota fue vista aquí."_
 
-El dueño recibe una notificación automática en la plataforma en ese mismo momento.
+El dueño recibe una notificación automática en la plataforma en ese mismo momento; el resultado no muestra el correo del dueño.
 
 ### 6.2 Mascota no encontrada
 

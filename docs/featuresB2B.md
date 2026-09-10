@@ -5,7 +5,7 @@
 > [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md).
 
 > **Fuente de verdad:** `SubscriptionTier` y `SubscriptionPricing` del backend.
-> **Actualizado:** 2026-09-08
+> **Actualizado:** 2026-09-10
 > **Estado:** Resumen alineado con la app actual; el detalle histórico de este
 > archivo queda subordinado a la matriz verificable de `B2B_ESTADO_ACTUAL.md`.
 
@@ -13,6 +13,12 @@
 > B2B/B2G, consultar [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md). Este archivo
 > conserva el detalle histórico de features, pero cualquier bloque que diga
 > "qué falta" debe interpretarse junto con esa matriz y con el código actual.
+
+> **Regla comercial:** los precios de tiers son referencias técnicas del
+> catálogo. La compra B2B/B2G sigue requiriendo activación y verificación
+> manual; no hay checkout recurrente universal. Las secciones de comisiones,
+> escrow, payout, SLA, SENASA y ranking patrocinado son propuestas o pendientes,
+> no capacidades activas.
 
 ---
 

@@ -54,28 +54,27 @@ VITE_VAPID_PUBLIC_KEY=<opcional-para-push>
 > **Contraseña universal para usuarios `@test.cr` / `@pawtrack.cr`:** `Test123!`
 > (el hash reutiliza el de `Test123!` del seed original — ver comentario en `seed-extended-test-users.sql`)
 
-| Email                        | Contraseña   | Rol          | Plan / Tier                              | Para probar                                                       |
-| ---------------------------- | ------------ | ------------ | ---------------------------------------- | ----------------------------------------------------------------- |
-| `admin@pawtrack.cr`          | `Test123!`   | Admin        | —                                        | Panel admin, activar suscripciones, gestionar roles               |
-| `admin@pawtrack.test`        | `Admin123!`  | Admin        | —                                        | Alternativa admin (seed original)                                 |
-| `owner_free@test.cr`         | `Test123!`   | Owner        | Explorador (gratis)                      | Límite 1 mascota, 5 escaneos, sin GPS/IA avanzada                 |
-| `owner_plus@test.cr`         | `Test123!`   | Owner        | UserPlus ⚠️ ver nota                     | GPS tab, radio 10km, IA ilimitada, Case Room                      |
-| `owner_familia@test.cr`      | `Test123!`   | Owner        | UserFamilia ⚠️ ver nota                  | Historial médico, múltiples mascotas, PDF export                  |
-| `owner@pawtrack.test`        | `Test123!`   | Owner        | UserFamilia ✅ activo (hasta 2026-10-02) | Alternativa owner (seed original) — **ya NO es gratis**, ver nota |
-| `ally@test.cr`               | `Test123!`   | Ally         | — (Verified)                             | Panel aliado, alertas de zona, KPIs                               |
-| `ally@pawtrack.test`         | `Ally123!`   | Ally         | —                                        | Alternativa ally (sin verificar)                                  |
-| `clinica_basica@test.cr`     | `Test123!`   | Clinic       | ClinicBasic                              | Escanear QR/RFID, directorio básico                               |
-| `clinica_partner@test.cr`    | `Test123!`   | Clinic       | ClinicPartner ⚠️ ver nota                | PDF certs, API keys, posición destacada                           |
-| `clinic@pawtrack.test`       | `Clinic123!` | Clinic       | — (sin plan)                             | Alternativa clínica (seed original)                               |
-| `municipal_basica@test.cr`   | `Test123!`   | Municipality | Básica                                   | Portal capturas básico, un cantón                                 |
-| `municipal_full@test.cr`     | `Test123!`   | Municipality | Full                                     | Fotos, estadísticas, multi-cantón                                 |
-| `municipal_regional@test.cr` | `Test123!`   | Municipality | RedRegional                              | Red regional, múltiples cantones                                  |
+| Email                        | Contraseña   | Rol             | Plan / Tier            | Para probar                                                     |
+| ---------------------------- | ------------ | --------------- | ---------------------- | --------------------------------------------------------------- |
+| `admin@pawtrack.cr`          | `Test123!`   | Admin           | —                      | Panel admin, activar suscripciones, gestionar roles             |
+| `admin@pawtrack.test`        | `Admin123!`  | Admin           | —                      | Alternativa admin (seed original)                               |
+| `owner_free@test.cr`         | `Test123!`   | Owner           | Explorador (gratis)    | Límite 1 mascota, 5 escaneos, sin GPS/IA avanzada               |
+| `owner_plus@test.cr`         | `Test123!`   | Owner           | UserPlus (activo)      | GPS tab, radio 10km, IA ilimitada, Case Room                    |
+| `owner_familia@test.cr`      | `Test123!`   | Owner           | UserFamilia (activo)   | Historial médico, múltiples mascotas, PDF export                |
+| `owner@pawtrack.test`        | `Test123!`   | Owner           | UserFamilia (activo)   | Alternativa owner (seed original) — mascotas Max, Luna, Coco    |
+| `ally@test.cr`               | `Test123!`   | Ally            | Shelter (Verified)     | Panel aliado, alertas de zona, gestión adopciones en `/shelter` |
+| `ally@pawtrack.test`         | `Ally123!`   | Ally            | PetFriendly (Pending)  | Alternativa ally (para probar aprobación en Admin)              |
+| `clinica_basica@test.cr`     | `Test123!`   | Clinic          | ClinicBasic            | Escanear QR/RFID, directorio básico                             |
+| `clinica_partner@test.cr`    | `Test123!`   | Clinic          | ClinicPartner (activo) | Emisión de pasaportes PDF, cadena SENASA, posición destacada    |
+| `clinic@pawtrack.test`       | `Clinic123!` | Clinic          | — (sin plan)           | Alternativa clínica (seed original)                             |
+| `municipal_basica@test.cr`   | `Test123!`   | Municipality    | Básica (Desamparados)  | Portal capturas básico, un cantón, vinculación por microchip    |
+| `municipal_full@test.cr`     | `Test123!`   | Municipality    | Full (San José)        | Fotos, estadísticas, multi-cantón                               |
+| `municipal_regional@test.cr` | `Test123!`   | Municipality    | RedRegional (Norte)    | Red regional, múltiples cantones (Alajuela, Grecia, San Carlos) |
+| `tienda_activa@test.cr`      | `Test123!`   | Store           | Store (Active)         | Directorio pet stores, catálogo de 4 productos, pedidos in-app  |
+| `provider@pawtrack.test`     | `Test123!`   | ServiceProvider | Verified (Grooming)    | Portal proveedor `/servicio/portal`, servicios y reservas       |
+| `soporte_bienestar@test.cr`  | `Test123!`   | Support         | N/A                    | Triage y gestión de casos de maltrato/bienestar animal          |
 
-> ✅ **Nota (2026-09-08): seed extendido ejecutado en `PawTrackDev`.** `owner_plus@test.cr`, `owner_familia@test.cr` y `clinica_partner@test.cr` tienen suscripciones activas con vencimiento renovado por un mes. Si vuelven a vencer, reejecuta `backend/scripts/seed-extended-test-users.sql`.
->
-> ```powershell
-> sqlcmd -S "(localdb)\MSSQLLocalDB" -d PawTrackDev -i "backend\scripts\seed-extended-test-users.sql"
-> ```
+> ✅ **Nota de sincronización:** Todos los roles del sistema cuentan con al menos un usuario de prueba verificado y con datos sembrados funcionales listos para probar en `PawTrackDev`.
 
 ### Usuarios adicionales para probar el panel Admin (aprobaciones pendientes)
 
@@ -88,22 +87,6 @@ Estos vienen de `backend/scripts/seed-admin-data.sql` (ejecutar después de `see
 | `refugio.animal.cr@pawtrack.test` | `Test123!` | Ally   | AllyProfile `Pending` | Aprobar/rechazar refugio            |
 | `animal.house@pawtrack.test`      | `Test123!` | Clinic | Clinic `Pending`      | Aprobar/rechazar clínica (San José) |
 | `vet.angeles@pawtrack.test`       | `Test123!` | Clinic | Clinic `Pending`      | Aprobar/rechazar clínica (Alajuela) |
-
-> **Rol `ServiceProvider` sin usuario sembrado actualmente**: `seed-test-users.sql` define `provider@pawtrack.test` / `Test123!` — confirmado presente en `PawTrackDev`. `Store` y `Support` ahora tienen cuenta de prueba (ver tabla abajo).
-
-### Nueva cuenta de prueba: rol Store
-
-| Email                   | Contraseña | Rol   | Estado         | Para probar                                 |
-| ----------------------- | ---------- | ----- | -------------- | ------------------------------------------- |
-| `tienda_activa@test.cr` | `Test123!` | Store | Store `Active` | Directorio de pet stores, catálogo, pedidos |
-
-### Nueva cuenta de prueba: rol Support
-
-| Email                       | Contraseña | Rol     | Estado | Para probar                                                                       |
-| --------------------------- | ---------- | ------- | ------ | --------------------------------------------------------------------------------- |
-| `soporte_bienestar@test.cr` | `Test123!` | Support | N/A    | `GET/POST /api/admin/welfare-cases/*` (triage de casos de maltrato sin ser Admin) |
-
-> `Support` no tiene entidad de perfil propia — solo es un valor de `Users.Role`, normalmente asignado vía `AssignSupportRoleCommand` (acción de Admin). Este usuario se sembró directamente con `Role='Support'` para facilitar pruebas sin ese paso extra.
 
 ---
 
@@ -125,41 +108,35 @@ Pasos para probar en la UI:
 3. "Emitir Pasaporte de Vacunas" → completa al menos una vacuna (Max es perro, **debe incluir la vacuna de rabia** o el backend rechaza la emisión).
 4. Descarga el PDF y verifica el código público en `http://localhost:5173/verificar/{code}` (no requiere login).
 
-> Si el prerrequisito se pierde (p. ej. porque vuelves a correr `seed-extended-test-users.sql`, lo cual **regenera el `Id` de la fila `Clinics`** y desvincula `ClinicVerifications`/`ClinicVeterinarians`/`ClinicMedicalAccessGrants` existentes), vuelve a ejecutar el bloque de re-vinculación con el nuevo `ClinicId` — ver notas de la sesión 2026-09-08 en la memoria del repo, o pide que se regenere.
+> ✅ El script `seed-extended-test-users.sql` utiliza IDs deterministas fijos para las clínicas (`CC100000-0000-0000-0000-000000000007`) y auto-vincula la cadena completa de verificación SENASA, veterinario y acceso a Max de forma idempotente.
 
 ---
 
-## Aplicar el seed de usuarios extendidos
+## Aplicar todos los seeds en orden recomendado
 
-Si los usuarios `@test.cr` no existen en la base de datos real usada por `start-dev.ps1` (`PawTrackDev`):
-
-```powershell
-sqlcmd -S "(localdb)\MSSQLLocalDB" -d PawTrackDev `
-  -i "backend\scripts\seed-extended-test-users.sql"
-```
-
-Para los usuarios originales (`@pawtrack.test`):
+Todos los scripts son idempotentes y pueden reejecutarse sin duplicación de llaves:
 
 ```powershell
-sqlcmd -S "(localdb)\MSSQLLocalDB" -d PawTrackDev `
-  -i "backend\scripts\seed-test-users.sql"
+# 1. Usuarios base y proveedores de servicio
+sqlcmd -S "(localdb)\MSSQLLocalDB" -d PawTrackDev -f 65001 -i "backend\scripts\seed-test-users.sql"
+
+# 2. Mascotas perdidas en el GAM (para mapa público y alertas)
+sqlcmd -S "(localdb)\MSSQLLocalDB" -d PawTrackDev -f 65001 -i "backend\scripts\seed-lost-pets.sql"
+
+# 3. Usuarios extendidos de todos los roles, clínicas, tiendas, perfiles municipales, bienestar y expedientes
+sqlcmd -S "(localdb)\MSSQLLocalDB" -d PawTrackDev -f 65001 -i "backend\scripts\seed-extended-test-users.sql"
+
+# 4. Solicitudes pendientes para probar aprobación en panel Admin (Aliados y Clínicas)
+sqlcmd -S "(localdb)\MSSQLLocalDB" -d PawTrackDev -f 65001 -i "backend\scripts\seed-admin-data.sql"
+
+# 5. Animales en adopción y feria presencial
+sqlcmd -S "(localdb)\MSSQLLocalDB" -d PawTrackDev -f 65001 -i "backend\scripts\seed-adoption-demo-data.sql"
+
+# 6. Escenarios enterprise de collares GPS, zonas seguras y vallas publicitarias
+sqlcmd -S "(localdb)\MSSQLLocalDB" -d PawTrackDev -f 65001 -i "backend\scripts\seed-enterprise-demo-data.sql"
 ```
 
-Para los usuarios de aprobación pendiente del panel Admin (ejecutar después de los dos anteriores):
-
-```powershell
-sqlcmd -S "(localdb)\MSSQLLocalDB" -d PawTrackDev `
-  -i "backend\scripts\seed-admin-data.sql"
-```
-
-Para poblar escenarios enterprise de collares, GPS, zonas seguras y vallas (ejecutar después del seed extendido):
-
-```powershell
-sqlcmd -S "(localdb)\MSSQLLocalDB" -d PawTrackDev -f 65001 `
-  -i "backend\scripts\seed-enterprise-demo-data.sql"
-```
-
-> Si tu entorno local usa `PawTrackLocal` en `CPC-davil-ECEKS\SQLEXPRESS` en vez de LocalDB (por ejemplo, si cambiaste `ASPNETCORE_ENVIRONMENT` a `Local`), sustituye `-S "(localdb)\MSSQLLocalDB" -d PawTrackDev` por `-S "CPC-davil-ECEKS\SQLEXPRESS" -d PawTrackLocal -E` en los tres comandos.
+> Si tu entorno local usa `PawTrackLocal` en `CPC-davil-ECEKS\SQLEXPRESS` en vez de LocalDB (por ejemplo, si cambiaste `ASPNETCORE_ENVIRONMENT` a `Local`), sustituye `-S "(localdb)\MSSQLLocalDB" -d PawTrackDev` por `-S "CPC-davil-ECEKS\SQLEXPRESS" -d PawTrackLocal -E` en los comandos anteriores.
 
 ---
 
@@ -234,6 +211,19 @@ medicación estructurada, peso y una alergia registrada.
 
 ---
 
+### Como Ally / Shelter (`ally@test.cr`)
+
+| Feature             | Qué esperar                                                               |
+| ------------------- | ------------------------------------------------------------------------- |
+| Panel aliado        | `/allies/panel` → bandeja de alertas activas geofenceadas y KPIs          |
+| Confirmar acción    | Botón "Ya buscamos en nuestra área" en cada alerta                        |
+| Panel Shelter       | `/shelter/dashboard` → inventario de 4 animales publicados para adopción  |
+| Publicar animal     | `/shelter/publicar` → formulario completo con fotos, especie y requisitos |
+| Revisar solicitudes | `/shelter/animales/:id/aplicaciones` → revisar notas, aprobar o rechazar  |
+| Ferias de adopción  | `/adopciones/ferias` → feria activa sembrada en Parque Central de Heredia |
+
+---
+
 ### Como Clínica Básica (`clinica_basica@test.cr`)
 
 | Feature            | Qué esperar                                                        |
@@ -248,24 +238,58 @@ medicación estructurada, peso y una alergia registrada.
 
 ### Como Clínica Partner (`clinica_partner@test.cr`)
 
-| Feature                        | Qué esperar                                        |
-| ------------------------------ | -------------------------------------------------- |
-| Todo lo de Básica              | ✅                                                 |
-| Emitir certificado PDF         | Formulario completo habilitado                     |
-| Verificar certificado          | `GET /api/certificates/verify/{code}` devuelve 200 |
-| Página pública verificación    | `http://localhost:5173/verificar/{code}`           |
-| Lista de certificados emitidos | Visible en el portal debajo del botón              |
+| Feature                        | Qué esperar                                                                    |
+| ------------------------------ | ------------------------------------------------------------------------------ |
+| Todo lo de Básica              | ✅                                                                             |
+| Cadena SENASA verificada       | Clínica verificada (`Verified`) y veterinario autorizado (`Authorized`)        |
+| Acceso médico pre-concedido    | Acceso activo a la mascota **Max** (`B1000000-0000-0000-0000-000000000001`)    |
+| Emitir Pasaporte de Vacunas    | Formulario habilitado (vacuna antirrábica pre-cargada en el expediente de Max) |
+| Verificar certificado          | `GET /api/certificates/verify/{code}` devuelve 200                             |
+| Página pública verificación    | `http://localhost:5173/verificar/{code}`                                       |
+| Lista de certificados emitidos | Visible en el portal debajo del botón                                          |
 
 ---
 
-### Como Municipalidad (`municipal_basica@test.cr`)
+### Como Municipalidad (`municipal_basica@test.cr`, `municipal_full@test.cr`, `municipal_regional@test.cr`)
 
-| Feature               | Qué esperar                                                                 |
-| --------------------- | --------------------------------------------------------------------------- |
-| Portal municipal      | `/municipalidad` → panel operativo visible al autenticarse                  |
-| Registrar captura     | Formulario activo, crea registro                                            |
-| Filtrar por cantón    | Solo "Desamparados" disponible (tier Básica)                                |
-| Vincular con PawTrack | Campo "N° chip/collar" → si coincide con mascota registrada, aparece enlace |
+| Cuenta                       | Cantón / Tier                                           | Qué esperar                                                                                                                       |
+| ---------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `municipal_basica@test.cr`   | Desamparados (Básica)                                   | Portal en `/municipalidad` limitado a Desamparados; captura sembrada vinculada a `Nala Familia` por microchip (`985141000100001`) |
+| `municipal_full@test.cr`     | San José (Full)                                         | Capturas con fotos, estadísticas y filtro de cantón propio                                                                        |
+| `municipal_regional@test.cr` | Red Regional Norte (Alajuela, Grecia, Poás, San Carlos) | Dashboard regional, transferencias inter-cantonales y capturas regionales                                                         |
+
+---
+
+### Como Store (`tienda_activa@test.cr`)
+
+| Feature               | Qué esperar                                                                            |
+| --------------------- | -------------------------------------------------------------------------------------- |
+| Portal de tienda      | `/tienda/portal` → resumen operativo y métricas de la tienda                           |
+| Catálogo de productos | `/tienda/portal/productos` → 4 productos sembrados (Alimento, Collar, Snacks, Juguete) |
+| Gestión de pedidos    | `/tienda/portal/ordenes` → 2 pedidos sembrados (1 pendiente SINPE, 1 confirmado)       |
+| Directorio público    | `/tiendas` → `PetShop CR Test` visible con catálogo disponible al público              |
+
+---
+
+### Como ServiceProvider (`provider@pawtrack.test`)
+
+| Feature               | Qué esperar                                                                |
+| --------------------- | -------------------------------------------------------------------------- |
+| Portal del proveedor  | `/servicio/portal` → perfil verificado y métricas operativas               |
+| Catálogo de servicios | `/servicio/portal/servicios` → servicio "Baño E2E" con precio ₡20,000      |
+| Reglas disponibilidad | Disponibilidad activa de lunes a domingo 09:00 a 17:00                     |
+| Reservas entrantes    | `/servicio/portal/reservas` → reservas sembradas listas para gestionar     |
+| Directorio público    | `/servicios` → visible en el directorio público de servicios para mascotas |
+
+---
+
+### Como Support / Bienestar Animal (`soporte_bienestar@test.cr`)
+
+| Feature                | Qué esperar                                                                        |
+| ---------------------- | ---------------------------------------------------------------------------------- |
+| Triage de denuncias    | `GET /api/admin/welfare-cases` → 3 casos sembrados (Abandono, Maltrato, Atropello) |
+| Severidad y notas      | Visualización y adición de notas internas de seguimiento en cada expediente        |
+| Derivación e historial | Historial de auditoría y derivación a refugios verificados                         |
 
 ---
 
@@ -314,18 +338,25 @@ Ejecutar `seed-enterprise-demo-data.sql` deja estos escenarios idempotentes:
 
 ## IDs de usuarios (GUIDs)
 
-| Email                        | GUID                                   |
-| ---------------------------- | -------------------------------------- |
-| `admin@pawtrack.cr`          | `AA000001-0000-0000-0000-000000000001` |
-| `owner_free@test.cr`         | `AA000002-0000-0000-0000-000000000002` |
-| `owner_plus@test.cr`         | `AA000003-0000-0000-0000-000000000003` |
-| `owner_familia@test.cr`      | `AA000004-0000-0000-0000-000000000004` |
-| `ally@test.cr`               | `AA000005-0000-0000-0000-000000000005` |
-| `clinica_basica@test.cr`     | `AA000006-0000-0000-0000-000000000006` |
-| `clinica_partner@test.cr`    | `AA000007-0000-0000-0000-000000000007` |
-| `municipal_basica@test.cr`   | `AA000008-0000-0000-0000-000000000008` |
-| `municipal_full@test.cr`     | `AA000009-0000-0000-0000-000000000009` |
-| `municipal_regional@test.cr` | `AA000010-0000-0000-0000-000000000010` |
+| Email                        | GUID                                   | Rol             |
+| ---------------------------- | -------------------------------------- | --------------- |
+| `admin@pawtrack.cr`          | `AA000001-0000-0000-0000-000000000001` | Admin           |
+| `owner_free@test.cr`         | `AA000002-0000-0000-0000-000000000002` | Owner           |
+| `owner_plus@test.cr`         | `AA000003-0000-0000-0000-000000000003` | Owner           |
+| `owner_familia@test.cr`      | `AA000004-0000-0000-0000-000000000004` | Owner           |
+| `ally@test.cr`               | `AA000005-0000-0000-0000-000000000005` | Ally            |
+| `clinica_basica@test.cr`     | `AA000006-0000-0000-0000-000000000006` | Clinic          |
+| `clinica_partner@test.cr`    | `AA000007-0000-0000-0000-000000000007` | Clinic          |
+| `municipal_basica@test.cr`   | `AA000008-0000-0000-0000-000000000008` | Municipality    |
+| `municipal_full@test.cr`     | `AA000009-0000-0000-0000-000000000009` | Municipality    |
+| `municipal_regional@test.cr` | `AA000010-0000-0000-0000-000000000010` | Municipality    |
+| `tienda_activa@test.cr`      | `AA000011-0000-0000-0000-000000000011` | Store           |
+| `soporte_bienestar@test.cr`  | `AA000012-0000-0000-0000-000000000012` | Support         |
+| `admin@pawtrack.test`        | `DAD661E5-7B58-4A5A-ABD4-280ACA9B7C72` | Admin           |
+| `owner@pawtrack.test`        | `D73FC5EA-6F8F-4ADF-9756-07480962EAF3` | Owner           |
+| `ally@pawtrack.test`         | `E2984533-3A78-4C84-8286-7C91E69AE1B3` | Ally            |
+| `clinic@pawtrack.test`       | `2B9B9F17-39DD-42A7-B138-A00632ABE55A` | Clinic          |
+| `provider@pawtrack.test`     | `B4A3A5D3-08F5-45CE-91F4-EC013463A7D8` | ServiceProvider |
 
 ---
 

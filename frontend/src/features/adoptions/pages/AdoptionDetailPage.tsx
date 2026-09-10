@@ -186,9 +186,11 @@ export default function AdoptionDetailPage() {
         )}
 
         {/* Organization */}
-        <section className="rounded-xl bg-sand-50 border border-sand-100 p-4">
-          <p className="text-xs text-sand-400 mb-1">Publicado por</p>
-          <p className="text-sm font-semibold text-ink-800">
+        <section className="rounded-lg border border-sand-200 bg-surface-warm p-4">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-sand-500">
+            Publicado por
+          </h2>
+          <p className="mt-1 text-base font-bold text-sand-900">
             {animal.organizationName}
           </p>
         </section>

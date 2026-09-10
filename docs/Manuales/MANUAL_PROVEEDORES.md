@@ -3,13 +3,17 @@
 **Version:** 1.0  
 **Rol:** `ServiceProvider`  
 **Audiencia:** profesionales y negocios de servicios para mascotas  
-**Ultima actualizacion:** 2026-09-09
+**Ultima actualizacion:** 2026-09-10
 
 ## 1. Registro y estados
 
 Registra tu servicio en `/servicio/registro` con categoria, descripcion,
 ubicacion y contacto. Las categorias actuales incluyen entrenador, grooming,
 hotel, daycare, paseador, fotografo y otros.
+
+El directorio publico se consulta en `/servicios` y cada perfil en
+`/servicios/:id`; ambos pueden mostrar vallas publicitarias activas del
+placement correspondiente.
 
 Consulta `/servicio/pendiente` durante la revision. Cuando el perfil esta
 activo aparece en `/servicios` y tiene portal en `/servicio/portal`. Un perfil

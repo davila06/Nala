@@ -1,53 +1,109 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Colaboración con Influencers - PawTrack CR</title>
-    <link rel="stylesheet" href="style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
-  </head>
-  <body>
-    <aside id="sidebar">
-      <div class="brand">
-        <span>🐾</span><strong>PawTrack CR<br />Documentación</strong>
-      </div>
-      <nav>
-        <ul>
-          <li><a href="index.html" class="h2">← Inicio</a></li>
-          <li>
-            <a href="inversionistas.html" class="h2"
-              >💼 Pitch para inversionistas</a
-            >
-          </li>
-          <li>
-            <a href="influencer.html" class="h2 active">🤝 Colaboraciones</a>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-    <main id="main">
-      <div id="content">
-        <p style="color: #888; padding: 2rem">Cargando…</p>
-      </div>
-    </main>
-    <script>
-      fetch("../influencer.md")
-        .then((response) => {
-          if (!response.ok) throw new Error("No se pudo cargar influencer.md");
-          return response.text();
-        })
-        .then((markdown) => {
-          document.getElementById("content").innerHTML = DOMPurify.sanitize(
-            marked.parse(markdown),
-          );
-        })
-        .catch((error) => {
-          document.getElementById("content").innerHTML =
-            '<h1>No se pudo cargar la fuente</h1><p>Abre este documento desde un servidor local o consulta <a href="../influencer.md">influencer.md</a>.</p>';
-          console.error(error);
-        });
-    </script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Colaboración con Influencers — PawTrack CR</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+</head>
+<body>
+<aside id="sidebar">
+  <div class="brand"><span>🐾</span><strong>PawTrack CR<br>Documentación</strong></div>
+  <nav><ul>
+    <li><a href="index.html" class="h2">← Inicio</a></li>
+    <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>
+    <li><a href="FEATURES.html" class="h2">🧭 Features por Plan</a></li>
+    <li><a href="PRICING_AND_PLANS.html" class="h2">💳 Planes y Capacidades</a></li>
+    <li><a href="planes.html" class="h2">📋 Catálogo de Planes y Tiers</a></li>
+    <li><a href="precios.html" class="h2">📊 Precios y Modelo Comercial</a></li>
+    <li><a href="publicidad.html" class="h2">🪧 Guía de Publicidad y Vallas</a></li>
+    <li><a href="inversionistas.html" class="h2">💼 Pitch para Inversionistas</a></li>
+    <li><a href="influencer.html" class="h2 active">🤝 Colaboración con Influencers</a></li>
+    <li><a href="API_REFERENCE.html" class="h2">🔌 Referencia API</a></li>
+    <li><a href="B2B_ESTADO_ACTUAL.html" class="h2">🏢 Estado Actual B2B</a></li>
+    <li><a href="CONSOLIDACION_DOCUMENTAL.html" class="h2">🗂️ Consolidación Documental</a></li>
+    <li><a href="COLLAR_CURRENT_STATE.html" class="h2">📡 Estado Actual de Collares</a></li>
+    <li><a href="ADOPTIONS_CURRENT_STATE.html" class="h2">🏡 Estado Actual de Adopciones</a></li>
+    <li><a href="NALA_REPORTING_GUIDE.html" class="h2">📊 NALA y Reportes</a></li>
+    <li><a href="sinpe.html" class="h2">💸 Automatización SINPE Móvil</a></li>
+    <li><a href="NALA.html" class="h2">🐾 Producto PawTrack CR</a></li>
+    <li><a href="MANUAL_USUARIO.html" class="h2">📱 Manual de Usuario</a></li>
+    <li><a href="MANUAL_ADMINISTRADOR.html" class="h2">⚙️ Manual de Administrador</a></li>
+    <li><a href="MANUAL_ALIADOS.html" class="h2">🤝 Manual de Aliados</a></li>
+    <li><a href="MANUAL_CLINICAS.html" class="h2">🏥 Manual de Clínicas Veterinarias</a></li>
+    <li><a href="MANUAL_MUNICIPALIDADES.html" class="h2">🏛️ Manual de Municipalidades</a></li>
+    <li><a href="MANUAL_TIENDAS.html" class="h2">🏪 Manual de Tiendas</a></li>
+    <li><a href="MANUAL_PROVEEDORES.html" class="h2">🧰 Manual de Proveedores</a></li>
+    <li><a href="MANUAL_SOPORTE.html" class="h2">🎧 Manual de Soporte</a></li>
+    <li><a href="MANUAL_TECNICO.html" class="h2">🛠️ Manual Técnico</a></li>
+    <li><a href="GUIA_ONBOARDING_DEV.html" class="h2">🚀 Guía de Onboarding Dev</a></li>
+    <li><a href="GUIA_DEPLOY_PASO_A_PASO.html" class="h2">☁️ Guía de Deploy Paso a Paso</a></li>
+    <li><a href="RUNBOOK_OPERACIONES.html" class="h2">📟 Runbook de Operaciones</a></li>
+    <li><a href="DEPLOY_INFO.html" class="h2">🗂️ Datos de Despliegue Beta</a></li>
+    <li><a href="RUNBOOK_DEPLOYMENT.html" class="h2">🚢 Runbook de Deployment</a></li>
+    <li><a href="RUNBOOK_SEGURIDAD_INCIDENTES.html" class="h2">🛡️ Seguridad e Incidentes</a></li>
+    <li><a href="RUNBOOK_BACKUPS_RECUPERACION.html" class="h2">💾 Backups y Recuperación</a></li>
+    <li><a href="MATRIZ_RETENCION_DATOS.html" class="h2">🧾 Retención de Datos</a></li>
+    <li><a href="GUIA_QA_E2E.html" class="h2">🧪 Guía QA y E2E</a></li>
+    <li><a href="GUIA_INTEGRACIONES_WEBHOOKS.html" class="h2">🔗 Integraciones y Webhooks</a></li>
+    <li><a href="RUNBOOK_JOBS_BACKGROUND.html" class="h2">⏱️ Jobs en Background</a></li>
+    <li><a href="RUNBOOK_MODERACION_Y_BIENESTAR.html" class="h2">🐾 Moderación y Bienestar</a></li>
+    <li><a href="CUMPLIMIENTO_PROTECCION_DATOS.html" class="h2">📜 Cumplimiento Protección de Datos</a></li>
+    <li><a href="POLITICA_DE_PRIVACIDAD.html" class="h2">🔒 Política de Privacidad</a></li>
+    <li><a href="TERMINOS_DE_USO.html" class="h2">📋 Términos de Uso</a></li>
+  </ul></nav>
+</aside>
+<main id="main">
+  <div id="content"><p style="color:#888;padding:2rem">Cargando…</p></div>
+</main>
+<script>
+const md = "# PawTrack CR - Mensaje de contacto para influencers\r\n\r\n> Plantilla para WhatsApp, DM o email. Personalizar el nombre y el medio antes\r\n> de enviar.\r\n>\r\n> **Estado de producto:** PawTrack CR tiene una base funcional amplia y está en\r\n> etapa de validación comercial y operativa. No presentarlo como producto masivo\r\n> ya desplegado ni como servicio de emergencia garantizado.\r\n\r\n---\r\n\r\n## Version corta - WhatsApp / DM\r\n\r\n```text\r\nHola [Nombre] 👋\r\n\r\nTe escribo porque sigo tu contenido sobre [mascotas / estilo de vida / Costa Rica]\r\ny creo que esto puede interesarte.\r\n\r\nEstoy desarrollando PawTrack CR, una plataforma costarricense para ayudar a\r\nreunir mascotas perdidas con sus familias. El flujo parte de un perfil publico\r\ncon QR: quien encuentre a la mascota puede escanearlo desde la camara del\r\ncelular, sin instalar una aplicacion, y usar el contacto seguro disponible.\r\n\r\nLa plataforma tambien incluye avistamientos, mapa, chat enmascarado,\r\ncoordinacion de busqueda, expediente medico para el plan Familia, funciones GPS\r\npara Plus o superior y una red de clinicas y aliados. Hay un nivel gratuito y\r\nplanes premium; algunas funciones estan en validacion operativa y comercial.\r\n\r\nMe gustaria invitarte a conocerla y decidir libremente si tiene sentido\r\ncompartirla con tu comunidad. No hay compromiso: primero puedes probarla y\r\nhacer preguntas.\r\n\r\nLo que puedo ofrecerte:\r\n• Demo o acceso de prueba al ambiente disponible\r\n• Kit de assets: fotos, capturas, logos y material de marca\r\n• Respuestas directas sobre el producto\r\n• Posible amplificacion desde canales oficiales, si estan activos\r\n• Reconocimiento de colaboracion, sujeto a aprobacion\r\n• Libertad editorial y ningun guion obligatorio\r\n\r\n¿Te parece si coordinamos una llamada o demo de 15 minutos?\r\n\r\nDenis - Fundador PawTrack CR\r\n davila06@gmail.com | https://pawtrack.cr\r\n```\r\n\r\n---\r\n\r\n## Version larga - email\r\n\r\n**Asunto:** PawTrack CR - una red local para ayudar a recuperar mascotas\r\n\r\n```text\r\nHola [Nombre],\r\n\r\nTe escribo porque sigo tu contenido sobre [mascotas / estilo de vida / Costa Rica]\r\ny creo que lo que estamos construyendo puede resonar con tu audiencia.\r\n\r\nMe llamo Denis y soy el fundador de PawTrack CR, una plataforma costarricense\r\npara identidad, cuidado y recuperacion de mascotas.\r\n\r\n- ¿QUE ES PAWTRACK CR? -\r\n\r\nPawTrack conecta a dueños, personas que encuentran mascotas, rescatistas,\r\nclinicas, refugios y comunidad cuando una mascota se pierde. El perfil publico\r\ncon QR puede abrirse desde la camara del celular, sin descargar una aplicacion.\r\nDesde ahi se puede usar el contacto seguro o reportar un avistamiento, segun el\r\nestado del caso.\r\n\r\nLa plataforma incluye:\r\n• Perfil publico, QR y microchip\r\n• Mapa y reportes de avistamientos\r\n• Matching visual por foto cuando el plan y el flujo lo permiten\r\n• Expediente medico con consentimiento; el acceso completo corresponde al plan Familia\r\n• Chat enmascarado entre dueño y persona que ayuda\r\n• Sala de coordinacion de busqueda en tiempo real\r\n• Canales de notificacion habilitados, como email, WhatsApp, Telegram y Facebook\r\n• Funciones de collar GPS para planes Plus o superiores\r\n• Portales para clinicas, aliados, refugios, tiendas y municipalidades\r\n\r\nPawTrack tiene un nivel gratuito y planes premium. Los precios técnicos base\r\nactuales para dueños son `UserPlus` ₡2,990/mes y `UserFamilia` ₡4,990/mes. Los\r\nplanes pagados pueden contratarse por 1, 3, 6 o 12 meses; el plazo anual tiene\r\n20% de descuento. Las ofertas B2B y B2G tienen condiciones separadas y\r\nactivación manual. Las recompensas y cualquier flujo de custodia de fondos\r\nrequieren validación legal y operativa antes de presentarse como servicio\r\nfinanciero activo. Para el detalle vigente usar [consolidado.md](consolidado.md).\r\n\r\n- POR QUE TE ESCRIBO -\r\n\r\nNo busco un patrocinio pagado. Me gustaria ofrecerte una colaboracion\r\nvoluntaria y transparente. Si pruebas la plataforma y sientes que vale la pena\r\ncompartirla, genial. Si no, no pasa nada.\r\n\r\nLo que puedo ofrecerte:\r\n✓ Demo o acceso de prueba al ambiente disponible\r\n✓ Kit de assets: capturas, fotos, logos y guia de marca\r\n✓ Contacto directo para resolver preguntas\r\n✓ Posible amplificacion desde canales oficiales, si estan activos\r\n✓ Reconocimiento de colaboracion, sujeto a aprobacion y terminos acordados\r\n✓ Libertad editorial: sin guion ni aprobacion previa del contenido\r\n\r\n- UNA HISTORIA QUE MUEVE -\r\n\r\nEl amor por las mascotas conecta con muchas comunidades. Un contenido que\r\nmuestre como funciona un QR, como reportar un avistamiento o como preparar a\r\nuna familia antes de una perdida puede ayudar a que mas personas conozcan una\r\nherramienta util, sin prometer resultados garantizados.\r\n\r\n¿Te interesa conocer mas? Con gusto coordinamos una demo o te envio el material\r\npara que lo revises antes de decidir.\r\n\r\nUn saludo,\r\n\r\nDenis Avila\r\nFundador - PawTrack CR\r\ndavila06@gmail.com\r\nhttps://pawtrack.cr\r\n```\r\n\r\n---\r\n\r\n## Reglas de uso\r\n\r\n- Personalizar nombre, referencia al contenido y canal de contacto.\r\n- No enviar mensajes masivos ni presentar la plantilla como testimonio real.\r\n- No afirmar que PawTrack ya está en producción abierta, que garantiza una\r\n  reunificación, que entrega alertas en segundos o que opera 24/7.\r\n- No describir recompensas como escrow, payout o pagos procesados por PawTrack\r\n  sin validacion legal y operativa vigente.\r\n- No llamar a PawTrack “la primera” plataforma del país sin evidencia externa.\r\n- No presentar \"SENASA-ready\" como aprobación, certificación o integración\r\n  oficial de SENASA.\r\n- No prometer compensacion economica, publicidad cruzada o un badge sin\r\n  aprobación previa.\r\n- Si preguntan por precios, usar [consolidado.md](consolidado.md) y\r\n  [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md).\r\n- Si preguntan por estado tecnico, usar [STATUS.md](STATUS.md).\r\n- Compartir `https://pawtrack.cr` solo cuando el ambiente publico esté\r\n  disponible y validado.\r\n- Si no hay respuesta en cinco dias, enviar un unico seguimiento breve.\r\n\r\n---\r\n\r\n## Seguimiento sugerido\r\n\r\n```text\r\nHola [Nombre], ¿pudiste ver mi mensaje sobre PawTrack CR? Si te interesa,\r\npuedo enviarte una demo breve o el material para que lo revises sin compromiso.\r\n```\r\n\r\n---\r\n\r\n_PawTrack CR - Plantilla de contacto para influencers - Septiembre 2026_\r\n";
+const html = DOMPurify.sanitize(marked.parse(md));
+const content = document.getElementById('content');
+content.innerHTML = html;
+
+// Rewrite relative .md links to .html within docs/html
+content.querySelectorAll('a').forEach(a => {
+  const href = a.getAttribute('href');
+  if (href && !href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('#') && !href.startsWith('mailto:')) {
+    const m = href.match(/^(?:(?:\.\.\/)*)?(?:(?:docs|Manuales)\/)*([A-Za-z0-9_-]+)\.md(#.*)?$/i);
+    if (m) {
+      a.setAttribute('href', m[1] + '.html' + (m[2] || ''));
+    }
+  }
+});
+
+// Build sidebar nav from rendered headings
+const headings = content.querySelectorAll('h2, h3');
+const sidebar  = document.querySelector('#sidebar nav ul');
+headings.forEach((h, i) => {
+  if (!h.id) {
+    h.id = 'h-' + i + '-' + h.textContent.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').slice(0, 50);
+  }
+  const li = document.createElement('li');
+  const a  = document.createElement('a');
+  a.href      = '#' + h.id;
+  a.textContent = h.textContent.replace(/^#+\s*/, '');
+  a.className = h.tagName.toLowerCase();
+  li.appendChild(a);
+  sidebar.appendChild(li);
+});
+
+// Highlight active link on scroll
+const links = sidebar.querySelectorAll('a[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const active = sidebar.querySelector('a[href="#' + e.target.id + '"]');
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -75% 0px' });
+content.querySelectorAll('h2, h3').forEach(h => obs.observe(h));
+</script>
+</body>
 </html>

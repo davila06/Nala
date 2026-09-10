@@ -16,8 +16,13 @@
     <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>
     <li><a href="FEATURES.html" class="h2">🧭 Features por Plan</a></li>
     <li><a href="PRICING_AND_PLANS.html" class="h2">💳 Planes y Capacidades</a></li>
+    <li><a href="planes.html" class="h2">📋 Catálogo de Planes y Tiers</a></li>
+    <li><a href="precios.html" class="h2">📊 Precios y Modelo Comercial</a></li>
+    <li><a href="publicidad.html" class="h2">🪧 Guía de Publicidad y Vallas</a></li>
     <li><a href="inversionistas.html" class="h2">💼 Pitch para Inversionistas</a></li>
+    <li><a href="influencer.html" class="h2">🤝 Colaboración con Influencers</a></li>
     <li><a href="API_REFERENCE.html" class="h2">🔌 Referencia API</a></li>
+    <li><a href="B2B_ESTADO_ACTUAL.html" class="h2">🏢 Estado Actual B2B</a></li>
     <li><a href="CONSOLIDACION_DOCUMENTAL.html" class="h2">🗂️ Consolidación Documental</a></li>
     <li><a href="COLLAR_CURRENT_STATE.html" class="h2">📡 Estado Actual de Collares</a></li>
     <li><a href="ADOPTIONS_CURRENT_STATE.html" class="h2">🏡 Estado Actual de Adopciones</a></li>
@@ -31,7 +36,7 @@
     <li><a href="MANUAL_MUNICIPALIDADES.html" class="h2">🏛️ Manual de Municipalidades</a></li>
     <li><a href="MANUAL_TIENDAS.html" class="h2">🏪 Manual de Tiendas</a></li>
     <li><a href="MANUAL_PROVEEDORES.html" class="h2">🧰 Manual de Proveedores</a></li>
-    <li><a href="MANUAL_SOPORTE.html" class="h2">🎧 Manual de Soporte</a></li>
+    <li><a href="MANUAL_SOPORTE.html" class="h2 active">🎧 Manual de Soporte</a></li>
     <li><a href="MANUAL_TECNICO.html" class="h2">🛠️ Manual Técnico</a></li>
     <li><a href="GUIA_ONBOARDING_DEV.html" class="h2">🚀 Guía de Onboarding Dev</a></li>
     <li><a href="GUIA_DEPLOY_PASO_A_PASO.html" class="h2">☁️ Guía de Deploy Paso a Paso</a></li>
@@ -45,6 +50,7 @@
     <li><a href="GUIA_INTEGRACIONES_WEBHOOKS.html" class="h2">🔗 Integraciones y Webhooks</a></li>
     <li><a href="RUNBOOK_JOBS_BACKGROUND.html" class="h2">⏱️ Jobs en Background</a></li>
     <li><a href="RUNBOOK_MODERACION_Y_BIENESTAR.html" class="h2">🐾 Moderación y Bienestar</a></li>
+    <li><a href="CUMPLIMIENTO_PROTECCION_DATOS.html" class="h2">📜 Cumplimiento Protección de Datos</a></li>
     <li><a href="POLITICA_DE_PRIVACIDAD.html" class="h2">🔒 Política de Privacidad</a></li>
     <li><a href="TERMINOS_DE_USO.html" class="h2">📋 Términos de Uso</a></li>
   </ul></nav>
@@ -53,10 +59,21 @@
   <div id="content"><p style="color:#888;padding:2rem">Cargando…</p></div>
 </main>
 <script>
-const md = "# Manual de Soporte - PawTrack CR\r\n\r\n**Version:** 1.0  \r\n**Rol:** `Support`  \r\n**Audiencia:** personal de soporte operativo autorizado  \r\n**Ultima actualizacion:** 2026-09-09\r\n\r\n## 1. Alcance del rol\r\n\r\n`Support` es un rol privilegiado asignado por un `Admin`; no existe registro\r\npublico ni una pantalla `/support`. El acceso se concede a una cuenta existente\r\nmediante la operacion administrativa correspondiente y debe retirarse cuando\r\ntermine la necesidad operativa.\r\n\r\nEl rol puede operar la cola de casos de bienestar animal y los incidentes de\r\nproveedores. No sustituye al administrador para aprobaciones globales, planes,\r\nusuarios, clinicas, tiendas o configuracion de seguridad.\r\n\r\n## 2. Casos de bienestar\r\n\r\nLa cola administrativa esta disponible en la superficie de administracion de\r\nbienestar. El flujo recomendado es:\r\n\r\n1. Filtrar por estado, severidad y canton.\r\n2. Abrir el detalle y revisar solo la evidencia necesaria.\r\n3. Iniciar triage.\r\n4. Asignar severidad con criterios consistentes.\r\n5. Asignar la organizacion responsable o derivar el caso con motivo.\r\n6. Agregar notas factuales, sin especulaciones ni PII innecesaria.\r\n7. Resolver, descartar o cerrar sin accion indicando siempre la razon.\r\n\r\nLa evidencia sensible se descarga solo cuando existe una necesidad operacional.\r\nNo se debe reenviar fuera de PawTrack ni guardar copias locales.\r\n\r\n## 3. Incidentes de proveedores\r\n\r\nEn la cola de incidentes de proveedores, revisa el tipo, descripcion y\r\nreferencia de evidencia. Confirma el alcance antes de resolver. Toda resolucion\r\ndebe incluir una explicacion breve, accion tomada y, si aplica, una derivacion\r\nal administrador.\r\n\r\nEl rol no puede modificar el perfil comercial, membresia o verificacion del\r\nproveedor salvo que un flujo administrativo expresamente lo permita.\r\n\r\n## 4. Seguridad y escalamiento\r\n\r\n- Nunca uses una cuenta de soporte para probar ownership de otro usuario.\r\n- No solicites contraseñas, tokens, API keys ni codigos de handover.\r\n- En accesos indebidos, fraude, riesgo fisico o exposicion de datos, detén la\r\n  operacion y escala a un `Admin`.\r\n- Registra ID de caso, accion, resultado y hora en la bitacora operativa.\r\n- Sigue [RUNBOOK_OPERACIONES.md](../RUNBOOK_OPERACIONES.md) y\r\n  [API_AUTHORIZATION_MATRIX.md](../API_AUTHORIZATION_MATRIX.md).\r\n\r\n## 5. Limites conocidos\r\n\r\nLa autorizacion de Support esta implementada especificamente para bienestar e\r\nincidentes de proveedores. Una respuesta `403` en otra superficie es esperada;\r\nno debe resolverse compartiendo credenciales de Admin.\r\n";
+const md = "# Manual de Soporte - PawTrack CR\r\n\r\n**Version:** 1.0  \r\n**Rol:** `Support`  \r\n**Audiencia:** personal de soporte operativo autorizado  \r\n**Ultima actualizacion:** 2026-09-10\r\n\r\n## 1. Alcance del rol\r\n\r\n`Support` es un rol privilegiado asignado por un `Admin`; no existe registro\r\npublico ni una pantalla `/support`. El acceso se concede a una cuenta existente\r\nmediante la operacion administrativa correspondiente y debe retirarse cuando\r\ntermine la necesidad operativa.\r\n\r\nEl rol puede operar la cola de casos de bienestar animal y los incidentes de\r\nproveedores. No sustituye al administrador para aprobaciones globales, planes,\r\nusuarios, clinicas, tiendas o configuracion de seguridad.\r\n\r\n## 2. Casos de bienestar\r\n\r\nLa cola administrativa esta disponible en la pestana **Bienestar** de `/admin`.\r\nEl flujo recomendado es:\r\n\r\n1. Filtrar por estado, severidad y canton.\r\n2. Abrir el detalle y revisar solo la evidencia necesaria.\r\n3. Iniciar triage.\r\n4. Asignar severidad con criterios consistentes.\r\n5. Asignar la organizacion responsable o derivar el caso con motivo.\r\n6. Agregar notas factuales, sin especulaciones ni PII innecesaria.\r\n7. Resolver, descartar o cerrar sin accion indicando siempre la razon.\r\n\r\nLa evidencia sensible se descarga solo cuando existe una necesidad operacional.\r\nNo se debe reenviar fuera de PawTrack ni guardar copias locales.\r\n\r\n## 3. Incidentes de proveedores\r\n\r\nEn la cola de incidentes de proveedores, revisa el tipo, descripcion y\r\nreferencia de evidencia. Confirma el alcance antes de resolver. Toda resolucion\r\ndebe incluir una explicacion breve, accion tomada y, si aplica, una derivacion\r\nal administrador.\r\n\r\nEl rol no puede modificar el perfil comercial, membresia o verificacion del\r\nproveedor salvo que un flujo administrativo expresamente lo permita.\r\n\r\n## 4. Seguridad y escalamiento\r\n\r\n- Nunca uses una cuenta de soporte para probar ownership de otro usuario.\r\n- No solicites contraseñas, tokens, API keys ni codigos de handover.\r\n- En accesos indebidos, fraude, riesgo fisico o exposicion de datos, detén la\r\n  operacion y escala a un `Admin`.\r\n- Registra ID de caso, accion, resultado y hora en la bitacora operativa.\r\n- Sigue [RUNBOOK_OPERACIONES.md](../RUNBOOK_OPERACIONES.md) y\r\n  [API_AUTHORIZATION_MATRIX.md](../API_AUTHORIZATION_MATRIX.md).\r\n\r\n## 5. Limites conocidos\r\n\r\nLa autorizacion de Support esta implementada especificamente para bienestar e\r\nincidentes de proveedores. Una respuesta `403` en otra superficie es esperada;\r\nno debe resolverse compartiendo credenciales de Admin.\r\n";
 const html = DOMPurify.sanitize(marked.parse(md));
 const content = document.getElementById('content');
 content.innerHTML = html;
+
+// Rewrite relative .md links to .html within docs/html
+content.querySelectorAll('a').forEach(a => {
+  const href = a.getAttribute('href');
+  if (href && !href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('#') && !href.startsWith('mailto:')) {
+    const m = href.match(/^(?:(?:\.\.\/)*)?(?:(?:docs|Manuales)\/)*([A-Za-z0-9_-]+)\.md(#.*)?$/i);
+    if (m) {
+      a.setAttribute('href', m[1] + '.html' + (m[2] || ''));
+    }
+  }
+});
 
 // Build sidebar nav from rendered headings
 const headings = content.querySelectorAll('h2, h3');

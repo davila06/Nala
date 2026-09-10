@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Estado Actual B2B — PawTrack CR</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+</head>
+<body>
+<aside id="sidebar">
+  <div class="brand"><span>🐾</span><strong>PawTrack CR<br>Documentación</strong></div>
+  <nav><ul>
+    <li><a href="index.html" class="h2">← Inicio</a></li>
+    <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>
+    <li><a href="FEATURES.html" class="h2">🧭 Features por Plan</a></li>
+    <li><a href="PRICING_AND_PLANS.html" class="h2">💳 Planes y Capacidades</a></li>
+    <li><a href="planes.html" class="h2">📋 Catálogo de Planes y Tiers</a></li>
+    <li><a href="precios.html" class="h2">📊 Precios y Modelo Comercial</a></li>
+    <li><a href="publicidad.html" class="h2">🪧 Guía de Publicidad y Vallas</a></li>
+    <li><a href="inversionistas.html" class="h2">💼 Pitch para Inversionistas</a></li>
+    <li><a href="influencer.html" class="h2">🤝 Colaboración con Influencers</a></li>
+    <li><a href="API_REFERENCE.html" class="h2">🔌 Referencia API</a></li>
+    <li><a href="B2B_ESTADO_ACTUAL.html" class="h2 active">🏢 Estado Actual B2B</a></li>
+    <li><a href="CONSOLIDACION_DOCUMENTAL.html" class="h2">🗂️ Consolidación Documental</a></li>
+    <li><a href="COLLAR_CURRENT_STATE.html" class="h2">📡 Estado Actual de Collares</a></li>
+    <li><a href="ADOPTIONS_CURRENT_STATE.html" class="h2">🏡 Estado Actual de Adopciones</a></li>
+    <li><a href="NALA_REPORTING_GUIDE.html" class="h2">📊 NALA y Reportes</a></li>
+    <li><a href="sinpe.html" class="h2">💸 Automatización SINPE Móvil</a></li>
+    <li><a href="NALA.html" class="h2">🐾 Producto PawTrack CR</a></li>
+    <li><a href="MANUAL_USUARIO.html" class="h2">📱 Manual de Usuario</a></li>
+    <li><a href="MANUAL_ADMINISTRADOR.html" class="h2">⚙️ Manual de Administrador</a></li>
+    <li><a href="MANUAL_ALIADOS.html" class="h2">🤝 Manual de Aliados</a></li>
+    <li><a href="MANUAL_CLINICAS.html" class="h2">🏥 Manual de Clínicas Veterinarias</a></li>
+    <li><a href="MANUAL_MUNICIPALIDADES.html" class="h2">🏛️ Manual de Municipalidades</a></li>
+    <li><a href="MANUAL_TIENDAS.html" class="h2">🏪 Manual de Tiendas</a></li>
+    <li><a href="MANUAL_PROVEEDORES.html" class="h2">🧰 Manual de Proveedores</a></li>
+    <li><a href="MANUAL_SOPORTE.html" class="h2">🎧 Manual de Soporte</a></li>
+    <li><a href="MANUAL_TECNICO.html" class="h2">🛠️ Manual Técnico</a></li>
+    <li><a href="GUIA_ONBOARDING_DEV.html" class="h2">🚀 Guía de Onboarding Dev</a></li>
+    <li><a href="GUIA_DEPLOY_PASO_A_PASO.html" class="h2">☁️ Guía de Deploy Paso a Paso</a></li>
+    <li><a href="RUNBOOK_OPERACIONES.html" class="h2">📟 Runbook de Operaciones</a></li>
+    <li><a href="DEPLOY_INFO.html" class="h2">🗂️ Datos de Despliegue Beta</a></li>
+    <li><a href="RUNBOOK_DEPLOYMENT.html" class="h2">🚢 Runbook de Deployment</a></li>
+    <li><a href="RUNBOOK_SEGURIDAD_INCIDENTES.html" class="h2">🛡️ Seguridad e Incidentes</a></li>
+    <li><a href="RUNBOOK_BACKUPS_RECUPERACION.html" class="h2">💾 Backups y Recuperación</a></li>
+    <li><a href="MATRIZ_RETENCION_DATOS.html" class="h2">🧾 Retención de Datos</a></li>
+    <li><a href="GUIA_QA_E2E.html" class="h2">🧪 Guía QA y E2E</a></li>
+    <li><a href="GUIA_INTEGRACIONES_WEBHOOKS.html" class="h2">🔗 Integraciones y Webhooks</a></li>
+    <li><a href="RUNBOOK_JOBS_BACKGROUND.html" class="h2">⏱️ Jobs en Background</a></li>
+    <li><a href="RUNBOOK_MODERACION_Y_BIENESTAR.html" class="h2">🐾 Moderación y Bienestar</a></li>
+    <li><a href="CUMPLIMIENTO_PROTECCION_DATOS.html" class="h2">📜 Cumplimiento Protección de Datos</a></li>
+    <li><a href="POLITICA_DE_PRIVACIDAD.html" class="h2">🔒 Política de Privacidad</a></li>
+    <li><a href="TERMINOS_DE_USO.html" class="h2">📋 Términos de Uso</a></li>
+  </ul></nav>
+</aside>
+<main id="main">
+  <div id="content"><p style="color:#888;padding:2rem">Cargando…</p></div>
+</main>
+<script>
+const md = "# PawTrack CR — Estado B2B/B2G y Marketplace de Servicios\r\n\r\n> Corte verificado: 2026-09-09\r\n> Fuente técnica: `SubscriptionTier`, `SubscriptionPricing`, controllers, handlers y rutas frontend actuales.\r\n>\r\n> Este documento distingue capacidades implementadas de propuestas comerciales. Una capacidad no debe venderse como activa si aparece en `📋`.\r\n\r\n## Resumen ejecutivo\r\n\r\nPawTrack tiene seis superficies B2B/B2G activas o parcialmente activas:\r\n\r\n| Superficie               | Estado actual                                                                      | Comercialización                                                  |\r\n| ------------------------ | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------- |\r\n| Clínicas veterinarias    | ✅ Directorio, mapa, escaneo QR/microchip, portal, visibilidad y funciones Partner | Tiers ClinicPlus/ClinicPartner existentes                         |\r\n| Tiendas de mascotas      | ✅ Directorio, mapa, catálogo, pedidos, analytics y sedes                          | Tiers StorePlus/StorePartner existentes                           |\r\n| Refugios/adopciones      | ✅ Publicación, solicitudes, ferias y dashboard base                               | ShelterPlus existente                                             |\r\n| Municipalidades          | ⏸️ Módulo diferido; capacidades existentes fuera del alcance activo                | Tiers técnicos conservados; no implementar ni vender autoservicio |\r\n| Proveedores de servicios | ✅ Marketplace operativo con tiers técnicos y prueba de 30 días                    | No publicar comisión ni precio recurrente todavía                 |\r\n| Aliados/organizaciones   | ✅ Registro, verificación y operación de alertas base                              | Modelo gratuito; roles/SLA avanzados pendientes                   |\r\n\r\n## Marketplace de proveedores de servicios\r\n\r\n### Categorías soportadas\r\n\r\nLas categorías canónicas del dominio son:\r\n\r\n- `Trainer` — Adiestradores\r\n- `Groomer` — Groomers / peluquería canina\r\n- `Hotel` — Hoteles para mascotas\r\n- `Daycare` — Guarderías\r\n- `Walker` — Paseadores\r\n- `Photographer` — Fotógrafos de mascotas\r\n- `Other` — Otros servicios\r\n\r\nNo crear categorías paralelas en documentación, frontend o billing sin cambiar primero el enum de dominio y sus contratos.\r\n\r\n### Implementado\r\n\r\n- Perfiles: registro público, estado pendiente, edición autenticada y\r\n  publicación pública condicionada al estado del proveedor.\r\n- Campos de perfil: nombre comercial, descripción, categoría, dirección,\r\n  coordenadas públicas, correo, teléfono, website y logo cuando corresponde.\r\n- Registro público de proveedor con aprobación administrativa.\r\n- Perfil con nombre, descripción, categoría, dirección, coordenadas, contacto, website y logo.\r\n- Directorio público filtrable por categoría, modalidad, rango de precio y radio geográfico.\r\n- Catálogo de servicios publicados, pausados o archivados.\r\n- Modalidades: establecimiento, domicilio, virtual, grupal y estadía nocturna.\r\n- Duración, precio CRC y capacidad por servicio.\r\n- Reglas semanales de disponibilidad y bloqueos excepcionales.\r\n- Reservas con control de capacidad y prueba de concurrencia en SQL Server.\r\n- Estados de reserva: solicitada, pago pendiente, confirmada, en progreso, completada, cancelada, no-show, expirada, disputada y reembolsada.\r\n- Snapshot comercial de la reserva: precio, impuestos, fee de plataforma, total y política aplicable.\r\n- Pago manual/SINPE con idempotencia, reporte, confirmación, expiración, disputa y reembolso.\r\n- Verificación documental privada, revisión administrativa, vencimiento y recordatorios de renovación.\r\n- Auditoría de acciones y notificaciones operativas.\r\n- Incidentes de bienestar, seguridad, política, pago, privacidad u otros, con investigación, resolución, apelación y cierre.\r\n- Rol `Support` para operaciones de incidentes, separado de `Admin`.\r\n- Directorio y marcadores en el mapa público.\r\n\r\n### No implementado o no aprobado comercialmente\r\n\r\n- Precio comercial recurrente específico para proveedores.\r\n- Cobro recurrente, checkout comercial, impuestos y facturación para proveedores.\r\n- Comisión aprobada, impuestos, conciliación financiera o factura electrónica.\r\n- Integración de tarjeta/SINPE con un proveedor de pagos externo; el gateway actual es manual.\r\n- Payout automático al proveedor.\r\n- KYC empresarial, contratos digitales o firma criptográfica.\r\n- Multi-sede y miembros/roles por organización de proveedor.\r\n- SLA comercial, soporte por nivel y ranking pagado.\r\n- Política definitiva por categoría para cancelaciones, no-show, domicilio y custodia.\r\n- Moderación automática de reseñas, antifraude avanzado y verificación de licencias sectoriales.\r\n\r\n### Modelo comercial propuesto, todavía no aprobado\r\n\r\nEl gate técnico ya existe y no debe confundirse con una suscripción comercial:\r\n`Free` permite directorio y contacto; `Verified` y `Featured` habilitan\r\ncatálogo, disponibilidad y reservas. La activación inicial concede una prueba\r\núnica de 30 días en `Verified`; el job de expiración devuelve el proveedor a\r\n`Free`, salvo una asignación manual del administrador.\r\n\r\nLa opción preferida para validar el mercado es una membresía mensual, porque\r\nevita custodiar y repartir fondos por cada reserva durante el MVP:\r\n\r\n| Nivel       | Precio sugerido | Incluye                                                   |\r\n| ----------- | --------------: | --------------------------------------------------------- |\r\n| Perfil base |          Gratis | Perfil y contacto básico                                  |\r\n| Verificado  |      ₡3,000/mes | Documentos revisados, catálogo, disponibilidad y reservas |\r\n| Destacado   |      ₡5,000/mes | Prioridad, badge y estadísticas                           |\r\n\r\nLa implementación actual usa una prueba única de 30 días y debe medirse\r\nconversión, reservas y churn antes de aprobar la tarifa comercial.\r\nTambién puede validarse un único plan de ₡3,990/mes antes de separar niveles.\r\nEsta es una propuesta de producto, no una capacidad activa.\r\n\r\nLas comisiones de `pricing.md` son hipótesis y no deben presentarse como precios activos:\r\n\r\n| Servicio          | Propuesta histórica | Estado                                  |\r\n| ----------------- | ------------------: | --------------------------------------- |\r\n| Pet sitting       |                 12% | 📋 Pendiente aprobación legal/comercial |\r\n| Paseos            |                 12% | 📋 Pendiente aprobación legal/comercial |\r\n| Custodia temporal |                 10% | 📋 Pendiente aprobación legal/comercial |\r\n| Grooming          |                  8% | 📋 Pendiente aprobación legal/comercial |\r\n\r\nAntes de activar cobros deben definirse custodía de fondos, impuestos, reembolsos, disputas, KYC, payout y responsabilidad del proveedor.\r\n\r\n## Matriz B2B/B2G actual\r\n\r\n| Producto                 | Backend/frontend actual                                                                                        | Gate o tier               | Gaps principales                                                        |\r\n| ------------------------ | -------------------------------------------------------------------------------------------------------------- | ------------------------- | ----------------------------------------------------------------------- |\r\n| Clínica básica           | Registro, revisión, perfil público editable, directorio paginado, mapa y escaneo                               | `ClinicBasic`/estado base | Revalidación documental y UI de gestión de consentimientos              |\r\n| Clínica Plus             | Destacado, badge, estadísticas y alertas cercanas                                                              | `ClinicPlus`              | SLA y soporte formal                                                    |\r\n| Clínica Partner          | Certificados PDF firmables, API key con scopes, widget, pasaporte, agenda, export clínico y contrato `/api/v1` | `ClinicPartner`           | UI de agenda, PKI gestionada por Key Vault y atribución operativa       |\r\n| Tienda básica            | Perfil, catálogo, directorio y mapa                                                                            | `StoreBasic`/estado base  | Inventario y perfil comercial completo                                  |\r\n| Tienda Plus              | Pedidos in-app, SINPE/referencia y operación                                                                   | `StorePlus`               | Confirmación, reembolso, idempotencia comercial, impuestos y envío      |\r\n| Tienda Partner           | Analytics, sedes y exportacion CSV con cuota/auditoria                                                         | `StorePartner`            | Inventario por sede y badge/ranking consistente                         |\r\n| Refugio básico           | Publicación y solicitudes de adopción                                                                          | `ShelterBasic`            | Roles, consentimiento y moderación avanzada                             |\r\n| Refugio Plus             | Animales ilimitados, ferias y visibilidad                                                                      | `ShelterPlus`             | Billing y operación enterprise                                          |\r\n| Municipalidad básica     | Capacidades técnicas existentes; módulo diferido                                                               | `MuniBasica` anual        | No implementar compra, renovación ni ampliación durante el diferimiento |\r\n| Municipalidad Full       | Capacidades técnicas existentes; módulo diferido                                                               | `MuniFull` anual          | No implementar API pública ni exportaciones oficiales ahora             |\r\n| Red regional             | Capacidades técnicas existentes; módulo diferido                                                               | `MuniRedRegional` anual   | No implementar contrato, delegación ni aislamiento adicional ahora      |\r\n| Aliado/refugio operativo | Alertas, cobertura y KPI base                                                                                  | Sin tier aprobado         | Miembros, permisos, auditoría y SLA                                     |\r\n| Publicidad               | Vallas Map/Dashboard/Directory/Feed                                                                            | Sin catálogo aprobado     | Contratos, cobro, impresiones, CTR y moderación                         |\r\n| API/widget               | API clínica, widget Partner, sandbox, scopes y webhooks salientes                                              | ClinicPartner             | Observabilidad Azure y contratos de Stores pendientes                   |\r\n| Datos agregados          | No disponible como producto                                                                                    | Futuro                    | Anonimización, consentimiento, contratos y gobierno de datos            |\r\n\r\n## Rutas principales\r\n\r\n### Proveedores de servicios\r\n\r\n- Público: `/servicios`, `/servicios/:id`, `/servicio/registro`.\r\n- Operación autenticada: `/servicio/portal`, `/servicio/portal/servicios`, `/servicio/portal/reservas` y `/servicio/portal/verificacion`.\r\n- API pública: `GET /api/public/service-providers` y detalle/servicios.\r\n- API privada: `api/service-providers`, `api/provider-bookings`.\r\n- Incidentes: `api/support/provider-incidents` para `Admin`/`Support`.\r\n\r\n### Otras superficies\r\n\r\n- Clínicas: `/clinicas`, `/clinica/registro`, portal `/clinica/portal`.\r\n- Tiendas: `/tiendas`, `/tienda/registro`, pedidos y analytics.\r\n- Adopciones/refugios: `/adopciones` y dashboards de refugio.\r\n- Municipalidades: portal municipal y `api/municipalities` existentes, fuera del alcance activo por decisión de producto.\r\n- Reportes de bienestar: `POST /api/public/welfare-cases`, disponible para reportes anónimos.\r\n\r\n## Decisiones necesarias antes de vender B2B enterprise\r\n\r\n1. Aprobar una sola matriz comercial y retirar precios contradictorios de documentos históricos.\r\n2. Crear catálogo versionado de productos, moneda, impuestos, ciclo, factura y política de cambios.\r\n3. Definir tenancy formal: organización, miembros, sedes, roles, invitaciones y aislamiento.\r\n4. Completar billing real: idempotencia, webhooks, conciliación, reembolsos, payout y auditoría.\r\n5. Publicar SLA, soporte, retención, exportación y procedimiento de incidentes por tier.\r\n6. Ejecutar pruebas negativas cross-tenant, contratos API, concurrencia, DAST y pruebas de carga.\r\n7. Crear datos sintéticos y cuentas demo para cada categoría y tier.\r\n\r\n## Seguridad y operación verificadas 2026-09-09\r\n\r\n- WebAuthn/passkeys: registro, autenticación, desafíos con TTL distribuido,\r\n  almacenamiento SQL, contador anti-replay y revocación individual.\r\n- Store Partner: export CSV con autorización, cuota de 20/mes y auditoría.\r\n- SQL Server: carrera de registro WebAuthn con índice único, validada 1/1 en\r\n  `PawTrackDev`.\r\n- Playwright B2B: aislamiento negativo de consumidor frente a analytics Store\r\n  y API keys Clinic validado 1/1 contra backend real; export Store Partner queda\r\n  como escenario opt-in porque requiere seed y suscripción enterprise activa.\r\n- Smoke de integración B2B: aislamiento Store/Clinic validado 1/1 con\r\n  `WebApplicationFactory`; el smoke Playwright live también pasó 1/1.\r\n- Azure: Bicep compilado con Key Vault purge protection, clave RSA dedicada,\r\n  Managed Identity, RBAC criptográfico, Application Insights y diagnósticos de\r\n  Container App. El despliegue real y la ventana SLO todavía requieren\r\n  `what-if`, aprobación de resource group y observación en Azure Monitor.\r\n\r\n## Regla editorial\r\n\r\n- `precios.md`: catálogo comercial aprobado o explícitamente marcado como propuesta.\r\n- `pricing.md`: estrategia interna y roadmap; no usarlo como catálogo de capacidades activas.\r\n- `featuresB2B.md`: matriz técnica de estado, no lista de trabajo histórico.\r\n- `todolist-b2b-enterprise.md`: pendientes verificables, nunca marcar una hipótesis comercial como implementada.\r\n";
+const html = DOMPurify.sanitize(marked.parse(md));
+const content = document.getElementById('content');
+content.innerHTML = html;
+
+// Rewrite relative .md links to .html within docs/html
+content.querySelectorAll('a').forEach(a => {
+  const href = a.getAttribute('href');
+  if (href && !href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('#') && !href.startsWith('mailto:')) {
+    const m = href.match(/^(?:(?:\.\.\/)*)?(?:(?:docs|Manuales)\/)*([A-Za-z0-9_-]+)\.md(#.*)?$/i);
+    if (m) {
+      a.setAttribute('href', m[1] + '.html' + (m[2] || ''));
+    }
+  }
+});
+
+// Build sidebar nav from rendered headings
+const headings = content.querySelectorAll('h2, h3');
+const sidebar  = document.querySelector('#sidebar nav ul');
+headings.forEach((h, i) => {
+  if (!h.id) {
+    h.id = 'h-' + i + '-' + h.textContent.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').slice(0, 50);
+  }
+  const li = document.createElement('li');
+  const a  = document.createElement('a');
+  a.href      = '#' + h.id;
+  a.textContent = h.textContent.replace(/^#+\s*/, '');
+  a.className = h.tagName.toLowerCase();
+  li.appendChild(a);
+  sidebar.appendChild(li);
+});
+
+// Highlight active link on scroll
+const links = sidebar.querySelectorAll('a[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const active = sidebar.querySelector('a[href="#' + e.target.id + '"]');
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -75% 0px' });
+content.querySelectorAll('h2, h3').forEach(h => obs.observe(h));
+</script>
+</body>
+</html>

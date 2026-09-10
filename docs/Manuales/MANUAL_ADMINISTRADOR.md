@@ -1,8 +1,8 @@
 # Manual de Administrador — PawTrack CR
 
-**Versión:** 3.0
+**Versión:** 3.1
 **Audiencia:** Administradores del sistema  
-**Última actualización:** 2026-09-09
+**Última actualización:** 2026-09-10
 
 > El rol `Admin` tiene acceso global y toda operación sensible debe seguir la
 > matriz de autorización de [API_AUTHORIZATION_MATRIX.md](../API_AUTHORIZATION_MATRIX.md).
@@ -176,7 +176,10 @@ Para cambiar el tier de una tienda, usa la suscripción (tab **Suscripciones**) 
 
 ## 6. Vallas Publicitarias
 
-El sistema de vallas permite mostrar anuncios en 4 ubicaciones de la app.
+El sistema de vallas permite mostrar anuncios en 15 placements de la app:
+`Map`, `Dashboard`, `Directory`, `Feed`, perfil QR, historial de escaneos,
+Case Room, directorios y perfiles de clínicas/proveedores, adopciones, ferias,
+registro de mascota y activación de CollarTag.
 
 ### 6.1 Crear una valla
 
@@ -185,10 +188,14 @@ El sistema de vallas permite mostrar anuncios en 4 ubicaciones de la app.
    - **Título** (máx. 120 chars) — texto principal del anuncio
    - **Descripción** (máx. 300 chars) — texto secundario opcional
    - **Ubicación (Placement):**
-     - `Map` — Overlay en el mapa público
-     - `Dashboard` — Entre tarjetas de mascotas
-     - `Directory` — Top del directorio de tiendas/clínicas
-     - `Feed` — Sobre la lista de mascotas perdidas
+   - `Map` — Valla flotante en el mapa público
+   - `Dashboard` — Cerca de las acciones principales del dashboard
+   - `Directory` — Parte superior del directorio de tiendas
+   - `Feed` — Valla adicional asociada al mapa/feed
+   - `ClinicDirectory`, `ClinicProfile` — Directorio y perfil público de clínica
+   - `ServiceProviderDirectory`, `ServiceProviderProfile` — Proveedores
+   - `AdoptionDirectory`, `AdoptionFair` — Adopciones y ferias
+   - `PublicPetProfile`, `ScanHistory`, `CaseRoom`, `PetRegistration`, `CollarActivation`
    - **Inicio y Fin** — ventana de actividad del anuncio
    - **CTA Texto** — etiqueta del botón (ej: "Ver más →")
    - **CTA URL** — URL destino (solo HTTPS o mismo dominio)
@@ -214,8 +221,11 @@ Una vez creada la valla:
 
 ### 6.4 Comportamiento en la app
 
-- Solo aparece **1 valla por placement** en cada momento (la de mayor prioridad).
-- El usuario puede **cerrar** la valla; no vuelve a aparecer en esa sesión (sessionStorage).
+- Se muestra la valla de mayor prioridad disponible por placement; si hay varias,
+  el cierre permite continuar con la siguiente.
+- El usuario puede cerrar la valla durante la vista actual. Al volver a la ruta
+  o recargar, las campañas activas vuelven a ser elegibles.
+- En `/map`, las vallas se apilan debajo del encabezado y separadas de la leyenda.
 - Si hay múltiples vallas activas para el mismo placement, al cerrar una aparece la siguiente en prioridad.
 - Máximo 5 vallas activas por placement para no saturar la UI.
 
@@ -236,7 +246,8 @@ Tab **Suscripciones** → lista de todos los usuarios con suscripción activa:
 
 Para activar un plan después de verificar el pago SINPE:
 
-1. Localiza la suscripción en estado `PendingPayment` o `PaymentReported`.
+1. Localiza la suscripción en estado `PendingPayment`. El aviso de pago SINPE
+   se registra como `PaymentReportedAt`; no crea un estado adicional.
 2. Click **Activar**.
 3. El usuario recibe acceso inmediato al plan.
 
@@ -257,6 +268,10 @@ Para activar un plan después de verificar el pago SINPE:
 | `MuniRedRegional` | Red Regional     | ₡500,000/año            |
 
 > Los nombres `ClinicBasic`, `StoreBasic` y `ShelterBasic` aparecen como estados base o de directorio; no son la definición comercial activa en la implementación actual.
+
+`UserPlus` y `UserFamilia` se compran por 1, 3, 6 o 12 meses. El plazo anual
+aplica 20% de descuento sobre 12 mensualidades. El monto y el plazo quedan
+guardados en la solicitud pendiente antes de activar el pago SINPE.
 
 ### 7.4 Administrar planes y precios
 

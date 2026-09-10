@@ -3,13 +3,18 @@
 **Version:** 4.0
 **Rol:** `Owner`
 **Plataforma:** PWA web
-**Ultima actualizacion:** 2026-09-09
+**Ultima actualizacion:** 2026-09-10
 
 ## 1. Que puedes hacer
 
 PawTrack ayuda a registrar mascotas, generar su QR, reportar perdidas,
 recibir avistamientos y coordinar una reunificacion segura. Tambien incluye
 salud, familia, collares GPS, adopciones, tiendas y servicios.
+
+El mapa, dashboard, directorios, adopciones, perfiles y algunos flujos
+operativos pueden mostrar vallas publicitarias activas. En el mapa aparecen
+separadas de la leyenda y cerrar una valla solo la oculta durante la vista
+actual.
 
 Las rutas publicas no requieren cuenta para consultar perfiles, mapa, directorio
 o reportar un avistamiento. Las acciones sobre tus datos requieren sesion y
@@ -139,6 +144,12 @@ Puedes consultar `/clinicas`, `/tiendas`, `/servicios`, `/adopciones` y
 `/adopciones/ferias` sin ser propietario de un negocio. Las solicitudes de
 adopcion y reservas se gestionan con la cuenta autenticada y no conceden acceso
 a datos de otros usuarios.
+
+Para solicitar la adopcion de un animal, abre su detalle en `/adopciones/:id`
+e inicia sesion como `Owner`. Tus solicitudes se consultan en
+`/mis-adopciones` y pueden retirarse mientras el flujo lo permita. Un dueño
+tambien puede publicar una mascota propia para adopcion desde
+`/adopciones/solicitar`, confirmando la transferencia responsable.
 
 ## 12. Privacidad, exportacion y eliminacion
 

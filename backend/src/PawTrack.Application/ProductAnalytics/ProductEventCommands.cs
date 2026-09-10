@@ -108,8 +108,8 @@ public sealed class GetProductFunnelQueryHandler(IProductEventRepository reposit
             request.From,
             request.To,
             request.Canton,
-            request.ShelterId,
-            cancellationToken);
+            correlationId: null,
+            cancellationToken: cancellationToken);
         return Result.Success(new ProductFunnelDto(
             request.From,
             request.To,

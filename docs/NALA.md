@@ -4,7 +4,7 @@
 > [NALA_REPORTING_GUIDE.md](NALA_REPORTING_GUIDE.md).
 
 > **NALA** es el nombre interno del proyecto que evolucionó en **PawTrack CR**.  
-> Última actualización: 2026-09-03
+> Última actualización: 2026-09-10
 
 ---
 
@@ -14,9 +14,30 @@ PawTrack CR es una plataforma digital — disponible como aplicación web progre
 
 El problema que resuelve es cotidiano y doloroso: miles de mascotas se pierden cada año en Costa Rica. Sus dueños no saben qué hacer, la información se dispersa en grupos de Facebook, los avisos son estáticos, y la coordinación entre vecinos es caótica. PawTrack CR reemplaza ese caos con una infraestructura digital estructurada, colaborativa y segura.
 
-> Nota de alineación: la fuente de verdad del producto no es una tabla histórica o un documento comercial antiguo, sino la implementación actual del backend en `SubscriptionTier` y `SubscriptionPricing`. La app en producción hoy usa los tiers `Free`, `UserPlus`, `UserFamilia`, `StorePlus`, `StorePartner`, `ShelterPlus`, `ClinicPlus`, `ClinicPartner`, `MuniBasica`, `MuniFull` y `MuniRedRegional`.
+> Nota de alineación: la fuente de verdad del producto no es una tabla histórica o un documento comercial antiguo, sino la implementación actual del backend en `UserRole`, `SubscriptionTier`, `SubscriptionPricing`, servicios de gating y controllers. La app usa los tiers `Free`, `UserPlus`, `UserFamilia`, `StorePlus`, `StorePartner`, `ShelterPlus`, `ClinicPlus`, `ClinicPartner`, `MuniBasica`, `MuniFull` y `MuniRedRegional`. Los proveedores usan membresías técnicas `Free`, `Verified` y `Featured`, todavía sin catálogo comercial aprobado.
 
 ---
+
+## Alcance actual de NALA
+
+NALA es la capa de coordinación, indicadores agregados y reportes
+institucionales de PawTrack CR. No es un rol independiente emitido por el
+sistema: la ruta `/nala` está protegida por `Admin` y conserva `Nala` como
+compatibilidad histórica del atributo de autorización. NALA no reemplaza el
+portal operativo de una municipalidad, clínica, organización aliada o refugio.
+
+Las superficies institucionales son:
+
+- `/nala`: overview, tendencias, resumen por cantón, instituciones y capas geográficas generalizadas.
+- `/reportes-institucionales`: catálogo, previews, solicitudes y descargas según rol y scope.
+- `Admin`: alcance global sujeto a políticas privilegiadas.
+- `Municipality`: propia organización y cantones autorizados.
+- `Clinic` y `Ally`: solo reportes expresamente permitidos.
+
+Los indicadores de NALA son agregados y aplican suppression. No deben exponer
+GPS exacto, domicilios, reportantes, evidencia sensible ni identificadores de
+propietarios. Los reportes son `SENASA-ready`, pero no son integración oficial,
+envío regulatorio ni aprobación de SENASA.
 
 ## El ciclo de vida de una mascota en PawTrack CR
 
@@ -127,13 +148,13 @@ Para usuarios que no tienen acceso a la app web, el sistema ofrece un **bot conv
 
 La monetización actual de la app sigue la implementación real del backend y no una planilla histórica. En la base funcional actual existen cinco familias de tiers:
 
-| Familia         | Tiers activos del backend                   | Cobro real | Observación                                           |
-| --------------- | ------------------------------------------- | ---------- | ----------------------------------------------------- |
-| B2C             | `Free`, `UserPlus`, `UserFamilia`           | Mensual    | `Free` = 1 mascota, `Plus` = 3, `Familia` = ilimitado |
-| Tiendas         | `StorePlus`, `StorePartner`                 | Mensual    | Catálogo, pedidos in-app y analítica avanzada         |
-| Refugios        | `ShelterPlus`                               | Mensual    | Publicación avanzada de adopciones y ferias           |
-| Clínicas        | `ClinicPlus`, `ClinicPartner`               | Mensual    | Acceso a mayor visibilidad y certificados PDF         |
-| Municipalidades | `MuniBasica`, `MuniFull`, `MuniRedRegional` | Anual      | Facturación anual por cantón / regional               |
+| Familia         | Tiers activos del backend                   | Cobro real                         | Observación                                           |
+| --------------- | ------------------------------------------- | ---------------------------------- | ----------------------------------------------------- |
+| B2C             | `Free`, `UserPlus`, `UserFamilia`           | 1/3/6/12 meses para planes pagados | `Free` = 1 mascota, `Plus` = 3, `Familia` = ilimitado |
+| Tiendas         | `StorePlus`, `StorePartner`                 | Mensual                            | Catálogo, pedidos in-app y analítica avanzada         |
+| Refugios        | `ShelterPlus`                               | Mensual                            | Publicación avanzada de adopciones y ferias           |
+| Clínicas        | `ClinicPlus`, `ClinicPartner`               | Mensual                            | Acceso a mayor visibilidad y certificados PDF         |
+| Municipalidades | `MuniBasica`, `MuniFull`, `MuniRedRegional` | Anual                              | Facturación anual por cantón / regional               |
 
 #### Precios actuales del backend
 
@@ -153,15 +174,33 @@ La monetización actual de la app sigue la implementación real del backend y no
 
 > Importante: `ClinicBasic`, `StoreBasic` y `ShelterBasic` existen como estados gratuitos o de directorio, no como planes comercialmente activos principales del producto actual. El gating de acceso real depende del tier activo del usuario/entidad y no de una versión antigua del pricing en documentos estáticos.
 
-El sistema de feature gating está implementado tanto en el backend (enforcement por plan) como en el frontend (UI gates). La lógica real de permisos se valida con `SubscriptionTier` y `SubscriptionService`, no por tablas duplicadas en varios markdown.
+El sistema de feature gating está implementado tanto en el backend (enforcement
+por plan) como en el frontend (UI gates). `UserPlus` y `UserFamilia` aceptan
+1, 3, 6 o 12 meses; solo el plazo de 12 meses aplica 20% de descuento. El
+plazo e importe se persisten antes del pago SINPE. La lógica real de permisos
+se valida con `SubscriptionTier` y `SubscriptionService`, no por tablas
+duplicadas en varios markdown.
 
-### 11. Collar GPS y expediente médico
+### 11. Adopciones, servicios y publicidad
+
+Además del ciclo de recuperación, PawTrack CR incluye:
+
+- Directorio público de adopciones, detalle de animales, solicitudes de Owner y ferias.
+- Gestión Shelter para publicar animales, administrar solicitudes y crear ferias según el acceso del refugio.
+- Marketplace de proveedores: perfiles, catálogo, disponibilidad, reservas, verificación documental e incidentes.
+- Vallas publicitarias por placement, revisión administrativa, creativos Blob, rotación, eventos y métricas.
+
+Estas capacidades no convierten automáticamente una membresía técnica en un
+producto comercial aprobado. La matriz vigente se encuentra en
+[consolidado.md](consolidado.md).
+
+### 12. Collar GPS y expediente médico
 
 El **plan Plus** habilita la integración con collares GPS de terceros (Tractive) o genéricos (activación por serial/tag + device key). El dueño conecta su cuenta Tractive via OAuth2 desde la tab GPS del perfil de mascota. El sistema actualiza la posición y muestra el historial de trayectoria por rango de fechas en un mapa interactivo. Además incluye alertas de conectividad (offline) y batería baja, modo perdido (búsqueda intensiva coordinada con la red), zonas seguras (geofencing con alerta de salida), transferencia segura del collar entre dueños (handover code) y auditoría de eventos. Un dashboard de administración permite ver inventario y métricas de collares.
 
 El **plan Familia** desbloquea el expediente médico digital: registro de vacunas, desparasitaciones, visitas veterinarias y recordatorios automáticos. El historial puede ser compartido con clínicas afiliadas y exportado en PDF. Las clínicas Partner pueden emitir certificados veterinarios PDF con QR de verificación pública.
 
-### 12. Incentivos y estadísticas
+### 13. Incentivos y estadísticas
 
 El sistema mantiene un **leaderboard** de los usuarios con más reunificaciones exitosas, con insignias progresivas. Las estadísticas de recuperación (tasa por especie, raza y cantón) son públicas, accesibles para aliados y administradores.
 

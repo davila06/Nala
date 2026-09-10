@@ -16,6 +16,11 @@
 > prueba operativa, pero todavía **no tiene precio comercial recurrente,
 > comisión ni cobro aprobado**. Ver [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md).
 
+> **Nota crítica:** este archivo es estrategia/histórico, no catálogo de venta.
+> Las secciones de recompensas, publicidad, productos físicos, pasaportes y
+> marketplace contienen hipótesis o precios sugeridos. No implican checkout,
+> escrow, payout, comisión, integración oficial con SENASA ni facturación activa.
+
 ---
 
 ## Contexto de mercado
@@ -405,7 +410,7 @@ propuestas y no forman parte del catálogo activo.
 - ✅ Capacitación presencial para equipo de bienestar animal
 - ✅ Personalización de marca municipal en la plataforma
 - ✅ Gerente de cuenta dedicado
-- ✅ Integración con sistemas PANI y SENASA
+- 📋 Posible integración futura con sistemas institucionales, sujeta a convenio
 - ✅ Acceso a API de consulta cruzada inter-cantonal
 
 ### Potencial de mercado Municipal
@@ -419,9 +424,10 @@ propuestas y no forman parte del catálogo activo.
 
 ---
 
-## 5. Sistema de Recompensas — Comisión por transacción
+## 5. Sistema de Recompensas — Comisión por transacción (PROPUESTA NO ACTIVA)
 
-> No es un plan de suscripción. Es un **ingreso por transacción** sobre bounties activos.
+> No es un plan activo. Es una propuesta de ingreso por transacción; el backend
+> actual no procesa depósitos, escrow, payout ni liberación de recompensas.
 
 | Evento                                 | Cargo                              |
 | -------------------------------------- | ---------------------------------- |

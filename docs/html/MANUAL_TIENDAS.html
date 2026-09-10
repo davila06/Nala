@@ -16,8 +16,13 @@
     <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>
     <li><a href="FEATURES.html" class="h2">🧭 Features por Plan</a></li>
     <li><a href="PRICING_AND_PLANS.html" class="h2">💳 Planes y Capacidades</a></li>
+    <li><a href="planes.html" class="h2">📋 Catálogo de Planes y Tiers</a></li>
+    <li><a href="precios.html" class="h2">📊 Precios y Modelo Comercial</a></li>
+    <li><a href="publicidad.html" class="h2">🪧 Guía de Publicidad y Vallas</a></li>
     <li><a href="inversionistas.html" class="h2">💼 Pitch para Inversionistas</a></li>
+    <li><a href="influencer.html" class="h2">🤝 Colaboración con Influencers</a></li>
     <li><a href="API_REFERENCE.html" class="h2">🔌 Referencia API</a></li>
+    <li><a href="B2B_ESTADO_ACTUAL.html" class="h2">🏢 Estado Actual B2B</a></li>
     <li><a href="CONSOLIDACION_DOCUMENTAL.html" class="h2">🗂️ Consolidación Documental</a></li>
     <li><a href="COLLAR_CURRENT_STATE.html" class="h2">📡 Estado Actual de Collares</a></li>
     <li><a href="ADOPTIONS_CURRENT_STATE.html" class="h2">🏡 Estado Actual de Adopciones</a></li>
@@ -29,7 +34,7 @@
     <li><a href="MANUAL_ALIADOS.html" class="h2">🤝 Manual de Aliados</a></li>
     <li><a href="MANUAL_CLINICAS.html" class="h2">🏥 Manual de Clínicas Veterinarias</a></li>
     <li><a href="MANUAL_MUNICIPALIDADES.html" class="h2">🏛️ Manual de Municipalidades</a></li>
-    <li><a href="MANUAL_TIENDAS.html" class="h2">🏪 Manual de Tiendas</a></li>
+    <li><a href="MANUAL_TIENDAS.html" class="h2 active">🏪 Manual de Tiendas</a></li>
     <li><a href="MANUAL_PROVEEDORES.html" class="h2">🧰 Manual de Proveedores</a></li>
     <li><a href="MANUAL_SOPORTE.html" class="h2">🎧 Manual de Soporte</a></li>
     <li><a href="MANUAL_TECNICO.html" class="h2">🛠️ Manual Técnico</a></li>
@@ -45,6 +50,7 @@
     <li><a href="GUIA_INTEGRACIONES_WEBHOOKS.html" class="h2">🔗 Integraciones y Webhooks</a></li>
     <li><a href="RUNBOOK_JOBS_BACKGROUND.html" class="h2">⏱️ Jobs en Background</a></li>
     <li><a href="RUNBOOK_MODERACION_Y_BIENESTAR.html" class="h2">🐾 Moderación y Bienestar</a></li>
+    <li><a href="CUMPLIMIENTO_PROTECCION_DATOS.html" class="h2">📜 Cumplimiento Protección de Datos</a></li>
     <li><a href="POLITICA_DE_PRIVACIDAD.html" class="h2">🔒 Política de Privacidad</a></li>
     <li><a href="TERMINOS_DE_USO.html" class="h2">📋 Términos de Uso</a></li>
   </ul></nav>
@@ -53,10 +59,21 @@
   <div id="content"><p style="color:#888;padding:2rem">Cargando…</p></div>
 </main>
 <script>
-const md = "# Manual de Tiendas de Mascotas - PawTrack CR\r\n\r\n**Version:** 1.0  \r\n**Rol:** `Store`  \r\n**Audiencia:** propietarios y operadores de tiendas aprobadas  \r\n**Ultima actualizacion:** 2026-09-09\r\n\r\n## 1. Alcance y registro\r\n\r\nUna tienda aprobada aparece en el directorio y puede publicar un catalogo para\r\nrecibir solicitudes de pedido. El registro inicial es publico en\r\n`/tienda/registro`; mientras se revisa la solicitud, consulta\r\n`/tienda/pendiente`.\r\n\r\nEl administrador aprueba o suspende la tienda. Una cuenta de tienda solo puede\r\nadministrar sus propios productos, pedidos, perfil y, cuando corresponda, sus\r\nsedes.\r\n\r\n## 2. Panel\r\n\r\nDespues de iniciar sesion, abre `/tienda/portal`. Las secciones son:\r\n\r\n- **Perfil:** nombre, descripcion, direccion, telefono, sitio web y contacto de\r\n  WhatsApp opcional.\r\n- **Productos:** alta, edicion, disponibilidad, categoria, precio en colones e\r\n  imagen JPEG, PNG o WebP de hasta 5 MB.\r\n- **Ordenes:** revisar solicitudes, confirmar disponibilidad, aceptar o\r\n  rechazar, preparar y marcar entrega o retiro.\r\n- **Analitica:** metricas del periodo y export CSV cuando el plan lo habilita.\r\n- **Sedes:** gestion avanzada de ubicaciones cuando el plan y el alcance\r\n  comercial lo permitan.\r\n\r\n## 3. Planes y limites\r\n\r\n| Tier           | Capacidad documentada                                              |\r\n| -------------- | ------------------------------------------------------------------ |\r\n| `StoreBasic`   | Directorio y catalogo base; no es un plan comercial de pago activo |\r\n| `StorePlus`    | Catalogo, pedidos in-app y operaciones de pedidos                  |\r\n| `StorePartner` | Gates tecnicos para analitica y multiples sedes                    |\r\n\r\nLos precios y la disponibilidad comercial se rigen por\r\n[PRICING_AND_PLANS.md](../PRICING_AND_PLANS.md). Aunque existen endpoints\r\ntecnicos de Partner, la decision comercial vigente mantiene multi-sede fuera\r\ndel alcance comercial actual hasta nueva aprobacion.\r\n\r\n## 4. Gestion de pedidos\r\n\r\n1. Abre **Ordenes** y revisa el producto, cantidad y modalidad de\r\n   cumplimiento.\r\n2. Confirma que hay disponibilidad antes de aceptar.\r\n3. Actualiza el estado conforme avanza la preparacion.\r\n4. Coordina directamente con el cliente el retiro o la entrega.\r\n5. Marca como entregado solo cuando la entrega haya ocurrido.\r\n\r\nPawTrack comunica la solicitud, pero no vende ni intermedia el producto, no\r\ncobra comision y no garantiza inventario. Cualquier pago se coordina entre\r\ncliente y tienda; la integracion de pagos no forma parte del alcance vigente.\r\n\r\n## 5. Buenas practicas\r\n\r\n- Mantén precios y disponibilidad actualizados.\r\n- No publiques telefonos personales en la descripcion.\r\n- No marques una orden como entregada para acelerar metricas.\r\n- Para un incidente de pedido, conserva el ID de orden y abre el canal de\r\n  soporte definido por PawTrack.\r\n\r\n## 6. Rutas publicas relacionadas\r\n\r\nLos clientes consultan `/tiendas` y los perfiles publicos. La tienda no debe\r\nintentar usar endpoints de otra tienda: el backend valida ownership por cuenta.\r\n";
+const md = "# Manual de Tiendas de Mascotas - PawTrack CR\r\n\r\n**Version:** 1.0  \r\n**Rol:** `Store`  \r\n**Audiencia:** propietarios y operadores de tiendas aprobadas  \r\n**Ultima actualizacion:** 2026-09-10\r\n\r\n## 1. Alcance y registro\r\n\r\nUna tienda aprobada aparece en el directorio y puede publicar un catalogo para\r\nrecibir solicitudes de pedido. El registro inicial es publico en\r\n`/tienda/registro`; mientras se revisa la solicitud, consulta\r\n`/tienda/pendiente`.\r\n\r\nEl administrador aprueba o suspende la tienda. Una cuenta de tienda solo puede\r\nadministrar sus propios productos, pedidos, perfil y, cuando corresponda, sus\r\nsedes.\r\n\r\n## 2. Panel\r\n\r\nDespues de iniciar sesion, abre `/tienda/portal`. Las secciones son:\r\n\r\n- **Perfil:** nombre, descripcion, direccion, telefono, sitio web y contacto de\r\n  WhatsApp opcional.\r\n- **Productos:** alta, edicion, disponibilidad, categoria, precio en colones e\r\n  imagen JPEG, PNG o WebP de hasta 5 MB.\r\n- **Ordenes:** revisar solicitudes, confirmar disponibilidad, aceptar o\r\n  rechazar, preparar y marcar entrega o retiro.\r\n- **Analitica:** metricas del periodo y export CSV cuando el plan lo habilita.\r\n- **Sedes:** gestion avanzada de ubicaciones cuando el plan y el alcance\r\n  comercial lo permitan.\r\n\r\n## 3. Planes y limites\r\n\r\n| Tier           | Capacidad documentada                                              |\r\n| -------------- | ------------------------------------------------------------------ |\r\n| `StoreBasic`   | Directorio y catalogo base; no es un plan comercial de pago activo |\r\n| `StorePlus`    | Catalogo, pedidos in-app y operaciones de pedidos                  |\r\n| `StorePartner` | Gates tecnicos para analitica y multiples sedes                    |\r\n\r\nLos precios y la disponibilidad comercial se rigen por\r\n[PRICING_AND_PLANS.md](../PRICING_AND_PLANS.md). Aunque existen endpoints\r\ntecnicos de Partner, la decision comercial vigente mantiene multi-sede fuera\r\ndel alcance comercial actual hasta nueva aprobacion.\r\n\r\n## 4. Gestion de pedidos\r\n\r\n1. Abre **Ordenes** y revisa el producto, cantidad y modalidad de\r\n   cumplimiento.\r\n2. Confirma que hay disponibilidad antes de aceptar.\r\n3. Actualiza el estado conforme avanza la preparacion.\r\n4. Coordina directamente con el cliente el retiro o la entrega.\r\n5. Marca como entregado solo cuando la entrega haya ocurrido.\r\n\r\nPawTrack comunica la solicitud, pero no vende ni intermedia el producto, no\r\ncobra comision y no garantiza inventario. Cualquier pago se coordina entre\r\ncliente y tienda; la integracion de pagos no forma parte del alcance vigente.\r\n\r\n## 5. Buenas practicas\r\n\r\n- Mantén precios y disponibilidad actualizados.\r\n- No publiques telefonos personales en la descripcion.\r\n- No marques una orden como entregada para acelerar metricas.\r\n- Para un incidente de pedido, conserva el ID de orden y abre el canal de\r\n  soporte definido por PawTrack.\r\n\r\n## 6. Rutas publicas relacionadas\r\n\r\nLos clientes consultan `/tiendas` y los perfiles publicos. El directorio puede\r\nmostrar el placement publicitario `Directory`. La tienda no debe\r\nintentar usar endpoints de otra tienda: el backend valida ownership por cuenta.\r\n";
 const html = DOMPurify.sanitize(marked.parse(md));
 const content = document.getElementById('content');
 content.innerHTML = html;
+
+// Rewrite relative .md links to .html within docs/html
+content.querySelectorAll('a').forEach(a => {
+  const href = a.getAttribute('href');
+  if (href && !href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('#') && !href.startsWith('mailto:')) {
+    const m = href.match(/^(?:(?:\.\.\/)*)?(?:(?:docs|Manuales)\/)*([A-Za-z0-9_-]+)\.md(#.*)?$/i);
+    if (m) {
+      a.setAttribute('href', m[1] + '.html' + (m[2] || ''));
+    }
+  }
+});
 
 // Build sidebar nav from rendered headings
 const headings = content.querySelectorAll('h2, h3');

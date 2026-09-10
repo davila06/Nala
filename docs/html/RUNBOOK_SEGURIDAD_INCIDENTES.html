@@ -16,8 +16,13 @@
     <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>
     <li><a href="FEATURES.html" class="h2">🧭 Features por Plan</a></li>
     <li><a href="PRICING_AND_PLANS.html" class="h2">💳 Planes y Capacidades</a></li>
+    <li><a href="planes.html" class="h2">📋 Catálogo de Planes y Tiers</a></li>
+    <li><a href="precios.html" class="h2">📊 Precios y Modelo Comercial</a></li>
+    <li><a href="publicidad.html" class="h2">🪧 Guía de Publicidad y Vallas</a></li>
     <li><a href="inversionistas.html" class="h2">💼 Pitch para Inversionistas</a></li>
+    <li><a href="influencer.html" class="h2">🤝 Colaboración con Influencers</a></li>
     <li><a href="API_REFERENCE.html" class="h2">🔌 Referencia API</a></li>
+    <li><a href="B2B_ESTADO_ACTUAL.html" class="h2">🏢 Estado Actual B2B</a></li>
     <li><a href="CONSOLIDACION_DOCUMENTAL.html" class="h2">🗂️ Consolidación Documental</a></li>
     <li><a href="COLLAR_CURRENT_STATE.html" class="h2">📡 Estado Actual de Collares</a></li>
     <li><a href="ADOPTIONS_CURRENT_STATE.html" class="h2">🏡 Estado Actual de Adopciones</a></li>
@@ -38,13 +43,14 @@
     <li><a href="RUNBOOK_OPERACIONES.html" class="h2">📟 Runbook de Operaciones</a></li>
     <li><a href="DEPLOY_INFO.html" class="h2">🗂️ Datos de Despliegue Beta</a></li>
     <li><a href="RUNBOOK_DEPLOYMENT.html" class="h2">🚢 Runbook de Deployment</a></li>
-    <li><a href="RUNBOOK_SEGURIDAD_INCIDENTES.html" class="h2">🛡️ Seguridad e Incidentes</a></li>
+    <li><a href="RUNBOOK_SEGURIDAD_INCIDENTES.html" class="h2 active">🛡️ Seguridad e Incidentes</a></li>
     <li><a href="RUNBOOK_BACKUPS_RECUPERACION.html" class="h2">💾 Backups y Recuperación</a></li>
     <li><a href="MATRIZ_RETENCION_DATOS.html" class="h2">🧾 Retención de Datos</a></li>
     <li><a href="GUIA_QA_E2E.html" class="h2">🧪 Guía QA y E2E</a></li>
     <li><a href="GUIA_INTEGRACIONES_WEBHOOKS.html" class="h2">🔗 Integraciones y Webhooks</a></li>
     <li><a href="RUNBOOK_JOBS_BACKGROUND.html" class="h2">⏱️ Jobs en Background</a></li>
     <li><a href="RUNBOOK_MODERACION_Y_BIENESTAR.html" class="h2">🐾 Moderación y Bienestar</a></li>
+    <li><a href="CUMPLIMIENTO_PROTECCION_DATOS.html" class="h2">📜 Cumplimiento Protección de Datos</a></li>
     <li><a href="POLITICA_DE_PRIVACIDAD.html" class="h2">🔒 Política de Privacidad</a></li>
     <li><a href="TERMINOS_DE_USO.html" class="h2">📋 Términos de Uso</a></li>
   </ul></nav>
@@ -57,6 +63,17 @@ const md = "# Runbook de Seguridad e Incidentes\r\n\r\n**Estado:** activo  \r\n*
 const html = DOMPurify.sanitize(marked.parse(md));
 const content = document.getElementById('content');
 content.innerHTML = html;
+
+// Rewrite relative .md links to .html within docs/html
+content.querySelectorAll('a').forEach(a => {
+  const href = a.getAttribute('href');
+  if (href && !href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('#') && !href.startsWith('mailto:')) {
+    const m = href.match(/^(?:(?:\.\.\/)*)?(?:(?:docs|Manuales)\/)*([A-Za-z0-9_-]+)\.md(#.*)?$/i);
+    if (m) {
+      a.setAttribute('href', m[1] + '.html' + (m[2] || ''));
+    }
+  }
+});
 
 // Build sidebar nav from rendered headings
 const headings = content.querySelectorAll('h2, h3');

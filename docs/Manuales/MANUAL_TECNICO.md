@@ -1,9 +1,9 @@
 # Manual Técnico — PawTrack CR
 
-**Versión:** 3.0
+**Versión:** 3.1
 **Stack:** .NET 9 · React 19 · Azure  
 **Audiencia:** Desarrolladores, arquitectos, equipo DevOps  
-**Última actualización:** 2026-09-09
+**Última actualización:** 2026-09-10
 
 > Para la referencia completa ver [`PawTrack_Documento_Maestro_v3.1.md`](../PawTrack_Documento_Maestro_v3.1.md) (renombrado internamente como v4.0).
 
@@ -137,7 +137,7 @@ segun el modulo.
 | Rol               | Superficie principal                         | Condicion adicional                                 |
 | ----------------- | -------------------------------------------- | --------------------------------------------------- |
 | `Owner`           | `/dashboard`, mascotas, perdida, chat, salud | ownership y tier cuando aplica                      |
-| `Ally`            | `/ally-panel`                                | perfil aprobado y cobertura                         |
+| `Ally`            | `/allies/panel`, `/shelter/dashboard`        | perfil aprobado; Shelter para gestión de adopciones |
 | `Admin`           | `/admin`, `/estadisticas`, NALA y reportes   | MFA/politicas privilegiadas fuera de Development    |
 | `Clinic`          | `/clinica/portal`                            | clinica activa; Partner para API/certificados       |
 | `Municipality`    | `/municipalidad/portal`                      | perfil municipal y tier institucional               |
@@ -204,6 +204,8 @@ Auth/
 | `Allies`        | Aplicación, alertas, admin review                                                                                                                                                                                                            |
 | `Fosters`       | Perfil, sugerencias, custodia                                                                                                                                                                                                                |
 | `Clinics`       | Registro, escaneo, admin                                                                                                                                                                                                                     |
+| `Adoptions`     | Directorio público, publicaciones de refugios, solicitudes, ferias y adopción responsable                                                                                                                                                    |
+| `Advertising`   | Campañas por placement, revisión, activación, entrega y métricas de vallas                                                                                                                                                                   |
 | `Incentives`    | Leaderboard, mi score                                                                                                                                                                                                                        |
 | `Locations`     | Preferencias de ubicación para alertas                                                                                                                                                                                                       |
 | `Bot`           | Sesiones WhatsApp, lógica conversacional                                                                                                                                                                                                     |
@@ -218,39 +220,43 @@ El corazón del sistema. Sin dependencias externas.
 
 **Entidades principales:**
 
-| Entidad                    | Descripción                                                                        |
-| -------------------------- | ---------------------------------------------------------------------------------- |
-| `User`                     | Cuenta de usuario. Bcrypt 12. Lockout. Tokens SHA-256.                             |
-| `RefreshToken`             | Token de renovación de sesión JWT.                                                 |
-| `Pet`                      | Mascota. Especie, raza, foto, microchip, estado.                                   |
-| `QrScanEvent`              | Registro de cada escaneo del QR de una mascota.                                    |
-| `PetPhotoEmbedding`        | Vector de 1024 dimensiones del embedding de la foto.                               |
-| `LostPetEvent`             | Reporte de pérdida. Estado, ubicación, contacto, recompensa.                       |
-| `SearchZone`               | Zona (300 m) de la cuadrícula de búsqueda.                                         |
-| `Sighting`                 | Avistamiento anónimo. Sin PII del reportante.                                      |
-| `FoundPetReport`           | Reporte "encontré una mascota sin QR".                                             |
-| `ChatMessage`              | Mensaje en el chat enmascarado.                                                    |
-| `HandoverCode`             | Código de 4 dígitos para entrega segura.                                           |
-| `FraudReport`              | Reporte de comportamiento sospechoso.                                              |
-| `AllyProfile`              | Perfil de organización aliada verificada.                                          |
-| `FosterVolunteer`          | Voluntario de custodia temporal.                                                   |
-| `CustodyRecord`            | Registro de custodia activa.                                                       |
-| `ClinicProfile`            | Perfil de veterinaria afiliada.                                                    |
-| `ClinicScanLog`            | Registro de escaneo de microchip por clínica.                                      |
-| `BotSession`               | Sesión conversacional de WhatsApp.                                                 |
-| `ContributorScore`         | Puntaje de reunificaciones del usuario.                                            |
-| `BroadcastAttempt`         | Registro de intento de difusión por canal.                                         |
-| `NotificationItem`         | Notificación in-app.                                                               |
-| `UserLocation`             | Preferencia de ubicación y alertas geográficas.                                    |
-| `PushSubscription`         | Endpoint para notificaciones push web.                                             |
-| `MedicalRecord`            | Registro médico de mascota. 7 tipos + campos de medicación/peso.                   |
-| `VetReminder`              | Recordatorio veterinario con job diario de notificación.                           |
-| `ClinicMedicalAccessGrant` | Grant de acceso permanente de clínica al expediente.                               |
-| `ClinicMedicalAccessLog`   | Audit trail: cada vez que una clínica consulta el expediente.                      |
-| `FamilyAccount`            | Cuenta familiar. Hasta 5 miembros. Plan Familia requerido.                         |
-| `FamilyMembership`         | Membresía de un usuario a una cuenta familiar.                                     |
-| `Subscription`             | Suscripción contratada, estado, tier, importe y vigencia.                          |
-| `SubscriptionPlan`         | Catálogo administrable de tiers, precios, estado activo y versión de concurrencia. |
+| Entidad                    | Descripción                                                                                  |
+| -------------------------- | -------------------------------------------------------------------------------------------- |
+| `User`                     | Cuenta de usuario. Bcrypt 12. Lockout. Tokens SHA-256.                                       |
+| `RefreshToken`             | Token de renovación de sesión JWT.                                                           |
+| `Pet`                      | Mascota. Especie, raza, foto, microchip, estado.                                             |
+| `QrScanEvent`              | Registro de cada escaneo del QR de una mascota.                                              |
+| `PetPhotoEmbedding`        | Vector de 1024 dimensiones del embedding de la foto.                                         |
+| `LostPetEvent`             | Reporte de pérdida. Estado, ubicación, contacto, recompensa.                                 |
+| `SearchZone`               | Zona (300 m) de la cuadrícula de búsqueda.                                                   |
+| `Sighting`                 | Avistamiento anónimo. Sin PII del reportante.                                                |
+| `FoundPetReport`           | Reporte "encontré una mascota sin QR".                                                       |
+| `ChatMessage`              | Mensaje en el chat enmascarado.                                                              |
+| `HandoverCode`             | Código de 4 dígitos para entrega segura.                                                     |
+| `FraudReport`              | Reporte de comportamiento sospechoso.                                                        |
+| `AllyProfile`              | Perfil de organización aliada verificada.                                                    |
+| `FosterVolunteer`          | Voluntario de custodia temporal.                                                             |
+| `CustodyRecord`            | Registro de custodia activa.                                                                 |
+| `ClinicProfile`            | Perfil de veterinaria afiliada.                                                              |
+| `ClinicScanLog`            | Registro de escaneo de microchip por clínica.                                                |
+| `BotSession`               | Sesión conversacional de WhatsApp.                                                           |
+| `ContributorScore`         | Puntaje de reunificaciones del usuario.                                                      |
+| `BroadcastAttempt`         | Registro de intento de difusión por canal.                                                   |
+| `NotificationItem`         | Notificación in-app.                                                                         |
+| `UserLocation`             | Preferencia de ubicación y alertas geográficas.                                              |
+| `PushSubscription`         | Endpoint para notificaciones push web.                                                       |
+| `MedicalRecord`            | Registro médico de mascota. 7 tipos + campos de medicación/peso.                             |
+| `VetReminder`              | Recordatorio veterinario con job diario de notificación.                                     |
+| `ClinicMedicalAccessGrant` | Grant de acceso permanente de clínica al expediente.                                         |
+| `ClinicMedicalAccessLog`   | Audit trail: cada vez que una clínica consulta el expediente.                                |
+| `FamilyAccount`            | Cuenta familiar. Hasta 5 miembros. Plan Familia requerido.                                   |
+| `FamilyMembership`         | Membresía de un usuario a una cuenta familiar.                                               |
+| `Subscription`             | Suscripción contratada, estado, tier, importe y vigencia.                                    |
+| `SubscriptionPlan`         | Catálogo administrable de tiers, precios, estado activo y versión de concurrencia.           |
+| `AdoptablePet`             | Animal publicado por un refugio verificado, con estado, compatibilidad y zona de referencia. |
+| `AdoptionApplication`      | Solicitud de adopción de un Owner para un animal publicado.                                  |
+| `AdoptionFair`             | Feria de adopción con ventana temporal, ubicación y animales asociados.                      |
+| `Billboard`                | Campaña publicitaria con placement, fechas, revisión, prioridad y métricas.                  |
 
 ### 3.4 PawTrack.Infrastructure
 
@@ -266,6 +272,9 @@ Implementaciones de interfaces definidas en Application y Domain.
 - La migración `AddSubscriptionPlanCatalog` siembra el catálogo vigente inicial.
 - El catálogo público se consulta mediante `GET /api/catalog/subscription-plans`; solo devuelve planes activos y no expone controles administrativos.
 - Los tiers municipales (`MuniBasica`, `MuniFull`, `MuniRedRegional`) tienen vigencia anual; una activación administrativa los extiende por 12 meses.
+- `UserPlus` y `UserFamilia` aceptan `BillingMonths` de 1, 3, 6 o 12; el backend calcula el importe desde el precio mensual y aplica 20% de descuento únicamente a 12 meses.
+- El plazo e importe se persisten en `Subscription` antes del aviso de pago; la activación utiliza el plazo persistido y no confía en el valor enviado por el cliente.
+- Los demás tiers mantienen su periodicidad actual: municipalidades anual y los planes B2B no usan el selector B2C de 1/3/6/12 meses.
 
 **Servicios externos integrados:**
 
@@ -298,7 +307,7 @@ Implementaciones de interfaces definidas en Application y Domain.
 | TypeScript               | 5.x     | Tipado estático strict                      |
 | Vite                     | 6       | Build tool + dev server                     |
 | vite-plugin-pwa          | latest  | Service worker + manifest                   |
-| React Router             | 6       | Routing con `createBrowserRouter`           |
+| React Router             | 7       | Routing con `createBrowserRouter`           |
 | TanStack React Query     | 5       | Server state (fetching, caching, mutations) |
 | Zustand                  | 5       | UI state que persiste entre rutas           |
 | Leaflet / React-Leaflet  | latest  | Mapas interactivos                          |
@@ -330,6 +339,8 @@ El router usa layouts anidados con guardas de rol:
 /map/match                → búsqueda visual por foto
 /encontre-mascota         → flujo "encontré una mascota"
 /clinica/registro         → registro de clínica
+/clinicas, /tiendas, /servicios → directorios públicos
+/adopciones, /adopciones/:id, /adopciones/ferias → adopciones públicas
 
 // Rutas autenticadas — cualquier usuario logueado
 /dashboard
@@ -340,12 +351,17 @@ El router usa layouts anidados con guardas de rol:
 /notifications
 /chat/:lostPetEventId/:ownerUserId
 
-// Solo Ally | Admin
-/estadisticas
-/allies/panel
+// Solo Admin
+/estadisticas, /admin, /nala
 
 // Solo Clinic | Admin
 /clinica/portal
+
+// Solo Ally | Admin
+/allies/panel, /shelter/dashboard, /shelter/publicar
+
+// Solo Municipality | Admin
+/municipalidad/portal
 
 // Solo Admin
 /admin
@@ -371,7 +387,9 @@ El router usa layouts anidados con guardas de rol:
 
 ### 5.1 Motor y versión
 
-SQL Server 2025 (Docker local) / Azure SQL (producción). EF Core 9 code-first.
+SQL Server LocalDB (`PawTrackDev`) para el flujo Windows local / Azure SQL en
+producción. EF Core 9 code-first. Docker Compose sigue disponible para
+entornos alternativos, pero no es la conexión usada por `start-dev.ps1`.
 
 ### 5.2 DbContext
 
@@ -500,10 +518,10 @@ Declarada en `infra/main.bicep` usando Bicep (Azure Resource Manager DSL).
 ### 7.2 Arranque rápido
 
 ```powershell
-# 1. Preparar secreto de Docker
-"<GENERATE_LOCAL_SQL_PASSWORD>" | Out-File secrets/sa_password.txt -NoNewline -Encoding utf8
+# 1. Iniciar LocalDB si aún no está activo
+sqllocaldb start MSSQLLocalDB
 
-# 2. Arrancar todo
+# 2. Arrancar backend, Azurite y frontend
 .\start-dev.ps1
 
 # Opciones
@@ -517,7 +535,7 @@ Declarada en `infra/main.bicep` usando Bicep (Azure Resource Manager DSL).
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost,1433;Database=PawTrackDev;User Id=sa;Password=<LOCAL_SQL_PASSWORD>;TrustServerCertificate=true"
+    "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=PawTrackDev;Integrated Security=True;TrustServerCertificate=True;"
   },
   "Jwt": {
     "Key": "development-key-min-32-chars-ok",
@@ -555,10 +573,12 @@ Declarada en `infra/main.bicep` usando Bicep (Azure Resource Manager DSL).
 
 > **Nota:** En dev local, Azure Vision y Maps son opcionales. El matching visual devuelve lista vacía si no hay clave configurada.
 
-### 7.4 Docker Compose — servicios locales
+### 7.4 Servicios locales
 
 ```
-SQL Server:  localhost:1433  (usuario: sa, contraseña en secrets/sa_password.txt)
+Backend:    http://localhost:5199
+Frontend:   http://localhost:5173
+SQL Server: (localdb)\\MSSQLLocalDB / PawTrackDev / autenticación integrada
 Azurite:     localhost:10000 (Blob)
              localhost:10001 (Queue)
              localhost:10002 (Table)
@@ -685,7 +705,7 @@ Configurado con `KnownNetworks` restringido a rangos RFC-1918 (Azure VNET) para 
 
 ### Base URL
 
-- Local: `http://localhost:5000`
+- Local: `http://localhost:5199`
 - Producción: `https://<app-service-name>.azurewebsites.net`
 
 ### Autenticación
@@ -740,6 +760,32 @@ El API rechaza tiers gratuitos, precios no positivos y conflictos de versión. L
 | Método | Endpoint | Auth | Descripción                                                                                                    |
 | ------ | -------- | ---- | -------------------------------------------------------------------------------------------------------------- |
 | GET    | `/`      | No   | Devuelve los planes activos, nombres, descripciones y precios vigentes para las vistas públicas y autenticadas |
+
+### Módulo Adoptions — `/api/adoptions`
+
+| Método | Endpoint                        | Auth  | Descripción                                                   |
+| ------ | ------------------------------- | ----- | ------------------------------------------------------------- |
+| GET    | `/animals`                      | No    | Listado paginado y filtrable de animales disponibles          |
+| GET    | `/animals/map`                  | No    | Animales disponibles para la capa del mapa, con límite de 500 |
+| GET    | `/animals/{id}`                 | No    | Detalle público de un animal                                  |
+| GET    | `/fairs`                        | No    | Ferias próximas, opcionalmente filtradas por ubicación        |
+| POST   | `/animals/{id}/apply`           | Owner | Enviar solicitud de adopción                                  |
+| GET    | `/applications/mine`            | Sí    | Consultar solicitudes propias                                 |
+| DELETE | `/applications/{applicationId}` | Sí    | Retirar una solicitud propia                                  |
+| POST   | `/animals`                      | Ally  | Publicar animal si el aliado es un refugio verificado         |
+| PATCH  | `/animals/{id}`                 | Ally  | Actualizar detalles del animal propio                         |
+
+### Módulo Advertising — `/api/billboards`
+
+| Método          | Endpoint                       | Auth  | Descripción                                              |
+| --------------- | ------------------------------ | ----- | -------------------------------------------------------- |
+| GET             | `/?placement=...`              | No    | Obtener campañas activas del placement solicitado        |
+| POST/PUT/DELETE | `/`, `/{id}`                   | Admin | Gestionar campañas y su ciclo de vida                    |
+| PATCH           | `/{id}/status`                 | Admin | Activar, pausar o expirar una campaña                    |
+| POST            | `/{id}/submit`, `/{id}/review` | Admin | Enviar y revisar campaña                                 |
+| POST            | `/{id}/image`                  | Admin | Subir creativo JPEG, PNG o WebP de hasta 5 MB            |
+| POST            | `/{id}/events`                 | No    | Registrar impresión, clic o conversión con deduplicación |
+| GET             | `/{id}/metrics`                | Admin | Consultar métricas en un rango de hasta 366 días         |
 
 ### Módulo Pets — `/api/pets`
 

@@ -14,8 +14,13 @@ $htmlDir = Join-Path $sourceDir "html"
 $docs = @(
   @{ file = "FEATURES.md";                    title = "Features por Plan";                 icon = "🧭"; back = "../FEATURES.md" }
   @{ file = "PRICING_AND_PLANS.md";           title = "Planes y Capacidades";             icon = "💳"; back = "../PRICING_AND_PLANS.md" }
+  @{ file = "planes.md";                      title = "Catálogo de Planes y Tiers";       icon = "📋"; back = "../planes.md" }
+  @{ file = "precios.md";                     title = "Precios y Modelo Comercial";       icon = "📊"; back = "../precios.md" }
+  @{ file = "publicidad.md";                  title = "Guía de Publicidad y Vallas";      icon = "🪧"; back = "../publicidad.md" }
   @{ file = "inversionistas.md";              title = "Pitch para Inversionistas";         icon = "💼"; back = "../inversionistas.md" }
+  @{ file = "influencer.md";                  title = "Colaboración con Influencers";      icon = "🤝"; back = "../influencer.md" }
   @{ file = "API_REFERENCE.md";               title = "Referencia API";                    icon = "🔌"; back = "../API_REFERENCE.md" }
+  @{ file = "B2B_ESTADO_ACTUAL.md";           title = "Estado Actual B2B";                 icon = "🏢"; back = "../B2B_ESTADO_ACTUAL.md" }
   @{ file = "CONSOLIDACION_DOCUMENTAL.md";    title = "Consolidación Documental";         icon = "🗂️"; back = "../CONSOLIDACION_DOCUMENTAL.md" }
   @{ file = "COLLAR_CURRENT_STATE.md";        title = "Estado Actual de Collares";        icon = "📡"; back = "../COLLAR_CURRENT_STATE.md" }
   @{ file = "ADOPTIONS_CURRENT_STATE.md";    title = "Estado Actual de Adopciones";      icon = "🏡"; back = "../ADOPTIONS_CURRENT_STATE.md" }
@@ -43,20 +48,15 @@ $docs = @(
   @{ file = "GUIA_INTEGRACIONES_WEBHOOKS.md"; title = "Integraciones y Webhooks";         icon = "🔗"; back = "../GUIA_INTEGRACIONES_WEBHOOKS.md" }
   @{ file = "RUNBOOK_JOBS_BACKGROUND.md";   title = "Jobs en Background";                icon = "⏱️"; back = "../RUNBOOK_JOBS_BACKGROUND.md" }
   @{ file = "RUNBOOK_MODERACION_Y_BIENESTAR.md"; title = "Moderación y Bienestar";         icon = "🐾"; back = "../RUNBOOK_MODERACION_Y_BIENESTAR.md" }
+  @{ file = "CUMPLIMIENTO_PROTECCION_DATOS.md"; title = "Cumplimiento Protección de Datos"; icon = "📜"; back = "../CUMPLIMIENTO_PROTECCION_DATOS.md" }
   @{ file = "POLITICA_DE_PRIVACIDAD.md";    title = "Política de Privacidad";           icon = "🔒"; back = "../POLITICA_DE_PRIVACIDAD.md" }
   @{ file = "TERMINOS_DE_USO.md";           title = "Términos de Uso";                  icon = "📋"; back = "../TERMINOS_DE_USO.md" }
 )
 
-$navLinks = $docs | ForEach-Object {
-  $htmlFile = [System.IO.Path]::GetFileNameWithoutExtension($_.file) + ".html"
-  "    <li><a href=`"$htmlFile`" class=`"h2`">$($_.icon) $($_.title)</a></li>"
-}
-$navLinks = @('    <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>') + $navLinks
-$navLinksStr = ($navLinks -join "`n")
-
 foreach ($doc in $docs) {
   $mdPath  = Join-Path $sourceDir $doc.file
-  $htmlOut = Join-Path $htmlDir ([System.IO.Path]::GetFileNameWithoutExtension($doc.file) + ".html")
+  $outName = if ($doc.outFile) { $doc.outFile } else { [System.IO.Path]::GetFileNameWithoutExtension($doc.file) + ".html" }
+  $htmlOut = Join-Path $htmlDir $outName
 
   if (-not (Test-Path $mdPath)) {
     Write-Warning "Not found: $mdPath"
@@ -66,6 +66,14 @@ foreach ($doc in $docs) {
   $mdContent = Get-Content $mdPath -Raw -Encoding UTF8
   # JSON-encode the markdown so all backticks, quotes, and newlines are safely escaped
   $mdJson = $mdContent | ConvertTo-Json -Compress
+
+  $currentNavLinks = $docs | Where-Object { -not $_.outFile } | ForEach-Object {
+    $itemFile = [System.IO.Path]::GetFileNameWithoutExtension($_.file) + ".html"
+    $activeClass = if ($itemFile -eq $outName) { "h2 active" } else { "h2" }
+    "    <li><a href=`"$itemFile`" class=`"$activeClass`">$($_.icon) $($_.title)</a></li>"
+  }
+  $currentNavLinks = @('    <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>') + $currentNavLinks
+  $navLinksStr = ($currentNavLinks -join "`n")
 
   $html = @"
 <!DOCTYPE html>
@@ -94,6 +102,17 @@ const md = $mdJson;
 const html = DOMPurify.sanitize(marked.parse(md));
 const content = document.getElementById('content');
 content.innerHTML = html;
+
+// Rewrite relative .md links to .html within docs/html
+content.querySelectorAll('a').forEach(a => {
+  const href = a.getAttribute('href');
+  if (href && !href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('#') && !href.startsWith('mailto:')) {
+    const m = href.match(/^(?:(?:\.\.\/)*)?(?:(?:docs|Manuales)\/)*([A-Za-z0-9_-]+)\.md(#.*)?$/i);
+    if (m) {
+      a.setAttribute('href', m[1] + '.html' + (m[2] || ''));
+    }
+  }
+});
 
 // Build sidebar nav from rendered headings
 const headings = content.querySelectorAll('h2, h3');
@@ -131,6 +150,14 @@ content.querySelectorAll('h2, h3').forEach(h => obs.observe(h));
 
   $html | Set-Content -Path $htmlOut -Encoding UTF8
   Write-Host "Generated: $([System.IO.Path]::GetFileName($htmlOut))"
+}
+
+# Sync sponsors.html from inversionistas.html so legacy links continue to work
+$invHtml = Join-Path $htmlDir "inversionistas.html"
+$sponsorsHtml = Join-Path $htmlDir "sponsors.html"
+if (Test-Path $invHtml) {
+    Copy-Item -Path $invHtml -Destination $sponsorsHtml -Force
+    Write-Host "Updated: sponsors.html (synced from inversionistas.html)"
 }
 
 Write-Host "`nDone. Open docs/html/index.html in a browser."

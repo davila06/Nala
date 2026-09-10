@@ -86,12 +86,12 @@ INSERT INTO dbo.Billboards (
     ReviewNote, CreatedAt, UpdatedAt)
 VALUES
     ('CC200001-0000-0000-0000-000000000001', @adminId, 'GPS para proteger cada paseo',
-     'Monitorea a tu mascota con ubicación en tiempo real.', 'https://placehold.co/1200x628/png?text=GPS+PawTrack',
+    'Monitorea a tu mascota con ubicación en tiempo real.', NULL,
      'Conocer GPS', 'https://pawtrack.cr', 0, 1, DATEADD(DAY, -1, SYSDATETIMEOFFSET()), DATEADD(DAY, 30, SYSDATETIMEOFFSET()),
     90, 'PawTrack GPS', 'GpsAndIdentification', 'Heredia', 'DEMO-VIP-001', 100000, 2, 0, 1, 'Approved', @reviewerId,
      DATEADD(DAY, -2, SYSDATETIMEOFFSET()), 'Demo VIP aprobada', DATEADD(DAY, -3, SYSDATETIMEOFFSET()), DATEADD(DAY, -2, SYSDATETIMEOFFSET())),
     ('CC200002-0000-0000-0000-000000000002', @adminId, 'Apoyo en búsqueda urgente',
-     'Servicios de recuperación y orientación veterinaria.', 'https://placehold.co/1200x628/png?text=Recuperacion',
+    'Servicios de recuperación y orientación veterinaria.', NULL,
      'Ver ayuda', 'https://pawtrack.cr', 3, 1, DATEADD(DAY, -1, SYSDATETIMEOFFSET()), DATEADD(DAY, 14, SYSDATETIMEOFFSET()),
     50, 'Red de Recuperación CR', 'RecoveryService', 'San Jose', 'DEMO-REC-001', 50000, 1, 0, 0, 'Approved', @reviewerId,
         DATEADD(DAY, -2, SYSDATETIMEOFFSET()), 'Categoría permitida', DATEADD(DAY, -3, SYSDATETIMEOFFSET()), DATEADD(DAY, -2, SYSDATETIMEOFFSET())),

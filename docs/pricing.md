@@ -3,6 +3,11 @@
 > **Estado: HISTORICO/DRAFT.** Las propuestas de monetizacion no son billing
 > activo. La fuente de tiers es [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md).
 
+> **Advertencia de uso:** este documento contiene hipótesis de estrategia y
+> propuestas de monetización. No describe capacidades comerciales activas.
+> PawTrack no implementa actualmente escrow, payout automático, checkout de
+> recompensas, comisiones de proveedores ni facturación de vallas.
+
 > **Estado: HISTORICO/DRAFT.** La fuente tecnica consolidada es
 > [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md). Las hipotesis de este archivo no
 > son precios ni comisiones activas.
@@ -98,25 +103,27 @@ Contacto inmediato recomendado: Municipalidad de San José, Cartago, Heredia, Al
 
 ---
 
-## 5. Sistema de Recompensas con Comisión (Modelo Bounty)
+## 5. Sistema de Recompensas con Comisión (Modelo Bounty) — PROPUESTA NO ACTIVA
 
 ### Concepto y propuesta de valor
 
-El modelo Bounty convierte a toda la comunidad de aliados de PawTrack en una red de búsqueda activa con incentivo económico real. El diferenciador clave frente a apps similares (PetAmberAlert, Finding Rover) es que la recompensa no es una promesa verbal — es dinero ya depositado en plataforma. Cuando el aliado ve la alerta, sabe que el pago es una certeza, no una intención.
+Este modelo es una hipótesis de monetización. El backend actual no implementa
+depósito, escrow, payout, liberación automática, Stripe Connect ni custodia de
+fondos. No debe presentarse como servicio disponible.
 
 Ningún actor en Costa Rica tiene esto implementado. Es un diferenciador de producto que genera viralidad orgánica: el aliado que cobró ₡22,500 por encontrar un perro en dos horas va a contar esa historia en WhatsApp, Instagram y con sus vecinos.
 
 ---
 
-### Flujo técnico completo (UX + backend)
+### Flujo conceptual futuro (no implementado)
 
 ```
 DUEÑO:
 1. Activa "Reporte de pérdida" normal
 2. Opción adicional: "Ofrecer recompensa"
 3. Define monto libre (mínimo sugerido ₡10,000)
-4. Paga via SINPE Móvil al número de plataforma (o Stripe para tarjeta)
-5. Fondos quedan en escrow — NUNCA en la cuenta del dueño post-confirmación
+4. El pago y cualquier custodia requerirían aprobación legal y un gateway compatible
+5. No existe actualmente escrow ni fondos retenidos por PawTrack
 
 ALIADO:
 6. Ve la alerta en mapa con badge 💰 y monto visible (ej. "₡25,000 de recompensa")
@@ -126,7 +133,7 @@ ALIADO:
 REUNIFICACIÓN:
 9. Dueño llega al lugar y usa el HandoverCode (ya implementado en backend)
 10. Sistema valida el código → caso se cierra automáticamente
-11. Recompensa menos fee de plataforma se libera en 24h vía SINPE Móvil al aliado
+11. La liberación automática de fondos no existe actualmente
 
 DISPUTA (si aplica):
 12. Si el dueño intenta cerrar sin usar handover code, el fee no se libera automáticamente
@@ -158,7 +165,9 @@ El escrow de pagos en CR tiene restricciones regulatorias. Opciones ordenadas po
 | **Plataforma de pagos con holding** (Stripe Connect o similar con split automático)                             | Media       | 2–4 semanas setup | Correcto técnicamente, puede tener fricción de KYC para aliados |
 | **Licencia de operador de sistema de pagos (SUGEF 14-09)**                                                      | Alta        | 6–18 meses        | Overkill para MVP                                               |
 
-**Recomendación para MVP**: Cuenta transitoria empresarial + Stripe Connect para splittear el pago automáticamente. Stripe Connect permite que el aliado reciba su parte directamente a su cuenta bancaria, sin que PawTrack toque los fondos del aliado. Legal, auditable, y disponible en CR.
+**Recomendación futura:** definir primero entidad responsable, KYC, impuestos,
+disputas, reembolsos y proveedor de pagos con asesoría legal. No asumir que una
+cuenta transitoria o Stripe Connect resuelven por sí solos el cumplimiento local.
 
 ---
 
@@ -205,13 +214,13 @@ El ingreso no es enorme solo, pero el **efecto red** es inmensurable: más aliad
 | `api/lost-pets/{id}/handover` endpoint     | ✅ Implementado |
 | Aliado scoring / reputación                | ✅ Implementado |
 
-| Feature                                            | Por construir |
-| -------------------------------------------------- | ------------- |
-| Escrow integration (Stripe Connect)                | 🔧 ~3 semanas |
-| UI de definición de recompensa en flujo de pérdida | 🔧 ~1 semana  |
-| Badge 💰 en alertas del mapa                       | 🔧 ~2 días    |
-| Lógica de liberación automática tras HandoverCode  | 🔧 ~1 semana  |
-| Panel de disputas (admin)                          | 🔧 ~1 semana  |
+| Feature                                            | Por construir                |
+| -------------------------------------------------- | ---------------------------- |
+| Escrow integration / gateway de pagos              | 🔧 Pendiente legal y técnico |
+| UI de definición de recompensa en flujo de pérdida | 🔧 ~1 semana                 |
+| Badge 💰 en alertas del mapa                       | 🔧 ~2 días                   |
+| Lógica de liberación automática tras HandoverCode  | 🔧 ~1 semana                 |
+| Panel de disputas (admin)                          | 🔧 ~1 semana                 |
 
 ---
 
@@ -863,24 +872,24 @@ Este es el elemento más crítico del modelo. La lógica:
 - El **collar físico** es el de menor fricción. No requiere cambios, solo un proveedor y un formulario.
 - La **suscripción Plus** es el motor de ingreso recurrente más predecible. Priorizar después del collar.
 - Las **clínicas y municipalidades** son B2B con ciclo de venta más largo pero mayor valor de vida.
-- El **sistema de bounty** es diferenciador único en la región — nadie más lo tiene. Genera viralidad.
-- Las **tiendas de mascotas** (nuevo agosto 2026) generan ingreso por transacción + suscripción StorePlus.
-- Las **vallas publicitarias** (nuevo agosto 2026) monetizan el tráfico del mapa y dashboard sin friccionar al usuario. Alto margen (sin costo marginal).
-- El **pasaporte digital** es de altísimo margen (costo ≈ $0) y tiene demanda real por comunidad expat.
+- El **sistema de bounty** es una propuesta futura; no existe escrow ni payout activo.
+- Las **tiendas de mascotas** tienen catálogo y solicitudes; PawTrack no cobra ni intermedia el pago de órdenes.
+- Las **vallas publicitarias** tienen delivery y métricas técnicas; sus tarifas y billing siguen pendientes de aprobación.
+- El **pasaporte digital** es una capacidad clínica verificable; cualquier uso oficial requiere validación legal y no equivale a integración SENASA.
 - Los **datos anonimizados** son un activo que se acumula pasivamente y su valor aumenta con escala.
 
-### Resumen de líneas de monetización activas (agosto 2026)
+### Resumen de líneas técnicas y comerciales (no confundir con billing activo)
 
-| Línea                     | Modelo                 | Estado                  |
-| ------------------------- | ---------------------- | ----------------------- |
-| Plan Plus / Familia       | Suscripción mensual    | ✅ Activo               |
-| Clínicas B2B              | Suscripción mensual    | ✅ Activo               |
-| Municipalidades B2G       | Suscripción mensual    | ✅ Activo               |
-| Tiendas StorePlus/Partner | Suscripción mensual    | ✅ Activo               |
-| Bounty (SINPE escrow)     | Comisión 10%           | ✅ Activo               |
-| Vallas publicitarias      | Tarifa negociada       | ✅ Activo               |
-| Bundle GPS                | One-time + suscripción | ✅ Activo               |
-| Collar físico PawTrack    | One-time               | 🔄 Pendiente fabricante |
-| Datos anonimizados        | B2B data               | 📋 Futuro               |
+| Línea                     | Modelo                            | Estado                              |
+| ------------------------- | --------------------------------- | ----------------------------------- |
+| Plan Plus / Familia       | Suscripción y SINPE manual        | ✅ Tier/gate; billing manual        |
+| Clínicas B2B              | Suscripción y activación manual   | ✅ Tier/gate; billing manual        |
+| Municipalidades B2G       | Tiers anuales técnicos            | ⏳ Contratación diferida            |
+| Tiendas StorePlus/Partner | Tiers y capacidades técnicas      | ⏳ Billing comercial pendiente      |
+| Bounty                    | Comisión/escrow propuestos        | 📋 No activo                        |
+| Vallas publicitarias      | Tarifas propuestas                | 📋 No billing activo                |
+| Bundle GPS                | Producto/flujo sujeto a operación | 📋 No usar como ingreso consolidado |
+| Collar físico PawTrack    | One-time                          | 🔄 Pendiente fabricante             |
+| Datos anonimizados        | B2B data                          | 📋 Futuro                           |
 
 > Bundle GPS incluye ahora, además de la posición en tiempo real e historial: alertas de conectividad/batería, modo perdido, zonas seguras (geofencing), transferencia segura entre dueños y auditoría de eventos (Fase 4/5, 2026-09-02).

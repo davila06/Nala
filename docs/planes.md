@@ -1,294 +1,315 @@
-# PawTrack CR — Planes y precios
+# PawTrack CR — Catálogo Oficial de Planes, Tiers y Características por Rol
 
-> **Estado: HISTORICO.** La fuente canonica es
-> [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md). No activar planes ni cambiar
-> precios desde este archivo.
-
-> **Estado: HISTORICO.** La fuente consolidada es
-> [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md). Este archivo se conserva por
-> trazabilidad y no debe usarse para nuevas decisiones comerciales.
-
-> Fuente de verdad: backend (`SubscriptionTier` y `SubscriptionPricing`).
-> Revisión: 2026-09-08
-> Estado: alineado con la implementación actual.
-
-## 1. Resumen ejecutivo
-
-La base real de planes implementada hoy es la siguiente:
-
-- B2C: `Free`, `UserPlus`, `UserFamilia`
-- Tiendas: `StorePlus`, `StorePartner`
-- Refugios: `ShelterPlus`
-- Clínicas: `ClinicPlus`, `ClinicPartner`
-- Municipalidades: `MuniBasica`, `MuniFull`, `MuniRedRegional`
-- Proveedores de servicios: tiers técnicos `Free`, `Verified`, `Featured`, con
-  prueba única de 30 días en `Verified`; categorías `Trainer`, `Groomer`,
-  `Hotel`, `Daycare`, `Walker`, `Photographer`, `Other`
-
-Los estados `ClinicBasic`, `StoreBasic` y `ShelterBasic` existen como marca libre o de directorio, pero no son la fuente final de billing ni de feature gating en la app actual. Es decir, el producto real se rige por los tiers activos pagados en producción y los free/public states no deben confundirse con planes de venta.
+> **Estado del documento:** Catálogo técnico y operativo actualizado al 2026-09-10.
+> **Fuente canónica en código:** [backend/src/PawTrack.Domain/Subscriptions/SubscriptionTier.cs](backend/src/PawTrack.Domain/Subscriptions/SubscriptionTier.cs), [backend/src/PawTrack.Domain/Subscriptions/SubscriptionPricing.cs](backend/src/PawTrack.Domain/Subscriptions/SubscriptionPricing.cs), [backend/src/PawTrack.Domain/ServiceProviders/ProviderMembershipTier.cs](backend/src/PawTrack.Domain/ServiceProviders/ProviderMembershipTier.cs) y [backend/src/PawTrack.Domain/Auth/UserRole.cs](backend/src/PawTrack.Domain/Auth/UserRole.cs).
+> **Documentos de soporte:** [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md), [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md), [pendientesTiendas.md](pendientesTiendas.md) y [pruebas.md](pruebas.md).
 
 ---
 
-## 2. B2C — Dueños de mascotas
+## 1. Resumen ejecutivo de roles y planes
 
-### Explorador — Gratis
+PawTrack CR implementa un modelo de monetización multiactor adaptado a Costa Rica. Cada uno de los **8 roles de usuario** (`UserRole`) cuenta con niveles de servicio, capacidades de feature-gating y modelos comerciales claramente delimitados:
 
-- 1 mascota registrada
-- Historial de escaneos limitado a 5 entradas
-- Búsqueda visual por IA: 3 búsquedas/mes
-- Reporte de pérdida, mapa público y avistamientos anónimos
-- No incluye GPS ni funciones premium
-
-### Plus — ₡2,990/mes
-
-- Todo lo del plan Explorador
-- Hasta 3 mascotas
-- Historial de escaneos ilimitado
-- IA ilimitada
-- Alertas ampliadas y coordinación activa
-- Tab GPS, integraciones de collar, Case Room, Bounty
-
-### Familia — ₡4,990/mes
-
-- Todo lo de Plus
-- Mascotas ilimitadas
-- Hasta 5 miembros en la cuenta familiar
-- Historial médico completo
-- Peso por visita, medicación estructurada, recordatorios, calendario y exportación PDF
+| Rol de Usuario        | Segmento             | Planes / Tiers Disponibles                                                                                      | Tarifa Oficial                                               | Modalidad                          |
+| :-------------------- | :------------------- | :-------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------- | :--------------------------------- |
+| **`Owner`**           | B2C (Dueños)         | **Explorador** (`Free`)<br>**Plus** (`UserPlus`)<br>**Familia** (`UserFamilia`)                                 | Gratis<br>₡2,990 / mes<br>₡4,990 / mes                       | Mensual / Plazos (1, 3, 6, 12m)    |
+| **`Ally`**            | B2B Social (Rescate) | **Aliado Comunitario** (Base)<br>**Shelter Base** (`ShelterBasic`)<br>**Shelter Plus** (`ShelterPlus`)          | Gratis (Verificado)<br>Gratis (≤ 5 animales)<br>₡8,000 / mes | Mensual                            |
+| **`Clinic`**          | B2B (Veterinarias)   | **Afiliada Básica** (`ClinicBasic`)<br>**Clínica Plus** (`ClinicPlus`)<br>**Clínica Partner** (`ClinicPartner`) | Gratis<br>₡15,000 / mes<br>₡35,000 / mes                     | Mensual                            |
+| **`Store`**           | B2B (Pet Shops)      | **Store Básica** (`StoreBasic`)<br>**Store Plus** (`StorePlus`)<br>**Store Partner** (`StorePartner`)           | Gratis<br>₡12,000 / mes<br>₡25,000 / mes                     | Mensual                            |
+| **`ServiceProvider`** | B2B (Servicios)      | **Free** (Directorio)<br>**Verified** (Catálogo/Reservas)<br>**Featured** (Destacado)                           | Gratis<br>30 días prueba gratis<br>Destaque preferencial     | Operativo / Sin fee mensual activo |
+| **`Municipality`**    | B2G (Gobierno local) | **Muni Básica** (`MuniBasica`)<br>**Muni Full** (`MuniFull`)<br>**Red Regional** (`MuniRedRegional`)            | ₡150,000 / año<br>₡300,000 / año<br>₡500,000 / año           | Anual institucional                |
+| **`Support`**         | Operativo interno    | **Especialista de Bienestar Animal**                                                                            | Sin costo (Asignable)                                        | Rol operativo de plataforma        |
+| **`Admin`**           | Gobernanza           | **Superadministrador**                                                                                          | Sin costo (Gobernanza)                                       | Control integral de plataforma     |
 
 ---
 
-## 3. B2B — Tiendas de mascotas
+## 2. Rol `Owner`: Dueños de Mascotas (B2C)
 
-### StorePlus — ₡12,000/mes
+Los dueños de mascotas constituyen el núcleo de la red de búsqueda y tenencia responsable.
 
-- Catálogo público de productos
-- Pedido in-app con SINPE Móvil
-- Gestión de pedidos
-- Badge / destaque base en directorio y mapa
+### 2.1 Explorador (`Free`) — Gratis
 
-### StorePartner — ₡25,000/mes
+Plan de entrada sin costo para cualquier persona que registre a su mascota.
 
-- Todo lo de StorePlus
-- Analytics avanzados
-- Multi-sucursal / multi-location
-- Mejor posicionamiento y funciones premium de gestión
+- **Límite de mascotas:** 1 mascota activa en la cuenta.
+- **Identidad digital QR:** Código QR único descargable y visualizable en el perfil público.
+- **Historial de escaneos:** Limitado a los últimos 5 escaneos registrados.
+- **Búsqueda visual IA:** Hasta 3 comparaciones fotográficas mensuales en `/map/match`.
+- **Reportes de pérdida y avistamiento:** Reporte de pérdida activo con radio de notificación base de 3 km a vecinos registrados.
+- **Mapa público:** Visualización de alertas de mascotas perdidas y avistamientos anónimos.
+- **Expediente médico:** Conteo total de registros existentes (sin desglose detallado de tratamientos).
+- **Restricciones técnicas:** Sin tab de collar GPS, sin sala de coordinación en vivo (Case Room), sin depósito de recompensas (Bounty) y sin cuenta multi-usuario.
 
----
+### 2.2 Plus (`UserPlus`) — ₡2,990/mes
 
-## 4. Refugios / adopciones
+Diseñado para dueños que buscan geolocalización activa y herramientas avanzadas de rescate.
 
-### ShelterPlus — ₡8,000/mes
+- **Todo lo del plan Explorador, más:**
+- **Límite de mascotas:** Hasta 3 mascotas simultáneas en la misma cuenta.
+- **Historial de escaneos:** Ilimitado con registro de dispositivo, fecha y ubicación.
+- **Búsqueda visual IA:** Comparaciones fotográficas ilimitadas para agilizar la identificación.
+- **Radio de alerta extendido:** Difusión geofenceada de 10 km ante reportes de pérdida.
+- **Pestaña GPS y hardware:** Vinculación de collares GPS oficiales (CollarTags con serial `PT-[0-9A-Fa-f]{4}-\d{7}`), dispositivos Tractive (vía OAuth2) y hardware genérico HTTP push.
+- **Seguridad perimetral:** Creación de zonas seguras (geofencing) con alertas de entrada/salida, monitoreo de nivel de batería y alertas de desconexión (offline).
+- **Case Room interactivo:** Sala de búsqueda activa con chat SignalR en tiempo real, mapa de cuadrantes y coordinación de rescatistas en campo.
+- **Fondo de Recompensa (Bounty):** Capacidad de fijar recompensas en custodia con depósito SINPE y liberación mediante código PIN (`HandoverCode`).
+- **Expediente médico:** Vista previa de los últimos 3 registros clínicos (tipo de atención, fecha, veterinaria actuante y descripción general).
 
-- Publicación ilimitada de animales en adopción
-- Ferias de adopción
-- Pin destacado en mapa
-- Gestión completa de solicitudes y panel del refugio
+### 2.3 Familia (`UserFamilia`) — ₡4,990/mes
 
-> El tier `ShelterBasic` es un límite libre de 5 animales activos; no es el plan de pago principal del sistema actual.
+La suite definitiva para hogares con múltiples animales que requieren gestión clínica exhaustiva y colaboración familiar.
 
----
+- **Todo lo del plan Plus, más:**
+- **Límite de mascotas:** Mascotas ilimitadas registradas bajo la misma cuenta.
+- **Multi-usuario familiar:** Hasta 5 miembros familiares en la misma cuenta (`FamilyMemberRole.Owner` y `FamilyMemberRole.Member`) mediante invitación por token criptográfico de un solo uso.
+- **Expediente médico digital completo:** Acceso total e ilimitado al historial clínico de cada mascota (consultas, vacunas, desparasitaciones, cirugías, exámenes de laboratorio y alergias).
+- **Medicación estructurada:** Registro de prescripciones con posología, frecuencia, duración y cálculo automático de fecha fin de tratamiento.
+- **Evolución biométrica:** Registro y gráficas de tendencia de peso corporal (`WeightTrendChart`).
+- **Calendario y recordatorios:** Agenda preventiva interactiva (`VetReminders`) con alertas automáticas previas a vencimientos de vacunas y desparasitaciones.
+- **Exportación oficial:** Generación y descarga del expediente médico en formato PDF consolidado.
+- **Adopción particular moderada:** Facilidad para solicitar dar en adopción responsable a una mascota registrada (`/adopciones/solicitar`), sujeta a moderación administrativa.
+- **Portabilidad de datos:** Exportación self-service de datos personales bajo cumplimiento de la Ley 8968 (Protección de la Persona frente al Tratamiento de sus Datos Personales).
 
-## 5. B2B — Clínicas veterinarias
+### 2.4 Términos de contratación y política de ciclo de vida B2C
 
-### ClinicPlus — ₡15,000/mes
+Los planes `UserPlus` y `UserFamilia` admiten contratación en 4 modalidades de plazo mediante comprobante SINPE Móvil validado por administración:
 
-- Destacado en mapa y directorio
-- Badge verificado
-- Estadísticas de escaneos y métricas de visibilidad
+- **1 mes:** Tarifa mensual regular (₡2,990 para Plus / ₡4,990 para Familia).
+- **3 meses:** ₡8,970 (Plus) / ₡14,970 (Familia).
+- **6 meses:** ₡17,940 (Plus) / ₡29,940 (Familia).
+- **12 meses (Anual con 20% de descuento):** ₡28,704 al año (equivale a ₡2,392/mes para Plus) / ₡47,904 al año (equivale a ₡3,992/mes para Familia).
 
-### ClinicPartner — ₡35,000/mes
+**Reglas de cancelación y downgrade:**
 
-- Todo lo de ClinicPlus
-- API keys para integración
-- Widget embebible
-- Certificados veterinarios PDF verificables y pasaporte de vacunas
-- Endpoints especializados y funciones premium de proveedor
-
-> El tier `ClinicBasic` aparece como un estado o descriptor de entrada, pero la app actual no usa ese nombre como flujo de pricing/activación en producción.
-
----
-
-## 6. Marketplace de servicios para mascotas
-
-El marketplace está implementado como módulo separado de tiendas y no tiene
-precio o comisión aprobados. Las categorías disponibles son `Trainer`
-(adiestradores), `Groomer` (groomers), `Hotel`, `Daycare` (guarderías),
-`Walker` (paseadores), `Photographer` (fotógrafos) y `Other`.
-
-Capacidades actuales: perfil, directorio, mapa, filtros, catálogo, modalidad,
-precio, capacidad, disponibilidad, reservas, verificación documental, pagos
-manuales/SINPE, snapshots comerciales, disputas, reembolsos e incidentes.
-
-No comercializar todavía tiers, comisiones, payout automático, KYC empresarial
-ni SLA para proveedores. Esas decisiones están en el checklist enterprise.
-
-## 7. B2G — Municipalidades
-
-### MuniBasica — ₡150,000/año
-
-- Portal básico de gestión
-- Un cantón
-
-### MuniFull — ₡300,000/año
-
-- Todo lo de Básica
-- Fotos de animales capturados
-- Estadísticas y reportes
-
-### MuniRedRegional — ₡500,000/año
-
-- Todo lo de Full
-- Multi-cantón
-- Red regional y dashboard consolidado
+- La cancelación detiene renovaciones futuras pero mantiene los privilegios del plan vigente hasta su fecha efectiva de expiración (`ExpiresAt`).
+- El downgrade voluntario (ej. Familia a Plus) se programa para la fecha de corte sin destruir datos: las mascotas y miembros familiares existentes se conservan intactos; únicamente se congelan nuevas altas si se excede el cupo de 3 mascotas y se reduce la visualización del expediente médico a los últimos 3 registros.
 
 ---
 
-## 8. Pricing oficial vigente en código
+## 3. Rol `Ally`: Red de Aliados y Refugios (B2B Social)
 
-| Tier              |   Precio | Modalidad |
-| ----------------- | -------: | --------- |
-| `UserPlus`        |   ₡2,990 | mensual   |
-| `UserFamilia`     |   ₡4,990 | mensual   |
-| `StorePlus`       |  ₡12,000 | mensual   |
-| `StorePartner`    |  ₡25,000 | mensual   |
-| `ShelterPlus`     |   ₡8,000 | mensual   |
-| `ClinicPlus`      |  ₡15,000 | mensual   |
-| `ClinicPartner`   |  ₡35,000 | mensual   |
-| `MuniBasica`      | ₡150,000 | anual     |
-| `MuniFull`        | ₡300,000 | anual     |
-| `MuniRedRegional` | ₡500,000 | anual     |
+El rol `Ally` agrupa a organizaciones comunitarias, rescatistas independientes, veterinarias solidarias y albergues de animales. Los perfiles son clasificados por su `AllyType`: `Shelter`, `VeterinaryClinic`, `PetFriendlyBusiness`, `PrivateSecurity` o `Municipality`.
 
----
+### 3.1 Aliado Comunitario — Gratis (Verificación documental obligatoria)
 
-## Nota de consistencia documental
+Diseñado para comercios pet-friendly, grupos de rescate y empresas de seguridad privada.
 
-La fuente técnica de precios es `SubscriptionPricing`; la matriz actual de
-capacidades B2B está en [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md). Las
-secciones comerciales detalladas que siguen son un apéndice histórico y deben
-mantenerse alineadas con esos dos documentos antes de publicarse.
+- **Validación administrativa:** Requiere solicitud con datos de cobertura física y atestados, aprobada por Admin (`VerificationStatus.Verified`).
+- **Bandeja de alertas zonales:** Recepción en tiempo real de notificaciones de mascotas perdidas geofenceadas dentro del radio de cobertura declarado (`CoverageRadiusMetres`, latitud y longitud central).
+- **Acción coordinada en campo:** Botón de confirmación operativa ("Ya buscamos en nuestra área") que notifica de inmediato a la familia afectada.
+- **Métricas de impacto:** Dashboard de KPIs con conteo de alertas recibidas, alertas atendidas, tasa porcentual de respuesta y radio de cobertura.
+- **Presencia comunitaria:** Perfil oficial en el directorio de aliados de PawTrack CR.
 
----
+### 3.2 Refugios — Acceso Base (`ShelterBasic`) — Gratis
 
-## B2B — Clínicas Veterinarias
+Acceso de entrada para albergues y rescatistas que publican animales rescatados.
 
-> Facturación mensual. Sin permanencia mínima. Requiere registro SENASA activo.
+- **Directorio público de adopciones:** Publicación de hasta 5 animales activos simultáneamente en `/adopciones`.
+- **Gestión de solicitudes:** Recepción de formularios de adopción enviados por usuarios registrados (`AdoptionApplications`).
+- **Estados del animal:** Control de estados de adopción (`Available`, `InProcess`, `Adopted`, `Paused`, `Removed`).
 
-### 🏥 Afiliada Básica — Gratis
+### 3.3 Refugios — ShelterPlus (`ShelterPlus`) — ₡8,000/mes
 
-| Feature                                                                          |
-| -------------------------------------------------------------------------------- |
-| Perfil en directorio público + mapa (posición estándar)                          |
-| Escanear QR de collar / microchip RFID                                           |
-| Ver perfil público y datos del dueño (si mascota perdida)                        |
-| Búsqueda por número de microchip                                                 |
-| **Acceso y escritura al expediente del paciente** _(con grant activo del dueño)_ |
+Diseñado para organizaciones formales de rescate y adopción de alto volumen.
+
+- **Todo lo del acceso base, más:**
+- **Animales ilimitados:** Publicación sin restricción de cantidad de animales rescatados en adopción.
+- **Ferias de adopción presenciales:** Creación y publicación de eventos en `/adopciones/ferias` con fecha, horario, sede en mapa GPS y lista de animales participantes.
+- **Difusión geofenceada de ferias:** Notificación automática a todos los usuarios registrados en un radio de 10 km alrededor de la sede de la feria.
+- **Destaque en mapa de adopciones:** Pines destacados con distintivo visual prioritario en la capa interactiva de adopciones.
+- **Canal de comunicación enmascarado:** Hilo de chat directo con adoptantes precalificados.
 
 ---
 
-### ⭐ Clínica Plus — ₡15,000/mes (~$29 USD)
+## 4. Rol `Clinic`: Clínicas Veterinarias (B2B)
 
-Todo lo de Básica, más:
+Permite a los centros médicos veterinarios vincularse al expediente digital de mascotas, ofrecer servicios de emergencia y emitir certificaciones oficiales.
 
-| Feature                                            |
-| -------------------------------------------------- |
-| Posición **destacada** en mapa de clínicas         |
-| Badge "Clínica Verificada" en directorio y alertas |
-| Logo en alertas de pérdida cercanas                |
-| Banner en Case Rooms de pacientes activos          |
-| Estadísticas de escaneos mensuales                 |
-| Métricas de visibilidad en directorio              |
-| Soporte prioritario por email + onboarding         |
+### 4.1 Afiliada Básica (`ClinicBasic`) — Gratis
 
----
+- **Directorio y mapa veterinario:** Perfil público estándar con dirección física, coordenadas GPS, teléfono, horario y servicios.
+- **Escaneo universal:** Lectura de códigos QR de placas PawTrack para atención inmediata de mascotas extraviadas o heridas.
+- **Lector RFID ISO 11784:** Búsqueda directa por número de microchip para identificar pacientes en base nacional.
+- **Acceso al expediente médico:** Capacidad de consultar y escribir consultas, vacunas y diagnósticos en el expediente del paciente mediante autorización explícita del dueño (`ClinicMedicalAccessGrant` activo).
 
-### 🤝 Clínica Partner — ₡35,000/mes (~$67 USD)
+### 4.2 Clínica Plus (`ClinicPlus`) — ₡15,000/mes
 
-Todo lo de Plus, más:
+Enfocado en clínicas que desean maximizar su captación de pacientes y posicionamiento local.
 
-| Feature                                                          |
-| ---------------------------------------------------------------- |
-| Certificados veterinarios PDF verificables (QuestPDF + QR único) |
-| Verificación pública `/verificar/{código}`                       |
-| Firma digital de clínica y médico veterinario                    |
-| Widget embebible para sitio web propio                           |
-| API de consulta directa (microchip, perfil mascota)              |
-| RFID avanzado (lectores externos)                                |
-| Soporte prioritario 24/7 + gerente de cuenta                     |
-| Notificaciones en todos los Case Rooms del cantón                |
-| Primeros resultados en búsquedas por zona                        |
+- **Todo lo de Afiliada Básica, más:**
+- **Posicionamiento prioritario:** Destaque preferencial en el mapa y directorio general de veterinarias.
+- **Badge oficial:** Distintivo de "Clínica Verificada" visible en su perfil público.
+- **Patrocinio en alertas de rescate:** Inclusión automática del logotipo de la clínica en las alertas de mascotas perdidas enviadas a usuarios cercanos vía WhatsApp, Telegram y Correo Electrónico.
+- **Presencia en Case Rooms:** Banner publicitario de la clínica en las salas de búsqueda activa del cantón.
+- **Analítica de visibilidad:** Métricas de visitas al perfil, búsquedas por zona y cantidad de escaneos realizados.
+- **Soporte prioritario:** Atención preferencial por correo electrónico.
 
----
+### 4.3 Clínica Partner (`ClinicPartner`) — ₡35,000/mes
 
-### Comparativa B2B
+Suite integral para hospitales veterinarios y clínicas que operan con altos estándares de certificación digital.
 
-| Feature                 | Básica | Plus ₡15k |  Partner ₡35k  |
-| ----------------------- | :----: | :-------: | :------------: |
-| Directorio + mapa       |   ✅   |    ✅     |       ✅       |
-| Escanear QR/RFID        |   ✅   |    ✅     |       ✅       |
-| Expediente del paciente |   ✅   |    ✅     |       ✅       |
-| Posición destacada      |   ✗    |    ✅     |       ✅       |
-| Badge Verificada        |   ✗    |    ✅     |       ✅       |
-| Estadísticas            |   ✗    |    ✅     |       ✅       |
-| Certificados PDF        |   ✗    |     ✗     |       ✅       |
-| API directa             |   ✗    |     ✗     |       ✅       |
-| Widget embebible        |   ✗    |     ✗     |       ✅       |
-| Soporte                 |   —    |   Email   | 24/7 + gerente |
+- **Todo lo de Clínica Plus, más:**
+- **Certificados Veterinarios PDF verificables:** Emisión digital de certificados médicos con código criptográfico único, renderizado QuestPDF de alta resolución y verificación pública inmediata en `/verificar/{código}`.
+- **Pasaporte Oficial de Vacunas SENASA-Ready:** Emisión del pasaporte oficial digital que valida esquema de vacunación (incluyendo rabia obligatoria en perros), desparasitación y microchip bajo estricta cadena de custodia.
+- **Validación SENASA:** Requiere clínica verificada (`ClinicVerification.Verified`) y médico veterinario autorizado con carné activo del Colegio de Médicos Veterinarios de Costa Rica (`ClinicVeterinarian.Authorized`).
+- **Gestión de cuerpo médico:** Alta y administración de múltiples médicos veterinarios con control granular de permisos (`medical:read`, `medical:write`, `certificates:issue`).
+- **Integración API Keys:** Generación y rotación de claves API seguras para sincronización con software veterinario de escritorio o ERPs externos.
+- **Widget web embebible:** Código iframe/script para incorporar el buscador de pacientes y validador de certificados directamente en la página web propia de la clínica.
+- **Atención VIP:** Soporte 24/7 y gerente de cuenta dedicado.
 
 ---
 
-## Red de Aliados — Gratis (verificación requerida)
+## 5. Rol `Store`: Tiendas de Mascotas y Pet Shops (B2B)
 
-Para rescatistas, refugios, comercios pet-friendly, seguridad privada.
+Permite a tiendas de mascotas comercializar accesorios, alimento y productos directamente a la comunidad PawTrack.
 
-| Feature                                             |
-| --------------------------------------------------- |
-| Bandeja operativa de alertas en la zona declarada   |
-| Dashboard KPI: alertas recibidas, tasa de respuesta |
-| Confirmación de acción en campo                     |
-| Perfil en red de aliados                            |
+### 5.1 Store Básica (`StoreBasic`) — Gratis
 
----
+- **Directorio de tiendas:** Presencia comercial en el directorio y mapa interactivo de comercios para mascotas.
+- **Ficha pública:** Nombre comercial, descripción, dirección física, ubicación GPS, teléfono de contacto y enlace a WhatsApp comercial.
 
-## B2G — Municipalidades (facturación anual)
+### 5.2 Store Plus (`StorePlus`) — ₡12,000/mes
 
-### 🏛️ Básica — ₡150,000/año (~$288)
+- **Todo lo de Store Básica, más:**
+- **Catálogo de productos digital:** Publicación de catálogo con fotografías optimizadas (procesadas a 800px), precios en colones y clasificación por categorías canónicas (`Food`, `Accessories`, `Grooming`, `Health`, `Toys`, `Clothing`, `Other`).
+- **Recepción de pedidos in-app:** Módulo transaccional de compras dentro de la app con método de pago mediante SINPE Móvil (`StoreOrders`).
+- **Máquina de estados de orden:** Ciclo completo de gestión (`PendingPayment` → `PaymentReported` → `Confirmed` → `Preparing` → `ReadyForPickup` / `OutForDelivery` → `Delivered`).
+- **Modalidades de despacho:** Retiro en mostrador (Pickup) o entrega a domicilio (Delivery) con dirección y notas del cliente.
+- **Panel de órdenes en tiempo real:** Gestión y control de despachos en `/tienda/portal/ordenes` con avisos inmediatos al cliente.
+- **Badge comercial:** Distintivo destacado en el mapa y directorio de pet shops.
 
-Portal control animal · registro de capturas · gestión de estados · reportes PDF · enlace con mascotas PawTrack · mapa del cantón · soporte email.
+### 5.3 Store Partner (`StorePartner`) — ₡25,000/mes
 
-### 🏛️ Full — ₡300,000/año (~$577)
-
-Todo Básica + API pública · dashboard tiempo real · estadísticas por barrio/distrito · exportación SENASA/PANI · SLA 99.5% · soporte telefónico.
-
-### 🌐 Red Regional — ₡500,000/año (~$962)
-
-Todo Full + múltiples cantones · capacitación presencial · personalización de marca · gerente de cuenta · integración PANI y SENASA · API inter-cantonal.
-
----
-
-## Otros ingresos
-
-| Fuente                   | Modelo                                                          |
-| ------------------------ | --------------------------------------------------------------- |
-| **Bounty (recompensas)** | 10% comisión al liberar recompensa + ₡1,000 en reembolsos       |
-| **Afiliado Tractive**    | $20 USD fijo por tracker vendido vía link afiliado (Impact.com) |
-| **Collar físico QR**     | ₡4,500–₡8,000 · placa standalone ₡1,500–₡2,500                  |
-| **Combo GPS Pack**       | Collar + 12 meses Plus: ~₡55,000                                |
+- **Todo lo de Store Plus, más:**
+- **Soporte multi-sucursal:** Administración centralizada de múltiples sedes físicas (`StoreLocations`).
+- **Analítica comercial:** Reportes de volumen de pedidos, productos más vendidos y demanda geográfica por cantón.
+- **Posicionamiento preferencial:** Primeros puestos en el marketplace de compras para mascotas.
+  _(Nota operativa: en la fase actual de lanzamiento, la prioridad está en el despliegue de tiendas individuales con catálogo directo)._
 
 ---
 
-## Acceso al expediente médico — detalle por plan
+## 6. Rol `ServiceProvider`: Marketplace de Servicios (B2B)
 
-> El expediente médico tiene acceso **gradual** por diseño para facilitar el upsell.
+Conecta a profesionales y técnicos independientes con dueños de mascotas. Agrupa 7 categorías de servicio:
 
-| Plan           | Qué ve                                                                                                                          |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| **Explorador** | Solo count total de registros (cuántos existen, sin ver el contenido)                                                           |
-| **Plus**       | Últimos **3 registros** — tipo, fecha, descripción, veterinario · sin documentos adjuntos · sin peso · sin campos de medicación |
-| **Familia**    | Historial completo · todos los campos · editar/eliminar · PDF · weight trends · calendario                                      |
-| **Clínica**    | Historial completo (requiere grant del dueño) · puede agregar registros desde cualquier plan                                    |
+1. `Trainer` (Adiestradores y educadores caninos)
+2. `Groomer` (Peluquería, baño y estética)
+3. `Hotel` (Hospedaje de corta y larga estancia)
+4. `Daycare` (Guardería diurna)
+5. `Walker` (Paseadores de perros)
+6. `Photographer` (Fotografía profesional de mascotas)
+7. `Other` (Otros servicios especializados)
 
-**Nota:** Las clínicas pueden **siempre escribir** registros en el expediente de un paciente con grant activo, independientemente del plan que tenga el dueño. El dueño necesita Plan Familia para leer lo que su veterinaria registró.
+### 6.1 Tiers de membresía técnica
+
+| Nivel de Membresía | Costo                                                                                | Características y Capacidades                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| :----------------- | :----------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Free**           | Gratis                                                                               | Perfil visible en directorio `/servicios` y mapa. Sin catálogo activo ni reservas in-app (`HasCatalogAccess = false`).                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **Verified**       | **30 días gratis** (Prueba inicial al aprobarse)<br>_Precio comercial en definición_ | - **Catálogo ilimitado:** Servicios con nombre, descripción, modalidad (`AtProviderFacility`, `AtCustomerHome`, `Virtual`), duración en minutos, precio en CRC y capacidad simultánea.<br>- **Reglas de disponibilidad:** Horarios semanales día a día (09:00 a 17:00) y bloques de excepción para feriados o vacaciones.<br>- **Gestión de reservas in-app:** Ciclo transaccional completo (`Requested` → `Confirmed` → `InProgress` → `Completed` / `Cancelled` / `NoShow` / `Expired`).<br>- **Validación documental:** Cédula y atestados revisados por el equipo de PawTrack. |
+| **Featured**       | Destaque preferencial                                                                | Todo lo de Verified, más distintivo de destaque en búsquedas, prioridad en directorio y protección contra expiración automática (`IsMembershipManual = true`).                                                                                                                                                                                                                                                                                                                                                                                                                     |
+
+---
+
+## 7. Rol `Municipality`: Gobiernos Locales (B2G)
+
+Dirigido a las oficinas de Gestión Ambiental, Salud y Control Animal de las 82 municipalidades de Costa Rica. Su contratación se estructura bajo modalidad de **facturación anual institucional**.
+
+### 7.1 Muni Básica (`MuniBasica`) — ₡150,000/año
+
+- **Portal municipal dedicado:** Acceso exclusivo a `/municipalidad` para inspectores y funcionarios autorizados.
+- **Gestión cantonal exclusiva:** Cobertura delimitada a un único cantón oficial.
+- **Registro digital de capturas:** Bitácora de animales recogidos en vía pública (`CapturedAnimals`) con especie, raza, color, edad estimada y placa/collar.
+- **Cruce automatizado con PawTrack:** Identificación inmediata por número de microchip o código QR para avisar al dueño registrado antes del ingreso formal a custodia municipal.
+- **Control de estados de custodia:** Flujo operativo: `Received` (recibido), `OwnerFound` (dueño localizado), `Transferred` (transferido), `Released` (liberado/silvestre), `Adopted` (adoptado).
+- **Mapa operativo cantonal:** Vista geoespacial de capturas e incidentes en el territorio.
+
+### 7.2 Muni Full (`MuniFull`) — ₡300,000/año
+
+- **Todo lo de Muni Básica, más:**
+- **Registro fotográfico digital:** Almacenamiento de fotos en alta resolución de cada captura municipal para facilitar el reconocimiento público.
+- **Mapa de calor y estadísticas:** Analítica territorial por distrito y barrio con índices de abandono y tasa de recuperación.
+- **Reportes institucionales estructurados:** Exportación de informes compatibles con las directrices de SENASA y PANI.
+- **API institucional:** Puntos de integración para alimentar el sistema de atención ciudadana (CRM municipal).
+
+### 7.3 Muni Red Regional (`MuniRedRegional`) — ₡500,000/año
+
+- **Todo lo de Muni Full, más:**
+- **Cobertura multi-cantón:** Licencia consorciada para federaciones municipales o alianzas inter-cantonales (ej. Red Regional Norte: Alajuela, Grecia, Poás, San Carlos).
+- **Transferencias inter-municipales:** Registro formal de traslados de animales entre albergues de diferentes municipalidades aliadas.
+- **Dashboard regional unificado:** Panel macro con estadísticas consolidadas de bienestar animal a nivel de provincia o región.
+
+---
+
+## 8. Rol `Support`: Bienestar Animal y Operaciones Internas
+
+Rol asignable exclusivamente por el Administrador (`UserRole.Support`) sin costo de suscripción. Permite delegar la atención ciudadana de bienestar animal sin otorgar permisos de superusuario.
+
+- **Triage de denuncias ciudadanas:** Acceso a la bandeja `/api/admin/welfare-cases` para revisar casos reportados por la población.
+- **Tipologías de caso soportadas:** `Abandonment` (abandono), `SuspectedAbuse` (sospecha de maltrato), `Neglect` (negligencia), `InjuredAnimal` (animal herido), `AnimalAtRisk` (animal en riesgo), `MunicipalCapture` (captura municipal), `Hoarding` (acumulación), `IrregularAdoption` (adopción irregular).
+- **Clasificación de severidad:** `Low` (baja), `Medium` (media), `High` (alta), `Critical` (crítica).
+- **Bitácora interna confidencial:** Incorporación de notas técnicas de seguimiento (`AnimalWelfareCaseNotes`) no visibles al denunciante.
+- **Derivación institucional:** Asignación de casos a refugios verificados o derivación formal a las autoridades correspondientes.
+
+---
+
+## 9. Rol `Admin`: Superadministrador de Plataforma
+
+Rol de gobernanza global (`UserRole.Admin`) responsable de la integridad operativa, comercial y legal de PawTrack CR.
+
+- **Aprobaciones B2B pendientes:** Revisión y autorización de solicitudes de aliados (`AllyProfiles`) y clínicas veterinarias (`Clinics`, `ClinicVerifications`).
+- **Moderación de adopciones particulares:** Bandeja de revisión y aprobación obligatoria de mascotas puestas en adopción por dueños particulares (`AdoptionStatus.PendingReview` → `Approve` / `Reject`).
+- **Conciliación financiera SINPE Móvil:** Consulta de referencias de pago de 8 caracteres y activación formal de planes en `/admin` → pestaña Suscripciones.
+- **Gobernanza publicitaria:** Creación, aprobación, pausa y seguimiento de campañas de Vallas Publicitarias (`Billboards`).
+- **Aprovisionamiento de hardware:** Control de inventario de collares, registro de lotes de CollarTags de fábrica y revocación por garantía.
+- **Analítica de activación nacional:** Métricas del embudo de producto (`/api/product-events/funnel`) para medir adopción, retención y reunificaciones en el país.
+
+---
+
+## 10. Matriz técnica de acceso al expediente médico digital
+
+El acceso al expediente clínico de la mascota está regulado estrictamente para balancear la privacidad del propietario con la continuidad médica:
+
+| Capacidad del Expediente Médico             | Dueño Explorador (`Free`) | Dueño Plus (`UserPlus`) | Dueño Familia (`UserFamilia`) | Clínica Afiliada (`Clinic`) |
+| :------------------------------------------ | :-----------------------: | :---------------------: | :---------------------------: | :-------------------------: |
+| **Conteo total de registros**               |            ✅             |           ✅            |              ✅               |             ✅              |
+| **Vista previa básica (últimos 3)**         |             ✗             |           ✅            |              ✅               |             ✅              |
+| **Historial clínico completo**              |             ✗             |            ✗            |              ✅               |       ✅ (con grant)        |
+| **Curva de peso biométrica**                |             ✗             |            ✗            |              ✅               |       ✅ (con grant)        |
+| **Medicación estructurada y fin de dosis**  |             ✗             |            ✗            |              ✅               |       ✅ (con grant)        |
+| **Calendario y recordatorios veterinarios** |             ✗             |            ✗            |              ✅               |       ✅ (con grant)        |
+| **Exportación a documento PDF**             |             ✗             |            ✗            |              ✅               |       ✅ (con grant)        |
+| **Escritura de nuevas consultas/vacunas**   |             ✗             |            ✗            |               ✗               |       ✅ (con grant)        |
+
+> **Principio de continuidad veterinaria:** Cualquier clínica veterinaria verificada puede registrar atenciones médicas en el expediente de un paciente si cuenta con un `ClinicMedicalAccessGrant` activo otorgado por el dueño, sin importar qué plan tenga el propietario. Sin embargo, el dueño requiere el **Plan Familia** para acceder a la lectura completa, gráficas y exportación de su expediente.
+
+---
+
+## 11. Productos y servicios complementarios
+
+### 11.1 Vallas publicitarias digitales (`Billboards`)
+
+Espacios de difusión visual ética y contextual dentro de la plataforma para marcas de cuidado animal y anuncios comunitarios:
+
+- **Placements:** `Map` (mapa en vivo), `Dashboard` (panel de mascotas), `Directory` (directorio de comercios), `Feed` (alertas de pérdida), `AdoptionDirectory` (directorio de adopciones), `AdoptionFair` (ferias de adopción).
+- **Niveles de campaña:**
+  - _Standard:_ Rotación equitativa en placements generales.
+  - _VIP:_ Prioridad alta (90), exclusividad por categoría comercial, segmentación por cantón específico y límite de frecuencia diaria por usuario.
+
+### 11.2 Fondo de recompensa garantizada (`Bounty`)
+
+- Exclusivo para usuarios Plus y Familia.
+- El dueño deposita el monto de la recompensa en garantía vía SINPE Móvil.
+- Al reunificarse la mascota, la liberación de fondos se realiza de forma segura mediante un código de entrega de 6 dígitos (`HandoverCode`).
+- PawTrack retiene una comisión de plataforma del 10% únicamente sobre reunificaciones confirmadas con éxito.
+
+### 11.3 Collares reflectivos y hardware GPS
+
+- **Collar oficial PawTrack QR:** Collar de reata reforzada con placa QR grabada en láser y serial alfanumérico verificable.
+- **Hardware GPS compatible:** Integración nativa por software con dispositivos Tractive y trackers genéricos con protocolo abierto HTTP push.
+
+---
+
+_PawTrack CR · Documento de Planes, Tiers y Características Comerciales · Actualizado Septiembre 2026_
 
 ---
 

@@ -1,52 +1,109 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Pitch para Inversionistas - PawTrack CR</title>
-    <link rel="stylesheet" href="style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
-  </head>
-  <body>
-    <aside id="sidebar">
-      <div class="brand">
-        <span>🐾</span><strong>PawTrack CR<br />Documentación</strong>
-      </div>
-      <nav>
-        <ul>
-          <li><a href="index.html" class="h2">← Inicio</a></li>
-          <li>
-            <a href="inversionistas.html" class="h2 active"
-              >💼 Pitch para inversionistas</a
-            >
-          </li>
-          <li><a href="influencer.html" class="h2">🤝 Colaboraciones</a></li>
-        </ul>
-      </nav>
-    </aside>
-    <main id="main">
-      <div id="content">
-        <p style="color: #888; padding: 2rem">Cargando…</p>
-      </div>
-    </main>
-    <script>
-      fetch("../inversionistas.md")
-        .then((response) => {
-          if (!response.ok)
-            throw new Error("No se pudo cargar inversionistas.md");
-          return response.text();
-        })
-        .then((markdown) => {
-          document.getElementById("content").innerHTML = DOMPurify.sanitize(
-            marked.parse(markdown),
-          );
-        })
-        .catch((error) => {
-          document.getElementById("content").innerHTML =
-            '<h1>No se pudo cargar la fuente</h1><p>Abre este documento desde un servidor local o consulta <a href="../inversionistas.md">inversionistas.md</a>.</p>';
-          console.error(error);
-        });
-    </script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pitch para Inversionistas — PawTrack CR</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+</head>
+<body>
+<aside id="sidebar">
+  <div class="brand"><span>🐾</span><strong>PawTrack CR<br>Documentación</strong></div>
+  <nav><ul>
+    <li><a href="index.html" class="h2">← Inicio</a></li>
+    <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>
+    <li><a href="FEATURES.html" class="h2">🧭 Features por Plan</a></li>
+    <li><a href="PRICING_AND_PLANS.html" class="h2">💳 Planes y Capacidades</a></li>
+    <li><a href="planes.html" class="h2">📋 Catálogo de Planes y Tiers</a></li>
+    <li><a href="precios.html" class="h2">📊 Precios y Modelo Comercial</a></li>
+    <li><a href="publicidad.html" class="h2">🪧 Guía de Publicidad y Vallas</a></li>
+    <li><a href="inversionistas.html" class="h2 active">💼 Pitch para Inversionistas</a></li>
+    <li><a href="influencer.html" class="h2">🤝 Colaboración con Influencers</a></li>
+    <li><a href="API_REFERENCE.html" class="h2">🔌 Referencia API</a></li>
+    <li><a href="B2B_ESTADO_ACTUAL.html" class="h2">🏢 Estado Actual B2B</a></li>
+    <li><a href="CONSOLIDACION_DOCUMENTAL.html" class="h2">🗂️ Consolidación Documental</a></li>
+    <li><a href="COLLAR_CURRENT_STATE.html" class="h2">📡 Estado Actual de Collares</a></li>
+    <li><a href="ADOPTIONS_CURRENT_STATE.html" class="h2">🏡 Estado Actual de Adopciones</a></li>
+    <li><a href="NALA_REPORTING_GUIDE.html" class="h2">📊 NALA y Reportes</a></li>
+    <li><a href="sinpe.html" class="h2">💸 Automatización SINPE Móvil</a></li>
+    <li><a href="NALA.html" class="h2">🐾 Producto PawTrack CR</a></li>
+    <li><a href="MANUAL_USUARIO.html" class="h2">📱 Manual de Usuario</a></li>
+    <li><a href="MANUAL_ADMINISTRADOR.html" class="h2">⚙️ Manual de Administrador</a></li>
+    <li><a href="MANUAL_ALIADOS.html" class="h2">🤝 Manual de Aliados</a></li>
+    <li><a href="MANUAL_CLINICAS.html" class="h2">🏥 Manual de Clínicas Veterinarias</a></li>
+    <li><a href="MANUAL_MUNICIPALIDADES.html" class="h2">🏛️ Manual de Municipalidades</a></li>
+    <li><a href="MANUAL_TIENDAS.html" class="h2">🏪 Manual de Tiendas</a></li>
+    <li><a href="MANUAL_PROVEEDORES.html" class="h2">🧰 Manual de Proveedores</a></li>
+    <li><a href="MANUAL_SOPORTE.html" class="h2">🎧 Manual de Soporte</a></li>
+    <li><a href="MANUAL_TECNICO.html" class="h2">🛠️ Manual Técnico</a></li>
+    <li><a href="GUIA_ONBOARDING_DEV.html" class="h2">🚀 Guía de Onboarding Dev</a></li>
+    <li><a href="GUIA_DEPLOY_PASO_A_PASO.html" class="h2">☁️ Guía de Deploy Paso a Paso</a></li>
+    <li><a href="RUNBOOK_OPERACIONES.html" class="h2">📟 Runbook de Operaciones</a></li>
+    <li><a href="DEPLOY_INFO.html" class="h2">🗂️ Datos de Despliegue Beta</a></li>
+    <li><a href="RUNBOOK_DEPLOYMENT.html" class="h2">🚢 Runbook de Deployment</a></li>
+    <li><a href="RUNBOOK_SEGURIDAD_INCIDENTES.html" class="h2">🛡️ Seguridad e Incidentes</a></li>
+    <li><a href="RUNBOOK_BACKUPS_RECUPERACION.html" class="h2">💾 Backups y Recuperación</a></li>
+    <li><a href="MATRIZ_RETENCION_DATOS.html" class="h2">🧾 Retención de Datos</a></li>
+    <li><a href="GUIA_QA_E2E.html" class="h2">🧪 Guía QA y E2E</a></li>
+    <li><a href="GUIA_INTEGRACIONES_WEBHOOKS.html" class="h2">🔗 Integraciones y Webhooks</a></li>
+    <li><a href="RUNBOOK_JOBS_BACKGROUND.html" class="h2">⏱️ Jobs en Background</a></li>
+    <li><a href="RUNBOOK_MODERACION_Y_BIENESTAR.html" class="h2">🐾 Moderación y Bienestar</a></li>
+    <li><a href="CUMPLIMIENTO_PROTECCION_DATOS.html" class="h2">📜 Cumplimiento Protección de Datos</a></li>
+    <li><a href="POLITICA_DE_PRIVACIDAD.html" class="h2">🔒 Política de Privacidad</a></li>
+    <li><a href="TERMINOS_DE_USO.html" class="h2">📋 Términos de Uso</a></li>
+  </ul></nav>
+</aside>
+<main id="main">
+  <div id="content"><p style="color:#888;padding:2rem">Cargando…</p></div>
+</main>
+<script>
+const md = "# PawTrack CR - Resumen preliminar para inversionistas\r\n\r\n**Documento para potenciales inversionistas**  \r\n**Fecha:** 2026-09-10\r\n**Propuesta preliminar:** USD $2,000 por hasta 10% de participacion, sujeta a estructura legal, due diligence y acuerdo definitivo\r\n**Valoracion indicativa pre-money:** USD $18,000\r\n**Valoracion indicativa post-money:** USD $20,000\r\n\r\n> Documento informativo sujeto a due diligence, estructura societaria y acuerdo\r\n> legal. La participacion final debe formalizarse con asesoria legal en Costa\r\n> Rica. Ninguna cifra de proyeccion es una garantia de retorno.\r\n\r\n> **Tesis de inversión:** esta ronda no financia una idea sin producto. Financia\r\n> la conversión de una plataforma funcional en evidencia comercial: usuarios\r\n> activos, primeros clientes B2B, ingresos recurrentes verificables y un piloto\r\n> territorial medible.\r\n\r\n> **Uso recomendado:** este documento sirve para iniciar conversaciones. No es\r\n> una oferta pública, promesa de rendimiento ni contrato de inversión.\r\n\r\n---\r\n\r\n## 1. El pitch en 30 segundos\r\n\r\nCuando una mascota se pierde, la familia no necesita otra red social: necesita\r\nidentidad, velocidad y coordinacion.\r\n\r\n**PawTrack CR** es una plataforma web progresiva que conecta el QR de una\r\nmascota con una red local de dueños, encontradores, clinicas, refugios,\r\nmunicipalidades y servicios. Permite identificar, reportar, coordinar y\r\nreunificar sin obligar a quien encuentra una mascota a instalar una app.\r\n\r\nEl producto ya tiene una base tecnica amplia. Lo que buscamos ahora no es\r\nfinanciar una idea en papel: buscamos capital pequeño y disciplinado para\r\nconvertir una plataforma funcional en un lanzamiento territorial medible en\r\nCosta Rica.\r\n\r\n### Resumen ejecutivo\r\n\r\n| Elemento           | Situación actual                                                                              |\r\n| ------------------ | --------------------------------------------------------------------------------------------- |\r\n| Producto           | Plataforma funcional con QR, recuperación, salud, GPS, adopciones, B2B y NALA                 |\r\n| Etapa              | Validación comercial y piloto territorial; product-market fit aún no demostrado               |\r\n| Monetización       | Tiers técnicos, activación manual y tarifas de vallas asignadas; billing automático pendiente |\r\n| Capital solicitado | USD $2,000, liberado preferiblemente por hitos                                                |\r\n| Uso del capital    | Piloto, onboarding, QA, soporte, ventas iniciales e infraestructura                           |\r\n| Riesgo principal   | Convertir capacidad técnica en usuarios activos, contratos y revenue recurrente               |\r\n\r\n### Qué está probado y qué falta probar\r\n\r\n**Probado técnicamente:** producto funcional, arquitectura modular, gates de\r\nplanes, flujos de recuperación, adopciones, clínicas, collares, publicidad y\r\npruebas automatizadas documentadas.\r\n\r\n**Por probar comercialmente:** conversión de usuarios, retención, disposición\r\nde pago, CAC, churn, clientes B2B que renuevan y demanda real por vallas y\r\nproveedores.\r\n\r\n## 2. La oportunidad\r\n\r\nEl problema actual esta fragmentado:\r\n\r\n- avisos que se pierden en grupos de redes sociales;\r\n- contacto directo que expone telefonos y direcciones;\r\n- poca coordinacion entre dueños, rescatistas y clinicas;\r\n- expedientes y documentos medicos dispersos;\r\n- municipalidades y refugios operando sin una capa comun de trazabilidad.\r\n\r\nCosta Rica ofrece un mercado inicial concentrado y manejable: dueños de\r\nmascotas, clinicas veterinarias, refugios, tiendas, proveedores de servicios y\r\nmunicipalidades dentro de un mismo territorio.\r\n\r\nLas cifras de hogares, mascotas y establecimientos que aparecen en documentos\r\ninternos son hipotesis de mercado y deben validarse comercialmente. No se\r\npresentan aqui como usuarios actuales ni como ventas garantizadas.\r\n\r\n## 3. La solucion\r\n\r\nPawTrack convierte un incidente aislado en un flujo operativo:\r\n\r\n1. registrar mascota y generar QR;\r\n2. mostrar un perfil publico minimo y seguro;\r\n3. activar perdida y notificar a la red;\r\n4. recibir avistamientos con ubicacion y foto;\r\n5. coordinar busqueda en mapa en tiempo real;\r\n6. conectar por chat enmascarado;\r\n7. verificar la entrega con un codigo seguro;\r\n8. conservar salud, actividad y evidencia con consentimiento.\r\n\r\nLa persona que escanea un QR puede ayudar desde el navegador. Esa friccion baja\r\nes central para el modelo: el finder no tiene que convertirse primero en\r\nusuario para aportar valor a la red.\r\n\r\n## 4. Producto construido\r\n\r\nLa implementacion actual incluye, entre otras capacidades:\r\n\r\n- identidad digital, QR, microchip y perfil publico;\r\n- reportes de perdida, avistamientos y mapa;\r\n- Case Room y coordinacion SignalR;\r\n- matching visual por IA;\r\n- chat enmascarado y handover seguro;\r\n- broadcast por email, WhatsApp, Telegram y Facebook;\r\n- aliados, refugios, adopciones y ferias;\r\n- clinicas, expediente medico, consentimiento y certificados verificables;\r\n- collares GPS, modo perdido, geofencing, bateria, auditoria y handover;\r\n- tiendas, catalogo y solicitudes de pedido;\r\n- proveedores de servicios, disponibilidad y reservas;\r\n- municipalidades, capturas y reportes institucionales;\r\n- suscripciones, MFA, exportacion y retencion de datos.\r\n\r\nEstas capacidades estan implementadas en codigo y pruebas, pero no todas son\r\nproductos comerciales ya validados. El siguiente paso es medir uso real,\r\nconversion, retencion y calidad de recuperacion. La referencia consolidada de\r\nroles, planes, precios tecnicos, propuestas y limites comerciales es\r\n[consolidado.md](consolidado.md).\r\n\r\n## 5. Evidencia tecnica\r\n\r\nAl corte de la última evidencia registrada en [STATUS.md](STATUS.md), el repo\r\nregistra:\r\n\r\n- build backend correcto;\r\n- suite backend unitaria e integración reportada como correcta en el corte documentado;\r\n- typecheck frontend correcto;\r\n- tests frontend y build de produccion correctos;\r\n- lint frontend sin errores ni warnings;\r\n- escenario E2E principal de recuperacion validado contra stack local real.\r\n\r\nLos conteos deben revalidarse en CI antes de circular este documento como pitch.\r\nLa evidencia tecnica demuestra capacidad de construccion y una base de calidad.\r\nNo demuestra aun product-market fit, ingresos recurrentes ni escala productiva.\r\n\r\n## 6. Por que puede ganar\r\n\r\n### Red territorial\r\n\r\nLa ventaja no es el QR aislado. Es la densidad de relaciones y eventos entre\r\nmascota, familia, finder, clinica, refugio, municipalidad y evidencia temporal\r\n/geografica.\r\n\r\n### Adaptacion local\r\n\r\n- WhatsApp como canal natural;\r\n- SINPE como referencia de pago local;\r\n- español y contexto costarricense;\r\n- cantones como unidades concretas de lanzamiento;\r\n- integracion entre comunidad, salud y entidades publicas.\r\n\r\n### Confianza por diseño\r\n\r\nEl sistema incorpora contacto enmascarado, ownership, scopes, grants medicos,\r\nauditoria, rate limiting, retencion y MFA para roles privilegiados. La\r\nprivacidad no es un texto de marketing: es parte de la arquitectura.\r\n\r\n### Plataforma, no feature aislada\r\n\r\nEl mismo perfil de mascota puede abrir recuperacion, salud, adopcion, clinica,\r\ncollar, tienda y servicios. Cada interaccion util puede aumentar el valor de la\r\nred sin obligar a lanzar productos separados.\r\n\r\n### Lo que compra el inversionista\r\n\r\nLa oportunidad combina tres activos:\r\n\r\n1. **Producto operativo:** QR, recuperación, salud, GPS, adopciones, clínicas,\r\n   tiendas, proveedores, municipalidades y analítica institucional.\r\n2. **Monetización escalonada:** suscripciones B2C, planes B2B/B2G, inventario de\r\n   vallas con tarifas de referencia asignadas y futuras membresías de proveedores.\r\n3. **Evidencia medible:** activación, densidad territorial, conversión,\r\n   retención, costo por caso y revenue por segmento.\r\n\r\n## 7. Modelo de negocio\r\n\r\n### B2C\r\n\r\n| Plan          | Precio tecnico actual | Valor                                         |\r\n| ------------- | --------------------: | --------------------------------------------- |\r\n| `Free`        |                    ₡0 | 1 mascota, QR y funciones base                |\r\n| `UserPlus`    |            ₡2,990/mes | hasta 3 mascotas, GPS, IA y coordinacion      |\r\n| `UserFamilia` |            ₡4,990/mes | mascotas ilimitadas, familia y salud completa |\r\n\r\n`UserPlus` y `UserFamilia` aceptan plazos de 1, 3, 6 o 12 meses; solo el plazo\r\nanual aplica 20% de descuento. La contratación se solicita y se activa\r\nmanualmente después de verificar SINPE; no se presenta como checkout recurrente\r\nuniversal.\r\n\r\n### B2B/B2G\r\n\r\n| Segmento        | Oferta tecnica                                                       |\r\n| --------------- | -------------------------------------------------------------------- |\r\n| Clinicas        | `ClinicPlus` ₡15,000/mes; `ClinicPartner` ₡35,000/mes                |\r\n| Tiendas         | `StorePlus` ₡12,000/mes; `StorePartner` con gates tecnicos avanzados |\r\n| Refugios        | `ShelterPlus` ₡8,000/mes                                             |\r\n| Municipalidades | tiers anuales de ₡150,000 a ₡500,000                                 |\r\n| Proveedores     | prueba `Verified` de 30 dias; pricing pendiente de validacion        |\r\n\r\nAdicionalmente existen oportunidades en publicidad contextual, bundles GPS y\r\nrecompensas. No se presentan como ingresos consolidados. Tiendas actualmente\r\nno tienen checkout o intermediacion de pagos por PawTrack; las recompensas\r\nrequieren validacion legal y operativa antes de escalar custodia de fondos.\r\n\r\n### Escalera de monetización\r\n\r\n| Etapa | Motor                        | Estado                             | Validación buscada                     |\r\n| ----- | ---------------------------- | ---------------------------------- | -------------------------------------- |\r\n| 1     | Plus/Familia                 | Precio técnico y activación manual | Conversión, ARPU y churn               |\r\n| 2     | Clínicas, tiendas y refugios | Tiers/gates implementados          | Primeros contratos y retención B2B     |\r\n| 3     | Municipalidades              | Tiers técnicos anuales             | Validar ciclo institucional y ticket   |\r\n| 4     | Vallas                       | Tarifas de referencia asignadas    | Primeros anunciantes, CTR y renovación |\r\n| 5     | Proveedores                  | Prueba técnica de 30 días          | Validar willingness-to-pay             |\r\n\r\nEl plan es validar primero densidad territorial y suscripciones, y luego\r\nconvertir vallas y proveedores en ingresos adicionales.\r\n\r\n## 8. La ronda\r\n\r\n### La solicitud\r\n\r\n**USD $2,000 por 10% de participacion.**\r\n\r\nEsto implica:\r\n\r\n- valoracion post-money: USD $20,000;\r\n- valoracion pre-money: USD $18,000;\r\n- participacion ofrecida: 10% del proyecto, sujeta a la estructura legal que\r\n  se formalice;\r\n- no se promete dividendos, recompra ni retorno fijo.\r\n\r\nLa participacion exacta, derechos de informacion, gobierno, propiedad\r\nintelectual y tratamiento de futuras rondas deben quedar en un acuerdo formal.\r\n\r\n### Uso propuesto de fondos\r\n\r\n| Uso                                                          | Monto aproximado |\r\n| ------------------------------------------------------------ | ---------------: |\r\n| Infraestructura Azure y base de datos por los primeros meses |           $1,200 |\r\n| Contingencia operativa y picos de uso                        |             $240 |\r\n| Soporte de lanzamiento, QA y ajustes de onboarding           |             $360 |\r\n| Dominio, canales transaccionales y materiales comerciales    |             $200 |\r\n| **Total**                                                    |       **$2,000** |\r\n\r\nLos montos son presupuesto de trabajo, no cotizacion vinculante. El objetivo es\r\ncomprar tiempo operativo para validar el mercado, no financiar features sin\r\nusuarios.\r\n\r\n### Uso por hitos\r\n\r\n| Hito   | Resultado esperado                                          | Liberación sugerida |\r\n| ------ | ----------------------------------------------------------- | ------------------: |\r\n| Hito 1 | Piloto en 1-2 cantones, onboarding y medición base          |              $1,000 |\r\n| Hito 2 | Primeros clientes B2B, conversión B2C y reporte de métricas |              $1,000 |\r\n\r\nIndicadores de liberación: Owners registrados y MAU, perfiles con QR activo,\r\nprimer avistamiento, clientes B2B activos, suscripciones pagadas, MRR, churn y\r\ncosto de soporte por caso.\r\n\r\n### Presupuesto detallado de validación\r\n\r\n| Partida            | Uso específico                                                    |      Monto |\r\n| ------------------ | ----------------------------------------------------------------- | ---------: |\r\n| Infraestructura    | Hosting, base de datos, almacenamiento, observabilidad y dominios |       $600 |\r\n| Adquisición piloto | Contenido, campañas locales y activación de usuarios              |       $450 |\r\n| Onboarding B2B     | Demos, materiales, desplazamientos y configuración inicial        |       $300 |\r\n| QA y soporte       | Pruebas, correcciones, soporte de casos y moderación inicial      |       $350 |\r\n| Legal/comercial    | Revisión de inversión, privacidad, contratos y billing            |       $200 |\r\n| Contingencia       | Picos de uso e incidentes                                         |       $100 |\r\n| **Total**          |                                                                   | **$2,000** |\r\n\r\n### Escenario financiero orientativo\r\n\r\nEl escenario base de [consolidado.md](consolidado.md) proyecta ingresos de\r\n₡51.54M en el primer año, ₡116.67M en el año 2 y ₡625.21M en el año 5, con\r\nEBITDA orientativo de 18.5%, 24.6% y 31.2%, respectivamente. Son escenarios de\r\nplanificación, no resultados actuales ni una promesa de retorno.\r\n\r\n## 9. Plan de 90 dias\r\n\r\n### Dias 1-30: activar un territorio\r\n\r\n- elegir uno o dos cantones piloto;\r\n- reclutar clinicas, refugios y aliados ancla;\r\n- lanzar QR y finder sin login;\r\n- medir registro, perfil completo, QR escaneado y primer avistamiento;\r\n- ejecutar pruebas legales de privacidad, pagos y soporte.\r\n\r\n### Dias 31-60: probar la red\r\n\r\n- operar casos reales con protocolo de soporte;\r\n- medir tiempo a primer avistamiento y reunificacion;\r\n- entrevistar dueños, finders, clinicas y refugios;\r\n- validar conversion de Free a Plus/Familia;\r\n- medir activacion de clinicas y aliados.\r\n\r\n### Dias 61-90: decidir escala\r\n\r\n- publicar un reporte agregado del piloto;\r\n- cerrar primeros clientes B2B/B2G si la evidencia lo respalda;\r\n- calcular CAC, conversion, retencion, churn y costo por caso;\r\n- decidir si expandir al siguiente canton o corregir el producto.\r\n\r\n## 10. Metricas que definiran el exito\r\n\r\n### Panel de métricas antes de enviar como pitch final\r\n\r\nEstas métricas deben completarse con datos exportados del entorno real; no deben\r\nrellenarse con proyecciones:\r\n\r\n| Métrica                        |  Valor actual | Meta a 90 días |\r\n| ------------------------------ | ------------: | -------------: |\r\n| Owners registrados             | Por completar |          2,500 |\r\n| MAU                            | Por completar |          1,300 |\r\n| Suscripciones pagadas activas  | Por completar |            100 |\r\n| MRR                            | Por completar |     ₡0.3-0.5 M |\r\n| Clínicas activas               | Por completar |              3 |\r\n| Refugios/aliados activos       | Por completar |              5 |\r\n| Primeros anunciantes de vallas | Por completar |    1-2 pilotos |\r\n| Casos con primer avistamiento  | Por completar | Medir baseline |\r\n\r\nEl documento no debe circular como evidencia de tracción hasta sustituir\r\n“Por completar” con datos verificables y fecha de corte.\r\n\r\nLa north star es **mascotas activas protegidas que completan una interaccion\r\nverificable en los ultimos 90 dias**.\r\n\r\nEl tablero del piloto debe medir:\r\n\r\n- registros a perfiles completos;\r\n- perfiles con QR activado y escaneado;\r\n- tiempo a primer avistamiento;\r\n- tiempo a reunificacion;\r\n- reportes validos y falsos positivos;\r\n- usuarios Free a planes pagados;\r\n- clinicas, aliados y refugios activos por canton;\r\n- retencion a 30, 90 y 180 dias;\r\n- costo de soporte por caso;\r\n- incidentes de privacidad, fraude y abuso.\r\n\r\nNo usamos como traccion actual la cifra historica de 68% de recuperacion ni el\r\nclaim de menos de 72 horas: los documentos internos indican que no tienen\r\nvalidacion externa ni muestra productiva suficiente.\r\n\r\n## 11. Riesgos y como se reducen\r\n\r\n| Riesgo                            | Mitigacion                                                               |\r\n| --------------------------------- | ------------------------------------------------------------------------ |\r\n| Red insuficiente en un canton     | lanzar con organizaciones ancla y densidad territorial                   |\r\n| Sin usuarios o ingresos iniciales | piloto medible antes de expansion                                        |\r\n| Claims regulatorios sobre SENASA  | presentar solo como preparado para trazabilidad, no como aval oficial    |\r\n| Datos medicos y ubicacion         | consentimiento, minimizacion, grants, auditoria y retencion              |\r\n| Pagos y recompensas               | no custodiar fondos ni prometer payouts sin asesoria legal               |\r\n| Dependencia de WhatsApp/Azure     | email, web y canales alternos; presupuesto de contingencia               |\r\n| Soporte 24/7                      | runbook, severidades, escalamiento y SLA progresivo                      |\r\n| Tarifas B2B/vallas sin conversión | venta consultiva, piloto por hitos y no reconocer revenue hasta cobrar   |\r\n| Monetización manual inicial       | automatizar billing solo después de validar demanda y requisitos legales |\r\n\r\n## 12. Que recibe el inversionista\r\n\r\n- 10% de participacion conforme al acuerdo legal;\r\n- reporte mensual de metricas durante los primeros 12 meses;\r\n- acceso a demos y avances del piloto;\r\n- informacion razonable para due diligence;\r\n- reconocimiento como inversionista fundador, si asi se acuerda;\r\n- acceso preferente a conversaciones de futuras rondas, sin garantia de\r\n  condiciones ni valoracion.\r\n\r\nNo se promete retorno fijo, recompra, dividendos ni exclusividad territorial.\r\n\r\n## 13. Due diligence disponible\r\n\r\nAntes de firmar, un inversionista puede solicitar revisar:\r\n\r\n- demo funcional;\r\n- arquitectura y repositorio bajo acuerdo de confidencialidad;\r\n- resultados de pruebas y CI;\r\n- modelo de planes y costos;\r\n- estado de infraestructura;\r\n- politica de privacidad y terminos;\r\n- riesgos de datos, pagos y claims regulatorios;\r\n- estructura legal de la participacion.\r\n\r\n### Checklist previo a recibir fondos\r\n\r\n- Sociedad o vehículo legal identificado.\r\n- Propiedad de código, marca, dominio y activos confirmada.\r\n- Cap table y porcentaje ofrecido documentados.\r\n- Tipo de instrumento definido: equity directo o convertible.\r\n- Derechos de información, dilución y futuras rondas acordados.\r\n- Cuenta receptora y tratamiento tributario definidos.\r\n- Due diligence técnica, legal y financiera documentada.\r\n\r\n## 14. El cierre\r\n\r\nPor USD $2,000, el inversionista no esta apostando solo por una idea: esta\r\nentrando en una plataforma funcional que necesita probar densidad, confianza y\r\nventas en un territorio concreto.\r\n\r\nLa pregunta no es si podemos construir otra app. Ya construimos la base.\r\n\r\nLa pregunta es si podemos convertir una mascota perdida en el punto de entrada\r\na una red local de identidad, cuidado y recuperacion.\r\n\r\n**Buscamos un socio que ayude a ganar el primer territorio, medirlo con\r\nhonestidad y escalar solo lo que funcione.**\r\n\r\n### Condiciones recomendadas antes de firmar\r\n\r\n- Confirmar la sociedad receptora, propiedad intelectual, marca y dominio.\r\n- Formalizar acciones, dilución, derechos de información y gobierno.\r\n- Definir si la inversión será equity directo o instrumento convertible.\r\n- Liberar el capital por hitos y entregar reporte mensual durante 12 meses.\r\n- Validar legalmente cualquier futura custodia de fondos, recompensas o billing.\r\n\r\n---\r\n\r\n**Contacto:** Denis Avila - Fundador, PawTrack CR  \r\n**Email:** davila06@gmail.com  \r\n**Web:** https://pawtrack.cr\r\n\r\n_Documento informativo. Requiere revision legal y financiera antes de\r\ncompartirse como oferta formal de participacion._\r\n";
+const html = DOMPurify.sanitize(marked.parse(md));
+const content = document.getElementById('content');
+content.innerHTML = html;
+
+// Rewrite relative .md links to .html within docs/html
+content.querySelectorAll('a').forEach(a => {
+  const href = a.getAttribute('href');
+  if (href && !href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('#') && !href.startsWith('mailto:')) {
+    const m = href.match(/^(?:(?:\.\.\/)*)?(?:(?:docs|Manuales)\/)*([A-Za-z0-9_-]+)\.md(#.*)?$/i);
+    if (m) {
+      a.setAttribute('href', m[1] + '.html' + (m[2] || ''));
+    }
+  }
+});
+
+// Build sidebar nav from rendered headings
+const headings = content.querySelectorAll('h2, h3');
+const sidebar  = document.querySelector('#sidebar nav ul');
+headings.forEach((h, i) => {
+  if (!h.id) {
+    h.id = 'h-' + i + '-' + h.textContent.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').slice(0, 50);
+  }
+  const li = document.createElement('li');
+  const a  = document.createElement('a');
+  a.href      = '#' + h.id;
+  a.textContent = h.textContent.replace(/^#+\s*/, '');
+  a.className = h.tagName.toLowerCase();
+  li.appendChild(a);
+  sidebar.appendChild(li);
+});
+
+// Highlight active link on scroll
+const links = sidebar.querySelectorAll('a[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const active = sidebar.querySelector('a[href="#' + e.target.id + '"]');
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -75% 0px' });
+content.querySelectorAll('h2, h3').forEach(h => obs.observe(h));
+</script>
+</body>
 </html>

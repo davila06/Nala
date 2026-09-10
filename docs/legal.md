@@ -214,6 +214,11 @@ En esta fase:
 - PawTrack no solicita ni almacena credenciales bancarias.
 - PawTrack no procesa transferencias ni tarjetas.
 - PawTrack no verifica que una transferencia haya ocurrido.
+- Los flujos de recompensa, escrow, payout o liberación automática no están
+  activos. Cualquier propuesta de monetización de recompensas requiere revisión
+  legal, tributaria, KYC y de proveedor de pagos antes de publicarse.
+- Los certificados y reportes `SENASA-ready` no son aprobación, certificación ni
+  integración oficial con SENASA sin convenio formal.
 - PawTrack no confirma pagos en nombre de la tienda.
 - PawTrack no administra saldos, comisiones, liquidaciones ni payouts.
 - PawTrack no promete reembolsos.

@@ -79,11 +79,13 @@ La plataforma incluye:
 • Funciones de collar GPS para planes Plus o superiores
 • Portales para clinicas, aliados, refugios, tiendas y municipalidades
 
-PawTrack tiene un nivel gratuito y planes premium. Los precios tecnicos actuales
-para dueños son UserPlus ₡2,990/mes y UserFamilia ₡4,990/mes. Las ofertas B2B y
-B2G tienen condiciones separadas. Las recompensas y cualquier flujo de custodia
-de fondos requieren validacion legal y operativa antes de presentarse como
-servicio financiero activo.
+PawTrack tiene un nivel gratuito y planes premium. Los precios técnicos base
+actuales para dueños son `UserPlus` ₡2,990/mes y `UserFamilia` ₡4,990/mes. Los
+planes pagados pueden contratarse por 1, 3, 6 o 12 meses; el plazo anual tiene
+20% de descuento. Las ofertas B2B y B2G tienen condiciones separadas y
+activación manual. Las recompensas y cualquier flujo de custodia de fondos
+requieren validación legal y operativa antes de presentarse como servicio
+financiero activo. Para el detalle vigente usar [consolidado.md](consolidado.md).
 
 - POR QUE TE ESCRIBO -
 
@@ -132,7 +134,8 @@ https://pawtrack.cr
   oficial de SENASA.
 - No prometer compensacion economica, publicidad cruzada o un badge sin
   aprobación previa.
-- Si preguntan por precios, usar [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md).
+- Si preguntan por precios, usar [consolidado.md](consolidado.md) y
+  [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md).
 - Si preguntan por estado tecnico, usar [STATUS.md](STATUS.md).
 - Compartir `https://pawtrack.cr` solo cuando el ambiente publico esté
   disponible y validado.

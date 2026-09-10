@@ -80,6 +80,7 @@ public static class InfrastructureServiceCollectionExtensions
         // EF Core
         services.AddDbContext<PawTrackDbContext>(options =>
         {
+            options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
             options.UseSqlServer(
                 configuration.GetConnectionString("DefaultConnection"),
                 sqlOptions =>

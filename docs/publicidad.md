@@ -1,15 +1,19 @@
 # PawTrack CR — Guía de Publicidad: Vallas In-App
 
 > **Audiencia:** Equipo de ventas, Admin de PawTrack CR  
-> **Versión:** 1.0 | **Última actualización:** 2026-08-19  
+> **Versión:** 1.1 | **Última actualización:** 2026-09-10
 > **Confidencialidad:** Uso interno — no compartir directamente con clientes
+>
+> **Estado comercial:** propuesta de tarifas. El backend actual no implementa
+> checkout, facturación, CPM/CPC/CPA ni ledger de cargos para vallas. No usar
+> estos importes como precios activos hasta aprobación e implementación.
 
 ---
 
 ## Tabla de contenidos
 
 1. [¿Qué son las vallas in-app?](#1-qué-son-las-vallas-in-app)
-2. [Los 4 placements disponibles](#2-los-4-placements-disponibles)
+2. [Los placements disponibles](#2-los-placements-disponibles)
 3. [Planes y precios](#3-planes-y-precios)
 4. [Descuentos y condiciones especiales](#4-descuentos-y-condiciones-especiales)
 5. [Quién puede anunciarse](#5-quién-puede-anunciarse)
@@ -32,13 +36,19 @@ Las vallas publicitarias de PawTrack CR son **tarjetas visuales dismissibles** q
 
 - **Sin instalación**: la plataforma ya está activa — el anuncio aparece inmediatamente al activarlo.
 - **Audience 100% relevante**: solo personas que tienen o buscan mascotas.
-- **No invasivas**: el usuario puede cerrarla; no vuelve a aparecer en 24 horas.
+- **No invasivas**: el usuario puede cerrarla durante la vista actual; al volver
+  o recargar, una campaña activa vuelve a ser elegible.
 - **Con llamado a la acción (CTA)**: botón que lleva directamente al sitio web o WhatsApp del anunciante.
 - **Imagen + texto**: visual atractivo con título, descripción y botón.
 
 ---
 
 ## 2. Placements disponibles
+
+Este documento conserva la propuesta comercial de los cuatro placements base
+(`Map`, `Dashboard`, `Directory` y `Feed`). El producto técnico actual tiene
+15 placements; los placements adicionales se describen en
+[consolidado.md](consolidado.md) y aún no tienen tarifa aprobada individual.
 
 ### 🗺️ Placement: MAP — Mapa público
 
@@ -133,12 +143,12 @@ Servicios de búsqueda profesional de mascotas, collares GPS (Tractive), chips R
 
 ### 3.2 Paquetes combinados
 
-| Paquete            | Descripción                       | Precio/mes | Precio/año | Ahorro anual |
-| ------------------ | --------------------------------- | :--------: | :--------: | :----------: |
-| 🟢 **Starter**     | Map — 1 semana                    |  ₡18,000   |     —      |      —       |
-| 🔵 **Visibilidad** | Map + Dashboard — 1 mes           |  ₡75,000   |  ₡720,000  |   ₡180,000   |
-| 🟣 **Presencia**   | Todos los 4 placements — 1 mes    |  ₡175,000  | ₡1,680,000 |   ₡420,000   |
-| 🟡 **Socio Anual** | Todos los 4 placements — 12 meses |     —      | ₡1,400,000 |   ₡700,000   |
+| Paquete            | Descripción                                   | Precio/mes | Precio/año | Ahorro anual |
+| ------------------ | --------------------------------------------- | :--------: | :--------: | :----------: |
+| 🟢 **Starter**     | Map — 1 semana                                |  ₡18,000   |     —      |      —       |
+| 🔵 **Visibilidad** | Map + Dashboard — 1 mes                       |  ₡75,000   |  ₡720,000  |   ₡180,000   |
+| 🟣 **Presencia**   | Map + Dashboard + Directory + Feed — 1 mes    |  ₡175,000  | ₡1,680,000 |   ₡420,000   |
+| 🟡 **Socio Anual** | Map + Dashboard + Directory + Feed — 12 meses |     —      | ₡1,400,000 |   ₡700,000   |
 
 ### 3.3 Add-on: Exclusividad de categoría
 
@@ -163,7 +173,10 @@ Ejemplo: una veterinaria paga la exclusividad de categoría en Map — ninguna o
 | Adopciones o ferias                     |                             ₡30,000 |
 | Confirmación de registro o CollarTag    |                             ₡25,000 |
 
-> Este documento es la fuente comercial única para vallas. Los valores no incluyen IVA; las campañas de Feed y Case Room solo admiten categorías de recuperación aprobadas.
+> Estas tarifas son la propuesta comercial de referencia para vallas. No son
+> precios activos ni sustituyen la aprobación de facturación. Los valores no
+> incluyen IVA; las campañas de Feed y Case Room solo admiten categorías de
+> recuperación aprobadas. La fuente consolidada es [consolidado.md](consolidado.md).
 
 ---
 
@@ -487,7 +500,8 @@ Depende del placement y del crecimiento de la plataforma. En la etapa actual (la
 Sí, podemos pausarlo temporalmente para hacer cambios en la imagen. Los textos se ajustan recreando la valla (tarda ~5 minutos). No tiene costo adicional si es un ajuste menor.
 
 **¿Qué pasa si el usuario cierra mi anuncio?**  
-El sistema registra que ese usuario cerró esa valla específica y no la vuelve a mostrar por 24 horas. Al día siguiente puede aparecer de nuevo si el usuario regresa.
+El sistema registra el cierre y oculta la valla durante la vista actual. Al
+volver a la ruta o recargar, una campaña activa vuelve a ser elegible.
 
 **¿Puedo elegir en qué zona del país aparece el anuncio?**  
 Actualmente no — las vallas se muestran a todos los usuarios sin segmentación geográfica. La segmentación por zona es una feature planificada para el futuro. Si es importante para tu negocio, el placement Map es el más cercano a geolocalización (el usuario ve el mapa de su zona).

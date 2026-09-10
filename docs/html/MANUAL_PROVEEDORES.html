@@ -16,8 +16,13 @@
     <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>
     <li><a href="FEATURES.html" class="h2">🧭 Features por Plan</a></li>
     <li><a href="PRICING_AND_PLANS.html" class="h2">💳 Planes y Capacidades</a></li>
+    <li><a href="planes.html" class="h2">📋 Catálogo de Planes y Tiers</a></li>
+    <li><a href="precios.html" class="h2">📊 Precios y Modelo Comercial</a></li>
+    <li><a href="publicidad.html" class="h2">🪧 Guía de Publicidad y Vallas</a></li>
     <li><a href="inversionistas.html" class="h2">💼 Pitch para Inversionistas</a></li>
+    <li><a href="influencer.html" class="h2">🤝 Colaboración con Influencers</a></li>
     <li><a href="API_REFERENCE.html" class="h2">🔌 Referencia API</a></li>
+    <li><a href="B2B_ESTADO_ACTUAL.html" class="h2">🏢 Estado Actual B2B</a></li>
     <li><a href="CONSOLIDACION_DOCUMENTAL.html" class="h2">🗂️ Consolidación Documental</a></li>
     <li><a href="COLLAR_CURRENT_STATE.html" class="h2">📡 Estado Actual de Collares</a></li>
     <li><a href="ADOPTIONS_CURRENT_STATE.html" class="h2">🏡 Estado Actual de Adopciones</a></li>
@@ -30,7 +35,7 @@
     <li><a href="MANUAL_CLINICAS.html" class="h2">🏥 Manual de Clínicas Veterinarias</a></li>
     <li><a href="MANUAL_MUNICIPALIDADES.html" class="h2">🏛️ Manual de Municipalidades</a></li>
     <li><a href="MANUAL_TIENDAS.html" class="h2">🏪 Manual de Tiendas</a></li>
-    <li><a href="MANUAL_PROVEEDORES.html" class="h2">🧰 Manual de Proveedores</a></li>
+    <li><a href="MANUAL_PROVEEDORES.html" class="h2 active">🧰 Manual de Proveedores</a></li>
     <li><a href="MANUAL_SOPORTE.html" class="h2">🎧 Manual de Soporte</a></li>
     <li><a href="MANUAL_TECNICO.html" class="h2">🛠️ Manual Técnico</a></li>
     <li><a href="GUIA_ONBOARDING_DEV.html" class="h2">🚀 Guía de Onboarding Dev</a></li>
@@ -45,6 +50,7 @@
     <li><a href="GUIA_INTEGRACIONES_WEBHOOKS.html" class="h2">🔗 Integraciones y Webhooks</a></li>
     <li><a href="RUNBOOK_JOBS_BACKGROUND.html" class="h2">⏱️ Jobs en Background</a></li>
     <li><a href="RUNBOOK_MODERACION_Y_BIENESTAR.html" class="h2">🐾 Moderación y Bienestar</a></li>
+    <li><a href="CUMPLIMIENTO_PROTECCION_DATOS.html" class="h2">📜 Cumplimiento Protección de Datos</a></li>
     <li><a href="POLITICA_DE_PRIVACIDAD.html" class="h2">🔒 Política de Privacidad</a></li>
     <li><a href="TERMINOS_DE_USO.html" class="h2">📋 Términos de Uso</a></li>
   </ul></nav>
@@ -53,10 +59,21 @@
   <div id="content"><p style="color:#888;padding:2rem">Cargando…</p></div>
 </main>
 <script>
-const md = "# Manual de Proveedores de Servicios - PawTrack CR\r\n\r\n**Version:** 1.0  \r\n**Rol:** `ServiceProvider`  \r\n**Audiencia:** profesionales y negocios de servicios para mascotas  \r\n**Ultima actualizacion:** 2026-09-09\r\n\r\n## 1. Registro y estados\r\n\r\nRegistra tu servicio en `/servicio/registro` con categoria, descripcion,\r\nubicacion y contacto. Las categorias actuales incluyen entrenador, grooming,\r\nhotel, daycare, paseador, fotografo y otros.\r\n\r\nConsulta `/servicio/pendiente` durante la revision. Cuando el perfil esta\r\nactivo aparece en `/servicios` y tiene portal en `/servicio/portal`. Un perfil\r\nrechazado o suspendido no debe presentarse como verificado.\r\n\r\n## 2. Prueba de membresia\r\n\r\nLa aprobacion inicial puede activar una prueba unica de 30 dias de membresia\r\n`Verified`. La prueba no se reinicia al reactivar un perfil suspendido. Al\r\nvencer, el perfil vuelve a `Free` salvo una membresia manual administrada por\r\nPawTrack.\r\n\r\n`Free` conserva el directorio y contacto basico. Catalogo, disponibilidad y\r\nreservas requieren membresia distinta de `Free`. No existen aun comisiones,\r\npayouts, reembolsos o precios recurrentes aprobados para este rol.\r\n\r\n## 3. Configurar el perfil y el catalogo\r\n\r\nEn `/servicio/portal/perfil` actualiza nombre, categoria, descripcion,\r\ndireccion, telefono, sitio web y WhatsApp profesional.\r\n\r\nEn `/servicio/portal/servicios` crea cada servicio con modalidad, duracion,\r\nprecio en colones y capacidad. Publica solo servicios que realmente puedas\r\nprestar. Puedes activar o desactivar servicios sin eliminar el historial.\r\n\r\nDefine reglas de disponibilidad por dia y hora local de Costa Rica. Usa bloqueos\r\npara vacaciones, mantenimiento o ausencia temporal; elimina solo los bloqueos\r\nque ya no apliquen.\r\n\r\n## 4. Reservas\r\n\r\nEn `/servicio/portal/reservas` revisa las solicitudes entrantes y actualiza su\r\nestado conforme confirmes, inicies y completes el servicio. Revisa fecha,\r\ncapacidad y modalidad antes de aceptar. El cliente consulta sus reservas desde\r\n`/mis-reservas`.\r\n\r\nLa cancelacion o reprogramacion debe llevar una razon clara y respetar las\r\npoliticas operativas mostradas por la plataforma. Los pagos de reserva son un\r\nflujo reportado y no deben describirse como liquidacion automatica de PawTrack.\r\n\r\n## 5. Verificacion e incidentes\r\n\r\nEn `/servicio/portal/verificacion` carga evidencia privada en PDF, JPEG, PNG o\r\nWebP de hasta 5 MB. El sello **Verificado por PawTrack CR** no equivale a una\r\nlicencia estatal.\r\n\r\nConsulta incidentes propios en el portal y aporta evidencia factual. No\r\nincluyas datos de salud ni documentos de clientes salvo que el proceso de\r\nsoporte lo solicite expresamente.\r\n\r\n## 6. Seguridad\r\n\r\n- Administra solo recursos de tu propio proveedor.\r\n- No compartas credenciales ni enlaces privados de verificacion.\r\n- Reporta una reserva sospechosa con su identificador.\r\n- Revisa [SERVICE_PROVIDERS_THREAT_MODEL.md](../SERVICE_PROVIDERS_THREAT_MODEL.md)\r\n  para las reglas de seguridad del dominio.\r\n";
+const md = "# Manual de Proveedores de Servicios - PawTrack CR\r\n\r\n**Version:** 1.0  \r\n**Rol:** `ServiceProvider`  \r\n**Audiencia:** profesionales y negocios de servicios para mascotas  \r\n**Ultima actualizacion:** 2026-09-10\r\n\r\n## 1. Registro y estados\r\n\r\nRegistra tu servicio en `/servicio/registro` con categoria, descripcion,\r\nubicacion y contacto. Las categorias actuales incluyen entrenador, grooming,\r\nhotel, daycare, paseador, fotografo y otros.\r\n\r\nEl directorio publico se consulta en `/servicios` y cada perfil en\r\n`/servicios/:id`; ambos pueden mostrar vallas publicitarias activas del\r\nplacement correspondiente.\r\n\r\nConsulta `/servicio/pendiente` durante la revision. Cuando el perfil esta\r\nactivo aparece en `/servicios` y tiene portal en `/servicio/portal`. Un perfil\r\nrechazado o suspendido no debe presentarse como verificado.\r\n\r\n## 2. Prueba de membresia\r\n\r\nLa aprobacion inicial puede activar una prueba unica de 30 dias de membresia\r\n`Verified`. La prueba no se reinicia al reactivar un perfil suspendido. Al\r\nvencer, el perfil vuelve a `Free` salvo una membresia manual administrada por\r\nPawTrack.\r\n\r\n`Free` conserva el directorio y contacto basico. Catalogo, disponibilidad y\r\nreservas requieren membresia distinta de `Free`. No existen aun comisiones,\r\npayouts, reembolsos o precios recurrentes aprobados para este rol.\r\n\r\n## 3. Configurar el perfil y el catalogo\r\n\r\nEn `/servicio/portal/perfil` actualiza nombre, categoria, descripcion,\r\ndireccion, telefono, sitio web y WhatsApp profesional.\r\n\r\nEn `/servicio/portal/servicios` crea cada servicio con modalidad, duracion,\r\nprecio en colones y capacidad. Publica solo servicios que realmente puedas\r\nprestar. Puedes activar o desactivar servicios sin eliminar el historial.\r\n\r\nDefine reglas de disponibilidad por dia y hora local de Costa Rica. Usa bloqueos\r\npara vacaciones, mantenimiento o ausencia temporal; elimina solo los bloqueos\r\nque ya no apliquen.\r\n\r\n## 4. Reservas\r\n\r\nEn `/servicio/portal/reservas` revisa las solicitudes entrantes y actualiza su\r\nestado conforme confirmes, inicies y completes el servicio. Revisa fecha,\r\ncapacidad y modalidad antes de aceptar. El cliente consulta sus reservas desde\r\n`/mis-reservas`.\r\n\r\nLa cancelacion o reprogramacion debe llevar una razon clara y respetar las\r\npoliticas operativas mostradas por la plataforma. Los pagos de reserva son un\r\nflujo reportado y no deben describirse como liquidacion automatica de PawTrack.\r\n\r\n## 5. Verificacion e incidentes\r\n\r\nEn `/servicio/portal/verificacion` carga evidencia privada en PDF, JPEG, PNG o\r\nWebP de hasta 5 MB. El sello **Verificado por PawTrack CR** no equivale a una\r\nlicencia estatal.\r\n\r\nConsulta incidentes propios en el portal y aporta evidencia factual. No\r\nincluyas datos de salud ni documentos de clientes salvo que el proceso de\r\nsoporte lo solicite expresamente.\r\n\r\n## 6. Seguridad\r\n\r\n- Administra solo recursos de tu propio proveedor.\r\n- No compartas credenciales ni enlaces privados de verificacion.\r\n- Reporta una reserva sospechosa con su identificador.\r\n- Revisa [SERVICE_PROVIDERS_THREAT_MODEL.md](../SERVICE_PROVIDERS_THREAT_MODEL.md)\r\n  para las reglas de seguridad del dominio.\r\n";
 const html = DOMPurify.sanitize(marked.parse(md));
 const content = document.getElementById('content');
 content.innerHTML = html;
+
+// Rewrite relative .md links to .html within docs/html
+content.querySelectorAll('a').forEach(a => {
+  const href = a.getAttribute('href');
+  if (href && !href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('#') && !href.startsWith('mailto:')) {
+    const m = href.match(/^(?:(?:\.\.\/)*)?(?:(?:docs|Manuales)\/)*([A-Za-z0-9_-]+)\.md(#.*)?$/i);
+    if (m) {
+      a.setAttribute('href', m[1] + '.html' + (m[2] || ''));
+    }
+  }
+});
 
 // Build sidebar nav from rendered headings
 const headings = content.querySelectorAll('h2, h3');

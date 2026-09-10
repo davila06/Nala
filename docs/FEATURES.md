@@ -1,7 +1,7 @@
 # PawTrack CR — Matriz de features por plan
 
 > Fuente de verdad: enums y pricing del backend en `SubscriptionTier` y `SubscriptionPricing`.
-> Revisión: 2026-09-06
+> Revisión: 2026-09-10
 > Estado: alineado con la implementación actual del código.
 
 ## 1. Nota importante sobre tiers reales
@@ -14,6 +14,10 @@ La implementación actual del backend usa estas suscripciones activas:
 - Clínicas: `ClinicPlus`, `ClinicPartner`
 - Municipalidades: `MuniBasica`, `MuniFull`, `MuniRedRegional`
 - Proveedores de servicios: no tienen tiers de suscripción ni pagos aprobados aún.
+
+Los planes B2C pagados (`UserPlus` y `UserFamilia`) aceptan compras de 1, 3,
+6 o 12 meses. Solo la compra de 12 meses aplica 20% de descuento sobre doce
+mensualidades. Esta modalidad no aplica a B2B/B2G.
 
 Los valores `ClinicBasic`, `StoreBasic`, `ShelterBasic` existen como estados o marcadores libres de directorio, pero no forman el flujo de pago/activación principal del código actual. La documentación debe tratar esos estados como free/entry points, no como planes de compra activados en producción.
 
@@ -57,16 +61,16 @@ Los valores `ClinicBasic`, `StoreBasic`, `ShelterBasic` existen como estados o m
 
 ## 3. B2B — Tiendas de mascotas
 
-| Feature                         | StorePlus | StorePartner |
-| ------------------------------- | --------- | ------------ |
-| Directorio y catálogo público   | Sí        | Sí           |
-| Pedidos in-app                  | Sí        | Sí           |
-| Checkout SINPE Móvil            | Sí        | Sí           |
-| Gestión de pedidos              | Sí        | Sí           |
-| Badge / destaque en mapa        | Sí        | Sí           |
-| Analytics avanzados             | No        | Sí           |
-| Multi-sucursal / multi-location | No        | Sí           |
-| Posicionamiento prioritario     | No        | Sí           |
+| Feature                         | StorePlus                                         | StorePartner                                      |
+| ------------------------------- | ------------------------------------------------- | ------------------------------------------------- |
+| Directorio y catálogo público   | Sí                                                | Sí                                                |
+| Pedidos in-app                  | Sí                                                | Sí                                                |
+| Checkout SINPE Móvil            | No es checkout de PawTrack; pago manual si aplica | No es checkout de PawTrack; pago manual si aplica |
+| Gestión de pedidos              | Sí                                                | Sí                                                |
+| Badge / destaque en mapa        | Sí                                                | Sí                                                |
+| Analytics avanzados             | No                                                | Sí                                                |
+| Multi-sucursal / multi-location | No                                                | Sí                                                |
+| Posicionamiento prioritario     | No                                                | Sí                                                |
 
 ### Gating real
 
@@ -136,16 +140,16 @@ Los valores `ClinicBasic`, `StoreBasic`, `ShelterBasic` existen como estados o m
 
 ## 7. B2B — Proveedores de servicios
 
-| Feature                                           | Estado actual                       |
-| ------------------------------------------------- | ----------------------------------- |
-| Registro, aprobación y perfil público             | Sí                                  |
-| Directorio con categoría, modalidad y precio      | Sí                                  |
-| Catálogo de servicios y disponibilidad            | Sí                                  |
-| Reservas, capacidad, cancelación y reprogramación | Sí                                  |
-| Verificación documental privada                   | Sí                                  |
-| Notificaciones y jobs de vencimiento              | Sí                                  |
-| Pagos, comisiones, reembolsos y disputas          | No; pendiente de decisión comercial |
-| Tiers B2B de proveedores                          | No definidos                        |
+| Feature                                            | Estado actual                       |
+| -------------------------------------------------- | ----------------------------------- |
+| Registro, aprobación y perfil público              | Sí                                  |
+| Directorio con categoría, modalidad y precio       | Sí                                  |
+| Catálogo de servicios y disponibilidad             | Sí                                  |
+| Reservas, capacidad, cancelación y reprogramación  | Sí                                  |
+| Verificación documental privada                    | Sí                                  |
+| Notificaciones y jobs de vencimiento               | Sí                                  |
+| Pagos comerciales, comisiones, reembolsos y payout | No; pendiente de decisión comercial |
+| Tiers B2B de proveedores                           | No definidos                        |
 
 Las categorías actuales son `Trainer`, `Groomer`, `Hotel`, `Daycare`, `Walker`,
 `Photographer` y `Other`. La verificación visible se presenta como
@@ -164,7 +168,15 @@ El backend es la autoridad final para validar plan activo. En la práctica, la l
 
 ---
 
-## 9. Estado de los documentos
+## 9. Roles y superficies
+
+Los roles reales son `Owner`, `Ally`, `Admin`, `Clinic`, `Municipality`,
+`Store`, `ServiceProvider` y `Support`. NALA es una superficie institucional
+protegida para `Admin` y no un rol independiente emitido por `UserRole`.
+La autorización concreta combina rol, ownership, tenant, suscripción, scope,
+verificación y grants. Ver [API_AUTHORIZATION_MATRIX.md](API_AUTHORIZATION_MATRIX.md).
+
+## 10. Estado de los documentos
 
 La suma de features por plan se debe interpretar como la realidad actual del app, no como objetivos futuros. Los documentos definitivos deben respetar la siguiente fuente de verdad:
 

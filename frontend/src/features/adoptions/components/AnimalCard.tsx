@@ -22,6 +22,7 @@ export function AnimalCard({ animal }: AnimalCardProps) {
   return (
     <Link
       to={`/adopciones/${animal.id}`}
+      aria-label={`Ver historia, requisitos y notas de ${animal.name}`}
       className="group rounded-2xl border border-sand-100 bg-surface hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
     >
       {/* Photo */}
@@ -92,6 +93,13 @@ export function AnimalCard({ animal }: AnimalCardProps) {
 
         <p className="text-[11px] text-sand-400 line-clamp-1">
           📍 {animal.refLabel ?? "Costa Rica"}
+        </p>
+
+        <p className="text-xs text-sand-500 line-clamp-1">
+          <span>Publicado por</span>{" "}
+          <strong className="font-semibold text-sand-700">
+            {animal.organizationName}
+          </strong>
         </p>
 
         <p className="text-xs text-sand-500 line-clamp-2 leading-relaxed">

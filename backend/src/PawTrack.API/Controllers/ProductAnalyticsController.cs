@@ -66,7 +66,7 @@ public sealed class ProductAnalyticsController(ISender sender) : ControllerBase
             });
 
         var result = await sender.Send(
-            new GetProductFunnelQuery(start, end, canton, shelterId?.ToString()),
+            new GetProductFunnelQuery(start, end, canton),
             cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : Problem();
     }
@@ -92,7 +92,7 @@ public sealed class ProductAnalyticsController(ISender sender) : ControllerBase
             });
 
         var result = await sender.Send(
-            new GetProductFunnelQuery(start, end, canton, shelterId?.ToString()),
+            new GetProductFunnelQuery(start, end, canton),
             cancellationToken);
         if (result.IsFailure) return Problem();
 

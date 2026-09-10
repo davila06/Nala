@@ -7,6 +7,10 @@
 > gates del backend. Este documento no convierte una capacidad tecnica en una
 > promesa comercial automaticamente.
 
+> La activación B2B/B2G y los planes B2C se procesan actualmente mediante
+> solicitud y verificación manual de SINPE. No existe checkout recurrente
+> universal, renovación automática universal ni autoservicio municipal.
+
 ## B2C
 
 | Plan        | Estado tecnico | Capacidad principal                                |

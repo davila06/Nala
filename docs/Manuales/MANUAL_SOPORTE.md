@@ -3,7 +3,7 @@
 **Version:** 1.0  
 **Rol:** `Support`  
 **Audiencia:** personal de soporte operativo autorizado  
-**Ultima actualizacion:** 2026-09-09
+**Ultima actualizacion:** 2026-09-10
 
 ## 1. Alcance del rol
 
@@ -18,8 +18,8 @@ usuarios, clinicas, tiendas o configuracion de seguridad.
 
 ## 2. Casos de bienestar
 
-La cola administrativa esta disponible en la superficie de administracion de
-bienestar. El flujo recomendado es:
+La cola administrativa esta disponible en la pestana **Bienestar** de `/admin`.
+El flujo recomendado es:
 
 1. Filtrar por estado, severidad y canton.
 2. Abrir el detalle y revisar solo la evidencia necesaria.
