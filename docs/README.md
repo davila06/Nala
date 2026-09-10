@@ -31,6 +31,7 @@ Estados documentales:
 | [consolidado.md](consolidado.md)                                                 | NALA, roles, features por rol y matriz completa de planes |
 | [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md)                                     | Fuente comercial consolidada                              |
 | [inversionistas.md](inversionistas.md)                                           | Pitch informativo sujeto a due diligence                  |
+| [VALLAS_COMERCIALES.md](VALLAS_COMERCIALES.md)                                   | Dossier comercial para anunciantes de vallas              |
 | [PawTrack_Documento_Maestro_v3.1.md](PawTrack_Documento_Maestro_v3.1.md)         | Arquitectura y especificacion consolidada                 |
 | [pruebas.md](pruebas.md)                                                         | Usuarios, runtime local y validacion manual               |
 | [RUNBOOK_OPERACIONES.md](RUNBOOK_OPERACIONES.md)                                 | Operacion, incidentes y continuidad                       |

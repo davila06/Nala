@@ -32,10 +32,18 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
         if (!string.IsNullOrWhiteSpace(correlationId))
             query = query.Where(x => x.CorrelationId == correlationId);
 
-        return await query
+        var rows = await query
             .GroupBy(x => x.EventName)
-            .Select(group => new ProductEventCount(group.Key, group.Count()))
+            .Select(group => new
+            {
+                EventName = group.Key,
+                Count = group.Count(),
+            })
             .OrderByDescending(x => x.Count)
             .ToListAsync(cancellationToken);
+
+        return rows
+            .Select(row => new ProductEventCount(row.EventName, row.Count))
+            .ToList();
     }
 }
