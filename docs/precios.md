@@ -1,5 +1,8 @@
 # PawTrack CR — Estrategia de Precios
 
+> **Estado: HISTORICO/DRAFT.** Consultar
+> [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md) para tiers y precios tecnicos.
+
 > **Estado: HISTORICO/DRAFT.** Consultar [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md)
 > para la matriz consolidada. Las propuestas de este archivo requieren nueva
 > aprobacion comercial y legal.

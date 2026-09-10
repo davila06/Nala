@@ -1,5 +1,8 @@
 # Manual NALA Core
 
+> **Estado: DETALLE OPERATIVO.** La fuente canonica de NALA y reportes es
+> [NALA_REPORTING_GUIDE.md](NALA_REPORTING_GUIDE.md).
+
 ## Propósito
 
 NALA Core presenta indicadores agregados de PawTrack CR para coordinación

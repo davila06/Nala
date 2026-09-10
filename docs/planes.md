@@ -1,5 +1,9 @@
 # PawTrack CR — Planes y precios
 
+> **Estado: HISTORICO.** La fuente canonica es
+> [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md). No activar planes ni cambiar
+> precios desde este archivo.
+
 > **Estado: HISTORICO.** La fuente consolidada es
 > [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md). Este archivo se conserva por
 > trazabilidad y no debe usarse para nuevas decisiones comerciales.

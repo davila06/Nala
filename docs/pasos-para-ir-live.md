@@ -1,5 +1,9 @@
 # Pasos para ir live en Azure para PawTrack CR
 
+> **Estado: HISTORICO/PLAN DE GO-LIVE.** La secuencia vigente esta en
+> [RUNBOOK_DEPLOYMENT.md](RUNBOOK_DEPLOYMENT.md); los nombres de recursos y
+> claims de este documento requieren validacion antes de uso.
+
 > Última actualización: 2026-08-19  
 > Ver también: `checklist-lanzamiento.md` para el checklist rápido y `pre.md` para prerequisites.
 

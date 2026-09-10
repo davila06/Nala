@@ -22,8 +22,10 @@ public sealed class Subscription
     public Guid? RedeemedPromotionCodeId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset? ActivatedAt { get; private set; }
+    public DateTimeOffset? StartsAt { get; private set; }
     public DateTimeOffset? ExpiresAt { get; private set; }
     public DateTimeOffset? CancelledAt { get; private set; }
+    public DateTimeOffset? CancellationRequestedAt { get; private set; }
 
     // ── Factories ─────────────────────────────────────────────────────────────
 
@@ -38,6 +40,30 @@ public sealed class Subscription
             Status = SubscriptionStatus.PendingPayment,
             PaymentReference = paymentReference,
             AmountCrc = amountCrc,
+            CreatedAt = DateTimeOffset.UtcNow,
+        };
+    }
+
+    public static Subscription CreateScheduledForUser(
+        Guid userId,
+        SubscriptionTier tier,
+        string paymentReference,
+        decimal amountCrc,
+        DateTimeOffset startsAt)
+    {
+        ValidateUserTier(tier);
+        if (startsAt <= DateTimeOffset.UtcNow)
+            throw new ArgumentException("Scheduled subscription must start in the future.", nameof(startsAt));
+
+        return new Subscription
+        {
+            Id = Guid.CreateVersion7(),
+            UserId = userId,
+            Tier = tier,
+            Status = SubscriptionStatus.PendingPayment,
+            PaymentReference = paymentReference,
+            AmountCrc = amountCrc,
+            StartsAt = startsAt,
             CreatedAt = DateTimeOffset.UtcNow,
         };
     }
@@ -87,7 +113,8 @@ public sealed class Subscription
 
         Status = SubscriptionStatus.Active;
         ActivatedAt = DateTimeOffset.UtcNow;
-        ExpiresAt = DateTimeOffset.UtcNow.AddMonths(billingMonths);
+        var effectiveStart = StartsAt ?? DateTimeOffset.UtcNow;
+        ExpiresAt = effectiveStart.AddMonths(billingMonths);
     }
 
     public void Cancel()
@@ -95,8 +122,7 @@ public sealed class Subscription
         if (Status != SubscriptionStatus.Active)
             throw new InvalidOperationException("Only active subscriptions can be cancelled.");
 
-        Status = SubscriptionStatus.Cancelled;
-        CancelledAt = DateTimeOffset.UtcNow;
+        CancellationRequestedAt ??= DateTimeOffset.UtcNow;
     }
 
     public void MarkExpired()
@@ -114,7 +140,9 @@ public sealed class Subscription
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    public bool IsActive => Status == SubscriptionStatus.Active && ExpiresAt > DateTimeOffset.UtcNow;
+    public bool IsActive => Status == SubscriptionStatus.Active
+        && (StartsAt is null || StartsAt <= DateTimeOffset.UtcNow)
+        && ExpiresAt > DateTimeOffset.UtcNow;
 
     private static void ValidateUserTier(SubscriptionTier tier)
     {

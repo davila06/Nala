@@ -9,6 +9,8 @@ public interface ISubscriptionRepository
     Task<Subscription?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Subscription?> GetByPaymentReferenceAsync(string reference, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Subscription>> GetPendingAsync(CancellationToken cancellationToken = default);
+    Task<Subscription?> GetPendingForUserAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Subscription>> GetScheduledDueAsync(CancellationToken cancellationToken = default);
     /// <summary>Active subscriptions whose ExpiresAt has already passed — candidates for expiration.</summary>
     Task<IReadOnlyList<Subscription>> GetExpiredActiveAsync(CancellationToken cancellationToken = default);
     /// <summary>Active subscriptions expiring within the given number of days — candidates for renewal reminder.</summary>

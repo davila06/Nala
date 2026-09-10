@@ -460,7 +460,7 @@ El contenedor de SQL Server lee la contraseña desde `secrets/sa_password.txt`. 
 Crea el archivo manualmente:
 
 ```powershell
-"TuContraseñaSegura123!" | Set-Content -Path "secrets\sa_password.txt" -Encoding UTF8 -NoNewline
+"<GENERATE_LOCAL_SQL_PASSWORD>" | Set-Content -Path "secrets\sa_password.txt" -Encoding UTF8 -NoNewline
 ```
 
 Requisitos de la contraseña de SQL Server:
@@ -521,10 +521,11 @@ El archivo `appsettings.Development.json` ya incluye la configuración para el e
 Si usas el contenedor Docker (no LocalDB), actualiza la connection string en `appsettings.Development.json`:
 
 ```json
-"DefaultConnection": "Server=localhost,1433;Database=PawTrackDev;User Id=sa;Password=TuContraseñaSegura123!;TrustServerCertificate=True;"
+"DefaultConnection": "Server=localhost,1433;Database=PawTrackDev;User Id=sa;Password=<LOCAL_SQL_PASSWORD>;TrustServerCertificate=True;"
 ```
 
-Reemplaza `TuContraseñaSegura123!` con la contraseña que pusiste en `secrets/sa_password.txt`.
+Reemplaza `<LOCAL_SQL_PASSWORD>` con la contraseña que pusiste en
+`secrets/sa_password.txt`; no escribas ese valor en el documento.
 
 > **Secretos de producción:** Nunca pongas secretos reales en `appsettings.json` ni en `appsettings.Development.json`. En producción todos los secretos vienen de Azure Key Vault. Ver sección 15.
 

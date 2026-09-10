@@ -7,6 +7,7 @@ using PawTrack.Application.Subscriptions.Commands.AdminActivateSubscription;
 using PawTrack.Application.Subscriptions.Commands.CancelSubscription;
 using PawTrack.Application.Subscriptions.Commands.CreateSubscription;
 using PawTrack.Application.Subscriptions.Commands.ReportPayment;
+using PawTrack.Application.Subscriptions.Commands.ScheduleSubscriptionDowngrade;
 using PawTrack.Application.Subscriptions.Queries.GetAdminSubscriptions;
 using PawTrack.Application.Subscriptions.Queries.GetMySubscription;
 using PawTrack.Domain.Subscriptions;
@@ -116,6 +117,28 @@ public sealed class SubscriptionsController(ISender sender) : ControllerBase
         return Ok(result.Value);
     }
 
+    // ── POST /api/subscriptions/{id}/downgrade — effective at current expiry
+    [HttpPost("{id:guid}/downgrade")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> ScheduleDowngrade(
+        Guid id,
+        [FromBody] ScheduleDowngradeRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
+        var result = await sender.Send(
+            new ScheduleSubscriptionDowngradeCommand(id, userId, request.TargetTier),
+            cancellationToken);
+
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
+
+        return CreatedAtAction(nameof(GetMine), result.Value);
+    }
+
     // ── GET /api/subscriptions/admin — Admin: list all / pending only ────────
     [HttpGet("admin")]
     [Authorize(Roles = "Admin")]
@@ -174,3 +197,4 @@ public sealed class SubscriptionsController(ISender sender) : ControllerBase
 public sealed record CreateSubscriptionRequest(SubscriptionTier Tier, Guid? ClinicId);
 public sealed record ActivateSubscriptionRequest(string PaymentReference);
 public sealed record AdminActivateRequest(int BillingMonths = 1);
+public sealed record ScheduleDowngradeRequest(SubscriptionTier TargetTier);

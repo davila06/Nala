@@ -23,6 +23,7 @@ import { formatDate } from "@/shared/lib/formatDate";
 import {
   useMySubscription,
   useCancelSubscription,
+  useScheduleDowngrade,
   useReportPayment,
   useSubscriptionCatalog,
 } from "@/features/pets/hooks/useSubscription";
@@ -125,11 +126,13 @@ const STATUS_BADGE: Record<string, { label: string; color: string }> = {
 interface MiPlanCardProps {
   sub: SubscriptionDto | null;
   cancellingPlan: boolean;
+  schedulingDowngrade: boolean;
   reportingPayment: boolean;
   showCancelConfirm: boolean;
   setShowCancelConfirm: (v: boolean) => void;
   onUpgrade: (tier: SubscriptionTier) => void;
   onCancel: () => Promise<void>;
+  onDowngrade: () => Promise<void>;
   onReportPayment: () => Promise<void>;
   catalog?: SubscriptionPlanCatalogDto[];
 }
@@ -137,11 +140,13 @@ interface MiPlanCardProps {
 function MiPlanCard({
   sub,
   cancellingPlan,
+  schedulingDowngrade,
   reportingPayment,
   showCancelConfirm,
   setShowCancelConfirm,
   onUpgrade,
   onCancel,
+  onDowngrade,
   onReportPayment,
   catalog,
 }: MiPlanCardProps) {
@@ -151,6 +156,7 @@ function MiPlanCard({
   const isFree = tier === "Free";
   const isPending = status === "PendingPayment";
   const isActive = status === "Active";
+  const cancellationScheduled = Boolean(sub?.cancellationRequestedAt);
   const catalogPlan = catalog?.find((plan) => plan.tier === tier);
   const catalogPrice =
     catalogPlan?.annualPriceCrc ?? catalogPlan?.monthlyPriceCrc;
@@ -184,6 +190,13 @@ function MiPlanCard({
           <p className="text-xs text-sand-500">
             {isActive ? "Vence el" : "Venció el"}{" "}
             <strong>{formatDate(sub.expiresAt)}</strong>
+          </p>
+        )}
+
+        {cancellationScheduled && sub?.expiresAt && (
+          <p className="rounded-xl border border-warn-200 bg-warn-50 p-3 text-xs text-warn-800">
+            Renovación cancelada. Mantendrás {TIER_LABEL[tier] ?? tier} hasta el{" "}
+            {formatDate(sub.expiresAt)}.
           </p>
         )}
 
@@ -262,16 +275,28 @@ function MiPlanCard({
           </Button>
         )}
 
+        {isActive && tier === "UserFamilia" && !cancellationScheduled && (
+          <Button
+            variant="secondary"
+            loading={schedulingDowngrade}
+            onClick={() => void onDowngrade()}
+            className="w-full text-sm"
+          >
+            Programar cambio a Plus al vencimiento
+          </Button>
+        )}
+
         {/* Cancel */}
-        {isActive && !isFree && (
+        {isActive && !isFree && !cancellationScheduled && (
           <>
             {showCancelConfirm ? (
               <div className="rounded-xl border border-danger-200 bg-danger-50 p-3 space-y-2">
                 <p className="text-sm font-semibold text-danger-800">
-                  ¿Cancelar suscripción?
+                  ¿Cancelar renovación?
                 </p>
                 <p className="text-xs text-danger-700">
-                  Perderás acceso a funciones Plus/Familia al final del período.
+                  Conservarás tus funciones hasta el vencimiento del período
+                  actual.
                 </p>
                 <div className="flex gap-2">
                   <Button
@@ -297,7 +322,7 @@ function MiPlanCard({
                 className="text-xs text-danger-500 underline hover:text-danger-700"
                 onClick={() => setShowCancelConfirm(true)}
               >
-                Cancelar suscripción
+                Cancelar renovación
               </button>
             )}
           </>
@@ -318,6 +343,8 @@ export default function ProfilePage() {
     useDeleteAccount();
   const { mutate: exportMyDataMutation, isPending: exportingData } =
     useExportMyData();
+  const { mutateAsync: scheduleDowngrade, isPending: schedulingDowngrade } =
+    useScheduleDowngrade();
   const user = useAuthStore((s) => s.user);
   const {
     status: pushStatus,
@@ -507,6 +534,7 @@ export default function ProfilePage() {
         sub={mySub ?? null}
         catalog={planCatalog}
         cancellingPlan={cancellingPlan}
+        schedulingDowngrade={schedulingDowngrade}
         reportingPayment={reportingPayment}
         showCancelConfirm={showCancelConfirm}
         setShowCancelConfirm={setShowCancelConfirm}
@@ -516,9 +544,27 @@ export default function ProfilePage() {
           try {
             await cancelSub(mySub.id);
             setShowCancelConfirm(false);
-            toast.success("Suscripción cancelada.");
+            toast.success(
+              "Renovación cancelada. Mantendrás el plan hasta su vencimiento.",
+            );
           } catch {
             toast.error("No se pudo cancelar. Intenta de nuevo.");
+          }
+        }}
+        onDowngrade={async () => {
+          if (!mySub?.id) return;
+          try {
+            await scheduleDowngrade({
+              subscriptionId: mySub.id,
+              targetTier: "UserPlus",
+            });
+            toast.success(
+              "El cambio a Plus quedó programado para el vencimiento.",
+            );
+          } catch {
+            toast.error(
+              "No se pudo programar el cambio a Plus. Intenta de nuevo.",
+            );
           }
         }}
         onReportPayment={async () => {

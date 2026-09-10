@@ -1,8 +1,11 @@
 # Manual de Aliados — PawTrack CR
 
-**Versión:** 2.0  
+**Versión:** 3.0
 **Audiencia:** Organizaciones aliadas verificadas y solicitantes  
-**Última actualización:** 2026-09-06
+**Última actualización:** 2026-09-09
+
+> Rol del sistema: `Ally`. Los refugios aprobados (`AllyType = Shelter`) usan
+> además el flujo de adopciones descrito al final de este manual.
 
 ---
 

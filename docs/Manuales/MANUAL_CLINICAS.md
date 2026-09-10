@@ -1,7 +1,7 @@
 # Manual de Clínicas Veterinarias — PawTrack CR
 
-**Versión:** 2.0  
-**Audiencia:** Clínicas veterinarias afiliadas a la red PawTrack CR  
+**Versión:** 3.0
+**Audiencia:** Rol `Clinic`: clínicas veterinarias afiliadas a la red PawTrack CR
 **Última actualización:** 2026-09-09
 
 ---

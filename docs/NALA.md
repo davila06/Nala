@@ -1,5 +1,8 @@
 # NALA — Documento de Visión y Propósito
 
+> **Estado: VISION/CONTEXTO.** La operacion actual de NALA y reportes esta en
+> [NALA_REPORTING_GUIDE.md](NALA_REPORTING_GUIDE.md).
+
 > **NALA** es el nombre interno del proyecto que evolucionó en **PawTrack CR**.  
 > Última actualización: 2026-09-03
 

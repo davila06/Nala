@@ -1,5 +1,8 @@
 # PawTrack CR — Estrategia de Monetización
 
+> **Estado: HISTORICO/DRAFT.** Las propuestas de monetizacion no son billing
+> activo. La fuente de tiers es [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md).
+
 > **Estado: HISTORICO/DRAFT.** La fuente tecnica consolidada es
 > [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md). Las hipotesis de este archivo no
 > son precios ni comisiones activas.

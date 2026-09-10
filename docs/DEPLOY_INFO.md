@@ -1,5 +1,10 @@
 # PawTrack CR — Datos de Despliegue Beta
 
+> **Estado: HISTORICO/SENSIBLE.** La fuente operativa es
+> [RUNBOOK_DEPLOYMENT.md](RUNBOOK_DEPLOYMENT.md). Este archivo conserva
+> inventario beta, pero sus nombres y valores deben verificarse en Azure antes
+> de ejecutar cualquier comando.
+
 > Generado originalmente: 2026-04-13 | Actualizado: 2026-08-19  
 > Ambiente: **Beta**  
 > Cuenta Azure: `davila06@gmail.com`
@@ -134,8 +139,9 @@ Ver: `docs/PENDIENTES_BETA.md` para instrucciones detalladas.
 | Login      | `pawtrackadmin`                                       |
 | Password   | _(guardado en Key Vault secret `sql-admin-password`)_ |
 
-> ⚠️ El password SQL generado durante este despliegue es: `NcoD4~&^F%0B(y<+6gWhsYfq`  
-> **Guárdalo en tu gestor de contraseñas y elimina esta línea después de leerla.**
+> El password SQL no se documenta aquí. Consultar el gestor de secretos o
+> Key Vault mediante el procedimiento aprobado; nunca pegar credenciales en
+> Markdown, issues o commits.
 
 ---
 

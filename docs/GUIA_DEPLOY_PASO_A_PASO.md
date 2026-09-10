@@ -1,5 +1,9 @@
 # PawTrack CR — Guía de Deploy Paso a Paso
 
+> **Estado: HISTORICO/PROCEDIMIENTO DETALLADO.** El flujo canonico y los
+> criterios de rollback estan en [RUNBOOK_DEPLOYMENT.md](RUNBOOK_DEPLOYMENT.md).
+> Verificar todos los recursos y secretos antes de ejecutar comandos.
+
 > Ambiente: **PawnTrackBeta** (`PawnTrackBeta` resource group)  
 > Cuenta: `davila06@gmail.com` | Suscripción: `Azure subscription 1`  
 > **Última actualización: 2026-08-24** — incluye migraciones de adopciones, outbox, audit log y breed references
@@ -109,7 +113,7 @@ az keyvault secret set --vault-name $KV --name "appinsights-connection-string" -
 Write-Host "✔ appinsights-connection-string guardado"
 
 # 3.2 — SQL connection string
-$sqlPwd = "NcoD4~&^F%0B(y<+6gWhsYfq"   # <- reemplaza si usaste otro password
+$sqlPwd = az keyvault secret show --vault-name $KV --name "sql-admin-password" --query value -o tsv
 $sqlConnStr = "Server=tcp:$SQL.database.windows.net,1433;Initial Catalog=$DB;Persist Security Info=False;User ID=pawtrackadmin;Password=$sqlPwd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 az keyvault secret set --vault-name $KV --name "sql-connection-string" --value $sqlConnStr
 Write-Host "✔ sql-connection-string guardado"

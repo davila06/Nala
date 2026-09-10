@@ -1,5 +1,8 @@
 # PawTrack CR — Módulo de Adopciones: Especificación Técnica
 
+> **Estado: HISTORICO/ESPECIFICACION.** El estado implementado vigente esta en
+> [ADOPTIONS_CURRENT_STATE.md](ADOPTIONS_CURRENT_STATE.md).
+
 > **Versión:** 2.0 | **Fecha:** 2026-08-21
 > **Estado:** Listo para implementación — análisis basado en código real
 > **Audiencia:** Desarrolladores, PO
@@ -39,34 +42,34 @@ Costa Rica tiene entre **800,000–1,200,000 animales en situación de calle**. 
 
 El módulo de adopciones NO requiere infraestructura nueva. Es una **capa de features sobre lo que ya existe**:
 
-| Infraestructura existente | Cómo la reutiliza adopciones |
-|---|---|
-| `AllyType.Shelter` en `Domain/Allies/AllyType.cs` | El actor "organización de adopción" ya existe |
-| `IAllyProfileRepository.GetVerifiedByUserIdAsync` | Verificar que quien publica es un Ally verificado |
+| Infraestructura existente                             | Cómo la reutiliza adopciones                      |
+| ----------------------------------------------------- | ------------------------------------------------- |
+| `AllyType.Shelter` en `Domain/Allies/AllyType.cs`     | El actor "organización de adopción" ya existe     |
+| `IAllyProfileRepository.GetVerifiedByUserIdAsync`     | Verificar que quien publica es un Ally verificado |
 | `IBlobStorageService` + `BlobHelper.SanitizeFileName` | Fotos de animales en `adoption-photos/` container |
-| `INotificationDispatcher` | Nuevos métodos para alertas de adopción |
-| `INotificationRepository` + `NotificationType` enum | Historial de notificaciones de adopción |
-| `ChatThread` / `ChatMessage` domain | Canal enmascarado adoptante ↔ organización |
-| `UserRole.Ally` + `[Authorize(Roles = "Ally")]` | Proteger endpoints de publicación |
-| `IUserLocationRepository` | Alertas geofenceadas de ferias de adopción |
-| `IPiiScrubber` | Scrubbing de notas en chat |
-| `PagedResult<T>` | Paginación de listados |
-| `Result<T>` | Manejo de errores |
-| `GeoHelper.DistanceMetres` | Filtro por distancia |
-| `PetSpecies` enum | Especie del animal en adopción |
-| `SubscriptionTier` enum | Nuevo tier `ShelterBasic` / `ShelterPlus` |
-| Rate limiting `public-api` | Proteger endpoints públicos |
+| `INotificationDispatcher`                             | Nuevos métodos para alertas de adopción           |
+| `INotificationRepository` + `NotificationType` enum   | Historial de notificaciones de adopción           |
+| `ChatThread` / `ChatMessage` domain                   | Canal enmascarado adoptante ↔ organización        |
+| `UserRole.Ally` + `[Authorize(Roles = "Ally")]`       | Proteger endpoints de publicación                 |
+| `IUserLocationRepository`                             | Alertas geofenceadas de ferias de adopción        |
+| `IPiiScrubber`                                        | Scrubbing de notas en chat                        |
+| `PagedResult<T>`                                      | Paginación de listados                            |
+| `Result<T>`                                           | Manejo de errores                                 |
+| `GeoHelper.DistanceMetres`                            | Filtro por distancia                              |
+| `PetSpecies` enum                                     | Especie del animal en adopción                    |
+| `SubscriptionTier` enum                               | Nuevo tier `ShelterBasic` / `ShelterPlus`         |
+| Rate limiting `public-api`                            | Proteger endpoints públicos                       |
 
 ---
 
 ## 2. Actores y roles
 
-| Actor | `UserRole` en código | Capacidades |
-|---|---|---|
-| Visitante anónimo | — | Ver animales, ver mapa, buscar por filtros |
-| Usuario `Owner` | `UserRole.Owner` | Marcar interés, aplicar para adoptar, chatear |
-| Aliado verificado `Shelter` | `UserRole.Ally` | Publicar animales, gestionar aplicaciones, crear ferias |
-| Admin | `UserRole.Admin` | Moderar, destacar campañas, ver estadísticas globales |
+| Actor                       | `UserRole` en código | Capacidades                                             |
+| --------------------------- | -------------------- | ------------------------------------------------------- |
+| Visitante anónimo           | —                    | Ver animales, ver mapa, buscar por filtros              |
+| Usuario `Owner`             | `UserRole.Owner`     | Marcar interés, aplicar para adoptar, chatear           |
+| Aliado verificado `Shelter` | `UserRole.Ally`      | Publicar animales, gestionar aplicaciones, crear ferias |
+| Admin                       | `UserRole.Admin`     | Moderar, destacar campañas, ver estadísticas globales   |
 
 > `AllyType.Shelter` ya existe. Un Ally con `AllyType.Shelter` y `VerificationStatus.Verified` es automáticamente el actor de adopción. No se crea ningún rol nuevo.
 
@@ -75,21 +78,27 @@ El módulo de adopciones NO requiere infraestructura nueva. Es una **capa de fea
 ## 3. Casos de uso
 
 ### UC-01 — Publicar animal en adopción
+
 Ally verificado con `AllyType.Shelter` publica un animal con fotos, historia, requisitos y coordenadas de referencia (sin dirección exacta). Estado inicial: `Available`.
 
 ### UC-02 — Buscar y filtrar animales
+
 Anónimo o autenticado busca por `PetSpecies`, `PetSize`, `AgeCategory`, distancia GPS, y estado. El resultado incluye pins en el mapa público.
 
 ### UC-03 — Aplicar para adoptar
+
 `Owner` autenticado envía una aplicación de adopción. La organización recibe notificación. Se abre un `ChatThread` enmascarado para comunicación.
 
 ### UC-04 — Gestionar aplicaciones (organización)
+
 La organización ve todos los `AdoptionApplication` de un animal, cambia estados, y marca el animal como `InProcess` o `Adopted`.
 
 ### UC-05 — Crear feria de adopción (evento temporal)
+
 La organización crea un evento con fecha, lugar GPS y lista de animales presentes. El sistema envía alertas geofenceadas a usuarios en radio de 10km. Pin especial en el mapa.
 
 ### UC-06 — Seguimiento post-adopción (fase 2)
+
 El adoptante puede registrar actualizaciones con fotos. La organización hace check-in a los 30/90/365 días. Datos de éxito para el módulo de incentivos.
 
 ---
@@ -1527,8 +1536,18 @@ import { apiClient } from "@/shared/lib/apiClient";
 export type PetSpecies = "Dog" | "Cat" | "Bird" | "Rabbit" | "Other";
 export type PetSize = "XSmall" | "Small" | "Medium" | "Large" | "XLarge";
 export type AgeCategory = "Puppy" | "Young" | "Adult" | "Senior";
-export type AdoptionStatus = "Available" | "InProcess" | "Adopted" | "Paused" | "Removed";
-export type ApplicationStatus = "Pending" | "UnderReview" | "Approved" | "Rejected" | "Withdrawn";
+export type AdoptionStatus =
+  | "Available"
+  | "InProcess"
+  | "Adopted"
+  | "Paused"
+  | "Removed";
+export type ApplicationStatus =
+  | "Pending"
+  | "UnderReview"
+  | "Approved"
+  | "Rejected"
+  | "Withdrawn";
 export type FairStatus = "Upcoming" | "Active" | "Finished" | "Cancelled";
 
 export interface AdoptablePetDto {
@@ -1611,49 +1630,107 @@ export interface PagedAdoptions {
 
 export const adoptionsApi = {
   getAnimals: (filters: AdoptionFilters = {}) =>
-    apiClient.get<PagedAdoptions>("/adoptions/animals", { params: filters }).then(r => r.data),
+    apiClient
+      .get<PagedAdoptions>("/adoptions/animals", { params: filters })
+      .then((r) => r.data),
 
   getAnimalsForMap: () =>
-    apiClient.get<AdoptablePetDto[]>("/adoptions/animals/map").then(r => r.data),
+    apiClient
+      .get<AdoptablePetDto[]>("/adoptions/animals/map")
+      .then((r) => r.data),
 
   getAnimal: (id: string) =>
-    apiClient.get<AdoptablePetDto>(`/adoptions/animals/${id}`).then(r => r.data),
+    apiClient
+      .get<AdoptablePetDto>(`/adoptions/animals/${id}`)
+      .then((r) => r.data),
 
-  publishAnimal: (data: Omit<AdoptablePetDto, "id" | "organizationUserId" | "organizationName" | "status" | "photoUrls" | "publishedAt">) =>
-    apiClient.post<AdoptablePetDto>("/adoptions/animals", data).then(r => r.data),
+  publishAnimal: (
+    data: Omit<
+      AdoptablePetDto,
+      | "id"
+      | "organizationUserId"
+      | "organizationName"
+      | "status"
+      | "photoUrls"
+      | "publishedAt"
+    >,
+  ) =>
+    apiClient
+      .post<AdoptablePetDto>("/adoptions/animals", data)
+      .then((r) => r.data),
 
   uploadPhoto: (animalId: string, file: File) => {
     const form = new FormData();
     form.append("photo", file);
-    return apiClient.post<{ photoUrl: string }>(`/adoptions/animals/${animalId}/photos`, form, {
-      headers: { "Content-Type": "multipart/form-data" },
-    }).then(r => r.data);
+    return apiClient
+      .post<{ photoUrl: string }>(
+        `/adoptions/animals/${animalId}/photos`,
+        form,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      )
+      .then((r) => r.data);
   },
 
   getMyAnimals: (page = 1, pageSize = 20) =>
-    apiClient.get<PagedAdoptions>("/adoptions/animals/mine", { params: { page, pageSize } }).then(r => r.data),
+    apiClient
+      .get<PagedAdoptions>("/adoptions/animals/mine", {
+        params: { page, pageSize },
+      })
+      .then((r) => r.data),
 
   applyToAdopt: (animalId: string, note: string) =>
-    apiClient.post<AdoptionApplicationDto>(`/adoptions/animals/${animalId}/apply`, { note }).then(r => r.data),
+    apiClient
+      .post<AdoptionApplicationDto>(`/adoptions/animals/${animalId}/apply`, {
+        note,
+      })
+      .then((r) => r.data),
 
   getApplicationsForAnimal: (animalId: string) =>
-    apiClient.get<AdoptionApplicationDto[]>(`/adoptions/animals/${animalId}/applications`).then(r => r.data),
+    apiClient
+      .get<
+        AdoptionApplicationDto[]
+      >(`/adoptions/animals/${animalId}/applications`)
+      .then((r) => r.data),
 
-  reviewApplication: (applicationId: string, approve: boolean, reviewNote?: string) =>
-    apiClient.patch<AdoptionApplicationDto>(`/adoptions/applications/${applicationId}/review`,
-      { approve, reviewNote }).then(r => r.data),
+  reviewApplication: (
+    applicationId: string,
+    approve: boolean,
+    reviewNote?: string,
+  ) =>
+    apiClient
+      .patch<AdoptionApplicationDto>(
+        `/adoptions/applications/${applicationId}/review`,
+        { approve, reviewNote },
+      )
+      .then((r) => r.data),
 
   markAdopted: (animalId: string) =>
-    apiClient.patch<AdoptablePetDto>(`/adoptions/animals/${animalId}/mark-adopted`).then(r => r.data),
+    apiClient
+      .patch<AdoptablePetDto>(`/adoptions/animals/${animalId}/mark-adopted`)
+      .then((r) => r.data),
 
   getMyApplications: (page = 1, pageSize = 20) =>
-    apiClient.get<PagedAdoptions>("/adoptions/applications/mine", { params: { page, pageSize } }).then(r => r.data),
+    apiClient
+      .get<PagedAdoptions>("/adoptions/applications/mine", {
+        params: { page, pageSize },
+      })
+      .then((r) => r.data),
 
   getFairs: (lat?: number, lng?: number, radiusKm?: number) =>
-    apiClient.get<AdoptionFairDto[]>("/adoptions/fairs", { params: { lat, lng, radiusKm } }).then(r => r.data),
+    apiClient
+      .get<
+        AdoptionFairDto[]
+      >("/adoptions/fairs", { params: { lat, lng, radiusKm } })
+      .then((r) => r.data),
 
-  createFair: (data: Omit<AdoptionFairDto, "id" | "organizationUserId" | "status">) =>
-    apiClient.post<AdoptionFairDto>("/adoptions/fairs", data).then(r => r.data),
+  createFair: (
+    data: Omit<AdoptionFairDto, "id" | "organizationUserId" | "status">,
+  ) =>
+    apiClient
+      .post<AdoptionFairDto>("/adoptions/fairs", data)
+      .then((r) => r.data),
 };
 ```
 
@@ -1703,7 +1780,8 @@ export function usePublishAnimal() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: adoptionsApi.publishAnimal,
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["adoptions", "mine"] }),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["adoptions", "mine"] }),
   });
 }
 
@@ -1713,7 +1791,9 @@ export function useUploadAdoptionPhoto() {
     mutationFn: ({ animalId, file }: { animalId: string; file: File }) =>
       adoptionsApi.uploadPhoto(animalId, file),
     onSuccess: (_data, vars) =>
-      void qc.invalidateQueries({ queryKey: ["adoptions", "animals", vars.animalId] }),
+      void qc.invalidateQueries({
+        queryKey: ["adoptions", "animals", vars.animalId],
+      }),
   });
 }
 
@@ -1722,7 +1802,10 @@ export function useApplyToAdopt() {
   return useMutation({
     mutationFn: ({ animalId, note }: { animalId: string; note: string }) =>
       adoptionsApi.applyToAdopt(animalId, note),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["adoptions", "applications", "mine"] }),
+    onSuccess: () =>
+      void qc.invalidateQueries({
+        queryKey: ["adoptions", "applications", "mine"],
+      }),
   });
 }
 
@@ -1738,9 +1821,17 @@ export function useApplicationsForAnimal(animalId: string, enabled = true) {
 export function useReviewApplication() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ applicationId, approve, reviewNote }: { applicationId: string; approve: boolean; reviewNote?: string }) =>
-      adoptionsApi.reviewApplication(applicationId, approve, reviewNote),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["adoptions", "applications"] }),
+    mutationFn: ({
+      applicationId,
+      approve,
+      reviewNote,
+    }: {
+      applicationId: string;
+      approve: boolean;
+      reviewNote?: string;
+    }) => adoptionsApi.reviewApplication(applicationId, approve, reviewNote),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["adoptions", "applications"] }),
   });
 }
 
@@ -1763,7 +1854,11 @@ export function useMyAdoptionApplications(page = 1, pageSize = 20) {
   });
 }
 
-export function useUpcomingFairs(lat?: number, lng?: number, radiusKm?: number) {
+export function useUpcomingFairs(
+  lat?: number,
+  lng?: number,
+  radiusKm?: number,
+) {
   return useQuery({
     queryKey: ["adoptions", "fairs", lat, lng, radiusKm],
     queryFn: () => adoptionsApi.getFairs(lat, lng, radiusKm),
@@ -1775,7 +1870,8 @@ export function useCreateFair() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: adoptionsApi.createFair,
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["adoptions", "fairs"] }),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ["adoptions", "fairs"] }),
   });
 }
 ```
@@ -1947,11 +2043,11 @@ dotnet ef database update \
 
 **Tablas que genera la migración:**
 
-| Tabla | PK | Índices clave |
-|---|---|---|
-| `AdoptableAnimals` | `Id` (uniqueidentifier) | `OrganizationUserId`, `(Species, Status)` |
+| Tabla                  | PK                      | Índices clave                                                                   |
+| ---------------------- | ----------------------- | ------------------------------------------------------------------------------- |
+| `AdoptableAnimals`     | `Id` (uniqueidentifier) | `OrganizationUserId`, `(Species, Status)`                                       |
 | `AdoptionApplications` | `Id` (uniqueidentifier) | `AdoptablePetId`, `ApplicantUserId`, `(ApplicantUserId, AdoptablePetId)` unique |
-| `AdoptionFairs` | `Id` (uniqueidentifier) | `OrganizationUserId`, `StartsAt` |
+| `AdoptionFairs`        | `Id` (uniqueidentifier) | `OrganizationUserId`, `StartsAt`                                                |
 
 ---
 
@@ -2125,10 +2221,10 @@ ShelterBasic  = 300, // gratis — publicar hasta 5 animales, sin ferias
 ShelterPlus   = 310, // ₡8,000/mes — ilimitado + ferias + pin destacado en mapa
 ```
 
-| Plan | Precio | Incluye |
-|---|---|---|
-| `ShelterBasic` | Gratis | Hasta 5 animales activos, perfil en directorio, sin ferias |
-| `ShelterPlus` | ₡8,000/mes | Animales ilimitados, crear ferias de adopción, pin destacado en mapa, estadísticas de visitas |
+| Plan           | Precio     | Incluye                                                                                       |
+| -------------- | ---------- | --------------------------------------------------------------------------------------------- |
+| `ShelterBasic` | Gratis     | Hasta 5 animales activos, perfil en directorio, sin ferias                                    |
+| `ShelterPlus`  | ₡8,000/mes | Animales ilimitados, crear ferias de adopción, pin destacado en mapa, estadísticas de visitas |
 
 **Lógica de gating** (en handler `PublishAdoptablePetCommand`):
 
@@ -2145,7 +2241,9 @@ if (!hasPlusPlan && activeCount >= 5)
 ## 17. Roadmap de sprints
 
 ### Sprint 1 — Core (2 semanas)
+
 **Backend:**
+
 - [ ] Crear archivos domain: `AdoptablePet.cs`, `AdoptionApplication.cs`, `AdoptionFair.cs`
 - [ ] Extender `NotificationType` con 4 nuevos valores
 - [ ] Crear `IAdoptionRepository` interface
@@ -2158,6 +2256,7 @@ if (!hasPlusPlan && activeCount >= 5)
 - [ ] Extender `IAllyProfileRepository.GetByUserIdsAsync`
 
 **Frontend:**
+
 - [ ] Crear `adoptionsApi.ts` con todos los tipos TypeScript
 - [ ] Crear `useAdoptions.ts` con hooks básicos
 - [ ] `AdoptionDirectoryPage.tsx` — listado público con paginación
@@ -2166,11 +2265,13 @@ if (!hasPlusPlan && activeCount >= 5)
 - [ ] Añadir rutas en `routes.tsx`
 
 **Tests:**
+
 - [ ] `AdoptablePetTests.cs` — domain tests (estado, fotos, ferias)
 - [ ] `PublishAdoptablePetCommandHandlerTests.cs`
 - [ ] `ApplyToAdoptCommandHandlerTests.cs`
 
 ### Sprint 2 — Upload de fotos y gestión de aplicaciones (1 semana)
+
 - [ ] `UploadAdoptionPhotoCommand` handler (blob storage)
 - [ ] `GetApplicationsForAnimalQuery` + `ReviewAdoptionApplicationCommand`
 - [ ] Extender `INotificationDispatcher` con los 4 métodos de adopción
@@ -2181,6 +2282,7 @@ if (!hasPlusPlan && activeCount >= 5)
 - [ ] `ApplyDrawer.tsx` con formulario
 
 ### Sprint 3 — Ferias y mapa (1 semana)
+
 - [ ] `CreateAdoptionFairCommand` handler + geofence alert
 - [ ] `GetUpcomingFairsQuery`
 - [ ] Extender `PublicMapPage.tsx` con pins de animales en adopción
@@ -2190,6 +2292,7 @@ if (!hasPlusPlan && activeCount >= 5)
 - [ ] Integrar `DispatchAdoptionFairAlertAsync` en `NotificationDispatcher`
 
 ### Sprint 4 — Monetización y WhatsApp (1 semana)
+
 - [ ] Añadir `ShelterBasic` / `ShelterPlus` a `SubscriptionTier`
 - [ ] Gating de límite de animales en `PublishAdoptablePetCommand`
 - [ ] Intents de adopción en `HandleWhatsAppWebhookCommandHandler`
@@ -2201,32 +2304,34 @@ if (!hasPlusPlan && activeCount >= 5)
 ## Resumen de archivos a crear/modificar
 
 ### Crear nuevos
-| Archivo | Tipo |
-|---|---|
-| `Domain/Adoptions/AdoptablePet.cs` | Domain entity |
-| `Domain/Adoptions/AdoptionApplication.cs` | Domain entity |
-| `Domain/Adoptions/AdoptionFair.cs` | Domain entity |
-| `Application/Adoptions/AdoptionCommands.cs` | CQRS commands |
-| `Application/Adoptions/AdoptionQueries.cs` | CQRS queries |
-| `Application/Common/Interfaces/IAdoptionRepository.cs` | Interface |
-| `Infrastructure/Adoptions/AdoptionRepository.cs` | EF Core repo |
-| `Infrastructure/Adoptions/AdoptionConfiguration.cs` | EF Core config |
-| `API/Controllers/AdoptionsController.cs` | REST controller |
-| `frontend/features/adoptions/api/adoptionsApi.ts` | API client |
-| `frontend/features/adoptions/hooks/useAdoptions.ts` | React hooks |
-| `frontend/features/adoptions/pages/*.tsx` | 7 páginas |
-| `frontend/features/adoptions/components/*.tsx` | 6 componentes |
-| `tests/UnitTests/Adoptions/*.cs` | 3+ test files |
+
+| Archivo                                                | Tipo            |
+| ------------------------------------------------------ | --------------- |
+| `Domain/Adoptions/AdoptablePet.cs`                     | Domain entity   |
+| `Domain/Adoptions/AdoptionApplication.cs`              | Domain entity   |
+| `Domain/Adoptions/AdoptionFair.cs`                     | Domain entity   |
+| `Application/Adoptions/AdoptionCommands.cs`            | CQRS commands   |
+| `Application/Adoptions/AdoptionQueries.cs`             | CQRS queries    |
+| `Application/Common/Interfaces/IAdoptionRepository.cs` | Interface       |
+| `Infrastructure/Adoptions/AdoptionRepository.cs`       | EF Core repo    |
+| `Infrastructure/Adoptions/AdoptionConfiguration.cs`    | EF Core config  |
+| `API/Controllers/AdoptionsController.cs`               | REST controller |
+| `frontend/features/adoptions/api/adoptionsApi.ts`      | API client      |
+| `frontend/features/adoptions/hooks/useAdoptions.ts`    | React hooks     |
+| `frontend/features/adoptions/pages/*.tsx`              | 7 páginas       |
+| `frontend/features/adoptions/components/*.tsx`         | 6 componentes   |
+| `tests/UnitTests/Adoptions/*.cs`                       | 3+ test files   |
 
 ### Modificar existentes
-| Archivo | Cambio |
-|---|---|
-| `Domain/Notifications/NotificationType.cs` | +4 valores al enum |
-| `Domain/Subscriptions/SubscriptionTier.cs` | +2 valores al enum |
-| `Infrastructure/Persistence/PawTrackDbContext.cs` | +3 DbSets |
-| `Application/Common/Interfaces/INotificationDispatcher.cs` | +4 métodos |
-| `Application/Common/Interfaces/IAllyProfileRepository.cs` | +1 método |
-| `Infrastructure/Allies/AllyProfileRepository.cs` | Implementar GetByUserIdsAsync |
+
+| Archivo                                                       | Cambio                        |
+| ------------------------------------------------------------- | ----------------------------- |
+| `Domain/Notifications/NotificationType.cs`                    | +4 valores al enum            |
+| `Domain/Subscriptions/SubscriptionTier.cs`                    | +2 valores al enum            |
+| `Infrastructure/Persistence/PawTrackDbContext.cs`             | +3 DbSets                     |
+| `Application/Common/Interfaces/INotificationDispatcher.cs`    | +4 métodos                    |
+| `Application/Common/Interfaces/IAllyProfileRepository.cs`     | +1 método                     |
+| `Infrastructure/Allies/AllyProfileRepository.cs`              | Implementar GetByUserIdsAsync |
 | `Infrastructure/InfrastructureServiceCollectionExtensions.cs` | Registrar IAdoptionRepository |
-| `Application/Bot/HandleWhatsAppWebhookCommandHandler.cs` | +2 intents |
-| `frontend/app/routes.tsx` | +7 rutas |
+| `Application/Bot/HandleWhatsAppWebhookCommandHandler.cs`      | +2 intents                    |
+| `frontend/app/routes.tsx`                                     | +7 rutas                      |

@@ -94,8 +94,34 @@ public sealed class SubscriptionDomainTests
         sub.Activate();
         sub.Cancel();
 
-        sub.Status.Should().Be(SubscriptionStatus.Cancelled);
-        sub.CancelledAt.Should().NotBeNull();
+        sub.Status.Should().Be(SubscriptionStatus.Active);
+        sub.CancellationRequestedAt.Should().NotBeNull();
+        sub.IsActive.Should().BeTrue();
+    }
+
+    [Fact]
+    public void CreateScheduledForUser_StartsInFuture_IsNotActiveYet()
+    {
+        var startsAt = DateTimeOffset.UtcNow.AddDays(10);
+        var sub = Subscription.CreateScheduledForUser(
+            Guid.NewGuid(), SubscriptionTier.UserPlus, "ABCD1234", 2990m, startsAt);
+
+        sub.Status.Should().Be(SubscriptionStatus.PendingPayment);
+        sub.StartsAt.Should().Be(startsAt);
+        sub.IsActive.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Activate_ScheduledSubscription_PreservesFutureStart()
+    {
+        var startsAt = DateTimeOffset.UtcNow.AddDays(10);
+        var sub = Subscription.CreateScheduledForUser(
+            Guid.NewGuid(), SubscriptionTier.UserPlus, "ABCD1234", 2990m, startsAt);
+
+        sub.Activate();
+
+        sub.Status.Should().Be(SubscriptionStatus.Active);
+        sub.ExpiresAt.Should().BeCloseTo(startsAt.AddMonths(1), TimeSpan.FromSeconds(5));
         sub.IsActive.Should().BeFalse();
     }
 

@@ -1,5 +1,9 @@
 # PawTrack CR — Guía Operacional para Ir a Producción
 
+> **Estado: HISTORICO/DETALLE DE CONFIGURACION.** Usar
+> [RUNBOOK_DEPLOYMENT.md](RUNBOOK_DEPLOYMENT.md) como fuente canonica y este
+> archivo solo como referencia de configuraciones antiguas.
+
 > **Versión:** 1.0 | **Fecha:** 2026-08-24  
 > **Audiencia:** Operador de infraestructura / founder  
 > **Pre-requisitos:** Azure CLI 2.60+, Docker 24+, .NET SDK 9, Node.js 20 LTS, acceso a la suscripción Azure

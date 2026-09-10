@@ -1,5 +1,9 @@
 # Plan de Implementación Enterprise — Collar PawTrack CR
 
+> **Estado: HISTORICO/ROADMAP.** El estado implementado vigente esta en
+> [COLLAR_CURRENT_STATE.md](COLLAR_CURRENT_STATE.md). Este archivo conserva
+> decisiones y fases ya ejecutadas.
+
 > **Alcance:** Fases 4 & 5 — Notificaciones + Auditoría + Transferencia + Lost Mode + Geofencing + Historial + Dashboard + E2E  
 > **Duración total:** 9 semanas  
 > **Fecha inicio:** 2026-09-01  

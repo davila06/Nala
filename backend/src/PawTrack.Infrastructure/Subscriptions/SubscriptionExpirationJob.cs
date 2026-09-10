@@ -41,7 +41,6 @@ public sealed class SubscriptionExpirationJob(
             var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
             var expired = await subscriptionRepository.GetExpiredActiveAsync(ct);
-            if (expired.Count == 0) return;
 
             foreach (var sub in expired)
             {
@@ -89,8 +88,20 @@ public sealed class SubscriptionExpirationJob(
                 }
             }
 
+            var scheduledDue = await subscriptionRepository.GetScheduledDueAsync(ct);
+            foreach (var sub in scheduledDue)
+            {
+                sub.Activate(SubscriptionPricing.IsMunicipalTier(sub.Tier) ? 12 : 1);
+                subscriptionRepository.Update(sub);
+            }
+
+            if (expired.Count == 0 && scheduledDue.Count == 0) return;
+
             await unitOfWork.SaveChangesAsync(ct);
-            logger.LogInformation("[SubscriptionExpiration] Expired {Count} subscriptions.", expired.Count);
+            logger.LogInformation(
+                "[SubscriptionExpiration] Expired {ExpiredCount} subscriptions and activated {ScheduledCount} scheduled changes.",
+                expired.Count,
+                scheduledDue.Count);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

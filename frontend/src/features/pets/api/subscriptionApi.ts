@@ -30,8 +30,10 @@ export interface SubscriptionDto {
   amountCrc: number;
   createdAt: string;
   activatedAt: string | null;
+  startsAt: string | null;
   expiresAt: string | null;
   paymentReportedAt: string | null;
+  cancellationRequestedAt: string | null;
   isActive: boolean;
 }
 
@@ -92,6 +94,13 @@ export const subscriptionApi = {
   cancel: (subscriptionId: string) =>
     apiClient
       .delete<SubscriptionDto>(`/subscriptions/${subscriptionId}`)
+      .then((r) => r.data),
+
+  downgrade: (subscriptionId: string, targetTier: SubscriptionTier) =>
+    apiClient
+      .post<SubscriptionDto>(`/subscriptions/${subscriptionId}/downgrade`, {
+        targetTier,
+      })
       .then((r) => r.data),
 
   reportPayment: (subscriptionId: string) =>

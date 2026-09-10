@@ -1,9 +1,9 @@
 # Manual Técnico — PawTrack CR
 
-**Versión:** 2.0  
+**Versión:** 3.0
 **Stack:** .NET 9 · React 19 · Azure  
 **Audiencia:** Desarrolladores, arquitectos, equipo DevOps  
-**Última actualización:** 2026-09-06
+**Última actualización:** 2026-09-09
 
 > Para la referencia completa ver [`PawTrack_Documento_Maestro_v3.1.md`](../PawTrack_Documento_Maestro_v3.1.md) (renombrado internamente como v4.0).
 
@@ -125,6 +125,29 @@ PawTrack CR es un **monolito modular** con separación por capas siguiendo Clean
 ---
 
 ## 3. Backend — capas y módulos
+
+### 3.0 Roles y superficies operativas
+
+El enum `UserRole` define exactamente ocho roles: `Owner`, `Ally`, `Admin`,
+`Clinic`, `Municipality`, `Store`, `ServiceProvider` y `Support`. El router
+frontend y los controllers no son equivalentes a un permiso global: además del
+rol, los handlers validan ownership, tenant, suscripcion, verificacion o grant
+segun el modulo.
+
+| Rol               | Superficie principal                         | Condicion adicional                                 |
+| ----------------- | -------------------------------------------- | --------------------------------------------------- |
+| `Owner`           | `/dashboard`, mascotas, perdida, chat, salud | ownership y tier cuando aplica                      |
+| `Ally`            | `/ally-panel`                                | perfil aprobado y cobertura                         |
+| `Admin`           | `/admin`, `/estadisticas`, NALA y reportes   | MFA/politicas privilegiadas fuera de Development    |
+| `Clinic`          | `/clinica/portal`                            | clinica activa; Partner para API/certificados       |
+| `Municipality`    | `/municipalidad/portal`                      | perfil municipal y tier institucional               |
+| `Store`           | `/tienda/portal`                             | tienda activa y gates de Store                      |
+| `ServiceProvider` | `/servicio/portal`                           | proveedor activo y membresia para catalogo/reservas |
+| `Support`         | colas autorizadas de bienestar/incidentes    | asignacion manual por Admin; sin portal propio      |
+
+La matriz detallada de ownership, scopes y BOLA/IDOR es
+[API_AUTHORIZATION_MATRIX.md](../API_AUTHORIZATION_MATRIX.md). Los manuales
+operativos por rol estan indexados en [docs/README.md](../README.md).
 
 ### 3.1 PawTrack.API
 
@@ -478,7 +501,7 @@ Declarada en `infra/main.bicep` usando Bicep (Azure Resource Manager DSL).
 
 ```powershell
 # 1. Preparar secreto de Docker
-"TuContraseñaFuerte123!" | Out-File secrets/sa_password.txt -NoNewline -Encoding utf8
+"<GENERATE_LOCAL_SQL_PASSWORD>" | Out-File secrets/sa_password.txt -NoNewline -Encoding utf8
 
 # 2. Arrancar todo
 .\start-dev.ps1
@@ -494,7 +517,7 @@ Declarada en `infra/main.bicep` usando Bicep (Azure Resource Manager DSL).
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost,1433;Database=PawTrackDev;User Id=sa;Password=TuContraseñaFuerte123!;TrustServerCertificate=true"
+    "DefaultConnection": "Server=localhost,1433;Database=PawTrackDev;User Id=sa;Password=<LOCAL_SQL_PASSWORD>;TrustServerCertificate=true"
   },
   "Jwt": {
     "Key": "development-key-min-32-chars-ok",

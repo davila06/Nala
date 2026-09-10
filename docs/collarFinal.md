@@ -1,5 +1,8 @@
 # PawTrack CR — Collar GPS: Guía Completa
 
+> **Estado: HISTORICO/DETALLE TECNICO.** Consultar
+> [COLLAR_CURRENT_STATE.md](COLLAR_CURRENT_STATE.md) para el estado actual.
+
 > **Única fuente de verdad** sobre hardware de collar, proveedores, integración de código, CollarTag (activación tipo AirTag) y sourcing.  
 > Consolida: `collar.md`, `collar-china-sourcing.md`, `collarTag.md`.  
 > Última actualización: 2026-09-07 — CollarTag **implementado** (fases 1–3); Fase 4 Enterprise **COMPLETA**: Alertas de conectividad, Auditoría de eventos, Transferencia segura (Handover) y Lost Mode **implementados**. Fase 5 **COMPLETA** (4/4): Geofencing (Safe Zones), Historial de ubicaciones + export, Admin Dashboard mejorado, y E2E Testing Suite (Playwright) **implementados**. La plataforma base para telemetría HTTP autenticada existe; la infraestructura IoT de producción para hardware propio se define en §3.4. Conversación activa con **Jimi IoT** (RFQ enviado, respuesta recibida 2026-09-03) — ver `docs/jimiiot.md`.

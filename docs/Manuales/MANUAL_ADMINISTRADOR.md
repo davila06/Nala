@@ -1,8 +1,11 @@
 # Manual de Administrador — PawTrack CR
 
-**Versión:** 2.0  
+**Versión:** 3.0
 **Audiencia:** Administradores del sistema  
-**Última actualización:** 2026-09-06
+**Última actualización:** 2026-09-09
+
+> El rol `Admin` tiene acceso global y toda operación sensible debe seguir la
+> matriz de autorización de [API_AUTHORIZATION_MATRIX.md](../API_AUTHORIZATION_MATRIX.md).
 
 ---
 
@@ -18,6 +21,10 @@
 8. [Promociones y Descuentos](#8-promociones-y-descuentos)
 9. [Bundles GPS](#9-bundles-gps)
 10. [Preguntas frecuentes](#10-preguntas-frecuentes)
+
+Las pestañas **Adopciones**, **Bienestar**, **Proveedores** y **Funnel** se
+encuentran en el panel actual aunque sus operaciones detalladas dependen de los
+permisos del endpoint y de la evidencia disponible.
 
 ---
 
@@ -46,6 +53,10 @@ Exclusivo para cuentas con rol **Admin**. Si intentas acceder sin ese rol, el si
 | **Tiendas**       | Aprobar/rechazar tiendas pendientes de registro                            |
 | **Vallas** 🆕     | Crear, editar, activar/pausar vallas publicitarias                         |
 | **CollarTags**    | Inventario y métricas de collares GPS (registrar, marcar vendido, revocar) |
+| **Adopciones**    | Estadísticas y moderación administrativa de publicaciones y solicitudes    |
+| **Bienestar**     | Triage, severidad, asignación, evidencia y cierre de casos                 |
+| **Proveedores**   | Verificaciones, operaciones e incidentes de proveedores                    |
+| **Funnel**        | Métricas de producto y export CSV agregado sin PII                         |
 
 ---
 
@@ -84,7 +95,9 @@ En el tab **Clínicas**, verás clínicas en estado `Pending`:
 2. Elige el tier activo: `ClinicPlus` o `ClinicPartner`.
 3. La clínica recibe acceso inmediato al portal veterinario.
 
-> El estado `ClinicBasic` representa la entrada gratuita / directorio público, no el plan comercial principal del producto actual.
+> El registro y el directorio son la entrada gratuita. Los tiers comerciales
+> vigentes son `ClinicPlus` y `ClinicPartner`; `ClinicBasic` no es un plan de
+> compra activo.
 
 ### 4.3 Gestionar API keys
 

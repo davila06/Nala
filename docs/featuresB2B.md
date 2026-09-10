@@ -1,5 +1,9 @@
 # PawTrack CR — Features B2B y planes actuales
 
+> **Estado: HISTORICO/DETALLE.** La matriz vigente es
+> [FEATURES.md](FEATURES.md) y el estado B2B es
+> [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md).
+
 > **Fuente de verdad:** `SubscriptionTier` y `SubscriptionPricing` del backend.
 > **Actualizado:** 2026-09-08
 > **Estado:** Resumen alineado con la app actual; el detalle histórico de este

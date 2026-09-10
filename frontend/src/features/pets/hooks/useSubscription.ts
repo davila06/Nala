@@ -57,6 +57,22 @@ export function useCancelSubscription() {
   });
 }
 
+export function useScheduleDowngrade() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      subscriptionId,
+      targetTier,
+    }: {
+      subscriptionId: string;
+      targetTier: SubscriptionTier;
+    }) => subscriptionApi.downgrade(subscriptionId, targetTier),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["subscription"] });
+    },
+  });
+}
+
 export function useReportPayment() {
   const queryClient = useQueryClient();
   return useMutation({

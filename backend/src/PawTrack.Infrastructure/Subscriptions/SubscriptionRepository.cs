@@ -11,6 +11,7 @@ public sealed class SubscriptionRepository(PawTrackDbContext dbContext) : ISubsc
         dbContext.Subscriptions
             .Where(s => s.UserId == userId
                 && s.Status == SubscriptionStatus.Active
+                && (s.StartsAt == null || s.StartsAt <= DateTimeOffset.UtcNow)
                 && s.ExpiresAt > DateTimeOffset.UtcNow)
             .OrderByDescending(s => s.ActivatedAt)
             .FirstOrDefaultAsync(cancellationToken);
@@ -19,6 +20,7 @@ public sealed class SubscriptionRepository(PawTrackDbContext dbContext) : ISubsc
         dbContext.Subscriptions
             .Where(s => s.ClinicId == clinicId
                 && s.Status == SubscriptionStatus.Active
+                && (s.StartsAt == null || s.StartsAt <= DateTimeOffset.UtcNow)
                 && s.ExpiresAt > DateTimeOffset.UtcNow)
             .OrderByDescending(s => s.ActivatedAt)
             .FirstOrDefaultAsync(cancellationToken);
@@ -33,6 +35,20 @@ public sealed class SubscriptionRepository(PawTrackDbContext dbContext) : ISubsc
         await dbContext.Subscriptions
             .Where(s => s.Status == SubscriptionStatus.PendingPayment)
             .OrderBy(s => s.CreatedAt)
+            .ToListAsync(cancellationToken);
+
+    public Task<Subscription?> GetPendingForUserAsync(Guid userId, CancellationToken cancellationToken = default) =>
+        dbContext.Subscriptions
+            .Where(s => s.UserId == userId && s.Status == SubscriptionStatus.PendingPayment)
+            .OrderByDescending(s => s.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<Subscription>> GetScheduledDueAsync(CancellationToken cancellationToken = default) =>
+        await dbContext.Subscriptions
+            .Where(s => s.Status == SubscriptionStatus.PendingPayment
+                && s.StartsAt != null
+                && s.StartsAt <= DateTimeOffset.UtcNow)
+            .OrderBy(s => s.StartsAt)
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<Subscription>> GetExpiredActiveAsync(CancellationToken cancellationToken = default) =>

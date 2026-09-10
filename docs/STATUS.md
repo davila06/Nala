@@ -3,6 +3,12 @@
 > Corte: 2026-09-09. Este documento es el estado operativo actual, no una
 > promesa comercial.
 
+La documentacion operativa por rol fue contrastada con el router frontend,
+`UserRole` y los controllers actuales. La entrada oficial es
+[docs/README.md](README.md); los manuales de `Owner`, `Ally`, `Admin`, `Clinic`,
+`Municipality`, `Store`, `ServiceProvider` y `Support` estan bajo
+[Manuales/](Manuales/).
+
 ## Resumen ejecutivo
 
 PawTrack tiene una base funcional amplia y diferenciada para identidad de
