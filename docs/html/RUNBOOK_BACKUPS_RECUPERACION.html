@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Backups y Recuperación — PawTrack CR</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+</head>
+<body>
+<aside id="sidebar">
+  <div class="brand"><span>🐾</span><strong>PawTrack CR<br>Documentación</strong></div>
+  <nav><ul>
+    <li><a href="index.html" class="h2">← Inicio</a></li>
+    <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>
+    <li><a href="FEATURES.html" class="h2">🧭 Features por Plan</a></li>
+    <li><a href="PRICING_AND_PLANS.html" class="h2">💳 Planes y Capacidades</a></li>
+    <li><a href="inversionistas.html" class="h2">💼 Pitch para Inversionistas</a></li>
+    <li><a href="API_REFERENCE.html" class="h2">🔌 Referencia API</a></li>
+    <li><a href="CONSOLIDACION_DOCUMENTAL.html" class="h2">🗂️ Consolidación Documental</a></li>
+    <li><a href="COLLAR_CURRENT_STATE.html" class="h2">📡 Estado Actual de Collares</a></li>
+    <li><a href="ADOPTIONS_CURRENT_STATE.html" class="h2">🏡 Estado Actual de Adopciones</a></li>
+    <li><a href="NALA_REPORTING_GUIDE.html" class="h2">📊 NALA y Reportes</a></li>
+    <li><a href="sinpe.html" class="h2">💸 Automatización SINPE Móvil</a></li>
+    <li><a href="NALA.html" class="h2">🐾 Producto PawTrack CR</a></li>
+    <li><a href="MANUAL_USUARIO.html" class="h2">📱 Manual de Usuario</a></li>
+    <li><a href="MANUAL_ADMINISTRADOR.html" class="h2">⚙️ Manual de Administrador</a></li>
+    <li><a href="MANUAL_ALIADOS.html" class="h2">🤝 Manual de Aliados</a></li>
+    <li><a href="MANUAL_CLINICAS.html" class="h2">🏥 Manual de Clínicas Veterinarias</a></li>
+    <li><a href="MANUAL_MUNICIPALIDADES.html" class="h2">🏛️ Manual de Municipalidades</a></li>
+    <li><a href="MANUAL_TIENDAS.html" class="h2">🏪 Manual de Tiendas</a></li>
+    <li><a href="MANUAL_PROVEEDORES.html" class="h2">🧰 Manual de Proveedores</a></li>
+    <li><a href="MANUAL_SOPORTE.html" class="h2">🎧 Manual de Soporte</a></li>
+    <li><a href="MANUAL_TECNICO.html" class="h2">🛠️ Manual Técnico</a></li>
+    <li><a href="GUIA_ONBOARDING_DEV.html" class="h2">🚀 Guía de Onboarding Dev</a></li>
+    <li><a href="GUIA_DEPLOY_PASO_A_PASO.html" class="h2">☁️ Guía de Deploy Paso a Paso</a></li>
+    <li><a href="RUNBOOK_OPERACIONES.html" class="h2">📟 Runbook de Operaciones</a></li>
+    <li><a href="DEPLOY_INFO.html" class="h2">🗂️ Datos de Despliegue Beta</a></li>
+    <li><a href="RUNBOOK_DEPLOYMENT.html" class="h2">🚢 Runbook de Deployment</a></li>
+    <li><a href="RUNBOOK_SEGURIDAD_INCIDENTES.html" class="h2">🛡️ Seguridad e Incidentes</a></li>
+    <li><a href="RUNBOOK_BACKUPS_RECUPERACION.html" class="h2">💾 Backups y Recuperación</a></li>
+    <li><a href="MATRIZ_RETENCION_DATOS.html" class="h2">🧾 Retención de Datos</a></li>
+    <li><a href="GUIA_QA_E2E.html" class="h2">🧪 Guía QA y E2E</a></li>
+    <li><a href="GUIA_INTEGRACIONES_WEBHOOKS.html" class="h2">🔗 Integraciones y Webhooks</a></li>
+    <li><a href="RUNBOOK_JOBS_BACKGROUND.html" class="h2">⏱️ Jobs en Background</a></li>
+    <li><a href="RUNBOOK_MODERACION_Y_BIENESTAR.html" class="h2">🐾 Moderación y Bienestar</a></li>
+    <li><a href="POLITICA_DE_PRIVACIDAD.html" class="h2">🔒 Política de Privacidad</a></li>
+    <li><a href="TERMINOS_DE_USO.html" class="h2">📋 Términos de Uso</a></li>
+  </ul></nav>
+</aside>
+<main id="main">
+  <div id="content"><p style="color:#888;padding:2rem">Cargando…</p></div>
+</main>
+<script>
+const md = "# Runbook de Backups y Recuperacion\r\n\r\n**Estado:** activo para definir operacion  \r\n**Audiencia:** DevOps y Admin de plataforma  \r\n**Corte:** 2026-09-09\r\n\r\n## Objetivo\r\n\r\nRecuperar el servicio sin improvisar despues de perdida de datos, fallo de\r\nmigracion, corrupcion, caida regional o eliminacion accidental.\r\n\r\n## Inventario de recuperacion\r\n\r\n| Componente   | Fuente de restauracion                          | Verificacion                         |\r\n| ------------ | ----------------------------------------------- | ------------------------------------ |\r\n| Azure SQL    | backups automaticos y point-in-time restore     | consulta de migraciones y health     |\r\n| Blob Storage | redundancia y versioning/politicas configuradas | descarga de objeto de prueba         |\r\n| Key Vault    | backup/restore de secretos y rotacion           | lectura desde identidad administrada |\r\n| Backend      | imagen inmutable en ACR y commit                | `/health` y `/health/ready`          |\r\n| Frontend     | build reproducible y deployment artifact        | smoke de rutas publicas              |\r\n\r\n## Antes de restaurar\r\n\r\n1. Abrir incidente y congelar despliegues.\r\n2. Identificar hora buena conocida y alcance del daño.\r\n3. Confirmar que existe una copia util y que no contiene secretos expuestos.\r\n4. Avisar a los responsables del tenant si hay riesgo de perdida de datos.\r\n5. No ejecutar migraciones destructivas sobre produccion sin respaldo y plan de rollback.\r\n\r\n## Recuperacion SQL\r\n\r\n- Preferir point-in-time restore a una base temporal.\r\n- Validar `__EFMigrationsHistory` y conteos de tablas criticas.\r\n- Ejecutar smoke de login, mascotas, perdida, clinica y reportes.\r\n- Cambiar la cadena de conexion solo mediante Key Vault y despliegue controlado.\r\n- No copiar datos productivos a entornos de desarrollo sin anonimizar.\r\n\r\n## Recuperacion de blobs\r\n\r\n- Verificar contenedor, permisos y content type.\r\n- Restaurar primero objetos privados de evidencia y documentos.\r\n- Confirmar que los contenedores publicos solo sean los permitidos por\r\n  `BlobStorageService`.\r\n\r\n## Criterios de cierre\r\n\r\nEl incidente se cierra cuando health checks, migraciones, autenticacion, carga\r\nde fotos y una transaccion critica por modulo pasan. Documentar RTO real,\r\nperdida de datos, causa raiz y acciones preventivas.\r\n\r\nComplementa [OBSERVABILITY_SLO_RUNBOOK.md](OBSERVABILITY_SLO_RUNBOOK.md) y\r\n[GUIA_DEPLOY_PASO_A_PASO.md](GUIA_DEPLOY_PASO_A_PASO.md).\r\n";
+const html = DOMPurify.sanitize(marked.parse(md));
+const content = document.getElementById('content');
+content.innerHTML = html;
+
+// Build sidebar nav from rendered headings
+const headings = content.querySelectorAll('h2, h3');
+const sidebar  = document.querySelector('#sidebar nav ul');
+headings.forEach((h, i) => {
+  if (!h.id) {
+    h.id = 'h-' + i + '-' + h.textContent.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').slice(0, 50);
+  }
+  const li = document.createElement('li');
+  const a  = document.createElement('a');
+  a.href      = '#' + h.id;
+  a.textContent = h.textContent.replace(/^#+\s*/, '');
+  a.className = h.tagName.toLowerCase();
+  li.appendChild(a);
+  sidebar.appendChild(li);
+});
+
+// Highlight active link on scroll
+const links = sidebar.querySelectorAll('a[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const active = sidebar.querySelector('a[href="#' + e.target.id + '"]');
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -75% 0px' });
+content.querySelectorAll('h2, h3').forEach(h => obs.observe(h));
+</script>
+</body>
+</html>

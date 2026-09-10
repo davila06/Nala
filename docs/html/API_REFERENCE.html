@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Referencia API — PawTrack CR</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+</head>
+<body>
+<aside id="sidebar">
+  <div class="brand"><span>🐾</span><strong>PawTrack CR<br>Documentación</strong></div>
+  <nav><ul>
+    <li><a href="index.html" class="h2">← Inicio</a></li>
+    <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>
+    <li><a href="FEATURES.html" class="h2">🧭 Features por Plan</a></li>
+    <li><a href="PRICING_AND_PLANS.html" class="h2">💳 Planes y Capacidades</a></li>
+    <li><a href="inversionistas.html" class="h2">💼 Pitch para Inversionistas</a></li>
+    <li><a href="API_REFERENCE.html" class="h2">🔌 Referencia API</a></li>
+    <li><a href="CONSOLIDACION_DOCUMENTAL.html" class="h2">🗂️ Consolidación Documental</a></li>
+    <li><a href="COLLAR_CURRENT_STATE.html" class="h2">📡 Estado Actual de Collares</a></li>
+    <li><a href="ADOPTIONS_CURRENT_STATE.html" class="h2">🏡 Estado Actual de Adopciones</a></li>
+    <li><a href="NALA_REPORTING_GUIDE.html" class="h2">📊 NALA y Reportes</a></li>
+    <li><a href="sinpe.html" class="h2">💸 Automatización SINPE Móvil</a></li>
+    <li><a href="NALA.html" class="h2">🐾 Producto PawTrack CR</a></li>
+    <li><a href="MANUAL_USUARIO.html" class="h2">📱 Manual de Usuario</a></li>
+    <li><a href="MANUAL_ADMINISTRADOR.html" class="h2">⚙️ Manual de Administrador</a></li>
+    <li><a href="MANUAL_ALIADOS.html" class="h2">🤝 Manual de Aliados</a></li>
+    <li><a href="MANUAL_CLINICAS.html" class="h2">🏥 Manual de Clínicas Veterinarias</a></li>
+    <li><a href="MANUAL_MUNICIPALIDADES.html" class="h2">🏛️ Manual de Municipalidades</a></li>
+    <li><a href="MANUAL_TIENDAS.html" class="h2">🏪 Manual de Tiendas</a></li>
+    <li><a href="MANUAL_PROVEEDORES.html" class="h2">🧰 Manual de Proveedores</a></li>
+    <li><a href="MANUAL_SOPORTE.html" class="h2">🎧 Manual de Soporte</a></li>
+    <li><a href="MANUAL_TECNICO.html" class="h2">🛠️ Manual Técnico</a></li>
+    <li><a href="GUIA_ONBOARDING_DEV.html" class="h2">🚀 Guía de Onboarding Dev</a></li>
+    <li><a href="GUIA_DEPLOY_PASO_A_PASO.html" class="h2">☁️ Guía de Deploy Paso a Paso</a></li>
+    <li><a href="RUNBOOK_OPERACIONES.html" class="h2">📟 Runbook de Operaciones</a></li>
+    <li><a href="DEPLOY_INFO.html" class="h2">🗂️ Datos de Despliegue Beta</a></li>
+    <li><a href="RUNBOOK_DEPLOYMENT.html" class="h2">🚢 Runbook de Deployment</a></li>
+    <li><a href="RUNBOOK_SEGURIDAD_INCIDENTES.html" class="h2">🛡️ Seguridad e Incidentes</a></li>
+    <li><a href="RUNBOOK_BACKUPS_RECUPERACION.html" class="h2">💾 Backups y Recuperación</a></li>
+    <li><a href="MATRIZ_RETENCION_DATOS.html" class="h2">🧾 Retención de Datos</a></li>
+    <li><a href="GUIA_QA_E2E.html" class="h2">🧪 Guía QA y E2E</a></li>
+    <li><a href="GUIA_INTEGRACIONES_WEBHOOKS.html" class="h2">🔗 Integraciones y Webhooks</a></li>
+    <li><a href="RUNBOOK_JOBS_BACKGROUND.html" class="h2">⏱️ Jobs en Background</a></li>
+    <li><a href="RUNBOOK_MODERACION_Y_BIENESTAR.html" class="h2">🐾 Moderación y Bienestar</a></li>
+    <li><a href="POLITICA_DE_PRIVACIDAD.html" class="h2">🔒 Política de Privacidad</a></li>
+    <li><a href="TERMINOS_DE_USO.html" class="h2">📋 Términos de Uso</a></li>
+  </ul></nav>
+</aside>
+<main id="main">
+  <div id="content"><p style="color:#888;padding:2rem">Cargando…</p></div>
+</main>
+<script>
+const md = "# PawTrack CR - Referencia API\r\n\r\n**Estado:** activo  \r\n**Corte:** 2026-09-09  \r\n**Contrato:** OpenAPI `1.0`\r\n\r\n## Fuentes\r\n\r\nLa especificacion ejecutable se publica en `/openapi/v1.json` cuando la API esta\r\nencendida. Este documento organiza la superficie por modulo; no sustituye el\r\ncontrato generado.\r\n\r\n## Reglas comunes\r\n\r\n- Base URL local: `http://localhost:5199/api` cuando se usa `start-dev.ps1`.\r\n- Enviar `Authorization: Bearer <access-token>` para endpoints autenticados.\r\n- El token de acceso vive en memoria del frontend; la renovacion usa cookie\r\n  httpOnly.\r\n- Enviar `Api-Version: 1.0` en integraciones que requieran version explicita.\r\n- Los errores siguen Problem Details o `Result` serializado; no exponen\r\n  excepciones internas.\r\n- Todas las mutaciones sensibles validan ownership, tenant, grant o scope,\r\n  ademas del rol.\r\n\r\n## Superficies principales\r\n\r\n| Modulo                   | Prefijo                                    | Acceso principal                              |\r\n| ------------------------ | ------------------------------------------ | --------------------------------------------- |\r\n| Auth                     | `/auth`                                    | publico y usuario autenticado                 |\r\n| Mascotas                 | `/pets`                                    | `Owner` propietario                           |\r\n| Perdidas y avistamientos | `/lost-pets`, `/sightings`                 | propietario, participante o publico minimo    |\r\n| Chat y seguridad         | `/chat`, `/safety`                         | participantes y actor validado                |\r\n| Clinicas y salud         | `/clinics`, `/medical`, `/certificates`    | `Clinic`, `Owner`, grants y Partner           |\r\n| Collares                 | `/collars`, `/collar-tags`                 | propietario, Admin o device key               |\r\n| Tiendas                  | `/stores`, `/store-orders`                 | `Store` propietario o cliente propio          |\r\n| Proveedores              | `/service-providers`, `/provider-bookings` | proveedor o cliente participante              |\r\n| Municipalidades          | `/municipalities`                          | `Municipality` tenant o `Admin`               |\r\n| Reportes                 | `/institutional-reports`, `/nala`          | scopes institucionales                        |\r\n| Administracion           | `/admin`                                   | `Admin`; Support solo superficies especificas |\r\n\r\n## Endpoints de referencia\r\n\r\n### Auth y datos personales\r\n\r\n- `POST /auth/register`\r\n- `POST /auth/login`\r\n- `POST /auth/refresh`\r\n- `POST /auth/logout`\r\n- `GET/PATCH /auth/me`\r\n- `GET /auth/me/export`\r\n- `DELETE /auth/me`\r\n- `POST /auth/me/health-data-consent`\r\n- `POST /auth/mfa/*`\r\n\r\nSuscripciones de usuario:\r\n\r\n- `DELETE /subscriptions/{id}` cancela la renovacion y conserva el plan hasta\r\n  `ExpiresAt`.\r\n- `POST /subscriptions/{id}/downgrade` programa `UserFamilia` a `UserPlus` en\r\n  el vencimiento actual; requiere `targetTier: \"UserPlus\"`.\r\n- `PUT /subscriptions/{id}/report-payment` informa el pago del plan pendiente.\r\n\r\n### Recuperacion\r\n\r\n- `GET /public/pets/{id}`\r\n- `POST /pets`\r\n- `POST /pets/{id}/report-lost`\r\n- `GET/POST /lost-pets/*`\r\n- `POST /sightings`\r\n- `POST /found-pets`\r\n- `POST /chat/*`\r\n- `POST /handover/*`\r\n\r\n### Clinicas y certificados\r\n\r\n- `POST /clinics/register`\r\n- `GET/PUT /clinics/me/*`\r\n- `POST /clinics/scan`\r\n- `POST /clinics/access-grants/*`\r\n- `GET/POST /medical/*`\r\n- `POST /certificates/*`\r\n- `GET /public/certificates/{code}`\r\n\r\n### Organizaciones\r\n\r\n- `POST /stores/register`, `GET/PUT /stores/*`, `GET/POST/PUT/DELETE /stores/products/*`\r\n- `POST /service-providers/register`, `GET/PUT /service-providers/*`\r\n- `GET/POST /municipalities/captures/*`\r\n- `GET/POST /allies/*`\r\n- `GET/POST /adoptions/*`\r\n\r\n### Administración\r\n\r\n- `/admin/allies`, `/admin/clinics`, `/admin/stores`\r\n- `/admin/service-providers`, `/admin/subscription-plans`\r\n- `/admin/collar-tags`, `/admin/promotions`, `/admin/billboards`\r\n- `/admin/welfare-cases`, `/admin/audit`, `/admin/product-analytics`\r\n\r\n## Seguridad de integraciones\r\n\r\nLa matriz de ownership, BOLA/IDOR y scopes esta en\r\n[API_AUTHORIZATION_MATRIX.md](API_AUTHORIZATION_MATRIX.md). Las claves de\r\nclinica requieren scope, vigencia y pertenencia a la clinica. No documentar ni\r\nprobar API keys reales en issues, logs o ejemplos.\r\n";
+const html = DOMPurify.sanitize(marked.parse(md));
+const content = document.getElementById('content');
+content.innerHTML = html;
+
+// Build sidebar nav from rendered headings
+const headings = content.querySelectorAll('h2, h3');
+const sidebar  = document.querySelector('#sidebar nav ul');
+headings.forEach((h, i) => {
+  if (!h.id) {
+    h.id = 'h-' + i + '-' + h.textContent.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').slice(0, 50);
+  }
+  const li = document.createElement('li');
+  const a  = document.createElement('a');
+  a.href      = '#' + h.id;
+  a.textContent = h.textContent.replace(/^#+\s*/, '');
+  a.className = h.tagName.toLowerCase();
+  li.appendChild(a);
+  sidebar.appendChild(li);
+});
+
+// Highlight active link on scroll
+const links = sidebar.querySelectorAll('a[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const active = sidebar.querySelector('a[href="#' + e.target.id + '"]');
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -75% 0px' });
+content.querySelectorAll('h2, h3').forEach(h => obs.observe(h));
+</script>
+</body>
+</html>

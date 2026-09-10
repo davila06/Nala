@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Manual de Municipalidades — PawTrack CR</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+</head>
+<body>
+<aside id="sidebar">
+  <div class="brand"><span>🐾</span><strong>PawTrack CR<br>Documentación</strong></div>
+  <nav><ul>
+    <li><a href="index.html" class="h2">← Inicio</a></li>
+    <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>
+    <li><a href="FEATURES.html" class="h2">🧭 Features por Plan</a></li>
+    <li><a href="PRICING_AND_PLANS.html" class="h2">💳 Planes y Capacidades</a></li>
+    <li><a href="inversionistas.html" class="h2">💼 Pitch para Inversionistas</a></li>
+    <li><a href="API_REFERENCE.html" class="h2">🔌 Referencia API</a></li>
+    <li><a href="CONSOLIDACION_DOCUMENTAL.html" class="h2">🗂️ Consolidación Documental</a></li>
+    <li><a href="COLLAR_CURRENT_STATE.html" class="h2">📡 Estado Actual de Collares</a></li>
+    <li><a href="ADOPTIONS_CURRENT_STATE.html" class="h2">🏡 Estado Actual de Adopciones</a></li>
+    <li><a href="NALA_REPORTING_GUIDE.html" class="h2">📊 NALA y Reportes</a></li>
+    <li><a href="sinpe.html" class="h2">💸 Automatización SINPE Móvil</a></li>
+    <li><a href="NALA.html" class="h2">🐾 Producto PawTrack CR</a></li>
+    <li><a href="MANUAL_USUARIO.html" class="h2">📱 Manual de Usuario</a></li>
+    <li><a href="MANUAL_ADMINISTRADOR.html" class="h2">⚙️ Manual de Administrador</a></li>
+    <li><a href="MANUAL_ALIADOS.html" class="h2">🤝 Manual de Aliados</a></li>
+    <li><a href="MANUAL_CLINICAS.html" class="h2">🏥 Manual de Clínicas Veterinarias</a></li>
+    <li><a href="MANUAL_MUNICIPALIDADES.html" class="h2">🏛️ Manual de Municipalidades</a></li>
+    <li><a href="MANUAL_TIENDAS.html" class="h2">🏪 Manual de Tiendas</a></li>
+    <li><a href="MANUAL_PROVEEDORES.html" class="h2">🧰 Manual de Proveedores</a></li>
+    <li><a href="MANUAL_SOPORTE.html" class="h2">🎧 Manual de Soporte</a></li>
+    <li><a href="MANUAL_TECNICO.html" class="h2">🛠️ Manual Técnico</a></li>
+    <li><a href="GUIA_ONBOARDING_DEV.html" class="h2">🚀 Guía de Onboarding Dev</a></li>
+    <li><a href="GUIA_DEPLOY_PASO_A_PASO.html" class="h2">☁️ Guía de Deploy Paso a Paso</a></li>
+    <li><a href="RUNBOOK_OPERACIONES.html" class="h2">📟 Runbook de Operaciones</a></li>
+    <li><a href="DEPLOY_INFO.html" class="h2">🗂️ Datos de Despliegue Beta</a></li>
+    <li><a href="RUNBOOK_DEPLOYMENT.html" class="h2">🚢 Runbook de Deployment</a></li>
+    <li><a href="RUNBOOK_SEGURIDAD_INCIDENTES.html" class="h2">🛡️ Seguridad e Incidentes</a></li>
+    <li><a href="RUNBOOK_BACKUPS_RECUPERACION.html" class="h2">💾 Backups y Recuperación</a></li>
+    <li><a href="MATRIZ_RETENCION_DATOS.html" class="h2">🧾 Retención de Datos</a></li>
+    <li><a href="GUIA_QA_E2E.html" class="h2">🧪 Guía QA y E2E</a></li>
+    <li><a href="GUIA_INTEGRACIONES_WEBHOOKS.html" class="h2">🔗 Integraciones y Webhooks</a></li>
+    <li><a href="RUNBOOK_JOBS_BACKGROUND.html" class="h2">⏱️ Jobs en Background</a></li>
+    <li><a href="RUNBOOK_MODERACION_Y_BIENESTAR.html" class="h2">🐾 Moderación y Bienestar</a></li>
+    <li><a href="POLITICA_DE_PRIVACIDAD.html" class="h2">🔒 Política de Privacidad</a></li>
+    <li><a href="TERMINOS_DE_USO.html" class="h2">📋 Términos de Uso</a></li>
+  </ul></nav>
+</aside>
+<main id="main">
+  <div id="content"><p style="color:#888;padding:2rem">Cargando…</p></div>
+</main>
+<script>
+const md = "# Manual de Municipalidades - PawTrack CR\r\n\r\n**Version:** 1.0  \r\n**Rol:** `Municipality`  \r\n**Audiencia:** personal municipal autorizado  \r\n**Ultima actualizacion:** 2026-09-09\r\n\r\n## 1. Alcance\r\n\r\nEl portal municipal permite registrar animales capturados, dar seguimiento a su\r\nestado, asociar una mascota PawTrack cuando existe coincidencia y convertir un\r\ncaso en reporte de bienestar. El alcance de los datos esta aislado al perfil\r\nmunicipal y sus cantones autorizados.\r\n\r\nEl rol se asigna administrativamente. No se obtiene mediante el registro publico\r\nde una cuenta individual.\r\n\r\n## 2. Acceso\r\n\r\n1. Inicia sesion con la cuenta municipal.\r\n2. Abre `/municipalidad/portal` para el portal operativo o\r\n   `/municipalidad/dashboard` para el tablero.\r\n3. Si la cuenta esta pendiente, vencida o sin perfil municipal, solicita al\r\n   administrador revisar el perfil y la suscripcion.\r\n\r\nEl backend valida el rol y el tenant municipal; cambiar un `userId`, cantón o\r\nidentificador en la URL no concede acceso a otra municipalidad.\r\n\r\n## 3. Registrar una captura\r\n\r\nEn **Registrar captura**, completa cantón, especie y color. Raza, edad estimada,\r\nnotas y numero de collar o microchip son opcionales. Guarda el registro tan\r\npronto como el animal ingrese al proceso municipal.\r\n\r\nLos estados disponibles dependen del flujo operativo. Al confirmar una\r\ncoincidencia, usa el identificador de mascota que devuelve el sistema; no\r\ncopies datos privados de una mascota a otra captura.\r\n\r\n## 4. Consultar y actualizar capturas\r\n\r\nLa bandeja permite filtrar por estado, cantón y pagina. Para una captura propia\r\npuedes actualizar el estado individual. `MuniFull` y `MuniRedRegional` tambien\r\npermiten actualizacion masiva y carga de fotografia JPEG o PNG de hasta 5 MB.\r\n\r\nLa fotografia y las notas deben contener solo evidencia necesaria para la\r\noperacion. No incluy informacion personal innecesaria en texto libre.\r\n\r\n## 5. Estadisticas y red regional\r\n\r\n| Tier              | Acceso                                                               |\r\n| ----------------- | -------------------------------------------------------------------- |\r\n| `MuniBasica`      | Portal y capturas de su alcance base                                 |\r\n| `MuniFull`        | Fotos, actualizacion masiva y estadisticas cantonales                |\r\n| `MuniRedRegional` | Todo lo anterior, dashboard regional y transferencias entre cantones |\r\n\r\nLas estadisticas se consultan desde el dashboard y no deben interpretarse como\r\nestadisticas nacionales si el alcance seleccionado no lo es.\r\n\r\n## 6. Transferir o derivar\r\n\r\nCon `MuniRedRegional`, selecciona la captura, indica el cantón destino y agrega\r\nel motivo. Verifica la organización receptora antes de confirmar. Para una\r\nsituacion de posible maltrato, usa **Convertir en caso de bienestar** y registra\r\nla severidad y una descripcion factual.\r\n\r\n## 7. Privacidad y seguridad\r\n\r\n- No compartas capturas, coordenadas o evidencia por canales no autorizados.\r\n- No descargues ni publiques datos de propietarios; el portal no esta diseñado\r\n  para distribuir PII.\r\n- Reporta accesos indebidos al administrador y conserva el identificador del\r\n  caso y la hora del incidente.\r\n- Los reportes institucionales agregados se rigen por\r\n  [RUNBOOK_REPORTES_INSTITUCIONALES.md](../RUNBOOK_REPORTES_INSTITUCIONALES.md).\r\n\r\n## 8. Checklist de cierre\r\n\r\n- Captura con especie, color, cantón y fecha.\r\n- Coincidencia PawTrack verificada o marcada como no encontrada.\r\n- Estado actualizado.\r\n- Evidencia adjunta solo cuando el tier lo permite y es necesaria.\r\n- Transferencia o caso de bienestar con motivo documentado.\r\n";
+const html = DOMPurify.sanitize(marked.parse(md));
+const content = document.getElementById('content');
+content.innerHTML = html;
+
+// Build sidebar nav from rendered headings
+const headings = content.querySelectorAll('h2, h3');
+const sidebar  = document.querySelector('#sidebar nav ul');
+headings.forEach((h, i) => {
+  if (!h.id) {
+    h.id = 'h-' + i + '-' + h.textContent.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').slice(0, 50);
+  }
+  const li = document.createElement('li');
+  const a  = document.createElement('a');
+  a.href      = '#' + h.id;
+  a.textContent = h.textContent.replace(/^#+\s*/, '');
+  a.className = h.tagName.toLowerCase();
+  li.appendChild(a);
+  sidebar.appendChild(li);
+});
+
+// Highlight active link on scroll
+const links = sidebar.querySelectorAll('a[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const active = sidebar.querySelector('a[href="#' + e.target.id + '"]');
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -75% 0px' });
+content.querySelectorAll('h2, h3').forEach(h => obs.observe(h));
+</script>
+</body>
+</html>

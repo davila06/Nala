@@ -14,17 +14,35 @@ $htmlDir = Join-Path $sourceDir "html"
 $docs = @(
   @{ file = "FEATURES.md";                    title = "Features por Plan";                 icon = "🧭"; back = "../FEATURES.md" }
   @{ file = "PRICING_AND_PLANS.md";           title = "Planes y Capacidades";             icon = "💳"; back = "../PRICING_AND_PLANS.md" }
+  @{ file = "inversionistas.md";              title = "Pitch para Inversionistas";         icon = "💼"; back = "../inversionistas.md" }
+  @{ file = "API_REFERENCE.md";               title = "Referencia API";                    icon = "🔌"; back = "../API_REFERENCE.md" }
+  @{ file = "CONSOLIDACION_DOCUMENTAL.md";    title = "Consolidación Documental";         icon = "🗂️"; back = "../CONSOLIDACION_DOCUMENTAL.md" }
+  @{ file = "COLLAR_CURRENT_STATE.md";        title = "Estado Actual de Collares";        icon = "📡"; back = "../COLLAR_CURRENT_STATE.md" }
+  @{ file = "ADOPTIONS_CURRENT_STATE.md";    title = "Estado Actual de Adopciones";      icon = "🏡"; back = "../ADOPTIONS_CURRENT_STATE.md" }
+  @{ file = "NALA_REPORTING_GUIDE.md";       title = "NALA y Reportes";                  icon = "📊"; back = "../NALA_REPORTING_GUIDE.md" }
   @{ file = "sinpe.md";                      title = "Automatización SINPE Móvil";        icon = "💸"; back = "../sinpe.md" }
   @{ file = "NALA.md";                       title = "Producto PawTrack CR";             icon = "🐾"; back = "../NALA.md" }
   @{ file = "Manuales/MANUAL_USUARIO.md";            title = "Manual de Usuario";                icon = "📱"; back = "../Manuales/MANUAL_USUARIO.md" }
   @{ file = "Manuales/MANUAL_ADMINISTRADOR.md";      title = "Manual de Administrador";          icon = "⚙️"; back = "../Manuales/MANUAL_ADMINISTRADOR.md" }
   @{ file = "Manuales/MANUAL_ALIADOS.md";            title = "Manual de Aliados";                icon = "🤝"; back = "../Manuales/MANUAL_ALIADOS.md" }
   @{ file = "Manuales/MANUAL_CLINICAS.md";           title = "Manual de Clínicas Veterinarias";  icon = "🏥"; back = "../Manuales/MANUAL_CLINICAS.md" }
+  @{ file = "Manuales/MANUAL_MUNICIPALIDADES.md";    title = "Manual de Municipalidades";        icon = "🏛️"; back = "../Manuales/MANUAL_MUNICIPALIDADES.md" }
+  @{ file = "Manuales/MANUAL_TIENDAS.md";            title = "Manual de Tiendas";                icon = "🏪"; back = "../Manuales/MANUAL_TIENDAS.md" }
+  @{ file = "Manuales/MANUAL_PROVEEDORES.md";        title = "Manual de Proveedores";            icon = "🧰"; back = "../Manuales/MANUAL_PROVEEDORES.md" }
+  @{ file = "Manuales/MANUAL_SOPORTE.md";            title = "Manual de Soporte";                icon = "🎧"; back = "../Manuales/MANUAL_SOPORTE.md" }
   @{ file = "Manuales/MANUAL_TECNICO.md";            title = "Manual Técnico";                   icon = "🛠️"; back = "../Manuales/MANUAL_TECNICO.md" }
   @{ file = "GUIA_ONBOARDING_DEV.md";       title = "Guía de Onboarding Dev";           icon = "🚀"; back = "../GUIA_ONBOARDING_DEV.md" }
   @{ file = "GUIA_DEPLOY_PASO_A_PASO.md";   title = "Guía de Deploy Paso a Paso";       icon = "☁️"; back = "../GUIA_DEPLOY_PASO_A_PASO.md" }
   @{ file = "RUNBOOK_OPERACIONES.md";       title = "Runbook de Operaciones";           icon = "📟"; back = "../RUNBOOK_OPERACIONES.md" }
   @{ file = "DEPLOY_INFO.md";               title = "Datos de Despliegue Beta";         icon = "🗂️"; back = "../DEPLOY_INFO.md" }
+  @{ file = "RUNBOOK_DEPLOYMENT.md";         title = "Runbook de Deployment";             icon = "🚢"; back = "../RUNBOOK_DEPLOYMENT.md" }
+  @{ file = "RUNBOOK_SEGURIDAD_INCIDENTES.md"; title = "Seguridad e Incidentes";          icon = "🛡️"; back = "../RUNBOOK_SEGURIDAD_INCIDENTES.md" }
+  @{ file = "RUNBOOK_BACKUPS_RECUPERACION.md"; title = "Backups y Recuperación";          icon = "💾"; back = "../RUNBOOK_BACKUPS_RECUPERACION.md" }
+  @{ file = "MATRIZ_RETENCION_DATOS.md";    title = "Retención de Datos";                icon = "🧾"; back = "../MATRIZ_RETENCION_DATOS.md" }
+  @{ file = "GUIA_QA_E2E.md";               title = "Guía QA y E2E";                     icon = "🧪"; back = "../GUIA_QA_E2E.md" }
+  @{ file = "GUIA_INTEGRACIONES_WEBHOOKS.md"; title = "Integraciones y Webhooks";         icon = "🔗"; back = "../GUIA_INTEGRACIONES_WEBHOOKS.md" }
+  @{ file = "RUNBOOK_JOBS_BACKGROUND.md";   title = "Jobs en Background";                icon = "⏱️"; back = "../RUNBOOK_JOBS_BACKGROUND.md" }
+  @{ file = "RUNBOOK_MODERACION_Y_BIENESTAR.md"; title = "Moderación y Bienestar";         icon = "🐾"; back = "../RUNBOOK_MODERACION_Y_BIENESTAR.md" }
   @{ file = "POLITICA_DE_PRIVACIDAD.md";    title = "Política de Privacidad";           icon = "🔒"; back = "../POLITICA_DE_PRIVACIDAD.md" }
   @{ file = "TERMINOS_DE_USO.md";           title = "Términos de Uso";                  icon = "📋"; back = "../TERMINOS_DE_USO.md" }
 )
