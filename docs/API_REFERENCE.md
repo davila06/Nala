@@ -52,6 +52,14 @@ contrato generado.
 - `POST /auth/me/health-data-consent`
 - `POST /auth/mfa/*`
 
+Suscripciones de usuario:
+
+- `DELETE /subscriptions/{id}` cancela la renovacion y conserva el plan hasta
+  `ExpiresAt`.
+- `POST /subscriptions/{id}/downgrade` programa `UserFamilia` a `UserPlus` en
+  el vencimiento actual; requiere `targetTier: "UserPlus"`.
+- `PUT /subscriptions/{id}/report-payment` informa el pago del plan pendiente.
+
 ### Recuperacion
 
 - `GET /public/pets/{id}`

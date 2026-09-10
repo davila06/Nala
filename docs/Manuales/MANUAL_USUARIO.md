@@ -114,6 +114,20 @@ Los precios y gates vigentes se mantienen en
 [FEATURES.md](../FEATURES.md). La interfaz puede ocultar una funcion, pero el
 backend es la autoridad final del plan activo.
 
+### Cambiar de Familia a Plus
+
+Desde `/perfil`, elige **Programar cambio a Plus al vencimiento**. Mantienes
+Familia, sus miembros y sus funciones hasta la fecha de vencimiento actual.
+El nuevo Plus queda pendiente de pago; despues de reportar SINPE, PawTrack lo
+activa para el siguiente periodo. No se borran mascotas, miembros ni datos
+medicos. Al entrar en Plus, el historial medico completo pasa a vista previa y
+las nuevas mascotas quedan limitadas a tres.
+
+### Cancelar renovacion
+
+**Cancelar renovacion** detiene el siguiente periodo, pero no corta el acceso
+inmediatamente. El plan continua activo hasta su vencimiento.
+
 ## 11. Directorios y adopciones
 
 Puedes consultar `/clinicas`, `/tiendas`, `/servicios`, `/adopciones` y

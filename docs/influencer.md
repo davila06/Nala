@@ -1,113 +1,152 @@
-# PawTrack CR — Mensaje de contacto para influencers
+# PawTrack CR - Mensaje de contacto para influencers
 
-> Plantilla genérica para WhatsApp, DM o email.  
-> Personalizar el nombre y el medio antes de enviar.
+> Plantilla para WhatsApp, DM o email. Personalizar el nombre y el medio antes
+> de enviar.
+>
+> **Estado de producto:** PawTrack CR tiene una base funcional amplia y está en
+> etapa de validación comercial y operativa. No presentarlo como producto masivo
+> ya desplegado ni como servicio de emergencia garantizado.
 
 ---
 
-## Versión corta (WhatsApp / DM)
+## Version corta - WhatsApp / DM
 
-```
+```text
 Hola [Nombre] 👋
 
-Te escribo porque sigo tu contenido y creo que esto te puede interesar.
+Te escribo porque sigo tu contenido sobre [mascotas / estilo de vida / Costa Rica]
+y creo que esto puede interesarte.
 
-Estoy desarrollando PawTrack CR — una app costarricense para reunir mascotas perdidas con sus familias. Funciona con un collar QR: cualquier persona que encuentre a tu mascota escanea el collar y le llega una alerta al dueño en segundos, sin instalar nada.
+Estoy desarrollando PawTrack CR, una plataforma costarricense para ayudar a
+reunir mascotas perdidas con sus familias. El flujo parte de un perfil publico
+con QR: quien encuentre a la mascota puede escanearlo desde la camara del
+celular, sin instalar una aplicacion, y usar el contacto seguro disponible.
 
-También incluye expediente médico digital, GPS en vivo, recompensas SINPE y red de clínicas veterinarias. Es 100% gratuita para usuarios básicos y ya está en producción.
+La plataforma tambien incluye avistamientos, mapa, chat enmascarado,
+coordinacion de busqueda, expediente medico para el plan Familia, funciones GPS
+para Plus o superior y una red de clinicas y aliados. Hay un nivel gratuito y
+planes premium; algunas funciones estan en validacion operativa y comercial.
 
-Me gustaría saber si te interesa conocerla y quizás compartirla con tu comunidad. No hay ningún compromiso — si la probás y no la sentís auténtica, no hay problema.
+Me gustaria invitarte a conocerla y decidir libremente si tiene sentido
+compartirla con tu comunidad. No hay compromiso: primero puedes probarla y
+hacer preguntas.
 
-Lo que te ofrecería:
-• Acceso completo a la plataforma para que la probés antes de publicar
-• Kit de assets (fotos, videos, mockups)
-• Amplificamos tu contenido desde nuestras redes
-• Badge "Aliado Oficial PawTrack CR" para tu bio
-• Sin guión, sin aprobaciones, total libertad editorial
+Lo que puedo ofrecerte:
+• Demo o acceso de prueba al ambiente disponible
+• Kit de assets: fotos, capturas, logos y material de marca
+• Respuestas directas sobre el producto
+• Posible amplificacion desde canales oficiales, si estan activos
+• Reconocimiento de colaboracion, sujeto a aprobacion
+• Libertad editorial y ningun guion obligatorio
 
-¿Te parece si coordinamos una llamada rápida de 15 minutos?
+¿Te parece si coordinamos una llamada o demo de 15 minutos?
 
-Denis — Fundador PawTrack CR
-davila06@gmail.com | pawtrack.cr
+Denis - Fundador PawTrack CR
+ davila06@gmail.com | https://pawtrack.cr
 ```
 
 ---
 
-## Versión larga (email)
+## Version larga - email
 
-**Asunto:** PawTrack CR — ¿Te interesa apoyar una causa de mascotas en Costa Rica?
+**Asunto:** PawTrack CR - una red local para ayudar a recuperar mascotas
 
-```
+```text
 Hola [Nombre],
 
 Te escribo porque sigo tu contenido sobre [mascotas / estilo de vida / Costa Rica]
-y creo que lo que estamos construyendo puede resonar genuinamente con tu audiencia.
+y creo que lo que estamos construyendo puede resonar con tu audiencia.
 
-Me llamo Denis y soy el fundador de PawTrack CR — la primera red de recuperación
-de mascotas de Costa Rica.
+Me llamo Denis y soy el fundador de PawTrack CR, una plataforma costarricense
+para identidad, cuidado y recuperacion de mascotas.
 
-— ¿QUÉ ES PAWTRACK CR? —
+- ¿QUE ES PAWTRACK CR? -
 
-Una plataforma que conecta a dueños, rescatistas y comunidad cuando una mascota
-se pierde. El corazón del sistema es un collar con código QR: cualquier persona
-que encuentre a la mascota lo escanea con la cámara del celular (sin descargar
-ninguna app) y el dueño recibe una alerta con la ubicación GPS en segundos.
+PawTrack conecta a dueños, personas que encuentran mascotas, rescatistas,
+clinicas, refugios y comunidad cuando una mascota se pierde. El perfil publico
+con QR puede abrirse desde la camara del celular, sin descargar una aplicacion.
+Desde ahi se puede usar el contacto seguro o reportar un avistamiento, segun el
+estado del caso.
 
 La plataforma incluye:
-• Mapa en tiempo real de avistamientos
-• IA que identifica mascotas por foto
-• **Expediente médico digital completo** — vacunas, consultas, medicamentos, peso por visita, recordatorios veterinarios, vista calendario y dashboard multi-mascota (plan Familia)
-• Chat anónimo entre dueño y quien encontró la mascota
-• Sala de coordinación de búsqueda en tiempo real
-• WhatsApp, push y email como canales de alerta
-• Sistema de recompensas económicas (Bounty) con escrow SINPE
-• Portal para clínicas veterinarias con expediente compartido
+• Perfil publico, QR y microchip
+• Mapa y reportes de avistamientos
+• Matching visual por foto cuando el plan y el flujo lo permiten
+• Expediente medico con consentimiento; el acceso completo corresponde al plan Familia
+• Chat enmascarado entre dueño y persona que ayuda
+• Sala de coordinacion de busqueda en tiempo real
+• Canales de notificacion habilitados, como email, WhatsApp, Telegram y Facebook
+• Funciones de collar GPS para planes Plus o superiores
+• Portales para clinicas, aliados, refugios, tiendas y municipalidades
 
-Es completamente gratuita para los usuarios — el modelo de negocio es a través
-de planes premium (₡2,990–₡4,990/mes) y clínicas veterinarias, no de publicidad.
+PawTrack tiene un nivel gratuito y planes premium. Los precios tecnicos actuales
+para dueños son UserPlus ₡2,990/mes y UserFamilia ₡4,990/mes. Las ofertas B2B y
+B2G tienen condiciones separadas. Las recompensas y cualquier flujo de custodia
+de fondos requieren validacion legal y operativa antes de presentarse como
+servicio financiero activo.
 
-— POR QUÉ TE ESCRIBO —
+- POR QUE TE ESCRIBO -
 
-No busco un "patrocinio pagado". Esto es una colaboración voluntaria con una
-causa social. Si probás la plataforma y sentís que vale la pena compartirla,
-genial. Si no, no pasa nada.
+No busco un patrocinio pagado. Me gustaria ofrecerte una colaboracion
+voluntaria y transparente. Si pruebas la plataforma y sientes que vale la pena
+compartirla, genial. Si no, no pasa nada.
 
-Lo que sí te ofrezco:
-✓ Acceso completo a la plataforma para que la probés antes de publicar
-✓ Kit de assets: fotos, capturas en alta resolución, logos, guía de marca
-✓ Contacto directo conmigo para resolver cualquier duda (respondo en 24h)
-✓ Amplificamos tu contenido desde las redes oficiales de PawTrack CR
-✓ Badge "Aliado Oficial PawTrack CR" para tu bio
-✓ Total libertad editorial — publicás cuando y como querás, sin guión
+Lo que puedo ofrecerte:
+✓ Demo o acceso de prueba al ambiente disponible
+✓ Kit de assets: capturas, fotos, logos y guia de marca
+✓ Contacto directo para resolver preguntas
+✓ Posible amplificacion desde canales oficiales, si estan activos
+✓ Reconocimiento de colaboracion, sujeto a aprobacion y terminos acordados
+✓ Libertad editorial: sin guion ni aprobacion previa del contenido
 
-— UNA HISTORIA QUE MUEVE —
+- UNA HISTORIA QUE MUEVE -
 
-El amor por las mascotas es uno de los pocos temas que conecta a toda la
-audiencia sin importar el nicho. Un video de 60 segundos mostrando el collar QR
-puede ser el contenido que haga que UNA familia costarricense vuelva a reunirse
-con su mascota. Eso es algo que ninguna pauta publicitaria puede comprar.
+El amor por las mascotas conecta con muchas comunidades. Un contenido que
+muestre como funciona un QR, como reportar un avistamiento o como preparar a
+una familia antes de una perdida puede ayudar a que mas personas conozcan una
+herramienta util, sin prometer resultados garantizados.
 
-¿Te interesa conocer más? Con gusto te hago una demo rápida o te envío el kit
-de material para que lo veas con tus propios ojos.
+¿Te interesa conocer mas? Con gusto coordinamos una demo o te envio el material
+para que lo revises antes de decidir.
 
 Un saludo,
 
 Denis Avila
-Fundador — PawTrack CR
+Fundador - PawTrack CR
 davila06@gmail.com
-https://pawtrack.cr/influencer
+https://pawtrack.cr
 ```
 
 ---
 
-## Notas de uso
+## Reglas de uso
 
-- **Personalizar siempre:** nombre, qué seguís de su contenido, y el medio (mascota/lifestyle/CR)
-- **No enviar en masa**: cada mensaje debe sentirse individual — los influencers detectan los templates genéricos
-- **El link `pawtrack.cr/influencer`** lleva a la landing page con todo el detalle para que no tengan que preguntar
-- **Si preguntan por pago**: ser honesto — es colaboración voluntaria, sin compensación económica
-- **Follow-up**: si no hay respuesta en 5 días, un mensaje corto de seguimiento ("¿llegó mi mensaje?") está bien
+- Personalizar nombre, referencia al contenido y canal de contacto.
+- No enviar mensajes masivos ni presentar la plantilla como testimonio real.
+- No afirmar que PawTrack ya está en producción abierta, que garantiza una
+  reunificación, que entrega alertas en segundos o que opera 24/7.
+- No describir recompensas como escrow, payout o pagos procesados por PawTrack
+  sin validacion legal y operativa vigente.
+- No llamar a PawTrack “la primera” plataforma del país sin evidencia externa.
+- No presentar "SENASA-ready" como aprobación, certificación o integración
+  oficial de SENASA.
+- No prometer compensacion economica, publicidad cruzada o un badge sin
+  aprobación previa.
+- Si preguntan por precios, usar [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md).
+- Si preguntan por estado tecnico, usar [STATUS.md](STATUS.md).
+- Compartir `https://pawtrack.cr` solo cuando el ambiente publico esté
+  disponible y validado.
+- Si no hay respuesta en cinco dias, enviar un unico seguimiento breve.
 
 ---
 
-_PawTrack CR · Plantilla de contacto influencers · Agosto 2026_
+## Seguimiento sugerido
+
+```text
+Hola [Nombre], ¿pudiste ver mi mensaje sobre PawTrack CR? Si te interesa,
+puedo enviarte una demo breve o el material para que lo revises sin compromiso.
+```
+
+---
+
+_PawTrack CR - Plantilla de contacto para influencers - Septiembre 2026_

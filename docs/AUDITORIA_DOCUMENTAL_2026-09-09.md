@@ -50,6 +50,8 @@ El codigo define: `Owner`, `Ally`, `Admin`, `Clinic`, `Municipality`, `Store`,
 - Se consolidaron familias duplicadas de deployment, precios, collares,
   adopciones y NALA mediante documentos canonicos.
 - Se retiro una credencial SQL literal de la documentacion beta.
+- Se definio y documento la politica de cancelacion al vencimiento y downgrade
+  programado de `UserFamilia` a `UserPlus`.
 
 ## Documentos fuente activa revisados
 

@@ -18,6 +18,18 @@
 Los precios B2C deben mantenerse sincronizados con `SubscriptionPricing` y
 aprobarse antes de publicarse.
 
+### Cambios de plan
+
+- Cancelar una suscripcion cancela su renovacion, pero conserva el plan actual
+  hasta `ExpiresAt`.
+- El downgrade soportado `UserFamilia` -> `UserPlus` se programa para ese
+  vencimiento; no elimina mascotas, miembros familiares ni historiales.
+- Plus limita nuevas altas a 3 mascotas y ofrece una vista previa de hasta 3
+  registros medicos; el historial completo requiere Familia.
+- El nuevo plan queda pendiente de verificacion SINPE y solo se activa cuando
+  Admin confirma el pago y llega la fecha efectiva.
+- No hay prorrateo ni reembolso automatico implementado.
+
 ## Clinicas
 
 | Plan          | Estado tecnico | Capacidades                                |

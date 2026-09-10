@@ -29,6 +29,7 @@ Estados documentales:
 | [PRODUCT_P0_ENTERPRISE_TODOLIST.md](PRODUCT_P0_ENTERPRISE_TODOLIST.md)           | Backlog y gates P0 enterprise                |
 | [FEATURES.md](FEATURES.md)                                                       | Matriz de capacidades por plan               |
 | [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md)                                     | Fuente comercial consolidada                 |
+| [inversionistas.md](inversionistas.md)                                           | Pitch para inversionistas                    |
 | [PawTrack_Documento_Maestro_v3.1.md](PawTrack_Documento_Maestro_v3.1.md)         | Arquitectura y especificacion consolidada    |
 | [pruebas.md](pruebas.md)                                                         | Usuarios, runtime local y validacion manual  |
 | [RUNBOOK_OPERACIONES.md](RUNBOOK_OPERACIONES.md)                                 | Operacion, incidentes y continuidad          |
