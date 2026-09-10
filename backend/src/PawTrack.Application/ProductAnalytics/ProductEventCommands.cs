@@ -26,6 +26,9 @@ public sealed class IngestProductEventCommandValidator : AbstractValidator<Inges
         "PetRegistered", "PetProfileCompleted", "QrGenerated", "QrActivated", "QrScanned",
         "LostPetReported", "SightingCreated", "FoundPetReported", "FirstResponseRecorded",
         "HandoverStarted", "HandoverCompleted", "PetReunited",
+        "AdoptionDirectoryViewed", "AdoptionFiltersApplied", "AdoptionMapOpened",
+        "AdoptionDetailViewed", "AdoptionApplicationStarted", "AdoptionApplicationAbandoned",
+        "AdoptionApplicationSubmitted",
     ];
 
     public IngestProductEventCommandValidator()
@@ -86,12 +89,14 @@ public sealed class IngestProductEventCommandHandler(
 public sealed record GetProductFunnelQuery(
     DateTimeOffset From,
     DateTimeOffset To,
-    string? Canton = null) : IRequest<Result<ProductFunnelDto>>;
+    string? Canton = null,
+    string? ShelterId = null) : IRequest<Result<ProductFunnelDto>>;
 
 public sealed record ProductFunnelDto(
     DateTimeOffset From,
     DateTimeOffset To,
     string? Canton,
+    string? ShelterId,
     IReadOnlyDictionary<string, int> Events);
 
 public sealed class GetProductFunnelQueryHandler(IProductEventRepository repository)
@@ -99,11 +104,17 @@ public sealed class GetProductFunnelQueryHandler(IProductEventRepository reposit
 {
     public async Task<Result<ProductFunnelDto>> Handle(GetProductFunnelQuery request, CancellationToken cancellationToken)
     {
-        var counts = await repository.CountByEventNameAsync(request.From, request.To, request.Canton, cancellationToken);
+        var counts = await repository.CountByEventNameAsync(
+            request.From,
+            request.To,
+            request.Canton,
+            request.ShelterId,
+            cancellationToken);
         return Result.Success(new ProductFunnelDto(
             request.From,
             request.To,
             request.Canton,
+            request.ShelterId,
             counts.ToDictionary(x => x.EventName, x => x.Count, StringComparer.Ordinal)));
     }
 }

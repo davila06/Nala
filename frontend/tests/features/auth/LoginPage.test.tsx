@@ -93,4 +93,12 @@ describe("LoginPage", () => {
       screen.getByRole("link", { name: /regístrate/i }),
     ).toBeInTheDocument();
   });
+
+  it("lets visitors explore the adoption directory without an account", () => {
+    renderWithProviders(<LoginPage />);
+
+    expect(
+      screen.getByRole("link", { name: "Explorar adopciones sin cuenta" }),
+    ).toHaveAttribute("href", "/adopciones");
+  });
 });

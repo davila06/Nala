@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Skeleton } from "@/shared/ui/Spinner";
@@ -7,6 +7,7 @@ import { SPECIES_LABELS, SIZE_LABELS, AGE_LABELS } from "../api/adoptionsApi";
 import { ApplyDrawer } from "../components/ApplyDrawer";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { toast } from "@/shared/lib/toast";
+import { trackProductEvent } from "@/shared/lib/telemetry";
 
 export default function AdoptionDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +15,15 @@ export default function AdoptionDetailPage() {
   const [photoIndex, setPhotoIndex] = useState(0);
   const [applyOpen, setApplyOpen] = useState(false);
   const { user } = useAuthStore();
+
+  useEffect(() => {
+    if (!animal) return;
+    trackProductEvent("AdoptionDetailViewed", {
+      source: "adoption-detail",
+      petId: animal.id,
+      correlationId: animal.organizationUserId,
+    });
+  }, [animal]);
 
   if (isLoading) {
     return (
@@ -57,7 +67,7 @@ export default function AdoptionDetailPage() {
         {/* Breadcrumb */}
         <nav className="text-xs text-sand-400">
           <Link to="/adopciones" className="hover:text-brand-500">
-            Adopciones
+            Volver a adopciones
           </Link>
           {" / "}
           <span className="text-ink-700">{animal.name}</span>
@@ -188,7 +198,14 @@ export default function AdoptionDetailPage() {
           {isAvailable &&
             (isAuthenticated ? (
               <button
-                onClick={() => setApplyOpen(true)}
+                onClick={() => {
+                  trackProductEvent("AdoptionApplicationStarted", {
+                    source: "adoption-detail",
+                    petId: animal.id,
+                    correlationId: animal.organizationUserId,
+                  });
+                  setApplyOpen(true);
+                }}
                 className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-2xl shadow-lg transition-colors"
               >
                 🐾 Quiero adoptarlo
@@ -210,7 +227,19 @@ export default function AdoptionDetailPage() {
           animalName={animal.name}
           isOpen={applyOpen}
           onClose={() => setApplyOpen(false)}
+          onAbandon={() =>
+            trackProductEvent("AdoptionApplicationAbandoned", {
+              source: "adoption-detail",
+              petId: animal.id,
+              correlationId: animal.organizationUserId,
+            })
+          }
           onSuccess={() => {
+            trackProductEvent("AdoptionApplicationSubmitted", {
+              source: "adoption-detail",
+              petId: animal.id,
+              correlationId: animal.organizationUserId,
+            });
             setApplyOpen(false);
             toast.success(
               "¡Solicitud enviada! La organización te contactará pronto.",

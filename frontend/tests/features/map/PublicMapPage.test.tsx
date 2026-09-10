@@ -18,6 +18,10 @@ vi.mock("@/features/map/components/MapContainer", () => ({
   MapContainer: () => <div data-testid="map-container" />,
 }));
 
+vi.mock("@/features/advertising/components/BillboardBanner", () => ({
+  BillboardBanner: () => null,
+}));
+
 describe("PublicMapPage", () => {
   it("shows dashboard button when user is authenticated", () => {
     act(() => {
@@ -50,5 +54,13 @@ describe("PublicMapPage", () => {
     expect(
       screen.queryByRole("link", { name: /dashboard/i }),
     ).not.toBeInTheDocument();
+  });
+
+  it("links visitors to the adoption directory", () => {
+    renderWithProviders(<PublicMapPage />);
+
+    expect(
+      screen.getByRole("link", { name: "Ver adopciones" }),
+    ).toHaveAttribute("href", "/adopciones");
   });
 });

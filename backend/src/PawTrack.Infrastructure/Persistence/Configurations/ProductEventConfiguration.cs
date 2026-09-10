@@ -23,5 +23,6 @@ public sealed class ProductEventConfiguration : IEntityTypeConfiguration<Product
         builder.HasIndex(x => x.EventId).IsUnique();
         builder.HasIndex(x => new { x.EventName, x.OccurredAt });
         builder.HasIndex(x => new { x.Canton, x.OccurredAt });
+        builder.HasIndex(x => new { x.CorrelationId, x.OccurredAt });
     }
 }

@@ -78,7 +78,14 @@ export type ProductEventName =
   | "PetReunited"
   | "BillboardImpression"
   | "BillboardClicked"
-  | "BillboardDismissed";
+  | "BillboardDismissed"
+  | "AdoptionDirectoryViewed"
+  | "AdoptionFiltersApplied"
+  | "AdoptionMapOpened"
+  | "AdoptionDetailViewed"
+  | "AdoptionApplicationStarted"
+  | "AdoptionApplicationAbandoned"
+  | "AdoptionApplicationSubmitted";
 
 export interface ProductEventProperties extends ICustomProperties {
   schemaVersion: "1";

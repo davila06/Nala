@@ -352,7 +352,7 @@ export function useAdminModerateAnimal() {
       action,
     }: {
       id: string;
-      action: "remove" | "pause" | "restore";
+      action: "approve" | "reject" | "remove" | "pause" | "restore";
     }) => adminApi.moderateAnimal(id, action),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["admin", "adoptions"] });

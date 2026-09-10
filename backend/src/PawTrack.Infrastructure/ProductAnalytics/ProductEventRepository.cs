@@ -20,6 +20,7 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
         DateTimeOffset from,
         DateTimeOffset to,
         string? canton,
+        string? correlationId = null,
         CancellationToken cancellationToken = default)
     {
         var query = db.ProductEvents.AsNoTracking()
@@ -27,6 +28,9 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
 
         if (!string.IsNullOrWhiteSpace(canton))
             query = query.Where(x => x.Canton == canton);
+
+        if (!string.IsNullOrWhiteSpace(correlationId))
+            query = query.Where(x => x.CorrelationId == correlationId);
 
         return await query
             .GroupBy(x => x.EventName)

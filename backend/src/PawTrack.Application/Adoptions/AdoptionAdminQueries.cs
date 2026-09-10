@@ -96,6 +96,8 @@ public sealed class AdminModerateAnimalCommandHandler(
 
         switch (request.Action.ToLowerInvariant())
         {
+            case "approve" when animal.Status == AdoptionStatus.PendingReview: animal.Approve(); break;
+            case "reject" when animal.Status == AdoptionStatus.PendingReview: animal.Reject(); break;
             case "remove": animal.Remove(); break;
             case "pause": animal.Pause(); break;
             case "restore": animal.Republish(); break;

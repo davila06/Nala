@@ -99,6 +99,13 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("Shelter");
+
                     b.Property<string>("Species")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -129,6 +136,8 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.HasIndex("Status");
 
                     b.HasIndex("Species", "Status");
+
+                    b.HasIndex("Status", "RefLat", "RefLng");
 
                     b.ToTable("AdoptableAnimals", (string)null);
                 });
@@ -3834,6 +3843,8 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.HasIndex("Canton", "OccurredAt");
+
+                    b.HasIndex("CorrelationId", "OccurredAt");
 
                     b.HasIndex("EventName", "OccurredAt");
 

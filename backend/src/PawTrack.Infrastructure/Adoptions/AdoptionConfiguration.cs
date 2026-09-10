@@ -27,6 +27,7 @@ internal sealed class AdoptablePetConfiguration : IEntityTypeConfiguration<Adopt
         b.Property(a => a.Size).HasConversion<string>().HasMaxLength(10);
         b.Property(a => a.AgeCategory).HasConversion<string>().HasMaxLength(10);
         b.Property(a => a.Status).HasConversion<string>().HasMaxLength(15);
+        b.Property(a => a.Source).HasConversion<string>().HasMaxLength(10).HasDefaultValue(AdoptionSource.Shelter);
 
         // Private backing field serialised as JSON array
         b.Property<List<string>>("_photoUrls")
@@ -40,6 +41,7 @@ internal sealed class AdoptablePetConfiguration : IEntityTypeConfiguration<Adopt
         b.HasIndex(a => a.OrganizationUserId);
         b.HasIndex(a => a.Status);
         b.HasIndex(a => new { a.Species, a.Status });
+        b.HasIndex(a => new { a.Status, a.RefLat, a.RefLng });
     }
 }
 

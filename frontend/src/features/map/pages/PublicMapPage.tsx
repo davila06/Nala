@@ -50,8 +50,10 @@ export default function PublicMapPage() {
     showClinics,
   );
   const { data: publicStores = [] } = usePublicStores(showStores, 500);
-  const { data: adoptableAnimals = [] } =
-    useAdoptableAnimalsForMap(showAdoptions);
+  const { data: adoptableAnimals = [] } = useAdoptableAnimalsForMap(
+    {},
+    showAdoptions,
+  );
   const { data: serviceProviders = [] } = usePublicServiceProviders(
     {},
     showServiceProviders,
@@ -258,6 +260,13 @@ export default function PublicMapPage() {
             ↗
           </span>
           <span>Ver estadísticas</span>
+        </Link>
+        <Link
+          to="/adopciones"
+          className="pointer-events-auto flex items-center gap-2 rounded-xl border border-brand-300 bg-brand-50 px-4 py-2.5 text-sm font-semibold text-brand-800 shadow-lg transition-colors hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+        >
+          <span aria-hidden="true">🐾</span>
+          Ver adopciones
         </Link>
         <Link
           to="/map/match"

@@ -52,7 +52,7 @@ export default function AdoptionFairsPage() {
             to="/adopciones"
             className="text-sm text-brand-600 hover:underline shrink-0"
           >
-            Ver animales →
+            Volver a adopciones
           </Link>
         </div>
         <BillboardBanner placement="AdoptionFair" />

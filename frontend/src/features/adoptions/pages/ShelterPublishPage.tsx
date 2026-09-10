@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/shared/ui/Button";
 import { Input } from "@/shared/ui/Input";
@@ -85,6 +85,12 @@ export default function ShelterPublishPage() {
       </Helmet>
 
       <div className="mx-auto max-w-xl px-4 py-8 space-y-6">
+        <Link
+          to="/shelter/dashboard"
+          className="inline-flex text-sm font-semibold text-brand-600 hover:underline"
+        >
+          Volver al panel del shelter
+        </Link>
         <h1 className="text-xl font-bold text-ink-900">
           Publicar animal en adopción
         </h1>

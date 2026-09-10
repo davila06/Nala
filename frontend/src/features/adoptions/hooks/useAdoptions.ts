@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   adoptionsApi,
   type AdoptionFilters,
+  type OwnerAdoptionSubmissionPayload,
   type PublishAnimalPayload,
   type UpdateAnimalPayload,
 } from "../api/adoptionsApi";
@@ -14,10 +15,13 @@ export function useAdoptableAnimals(filters: AdoptionFilters = {}) {
   });
 }
 
-export function useAdoptableAnimalsForMap(enabled = true) {
+export function useAdoptableAnimalsForMap(
+  filters: AdoptionFilters = {},
+  enabled = true,
+) {
   return useQuery({
-    queryKey: ["adoptions", "animals", "map"],
-    queryFn: adoptionsApi.getAnimalsForMap,
+    queryKey: ["adoptions", "animals", "map", filters],
+    queryFn: () => adoptionsApi.getAnimalsForMap(filters),
     staleTime: 5 * 60_000,
     enabled,
   });
@@ -47,6 +51,13 @@ export function usePublishAnimal() {
       adoptionsApi.publishAnimal(data),
     onSuccess: () =>
       void qc.invalidateQueries({ queryKey: ["adoptions", "mine"] }),
+  });
+}
+
+export function useSubmitOwnerAdoption() {
+  return useMutation({
+    mutationFn: (data: OwnerAdoptionSubmissionPayload) =>
+      adoptionsApi.submitOwnerAdoption(data),
   });
 }
 

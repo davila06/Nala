@@ -11,6 +11,7 @@ public interface IProductEventRepository
         DateTimeOffset from,
         DateTimeOffset to,
         string? canton,
+        string? correlationId = null,
         CancellationToken cancellationToken = default);
 }
 

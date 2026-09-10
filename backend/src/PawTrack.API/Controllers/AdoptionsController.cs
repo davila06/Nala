@@ -46,11 +46,45 @@ public sealed class AdoptionsController(ISender sender) : ControllerBase
     [HttpGet("animals/map")]
     [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAnimalsForMap(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAnimalsForMap(
+        [FromQuery] PetSpecies? species,
+        [FromQuery] PetSize? size,
+        [FromQuery] AgeCategory? ageCategory,
+        [FromQuery] bool? isVaccinated,
+        [FromQuery] bool? isSterilized,
+        [FromQuery] bool? okWithKids,
+        [FromQuery] bool? okWithDogs,
+        [FromQuery] double? lat,
+        [FromQuery] double? lng,
+        [FromQuery] int? radiusKm,
+        CancellationToken cancellationToken)
     {
-        // Returns flat list (no pagination) — capped at 500 in the repository
+        if (lat.HasValue != lng.HasValue)
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Both latitude and longitude are required",
+                Status = StatusCodes.Status400BadRequest,
+            });
+
+        if (lat is < -90 or > 90 || lng is < -180 or > 180)
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid map coordinates",
+                Status = StatusCodes.Status400BadRequest,
+            });
+
+        var hasLocation = lat.HasValue && lng.HasValue;
+        var effectiveRadiusKm = hasLocation
+            ? Math.Clamp(radiusKm ?? 50, 1, 200)
+            : (int?)null;
+
+        // Flat map response is hard-capped at 500 after applying SQL-side filters.
         var result = await sender.Send(
-            new GetAdoptablePetsQuery(null, null, null, null, null, null, null, null, null, null, 1, 500),
+            new GetAdoptablePetsQuery(
+                species, size, ageCategory, isVaccinated, isSterilized,
+                okWithKids, okWithDogs,
+                hasLocation ? lat : null, hasLocation ? lng : null, effectiveRadiusKm,
+                1, 500),
             cancellationToken);
         return Ok(result.Value?.Items);
     }
@@ -80,6 +114,24 @@ public sealed class AdoptionsController(ISender sender) : ControllerBase
     }
 
     // ── Owner — apply + view own applications ─────────────────────────────────
+
+    [HttpPost("owner-submissions")]
+    [Authorize(Roles = "Owner")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(8192)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public async Task<IActionResult> SubmitOwnerAdoption(
+        [FromBody] SubmitOwnerAdoptionRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new SubmitOwnerAdoptionCommand(
+            userId, request.PetId, request.Size, request.AgeCategory,
+            request.Story, request.Requirements, request.RefLat, request.RefLng,
+            request.RefLabel, request.ConfirmsResponsibility, request.ConfirmsTransfer), cancellationToken);
+        if (result.IsFailure) return BadRequest(Problem(result));
+        return Created($"/api/adoptions/animals/{result.Value!.Id}", result.Value);
+    }
 
     [HttpPost("animals/{id:guid}/apply")]
     [Authorize(Roles = "Owner")]
@@ -313,6 +365,17 @@ public sealed class AdoptionsController(ISender sender) : ControllerBase
 public sealed record ApplyToAdoptRequest(string Note);
 public sealed record ReviewApplicationRequest(bool Approve, string? ReviewNote);
 public sealed record DeletePhotoRequest(string PhotoUrl);
+public sealed record SubmitOwnerAdoptionRequest(
+    Guid PetId,
+    PetSize Size,
+    AgeCategory AgeCategory,
+    string Story,
+    string? Requirements,
+    double RefLat,
+    double RefLng,
+    string? RefLabel,
+    bool ConfirmsResponsibility,
+    bool ConfirmsTransfer);
 
 public sealed record PublishAdoptablePetRequest(
     string Name,

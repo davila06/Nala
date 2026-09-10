@@ -52,6 +52,7 @@ public sealed class ProductAnalyticsController(ISender sender) : ControllerBase
         [FromQuery] DateTimeOffset? from,
         [FromQuery] DateTimeOffset? to,
         [FromQuery] string? canton,
+        [FromQuery] Guid? shelterId,
         CancellationToken cancellationToken)
     {
         var end = to ?? DateTimeOffset.UtcNow;
@@ -64,7 +65,9 @@ public sealed class ProductAnalyticsController(ISender sender) : ControllerBase
                 Status = StatusCodes.Status400BadRequest,
             });
 
-        var result = await sender.Send(new GetProductFunnelQuery(start, end, canton), cancellationToken);
+        var result = await sender.Send(
+            new GetProductFunnelQuery(start, end, canton, shelterId?.ToString()),
+            cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : Problem();
     }
 
@@ -75,6 +78,7 @@ public sealed class ProductAnalyticsController(ISender sender) : ControllerBase
         [FromQuery] DateTimeOffset? from,
         [FromQuery] DateTimeOffset? to,
         [FromQuery] string? canton,
+        [FromQuery] Guid? shelterId,
         CancellationToken cancellationToken)
     {
         var end = to ?? DateTimeOffset.UtcNow;
@@ -87,7 +91,9 @@ public sealed class ProductAnalyticsController(ISender sender) : ControllerBase
                 Status = StatusCodes.Status400BadRequest,
             });
 
-        var result = await sender.Send(new GetProductFunnelQuery(start, end, canton), cancellationToken);
+        var result = await sender.Send(
+            new GetProductFunnelQuery(start, end, canton, shelterId?.ToString()),
+            cancellationToken);
         if (result.IsFailure) return Problem();
 
         var csv = new System.Text.StringBuilder("eventName,count,from,to,canton\n");

@@ -751,6 +751,14 @@ export default function LoginPage() {
                       Explorar el mapa público sin cuenta
                     </Link>
                   </p>
+                  <p className="mt-2 text-center">
+                    <Link
+                      to="/adopciones"
+                      className="text-xs text-sand-400 hover:text-sand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
+                    >
+                      Explorar adopciones sin cuenta
+                    </Link>
+                  </p>
                 </motion.div>
               ) : (
                 <motion.div

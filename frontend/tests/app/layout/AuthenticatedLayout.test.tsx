@@ -35,6 +35,11 @@ describe("AuthenticatedLayout", () => {
       initialEntries: ["/dashboard"],
     });
 
+    expect(screen.getByRole("link", { name: "Adopciones" })).toHaveAttribute(
+      "href",
+      "/adopciones",
+    );
+
     const moreButton = screen.getByRole("button", { name: "Más opciones" });
     expect(moreButton).toHaveAttribute("aria-expanded", "false");
     expect(

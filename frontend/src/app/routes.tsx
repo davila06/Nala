@@ -187,6 +187,9 @@ const InstitutionalReportsPage = lazy(
 const AdoptionDirectoryPage = lazy(
   () => import("@/features/adoptions/pages/AdoptionDirectoryPage"),
 );
+const OwnerAdoptionSubmissionPage = lazy(
+  () => import("@/features/adoptions/pages/OwnerAdoptionSubmissionPage"),
+);
 const AdoptionDetailPage = lazy(
   () => import("@/features/adoptions/pages/AdoptionDetailPage"),
 );
@@ -633,6 +636,14 @@ export const router = createBrowserRouter([
             element: (
               <S>
                 <MyAdoptionApplicationsPage />
+              </S>
+            ),
+          },
+          {
+            path: "/adopciones/solicitar",
+            element: (
+              <S>
+                <OwnerAdoptionSubmissionPage />
               </S>
             ),
           },

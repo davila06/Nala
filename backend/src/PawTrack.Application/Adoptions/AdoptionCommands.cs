@@ -38,6 +38,7 @@ public sealed record AdoptablePetDto(
     double RefLng,
     string? RefLabel,
     string Status,
+    string Source,
     IReadOnlyList<string> PhotoUrls,
     DateTimeOffset PublishedAt)
 {
@@ -65,8 +66,51 @@ public sealed record AdoptablePetDto(
         p.RefLng,
         p.RefLabel,
         p.Status.ToString(),
+        p.Source.ToString(),
         p.PhotoUrls,
         p.PublishedAt);
+}
+
+public sealed record SubmitOwnerAdoptionCommand(
+    Guid OwnerUserId, Guid PetId, PetSize Size, AgeCategory AgeCategory,
+    string Story, string? Requirements, double RefLat, double RefLng, string? RefLabel,
+    bool ConfirmsResponsibility, bool ConfirmsTransfer) : IRequest<Result<AdoptablePetDto>>;
+
+public sealed class SubmitOwnerAdoptionCommandValidator : AbstractValidator<SubmitOwnerAdoptionCommand>
+{
+    public SubmitOwnerAdoptionCommandValidator()
+    {
+        RuleFor(x => x.PetId).NotEmpty();
+        RuleFor(x => x.Story).NotEmpty().MaximumLength(2000);
+        RuleFor(x => x.Requirements).MaximumLength(500);
+        RuleFor(x => x.RefLat).InclusiveBetween(-90, 90);
+        RuleFor(x => x.RefLng).InclusiveBetween(-180, 180);
+        RuleFor(x => x.ConfirmsResponsibility).Equal(true);
+        RuleFor(x => x.ConfirmsTransfer).Equal(true);
+    }
+}
+
+public sealed class SubmitOwnerAdoptionCommandHandler(
+    IPetRepository petRepository,
+    IAdoptionRepository adoptionRepository,
+    IUnitOfWork unitOfWork)
+    : IRequestHandler<SubmitOwnerAdoptionCommand, Result<AdoptablePetDto>>
+{
+    public async Task<Result<AdoptablePetDto>> Handle(SubmitOwnerAdoptionCommand request, CancellationToken ct)
+    {
+        var pet = await petRepository.GetByIdAsync(request.PetId, ct);
+        if (pet is null || pet.OwnerId != request.OwnerUserId)
+            return Result.Failure<AdoptablePetDto>("pet_not_owned");
+        if (string.IsNullOrWhiteSpace(pet.PhotoUrl))
+            return Result.Failure<AdoptablePetDto>("adoption_photo_required");
+
+        var animal = AdoptablePet.CreateOwnerSubmission(
+            request.OwnerUserId, pet, request.Size, request.AgeCategory,
+            request.Story, request.Requirements, request.RefLat, request.RefLng, request.RefLabel);
+        await adoptionRepository.AddAnimalAsync(animal, ct);
+        await unitOfWork.SaveChangesAsync(ct);
+        return Result.Success(AdoptablePetDto.FromDomain(animal, "Particular"));
+    }
 }
 
 public sealed record AdoptionApplicationDto(

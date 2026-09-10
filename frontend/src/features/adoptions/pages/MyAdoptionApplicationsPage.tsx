@@ -22,7 +22,7 @@ export default function MyAdoptionApplicationsPage() {
   const { data, isLoading } = useMyAdoptionApplications(page);
   const withdraw = useWithdrawApplication();
 
-  const apps = (data?.items ?? []);
+  const apps = data?.items ?? [];
 
   const handleWithdraw = (id: string) => {
     if (!confirm("¿Retirar esta solicitud?")) return;
@@ -46,7 +46,7 @@ export default function MyAdoptionApplicationsPage() {
             to="/adopciones"
             className="text-sm text-brand-600 hover:underline"
           >
-            Ver animales →
+            Volver a adopciones
           </Link>
         </div>
 

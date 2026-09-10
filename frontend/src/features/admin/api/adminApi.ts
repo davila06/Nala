@@ -385,7 +385,10 @@ export const adminApi = {
       })
       .then((r) => r.data),
 
-  moderateAnimal: (id: string, action: "remove" | "pause" | "restore") =>
+  moderateAnimal: (
+    id: string,
+    action: "approve" | "reject" | "remove" | "pause" | "restore",
+  ) =>
     apiClient.patch<void>(`/admin/adoptions/animals/${id}/moderate`, {
       action,
     }),

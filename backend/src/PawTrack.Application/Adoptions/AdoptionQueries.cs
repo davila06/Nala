@@ -64,7 +64,7 @@ public sealed class GetAdoptablePetByIdQueryHandler(
         GetAdoptablePetByIdQuery request, CancellationToken ct)
     {
         var animal = await adoptionRepository.GetAnimalByIdAsync(request.Id, ct);
-        if (animal is null || animal.Status == AdoptionStatus.Removed)
+        if (animal is null || animal.Status is AdoptionStatus.PendingReview or AdoptionStatus.Removed)
             return Result.Failure<AdoptablePetDto>("animal_not_found");
 
         var ally = await allyProfileRepository.GetByUserIdAsync(animal.OrganizationUserId, ct);

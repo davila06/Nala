@@ -189,6 +189,17 @@ export default function DashboardPage() {
             </span>
             Mensajes y alertas
           </Link>
+          {user?.role === "Owner" && (
+            <Link
+              to="/adopciones/solicitar"
+              className="flex items-center gap-3 rounded-xl border border-warn-200 bg-warn-50 px-4 py-3 text-sm font-semibold text-warn-800 transition-base hover:bg-warn-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warn-400 focus-visible:ring-offset-1"
+            >
+              <span aria-hidden="true" className="text-lg">
+                🏠
+              </span>
+              Dar en adopción
+            </Link>
+          )}
           {user?.role === "Admin" && (
             <Link
               to="/estadisticas"

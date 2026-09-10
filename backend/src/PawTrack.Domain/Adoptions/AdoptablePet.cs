@@ -4,7 +4,9 @@ namespace PawTrack.Domain.Adoptions;
 
 public enum PetSize { XSmall, Small, Medium, Large, XLarge }
 
-public enum AdoptionStatus { Available, InProcess, Adopted, Paused, Removed }
+public enum AdoptionStatus { PendingReview, Available, InProcess, Adopted, Paused, Removed }
+
+public enum AdoptionSource { Shelter, Owner }
 
 /// <summary>Approximate age bucket — maps to: &lt;1y, 1-3y, 3-8y, 8y+.</summary>
 public enum AgeCategory { Puppy, Young, Adult, Senior }
@@ -17,6 +19,7 @@ public sealed class AdoptablePet
     public Guid Id { get; private set; }
     /// <summary>FK to AllyProfile.UserId — the shelter that published this animal.</summary>
     public Guid OrganizationUserId { get; private set; }
+    public AdoptionSource Source { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public PetSpecies Species { get; private set; }
     public string? Breed { get; private set; }
@@ -70,6 +73,7 @@ public sealed class AdoptablePet
         {
             Id = Guid.CreateVersion7(),
             OrganizationUserId = organizationUserId,
+            Source = AdoptionSource.Shelter,
             Name = name.Trim(),
             Species = species,
             Breed = breed?.Trim(),
@@ -93,6 +97,23 @@ public sealed class AdoptablePet
             PublishedAt = DateTimeOffset.UtcNow,
         };
 
+    public static AdoptablePet CreateOwnerSubmission(
+        Guid ownerId, Pet pet, PetSize size, AgeCategory ageCategory,
+        string story, string? requirements, double refLat, double refLng, string? refLabel)
+    {
+        if (string.IsNullOrWhiteSpace(pet.PhotoUrl))
+            throw new InvalidOperationException("A photo is required for an owner adoption submission.");
+
+        var animal = Create(ownerId, pet.Name, pet.Species, size, ageCategory, story,
+            refLat, refLng, refLabel, pet.Breed, null, requirements, null,
+            isSterilized: pet.SterilizedStatus == SterilizedStatus.Yes,
+            isMicrochipped: !string.IsNullOrWhiteSpace(pet.MicrochipId));
+        animal.Source = AdoptionSource.Owner;
+        animal.Status = AdoptionStatus.PendingReview;
+        animal._photoUrls.Add(pet.PhotoUrl);
+        return animal;
+    }
+
     // ── Behaviour ─────────────────────────────────────────────────────────────
 
     public void AddPhoto(string url)
@@ -113,6 +134,8 @@ public sealed class AdoptablePet
     public void MarkAdopted() { Status = AdoptionStatus.Adopted; AdoptedAt = DateTimeOffset.UtcNow; }
     public void Pause() { Status = AdoptionStatus.Paused; UpdatedAt = DateTimeOffset.UtcNow; }
     public void Republish() { Status = AdoptionStatus.Available; UpdatedAt = DateTimeOffset.UtcNow; }
+    public void Approve() { Status = AdoptionStatus.Available; UpdatedAt = DateTimeOffset.UtcNow; }
+    public void Reject() { Status = AdoptionStatus.Removed; UpdatedAt = DateTimeOffset.UtcNow; }
     public void Remove() { Status = AdoptionStatus.Removed; UpdatedAt = DateTimeOffset.UtcNow; }
 
     public void UpdateDetails(

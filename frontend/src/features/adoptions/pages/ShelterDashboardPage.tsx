@@ -106,6 +106,12 @@ export default function ShelterDashboardPage() {
       </Helmet>
 
       <div className="mx-auto max-w-3xl px-4 py-8 space-y-6">
+        <Link
+          to="/allies/panel"
+          className="inline-flex text-sm font-semibold text-brand-600 hover:underline"
+        >
+          Volver al panel de aliado
+        </Link>
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>

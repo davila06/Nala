@@ -15,6 +15,7 @@ import { toast } from "@/shared/lib/toast";
 
 const STATUS_OPTIONS = [
   { value: "", label: "Todos" },
+  { value: "PendingReview", label: "Pendiente de revisión" },
   { value: "Available", label: "Disponible" },
   { value: "InProcess", label: "En proceso" },
   { value: "Adopted", label: "Adoptado" },
@@ -51,16 +52,22 @@ function AnimalAdminRow({ animal }: { animal: AdoptablePetDto }) {
   const moderate = useAdminModerateAnimal();
   const [processing, setProcessing] = useState(false);
 
-  const handle = async (action: "remove" | "pause" | "restore") => {
+  const handle = async (
+    action: "approve" | "reject" | "remove" | "pause" | "restore",
+  ) => {
     setProcessing(true);
     try {
       await moderate.mutateAsync({ id: animal.id, action });
       toast.success(
-        action === "remove"
-          ? "Animal removido"
-          : action === "pause"
-            ? "Animal pausado"
-            : "Animal restaurado",
+        action === "approve"
+          ? "Solicitud aprobada"
+          : action === "reject"
+            ? "Solicitud rechazada"
+            : action === "remove"
+              ? "Animal removido"
+              : action === "pause"
+                ? "Animal pausado"
+                : "Animal restaurado",
       );
     } finally {
       setProcessing(false);
@@ -126,6 +133,24 @@ function AnimalAdminRow({ animal }: { animal: AdoptablePetDto }) {
 
       {/* Moderation actions */}
       <div className="flex gap-2 mt-3 flex-wrap">
+        {animal.status === "PendingReview" && (
+          <>
+            <button
+              onClick={() => void handle("approve")}
+              disabled={processing}
+              className="rounded-lg border border-green-200 px-3 py-1.5 text-xs font-semibold text-green-700 hover:bg-green-50 disabled:opacity-50 transition-colors"
+            >
+              Aprobar
+            </button>
+            <button
+              onClick={() => void handle("reject")}
+              disabled={processing}
+              className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
+            >
+              Rechazar
+            </button>
+          </>
+        )}
         {animal.status !== "Removed" && (
           <button
             onClick={() => void handle("remove")}

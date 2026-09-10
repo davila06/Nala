@@ -33,6 +33,7 @@ const PAGE_CONTEXT: Record<string, { label: string; icon: string }> = {
   "/mis-pedidos": { label: "Mis pedidos", icon: "🛒" },
   "/tiendas": { label: "Tiendas", icon: "🛒" },
   "/servicios": { label: "Servicios", icon: "🧰" },
+  "/adopciones": { label: "Adopciones", icon: "🏠" },
   "/admin": { label: "Administración", icon: "⚙️" },
 };
 
@@ -63,6 +64,7 @@ const TOP_LEVEL_ROUTES = new Set([
   "/mis-pedidos",
   "/tiendas",
   "/servicios",
+  "/adopciones",
   "/tienda/portal",
 ]);
 const NAV_MAIN = [
@@ -129,6 +131,27 @@ const NAV_MAIN = [
           strokeLinejoin="round"
           d="M10 12.5A2.5 2.5 0 0 1 12.5 10h1a2.5 2.5 0 0 1 2.5 2.5v1a2.5 2.5 0 0 1-2.5 2.5h-1a2.5 2.5 0 0 1-2.5-2.5v-1Z"
         />
+      </svg>
+    ),
+  },
+  {
+    to: "/adopciones",
+    label: "Adopciones",
+    icon: (active: boolean) => (
+      <svg
+        viewBox="0 0 20 20"
+        fill={active ? "currentColor" : "none"}
+        stroke="currentColor"
+        strokeWidth="1.6"
+        className="h-4 w-4"
+        aria-hidden="true"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M4 16.5V9.25L10 4l6 5.25v7.25H4Z"
+        />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 16.5v-4h4v4" />
       </svg>
     ),
   },

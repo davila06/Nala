@@ -6,6 +6,7 @@ export type PetSpecies = "Dog" | "Cat" | "Bird" | "Rabbit" | "Other";
 export type PetSize = "XSmall" | "Small" | "Medium" | "Large" | "XLarge";
 export type AgeCategory = "Puppy" | "Young" | "Adult" | "Senior";
 export type AdoptionStatus =
+  | "PendingReview"
   | "Available"
   | "InProcess"
   | "Adopted"
@@ -43,6 +44,7 @@ export interface AdoptablePetDto {
   refLng: number;
   refLabel: string | null;
   status: AdoptionStatus;
+  source: "Shelter" | "Owner";
   photoUrls: string[];
   publishedAt: string;
 }
@@ -145,6 +147,19 @@ export type UpdateAnimalPayload = Pick<
   | "needsYard"
 >;
 
+export interface OwnerAdoptionSubmissionPayload {
+  petId: string;
+  size: PetSize;
+  ageCategory: AgeCategory;
+  story: string;
+  requirements: string | null;
+  refLat: number;
+  refLng: number;
+  refLabel: string | null;
+  confirmsResponsibility: boolean;
+  confirmsTransfer: boolean;
+}
+
 export const SPECIES_LABELS: Record<PetSpecies, string> = {
   Dog: "Perro",
   Cat: "Gato",
@@ -176,14 +191,19 @@ export const adoptionsApi = {
       .get<PagedAdoptions>("/adoptions/animals", { params: filters })
       .then((r) => r.data),
 
-  getAnimalsForMap: () =>
+  getAnimalsForMap: (filters: AdoptionFilters = {}) =>
     apiClient
-      .get<AdoptablePetDto[]>("/adoptions/animals/map")
+      .get<AdoptablePetDto[]>("/adoptions/animals/map", { params: filters })
       .then((r) => r.data),
 
   getAnimal: (id: string) =>
     apiClient
       .get<AdoptablePetDto>(`/adoptions/animals/${id}`)
+      .then((r) => r.data),
+
+  submitOwnerAdoption: (data: OwnerAdoptionSubmissionPayload) =>
+    apiClient
+      .post<AdoptablePetDto>("/adoptions/owner-submissions", data)
       .then((r) => r.data),
 
   publishAnimal: (data: PublishAnimalPayload) =>

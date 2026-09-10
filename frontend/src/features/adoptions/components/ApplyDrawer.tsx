@@ -9,6 +9,7 @@ interface ApplyDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  onAbandon: () => void;
 }
 
 export function ApplyDrawer({
@@ -17,6 +18,7 @@ export function ApplyDrawer({
   isOpen,
   onClose,
   onSuccess,
+  onAbandon,
 }: ApplyDrawerProps) {
   const [note, setNote] = useState("");
   const apply = useApplyToAdopt();
@@ -26,8 +28,17 @@ export function ApplyDrawer({
     apply.mutate({ animalId, note: note.trim() }, { onSuccess });
   };
 
+  const handleClose = () => {
+    if (!apply.isPending) onAbandon();
+    onClose();
+  };
+
   return (
-    <Drawer isOpen={isOpen} onClose={onClose} title={`Adoptar a ${animalName}`}>
+    <Drawer
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={`Adoptar a ${animalName}`}
+    >
       <div className="space-y-4 p-4">
         <p className="text-sm text-sand-500">
           Cuéntale a la organización un poco sobre ti y por qué quieres adoptar
