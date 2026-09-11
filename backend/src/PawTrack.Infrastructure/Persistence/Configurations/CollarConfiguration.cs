@@ -53,6 +53,7 @@ public sealed class CollarLocationConfiguration : IEntityTypeConfiguration<Colla
 
         // Supports time-range queries and auto-purge of old points
         builder.HasIndex(x => new { x.CollarId, x.RecordedAt });
+        builder.HasIndex(x => x.RecordedAt).HasDatabaseName("IX_CollarLocations_RecordedAt");
     }
 }
 

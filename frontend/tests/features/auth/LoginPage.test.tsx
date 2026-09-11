@@ -25,12 +25,8 @@ describe("LoginPage", () => {
     renderWithProviders(<LoginPage />);
 
     expect(screen.getByLabelText(/correo/i)).toBeInTheDocument();
-    expect(
-      screen.getByLabelText(/contraseña/i, { selector: "input" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /ingresar/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/contraseña/i, { selector: "input" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^ingresar$/i })).toBeInTheDocument();
   });
 
   it("shows error alert when server returns 401", async () => {
@@ -44,17 +40,10 @@ describe("LoginPage", () => {
     renderWithProviders(<LoginPage />);
 
     await user.type(screen.getByLabelText(/correo/i), "wrong@test.cr");
-    await user.type(
-      screen.getByLabelText(/contraseña/i, { selector: "input" }),
-      "wrongpass",
-    );
-    await user.click(screen.getByRole("button", { name: /ingresar/i }));
+    await user.type(screen.getByLabelText(/contraseña/i, { selector: "input" }), "wrongpass");
+    await user.click(screen.getByRole("button", { name: /^ingresar$/i }));
 
-    await waitFor(() =>
-      expect(screen.getByRole("alert")).toHaveTextContent(
-        /correo o contraseña incorrectos/i,
-      ),
-    );
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(/correo o contraseña incorrectos/i));
   });
 
   it("disables submit button while pending", async () => {
@@ -78,27 +67,20 @@ describe("LoginPage", () => {
     renderWithProviders(<LoginPage />);
 
     await user.type(screen.getByLabelText(/correo/i), "denis@test.cr");
-    await user.type(
-      screen.getByLabelText(/contraseña/i, { selector: "input" }),
-      "SecurePass1",
-    );
-    await user.click(screen.getByRole("button", { name: /ingresar/i }));
+    await user.type(screen.getByLabelText(/contraseña/i, { selector: "input" }), "SecurePass1");
+    await user.click(screen.getByRole("button", { name: /^ingresar$/i }));
 
     expect(screen.getByRole("button", { name: /ingresando/i })).toBeDisabled();
   });
 
   it("has link to registration page", () => {
     renderWithProviders(<LoginPage />);
-    expect(
-      screen.getByRole("link", { name: /regístrate/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /regístrate/i })).toBeInTheDocument();
   });
 
   it("lets visitors explore the adoption directory without an account", () => {
     renderWithProviders(<LoginPage />);
 
-    expect(
-      screen.getByRole("link", { name: "Explorar adopciones sin cuenta" }),
-    ).toHaveAttribute("href", "/adopciones");
+    expect(screen.getByRole("link", { name: "Explorar adopciones sin cuenta" })).toHaveAttribute("href", "/adopciones");
   });
 });

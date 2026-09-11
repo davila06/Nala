@@ -1,6 +1,6 @@
 import { apiClient } from "@/shared/lib/apiClient";
 
-export type CollarProvider = "Own" | "Tractive" | "Kippy" | "Generic";
+export type CollarProvider = "Own" | "JimiTrackSolid" | "Generic" | "Tractive";
 
 export interface CollarDto {
   id: string;

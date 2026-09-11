@@ -17,34 +17,41 @@ public sealed class StaleReportCheckerHostedService(
     private static readonly TimeSpan CostaRicaOffset = TimeSpan.FromHours(-6);
     private static readonly TimeOnly ScheduledLocalTime = new(8, 0);
 
+    private static readonly TimeSpan Interval = TimeSpan.FromHours(24);
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        var delay = GetDelayUntilNextRun(DateTimeOffset.UtcNow);
+        logger.LogInformation("StaleReportCheckerHostedService next run in {Delay}", delay);
+
+        await Task.Delay(delay, stoppingToken);
+
+        using var timer = new PeriodicTimer(Interval);
+        do
         {
-            var delay = GetDelayUntilNextRun(DateTimeOffset.UtcNow);
-            logger.LogInformation("StaleReportCheckerHostedService next run in {Delay}", delay);
+            await RunCycleAsync(stoppingToken);
+        }
+        while (!stoppingToken.IsCancellationRequested && await timer.WaitForNextTickAsync(stoppingToken));
+    }
 
-            await Task.Delay(delay, stoppingToken);
-            if (stoppingToken.IsCancellationRequested)
-                break;
+    private async Task RunCycleAsync(CancellationToken cancellationToken)
+    {
+        await using var lease = await jobLock.TryAcquireAsync("StaleReportChecker", TimeSpan.FromHours(2), cancellationToken);
+        if (lease is null) return;
 
-            await using var lease = await jobLock.TryAcquireAsync("StaleReportChecker", TimeSpan.FromHours(2), stoppingToken);
-            if (lease is null) continue;
-
-            try
-            {
-                await using var scope = scopeFactory.CreateAsyncScope();
-                var job = scope.ServiceProvider.GetRequiredService<StaleReportCheckerJob>();
-                await job.ExecuteAsync(stoppingToken);
-            }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "StaleReportCheckerHostedService execution failed.");
-            }
+        try
+        {
+            await using var scope = scopeFactory.CreateAsyncScope();
+            var job = scope.ServiceProvider.GetRequiredService<StaleReportCheckerJob>();
+            await job.ExecuteAsync(cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // cancellation requested — exit cleanly
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "StaleReportCheckerHostedService execution failed.");
         }
     }
 

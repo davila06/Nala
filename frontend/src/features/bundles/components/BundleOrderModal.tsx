@@ -583,8 +583,8 @@ export function BundleOrderModal() {
             Collar GPS + 12 meses Plus — ₡49,900
           </p>
           <p className="text-xs text-sand-500">
-            Tractive GPS DOG 4 o CAT 4 importado a tu puerta. Pago único, sin
-            contrato.
+            Collar GPS Inteligente PawTrack (perros o gatos) entregado a tu
+            puerta. Pago único, sin contrato.
           </p>
           <Button onClick={() => setShowForm(true)} className="mt-2">
             Pedir mi collar ahora

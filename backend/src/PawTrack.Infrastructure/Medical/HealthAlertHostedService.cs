@@ -113,32 +113,42 @@ public sealed class HealthAlertHostedService(
     ILogger<HealthAlertHostedService> logger)
     : BackgroundService
 {
+    private static readonly TimeSpan Interval = TimeSpan.FromHours(24);
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        var now = DateTimeOffset.UtcNow;
+        // 09:00 CR time = UTC-6 → 15:00 UTC
+        var nextRun = now.Date.AddHours(15);
+        if (now.Hour >= 15) nextRun = nextRun.AddDays(1);
+        var initialDelay = nextRun - now;
+
+        logger.LogInformation("HealthAlertHostedService: next run in {Delay} (at {NextRun})", initialDelay, nextRun);
+        await Task.Delay(initialDelay, stoppingToken);
+
+        using var timer = new PeriodicTimer(Interval);
+        do
         {
-            var now = DateTimeOffset.UtcNow;
-            // 09:00 CR time = UTC-6 → 15:00 UTC
-            var nextRun = now.Date.AddHours(15);
-            if (now.Hour >= 15) nextRun = nextRun.AddDays(1);
+            await RunCycleAsync(stoppingToken);
+        }
+        while (!stoppingToken.IsCancellationRequested && await timer.WaitForNextTickAsync(stoppingToken));
+    }
 
-            logger.LogInformation("HealthAlertHostedService: next run at {NextRun}", nextRun);
-            await Task.Delay(nextRun - now, stoppingToken);
+    private async Task RunCycleAsync(CancellationToken cancellationToken)
+    {
+        // Acquire distributed lock — only one instance runs the job on scale-out.
+        await using var lease = await jobLock.TryAcquireAsync("HealthAlert", TimeSpan.FromHours(2), cancellationToken);
+        if (lease is null) return;
 
-            // Acquire distributed lock — only one instance runs the job on scale-out.
-            await using var lease = await jobLock.TryAcquireAsync("HealthAlert", TimeSpan.FromHours(2), stoppingToken);
-            if (lease is null) continue;
-
-            try
-            {
-                using var scope = scopeFactory.CreateScope();
-                var job = scope.ServiceProvider.GetRequiredService<HealthAlertJob>();
-                await job.ExecuteAsync(stoppingToken);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                logger.LogError(ex, "HealthAlertHostedService: unhandled error");
-            }
+        try
+        {
+            using var scope = scopeFactory.CreateScope();
+            var job = scope.ServiceProvider.GetRequiredService<HealthAlertJob>();
+            await job.ExecuteAsync(cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogError(ex, "HealthAlertHostedService: unhandled error");
         }
     }
 }

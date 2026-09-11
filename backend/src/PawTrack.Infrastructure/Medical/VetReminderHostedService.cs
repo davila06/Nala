@@ -64,33 +64,42 @@ public sealed class VetReminderHostedService(
     ILogger<VetReminderHostedService> logger)
     : BackgroundService
 {
+    private static readonly TimeSpan Interval = TimeSpan.FromHours(24);
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        var now = DateTimeOffset.UtcNow;
+        // Fire at 08:00 CR time (UTC-6) = 14:00 UTC
+        var nextRun = now.Date.AddHours(14);
+        if (now.Hour >= 14) nextRun = nextRun.AddDays(1);
+        var delay = nextRun - now;
+
+        logger.LogInformation("VetReminderHostedService: next run in {Delay} (at {NextRun})", delay, nextRun);
+        await Task.Delay(delay, stoppingToken);
+
+        using var timer = new PeriodicTimer(Interval);
+        do
         {
-            var now = DateTimeOffset.UtcNow;
-            // Fire at 08:00 CR time (UTC-6) = 14:00 UTC
-            var nextRun = now.Date.AddHours(14);
-            if (now.Hour >= 14) nextRun = nextRun.AddDays(1);
-            var delay = nextRun - now;
+            await RunCycleAsync(stoppingToken);
+        }
+        while (!stoppingToken.IsCancellationRequested && await timer.WaitForNextTickAsync(stoppingToken));
+    }
 
-            logger.LogInformation("VetReminderHostedService: next run in {Delay}", delay);
-            await Task.Delay(delay, stoppingToken);
+    private async Task RunCycleAsync(CancellationToken cancellationToken)
+    {
+        // Acquire distributed lock — only one instance runs the job on scale-out.
+        await using var lease = await jobLock.TryAcquireAsync("VetReminder", TimeSpan.FromHours(2), cancellationToken);
+        if (lease is null) return;
 
-            // Acquire distributed lock — only one instance runs the job on scale-out.
-            await using var lease = await jobLock.TryAcquireAsync("VetReminder", TimeSpan.FromHours(2), stoppingToken);
-            if (lease is null) continue;
-
-            try
-            {
-                await using var scope = scopeFactory.CreateAsyncScope();
-                var job = scope.ServiceProvider.GetRequiredService<VetReminderNotificationJob>();
-                await job.ExecuteAsync(stoppingToken);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                logger.LogError(ex, "VetReminderHostedService failed");
-            }
+        try
+        {
+            await using var scope = scopeFactory.CreateAsyncScope();
+            var job = scope.ServiceProvider.GetRequiredService<VetReminderNotificationJob>();
+            await job.ExecuteAsync(cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogError(ex, "VetReminderHostedService failed");
         }
     }
 }

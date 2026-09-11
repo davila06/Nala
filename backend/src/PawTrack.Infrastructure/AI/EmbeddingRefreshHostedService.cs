@@ -42,15 +42,15 @@ public sealed class EmbeddingRefreshHostedService(
 
         await Task.Delay(InitialDelay, stoppingToken);
 
-        while (!stoppingToken.IsCancellationRequested)
+        using var timer = new PeriodicTimer(RefreshInterval);
+        do
         {
             // Acquire distributed lock — only one instance runs the refresh cycle on scale-out.
             await using var lease = await jobLock.TryAcquireAsync("EmbeddingRefresh", RefreshInterval, stoppingToken);
             if (lease is not null)
                 await RunRefreshCycleAsync(stoppingToken);
-
-            await Task.Delay(RefreshInterval, stoppingToken);
         }
+        while (!stoppingToken.IsCancellationRequested && await timer.WaitForNextTickAsync(stoppingToken));
     }
 
     private async Task RunRefreshCycleAsync(CancellationToken ct)

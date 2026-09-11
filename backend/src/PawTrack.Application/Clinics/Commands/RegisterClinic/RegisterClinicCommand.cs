@@ -58,8 +58,8 @@ public sealed class RegisterClinicCommandHandler(
         var (user, _) = User.Create(request.ContactEmail, passwordHash, request.Name); // raw token discarded — clinics bypass email verification
         user.AssignClinicRole();
 
-        // Clinics bypass email verification — they are activiated manually by admin
-        // (In a later sprint, send an admin-to-clinic welcome email here.)
+        // Clinics bypass initial email verification — they are activated manually by admin
+        // (Welcome email is dispatched upon approval in ReviewClinicCommandHandler).
 
         await userRepository.AddAsync(user, cancellationToken);
 

@@ -27,12 +27,11 @@ interface CollarGpsTabProps {
   isOwner: boolean;
 }
 
-const PROVIDER_LABELS = {
+const PROVIDER_LABELS: Record<string, string> = {
   Own: "PawTrack GPS",
-  // External provider labels are retained in the API contract for legacy collars.
+  JimiTrackSolid: "PawTrack AL600 GPS",
   Tractive: "Proveedor externo",
-  Kippy: "Proveedor externo",
-  Generic: "Proveedor externo",
+  Generic: "Dispositivo genérico",
 };
 
 const LEGACY_DEVICE_KEY_UI_ENABLED = false;
@@ -111,72 +110,6 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
             </Link>
           </div>
         )}
-
-        {/* External-provider setup is intentionally disabled. PawTrack collars use the serial activation route above.
-        {showSetup && (
-          <div className="mt-4 rounded-2xl border border-brand-200 bg-surface p-4 text-left space-y-3">
-            <p className="text-sm font-semibold text-sand-800">
-              Configurar collar GPS
-            </p>
-            <p className="text-xs text-sand-500">
-              Compatible con <strong>Tractive</strong>, <strong>Kippy</strong> o
-              cualquier GPS genérico. Ingresa el ID del dispositivo impreso en
-              el collar.
-            </p>
-            Tractive OAuth2 connect redirects to Tractive consent screen.
-            <a
-              href={`${import.meta.env.VITE_API_URL}/api/collars/tractive/connect?petId=${petId}`}
-              className="flex items-center gap-2 rounded-xl border border-sand-200 bg-surface px-4 py-2.5 text-xs font-semibold text-sand-700 hover:bg-sand-50 transition-colors"
-            >
-              <span aria-hidden="true">📡</span> Conectar con Tractive →
-            </a>
-            <div className="flex items-center gap-2">
-              <hr className="flex-1 border-sand-200" />
-              <span className="text-[10px] text-sand-400">
-                o ingresa manualmente
-              </span>
-              <hr className="flex-1 border-sand-200" />
-            </div>
-            <label className="block text-xs font-semibold text-sand-700">
-              ID del dispositivo (Kippy, genérico, etc.)
-              <input
-                type="text"
-                value={deviceId}
-                onChange={(e) => setDeviceId(e.target.value)}
-                placeholder="Ej: KIPPY-ABC123"
-                className="mt-1 w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400"
-              />
-            </label>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  void (async () => {
-                    await register({
-                      petId,
-                      provider: deviceId.toLowerCase().startsWith("tractive")
-                        ? "Tractive"
-                        : "Generic",
-                      externalDeviceId: deviceId || undefined,
-                    });
-                    setShowSetup(false);
-                  })();
-                }}
-                disabled={isPending}
-                className="rounded-xl bg-brand-600 px-4 py-2 text-xs font-bold text-white hover:bg-brand-700 disabled:opacity-60"
-              >
-                {isPending ? "Registrando…" : "Registrar"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowSetup(false)}
-                className="text-xs text-sand-400 hover:text-sand-600"
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        )} */}
       </div>
     );
   }

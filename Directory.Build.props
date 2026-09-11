@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <LangVersion>latest</LangVersion>
+    <Company>PawTrack CR</Company>
+    <Product>PawTrack CR — Plataforma de Identidad y Recuperación de Mascotas</Product>
+    <Copyright>Copyright © 2026 PawTrack CR. Todos los derechos reservados.</Copyright>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <!-- Enforce strict warnings as errors in Release/CI configurations -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>

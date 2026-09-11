@@ -280,7 +280,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                 Bundle Collar GPS + 12 meses Plus
               </p>
               <p className="text-xs text-brand-600 opacity-80">
-                Tractive GPS + PawTrack Plus todo incluido · Envío a CR
+                Collar GPS PawTrack + PawTrack Plus todo incluido · Envío a CR
               </p>
             </div>
             <div className="text-right shrink-0">

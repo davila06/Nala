@@ -2,7 +2,10 @@ import { apiClient } from "@/shared/lib/apiClient";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type CollarModel = "TractiveGPSDog4" | "TractiveGPSCat4";
+export type CollarModel =
+  | "TractiveGPSDog4"
+  | "TractiveGPSCat4"
+  | "PawTrackAL600";
 export type BundleOrderStatus =
   | "PendingPayment"
   | "Paid"
@@ -67,8 +70,9 @@ export interface CreateBundleOrderRequest {
 // ── Labels & Prices ───────────────────────────────────────────────────────────
 
 export const COLLAR_MODEL_LABELS: Record<CollarModel, string> = {
-  TractiveGPSDog4: "Tractive GPS DOG 4 — Perros (IPX7)",
-  TractiveGPSCat4: "Tractive GPS CAT 4 — Gatos (Ultra liviano)",
+  TractiveGPSDog4: "Collar GPS PawTrack — Perros (IP67)",
+  TractiveGPSCat4: "Collar GPS PawTrack — Gatos (Ultra liviano)",
+  PawTrackAL600: "PawTrack AL600 GPS (Latinoamérica)",
 };
 
 export const STATUS_COLORS: Record<BundleOrderStatus, string> = {
@@ -94,7 +98,8 @@ export const PRODUCT_TYPE_CONFIG: Record<
 > = {
   CollarGpsPlus: {
     label: "Bundle Collar GPS + 12 meses Plus",
-    description: "Tractive GPS + PawTrack Plus todo incluido · Envío a CR",
+    description:
+      "Collar GPS PawTrack + PawTrack Plus todo incluido · Envío a CR",
     priceCrc: 49_900,
     emoji: "📡",
     requiresCollar: true,

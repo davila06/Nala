@@ -59,4 +59,7 @@ public sealed class CapturingEmailSender : IEmailSender
 
     public Task SendSubscriptionExpiredAsync(string to, string name, string tierLabel,
         CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendClinicApprovedWelcomeAsync(string to, string clinicName, string loginUrl,
+        CancellationToken ct = default) => Task.CompletedTask;
 }

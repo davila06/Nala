@@ -83,5 +83,10 @@ public interface IEmailSender
     Task SendSubscriptionExpiredAsync(
         string to, string name, string tierLabel,
         CancellationToken cancellationToken = default);
+
+    // ── Clinic lifecycle emails ───────────────────────────────────────────────
+    Task SendClinicApprovedWelcomeAsync(
+        string to, string clinicName, string loginUrl,
+        CancellationToken cancellationToken = default);
 }
 

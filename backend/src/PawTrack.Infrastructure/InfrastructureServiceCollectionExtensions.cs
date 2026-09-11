@@ -217,13 +217,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddHttpClient("PushProvider")
             .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(10))
             .AddStandardResilienceHandler();
-        // External collar integrations are disabled. Preserve the client configuration for a
-        // future explicitly approved provider-integration release.
-        /*
-        services.AddHttpClient("Tractive")
-            .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(12))
+        services.AddHttpClient("TrackSolid")
+            .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(15))
             .AddStandardResilienceHandler();
-        */
         services.AddSingleton<IPushNotificationService, PushNotificationService>();
         services.AddSingleton<INotificationRateLimitService, DistributedNotificationRateLimitService>();
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
@@ -355,12 +351,10 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IMunicipalProfileRepository, MunicipalProfileRepository>();
         services.AddScoped<IMunicipalSubscriptionService, MunicipalSubscriptionService>();
 
-        // External GPS polling is disabled. PawTrack collars report via their verified serial
-        // and device key; retain these registrations for a future approved integration.
-        /*
-        services.AddSingleton<ITractiveService, TractiveService>();
-        services.AddHostedService<TractivePollingJob>();
-        */
+        // Jimi IoT TrackSolid Pro integration (AL600 GPS collar)
+        services.AddSingleton<ITrackSolidService, TrackSolidService>();
+        services.AddHostedService<TrackSolidPollingJob>();
+
         services.AddHostedService<CollarLocationPurgeJob>();
         services.AddHostedService<CollarConnectivityAlertJob>();
 

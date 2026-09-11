@@ -56,9 +56,8 @@ public sealed class CollarsController(ISender sender) : ControllerBase
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
 
-        // Tractive and other external providers require a separate commercial
-        // integration. Generic collars remain supported through the native API.
-        if (request.Provider != CollarProvider.Generic)
+        // Generic native collars and Jimi IoT TrackSolid Pro collars are supported.
+        if (request.Provider != CollarProvider.Generic && request.Provider != CollarProvider.JimiTrackSolid)
             return NotFound();
 
         var result = await sender.Send(
@@ -142,48 +141,6 @@ public sealed class CollarsController(ISender sender) : ControllerBase
 
         return NoContent();
     }
-
-    // Tractive OAuth integration is disabled. Preserve this implementation for a future
-    // explicitly approved provider-integration release.
-    /*
-    [HttpGet("tractive/connect")]
-    [ProducesResponseType(StatusCodes.Status302Found)]
-    public IActionResult ConnectTraactive([FromQuery] Guid petId, [FromServices] ITractiveService tractive)
-    {
-        if (!TryGetUserId(out var userId)) return Unauthorized();
-        var state = $"{userId}:{petId}";
-        var authUrl = tractive.GetAuthorizationUrl(state);
-        return Redirect(authUrl);
-    }
-
-    [HttpGet("tractive/callback")]
-    [AllowAnonymous]
-    [ProducesResponseType(StatusCodes.Status302Found)]
-    public async Task<IActionResult> TractiveCallback(
-        [FromQuery] string code,
-        [FromQuery] string state,
-        [FromServices] ITractiveService tractive,
-        [FromServices] ICollarRepository collarRepository,
-        CancellationToken cancellationToken)
-    {
-        var parts = state.Split(':');
-        if (parts.Length != 2
-            || !Guid.TryParse(parts[0], out var userId)
-            || !Guid.TryParse(parts[1], out var petId))
-            return BadRequest("Invalid state.");
-
-        var encryptedToken = await tractive.ExchangeCodeForTokenAsync(code, cancellationToken);
-
-        var collar = await collarRepository.GetActiveForPetAsync(petId, cancellationToken);
-        if (collar is not null && collar.Provider == Domain.Collars.CollarProvider.Tractive)
-        {
-            collar.SetToken(encryptedToken);
-            collarRepository.Update(collar);
-        }
-
-        return Redirect($"https://pawtrack.cr/pets/{petId}?tab=gps&connected=true");
-    }
-    */
 
     private bool TryGetUserId(out Guid userId)
     {

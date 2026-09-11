@@ -135,6 +135,7 @@ public static class AuthHelper
 
         using var scope = factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+        var jwt = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
 
         var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
         if (user is not null)
@@ -142,16 +143,10 @@ public static class AuthHelper
             user.PromoteToAdmin();
             db.Users.Update(user);
             await db.SaveChangesAsync();
-        }
 
-        // Re-login to get a JWT that includes the Admin role claim
-        var loginResp = await client.PostAsJsonAsync("/api/auth/login", new { email, password = Password });
-        if (loginResp.IsSuccessStatusCode)
-        {
-            var body = await loginResp.Content.ReadFromJsonAsync<LoginResponse>();
-            if (body?.AccessToken is not null)
-                client.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", body.AccessToken);
+            var token = jwt.GenerateAccessToken(user.Id, user.Email, user.Name, user.Role);
+            client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
         }
 
         return client;

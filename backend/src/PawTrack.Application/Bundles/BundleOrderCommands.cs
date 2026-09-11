@@ -59,8 +59,9 @@ public sealed record BundleOrderDto(
 {
     private static readonly Dictionary<Domain.Bundles.CollarModel, string> CollarLabels = new()
     {
-        [Domain.Bundles.CollarModel.TractiveGPSDog4] = "Tractive GPS DOG 4",
-        [Domain.Bundles.CollarModel.TractiveGPSCat4] = "Tractive GPS CAT 4",
+        [Domain.Bundles.CollarModel.TractiveGPSDog4] = "Collar GPS PawTrack (Perros)",
+        [Domain.Bundles.CollarModel.TractiveGPSCat4] = "Collar GPS PawTrack (Gatos)",
+        [Domain.Bundles.CollarModel.PawTrackAL600] = "PawTrack AL600 GPS",
     };
 
     private static readonly Dictionary<Domain.Bundles.BundleOrderStatus, string> StatusLabels = new()

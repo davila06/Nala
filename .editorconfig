@@ -1,0 +1,35 @@
+# Top-most EditorConfig file
+root = true
+
+# Default rules for all files
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = crlf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# C# source files
+[*.cs]
+indent_size = 4
+csharp_using_directive_placement = outside_namespace:error
+csharp_prefer_braces = when_multiline:suggestion
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+csharp_style_expression_bodied_properties = true:suggestion
+
+# TypeScript / JavaScript files
+[*.{ts,tsx,js,jsx}]
+indent_size = 2
+max_line_length = 120
+
+# Markdown documentation
+[*.md]
+trim_trailing_whitespace = false
+insert_final_newline = true
+
+# JSON and YAML configuration
+[*.{json,yml,yaml}]
+indent_size = 2

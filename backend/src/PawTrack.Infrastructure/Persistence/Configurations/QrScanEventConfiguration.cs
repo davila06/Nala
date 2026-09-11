@@ -23,5 +23,7 @@ public sealed class QrScanEventConfiguration : IEntityTypeConfiguration<QrScanEv
 
         builder.HasIndex(e => new { e.PetId, e.ScannedAt })
             .HasDatabaseName("IX_QrScanEvents_PetId_ScannedAt");
+        builder.HasIndex(e => e.ScannedAt)
+            .HasDatabaseName("IX_QrScanEvents_ScannedAt");
     }
 }

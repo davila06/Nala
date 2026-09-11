@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using PawTrack.Application.Common.Interfaces;
 using PawTrack.Infrastructure.Persistence;
 
 namespace PawTrack.Infrastructure.Collars;
@@ -12,6 +13,7 @@ namespace PawTrack.Infrastructure.Collars;
 /// </summary>
 public sealed class CollarLocationPurgeJob(
     IServiceProvider services,
+    IDistributedJobLock jobLock,
     ILogger<CollarLocationPurgeJob> logger) : BackgroundService
 {
     private static readonly TimeSpan RetentionPeriod = TimeSpan.FromDays(30);
@@ -31,6 +33,11 @@ public sealed class CollarLocationPurgeJob(
 
     private async Task PurgeAsync(CancellationToken cancellationToken)
     {
+        await using var lease = await jobLock.TryAcquireAsync(
+            "CollarLocationPurge", TimeSpan.FromHours(1), cancellationToken);
+        if (lease is null)
+            return; // Another instance is executing the purge
+
         await using var scope = services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<PawTrackDbContext>();
 
@@ -45,8 +52,8 @@ public sealed class CollarLocationPurgeJob(
 
     private static async Task DelayUntilNextRun(CancellationToken stoppingToken)
     {
-        var now   = DateTime.UtcNow;
-        var next  = now.Date.AddDays(1).AddHours(3); // next 03:00 UTC
+        var now = DateTime.UtcNow;
+        var next = now.Date.AddDays(1).AddHours(3); // next 03:00 UTC
         var delay = next - now;
         if (delay > TimeSpan.Zero)
             await Task.Delay(delay, stoppingToken).ConfigureAwait(false);

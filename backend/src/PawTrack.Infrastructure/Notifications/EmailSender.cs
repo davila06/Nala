@@ -348,6 +348,31 @@ public sealed class EmailSender(
             html, cancellationToken);
     }
 
+    // ── Clinic lifecycle emails ───────────────────────────────────────────────
+
+    public Task SendClinicApprovedWelcomeAsync(
+        string to, string clinicName, string loginUrl,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>Hola equipo de <strong>{Escape(clinicName)}</strong>,</p>
+            <p>¡Buenas noticias! Su cuenta de clínica veterinaria en <strong>PawTrack CR</strong> ha sido aprobada y activada por nuestro equipo administrativo.</p>
+            <p>A partir de este momento pueden ingresar a su portal profesional para:</p>
+            <ul>
+              <li>Acceder a expedientes médicos compartidos por dueños de mascotas.</li>
+              <li>Gestionar consultas y vacunas digitales verificadas.</li>
+              <li>Aparecer en el directorio público de clínicas veterinarias en Costa Rica.</li>
+            </ul>
+            <p><a href="{loginUrl}" style="display:inline-block;padding:10px 20px;background-color:#e8521e;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:bold;">Iniciar sesión en PawTrack CR</a></p>
+            <p>Si tienen alguna duda o requieren asistencia técnica, pueden responder directamente a este correo o escribir a <a href="mailto:soporte@pawtrack.cr">soporte@pawtrack.cr</a>.</p>
+            <p>Bienvenidos a la red de protección animal de Costa Rica. 🐾</p>
+            """;
+
+        return SendAsync(to, clinicName,
+            subject: "🩺 ¡Tu cuenta de clínica ha sido aprobada! — PawTrack CR",
+            html, cancellationToken);
+    }
+
     // ── Internal helpers ──────────────────────────────────────────────────────
 
     /// <summary>
