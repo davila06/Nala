@@ -106,6 +106,38 @@ antes de prometer cobertura nacional.
 para validar el primer piloto si TrackSolid Pro y la SIM embebida cumplen lo
 confirmado. Esas opciones pertenecen a una fase posterior de firmware propio u ODM.
 
+### Protocolo y requisitos para la prueba previa con 2 muestras de AL600
+
+Antes de autorizar y desembolsar la orden del lote de 50 unidades para el piloto comercial, PawTrack ejecutará una fase de pruebas previa con **2 dispositivos de muestra** del modelo AL600 (versión Latinoamérica).
+
+#### 1. Datos del consignatario y cotización oficial de muestras
+
+- **Información requerida:** Enviar a Jimi IoT (Cristina) los datos completos de la empresa/consignatario en Costa Rica (Nombre, dirección exacta, persona de contacto, teléfono, correo) para la emisión de la factura proforma comercial.
+- **Desglose de la cotización:** Confirmar precio unitario de muestra ($32 USD FOB/unidad preliminar, incluye 1 año de datos de 30 MB/mes), costo de flete courier (DHL/FedEx), seguro e Incoterm.
+- **Documentación aduanal:** Solicitar la partida arancelaria (código HS) y el Certificado de Origen bajo el TLC Costa Rica - China para validar con agente aduanal la exención/reducción del DAI (Derecho Arancelario de Importación).
+
+#### 2. Acceso al entorno de pruebas de TrackSolid Pro (Open API)
+
+- **Credenciales de API:** Recibir por canal seguro el `appKey` y `appSecret`, el nodo regional asignado y la subcuenta/tenant de prueba.
+- **Aprovisionamiento de IMEIs:** Alta e ingesta de los 2 IMEIs/seriales de muestra en el entorno de pruebas de PawTrack.
+- **Configuración en Key Vault:** Registrar credenciales en Azure Key Vault (`TrackSolid:AppKey`, `TrackSolid:AppSecret`) para activar el Job distribuido `TrackSolidPollingJob`.
+
+#### 3. Protocolo de pruebas de campo en Costa Rica
+
+1. **Conectividad:** Probar la cobertura real de la SIM embebida sobre la red Claro en los cantones piloto.
+2. **Telemetría y Software (Backend / Frontend PWA):**
+   - Validar la ingesta periódica de coordenadas (latitud, longitud, precisión) y batería (530 mAh) cada 5 segundos en modo de rastreo en vivo.
+   - Probar activación de Modo Perdido, geocercas (zonas seguras) y alertas de desconexión/batería baja en el mapa interactivo.
+3. **Calidad Física y Hardware:**
+   - Probar el buzzer/LED de búsqueda, resistencia al agua IP67 y durabilidad del ensamble.
+   - Probar el ajuste mecánico al collar y el sticker/grabado QR con formato `PT-[4 hex]-[7 dígitos]`.
+
+#### 4. Criterio de éxito para avanzar a las 50 unidades
+
+- Validación exitosa de telemetría y geolocalización continua de ambas muestras.
+- Confirmación del costo _landed_ total puesto en Costa Rica dentro de la meta financiera ($51.50 USD/unidad máx).
+- Acuerdo explícito de garantía y procedimiento de RMA/reemplazo para unidades defectuosas antes de la orden del lote.
+
 ---
 
 ## 2. Quiénes somos

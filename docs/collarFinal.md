@@ -184,12 +184,14 @@ Fabricante seleccionado para el collar de marca PawTrack:
 | **Queclink**  | GL300 miniatura                 | REST + binario propio                                                                                           | 50 u.             | Hardware robusto y compacto                                                                                                       | 2°                   |
 | **ThinkRace** | TK115 pet-specific              | REST + WebSocket                                                                                                | 100 u.            | Diseño pensado para collar                                                                                                        | 3°                   |
 
-**Proceso de importación China → CR (Jimi IoT AL600, MOQ 100 u.):**
+**Proceso de importación China → CR (Jimi IoT AL600):**
+
+> Ver protocolo detallado y requisitos de prueba para las 2 muestras iniciales en `docs/jimiiot.md` §1.
 
 ```
-Semana 1   → Pedir muestras ($50–100 + DHL $30), validar GPS/batería/waterproof
-Semana 2–3 → Integrar API TrackSolid Pro, confirmar polling funciona
-Semana 4   → Confirmar orden 100 u. (T/T 30% adelanto / 70% antes embarque)
+Semana 1   → Pedir 2 muestras ($32/u + DHL), validar GPS/batería/waterproof
+Semana 2–3 → Integrar API TrackSolid Pro con IMEIs de muestra, confirmar polling
+Semana 4   → Confirmar orden piloto 50 u. (aceptadas por Jimi IoT)
              Producción: 15–20 días
 Semana 6–7 → DHL Shenzhen → SJO 3–5 días; agente aduanal obligatorio >$1,000 CIF
              Código arancelario: 8526.91.00 | Impuestos: ver desglose de aduanas abajo
