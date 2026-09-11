@@ -2,17 +2,113 @@
 
 > Documento preparado para compartir con **Jimi IoT** como parte de la evaluación de un
 > collar GPS para mascotas (OEM/marca blanca) para **PawTrack CR**.
-> Última actualización: 2026-09-04
+> Última actualización: 2026-09-11
 >
-> **📌 Estado de la conversación (2026-09-03):** Jimi IoT respondió positivamente al
-> RFQ inicial — interesados en una relación de socio tecnológico/fabricante a largo
-> plazo, no solo venta de un dispositivo existente. Están consolidando información
-> técnica y comercial internamente (producto, ingeniería, ventas) antes de dar
-> respuesta estructurada punto por punto. Ver bitácora completa en §8.
+> **Estado actual:** Jimi IoT aceptó un piloto de 50 unidades del AL600, confirmó
+> TrackSolid Pro, `appKey`, licencia de USD 3.50 por dispositivo el primer año y
+> conectividad de la versión Latinoamérica con Claro. La cotización oficial con
+> envío queda pendiente de los datos del consignatario. Ver resumen y plan en §1.
 
 ---
 
-## 1. Quiénes somos
+## 1. Resumen ejecutivo al 11 de septiembre de 2026
+
+### Decisión recomendada para el piloto
+
+Avanzar con **50 unidades AL600 versión Latinoamérica**, siempre que la cotización
+oficial confirme el precio unitario, flete, Incoterm, cobertura/datos y acceso a
+TrackSolid Pro. La integración del piloto debe usar **TrackSolid Pro**, no la app
+Jimi Life y no el protocolo binario directo del dispositivo.
+
+El AL600 estándar puede configurarse con un servidor propio, pero no habla JSON
+por HTTPS ni MQTT de forma nativa. Por tanto, no es compatible directamente con
+el endpoint HTTP actual de PawTrack. TrackSolid Pro es la capa que permite a
+PawTrack consultar o recibir los datos usando su API documentada.
+
+### Confirmado por Jimi IoT
+
+| Tema           | Confirmación                                                                                                                 |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Piloto         | Aceptan 50 unidades, por debajo del MOQ estándar de 100, con precio de escala inferior a 100                                 |
+| Modelo         | AL600, versión Latinoamérica                                                                                                 |
+| Plataforma     | TrackSolid Pro, con subcuentas y entrega de `appKey` para integración                                                        |
+| Licencia/API   | USD 3.50 por dispositivo durante el primer año; USD 6.00 por dispositivo/año desde el segundo; la API sigue el mismo esquema |
+| Conectividad   | SIM embebida compatible con Claro                                                                                            |
+| Bandas LTE FDD | B2/B3/B4/B5/B7/B8/B28/B66                                                                                                    |
+| Bandas LTE TDD | B38/B40/B41                                                                                                                  |
+| Firmware       | Actualización remota por Jimi IoT o local por cable y paquete de firmware                                                    |
+| Marca blanca   | Disponible; firmware a medida y ODM requieren evaluación y NDA                                                               |
+| Cotización     | La emitirán con envío cuando reciban datos del consignatario                                                                 |
+
+### Pendientes de Jimi IoT antes de emitir la orden
+
+1. Cotización oficial de 50 unidades: precio unitario, Incoterm, flete, seguro,
+   plazo, forma de pago, validez y costos de muestra si aplica.
+2. Acceso de prueba o cuenta de TrackSolid Pro: nodo regional, creación de
+   subcuentas, `appKey`, secretos, documentación y límites de API.
+3. Pasos de aprovisionamiento: alta de IMEI/serial, asignación al tenant de
+   PawTrack, activación y desactivación de equipos.
+4. Esquema de datos/SIM: confirmar que los 30 MB/mes y el año incluido aplican
+   al piloto, cobertura efectiva sobre Claro, política de uso justo, sobreconsumo,
+   suspensión, reactivación, reemplazo de SIM y soporte.
+5. Documentación de seguridad: autenticación de API, rotación de credenciales,
+   origen/firma de webhooks si se usaran y lista de IPs de salida.
+6. Confirmación de certificaciones aplicables, garantía, RMA, resistencia IP67,
+   peso/dimensiones finales y material de empaque.
+7. Borrador de NDA para explorar firmware personalizado u ODM, sin bloquear el
+   piloto estándar.
+
+### Próximos pasos de PawTrack
+
+1. Esperar la respuesta de Cristina al correo enviado el 2026-09-11, con la
+   cotización para 2 muestras y la cotización referencial del lote.
+2. Revisar que la respuesta incluya costos totales, documentación aduanera,
+   TrackSolid Pro, SIM/datos y condiciones de garantía.
+3. Validar el costo total puesto en Costa Rica con un agente aduanal antes de
+   pagar: flete, seguro, partida arancelaria, DAI, IVA y trámite.
+4. Solicitar cuenta sandbox o de prueba de TrackSolid Pro y completar una prueba
+   con datos reales usando las muestras antes de confirmar la orden de 50 unidades.
+5. Validar con Jimi el código HS, reglas de origen y certificado para aplicar,
+   si corresponde, la preferencia del TLC Costa Rica-China.
+6. Elegir el nodo regional tras una prueba básica de latencia y disponibilidad;
+   no decidirlo solo por cercanía geográfica.
+7. Definir soporte al cliente, política de garantía, reposición y renovación de
+   conectividad antes de vender el primer collar.
+
+### ¿Debemos hablar con Claro?
+
+**No como primer bloqueo.** La SIM embebida del AL600 ya fue declarada compatible
+con la red Claro. Primero Jimi IoT debe confirmar por escrito que la SIM y sus
+datos cubren Costa Rica, quién es el responsable operativo y qué ocurre cuando
+vence o excede el paquete.
+
+Hablar con Claro es recomendable como validación adicional o alternativa futura,
+no como condición previa a la muestra, para confirmar cobertura LTE Cat.1 en los
+cantones piloto y evaluar una SIM IoT local si la SIM de Jimi no ofrece soporte,
+precio o control operativo adecuados. Kölbi y Movistar también deben verificarse
+antes de prometer cobertura nacional.
+
+### Cambios requeridos en PawTrack para AL600
+
+| Cambio                     | Alcance                                                                                                             | Prioridad |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------- | --------- |
+| Adaptador TrackSolid Pro   | Servicio de infraestructura para autenticación, consulta de dispositivos y normalización de posiciones              | Alta      |
+| Proveedor `JimiTrackSolid` | Nuevo valor/proveedor de collar o identificador de integración, sin reutilizar `Generic` para datos de terceros     | Alta      |
+| Vinculación IMEI/serial    | Guardar el identificador externo de TrackSolid y asociarlo a CollarTag/Pet con ownership validado                   | Alta      |
+| Trabajo de sincronización  | Consulta periódica por lotes, idempotencia, backoff y lock distribuido; reutilizar el patrón de ubicación existente | Alta      |
+| Normalizador de telemetría | Convertir respuesta TrackSolid a latitud, longitud, precisión, batería y timestamp UTC antes de persistir           | Alta      |
+| Estado de conectividad     | Mapear última conexión, batería, alarmas y eventos de geocerca disponibles desde TrackSolid                         | Media     |
+| Webhooks TrackSolid        | Evaluar solo tras confirmar firma o allowlist; no exponer el endpoint actual al protocolo binario del AL600         | Media     |
+| Gestión de credenciales    | `appKey` y secreto solo en Key Vault; nunca en frontend, BD sin cifrar o documentación                              | Alta      |
+| Pruebas                    | Integración simulada, ownership/BOLA, duplicados, errores API, datos fuera de rango y pérdida de conexión           | Alta      |
+
+**No se requiere** firmware personalizado, Azure IoT Hub, MQTT ni una SIM propia
+para validar el primer piloto si TrackSolid Pro y la SIM embebida cumplen lo
+confirmado. Esas opciones pertenecen a una fase posterior de firmware propio u ODM.
+
+---
+
+## 2. Quiénes somos
 
 **PawTrack CR** es una plataforma digital (PWA) de identidad de mascotas y recuperación
 de mascotas perdidas, operando en Costa Rica. Los dueños registran a su mascota,
@@ -20,11 +116,10 @@ generan un código QR permanente vinculado a un perfil público, y — si la mas
 pierde — activan un reporte que coordina avistamientos, difusión multicanal, matching
 visual por IA y búsqueda en campo en tiempo real.
 
-Nuestro plan **Plus** (de pago) ya integra collares GPS de terceros:
-
-- **Tractive** — vía OAuth2 + polling cada 5 minutos.
-- **Collares genéricos/OEM** — vía activación por serial físico + credencial de
-  dispositivo (`X-Collar-Key`), con push HTTP directo al servidor.
+El plan **Plus** habilita collares GPS. El flujo operativo activo usa collares
+genéricos/OEM por serial físico y credencial de dispositivo. Las integraciones
+externas directas, incluida Tractive, permanecen deshabilitadas hasta una
+decisión comercial e integración aprobada.
 
 Estamos evaluando manufactureras para lanzar nuestro propio collar de marca PawTrack
 (OEM/marca blanca) como producto físico vendido en Costa Rica, en un modelo de
@@ -33,12 +128,12 @@ que estamos evaluando para esta línea de producto.
 
 ---
 
-## 2. Lo que ya tenemos construido (del lado de PawTrack)
+## 3. Lo que ya tenemos construido (del lado de PawTrack)
 
-Esto es importante para Jimi IoT: **el backend que recibirá los datos del collar ya
-existe y está en producción** — no estamos partiendo de cero. Lo que necesitamos de
-Jimi IoT es hardware + firmware compatible con nuestro protocolo de ingesta (o, si su
-plataforma lo soporta, adaptarnos a la de ustedes).
+Esto es importante para Jimi IoT: **el backend y la interfaz para administrar
+collares ya existen** — no estamos partiendo de cero. Para el AL600, PawTrack
+se adaptará a TrackSolid Pro; no se presupone que el firmware estándar hable el
+protocolo HTTP nativo de PawTrack.
 
 | Componente                                              | Estado                                                                                     |
 | ------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
@@ -53,13 +148,14 @@ plataforma lo soporta, adaptarnos a la de ustedes).
 
 ---
 
-## 3. Nuestro protocolo de ingesta (lo que el collar debe hablar)
+## 4. Integración de telemetría para el piloto AL600
 
-Preferimos la opción más simple para el firmware: **HTTP POST periódico** (polling
-saliente desde el dispositivo), no requerimos que Jimi IoT implemente nada del lado
-del servidor — el collar (o su gateway/SIM) llama directamente a nuestro endpoint.
+El AL600 estándar no habla JSON por HTTPS ni MQTT de forma nativa. Para el piloto,
+PawTrack debe consumir TrackSolid Pro mediante su API y normalizar la telemetría
+antes de persistirla. El endpoint HTTP actual queda disponible para prototipos u
+OEM que cumplan su contrato, pero no es el canal directo del AL600 estándar.
 
-### 3.1 Activación (una sola vez, en fábrica o en la app del usuario)
+### 4.1 Activación y asociación de dispositivo
 
 Cada collar se fabrica con un **serial único** grabado en la carcasa (o impreso en una
 etiqueta/QR dentro de la caja). El usuario final activa el collar desde la app
@@ -67,8 +163,10 @@ PawTrack escaneando o ingresando ese serial. Nuestro servidor genera entonces un
 **API key de dispositivo** (`collarApiKey`) que el collar debe usar en cada request
 subsecuente.
 
-**Cómo la key llega al dispositivo** (dos opciones, a validar con Jimi IoT cuál es
-factible con su hardware/firmware):
+Para AL600, la activación debe ocurrir en TrackSolid Pro usando IMEI/serial y
+asociando el equipo a la cuenta o subcuenta de PawTrack. La clave de dispositivo
+`X-Collar-Key` solo aplica al canal HTTP nativo de PawTrack; no debe intentarse
+aprovisionarla en firmware estándar del AL600 sin confirmar un desarrollo a medida.
 
 - **Opción A — BLE (preferida):** al encender por primera vez, el collar entra en modo
   pairing. La app PawTrack envía `{ collarApiKey, serverUrl }` vía GATT Write. El
@@ -78,7 +176,7 @@ factible con su hardware/firmware):
   nuestra API de aprovisionamiento antes del envío, o un lote pre-generado que
   compartimos con ustedes).
 
-### 3.2 Reporte de ubicación (periódico, cada N minutos)
+### 4.2 Canal HTTP nativo de PawTrack
 
 ```http
 POST https://pawtrack.cr/api/collars/ingest
@@ -111,12 +209,12 @@ X-Collar-Key: <collarApiKey>
 - Frecuencia recomendada: cada 5 minutos en movimiento, con back-off a 15–30 min en
   reposo (detectado por acelerómetro) para ahorrar batería — ver §5.
 
-### 3.3 Alternativa: webhook/push desde la nube de Jimi IoT
+### 4.3 TrackSolid Pro: consulta o webhook de API
 
-Si el hardware de Jimi IoT solo reporta a su propia plataforma (no directo a
-terceros), podemos en su lugar **hacer polling contra la API de Jimi IoT** cada
-5 minutos desde nuestro backend (ya tenemos este patrón implementado para Tractive).
-En ese caso necesitaríamos de Jimi IoT:
+Para AL600, TrackSolid Pro es la ruta de corto plazo. PawTrack puede consultar
+ubicaciones por lotes desde el backend y, posteriormente, evaluar un webhook de
+la API cuando Jimi documente autenticación, firma o rangos de IP de salida.
+Necesitamos de Jimi IoT:
 
 - Documentación completa de su API REST (o especificación MQTT si aplica).
 - Si es OAuth2: `client_id`/`client_secret` y flujo de autorización.
@@ -126,23 +224,23 @@ En ese caso necesitaríamos de Jimi IoT:
 
 ---
 
-## 4. Variantes de producto a cotizar
+## 5. Variantes de producto a cotizar
 
 Nos interesa comparar el costo incremental real de distintas variantes construidas
 sobre la misma plataforma base:
 
 | Variante                         | Qué incluye                     | Prioridad para el piloto inicial |
 | -------------------------------- | ------------------------------- | -------------------------------- |
-| **V1 — GPS base**                | GPS + LTE-M/NB-IoT              | ✅ Alta — piloto de 50 unidades  |
+| **V1 — GPS base**                | GPS + LTE Cat.1                 | ✅ Alta — piloto de 50 unidades  |
 | **V2 — GPS + cámara**            | GPS + cámara de baja resolución | Media — evaluación año 1         |
 | **V3 — GPS + pantalla e-ink**    | GPS + display e-ink pequeño     | Media — evaluación año 1         |
 | **V4 — GPS + cámara + pantalla** | Combinación completa            | Baja — roadmap futuro            |
 
 ---
 
-## 5. Preguntas para Jimi IoT (RFQ)
+## 6. Preguntas para Jimi IoT (RFQ)
 
-### 5.1 Producto y API
+### 6.1 Producto y API
 
 1. ¿Su API es REST (HTTP/JSON) o protocolo propietario (¿MQTT, GT06, JT808?)?
    Favor compartir documentación técnica completa.
@@ -154,47 +252,47 @@ sobre la misma plataforma base:
 4. Modelo de referencia: **JM-VL01 / LL01** — ¿siguen siendo los modelos vigentes
    recomendados para un collar de mascota? ¿Hay un modelo más nuevo que recomienden?
 
-### 5.2 Cámara (solo variantes V2 y V4)
+### 6.2 Cámara (solo variantes V2 y V4)
 
-5. Resolución de imagen, formato (¿JPEG?), tamaño típico de archivo por foto.
-6. ¿Cómo se entrega la imagen — push a nuestro servidor, pull vía su API, o solo
-   disponible a través de su plataforma/app?
-7. Frecuencia máxima de captura sostenible sin agotar la batería en menos de 24h.
+- **5.** Resolución de imagen, formato (¿JPEG?), tamaño típico de archivo por foto.
+- **6.** ¿Cómo se entrega la imagen — push a nuestro servidor, pull vía su API, o solo
+  disponible a través de su plataforma/app?
+- **7.** Frecuencia máxima de captura sostenible sin agotar la batería en menos de 24h.
 
-### 5.3 Pantalla e-ink (solo variantes V3 y V4)
+### 6.3 Pantalla e-ink (solo variantes V3 y V4)
 
-8. Tamaños de pantalla disponibles, tiempo de refresco.
-9. Consumo en reposo vs. durante un ciclo de refresco.
-10. ¿El contenido puede fijarse en fábrica (QR estático), o requiere actualización
-    vía BLE/firmware cada vez que cambia?
+- **8.** Tamaños de pantalla disponibles, tiempo de refresco.
+- **9.** Consumo en reposo vs. durante un ciclo de refresco.
+- **10.** ¿El contenido puede fijarse en fábrica (QR estático), o requiere actualización
+  vía BLE/firmware cada vez que cambia?
 
-### 5.4 Energía y conectividad
+### 6.4 Energía y conectividad
 
-11. Autonomía de batería estimada por variante, bajo un escenario concreto: reporte
-    de GPS cada 5–10 minutos (no una cifra de marketing genérica).
-12. ¿Bandas LTE-M / NB-IoT compatibles con operadores de Costa Rica (Kölbi,
-    Movistar, Claro)?
-13. ¿El collar viene con eSIM pre-activado, o nosotros proveemos nuestra propia SIM
-    IoT (ej. Emnify, Hologram)?
-14. ¿Tiene acelerómetro/sensor de movimiento para reducir frecuencia de reporte GPS
-    en reposo (ahorro de batería)? ¿Soporta "wake on motion"?
+- **11.** Autonomía de batería estimada por variante, bajo un escenario concreto: reporte
+  de GPS cada 5–10 minutos (no una cifra de marketing genérica).
+- **12.** ¿Bandas LTE Cat.1 de la versión Latinoamérica y cobertura validada con
+  operadores de Costa Rica (Kölbi, Movistar, Claro)?
+- **13.** ¿El collar viene con eSIM pre-activado, o nosotros proveemos nuestra propia SIM
+  IoT (ej. Emnify, Hologram)?
+- **14.** ¿Tiene acelerómetro/sensor de movimiento para reducir frecuencia de reporte GPS
+  en reposo (ahorro de batería)? ¿Soporta "wake on motion"?
 
 ### 5.5 Certificaciones y calidad
 
-15. Certificaciones vigentes (FCC, CE, ROHS) y clasificación IP (resistencia a agua/polvo).
-16. ¿El serial/IMEI puede grabarse láser en la carcasa en fábrica, con un formato
-    que nosotros definamos (`PT-XXXX-NNNNNNN`)?
+- **15.** Certificaciones vigentes (FCC, CE, ROHS) y clasificación IP (resistencia a agua/polvo).
+- **16.** ¿El serial/IMEI puede grabarse láser en la carcasa en fábrica, con un formato
+  que nosotros definamos (`PT-XXXX-NNNNNNN`)?
 
 ### 5.6 Términos comerciales (por variante)
 
-17. MOQ y precio unitario a 50 / 100 / 500 unidades (FCA Shenzhen), por variante.
-18. Costo y tiempo de entrega de 2–3 muestras por variante.
-19. Tiempo de producción estándar tras confirmar orden.
-20. ¿Ofrecen marca blanca (logo, empaque personalizado)?
+- **17.** MOQ y precio unitario a 50 / 100 / 500 unidades (FCA Shenzhen), por variante.
+- **18.** Costo y tiempo de entrega de 2–3 muestras por variante.
+- **19.** Tiempo de producción estándar tras confirmar orden.
+- **20.** ¿Ofrecen marca blanca (logo, empaque personalizado)?
 
 ---
 
-## 6. Plan de piloto
+## 7. Plan de piloto
 
 Estamos planificando un piloto inicial de **~50 unidades (variante V1)**, con
 posible escalamiento a 500+ unidades y evaluación de variantes con cámara/pantalla
@@ -202,26 +300,26 @@ dentro del primer año, sujeto a los resultados del piloto.
 
 **Cronograma tentativo:**
 
-```
+```text
 Semana 1     → Solicitar 2-3 muestras, validar GPS/batería/resistencia al agua
-Semana 2–3   → Integrar como proveedor "Generic" en nuestro backend (ya soportado),
-               confirmar que el reporte de ubicación llega correctamente
+Semana 2–3   → Integrar TrackSolid Pro, asociar IMEI/serial y confirmar consulta
+               de ubicación, batería y timestamp con datos reales
 Semana 4     → Confirmar orden de 50 unidades
-Semana 6–8   → Producción + envío + aduana + activación de SIMs + QA
+Semana 6–8   → Producción + envío + aduana + activación en TrackSolid Pro + QA
 ```
 
 ---
 
-## 7. Contacto
+## 8. Contacto
 
 **PawTrack CR**
 Denis Avila Umaña
 [correo] · [WhatsApp/teléfono]
-https://pawtrack.cr
+[pawtrack.cr](https://pawtrack.cr)
 
 ---
 
-## 8. Bitácora de conversación
+## 9. Bitácora de conversación
 
 ### 2026-09-03 — Respuesta inicial de Jimi IoT al RFQ
 
@@ -308,9 +406,8 @@ confirmamos independientemente que su plataforma lo soporta.
 
 ### 2026-09-04 — Correo de seguimiento enviado: alinear el piloto con TrackSolid Pro
 
-Se envió un correo de seguimiento en el mismo hilo del RFQ (asunto: "Re: RFQ —
-GPS Pet Tracker Collar (OEM/Custom Branding) — Aligning on TrackSolid Pro for
-the pilot"), sin esperar la respuesta estructurada de Jimi IoT a §5, para no
+Se envió un correo de seguimiento en el mismo hilo del RFQ, sin esperar la
+respuesta estructurada de Jimi IoT a §6, para no
 bloquear la validación técnica. Pide, en orden:
 
 1. **Cuenta y acceso**: cómo obtener una cuenta distribuidor/reseller de
@@ -358,7 +455,7 @@ técnico y comercial del producto recomendado (AL600) en `collarFinal.md` §3.3.
 - SDK propio disponible (costo adicional) si en el futuro queremos una app
   100% propia en lugar de JimiLife/TrackSolid Pro.
 
-**2. Producto recomendado para el piloto (Fase 1): modelo AL600**
+#### 2. Producto recomendado para el piloto: modelo AL600
 
 Conectividad LTE Cat.1 (sin LTE-M/NB-IoT), SIM embebida, GPS+BDS+WiFi+LBS+BT+A-GPS,
 batería hasta 10 días activo / 60 días standby, IP67, historial 7 días, triple
@@ -391,11 +488,10 @@ profunda — paso pendiente si se explora firmware custom u ODM.
 - [x] Validar cobertura/costo real de LTE Cat.1 con Kölbi/Movistar/Claro antes de comprometer el piloto. **Ídem — pedido directamente a Jimi IoT.**
 - [ ] Aún pendiente: respuesta específica sobre acceso a cuenta TrackSolid Pro (appKey/appSecret, nodo regional, costo de API) del correo de seguimiento — no vino en esta respuesta, insistir en el próximo intercambio. **Reiterado en el correo de seguimiento 2026-09-10.**
 
-### 2026-09-10 — Segundo correo de seguimiento enviado: MOQ, licencia TrackSolid Pro, cuenta, LTE Cat.1, NDA
+### 2026-09-10 — Segundo correo de seguimiento enviado: MOQ, licencia TrackSolid Pro, cuenta, LTE Cat.1 y NDA
 
-En el mismo hilo (asunto: "Re: RFQ — GPS Pet Tracker Collar (OEM/Custom
-Branding) — AL600 pilot & TrackSolid Pro follow-up"), en respuesta directa a
-la respuesta estructurada del mismo día. Pide, en orden:
+En el mismo hilo, en respuesta directa a la respuesta estructurada del mismo
+día, se solicitó lo siguiente:
 
 1. **MOQ del piloto**: si hay flexibilidad para arrancar en 50 unidades (aunque
    sea a precio unitario algo más alto) en vez del MOQ estándar de 100.
@@ -403,11 +499,11 @@ la respuesta estructurada del mismo día. Pide, en orden:
    (primer año) / $6.00 (renovación) por dispositivo cotizado para JimiLife
    aplica igual integrando vía TrackSolid Pro, o tiene un precio distinto.
 3. **Acceso a cuenta TrackSolid Pro** (reiterado, no respondido en el correo
-   anterior): cuenta distribuidor/reseller con `appKey`/`appSecret`, nodo
+   anterior): cuenta de distribuidor con `appKey`/`appSecret`, nodo
    regional recomendado desde Costa Rica (US/EU/HK-SG), activación de las
    unidades piloto bajo `mcTypeUseScope = "pet"`, pasos exactos para habilitar
-   polling (`jimi.device.location.get`) o push (`/location/push`) con el
-   AL600, y disponibilidad de una cuenta sandbox/de prueba antes de confirmar
+   consulta periódica (`jimi.device.location.get`) o notificación (`/location/push`) con el
+   AL600, y disponibilidad de una cuenta de prueba antes de confirmar
    la orden.
 4. **Conectividad**: qué operadores costarricenses (Kölbi, Movistar, Claro)
    tienen validados para LTE Cat.1 del AL600, o qué proveedor de SIM IoT
@@ -424,24 +520,85 @@ contacto de Jimi IoT lo prefiere sobre correo.
 
 **Pendiente:** respuesta de Jimi IoT a este segundo correo de seguimiento.
 
-### 2026-09-10 — Adjuntos analizados: deck de producto + datasheet AL600
+### 2026-09-11 — Respuesta al segundo seguimiento: piloto y conectividad confirmados
+
+Jimi IoT respondió a los puntos que quedaban del segundo seguimiento. Esta
+entrada reemplaza cualquier dato anterior contradictorio de la bitácora.
+
+- **Piloto:** aceptan 50 unidades, aunque el MOQ estándar sea 100. El precio
+  final será el aplicable a pedidos inferiores a 100 unidades y se incluirá en
+  la cotización oficial.
+- **TrackSolid Pro:** licencia y API cuestan USD 3.50 por dispositivo durante
+  el primer año y USD 6.00 por dispositivo/año desde el segundo. Pueden crear
+  subcuentas y entregar `appKey`; la documentación de integración queda por
+  recibir.
+- **Conectividad:** la SIM embebida del AL600 es compatible con Claro. La
+  versión Latinoamérica soporta LTE FDD B2/B3/B4/B5/B7/B8/B28/B66 y LTE TDD
+  B38/B40/B41. Este dato reemplaza la lista limitada del datasheet anterior.
+- **Firmware y NDA:** aceptan NDA; pueden actualizar firmware remotamente o
+  por cable. El firmware personalizado y ODM se evaluarán cuando PawTrack
+  entregue requisitos específicos.
+- **Cotización:** solicitan nombre de empresa, dirección, persona de contacto,
+  teléfono y datos del consignatario para emitir la cotización con envío.
+
+**Pendiente inmediato:** entregar datos del consignatario y solicitar por
+escrito precio de 50 unidades, Incoterm, flete, impuestos estimados, acceso de
+prueba TrackSolid Pro, documentación, gestión de SIM/datos y aprovisionamiento
+por IMEI/serial.
+
+### 2026-09-11 — Correo enviado a Cristina: 2 muestras antes del lote
+
+Se envió a Cristina la respuesta comercial para continuar el seguimiento. La
+solicitud establece que PawTrack desea recibir primero **2 dispositivos de
+muestra** del AL600 versión Latinoamérica, con la misma configuración de
+hardware, firmware, SIM embebida y bandas prevista para el lote de 50.
+
+La respuesta solicita para las muestras:
+
+- Precio unitario y costo total puesto en Costa Rica, incluyendo flete, seguro,
+  courier, preparación, configuración, activación, serialización, empaque y
+  cualquier cargo por pedido pequeño.
+- Separación de arancel potencial, IVA, cargos aduaneros y otros costos de
+  destino, sin asumir que el TLC exonera automáticamente todos los impuestos.
+- Confirmación de 30 MB/mes, primer año de datos, vigencia y costos de
+  TrackSolid Pro/API.
+- Activación por IMEI/serial, cuenta de prueba o sandbox, nodo regional,
+  documentación, límites de API y procedimiento de aprovisionamiento.
+- Garantía, soporte y reemplazo de una muestra defectuosa.
+
+También se solicita una cotización referencial separada para 50 unidades, pero
+se deja claro que la orden quedará condicionada a los resultados de las pruebas
+de las muestras.
+
+Para el TLC Costa Rica-China se pide a Jimi IoT confirmar código HS, país y
+reglas de origen, certificado de origen, documentos comerciales y si la
+preferencia puede aplicarse tanto a las 2 muestras como al lote. La aplicación
+final queda sujeta a revisión de un agente aduanal en Costa Rica.
+
+La respuesta no incluye credenciales ni secretos; cualquier `appKey` o secreto
+debe entregarse por un canal seguro.
+
+**Siguiente hito:** esperar la cotización y la documentación de Jimi IoT. No
+confirmar ni pagar las 50 unidades hasta recibir y probar las muestras, validar
+TrackSolid Pro, cobertura, batería, GPS y el costo final de importación.
+
+### 2026-09-10 — Adjuntos analizados: presentación de producto y ficha técnica AL600
 
 El correo estructurado vino con dos PDFs adjuntos, ya revisados a fondo (ver
 `collarFinal.md` §3.3.3 para la tabla completa):
 
-- **Deck de producto** (8 páginas, marketing): confirma las features ya
-  conocidas (posicionamiento híbrido, buzzer/LED de búsqueda, modo "Live
-  Finder" de 5s, geocercas Wi-Fi/virtuales, correa virtual Bluetooth,
+- **Presentación de producto** (8 páginas, comercial): confirma las funciones
+  ya conocidas (posicionamiento híbrido, buzzer/LED de búsqueda, modo de
+  localización en vivo de 5 s, geocercas Wi-Fi/virtuales, correa virtual Bluetooth,
   reportes de actividad/calorías) y precisa la batería en **530 mAh**.
-- **Datasheet técnico** (1 página "Standard Configuration"): ya trae una
+- **Ficha técnica** (1 página de configuración estándar): ya trae una
   **marca blanca de ejemplo ("PawBasis")** — confirma que el proceso de
-  white-label es rutinario para ellos. Corrige la temperatura operativa a
+  marca blanca es rutinario para ellos. Corrige la temperatura operativa a
   **-20 °C a +60 °C** (más amplio que el "0–45 °C" mencionado en el correo) y
   lista las **bandas LTE exactas**: B1/B3/B5/B7/B8/B20/B28/B38/B40/B41.
 
-**Hallazgo a validar:** esa lista de bandas no incluye B2 ni B4 (las bandas
-históricas más usadas en Latinoamérica), aunque sí incluye B28 y B7 que
-Kölbi/Movistar/Claro también usan. Hay que confirmar compatibilidad exacta
-antes de comprometer el piloto — se puede preguntar directamente a los
-operadores o pedirle a Jimi IoT que lo confirmen contra estas bandas
-específicas en el próximo intercambio.
+**Actualización:** la respuesta del 2026-09-11 confirma que la versión
+Latinoamérica sí incluye B2 y B4, además de B3/B5/B7/B8/B28/B66 y las bandas
+TDD indicadas. La compatibilidad declarada con Claro queda confirmada; todavía
+debe validarse cobertura en los cantones piloto y compatibilidad con Kölbi y
+Movistar antes de ofrecer cobertura nacional.
