@@ -43,7 +43,7 @@ y servicios cloud hasta alcanzar el punto de equilibrio con la proyección más 
 | Producto           | Plataforma funcional con QR, recuperación, salud, GPS, adopciones, B2B y NALA                             |
 | Etapa              | Salida LIVE en producción; piloto territorial y demo comercial de 6 meses                                 |
 | Monetización       | Tiers técnicos, activación manual y tarifas de vallas asignadas; billing automático pendiente             |
-| Capital solicitado | USD $2,000 por hasta 10% de participación (liberado preferiblemente por hitos)                            |
+| Capital solicitado | USD $2,000 por hasta 10% de participación en un único desembolso inicial                                  |
 | Uso del capital    | Marketing, compra de dominios y licencias, aprovisionamiento de servicios cloud, onboarding, QA y soporte |
 | Meta financiera    | Alcanzar el punto de equilibrio operativo al mes 6 (incluso en la proyección más baja)                    |
 | Riesgo principal   | Convertir capacidad técnica en usuarios activos, contratos y revenue recurrente                           |
@@ -248,15 +248,6 @@ El capital de $2,000 USD se utilizará exclusivamente para llevar la solución a
 
 Los montos son un presupuesto de trabajo disciplinado para comprar tiempo operativo y alcance comercial, no para financiar desarrollo de software sin usuarios.
 
-### Uso por hitos (6 meses de demo LIVE)
-
-| Hito                   | Resultado esperado                                                                                                    | Liberación sugerida |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------: |
-| **Hito 1 (Meses 1-3)** | Aprovisionamiento cloud, dominios, licencias, lanzamiento LIVE, marketing en 1-2 cantones y primeros usuarios pagados |              $1,000 |
-| **Hito 2 (Meses 4-6)** | Adquisición B2C/B2B sostenida, optimización de conversión y alcance del punto de equilibrio (break-even) en el mes 6  |              $1,000 |
-
-Indicadores de liberación: Owners registrados, MAU, perfiles con QR activo, casos reales atendidos, suscripciones pagadas B2C y B2B, MRR y costo de soporte por caso.
-
 ### Análisis del Punto de Equilibrio (Break-even a 6 meses)
 
 - **Costos fijos recurrentes**: Los costos de infraestructura cloud en Azure y licencias esenciales suman aproximadamente **~$100–$150 USD/mes** (~₡50,000–₡75,000/mes) en etapa inicial.
@@ -345,7 +336,7 @@ validacion externa ni muestra productiva suficiente.
 | Pagos y recompensas               | no custodiar fondos ni prometer payouts sin asesoria legal               |
 | Dependencia de WhatsApp/Azure     | email, web y canales alternos; presupuesto de contingencia               |
 | Soporte 24/7                      | runbook, severidades, escalamiento y SLA progresivo                      |
-| Tarifas B2B/vallas sin conversión | venta consultiva, piloto por hitos y no reconocer revenue hasta cobrar   |
+| Tarifas B2B/vallas sin conversión | venta consultiva, piloto comercial y no reconocer revenue hasta cobrar   |
 | Monetización manual inicial       | automatizar billing solo después de validar demanda y requisitos legales |
 
 ## 12. Qué recibe el inversionista
@@ -404,7 +395,7 @@ cuidado y recuperación animal.
 - Confirmar la sociedad receptora, propiedad intelectual, marca y dominio.
 - Formalizar acciones, dilución, derechos de información y gobierno.
 - Definir si la inversión será equity directo o instrumento convertible.
-- Liberar el capital por hitos y entregar reporte mensual de métricas durante los 6 meses del demo y el primer año.
+- Aportar el capital en un único desembolso de USD $2,000 y recibir reporte mensual de métricas durante los 6 meses de la demo y el primer año.
 - Validar legalmente cualquier futura custodia de fondos, recompensas o billing.
 
 ---
