@@ -20,6 +20,11 @@ public sealed class ElectronicBillingServiceTests
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
     private readonly IConfiguration _config = new ConfigurationBuilder().Build();
 
+    public ElectronicBillingServiceTests()
+    {
+        QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+    }
+
     private ElectronicBillingService CreateSut() =>
         new(_invoiceRepo, _billingProfileRepo, _userRepo, _blobStorage, _unitOfWork, _config, NullLogger<ElectronicBillingService>.Instance);
 

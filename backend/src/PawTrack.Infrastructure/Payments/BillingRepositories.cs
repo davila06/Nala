@@ -31,6 +31,15 @@ public sealed class ElectronicInvoiceRepository(PawTrackDbContext db) : IElectro
             .OrderByDescending(x => x.IssuedAt)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<ElectronicInvoice>> GetByPeriodAsync(
+        DateTimeOffset startDate,
+        DateTimeOffset endDate,
+        CancellationToken cancellationToken = default) =>
+        await db.ElectronicInvoices
+            .Where(x => x.IssuedAt >= startDate && x.IssuedAt < endDate && x.Status != ElectronicInvoiceStatus.Rejected)
+            .OrderBy(x => x.IssuedAt)
+            .ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<ElectronicInvoice>> GetPendingHaciendaAsync(CancellationToken cancellationToken = default) =>
         await db.ElectronicInvoices
             .Where(x => x.Status == ElectronicInvoiceStatus.Sent || x.Status == ElectronicInvoiceStatus.Signed)

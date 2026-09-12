@@ -187,7 +187,9 @@
   "CollarTagsController.cs": [
     "GET /api/collars/tag/{serial}",
     "POST /api/collars/tag/{serial}/activate",
-    "POST /api/collars/ingest"
+    "POST /api/collars/ingest",
+    "POST /api/collars/heartbeat",
+    "POST /api/collars/ping"
   ],
   "FamilyController.cs": [
     "POST /api/family/invite"
@@ -417,6 +419,8 @@
   ],
   "WebhooksController.cs": [
     "POST /api/webhooks/sinpe",
+    "POST /api/webhooks/cybersource",
+    "POST /api/webhooks/bac",
     "POST /api/webhooks"
   ],
   "WelfareCasesController.cs": [

@@ -61,4 +61,10 @@ public sealed class CollarTag
     }
 
     public void UpdateLastPing() => LastPingAt = DateTimeOffset.UtcNow;
+
+    public void UpdateFirmware(string version)
+    {
+        if (!string.IsNullOrWhiteSpace(version))
+            FirmwareVersion = version.Trim();
+    }
 }

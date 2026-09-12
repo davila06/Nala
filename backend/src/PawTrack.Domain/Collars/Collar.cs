@@ -71,6 +71,15 @@ public sealed class Collar
         IsOffline = false; // any fresh report clears the offline flag
     }
 
+    /// <summary>Updates collar heartbeat and battery without location update (e.g. stationary / indoors).</summary>
+    public void UpdateHeartbeat(int? batteryPercent)
+    {
+        if (batteryPercent.HasValue)
+            BatteryPercent = batteryPercent.Value;
+        LastSeenAt = DateTimeOffset.UtcNow;
+        IsOffline = false;
+    }
+
     public void ActivateLostMode(Guid lostPetEventId)
     {
         IsLost = true;

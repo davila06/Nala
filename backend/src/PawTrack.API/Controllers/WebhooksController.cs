@@ -8,6 +8,7 @@ using PawTrack.Application.Bounties.Commands.ConfirmBountyDeposit;
 using PawTrack.Application.Bundles;
 using PawTrack.Application.Bundles.Interfaces;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Payments.DTOs;
 using PawTrack.Application.Payments.Interfaces;
 using PawTrack.Application.Subscriptions.Commands.ActivateSubscription;
 using PawTrack.Application.Webhooks.Commands;
@@ -30,6 +31,7 @@ public sealed class WebhooksController(
     ISender sender,
     IBundleOrderRepository bundleRepository,
     IPaymentTransactionRepository transactionRepository,
+    IElectronicBillingService billingService,
     IConfiguration configuration,
     ILogger<WebhooksController> logger) : ControllerBase
 {
@@ -65,13 +67,33 @@ public sealed class WebhooksController(
 
         if (subResult.IsSuccess && subResult.Value is not null)
         {
-            await RecordWebhookTransactionAsync(
+            var tx = await RecordWebhookTransactionAsync(
                 Guid.Empty,
                 notification.AmountCrc,
                 notification.Reference,
                 "Subscription",
                 subResult.Value.Id,
                 cancellationToken);
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await billingService.EmitInvoiceForTransactionAsync(
+                        new EmitInvoiceRequest(
+                            UserId: subResult.Value.UserId ?? Guid.Empty,
+                            TotalAmountCrc: notification.AmountCrc,
+                            Description: "Suscripción PawTrack SaaS Protección Animal",
+                            CodigoCabys: CabysCatalog.SoftwareSubscriptionCabys,
+                            PaymentMethodCode: "04",
+                            TransactionId: tx?.Id),
+                        CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "Failed to emit electronic invoice for SINPE subscription {Id}", subResult.Value.Id);
+                }
+            });
 
             return Ok(new { activated = "subscription", id = subResult.Value.Id });
         }
@@ -101,13 +123,33 @@ public sealed class WebhooksController(
             var confirmResult = await sender.Send(new ConfirmBundlePaymentCommand(bundle.Id), cancellationToken);
             if (confirmResult.IsSuccess)
             {
-                await RecordWebhookTransactionAsync(
+                var tx = await RecordWebhookTransactionAsync(
                     bundle.UserId,
                     notification.AmountCrc,
                     notification.Reference,
                     "BundleOrder",
                     bundle.Id,
                     cancellationToken);
+
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await billingService.EmitInvoiceForTransactionAsync(
+                            new EmitInvoiceRequest(
+                                UserId: bundle.UserId,
+                                TotalAmountCrc: notification.AmountCrc,
+                                Description: "Dispositivo y Collar GPS Inteligente PawTrack",
+                                CodigoCabys: CabysCatalog.GpsHardwareTrackerCabys,
+                                PaymentMethodCode: "04",
+                                TransactionId: tx?.Id),
+                            CancellationToken.None);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogWarning(ex, "Failed to emit electronic invoice for SINPE bundle order {Id}", bundle.Id);
+                    }
+                });
 
                 return Ok(new { activated = "bundle_order", id = bundle.Id });
             }
@@ -118,7 +160,75 @@ public sealed class WebhooksController(
         return Ok(new { message = "Reference not found; acknowledged." });
     }
 
-    private async Task RecordWebhookTransactionAsync(
+    // ── POST /api/webhooks/cybersource — Decision Manager / TED events ────────
+    [HttpPost("cybersource")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> CyberSourceWebhook(
+        [FromBody] CyberSourceWebhookPayload payload,
+        CancellationToken cancellationToken)
+    {
+        if (payload.Data is null || string.IsNullOrWhiteSpace(payload.Data.ClientReferenceCode))
+            return Ok(new { message = "Ignored: missing reference code." });
+
+        var orderRef = payload.Data.ClientReferenceCode;
+        var existingTx = await transactionRepository.GetByReferenceAsync(orderRef, cancellationToken);
+
+        if (existingTx is not null)
+        {
+            if (string.Equals(payload.Data.Status, "AUTHORIZED", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(payload.Data.Status, "SETTLED", StringComparison.OrdinalIgnoreCase))
+            {
+                existingTx.MarkSucceeded(payload.Data.Id);
+                transactionRepository.Update(existingTx);
+            }
+            else if (string.Equals(payload.Data.Status, "DECLINED", StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(payload.Data.Status, "FAILED", StringComparison.OrdinalIgnoreCase))
+            {
+                existingTx.MarkFailed(payload.Data.Status ?? "FAILED");
+                transactionRepository.Update(existingTx);
+            }
+        }
+
+        return Ok(new { received = true, orderRef });
+    }
+
+    // ── POST /api/webhooks/bac — BAC Credomatic CompraClick webhook ────────────
+    [HttpPost("bac")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> BacPayment(
+        [FromBody] BacPaymentNotification notification,
+        CancellationToken cancellationToken)
+    {
+        var secret = configuration["Webhooks:BacSecret"] ?? configuration["Webhooks:SinpeSecret"];
+        if (!string.IsNullOrEmpty(secret) && Request.Headers.TryGetValue("X-BAC-Signature", out var receivedSig))
+        {
+            var expected = ComputeHmac(secret, $"{notification.OrderId}:{notification.Amount:F2}");
+            if (!CryptographicOperations.FixedTimeEquals(
+                Encoding.UTF8.GetBytes(receivedSig.ToString()),
+                Encoding.UTF8.GetBytes(expected)))
+            {
+                return Unauthorized(new ProblemDetails { Detail = "Invalid BAC signature." });
+            }
+        }
+
+        if (string.Equals(notification.ResponseCode, "00", StringComparison.Ordinal) ||
+            string.Equals(notification.ResponseCode, "0", StringComparison.Ordinal))
+        {
+            var tx = await transactionRepository.GetByReferenceAsync(notification.OrderId, cancellationToken);
+            if (tx is not null)
+            {
+                tx.MarkSucceeded(notification.AuthCode);
+                transactionRepository.Update(tx);
+            }
+        }
+
+        return Ok(new { received = true, orderId = notification.OrderId });
+    }
+
+    private async Task<PaymentTransaction?> RecordWebhookTransactionAsync(
         Guid userId,
         decimal amountCrc,
         string reference,
@@ -137,10 +247,12 @@ public sealed class WebhooksController(
 
             tx.MarkSucceeded($"SINPE-WEBHOOK-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
             await transactionRepository.AddAsync(tx, cancellationToken);
+            return tx;
         }
         catch (Exception ex)
         {
             logger.LogWarning(ex, "Failed to record audit PaymentTransaction for reference {Reference}", reference);
+            return null;
         }
     }
 
@@ -191,3 +303,21 @@ public sealed record SinpePaymentNotification(
     [property: JsonPropertyName("timestamp")] DateTimeOffset Timestamp);
 
 public sealed record CreateWebhookRequest(string EndpointUrl, string Secret, IReadOnlyList<string> EventTypes);
+
+public sealed record CyberSourceWebhookPayload(
+    [property: JsonPropertyName("id")] string? Id,
+    [property: JsonPropertyName("eventType")] string? EventType,
+    [property: JsonPropertyName("data")] CyberSourceEventData? Data);
+
+public sealed record CyberSourceEventData(
+    [property: JsonPropertyName("id")] string? Id,
+    [property: JsonPropertyName("clientReferenceCode")] string? ClientReferenceCode,
+    [property: JsonPropertyName("status")] string? Status);
+
+public sealed record BacPaymentNotification(
+    [property: JsonPropertyName("orderId")] string OrderId,
+    [property: JsonPropertyName("responseCode")] string ResponseCode,
+    [property: JsonPropertyName("authCode")] string? AuthCode,
+    [property: JsonPropertyName("amount")] decimal Amount,
+    [property: JsonPropertyName("currency")] string Currency = "CRC",
+    [property: JsonPropertyName("reference")] string? Reference = null);

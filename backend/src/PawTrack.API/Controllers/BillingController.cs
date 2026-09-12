@@ -75,6 +75,29 @@ public sealed class BillingController(
         return Ok(result.Value);
     }
 
+    // ── GET /api/billing/reports/tax-summary — Monthly D-104 tax declaration summary ──
+    [HttpGet("reports/tax-summary")]
+    [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetTaxSummary(
+        [FromQuery] int? year,
+        [FromQuery] int? month,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
+        var y = year ?? DateTimeOffset.UtcNow.Year;
+        var m = month ?? DateTimeOffset.UtcNow.Month;
+
+        var result = await sender.Send(new PawTrack.Application.Payments.Queries.GetTaxSummary.GetTaxSummaryQuery(y, m, userId), cancellationToken);
+        if (result.IsFailure)
+            return Forbid();
+
+        return Ok(result.Value);
+    }
+
     // ── GET /api/billing/invoices/{id}/pdf — Download invoice PDF ─────────────
     [HttpGet("invoices/{id:guid}/pdf")]
     [EnableRateLimiting("public-api")]

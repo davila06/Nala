@@ -16,7 +16,9 @@ public sealed record SubscriptionDto(
     DateTimeOffset? PaymentReportedAt,
     DateTimeOffset? CancellationRequestedAt,
     bool IsActive,
-    string? BankReceiptNumber = null)
+    string? BankReceiptNumber = null,
+    Guid? UserId = null,
+    Guid? ClinicId = null)
 {
     public static SubscriptionDto FromDomain(Subscription s) => new(
         s.Id,
@@ -32,5 +34,7 @@ public sealed record SubscriptionDto(
         s.PaymentReportedAt,
         s.CancellationRequestedAt,
         s.IsActive,
-        s.BankReceiptNumber);
+        s.BankReceiptNumber,
+        s.UserId,
+        s.ClinicId);
 }

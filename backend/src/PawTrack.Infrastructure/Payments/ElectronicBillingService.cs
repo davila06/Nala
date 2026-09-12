@@ -26,6 +26,11 @@ public sealed class ElectronicBillingService(
     IConfiguration configuration,
     ILogger<ElectronicBillingService> logger) : IElectronicBillingService
 {
+    static ElectronicBillingService()
+    {
+        QuestPDF.Settings.License = LicenseType.Community;
+    }
+
     private string EmisorCedula => configuration["Hacienda:EmisorCedula"] ?? "3101999999";
     private string EmisorNombre => configuration["Hacienda:EmisorNombre"] ?? "PAWTRACK COSTA RICA SOCIEDAD ANONIMA";
     private string Sucursal => configuration["Hacienda:Sucursal"] ?? "001";
@@ -199,6 +204,8 @@ public sealed class ElectronicBillingService(
 
     private static byte[] GenerateInvoicePdfInternal(ElectronicInvoice invoice, string emisorNombre, string emisorCedula)
     {
+        QuestPDF.Settings.License = LicenseType.Community;
+
         var docTypeName = invoice.DocumentType == ElectronicInvoiceDocumentType.FacturaElectronica
             ? "FACTURA ELECTRÓNICA"
             : "TIQUETE ELECTRÓNICO";

@@ -86,6 +86,29 @@ public sealed class CollarTagsController(ISender sender) : ControllerBase
         return NoContent();
     }
 
+    // ── POST /api/collars/heartbeat — device ping/health (X-Collar-Key auth) ───
+    [HttpPost("heartbeat")]
+    [HttpPost("ping")]
+    [AllowAnonymous] // auth handled by CollarDeviceKeyMiddleware
+    [EnableRateLimiting("location-update")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> Heartbeat([FromBody] CollarHeartbeatRequest request, CancellationToken cancellationToken)
+    {
+        var collarIdClaim = User.FindFirstValue("CollarId");
+        if (string.IsNullOrEmpty(collarIdClaim) || !Guid.TryParse(collarIdClaim, out var collarId))
+            return Unauthorized(new ProblemDetails { Detail = "Missing or invalid device key.", Status = 401 });
+
+        var result = await sender.Send(new PawTrack.Application.Collars.Commands.CollarHeartbeat.CollarHeartbeatCommand(
+            collarId, request.Serial, request.BatteryPercent, request.SignalDbm, request.FirmwareVersion), cancellationToken);
+
+        if (result.IsFailure)
+            return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
+
+        return NoContent();
+    }
+
     private bool TryGetUserId(out Guid userId)
     {
         var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -102,3 +125,9 @@ public sealed record IngestLocationRequest(
     int? BatteryPercent,
     DateTimeOffset Timestamp,
     int? AccuracyMeters);
+
+public sealed record CollarHeartbeatRequest(
+    string Serial,
+    int? BatteryPercent,
+    int? SignalDbm = null,
+    string? FirmwareVersion = null);

@@ -9,6 +9,7 @@ public enum CollarAuditEvent
     DeviceKeyRevoked,
     DeviceKeyRegenerated,
     LocationIngestFailed,
+    HeartbeatFailed,
     HandoverCodeGenerated,
     HandoverCompleted,
     HandoverCancelled,

@@ -25,4 +25,13 @@ public sealed class BroadcastAttemptRepository(PawTrackDbContext dbContext)
         await dbContext.BroadcastAttempts
             .AsTracking()
             .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+
+    public async Task<BroadcastAttempt?> GetByExternalIdAsync(
+        string externalId, CancellationToken cancellationToken = default) =>
+        await dbContext.BroadcastAttempts
+            .AsTracking()
+            .FirstOrDefaultAsync(a => a.ExternalId == externalId, cancellationToken);
+
+    public void Update(BroadcastAttempt attempt) =>
+        dbContext.BroadcastAttempts.Update(attempt);
 }
