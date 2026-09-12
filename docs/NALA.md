@@ -4,7 +4,7 @@
 > [NALA_REPORTING_GUIDE.md](NALA_REPORTING_GUIDE.md).
 
 > **NALA** es el nombre interno del proyecto que evolucionó en **PawTrack CR**.  
-> Última actualización: 2026-09-10
+> Última actualización: 2026-09-12
 
 ---
 
@@ -144,7 +144,7 @@ La plataforma provee un **chat enmascarado**: el contacto entre el dueño y el r
 
 Para usuarios que no tienen acceso a la app web, el sistema ofrece un **bot conversacional de WhatsApp** (Meta Cloud API). El bot guía al usuario paso a paso para reportar una mascota perdida directamente desde WhatsApp, crea un reporte y envía el enlace al perfil público. La identidad del reportante es protegida mediante hash SHA-256 de su número de teléfono.
 
-### 10. Suscripciones y monetización
+### 10. Suscripciones, pagos y facturación electrónica
 
 La monetización actual de la app sigue la implementación real del backend y no una planilla histórica. En la base funcional actual existen cinco familias de tiers:
 
@@ -156,28 +156,42 @@ La monetización actual de la app sigue la implementación real del backend y no
 | Clínicas        | `ClinicPlus`, `ClinicPartner`               | Mensual                            | Acceso a mayor visibilidad y certificados PDF         |
 | Municipalidades | `MuniBasica`, `MuniFull`, `MuniRedRegional` | Anual                              | Facturación anual por cantón / regional               |
 
-#### Precios actuales del backend
+#### Política de precios e IVA (13% Costa Rica)
 
-| Tier              | Precio       | Uso principal                                 |
-| ----------------- | ------------ | --------------------------------------------- |
-| `Free`            | ₡0           | Registro base y acceso limitado               |
-| `UserPlus`        | ₡2,990/mes   | Mascotas + IA + coordinación + GPS            |
-| `UserFamilia`     | ₡4,990/mes   | Video / expediente médico / multi-usuario     |
-| `StorePlus`       | ₡12,000/mes  | Tienda con catálogo y pedidos                 |
-| `StorePartner`    | ₡25,000/mes  | Multi-sucursal + analytics                    |
-| `ShelterPlus`     | ₡8,000/mes   | Animales ilimitados + ferias                  |
-| `ClinicPlus`      | ₡15,000/mes  | Visibilidad y herramientas básicas del portal |
-| `ClinicPartner`   | ₡35,000/mes  | Certificados, widget e integración            |
-| `MuniBasica`      | ₡150,000/año | Portal básico municipal                       |
-| `MuniFull`        | ₡300,000/año | Fotos, estadísticas y panel completo          |
-| `MuniRedRegional` | ₡500,000/año | Cobertura regional                            |
+- **Precios Base del Servicio:** Todos los montos listados en el catálogo técnico (`SubscriptionPricing`, `BundlePrices`, `TIER_PRICE_CRC`) corresponden al costo neto base del servicio y **no reflejan el 13% de IVA**.
+- **Factura Electrónica:** Si el cliente (dueño de mascota, clínica, tienda o institución) requiere **Factura Electrónica** formal con crédito fiscal ante la Dirección General de Tributación (DGT v4.3), **se le agrega el 13% de IVA al costo del servicio** al procesar el pago (`Monto Con Factura = Costo Base * 1.13`).
+- **Consumidor Final (Tiquete Electrónico):** Si el cliente no requiere factura con crédito fiscal (`RequiresInvoice = false`), abona el costo neto base del servicio.
+
+#### Precios actuales del backend (Costo base neto sin IVA)
+
+| Tier              | Precio base  | Con Factura (+13% IVA) | Uso principal                                 |
+| ----------------- | ------------ | ---------------------- | --------------------------------------------- |
+| `Free`            | ₡0           | ₡0                     | Registro base y acceso limitado               |
+| `UserPlus`        | ₡2,990/mes   | ₡3,379/mes             | Mascotas + IA + coordinación + GPS            |
+| `UserFamilia`     | ₡4,990/mes   | ₡5,639/mes             | Video / expediente médico / multi-usuario     |
+| `StorePlus`       | ₡12,000/mes  | ₡13,560/mes            | Tienda con catálogo y pedidos                 |
+| `StorePartner`    | ₡25,000/mes  | ₡28,250/mes            | Multi-sucursal + analytics                    |
+| `ShelterPlus`     | ₡8,000/mes   | ₡9,040/mes             | Animales ilimitados + ferias                  |
+| `ClinicPlus`      | ₡15,000/mes  | ₡16,950/mes            | Visibilidad y herramientas básicas del portal |
+| `ClinicPartner`   | ₡35,000/mes  | ₡39,550/mes            | Certificados, widget e integración            |
+| `MuniBasica`      | ₡150,000/año | ₡169,500/año           | Portal básico municipal                       |
+| `MuniFull`        | ₡300,000/año | ₡339,000/año           | Fotos, estadísticas y panel completo          |
+| `MuniRedRegional` | ₡500,000/año | ₡565,000/año           | Cobertura regional                            |
 
 > Importante: `ClinicBasic`, `StoreBasic` y `ShelterBasic` existen como estados gratuitos o de directorio, no como planes comercialmente activos principales del producto actual. El gating de acceso real depende del tier activo del usuario/entidad y no de una versión antigua del pricing en documentos estáticos.
+
+#### Pasarelas de pago y cobro recurrente
+
+1. **SINPE Móvil Nativo:** Enlace automático por SMS para bancos de Costa Rica (BAC, BNCR, BCR, Davivienda) y generación dinámica de código QR estandarizado BCCR (`PASE {monto} {teléfono} {referencia}`).
+2. **Tarjeta Débito / Crédito (CyberSource / BAC Credomatic):** Procesamiento inmediato con tokenización del lado del cliente bajo estándar PCI-DSS SAQ A (sin tocar PAN/CVV en servidores). Soporte de guardado de tarjetas frecuentes (`UserPaymentProfile`).
+3. **Renovación Automática Recurrente:** Hosted service (`SubscriptionRecurringBillingHostedService`) que se ejecuta a diario a las 04:00 AM hora de Costa Rica mediante `PeriodicTimer` y bloqueo distribuido (`IDistributedJobLock`), cobrando a tarjetas guardadas y emitiendo de inmediato la respectiva Factura Electrónica.
+4. **Facturación Electrónica DGT v4.3:** Generación automática de clave numérica de 50 dígitos, consecutivo oficial de 20 dígitos, códigos CABYS según el Banco Central de Costa Rica, almacenamiento de XMLs firmados y representaciones gráficas en PDF con QuestPDF en Azure Blob Storage (`invoices/`).
+5. **Reportes Fiscales D-104:** Endpoint administrativo (`GET /api/billing/reports/tax-summary`) para conciliación mensual de ventas, IVA al 13% devengado y desglose por código CABYS.
 
 El sistema de feature gating está implementado tanto en el backend (enforcement
 por plan) como en el frontend (UI gates). `UserPlus` y `UserFamilia` aceptan
 1, 3, 6 o 12 meses; solo el plazo de 12 meses aplica 20% de descuento. El
-plazo e importe se persisten antes del pago SINPE. La lógica real de permisos
+plazo e importe se persisten antes del pago. La lógica real de permisos
 se valida con `SubscriptionTier` y `SubscriptionService`, no por tablas
 duplicadas en varios markdown.
 
@@ -194,9 +208,15 @@ Estas capacidades no convierten automáticamente una membresía técnica en un
 producto comercial aprobado. La matriz vigente se encuentra en
 [consolidado.md](consolidado.md).
 
-### 12. Collar GPS y expediente médico
+### 12. Collar GPS, hardware IoT y expediente médico
 
-El **plan Plus** habilita la integración con collares GPS de terceros (Tractive) o genéricos (activación por serial/tag + device key). El dueño conecta su cuenta Tractive via OAuth2 desde la tab GPS del perfil de mascota. El sistema actualiza la posición y muestra el historial de trayectoria por rango de fechas en un mapa interactivo. Además incluye alertas de conectividad (offline) y batería baja, modo perdido (búsqueda intensiva coordinada con la red), zonas seguras (geofencing con alerta de salida), transferencia segura del collar entre dueños (handover code) y auditoría de eventos. Un dashboard de administración permite ver inventario y métricas de collares.
+El **plan Plus** habilita la integración con collares GPS:
+
+- **Collares de Terceros (Tractive):** El dueño conecta su cuenta Tractive vía OAuth2 desde la pestaña GPS del perfil de mascota.
+- **Hardware Propietario / Jimi IoT AL600:** Soporte nativo para dispositivos 4G LTE-M / NB-IoT a través de la API abierta de TrackSolid Pro (`TrackSolidService`, `TrackSolidPollingJob`).
+- **Telemetría y Keepalive de Dispositivo:** Endpoints dedicados protegidos por clave simétrica de dispositivo `X-Collar-Key` (`POST /api/collars/heartbeat` y `POST /api/collars/ping`), permitiendo reportes de salud y batería sin consumir energía en fixes de satélites innecesarios.
+- **Alertas y Geofencing:** Alertas automáticas de desconexión (offline) y batería baja, modo perdido (búsqueda intensiva coordinada con la red), zonas seguras (geofencing con alerta de salida), transferencia segura del collar entre dueños (handover code de 6 caracteres) y registro completo de auditoría de eventos.
+- **Kits Físicos (Bundles):** Opciones de compra directa de collares GPS pre-configurados, placas grabadas en aluminio y tags de silicona con chip NFC NTAG213 integrados.
 
 El **plan Familia** desbloquea el expediente médico digital: registro de vacunas, desparasitaciones, visitas veterinarias y recordatorios automáticos. El historial puede ser compartido con clínicas afiliadas y exportado en PDF. Las clínicas Partner pueden emitir certificados veterinarios PDF con QR de verificación pública.
 
@@ -239,12 +259,12 @@ Personas que colaboran en la recuperación sin ser el dueño. Incluyen:
 
 Clínicas veterinarias registradas ante SENASA que usan la plataforma para:
 
-- Identificar mascotas via QR o microchip RFID
-- Emitir certificados veterinarios PDF verificables
+- Identificar mascotas vía QR o microchip RFID (soporte de doble integración: llaves M2M `X-PawTrack-Key` para software veterinario y widget público embebible `X-Widget-Clinic`)
+- Emitir certificados veterinarios PDF verificables con firma criptográfica
 - Recibir alertas de mascotas perdidas cercanas
 - Compartir expediente médico con dueños
 
-Los planes activos del backend son `ClinicPlus` y `ClinicPartner`, con facturación mensual. El nombre `ClinicBasic` se usa como un estado base o de directorio, no como plan pagado principal del producto actual.
+Los planes activos del backend son `ClinicPlus` y `ClinicPartner`, con facturación mensual (precios base netos, adicionando el 13% de IVA al solicitar Factura Electrónica). El nombre `ClinicBasic` se usa como un estado base o de directorio, no como plan pagado principal del producto actual.
 
 ### Audiencia cuaternaria: Municipalidades (B2G)
 
@@ -327,19 +347,21 @@ PawTrack CR es un **monolito modular** (Clean Architecture) preparado para extra
 
 ### Stack backend
 
-| Tecnología                             | Versión | Uso                                              |
-| -------------------------------------- | ------- | ------------------------------------------------ |
-| .NET / ASP.NET Core                    | 9.0     | Runtime y Web API                                |
-| MediatR                                | 12.x    | Pipeline CQRS                                    |
-| Entity Framework Core                  | 9.x     | ORM + migraciones code-first, SQL Server         |
-| FluentValidation                       | 11.x    | Validación en pipeline behaviors                 |
-| SignalR                                | 9.0     | Real-time (`/hubs/search-coordination`, chat)    |
-| Serilog                                | —       | Logging estructurado                             |
-| Microsoft.Extensions.Http.Resilience   | —       | Retry/circuit-breaker en clientes HTTP externos  |
-| QuestPDF                               | 2025.x  | Certificados veterinarios PDF con QR verificable |
-| xUnit + NSubstitute + FluentAssertions | —       | Suite de tests unitarios e integración           |
-| Stryker.NET                            | —       | Mutation testing                                 |
-| Application Insights                   | —       | Telemetría y monitoreo                           |
+| Tecnología                             | Versión | Uso                                                              |
+| -------------------------------------- | ------- | ---------------------------------------------------------------- |
+| .NET / ASP.NET Core                    | 9.0     | Runtime y Web API Clean Architecture                             |
+| MediatR                                | 12.x    | Pipeline CQRS desacoplado                                        |
+| Entity Framework Core                  | 9.x     | ORM + migraciones code-first (Azure SQL Server)                  |
+| FluentValidation                       | 11.x    | Validación estricta en pipeline behaviors                        |
+| SignalR                                | 9.0     | Real-time (`/hubs/search-coordination`, chat distribuido)        |
+| Serilog                                | —       | Logging estructurado y auditoría                                 |
+| Microsoft.Extensions.Http.Resilience   | —       | Retry/circuit-breaker en clientes HTTP externos                  |
+| CyberSource REST API                   | —       | Pasarela BAC Credomatic, microform tokenización PCI-DSS SAQ A    |
+| QuestPDF                               | 2025.x  | Facturación electrónica DGT v4.3 y certificados veterinarios PDF |
+| Jimi TrackSolid Pro Open API           | —       | Integración telemática de collares GPS AL600                     |
+| xUnit + NSubstitute + FluentAssertions | —       | Suite de tests unitarios e integración                           |
+| Stryker.NET                            | —       | Mutation testing                                                 |
+| Application Insights                   | —       | Telemetría, métricas y observabilidad                            |
 
 ### Stack frontend
 
@@ -374,13 +396,15 @@ PawTrack CR es un **monolito modular** (Clean Architecture) preparado para extra
 
 ## Calidad, testing y seguridad
 
-**Cobertura de tests (backend):**
+**Cobertura de tests (backend + frontend):**
 
-- **1,150+ tests unitarios** (xUnit + NSubstitute + FluentAssertions) — 0 fallos
-- **88 tests de integración** end-to-end contra `WebApplicationFactory`
+- **1,437+ tests unitarios backend** (xUnit + NSubstitute + FluentAssertions) — 0 fallos
+- **106 tests de integración backend** end-to-end contra `WebApplicationFactory` — 0 fallos
+- **75 tests unitarios frontend** con Vitest — 0 fallos
+- **1,540+ tests automatizados en total** ejecutados en CI/CD
 - Suite de tests end-to-end (Playwright) para los flujos críticos: autenticación, GPS de collar, modo perdido, transferencia segura, dashboard admin
 - Mutation testing con Stryker.NET para validar que los tests realmente detectan código roto, no solo que "pasan"
-- 0 errores de compilación en backend y frontend
+- **0 errores de compilación y 0 advertencias de linter** en backend (`PawTrack.sln`) y frontend (`npm run typecheck`, `npm run lint`)
 
 **Rondas de seguridad:** la plataforma ha pasado por **más de 100 rondas de auditoría de seguridad** (regresión activa en `backend/tests/PawTrack.UnitTests/Security/`), cubriendo:
 
@@ -423,8 +447,8 @@ PawTrack CR se encuentra en **MVP ampliado**, con todos sus módulos principales
 - ✅ Difusión multi-canal (Email, WhatsApp, Telegram, Facebook)
 - ✅ Chat enmascarado y handover seguro (código 4 dígitos)
 - ✅ Mapa público interactivo con predicción de movimiento IA
-- ✅ Bot de WhatsApp (Meta Cloud API, hash SHA-256 del número)
-- ✅ Sistema de recompensas económicas (Bounties con escrow, SINPE Móvil)
+- ✅ Bot de WhatsApp (Meta Cloud API, hash SHA-256 del número) y recepción de estados de entrega (sent/delivered/failed)
+- ✅ Sistema de recompensas económicas (Bounties con depósito vía SINPE Móvil o tarjeta de crédito/débito)
 
 **Red colaborativa**
 
@@ -433,22 +457,29 @@ PawTrack CR se encuentra en **MVP ampliado**, con todos sus módulos principales
 - ✅ Clínicas afiliadas — escaneo QR/microchip, vinculación a perfil de mascota
 - ✅ Sistema de incentivos y leaderboard con insignias
 
-**Monetización — B2C**
+**Monetización, pagos y facturación electrónica**
 
-- ✅ Sistema de suscripciones con 3 planes activos: `Free`, `UserPlus`, `UserFamilia`
+- ✅ Sistema de suscripciones con 3 planes activos B2C: `Free`, `UserPlus`, `UserFamilia`
+- ✅ Política tributaria costarricense: precios base netos y adición automática del 13% de IVA al solicitar Factura Electrónica
+- ✅ Pasarela de pagos con tarjeta (CyberSource / BAC Credomatic) con tokenización PCI-DSS SAQ A
+- ✅ SINPE Móvil inteligente con generación de códigos QR BCCR y enlaces bancarios directos por SMS
+- ✅ Renovación automática de suscripciones programada a las 04:00 AM hora de Costa Rica con `IDistributedJobLock`
+- ✅ Motor de Facturación Electrónica oficial ante la DGT (v4.3) con generación de claves de 50 dígitos, consecutivos de 20 dígitos, códigos CABYS y almacenamiento de XMLs y PDFs en Azure Blob Storage
+- ✅ Resumen mensual para declaración tributaria D-104 (`GET /api/billing/reports/tax-summary`)
 - ✅ Feature gating completo por plan (UI gates + backend enforcement)
 - ✅ Cuentas familiares multi-usuario (hasta 5 miembros, plan `UserFamilia`)
 - ✅ Expediente médico digital: vacunas, visitas, recordatorios, exportación PDF (plan `UserFamilia`)
-- ✅ Integración collar GPS Tractive/genérico (OAuth2, polling, activación por tag/serial, historial por rango)
+- ✅ Integración collar GPS: Tractive vía OAuth2 y hardware propietario Jimi IoT AL600 vía TrackSolid Pro Open API
+- ✅ Telemetría de keepalive/heartbeat y ping autenticados por `X-Collar-Key`
 - ✅ Alertas de conectividad/batería, modo perdido, zonas seguras (geofencing), transferencia segura y auditoría de eventos del collar
-- ✅ Bundle GPS on-demand
+- ✅ Tienda de collares y hardware bundles on-demand con soporte de pago por tarjeta o SINPE y facturación electrónica
 
 **Monetización — B2B Clínicas veterinarias**
 
 - ✅ Portal de clínicas con tiers activos: `ClinicPlus` y `ClinicPartner`; `ClinicBasic` sigue siendo estado base/directorio gratis
 - ✅ Expediente digital compartido clínica ↔ dueño
-- ✅ Certificados veterinarios PDF verificables con QR único (QuestPDF, plan `ClinicPartner`)
-- ✅ Widget embebible y API de consulta para clínicas `ClinicPartner`
+- ✅ Certificados veterinarios PDF verificables con QR único y firma digital en Key Vault (plan `ClinicPartner`)
+- ✅ Doble integración de búsqueda: API Key M2M (`X-PawTrack-Key`) y widget público embebible (`X-Widget-Clinic`)
 - ✅ Integración microchip RFID avanzada
 
 **Monetización — B2B Tiendas / adopciones**

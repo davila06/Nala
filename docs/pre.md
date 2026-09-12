@@ -3,54 +3,49 @@
 > Checklist exhaustivo de todas las cuentas, servicios, secretos y configuraciones
 > que deben estar en orden **antes** de ir a producción.
 >
-> **Última actualización: 2026-09-10** — auditado línea por línea contra
-> `appsettings.json`, `Program.cs`, las migraciones EF actuales y los workflows
-> reales de `.github/workflows/`. Se encontraron 2 gaps críticos nuevos no
-> documentados antes (Redis, persistencia de Data Protection — ver §2.5) y la
-> tabla de migraciones estaba fuertemente desactualizada (ver §7).
-> Versión anterior: 2026-08-19
+> **Última actualización: 2026-09-12** — auditado exhaustivamente contra el código
+> fuente (.NET 9 + React 19), `appsettings.json`, `Program.cs`, el catálogo de
+> migraciones EF Core (hasta `20260912042822_AddUserBillingProfilesAndElectronicInvoices`),
+> los módulos de pasarela de pago (CyberSource / BAC Credomatic), facturación
+> electrónica DGT Costa Rica v4.3, telemetría IoT (Jimi / TrackSolid Pro) y workflows de CI/CD.
+> Versión anterior: 2026-09-10
 > Cuenta Azure: `davila06@gmail.com`
 > Subscription: `Azure subscription 1` (`3832b5df-115d-4092-9fc8-2105d7b0af21`)
 > Resource Group: `PawnTrackBeta`
 > Región: `eastus`
 
-### Nuevos secretos requeridos (agosto 2026)
+### Nuevos secretos y contenedores requeridos (septiembre 2026)
 
-| Secret en Key Vault          | Descripción                                                  |
-| ---------------------------- | ------------------------------------------------------------ |
-| `bot-phone-hash-secret`      | Mínimo 32 chars; HMAC-SHA256 para hash de teléfonos del bot  |
-| `billboard-images-container` | Nombre del contenedor Blob (por defecto: `billboard-images`) |
-
-Agregar en Container App:
-
-```powershell
-az keyvault secret set --vault-name pawtrack-kv --name bot-phone-hash-secret --value "VALOR_MINIMO_32_CHARS"
-```
-
-Luego referenciar en `appsettings.json`:
-
-```json
-"Bot": {
-  "PhoneHashSecret": "@Microsoft.KeyVault(VaultName=pawtrack-kv;SecretName=bot-phone-hash-secret)"
-}
-```
+| Secret en Key Vault        | Descripción                                                                              |
+| -------------------------- | ---------------------------------------------------------------------------------------- |
+| `bot-phone-hash-secret`    | Mínimo 32 chars; HMAC-SHA256 para hash de teléfonos del bot                              |
+| `cybersource-merchant-id`  | ID de comercio CyberSource / BAC Credomatic (o `Payments:MerchantId`)                    |
+| `cybersource-key-id`       | Shared Secret Key ID de CyberSource (o `Payments:ProviderKey`)                           |
+| `cybersource-secret-key`   | Shared Secret Key HMAC-SHA256 de CyberSource (o `Payments:SecretKey`)                    |
+| `webhooks-bac-secret`      | Secreto HMAC para validación de webhooks bancarios de BAC Credomatic / CompraClick       |
+| `tracksolid-app-key`       | AppKey de Jimi IoT TrackSolid Pro Open API para telemetría de collar AL600               |
+| `tracksolid-app-secret`    | AppSecret de Jimi IoT TrackSolid Pro                                                     |
+| `tracksolid-access-token`  | Token de acceso persistente de TrackSolid Pro                                            |
+| `hacienda-emisor-cedula`   | Cédula jurídica de PawTrack CR ante DGT (default: `3101999999`)                          |
+| `hacienda-emisor-nombre`   | Razón social de PawTrack CR ante DGT                                                     |
+| `certificates-sign-key-id` | Key Identifier RSA en Azure Key Vault para firma digital de certificados médicos/vacunas |
 
 ---
 
 ## Tabla de estado rápido
 
-| Categoría                      | Items | ✅ Listo | ⚠️ Parcial | ❌ Pendiente                                           |
-| ------------------------------ | ----- | -------- | ---------- | ------------------------------------------------------ |
-| Azure — infraestructura        | 10    | 9        | 0          | **1** (Redis)                                          |
-| Azure Key Vault — secretos     | 18    | 0        | 0          | **18**                                                 |
-| Data Protection (persistencia) | 1     | 0        | 0          | **1** 🔴 crítico, no documentado antes                 |
-| DNS y dominio                  | 4     | 0        | 0          | **4** (incluye estabilidad de RP ID WebAuthn)          |
-| GitHub — CI/CD                 | 17    | 0        | 0          | **17** (9 → 17 tras revisar los workflows reales)      |
-| Frontend — variables Vite      | 5     | 0        | 0          | **5**                                                  |
-| Servicios externos             | 8     | 0        | 2          | **6**                                                  |
-| EF Migrations en Azure SQL     | —     | —        | —          | ver §7 (tabla exhaustiva reemplazada — quedó obsoleta) |
-| Configuración post-deploy      | 5     | 0        | 0          | **5**                                                  |
-| Verificación final             | 7     | 0        | 0          | **7**                                                  |
+| Categoría                      | Items | ✅ Listo | ⚠️ Parcial | ❌ Pendiente                                                            |
+| ------------------------------ | ----- | -------- | ---------- | ----------------------------------------------------------------------- |
+| Azure — infraestructura        | 10    | 9        | 0          | **1** (Redis)                                                           |
+| Azure Key Vault — secretos     | 27    | 0        | 0          | **27** (17 base + 8 pagos/tributario/IoT + 2 telemetría/certificados)   |
+| Data Protection (persistencia) | 1     | 0        | 0          | **1** 🔴 crítico (claves en Azure Blob Storage + Key Vault wrap)        |
+| DNS y dominio                  | 4     | 0        | 0          | **4** (incluye estabilidad de RP ID WebAuthn)                           |
+| GitHub — CI/CD                 | 17    | 0        | 0          | **17** (incluye credenciales federadas OIDC)                            |
+| Frontend — variables Vite      | 5     | 0        | 0          | **5**                                                                   |
+| Servicios externos             | 10    | 0        | 2          | **8** (SendGrid, Meta WA, CyberSource/BAC, Hacienda DGT, TrackSolid...) |
+| EF Migrations en Azure SQL     | —     | —        | —          | ver §7 (90+ migraciones, última: `20260912042822`)                      |
+| Configuración post-deploy      | 6     | 0        | 0          | **6** (CORS, Sticky sessions, scale-out, CSP, VAPID, Jobs Background)   |
+| Verificación final             | 8     | 0        | 0          | **8**                                                                   |
 
 ---
 
@@ -58,32 +53,27 @@ Luego referenciar en `appsettings.json`:
 
 Todos los recursos están creados en el resource group `PawnTrackBeta`.
 
-| Recurso                   | Nombre                                    | Estado                                                     |
-| ------------------------- | ----------------------------------------- | ---------------------------------------------------------- |
-| Log Analytics Workspace   | `pawtrack-dev-logs`                       | ✅                                                         |
-| Application Insights      | `pawtrack-dev-insights`                   | ✅                                                         |
-| SQL Server                | `pawtrack-dev-sql`                        | ✅                                                         |
-| SQL Database              | `pawtrack-dev-sql/pawtrack` (GP_S_Gen5_1) | ✅                                                         |
-| Storage Account           | `pawtrackstoragdev`                       | ✅                                                         |
-| Key Vault                 | `pawtrack-kv-dev`                         | ✅                                                         |
-| Container Registry (ACR)  | `pawtrackacrdev`                          | ✅                                                         |
-| Container Apps Env        | `pawtrack-dev-env`                        | ✅                                                         |
-| Container App (API)       | `pawtrack-dev-api`                        | ✅                                                         |
-| Static Web App            | `pawtrack-dev-frontend`                   | ✅                                                         |
-| **Azure Cache for Redis** | _(no creado)_                             | ❌ **nuevo, no estaba en la versión anterior de este doc** |
+| Recurso                   | Nombre                                    | Estado                                                         |
+| ------------------------- | ----------------------------------------- | -------------------------------------------------------------- |
+| Log Analytics Workspace   | `pawtrack-dev-logs`                       | ✅                                                             |
+| Application Insights      | `pawtrack-dev-insights`                   | ✅                                                             |
+| SQL Server                | `pawtrack-dev-sql`                        | ✅                                                             |
+| SQL Database              | `pawtrack-dev-sql/pawtrack` (GP_S_Gen5_1) | ✅                                                             |
+| Storage Account           | `pawtrackstoragdev`                       | ✅                                                             |
+| Key Vault                 | `pawtrack-kv-dev`                         | ✅                                                             |
+| Container Registry (ACR)  | `pawtrackacrdev`                          | ✅                                                             |
+| Container Apps Env        | `pawtrack-dev-env`                        | ✅                                                             |
+| Container App (API)       | `pawtrack-dev-api`                        | ✅                                                             |
+| Static Web App            | `pawtrack-dev-frontend`                   | ✅                                                             |
+| **Azure Cache for Redis** | _(no creado)_                             | ❌ **requerido para despliegues multi-instancia y rate limit** |
 
-> **⚠️ Redis es requerido para comportamiento correcto en producción, no solo
-> "deseable".** El código ya soporta Redis (`Redis:ConnectionString` en
-> `InfrastructureServiceCollectionExtensions.cs`) y cae de vuelta a caché
-> distribuida en memoria si no está configurado — pero esa caída **rompe la
-> corrección multi-instancia** de: rate limiting de notificaciones, estado
-> "escribiendo…" del chat (`DistributedTypingStateService`), y el throttle de
-> ubicación de `SearchCoordinationHub`. Con más de 1 réplica del Container App
-> (`--min-replicas 1 --max-replicas 3`, ya configurado en §8.4), cada réplica
-> tendría su propia caché en memoria — el rate limit se podría burlar
-> repartiendo requests entre réplicas, y el throttle de typing/ubicación
-> dejaría de funcionar de forma consistente. **Crear el recurso y cargar el
-> secreto antes de escalar a más de 1 réplica.**
+> **⚠️ Redis es requerido para comportamiento correcto en producción:** El código
+> ya soporta Redis (`Redis:ConnectionString` en `InfrastructureServiceCollectionExtensions.cs`)
+> y cae de vuelta a caché distribuida en memoria si no está configurado — pero esa caída
+> **rompe la corrección multi-instancia** de: rate limiting de notificaciones,
+> estado "escribiendo…" del chat (`DistributedTypingStateService`), bloqueo distribuido
+> de background jobs (`IDistributedJobLock` para cobro recurrente a las 04:00 CR y polling de collares)
+> y el throttle de ubicación de `SearchCoordinationHub`.
 >
 > ```powershell
 > az redis create --name pawtrack-redis --resource-group PawnTrackBeta \
@@ -96,18 +86,35 @@ Todos los recursos están creados en el resource group `PawnTrackBeta`.
 **Blob containers requeridos en `pawtrackstoragdev`:**
 
 ```powershell
-az storage container create --name pet-photos       --account-name pawtrackstoragdev --public-access blob
-az storage container create --name sighting-photos  --account-name pawtrackstoragdev --public-access blob
-az storage container create --name medical-docs     --account-name pawtrackstoragdev --public-access off
-az storage container create --name municipal-photos --account-name pawtrackstoragdev --public-access off
-az storage container create --name clinic-logos     --account-name pawtrackstoragdev --public-access blob
-az storage container create --name vet-certificates --account-name pawtrackstoragdev --public-access off
-az storage container create --name dataprotection-keys --account-name pawtrackstoragdev --public-access off
+# Contenedores de acceso público (fotos y logos)
+az storage container create --name pet-photos              --account-name pawtrackstoragdev --public-access blob
+az storage container create --name sighting-photos         --account-name pawtrackstoragdev --public-access blob
+az storage container create --name found-pet-photos        --account-name pawtrackstoragdev --public-access blob
+az storage container create --name lost-pet-photos         --account-name pawtrackstoragdev --public-access blob
+az storage container create --name adoption-photos         --account-name pawtrackstoragdev --public-access blob
+az storage container create --name clinic-logos            --account-name pawtrackstoragdev --public-access blob
+az storage container create --name billboard-images        --account-name pawtrackstoragdev --public-access blob
+az storage container create --name store-products          --account-name pawtrackstoragdev --public-access blob
+
+# Contenedores privados y sensibles (auditoría, salud, legal y facturación)
+az storage container create --name medical-docs            --account-name pawtrackstoragdev --public-access off
+az storage container create --name municipal-photos        --account-name pawtrackstoragdev --public-access off
+az storage container create --name vet-certificates        --account-name pawtrackstoragdev --public-access off
+az storage container create --name certificates            --account-name pawtrackstoragdev --public-access off
+az storage container create --name clinic-medical-exports  --account-name pawtrackstoragdev --public-access off
+az storage container create --name verification-documents  --account-name pawtrackstoragdev --public-access off
+az storage container create --name provider-verification   --account-name pawtrackstoragdev --public-access off
+az storage container create --name welfare-evidence        --account-name pawtrackstoragdev --public-access off
+az storage container create --name regulatory-exports      --account-name pawtrackstoragdev --public-access off
+az storage container create --name whatsapp-avatars        --account-name pawtrackstoragdev --public-access off
+az storage container create --name invoices                --account-name pawtrackstoragdev --public-access off
+az storage container create --name dataprotection-keys      --account-name pawtrackstoragdev --public-access off
 ```
 
-> El contenedor `dataprotection-keys` es nuevo — ver §2.5, es parte del fix
-> pendiente de persistencia de Data Protection, no solo un contenedor de blobs
-> más de la app.
+> **Contenedor `invoices`:** almacena los XMLs firmados de la DGT y los PDFs oficiales
+> generados con QuestPDF por 5 años según la normativa tributaria costarricense.
+> **Contenedor `dataprotection-keys`:** ver §2.5, es mandatorio para que las claves de
+> Data Protection persistan y no invaliden secretos de MFA/TOTP y webhooks.
 
 ---
 
@@ -120,7 +127,7 @@ El Container App lee las referencias `@Microsoft.KeyVault(VaultName=pawtrack-kv;
 > `openssl rand -base64 48`  
 > (mínimo 32 chars; la app falla al inicio si no cumple)
 
-### 2.1 Secretos requeridos (17)
+### 2.1 Secretos requeridos (22)
 
 | Nombre del secreto              | Clave en `appsettings.json`            | Descripción                                                                                          | Cómo obtenerlo                                     |
 | ------------------------------- | -------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
@@ -141,15 +148,24 @@ El Container App lee las referencias `@Microsoft.KeyVault(VaultName=pawtrack-kv;
 | `tractive-client-id`            | `Tractive:ClientId`                    | OAuth2 client para Tractive GPS                                                                      | developers.tractive.com → My Applications → Create |
 | `tractive-client-secret`        | `Tractive:ClientSecret`                | OAuth2 secret para Tractive GPS                                                                      | Mismo lugar                                        |
 | `tractive-encrypt-key`          | `Tractive:EncryptKey`                  | Clave AES-256 para cifrar tokens OAuth (32 bytes)                                                    | `openssl rand -base64 32`                          |
+| `bot-phone-hash-secret`         | `Bot:PhoneHashSecret`                  | HMAC-SHA256 para hash de teléfonos de usuarios del bot (mínimo 32 chars)                             | `openssl rand -base64 32`                          |
+| `cybersource-merchant-id`       | `CyberSource:MerchantId`               | ID de comercio CyberSource / BAC Credomatic                                                          | Portal CyberSource / BAC Credomatic                |
+| `cybersource-key-id`            | `CyberSource:KeyId`                    | Shared Secret Key ID de CyberSource (firma HMAC de requests)                                         | Portal CyberSource → Payment Configuration         |
+| `cybersource-secret-key`        | `CyberSource:SecretKey`                | Secret Key compartida de CyberSource (base64)                                                        | Portal CyberSource → Payment Configuration         |
 | `redis-connection-string`       | `Redis:ConnectionString`               | Azure Cache for Redis — requerido para rate limiting/chat/throttle correctos con >1 réplica (ver §1) | `az redis list-keys` tras crear el recurso         |
 
-### 2.2 Secretos opcionales (pueden quedar vacíos en MVP)
+### 2.2 Secretos complementarios y opcionales (5)
 
-| Nombre del secreto            | Clave                       | Descripción                                                                                    |
-| ----------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------- |
-| `avatartoken-signing-key`     | `AvatarToken:SigningKey`    | HMAC para tokens de avatar WhatsApp. Si está vacío, los tokens no expiran.                     |
-| `webhooks-sinpe-secret`       | `Webhooks:SinpeSecret`      | Webhook de SINPE (si se integra pasarela real). No requerido para MVP con verificación manual. |
-| `azure-maps-subscription-key` | `AzureMaps:SubscriptionKey` | Geocodificación y lookup de IP. Si está vacío, no se muestra el cantón en las alertas.         |
+| Nombre del secreto            | Clave                        | Descripción                                                                                             |
+| ----------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `webhooks-bac-secret`         | `Webhooks:BacSecret`         | Secreto HMAC para validación de callbacks bancarios de BAC Credomatic / CompraClick.                    |
+| `webhooks-sinpe-secret`       | `Webhooks:SinpeSecret`       | HMAC para webhook de notificación automática SINPE Móvil (o fallback de BAC).                           |
+| `avatartoken-signing-key`     | `AvatarToken:SigningKey`     | HMAC para tokens de avatar WhatsApp. Si está vacío, los tokens no expiran.                              |
+| `azure-maps-subscription-key` | `AzureMaps:SubscriptionKey`  | Geocodificación y lookup de IP. Si está vacío, no se muestra el cantón en las alertas.                  |
+| `tracksolid-app-key`          | `TrackSolid:AppKey`          | AppKey de Jimi IoT TrackSolid Pro Open API (collar GPS AL600).                                          |
+| `tracksolid-app-secret`       | `TrackSolid:AppSecret`       | AppSecret de Jimi IoT TrackSolid Pro.                                                                   |
+| `tracksolid-access-token`     | `TrackSolid:AccessToken`     | Token de sesión/acceso de TrackSolid Pro.                                                               |
+| `certificates-sign-key-id`    | `Certificates:KeyVaultKeyId` | URI o identificador de clave en Azure Key Vault para firma criptográfica de certificados de vacunación. |
 
 ### 2.3 Comandos para cargar secretos
 
@@ -485,15 +501,61 @@ web-push generate-vapid-keys
 
 ---
 
-### 6.8 SINPE Móvil — Cuenta bancaria para pagos ❌ Pendiente
+### 6.8 SINPE Móvil y Pasarela Bancaria CyberSource (BAC Credomatic) ❌ Pendiente
 
-**Requisito:** cuenta bancaria costarricense con SINPE habilitado.
+**Requisitos:**
+
+1. Cuenta bancaria costarricense con SINPE Móvil habilitado para recepción de pagos.
+2. Contrato de afiliación CyberSource / CompraClick con BAC Credomatic (o procesador adquirente en Costa Rica).
 
 **Pasos:**
 
-1. Abrir cuenta en Banco Nacional, BCR, BAC u otro banco CR vinculado a SINPE
-2. Anotar el número de teléfono asociado → cargar en `VITE_SINPE_PHONE`
-3. Nombre de cuenta debe coincidir con el nombre legal de PawTrack CR (para validación manual)
+1. Abrir cuenta en banco nacional costarricense (BAC, Banco Nacional, BCR) vinculada a SINPE Móvil:
+   - Configurar el número de teléfono receptor en `VITE_SINPE_PHONE` y en `App:SinpePhone`.
+2. Registrar la cuenta mercantil con BAC Credomatic para CyberSource:
+   - Obtener `MerchantId`, `KeyId` y `SharedSecret` en el portal Business Center de CyberSource.
+   - Cargar los secretos en Key Vault: `cybersource-merchant-id`, `cybersource-key-id`, `cybersource-secret-key`.
+   - Configurar la URL de notificación TED / Decision Manager en CyberSource: `https://api.pawtrack.cr/api/webhooks/cybersource`.
+3. Configurar webhook de CompraClick BAC en caso de usar pasarela directa:
+   - URL: `https://api.pawtrack.cr/api/webhooks/bac`.
+   - Secreto HMAC cargado en `webhooks-bac-secret`.
+
+---
+
+### 6.9 Facturación Electrónica DGT Costa Rica (Hacienda v4.3) ❌ Pendiente
+
+**Requisitos:**
+
+1. Certificado digital o llave criptográfica tributaria emitida por el Ministerio de Hacienda de Costa Rica (ATV).
+2. Datos fiscales del emisor debidamente registrados ante Tributación Directa.
+
+**Pasos:**
+
+1. Registrar la razón social y cédula jurídica emisora:
+   - `Hacienda:EmisorNombre`: ej. `PAWTRACK COSTA RICA SOCIEDAD ANONIMA`.
+   - `Hacienda:EmisorCedula`: ej. `3101999999` (sin guiones).
+   - `Hacienda:Sucursal`: `001`.
+   - `Hacienda:Terminal`: `00001`.
+2. Política de precios e IVA:
+   - Todos los precios del catálogo técnico son **costos base netos** sin IVA.
+   - Al emitir Factura Electrónica con crédito fiscal (`RequiresInvoice = true`), el sistema agrega automáticamente el **13% de IVA** sobre la base imponible y genera la clave numérica de 50 dígitos y consecutivo oficial de 20 dígitos.
+   - Los documentos generados (XML firmado y representación gráfica en PDF con QuestPDF) se archivan en el contenedor Blob `invoices`.
+
+---
+
+### 6.10 Jimi IoT / TrackSolid Pro (Collares GPS AL600) ❌ Pendiente (opcional)
+
+**Requisitos:**
+
+1. Cuenta empresarial en [TrackSolid Pro](https://open.tracksolidpro.com).
+2. Claves de integración Open API para telemetría continua de dispositivos AL600.
+
+**Pasos:**
+
+1. Registrar la aplicación en la consola para desarrolladores de Jimi IoT / Concox TrackSolid Pro.
+2. Obtener `AppKey` y `AppSecret` de producción.
+3. Cargar en Key Vault: `tracksolid-app-key`, `tracksolid-app-secret` y `tracksolid-access-token`.
+4. El servicio en segundo plano `TrackSolidPollingJob` consultará automáticamente las ubicaciones periódicas de los dispositivos activos cada 2 minutos.
 
 ---
 
@@ -531,10 +593,11 @@ dotnet ef database update \
 sqlcmd -S <servidor> -d <bd> -Q "SELECT TOP 5 MigrationId FROM __EFMigrationsHistory ORDER BY MigrationId DESC"
 ```
 
-Snapshot de referencia (2026-09-10): la migración más reciente en el repo es
-`20260910002809_AddScheduledSubscriptionChanges` — si `dotnet ef migrations
-list` muestra una más nueva que esa, esta nota también está desactualizada;
-no confiar en el nombre exacto, confiar en el comando.
+Snapshot de referencia (2026-09-12): la migración más reciente en el repo es
+`20260912042822_AddUserBillingProfilesAndElectronicInvoices` (precedida por
+`20260912020015_AddUserPaymentProfilesAndTransactions` y
+`20260912004144_AddSinpePaymentEnhancements`). Si `dotnet ef migrations
+list` muestra una más nueva que esa, confiar siempre en el comando.
 
 ---
 
@@ -592,6 +655,14 @@ Configurar en Key Vault / env vars:
 Notifications__Push__VapidSubject = mailto:ops@pawtrack.cr
 ```
 
+### 8.6 Hosted Services y Background Jobs Críticos
+
+Verificar en logs de Container App tras el inicio que los siguientes servicios en segundo plano arrancaron correctamente:
+
+1. `SubscriptionRecurringBillingHostedService`: Ejecución diaria programada a las 04:00 AM hora de Costa Rica (UTC-6) protegida por `IDistributedJobLock`.
+2. `TrackSolidPollingJob`: Monitoreo y actualización periódica de collares GPS Jimi AL600 cada 2 minutos.
+3. `OutboundWebhookHostedService`: Despacho asíncrono de eventos con reintentos exponenciales.
+
 ---
 
 ## 9. Verificación final antes de go-live
@@ -604,6 +675,8 @@ Notifications__Push__VapidSubject = mailto:ops@pawtrack.cr
 | Email (SendGrid)     | Registrar cuenta nueva → verificar que llega email                                                    | Email recibido en < 2 min                                                                                                                            |
 | Push notification    | Activar push en la app y crear alerta de prueba                                                       | Notificación en el dispositivo                                                                                                                       |
 | Visual matching      | Subir foto de mascota → buscar coincidencias                                                          | Resultados sin error 500                                                                                                                             |
+| Pasarela Tarjetas    | `POST /api/payments/charge-card` o modal de checkout                                                  | Autorización y captura exitosa en CyberSource / BAC                                                                                                  |
+| Facturación DGT v4.3 | Emisión de prueba con `RequiresInvoice = true`                                                        | Factura Electrónica generada con clave 50 dígitos, +13% IVA y PDF generado                                                                           |
 | Migrations aplicadas | `dotnet ef migrations list` (o `SELECT TOP 5 MigrationId FROM __EFMigrationsHistory ORDER BY 1 DESC`) | La fila más reciente coincide con la última carpeta en `backend/src/PawTrack.Infrastructure/Migrations/` — no comparar contra un nombre fijo, ver §7 |
 
 ---
@@ -617,25 +690,26 @@ Notifications__Push__VapidSubject = mailto:ops@pawtrack.cr
 3. ☐ Configurar `Cors:AllowedOrigins` con el dominio final
 4. ☐ Configurar `VITE_API_URL` en GitHub Secrets → redeploy del frontend
 5. ☐ Configurar `VITE_SINPE_PHONE` con el número real de SINPE
-6. ☐ **Crear Azure Cache for Redis y cargar `redis-connection-string`** — nuevo, ver §1/§2.1. Sin esto, rate limiting/chat/throttle fallan de forma inconsistente en cuanto haya >1 réplica.
-7. ☐ **Configurar persistencia de Data Protection** (`.PersistKeysToAzureBlobStorage` + `.ProtectKeysWithAzureKeyVault` en `Program.cs`) — nuevo, ver §2.5. Sin esto, MFA y webhooks salientes se rompen tras cualquier reinicio/redeploy.
+6. ☐ **Crear Azure Cache for Redis y cargar `redis-connection-string`** — ver §1/§2.1. Sin esto, rate limiting/chat/throttle fallan de forma inconsistente en cuanto haya >1 réplica.
+7. ☐ **Configurar persistencia de Data Protection** (`.PersistKeysToAzureBlobStorage` + `.ProtectKeysWithAzureKeyVault` en `Program.cs`) — ver §2.5. Sin esto, MFA y webhooks salientes se rompen tras cualquier reinicio/redeploy.
 
 ### 🟠 Bloquean features clave (hacer antes del launch público)
 
 8. ☐ Configurar SendGrid + verificar dominio de email
-9. ☐ Registrar app OAuth en Meta → configurar WhatsApp webhook
-10. ☐ Configurar GitHub Secrets para CI/CD (17 en total, ver §4)
-11. ☐ Comprar y configurar dominio `pawtrack.cr` **antes de que cualquier usuario registre una passkey/WebAuthn** (ver §2.6)
-12. ☐ Generar claves VAPID de producción → cargar en Key Vault + GitHub Secrets
-13. ☐ Agregar `VITE_APPINSIGHTS_CONNECTION_STRING` al step de build en `frontend.yml` (falta, ver §4)
+9. ☐ Registrar credenciales de comercio CyberSource / BAC Credomatic para cobros con tarjeta y renovaciones automáticas (§6.8)
+10. ☐ Registrar app OAuth en Meta → configurar WhatsApp webhook
+11. ☐ Configurar GitHub Secrets para CI/CD (17 en total, ver §4)
+12. ☐ Comprar y configurar dominio `pawtrack.cr` **antes de que cualquier usuario registre una passkey/WebAuthn** (ver §2.6)
+13. ☐ Generar claves VAPID de producción → cargar en Key Vault + GitHub Secrets
+14. ☐ Agregar `VITE_APPINSIGHTS_CONNECTION_STRING` al step de build en `frontend.yml` (falta, ver §4)
 
 ### 🟡 Mejoran el producto pero no bloquean el launch
 
-14. ☐ Configurar Azure Computer Vision (búsqueda visual por foto)
-15. ☐ Registrar app Tractive (collar GPS)
-16. ☐ Configurar Azure Maps (geocodificación de cantones en alertas)
-17. ☐ Crear bot de Telegram y bot de Facebook (canales de difusión alternativos)
-18. ☐ Ajustar CPU/RAM del Container App para carga real
+15. ☐ Configurar Azure Computer Vision (búsqueda visual por foto)
+16. ☐ Registrar app Tractive y/o credenciales Jimi IoT TrackSolid Pro (collares GPS)
+17. ☐ Configurar Azure Maps (geocodificación de cantones en alertas)
+18. ☐ Crear bot de Telegram y bot de Facebook (canales de difusión alternativos)
+19. ☐ Ajustar CPU/RAM del Container App para carga real
 
 ---
 
