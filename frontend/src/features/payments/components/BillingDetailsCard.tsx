@@ -90,12 +90,21 @@ export function BillingDetailsCard() {
           <div>
             <h2 className="text-base font-bold text-sand-900">Datos de Facturación Electrónica (DGT Costa Rica)</h2>
             <p className="text-xs text-sand-500">
-              Información tributaria para emisión de facturas y tiquetes oficiales
+              Información tributaria para emisión de facturas y tiquetes oficiales según resolución DGT v4.3
             </p>
           </div>
           <span className="text-xl" aria-hidden="true">
             🧾
           </span>
+        </div>
+
+        <div className="rounded-xl border border-brand-200 bg-brand-50/70 p-3 text-xs text-brand-900 space-y-1">
+          <p className="font-semibold text-brand-950">Política de precios e IVA (13%)</p>
+          <p className="text-brand-800 text-[11px] leading-relaxed">
+            Los precios vigentes de nuestros planes y servicios son base y no reflejan el 13% de IVA. Si requieres
+            Factura Electrónica formal con crédito fiscal para tu contabilidad o empresa, se adicionará el 13% de IVA al
+            costo del servicio en tus pagos y renovaciones automáticas.
+          </p>
         </div>
 
         {isLoading ? (
@@ -250,15 +259,16 @@ export function BillingDetailsCard() {
               />
             </div>
 
-            <label className="flex items-center gap-2 pt-1 cursor-pointer">
+            <label className="flex items-start gap-2 pt-1 cursor-pointer">
               <input
                 type="checkbox"
                 checked={requiresInvoice}
                 onChange={(e) => setRequiresInvoice(e.target.checked)}
-                className="h-4 w-4 rounded text-brand-600 focus:ring-brand-500 border-sand-300"
+                className="mt-0.5 h-4 w-4 rounded text-brand-600 focus:ring-brand-500 border-sand-300"
               />
               <span className="text-[11px] text-sand-700 font-medium">
-                Deseo Factura Electrónica formal con crédito fiscal (desmarcar para Tiquete Electrónico)
+                Deseo Factura Electrónica formal con crédito fiscal (+13% IVA sobre el costo base del servicio;
+                desmarcar si solo requiere Tiquete Electrónico)
               </span>
             </label>
 

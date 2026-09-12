@@ -2,17 +2,8 @@ import { apiClient } from "@/shared/lib/apiClient";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type CollarModel =
-  | "TractiveGPSDog4"
-  | "TractiveGPSCat4"
-  | "PawTrackAL600";
-export type BundleOrderStatus =
-  | "PendingPayment"
-  | "Paid"
-  | "Sourcing"
-  | "Shipped"
-  | "Delivered"
-  | "Cancelled";
+export type CollarModel = "TractiveGPSDog4" | "TractiveGPSCat4" | "PawTrackAL600";
+export type BundleOrderStatus = "PendingPayment" | "Paid" | "Sourcing" | "Shipped" | "Delivered" | "Cancelled";
 
 export type BundleProductType =
   | "CollarGpsPlus"
@@ -65,6 +56,7 @@ export interface CreateBundleOrderRequest {
   shippingPhone: string;
   deliveryNotes?: string;
   productType?: BundleProductType;
+  requiresInvoice?: boolean;
 }
 
 // ── Labels & Prices ───────────────────────────────────────────────────────────
@@ -98,8 +90,7 @@ export const PRODUCT_TYPE_CONFIG: Record<
 > = {
   CollarGpsPlus: {
     label: "Bundle Collar GPS + 12 meses Plus",
-    description:
-      "Collar GPS PawTrack + PawTrack Plus todo incluido · Envío a CR",
+    description: "Collar GPS PawTrack + PawTrack Plus todo incluido · Envío a CR",
     priceCrc: 49_900,
     emoji: "📡",
     requiresCollar: true,
@@ -134,8 +125,7 @@ export const PRODUCT_TYPE_CONFIG: Record<
   },
   CollarTagGps: {
     label: "CollarTag GPS PawTrack + 12 meses Plus",
-    description:
-      "Collar GPS de marca propia · activación en la app · sin suscripción externa",
+    description: "Collar GPS de marca propia · activación en la app · sin suscripción externa",
     priceCrc: 39_900,
     emoji: "🏷️",
     requiresCollar: false,
@@ -148,11 +138,9 @@ export const bundleApi = {
   create: (data: CreateBundleOrderRequest): Promise<BundleOrderDto> =>
     apiClient.post<BundleOrderDto>("/bundles", data).then((r) => r.data),
 
-  getMine: (): Promise<BundleOrderDto[]> =>
-    apiClient.get<BundleOrderDto[]>("/bundles/mine").then((r) => r.data),
+  getMine: (): Promise<BundleOrderDto[]> => apiClient.get<BundleOrderDto[]>("/bundles/mine").then((r) => r.data),
 
-  reportPayment: (id: string): Promise<void> =>
-    apiClient.put(`/bundles/${id}/report-payment`).then(() => undefined),
+  reportPayment: (id: string): Promise<void> => apiClient.put(`/bundles/${id}/report-payment`).then(() => undefined),
 
   cancel: (id: string): Promise<BundleOrderDto> =>
     apiClient.put<BundleOrderDto>(`/bundles/${id}/cancel`).then((r) => r.data),
@@ -166,23 +154,12 @@ export const bundleApi = {
       .then((r) => r.data),
 
   adminConfirmPayment: (id: string): Promise<BundleOrderDto> =>
-    apiClient
-      .put<BundleOrderDto>(`/bundles/admin/${id}/confirm-payment`)
-      .then((r) => r.data),
+    apiClient.put<BundleOrderDto>(`/bundles/admin/${id}/confirm-payment`).then((r) => r.data),
 
-  adminMarkSourced: (
-    id: string,
-    adminNotes?: string,
-  ): Promise<BundleOrderDto> =>
-    apiClient
-      .put<BundleOrderDto>(`/bundles/admin/${id}/sourced`, { adminNotes })
-      .then((r) => r.data),
+  adminMarkSourced: (id: string, adminNotes?: string): Promise<BundleOrderDto> =>
+    apiClient.put<BundleOrderDto>(`/bundles/admin/${id}/sourced`, { adminNotes }).then((r) => r.data),
 
-  adminMarkShipped: (
-    id: string,
-    trackingNumber: string,
-    adminNotes?: string,
-  ): Promise<BundleOrderDto> =>
+  adminMarkShipped: (id: string, trackingNumber: string, adminNotes?: string): Promise<BundleOrderDto> =>
     apiClient
       .put<BundleOrderDto>(`/bundles/admin/${id}/shipped`, {
         trackingNumber,
@@ -191,12 +168,8 @@ export const bundleApi = {
       .then((r) => r.data),
 
   adminMarkDelivered: (id: string): Promise<BundleOrderDto> =>
-    apiClient
-      .put<BundleOrderDto>(`/bundles/admin/${id}/delivered`)
-      .then((r) => r.data),
+    apiClient.put<BundleOrderDto>(`/bundles/admin/${id}/delivered`).then((r) => r.data),
 
   adminCancel: (id: string, adminNotes?: string): Promise<BundleOrderDto> =>
-    apiClient
-      .put<BundleOrderDto>(`/bundles/admin/${id}/cancel`, { adminNotes })
-      .then((r) => r.data),
+    apiClient.put<BundleOrderDto>(`/bundles/admin/${id}/cancel`, { adminNotes }).then((r) => r.data),
 };

@@ -46,6 +46,20 @@ export interface SubscriptionPlanCatalogDto {
   version: string;
 }
 
+export const IVA_RATE = 0.13;
+
+export function calculateIva(baseAmountCrc: number): number {
+  return Math.round(baseAmountCrc * IVA_RATE);
+}
+
+export function calculateTotalWithIva(baseAmountCrc: number): number {
+  return Math.round(baseAmountCrc * (1 + IVA_RATE));
+}
+
+export function calculateEffectivePrice(baseAmountCrc: number, requiresInvoice: boolean): number {
+  return requiresInvoice ? calculateTotalWithIva(baseAmountCrc) : Math.round(baseAmountCrc);
+}
+
 export const TIER_PRICE_CRC: Record<SubscriptionTier, number> = {
   Free: 0,
   UserPlus: 2990,
@@ -73,12 +87,13 @@ export const subscriptionApi = {
       })
       .then((r) => r.data),
 
-  create: (tier: SubscriptionTier, billingMonths: number, clinicId?: string) =>
+  create: (tier: SubscriptionTier, billingMonths: number, clinicId?: string, requiresInvoice?: boolean) =>
     apiClient
       .post<SubscriptionDto>("/subscriptions", {
         tier,
         clinicId: clinicId ?? null,
         billingMonths,
+        requiresInvoice,
       })
       .then((r) => r.data),
 

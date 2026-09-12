@@ -1,14 +1,19 @@
 namespace PawTrack.Domain.Subscriptions;
 
 /// <summary>
-/// Single source of truth for paid subscription prices (CRC, monthly). Amounts are placeholders
-/// pending final commercial approval (see docs/todolist-b2b-enterprise.md §0) — the goal of this
-/// catalog is to remove hardcoded/scattered prices, not to lock in final figures.
+/// Single source of truth for paid subscription prices (CRC, monthly). Amounts are net base costs
+/// that do NOT reflect the 13% Costa Rica IVA. When a client requires an electronic invoice
+/// (Factura Electrónica con crédito fiscal), 13% IVA is added to the service cost.
 /// </summary>
 public static class SubscriptionPricing
 {
     public const int AnnualTerm = 12;
     public const decimal AnnualDiscount = 0.20m;
+
+    /// <summary>
+    /// Costa Rica standard Value Added Tax (IVA) rate: 13%.
+    /// </summary>
+    public const decimal StandardIvaRate = 0.13m;
 
     public static readonly IReadOnlyDictionary<SubscriptionTier, decimal> MonthlyPriceCrc =
         new Dictionary<SubscriptionTier, decimal>
@@ -61,4 +66,23 @@ public static class SubscriptionPricing
             ? undiscountedAmount * (1 - AnnualDiscount)
             : undiscountedAmount;
     }
+
+    /// <summary>
+    /// Calculates the 13% IVA amount for a given base service cost.
+    /// </summary>
+    public static decimal CalculateIvaAmountCrc(decimal baseAmountCrc) =>
+        Math.Round(baseAmountCrc * StandardIvaRate, 2, MidpointRounding.AwayFromZero);
+
+    /// <summary>
+    /// Calculates total amount with 13% IVA added to the base service cost.
+    /// </summary>
+    public static decimal CalculateTotalWithIvaCrc(decimal baseAmountCrc) =>
+        Math.Round(baseAmountCrc * (1m + StandardIvaRate), 2, MidpointRounding.AwayFromZero);
+
+    /// <summary>
+    /// Returns the final amount to charge: if client wants an invoice, the 13% IVA is added
+    /// to the service cost; otherwise, the base service cost is returned.
+    /// </summary>
+    public static decimal GetEffectivePriceCrc(decimal baseAmountCrc, bool requiresInvoice) =>
+        requiresInvoice ? CalculateTotalWithIvaCrc(baseAmountCrc) : baseAmountCrc;
 }

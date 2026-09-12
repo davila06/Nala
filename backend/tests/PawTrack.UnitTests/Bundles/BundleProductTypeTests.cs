@@ -19,6 +19,18 @@ public sealed class BundleProductTypeTests
     }
 
     [Fact]
+    public void GetPrice_WhenRequiresInvoiceIsTrue_AddsThirteenPercentIva()
+    {
+        // 49,900 * 1.13 = 56,387
+        BundlePrices.GetPrice(BundleProductType.CollarGpsPlus, requiresInvoice: true)
+            .Should().Be(56_387m);
+
+        // 4,500 * 1.13 = 5,085
+        BundlePrices.GetPrice(BundleProductType.QrPlate, requiresInvoice: true)
+            .Should().Be(5_085m);
+    }
+
+    [Fact]
     public void CollarTagGps_HasLabel()
     {
         var order = BundleOrder.Create(

@@ -85,21 +85,12 @@ interface ClinicTiersModalProps {
   onClose: () => void;
 }
 
-export function ClinicTiersModal({
-  currentTier = "basic",
-  onClose,
-}: ClinicTiersModalProps) {
+export function ClinicTiersModal({ currentTier = "basic", onClose }: ClinicTiersModalProps) {
   const [pendingTier, setPendingTier] = useState<SubscriptionTier | null>(null);
   const { data: catalog } = useSubscriptionCatalog();
 
   if (pendingTier) {
-    return (
-      <SinpePaymentModal
-        tier={pendingTier}
-        onClose={() => setPendingTier(null)}
-        onSuccess={onClose}
-      />
-    );
+    return <SinpePaymentModal tier={pendingTier} onClose={() => setPendingTier(null)} onSuccess={onClose} />;
   }
 
   return (
@@ -121,11 +112,10 @@ export function ClinicTiersModal({
         >
           <div className="mb-6 flex items-start justify-between">
             <div>
-              <h2 className="font-display text-xl font-bold text-sand-900">
-                Planes PawTrack para Clínicas
-              </h2>
+              <h2 className="font-display text-xl font-bold text-sand-900">Planes PawTrack para Clínicas</h2>
               <p className="mt-1 text-sm text-sand-500">
-                Potencia tu clínica y llega a más dueños de mascotas
+                Potencia tu clínica y llega a más dueños de mascotas (precios base netos; +13% IVA si requiere Factura
+                Electrónica)
               </p>
             </div>
             <button
@@ -134,12 +124,7 @@ export function ClinicTiersModal({
               className="rounded-xl p-2 text-sand-400 hover:bg-sand-100 hover:text-sand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               aria-label="Cerrar"
             >
-              <svg
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                className="h-4 w-4"
-                aria-hidden="true"
-              >
+              <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                 <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z" />
               </svg>
             </button>
@@ -164,21 +149,15 @@ export function ClinicTiersModal({
                   )}
 
                   <div className="mb-4">
-                    <span
-                      className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${tier.badge}`}
-                    >
+                    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${tier.badge}`}>
                       {tier.name}
                     </span>
                     <p className="mt-2 text-2xl font-extrabold text-sand-900">
                       {(() => {
                         const plan = tier.subscriptionTier
-                          ? catalog?.find(
-                              (item) => item.tier === tier.subscriptionTier,
-                            )
+                          ? catalog?.find((item) => item.tier === tier.subscriptionTier)
                           : undefined;
-                        return plan?.monthlyPriceCrc
-                          ? `₡${plan.monthlyPriceCrc.toLocaleString("es-CR")}`
-                          : tier.price;
+                        return plan?.monthlyPriceCrc ? `₡${plan.monthlyPriceCrc.toLocaleString("es-CR")}` : tier.price;
                       })()}
                     </p>
                     <p className="text-xs text-sand-400">{tier.period}</p>
@@ -186,23 +165,14 @@ export function ClinicTiersModal({
 
                   <ul className="mb-5 flex-1 space-y-2">
                     {tier.features.map((f) => (
-                      <li
-                        key={f.label}
-                        className="flex items-start gap-2 text-xs text-sand-700"
-                      >
+                      <li key={f.label} className="flex items-start gap-2 text-xs text-sand-700">
                         <span
                           className={`mt-0.5 shrink-0 ${f.included ? "text-rescue-600" : "text-sand-300"}`}
                           aria-hidden="true"
                         >
                           {f.included ? "✓" : "✗"}
                         </span>
-                        <span
-                          className={
-                            f.included ? "" : "text-sand-400 line-through"
-                          }
-                        >
-                          {f.label}
-                        </span>
+                        <span className={f.included ? "" : "text-sand-400 line-through"}>{f.label}</span>
                       </li>
                     ))}
                   </ul>
@@ -214,10 +184,7 @@ export function ClinicTiersModal({
                   ) : (
                     <button
                       type="button"
-                      onClick={() =>
-                        tier.subscriptionTier &&
-                        setPendingTier(tier.subscriptionTier)
-                      }
+                      onClick={() => tier.subscriptionTier && setPendingTier(tier.subscriptionTier)}
                       className={[
                         "block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400",
                         tier.popular
@@ -235,10 +202,7 @@ export function ClinicTiersModal({
 
           <p className="mt-5 text-center text-xs text-sand-400">
             ¿Preguntas? Escríbenos a{" "}
-            <a
-              href="mailto:alianzas@pawtrack.cr"
-              className="text-brand-600 hover:underline"
-            >
+            <a href="mailto:alianzas@pawtrack.cr" className="text-brand-600 hover:underline">
               alianzas@pawtrack.cr
             </a>
           </p>

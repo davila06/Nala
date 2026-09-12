@@ -75,7 +75,9 @@ public sealed class ElectronicBillingService(
             receiverIdType,
             receiverIdNumber,
             request.TransactionId,
-            request.PaymentMethodCode);
+            request.PaymentMethodCode,
+            request.SubtotalCrc,
+            request.IvaAmountCrc);
 
         // Generar y almacenar XML estándar en Blob Storage
         var xmlContent = GenerateElectronicDocumentXml(invoice, EmisorNombre, EmisorCedula);

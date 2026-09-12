@@ -8,8 +8,15 @@
 > promesa comercial automaticamente.
 
 > La activación B2B/B2G y los planes B2C se procesan actualmente mediante
-> solicitud y verificación manual de SINPE. No existe checkout recurrente
+> solicitud y verificación manual de SINPE o pasarela de tarjetas. No existe checkout recurrente
 > universal, renovación automática universal ni autoservicio municipal.
+
+## Política de Precios e Impuesto sobre el Valor Agregado (IVA 13%)
+
+- **Precios Base del Servicio:** Todos los montos listados en el catálogo técnico (`SubscriptionPricing`, `BundlePrices`, `TIER_PRICE_CRC`) corresponden al costo neto base del servicio y **no reflejan el 13% de IVA**.
+- **Emisión de Factura Electrónica:** Si el cliente (dueño de mascota, clínica, tienda o institución) requiere **Factura Electrónica** formal con crédito fiscal ante la Dirección General de Tributación (DGT v4.3), **se le agrega el 13% de IVA al costo del servicio** al procesar el pago o generar la suscripción/pedido:
+  - `Total Con Factura = Costo Base * 1.13` (redondeado a 2 decimales en colones).
+- **Consumidor Final (Tiquete Electrónico):** Si el cliente no requiere factura con crédito fiscal (`RequiresInvoice = false`), abona el costo neto base del servicio.
 
 ## B2C
 

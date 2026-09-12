@@ -85,4 +85,6 @@ public sealed record EmitInvoiceRequest(
     string CodigoCabys,
     string PaymentMethodCode = "02", // 02=Tarjeta, 04=SINPE
     Guid? TransactionId = null,
-    bool ForceInvoice = false);
+    bool ForceInvoice = false,
+    decimal? SubtotalCrc = null,
+    decimal? IvaAmountCrc = null);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "@/shared/lib/toast";
 import { Button, Input } from "@/shared/ui";
 import {
@@ -18,6 +18,7 @@ import {
 import { NfcSetupGuide } from "./NfcSetupGuide";
 import { SecureCardPaymentForm, type CardPaymentData } from "@/features/payments/components/SecureCardPaymentForm";
 import { useChargeCard } from "@/features/payments/hooks/usePaymentProfiles";
+import { useBillingProfile } from "@/features/payments/hooks/useBilling";
 
 // ── CR cantons for shipping ───────────────────────────────────────────────────
 const CANTONS = [
@@ -306,6 +307,7 @@ function OrderCard({ order }: { order: BundleOrderDto }) {
 
 function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
   const create = useCreateBundleOrder();
+  const { data: billingProfile } = useBillingProfile();
   const [productType, setProductType] = useState<BundleProductType>("CollarGpsPlus");
   const [collarModel, setCollarModel] = useState<CollarModel>("TractiveGPSDog4");
   const [fullName, setFullName] = useState("");
@@ -313,9 +315,19 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
   const [canton, setCanton] = useState("San José");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
+  const [requiresInvoice, setRequiresInvoice] = useState(false);
+
+  useEffect(() => {
+    if (billingProfile?.requiresInvoice) {
+      setRequiresInvoice(true);
+    }
+  }, [billingProfile]);
 
   const config = PRODUCT_TYPE_CONFIG[productType];
   const requiresCollar = config.requiresCollar;
+  const basePrice = config.priceCrc;
+  const ivaAmount = Math.round(basePrice * 0.13);
+  const finalPrice = requiresInvoice ? Math.round(basePrice * 1.13) : basePrice;
 
   const handleSubmit = () => {
     if (!fullName.trim() || !address.trim() || !phone.trim()) {
@@ -331,6 +343,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
         shippingPhone: phone.trim(),
         deliveryNotes: notes.trim() || undefined,
         productType,
+        requiresInvoice,
       },
       {
         onSuccess: () => {
@@ -493,13 +506,49 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
         <p>4. Adquirimos y enviamos tu collar. Recibirás el número de seguimiento.</p>
       </div>
 
+      {/* Factura Electrónica e IVA */}
+      <div className="rounded-xl border border-sand-200 bg-surface-warm p-3 text-xs text-sand-700 space-y-2">
+        <label className="flex items-start gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={requiresInvoice}
+            onChange={(e) => setRequiresInvoice(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-sand-300 text-brand-600 focus:ring-brand-500"
+          />
+          <div>
+            <span className="font-bold text-sand-900 block">Deseo Factura Electrónica (+13% IVA)</span>
+            <span className="text-sand-500 text-[11px] block mt-0.5">
+              Los montos mostrados son base sin IVA. Si requieres factura con crédito fiscal para deducción ante
+              Hacienda, se adiciona el 13% de IVA al valor del producto.
+            </span>
+          </div>
+        </label>
+
+        <div className="border-t border-sand-200 pt-2 space-y-1 text-xs">
+          <div className="flex justify-between text-sand-600">
+            <span>Costo base del producto:</span>
+            <span>₡{basePrice.toLocaleString("es-CR")}</span>
+          </div>
+          {requiresInvoice && (
+            <div className="flex justify-between text-brand-700 font-medium">
+              <span>IVA (13%):</span>
+              <span>+₡{ivaAmount.toLocaleString("es-CR")}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-sand-900 font-bold pt-1 border-t border-sand-200 text-sm">
+            <span>Total a pagar:</span>
+            <span className="text-brand-600">₡{finalPrice.toLocaleString("es-CR")}</span>
+          </div>
+        </div>
+      </div>
+
       <Button
         onClick={handleSubmit}
         loading={create.isPending}
         disabled={!fullName.trim() || !address.trim() || !phone.trim()}
         className="w-full"
       >
-        Confirmar pedido — ₡{config.priceCrc.toLocaleString("es-CR")}
+        Confirmar pedido — ₡{finalPrice.toLocaleString("es-CR")}
       </Button>
     </div>
   );

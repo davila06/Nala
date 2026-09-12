@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using PawTrack.Application.Bundles.Interfaces;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Payments.Interfaces;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Domain.Bundles;
 using PawTrack.Domain.Common;
@@ -15,17 +16,29 @@ public static class BundlePrices
 {
     public const decimal BundleCrc = 49_900m;
     public const int SubscriptionMonths = 12;
+    public const decimal StandardIvaRate = 0.13m;
 
-    // ── Accessory-only pricing ────────────────────────────────────────────────
-    public static decimal GetPrice(BundleProductType product) => product switch
+    public static decimal CalculateIvaAmountCrc(decimal basePriceCrc) =>
+        Math.Round(basePriceCrc * StandardIvaRate, 2, MidpointRounding.AwayFromZero);
+
+    public static decimal CalculateTotalWithIvaCrc(decimal basePriceCrc) =>
+        Math.Round(basePriceCrc * (1m + StandardIvaRate), 2, MidpointRounding.AwayFromZero);
+
+    // ── Accessory and hardware pricing (Base price net of 13% IVA) ───────────
+    public static decimal GetPrice(BundleProductType product, bool requiresInvoice = false)
     {
-        BundleProductType.QrPlate => 4_500m,
-        BundleProductType.SiliconeTag => 5_500m,
-        BundleProductType.NfcQrCombo => 12_000m,
-        BundleProductType.EmergencyPack => 7_000m,
-        BundleProductType.CollarTagGps => 39_900m,
-        _ => BundleCrc, // CollarGpsPlus default
-    };
+        var basePrice = product switch
+        {
+            BundleProductType.QrPlate => 4_500m,
+            BundleProductType.SiliconeTag => 5_500m,
+            BundleProductType.NfcQrCombo => 12_000m,
+            BundleProductType.EmergencyPack => 7_000m,
+            BundleProductType.CollarTagGps => 39_900m,
+            _ => BundleCrc, // CollarGpsPlus default
+        };
+
+        return requiresInvoice ? CalculateTotalWithIvaCrc(basePrice) : basePrice;
+    }
 }
 
 // ── DTOs ─────────────────────────────────────────────────────────────────────
@@ -111,7 +124,8 @@ public sealed record CreateBundleOrderCommand(
     string ShippingCanton,
     string ShippingPhone,
     string? DeliveryNotes,
-    BundleProductType ProductType = BundleProductType.CollarGpsPlus) : IRequest<Result<BundleOrderDto>>;
+    BundleProductType ProductType = BundleProductType.CollarGpsPlus,
+    bool? RequiresInvoice = null) : IRequest<Result<BundleOrderDto>>;
 
 public sealed class CreateBundleOrderCommandValidator : AbstractValidator<CreateBundleOrderCommand>
 {
@@ -131,16 +145,35 @@ public sealed class CreateBundleOrderCommandHandler(
     IPaymentService paymentService,
     IEmailSender emailSender,
     IUserRepository userRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IUserBillingProfileRepository? billingProfileRepository = null)
     : IRequestHandler<CreateBundleOrderCommand, Result<BundleOrderDto>>
 {
+    public CreateBundleOrderCommandHandler(
+        IBundleOrderRepository repository,
+        IPaymentService paymentService,
+        IEmailSender emailSender,
+        IUserRepository userRepository,
+        IUnitOfWork unitOfWork)
+        : this(repository, paymentService, emailSender, userRepository, unitOfWork, null) { }
+
     public async Task<Result<BundleOrderDto>> Handle(
         CreateBundleOrderCommand request, CancellationToken ct)
     {
+        var requiresInvoice = request.RequiresInvoice ?? false;
+        if (!request.RequiresInvoice.HasValue && billingProfileRepository is not null)
+        {
+            var profile = await billingProfileRepository.GetByUserIdAsync(request.UserId, ct);
+            if (profile is not null && profile.RequiresInvoice)
+            {
+                requiresInvoice = true;
+            }
+        }
+
         var reference = paymentService.GenerateReference();
         var order = BundleOrder.Create(
             request.UserId, request.CollarModel, reference,
-            BundlePrices.GetPrice(request.ProductType),
+            BundlePrices.GetPrice(request.ProductType, requiresInvoice),
             request.ShippingFullName, request.ShippingAddress,
             request.ShippingCanton, request.ShippingPhone,
             request.DeliveryNotes,

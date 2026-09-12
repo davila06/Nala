@@ -61,4 +61,42 @@ public sealed class SubscriptionPricingTests
         found.Should().BeFalse();
         SubscriptionPricing.IsPaidTier(tier).Should().BeFalse();
     }
+
+    [Fact]
+    public void CalculateIvaAmountCrc_CalculatesThirteenPercentCorrectly()
+    {
+        // 2990 * 0.13 = 388.70
+        var iva = SubscriptionPricing.CalculateIvaAmountCrc(2990m);
+        iva.Should().Be(388.70m);
+
+        // 35000 * 0.13 = 4550.00
+        var ivaClinic = SubscriptionPricing.CalculateIvaAmountCrc(35000m);
+        ivaClinic.Should().Be(4550.00m);
+    }
+
+    [Fact]
+    public void CalculateTotalWithIvaCrc_AddsThirteenPercentToCostOfService()
+    {
+        // 2990 + 388.70 = 3378.70
+        var total = SubscriptionPricing.CalculateTotalWithIvaCrc(2990m);
+        total.Should().Be(3378.70m);
+
+        // 35000 + 4550 = 39550.00
+        var totalClinic = SubscriptionPricing.CalculateTotalWithIvaCrc(35000m);
+        totalClinic.Should().Be(39550.00m);
+    }
+
+    [Fact]
+    public void GetEffectivePriceCrc_WhenRequiresInvoiceIsTrue_AddsThirteenPercentIva()
+    {
+        var withInvoice = SubscriptionPricing.GetEffectivePriceCrc(2990m, requiresInvoice: true);
+        withInvoice.Should().Be(3378.70m);
+    }
+
+    [Fact]
+    public void GetEffectivePriceCrc_WhenRequiresInvoiceIsFalse_ReturnsBaseCost()
+    {
+        var withoutInvoice = SubscriptionPricing.GetEffectivePriceCrc(2990m, requiresInvoice: false);
+        withoutInvoice.Should().Be(2990m);
+    }
 }

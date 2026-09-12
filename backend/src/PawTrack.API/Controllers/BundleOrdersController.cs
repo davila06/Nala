@@ -37,7 +37,8 @@ public sealed class BundleOrdersController(ISender sender) : ControllerBase
             userId, collarModel,
             request.ShippingFullName, request.ShippingAddress,
             request.ShippingCanton, request.ShippingPhone,
-            request.DeliveryNotes, productType), ct);
+            request.DeliveryNotes, productType,
+            request.RequiresInvoice), ct);
 
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
@@ -194,7 +195,8 @@ public sealed record CreateBundleOrderRequest(
     string ShippingCanton,
     string ShippingPhone,
     string? DeliveryNotes,
-    string? ProductType = null);
+    string? ProductType = null,
+    bool? RequiresInvoice = null);
 
 public sealed record MarkShippedRequest(string TrackingNumber, string? AdminNotes);
 public sealed record AdminNotesRequest(string? AdminNotes);

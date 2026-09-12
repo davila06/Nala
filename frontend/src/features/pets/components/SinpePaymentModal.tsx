@@ -7,6 +7,7 @@ import { TIER_PRICE_CRC } from "../api/subscriptionApi";
 import { useHaptic } from "@/shared/hooks/useHaptic";
 import { SecureCardPaymentForm, type CardPaymentData } from "@/features/payments/components/SecureCardPaymentForm";
 import { useChargeCard } from "@/features/payments/hooks/usePaymentProfiles";
+import { useBillingProfile } from "@/features/payments/hooks/useBilling";
 
 interface SinpePaymentModalProps {
   tier: SubscriptionTier;
@@ -63,13 +64,26 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
   const { mutateAsync: reportPayment, isPending: isReporting } = useReportPayment();
   const { mutateAsync: chargeCard, isPending: isCharging } = useChargeCard();
   const { data: catalog } = useSubscriptionCatalog();
+  const { data: billingProfile } = useBillingProfile();
+
+  const [requiresInvoice, setRequiresInvoice] = useState(false);
+
+  useEffect(() => {
+    if (billingProfile?.requiresInvoice) {
+      setRequiresInvoice(true);
+    }
+  }, [billingProfile]);
 
   const catalogPlan = catalog?.find((plan) => plan.tier === tier);
   const isUserPlan = tier === "UserPlus" || tier === "UserFamilia";
   const monthlyPrice = catalogPlan?.monthlyPriceCrc ?? TIER_PRICE_CRC[tier];
-  const price = isUserPlan
+  const basePrice = isUserPlan
     ? monthlyPrice * billingMonths * (billingMonths === 12 ? 0.8 : 1)
     : (catalogPlan?.annualPriceCrc ?? monthlyPrice);
+  const ivaAmount = Math.round(basePrice * 0.13);
+  const totalPrice = requiresInvoice ? Math.round(basePrice * 1.13) : Math.round(basePrice);
+  const price = totalPrice;
+
   const label = catalogPlan?.displayName ?? TIER_LABELS[tier];
   const pricePeriod = isUserPlan
     ? `${billingMonths} ${billingMonths === 1 ? "mes" : "meses"}`
@@ -78,7 +92,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
       : "mes";
 
   const cleanPhone = SINPE_NUMBER.replace(/\D/g, "");
-  const formattedAmount = Math.round(price);
+  const formattedAmount = totalPrice;
   const smsBody = `PASE ${formattedAmount} ${cleanPhone} ${reference ?? ""}`;
 
   useEffect(() => {
@@ -114,7 +128,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
   async function handleStartPayment() {
     setError(null);
     try {
-      const sub = await createSub({ tier, billingMonths, clinicId });
+      const sub = await createSub({ tier, billingMonths, clinicId, requiresInvoice });
       setReference(sub.paymentReference);
       setSubscriptionId(sub.id);
       setStep("payment");
@@ -129,14 +143,14 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
     try {
       let subId = subscriptionId;
       if (!subId) {
-        const sub = await createSub({ tier, billingMonths, clinicId });
+        const sub = await createSub({ tier, billingMonths, clinicId, requiresInvoice });
         subId = sub.id;
         setSubscriptionId(sub.id);
         setReference(sub.paymentReference);
       }
 
       const result = await chargeCard({
-        amountCrc: price,
+        amountCrc: totalPrice,
         purpose: "Subscription",
         targetEntityId: subId,
         paymentProfileId: data.paymentProfileId,
@@ -290,17 +304,54 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                   </fieldset>
                 )}
                 <p className="text-sm text-brand-800">
-                  Activarás el plan <strong>{label}</strong> por{" "}
-                  <strong>
-                    ₡{price.toLocaleString("es-CR")}/{pricePeriod}
-                  </strong>
-                  .
+                  Activarás el plan <strong>{label}</strong> por {pricePeriod}.
                 </p>
                 <p className="mt-2 text-xs text-brand-600">
                   {paymentMethod === "sinpe"
                     ? "El pago se realiza vía SINPE Móvil. Se generará un código de referencia único para tu transferencia."
                     : "Activación inmediata con tarjeta de débito o crédito respaldada por CyberSource / Visa."}
                 </p>
+              </div>
+
+              {/* Opción de Factura Electrónica */}
+              <div className="rounded-2xl border border-sand-200 bg-surface-warm p-3.5 text-xs text-sand-700">
+                <label className="flex items-start gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={requiresInvoice}
+                    onChange={(e) => {
+                      setRequiresInvoice(e.target.checked);
+                      tap();
+                    }}
+                    className="mt-0.5 h-4 w-4 rounded border-sand-300 text-brand-600 focus:ring-brand-500"
+                  />
+                  <div className="flex-1">
+                    <span className="font-bold text-sand-900 block">Deseo Factura Electrónica (+13% IVA)</span>
+                    <span className="text-sand-600 text-[11px] block mt-0.5 leading-relaxed">
+                      Los precios de los servicios son base y no reflejan el 13% de IVA. Si requieres factura con
+                      crédito fiscal para deducción tributaria ante Hacienda, se adiciona el 13% de IVA al valor del
+                      servicio.
+                    </span>
+                  </div>
+                </label>
+              </div>
+
+              {/* Desglose de Precios */}
+              <div className="rounded-2xl border border-sand-200 bg-surface p-3.5 space-y-1.5 text-xs">
+                <div className="flex justify-between text-sand-600">
+                  <span>Costo base del servicio:</span>
+                  <span className="font-medium">₡{basePrice.toLocaleString("es-CR")}</span>
+                </div>
+                {requiresInvoice && (
+                  <div className="flex justify-between text-brand-700">
+                    <span>IVA (13%):</span>
+                    <span className="font-semibold">+₡{ivaAmount.toLocaleString("es-CR")}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sand-900 font-bold border-t border-sand-200 pt-1.5 text-sm">
+                  <span>Total a pagar:</span>
+                  <span className="text-brand-600">₡{totalPrice.toLocaleString("es-CR")}</span>
+                </div>
               </div>
 
               {error && <p className="text-xs text-danger-600">{error}</p>}
@@ -312,14 +363,14 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                   disabled={isCreating}
                   className="w-full rounded-2xl bg-brand-600 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
                 >
-                  {isCreating ? "Generando código…" : "Continuar con SINPE →"}
+                  {isCreating ? "Generando código…" : `Continuar con SINPE (₡${totalPrice.toLocaleString("es-CR")}) →`}
                 </button>
               ) : (
                 <SecureCardPaymentForm
-                  amountCrc={price}
+                  amountCrc={totalPrice}
                   isProcessing={isCharging || isCreating}
                   onPay={handleCardPayment}
-                  buttonLabel={`Pagar ₡${price.toLocaleString("es-CR")} y Activar Ahora`}
+                  buttonLabel={`Pagar ₡${totalPrice.toLocaleString("es-CR")} y Activar Ahora`}
                 />
               )}
             </div>

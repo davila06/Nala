@@ -68,7 +68,9 @@ public sealed class ElectronicInvoice
         TaxIdentificationType? receiverIdType = null,
         string? receiverIdNumber = null,
         Guid? transactionId = null,
-        string paymentMethodCode = "02")
+        string paymentMethodCode = "02",
+        decimal? subtotalCrc = null,
+        decimal? ivaAmountCrc = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(claveNumerica);
         ArgumentException.ThrowIfNullOrWhiteSpace(numeroConsecutivo);
@@ -76,8 +78,19 @@ public sealed class ElectronicInvoice
         ArgumentException.ThrowIfNullOrWhiteSpace(receiverName);
         ArgumentException.ThrowIfNullOrWhiteSpace(receiverEmail);
 
-        var subtotal = Math.Round(totalAmountCrc / 1.13m, 2);
-        var iva = totalAmountCrc - subtotal;
+        decimal subtotal;
+        decimal iva;
+
+        if (subtotalCrc.HasValue && ivaAmountCrc.HasValue)
+        {
+            subtotal = subtotalCrc.Value;
+            iva = ivaAmountCrc.Value;
+        }
+        else
+        {
+            subtotal = Math.Round(totalAmountCrc / (1m + CabysCatalog.StandardIvaRate), 2, MidpointRounding.AwayFromZero);
+            iva = totalAmountCrc - subtotal;
+        }
 
         return new ElectronicInvoice
         {

@@ -99,13 +99,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
   const { data: catalog } = useSubscriptionCatalog();
 
   if (pendingTier) {
-    return (
-      <SinpePaymentModal
-        tier={pendingTier}
-        onClose={() => setPendingTier(null)}
-        onSuccess={onClose}
-      />
-    );
+    return <SinpePaymentModal tier={pendingTier} onClose={() => setPendingTier(null)} onSuccess={onClose} />;
   }
 
   return (
@@ -128,15 +122,11 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
           {/* Header */}
           <div className="mb-6 flex items-start justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-500">
-                PawTrack Plus
-              </p>
-              <h2 className="mt-1 font-display text-2xl font-black text-sand-900">
-                Más protección para tus mascotas
-              </h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-500">PawTrack Plus</p>
+              <h2 className="mt-1 font-display text-2xl font-black text-sand-900">Más protección para tus mascotas</h2>
               <p className="mt-1 text-sm text-sand-500">
-                Activa alertas instantáneas, IA de búsqueda sin límite y más
-                desde ₡2,990/mes.
+                Activa alertas instantáneas, IA de búsqueda sin límite y más desde ₡2,990/mes (+13% IVA si requiere
+                factura).
               </p>
             </div>
             <button
@@ -145,12 +135,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
               className="rounded-xl p-2 text-sand-400 hover:bg-sand-100 hover:text-sand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               aria-label="Cerrar"
             >
-              <svg
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                className="h-4 w-4"
-                aria-hidden="true"
-              >
+              <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                 <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z" />
               </svg>
             </button>
@@ -178,21 +163,15 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                 )}
 
                 <div className="mb-4">
-                  <span
-                    className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${tier.badge}`}
-                  >
+                  <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${tier.badge}`}>
                     {tier.name}
                   </span>
                   <p className="mt-2 text-2xl font-extrabold text-sand-900">
                     {(() => {
                       const plan = tier.subscriptionTier
-                        ? catalog?.find(
-                            (item) => item.tier === tier.subscriptionTier,
-                          )
+                        ? catalog?.find((item) => item.tier === tier.subscriptionTier)
                         : undefined;
-                      return plan?.monthlyPriceCrc
-                        ? `₡${plan.monthlyPriceCrc.toLocaleString("es-CR")}`
-                        : tier.price;
+                      return plan?.monthlyPriceCrc ? `₡${plan.monthlyPriceCrc.toLocaleString("es-CR")}` : tier.price;
                     })()}
                   </p>
                   <p className="text-xs text-sand-400">{tier.period}</p>
@@ -202,23 +181,14 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                   {tier.features
                     .filter((f) => f.label)
                     .map((f) => (
-                      <li
-                        key={f.label}
-                        className="flex items-start gap-2 text-xs text-sand-700"
-                      >
+                      <li key={f.label} className="flex items-start gap-2 text-xs text-sand-700">
                         <span
                           className={`mt-0.5 shrink-0 text-sm leading-none ${f.included ? "text-rescue-600" : "text-sand-300"}`}
                           aria-hidden="true"
                         >
                           {f.included ? "✓" : "✗"}
                         </span>
-                        <span
-                          className={
-                            f.included ? "" : "text-sand-400 line-through"
-                          }
-                        >
-                          {f.label}
-                        </span>
+                        <span className={f.included ? "" : "text-sand-400 line-through"}>{f.label}</span>
                       </li>
                     ))}
                 </ul>
@@ -241,10 +211,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                 ) : (
                   <button
                     type="button"
-                    onClick={() =>
-                      tier.subscriptionTier &&
-                      setPendingTier(tier.subscriptionTier)
-                    }
+                    onClick={() => tier.subscriptionTier && setPendingTier(tier.subscriptionTier)}
                     className={[
                       "block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
                       tier.id === "plus"
@@ -260,12 +227,8 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
           </div>
 
           <p className="mt-5 text-center text-xs text-sand-400">
-            Pagos seguros vía SINPE Móvil · Sin contrato · Cancela cuando
-            quieras ·{" "}
-            <a
-              href="mailto:soporte@pawtrack.cr"
-              className="text-brand-600 hover:underline"
-            >
+            Pagos seguros vía SINPE Móvil · Sin contrato · Cancela cuando quieras ·{" "}
+            <a href="mailto:soporte@pawtrack.cr" className="text-brand-600 hover:underline">
               soporte@pawtrack.cr
             </a>
           </p>
@@ -276,9 +239,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
               📡
             </span>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-brand-800">
-                Bundle Collar GPS + 12 meses Plus
-              </p>
+              <p className="text-sm font-bold text-brand-800">Bundle Collar GPS + 12 meses Plus</p>
               <p className="text-xs text-brand-600 opacity-80">
                 Collar GPS PawTrack + PawTrack Plus todo incluido · Envío a CR
               </p>

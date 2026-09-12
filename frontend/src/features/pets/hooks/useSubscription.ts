@@ -24,11 +24,13 @@ export function useCreateSubscription() {
       tier,
       billingMonths,
       clinicId,
+      requiresInvoice,
     }: {
       tier: SubscriptionTier;
       billingMonths: number;
       clinicId?: string;
-    }) => subscriptionApi.create(tier, billingMonths, clinicId),
+      requiresInvoice?: boolean;
+    }) => subscriptionApi.create(tier, billingMonths, clinicId, requiresInvoice),
     onSuccess: (_data, { clinicId }) => {
       void queryClient.invalidateQueries({
         queryKey: ["subscription", "me", clinicId ?? "user"],

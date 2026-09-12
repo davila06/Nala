@@ -54,7 +54,8 @@ public sealed class SubscriptionsController(ISender sender) : ControllerBase
                 request.ClinicId,
                 userId,
                 request.Tier,
-                request.BillingMonths),
+                request.BillingMonths,
+                request.RequiresInvoice),
             cancellationToken);
 
         if (result.IsFailure)
@@ -223,7 +224,8 @@ public sealed class SubscriptionsController(ISender sender) : ControllerBase
 public sealed record CreateSubscriptionRequest(
     SubscriptionTier Tier,
     Guid? ClinicId,
-    int BillingMonths = 1);
+    int BillingMonths = 1,
+    bool? RequiresInvoice = null);
 public sealed record ReportPaymentRequest(string? BankReceiptNumber = null);
 public sealed record ActivateSubscriptionRequest(string PaymentReference);
 public sealed record AdminActivateRequest(int BillingMonths = 1);

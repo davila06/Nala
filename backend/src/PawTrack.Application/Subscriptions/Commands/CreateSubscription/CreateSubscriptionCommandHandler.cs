@@ -1,5 +1,6 @@
 using MediatR;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Payments.Interfaces;
 using PawTrack.Application.Subscriptions.DTOs;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Domain.Common;
@@ -11,9 +12,17 @@ public sealed class CreateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
     ISubscriptionPlanRepository planRepository,
     IPaymentService paymentService,
+    IUserBillingProfileRepository? billingProfileRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<CreateSubscriptionCommand, Result<SubscriptionDto>>
 {
+    public CreateSubscriptionCommandHandler(
+        ISubscriptionRepository subscriptionRepository,
+        ISubscriptionPlanRepository planRepository,
+        IPaymentService paymentService,
+        IUnitOfWork unitOfWork)
+        : this(subscriptionRepository, planRepository, paymentService, null, unitOfWork) { }
+
     public async Task<Result<SubscriptionDto>> Handle(
         CreateSubscriptionCommand request,
         CancellationToken cancellationToken)
@@ -28,9 +37,22 @@ public sealed class CreateSubscriptionCommandHandler(
         var billingMonths = SubscriptionPricing.IsUserTermTier(request.Tier)
             ? request.BillingMonths
             : SubscriptionPricing.IsMunicipalTier(request.Tier) ? 12 : 1;
-        var amount = SubscriptionPricing.IsUserTermTier(request.Tier)
+        var baseAmount = SubscriptionPricing.IsUserTermTier(request.Tier)
             ? SubscriptionPricing.CalculateTermPriceCrc(plan.MonthlyPriceCrc!.Value, billingMonths)
             : plan.AnnualPriceCrc ?? plan.MonthlyPriceCrc!.Value;
+
+        var requiresInvoice = request.RequiresInvoice ?? false;
+        if (!request.RequiresInvoice.HasValue && billingProfileRepository is not null)
+        {
+            var targetUserId = request.UserId ?? request.RequestingUserId;
+            var profile = await billingProfileRepository.GetByUserIdAsync(targetUserId, cancellationToken);
+            if (profile is not null && profile.RequiresInvoice)
+            {
+                requiresInvoice = true;
+            }
+        }
+
+        var amount = SubscriptionPricing.GetEffectivePriceCrc(baseAmount, requiresInvoice);
 
         // Cancel any existing pending subscription for the same owner before creating a new one
         Subscription? existing = request.UserId.HasValue

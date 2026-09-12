@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Payments.DTOs;
 using PawTrack.Application.Payments.Interfaces;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Domain.Payments;
@@ -77,12 +78,20 @@ public sealed class SubscriptionRecurringBillingHostedService(
             var user = await userRepo.GetByIdAsync(sub.UserId.Value, cancellationToken);
             if (user is null) continue;
 
+            // Check if user has tax billing profile with RequiresInvoice to compute 13% IVA
+            var billingProfileRepo = scope.ServiceProvider.GetService<IUserBillingProfileRepository>();
+            var billingProfile = billingProfileRepo is not null
+                ? await billingProfileRepo.GetByUserIdAsync(sub.UserId.Value, cancellationToken)
+                : null;
+
             // Compute renewal amount using catalog single-source-of-truth
             var billingMonths = sub.BillingMonths > 0 ? sub.BillingMonths : 1;
             decimal renewalPrice;
             if (SubscriptionPricing.TryGetMonthlyPriceCrc(sub.Tier, out var monthlyPrice))
             {
-                renewalPrice = SubscriptionPricing.CalculateTermPriceCrc(monthlyPrice, billingMonths);
+                var basePrice = SubscriptionPricing.CalculateTermPriceCrc(monthlyPrice, billingMonths);
+                var requiresInvoice = billingProfile?.RequiresInvoice ?? (sub.AmountCrc > basePrice);
+                renewalPrice = SubscriptionPricing.GetEffectivePriceCrc(basePrice, requiresInvoice);
             }
             else
             {
@@ -138,6 +147,30 @@ public sealed class SubscriptionRecurringBillingHostedService(
                 catch (Exception ex)
                 {
                     logger.LogWarning(ex, "Failed to send recurring receipt email to {Email}", user.Email);
+                }
+
+                var billingService = scope.ServiceProvider.GetService<IElectronicBillingService>();
+                if (billingService is not null)
+                {
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await billingService.EmitInvoiceForTransactionAsync(
+                                new EmitInvoiceRequest(
+                                    UserId: sub.UserId.Value,
+                                    TotalAmountCrc: renewalPrice,
+                                    Description: $"Renovación Suscripción {sub.Tier} ({billingMonths}m)",
+                                    CodigoCabys: CabysCatalog.SoftwareSubscriptionCabys,
+                                    PaymentMethodCode: "02",
+                                    TransactionId: transaction.Id),
+                                CancellationToken.None);
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogWarning(ex, "Failed to emit electronic invoice for renewal of subscription {Id}", sub.Id);
+                        }
+                    });
                 }
             }
             else
