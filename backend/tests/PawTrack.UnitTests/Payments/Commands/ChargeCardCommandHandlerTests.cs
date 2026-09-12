@@ -21,11 +21,12 @@ public sealed class ChargeCardCommandHandlerTests
     private readonly ISubscriptionRepository _subscriptionRepo = Substitute.For<ISubscriptionRepository>();
     private readonly IBountyRepository _bountyRepo = Substitute.For<IBountyRepository>();
     private readonly IUserRepository _userRepo = Substitute.For<IUserRepository>();
+    private readonly IElectronicBillingService _billingService = Substitute.For<IElectronicBillingService>();
     private readonly ISender _sender = Substitute.For<ISender>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
 
     private ChargeCardCommandHandler CreateSut() =>
-        new(_profileRepo, _transactionRepo, _gatewayService, _subscriptionRepo, _bountyRepo, _userRepo, _sender, _unitOfWork);
+        new(_profileRepo, _transactionRepo, _gatewayService, _subscriptionRepo, _bountyRepo, _userRepo, _billingService, _sender, _unitOfWork);
 
     [Fact]
     public async Task Handle_WhenUserNotFound_ReturnsFailure()

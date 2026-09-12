@@ -1,12 +1,8 @@
 import { useState, useEffect } from "react";
-import { Card, Button, Input } from "@/shared/ui";
+import { Card, Button } from "@/shared/ui";
 import { toast } from "@/shared/lib/toast";
 import { useHaptic } from "@/shared/hooks/useHaptic";
-import {
-  useBillingProfile,
-  useUpsertBillingProfile,
-  useUserInvoices,
-} from "../hooks/useBilling";
+import { useBillingProfile, useUpsertBillingProfile, useUserInvoices } from "../hooks/useBilling";
 import { billingApi, type TaxIdentificationType } from "../api/billingApi";
 
 export function BillingDetailsCard() {
@@ -92,9 +88,7 @@ export function BillingDetailsCard() {
       <div className="space-y-5">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-sand-900">
-              Datos de Facturación Electrónica (DGT Costa Rica)
-            </h2>
+            <h2 className="text-base font-bold text-sand-900">Datos de Facturación Electrónica (DGT Costa Rica)</h2>
             <p className="text-xs text-sand-500">
               Información tributaria para emisión de facturas y tiquetes oficiales
             </p>
@@ -105,17 +99,13 @@ export function BillingDetailsCard() {
         </div>
 
         {isLoading ? (
-          <div className="py-4 text-center text-xs text-sand-400">
-            Cargando perfil fiscal…
-          </div>
+          <div className="py-4 text-center text-xs text-sand-400">Cargando perfil fiscal…</div>
         ) : !isEditing && profile ? (
           <div className="space-y-3">
             <div className="rounded-2xl border border-sand-200 bg-surface-warm p-4 space-y-2">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-bold text-sand-900">
-                    {profile.legalName}
-                  </p>
+                  <p className="text-sm font-bold text-sand-900">{profile.legalName}</p>
                   <p className="text-xs text-sand-600 font-mono">
                     {profile.identificationType}: {profile.identificationNumber}
                   </p>
@@ -145,11 +135,10 @@ export function BillingDetailsCard() {
           </div>
         ) : !isEditing && !profile ? (
           <div className="rounded-2xl border border-dashed border-sand-300 p-5 text-center space-y-3">
-            <p className="text-xs font-semibold text-sand-700">
-              No has configurado tus datos de facturación
-            </p>
+            <p className="text-xs font-semibold text-sand-700">No has configurado tus datos de facturación</p>
             <p className="text-[11px] text-sand-500 max-w-sm mx-auto">
-              Si requieres factura electrónica con crédito fiscal para deducción de gastos, registra tu cédula física o jurídica.
+              Si requieres factura electrónica con crédito fiscal para deducción de gastos, registra tu cédula física o
+              jurídica.
             </p>
             <Button
               variant="primary"
@@ -163,7 +152,12 @@ export function BillingDetailsCard() {
             </Button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-3 rounded-2xl border border-sand-200 bg-surface-warm p-4 text-left">
+          <form
+            onSubmit={(e) => {
+              void handleSubmit(e);
+            }}
+            className="space-y-3 rounded-2xl border border-sand-200 bg-surface-warm p-4 text-left"
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label htmlFor="tax-id-type" className="block text-[11px] font-semibold text-sand-700 mb-1">
@@ -291,18 +285,12 @@ export function BillingDetailsCard() {
 
         {/* ── Historial de Facturas Emitidas ───────────────────────────────── */}
         <div className="pt-2 border-t border-sand-200">
-          <p className="text-xs font-bold text-sand-800 mb-2">
-            Mis comprobantes electrónicos emitidos
-          </p>
+          <p className="text-xs font-bold text-sand-800 mb-2">Mis comprobantes electrónicos emitidos</p>
 
           {loadingInvoices ? (
-            <div className="py-2 text-center text-xs text-sand-400">
-              Cargando comprobantes…
-            </div>
+            <div className="py-2 text-center text-xs text-sand-400">Cargando comprobantes…</div>
           ) : invoices.length === 0 ? (
-            <p className="text-[11px] text-sand-400">
-              Aún no tienes comprobantes electrónicos generados.
-            </p>
+            <p className="text-[11px] text-sand-400">Aún no tienes comprobantes electrónicos generados.</p>
           ) : (
             <div className="space-y-2">
               {invoices.map((inv) => {
@@ -315,10 +303,8 @@ export function BillingDetailsCard() {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sand-900">
-                          {inv.documentType === "FacturaElectronica"
-                            ? "Factura"
-                            : "Tiquete"}{" "}
-                          #{inv.numeroConsecutivo.slice(-6)}
+                          {inv.documentType === "FacturaElectronica" ? "Factura" : "Tiquete"} #
+                          {inv.numeroConsecutivo.slice(-6)}
                         </span>
                         <span className="rounded-md bg-rescue-100 text-rescue-800 px-1.5 py-0.2 text-[9px] font-bold">
                           ₡{inv.totalAmountCrc.toLocaleString("es-CR")}

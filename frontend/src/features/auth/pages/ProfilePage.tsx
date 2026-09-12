@@ -28,6 +28,7 @@ import { FamilyManagementSection } from "@/features/family/components/FamilyMana
 import { NeighborStatusCard } from "@/features/locations/components/NeighborStatusCard";
 import { SinpePaymentModal } from "@/features/pets/components/SinpePaymentModal";
 import { PaymentMethodsCard } from "@/features/payments/components/PaymentMethodsCard";
+import { BillingDetailsCard } from "@/features/payments/components/BillingDetailsCard";
 import type { SubscriptionPlanCatalogDto, SubscriptionTier } from "@/features/pets/api/subscriptionApi";
 
 // ── Locale maps ───────────────────────────────────────────────────────────────
@@ -505,6 +506,9 @@ export default function ProfilePage() {
 
       {/* ── Métodos de Pago Guardados ──────────────────────────────────── */}
       <PaymentMethodsCard />
+
+      {/* ── Datos de Facturación Electrónica DGT ──────────────────────── */}
+      <BillingDetailsCard />
 
       {showUpgradeModal && <SinpePaymentModal tier={upgradeTier} onClose={() => setShowUpgradeModal(false)} />}
 

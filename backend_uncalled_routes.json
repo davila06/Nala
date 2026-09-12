@@ -1,0 +1,1602 @@
+[
+  {
+    "method": "GET",
+    "route": "/api/pets/{petId:guid}/activity",
+    "file": "ActivityController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/pets/{petId:guid}/activity",
+    "file": "ActivityController.cs"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/pets/{petId:guid}/activity/{id:guid}",
+    "file": "ActivityController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/admin/adoptions/animals",
+    "file": "AdminAdoptionsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/admin/audit",
+    "file": "AdminAuditController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/admin/pets/microchip-conflicts",
+    "file": "AdminPetsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/admin/pets/{petId:guid}/microchip-verification/revoke",
+    "file": "AdminPetsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/admin/pets/{petId:guid}/microchip-conflicts/resolve",
+    "file": "AdminPetsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/admin/promotions/batch",
+    "file": "AdminPromotionsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/admin/promotions/{id:guid}/toggle",
+    "file": "AdminPromotionsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/admin/service-providers",
+    "file": "AdminServiceProvidersController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/admin/service-providers/verifications/pending",
+    "file": "AdminServiceProvidersController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/admin/service-providers/{serviceProviderId:guid}/review",
+    "file": "AdminServiceProvidersController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/admin/service-providers/{serviceProviderId:guid}/membership",
+    "file": "AdminServiceProvidersController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/admin/service-providers/payments/{paymentId:guid}/confirm",
+    "file": "AdminServiceProvidersController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/admin/service-providers/incidents",
+    "file": "AdminServiceProvidersController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/admin/service-providers/incidents/{incidentId:guid}/investigation",
+    "file": "AdminServiceProvidersController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/admin/service-providers/incidents/{incidentId:guid}/resolve",
+    "file": "AdminServiceProvidersController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/admin/service-providers/incidents/{incidentId:guid}/close",
+    "file": "AdminServiceProvidersController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/admin/service-providers/verifications/{verificationId:guid}/document",
+    "file": "AdminServiceProvidersController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/admin/stores/pending",
+    "file": "AdminStoresController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/admin/stores",
+    "file": "AdminStoresController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/admin/support/users/{userId:guid}/role",
+    "file": "AdminSupportController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/admin/welfare-cases/{caseId:guid}",
+    "file": "AdminWelfareCasesController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/admin/welfare-cases/{caseId:guid}/refer",
+    "file": "AdminWelfareCasesController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/admin/welfare-cases/{caseId:guid}/close-no-action",
+    "file": "AdminWelfareCasesController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/admin/welfare-cases/{caseId:guid}/notes",
+    "file": "AdminWelfareCasesController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/admin/welfare-cases/{caseId:guid}/evidence",
+    "file": "AdminWelfareCasesController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/admin/welfare-cases/evidence/{evidenceId:guid}/download",
+    "file": "AdminWelfareCasesController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/adoptions/animals",
+    "file": "AdoptionsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/adoptions/animals/map",
+    "file": "AdoptionsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/adoptions/animals/{id:guid}",
+    "file": "AdoptionsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/adoptions/fairs",
+    "file": "AdoptionsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/adoptions/owner-submissions",
+    "file": "AdoptionsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/adoptions/animals/{id:guid}/apply",
+    "file": "AdoptionsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/adoptions/applications/mine",
+    "file": "AdoptionsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/adoptions/animals",
+    "file": "AdoptionsController.cs"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/adoptions/animals/{id:guid}",
+    "file": "AdoptionsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/adoptions/animals/{id:guid}/photos",
+    "file": "AdoptionsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/adoptions/animals/mine",
+    "file": "AdoptionsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/adoptions/animals/{id:guid}/applications",
+    "file": "AdoptionsController.cs"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/adoptions/applications/{applicationId:guid}/review",
+    "file": "AdoptionsController.cs"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/adoptions/animals/{id:guid}/mark-adopted",
+    "file": "AdoptionsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/adoptions/fairs",
+    "file": "AdoptionsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/auth/mfa/setup",
+    "file": "AuthController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/auth/mfa/enable",
+    "file": "AuthController.cs"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/auth/mfa",
+    "file": "AuthController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/auth/me/health-data-consent",
+    "file": "AuthController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/billboards",
+    "file": "BillboardsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/billboards/admin",
+    "file": "BillboardsController.cs"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/billboards/{id:guid}/status",
+    "file": "BillboardsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/billboards/{id:guid}/submit",
+    "file": "BillboardsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/billboards/{id:guid}/review",
+    "file": "BillboardsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/billboards/{id:guid}/metrics",
+    "file": "BillboardsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/billboards/{id:guid}/image",
+    "file": "BillboardsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/bounties/event/{lostEventId:guid}",
+    "file": "BountiesController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/bounties",
+    "file": "BountiesController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/bounties/confirm-deposit",
+    "file": "BountiesController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/bounties/{id:guid}/release",
+    "file": "BountiesController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/bounties/event/{lostEventId:guid}/claim",
+    "file": "BountiesController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/broadcast/lost-pets/{lostEventId:guid}",
+    "file": "BroadcastController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/broadcast/lost-pets/{lostEventId:guid}",
+    "file": "BroadcastController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/bundles/admin",
+    "file": "BundleOrdersController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/bundles/admin/{id:guid}/confirm-payment",
+    "file": "BundleOrdersController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/bundles/admin/{id:guid}/sourced",
+    "file": "BundleOrdersController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/bundles/admin/{id:guid}/shipped",
+    "file": "BundleOrdersController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/bundles/admin/{id:guid}/delivered",
+    "file": "BundleOrdersController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/bundles/admin/{id:guid}/cancel",
+    "file": "BundleOrdersController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/certificates/clinic/{clinicId:guid}",
+    "file": "CertificatesController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/certificates/pet/{petId:guid}",
+    "file": "CertificatesController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/certificates/verify/{code}",
+    "file": "CertificatesController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/certificates",
+    "file": "CertificatesController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/certificates/passport",
+    "file": "CertificatesController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/certificates/{id:guid}/revoke",
+    "file": "CertificatesController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/chat/threads",
+    "file": "ChatController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/chat/threads",
+    "file": "ChatController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/chat/threads/{threadId:guid}/messages",
+    "file": "ChatController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/chat/threads/{threadId:guid}/messages",
+    "file": "ChatController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/chat/threads/{threadId:guid}/typing",
+    "file": "ChatController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/clinics/me/profile",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/me/profile-changes",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/scan",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/public",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/public/{clinicId:guid}",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/search",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/{clinicId:guid}/view",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/me/visibility-stats",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/me/stats",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/me/nearby-alerts",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/me/logo",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/me/api-keys",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/me/api-keys",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/me/api-keys/{keyId:guid}/rotate",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/clinics/admin/profile-changes/{changeId:guid}/review",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/admin/profile-changes/pending",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/clinics/admin/{clinicId:guid}/certificate-verification",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/admin/verifications",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/clinics/admin/verifications/{verificationId:guid}/review",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/admin/verifications/{verificationId:guid}/document",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/admin/veterinarians",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/clinics/admin/veterinarians/{veterinarianId:guid}/review",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/admin/veterinarians/{veterinarianId:guid}/suspend",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/admin/veterinarians/{veterinarianId:guid}/document",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/patients/{petId:guid}/medical",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/patients/{petId:guid}/sanitary-identity",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/patients/{petId:guid}/microchip/verify",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/patients/medical",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/access-grants/code",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/access-grants/accept",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/access-grants",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/me/certificate-issuers",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/me/veterinarians/{veterinarianId:guid}/appointments",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/clinics/me/veterinarians/{veterinarianId:guid}/permissions",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/patients/{petId:guid}/medical/export",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/medical-exports/{exportId:guid}/download",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/me/verification",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/me/verification",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/me/verification/document",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/me/verification/document",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/me/veterinarians",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/me/veterinarians",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/me/veterinarians/{veterinarianId:guid}/document",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/clinics/me/veterinarians/{veterinarianId:guid}/document",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/me/veterinarians/{veterinarianId:guid}/signature",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/clinics/me/veterinarians/{veterinarianId:guid}/revoke",
+    "file": "ClinicsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/collars/pet/{petId:guid}",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/collars",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/collars/pet/{petId:guid}/history",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/collars/pet/{petId:guid}/location",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/collars/{collarId:guid}/generate-key",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/collars/{collarId:guid}/connectivity-status",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/collars/{collarId:guid}/notification-preferences",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/collars/{collarId:guid}/audit-log",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/collars/{collarId:guid}/handover/generate",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/collars/handover/{handoverCodeId:guid}/cancel",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/collars/handover/redeem",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/collars/{collarId:guid}/lost-mode/activate",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/collars/{collarId:guid}/lost-mode/deactivate",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/collars/{collarId:guid}/lost-mode-status",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/collars/{collarId:guid}/safe-zones",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/collars/{collarId:guid}/safe-zones",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/collars/safe-zones/{zoneId:guid}",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/collars/{collarId:guid}/location-history",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/collars/{collarId:guid}/location-history/export.csv",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/collars/{collarId:guid}/location-heatmap",
+    "file": "CollarsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/admin/collar-tags",
+    "file": "CollarTagAdminController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/admin/collar-tags/metrics",
+    "file": "CollarTagAdminController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/admin/collar-tags/bulk-import",
+    "file": "CollarTagAdminController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/admin/collar-tags/{serial}/audit-log",
+    "file": "CollarTagAdminController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/admin/collar-tags/bulk-mark-sold",
+    "file": "CollarTagAdminController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/admin/collar-tags/bulk-revoke",
+    "file": "CollarTagAdminController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/collars/tag/{serial}",
+    "file": "CollarTagsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/collars/tag/{serial}/activate",
+    "file": "CollarTagsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/collars/ingest",
+    "file": "CollarTagsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/family/invite",
+    "file": "FamilyController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/fosters/suggestions/from-found-report/{foundReportId:guid}",
+    "file": "FostersController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/fosters/custody-records/start",
+    "file": "FostersController.cs"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/fosters/custody-records/{id:guid}/close",
+    "file": "FostersController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/public/encontre/match",
+    "file": "FoundPetsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/found-pets",
+    "file": "FoundPetsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/found-pets/active",
+    "file": "FoundPetsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/fraud-reports",
+    "file": "FraudReportController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/lost-pets/{lostPetEventId:guid}/handover/code",
+    "file": "HandoverController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/lost-pets/{lostPetEventId:guid}/handover/verify",
+    "file": "HandoverController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/incentives/leaderboard",
+    "file": "IncentivesController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/incentives/my-score",
+    "file": "IncentivesController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/institutional/reports/catalog",
+    "file": "InstitutionalReportsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/institutional/reports/preview",
+    "file": "InstitutionalReportsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/institutional/reports/exports",
+    "file": "InstitutionalReportsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/institutional/reports/exports",
+    "file": "InstitutionalReportsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/institutional/reports/exports/{id:guid}",
+    "file": "InstitutionalReportsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/institutional/reports/exports/{id:guid}/generate",
+    "file": "InstitutionalReportsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/institutional/reports/exports/{id:guid}/regulatory-submission",
+    "file": "InstitutionalReportsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/institutional/reports/submissions/{id:guid}/cancel",
+    "file": "InstitutionalReportsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/institutional/reports/submissions/{id:guid}/retry",
+    "file": "InstitutionalReportsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/lost-pets/by-pet/{petId:guid}",
+    "file": "LostPetsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/lost-pets/{id:guid}/contact",
+    "file": "LostPetsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/lost-pets/{id:guid}/case",
+    "file": "LostPetsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/lost-pets/{id:guid}/movement",
+    "file": "LostPetsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/me/medical/reminders",
+    "file": "MedicalController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/{petId:guid}/medical/access-log",
+    "file": "MedicalController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/{petId:guid}/medical/count",
+    "file": "MedicalController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/{petId:guid}/medical",
+    "file": "MedicalController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/{petId:guid}/medical/weight-history",
+    "file": "MedicalController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/{petId:guid}/medical/health-alerts",
+    "file": "MedicalController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/{petId:guid}/medical/health-score",
+    "file": "MedicalController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/pets/{petId:guid}/medical",
+    "file": "MedicalController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/{petId:guid}/medical/reminders",
+    "file": "MedicalController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/pets/{petId:guid}/medical/reminders/{reminderId:guid}/complete",
+    "file": "MedicalController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/{petId:guid}/medical/export",
+    "file": "MedicalController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/{petId:guid}/medical/annual-report",
+    "file": "MedicalController.cs"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/pets/{petId:guid}/medical/{recordId:guid}",
+    "file": "MedicalController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/pets/{petId:guid}/medical/{recordId:guid}",
+    "file": "MedicalController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/pets/{petId:guid}/medical/reminders",
+    "file": "MedicalController.cs"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/pets/{petId:guid}/medical/reminders/{reminderId:guid}",
+    "file": "MedicalController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/municipalities/profile",
+    "file": "MunicipalController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/municipalities/captures",
+    "file": "MunicipalController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/municipalities/captures",
+    "file": "MunicipalController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/municipalities/captures/{id:guid}/status",
+    "file": "MunicipalController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/municipalities/captures/bulk-status",
+    "file": "MunicipalController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/municipalities/captures/{id:guid}/photo",
+    "file": "MunicipalController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/municipalities/stats",
+    "file": "MunicipalController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/municipalities/regional",
+    "file": "MunicipalController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/municipalities/captures/{id:guid}/transfer",
+    "file": "MunicipalController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/municipalities/captures/{id:guid}/welfare-case",
+    "file": "MunicipalController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/municipalities/admin/profiles",
+    "file": "MunicipalController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/nala/overview",
+    "file": "NalaController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/nala/map-layers",
+    "file": "NalaController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/nala/trends",
+    "file": "NalaController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/nala/cantons",
+    "file": "NalaController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/nala/institutions",
+    "file": "NalaController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/neighbor/enroll",
+    "file": "NeighborNetworkController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/neighbor/settings",
+    "file": "NeighborNetworkController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/public/neighbor-count",
+    "file": "NeighborNetworkController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/notifications",
+    "file": "NotificationsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/notifications/cursor",
+    "file": "NotificationsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/notifications/{id:guid}/resolve-check-response",
+    "file": "NotificationsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/notifications/preferences",
+    "file": "NotificationsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/notifications/preferences",
+    "file": "NotificationsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/{petId:guid}/clinic-access",
+    "file": "PetClinicAccessController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/pets/{petId:guid}/clinic-access/code",
+    "file": "PetClinicAccessController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/pets/{petId:guid}/clinic-access/accept",
+    "file": "PetClinicAccessController.cs"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/pets/{petId:guid}/clinic-access/{clinicId:guid}",
+    "file": "PetClinicAccessController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/pets/lookup",
+    "file": "PetLookupController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/pets",
+    "file": "PetsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/pets/{id:guid}",
+    "file": "PetsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/{id:guid}/qr",
+    "file": "PetsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/{id:guid}/id-card",
+    "file": "PetsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/{id:guid}/whatsapp-avatar",
+    "file": "PetsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/pets/{id:guid}/avatar-token",
+    "file": "PetsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/{id:guid}/scan-history",
+    "file": "PetsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/{id:guid}/sanitary-identity",
+    "file": "PetsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/pets/{id:guid}/sanitary-identity",
+    "file": "PetsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/{id:guid}/sanitary-audit",
+    "file": "PetsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/pets/by-microchip/{chipId}",
+    "file": "PetsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/product-events/funnel",
+    "file": "ProductAnalyticsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/product-events/funnel/export",
+    "file": "ProductAnalyticsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/promotions/validate/{code}",
+    "file": "PromotionsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/promotions/redeem",
+    "file": "PromotionsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/provider-bookings/availability/{providerServiceId:guid}",
+    "file": "ProviderBookingsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/provider-bookings",
+    "file": "ProviderBookingsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/provider-bookings/mine",
+    "file": "ProviderBookingsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/provider-bookings/incoming",
+    "file": "ProviderBookingsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/provider-bookings/{bookingId:guid}/status",
+    "file": "ProviderBookingsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/provider-bookings/{bookingId:guid}/reschedule",
+    "file": "ProviderBookingsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/public/lost-pets/{id:guid}/contact",
+    "file": "PublicController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/public/emergency-vets",
+    "file": "PublicController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/public/impact-stats",
+    "file": "PublicImpactStatsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/public/map",
+    "file": "PublicMapController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/public/movement/{lostPetEventId:guid}",
+    "file": "PublicMapController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/public/stats/recovery-rates",
+    "file": "PublicStatsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/public/stats/recovery-overview",
+    "file": "PublicStatsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/public/welfare-cases",
+    "file": "PublicWelfareCasesController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/public/welfare-cases/{publicCode}",
+    "file": "PublicWelfareCasesController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/search-coordination/{lostEventId:guid}/activate",
+    "file": "SearchCoordinationController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/search-coordination/{lostEventId:guid}/zones",
+    "file": "SearchCoordinationController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/service-providers/register",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/service-providers/mine",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/service-providers/profile",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/service-providers/services",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/service-providers/services",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/service-providers/services/{serviceId:guid}/status",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/service-providers/services/{serviceId:guid}",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/service-providers/services/{serviceId:guid}/availability",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/service-providers/services/{serviceId:guid}/availability",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/service-providers/availability/{ruleId:guid}",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/service-providers/services/{serviceId:guid}/availability-blocks",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/service-providers/services/{serviceId:guid}/availability-blocks",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/service-providers/availability-blocks/{blockId:guid}",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/service-providers/bookings/{bookingId:guid}/payment",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/service-providers/payments/{paymentId:guid}/report",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/service-providers/incidents",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/service-providers/incidents/{serviceProviderId:guid}",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/service-providers/verification/document",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/service-providers/verification",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/service-providers/verification/document",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/service-providers",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/service-providers/{id:guid}",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/service-providers/{id:guid}/services",
+    "file": "ServiceProvidersController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/sightings",
+    "file": "SightingsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/sightings/visual-match",
+    "file": "SightingsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/sightings/{sightingId:guid}/visual-match",
+    "file": "SightingsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/sightings/pet/{petId:guid}",
+    "file": "SightingsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/store-orders/mine",
+    "file": "StoreOrdersController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/store-orders/incoming",
+    "file": "StoreOrdersController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/store-orders/{orderId:guid}/confirm",
+    "file": "StoreOrdersController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/store-orders/{orderId:guid}/status",
+    "file": "StoreOrdersController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/stores/register",
+    "file": "StoresController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/stores/me/analytics",
+    "file": "StoresController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/stores/me/analytics/export",
+    "file": "StoresController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/stores/me/locations",
+    "file": "StoresController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/stores/me/locations",
+    "file": "StoresController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/stores/me/locations/{locationId:guid}",
+    "file": "StoresController.cs"
+  },
+  {
+    "method": "PATCH",
+    "route": "/api/stores/me/locations/{locationId:guid}/active",
+    "file": "StoresController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/stores/products",
+    "file": "StoresController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/stores/products/{productId:guid}",
+    "file": "StoresController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/stores/products/{productId:guid}/image",
+    "file": "StoresController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/stores",
+    "file": "StoresController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/admin/subscription-plans",
+    "file": "SubscriptionPlansController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/admin/subscription-plans/{id:guid}",
+    "file": "SubscriptionPlansController.cs"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/admin/subscription-plans/{id:guid}",
+    "file": "SubscriptionPlansController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/subscriptions/me",
+    "file": "SubscriptionsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/subscriptions",
+    "file": "SubscriptionsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/subscriptions/{id:guid}/report-payment",
+    "file": "SubscriptionsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/subscriptions/{id:guid}/downgrade",
+    "file": "SubscriptionsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/subscriptions/admin",
+    "file": "SubscriptionsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/subscriptions/admin/{id:guid}/activate",
+    "file": "SubscriptionsController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/support/provider-incidents",
+    "file": "SupportProviderIncidentsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/support/provider-incidents/{incidentId:guid}/investigation",
+    "file": "SupportProviderIncidentsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/support/provider-incidents/{incidentId:guid}/resolve",
+    "file": "SupportProviderIncidentsController.cs"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/support/provider-incidents/{incidentId:guid}/close",
+    "file": "SupportProviderIncidentsController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/auth/webauthn/register/options",
+    "file": "WebAuthnController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/auth/webauthn/authenticate/options",
+    "file": "WebAuthnController.cs"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/auth/webauthn/{credentialId}",
+    "file": "WebAuthnController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/webhooks/sinpe",
+    "file": "WebhooksController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/webhooks",
+    "file": "WebhooksController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/welfare-cases/assigned",
+    "file": "WelfareCasesController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/whatsapp/webhook",
+    "file": "WhatsAppController.cs"
+  },
+  {
+    "method": "POST",
+    "route": "/api/whatsapp/webhook",
+    "file": "WhatsAppController.cs"
+  },
+  {
+    "method": "GET",
+    "route": "/api/widget/clinic/{clinicId:guid}/config",
+    "file": "WidgetController.cs"
+  }
+]

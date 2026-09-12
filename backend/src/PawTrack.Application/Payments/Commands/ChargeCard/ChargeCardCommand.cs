@@ -43,6 +43,7 @@ public sealed class ChargeCardCommandHandler(
     ISubscriptionRepository subscriptionRepository,
     IBountyRepository bountyRepository,
     IUserRepository userRepository,
+    IElectronicBillingService billingService,
     ISender sender,
     IUnitOfWork unitOfWork)
     : IRequestHandler<ChargeCardCommand, Result<ChargeCardResultDto>>
@@ -179,6 +180,32 @@ public sealed class ChargeCardCommandHandler(
                 await unitOfWork.SaveChangesAsync(cancellationToken);
                 confirmedBountyId = bounty.Id;
             }
+        }
+
+        // Automatic Electronic Invoicing DGT Costa Rica
+        try
+        {
+            var cabys = string.Equals(request.Purpose, "BundleOrder", StringComparison.OrdinalIgnoreCase)
+                ? CabysCatalog.GpsHardwareTrackerCabys
+                : CabysCatalog.SoftwareSubscriptionCabys;
+
+            var desc = string.Equals(request.Purpose, "BundleOrder", StringComparison.OrdinalIgnoreCase)
+                ? "Dispositivo y Collar GPS Inteligente PawTrack"
+                : "Suscripción PawTrack SaaS Protección Animal";
+
+            await billingService.EmitInvoiceForTransactionAsync(
+                new EmitInvoiceRequest(
+                    UserId: request.UserId,
+                    TotalAmountCrc: request.AmountCrc,
+                    Description: desc,
+                    CodigoCabys: cabys,
+                    PaymentMethodCode: "02",
+                    TransactionId: transaction.Id),
+                cancellationToken);
+        }
+        catch
+        {
+            // Non-blocking: background invoice generation should not reverse authorized card payment
         }
 
         return Result.Success(new ChargeCardResultDto(

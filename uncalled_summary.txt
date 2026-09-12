@@ -1,0 +1,437 @@
+Controllers with endpoints not directly called by frontend client:
+
+=== ActivityController.cs (3 routes) ===
+  GET /api/pets/{petId:guid}/activity
+  POST /api/pets/{petId:guid}/activity
+  DELETE /api/pets/{petId:guid}/activity/{id:guid}
+
+=== AdminAdoptionsController.cs (1 routes) ===
+  GET /api/admin/adoptions/animals
+
+=== AdminAuditController.cs (1 routes) ===
+  GET /api/admin/audit
+
+=== AdminPetsController.cs (3 routes) ===
+  GET /api/admin/pets/microchip-conflicts
+  POST /api/admin/pets/{petId:guid}/microchip-verification/revoke
+  POST /api/admin/pets/{petId:guid}/microchip-conflicts/resolve
+
+=== AdminPromotionsController.cs (2 routes) ===
+  POST /api/admin/promotions/batch
+  PUT /api/admin/promotions/{id:guid}/toggle
+
+=== AdminServiceProvidersController.cs (10 routes) ===
+  GET /api/admin/service-providers
+  GET /api/admin/service-providers/verifications/pending
+  PUT /api/admin/service-providers/{serviceProviderId:guid}/review
+  PUT /api/admin/service-providers/{serviceProviderId:guid}/membership
+  PUT /api/admin/service-providers/payments/{paymentId:guid}/confirm
+  GET /api/admin/service-providers/incidents
+  PUT /api/admin/service-providers/incidents/{incidentId:guid}/investigation
+  PUT /api/admin/service-providers/incidents/{incidentId:guid}/resolve
+  PUT /api/admin/service-providers/incidents/{incidentId:guid}/close
+  GET /api/admin/service-providers/verifications/{verificationId:guid}/document
+
+=== AdminStoresController.cs (2 routes) ===
+  GET /api/admin/stores/pending
+  GET /api/admin/stores
+
+=== AdminSupportController.cs (1 routes) ===
+  PUT /api/admin/support/users/{userId:guid}/role
+
+=== AdminWelfareCasesController.cs (6 routes) ===
+  GET /api/admin/welfare-cases/{caseId:guid}
+  POST /api/admin/welfare-cases/{caseId:guid}/refer
+  POST /api/admin/welfare-cases/{caseId:guid}/close-no-action
+  POST /api/admin/welfare-cases/{caseId:guid}/notes
+  POST /api/admin/welfare-cases/{caseId:guid}/evidence
+  GET /api/admin/welfare-cases/evidence/{evidenceId:guid}/download
+
+=== AdoptionsController.cs (15 routes) ===
+  GET /api/adoptions/animals
+  GET /api/adoptions/animals/map
+  GET /api/adoptions/animals/{id:guid}
+  GET /api/adoptions/fairs
+  POST /api/adoptions/owner-submissions
+  POST /api/adoptions/animals/{id:guid}/apply
+  GET /api/adoptions/applications/mine
+  POST /api/adoptions/animals
+  PATCH /api/adoptions/animals/{id:guid}
+  POST /api/adoptions/animals/{id:guid}/photos
+  GET /api/adoptions/animals/mine
+  GET /api/adoptions/animals/{id:guid}/applications
+  PATCH /api/adoptions/applications/{applicationId:guid}/review
+  PATCH /api/adoptions/animals/{id:guid}/mark-adopted
+  POST /api/adoptions/fairs
+
+=== AuthController.cs (4 routes) ===
+  POST /api/auth/mfa/setup
+  POST /api/auth/mfa/enable
+  DELETE /api/auth/mfa
+  POST /api/auth/me/health-data-consent
+
+=== BillboardsController.cs (7 routes) ===
+  GET /api/billboards
+  GET /api/billboards/admin
+  PATCH /api/billboards/{id:guid}/status
+  POST /api/billboards/{id:guid}/submit
+  POST /api/billboards/{id:guid}/review
+  GET /api/billboards/{id:guid}/metrics
+  POST /api/billboards/{id:guid}/image
+
+=== BountiesController.cs (5 routes) ===
+  GET /api/bounties/event/{lostEventId:guid}
+  POST /api/bounties
+  PUT /api/bounties/confirm-deposit
+  PUT /api/bounties/{id:guid}/release
+  PUT /api/bounties/event/{lostEventId:guid}/claim
+
+=== BroadcastController.cs (2 routes) ===
+  POST /api/broadcast/lost-pets/{lostEventId:guid}
+  GET /api/broadcast/lost-pets/{lostEventId:guid}
+
+=== BundleOrdersController.cs (6 routes) ===
+  GET /api/bundles/admin
+  PUT /api/bundles/admin/{id:guid}/confirm-payment
+  PUT /api/bundles/admin/{id:guid}/sourced
+  PUT /api/bundles/admin/{id:guid}/shipped
+  PUT /api/bundles/admin/{id:guid}/delivered
+  PUT /api/bundles/admin/{id:guid}/cancel
+
+=== CertificatesController.cs (6 routes) ===
+  GET /api/certificates/clinic/{clinicId:guid}
+  GET /api/certificates/pet/{petId:guid}
+  GET /api/certificates/verify/{code}
+  POST /api/certificates
+  POST /api/certificates/passport
+  POST /api/certificates/{id:guid}/revoke
+
+=== ChatController.cs (5 routes) ===
+  POST /api/chat/threads
+  GET /api/chat/threads
+  POST /api/chat/threads/{threadId:guid}/messages
+  GET /api/chat/threads/{threadId:guid}/messages
+  GET /api/chat/threads/{threadId:guid}/typing
+
+=== ClinicsController.cs (46 routes) ===
+  PUT /api/clinics/me/profile
+  POST /api/clinics/me/profile-changes
+  POST /api/clinics/scan
+  GET /api/clinics/public
+  GET /api/clinics/public/{clinicId:guid}
+  GET /api/clinics/search
+  POST /api/clinics/{clinicId:guid}/view
+  GET /api/clinics/me/visibility-stats
+  GET /api/clinics/me/stats
+  GET /api/clinics/me/nearby-alerts
+  POST /api/clinics/me/logo
+  GET /api/clinics/me/api-keys
+  POST /api/clinics/me/api-keys
+  POST /api/clinics/me/api-keys/{keyId:guid}/rotate
+  PUT /api/clinics/admin/profile-changes/{changeId:guid}/review
+  GET /api/clinics/admin/profile-changes/pending
+  PUT /api/clinics/admin/{clinicId:guid}/certificate-verification
+  GET /api/clinics/admin/verifications
+  PUT /api/clinics/admin/verifications/{verificationId:guid}/review
+  GET /api/clinics/admin/verifications/{verificationId:guid}/document
+  GET /api/clinics/admin/veterinarians
+  PUT /api/clinics/admin/veterinarians/{veterinarianId:guid}/review
+  POST /api/clinics/admin/veterinarians/{veterinarianId:guid}/suspend
+  GET /api/clinics/admin/veterinarians/{veterinarianId:guid}/document
+  GET /api/clinics/patients/{petId:guid}/medical
+  GET /api/clinics/patients/{petId:guid}/sanitary-identity
+  POST /api/clinics/patients/{petId:guid}/microchip/verify
+  POST /api/clinics/patients/medical
+  POST /api/clinics/access-grants/code
+  POST /api/clinics/access-grants/accept
+  GET /api/clinics/access-grants
+  GET /api/clinics/me/certificate-issuers
+  POST /api/clinics/me/veterinarians/{veterinarianId:guid}/appointments
+  PUT /api/clinics/me/veterinarians/{veterinarianId:guid}/permissions
+  POST /api/clinics/patients/{petId:guid}/medical/export
+  GET /api/clinics/medical-exports/{exportId:guid}/download
+  GET /api/clinics/me/verification
+  POST /api/clinics/me/verification
+  POST /api/clinics/me/verification/document
+  GET /api/clinics/me/verification/document
+  GET /api/clinics/me/veterinarians
+  POST /api/clinics/me/veterinarians
+  POST /api/clinics/me/veterinarians/{veterinarianId:guid}/document
+  GET /api/clinics/me/veterinarians/{veterinarianId:guid}/document
+  POST /api/clinics/me/veterinarians/{veterinarianId:guid}/signature
+  POST /api/clinics/me/veterinarians/{veterinarianId:guid}/revoke
+
+=== CollarTagAdminController.cs (6 routes) ===
+  GET /api/admin/collar-tags
+  GET /api/admin/collar-tags/metrics
+  POST /api/admin/collar-tags/bulk-import
+  GET /api/admin/collar-tags/{serial}/audit-log
+  POST /api/admin/collar-tags/bulk-mark-sold
+  POST /api/admin/collar-tags/bulk-revoke
+
+=== CollarTagsController.cs (3 routes) ===
+  GET /api/collars/tag/{serial}
+  POST /api/collars/tag/{serial}/activate
+  POST /api/collars/ingest
+
+=== CollarsController.cs (20 routes) ===
+  GET /api/collars/pet/{petId:guid}
+  POST /api/collars
+  GET /api/collars/pet/{petId:guid}/history
+  POST /api/collars/pet/{petId:guid}/location
+  POST /api/collars/{collarId:guid}/generate-key
+  GET /api/collars/{collarId:guid}/connectivity-status
+  PUT /api/collars/{collarId:guid}/notification-preferences
+  GET /api/collars/{collarId:guid}/audit-log
+  POST /api/collars/{collarId:guid}/handover/generate
+  POST /api/collars/handover/{handoverCodeId:guid}/cancel
+  POST /api/collars/handover/redeem
+  POST /api/collars/{collarId:guid}/lost-mode/activate
+  POST /api/collars/{collarId:guid}/lost-mode/deactivate
+  GET /api/collars/{collarId:guid}/lost-mode-status
+  POST /api/collars/{collarId:guid}/safe-zones
+  GET /api/collars/{collarId:guid}/safe-zones
+  PUT /api/collars/safe-zones/{zoneId:guid}
+  GET /api/collars/{collarId:guid}/location-history
+  GET /api/collars/{collarId:guid}/location-history/export.csv
+  GET /api/collars/{collarId:guid}/location-heatmap
+
+=== FamilyController.cs (1 routes) ===
+  POST /api/family/invite
+
+=== FostersController.cs (3 routes) ===
+  GET /api/fosters/suggestions/from-found-report/{foundReportId:guid}
+  POST /api/fosters/custody-records/start
+  PATCH /api/fosters/custody-records/{id:guid}/close
+
+=== FoundPetsController.cs (3 routes) ===
+  POST /api/public/encontre/match
+  POST /api/found-pets
+  GET /api/found-pets/active
+
+=== FraudReportController.cs (1 routes) ===
+  POST /api/fraud-reports
+
+=== HandoverController.cs (2 routes) ===
+  POST /api/lost-pets/{lostPetEventId:guid}/handover/code
+  POST /api/lost-pets/{lostPetEventId:guid}/handover/verify
+
+=== IncentivesController.cs (2 routes) ===
+  GET /api/incentives/leaderboard
+  GET /api/incentives/my-score
+
+=== InstitutionalReportsController.cs (9 routes) ===
+  GET /api/institutional/reports/catalog
+  GET /api/institutional/reports/preview
+  POST /api/institutional/reports/exports
+  GET /api/institutional/reports/exports
+  GET /api/institutional/reports/exports/{id:guid}
+  POST /api/institutional/reports/exports/{id:guid}/generate
+  POST /api/institutional/reports/exports/{id:guid}/regulatory-submission
+  POST /api/institutional/reports/submissions/{id:guid}/cancel
+  POST /api/institutional/reports/submissions/{id:guid}/retry
+
+=== LostPetsController.cs (4 routes) ===
+  GET /api/lost-pets/by-pet/{petId:guid}
+  GET /api/lost-pets/{id:guid}/contact
+  GET /api/lost-pets/{id:guid}/case
+  GET /api/lost-pets/{id:guid}/movement
+
+=== MedicalController.cs (16 routes) ===
+  GET /api/me/medical/reminders
+  GET /api/pets/{petId:guid}/medical/access-log
+  GET /api/pets/{petId:guid}/medical/count
+  GET /api/pets/{petId:guid}/medical
+  GET /api/pets/{petId:guid}/medical/weight-history
+  GET /api/pets/{petId:guid}/medical/health-alerts
+  GET /api/pets/{petId:guid}/medical/health-score
+  POST /api/pets/{petId:guid}/medical
+  GET /api/pets/{petId:guid}/medical/reminders
+  PUT /api/pets/{petId:guid}/medical/reminders/{reminderId:guid}/complete
+  GET /api/pets/{petId:guid}/medical/export
+  GET /api/pets/{petId:guid}/medical/annual-report
+  DELETE /api/pets/{petId:guid}/medical/{recordId:guid}
+  PUT /api/pets/{petId:guid}/medical/{recordId:guid}
+  POST /api/pets/{petId:guid}/medical/reminders
+  DELETE /api/pets/{petId:guid}/medical/reminders/{reminderId:guid}
+
+=== MunicipalController.cs (11 routes) ===
+  GET /api/municipalities/profile
+  GET /api/municipalities/captures
+  POST /api/municipalities/captures
+  PUT /api/municipalities/captures/{id:guid}/status
+  PUT /api/municipalities/captures/bulk-status
+  POST /api/municipalities/captures/{id:guid}/photo
+  GET /api/municipalities/stats
+  GET /api/municipalities/regional
+  POST /api/municipalities/captures/{id:guid}/transfer
+  POST /api/municipalities/captures/{id:guid}/welfare-case
+  POST /api/municipalities/admin/profiles
+
+=== NalaController.cs (5 routes) ===
+  GET /api/nala/overview
+  GET /api/nala/map-layers
+  GET /api/nala/trends
+  GET /api/nala/cantons
+  GET /api/nala/institutions
+
+=== NeighborNetworkController.cs (3 routes) ===
+  POST /api/neighbor/enroll
+  PUT /api/neighbor/settings
+  GET /api/public/neighbor-count
+
+=== NotificationsController.cs (5 routes) ===
+  GET /api/notifications
+  GET /api/notifications/cursor
+  POST /api/notifications/{id:guid}/resolve-check-response
+  GET /api/notifications/preferences
+  PUT /api/notifications/preferences
+
+=== PetClinicAccessController.cs (4 routes) ===
+  GET /api/pets/{petId:guid}/clinic-access
+  POST /api/pets/{petId:guid}/clinic-access/code
+  POST /api/pets/{petId:guid}/clinic-access/accept
+  DELETE /api/pets/{petId:guid}/clinic-access/{clinicId:guid}
+
+=== PetLookupController.cs (1 routes) ===
+  GET /api/v1/pets/lookup
+
+=== PetsController.cs (11 routes) ===
+  POST /api/pets
+  PUT /api/pets/{id:guid}
+  GET /api/pets/{id:guid}/qr
+  GET /api/pets/{id:guid}/id-card
+  GET /api/pets/{id:guid}/whatsapp-avatar
+  POST /api/pets/{id:guid}/avatar-token
+  GET /api/pets/{id:guid}/scan-history
+  GET /api/pets/{id:guid}/sanitary-identity
+  PUT /api/pets/{id:guid}/sanitary-identity
+  GET /api/pets/{id:guid}/sanitary-audit
+  GET /api/pets/by-microchip/{chipId}
+
+=== ProductAnalyticsController.cs (2 routes) ===
+  GET /api/product-events/funnel
+  GET /api/product-events/funnel/export
+
+=== PromotionsController.cs (2 routes) ===
+  GET /api/promotions/validate/{code}
+  POST /api/promotions/redeem
+
+=== ProviderBookingsController.cs (6 routes) ===
+  GET /api/provider-bookings/availability/{providerServiceId:guid}
+  POST /api/provider-bookings
+  GET /api/provider-bookings/mine
+  GET /api/provider-bookings/incoming
+  PUT /api/provider-bookings/{bookingId:guid}/status
+  PUT /api/provider-bookings/{bookingId:guid}/reschedule
+
+=== PublicController.cs (2 routes) ===
+  POST /api/public/lost-pets/{id:guid}/contact
+  GET /api/public/emergency-vets
+
+=== PublicImpactStatsController.cs (1 routes) ===
+  GET /api/public/impact-stats
+
+=== PublicMapController.cs (2 routes) ===
+  GET /api/public/map
+  GET /api/public/movement/{lostPetEventId:guid}
+
+=== PublicStatsController.cs (2 routes) ===
+  GET /api/public/stats/recovery-rates
+  GET /api/public/stats/recovery-overview
+
+=== PublicWelfareCasesController.cs (2 routes) ===
+  POST /api/public/welfare-cases
+  GET /api/public/welfare-cases/{publicCode}
+
+=== SearchCoordinationController.cs (2 routes) ===
+  POST /api/search-coordination/{lostEventId:guid}/activate
+  GET /api/search-coordination/{lostEventId:guid}/zones
+
+=== ServiceProvidersController.cs (23 routes) ===
+  POST /api/service-providers/register
+  GET /api/service-providers/mine
+  PUT /api/service-providers/profile
+  GET /api/service-providers/services
+  POST /api/service-providers/services
+  PUT /api/service-providers/services/{serviceId:guid}/status
+  PUT /api/service-providers/services/{serviceId:guid}
+  POST /api/service-providers/services/{serviceId:guid}/availability
+  GET /api/service-providers/services/{serviceId:guid}/availability
+  DELETE /api/service-providers/availability/{ruleId:guid}
+  POST /api/service-providers/services/{serviceId:guid}/availability-blocks
+  GET /api/service-providers/services/{serviceId:guid}/availability-blocks
+  DELETE /api/service-providers/availability-blocks/{blockId:guid}
+  POST /api/service-providers/bookings/{bookingId:guid}/payment
+  POST /api/service-providers/payments/{paymentId:guid}/report
+  GET /api/service-providers/incidents
+  POST /api/service-providers/incidents/{serviceProviderId:guid}
+  POST /api/service-providers/verification/document
+  GET /api/service-providers/verification
+  GET /api/service-providers/verification/document
+  GET /api/service-providers
+  GET /api/service-providers/{id:guid}
+  GET /api/service-providers/{id:guid}/services
+
+=== SightingsController.cs (4 routes) ===
+  POST /api/sightings
+  POST /api/sightings/visual-match
+  POST /api/sightings/{sightingId:guid}/visual-match
+  GET /api/sightings/pet/{petId:guid}
+
+=== StoreOrdersController.cs (4 routes) ===
+  GET /api/store-orders/mine
+  GET /api/store-orders/incoming
+  PUT /api/store-orders/{orderId:guid}/confirm
+  PUT /api/store-orders/{orderId:guid}/status
+
+=== StoresController.cs (11 routes) ===
+  POST /api/stores/register
+  GET /api/stores/me/analytics
+  GET /api/stores/me/analytics/export
+  GET /api/stores/me/locations
+  POST /api/stores/me/locations
+  PUT /api/stores/me/locations/{locationId:guid}
+  PATCH /api/stores/me/locations/{locationId:guid}/active
+  POST /api/stores/products
+  PUT /api/stores/products/{productId:guid}
+  POST /api/stores/products/{productId:guid}/image
+  GET /api/stores
+
+=== SubscriptionPlansController.cs (3 routes) ===
+  GET /api/admin/subscription-plans
+  GET /api/admin/subscription-plans/{id:guid}
+  DELETE /api/admin/subscription-plans/{id:guid}
+
+=== SubscriptionsController.cs (6 routes) ===
+  GET /api/subscriptions/me
+  POST /api/subscriptions
+  PUT /api/subscriptions/{id:guid}/report-payment
+  POST /api/subscriptions/{id:guid}/downgrade
+  GET /api/subscriptions/admin
+  PUT /api/subscriptions/admin/{id:guid}/activate
+
+=== SupportProviderIncidentsController.cs (4 routes) ===
+  GET /api/support/provider-incidents
+  PUT /api/support/provider-incidents/{incidentId:guid}/investigation
+  PUT /api/support/provider-incidents/{incidentId:guid}/resolve
+  PUT /api/support/provider-incidents/{incidentId:guid}/close
+
+=== WebAuthnController.cs (3 routes) ===
+  POST /api/auth/webauthn/register/options
+  POST /api/auth/webauthn/authenticate/options
+  DELETE /api/auth/webauthn/{credentialId}
+
+=== WebhooksController.cs (2 routes) ===
+  POST /api/webhooks/sinpe
+  POST /api/webhooks
+
+=== WelfareCasesController.cs (1 routes) ===
+  GET /api/welfare-cases/assigned
+
+=== WhatsAppController.cs (2 routes) ===
+  GET /api/whatsapp/webhook
+  POST /api/whatsapp/webhook
+
+=== WidgetController.cs (1 routes) ===
+  GET /api/widget/clinic/{clinicId:guid}/config
