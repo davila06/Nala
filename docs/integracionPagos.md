@@ -146,9 +146,9 @@ A continuación se detalla la lista de control estructurada para el avance de la
 
 - [x] **2.1 Dependencia SDK & Gateway Adapter:** Implementado `CyberSourcePaymentGatewayService` en `PawTrack.Infrastructure/Payments` con soporte para firma HMAC-SHA256, autenticación y degradación simulada en dev/test.
 - [x] **2.2 Adaptador de Pasarela:** Implementada interfaz `IPaymentGatewayService` en Application e inyectada con resiliencia de HttpClient y soporte de Key Vault (`CyberSource:*` y `Payments:*`).
-- [x] **2.3 Hosted Form / Microform:** Implementado componente `SecureCardPaymentForm.tsx` en React para captura segura de tarjeta, detección de franquicia, validación y cumplimiento PCI-DSS SAQ A.
+- [x] **2.3 Hosted Form / Microform & UI Completa:** Implementado componente `SecureCardPaymentForm.tsx` en React para captura segura de tarjeta (PCI-DSS SAQ A), sección completa de gestión de tarjetas guardadas `PaymentMethodsCard.tsx` en `ProfilePage.tsx`, y opciones de depósito de recompensas con tarjeta en `BountyWidget.tsx`.
 - [x] **2.4 Entidad de Perfiles de Pago:** Creadas entidades de dominio `UserPaymentProfile` y `PaymentTransaction`, repositorios, configuraciones de EF Core y migración `20260912010830_AddUserPaymentProfilesAndTransactions`.
-- [x] **2.5 Cobro de Bundles y Suscripciones:** Integrado cobro directo con tarjeta en `BundleOrderModal.tsx`, `SinpePaymentModal.tsx` y comando `ChargeCardCommand.cs` con activación inmediata.
+- [x] **2.5 Cobro de Bundles, Recompensas y Suscripciones:** Integrado cobro directo con tarjeta en `BundleOrderModal.tsx`, `SinpePaymentModal.tsx`, `BountyWidget.tsx` y comando `ChargeCardCommand.cs` con confirmación inmediata.
 
 ### Fase 3: Cobro Recurrente y Automatización Total
 

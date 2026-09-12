@@ -63,6 +63,48 @@ public sealed class CapturingEmailSender : IEmailSender
     public Task SendClinicApprovedWelcomeAsync(string to, string clinicName, string loginUrl,
         CancellationToken ct = default) => Task.CompletedTask;
 
+    public Task SendStoreApprovedWelcomeAsync(string to, string storeName, string loginUrl,
+        CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendStoreReviewedNoticeAsync(string to, string storeName, bool approved,
+        CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendServiceProviderApprovedWelcomeAsync(string to, string providerName, string loginUrl,
+        CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendServiceProviderReviewedNoticeAsync(string to, string providerName, bool approved,
+        CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendAdoptionInterestAsync(string to, string shelterName, string animalName, string applicantName, string applicationId,
+        CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendAdoptionApprovedAsync(string to, string applicantName, string animalName,
+        CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendAdoptionRejectedAsync(string to, string applicantName, string animalName,
+        CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendProviderBookingCreatedCustomerAsync(string to, string customerName, string providerName, string serviceName, DateTimeOffset startsAt,
+        CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendProviderBookingCreatedProviderAsync(string to, string providerName, string customerName, string serviceName, DateTimeOffset startsAt,
+        CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendStoreOrderPlacedCustomerAsync(string to, string customerName, string storeName, string orderRef, decimal totalCrc,
+        CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendStoreOrderPlacedStoreAsync(string to, string storeName, string customerName, string orderRef, decimal totalCrc,
+        CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendStoreOrderConfirmedCustomerAsync(string to, string customerName, string storeName, string orderRef, string? note,
+        CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendCollarSafeZoneBreachAsync(string to, string ownerName, string petName, string safeZoneName,
+        CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendPasswordResetSuccessAsync(string to, string name,
+        CancellationToken ct = default) => Task.CompletedTask;
+
     public Task SendRecurringPaymentReceiptAsync(
         string to, string name, string tierLabel, decimal amountCrc, string last4, DateTimeOffset nextExpiry,
         CancellationToken ct = default) => Task.CompletedTask;

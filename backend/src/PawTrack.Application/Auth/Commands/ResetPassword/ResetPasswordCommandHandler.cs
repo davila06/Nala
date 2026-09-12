@@ -8,7 +8,8 @@ namespace PawTrack.Application.Auth.Commands.ResetPassword;
 public sealed class ResetPasswordCommandHandler(
     IUserRepository userRepository,
     IPasswordHasher passwordHasher,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IEmailSender? emailSender = null)
     : IRequestHandler<ResetPasswordCommand, Result<bool>>
 {
     public async Task<Result<bool>> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
@@ -26,6 +27,18 @@ public sealed class ResetPasswordCommandHandler(
 
         userRepository.Update(user);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        if (emailSender is not null && !string.IsNullOrWhiteSpace(user.Email))
+        {
+            try
+            {
+                await emailSender.SendPasswordResetSuccessAsync(user.Email, user.Name, cancellationToken);
+            }
+            catch
+            {
+                // Non-blocking email dispatch
+            }
+        }
 
         return Result.Success(true);
     }

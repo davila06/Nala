@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  useBountyForEvent,
-  useConfirmBountyDeposit,
-  useCreateBounty,
-  useReleaseBounty,
-} from "../hooks/useBounty";
+import { useBountyForEvent, useConfirmBountyDeposit, useCreateBounty, useReleaseBounty } from "../hooks/useBounty";
+import { SecureCardPaymentForm, type CardPaymentData } from "@/features/payments/components/SecureCardPaymentForm";
+import { useChargeCard } from "@/features/payments/hooks/usePaymentProfiles";
+import { toast } from "@/shared/lib/toast";
+import { useHaptic } from "@/shared/hooks/useHaptic";
 
 const SINPE_NUMBER = import.meta.env.VITE_SINPE_PHONE ?? "7000-0000";
 
@@ -18,17 +17,17 @@ export function BountyWidget({ lostEventId, isOwner }: BountyWidgetProps) {
   const [showCreate, setShowCreate] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [amount, setAmount] = useState("");
+  const [payMethod, setPayMethod] = useState<"sinpe" | "card">("sinpe");
+
+  const { success, warning } = useHaptic();
+  const chargeCard = useChargeCard();
 
   const { data: bounty, isLoading } = useBountyForEvent(lostEventId);
-  const { mutateAsync: createBounty, isPending: isCreating } =
-    useCreateBounty();
-  const { mutateAsync: confirmDeposit, isPending: isConfirming } =
-    useConfirmBountyDeposit();
-  const { mutateAsync: releaseBounty, isPending: isReleasing } =
-    useReleaseBounty();
+  const { mutateAsync: createBounty, isPending: isCreating } = useCreateBounty();
+  const { mutateAsync: confirmDeposit, isPending: isConfirming } = useConfirmBountyDeposit();
+  const { mutateAsync: releaseBounty, isPending: isReleasing } = useReleaseBounty();
 
-  if (isLoading)
-    return <div className="h-14 animate-pulse rounded-2xl bg-sand-100" />;
+  if (isLoading) return <div className="h-14 animate-pulse rounded-2xl bg-sand-100" />;
 
   const statusColor: Record<string, string> = {
     PendingDeposit: "bg-warn-100 text-warn-700",
@@ -51,12 +50,10 @@ export function BountyWidget({ lostEventId, isOwner }: BountyWidgetProps) {
   if (!bounty && isOwner) {
     return (
       <div className="rounded-2xl border border-dashed border-warn-300 bg-warn-50 p-4">
-        <p className="text-sm font-semibold text-warn-800">
-          ¿Quieres ofrecer una recompensa?
-        </p>
+        <p className="text-sm font-semibold text-warn-800">¿Quieres ofrecer una recompensa?</p>
         <p className="mt-0.5 text-xs text-warn-600">
-          La recompensa aparece en el mapa y motiva a la red a buscar
-          activamente. PawTrack retiene un 10% de comisión al liberarla.
+          La recompensa aparece en el mapa y motiva a la red a buscar activamente. PawTrack retiene un 10% de comisión
+          al liberarla.
         </p>
         {!showCreate ? (
           <button
@@ -112,8 +109,8 @@ export function BountyWidget({ lostEventId, isOwner }: BountyWidgetProps) {
           <div className="rounded-2xl border border-warn-200 bg-warn-50 px-4 py-3 text-sm text-warn-800">
             <p className="font-semibold">🏦 Deposita vía SINPE Móvil</p>
             <p className="mt-1 text-xs text-warn-700">
-              Envía ₡{parseFloat(amount || "0").toLocaleString("es-CR")} con el
-              número de referencia que recibirás por notificación.
+              Envía ₡{parseFloat(amount || "0").toLocaleString("es-CR")} con el número de referencia que recibirás por
+              notificación.
             </p>
             <button
               type="button"
@@ -139,16 +136,11 @@ export function BountyWidget({ lostEventId, isOwner }: BountyWidgetProps) {
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-warn-700">
-              Recompensa
-            </p>
-            <p className="mt-0.5 text-xl font-black text-sand-900">
-              ₡{bounty.amount.toLocaleString("es-CR")}
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-warn-700">Recompensa</p>
+            <p className="mt-0.5 text-xl font-black text-sand-900">₡{bounty.amount.toLocaleString("es-CR")}</p>
             {bounty.netPayoutAmount < bounty.amount && (
               <p className="text-[10px] text-sand-400">
-                Pago neto: ₡{bounty.netPayoutAmount.toLocaleString("es-CR")}{" "}
-                (10% fee)
+                Pago neto: ₡{bounty.netPayoutAmount.toLocaleString("es-CR")} (10% fee)
               </p>
             )}
           </div>
@@ -161,35 +153,86 @@ export function BountyWidget({ lostEventId, isOwner }: BountyWidgetProps) {
 
         {/* Owner: confirm deposit for PendingDeposit bounty */}
         {isOwner && bounty.status === "PendingDeposit" && (
-          <div className="mt-3 rounded-xl border border-warn-200 bg-warn-50/80 p-3 space-y-2">
-            <p className="text-xs font-semibold text-warn-800">
-              Envía ₡{bounty.amount.toLocaleString("es-CR")} al{" "}
-              <strong>{SINPE_NUMBER}</strong> con referencia:
-            </p>
-            <p className="font-mono text-center text-lg font-black tracking-[0.2em] text-sand-900">
-              {bounty.depositReference}
-            </p>
-            <button
-              type="button"
-              onClick={() => void confirmDeposit(bounty.depositReference)}
-              disabled={isConfirming}
-              className="w-full rounded-xl bg-warn-600 py-2 text-xs font-bold text-white hover:bg-warn-700 disabled:opacity-60"
-            >
-              {isConfirming ? "Verificando…" : "✓ Ya deposité"}
-            </button>
+          <div className="mt-3 rounded-xl border border-warn-200 bg-warn-50/80 p-3.5 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-warn-900">Depositar fondos de recompensa</span>
+              <div className="flex rounded-lg bg-surface border border-warn-200 p-0.5 text-[10px] font-bold">
+                <button
+                  type="button"
+                  onClick={() => setPayMethod("sinpe")}
+                  className={`px-2 py-1 rounded-md transition-colors ${payMethod === "sinpe" ? "bg-warn-600 text-white" : "text-warn-800 hover:text-warn-950"}`}
+                >
+                  SINPE
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPayMethod("card")}
+                  className={`px-2 py-1 rounded-md transition-colors ${payMethod === "card" ? "bg-warn-600 text-white" : "text-warn-800 hover:text-warn-950"}`}
+                >
+                  Tarjeta
+                </button>
+              </div>
+            </div>
+
+            {payMethod === "sinpe" ? (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-warn-800">
+                  Envía ₡{bounty.amount.toLocaleString("es-CR")} al <strong>{SINPE_NUMBER}</strong> con referencia:
+                </p>
+                <p className="font-mono text-center text-lg font-black tracking-[0.2em] text-sand-900 bg-surface p-2 rounded-xl border border-warn-200">
+                  {bounty.depositReference}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void confirmDeposit(bounty.depositReference)}
+                  disabled={isConfirming}
+                  className="w-full rounded-xl bg-warn-600 py-2.5 text-xs font-bold text-white hover:bg-warn-700 disabled:opacity-60 transition-colors shadow-2xs"
+                >
+                  {isConfirming ? "Verificando…" : "✓ Ya deposité vía SINPE"}
+                </button>
+              </div>
+            ) : (
+              <div className="pt-1">
+                <SecureCardPaymentForm
+                  amountCrc={bounty.amount}
+                  isProcessing={chargeCard.isPending}
+                  onPay={async (cardData: CardPaymentData) => {
+                    try {
+                      const res = await chargeCard.mutateAsync({
+                        amountCrc: bounty.amount,
+                        purpose: "Bounty",
+                        targetEntityId: bounty.id,
+                        paymentProfileId: cardData.paymentProfileId,
+                        transientToken: cardData.transientToken,
+                        cardholderName: cardData.cardholderName,
+                        saveProfile: cardData.saveProfile,
+                      });
+                      if (res.success) {
+                        toast.success("¡Depósito con tarjeta aprobado! Recompensa activada.");
+                        success();
+                      } else {
+                        toast.error(res.errorMessage || "Transacción declinada.");
+                        warning();
+                      }
+                    } catch {
+                      toast.error("Error al procesar el pago con tarjeta.");
+                      warning();
+                    }
+                  }}
+                  buttonLabel={`Depositar ₡${bounty.amount.toLocaleString("es-CR")} con Tarjeta`}
+                />
+              </div>
+            )}
           </div>
         )}
 
         {/* Owner: release payment after HandoverCode confirmation */}
         {isOwner && bounty.status === "Claimed" && (
           <div className="mt-3 rounded-xl border border-rescue-200 bg-rescue-50 p-3 space-y-2">
-            <p className="text-sm font-semibold text-rescue-800">
-              🎉 ¡Entrega confirmada!
-            </p>
+            <p className="text-sm font-semibold text-rescue-800">🎉 ¡Entrega confirmada!</p>
             <p className="text-xs text-rescue-700">
               El rescatador verificó el HandoverCode. Confirma para liberar ₡
-              {bounty.netPayoutAmount.toLocaleString("es-CR")} (después del fee
-              10%).
+              {bounty.netPayoutAmount.toLocaleString("es-CR")} (después del fee 10%).
             </p>
             <button
               type="button"

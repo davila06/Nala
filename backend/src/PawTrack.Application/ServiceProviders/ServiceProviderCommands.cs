@@ -234,6 +234,7 @@ public sealed class ReviewServiceProviderCommandHandler(
     IServiceProviderRepository repository,
     IAuditLogRepository auditLog,
     IUnitOfWork unitOfWork,
+    IEmailSender? emailSender = null,
     INotificationRepository? notificationRepository = null)
     : IRequestHandler<ReviewServiceProviderCommand, Result<Unit>>
 {
@@ -261,6 +262,20 @@ public sealed class ReviewServiceProviderCommandHandler(
                 provider.Id.ToString()), ct);
         }
         await unitOfWork.SaveChangesAsync(ct);
+
+        if (emailSender is not null && !string.IsNullOrWhiteSpace(provider.ContactEmail))
+        {
+            try
+            {
+                await emailSender.SendServiceProviderReviewedNoticeAsync(
+                    provider.ContactEmail, provider.Name, request.Approve, ct);
+            }
+            catch
+            {
+                // Non-blocking email dispatch
+            }
+        }
+
         return Result.Success(Unit.Value);
     }
 }

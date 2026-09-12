@@ -18,7 +18,9 @@ public sealed class CollarSafeZoneEvaluationService(
     IPetRepository petRepository,
     INotificationRepository notificationRepository,
     IPushNotificationService pushNotificationService,
-    ILogger<CollarSafeZoneEvaluationService> logger)
+    ILogger<CollarSafeZoneEvaluationService> logger,
+    IUserRepository? userRepository = null,
+    IEmailSender? emailSender = null)
 {
     public async Task EvaluateAsync(Collar collar, double lat, double lng, CancellationToken cancellationToken)
     {
@@ -56,5 +58,15 @@ public sealed class CollarSafeZoneEvaluationService(
             collar.OwnerId, NotificationType.CollarSafeZoneBreach, title, body, zone.Id.ToString());
         await notificationRepository.AddAsync(notification, cancellationToken);
         await pushNotificationService.SendAsync(collar.OwnerId, title, body, cancellationToken: cancellationToken);
+
+        if (emailSender is not null && userRepository is not null)
+        {
+            var owner = await userRepository.GetByIdAsync(collar.OwnerId, cancellationToken);
+            if (owner is not null && !string.IsNullOrWhiteSpace(owner.Email))
+            {
+                await emailSender.SendCollarSafeZoneBreachAsync(
+                    owner.Email, owner.Name, petName, zone.Name, cancellationToken);
+            }
+        }
     }
 }

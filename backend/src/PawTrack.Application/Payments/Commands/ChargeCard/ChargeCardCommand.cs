@@ -1,6 +1,7 @@
 using FluentValidation;
 using MediatR;
 using PawTrack.Application.Bounties.Commands.ConfirmBountyDeposit;
+using PawTrack.Application.Bounties.Interfaces;
 using PawTrack.Application.Bundles;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Payments.DTOs;
@@ -40,6 +41,7 @@ public sealed class ChargeCardCommandHandler(
     IPaymentTransactionRepository transactionRepository,
     IPaymentGatewayService paymentGatewayService,
     ISubscriptionRepository subscriptionRepository,
+    IBountyRepository bountyRepository,
     IUserRepository userRepository,
     ISender sender,
     IUnitOfWork unitOfWork)
@@ -142,6 +144,7 @@ public sealed class ChargeCardCommandHandler(
 
         Guid? activatedSubId = null;
         Guid? confirmedBundleId = null;
+        Guid? confirmedBountyId = null;
 
         // Fulfill business outcome based on purpose
         if (string.Equals(request.Purpose, "Subscription", StringComparison.OrdinalIgnoreCase)
@@ -165,6 +168,18 @@ public sealed class ChargeCardCommandHandler(
                 confirmedBundleId = request.TargetEntityId.Value;
             }
         }
+        else if (string.Equals(request.Purpose, "Bounty", StringComparison.OrdinalIgnoreCase)
+            && request.TargetEntityId.HasValue)
+        {
+            var bounty = await bountyRepository.GetByIdAsync(request.TargetEntityId.Value, cancellationToken);
+            if (bounty is not null && bounty.Status == Domain.Bounties.BountyStatus.PendingDeposit)
+            {
+                bounty.ConfirmDeposit();
+                bountyRepository.Update(bounty);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+                confirmedBountyId = bounty.Id;
+            }
+        }
 
         return Result.Success(new ChargeCardResultDto(
             Success: true,
@@ -172,6 +187,7 @@ public sealed class ChargeCardCommandHandler(
             AuthorizationCode: chargeResult.AuthorizationCode,
             ErrorMessage: null,
             ActivatedSubscriptionId: activatedSubId,
-            ConfirmedBundleOrderId: confirmedBundleId));
+            ConfirmedBundleOrderId: confirmedBundleId,
+            ConfirmedBountyId: confirmedBountyId));
     }
 }

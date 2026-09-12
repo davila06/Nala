@@ -373,6 +373,258 @@ public sealed class EmailSender(
             html, cancellationToken);
     }
 
+    // ── Partner review emails (Stores & Service Providers) ────────────────────
+
+    public Task SendStoreApprovedWelcomeAsync(
+        string to, string storeName, string loginUrl,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>Hola equipo de <strong>{Escape(storeName)}</strong>,</p>
+            <p>¡Buenas noticias! Su tienda en <strong>PawTrack CR</strong> ha sido aprobada y activada por nuestro equipo administrativo.</p>
+            <p>Ya pueden acceder a su portal para gestionar sus productos, promociones y pedidos de la comunidad.</p>
+            <p><a href="{loginUrl}" style="display:inline-block;padding:10px 20px;background-color:#e8521e;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:bold;">Acceder al Portal de Tienda</a></p>
+            <p>Bienvenidos a la red PawTrack CR. 🐾</p>
+            """;
+
+        return SendAsync(to, storeName,
+            subject: "🛍️ ¡Tu tienda ha sido aprobada! — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    public Task SendStoreReviewedNoticeAsync(
+        string to, string storeName, bool approved,
+        CancellationToken cancellationToken = default)
+    {
+        if (approved) return SendStoreApprovedWelcomeAsync(to, storeName, $"{BaseUrl}/tienda/portal", cancellationToken);
+
+        var html = $"""
+            <p>Hola equipo de <strong>{Escape(storeName)}</strong>,</p>
+            <p>Hemos revisado la solicitud de registro de su tienda en <strong>PawTrack CR</strong>.</p>
+            <p>Lamentablemente, en este momento no pudimos aprobar la solicitud. Por favor revise la información registrada o contáctenos si requiere asistencia.</p>
+            <p>Soporte: <a href="mailto:soporte@pawtrack.cr">soporte@pawtrack.cr</a></p>
+            """;
+
+        return SendAsync(to, storeName,
+            subject: "Actualización sobre la revisión de tu tienda — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    public Task SendServiceProviderApprovedWelcomeAsync(
+        string to, string providerName, string loginUrl,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>Hola <strong>{Escape(providerName)}</strong>,</p>
+            <p>¡Felicidades! Tu perfil de proveedor de servicios en <strong>PawTrack CR</strong> ha sido aprobado.</p>
+            <p>Tus servicios ya están visibles en nuestro directorio público para que los dueños de mascotas puedan reservar con ustedes.</p>
+            <p><a href="{loginUrl}" style="display:inline-block;padding:10px 20px;background-color:#e8521e;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:bold;">Ver Portal de Proveedor</a></p>
+            <p>Gracias por formar parte de PawTrack CR. 🐾</p>
+            """;
+
+        return SendAsync(to, providerName,
+            subject: "⭐ ¡Tu perfil de servicios fue aprobado! — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    public Task SendServiceProviderReviewedNoticeAsync(
+        string to, string providerName, bool approved,
+        CancellationToken cancellationToken = default)
+    {
+        if (approved) return SendServiceProviderApprovedWelcomeAsync(to, providerName, $"{BaseUrl}/servicios/portal", cancellationToken);
+
+        var html = $"""
+            <p>Hola <strong>{Escape(providerName)}</strong>,</p>
+            <p>Hemos revisado tu solicitud como proveedor de servicios en <strong>PawTrack CR</strong>.</p>
+            <p>Tu solicitud no fue aprobada en esta ocasión. Te invitamos a revisar tus datos y enviarla nuevamente.</p>
+            <p>Cualquier duda: <a href="mailto:soporte@pawtrack.cr">soporte@pawtrack.cr</a></p>
+            """;
+
+        return SendAsync(to, providerName,
+            subject: "Estado de tu solicitud de proveedor de servicios — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    // ── Adoption lifecycle emails ─────────────────────────────────────────────
+
+    public Task SendAdoptionInterestAsync(
+        string to, string shelterName, string animalName, string applicantName, string applicationId,
+        CancellationToken cancellationToken = default)
+    {
+        var url = $"{BaseUrl}/refugio/adopciones/{applicationId}";
+        var html = $"""
+            <p>Hola {Escape(shelterName)},</p>
+            <p>¡Tienes una nueva solicitud de adopción para <strong>{Escape(animalName)}</strong>!</p>
+            <p>El interesado <strong>{Escape(applicantName)}</strong> ha enviado su postulación.</p>
+            <p><a href="{url}" style="display:inline-block;padding:10px 20px;background-color:#e8521e;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:bold;">Revisar Solicitud</a></p>
+            <p>— PawTrack Adopciones</p>
+            """;
+
+        return SendAsync(to, shelterName,
+            subject: $"🐾 Nueva solicitud de adopción para {animalName} — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    public Task SendAdoptionApprovedAsync(
+        string to, string applicantName, string animalName,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>Hola {Escape(applicantName)},</p>
+            <p>🎉 ¡Excelentes noticias! Tu solicitud de adopción para <strong>{Escape(animalName)}</strong> ha sido aprobada por la organización.</p>
+            <p>Ingresa a PawTrack para comunicarte con el refugio y coordinar los detalles de entrega y recibimiento.</p>
+            <p><a href="{BaseUrl}/mis-adopciones" style="display:inline-block;padding:10px 20px;background-color:#e8521e;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:bold;">Ver mis adopciones</a></p>
+            <p>¡Gracias por darle un hogar a una mascota!</p>
+            """;
+
+        return SendAsync(to, applicantName,
+            subject: $"✅ ¡Solicitud Aprobada para adoptar a {animalName}! — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    public Task SendAdoptionRejectedAsync(
+        string to, string applicantName, string animalName,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>Hola {Escape(applicantName)},</p>
+            <p>Te informamos sobre tu solicitud de adopción para <strong>{Escape(animalName)}</strong>.</p>
+            <p>La organización no pudo aprobar tu solicitud en esta oportunidad. Hay muchas otras mascotas esperando una familia en nuestra plataforma.</p>
+            <p><a href="{BaseUrl}/adopciones">Ver más mascotas disponibles →</a></p>
+            <p>— Equipo PawTrack CR</p>
+            """;
+
+        return SendAsync(to, applicantName,
+            subject: $"Actualización de solicitud para {animalName} — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    // ── Service Provider Booking emails ───────────────────────────────────────
+
+    public Task SendProviderBookingCreatedCustomerAsync(
+        string to, string customerName, string providerName, string serviceName, DateTimeOffset startsAt,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>Hola {Escape(customerName)},</p>
+            <p>Tu reserva para <strong>{Escape(serviceName)}</strong> con <strong>{Escape(providerName)}</strong> ha sido registrada.</p>
+            <p><strong>Fecha y Hora:</strong> {startsAt.ToLocalTime():dd/MM/yyyy HH:mm}</p>
+            <p>Puedes revisar los detalles de tu cita desde la sección de servicios en PawTrack.</p>
+            <p>— PawTrack Servicios</p>
+            """;
+
+        return SendAsync(to, customerName,
+            subject: $"📅 Reserva registrada: {serviceName} con {providerName} — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    public Task SendProviderBookingCreatedProviderAsync(
+        string to, string providerName, string customerName, string serviceName, DateTimeOffset startsAt,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>Hola {Escape(providerName)},</p>
+            <p>Has recibido una nueva reserva para <strong>{Escape(serviceName)}</strong> de parte de <strong>{Escape(customerName)}</strong>.</p>
+            <p><strong>Fecha y Hora:</strong> {startsAt.ToLocalTime():dd/MM/yyyy HH:mm}</p>
+            <p>Ingresa a tu portal de proveedor para ver los detalles.</p>
+            """;
+
+        return SendAsync(to, providerName,
+            subject: $"🛎️ Nueva reserva de servicio: {serviceName} — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    // ── Local Store Order emails ──────────────────────────────────────────────
+
+    public Task SendStoreOrderPlacedCustomerAsync(
+        string to, string customerName, string storeName, string orderRef, decimal totalCrc,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>Hola {Escape(customerName)},</p>
+            <p>Hemos recibido tu pedido en <strong>{Escape(storeName)}</strong>.</p>
+            <p><strong>Referencia de pedido:</strong> {Escape(orderRef)}<br />
+               <strong>Total:</strong> ₡{totalCrc:N0}</p>
+            <p>Recuerda realizar la transferencia SINPE Móvil e ingresar al detalle del pedido para reportar el pago.</p>
+            <p>— PawTrack Tiendas</p>
+            """;
+
+        return SendAsync(to, customerName,
+            subject: $"🛍️ Pedido recibido: {storeName} (Ref: {orderRef}) — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    public Task SendStoreOrderPlacedStoreAsync(
+        string to, string storeName, string customerName, string orderRef, decimal totalCrc,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>Hola equipo de {Escape(storeName)},</p>
+            <p>Han recibido un nuevo pedido de <strong>{Escape(customerName)}</strong>.</p>
+            <p><strong>Referencia:</strong> {Escape(orderRef)}<br />
+               <strong>Monto:</strong> ₡{totalCrc:N0}</p>
+            <p>Por favor revisen su portal de pedidos cuando el cliente reporte el pago SINPE.</p>
+            """;
+
+        return SendAsync(to, storeName,
+            subject: $"🛒 Nuevo pedido en tienda: Ref {orderRef} — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    public Task SendStoreOrderConfirmedCustomerAsync(
+        string to, string customerName, string storeName, string orderRef, string? note,
+        CancellationToken cancellationToken = default)
+    {
+        var noteHtml = !string.IsNullOrWhiteSpace(note) ? $"<p><strong>Mensaje de la tienda:</strong> {Escape(note)}</p>" : "";
+        var html = $"""
+            <p>Hola {Escape(customerName)},</p>
+            <p>¡Tu pedido <strong>{Escape(orderRef)}</strong> en <strong>{Escape(storeName)}</strong> ha sido confirmado!</p>
+            {noteHtml}
+            <p>Gracias por tu compra.</p>
+            """;
+
+        return SendAsync(to, customerName,
+            subject: $"✅ Pedido confirmado: {storeName} (Ref: {orderRef}) — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    // ── Collar / Safety emails ────────────────────────────────────────────────
+
+    public Task SendCollarSafeZoneBreachAsync(
+        string to, string ownerName, string petName, string safeZoneName,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>🚨 <strong>ALERTA DE SEGURIDAD</strong></p>
+            <p>Hola {Escape(ownerName)},</p>
+            <p>El collar de <strong>{Escape(petName)}</strong> detectó una salida de la zona segura <strong>"{Escape(safeZoneName)}"</strong>.</p>
+            <p>Abre la aplicación inmediatamente para ver la ubicación en tiempo real en el mapa.</p>
+            <p><a href="{BaseUrl}/mapa" style="display:inline-block;padding:10px 20px;background-color:#e8521e;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:bold;">Ver ubicación en mapa</a></p>
+            """;
+
+        return SendAsync(to, ownerName,
+            subject: $"🚨 ALERTA: {petName} salió de la zona segura ({safeZoneName}) — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    // ── Auth & Security emails ────────────────────────────────────────────────
+
+    public Task SendPasswordResetSuccessAsync(
+        string to, string name,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>Hola {Escape(name)},</p>
+            <p>Te confirmamos que la contraseña de tu cuenta en <strong>PawTrack CR</strong> ha sido actualizada exitosamente.</p>
+            <p>Si no realizaste este cambio, por favor contáctanos de inmediato para proteger tu cuenta.</p>
+            <p>Soporte de Seguridad: <a href="mailto:soporte@pawtrack.cr">soporte@pawtrack.cr</a></p>
+            """;
+
+        return SendAsync(to, name,
+            subject: "🔒 Confirmación: Tu contraseña ha sido actualizada — PawTrack CR",
+            html, cancellationToken);
+    }
+
     // ── Recurring billing emails ──────────────────────────────────────────────
 
     public Task SendRecurringPaymentReceiptAsync(

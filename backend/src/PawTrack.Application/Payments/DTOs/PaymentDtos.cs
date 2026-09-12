@@ -41,4 +41,5 @@ public sealed record ChargeCardResultDto(
     string? AuthorizationCode,
     string? ErrorMessage,
     Guid? ActivatedSubscriptionId = null,
-    Guid? ConfirmedBundleOrderId = null);
+    Guid? ConfirmedBundleOrderId = null,
+    Guid? ConfirmedBountyId = null);

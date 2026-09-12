@@ -83,6 +83,8 @@ public sealed class PawTrackDbContext(
     public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
     public DbSet<UserPaymentProfile> UserPaymentProfiles => Set<UserPaymentProfile>();
     public DbSet<PaymentTransaction> PaymentTransactions => Set<PaymentTransaction>();
+    public DbSet<UserBillingProfile> UserBillingProfiles => Set<UserBillingProfile>();
+    public DbSet<ElectronicInvoice> ElectronicInvoices => Set<ElectronicInvoice>();
     public DbSet<Bounty> Bounties => Set<Bounty>();
     public DbSet<BundleOrder> BundleOrders => Set<BundleOrder>();
     public DbSet<Collar> Collars => Set<Collar>();

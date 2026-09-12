@@ -94,7 +94,9 @@ public sealed class PlaceStoreOrderCommandHandler(
     ISubscriptionService subscriptionService,
     INotificationDispatcher notificationDispatcher,
     IUnitOfWork uow,
-    ILogger<PlaceStoreOrderCommandHandler> logger)
+    ILogger<PlaceStoreOrderCommandHandler> logger,
+    IUserRepository? userRepo = null,
+    IEmailSender? emailSender = null)
     : IRequestHandler<PlaceStoreOrderCommand, Result<StoreOrderDto>>
 {
     public async Task<Result<StoreOrderDto>> Handle(PlaceStoreOrderCommand request, CancellationToken ct)
@@ -155,6 +157,32 @@ public sealed class PlaceStoreOrderCommandHandler(
                 "StoreOrder push notification failed for order {OrderId}", order.Id),
                 CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
 
+        if (emailSender is not null)
+        {
+            try
+            {
+                var customer = userRepo is not null ? await userRepo.GetByIdAsync(request.CustomerId, ct) : null;
+                var customerName = customer?.Name ?? "Cliente";
+                var customerEmail = customer?.Email;
+
+                if (!string.IsNullOrWhiteSpace(customerEmail))
+                {
+                    await emailSender.SendStoreOrderPlacedCustomerAsync(
+                        customerEmail, customerName, store.Name, order.PaymentReference, order.TotalCrc, ct);
+                }
+
+                if (!string.IsNullOrWhiteSpace(store.ContactEmail))
+                {
+                    await emailSender.SendStoreOrderPlacedStoreAsync(
+                        store.ContactEmail, store.Name, customerName, order.PaymentReference, order.TotalCrc, ct);
+                }
+            }
+            catch
+            {
+                // Non-blocking email dispatch
+            }
+        }
+
         return Result.Success(StoreOrderDto.FromDomain(order));
     }
 }
@@ -189,7 +217,9 @@ public sealed record ConfirmStoreOrderCommand(Guid StoreOwnerUserId, Guid OrderI
 public sealed class ConfirmStoreOrderCommandHandler(
     IStoreRepository storeRepo,
     IStoreOrderRepository orderRepo,
-    IUnitOfWork uow)
+    IUnitOfWork uow,
+    IUserRepository? userRepo = null,
+    IEmailSender? emailSender = null)
     : IRequestHandler<ConfirmStoreOrderCommand, Result<StoreOrderDto>>
 {
     public async Task<Result<StoreOrderDto>> Handle(ConfirmStoreOrderCommand request, CancellationToken ct)
@@ -207,6 +237,24 @@ public sealed class ConfirmStoreOrderCommandHandler(
 
         orderRepo.Update(order);
         await uow.SaveChangesAsync(ct);
+
+        if (emailSender is not null)
+        {
+            try
+            {
+                var customer = userRepo is not null ? await userRepo.GetByIdAsync(order.CustomerId, ct) : null;
+                if (customer is not null && !string.IsNullOrWhiteSpace(customer.Email))
+                {
+                    await emailSender.SendStoreOrderConfirmedCustomerAsync(
+                        customer.Email, customer.Name, store.Name, order.PaymentReference, request.Note, ct);
+                }
+            }
+            catch
+            {
+                // Non-blocking email dispatch
+            }
+        }
+
         return Result.Success(StoreOrderDto.FromDomain(order, store.Name));
     }
 }

@@ -356,9 +356,12 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IMunicipalProfileRepository, MunicipalProfileRepository>();
         services.AddScoped<IMunicipalSubscriptionService, MunicipalSubscriptionService>();
 
-        // Payment Gateway (CyberSource / Cards / User Payment Profiles)
+        // Payment Gateway & Electronic Billing (CyberSource / Facturación Electrónica DGT v4.3)
         services.AddScoped<IUserPaymentProfileRepository, UserPaymentProfileRepository>();
         services.AddScoped<IPaymentTransactionRepository, PaymentTransactionRepository>();
+        services.AddScoped<IUserBillingProfileRepository, UserBillingProfileRepository>();
+        services.AddScoped<IElectronicInvoiceRepository, ElectronicInvoiceRepository>();
+        services.AddScoped<IElectronicBillingService, ElectronicBillingService>();
         services.AddSingleton<IPaymentGatewayService, CyberSourcePaymentGatewayService>();
         services.AddHostedService<SubscriptionRecurringBillingHostedService>();
 

@@ -208,7 +208,11 @@ public sealed class GetMyStoreQueryHandler(IStoreRepository repo)
 
 public sealed record ReviewStoreCommand(Guid StoreId, bool Approve) : IRequest<Result<Unit>>;
 
-public sealed class ReviewStoreCommandHandler(IStoreRepository repo, IAuditLogRepository auditLog, IUnitOfWork uow)
+public sealed class ReviewStoreCommandHandler(
+    IStoreRepository repo,
+    IAuditLogRepository auditLog,
+    IEmailSender emailSender,
+    IUnitOfWork uow)
     : IRequestHandler<ReviewStoreCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(ReviewStoreCommand request, CancellationToken ct)
@@ -225,6 +229,20 @@ public sealed class ReviewStoreCommandHandler(IStoreRepository repo, IAuditLogRe
             "Store", request.StoreId.ToString()), ct);
 
         await uow.SaveChangesAsync(ct);
+
+        if (!string.IsNullOrWhiteSpace(store.ContactEmail))
+        {
+            try
+            {
+                await emailSender.SendStoreReviewedNoticeAsync(
+                    store.ContactEmail, store.Name, request.Approve, ct);
+            }
+            catch
+            {
+                // Non-blocking email delivery
+            }
+        }
+
         return Result.Success(Unit.Value);
     }
 }

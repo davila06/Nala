@@ -66,6 +66,8 @@ public sealed class CreateProviderBookingCommandHandler(
     IServiceProviderRepository providerRepository,
     IPetRepository petRepository,
     IUnitOfWork unitOfWork,
+    IUserRepository? userRepository = null,
+    IEmailSender? emailSender = null,
     INotificationRepository? notificationRepository = null,
     TelemetryClient? telemetryClient = null)
     : IRequestHandler<CreateProviderBookingCommand, Result<ProviderBookingDto>>
@@ -130,6 +132,33 @@ public sealed class CreateProviderBookingCommandHandler(
                 booking.Id.ToString()), ct);
             await unitOfWork.SaveChangesAsync(ct);
         }
+
+        if (emailSender is not null)
+        {
+            try
+            {
+                var customer = userRepository is not null ? await userRepository.GetByIdAsync(request.CustomerUserId, ct) : null;
+                var customerEmail = customer?.Email;
+                var customerName = customer?.Name ?? "Cliente";
+
+                if (!string.IsNullOrWhiteSpace(customerEmail))
+                {
+                    await emailSender.SendProviderBookingCreatedCustomerAsync(
+                        customerEmail, customerName, provider.Name, service.Name, booking.StartsAt, ct);
+                }
+
+                if (!string.IsNullOrWhiteSpace(provider.ContactEmail))
+                {
+                    await emailSender.SendProviderBookingCreatedProviderAsync(
+                        provider.ContactEmail, provider.Name, customerName, service.Name, booking.StartsAt, ct);
+                }
+            }
+            catch
+            {
+                // Non-blocking email dispatch
+            }
+        }
+
         return Result.Success(ToDto(booking));
     }
 

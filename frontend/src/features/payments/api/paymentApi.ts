@@ -38,6 +38,7 @@ export interface ChargeCardResultDto {
   errorMessage: string | null;
   activatedSubscriptionId?: string | null;
   confirmedBundleOrderId?: string | null;
+  confirmedBountyId?: string | null;
 }
 
 export const paymentApi = {

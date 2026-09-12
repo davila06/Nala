@@ -17,7 +17,8 @@ public sealed class NotificationDispatcher(
     IFamilyRepository familyRepository,
     ISubscriptionService subscriptionService,
     IUnitOfWork unitOfWork,
-    ILogger<NotificationDispatcher> logger)
+    ILogger<NotificationDispatcher> logger,
+    IUserRepository userRepository)
     : INotificationDispatcher
 {
     public async Task DispatchLostPetAlertAsync(
@@ -446,6 +447,17 @@ public sealed class NotificationDispatcher(
         // Push — non-fatal
         await TrySendPushAsync(fosterUserId, fosterTitle, fosterBody, null, cancellationToken);
         await TrySendPushAsync(ownerUserId, ownerTitle, ownerBody, null, cancellationToken);
+
+        // Emails — non-fatal
+        try
+        {
+            await emailSender.SendCustodyStartedAsync(fosterEmail, fosterName, petName, ownerName, expectedDays, cancellationToken);
+            await emailSender.SendCustodyStartedAsync(ownerEmail, ownerName, petName, fosterName, expectedDays, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to send custody started emails for custody {RecordId}", custodyRecordId);
+        }
     }
 
     public async Task DispatchCustodyClosedAsync(
@@ -489,6 +501,17 @@ public sealed class NotificationDispatcher(
 
         await TrySendPushAsync(fosterUserId, fosterTitle, fosterBody, null, cancellationToken);
         await TrySendPushAsync(ownerUserId, ownerTitle, ownerBody, null, cancellationToken);
+
+        // Emails — non-fatal
+        try
+        {
+            await emailSender.SendCustodyClosedAsync(fosterEmail, fosterName, petName, ownerName, outcome, cancellationToken);
+            await emailSender.SendCustodyClosedAsync(ownerEmail, ownerName, petName, fosterName, outcome, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to send custody closed emails for custody {RecordId}", custodyRecordId);
+        }
     }
 
     // ── Clinic scan notification ───────────────────────────────────────────────
@@ -661,6 +684,20 @@ public sealed class NotificationDispatcher(
             "Alguien quiere adoptarlo. Revisa la solicitud.",
             new PushNotificationMetadata(Url: $"/shelter/dashboard"),
             cancellationToken);
+
+        var shelterUser = await userRepository.GetByIdAsync(shelterUserId, cancellationToken);
+        if (shelterUser is not null)
+        {
+            try
+            {
+                await emailSender.SendAdoptionInterestAsync(
+                    shelterUser.Email, shelterUser.Name, animalName, "Un interesado", applicationId.ToString(), cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Email delivery failed for adoption interest to shelter {UserId}", shelterUserId);
+            }
+        }
     }
 
     public async Task DispatchAdoptionApprovedAsync(
@@ -685,6 +722,20 @@ public sealed class NotificationDispatcher(
             "¡La organización aprobó tu solicitud de adopción!",
             new PushNotificationMetadata(Url: "/mis-adopciones"),
             cancellationToken);
+
+        var applicantUser = await userRepository.GetByIdAsync(applicantUserId, cancellationToken);
+        if (applicantUser is not null)
+        {
+            try
+            {
+                await emailSender.SendAdoptionApprovedAsync(
+                    applicantUser.Email, applicantUser.Name, animalName, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Email delivery failed for adoption approved to user {UserId}", applicantUserId);
+            }
+        }
     }
 
     public async Task DispatchAdoptionRejectedAsync(
@@ -709,6 +760,20 @@ public sealed class NotificationDispatcher(
             "La organización no pudo aprobarla. Hay más animales esperando.",
             new PushNotificationMetadata(Url: "/adopciones"),
             cancellationToken);
+
+        var applicantUser = await userRepository.GetByIdAsync(applicantUserId, cancellationToken);
+        if (applicantUser is not null)
+        {
+            try
+            {
+                await emailSender.SendAdoptionRejectedAsync(
+                    applicantUser.Email, applicantUser.Name, animalName, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Email delivery failed for adoption rejected to user {UserId}", applicantUserId);
+            }
+        }
     }
 
     public async Task DispatchAdoptionFairAlertAsync(

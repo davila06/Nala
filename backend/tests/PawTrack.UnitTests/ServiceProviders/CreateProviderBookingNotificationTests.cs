@@ -31,7 +31,7 @@ public sealed class CreateProviderBookingNotificationTests
         providers.TryAddBookingAsync(Arg.Any<ProviderBooking>(), 1, Arg.Any<CancellationToken>()).Returns(true);
         pets.GetByIdAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(pet);
 
-        var handler = new CreateProviderBookingCommandHandler(providers, pets, unitOfWork, notifications);
+        var handler = new CreateProviderBookingCommandHandler(providers, pets, unitOfWork, notificationRepository: notifications);
         var result = await handler.Handle(new CreateProviderBookingCommand(customerId, service.Id, pet.Id, startsAt, 1, null), default);
 
         result.IsSuccess.Should().BeTrue(string.Join("; ", result.Errors));

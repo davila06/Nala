@@ -1,11 +1,13 @@
 using FluentAssertions;
 using MediatR;
 using NSubstitute;
+using PawTrack.Application.Bounties.Interfaces;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Payments.Commands.ChargeCard;
 using PawTrack.Application.Payments.Interfaces;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Domain.Auth;
+using PawTrack.Domain.Bounties;
 using PawTrack.Domain.Payments;
 using PawTrack.Domain.Subscriptions;
 
@@ -17,12 +19,13 @@ public sealed class ChargeCardCommandHandlerTests
     private readonly IPaymentTransactionRepository _transactionRepo = Substitute.For<IPaymentTransactionRepository>();
     private readonly IPaymentGatewayService _gatewayService = Substitute.For<IPaymentGatewayService>();
     private readonly ISubscriptionRepository _subscriptionRepo = Substitute.For<ISubscriptionRepository>();
+    private readonly IBountyRepository _bountyRepo = Substitute.For<IBountyRepository>();
     private readonly IUserRepository _userRepo = Substitute.For<IUserRepository>();
     private readonly ISender _sender = Substitute.For<ISender>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
 
     private ChargeCardCommandHandler CreateSut() =>
-        new(_profileRepo, _transactionRepo, _gatewayService, _subscriptionRepo, _userRepo, _sender, _unitOfWork);
+        new(_profileRepo, _transactionRepo, _gatewayService, _subscriptionRepo, _bountyRepo, _userRepo, _sender, _unitOfWork);
 
     [Fact]
     public async Task Handle_WhenUserNotFound_ReturnsFailure()
@@ -104,5 +107,37 @@ public sealed class ChargeCardCommandHandlerTests
         result.Value!.Success.Should().BeFalse();
         result.Value.ErrorMessage.Should().Contain("Fondos insuficientes");
         sub.Status.Should().Be(SubscriptionStatus.PendingPayment);
+    }
+
+    [Fact]
+    public async Task Handle_WhenBountyPurpose_ChargesAndConfirmsBountyDeposit()
+    {
+        var (user, _) = User.Create("owner@pawtrack.cr", "hash", "Test User");
+        _userRepo.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
+
+        var bounty = Bounty.Create(Guid.NewGuid(), user.Id, 25000m, "REFBOUNTY1");
+        _bountyRepo.GetByIdAsync(bounty.Id, Arg.Any<CancellationToken>()).Returns(bounty);
+
+        _gatewayService.TokenizeTransientTokenAsync(Arg.Any<TokenizePaymentRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new TokenizePaymentResult(true, "cust_1", "instr_1", "Visa", "4242", 12, 2029, null));
+
+        _gatewayService.ChargeAsync(Arg.Any<ChargePaymentRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new ChargePaymentResult(true, "CS-TXN-9", "AUTH-999111", null, null));
+
+        var sut = CreateSut();
+        var result = await sut.Handle(
+            new ChargeCardCommand(
+                UserId: user.Id,
+                AmountCrc: 25000m,
+                Purpose: "Bounty",
+                TargetEntityId: bounty.Id,
+                TransientToken: "transient_jwt_123"),
+            CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.Success.Should().BeTrue();
+        result.Value.ConfirmedBountyId.Should().Be(bounty.Id);
+        bounty.Status.Should().Be(BountyStatus.Active);
+        _bountyRepo.Received(1).Update(bounty);
     }
 }

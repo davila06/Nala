@@ -22,7 +22,7 @@ public sealed class ReviewServiceProviderNotificationTests
         providers.GetByIdAsync(provider.Id, Arg.Any<CancellationToken>()).Returns(provider);
         unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
 
-        var handler = new ReviewServiceProviderCommandHandler(providers, audit, unitOfWork, notifications);
+        var handler = new ReviewServiceProviderCommandHandler(providers, audit, unitOfWork, notificationRepository: notifications);
         var result = await handler.Handle(new ReviewServiceProviderCommand(Guid.NewGuid(), provider.Id, true), default);
 
         result.IsSuccess.Should().BeTrue();
