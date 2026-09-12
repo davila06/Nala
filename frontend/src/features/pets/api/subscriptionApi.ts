@@ -16,11 +16,7 @@ export type SubscriptionTier =
   | "MuniFull"
   | "MuniRedRegional";
 
-export type SubscriptionStatus =
-  | "PendingPayment"
-  | "Active"
-  | "Cancelled"
-  | "Expired";
+export type SubscriptionStatus = "PendingPayment" | "Active" | "Cancelled" | "Expired";
 
 export interface SubscriptionDto {
   id: string;
@@ -36,6 +32,7 @@ export interface SubscriptionDto {
   paymentReportedAt: string | null;
   cancellationRequestedAt: string | null;
   isActive: boolean;
+  bankReceiptNumber?: string | null;
 }
 
 export interface SubscriptionPlanCatalogDto {
@@ -67,10 +64,7 @@ export const TIER_PRICE_CRC: Record<SubscriptionTier, number> = {
 };
 
 export const subscriptionApi = {
-  getCatalog: () =>
-    apiClient
-      .get<SubscriptionPlanCatalogDto[]>("/catalog/subscription-plans")
-      .then((r) => r.data),
+  getCatalog: () => apiClient.get<SubscriptionPlanCatalogDto[]>("/catalog/subscription-plans").then((r) => r.data),
 
   getMine: (clinicId?: string) =>
     apiClient
@@ -89,14 +83,10 @@ export const subscriptionApi = {
       .then((r) => r.data),
 
   activate: (paymentReference: string) =>
-    apiClient
-      .put<SubscriptionDto>("/subscriptions/activate", { paymentReference })
-      .then((r) => r.data),
+    apiClient.put<SubscriptionDto>("/subscriptions/activate", { paymentReference }).then((r) => r.data),
 
   cancel: (subscriptionId: string) =>
-    apiClient
-      .delete<SubscriptionDto>(`/subscriptions/${subscriptionId}`)
-      .then((r) => r.data),
+    apiClient.delete<SubscriptionDto>(`/subscriptions/${subscriptionId}`).then((r) => r.data),
 
   downgrade: (subscriptionId: string, targetTier: SubscriptionTier) =>
     apiClient
@@ -105,8 +95,13 @@ export const subscriptionApi = {
       })
       .then((r) => r.data),
 
-  reportPayment: (subscriptionId: string) =>
+  reportPayment: (subscriptionId: string, bankReceiptNumber?: string) =>
     apiClient
-      .put<SubscriptionDto>(`/subscriptions/${subscriptionId}/report-payment`)
+      .put<SubscriptionDto>(`/subscriptions/${subscriptionId}/report-payment`, {
+        bankReceiptNumber: bankReceiptNumber?.trim() || null,
+      })
       .then((r) => r.data),
+
+  getSinpeQrBlob: (subscriptionId: string) =>
+    apiClient.get(`/subscriptions/${subscriptionId}/sinpe-qr`, { responseType: "blob" }).then((r) => r.data as Blob),
 };

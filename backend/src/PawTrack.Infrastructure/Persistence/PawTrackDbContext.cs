@@ -29,6 +29,7 @@ using PawTrack.Domain.Safety;
 using PawTrack.Domain.Sightings;
 using PawTrack.Domain.Stores;
 using PawTrack.Domain.Subscriptions;
+using PawTrack.Domain.Payments;
 using PawTrack.Domain.Adoptions;
 using PawTrack.Domain.Audit;
 using PawTrack.Domain.AnimalWelfare;
@@ -80,6 +81,8 @@ public sealed class PawTrackDbContext(
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
+    public DbSet<UserPaymentProfile> UserPaymentProfiles => Set<UserPaymentProfile>();
+    public DbSet<PaymentTransaction> PaymentTransactions => Set<PaymentTransaction>();
     public DbSet<Bounty> Bounties => Set<Bounty>();
     public DbSet<BundleOrder> BundleOrders => Set<BundleOrder>();
     public DbSet<Collar> Collars => Set<Collar>();

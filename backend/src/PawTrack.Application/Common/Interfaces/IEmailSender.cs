@@ -88,5 +88,14 @@ public interface IEmailSender
     Task SendClinicApprovedWelcomeAsync(
         string to, string clinicName, string loginUrl,
         CancellationToken cancellationToken = default);
+
+    // ── Recurring billing emails ──────────────────────────────────────────────
+    Task SendRecurringPaymentReceiptAsync(
+        string to, string name, string tierLabel, decimal amountCrc, string last4, DateTimeOffset nextExpiry,
+        CancellationToken cancellationToken = default);
+
+    Task SendRecurringPaymentFailedAsync(
+        string to, string name, string tierLabel, string reason, DateTimeOffset gracePeriodExpiry,
+        CancellationToken cancellationToken = default);
 }
 

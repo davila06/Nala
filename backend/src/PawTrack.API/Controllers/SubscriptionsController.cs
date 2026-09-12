@@ -10,6 +10,7 @@ using PawTrack.Application.Subscriptions.Commands.ReportPayment;
 using PawTrack.Application.Subscriptions.Commands.ScheduleSubscriptionDowngrade;
 using PawTrack.Application.Subscriptions.Queries.GetAdminSubscriptions;
 using PawTrack.Application.Subscriptions.Queries.GetMySubscription;
+using PawTrack.Application.Subscriptions.Queries.GetSubscriptionQrCode;
 using PawTrack.Domain.Subscriptions;
 using System.Security.Claims;
 
@@ -108,14 +109,38 @@ public sealed class SubscriptionsController(ISender sender) : ControllerBase
     [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> ReportPayment(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> ReportPayment(
+        Guid id,
+        [FromBody] ReportPaymentRequest? request = null,
+        CancellationToken cancellationToken = default)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
 
-        var result = await sender.Send(new ReportPaymentCommand(id, userId), cancellationToken);
+        var result = await sender.Send(new ReportPaymentCommand(id, userId, request?.BankReceiptNumber), cancellationToken);
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
         return Ok(result.Value);
+    }
+
+    // ── GET /api/subscriptions/{id}/sinpe-qr — QR code for mobile SINPE transfer
+    [HttpGet("{id:guid}/sinpe-qr")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSinpeQr(Guid id, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
+        var result = await sender.Send(new GetSubscriptionQrCodeQuery(id, userId), cancellationToken);
+        if (result.IsFailure)
+        {
+            return result.Errors.Contains("Access denied.")
+                ? Forbid()
+                : NotFound(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
+        }
+
+        return File(result.Value, "image/png", $"sinpe-qr-{id}.png");
     }
 
     // ── POST /api/subscriptions/{id}/downgrade — effective at current expiry
@@ -199,6 +224,7 @@ public sealed record CreateSubscriptionRequest(
     SubscriptionTier Tier,
     Guid? ClinicId,
     int BillingMonths = 1);
+public sealed record ReportPaymentRequest(string? BankReceiptNumber = null);
 public sealed record ActivateSubscriptionRequest(string PaymentReference);
 public sealed record AdminActivateRequest(int BillingMonths = 1);
 public sealed record ScheduleDowngradeRequest(SubscriptionTier TargetTier);

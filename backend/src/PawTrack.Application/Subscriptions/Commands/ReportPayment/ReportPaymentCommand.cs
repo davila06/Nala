@@ -8,9 +8,12 @@ namespace PawTrack.Application.Subscriptions.Commands.ReportPayment;
 
 /// <summary>
 /// Subscriber self-reports that they have sent the SINPE payment.
-/// Sets PaymentReportedAt so admin can see and quickly activate.
+/// Sets PaymentReportedAt and optional BankReceiptNumber so admin can see and quickly activate.
 /// </summary>
-public sealed record ReportPaymentCommand(Guid SubscriptionId, Guid RequestingUserId)
+public sealed record ReportPaymentCommand(
+    Guid SubscriptionId,
+    Guid RequestingUserId,
+    string? BankReceiptNumber = null)
     : IRequest<Result<SubscriptionDto>>;
 
 public sealed class ReportPaymentCommandHandler(
@@ -28,7 +31,7 @@ public sealed class ReportPaymentCommandHandler(
         if (sub.UserId != request.RequestingUserId && sub.ClinicOwnerId != request.RequestingUserId)
             return Result.Failure<SubscriptionDto>("Access denied.");
 
-        sub.ReportPaymentSent();
+        sub.ReportPaymentSent(request.BankReceiptNumber);
         subscriptionRepository.Update(sub);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

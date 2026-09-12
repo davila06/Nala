@@ -27,6 +27,7 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
         builder.Property(x => x.CancelledAt);
         builder.Property(x => x.CancellationRequestedAt);
         builder.Property(x => x.PaymentReportedAt);
+        builder.Property(x => x.BankReceiptNumber).HasMaxLength(64);
         builder.Property(x => x.RedeemedPromotionCodeId); // nullable FK — no cascade needed
 
         builder.HasIndex(x => x.UserId);

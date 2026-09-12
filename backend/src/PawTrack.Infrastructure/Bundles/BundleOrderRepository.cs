@@ -10,6 +10,9 @@ public sealed class BundleOrderRepository(PawTrackDbContext dbContext) : IBundle
     public Task<BundleOrder?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         dbContext.BundleOrders.FindAsync([id], ct).AsTask();
 
+    public Task<BundleOrder?> GetByPaymentReferenceAsync(string reference, CancellationToken ct = default) =>
+        dbContext.BundleOrders.FirstOrDefaultAsync(o => o.PaymentReference == reference, ct);
+
     public async Task<IReadOnlyList<BundleOrder>> GetByUserIdAsync(
         Guid userId, CancellationToken ct = default) =>
         await dbContext.BundleOrders

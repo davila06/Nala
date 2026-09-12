@@ -40,8 +40,7 @@ export function useCreateSubscription() {
 export function useActivateSubscription() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (paymentReference: string) =>
-      subscriptionApi.activate(paymentReference),
+    mutationFn: (paymentReference: string) => subscriptionApi.activate(paymentReference),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["subscription"] });
     },
@@ -51,8 +50,7 @@ export function useActivateSubscription() {
 export function useCancelSubscription() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (subscriptionId: string) =>
-      subscriptionApi.cancel(subscriptionId),
+    mutationFn: (subscriptionId: string) => subscriptionApi.cancel(subscriptionId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["subscription"] });
     },
@@ -62,13 +60,8 @@ export function useCancelSubscription() {
 export function useScheduleDowngrade() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      subscriptionId,
-      targetTier,
-    }: {
-      subscriptionId: string;
-      targetTier: SubscriptionTier;
-    }) => subscriptionApi.downgrade(subscriptionId, targetTier),
+    mutationFn: ({ subscriptionId, targetTier }: { subscriptionId: string; targetTier: SubscriptionTier }) =>
+      subscriptionApi.downgrade(subscriptionId, targetTier),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["subscription"] });
     },
@@ -78,8 +71,11 @@ export function useScheduleDowngrade() {
 export function useReportPayment() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (subscriptionId: string) =>
-      subscriptionApi.reportPayment(subscriptionId),
+    mutationFn: (args: string | { subscriptionId: string; bankReceiptNumber?: string }) => {
+      const subscriptionId = typeof args === "string" ? args : args.subscriptionId;
+      const receipt = typeof args === "string" ? undefined : args.bankReceiptNumber;
+      return subscriptionApi.reportPayment(subscriptionId, receipt);
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["subscription"] });
     },

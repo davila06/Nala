@@ -62,4 +62,12 @@ public sealed class CapturingEmailSender : IEmailSender
 
     public Task SendClinicApprovedWelcomeAsync(string to, string clinicName, string loginUrl,
         CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendRecurringPaymentReceiptAsync(
+        string to, string name, string tierLabel, decimal amountCrc, string last4, DateTimeOffset nextExpiry,
+        CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task SendRecurringPaymentFailedAsync(
+        string to, string name, string tierLabel, string reason, DateTimeOffset gracePeriodExpiry,
+        CancellationToken ct = default) => Task.CompletedTask;
 }

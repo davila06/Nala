@@ -48,6 +48,7 @@ Estados documentales:
 | [MATRIZ_RETENCION_DATOS.md](MATRIZ_RETENCION_DATOS.md)                           | Retencion y derechos de datos                             |
 | [RUNBOOK_MFA_Y_ACCESOS_PRIVILEGIADOS.md](RUNBOOK_MFA_Y_ACCESOS_PRIVILEGIADOS.md) | MFA y roles privilegiados                                 |
 | [RUNBOOK_PAGOS_SINPE.md](RUNBOOK_PAGOS_SINPE.md)                                 | Pagos y activaciones manuales                             |
+| [integracionPagos.md](integracionPagos.md)                                       | Arquitectura de pasarela de pagos, tarjetas y SINPE       |
 | [DICCIONARIO_DATOS.md](DICCIONARIO_DATOS.md)                                     | Entidades y sensibilidad de datos                         |
 | [GUIA_INTEGRACIONES_WEBHOOKS.md](GUIA_INTEGRACIONES_WEBHOOKS.md)                 | Integraciones y webhooks                                  |
 | [GUIA_QA_E2E.md](GUIA_QA_E2E.md)                                                 | Estrategia de pruebas                                     |

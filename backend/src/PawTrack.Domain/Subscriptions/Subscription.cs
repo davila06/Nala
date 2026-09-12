@@ -19,6 +19,8 @@ public sealed class Subscription
     public decimal AmountCrc { get; private set; }
     /// <summary>Set when the subscriber self-reports having sent the SINPE payment.</summary>
     public DateTimeOffset? PaymentReportedAt { get; private set; }
+    /// <summary>Optional bank receipt / authorization number provided by subscriber when self-reporting payment.</summary>
+    public string? BankReceiptNumber { get; private set; }
     /// <summary>Set when this subscription was created via a promotion code.</summary>
     public Guid? RedeemedPromotionCodeId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
@@ -134,6 +136,18 @@ public sealed class Subscription
         ExpiresAt = effectiveStart.AddMonths(billingMonths);
     }
 
+    /// <summary>Extends an active subscription for recurring billing.</summary>
+    public void RenewRecurring(int months)
+    {
+        if (Status != SubscriptionStatus.Active)
+            throw new InvalidOperationException("Only active subscriptions can be renewed.");
+
+        var currentExpiry = ExpiresAt ?? DateTimeOffset.UtcNow;
+        ExpiresAt = currentExpiry > DateTimeOffset.UtcNow
+            ? currentExpiry.AddMonths(months)
+            : DateTimeOffset.UtcNow.AddMonths(months);
+    }
+
     public void Cancel()
     {
         if (Status != SubscriptionStatus.Active)
@@ -147,12 +161,14 @@ public sealed class Subscription
         Status = SubscriptionStatus.Expired;
     }
 
-    /// <summary>Subscriber self-reports that they sent the SINPE payment.</summary>
-    public void ReportPaymentSent()
+    /// <summary>Subscriber self-reports that they sent the SINPE payment, optionally providing the bank receipt number.</summary>
+    public void ReportPaymentSent(string? bankReceiptNumber = null)
     {
         if (Status != SubscriptionStatus.PendingPayment)
             throw new InvalidOperationException("Only pending subscriptions can have payment reported.");
         PaymentReportedAt = DateTimeOffset.UtcNow;
+        if (!string.IsNullOrWhiteSpace(bankReceiptNumber))
+            BankReceiptNumber = bankReceiptNumber.Trim();
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

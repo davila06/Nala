@@ -79,35 +79,21 @@ const ALLY_TYPE_LABELS: Record<string, string> = {
 
 // ── Small helper components ────────────────────────────────────────────────────
 
-function StatCard({
-  icon,
-  label,
-  value,
-  urgent,
-}: {
-  icon: string;
-  label: string;
-  value: number;
-  urgent?: boolean;
-}) {
+function StatCard({ icon, label, value, urgent }: { icon: string; label: string; value: number; urgent?: boolean }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       className={[
         "flex items-center gap-3 rounded-2xl border p-4",
-        urgent && value > 0
-          ? "border-warn-200 bg-warn-50"
-          : "border-sand-200 bg-surface",
+        urgent && value > 0 ? "border-warn-200 bg-warn-50" : "border-sand-200 bg-surface",
       ].join(" ")}
     >
       <span className="text-2xl shrink-0" aria-hidden="true">
         {icon}
       </span>
       <div>
-        <p
-          className={`text-2xl font-black tabular-nums ${urgent && value > 0 ? "text-warn-700" : "text-sand-900"}`}
-        >
+        <p className={`text-2xl font-black tabular-nums ${urgent && value > 0 ? "text-warn-700" : "text-sand-900"}`}>
           {value}
         </p>
         <p className="text-xs text-sand-500">{label}</p>
@@ -199,9 +185,7 @@ function EmptyState({ msg }: { msg: string }) {
 
 function ErrorState({ msg }: { msg: string }) {
   return (
-    <div className="rounded-2xl border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-700">
-      {msg}
-    </div>
+    <div className="rounded-2xl border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-700">{msg}</div>
   );
 }
 
@@ -214,12 +198,8 @@ function AlliesTab() {
   const { tap, warning } = useHaptic();
 
   if (isLoading) return <LoadingSkeleton />;
-  if (isError)
-    return (
-      <ErrorState msg="No se pudieron cargar las solicitudes de aliados." />
-    );
-  if (!data || data.length === 0)
-    return <EmptyState msg="No hay solicitudes de aliados pendientes." />;
+  if (isError) return <ErrorState msg="No se pudieron cargar las solicitudes de aliados." />;
+  if (!data || data.length === 0) return <EmptyState msg="No hay solicitudes de aliados pendientes." />;
 
   const handle = async (ally: PendingAllyDto, approve: boolean) => {
     if (approve) tap();
@@ -244,9 +224,7 @@ function AlliesTab() {
             rejectLabel="Rechazar"
             loading={isPending && processingId === ally.userId}
           >
-            <p className="truncate font-semibold text-sand-900">
-              {ally.organizationName}
-            </p>
+            <p className="truncate font-semibold text-sand-900">{ally.organizationName}</p>
             <div className="mt-1 flex flex-wrap gap-1.5">
               <span className="rounded-full bg-trust-100 px-2 py-0.5 text-[10px] font-semibold text-trust-700">
                 {ALLY_TYPE_LABELS[ally.allyType] ?? ally.allyType}
@@ -280,10 +258,8 @@ function ClinicsTab() {
   const { tap, warning } = useHaptic();
 
   if (isLoading) return <LoadingSkeleton />;
-  if (isError)
-    return <ErrorState msg="No se pudieron cargar las clínicas pendientes." />;
-  if (!data || data.length === 0)
-    return <EmptyState msg="No hay clínicas pendientes de aprobación." />;
+  if (isError) return <ErrorState msg="No se pudieron cargar las clínicas pendientes." />;
+  if (!data || data.length === 0) return <EmptyState msg="No hay clínicas pendientes de aprobación." />;
 
   const handle = async (clinic: PendingClinicDto, approve: boolean) => {
     if (approve) tap();
@@ -308,9 +284,7 @@ function ClinicsTab() {
             rejectLabel="Suspender"
             loading={isPending && processingId === clinic.id}
           >
-            <p className="truncate font-semibold text-sand-900">
-              {clinic.name}
-            </p>
+            <p className="truncate font-semibold text-sand-900">{clinic.name}</p>
             <div className="mt-1 flex flex-wrap gap-1.5">
               <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-semibold text-brand-700">
                 🏥 SENASA {clinic.licenseNumber}
@@ -319,9 +293,7 @@ function ClinicsTab() {
                 📍 {clinic.address}
               </span>
             </div>
-            <p className="mt-1 text-[11px] text-sand-400">
-              {clinic.contactEmail}
-            </p>
+            <p className="mt-1 text-[11px] text-sand-400">{clinic.contactEmail}</p>
             <p className="mt-0.5 text-[11px] text-sand-400">
               Registro:{" "}
               {new Date(clinic.registeredAt).toLocaleDateString("es-CR", {
@@ -354,10 +326,8 @@ function VerificationTab() {
     isLoading: loadingVeterinarians,
     isError: veterinariansError,
   } = useAdminClinicVeterinariansForReview();
-  const { mutateAsync: reviewClinicVerification, isPending: reviewingClinic } =
-    useReviewClinicVerification();
-  const { mutateAsync: reviewVeterinarian, isPending: reviewingVet } =
-    useReviewClinicVeterinarian();
+  const { mutateAsync: reviewClinicVerification, isPending: reviewingClinic } = useReviewClinicVerification();
+  const { mutateAsync: reviewVeterinarian, isPending: reviewingVet } = useReviewClinicVeterinarian();
   const [expiresAt, setExpiresAt] = useState(nextYearDate());
   const [reason, setReason] = useState("Documento ilegible o incompleto");
 
@@ -394,21 +364,15 @@ function VerificationTab() {
     });
 
   if (loadingVerifications || loadingVeterinarians) return <LoadingSkeleton />;
-  if (verificationsError || veterinariansError)
-    return <ErrorState msg="No se pudo cargar la cola de verificación." />;
+  if (verificationsError || veterinariansError) return <ErrorState msg="No se pudo cargar la cola de verificación." />;
 
-  const hasItems =
-    (verifications?.length ?? 0) > 0 || (veterinarians?.length ?? 0) > 0;
-  if (!hasItems)
-    return <EmptyState msg="No hay verificaciones documentales pendientes." />;
+  const hasItems = (verifications?.length ?? 0) > 0 || (veterinarians?.length ?? 0) > 0;
+  if (!hasItems) return <EmptyState msg="No hay verificaciones documentales pendientes." />;
 
   return (
     <div className="space-y-5">
       <div className="grid gap-3 rounded-2xl border border-sand-100 bg-surface-warm p-3 sm:grid-cols-2">
-        <label
-          htmlFor="verification-expires-at"
-          className="text-xs font-semibold text-sand-700"
-        >
+        <label htmlFor="verification-expires-at" className="text-xs font-semibold text-sand-700">
           Vencimiento al aprobar
           <Input
             id="verification-expires-at"
@@ -418,10 +382,7 @@ function VerificationTab() {
             className="mt-1"
           />
         </label>
-        <label
-          htmlFor="verification-rejection-reason"
-          className="text-xs font-semibold text-sand-700"
-        >
+        <label htmlFor="verification-rejection-reason" className="text-xs font-semibold text-sand-700">
           Motivo al rechazar
           <Input
             id="verification-rejection-reason"
@@ -433,9 +394,7 @@ function VerificationTab() {
       </div>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-bold text-sand-700">
-          Clínicas por verificar
-        </h2>
+        <h2 className="text-sm font-bold text-sand-700">Clínicas por verificar</h2>
         {verifications?.map((verification) => (
           <ReviewCard
             key={verification.id}
@@ -445,25 +404,19 @@ function VerificationTab() {
             rejectLabel="Rechazar"
             loading={reviewingClinic}
           >
-            <p className="font-semibold text-sand-900">
-              Licencia {verification.licenseNumberSnapshot}
-            </p>
+            <p className="font-semibold text-sand-900">Licencia {verification.licenseNumberSnapshot}</p>
             <p className="mt-1 text-xs text-sand-500">
-              Documento: {verification.hasDocument ? "cargado" : "pendiente"} ·
-              Estado: {verification.status}
+              Documento: {verification.hasDocument ? "cargado" : "pendiente"} · Estado: {verification.status}
             </p>
             <p className="mt-0.5 text-[11px] text-sand-400">
-              Enviado:{" "}
-              {new Date(verification.submittedAt).toLocaleDateString("es-CR")}
+              Enviado: {new Date(verification.submittedAt).toLocaleDateString("es-CR")}
             </p>
           </ReviewCard>
         ))}
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-bold text-sand-700">
-          Veterinarios por revisar
-        </h2>
+        <h2 className="text-sm font-bold text-sand-700">Veterinarios por revisar</h2>
         {veterinarians?.map((veterinarian) => (
           <ReviewCard
             key={veterinarian.id}
@@ -473,17 +426,12 @@ function VerificationTab() {
             rejectLabel="Rechazar"
             loading={reviewingVet}
           >
-            <p className="font-semibold text-sand-900">
-              {veterinarian.fullName}
-            </p>
+            <p className="font-semibold text-sand-900">{veterinarian.fullName}</p>
             <p className="mt-1 text-xs text-sand-500">
-              {veterinarian.licenseNumber} · Documento{" "}
-              {veterinarian.hasDocument ? "cargado" : "pendiente"} · Firma{" "}
+              {veterinarian.licenseNumber} · Documento {veterinarian.hasDocument ? "cargado" : "pendiente"} · Firma{" "}
               {veterinarian.hasSignature ? "cargada" : "opcional"}
             </p>
-            <p className="mt-0.5 text-[11px] text-sand-400">
-              Estado: {veterinarian.status}
-            </p>
+            <p className="mt-0.5 text-[11px] text-sand-400">Estado: {veterinarian.status}</p>
           </ReviewCard>
         ))}
       </section>
@@ -496,37 +444,20 @@ function MicrochipConflictsTab() {
   const revoke = useRevokeMicrochipVerification();
   const resolve = useResolveMicrochipConflict();
   const [reason, setReason] = useState("Conflicto revisado por administración");
-  const [confirmedChip, setConfirmedChip] = useState<Record<string, string>>(
-    {},
-  );
+  const [confirmedChip, setConfirmedChip] = useState<Record<string, string>>({});
 
   if (isLoading) return <LoadingSkeleton />;
-  if (isError)
-    return (
-      <ErrorState msg="No se pudieron cargar los conflictos de microchip." />
-    );
-  if (!data || data.length === 0)
-    return <EmptyState msg="No hay conflictos de microchip pendientes." />;
+  if (isError) return <ErrorState msg="No se pudieron cargar los conflictos de microchip." />;
+  if (!data || data.length === 0) return <EmptyState msg="No hay conflictos de microchip pendientes." />;
 
   return (
     <div className="space-y-3">
-      <Input
-        value={reason}
-        onChange={(e) => setReason(e.target.value)}
-        placeholder="Motivo de resolución/revocación"
-      />
+      <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Motivo de resolución/revocación" />
       <ul className="space-y-3">
         {data.map((pet) => (
-          <li
-            key={pet.petId}
-            className="rounded-2xl border border-warn-200 bg-warn-50 p-4"
-          >
-            <p className="font-semibold text-sand-900">
-              Mascota {pet.petId.slice(0, 8).toUpperCase()}
-            </p>
-            <p className="mt-1 text-xs text-warn-800">
-              {pet.microchipVerificationNotes ?? "Conflicto sin notas."}
-            </p>
+          <li key={pet.petId} className="rounded-2xl border border-warn-200 bg-warn-50 p-4">
+            <p className="font-semibold text-sand-900">Mascota {pet.petId.slice(0, 8).toUpperCase()}</p>
+            <p className="mt-1 text-xs text-warn-800">{pet.microchipVerificationNotes ?? "Conflicto sin notas."}</p>
             <Input
               value={confirmedChip[pet.petId] ?? pet.microchipId ?? ""}
               onChange={(e) =>
@@ -540,11 +471,7 @@ function MicrochipConflictsTab() {
             />
             <button
               type="button"
-              disabled={
-                resolve.isPending ||
-                !reason.trim() ||
-                !confirmedChip[pet.petId]?.trim()
-              }
+              disabled={resolve.isPending || !reason.trim() || !confirmedChip[pet.petId]?.trim()}
               onClick={() =>
                 void resolve.mutateAsync({
                   petId: pet.petId,
@@ -559,9 +486,7 @@ function MicrochipConflictsTab() {
             <button
               type="button"
               disabled={revoke.isPending || !reason.trim()}
-              onClick={() =>
-                void revoke.mutateAsync({ petId: pet.petId, reason })
-              }
+              onClick={() => void revoke.mutateAsync({ petId: pet.petId, reason })}
               className="mt-3 rounded-xl bg-danger-100 px-3 py-1.5 text-xs font-semibold text-danger-700 disabled:opacity-50"
             >
               Revocar verificación
@@ -600,14 +525,9 @@ function SubscriptionsTab() {
   const { tap, warning } = useHaptic();
 
   if (isLoading) return <LoadingSkeleton />;
-  if (isError)
-    return <ErrorState msg="No se pudieron cargar las suscripciones." />;
+  if (isError) return <ErrorState msg="No se pudieron cargar las suscripciones." />;
   if (!data || data.length === 0)
-    return (
-      <EmptyState
-        msg={pendingOnly ? "No hay pagos pendientes." : "No hay suscripciones."}
-      />
-    );
+    return <EmptyState msg={pendingOnly ? "No hay pagos pendientes." : "No hay suscripciones."} />;
 
   const handleActivate = async (sub: AdminSubscriptionDto) => {
     tap();
@@ -640,9 +560,7 @@ function SubscriptionsTab() {
             onClick={() => setPendingOnly(val)}
             className={[
               "flex-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
-              pendingOnly === val
-                ? "bg-surface shadow-sm text-sand-900"
-                : "text-sand-500 hover:text-sand-700",
+              pendingOnly === val ? "bg-surface shadow-sm text-sand-900" : "text-sand-500 hover:text-sand-700",
             ].join(" ")}
           >
             {val ? "Solo pendientes" : "Todos"}
@@ -655,8 +573,7 @@ function SubscriptionsTab() {
           const isProcessing = processingId === sub.id;
           const isPending = sub.status === "PendingPayment";
           const isActive = sub.status === "Active";
-          const statusColor =
-            SUB_STATUS_COLOR[sub.status] ?? "bg-sand-100 text-sand-500";
+          const statusColor = SUB_STATUS_COLOR[sub.status] ?? "bg-sand-100 text-sand-500";
 
           return (
             <motion.div
@@ -670,15 +587,9 @@ function SubscriptionsTab() {
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1 space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-sand-900">
-                      {SUB_TIER_LABEL[sub.tier] ?? sub.tier}
-                    </span>
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${statusColor}`}
-                    >
-                      {sub.status === "PendingPayment"
-                        ? "Pago pendiente"
-                        : sub.status}
+                    <span className="font-semibold text-sand-900">{SUB_TIER_LABEL[sub.tier] ?? sub.tier}</span>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${statusColor}`}>
+                      {sub.status === "PendingPayment" ? "Pago pendiente" : sub.status}
                     </span>
                     {sub.paymentReportedAt && (
                       <span className="rounded-full bg-warn-100 px-2 py-0.5 text-[10px] font-bold text-warn-700">
@@ -689,9 +600,7 @@ function SubscriptionsTab() {
 
                   <p className="font-mono text-sm text-sand-700">
                     Ref: <strong>{sub.paymentReference}</strong>{" "}
-                    <span className="text-sand-400 text-xs">
-                      — ₡{sub.amountCrc.toLocaleString("es-CR")}
-                    </span>
+                    <span className="text-sand-400 text-xs">— ₡{sub.amountCrc.toLocaleString("es-CR")}</span>
                   </p>
 
                   <p className="text-[11px] text-sand-400">
@@ -709,6 +618,12 @@ function SubscriptionsTab() {
                         dateStyle: "medium",
                         timeStyle: "short",
                       })}
+                    </p>
+                  )}
+
+                  {sub.bankReceiptNumber && (
+                    <p className="text-[11px] text-brand-800 font-semibold bg-brand-50 px-2 py-0.5 rounded-lg border border-brand-200 inline-block">
+                      Comprobante banco: <span className="font-mono">{sub.bankReceiptNumber}</span>
                     </p>
                   )}
                 </div>
@@ -758,16 +673,12 @@ function SubscriptionsTab() {
 
 function BundlesTab() {
   const [statusFilter, setStatusFilter] = useState<string>("");
-  const [trackingInput, setTrackingInput] = useState<Record<string, string>>(
-    {},
-  );
+  const [trackingInput, setTrackingInput] = useState<Record<string, string>>({});
   const [notesInput, setNotesInput] = useState<Record<string, string>>({});
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   const { data, isLoading } = useAdminBundleOrders(
-    statusFilter
-      ? (statusFilter as import("@/features/bundles/api/bundleApi").BundleOrderStatus)
-      : undefined,
+    statusFilter ? (statusFilter as import("@/features/bundles/api/bundleApi").BundleOrderStatus) : undefined,
   );
   const confirmPayment = useAdminConfirmBundlePayment();
   const markSourced = useAdminMarkBundleSourced();
@@ -811,57 +722,38 @@ function BundlesTab() {
             </option>
           ))}
         </select>
-        <span className="text-xs text-sand-500">
-          {data?.total ?? 0} pedidos
-        </span>
+        <span className="text-xs text-sand-500">{data?.total ?? 0} pedidos</span>
       </div>
 
-      {isLoading && (
-        <div className="animate-pulse h-24 rounded-2xl bg-sand-100" />
-      )}
+      {isLoading && <div className="animate-pulse h-24 rounded-2xl bg-sand-100" />}
 
       {data?.items.length === 0 && (
-        <p className="text-center text-sm text-sand-400 py-6">
-          No hay pedidos con este filtro.
-        </p>
+        <p className="text-center text-sm text-sand-400 py-6">No hay pedidos con este filtro.</p>
       )}
 
       <ul className="space-y-3">
         {data?.items.map((order) => (
-          <li
-            key={order.id}
-            className="rounded-2xl border border-sand-200 bg-surface-warm p-4 space-y-3"
-          >
+          <li key={order.id} className="rounded-2xl border border-sand-200 bg-surface-warm p-4 space-y-3">
             <div className="flex items-start justify-between gap-2 flex-wrap">
               <div>
-                <p className="font-semibold text-sand-900">
-                  {order.collarModelLabel}
+                <p className="font-semibold text-sand-900">{order.collarModelLabel}</p>
+                <p className="text-xs text-sand-500">
+                  #{order.id.slice(-8).toUpperCase()} · {new Date(order.createdAt).toLocaleDateString("es-CR")}
+                  {order.paymentReportedByUser && order.status === "PendingPayment" && (
+                    <span className="ml-2 rounded-full bg-warn-100 px-2 py-0.5 text-warn-700 font-semibold">
+                      ⚡ PAGÓ
+                    </span>
+                  )}
                 </p>
                 <p className="text-xs text-sand-500">
-                  #{order.id.slice(-8).toUpperCase()} ·{" "}
-                  {new Date(order.createdAt).toLocaleDateString("es-CR")}
-                  {order.paymentReportedByUser &&
-                    order.status === "PendingPayment" && (
-                      <span className="ml-2 rounded-full bg-warn-100 px-2 py-0.5 text-warn-700 font-semibold">
-                        ⚡ PAGÓ
-                      </span>
-                    )}
-                </p>
-                <p className="text-xs text-sand-500">
-                  Ref:{" "}
-                  <span className="font-mono font-bold">
-                    {order.paymentReference}
-                  </span>
+                  Ref: <span className="font-mono font-bold">{order.paymentReference}</span>
                   {" · "}₡{order.amountCrc.toLocaleString("es-CR")}
                 </p>
                 <p className="text-xs text-sand-500 mt-0.5">
-                  📍 {order.shippingAddress}, {order.shippingCanton} ·{" "}
-                  {order.shippingFullName} · {order.shippingPhone}
+                  📍 {order.shippingAddress}, {order.shippingCanton} · {order.shippingFullName} · {order.shippingPhone}
                 </p>
               </div>
-              <span
-                className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_COLORS[order.status]}`}
-              >
+              <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_COLORS[order.status]}`}>
                 {order.statusLabel}
               </span>
             </div>
@@ -873,9 +765,7 @@ function BundlesTab() {
                   type="button"
                   disabled={processingId === order.id}
                   onClick={() => {
-                    void handle(order.id, () =>
-                      confirmPayment.mutateAsync(order.id),
-                    );
+                    void handle(order.id, () => confirmPayment.mutateAsync(order.id));
                   }}
                   className="rounded-lg bg-rescue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-rescue-700 disabled:opacity-50"
                 >
@@ -927,10 +817,7 @@ function BundlesTab() {
                   />
                   <button
                     type="button"
-                    disabled={
-                      processingId === order.id ||
-                      !trackingInput[order.id]?.trim()
-                    }
+                    disabled={processingId === order.id || !trackingInput[order.id]?.trim()}
                     onClick={() => {
                       void handle(order.id, () =>
                         markShipped.mutateAsync({
@@ -951,9 +838,7 @@ function BundlesTab() {
                   type="button"
                   disabled={processingId === order.id}
                   onClick={() => {
-                    void handle(order.id, () =>
-                      markDelivered.mutateAsync(order.id),
-                    );
+                    void handle(order.id, () => markDelivered.mutateAsync(order.id));
                   }}
                   className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-green-700 disabled:opacity-50"
                 >
@@ -980,15 +865,9 @@ function BundlesTab() {
             </div>
 
             {order.trackingNumber && (
-              <p className="text-xs font-mono text-sand-600">
-                🔍 Tracking: {order.trackingNumber}
-              </p>
+              <p className="text-xs font-mono text-sand-600">🔍 Tracking: {order.trackingNumber}</p>
             )}
-            {order.adminNotes && (
-              <p className="text-xs text-sand-500 italic">
-                Notas: {order.adminNotes}
-              </p>
-            )}
+            {order.adminNotes && <p className="text-xs text-sand-500 italic">Notas: {order.adminNotes}</p>}
           </li>
         ))}
       </ul>
@@ -1010,9 +889,7 @@ export default function AdminPage() {
   const clinicCount = clinicsData?.length ?? 0;
   const pendingSubCount = pendingSubsData?.length ?? 0;
   const { data: pendingBundlesData } = useAdminBundleOrders("PendingPayment");
-  const pendingBundleCount =
-    pendingBundlesData?.items.filter((b) => b.paymentReportedByUser).length ??
-    0;
+  const pendingBundleCount = pendingBundlesData?.items.filter((b) => b.paymentReportedByUser).length ?? 0;
 
   if (!user || user.role !== "Admin") {
     return <Navigate to="/dashboard" replace />;
@@ -1022,49 +899,18 @@ export default function AdminPage() {
     <div className="mx-auto max-w-3xl px-4 py-8 animate-fade-in-up">
       {/* ── Header ── */}
       <div className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-sand-400">
-          PawTrack CR
-        </p>
-        <h1 className="mt-1 text-2xl font-black tracking-tight text-sand-900">
-          Panel de administración
-        </h1>
-        <p className="mt-1 text-sm text-sand-500">
-          Revisa, aprueba o rechaza solicitudes de aliados y clínicas.
-        </p>
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-sand-400">PawTrack CR</p>
+        <h1 className="mt-1 text-2xl font-black tracking-tight text-sand-900">Panel de administración</h1>
+        <p className="mt-1 text-sm text-sand-500">Revisa, aprueba o rechaza solicitudes de aliados y clínicas.</p>
       </div>
 
       {/* ── Stats row ── */}
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard
-          icon="🤝"
-          label="Aliados pendientes"
-          value={allyCount}
-          urgent
-        />
-        <StatCard
-          icon="🏥"
-          label="Clínicas pendientes"
-          value={clinicCount}
-          urgent
-        />
-        <StatCard
-          icon="💳"
-          label="Pagos pendientes"
-          value={pendingSubCount}
-          urgent
-        />
-        <StatCard
-          icon="📦"
-          label="Bundles por confirmar"
-          value={pendingBundleCount}
-          urgent
-        />
-        <StatCard
-          icon="🐾"
-          label="Animales en adopción"
-          value={adoptionStats?.totalAvailable ?? 0}
-          urgent={false}
-        />
+        <StatCard icon="🤝" label="Aliados pendientes" value={allyCount} urgent />
+        <StatCard icon="🏥" label="Clínicas pendientes" value={clinicCount} urgent />
+        <StatCard icon="💳" label="Pagos pendientes" value={pendingSubCount} urgent />
+        <StatCard icon="📦" label="Bundles por confirmar" value={pendingBundleCount} urgent />
+        <StatCard icon="🐾" label="Animales en adopción" value={adoptionStats?.totalAvailable ?? 0} urgent={false} />
       </div>
 
       {/* ── Tabs ── */}
@@ -1143,9 +989,7 @@ export default function AdminPage() {
               onClick={() => setActiveTab(tab)}
               className={[
                 "flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
-                activeTab === tab
-                  ? "bg-surface text-sand-900 shadow-sm"
-                  : "text-sand-500 hover:text-sand-700",
+                activeTab === tab ? "bg-surface text-sand-900 shadow-sm" : "text-sand-500 hover:text-sand-700",
               ].join(" ")}
             >
               {label}
@@ -1180,12 +1024,8 @@ export default function AdminPage() {
           {activeTab === "adoptions" && <AdminAdoptionsTab />}
           {activeTab === "welfare" && <AdminWelfareCasesTab />}
           {activeTab === "stores" && <AdminStoresTab />}
-          {activeTab === "provider-verifications" && (
-            <AdminProviderVerificationsTab />
-          )}
-          {activeTab === "service-provider-operations" && (
-            <AdminServiceProvidersTab />
-          )}
+          {activeTab === "provider-verifications" && <AdminProviderVerificationsTab />}
+          {activeTab === "service-provider-operations" && <AdminServiceProvidersTab />}
           {activeTab === "provider-incidents" && <AdminProviderIncidentsTab />}
           {activeTab === "billboards" && <AdminBillboardsTab />}
           {activeTab === "collar-tags" && <CollarTagInventorySection />}

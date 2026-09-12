@@ -373,6 +373,48 @@ public sealed class EmailSender(
             html, cancellationToken);
     }
 
+    // ── Recurring billing emails ──────────────────────────────────────────────
+
+    public Task SendRecurringPaymentReceiptAsync(
+        string to, string name, string tierLabel, decimal amountCrc, string last4, DateTimeOffset nextExpiry,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>Hola {Escape(name)},</p>
+            <p>Se ha procesado exitosamente la renovación de tu plan <strong>{Escape(tierLabel)}</strong> en PawTrack CR.</p>
+            <table style="border-collapse:collapse;width:100%;max-width:440px;margin:16px 0;">
+              <tr><td style="padding:6px 0;color:#6b6057;">Plan</td><td style="font-weight:700;">{Escape(tierLabel)}</td></tr>
+              <tr><td style="padding:6px 0;color:#6b6057;">Monto cobrado</td><td style="font-weight:700;">₡{amountCrc:N0}</td></tr>
+              <tr><td style="padding:6px 0;color:#6b6057;">Tarjeta</td><td style="font-mono;font-weight:700;">•••• {Escape(last4)}</td></tr>
+              <tr><td style="padding:6px 0;color:#6b6057;">Próximo vencimiento</td><td style="font-weight:700;">{nextExpiry:dd/MM/yyyy}</td></tr>
+            </table>
+            <p>Puedes administrar tus métodos de pago y facturación desde tu <a href="{BaseUrl}/perfil">perfil de usuario</a>.</p>
+            <p>Gracias por proteger a tu mascota con nosotros. 🐾</p>
+            """;
+
+        return SendAsync(to, name,
+            subject: $"🧾 Recibo de renovación: {tierLabel} — PawTrack CR",
+            html, cancellationToken);
+    }
+
+    public Task SendRecurringPaymentFailedAsync(
+        string to, string name, string tierLabel, string reason, DateTimeOffset gracePeriodExpiry,
+        CancellationToken cancellationToken = default)
+    {
+        var html = $"""
+            <p>Hola {Escape(name)},</p>
+            <p>No pudimos procesar la renovación automática de tu plan <strong>{Escape(tierLabel)}</strong> en PawTrack CR.</p>
+            <p><strong>Motivo del banco:</strong> {Escape(reason)}</p>
+            <p>Para evitar la interrupción de tus servicios y alertas de mascotas, por favor actualiza tu tarjeta o realiza el pago antes del <strong>{gracePeriodExpiry:dd/MM/yyyy}</strong>:</p>
+            <p><a href="{BaseUrl}/perfil" style="display:inline-block;padding:10px 20px;background-color:#e8521e;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:bold;">Actualizar tarjeta o pagar con SINPE</a></p>
+            <p>Si necesitas asistencia: <a href="mailto:soporte@pawtrack.cr">soporte@pawtrack.cr</a></p>
+            """;
+
+        return SendAsync(to, name,
+            subject: $"⚠️ Acción requerida: no pudimos renovar tu plan {tierLabel} — PawTrack CR",
+            html, cancellationToken);
+    }
+
     // ── Internal helpers ──────────────────────────────────────────────────────
 
     /// <summary>

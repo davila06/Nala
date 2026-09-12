@@ -5,9 +5,14 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PawTrack.Application.Bounties.Commands.ConfirmBountyDeposit;
+using PawTrack.Application.Bundles;
+using PawTrack.Application.Bundles.Interfaces;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Payments.Interfaces;
 using PawTrack.Application.Subscriptions.Commands.ActivateSubscription;
 using PawTrack.Application.Webhooks.Commands;
+using PawTrack.Domain.Bundles;
+using PawTrack.Domain.Payments;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -23,6 +28,8 @@ namespace PawTrack.API.Controllers;
 [Route("api/webhooks")]
 public sealed class WebhooksController(
     ISender sender,
+    IBundleOrderRepository bundleRepository,
+    IPaymentTransactionRepository transactionRepository,
     IConfiguration configuration,
     ILogger<WebhooksController> logger) : ControllerBase
 {
@@ -43,24 +50,98 @@ public sealed class WebhooksController(
             return Unauthorized(new ProblemDetails { Detail = "Invalid webhook signature." });
         }
 
-        // Try to activate a subscription matching the reference
+        // Idempotency check: prevent duplicate execution if this reference already processed
+        var existingTx = await transactionRepository.GetByReferenceAsync($"SINPE-{notification.Reference}", cancellationToken);
+        if (existingTx is not null && existingTx.Status == PaymentTransactionStatus.Succeeded)
+        {
+            logger.LogInformation("Webhook SINPE duplicate detected for reference {Reference}. Returning 200 OK.", notification.Reference);
+            return Ok(new { message = "Payment already processed.", reference = notification.Reference });
+        }
+
+        // 1. Try to activate a subscription matching the reference
         var subResult = await sender.Send(
             new ActivateSubscriptionCommand(notification.Reference),
             cancellationToken);
 
         if (subResult.IsSuccess && subResult.Value is not null)
-            return Ok(new { activated = "subscription", id = subResult.Value.Id });
+        {
+            await RecordWebhookTransactionAsync(
+                Guid.Empty,
+                notification.AmountCrc,
+                notification.Reference,
+                "Subscription",
+                subResult.Value.Id,
+                cancellationToken);
 
-        // If no subscription matched, try to activate a bounty deposit
+            return Ok(new { activated = "subscription", id = subResult.Value.Id });
+        }
+
+        // 2. Try to activate a bounty deposit
         var bountyResult = await sender.Send(
             new ConfirmBountyDepositCommand(notification.Reference),
             cancellationToken);
 
         if (bountyResult.IsSuccess && bountyResult.Value is not null)
+        {
+            await RecordWebhookTransactionAsync(
+                Guid.Empty,
+                notification.AmountCrc,
+                notification.Reference,
+                "Bounty",
+                bountyResult.Value.Id,
+                cancellationToken);
+
             return Ok(new { activated = "bounty", id = bountyResult.Value.Id });
+        }
+
+        // 3. Try to activate a bundle order matching the reference
+        var bundle = await bundleRepository.GetByPaymentReferenceAsync(notification.Reference, cancellationToken);
+        if (bundle is not null && bundle.Status == BundleOrderStatus.PendingPayment)
+        {
+            var confirmResult = await sender.Send(new ConfirmBundlePaymentCommand(bundle.Id), cancellationToken);
+            if (confirmResult.IsSuccess)
+            {
+                await RecordWebhookTransactionAsync(
+                    bundle.UserId,
+                    notification.AmountCrc,
+                    notification.Reference,
+                    "BundleOrder",
+                    bundle.Id,
+                    cancellationToken);
+
+                return Ok(new { activated = "bundle_order", id = bundle.Id });
+            }
+        }
 
         // Reference not found — acknowledge to avoid retries but log discrepancy
+        logger.LogWarning("Webhook SINPE reference {Reference} did not match any pending subscription, bounty, or bundle order.", notification.Reference);
         return Ok(new { message = "Reference not found; acknowledged." });
+    }
+
+    private async Task RecordWebhookTransactionAsync(
+        Guid userId,
+        decimal amountCrc,
+        string reference,
+        string purpose,
+        Guid targetEntityId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var tx = PaymentTransaction.Record(
+                userId,
+                amountCrc,
+                $"SINPE-{reference}",
+                purpose,
+                targetEntityId: targetEntityId);
+
+            tx.MarkSucceeded($"SINPE-WEBHOOK-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+            await transactionRepository.AddAsync(tx, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to record audit PaymentTransaction for reference {Reference}", reference);
+        }
     }
 
     [HttpPost]

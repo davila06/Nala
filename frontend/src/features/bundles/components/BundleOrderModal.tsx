@@ -16,6 +16,8 @@ import {
   type BundleOrderDto,
 } from "../api/bundleApi";
 import { NfcSetupGuide } from "./NfcSetupGuide";
+import { SecureCardPaymentForm, type CardPaymentData } from "@/features/payments/components/SecureCardPaymentForm";
+import { useChargeCard } from "@/features/payments/hooks/usePaymentProfiles";
 
 // ── CR cantons for shipping ───────────────────────────────────────────────────
 const CANTONS = [
@@ -107,7 +109,9 @@ const CANTONS = [
 function OrderCard({ order }: { order: BundleOrderDto }) {
   const reportPayment = useReportBundlePayment();
   const cancel = useCancelBundleOrder();
+  const chargeCard = useChargeCard();
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showCardPay, setShowCardPay] = useState(false);
 
   const isCancellable = order.status === "PendingPayment";
   const isPendingPayment = order.status === "PendingPayment";
@@ -127,17 +131,12 @@ function OrderCard({ order }: { order: BundleOrderDto }) {
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="font-semibold text-sand-900">
-            {order.productTypeLabel ?? order.collarModelLabel}
-          </p>
+          <p className="font-semibold text-sand-900">{order.productTypeLabel ?? order.collarModelLabel}</p>
           <p className="text-xs text-sand-500">
-            Pedido #{order.id.slice(-8).toUpperCase()} ·{" "}
-            {new Date(order.createdAt).toLocaleDateString("es-CR")}
+            Pedido #{order.id.slice(-8).toUpperCase()} · {new Date(order.createdAt).toLocaleDateString("es-CR")}
           </p>
         </div>
-        <span
-          className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_COLORS[order.status]}`}
-        >
+        <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_COLORS[order.status]}`}>
           {order.statusLabel}
         </span>
       </div>
@@ -146,65 +145,101 @@ function OrderCard({ order }: { order: BundleOrderDto }) {
       {order.status !== "Cancelled" && (
         <div className="flex items-center gap-1">
           {statusSteps.map((step, idx) => (
-            <div
-              key={step.key}
-              className="flex-1 flex flex-col items-center gap-1"
-            >
+            <div key={step.key} className="flex-1 flex flex-col items-center gap-1">
               <div
                 className={`h-1.5 w-full rounded-full transition-colors ${
                   idx <= activeIdx ? "bg-brand-500" : "bg-sand-200"
                 }`}
               />
-              <span className="text-[10px] text-sand-400 hidden sm:block">
-                {step.label}
-              </span>
+              <span className="text-[10px] text-sand-400 hidden sm:block">{step.label}</span>
             </div>
           ))}
         </div>
       )}
 
-      {/* SINPE payment block */}
+      {/* Payment block (SINPE / Card) */}
       {isPendingPayment && (
-        <div className="rounded-xl border border-warn-200 bg-warn-50 p-3 space-y-2">
-          <p className="text-xs font-semibold text-warn-800">
-            Realiza el pago SINPE
-          </p>
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-xl font-black tracking-widest text-sand-900">
-              {order.paymentReference}
-            </span>
+        <div className="rounded-xl border border-warn-200 bg-warn-50 p-3.5 space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-bold text-warn-900">
+              {showCardPay ? "Pagar con tarjeta segura" : "Pago pendiente de tu pedido"}
+            </p>
             <button
               type="button"
-              onClick={() => {
-                void navigator.clipboard.writeText(order.paymentReference);
-                toast.success("Referencia copiada");
-              }}
-              className="rounded-lg bg-warn-200 px-2 py-1 text-xs font-semibold text-warn-800 hover:bg-warn-300"
+              onClick={() => setShowCardPay(!showCardPay)}
+              className="text-xs font-bold text-brand-600 hover:underline"
             >
-              Copiar
+              {showCardPay ? "← Pagar con SINPE" : "💳 Pagar con tarjeta"}
             </button>
           </div>
-          <p className="text-xs text-warn-700">
-            Monto: <strong>₡{order.amountCrc.toLocaleString("es-CR")}</strong>
-          </p>
-          {!order.paymentReportedByUser ? (
-            <Button
-              size="sm"
-              loading={reportPayment.isPending}
-              onClick={() => {
-                reportPayment.mutate(order.id, {
-                  onSuccess: () => toast.success("Aviso de pago enviado"),
-                  onError: () => toast.error("No se pudo registrar"),
-                });
+
+          {showCardPay ? (
+            <SecureCardPaymentForm
+              amountCrc={order.amountCrc}
+              isProcessing={chargeCard.isPending}
+              onPay={async (cardData: CardPaymentData) => {
+                try {
+                  const res = await chargeCard.mutateAsync({
+                    amountCrc: order.amountCrc,
+                    purpose: "BundleOrder",
+                    targetEntityId: order.id,
+                    paymentProfileId: cardData.paymentProfileId,
+                    transientToken: cardData.transientToken,
+                    cardholderName: cardData.cardholderName,
+                    saveProfile: cardData.saveProfile,
+                  });
+                  if (res.success) {
+                    toast.success("¡Pago con tarjeta aprobado! Tu pedido pasa a preparación.");
+                    setShowCardPay(false);
+                  } else {
+                    toast.error(res.errorMessage || "Transacción declinada.");
+                  }
+                } catch {
+                  toast.error("Error al procesar el pago con tarjeta.");
+                }
               }}
-              className="w-full"
-            >
-              ✓ Ya realicé el pago SINPE
-            </Button>
+              buttonLabel={`Pagar ₡${order.amountCrc.toLocaleString("es-CR")}`}
+            />
           ) : (
-            <p className="text-xs text-trust-700 font-medium">
-              ✅ Aviso de pago enviado — pendiente de verificación
-            </p>
+            <>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xl font-black tracking-widest text-sand-900">
+                  {order.paymentReference}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    void navigator.clipboard.writeText(order.paymentReference);
+                    toast.success("Referencia copiada");
+                  }}
+                  className="rounded-lg bg-warn-200 px-2 py-1 text-xs font-semibold text-warn-800 hover:bg-warn-300"
+                >
+                  Copiar
+                </button>
+              </div>
+              <p className="text-xs text-warn-700">
+                Monto: <strong>₡{order.amountCrc.toLocaleString("es-CR")}</strong>
+              </p>
+              {!order.paymentReportedByUser ? (
+                <Button
+                  size="sm"
+                  loading={reportPayment.isPending}
+                  onClick={() => {
+                    reportPayment.mutate(order.id, {
+                      onSuccess: () => toast.success("Aviso de pago enviado"),
+                      onError: () => toast.error("No se pudo registrar"),
+                    });
+                  }}
+                  className="w-full"
+                >
+                  ✓ Ya realicé el pago SINPE
+                </Button>
+              ) : (
+                <p className="text-xs text-trust-700 font-medium">
+                  ✅ Aviso de pago enviado — pendiente de verificación
+                </p>
+              )}
+            </>
           )}
         </div>
       )}
@@ -212,12 +247,8 @@ function OrderCard({ order }: { order: BundleOrderDto }) {
       {/* Tracking */}
       {order.trackingNumber && (
         <div className="rounded-xl border border-rescue-200 bg-rescue-50 p-3">
-          <p className="text-xs font-semibold text-rescue-800">
-            🚚 Número de seguimiento
-          </p>
-          <p className="font-mono font-bold text-sand-900">
-            {order.trackingNumber}
-          </p>
+          <p className="text-xs font-semibold text-rescue-800">🚚 Número de seguimiento</p>
+          <p className="font-mono font-bold text-sand-900">{order.trackingNumber}</p>
         </div>
       )}
 
@@ -243,9 +274,7 @@ function OrderCard({ order }: { order: BundleOrderDto }) {
       )}
       {showCancelConfirm && (
         <div className="rounded-xl border border-danger-200 bg-danger-50 p-3 space-y-2">
-          <p className="text-xs font-semibold text-danger-700">
-            ¿Cancelar este pedido?
-          </p>
+          <p className="text-xs font-semibold text-danger-700">¿Cancelar este pedido?</p>
           <div className="flex gap-2">
             <Button
               variant="danger"
@@ -256,19 +285,14 @@ function OrderCard({ order }: { order: BundleOrderDto }) {
                   onSuccess: () => toast.success("Pedido cancelado"),
                   onError: (err: unknown) =>
                     toast.error(
-                      (err as { response?: { data?: { detail?: string } } })
-                        ?.response?.data?.detail ?? "Error",
+                      (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Error",
                     ),
                 });
               }}
             >
               Sí, cancelar
             </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setShowCancelConfirm(false)}
-            >
+            <Button variant="secondary" size="sm" onClick={() => setShowCancelConfirm(false)}>
               No, mantener
             </Button>
           </div>
@@ -282,10 +306,8 @@ function OrderCard({ order }: { order: BundleOrderDto }) {
 
 function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
   const create = useCreateBundleOrder();
-  const [productType, setProductType] =
-    useState<BundleProductType>("CollarGpsPlus");
-  const [collarModel, setCollarModel] =
-    useState<CollarModel>("TractiveGPSDog4");
+  const [productType, setProductType] = useState<BundleProductType>("CollarGpsPlus");
+  const [collarModel, setCollarModel] = useState<CollarModel>("TractiveGPSDog4");
   const [fullName, setFullName] = useState("");
   const [address, setAddress] = useState("");
   const [canton, setCanton] = useState("San José");
@@ -312,15 +334,13 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
       },
       {
         onSuccess: () => {
-          toast.success(
-            "¡Pedido creado! Revisa tu correo para las instrucciones de pago.",
-          );
+          toast.success("¡Pedido creado! Revisa tu correo para las instrucciones de pago.");
           onSuccess();
         },
         onError: (err: unknown) =>
           toast.error(
-            (err as { response?: { data?: { detail?: string } } })?.response
-              ?.data?.detail ?? "Error al crear el pedido",
+            (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
+              "Error al crear el pedido",
           ),
       },
     );
@@ -330,68 +350,53 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
     <div className="space-y-4">
       {/* Product type selector */}
       <div>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sand-500">
-          Elige tu producto
-        </p>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sand-500">Elige tu producto</p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {(Object.keys(PRODUCT_TYPE_CONFIG) as BundleProductType[]).map(
-            (pt) => {
-              const cfg = PRODUCT_TYPE_CONFIG[pt];
-              const isSelected = productType === pt;
-              return (
-                <button
-                  key={pt}
-                  type="button"
-                  onClick={() => setProductType(pt)}
-                  className={[
-                    "flex items-start gap-3 rounded-xl border-2 p-3 text-left transition-all",
-                    isSelected
-                      ? "border-brand-500 bg-brand-50"
-                      : "border-sand-200 bg-white hover:border-sand-300",
-                  ].join(" ")}
-                >
-                  <span className="text-2xl shrink-0" aria-hidden="true">
-                    {cfg.emoji}
-                  </span>
-                  <div className="min-w-0">
-                    <p
-                      className={`text-xs font-semibold ${isSelected ? "text-brand-800" : "text-sand-800"}`}
-                    >
-                      {cfg.label}
-                    </p>
-                    <p className="text-xs text-sand-500 mt-0.5">
-                      {cfg.description}
-                    </p>
-                    <p
-                      className={`mt-1 text-sm font-bold ${isSelected ? "text-brand-700" : "text-sand-700"}`}
-                    >
-                      ₡{cfg.priceCrc.toLocaleString("es-CR")}
-                    </p>
-                  </div>
-                  {isSelected && (
-                    <svg
-                      viewBox="0 0 16 16"
-                      fill="currentColor"
-                      className="h-4 w-4 text-brand-500 shrink-0 ml-auto"
-                      aria-hidden="true"
-                    >
-                      <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
-                    </svg>
-                  )}
-                </button>
-              );
-            },
-          )}
+          {(Object.keys(PRODUCT_TYPE_CONFIG) as BundleProductType[]).map((pt) => {
+            const cfg = PRODUCT_TYPE_CONFIG[pt];
+            const isSelected = productType === pt;
+            return (
+              <button
+                key={pt}
+                type="button"
+                onClick={() => setProductType(pt)}
+                className={[
+                  "flex items-start gap-3 rounded-xl border-2 p-3 text-left transition-all",
+                  isSelected ? "border-brand-500 bg-brand-50" : "border-sand-200 bg-white hover:border-sand-300",
+                ].join(" ")}
+              >
+                <span className="text-2xl shrink-0" aria-hidden="true">
+                  {cfg.emoji}
+                </span>
+                <div className="min-w-0">
+                  <p className={`text-xs font-semibold ${isSelected ? "text-brand-800" : "text-sand-800"}`}>
+                    {cfg.label}
+                  </p>
+                  <p className="text-xs text-sand-500 mt-0.5">{cfg.description}</p>
+                  <p className={`mt-1 text-sm font-bold ${isSelected ? "text-brand-700" : "text-sand-700"}`}>
+                    ₡{cfg.priceCrc.toLocaleString("es-CR")}
+                  </p>
+                </div>
+                {isSelected && (
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                    className="h-4 w-4 text-brand-500 shrink-0 ml-auto"
+                    aria-hidden="true"
+                  >
+                    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
+                  </svg>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Collar model (only for GPS bundle) */}
       {requiresCollar && (
         <div>
-          <label
-            htmlFor="bundle-collar-model"
-            className="mb-1 block text-xs font-medium text-sand-600"
-          >
+          <label htmlFor="bundle-collar-model" className="mb-1 block text-xs font-medium text-sand-600">
             Modelo de collar *
           </label>
           <select
@@ -411,14 +416,9 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
 
       {/* Shipping */}
       <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-sand-500">
-          Datos de envío
-        </p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-sand-500">Datos de envío</p>
         <div>
-          <label
-            htmlFor="bundle-full-name"
-            className="mb-1 block text-xs font-medium text-sand-600"
-          >
+          <label htmlFor="bundle-full-name" className="mb-1 block text-xs font-medium text-sand-600">
             Nombre completo *
           </label>
           <Input
@@ -429,10 +429,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
           />
         </div>
         <div>
-          <label
-            htmlFor="bundle-address"
-            className="mb-1 block text-xs font-medium text-sand-600"
-          >
+          <label htmlFor="bundle-address" className="mb-1 block text-xs font-medium text-sand-600">
             Dirección completa *
           </label>
           <Input
@@ -444,10 +441,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label
-              htmlFor="bundle-canton"
-              className="mb-1 block text-xs font-medium text-sand-600"
-            >
+            <label htmlFor="bundle-canton" className="mb-1 block text-xs font-medium text-sand-600">
               Cantón *
             </label>
             <select
@@ -464,10 +458,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
             </select>
           </div>
           <div>
-            <label
-              htmlFor="bundle-phone"
-              className="mb-1 block text-xs font-medium text-sand-600"
-            >
+            <label htmlFor="bundle-phone" className="mb-1 block text-xs font-medium text-sand-600">
               Teléfono *
             </label>
             <Input
@@ -480,10 +471,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
           </div>
         </div>
         <div>
-          <label
-            htmlFor="bundle-notes"
-            className="mb-1 block text-xs font-medium text-sand-600"
-          >
+          <label htmlFor="bundle-notes" className="mb-1 block text-xs font-medium text-sand-600">
             Notas de entrega
           </label>
           <textarea
@@ -499,15 +487,10 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
 
       <div className="rounded-xl border border-sand-200 bg-sand-50 p-3 text-xs text-sand-600 space-y-1">
         <p className="font-semibold">¿Cómo funciona el pago?</p>
-        <p>
-          1. Recibirás una referencia SINPE Móvil en este pedido y por correo.
-        </p>
+        <p>1. Recibirás una referencia SINPE Móvil en este pedido y por correo.</p>
         <p>2. Realiza la transferencia y marca el pago como hecho.</p>
         <p>3. Confirmamos el pago en 24-48 h y activamos tu plan Plus.</p>
-        <p>
-          4. Adquirimos y enviamos tu collar. Recibirás el número de
-          seguimiento.
-        </p>
+        <p>4. Adquirimos y enviamos tu collar. Recibirás el número de seguimiento.</p>
       </div>
 
       <Button
@@ -529,13 +512,8 @@ export function BundleOrderModal() {
   const [showForm, setShowForm] = useState(false);
   const [showNfcGuide, setShowNfcGuide] = useState(false);
 
-  const activeOrder = orders?.find(
-    (o) => o.status !== "Cancelled" && o.status !== "Delivered",
-  );
-  const pastOrders =
-    orders?.filter(
-      (o) => o.status === "Cancelled" || o.status === "Delivered",
-    ) ?? [];
+  const activeOrder = orders?.find((o) => o.status !== "Cancelled" && o.status !== "Delivered");
+  const pastOrders = orders?.filter((o) => o.status === "Cancelled" || o.status === "Delivered") ?? [];
 
   if (showForm) {
     return (
@@ -548,9 +526,7 @@ export function BundleOrderModal() {
           >
             ← Volver
           </button>
-          <h2 className="font-display text-base font-semibold text-sand-900">
-            Nuevo pedido de collar
-          </h2>
+          <h2 className="font-display text-base font-semibold text-sand-900">Nuevo pedido de collar</h2>
         </div>
         <CreateOrderForm onSuccess={() => setShowForm(false)} />
       </div>
@@ -560,9 +536,7 @@ export function BundleOrderModal() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-base font-semibold text-sand-900">
-          📦 Collar GPS + Plan Plus
-        </h2>
+        <h2 className="font-display text-base font-semibold text-sand-900">📦 Collar GPS + Plan Plus</h2>
         {!activeOrder && (
           <Button size="sm" onClick={() => setShowForm(true)}>
             + Pedir collar
@@ -570,21 +544,16 @@ export function BundleOrderModal() {
         )}
       </div>
 
-      {isLoading && (
-        <div className="animate-pulse h-24 rounded-2xl bg-sand-100" />
-      )}
+      {isLoading && <div className="animate-pulse h-24 rounded-2xl bg-sand-100" />}
 
       {activeOrder && <OrderCard order={activeOrder} />}
 
       {!activeOrder && !isLoading && (
         <div className="rounded-2xl border border-dashed border-sand-200 bg-surface-warm p-6 text-center space-y-2">
           <p className="text-2xl">📡</p>
-          <p className="text-sm font-semibold text-sand-700">
-            Collar GPS + 12 meses Plus — ₡49,900
-          </p>
+          <p className="text-sm font-semibold text-sand-700">Collar GPS + 12 meses Plus — ₡49,900</p>
           <p className="text-xs text-sand-500">
-            Collar GPS Inteligente PawTrack (perros o gatos) entregado a tu
-            puerta. Pago único, sin contrato.
+            Collar GPS Inteligente PawTrack (perros o gatos) entregado a tu puerta. Pago único, sin contrato.
           </p>
           <Button onClick={() => setShowForm(true)} className="mt-2">
             Pedir mi collar ahora
@@ -595,8 +564,8 @@ export function BundleOrderModal() {
       {pastOrders.length > 0 && (
         <details>
           <summary className="cursor-pointer text-xs font-semibold text-sand-400 hover:text-sand-600">
-            {pastOrders.length} pedido{pastOrders.length !== 1 ? "s" : ""}{" "}
-            completado{pastOrders.length !== 1 ? "s" : ""}/cancelado
+            {pastOrders.length} pedido{pastOrders.length !== 1 ? "s" : ""} completado
+            {pastOrders.length !== 1 ? "s" : ""}/cancelado
             {pastOrders.length !== 1 ? "s" : ""}
           </summary>
           <ul className="mt-2 space-y-2">
@@ -608,9 +577,7 @@ export function BundleOrderModal() {
       )}
 
       {/* NFC setup shortcut — shown when user has a delivered NFC order */}
-      {orders?.some(
-        (o) => o.status === "Delivered" && o.productType === "NfcQrCombo",
-      ) && (
+      {orders?.some((o) => o.status === "Delivered" && o.productType === "NfcQrCombo") && (
         <button
           type="button"
           onClick={() => setShowNfcGuide(true)}
@@ -620,20 +587,13 @@ export function BundleOrderModal() {
             📲
           </span>
           <div>
-            <p className="text-sm font-semibold text-trust-800">
-              Configurar chip NFC
-            </p>
-            <p className="text-xs text-trust-600">
-              Tutorial paso a paso para activar el collar NFC
-            </p>
+            <p className="text-sm font-semibold text-trust-800">Configurar chip NFC</p>
+            <p className="text-xs text-trust-600">Tutorial paso a paso para activar el collar NFC</p>
           </div>
         </button>
       )}
 
-      <NfcSetupGuide
-        isOpen={showNfcGuide}
-        onClose={() => setShowNfcGuide(false)}
-      />
+      <NfcSetupGuide isOpen={showNfcGuide} onClose={() => setShowNfcGuide(false)} />
     </div>
   );
 }

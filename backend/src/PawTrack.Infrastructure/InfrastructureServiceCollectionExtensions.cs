@@ -44,12 +44,14 @@ using PawTrack.Application.Bundles.Interfaces;
 using PawTrack.Application.Certificates.Interfaces;
 using PawTrack.Application.Collars.Interfaces;
 using PawTrack.Application.Municipalities.Interfaces;
+using PawTrack.Application.Payments.Interfaces;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Infrastructure.Bounties;
 using PawTrack.Infrastructure.Bundles;
 using PawTrack.Infrastructure.Certificates;
 using PawTrack.Infrastructure.Collars;
 using PawTrack.Infrastructure.Municipalities;
+using PawTrack.Infrastructure.Payments;
 using PawTrack.Infrastructure.Webhooks;
 
 namespace PawTrack.Infrastructure;
@@ -220,6 +222,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddHttpClient("TrackSolid")
             .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(15))
             .AddStandardResilienceHandler();
+        services.AddHttpClient("CyberSource")
+            .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(15))
+            .AddStandardResilienceHandler();
         services.AddSingleton<IPushNotificationService, PushNotificationService>();
         services.AddSingleton<INotificationRateLimitService, DistributedNotificationRateLimitService>();
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
@@ -350,6 +355,12 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ICapturedAnimalRepository, CapturedAnimalRepository>();
         services.AddScoped<IMunicipalProfileRepository, MunicipalProfileRepository>();
         services.AddScoped<IMunicipalSubscriptionService, MunicipalSubscriptionService>();
+
+        // Payment Gateway (CyberSource / Cards / User Payment Profiles)
+        services.AddScoped<IUserPaymentProfileRepository, UserPaymentProfileRepository>();
+        services.AddScoped<IPaymentTransactionRepository, PaymentTransactionRepository>();
+        services.AddSingleton<IPaymentGatewayService, CyberSourcePaymentGatewayService>();
+        services.AddHostedService<SubscriptionRecurringBillingHostedService>();
 
         // Jimi IoT TrackSolid Pro integration (AL600 GPS collar)
         services.AddSingleton<ITrackSolidService, TrackSolidService>();

@@ -18,11 +18,12 @@ public sealed record AdminSubscriptionDto(
     DateTimeOffset CreatedAt,
     DateTimeOffset? ActivatedAt,
     DateTimeOffset? ExpiresAt,
-    DateTimeOffset? PaymentReportedAt)
+    DateTimeOffset? PaymentReportedAt,
+    string? BankReceiptNumber = null)
 {
     public static AdminSubscriptionDto FromDomain(Subscription s) => new(
         s.Id, s.UserId, s.ClinicId, s.Tier, s.Status,
-        s.PaymentReference, s.AmountCrc, s.CreatedAt, s.ActivatedAt, s.ExpiresAt, s.PaymentReportedAt);
+        s.PaymentReference, s.AmountCrc, s.CreatedAt, s.ActivatedAt, s.ExpiresAt, s.PaymentReportedAt, s.BankReceiptNumber);
 }
 
 public sealed record GetAdminSubscriptionsQuery(bool PendingOnly = false, int Skip = 0, int Take = 50)

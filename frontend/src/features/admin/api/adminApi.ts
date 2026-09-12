@@ -1,9 +1,5 @@
 import { apiClient } from "@/shared/lib/apiClient";
-import type {
-  SubscriptionDto,
-  SubscriptionStatus,
-  SubscriptionTier,
-} from "@/features/pets/api/subscriptionApi";
+import type { SubscriptionDto, SubscriptionStatus, SubscriptionTier } from "@/features/pets/api/subscriptionApi";
 import type { AdoptablePetDto } from "@/features/adoptions/api/adoptionsApi";
 
 export type { SubscriptionDto, SubscriptionStatus, SubscriptionTier };
@@ -40,6 +36,7 @@ export interface AdminSubscriptionDto {
   activatedAt: string | null;
   expiresAt: string | null;
   paymentReportedAt: string | null;
+  bankReceiptNumber?: string | null;
 }
 
 export interface SubscriptionPlanDto {
@@ -102,13 +99,7 @@ export interface AdminClinicVeterinarianDto {
   clinicId: string;
   fullName: string;
   licenseNumber: string;
-  status:
-    | "PendingReview"
-    | "Authorized"
-    | "Rejected"
-    | "Suspended"
-    | "Revoked"
-    | "Expired";
+  status: "PendingReview" | "Authorized" | "Rejected" | "Suspended" | "Revoked" | "Expired";
   canIssueCertificates: boolean;
   isActive: boolean;
   hasDocument: boolean;
@@ -176,29 +167,21 @@ export interface PagedAnimalWelfareCasesDto {
 }
 
 export const adminApi = {
-  getPendingAllies: () =>
-    apiClient
-      .get<PendingAllyDto[]>("/allies/admin/pending")
-      .then((r) => r.data),
+  getPendingAllies: () => apiClient.get<PendingAllyDto[]>("/allies/admin/pending").then((r) => r.data),
 
   reviewAlly: (userId: string, approve: boolean) =>
     apiClient.post<void>(`/allies/admin/applications/${userId}/review`, {
       approve,
     }),
 
-  getPendingClinics: () =>
-    apiClient
-      .get<PendingClinicDto[]>("/clinics/admin/pending")
-      .then((r) => r.data),
+  getPendingClinics: () => apiClient.get<PendingClinicDto[]>("/clinics/admin/pending").then((r) => r.data),
 
   reviewClinic: (clinicId: string, approve: boolean) =>
     apiClient.put<void>(`/clinics/admin/${clinicId}/review`, { approve }),
 
   getClinicVerifications: (page = 1, pageSize = 20) =>
     apiClient
-      .get<
-        AdminClinicVerificationDto[]
-      >("/clinics/admin/verifications", { params: { page, pageSize } })
+      .get<AdminClinicVerificationDto[]>("/clinics/admin/verifications", { params: { page, pageSize } })
       .then((r) => r.data),
 
   reviewClinicVerification: (
@@ -211,17 +194,12 @@ export const adminApi = {
     },
   ) =>
     apiClient
-      .put<AdminClinicVerificationDto>(
-        `/clinics/admin/verifications/${verificationId}/review`,
-        payload,
-      )
+      .put<AdminClinicVerificationDto>(`/clinics/admin/verifications/${verificationId}/review`, payload)
       .then((r) => r.data),
 
   getClinicVeterinariansForReview: (page = 1, pageSize = 20) =>
     apiClient
-      .get<
-        AdminClinicVeterinarianDto[]
-      >("/clinics/admin/veterinarians", { params: { page, pageSize } })
+      .get<AdminClinicVeterinarianDto[]>("/clinics/admin/veterinarians", { params: { page, pageSize } })
       .then((r) => r.data),
 
   reviewClinicVeterinarian: (
@@ -234,48 +212,30 @@ export const adminApi = {
     },
   ) =>
     apiClient
-      .put<AdminClinicVeterinarianDto>(
-        `/clinics/admin/veterinarians/${veterinarianId}/review`,
-        payload,
-      )
+      .put<AdminClinicVeterinarianDto>(`/clinics/admin/veterinarians/${veterinarianId}/review`, payload)
       .then((r) => r.data),
 
   suspendClinicVeterinarian: (veterinarianId: string, reason: string) =>
     apiClient
-      .post<AdminClinicVeterinarianDto>(
-        `/clinics/admin/veterinarians/${veterinarianId}/suspend`,
-        { reason },
-      )
+      .post<AdminClinicVeterinarianDto>(`/clinics/admin/veterinarians/${veterinarianId}/suspend`, { reason })
       .then((r) => r.data),
 
   getMicrochipConflicts: (page = 1, pageSize = 20) =>
     apiClient
-      .get<
-        AdminPetSanitaryIdentityDto[]
-      >("/admin/pets/microchip-conflicts", { params: { page, pageSize } })
+      .get<AdminPetSanitaryIdentityDto[]>("/admin/pets/microchip-conflicts", { params: { page, pageSize } })
       .then((r) => r.data),
 
   revokeMicrochipVerification: (petId: string, reason: string) =>
     apiClient
-      .post<AdminPetSanitaryIdentityDto>(
-        `/admin/pets/${petId}/microchip-verification/revoke`,
-        { reason },
-      )
+      .post<AdminPetSanitaryIdentityDto>(`/admin/pets/${petId}/microchip-verification/revoke`, { reason })
       .then((r) => r.data),
 
-  resolveMicrochipConflict: (
-    petId: string,
-    confirmedChipId: string,
-    reason: string,
-  ) =>
+  resolveMicrochipConflict: (petId: string, confirmedChipId: string, reason: string) =>
     apiClient
-      .post<AdminPetSanitaryIdentityDto>(
-        `/admin/pets/${petId}/microchip-conflicts/resolve`,
-        {
-          confirmedChipId,
-          reason,
-        },
-      )
+      .post<AdminPetSanitaryIdentityDto>(`/admin/pets/${petId}/microchip-conflicts/resolve`, {
+        confirmedChipId,
+        reason,
+      })
       .then((r) => r.data),
 
   getWelfareCases: (params?: {
@@ -284,24 +244,16 @@ export const adminApi = {
     canton?: string;
     page?: number;
     pageSize?: number;
-  }) =>
-    apiClient
-      .get<PagedAnimalWelfareCasesDto>("/admin/welfare-cases", { params })
-      .then((r) => r.data),
+  }) => apiClient.get<PagedAnimalWelfareCasesDto>("/admin/welfare-cases", { params }).then((r) => r.data),
 
-  startWelfareCaseTriage: (caseId: string) =>
-    apiClient.post<boolean>(`/admin/welfare-cases/${caseId}/triage`),
+  startWelfareCaseTriage: (caseId: string) => apiClient.post<boolean>(`/admin/welfare-cases/${caseId}/triage`),
 
   setWelfareCaseSeverity: (caseId: string, severity: WelfareSeverity) =>
     apiClient.post<boolean>(`/admin/welfare-cases/${caseId}/severity`, {
       severity,
     }),
 
-  assignWelfareCase: (
-    caseId: string,
-    organizationUserId: string,
-    role: string,
-  ) =>
+  assignWelfareCase: (caseId: string, organizationUserId: string, role: string) =>
     apiClient.post<boolean>(`/admin/welfare-cases/${caseId}/assign`, {
       organizationUserId,
       role,
@@ -319,9 +271,7 @@ export const adminApi = {
 
   getAdminSubscriptions: (pendingOnly = false, skip = 0, take = 50) =>
     apiClient
-      .get<
-        AdminSubscriptionDto[]
-      >("/subscriptions/admin", { params: { pendingOnly, skip, take } })
+      .get<AdminSubscriptionDto[]>("/subscriptions/admin", { params: { pendingOnly, skip, take } })
       .then((r) => r.data),
 
   adminActivateSubscription: (id: string, billingMonths = 1) =>
@@ -332,9 +282,7 @@ export const adminApi = {
       .then((r) => r.data),
 
   adminCancelSubscription: (id: string) =>
-    apiClient
-      .delete<SubscriptionDto>(`/subscriptions/admin/${id}`)
-      .then((r) => r.data),
+    apiClient.delete<SubscriptionDto>(`/subscriptions/admin/${id}`).then((r) => r.data),
 
   getSubscriptionPlans: (includeInactive = true) =>
     apiClient
@@ -344,25 +292,13 @@ export const adminApi = {
       .then((r) => r.data),
 
   createSubscriptionPlan: (
-    payload: Omit<
-      SubscriptionPlanDto,
-      "id" | "isActive" | "createdAt" | "updatedAt" | "version"
-    >,
-  ) =>
-    apiClient
-      .post<SubscriptionPlanDto>("/admin/subscription-plans", payload)
-      .then((r) => r.data),
+    payload: Omit<SubscriptionPlanDto, "id" | "isActive" | "createdAt" | "updatedAt" | "version">,
+  ) => apiClient.post<SubscriptionPlanDto>("/admin/subscription-plans", payload).then((r) => r.data),
 
   updateSubscriptionPlan: (
     id: string,
-    payload: Omit<
-      SubscriptionPlanDto,
-      "id" | "tier" | "isActive" | "createdAt" | "updatedAt"
-    >,
-  ) =>
-    apiClient
-      .put<SubscriptionPlanDto>(`/admin/subscription-plans/${id}`, payload)
-      .then((r) => r.data),
+    payload: Omit<SubscriptionPlanDto, "id" | "tier" | "isActive" | "createdAt" | "updatedAt">,
+  ) => apiClient.put<SubscriptionPlanDto>(`/admin/subscription-plans/${id}`, payload).then((r) => r.data),
 
   deleteSubscriptionPlan: (id: string, version: string) =>
     apiClient
@@ -373,10 +309,7 @@ export const adminApi = {
 
   // ── Adoptions admin ────────────────────────────────────────────────────────
 
-  getAdoptionStats: () =>
-    apiClient
-      .get<AdoptionAdminStatsDto>("/admin/adoptions/stats")
-      .then((r) => r.data),
+  getAdoptionStats: () => apiClient.get<AdoptionAdminStatsDto>("/admin/adoptions/stats").then((r) => r.data),
 
   getAdminAnimals: (status?: string, page = 1, pageSize = 20) =>
     apiClient
@@ -385,10 +318,7 @@ export const adminApi = {
       })
       .then((r) => r.data),
 
-  moderateAnimal: (
-    id: string,
-    action: "approve" | "reject" | "remove" | "pause" | "restore",
-  ) =>
+  moderateAnimal: (id: string, action: "approve" | "reject" | "remove" | "pause" | "restore") =>
     apiClient.patch<void>(`/admin/adoptions/animals/${id}/moderate`, {
       action,
     }),
