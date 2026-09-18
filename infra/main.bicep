@@ -359,7 +359,10 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
         // Keep at least 1 replica in prod to eliminate cold-start latency
         // (QR scans must respond instantly). In non-prod, scale-to-zero saves cost.
         minReplicas: environment == 'prod' ? 1 : 0
-        maxReplicas: environment == 'prod' ? 10 : 3
+        // Three replicas provide headroom for the expected MVP load while
+        // bounding accidental scale-out spend. Increase only after measuring
+        // sustained saturation and configuring Redis + Azure SignalR.
+        maxReplicas: environment == 'prod' ? 3 : 2
       }
     }
   }
@@ -713,7 +716,7 @@ resource wafPolicy 'Microsoft.Network/FrontDoorWebApplicationFirewallPolicies@20
   }
 }
 // ── Outputs ───────────────────────────────────────────────────────────────────
-output appServiceUrl string = 'https://${containerApp.properties.configuration.ingress.fqdn}'
+output containerAppUrl string = 'https://${containerApp.properties.configuration.ingress.fqdn}'
 output containerAppName string = containerApp.name
 output acrLoginServer string = containerRegistry.properties.loginServer
 output keyVaultUri string = keyVault.properties.vaultUri

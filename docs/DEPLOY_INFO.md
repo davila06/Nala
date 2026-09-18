@@ -9,7 +9,10 @@
 > Ambiente: **Beta**  
 > Cuenta Azure: `davila06@gmail.com`
 
-> ⚠️ **Nota agosto 2026:** La arquitectura evolucionó de Container Apps a App Service Linux (B3). Los nombres de recursos pueden diferir si se redesplegó. Usar `GUIA_DEPLOY_PASO_A_PASO.md` para despliegue fresco.
+> ⚠️ **Nota operativa:** La arquitectura vigente usa Azure Container Apps,
+> definido en `infra/main.bicep`. Cualquier referencia histórica a App Service
+> Linux está obsoleta. Los nombres de recursos pueden diferir si se redesplegó.
+> Usar `RUNBOOK_DEPLOYMENT.md` como procedimiento canónico.
 
 ---
 

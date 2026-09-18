@@ -2,8 +2,8 @@
 
 > **Estado: HISTORICO/DETALLE DE CONFIGURACION.** Usar
 > [RUNBOOK_DEPLOYMENT.md](RUNBOOK_DEPLOYMENT.md) como fuente canonica y este
-> archivo solo como referencia de configuraciones antiguas.
-
+> archivo solo como referencia de configuraciones antiguas. Las instrucciones
+> que mencionan App Service estan obsoletas y no deben ejecutarse.
 > **Versión:** 1.0 | **Fecha:** 2026-08-24  
 > **Audiencia:** Operador de infraestructura / founder  
 > **Pre-requisitos:** Azure CLI 2.60+, Docker 24+, .NET SDK 9, Node.js 20 LTS, acceso a la suscripción Azure
@@ -33,17 +33,17 @@
 
 ### Recursos Azure ya desplegados (via Bicep `infra/main.bicep`)
 
-| Recurso                  | Nombre                   | URL                                         |
-| ------------------------ | ------------------------ | ------------------------------------------- |
-| App Service (B3 Linux)   | `pawtrack-prod-api`      | `https://api.pawtrack.cr`                   |
-| Static Web App           | `pawtrack-swa-prod`      | `https://pawtrack.azurestaticapps.net`      |
-| Azure SQL Server         | `pawtrack-prod-sql`      | —                                           |
-| Base de datos            | `pawtrack`               | —                                           |
-| Key Vault                | `pawtrack-kv-prod`       | `https://pawtrack-kv-prod.vault.azure.net/` |
-| Blob Storage             | `pawtrackstorprod`       | —                                           |
-| Application Insights     | `pawtrack-prod-insights` | —                                           |
-| Log Analytics            | `pawtrack-prod-logs`     | —                                           |
-| ACR (Container Registry) | `pawtrackacrprod`        | `pawtrackacrprod.azurecr.io`                |
+| Recurso                          | Nombre                   | URL                                         |
+| -------------------------------- | ------------------------ | ------------------------------------------- |
+| Container App (0.5 vCPU / 1 GiB) | `pawtrack-prod-api`      | `https://api.pawtrack.cr`                   |
+| Static Web App                   | `pawtrack-swa-prod`      | `https://pawtrack.azurestaticapps.net`      |
+| Azure SQL Server                 | `pawtrack-prod-sql`      | —                                           |
+| Base de datos                    | `pawtrack`               | —                                           |
+| Key Vault                        | `pawtrack-kv-prod`       | `https://pawtrack-kv-prod.vault.azure.net/` |
+| Blob Storage                     | `pawtrackstorprod`       | —                                           |
+| Application Insights             | `pawtrack-prod-insights` | —                                           |
+| Log Analytics                    | `pawtrack-prod-logs`     | —                                           |
+| ACR (Container Registry)         | `pawtrackacrprod`        | `pawtrackacrprod.azurecr.io`                |
 
 ### Contenedores Blob ya creados por Bicep
 
@@ -69,7 +69,7 @@ Los workflows en `.github/workflows/` (backend.yml, frontend.yml, infra.yml, smo
 | `AZURE_SUBSCRIPTION_ID`           | ID de la suscripción                                              | `az account show --query id -o tsv`               |
 | `AZURE_RESOURCE_GROUP`            | Nombre del resource group                                         | `pawtrack-prod-rg`                                |
 | `ACR_NAME`                        | Nombre del Azure Container Registry (sin `.azurecr.io`)           | `pawtrackacrprod`                                 |
-| `CONTAINER_APP_NAME`              | Nombre del Container App / App Service                            | `pawtrack-prod-api`                               |
+| `CONTAINER_APP_NAME`              | Nombre del Container App                                          | `pawtrack-prod-api`                               |
 | `CONTAINER_APP_FQDN`              | FQDN del API sin `https://`                                       | `api.pawtrack.cr`                                 |
 | `AZURE_STATIC_WEB_APPS_API_TOKEN` | Deployment token del SWA                                          | Ver abajo                                         |
 | `SQL_CONNECTION_STRING`           | Connection string completo de Azure SQL                           | Ver abajo                                         |

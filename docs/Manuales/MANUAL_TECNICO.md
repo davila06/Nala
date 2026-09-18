@@ -469,11 +469,10 @@ Declarada en `infra/main.bicep` usando Bicep (Azure Resource Manager DSL).
 | Log Analytics Workspace | PerGB2018, 30 días retención                                           | Base para App Insights              |
 | Application Insights    | Web                                                                    | Telemetría y trazas                 |
 | Azure SQL Server        |                                                                        | Motor de base de datos              |
-| Azure SQL Database      | S1 (escalable)                                                         | Base de datos PawTrack              |
+| Azure SQL Database      | GP_S_Gen5_1 serverless                                                 | Base de datos PawTrack              |
 | Storage Account         | Standard_LRS                                                           | Blob (fotos)                        |
 | Blob Containers         | `pet-photos`, `sighting-photos`, `found-pet-photos`, `lost-pet-photos` | Imágenes (público), otras privadas  |
-| App Service Plan        | B2 Linux                                                               | Hosting del backend                 |
-| App Service             | .NET 9                                                                 | API backend                         |
+| Azure Container Apps    | 0.5 vCPU / 1 GiB, 1-3 réplicas                                         | Hosting del backend                 |
 | Key Vault               | Standard                                                               | Secretos: JWT, conexiones, API keys |
 | Azure Monitor Alert     |                                                                        | Alertas de errores 5xx              |
 
@@ -1197,16 +1196,18 @@ az deployment group create \
                alertEmailAddress="devops@pawtrack.cr"
 ```
 
-### Backend (App Service)
+### Backend (Azure Container Apps)
 
 ```bash
-cd backend
-dotnet publish src/PawTrack.API -c Release -o ../publish/api/
+az acr login --name pawtrackacrprod
+$image="pawtrackacrprod.azurecr.io/pawtrack-api:<tag-inmutable>"
+docker build -f backend/Dockerfile -t "$image" backend/
+docker push "$image"
 
-az webapp deployment source config-zip \
+az containerapp update \
   --resource-group pawtrack-prod \
   --name pawtrack-prod-api \
-  --src ../publish/api.zip
+  --image "$image"
 ```
 
 ### Frontend (Static Web App o Blob + CDN)

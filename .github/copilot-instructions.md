@@ -21,7 +21,7 @@ Core loop: _register pet → generate QR → report lost → log sighting → re
 | Backend  | .NET 9 · Clean Architecture · CQRS via MediatR                                          |
 | Frontend | React PWA · TypeScript                                                                  |
 | Database | Azure SQL · EF Core                                                                     |
-| Cloud    | Azure App Service · Blob Storage · Notification Hubs · Key Vault · Application Insights |
+| Cloud    | Azure Container Apps · Blob Storage · Notification Hubs · Key Vault · Application Insights |
 
 ---
 

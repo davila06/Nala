@@ -13,8 +13,8 @@
 1. [Recursos de producción](#1-recursos-de-producción)
 2. [Verificar estado general](#2-verificar-estado-general)
 3. [Escalada de errores 5xx](#3-escalada-de-errores-5xx)
-4. [Reiniciar el App Service sin downtime](#4-reiniciar-el-app-service-sin-downtime)
-5. [Escalar el App Service](#5-escalar-el-app-service)
+4. [Reiniciar una revisión de Container Apps](#4-reiniciar-una-revisión-de-container-apps)
+5. [Escalar Container Apps](#5-escalar-container-apps)
 6. [Rotar secretos comprometidos](#6-rotar-secretos-comprometidos)
    - 6.1 [Rotar la clave JWT (sesiones comprometidas)](#61-rotar-la-clave-jwt-sesiones-comprometidas)
    - 6.2 [Rotar el connection string de SQL](#62-rotar-el-connection-string-de-sql)
@@ -34,16 +34,16 @@
 
 ## 1. Recursos de producción
 
-| Recurso                   | Nombre en Azure                     | URL / Referencia                                                                                                                 |
-| ------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| App Service               | `pawtrack-prod-api`                 | `https://api.pawtrack.cr`                                                                                                        |
-| Frontend (Static Web App) | —                                   | `https://pawtrack.cr`                                                                                                            |
-| Azure SQL                 | `pawtrack-prod-sql` / DB `pawtrack` | —                                                                                                                                |
-| Key Vault                 | `pawtrack-kv-prod`                  | `https://pawtrack-kv-prod.vault.azure.net/`                                                                                      |
-| Blob Storage              | `pawtrackstorprod`                  | Contenedores: `pet-photos`, `sighting-photos`, `found-pet-photos`, `lost-pet-photos`, `store-product-images`, `billboard-images` |
-| Application Insights      | `pawtrack-prod-insights`            | Portal Azure → Log Analytics                                                                                                     |
-| Log Analytics Workspace   | `pawtrack-prod-logs`                | Retención: 30 días                                                                                                               |
-| App Service Plan          | `pawtrack-prod-plan`                | SKU: B3 Linux                                                                                                                    |
+| Recurso                    | Nombre en Azure                     | URL / Referencia                                                                                                                 |
+| -------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Container App              | `pawtrack-prod-api`                 | `https://api.pawtrack.cr`                                                                                                        |
+| Frontend (Static Web App)  | —                                   | `https://pawtrack.cr`                                                                                                            |
+| Azure SQL                  | `pawtrack-prod-sql` / DB `pawtrack` | —                                                                                                                                |
+| Key Vault                  | `pawtrack-kv-prod`                  | `https://pawtrack-kv-prod.vault.azure.net/`                                                                                      |
+| Blob Storage               | `pawtrackstorprod`                  | Contenedores: `pet-photos`, `sighting-photos`, `found-pet-photos`, `lost-pet-photos`, `store-product-images`, `billboard-images` |
+| Application Insights       | `pawtrack-prod-insights`            | Portal Azure → Log Analytics                                                                                                     |
+| Log Analytics Workspace    | `pawtrack-prod-logs`                | Retención: 30 días                                                                                                               |
+| Container Apps Environment | `pawtrack-prod-env`                 | API: 0.5 vCPU / 1 GiB, 1-3 réplicas                                                                                              |
 
 > **SignalR Hubs activos:** `/hubs/search-coordination` (zonas búsqueda), `/hubs/chat` (mensajes tiempo real)
 
@@ -98,12 +98,13 @@ exceptions
 
 1. **Consultar Application Insights** (sección 2) para identificar qué operación está fallando.
 
-1. **Revisar los logs del App Service:**
+1. **Revisar los logs del Container App:**
 
 ```bash
-az webapp log tail \
+az containerapp logs show \
   --name pawtrack-prod-api \
-  --resource-group pawtrack-prod
+  --resource-group pawtrack-prod \
+  --follow
 ```
 
 1. **Identificar la causa:**
@@ -112,24 +113,32 @@ az webapp log tail \
 | ----------------------------------------- | ---------------------------------------------------------- | ------------------------------------------- |
 | `SqlException: connection refused`        | SQL auto-paused o no disponible                            | Ver sección 11.1                            |
 | `Azure.RequestFailedException` en Storage | Connection string de Storage inválida o servicio degradado | Verificar Key Vault y Azure Storage status  |
-| `SecurityTokenExpiredException` masivo    | Reloj del servidor desincronizado                          | Reiniciar App Service (sección 4)           |
-| Errores 503 desde el load balancer        | App Service sin instancias disponibles                     | Escalar (sección 5) o reiniciar (sección 4) |
+| `SecurityTokenExpiredException` masivo    | Revisión o configuración no saludable                      | Reiniciar la revisión (sección 4)           |
+| Errores 503 desde el load balancer        | Réplicas sin capacidad o revisión no saludable             | Escalar (sección 5) o reiniciar (sección 4) |
 | `Could not load file or assembly`         | Deploy incompleto                                          | Hacer redeploy desde la pipeline            |
 
 1. Si la causa no es identificable en 10 minutos, **escala** a la persona on-call senior (sección 15).
 
 ---
 
-## 4. Reiniciar el App Service sin downtime
+## 4. Reiniciar una revisión de Container Apps
 
-El App Service usa un solo slot en MVP. El reinicio tiene ~30 segundos de downtime.
+Container Apps mantiene una réplica mínima en producción. Reiniciar la revisión
+activa puede provocar una interrupción breve; confirmar primero que no haya una
+incidencia regional ni de SQL.
 
-### Reinicio suave (warm restart)
+### Reiniciar la revisión activa
 
 ```bash
-az webapp restart \
+$revision=$(az containerapp revision list \
   --name pawtrack-prod-api \
-  --resource-group pawtrack-prod
+  --resource-group pawtrack-prod \
+  --query "[?properties.active].name | [0]" -o tsv)
+
+az containerapp revision restart \
+  --name pawtrack-prod-api \
+  --resource-group pawtrack-prod \
+  --revision "$revision"
 ```
 
 Espera 60 segundos y verifica el health check:
@@ -138,12 +147,12 @@ Espera 60 segundos y verifica el health check:
 curl -f https://api.pawtrack.cr/health
 ```
 
-### Reinicio forzado (si el suave no responde)
+### Recuperación si la revisión no responde
 
-1. Portal Azure → `pawtrack-prod-api` → **Overview** → botón **Stop**.
-1. Esperar 10 segundos.
-1. Botón **Start**.
-1. Verificar health check cada 10 segundos hasta obtener `200 OK`.
+1. Portal Azure → `pawtrack-prod-api` → **Revisions and replicas**.
+1. Verificar que la revisión activa tiene una réplica en estado `Running`.
+1. Si no la tiene, hacer redeploy de la última imagen inmutable conocida como buena.
+1. Verificar health check hasta obtener `200 OK`.
 
 ### Verificar que la aplicación arrancó correctamente
 
@@ -157,31 +166,23 @@ traces
 
 ---
 
-## 5. Escalar el App Service
+## 5. Escalar Container Apps
 
-### Scale up (más CPU y RAM — mismo número de instancias)
+La fuente de verdad para escala es `infra/main.bicep`; no aplicar cambios
+manuales persistentes en el portal. El rango MVP es una réplica mínima y un
+máximo de tres. Antes de ampliar el máximo, configurar Redis y Azure SignalR.
 
-El plan actual en producción es **B3** (SKU máximo del tier Basic). Para subir a un tier superior:
-
-```bash
-az appservice plan update \
-  --name pawtrack-prod-plan \
-  --resource-group pawtrack-prod \
-  --sku S1
-```
-
-> Pasar de Basic a Standard (S-tier) permite deployment slots y escalado automático.
-
-### Scale out manual (más instancias)
+### Aplicar un cambio de escala revisado
 
 ```bash
-az appservice plan update \
-  --name pawtrack-prod-plan \
+az deployment group create \
   --resource-group pawtrack-prod \
-  --number-of-workers 2
+  --template-file infra/main.bicep \
+  --parameters infra/parameters.prod.bicepparam
 ```
 
-> Aumentar instancias en un plan Basic con SignalR activo puede causar problemas de sticky sessions. Considerar migración a plan Standard con affinity habilitada o un Azure SignalR Service dedicado antes de hacer scale out.
+No ampliar el límite por una alerta aislada: revisar primero CPU, memoria, tasa
+de solicitudes y latencia P95 en Application Insights.
 
 ---
 
@@ -208,7 +209,7 @@ az keyvault secret set \
   --value "<nueva-clave-generada>"
 ```
 
-1. Reinicia el App Service para que tome el nuevo valor (sección 4).
+1. Reinicia la revisión activa del Container App (sección 4).
 
 1. Verifica que el login funciona correctamente:
 
@@ -253,7 +254,7 @@ az keyvault secret set \
   --value "<nuevo-connection-string>"
 ```
 
-1. Reinicia el App Service (sección 4).
+1. Reinicia la revisión activa del Container App (sección 4).
 
 1. Verifica el health check. Si el health check incluye una verificación de DB (`/health/ready`), confírmalo también.
 
@@ -271,8 +272,8 @@ az keyvault secret set \
   --value "<nuevo-valor>"
 ```
 
-1. Reinicia el App Service (sección 4).
-1. El App Service toma el nuevo valor en el siguiente ciclo de caché de Key Vault (máximo 24 h si no se reinicia).
+1. Reinicia la revisión activa del Container App (sección 4).
+1. Verifica que la nueva revisión leyó el secreto actualizado antes de cerrar el incidente.
 
 ---
 
@@ -510,17 +511,17 @@ WHERE Id = '<guid-de-la-clinica>';
 El deploy se realiza desde la pipeline de CI/CD (GitHub Actions o Azure DevOps). Para un deploy manual de emergencia:
 
 ```bash
-# Desde la raíz del repositorio, publicar el backend
-dotnet publish backend/src/PawTrack.API \
-  -c Release \
-  -o ./publish
+# Desde la raíz del repositorio, construir y publicar una imagen inmutable.
+$image="pawtrackacrprod.azurecr.io/pawtrack-api:$(git rev-parse --short HEAD)"
+az acr login --name pawtrackacrprod
+docker build -f backend/Dockerfile -t "$image" backend/
+docker push "$image"
 
-# Desplegar via Azure CLI
-az webapp deploy \
+# Crear una nueva revisión del Container App.
+az containerapp update \
   --name pawtrack-prod-api \
   --resource-group pawtrack-prod \
-  --src-path ./publish \
-  --type zip
+  --image "$image"
 ```
 
 ### Actualización de secretos en Key Vault (rotación periódica)

@@ -6,17 +6,13 @@
     "primaryStack": {
       "backend": ".NET 8 (Clean Architecture + CQRS)",
       "frontend": "React PWA (TypeScript)",
-      "cloud": "Azure (App Service, Azure SQL, Blob Storage, Notification Hubs, Key Vault, Application Insights)"
+      "cloud": "Azure (Container Apps, Azure SQL, Blob Storage, Notification Hubs, Key Vault, Application Insights)"
     }
   },
   "installPolicy": {
     "principle": "Instalar solo skills relevantes por sprint para evitar 'context rot'.",
     "preferredScope": "project",
-    "preferredAgents": [
-      "github-copilot",
-      "claude-code",
-      "cursor"
-    ],
+    "preferredAgents": ["github-copilot", "claude-code", "cursor"],
     "maxActiveSkillsGuideline": "4-8 skills activos por sprint (orientativo)"
   },
   "sources": {
@@ -54,7 +50,7 @@
           "vercel-react-best-practices"
         ],
         "microsoft/skills": [
-          "(seleccionar solo lo necesario para App Service/SQL/Key Vault/Insights)"
+          "(seleccionar solo lo necesario para Container Apps/SQL/Key Vault/Insights)"
         ]
       }
     },
@@ -114,9 +110,7 @@
           "snapshot-testing",
           "database-performance"
         ],
-        "vercel-labs/agent-skills": [
-          "web-design-guidelines"
-        ],
+        "vercel-labs/agent-skills": ["web-design-guidelines"],
         "microsoft/skills": [
           "(seleccionar skills de deploy/validate/monitoring según pipeline)"
         ]

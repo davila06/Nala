@@ -29,7 +29,7 @@ La meta final es dejar funcionando:
 Segun el estado actual del proyecto, la ruta recomendada es esta:
 
 1. Frontend en Azure Static Web Apps
-2. Backend en Azure App Service Linux
+2. Backend en Azure Container Apps Linux
 3. Base de datos en Azure SQL Database
 4. Fotos en Azure Blob Storage
 5. Secretos en Azure Key Vault
@@ -45,9 +45,9 @@ El archivo `infra/main.bicep` ya crea o configura:
 - Azure SQL Database
 - Storage Account y contenedores `pet-photos` y `sighting-photos`
 - Key Vault
-- App Service Plan Linux
-- App Service del backend
-- Permiso del App Service para leer secretos del Key Vault
+- Container Apps Environment
+- Container App del backend
+- Permiso de la identidad administrada del Container App para leer secretos del Key Vault
 - Alertas basicas de 5xx, latencia y disponibilidad
 
 ### Lo que NO esta claramente automatizado en el repo actual
@@ -63,7 +63,7 @@ Usa esta convencion desde el inicio:
 - Dominio API: `api.pawtrack.cr`
 - Resource group: `pawtrack-prod-rg`
 - Azure Static Web App: `pawtrack-prod-frontend`
-- App Service API: `pawtrack-prod-api`
+- Container App API: `pawtrack-prod-api`
 
 Si ya tienes otros nombres, puedes cambiarlos, pero debes mantener consistencia en:
 
@@ -111,7 +111,7 @@ Usa esta secuencia exacta:
 2. Desplegar la infraestructura base con Bicep
 3. Crear el frontend en Azure Static Web Apps
 4. Cargar secretos en Key Vault
-5. Configurar variables de App Service y del frontend
+5. Configurar variables de Container Apps y del frontend
 6. Ejecutar migraciones de base de datos
 7. Publicar backend
 8. Publicar frontend
@@ -251,7 +251,7 @@ az deployment group create `
 
 Al final debes obtener salidas parecidas a estas:
 
-- `appServiceUrl`
+- `containerAppUrl`
 - `keyVaultUri`
 - `appInsightsConnectionString`
 - `storageAccountName`
@@ -264,7 +264,7 @@ Guardalas en un archivo temporal porque las usaras en pasos siguientes.
 Ejecuta estos comandos para recuperar nombres utiles:
 
 ```powershell
-az webapp list --resource-group pawtrack-prod-rg --output table
+az containerapp list --resource-group pawtrack-prod-rg --output table
 az keyvault list --resource-group pawtrack-prod-rg --output table
 az storage account list --resource-group pawtrack-prod-rg --output table
 az sql server list --resource-group pawtrack-prod-rg --output table

@@ -19,11 +19,7 @@
     "environment": {
       "type": "string",
       "defaultValue": "dev",
-      "allowedValues": [
-        "dev",
-        "staging",
-        "prod"
-      ],
+      "allowedValues": ["dev", "staging", "prod"],
       "metadata": {
         "description": "Entorno: dev, staging, prod"
       }
@@ -225,12 +221,8 @@
                   }
                 },
                 "filters": {
-                  "blobTypes": [
-                    "blockBlob"
-                  ],
-                  "prefixMatch": [
-                    "sighting-photos/"
-                  ]
+                  "blobTypes": ["blockBlob"],
+                  "prefixMatch": ["sighting-photos/"]
                 }
               }
             },
@@ -247,12 +239,8 @@
                   }
                 },
                 "filters": {
-                  "blobTypes": [
-                    "blockBlob"
-                  ],
-                  "prefixMatch": [
-                    "found-pet-photos/"
-                  ]
+                  "blobTypes": ["blockBlob"],
+                  "prefixMatch": ["found-pet-photos/"]
                 }
               }
             },
@@ -269,12 +257,8 @@
                   }
                 },
                 "filters": {
-                  "blobTypes": [
-                    "blockBlob"
-                  ],
-                  "prefixMatch": [
-                    "whatsapp-avatars/"
-                  ]
+                  "blobTypes": ["blockBlob"],
+                  "prefixMatch": ["whatsapp-avatars/"]
                 }
               }
             }
@@ -382,7 +366,7 @@
           ],
           "scale": {
             "minReplicas": "[if(equals(parameters('environment'), 'prod'), 1, 0)]",
-            "maxReplicas": "[if(equals(parameters('environment'), 'prod'), 10, 3)]"
+            "maxReplicas": "[if(equals(parameters('environment'), 'prod'), 3, 2)]"
           }
         }
       },
@@ -616,9 +600,7 @@
                 {
                   "name": "request/resultCode",
                   "operator": "Include",
-                  "values": [
-                    "401"
-                  ]
+                  "values": ["401"]
                 }
               ]
             }
@@ -664,9 +646,7 @@
                 {
                   "name": "request/resultCode",
                   "operator": "Include",
-                  "values": [
-                    "429"
-                  ]
+                  "values": ["429"]
                 }
               ]
             }
@@ -714,18 +694,14 @@
             "enabled": true,
             "operator": "GreaterThan",
             "threshold": 80,
-            "contactEmails": [
-              "[parameters('alertEmailAddress')]"
-            ],
+            "contactEmails": ["[parameters('alertEmailAddress')]"],
             "thresholdType": "Actual"
           },
           "forecast100": {
             "enabled": true,
             "operator": "GreaterThan",
             "threshold": 100,
-            "contactEmails": [
-              "[parameters('alertEmailAddress')]"
-            ],
+            "contactEmails": ["[parameters('alertEmailAddress')]"],
             "thresholdType": "Forecasted"
           }
         }
@@ -765,7 +741,7 @@
     }
   ],
   "outputs": {
-    "appServiceUrl": {
+    "containerAppUrl": {
       "type": "string",
       "value": "[format('https://{0}', reference(resourceId('Microsoft.App/containerApps', format('{0}-api', variables('resourcePrefix'))), '2024-03-01').configuration.ingress.fqdn)]"
     },

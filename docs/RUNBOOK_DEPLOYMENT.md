@@ -7,14 +7,16 @@
 ## Arquitectura vigente
 
 - Frontend: Azure Static Web Apps.
-- Backend: Azure App Service Linux o el recurso equivalente definido por la
-  infraestructura desplegada; no asumir Container Apps por documentos antiguos.
+- Backend: Azure Container Apps Linux, definido en `infra/main.bicep`.
 - Datos: Azure SQL.
 - Archivos: Azure Blob Storage.
 - Secretos: Azure Key Vault.
 - Telemetria: Application Insights y Log Analytics.
 
-Confirmar los nombres reales con Azure y `infra/` antes de ejecutar comandos.
+La API mantiene una replica en produccion para QR y procesos programados. El
+maximo es de tres replicas para el volumen MVP; no ampliarlo sin configurar
+Redis y Azure SignalR, que preservan estado distribuido y tiempo real durante
+el scale-out. Confirmar los nombres reales con Azure y `infra/` antes de ejecutar comandos.
 Nunca copiar contrasenas, connection strings o tokens a este documento.
 
 ## Preflight

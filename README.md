@@ -77,7 +77,7 @@ For the documentation map see [docs/README.md](./docs/README.md).
 
 ### Cloud (Azure)
 
-- **App Service** (Linux, .NET 9)
+- **Azure Container Apps** (Linux, .NET 9)
 - **Azure SQL** (SQL Server)
 - **Blob Storage** — all photos and binaries
 - **Key Vault** — secrets (JWT key, connection strings, API keys)
@@ -93,7 +93,7 @@ For the documentation map see [docs/README.md](./docs/README.md).
 
 ## Project structure
 
-```
+```text
 PawTrack.sln
 ├── backend/
 │   ├── src/
@@ -277,7 +277,7 @@ dotnet ef database update \
 
 Infrastructure is declared in `infra/main.bicep`. Resources provisioned:
 
-- App Service (Linux, .NET 9)
+- Azure Container Apps (Linux, .NET 9)
 - Azure SQL Server + Database
 - Storage Account (Blob)
 - Key Vault
@@ -291,9 +291,12 @@ az deployment group create \
   --template-file infra/main.bicep \
   --parameters infra/parameters.prod.bicepparam
 
-# Publish backend
-dotnet publish backend/src/PawTrack.API -c Release -o publish/
-az webapp deploy --resource-group <rg> --name <app-name> --src-path publish/
+# Publish backend as an immutable Container Apps revision
+az acr login --name <acr-name>
+$image="<acr-name>.azurecr.io/pawtrack-api:<immutable-tag>"
+docker build -f backend/Dockerfile -t "$image" backend/
+docker push "$image"
+az containerapp update --resource-group <rg> --name <container-app-name> --image "$image"
 
 # Build and deploy frontend
 cd frontend && npm run build

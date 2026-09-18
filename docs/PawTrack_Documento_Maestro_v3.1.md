@@ -136,16 +136,16 @@ para produccion depende de los gates de `docs/STATUS.md` y
 
 ### 4.3 Infraestructura
 
-| Recurso              | Tipo        | Descripción        |
-| -------------------- | ----------- | ------------------ |
-| App Service          | Linux B3    | API .NET 9         |
-| Azure SQL            | Standard S2 | Base de datos      |
-| Blob Storage         | LRS         | Fotos y PDFs       |
-| Key Vault            | Standard    | Secretos           |
-| Application Insights | —           | APM + logs         |
-| Log Analytics        | —           | KQL queries        |
-| Static Web App       | Free        | Frontend React PWA |
-| Container Registry   | Basic       | Imágenes Docker    |
+| Recurso              | Tipo                    | Descripción        |
+| -------------------- | ----------------------- | ------------------ |
+| Azure Container Apps | Linux, 0.5 vCPU / 1 GiB | API .NET 9         |
+| Azure SQL            | GP_S_Gen5_1 serverless  | Base de datos      |
+| Blob Storage         | LRS                     | Fotos y PDFs       |
+| Key Vault            | Standard                | Secretos           |
+| Application Insights | —                       | APM + logs         |
+| Log Analytics        | —                       | KQL queries        |
+| Static Web App       | Free                    | Frontend React PWA |
+| Container Registry   | Basic                   | Imágenes Docker    |
 
 ---
 

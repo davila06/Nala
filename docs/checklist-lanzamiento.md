@@ -39,7 +39,7 @@ Repo → Settings → Secrets and variables → Actions:
     --parameters infra/parameters.prod.bicepparam `
     --parameters alertEmailAddress="ops@pawtrack.cr"
   ```
-- [ ] Outputs guardados (App Service URL, Key Vault URI, Storage, SQL FQDN, SWA URL/Name)
+- [ ] Outputs guardados (Container App URL, Key Vault URI, Storage, SQL FQDN, SWA URL/Name)
   ```powershell
   az deployment group show `
     --name main --resource-group pawtrack-prod-rg `
@@ -151,7 +151,7 @@ Repo → Settings → Secrets and variables → Actions:
 
 ## Fase 7 — Dominios y HTTPS
 
-- [ ] Dominio `api.pawtrack.cr` configurado en App Service con certificado Azure (Managed Certificate)
+- [ ] Dominio `api.pawtrack.cr` configurado en Container Apps con certificado administrado
 - [ ] Dominio `pawtrack.cr` o `www.pawtrack.cr` configurado en Static Web App
 - [ ] HTTPS activo en ambos dominios sin advertencias
 - [ ] `App__BaseUrl`, `VITE_API_URL` y `Cors__AllowedOrigins__0` apuntan a los dominios reales
