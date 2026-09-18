@@ -1,7 +1,7 @@
 # PawTrack CR — Matriz de features por plan
 
 > Fuente de verdad: enums y pricing del backend en `SubscriptionTier` y `SubscriptionPricing`.
-> Revisión: 2026-09-10
+> Revisión: 2026-09-18
 > Estado: alineado con la implementación actual del código.
 
 ## 1. Nota importante sobre tiers reales
@@ -72,7 +72,7 @@ Los valores `ClinicBasic`, `StoreBasic`, `ShelterBasic` existen como estados o m
 | Multi-sucursal / multi-location | No                                                | Sí                                                |
 | Posicionamiento prioritario     | No                                                | Sí                                                |
 
-### Gating real
+### Gating real de refugios
 
 - El gate del backend exige `StorePlus` o `StorePartner` para pedidos, analytics y localizaciones avanzadas.
 - La activación de plan sincroniza `Store.IsFeatured` y, para `StorePartner`, habilita locales adicionales.
@@ -89,10 +89,20 @@ Los valores `ClinicBasic`, `StoreBasic`, `ShelterBasic` existen como estados o m
 | Panel de gestión              | Sí              | Sí          |
 | Gestión de solicitudes        | Sí              | Sí          |
 
-### Gating real
+### Gating real de clínicas
 
 - `AdoptionCommands` usa `ShelterBasic` como límite de 5 animales activos y exige `ShelterPlus` para features premium de refugio.
 - El dominio usa `ShelterPlus` como tier pagado para adopciones avanzadas.
+- `Admin` y `SuperAdmin` pueden crear ferias desde el panel administrativo sin requerir una suscripción Shelter.
+
+## 4.1 Campañas de castración
+
+- Directorio público `/campanas-castracion` con filtro por cantón, fechas, precio base y cupos.
+- Creación permitida a `Clinic`, `Municipality`, `Ally`, `Admin` y `SuperAdmin`.
+- Flujo `Draft -> PendingApproval -> Approved -> Published`; Admin/SuperAdmin aprueban.
+- Reservas Owner con propiedad de mascota, elegibilidad, consentimiento versionado, capacidad y prevención de duplicados.
+- Agenda clínica con confirmación, check-in, no-show, cierre, veterinario, resultado e instrucciones postoperatorias.
+- Precio base neto; se agrega 13% IVA si se solicita Factura Electrónica.
 
 ---
 

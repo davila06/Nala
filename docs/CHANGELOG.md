@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-09-18
+
+### SuperAdmin and community campaigns
+
+- Added hierarchical `SuperAdmin` with inherited Admin access and exclusive privileged-access policy.
+- Added mandatory MFA, per-operation TOTP step-up, immutable audit events, safe revocation and last-SuperAdmin protection.
+- Added distributed, disabled-by-default bootstrap and a privileged console at `/super-admin`.
+- Added enterprise castration campaigns with approval lifecycle, capacity, reservations, consent snapshots, clinical agenda and postoperative closure.
+- Added Admin creation of castration campaigns and adoption fairs from the Admin adoption tab.
+- Preserved verified `ShelterPlus` requirements for Ally-created adoption fairs.
+- Provisioned and verified the local development SuperAdmin; credentials remain only in the gitignored `secrets/` directory.
+
 ## 2026-09-09
 
 ### Clinic enterprise

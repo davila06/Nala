@@ -151,6 +151,17 @@ e inicia sesion como `Owner`. Tus solicitudes se consultan en
 tambien puede publicar una mascota propia para adopcion desde
 `/adopciones/solicitar`, confirmando la transferencia responsable.
 
+## 11.1 Campañas de castración
+
+Consulta jornadas publicadas en `/campanas-castracion` y filtra por cantón.
+Cada campaña muestra clínica responsable, fecha, cupos y costo base. Para
+reservar debes iniciar sesión como `Owner`, seleccionar una mascota propia,
+indicar peso, confirmar instrucciones de ayuno y aceptar el consentimiento
+vigente. Si solicitas Factura Electrónica se agrega el 13% de IVA.
+
+La clínica confirma la cita, registra check-in y entrega instrucciones
+postoperatorias al completar el procedimiento.
+
 ## 12. Privacidad, exportacion y eliminacion
 
 Desde tu perfil solicita **Descargar mis datos** para obtener un JSON con la

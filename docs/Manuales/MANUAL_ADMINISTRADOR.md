@@ -2,9 +2,10 @@
 
 **Versión:** 3.1
 **Audiencia:** Administradores del sistema  
-**Última actualización:** 2026-09-10
+**Última actualización:** 2026-09-18
 
-> El rol `Admin` tiene acceso global y toda operación sensible debe seguir la
+> El rol `Admin` tiene acceso operativo global; `SuperAdmin` hereda ese acceso y
+> reserva la gestión de privilegios. Toda operación sensible debe seguir la
 > matriz de autorización de [API_AUTHORIZATION_MATRIX.md](../API_AUTHORIZATION_MATRIX.md).
 
 ---
@@ -32,7 +33,7 @@ permisos del endpoint y de la evidencia disponible.
 
 ### 1.1 Requisitos de rol
 
-Exclusivo para cuentas con rol **Admin**. Si intentas acceder sin ese rol, el sistema te redirige al Dashboard.
+Exclusivo para cuentas con rol **Admin** o **SuperAdmin**. Si intentas acceder sin esos roles, el sistema te redirige al Dashboard.
 
 ### 1.2 Cómo acceder
 
@@ -53,10 +54,23 @@ Exclusivo para cuentas con rol **Admin**. Si intentas acceder sin ese rol, el si
 | **Tiendas**       | Aprobar/rechazar tiendas pendientes de registro                            |
 | **Vallas** 🆕     | Crear, editar, activar/pausar vallas publicitarias                         |
 | **CollarTags**    | Inventario y métricas de collares GPS (registrar, marcar vendido, revocar) |
-| **Adopciones**    | Estadísticas y moderación administrativa de publicaciones y solicitudes    |
+| **Adopciones**    | Moderación y creación de ferias de adopción y campañas de castración       |
 | **Bienestar**     | Triage, severidad, asignación, evidencia y cierre de casos                 |
 | **Proveedores**   | Verificaciones, operaciones e incidentes de proveedores                    |
 | **Funnel**        | Métricas de producto y export CSV agregado sin PII                         |
+
+---
+
+### 2.1 Crear campañas
+
+En **Admin → Adopciones → Crear campaña** selecciona:
+
+- **Adopción:** título, lugar, coordenadas, inicio, fin y descripción. Admin puede crearla directamente; un Ally continúa sujeto a verificación Shelter y `ShelterPlus`.
+- **Castración:** clínica ejecutora, cantón, ubicación, fechas, ventana de reservas, capacidad y precio base. El panel Admin ejecuta creación, envío, aprobación y publicación.
+
+La campaña de castración queda visible en `/campanas-castracion`. La clínica ejecutora opera su agenda en `/campanas-castracion/{campaignId}/operacion`.
+
+`SuperAdmin` hereda estas capacidades. La asignación o revocación del rol se realiza exclusivamente en `/super-admin`, con código MFA actual y motivo auditado. Consulta [SUPERADMIN.md](../SUPERADMIN.md).
 
 ---
 

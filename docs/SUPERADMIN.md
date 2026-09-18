@@ -45,6 +45,16 @@ Security__SuperAdmin__BootstrapEmail=
 
 La operacion no se ejecuta si falta la cuenta, el correo no esta verificado o MFA no esta configurado. El lock distribuido evita ejecucion duplicada durante scale-out.
 
+### Estado local verificado
+
+La base local `PawTrackDev` contiene una cuenta de desarrollo `superadmin@pawtrack.local` con correo verificado, MFA activo, rol `SuperAdmin` y evento de auditoría. Las credenciales, secreto TOTP y códigos de recuperación están exclusivamente en `secrets/superadmin-local.txt`, ignorado por Git y protegido por ACL del usuario Windows actual. No reutilizar esta cuenta ni sus credenciales en producción.
+
+Verificación sin secretos:
+
+```powershell
+sqlcmd -S "(localdb)\MSSQLLocalDB" -d PawTrackDev -i backend/scripts/verify-local-superadmin.sql
+```
+
 ## Operacion posterior
 
 Ruta de consola: `/super-admin`.

@@ -3,9 +3,9 @@
 > Checklist exhaustivo de todas las cuentas, servicios, secretos y configuraciones
 > que deben estar en orden **antes** de ir a producción.
 >
-> **Última actualización: 2026-09-12** — auditado exhaustivamente contra el código
+> **Última actualización: 2026-09-18** — auditado exhaustivamente contra el código
 > fuente (.NET 9 + React 19), `appsettings.json`, `Program.cs`, el catálogo de
-> migraciones EF Core (hasta `20260912042822_AddUserBillingProfilesAndElectronicInvoices`),
+> migraciones EF Core (hasta `20260918152204_AddCastrationCampaignsEnterprise`),
 > los módulos de pasarela de pago (CyberSource / BAC Credomatic), facturación
 > electrónica DGT Costa Rica v4.3, telemetría IoT (Jimi / TrackSolid Pro) y workflows de CI/CD.
 > Versión anterior: 2026-09-10
@@ -43,7 +43,7 @@
 | GitHub — CI/CD                 | 17    | 0        | 0          | **17** (incluye credenciales federadas OIDC)                            |
 | Frontend — variables Vite      | 5     | 0        | 0          | **5**                                                                   |
 | Servicios externos             | 10    | 0        | 2          | **8** (SendGrid, Meta WA, CyberSource/BAC, Hacienda DGT, TrackSolid...) |
-| EF Migrations en Azure SQL     | —     | —        | —          | ver §7 (90+ migraciones, última: `20260912042822`)                      |
+| EF Migrations en Azure SQL     | —     | —        | —          | ver §7 (última: `20260918152204_AddCastrationCampaignsEnterprise`)      |
 | Configuración post-deploy      | 6     | 0        | 0          | **6** (CORS, Sticky sessions, scale-out, CSP, VAPID, Jobs Background)   |
 | Verificación final             | 8     | 0        | 0          | **8**                                                                   |
 
@@ -612,10 +612,9 @@ dotnet ef database update \
 sqlcmd -S <servidor> -d <bd> -Q "SELECT TOP 5 MigrationId FROM __EFMigrationsHistory ORDER BY MigrationId DESC"
 ```
 
-Snapshot de referencia (2026-09-12): la migración más reciente en el repo es
-`20260912042822_AddUserBillingProfilesAndElectronicInvoices` (precedida por
-`20260912020015_AddUserPaymentProfilesAndTransactions` y
-`20260912004144_AddSinpePaymentEnhancements`). Si `dotnet ef migrations
+Snapshot de referencia (2026-09-18): la migración más reciente en el repo es
+`20260918152204_AddCastrationCampaignsEnterprise` (precedida por
+`20260912042822_AddUserBillingProfilesAndElectronicInvoices`). Si `dotnet ef migrations
 list` muestra una más nueva que esa, confiar siempre en el comando.
 
 ---

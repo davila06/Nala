@@ -1,6 +1,6 @@
 # PawTrack CR - Matriz de autorización BOLA/IDOR
 
-> Estado: activo para revisión de seguridad. Corte: 2026-09-09.
+> Estado: activo para revisión de seguridad. Corte: 2026-09-18.
 >
 > Regla: autenticación y rol no sustituyen ownership. Cada endpoint debe validar
 > que el actor puede acceder al recurso concreto y que la respuesta minimiza PII.
@@ -12,6 +12,7 @@
 - `Participant`: participante de la conversación/caso.
 - `Role + owner`: rol requerido más ownership del tenant/recurso.
 - `Admin`: administración global, con auditoría.
+- `SuperAdmin`: hereda Admin; solo este rol gestiona SuperAdmins, con MFA fresco y auditoría.
 - `Partner`: API key válida, activa, expirada/revocada comprobada y scope correcto.
 
 ## Matriz crítica
@@ -34,6 +35,9 @@
 | Proveedores/reservas              | Directorio mínimo         | Customer/provider participant        | Participant        | Dirección/agenda         | Booking ownership                                                  |
 | Municipalidades                   | DTO público mínimo        | Municipality tenant/admin            | Tenant/admin       | Capturas/PII             | Institution isolation                                              |
 | NALA/reportes                     | No                        | Role + scope                         | Role + scope       | Datos agregados          | Scope/canton isolation                                             |
+| Campañas de castración            | Publicadas, DTO mínimo    | Owner own / Clinic tenant / Admin    | Role + tenant      | Salud, consentimiento    | Pet ownership, clinic tenant, capacidad y concurrencia             |
+| Ferias de adopción                | Publicadas                | Ally Shelter/Admin                   | Ally Shelter/Admin | Ubicación y animales     | Shelter verificado + ShelterPlus; Admin auditado                   |
+| Gestión SuperAdmin                | No                        | SuperAdmin                           | SuperAdmin + MFA   | Privilegio crítico       | Primary-role claim, TOTP fresco, no self/last revoke, auditoría    |
 | Product funnel                    | No                        | Admin                                | No                 | Datos agregados          | Admin-only + range                                                 |
 | Export partner                    | No                        | Partner scope                        | No                 | Agregado                 | Scope + suppression                                                |
 
@@ -51,6 +55,8 @@
       y auditoría.
 - [ ] Los códigos de handover, tokens, API keys y documentos nunca se incluyen
       en logs o métricas de producto.
+- [x] Admin puede crear ferias de adopción y campañas de castración; SuperAdmin hereda ese acceso.
+- [x] Ally solo crea ferias si es Shelter verificado con `ShelterPlus`.
 
 ## Casos BOLA mínimos para CI
 

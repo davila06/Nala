@@ -2,7 +2,7 @@
 
 > Estado: EN IMPLEMENTACION  
 > Inicio: 2026-09-18  
-> Alcance: jornadas de esterilizacion/castracion coordinadas por clinicas, municipalidades y aliados, con cupos, citas, consentimiento, trazabilidad clinica, certificados y reportes agregados.
+> Alcance: jornadas de esterilizacion/castracion coordinadas por clinicas, municipalidades, aliados y Admin/SuperAdmin, con cupos, citas, consentimiento, trazabilidad clinica, certificados y reportes agregados.
 
 ## 0. Decisiones de arquitectura
 
@@ -41,7 +41,7 @@
 
 ## 3. Autorizacion, privacidad y seguridad
 
-- [~] Definir matriz de autorizacion: Admin aprueba; Clinic gestiona ejecucion; Municipality/Ally organiza; Owner reserva; publico solo consulta datos publicados. Creacion y reserva listas.
+- [x] Definir matriz de autorizacion: Admin/SuperAdmin crea y aprueba; Clinic gestiona ejecucion; Municipality/Ally organiza; Owner reserva; publico solo consulta datos publicados.
 - [~] Validar tenant/organizacion en cada comando y consulta para evitar BOLA. Rol persistido y propiedad de mascota listos.
 - [~] Aplicar rate limiting a busqueda publica, reserva, cancelacion y check-in. Busqueda y reserva listas.
 - [ ] Mantener consentimiento, telefono, identificacion y notas clinicas fuera de respuestas publicas.
@@ -104,7 +104,7 @@
 - [ ] Crear panel de citas del responsable con cancelacion y documentos.
 - [x] Crear consola operativa de clinica para agenda, confirmacion, check-in, no-show y cierre clinico.
 - [ ] Crear consola de organizador/municipalidad con capacidad, resultados y exportes.
-- [ ] Crear flujo Admin de revision y aprobacion.
+- [x] Crear flujo Admin de creacion, envio, aprobacion y publicacion desde el panel Adopciones.
 - [ ] Verificar accesibilidad WCAG, responsive, estados vacios, errores y carga.
 
 ## 9. Reportes, observabilidad y cumplimiento

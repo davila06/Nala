@@ -4,7 +4,7 @@
 > [NALA_REPORTING_GUIDE.md](NALA_REPORTING_GUIDE.md).
 
 > **NALA** es el nombre interno del proyecto que evolucionó en **PawTrack CR**.  
-> Última actualización: 2026-09-12
+> Última actualización: 2026-09-18
 
 ---
 
@@ -438,7 +438,7 @@ PawTrack CR se encuentra en **MVP ampliado**, con todos sus módulos principales
 
 **Core — recuperación de mascotas**
 
-- ✅ Autenticación completa (JWT + refresh, verificación de email, bloqueo de cuenta)
+- ✅ Autenticación completa (JWT + refresh, verificación de email, bloqueo de cuenta, MFA y SuperAdmin jerárquico)
 - ✅ Gestión de mascotas, QR, perfil público, historial de escaneos
 - ✅ Reporte de pérdida y Case Room
 - ✅ Avistamientos con matching visual por IA (Azure Computer Vision, embeddings 1024d)
@@ -487,6 +487,8 @@ PawTrack CR se encuentra en **MVP ampliado**, con todos sus módulos principales
 - ✅ Tiendas con `StorePlus` y `StorePartner`: catálogo, pedidos in-app y analytics avanzados
 - ✅ Refugios con `ShelterPlus`: animales ilimitados, ferias y pin destacado de adopción
 - ✅ Estado base gratuito `ShelterBasic` para directorio/público con máximo 5 animales activos
+- ✅ Admin/SuperAdmin crean ferias de adopción; Ally requiere Shelter verificado y `ShelterPlus`
+- ✅ Campañas enterprise de castración con aprobación, cupos, consentimiento, reservas y operación clínica
 
 **Monetización — B2G Municipalidades**
 
