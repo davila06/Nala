@@ -11,220 +11,107 @@ import { RouteShell as S } from "./routeShell";
 const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"));
 const ProfilePage = lazy(() => import("@/features/auth/pages/ProfilePage"));
 const RegisterPage = lazy(() => import("@/features/auth/pages/RegisterPage"));
-const BusinessRegistrationHubPage = lazy(
-  () => import("@/features/auth/pages/BusinessRegistrationHubPage"),
-);
-const ForgotPasswordPage = lazy(
-  () => import("@/features/auth/pages/ForgotPasswordPage"),
-);
-const ResetPasswordPage = lazy(
-  () => import("@/features/auth/pages/ResetPasswordPage"),
-);
-const VerifyEmailPage = lazy(
-  () => import("@/features/auth/pages/VerifyEmailPage"),
-);
+const BusinessRegistrationHubPage = lazy(() => import("@/features/auth/pages/BusinessRegistrationHubPage"));
+const ForgotPasswordPage = lazy(() => import("@/features/auth/pages/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("@/features/auth/pages/ResetPasswordPage"));
+const VerifyEmailPage = lazy(() => import("@/features/auth/pages/VerifyEmailPage"));
 
 // Pets pages (Sprint 2)
 const DashboardPage = lazy(() => import("@/features/pets/pages/DashboardPage"));
 const CreatePetPage = lazy(() => import("@/features/pets/pages/CreatePetPage"));
 const PetDetailPage = lazy(() => import("@/features/pets/pages/PetDetailPage"));
-const ActivateCollarTagPage = lazy(
-  () => import("@/features/pets/pages/ActivateCollarTagPage"),
-);
-const CollarHandoverRedeemPage = lazy(
-  () => import("@/features/pets/pages/CollarHandoverRedeemPage"),
-);
-const PublicPetProfilePage = lazy(
-  () => import("@/features/pets/pages/PublicPetProfilePage"),
-);
+const ActivateCollarTagPage = lazy(() => import("@/features/pets/pages/ActivateCollarTagPage"));
+const CollarHandoverRedeemPage = lazy(() => import("@/features/pets/pages/CollarHandoverRedeemPage"));
+const PublicPetProfilePage = lazy(() => import("@/features/pets/pages/PublicPetProfilePage"));
 
 // LostPets + Notifications (Sprint 3)
-const ReportLostPage = lazy(
-  () => import("@/features/lost-pets/pages/ReportLostPage"),
-);
-const LostReportConfirmationPage = lazy(
-  () => import("@/features/lost-pets/pages/LostReportConfirmationPage"),
-);
-const NotificationsPage = lazy(
-  () => import("@/features/notifications/pages/NotificationsPage"),
-);
+const ReportLostPage = lazy(() => import("@/features/lost-pets/pages/ReportLostPage"));
+const LostReportConfirmationPage = lazy(() => import("@/features/lost-pets/pages/LostReportConfirmationPage"));
+const NotificationsPage = lazy(() => import("@/features/notifications/pages/NotificationsPage"));
 
 // Sightings + Map (Sprint 4)
-const ReportSightingPage = lazy(
-  () => import("@/features/sightings/pages/ReportSightingPage"),
-);
-const VisualMatchPage = lazy(
-  () => import("@/features/sightings/pages/VisualMatchPage"),
-);
+const ReportSightingPage = lazy(() => import("@/features/sightings/pages/ReportSightingPage"));
+const VisualMatchPage = lazy(() => import("@/features/sightings/pages/VisualMatchPage"));
 const PublicMapPage = lazy(() => import("@/features/map/pages/PublicMapPage"));
-const ReportWelfareCasePage = lazy(
-  () => import("@/features/animal-welfare/pages/ReportWelfareCasePage"),
-);
-const RecoveryStatsPage = lazy(
-  () => import("@/features/lost-pets/pages/RecoveryStatsPage"),
-);
+const ReportWelfareCasePage = lazy(() => import("@/features/animal-welfare/pages/ReportWelfareCasePage"));
+const RecoveryStatsPage = lazy(() => import("@/features/lost-pets/pages/RecoveryStatsPage"));
 
 // Chat
 const ChatPage = lazy(() => import("@/features/chat/pages/ChatPage"));
-const ChatThreadPage = lazy(
-  () => import("@/features/chat/pages/ChatThreadPage"),
-);
+const ChatThreadPage = lazy(() => import("@/features/chat/pages/ChatThreadPage"));
 
 // Case Room
-const CaseRoomPage = lazy(
-  () => import("@/features/lost-pets/pages/CaseRoomPage"),
-);
-const AllyPanelPage = lazy(
-  () => import("@/features/allies/pages/AllyPanelPage"),
-);
+const CaseRoomPage = lazy(() => import("@/features/lost-pets/pages/CaseRoomPage"));
+const AllyPanelPage = lazy(() => import("@/features/allies/pages/AllyPanelPage"));
 
 // Encontré una mascota
-const ReportFoundPetPage = lazy(
-  () => import("@/features/sightings/pages/ReportFoundPetPage"),
-);
-const FoundPetMatchResultPage = lazy(
-  () => import("@/features/sightings/pages/FoundPetMatchResultPage"),
-);
-const QuickFoundPetPage = lazy(
-  () => import("@/features/sightings/pages/QuickFoundPetPage"),
-);
+const ReportFoundPetPage = lazy(() => import("@/features/sightings/pages/ReportFoundPetPage"));
+const FoundPetMatchResultPage = lazy(() => import("@/features/sightings/pages/FoundPetMatchResultPage"));
+const QuickFoundPetPage = lazy(() => import("@/features/sightings/pages/QuickFoundPetPage"));
 
 // Coordinación de buscadores
-const SearchCoordinationPage = lazy(
-  () => import("@/features/lost-pets/pages/SearchCoordinationPage"),
-);
+const SearchCoordinationPage = lazy(() => import("@/features/lost-pets/pages/SearchCoordinationPage"));
 
 // Red de veterinarias afiliadas
-const ClinicRegisterPage = lazy(
-  () => import("@/features/clinics/pages/ClinicRegisterPage"),
-);
-const ClinicDirectoryPage = lazy(
-  () => import("@/features/clinics/pages/ClinicDirectoryPage"),
-);
-const ClinicPublicProfilePage = lazy(
-  () => import("@/features/clinics/pages/ClinicPublicProfilePage"),
-);
-const ClinicPendingPage = lazy(
-  () => import("@/features/clinics/pages/ClinicPendingPage"),
-);
-const ClinicDashboardPage = lazy(
-  () => import("@/features/clinics/pages/ClinicDashboardPage"),
-);
+const ClinicRegisterPage = lazy(() => import("@/features/clinics/pages/ClinicRegisterPage"));
+const ClinicDirectoryPage = lazy(() => import("@/features/clinics/pages/ClinicDirectoryPage"));
+const ClinicPublicProfilePage = lazy(() => import("@/features/clinics/pages/ClinicPublicProfilePage"));
+const ClinicPendingPage = lazy(() => import("@/features/clinics/pages/ClinicPendingPage"));
+const ClinicDashboardPage = lazy(() => import("@/features/clinics/pages/ClinicDashboardPage"));
 
 // Tiendas de mascotas
-const StoreRegistrationPage = lazy(
-  () => import("@/features/stores/pages/StoreRegistrationPage"),
-);
-const StorePendingPage = lazy(
-  () => import("@/features/stores/pages/StorePendingPage"),
-);
-const StoreDashboardPage = lazy(
-  () => import("@/features/stores/pages/StoreDashboardPage"),
-);
-const StoreProductsPage = lazy(
-  () => import("@/features/stores/pages/StoreProductsPage"),
-);
-const StoreOrdersPage = lazy(
-  () => import("@/features/stores/pages/StoreOrdersPage"),
-);
-const MyStoreOrdersPage = lazy(
-  () => import("@/features/stores/pages/MyStoreOrdersPage"),
-);
-const StoreDirectoryPage = lazy(
-  () => import("@/features/stores/pages/StoreDirectoryPage"),
-);
-const StoreAnalyticsPage = lazy(
-  () => import("@/features/stores/pages/StoreAnalyticsPage"),
-);
-const StoreLocationsPage = lazy(
-  () => import("@/features/stores/pages/StoreLocationsPage"),
-);
+const StoreRegistrationPage = lazy(() => import("@/features/stores/pages/StoreRegistrationPage"));
+const StorePendingPage = lazy(() => import("@/features/stores/pages/StorePendingPage"));
+const StoreDashboardPage = lazy(() => import("@/features/stores/pages/StoreDashboardPage"));
+const StoreProductsPage = lazy(() => import("@/features/stores/pages/StoreProductsPage"));
+const StoreOrdersPage = lazy(() => import("@/features/stores/pages/StoreOrdersPage"));
+const MyStoreOrdersPage = lazy(() => import("@/features/stores/pages/MyStoreOrdersPage"));
+const StoreDirectoryPage = lazy(() => import("@/features/stores/pages/StoreDirectoryPage"));
+const StoreAnalyticsPage = lazy(() => import("@/features/stores/pages/StoreAnalyticsPage"));
+const StoreLocationsPage = lazy(() => import("@/features/stores/pages/StoreLocationsPage"));
 const ServiceProviderRegistrationPage = lazy(
-  () =>
-    import("@/features/service-providers/pages/ServiceProviderRegistrationPage"),
+  () => import("@/features/service-providers/pages/ServiceProviderRegistrationPage"),
 );
-const ServiceProviderPendingPage = lazy(
-  () => import("@/features/service-providers/pages/ServiceProviderPendingPage"),
-);
+const ServiceProviderPendingPage = lazy(() => import("@/features/service-providers/pages/ServiceProviderPendingPage"));
 const ServiceProviderDirectoryPage = lazy(
-  () =>
-    import("@/features/service-providers/pages/ServiceProviderDirectoryPage"),
+  () => import("@/features/service-providers/pages/ServiceProviderDirectoryPage"),
 );
-const ServiceProviderDetailPage = lazy(
-  () => import("@/features/service-providers/pages/ServiceProviderDetailPage"),
-);
+const ServiceProviderDetailPage = lazy(() => import("@/features/service-providers/pages/ServiceProviderDetailPage"));
 const ServiceProviderDashboardPage = lazy(
-  () =>
-    import("@/features/service-providers/pages/ServiceProviderDashboardPage"),
+  () => import("@/features/service-providers/pages/ServiceProviderDashboardPage"),
 );
-const ProviderServicesPage = lazy(
-  () => import("@/features/service-providers/pages/ProviderServicesPage"),
-);
-const ServiceProviderProfilePage = lazy(
-  () => import("@/features/service-providers/pages/ServiceProviderProfilePage"),
-);
-const MyProviderBookingsPage = lazy(
-  () => import("@/features/service-providers/pages/MyProviderBookingsPage"),
-);
+const ProviderServicesPage = lazy(() => import("@/features/service-providers/pages/ProviderServicesPage"));
+const ServiceProviderProfilePage = lazy(() => import("@/features/service-providers/pages/ServiceProviderProfilePage"));
+const MyProviderBookingsPage = lazy(() => import("@/features/service-providers/pages/MyProviderBookingsPage"));
 const IncomingProviderBookingsPage = lazy(
-  () =>
-    import("@/features/service-providers/pages/IncomingProviderBookingsPage"),
+  () => import("@/features/service-providers/pages/IncomingProviderBookingsPage"),
 );
-const ProviderVerificationPage = lazy(
-  () => import("@/features/service-providers/pages/ProviderVerificationPage"),
-);
+const ProviderVerificationPage = lazy(() => import("@/features/service-providers/pages/ProviderVerificationPage"));
 
 // Admin panel
 const AdminPage = lazy(() => import("@/features/admin/pages/AdminPage"));
-const NalaDashboardPage = lazy(
-  () => import("@/features/regulatory/pages/NalaDashboardPage"),
-);
-const InstitutionalReportsPage = lazy(
-  () => import("@/features/regulatory/pages/InstitutionalReportsPage"),
-);
+const SuperAdminPage = lazy(() => import("@/features/admin/pages/SuperAdminPage"));
+const NalaDashboardPage = lazy(() => import("@/features/regulatory/pages/NalaDashboardPage"));
+const InstitutionalReportsPage = lazy(() => import("@/features/regulatory/pages/InstitutionalReportsPage"));
 
 // Módulo de adopciones
-const AdoptionDirectoryPage = lazy(
-  () => import("@/features/adoptions/pages/AdoptionDirectoryPage"),
-);
-const OwnerAdoptionSubmissionPage = lazy(
-  () => import("@/features/adoptions/pages/OwnerAdoptionSubmissionPage"),
-);
-const AdoptionDetailPage = lazy(
-  () => import("@/features/adoptions/pages/AdoptionDetailPage"),
-);
-const AdoptionFairsPage = lazy(
-  () => import("@/features/adoptions/pages/AdoptionFairsPage"),
-);
-const MyAdoptionApplicationsPage = lazy(
-  () => import("@/features/adoptions/pages/MyAdoptionApplicationsPage"),
-);
-const ShelterDashboardPage = lazy(
-  () => import("@/features/adoptions/pages/ShelterDashboardPage"),
-);
-const ShelterPublishPage = lazy(
-  () => import("@/features/adoptions/pages/ShelterPublishPage"),
-);
-const ShelterApplicationsPage = lazy(
-  () => import("@/features/adoptions/pages/ShelterApplicationsPage"),
-);
-const MunicipalityPortalPage = lazy(
-  () => import("@/features/admin/pages/MunicipalityPortalPage"),
-);
-const MunicipalDashboardPage = lazy(
-  () => import("@/features/admin/pages/MunicipalDashboardPage"),
-);
-const CertificateVerificationPage = lazy(
-  () => import("@/features/clinics/pages/CertificateVerificationPage"),
-);
-const PassportVerificationPage = lazy(
-  () => import("@/features/clinics/pages/PassportVerificationPage"),
-);
+const AdoptionDirectoryPage = lazy(() => import("@/features/adoptions/pages/AdoptionDirectoryPage"));
+const OwnerAdoptionSubmissionPage = lazy(() => import("@/features/adoptions/pages/OwnerAdoptionSubmissionPage"));
+const AdoptionDetailPage = lazy(() => import("@/features/adoptions/pages/AdoptionDetailPage"));
+const AdoptionFairsPage = lazy(() => import("@/features/adoptions/pages/AdoptionFairsPage"));
+const CastrationCampaignsPage = lazy(() => import("@/features/castration-campaigns/pages/CastrationCampaignsPage"));
+const CastrationOperationsPage = lazy(() => import("@/features/castration-campaigns/pages/CastrationOperationsPage"));
+const MyAdoptionApplicationsPage = lazy(() => import("@/features/adoptions/pages/MyAdoptionApplicationsPage"));
+const ShelterDashboardPage = lazy(() => import("@/features/adoptions/pages/ShelterDashboardPage"));
+const ShelterPublishPage = lazy(() => import("@/features/adoptions/pages/ShelterPublishPage"));
+const ShelterApplicationsPage = lazy(() => import("@/features/adoptions/pages/ShelterApplicationsPage"));
+const MunicipalityPortalPage = lazy(() => import("@/features/admin/pages/MunicipalityPortalPage"));
+const MunicipalDashboardPage = lazy(() => import("@/features/admin/pages/MunicipalDashboardPage"));
+const CertificateVerificationPage = lazy(() => import("@/features/clinics/pages/CertificateVerificationPage"));
+const PassportVerificationPage = lazy(() => import("@/features/clinics/pages/PassportVerificationPage"));
 
 // Family invitation (public — no auth wrapper needed; page handles redirect)
-const AcceptFamilyInvitationPage = lazy(
-  () => import("@/features/family/pages/AcceptFamilyInvitationPage"),
-);
+const AcceptFamilyInvitationPage = lazy(() => import("@/features/family/pages/AcceptFamilyInvitationPage"));
 
 export const router = createBrowserRouter([
   {
@@ -457,6 +344,27 @@ export const router = createBrowserRouter([
                 <AdoptionFairsPage />
               </S>
             ),
+          },
+          {
+            path: "/campanas-castracion",
+            element: (
+              <S>
+                <CastrationCampaignsPage />
+              </S>
+            ),
+          },
+          {
+            element: <RoleGuard roles={["Clinic", "Admin"]} />,
+            children: [
+              {
+                path: "/campanas-castracion/:campaignId/operacion",
+                element: (
+                  <S>
+                    <CastrationOperationsPage />
+                  </S>
+                ),
+              },
+            ],
           },
           {
             path: "/adopciones/:id",
@@ -819,9 +727,20 @@ export const router = createBrowserRouter([
             ],
           },
           {
-            element: (
-              <RoleGuard roles={["Admin", "Municipality", "Clinic", "Ally"]} />
-            ),
+            element: <RoleGuard roles={["SuperAdmin"]} />,
+            children: [
+              {
+                path: "/super-admin",
+                element: (
+                  <S>
+                    <SuperAdminPage />
+                  </S>
+                ),
+              },
+            ],
+          },
+          {
+            element: <RoleGuard roles={["Admin", "Municipality", "Clinic", "Ally"]} />,
             children: [
               {
                 path: "/reportes-institucionales",

@@ -49,4 +49,7 @@ public sealed class UserRepository(PawTrackDbContext dbContext) : IUserRepositor
     public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default) =>
         await dbContext.Users
             .AnyAsync(u => u.Email == email.ToLowerInvariant(), cancellationToken);
+
+    public Task<int> CountByRoleAsync(UserRole role, CancellationToken cancellationToken = default) =>
+        dbContext.Users.CountAsync(u => u.Role == role, cancellationToken);
 }

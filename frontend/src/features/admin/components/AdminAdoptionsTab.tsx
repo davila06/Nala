@@ -1,17 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  useAdoptionAdminStats,
-  useAdminAdoptionAnimals,
-  useAdminModerateAnimal,
-} from "../hooks/useAdmin";
+import { useAdoptionAdminStats, useAdminAdoptionAnimals, useAdminModerateAnimal } from "../hooks/useAdmin";
 import type { AdoptablePetDto } from "@/features/adoptions/api/adoptionsApi";
-import {
-  SPECIES_LABELS,
-  AGE_LABELS,
-} from "@/features/adoptions/api/adoptionsApi";
+import { SPECIES_LABELS, AGE_LABELS } from "@/features/adoptions/api/adoptionsApi";
 import { toast } from "@/shared/lib/toast";
+import { AdminCampaignCreationPanel } from "./AdminCampaignCreationPanel";
 
 const STATUS_OPTIONS = [
   { value: "", label: "Todos" },
@@ -31,15 +25,7 @@ const STATUS_COLORS: Record<string, string> = {
   Removed: "bg-red-100 text-red-600",
 };
 
-function StatPill({
-  label,
-  value,
-  color,
-}: {
-  label: string;
-  value: number;
-  color: string;
-}) {
+function StatPill({ label, value, color }: { label: string; value: number; color: string }) {
   return (
     <div className={`rounded-2xl px-4 py-3 text-center ${color}`}>
       <p className="text-2xl font-black">{value}</p>
@@ -52,9 +38,7 @@ function AnimalAdminRow({ animal }: { animal: AdoptablePetDto }) {
   const moderate = useAdminModerateAnimal();
   const [processing, setProcessing] = useState(false);
 
-  const handle = async (
-    action: "approve" | "reject" | "remove" | "pause" | "restore",
-  ) => {
+  const handle = async (action: "approve" | "reject" | "remove" | "pause" | "restore") => {
     setProcessing(true);
     try {
       await moderate.mutateAsync({ id: animal.id, action });
@@ -90,11 +74,7 @@ function AnimalAdminRow({ animal }: { animal: AdoptablePetDto }) {
         {/* Thumbnail */}
         <div className="h-14 w-14 shrink-0 rounded-xl overflow-hidden bg-sand-100 flex items-center justify-center">
           {photo ? (
-            <img
-              src={photo}
-              alt={animal.name}
-              className="h-full w-full object-cover"
-            />
+            <img src={photo} alt={animal.name} className="h-full w-full object-cover" />
           ) : (
             <span className="text-xl">🐾</span>
           )}
@@ -103,17 +83,10 @@ function AnimalAdminRow({ animal }: { animal: AdoptablePetDto }) {
         {/* Info */}
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <Link
-              to={`/adopciones/${animal.id}`}
-              className="font-semibold text-sand-900 hover:text-brand-600 truncate"
-            >
+            <Link to={`/adopciones/${animal.id}`} className="font-semibold text-sand-900 hover:text-brand-600 truncate">
               {animal.name}
             </Link>
-            <span
-              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${st}`}
-            >
-              {animal.status}
-            </span>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${st}`}>{animal.status}</span>
           </div>
           <p className="text-xs text-sand-500">
             {SPECIES_LABELS[animal.species]}
@@ -125,9 +98,7 @@ function AnimalAdminRow({ animal }: { animal: AdoptablePetDto }) {
             🏠 {animal.organizationName}
             {animal.refLabel && ` · 📍 ${animal.refLabel}`}
           </p>
-          <p className="text-xs text-sand-400">
-            Publicado {new Date(animal.publishedAt).toLocaleDateString("es-CR")}
-          </p>
+          <p className="text-xs text-sand-400">Publicado {new Date(animal.publishedAt).toLocaleDateString("es-CR")}</p>
         </div>
       </div>
 
@@ -187,11 +158,12 @@ export function AdminAdoptionsTab() {
   const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
   const { data: stats, isLoading: statsLoading } = useAdoptionAdminStats();
-  const { data: animalsPage, isLoading: animalsLoading } =
-    useAdminAdoptionAnimals(statusFilter || undefined, page);
+  const { data: animalsPage, isLoading: animalsLoading } = useAdminAdoptionAnimals(statusFilter || undefined, page);
 
   return (
     <div className="space-y-6">
+      <AdminCampaignCreationPanel />
+
       {/* Stats grid */}
       {statsLoading ? (
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 animate-pulse">
@@ -202,36 +174,12 @@ export function AdminAdoptionsTab() {
       ) : (
         stats && (
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-            <StatPill
-              label="Publicados"
-              value={stats.totalPublished}
-              color="bg-sand-50"
-            />
-            <StatPill
-              label="Disponibles"
-              value={stats.totalAvailable}
-              color="bg-green-50 text-green-800"
-            />
-            <StatPill
-              label="En proceso"
-              value={stats.totalInProcess}
-              color="bg-yellow-50 text-yellow-800"
-            />
-            <StatPill
-              label="Adoptados"
-              value={stats.totalAdopted}
-              color="bg-blue-50 text-blue-800"
-            />
-            <StatPill
-              label="Solicitudes"
-              value={stats.totalApplications}
-              color="bg-purple-50 text-purple-800"
-            />
-            <StatPill
-              label="Ferias"
-              value={stats.totalFairs}
-              color="bg-pink-50 text-pink-800"
-            />
+            <StatPill label="Publicados" value={stats.totalPublished} color="bg-sand-50" />
+            <StatPill label="Disponibles" value={stats.totalAvailable} color="bg-green-50 text-green-800" />
+            <StatPill label="En proceso" value={stats.totalInProcess} color="bg-yellow-50 text-yellow-800" />
+            <StatPill label="Adoptados" value={stats.totalAdopted} color="bg-blue-50 text-blue-800" />
+            <StatPill label="Solicitudes" value={stats.totalApplications} color="bg-purple-50 text-purple-800" />
+            <StatPill label="Ferias" value={stats.totalFairs} color="bg-pink-50 text-pink-800" />
           </div>
         )
       )}
@@ -252,13 +200,8 @@ export function AdminAdoptionsTab() {
             </option>
           ))}
         </select>
-        <span className="text-xs text-sand-500">
-          {animalsPage?.totalCount ?? 0} animales
-        </span>
-        <Link
-          to="/adopciones"
-          className="ml-auto text-xs text-brand-600 hover:underline"
-        >
+        <span className="text-xs text-sand-500">{animalsPage?.totalCount ?? 0} animales</span>
+        <Link to="/adopciones" className="ml-auto text-xs text-brand-600 hover:underline">
           Ver directorio público →
         </Link>
       </div>

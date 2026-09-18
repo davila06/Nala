@@ -176,6 +176,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization(options =>
 {
+    options.AddPolicy("SuperAdmin", policy => policy
+        .RequireAuthenticatedUser()
+        .RequireRole("SuperAdmin")
+        .RequireClaim("platform_role", "SuperAdmin")
+        .RequireClaim("mfa", "true"));
+
     // Internal-only health checks — requires Admin JWT or internal network request.
     options.AddPolicy("HealthCheckPolicy", policy =>
         policy.RequireAuthenticatedUser()

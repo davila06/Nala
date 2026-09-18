@@ -891,7 +891,7 @@ export default function AdminPage() {
   const { data: pendingBundlesData } = useAdminBundleOrders("PendingPayment");
   const pendingBundleCount = pendingBundlesData?.items.filter((b) => b.paymentReportedByUser).length ?? 0;
 
-  if (!user || user.role !== "Admin") {
+  if (!user || !["Admin", "SuperAdmin"].includes(user.role)) {
     return <Navigate to="/dashboard" replace />;
   }
 

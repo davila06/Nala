@@ -327,7 +327,7 @@ public sealed class AdoptionsController(ISender sender) : ControllerBase
     }
 
     [HttpPost("fairs")]
-    [Authorize(Roles = "Ally")]
+    [Authorize(Roles = "Ally,Admin")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(8192)]
     [ProducesResponseType(StatusCodes.Status201Created)]

@@ -10,4 +10,5 @@ public enum UserRole
     Store,
     ServiceProvider,
     Support,
+    SuperAdmin,
 }

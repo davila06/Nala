@@ -16,11 +16,7 @@ interface RoleGuardProps {
  * Redirects to /login if not authenticated, or /dashboard if wrong role.
  * Renders <Outlet /> for matched children.
  */
-export function RoleGuard({
-  roles,
-  unauthenticated = "/login",
-  unauthorized = "/dashboard",
-}: RoleGuardProps) {
+export function RoleGuard({ roles, unauthenticated = "/login", unauthorized = "/dashboard" }: RoleGuardProps) {
   const { isAuthenticated, isInitializing, user } = useAuthStore();
   const location = useLocation();
 
@@ -41,7 +37,8 @@ export function RoleGuard({
     return <Navigate to={`${unauthenticated}?return=${returnTo}`} replace />;
   }
 
-  if (!roles.includes(user.role)) {
+  const hasInheritedAdminAccess = user.role === "SuperAdmin" && roles.includes("Admin");
+  if (!roles.includes(user.role) && !hasInheritedAdminAccess) {
     return <Navigate to={unauthorized} replace />;
   }
 

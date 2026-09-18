@@ -11,6 +11,7 @@ using PawTrack.Domain.Bot;
 using PawTrack.Domain.Bounties;
 using PawTrack.Domain.Broadcast;
 using PawTrack.Domain.Bundles;
+using PawTrack.Domain.CastrationCampaigns;
 using PawTrack.Domain.Certificates;
 using PawTrack.Domain.Chat;
 using PawTrack.Domain.Clinics;
@@ -87,6 +88,8 @@ public sealed class PawTrackDbContext(
     public DbSet<ElectronicInvoice> ElectronicInvoices => Set<ElectronicInvoice>();
     public DbSet<Bounty> Bounties => Set<Bounty>();
     public DbSet<BundleOrder> BundleOrders => Set<BundleOrder>();
+    public DbSet<CastrationCampaign> CastrationCampaigns => Set<CastrationCampaign>();
+    public DbSet<CastrationAppointment> CastrationAppointments => Set<CastrationAppointment>();
     public DbSet<Collar> Collars => Set<Collar>();
     public DbSet<CollarLocation> CollarLocations => Set<CollarLocation>();
     public DbSet<CollarTag> CollarTags => Set<CollarTag>();

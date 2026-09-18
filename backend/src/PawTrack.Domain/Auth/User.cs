@@ -238,6 +238,20 @@ public sealed class User
         Role = UserRole.Admin;
     }
 
+    public void AssignSuperAdminRole()
+    {
+        if (!HasMfa)
+            throw new InvalidOperationException("SuperAdmin requires MFA to be configured.");
+        Role = UserRole.SuperAdmin;
+    }
+
+    public void RevokeSuperAdminRole()
+    {
+        if (Role != UserRole.SuperAdmin)
+            throw new InvalidOperationException("User is not a SuperAdmin.");
+        Role = UserRole.Admin;
+    }
+
     public void AssignClinicRole()
     {
         Role = UserRole.Clinic;

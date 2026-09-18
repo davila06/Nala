@@ -1,12 +1,5 @@
 ﻿import { useState, useRef, useEffect } from "react";
-import {
-  Outlet,
-  Navigate,
-  NavLink,
-  Link,
-  useNavigate,
-  useLocation,
-} from "react-router-dom";
+import { Outlet, Navigate, NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useScrollToTop } from "@/shared/hooks/useScrollToTop";
 import { NotificationBell } from "@/features/notifications/components/NotificationBell";
@@ -40,12 +33,7 @@ const PAGE_CONTEXT: Record<string, { label: string; icon: string }> = {
 function resolvePageContext(pathname: string) {
   // Longest-prefix match
   const match = Object.keys(PAGE_CONTEXT)
-    .filter(
-      (prefix) =>
-        pathname === prefix ||
-        pathname.startsWith(prefix + "/") ||
-        pathname.startsWith(prefix),
-    )
+    .filter((prefix) => pathname === prefix || pathname.startsWith(prefix + "/") || pathname.startsWith(prefix))
     .sort((a, b) => b.length - a.length)[0];
   return match ? PAGE_CONTEXT[match] : null;
 }
@@ -146,11 +134,7 @@ const NAV_MAIN = [
         className="h-4 w-4"
         aria-hidden="true"
       >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M4 16.5V9.25L10 4l6 5.25v7.25H4Z"
-        />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16.5V9.25L10 4l6 5.25v7.25H4Z" />
         <path strokeLinecap="round" strokeLinejoin="round" d="M8 16.5v-4h4v4" />
       </svg>
     ),
@@ -183,6 +167,7 @@ const NAV_EXTRA_ADMIN_STATS = {
   label: "Estadísticas",
   icon: null,
 };
+const NAV_SUPER_ADMIN = { to: "/super-admin", label: "Acceso privilegiado", icon: null };
 
 const ROLE_BADGE: Record<string, { label: string; cls: string }> = {
   Owner: { label: "Propietario", cls: "bg-sand-100 text-sand-600" },
@@ -190,16 +175,10 @@ const ROLE_BADGE: Record<string, { label: string; cls: string }> = {
   Clinic: { label: "Clínica", cls: "bg-blue-50 text-blue-700" },
   Municipality: { label: "Municipalidad", cls: "bg-trust-50 text-trust-700" },
   Admin: { label: "Admin", cls: "bg-red-50 text-red-600" },
+  SuperAdmin: { label: "SuperAdmin", cls: "bg-red-100 text-red-800" },
 };
 
-const AVATAR_COLORS = [
-  "bg-brand-500",
-  "bg-blue-500",
-  "bg-rescue-500",
-  "bg-warn-500",
-  "bg-sand-600",
-  "bg-purple-500",
-];
+const AVATAR_COLORS = ["bg-brand-500", "bg-blue-500", "bg-rescue-500", "bg-warn-500", "bg-sand-600", "bg-purple-500"];
 
 function getInitials(name = ""): string {
   const parts = name.trim().split(/\s+/);
@@ -215,16 +194,12 @@ const activeCls = "text-brand-600 bg-brand-50 font-semibold";
 const inactiveCls = "text-sand-600 hover:bg-sand-50 hover:text-sand-900";
 
 const navLinkCls = ({ isActive }: { isActive: boolean }) =>
-  [
-    "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-base",
-    isActive ? activeCls : inactiveCls,
-  ].join(" ");
+  ["flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-base", isActive ? activeCls : inactiveCls].join(
+    " ",
+  );
 
 const navLinkPlainCls = ({ isActive }: { isActive: boolean }) =>
-  [
-    "rounded-lg px-3 py-1.5 text-sm transition-base",
-    isActive ? activeCls : inactiveCls,
-  ].join(" ");
+  ["rounded-lg px-3 py-1.5 text-sm transition-base", isActive ? activeCls : inactiveCls].join(" ");
 
 export default function AuthenticatedLayout() {
   const { isAuthenticated, isInitializing, user } = useAuthStore();
@@ -242,10 +217,7 @@ export default function AuthenticatedLayout() {
   useEffect(() => {
     if (!dropdownOpen && !moreMenuOpen) return;
     function handleOutside(e: MouseEvent) {
-      if (
-        !dropdownRef.current?.contains(e.target as Node) &&
-        !moreMenuRef.current?.contains(e.target as Node)
-      ) {
+      if (!dropdownRef.current?.contains(e.target as Node) && !moreMenuRef.current?.contains(e.target as Node)) {
         setDropdownOpen(false);
         setMoreMenuOpen(false);
       }
@@ -289,11 +261,12 @@ export default function AuthenticatedLayout() {
           ? NAV_EXTRA_STORE
           : user?.role === "Municipality"
             ? NAV_EXTRA_MUNICIPALITY
-            : user?.role === "Admin"
+            : user?.role === "Admin" || user?.role === "SuperAdmin"
               ? NAV_EXTRA_ADMIN
               : null;
 
-  const adminStatsNav = user?.role === "Admin" ? NAV_EXTRA_ADMIN_STATS : null;
+  const adminStatsNav = user?.role === "Admin" || user?.role === "SuperAdmin" ? NAV_EXTRA_ADMIN_STATS : null;
+  const superAdminNav = user?.role === "SuperAdmin" ? NAV_SUPER_ADMIN : null;
 
   const pageCtx = resolvePageContext(location.pathname);
   const isSubPage =
@@ -321,10 +294,7 @@ export default function AuthenticatedLayout() {
           </Link>
 
           {/* Desktop nav */}
-          <nav
-            aria-label="Navegación principal"
-            className="hidden min-w-0 items-center gap-1 md:flex"
-          >
+          <nav aria-label="Navegación principal" className="hidden min-w-0 items-center gap-1 md:flex">
             {NAV_MAIN.map((item) => (
               <NavLink key={item.to} to={item.to} className={navLinkCls}>
                 {({ isActive }) => (
@@ -335,7 +305,7 @@ export default function AuthenticatedLayout() {
                 )}
               </NavLink>
             ))}
-            {(extraNav || adminStatsNav) && (
+            {(extraNav || adminStatsNav || superAdminNav) && (
               <div className="relative" ref={moreMenuRef}>
                 <button
                   type="button"
@@ -357,11 +327,7 @@ export default function AuthenticatedLayout() {
                     className="h-3.5 w-3.5"
                     aria-hidden="true"
                   >
-                    <path
-                      d="m4 6 4 4 4-4"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
+                    <path d="m4 6 4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </button>
 
@@ -395,6 +361,16 @@ export default function AuthenticatedLayout() {
                           {adminStatsNav.label}
                         </NavLink>
                       )}
+                      {superAdminNav && (
+                        <NavLink
+                          to={superAdminNav.to}
+                          role="menuitem"
+                          onClick={() => setMoreMenuOpen(false)}
+                          className={navLinkPlainCls}
+                        >
+                          {superAdminNav.label}
+                        </NavLink>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -411,12 +387,7 @@ export default function AuthenticatedLayout() {
               to="/dashboard"
               className="hidden md:flex items-center gap-1.5 rounded-xl bg-danger-500 px-3.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-danger-600 transition-base"
             >
-              <svg
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="h-3.5 w-3.5"
-                aria-hidden="true"
-              >
+              <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5" aria-hidden="true">
                 <path
                   fillRule="evenodd"
                   d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
@@ -467,12 +438,8 @@ export default function AuthenticatedLayout() {
                         {getInitials(user?.name)}
                       </span>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-sand-900 truncate">
-                          {user?.name}
-                        </p>
-                        <p className="text-xs text-sand-400 truncate">
-                          {user?.email}
-                        </p>
+                        <p className="text-sm font-semibold text-sand-900 truncate">{user?.name}</p>
+                        <p className="text-xs text-sand-400 truncate">{user?.email}</p>
                         {user?.role && ROLE_BADGE[user.role] && (
                           <span
                             className={`mt-0.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${ROLE_BADGE[user.role].cls}`}
@@ -578,12 +545,7 @@ export default function AuthenticatedLayout() {
                         onClick={handleLogout}
                         className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-base"
                       >
-                        <svg
-                          className="h-4 w-4 shrink-0"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                          aria-hidden="true"
-                        >
+                        <svg className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path
                             fillRule="evenodd"
                             d="M3 3a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5v12h5a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1V3zm13.707 5.293a1 1 0 0 1 0 1.414l-3 3a1 1 0 0 1-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 1 1 1.414-1.414l3 3z"
@@ -634,9 +596,7 @@ export default function AuthenticatedLayout() {
                 {getInitials(user?.name)}
               </span>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-sand-900 truncate">
-                  {user?.name}
-                </p>
+                <p className="text-sm font-semibold text-sand-900 truncate">{user?.name}</p>
                 <p className="text-xs text-sand-400 truncate">{user?.email}</p>
               </div>
               {user?.role && ROLE_BADGE[user.role] && (
@@ -649,12 +609,7 @@ export default function AuthenticatedLayout() {
             </div>
             <hr className="border-sand-200" />
             {NAV_MAIN.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                onClick={() => setMenuOpen(false)}
-                className={navLinkCls}
-              >
+              <NavLink key={item.to} to={item.to} onClick={() => setMenuOpen(false)} className={navLinkCls}>
                 {({ isActive }) => (
                   <>
                     {item.icon?.(isActive)}
@@ -664,21 +619,18 @@ export default function AuthenticatedLayout() {
               </NavLink>
             ))}
             {extraNav && (
-              <NavLink
-                to={extraNav.to}
-                onClick={() => setMenuOpen(false)}
-                className={navLinkPlainCls}
-              >
+              <NavLink to={extraNav.to} onClick={() => setMenuOpen(false)} className={navLinkPlainCls}>
                 {extraNav.label}
               </NavLink>
             )}
             {adminStatsNav && (
-              <NavLink
-                to={adminStatsNav.to}
-                onClick={() => setMenuOpen(false)}
-                className={navLinkPlainCls}
-              >
+              <NavLink to={adminStatsNav.to} onClick={() => setMenuOpen(false)} className={navLinkPlainCls}>
                 {adminStatsNav.label}
+              </NavLink>
+            )}
+            {superAdminNav && (
+              <NavLink to={superAdminNav.to} onClick={() => setMenuOpen(false)} className={navLinkPlainCls}>
+                {superAdminNav.label}
               </NavLink>
             )}
             {user?.role === "Owner" && (
@@ -689,12 +641,7 @@ export default function AuthenticatedLayout() {
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-2 rounded-xl bg-danger-500 px-3 py-2 text-sm font-semibold text-white"
                 >
-                  <svg
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    className="h-4 w-4"
-                    aria-hidden="true"
-                  >
+                  <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                     <path
                       fillRule="evenodd"
                       d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
@@ -706,11 +653,7 @@ export default function AuthenticatedLayout() {
               </>
             )}
             <hr className="my-1 border-sand-200" />
-            <NavLink
-              to="/perfil"
-              onClick={() => setMenuOpen(false)}
-              className={navLinkCls}
-            >
+            <NavLink to="/perfil" onClick={() => setMenuOpen(false)} className={navLinkCls}>
               Mi perfil
             </NavLink>
             <Link
@@ -779,12 +722,7 @@ export default function AuthenticatedLayout() {
                 aria-label="Volver atrás"
                 className="mr-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-sand-500 hover:bg-sand-100 hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-base"
               >
-                <svg
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="h-4 w-4"
-                  aria-hidden="true"
-                >
+                <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                   <path
                     fillRule="evenodd"
                     d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z"
@@ -796,9 +734,7 @@ export default function AuthenticatedLayout() {
             <span aria-hidden="true" className="text-sm">
               {pageCtx.icon}
             </span>
-            <span className="text-xs font-semibold text-sand-700">
-              {pageCtx.label}
-            </span>
+            <span className="text-xs font-semibold text-sand-700">{pageCtx.label}</span>
           </div>
         </div>
       )}

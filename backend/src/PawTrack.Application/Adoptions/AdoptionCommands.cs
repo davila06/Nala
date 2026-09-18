@@ -6,6 +6,7 @@ using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Adoptions;
 using PawTrack.Domain.Allies;
+using PawTrack.Domain.Auth;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Pets;
 using PawTrack.Domain.Subscriptions;
@@ -612,6 +613,7 @@ public sealed class CreateAdoptionFairCommandHandler(
     IAllyProfileRepository allyProfileRepository,
     ISubscriptionService subscriptionService,
     INotificationDispatcher notificationDispatcher,
+    IUserRepository userRepository,
     IUnitOfWork unitOfWork,
     ILogger<CreateAdoptionFairCommandHandler> logger)
     : IRequestHandler<CreateAdoptionFairCommand, Result<AdoptionFairDto>>
@@ -621,14 +623,19 @@ public sealed class CreateAdoptionFairCommandHandler(
     public async Task<Result<AdoptionFairDto>> Handle(
         CreateAdoptionFairCommand request, CancellationToken ct)
     {
-        var ally = await allyProfileRepository.GetVerifiedByUserIdAsync(request.OrganizationUserId, ct);
-        if (ally is null || ally.AllyType != AllyType.Shelter)
-            return Result.Failure<AdoptionFairDto>("not_verified_shelter");
+        var actor = await userRepository.GetByIdAsync(request.OrganizationUserId, ct);
+        var isAdmin = actor?.Role.IsAdminOrSuperAdmin() == true;
+        if (!isAdmin)
+        {
+            var ally = await allyProfileRepository.GetVerifiedByUserIdAsync(request.OrganizationUserId, ct);
+            if (ally is null || ally.AllyType != AllyType.Shelter)
+                return Result.Failure<AdoptionFairDto>("not_verified_shelter");
 
-        // Fairs require ShelterPlus subscription
-        var tier = await subscriptionService.GetActiveUserTierAsync(request.OrganizationUserId, ct);
-        if (tier < SubscriptionTier.ShelterPlus)
-            return Result.Failure<AdoptionFairDto>(ShelterPlusRequiredError);
+            // Non-admin fairs require a verified Shelter with ShelterPlus.
+            var tier = await subscriptionService.GetActiveUserTierAsync(request.OrganizationUserId, ct);
+            if (tier < SubscriptionTier.ShelterPlus)
+                return Result.Failure<AdoptionFairDto>(ShelterPlusRequiredError);
+        }
 
         var fair = AdoptionFair.Create(
             request.OrganizationUserId, request.Title, request.VenueLabel,

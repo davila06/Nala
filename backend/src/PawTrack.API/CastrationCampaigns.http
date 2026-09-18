@@ -1,0 +1,60 @@
+@baseUrl = http://localhost:5000
+@organizerToken = REPLACE_WITH_CLINIC_MUNICIPALITY_OR_ALLY_TOKEN
+@adminToken = REPLACE_WITH_ADMIN_TOKEN
+@ownerToken = REPLACE_WITH_OWNER_TOKEN
+@clinicId = 00000000-0000-0000-0000-000000000000
+@petId = 00000000-0000-0000-0000-000000000000
+@campaignId = 00000000-0000-0000-0000-000000000000
+
+### Public discovery
+GET {{baseUrl}}/api/castration-campaigns?canton=Cartago&page=1&pageSize=20
+
+### Create draft
+POST {{baseUrl}}/api/castration-campaigns
+Authorization: Bearer {{organizerToken}}
+Content-Type: application/json
+
+{
+  "executingClinicId": "{{clinicId}}",
+  "title": "Jornada de esterilizacion Cartago",
+  "venueLabel": "Centro Civico",
+  "canton": "Cartago",
+  "latitude": 9.8644,
+  "longitude": -83.9194,
+  "startsAt": "2026-11-15T08:00:00-06:00",
+  "endsAt": "2026-11-15T16:00:00-06:00",
+  "reservationsOpenAt": "2026-10-01T08:00:00-06:00",
+  "reservationsCloseAt": "2026-11-13T18:00:00-06:00",
+  "capacity": 80,
+  "basePriceCrc": 15000,
+  "consentVersion": "v1"
+}
+
+### Submit for approval
+POST {{baseUrl}}/api/castration-campaigns/{{campaignId}}/submit
+Authorization: Bearer {{organizerToken}}
+
+### Approve as Admin
+POST {{baseUrl}}/api/castration-campaigns/{{campaignId}}/approve
+Authorization: Bearer {{adminToken}}
+
+### Publish
+POST {{baseUrl}}/api/castration-campaigns/{{campaignId}}/publish
+Authorization: Bearer {{organizerToken}}
+
+### Reserve appointment as pet owner
+POST {{baseUrl}}/api/castration-campaigns/{{campaignId}}/appointments
+Authorization: Bearer {{ownerToken}}
+Content-Type: application/json
+
+{
+  "petId": "{{petId}}",
+  "scheduledAt": "2026-11-15T09:00:00-06:00",
+  "weightKg": 12.5,
+  "confirmsFastingInstructions": true,
+  "isPregnant": false,
+  "isInHeat": false,
+  "consentAccepted": true,
+  "consentVersion": "v1",
+  "requiresInvoice": true
+}

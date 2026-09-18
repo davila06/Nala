@@ -19,7 +19,7 @@ public sealed class AssignSupportRoleCommandHandler(
         var target = await userRepository.GetByIdAsync(request.TargetUserId, ct);
         if (target is null)
             return Result.Failure<Unit>("Usuario no encontrado.");
-        if (target.Role == UserRole.Admin)
+        if (target.Role is UserRole.Admin or UserRole.SuperAdmin)
             return Result.Failure<Unit>("No se puede degradar ni reemplazar el rol de un administrador.");
 
         target.AssignSupportRole();

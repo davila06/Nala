@@ -1229,6 +1229,173 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.ToTable("BundleOrders", (string)null);
                 });
 
+            modelBuilder.Entity("PawTrack.Domain.CastrationCampaigns.CastrationAppointment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("BasePriceCrc")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<Guid>("CampaignId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ClinicalOutcome")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTimeOffset>("ConsentAcceptedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ConsentVersion")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("EligibilitySnapshot")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ExecutingVeterinarianId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("IvaAmountCrc")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<Guid>("OwnerUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PostOperativeInstructions")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTimeOffset>("ScheduledAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("TotalAmountCrc")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampaignId", "PetId")
+                        .IsUnique();
+
+                    b.HasIndex("CampaignId", "Status", "ScheduledAt");
+
+                    b.HasIndex("OwnerUserId", "Status", "ScheduledAt");
+
+                    b.ToTable("CastrationAppointments", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.CastrationCampaigns.CastrationCampaign", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ApprovedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("BasePriceCrc")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<string>("Canton")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConsentVersion")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("EndsAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("ExecutingClinicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<Guid>("OrganizerUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("ReservationsCloseAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("ReservationsOpenAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("ReservedCount")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTimeOffset>("StartsAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("nvarchar(24)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("VenueLabel")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExecutingClinicId", "Status");
+
+                    b.HasIndex("OrganizerUserId", "Status");
+
+                    b.HasIndex("Status", "StartsAt", "Canton");
+
+                    b.ToTable("CastrationCampaigns", (string)null);
+                });
+
             modelBuilder.Entity("PawTrack.Domain.Certificates.CertificateAuditLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -5718,6 +5885,15 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.CastrationCampaigns.CastrationAppointment", b =>
+                {
+                    b.HasOne("PawTrack.Domain.CastrationCampaigns.CastrationCampaign", null)
+                        .WithMany()
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

@@ -15,6 +15,10 @@ public enum AuditAction
     SubscriptionActivated,
     SubscriptionCancelled,
 
+    // Privileged access
+    SuperAdminAssigned,
+    SuperAdminRevoked,
+
     // Advertising
     BillboardSubmittedForReview,
     BillboardApproved,

@@ -246,6 +246,25 @@ después (ej. lanzar primero en `*.azurestaticapps.net` y migrar luego a
 funcionar** y los usuarios deben volver a registrarlas. Ver §3 (DNS y
 dominio) — agregado como ítem #4 de esa sección.
 
+## 2.7 Bootstrap inicial de SuperAdmin
+
+El rol `SuperAdmin` está implementado como privilegio excepcional con herencia
+de `Admin`, MFA obligatorio, verificación TOTP fresca por operación, auditoría
+y protección contra revocar el último SuperAdmin.
+
+Para crear el primero, la cuenta debe tener correo verificado y MFA activo.
+Configurar temporalmente en el Container App:
+
+```text
+Security__SuperAdmin__BootstrapEnabled=true
+Security__SuperAdmin__BootstrapEmail=correo-verificado@pawtrack.cr
+```
+
+Después de confirmar `SuperAdmin bootstrap completed` en logs, desactivar la
+bandera y borrar el correo inmediatamente. El bootstrap usa
+`IDistributedJobLock` y es idempotente. Procedimiento completo:
+[SUPERADMIN.md](SUPERADMIN.md).
+
 ---
 
 ## 3. DNS y dominio
@@ -686,30 +705,31 @@ Verificar en logs de Container App tras el inicio que los siguientes servicios e
 ### 🔴 Bloquean el funcionamiento básico (hacer primero)
 
 1. ☐ Cargar todos los secretos en Key Vault (especialmente `jwt-signing-key`, `sql-connection-string`, `storage-connection-string`, `sendgrid-api-key`)
-2. ☐ Aplicar migraciones EF en Azure SQL (`dotnet ef database update`, ver §7)
-3. ☐ Configurar `Cors:AllowedOrigins` con el dominio final
-4. ☐ Configurar `VITE_API_URL` en GitHub Secrets → redeploy del frontend
-5. ☐ Configurar `VITE_SINPE_PHONE` con el número real de SINPE
-6. ☐ **Crear Azure Cache for Redis y cargar `redis-connection-string`** — ver §1/§2.1. Sin esto, rate limiting/chat/throttle fallan de forma inconsistente en cuanto haya >1 réplica.
-7. ☐ **Configurar persistencia de Data Protection** (`.PersistKeysToAzureBlobStorage` + `.ProtectKeysWithAzureKeyVault` en `Program.cs`) — ver §2.5. Sin esto, MFA y webhooks salientes se rompen tras cualquier reinicio/redeploy.
+1. ☐ Aplicar migraciones EF en Azure SQL (`dotnet ef database update`, ver §7)
+1. ☐ Configurar `Cors:AllowedOrigins` con el dominio final
+1. ☐ Configurar `VITE_API_URL` en GitHub Secrets → redeploy del frontend
+1. ☐ Configurar `VITE_SINPE_PHONE` con el número real de SINPE
+1. ☐ **Crear Azure Cache for Redis y cargar `redis-connection-string`** — ver §1/§2.1. Sin esto, rate limiting/chat/throttle fallan de forma inconsistente en cuanto haya >1 réplica.
+1. ☐ **Configurar persistencia de Data Protection** (`.PersistKeysToAzureBlobStorage` + `.ProtectKeysWithAzureKeyVault` en `Program.cs`) — ver §2.5. Sin esto, MFA y webhooks salientes se rompen tras cualquier reinicio/redeploy.
+1. ☐ Crear el primer SuperAdmin mediante bootstrap temporal y desactivarlo inmediatamente — ver §2.7.
 
 ### 🟠 Bloquean features clave (hacer antes del launch público)
 
-8. ☐ Configurar SendGrid + verificar dominio de email
-9. ☐ Registrar credenciales de comercio CyberSource / BAC Credomatic para cobros con tarjeta y renovaciones automáticas (§6.8)
-10. ☐ Registrar app OAuth en Meta → configurar WhatsApp webhook
-11. ☐ Configurar GitHub Secrets para CI/CD (17 en total, ver §4)
-12. ☐ Comprar y configurar dominio `pawtrack.cr` **antes de que cualquier usuario registre una passkey/WebAuthn** (ver §2.6)
-13. ☐ Generar claves VAPID de producción → cargar en Key Vault + GitHub Secrets
-14. ☐ Agregar `VITE_APPINSIGHTS_CONNECTION_STRING` al step de build en `frontend.yml` (falta, ver §4)
+1. ☐ Configurar SendGrid + verificar dominio de email
+1. ☐ Registrar credenciales de comercio CyberSource / BAC Credomatic para cobros con tarjeta y renovaciones automáticas (§6.8)
+1. ☐ Registrar app OAuth en Meta → configurar WhatsApp webhook
+1. ☐ Configurar GitHub Secrets para CI/CD (17 en total, ver §4)
+1. ☐ Comprar y configurar dominio `pawtrack.cr` **antes de que cualquier usuario registre una passkey/WebAuthn** (ver §2.6)
+1. ☐ Generar claves VAPID de producción → cargar en Key Vault + GitHub Secrets
+1. ☐ Agregar `VITE_APPINSIGHTS_CONNECTION_STRING` al step de build en `frontend.yml` (falta, ver §4)
 
 ### 🟡 Mejoran el producto pero no bloquean el launch
 
-15. ☐ Configurar Azure Computer Vision (búsqueda visual por foto)
-16. ☐ Registrar app Tractive y/o credenciales Jimi IoT TrackSolid Pro (collares GPS)
-17. ☐ Configurar Azure Maps (geocodificación de cantones en alertas)
-18. ☐ Crear bot de Telegram y bot de Facebook (canales de difusión alternativos)
-19. ☐ Ajustar CPU/RAM del Container App para carga real
+1. ☐ Configurar Azure Computer Vision (búsqueda visual por foto)
+1. ☐ Registrar app Tractive y/o credenciales Jimi IoT TrackSolid Pro (collares GPS)
+1. ☐ Configurar Azure Maps (geocodificación de cantones en alertas)
+1. ☐ Crear bot de Telegram y bot de Facebook (canales de difusión alternativos)
+1. ☐ Ajustar CPU/RAM del Container App para carga real
 
 ---
 

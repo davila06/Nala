@@ -1,6 +1,7 @@
 using PawTrack.Application.Municipalities.Interfaces;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Regulatory.Interfaces;
+using PawTrack.Domain.Auth;
 using PawTrack.Domain.Municipalities;
 using PawTrack.Domain.Regulatory;
 
@@ -27,7 +28,7 @@ public sealed class ReportAuthorizationService(
             return ReportAuthorizationResult.Allow(null, null);
 
         var user = await userRepository.GetByIdAsync(userId, cancellationToken);
-        var isAdmin = user?.Role == Domain.Auth.UserRole.Admin;
+        var isAdmin = user?.Role.IsAdminOrSuperAdmin() == true;
         MunicipalityProfile? municipalProfile = null;
 
         if (scope is ExportScope.Admin or ExportScope.Nala && !isAdmin)

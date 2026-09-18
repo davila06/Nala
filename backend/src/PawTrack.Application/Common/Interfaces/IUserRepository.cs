@@ -12,4 +12,5 @@ public interface IUserRepository
     Task AddAsync(User user, CancellationToken cancellationToken = default);
     void Update(User user);
     Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default);
+    Task<int> CountByRoleAsync(UserRole role, CancellationToken cancellationToken = default);
 }

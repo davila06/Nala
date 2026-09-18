@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
+using PawTrack.Application.CastrationCampaigns.Interfaces;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.AnimalWelfare.Interfaces;
 using PawTrack.Application.Regulatory.Interfaces;
@@ -22,6 +23,7 @@ using PawTrack.Infrastructure.Auth;
 using PawTrack.Infrastructure.Bot;
 using PawTrack.Infrastructure.Broadcast;
 using PawTrack.Infrastructure.Broadcast.Channels;
+using PawTrack.Infrastructure.CastrationCampaigns;
 using PawTrack.Infrastructure.Chat;
 using PawTrack.Infrastructure.Clinics;
 using PawTrack.Infrastructure.Configuration;
@@ -157,6 +159,8 @@ public static class InfrastructureServiceCollectionExtensions
 
         // Adoptions
         services.AddScoped<IAdoptionRepository, PawTrack.Infrastructure.Adoptions.AdoptionRepository>();
+        services.AddScoped<ICastrationCampaignRepository, CastrationCampaignRepository>();
+        services.AddScoped<ICastrationAppointmentRepository, CastrationAppointmentRepository>();
 
         // Audit log
         services.AddScoped<IAuditLogRepository, PawTrack.Infrastructure.Audit.AuditLogRepository>();
@@ -364,6 +368,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IElectronicBillingService, ElectronicBillingService>();
         services.AddSingleton<IPaymentGatewayService, CyberSourcePaymentGatewayService>();
         services.AddHostedService<SubscriptionRecurringBillingHostedService>();
+
+        // Explicit, disabled-by-default bootstrap for the first MFA-enabled SuperAdmin.
+        services.AddHostedService<SuperAdminBootstrapHostedService>();
 
         // Jimi IoT TrackSolid Pro integration (AL600 GPS collar)
         services.AddSingleton<ITrackSolidService, TrackSolidService>();

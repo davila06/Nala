@@ -38,7 +38,7 @@ public sealed class GetTaxSummaryQueryHandler(
         GetTaxSummaryQuery request, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetByIdAsync(request.RequestingUserId, cancellationToken);
-        if (user is null || user.Role != UserRole.Admin)
+        if (user is null || !user.Role.IsAdminOrSuperAdmin())
             return Result.Failure<TaxSummaryDto>("Acceso restringido a administradores.");
 
         var startDate = new DateTimeOffset(request.Year, request.Month, 1, 0, 0, 0, TimeSpan.Zero);

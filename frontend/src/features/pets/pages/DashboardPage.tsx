@@ -19,17 +19,12 @@ export default function DashboardPage() {
   const { data: pets, isLoading, isError, refetch } = usePets();
   const user = useAuthStore((s) => s.user);
   const { isPlus, isFamilia } = useMyTier();
-  const lostCount = useMemo(
-    () => (pets ?? []).filter((p) => p.status === "Lost").length,
-    [pets],
-  );
+  const lostCount = useMemo(() => (pets ?? []).filter((p) => p.status === "Lost").length, [pets]);
   const petLimit = isFamilia ? -1 : isPlus ? 3 : 1;
   const petCount = pets?.length ?? 0;
   const atPetLimit = petLimit !== -1 && petCount >= petLimit;
   const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState<"all" | "Lost" | "Active">(
-    "all",
-  );
+  const [filterStatus, setFilterStatus] = useState<"all" | "Lost" | "Active">("all");
   const [filterSpecies, setFilterSpecies] = useState<string>("all");
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
   const [showFreemium, setShowFreemium] = useState(false);
@@ -38,26 +33,20 @@ export default function DashboardPage() {
   useEffect(() => {
     const handler = () => setShowFreemium(true);
     window.addEventListener("pawtrack:open-upgrade-modal", handler);
-    return () =>
-      window.removeEventListener("pawtrack:open-upgrade-modal", handler);
+    return () => window.removeEventListener("pawtrack:open-upgrade-modal", handler);
   }, []);
 
   const filteredPets = useMemo(() => {
     if (!pets) return [];
     return pets.filter((p) => {
-      const matchesSearch =
-        search === "" || p.name.toLowerCase().includes(search.toLowerCase());
+      const matchesSearch = search === "" || p.name.toLowerCase().includes(search.toLowerCase());
       const matchesStatus = filterStatus === "all" || p.status === filterStatus;
-      const matchesSpecies =
-        filterSpecies === "all" || p.species === filterSpecies;
+      const matchesSpecies = filterSpecies === "all" || p.species === filterSpecies;
       return matchesSearch && matchesStatus && matchesSpecies;
     });
   }, [pets, search, filterStatus, filterSpecies]);
 
-  const species = useMemo(
-    () => [...new Set((pets ?? []).map((p) => p.species))],
-    [pets],
-  );
+  const species = useMemo(() => [...new Set((pets ?? []).map((p) => p.species))], [pets]);
 
   const handleRefresh = useCallback(async () => {
     await refetch();
@@ -71,18 +60,11 @@ export default function DashboardPage() {
   return (
     <>
       {/* Onboarding wizard — only for users with no pets who haven't dismissed it */}
-      {!isLoading &&
-        !isError &&
-        pets?.length === 0 &&
-        !onboardingDismissed &&
-        shouldShowOnboarding() && (
-          <OnboardingWizard onDismiss={() => setOnboardingDismissed(true)} />
-        )}
+      {!isLoading && !isError && pets?.length === 0 && !onboardingDismissed && shouldShowOnboarding() && (
+        <OnboardingWizard onDismiss={() => setOnboardingDismissed(true)} />
+      )}
 
-      <div
-        ref={containerRef}
-        className="mx-auto max-w-5xl px-4 py-8 animate-fade-in-up overflow-auto"
-      >
+      <div ref={containerRef} className="mx-auto max-w-5xl px-4 py-8 animate-fade-in-up overflow-auto">
         {/* Pull-to-refresh indicator */}
         {(pullProgress > 0 || isRefreshing) && (
           <div
@@ -96,9 +78,7 @@ export default function DashboardPage() {
               className={`h-5 w-5 rounded-full border-2 border-brand-300 border-t-brand-500 ${isRefreshing ? "animate-spin" : ""}`}
               style={{ transform: `rotate(${pullProgress * 360}deg)` }}
             />
-            <span className="text-xs text-sand-400">
-              {isRefreshing ? "Actualizando…" : "Suelta para actualizar"}
-            </span>
+            <span className="text-xs text-sand-400">{isRefreshing ? "Actualizando…" : "Suelta para actualizar"}</span>
           </div>
         )}
         {/* Header */}
@@ -116,8 +96,7 @@ export default function DashboardPage() {
             </h1>
             <div className="mt-1 flex items-center gap-2">
               <p className="text-sm text-sand-500">
-                {pets?.length ?? 0} mascota{pets?.length !== 1 ? "s" : ""}{" "}
-                registrada{pets?.length !== 1 ? "s" : ""}
+                {pets?.length ?? 0} mascota{pets?.length !== 1 ? "s" : ""} registrada{pets?.length !== 1 ? "s" : ""}
               </p>
               {lostCount > 0 && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-danger-100 px-2 py-0.5 text-xs font-bold text-danger-700">
@@ -200,7 +179,7 @@ export default function DashboardPage() {
               Dar en adopción
             </Link>
           )}
-          {user?.role === "Admin" && (
+          {(user?.role === "Admin" || user?.role === "SuperAdmin") && (
             <Link
               to="/estadisticas"
               className="flex items-center gap-3 rounded-xl border border-sand-200 bg-surface-warm px-4 py-3 text-sm font-semibold text-sand-700 transition-base hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400 focus-visible:ring-offset-1"
@@ -214,41 +193,31 @@ export default function DashboardPage() {
         </div>
 
         {/* Billboard — visible near the dashboard entry actions */}
-        {!isLoading && (
-          <BillboardBanner placement="Dashboard" className="mb-8" />
-        )}
+        {!isLoading && <BillboardBanner placement="Dashboard" className="mb-8" />}
 
         {/* Freemium upsell — only for non-admin, non-paying users with at least 1 pet */}
-        {!isLoading &&
-          user?.role !== "Admin" &&
-          !isPlus &&
-          (pets?.length ?? 0) >= 1 && (
-            <button
-              type="button"
-              onClick={() => setShowFreemium(true)}
-              className="mb-8 w-full rounded-2xl border border-brand-200 bg-linear-to-r from-brand-50 to-rescue-50 px-4 py-3 flex items-center gap-3 text-left transition-colors hover:from-brand-100 hover:to-rescue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
-            >
-              <span className="text-2xl shrink-0" aria-hidden="true">
-                ⚡
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-brand-900">
-                  Activa Plus y protege más a tus mascotas
-                </p>
-                <p className="text-xs text-brand-600 mt-0.5">
-                  Alertas instantáneas, IA sin límite y hasta 3 mascotas desde{" "}
-                  <strong>₡2,990/mes</strong>.
-                </p>
-              </div>
-              <span className="shrink-0 rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white">
-                Ver planes →
-              </span>
-            </button>
-          )}
-
-        {showFreemium && (
-          <FreemiumModal onClose={() => setShowFreemium(false)} />
+        {!isLoading && user?.role !== "Admin" && user?.role !== "SuperAdmin" && !isPlus && (pets?.length ?? 0) >= 1 && (
+          <button
+            type="button"
+            onClick={() => setShowFreemium(true)}
+            className="mb-8 w-full rounded-2xl border border-brand-200 bg-linear-to-r from-brand-50 to-rescue-50 px-4 py-3 flex items-center gap-3 text-left transition-colors hover:from-brand-100 hover:to-rescue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          >
+            <span className="text-2xl shrink-0" aria-hidden="true">
+              ⚡
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-brand-900">Activa Plus y protege más a tus mascotas</p>
+              <p className="text-xs text-brand-600 mt-0.5">
+                Alertas instantáneas, IA sin límite y hasta 3 mascotas desde <strong>₡2,990/mes</strong>.
+              </p>
+            </div>
+            <span className="shrink-0 rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white">
+              Ver planes →
+            </span>
+          </button>
         )}
+
+        {showFreemium && <FreemiumModal onClose={() => setShowFreemium(false)} />}
 
         {/* Loading skeleton */}
         {isLoading && (
@@ -259,11 +228,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {isError && (
-          <Alert variant="error">
-            No se pudieron cargar tus mascotas. Por favor, intenta de nuevo.
-          </Alert>
-        )}
+        {isError && <Alert variant="error">No se pudieron cargar tus mascotas. Por favor, intenta de nuevo.</Alert>}
 
         {!isLoading && !isError && pets?.length === 0 && (
           <EmptyState
@@ -352,9 +317,7 @@ export default function DashboardPage() {
                   <button
                     key={sp}
                     type="button"
-                    onClick={() =>
-                      setFilterSpecies(filterSpecies === sp ? "all" : sp)
-                    }
+                    onClick={() => setFilterSpecies(filterSpecies === sp ? "all" : sp)}
                     aria-pressed={filterSpecies === sp}
                     className={[
                       "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
@@ -391,9 +354,7 @@ export default function DashboardPage() {
             </div>
 
             {filteredPets.length === 0 ? (
-              <p className="py-8 text-center text-sm text-sand-400">
-                No hay mascotas que coincidan con la búsqueda.
-              </p>
+              <p className="py-8 text-center text-sm text-sand-400">No hay mascotas que coincidan con la búsqueda.</p>
             ) : (
               <div className="stagger-grid grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                 {filteredPets.map((pet, i) => (

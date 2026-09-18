@@ -15,7 +15,7 @@ public sealed record UserProfileDto(
         user.Email,
         user.Name,
         user.IsEmailVerified,
-        user.Role == PawTrack.Domain.Auth.UserRole.Admin,
+        user.Role is PawTrack.Domain.Auth.UserRole.Admin or PawTrack.Domain.Auth.UserRole.SuperAdmin,
         user.CreatedAt,
         user.IsAdultConfirmed,
         user.HasHealthDataConsent);

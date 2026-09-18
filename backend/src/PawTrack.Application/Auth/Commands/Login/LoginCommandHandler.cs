@@ -60,7 +60,9 @@ public sealed class LoginCommandHandler(
             return Result.Failure<AuthTokenDto>("Email address not yet verified. Please check your inbox.");
         }
 
-        var privilegedMfaRequired = user.Role is PawTrack.Domain.Auth.UserRole.Admin or PawTrack.Domain.Auth.UserRole.Support
+        var privilegedMfaRequired = user.Role is PawTrack.Domain.Auth.UserRole.Admin
+            or PawTrack.Domain.Auth.UserRole.Support
+            or PawTrack.Domain.Auth.UserRole.SuperAdmin
             && mfaPolicy.RequireForPrivilegedRoles;
         var mfaRequired = user.HasMfa || privilegedMfaRequired;
         var mfaValid = !mfaRequired || (user.HasMfa && !string.IsNullOrWhiteSpace(request.MfaCode)

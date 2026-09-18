@@ -36,17 +36,24 @@ public sealed class JwtTokenService : IJwtTokenService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, email),
             new Claim(JwtRegisteredClaimNames.Name, name),
             new Claim(ClaimTypes.Role, role.ToString()),
+            new Claim("platform_role", role.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.CreateVersion7().ToString()),
             new Claim(JwtRegisteredClaimNames.Iat,
                 DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(),
                 ClaimValueTypes.Integer64),
         };
+
+        if (role == UserRole.SuperAdmin)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, UserRole.Admin.ToString()));
+            claims.Add(new Claim("mfa", "true", ClaimValueTypes.Boolean));
+        }
 
         var token = new JwtSecurityToken(
             issuer: _issuer,
