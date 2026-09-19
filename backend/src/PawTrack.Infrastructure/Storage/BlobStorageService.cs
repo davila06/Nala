@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Configuration;
@@ -7,25 +8,10 @@ namespace PawTrack.Infrastructure.Storage;
 
 public sealed class BlobStorageService(IConfiguration configuration) : IBlobStorageService
 {
-    private readonly string _connectionString =
-        configuration["Azure:Storage:ConnectionString"]
-        ?? throw new InvalidOperationException("Azure:Storage:ConnectionString not configured.");
-
-    /// <summary>
-    /// Containers that intentionally allow anonymous public read access.
-    /// Pet and sighting photos must be publicly accessible so anyone who scans a QR code
-    /// (or sees a shared link) can view the pet profile without authentication.
-    /// Any container NOT in this set is created with <see cref="PublicAccessType.None"/>
-    /// (private), which is the secure-by-default posture for future containers.
-    /// </summary>
-    private static readonly HashSet<string> _knownPublicContainers =
-        new(StringComparer.OrdinalIgnoreCase)
-        {
-            "pet-photos",
-            "sighting-photos",
-            "found-pet-photos",
-            "lost-pet-photos",
-        };
+    private readonly BlobServiceClient _serviceClient = CreateServiceClient(configuration);
+    private readonly string _publicBaseUrl = configuration["App:ApiBaseUrl"]
+        ?? configuration["App:BaseUrl"]
+        ?? throw new InvalidOperationException("App:ApiBaseUrl not configured.");
 
     public async Task<string> UploadAsync(
         string containerName,
@@ -34,13 +20,8 @@ public sealed class BlobStorageService(IConfiguration configuration) : IBlobStor
         string contentType,
         CancellationToken cancellationToken = default)
     {
-        var containerClient = new BlobContainerClient(_connectionString, containerName);
-
-        // Use public access only for known-public containers; all others default to private.
-        var accessType = _knownPublicContainers.Contains(containerName)
-            ? PublicAccessType.Blob
-            : PublicAccessType.None;
-        await containerClient.CreateIfNotExistsAsync(accessType, cancellationToken: cancellationToken);
+        var containerClient = _serviceClient.GetBlobContainerClient(containerName);
+        await containerClient.CreateIfNotExistsAsync(PublicAccessType.None, cancellationToken: cancellationToken);
 
         var blobClient = containerClient.GetBlobClient(blobName);
         await blobClient.UploadAsync(
@@ -48,24 +29,18 @@ public sealed class BlobStorageService(IConfiguration configuration) : IBlobStor
             new BlobUploadOptions { HttpHeaders = new BlobHttpHeaders { ContentType = contentType } },
             cancellationToken);
 
-        return blobClient.Uri.ToString();
+        return PublicMediaPolicy.IsPublicContainer(containerName)
+            ? PublicMediaPolicy.BuildPublicUrl(_publicBaseUrl, containerName, blobName)
+            : blobClient.Uri.ToString();
     }
 
     public async Task DeleteAsync(string blobUrl, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(blobUrl)) return;
 
-        var uri = new Uri(blobUrl);
+        if (!TryParseBlobUrl(blobUrl, out var containerName, out var blobName)) return;
 
-        // Extract container and blob path from URL:
-        // https://<account>.blob.core.windows.net/<container>/<blobPath>
-        var segments = uri.AbsolutePath.TrimStart('/').Split('/', 2);
-        if (segments.Length != 2) return;
-
-        var containerName = segments[0];
-        var blobName = segments[1];
-
-        var containerClient = new BlobContainerClient(_connectionString, containerName);
+        var containerClient = _serviceClient.GetBlobContainerClient(containerName);
         var blobClient = containerClient.GetBlobClient(blobName);
         await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
     }
@@ -78,7 +53,7 @@ public sealed class BlobStorageService(IConfiguration configuration) : IBlobStor
         if (!TryParseBlobUrl(blobUrl, out var containerName, out var blobName))
             return null;
 
-        var containerClient = new BlobContainerClient(_connectionString, containerName!);
+        var containerClient = _serviceClient.GetBlobContainerClient(containerName!);
         var blobClient = containerClient.GetBlobClient(blobName!);
 
         if (!await blobClient.ExistsAsync(cancellationToken))
@@ -96,12 +71,28 @@ public sealed class BlobStorageService(IConfiguration configuration) : IBlobStor
         if (!Uri.TryCreate(blobUrl, UriKind.Absolute, out var uri))
             return false;
 
-        var segments = uri.AbsolutePath.TrimStart('/').Split('/', 2);
+        var path = uri.AbsolutePath.TrimStart('/');
+        const string publicMediaPrefix = "api/public/media/";
+        if (path.StartsWith(publicMediaPrefix, StringComparison.OrdinalIgnoreCase))
+            path = path[publicMediaPrefix.Length..];
+
+        var segments = path.Split('/', 2);
         if (segments.Length != 2)
             return false;
 
-        containerName = segments[0];
-        blobName = segments[1];
+        containerName = Uri.UnescapeDataString(segments[0]);
+        blobName = Uri.UnescapeDataString(segments[1]);
         return true;
+    }
+
+    public static BlobServiceClient CreateServiceClient(IConfiguration configuration)
+    {
+        var serviceUri = configuration["Azure:Storage:ServiceUri"];
+        if (!string.IsNullOrWhiteSpace(serviceUri))
+            return new BlobServiceClient(new Uri(serviceUri), new DefaultAzureCredential());
+
+        var connectionString = configuration["Azure:Storage:ConnectionString"]
+            ?? throw new InvalidOperationException("Azure Storage ServiceUri or ConnectionString must be configured.");
+        return new BlobServiceClient(connectionString);
     }
 }

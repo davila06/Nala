@@ -1,4 +1,8 @@
-# PawTrack CR — Catálogo Oficial de Planes, Tiers y Características por Rol
+# PawTrack CR — Referencia Histórica de Planes por Rol
+
+> **NO USAR PARA VENTA, COTIZACION O CONTRATOS.** La única matriz comercial
+> vigente es [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md). Este documento se
+> conserva para trazabilidad y puede contener tiers o precios retirados.
 
 > **Estado del documento:** Catálogo técnico y operativo actualizado al 2026-09-10.
 > **Fuente canónica en código:** [backend/src/PawTrack.Domain/Subscriptions/SubscriptionTier.cs](backend/src/PawTrack.Domain/Subscriptions/SubscriptionTier.cs), [backend/src/PawTrack.Domain/Subscriptions/SubscriptionPricing.cs](backend/src/PawTrack.Domain/Subscriptions/SubscriptionPricing.cs), [backend/src/PawTrack.Domain/ServiceProviders/ProviderMembershipTier.cs](backend/src/PawTrack.Domain/ServiceProviders/ProviderMembershipTier.cs) y [backend/src/PawTrack.Domain/Auth/UserRole.cs](backend/src/PawTrack.Domain/Auth/UserRole.cs).

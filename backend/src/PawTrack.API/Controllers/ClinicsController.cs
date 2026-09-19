@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,6 +36,8 @@ namespace PawTrack.API.Controllers;
 
 [ApiController]
 [Route("api/clinics")]
+[Route("api/v1/clinics")]
+[ApiVersion("1.0")]
 public sealed class ClinicsController(ISender sender, IBlobStorageService blobStorage) : ControllerBase
 {
     // ── Register ──────────────────────────────────────────────────────────────

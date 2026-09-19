@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,8 @@ namespace PawTrack.API.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/widget")]
+[Route("api/v1/widget")]
+[ApiVersion("1.0")]
 [AllowAnonymous]
 public sealed class WidgetController(ISubscriptionRepository subscriptionRepository) : ControllerBase
 {

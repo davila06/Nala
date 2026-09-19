@@ -118,3 +118,35 @@ public sealed class GetProductFunnelQueryHandler(IProductEventRepository reposit
             counts.ToDictionary(x => x.EventName, x => x.Count, StringComparer.Ordinal)));
     }
 }
+
+public sealed record GetProductPerformanceQuery(
+    DateTimeOffset From,
+    DateTimeOffset To,
+    string? Canton = null) : IRequest<Result<ProductPerformanceDto>>;
+
+public sealed record ProductPerformanceDto(
+    DateTimeOffset From,
+    DateTimeOffset To,
+    string? Canton,
+    IReadOnlyList<ProductCohortMetric> Cohorts);
+
+public sealed class GetProductPerformanceQueryHandler(IProductEventRepository repository)
+    : IRequestHandler<GetProductPerformanceQuery, Result<ProductPerformanceDto>>
+{
+    public async Task<Result<ProductPerformanceDto>> Handle(
+        GetProductPerformanceQuery request,
+        CancellationToken cancellationToken)
+    {
+        var cohorts = await repository.GetPerformanceByCohortAsync(
+            request.From,
+            request.To,
+            request.Canton,
+            cancellationToken);
+
+        return Result.Success(new ProductPerformanceDto(
+            request.From,
+            request.To,
+            request.Canton,
+            cohorts));
+    }
+}

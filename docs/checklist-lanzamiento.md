@@ -24,6 +24,11 @@ Repo → Settings → Secrets and variables → Actions:
 | `SWA_DEPLOYMENT_TOKEN`  | `az staticwebapp secrets list --name <SWA_NAME> ...`      |
 | `SQL_ADMIN_PASSWORD`    | Password SQL admin                                        |
 
+Variables protegidas adicionales del environment `production`:
+
+- `MIGRATION_JOB_NAME` (opcional si sigue el patrón `<app>-migrate`).
+- aprobaciones definidas en [GO_LIVE_GOVERNANCE.md](GO_LIVE_GOVERNANCE.md).
+
 ---
 
 ## Fase 1 — Infraestructura
@@ -50,9 +55,9 @@ Repo → Settings → Secrets and variables → Actions:
 
 ## Fase 2 — Secretos en Key Vault
 
-- [ ] `sql-connection-string` cargado
+- [ ] Identidad administrada de workload configurada como administrador Entra SQL
 - [ ] `jwt-signing-key` cargado (minimo 32 caracteres aleatorios)
-- [ ] `storage-connection-string` cargado
+- [ ] Identidad administrada con `Storage Blob Data Contributor`
 - [ ] `appinsights-connection-string` cargado
 
   ```powershell

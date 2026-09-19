@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,6 +28,8 @@ namespace PawTrack.API.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/webhooks")]
+[Route("api/v1/webhooks")]
+[ApiVersion("1.0")]
 public sealed class WebhooksController(
     ISender sender,
     IBundleOrderRepository bundleRepository,

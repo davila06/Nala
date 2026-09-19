@@ -11,6 +11,30 @@
 > solicitud y verificación manual de SINPE o pasarela de tarjetas. No existe checkout recurrente
 > universal, renovación automática universal ni autoservicio municipal.
 
+## Estado comercial vinculante
+
+La existencia de un enum, endpoint o feature gate significa **capacidad
+tecnica**, no autorización de venta. La publicación o venta en producción se
+habilita únicamente cuando el GitHub Environment `production` contiene:
+
+- `PRICING_APPROVED=true`;
+- `B2B_CONTRACTS_APPROVED=true` para ofertas empresariales;
+- `SLA_APPROVED=true` para servicios con compromiso operativo;
+- `LEGAL_APPROVAL_REFERENCE` con el identificador de la evidencia aprobada.
+
+| Oferta                     | Capacidad tecnica   | Venta publica                                        |
+| -------------------------- | ------------------- | ---------------------------------------------------- |
+| Free                       | Activa              | Permitida                                            |
+| UserPlus / UserFamilia     | Activa              | Bloqueada hasta aprobación de precio y términos      |
+| ClinicPlus / ClinicPartner | Activa              | Bloqueada hasta contrato, SLA y precio aprobados     |
+| StorePlus / StorePartner   | Parcial             | No publicar como transacción gestionada por PawTrack |
+| ShelterPlus                | Activa              | Bloqueada hasta contrato y precio aprobados          |
+| Municipalidades            | Parcial             | No vender; contratación y renovación incompletas     |
+| Proveedores                | Activa técnicamente | Sin comisión ni membresía pagada aprobada            |
+
+El gate automatizado y sus responsables están definidos en
+[GO_LIVE_GOVERNANCE.md](GO_LIVE_GOVERNANCE.md).
+
 ## Política de Precios e Impuesto sobre el Valor Agregado (IVA 13%)
 
 - **Precios Base del Servicio:** Todos los montos listados en el catálogo técnico (`SubscriptionPricing`, `BundlePrices`, `TIER_PRICE_CRC`) corresponden al costo neto base del servicio y **no reflejan el 13% de IVA**.

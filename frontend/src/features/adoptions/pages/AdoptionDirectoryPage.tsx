@@ -4,10 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@/shared/ui/Spinner";
 import { AnimalCard } from "../components/AnimalCard";
 import { AdoptionFiltersBar } from "../components/AdoptionFiltersBar";
-import {
-  useAdoptableAnimals,
-  useAdoptableAnimalsForMap,
-} from "../hooks/useAdoptions";
+import { useAdoptableAnimals, useAdoptableAnimalsForMap } from "../hooks/useAdoptions";
 import type { AdoptionFilters } from "../api/adoptionsApi";
 import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
 import { MapContainer } from "@/features/map/components/MapContainer";
@@ -18,10 +15,7 @@ const SPECIES = new Set(["Dog", "Cat", "Bird", "Rabbit", "Other"]);
 const SIZES = new Set(["XSmall", "Small", "Medium", "Large", "XLarge"]);
 const AGE_CATEGORIES = new Set(["Puppy", "Young", "Adult", "Senior"]);
 
-function readPositiveNumber(
-  value: string | null,
-  fallback?: number,
-): number | undefined {
+function readPositiveNumber(value: string | null, fallback?: number): number | undefined {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
@@ -42,23 +36,16 @@ function getFilters(searchParams: URLSearchParams): AdoptionFilters {
   return {
     page: readPositiveNumber(searchParams.get("page"), 1),
     pageSize: 20,
-    species: SPECIES.has(species ?? "")
-      ? (species as AdoptionFilters["species"])
-      : undefined,
+    species: SPECIES.has(species ?? "") ? (species as AdoptionFilters["species"]) : undefined,
     size: SIZES.has(size ?? "") ? (size as AdoptionFilters["size"]) : undefined,
-    ageCategory: AGE_CATEGORIES.has(ageCategory ?? "")
-      ? (ageCategory as AdoptionFilters["ageCategory"])
-      : undefined,
+    ageCategory: AGE_CATEGORIES.has(ageCategory ?? "") ? (ageCategory as AdoptionFilters["ageCategory"]) : undefined,
     isVaccinated: searchParams.get("isVaccinated") === "true" || undefined,
     isSterilized: searchParams.get("isSterilized") === "true" || undefined,
     okWithKids: searchParams.get("okWithKids") === "true" || undefined,
     okWithDogs: searchParams.get("okWithDogs") === "true" || undefined,
     lat,
     lng,
-    radiusKm:
-      lat !== undefined && lng !== undefined
-        ? readPositiveNumber(searchParams.get("radiusKm"), 50)
-        : undefined,
+    radiusKm: lat !== undefined && lng !== undefined ? readPositiveNumber(searchParams.get("radiusKm"), 50) : undefined,
   };
 }
 
@@ -68,9 +55,7 @@ function toSearchParams(filters: AdoptionFilters, view: "list" | "map") {
   if (filters.species) next.set("species", filters.species);
   if (filters.size) next.set("size", filters.size);
   if (filters.ageCategory) next.set("ageCategory", filters.ageCategory);
-  (
-    ["isVaccinated", "isSterilized", "okWithKids", "okWithDogs"] as const
-  ).forEach((key) => {
+  (["isVaccinated", "isSterilized", "okWithKids", "okWithDogs"] as const).forEach((key) => {
     if (filters[key]) next.set(key, "true");
   });
   if (filters.lat !== undefined && filters.lng !== undefined) {
@@ -88,8 +73,7 @@ export default function AdoptionDirectoryPage() {
   const filters = getFilters(searchParams);
   const view = searchParams.get("view") === "map" ? "map" : "list";
   const { data, isLoading, isError, refetch } = useAdoptableAnimals(filters);
-  const { data: mapAnimals = [], isLoading: isMapLoading } =
-    useAdoptableAnimalsForMap(filters, view === "map");
+  const { data: mapAnimals = [], isLoading: isMapLoading } = useAdoptableAnimalsForMap(filters, view === "map");
 
   const animals = data?.items ?? [];
   const totalPages = data?.totalPages ?? 1;
@@ -150,11 +134,7 @@ export default function AdoptionDirectoryPage() {
         <BillboardBanner placement="AdoptionDirectory" />
 
         <div className="flex items-center justify-between gap-3 border-b border-sand-200">
-          <div
-            role="tablist"
-            aria-label="Vista del directorio de adopciones"
-            className="flex gap-1"
-          >
+          <div role="tablist" aria-label="Vista del directorio de adopciones" className="flex gap-1">
             <button
               type="button"
               role="tab"
@@ -186,13 +166,13 @@ export default function AdoptionDirectoryPage() {
 
         {view === "map" ? (
           isMapLoading ? (
-            <Skeleton className="h-[32rem] rounded-lg" />
+            <Skeleton className="h-128 rounded-lg" />
           ) : (
             <MapContainer
               events={[]}
               adoptions={mapAnimals}
               onBBoxChange={() => undefined}
-              className="h-[32rem] overflow-hidden rounded-lg border border-sand-200"
+              className="h-128 overflow-hidden rounded-lg border border-sand-200"
             />
           )
         ) : (
@@ -200,9 +180,7 @@ export default function AdoptionDirectoryPage() {
             <AdoptionFiltersBar filters={filters} onChange={updateFilters} />
             {isError ? (
               <div className="py-16 text-center text-sand-600">
-                <p className="text-base font-semibold text-ink-900">
-                  No pudimos cargar las adopciones
-                </p>
+                <p className="text-base font-semibold text-ink-900">No pudimos cargar las adopciones</p>
                 <button
                   type="button"
                   onClick={() => void refetch()}
@@ -220,12 +198,8 @@ export default function AdoptionDirectoryPage() {
             ) : animals.length === 0 ? (
               <div className="py-20 text-center text-sand-400">
                 <p className="text-4xl mb-3">🔍</p>
-                <p className="text-base font-medium">
-                  No encontramos animales con estos filtros
-                </p>
-                <p className="text-sm mt-1">
-                  Intenta ajustar los filtros o ampliar el radio de búsqueda
-                </p>
+                <p className="text-base font-medium">No encontramos animales con estos filtros</p>
+                <p className="text-sm mt-1">Intenta ajustar los filtros o ampliar el radio de búsqueda</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">

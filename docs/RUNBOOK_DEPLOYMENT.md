@@ -39,7 +39,7 @@ CORS, `App__BaseUrl`, `VITE_API_URL`, health checks y workflow CI.
 2. Aplicar infraestructura con identidad federada, no credenciales permanentes.
 3. Confirmar identidad administrada y acceso minimo a Key Vault.
 4. Configurar secretos y variables sin imprimir valores.
-5. Aplicar migraciones EF Core con ventana controlada.
+5. Validar expand-contract y ejecutar el Container Apps Job privado de migraciones.
 6. Construir y publicar backend con tag inmutable.
 7. Construir y publicar frontend con la URL API correcta por ambiente.
 8. Configurar dominio, DNS, HTTPS y CORS.
@@ -48,11 +48,14 @@ CORS, `App__BaseUrl`, `VITE_API_URL`, health checks y workflow CI.
 
 ## Rollback
 
-- Backend: volver a la imagen anterior despues de verificar compatibilidad de
-  esquema.
+- Backend: el workflow conserva la revision anterior y revierte el trafico
+  automaticamente si `/health/ready` no queda verde.
 - Frontend: redeploy del artifact anterior.
-- Base de datos: no revertir migraciones destructivamente; restaurar backup o
-  aplicar migracion compensatoria.
+- Base de datos: cada release solo puede expandir el esquema. `DropColumn`,
+  `DropTable`, `RenameColumn`, `RenameTable` y `AlterColumn` quedan bloqueados
+  en `Up()` por CI. El cleanup ocurre en una release posterior, cuando ninguna
+  revision antigua dependa del contrato anterior. Ante un defecto, desplegar
+  una migracion compensatoria; restaurar backup solo bajo incidente declarado.
 - Secretos: rotar y reiniciar solo el componente afectado.
 
 ## Verificacion final

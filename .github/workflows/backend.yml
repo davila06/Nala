@@ -34,6 +34,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
@@ -112,12 +114,23 @@ jobs:
     needs: build-and-test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
-      name: production
-      url: https://${{ secrets.CONTAINER_APP_FQDN }}
+      name: ${{ vars.PRODUCTION_ENVIRONMENT_NAME || 'production' }}
+      url: ${{ vars.API_PUBLIC_URL }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Verify production governance approvals
+        shell: pwsh
+        env:
+          PRODHAB_REGISTRATION_CONFIRMED: ${{ vars.PRODHAB_REGISTRATION_CONFIRMED }}
+          AZURE_DPA_CONFIRMED: ${{ vars.AZURE_DPA_CONFIRMED }}
+          B2B_CONTRACTS_APPROVED: ${{ vars.B2B_CONTRACTS_APPROVED }}
+          SLA_APPROVED: ${{ vars.SLA_APPROVED }}
+          PRICING_APPROVED: ${{ vars.PRICING_APPROVED }}
+          LEGAL_APPROVAL_REFERENCE: ${{ vars.LEGAL_APPROVAL_REFERENCE }}
+        run: ./scripts/Test-GoLiveGovernance.ps1
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -139,15 +152,51 @@ jobs:
           docker push "$IMAGE_TAG"
           echo "IMAGE_TAG=$IMAGE_TAG" >> "$GITHUB_ENV"
 
-      - name: Run EF Core migrations
-        env:
-          ConnectionStrings__DefaultConnection: ${{ secrets.SQL_CONNECTION_STRING }}
+      - name: Enforce expand-contract migrations
+        shell: pwsh
         run: |
-          dotnet tool install --global dotnet-ef --ignore-failed-sources 2>/dev/null || true
-          dotnet ef database update \
-            --project backend/src/PawTrack.Infrastructure/PawTrack.Infrastructure.csproj \
-            --startup-project backend/src/PawTrack.API/PawTrack.API.csproj \
-            --configuration Release
+          ./scripts/Test-ExpandContractMigrations.ps1 `
+            -BaseRef "${{ github.event.before }}" `
+            -HeadRef "${{ github.sha }}"
+
+      - name: Capture current production revision
+        run: |
+          PREVIOUS_REVISION=$(az containerapp show \
+            --name ${{ secrets.CONTAINER_APP_NAME }} \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --query properties.latestReadyRevisionName -o tsv)
+          echo "PREVIOUS_REVISION=$PREVIOUS_REVISION" >> "$GITHUB_ENV"
+
+      - name: Run private migration job
+        env:
+          CONFIGURED_MIGRATION_JOB_NAME: ${{ vars.MIGRATION_JOB_NAME }}
+          CONTAINER_APP_NAME: ${{ secrets.CONTAINER_APP_NAME }}
+        run: |
+          MIGRATION_JOB_NAME="${CONFIGURED_MIGRATION_JOB_NAME:-${CONTAINER_APP_NAME%-api}-migrate}"
+          az containerapp job update \
+            --name "$MIGRATION_JOB_NAME" \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --image "$IMAGE_TAG"
+
+          EXECUTION_NAME=$(az containerapp job start \
+            --name "$MIGRATION_JOB_NAME" \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --query name -o tsv)
+
+          for attempt in $(seq 1 60); do
+            STATUS=$(az containerapp job execution show \
+              --name "$MIGRATION_JOB_NAME" \
+              --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+              --job-execution-name "$EXECUTION_NAME" \
+              --query properties.status -o tsv)
+            echo "Migration execution $EXECUTION_NAME: $STATUS"
+            if [ "$STATUS" = "Succeeded" ]; then exit 0; fi
+            if [ "$STATUS" = "Failed" ] || [ "$STATUS" = "Stopped" ]; then exit 1; fi
+            sleep 10
+          done
+
+          echo "Migration job timed out."
+          exit 1
 
       - name: Update Container App revision
         run: |
@@ -156,3 +205,31 @@ jobs:
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --image "$IMAGE_TAG" \
             --revision-suffix "sha-${GITHUB_SHA::7}"
+
+      - name: Verify new revision and rollback traffic on failure
+        env:
+          API_URL: ${{ secrets.SMOKE_API_URL }}
+        run: |
+          NEW_REVISION=$(az containerapp show \
+            --name ${{ secrets.CONTAINER_APP_NAME }} \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --query properties.latestRevisionName -o tsv)
+
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent "${API_URL}/health/ready" > /dev/null; then
+              echo "Revision $NEW_REVISION is ready."
+              exit 0
+            fi
+            sleep 10
+          done
+
+          echo "Readiness failed; restoring traffic to $PREVIOUS_REVISION."
+          az containerapp ingress traffic set \
+            --name ${{ secrets.CONTAINER_APP_NAME }} \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --revision-weight "$PREVIOUS_REVISION=100"
+          az containerapp revision deactivate \
+            --name ${{ secrets.CONTAINER_APP_NAME }} \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --revision "$NEW_REVISION"
+          exit 1

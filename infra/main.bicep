@@ -11,6 +11,9 @@ param appName string = 'pawtrack'
 @description('URL del frontend desplegado (para CORS)')
 param frontendUrl string = 'https://pawtrack.azurestaticapps.net'
 
+@description('URL publica de la API protegida por Front Door')
+param apiPublicBaseUrl string = 'https://api.pawtrack.cr'
+
 @description('Email para recibir alertas de Azure Monitor')
 param alertEmailAddress string
 
@@ -23,10 +26,17 @@ param regulatoryReportsEnabled bool = false
 @description('Habilita el dashboard NALA para los roles autorizados')
 param nalaDashboardEnabled bool = false
 
+@description('Aisla servicios de datos y Container Apps en red privada')
+param enablePrivateNetworking bool = environment == 'prod'
+
+@description('Espacio de direcciones reservado para PawTrack')
+param virtualNetworkAddressPrefix string = '10.20.0.0/16'
+
 // ── Nombres de recursos ────────────────────────────────────────────────────────
 var resourcePrefix = '${appName}-${environment}'
 var keyVaultName = '${appName}-kv-${environment}'
 var storageAccountName = replace('${appName}storage${environment}', '-', '')
+var frontDoorEndpointName = '${replace(resourcePrefix, '-', '')}-${uniqueString(subscription().id, resourceGroup().id)}'
 
 // ── Log Analytics Workspace (requerido por Application Insights) ──────────────
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
@@ -52,6 +62,87 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   }
 }
 
+// ── Private network ──────────────────────────────────────────────────────────
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-09-01' = if (enablePrivateNetworking) {
+  name: '${resourcePrefix}-vnet'
+  location: location
+  properties: {
+    addressSpace: {
+      addressPrefixes: [virtualNetworkAddressPrefix]
+    }
+  }
+}
+
+resource containerAppsSubnet 'Microsoft.Network/virtualNetworks/subnets@2023-09-01' = if (enablePrivateNetworking) {
+  parent: virtualNetwork
+  name: 'container-apps'
+  properties: {
+    addressPrefix: '10.20.0.0/23'
+    delegations: [
+      {
+        name: 'container-apps-delegation'
+        properties: {
+          serviceName: 'Microsoft.App/environments'
+        }
+      }
+    ]
+  }
+}
+
+resource privateEndpointsSubnet 'Microsoft.Network/virtualNetworks/subnets@2023-09-01' = if (enablePrivateNetworking) {
+  parent: virtualNetwork
+  name: 'private-endpoints'
+  properties: {
+    addressPrefix: '10.20.2.0/24'
+    privateEndpointNetworkPolicies: 'Disabled'
+  }
+}
+
+resource sqlPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = if (enablePrivateNetworking) {
+  name: 'privatelink.${az.environment().suffixes.sqlServerHostname}'
+  location: 'global'
+}
+
+resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = if (enablePrivateNetworking) {
+  name: 'privatelink.blob.${az.environment().suffixes.storage}'
+  location: 'global'
+}
+
+resource keyVaultPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = if (enablePrivateNetworking) {
+  name: 'privatelink.vaultcore.azure.net'
+  location: 'global'
+}
+
+resource sqlPrivateDnsLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (enablePrivateNetworking) {
+  parent: sqlPrivateDnsZone
+  name: '${resourcePrefix}-vnet-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: { id: virtualNetwork.id }
+  }
+}
+
+resource blobPrivateDnsLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (enablePrivateNetworking) {
+  parent: blobPrivateDnsZone
+  name: '${resourcePrefix}-vnet-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: { id: virtualNetwork.id }
+  }
+}
+
+resource keyVaultPrivateDnsLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (enablePrivateNetworking) {
+  parent: keyVaultPrivateDnsZone
+  name: '${resourcePrefix}-vnet-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: { id: virtualNetwork.id }
+  }
+}
+
 // ── Azure SQL Server ──────────────────────────────────────────────────────────
 resource sqlServer 'Microsoft.Sql/servers@2023-08-01-preview' = {
   name: '${resourcePrefix}-sql'
@@ -60,7 +151,7 @@ resource sqlServer 'Microsoft.Sql/servers@2023-08-01-preview' = {
     administratorLogin: 'pawtrackadmin'
     administratorLoginPassword: sqlAdminPassword
     minimalTlsVersion: '1.2'
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: enablePrivateNetworking ? 'Disabled' : 'Enabled'
   }
 }
 
@@ -93,9 +184,14 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   }
   kind: 'StorageV2'
   properties: {
-    allowBlobPublicAccess: true  // Necesario para URLs públicas de fotos
+    allowBlobPublicAccess: false
     minimumTlsVersion: 'TLS1_2'
     supportsHttpsTrafficOnly: true
+    allowSharedKeyAccess: !enablePrivateNetworking
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: enablePrivateNetworking ? 'Deny' : 'Allow'
+    }
   }
 }
 
@@ -108,7 +204,7 @@ resource petPhotosContainer 'Microsoft.Storage/storageAccounts/blobServices/cont
   parent: blobService
   name: 'pet-photos'
   properties: {
-    publicAccess: 'Blob'  // Acceso anónimo de lectura para URLs de foto
+    publicAccess: 'None'
   }
 }
 
@@ -116,7 +212,7 @@ resource sightingPhotosContainer 'Microsoft.Storage/storageAccounts/blobServices
   parent: blobService
   name: 'sighting-photos'
   properties: {
-    publicAccess: 'Blob'  // URLs de foto de avistamiento son públicas
+    publicAccess: 'None'
   }
 }
 
@@ -124,7 +220,7 @@ resource foundPetPhotosContainer 'Microsoft.Storage/storageAccounts/blobServices
   parent: blobService
   name: 'found-pet-photos'
   properties: {
-    publicAccess: 'Blob'
+    publicAccess: 'None'
   }
 }
 
@@ -132,7 +228,7 @@ resource lostPetPhotosContainer 'Microsoft.Storage/storageAccounts/blobServices/
   parent: blobService
   name: 'lost-pet-photos'
   properties: {
-    publicAccess: 'Blob'
+    publicAccess: 'None'
   }
 }
 
@@ -243,7 +339,11 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
     enableSoftDelete: true
     softDeleteRetentionInDays: 90
     enablePurgeProtection: true
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: enablePrivateNetworking ? 'Disabled' : 'Enabled'
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: enablePrivateNetworking ? 'Deny' : 'Allow'
+    }
   }
 }
 
@@ -263,8 +363,104 @@ resource certificateSigningKey 'Microsoft.KeyVault/vaults/keys@2023-07-01' = {
   }
 }
 
+// ── Private endpoints and DNS registration ──────────────────────────────────
+resource sqlPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-09-01' = if (enablePrivateNetworking) {
+  name: '${resourcePrefix}-sql-pe'
+  location: location
+  properties: {
+    subnet: { id: privateEndpointsSubnet.id }
+    privateLinkServiceConnections: [
+      {
+        name: '${resourcePrefix}-sql-connection'
+        properties: {
+          privateLinkServiceId: sqlServer.id
+          groupIds: ['sqlServer']
+        }
+      }
+    ]
+  }
+}
+
+resource sqlPrivateDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-09-01' = if (enablePrivateNetworking) {
+  parent: sqlPrivateEndpoint
+  name: 'default'
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'sql'
+        properties: { privateDnsZoneId: sqlPrivateDnsZone.id }
+      }
+    ]
+  }
+}
+
+resource blobPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-09-01' = if (enablePrivateNetworking) {
+  name: '${resourcePrefix}-blob-pe'
+  location: location
+  properties: {
+    subnet: { id: privateEndpointsSubnet.id }
+    privateLinkServiceConnections: [
+      {
+        name: '${resourcePrefix}-blob-connection'
+        properties: {
+          privateLinkServiceId: storageAccount.id
+          groupIds: ['blob']
+        }
+      }
+    ]
+  }
+}
+
+resource blobPrivateDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-09-01' = if (enablePrivateNetworking) {
+  parent: blobPrivateEndpoint
+  name: 'default'
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'blob'
+        properties: { privateDnsZoneId: blobPrivateDnsZone.id }
+      }
+    ]
+  }
+}
+
+resource keyVaultPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-09-01' = if (enablePrivateNetworking) {
+  name: '${resourcePrefix}-keyvault-pe'
+  location: location
+  properties: {
+    subnet: { id: privateEndpointsSubnet.id }
+    privateLinkServiceConnections: [
+      {
+        name: '${resourcePrefix}-keyvault-connection'
+        properties: {
+          privateLinkServiceId: keyVault.id
+          groupIds: ['vault']
+        }
+      }
+    ]
+  }
+}
+
+resource keyVaultPrivateDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-09-01' = if (enablePrivateNetworking) {
+  parent: keyVaultPrivateEndpoint
+  name: 'default'
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'keyvault'
+        properties: { privateDnsZoneId: keyVaultPrivateDnsZone.id }
+      }
+    ]
+  }
+}
+
 // ── Container Registry (ACR) ─────────────────────────────────────────────────
 var acrName = replace('${appName}acr${environment}', '-', '')
+
+resource workloadIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${resourcePrefix}-workload-id'
+  location: location
+}
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: acrName
@@ -282,6 +478,11 @@ resource containerAppsEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
   name: '${resourcePrefix}-env'
   location: location
   properties: {
+    vnetConfiguration: enablePrivateNetworking ? {
+      infrastructureSubnetId: containerAppsSubnet.id
+      internal: true
+    } : null
+    zoneRedundant: environment == 'prod'
     appLogsConfiguration: {
       destination: 'log-analytics'
       logAnalyticsConfiguration: {
@@ -297,7 +498,10 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
   name: '${resourcePrefix}-api'
   location: location
   identity: {
-    type: 'SystemAssigned'
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${workloadIdentity.id}': {}
+    }
   }
   properties: {
     environmentId: containerAppsEnv.id
@@ -310,7 +514,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
       registries: [
         {
           server: containerRegistry.properties.loginServer
-          identity: 'system'
+          identity: workloadIdentity.id
         }
       ]
     }
@@ -331,8 +535,20 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
               value: environment == 'prod' ? 'Production' : 'Staging'
             }
             {
+              name: 'AZURE_CLIENT_ID'
+              value: workloadIdentity.properties.clientId
+            }
+            {
               name: 'Azure__KeyVaultUri'
               value: keyVault.properties.vaultUri
+            }
+            {
+              name: 'Azure__Storage__ServiceUri'
+              value: storageAccount.properties.primaryEndpoints.blob
+            }
+            {
+              name: 'ConnectionStrings__DefaultConnection'
+              value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Database=${sqlDatabase.name};Authentication=Active Directory Default;Encrypt=True;TrustServerCertificate=False;'
             }
             {
               name: 'Certificates__KeyVaultKeyId'
@@ -341,6 +557,14 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
             {
               name: 'Cors__AllowedOrigins__0'
               value: frontendUrl
+            }
+            {
+              name: 'App__BaseUrl'
+              value: frontendUrl
+            }
+            {
+              name: 'App__ApiBaseUrl'
+              value: apiPublicBaseUrl
             }
             {
               name: 'Features__RegulatoryReportsEnabled'
@@ -368,6 +592,60 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
   }
 }
 
+// Runs schema expansion before a new API revision is promoted. Destructive
+// changes require a later cleanup release after all old revisions are retired.
+resource migrationJob 'Microsoft.App/jobs@2024-03-01' = {
+  name: '${resourcePrefix}-migrate'
+  location: location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${workloadIdentity.id}': {}
+    }
+  }
+  properties: {
+    environmentId: containerAppsEnv.id
+    configuration: {
+      triggerType: 'Manual'
+      replicaTimeout: 1800
+      replicaRetryLimit: 1
+      manualTriggerConfig: {
+        parallelism: 1
+        replicaCompletionCount: 1
+      }
+      registries: [
+        {
+          server: containerRegistry.properties.loginServer
+          identity: workloadIdentity.id
+        }
+      ]
+    }
+    template: {
+      containers: [
+        {
+          name: 'migrate'
+          image: 'mcr.microsoft.com/dotnet/samples:aspnetapp'
+          resources: {
+            cpu: json('0.5')
+            memory: '1Gi'
+          }
+          env: [
+            { name: 'ASPNETCORE_ENVIRONMENT', value: environment == 'prod' ? 'Production' : 'Staging' }
+            { name: 'AZURE_CLIENT_ID', value: workloadIdentity.properties.clientId }
+            { name: 'Database__MigrationOnly', value: 'true' }
+            { name: 'Azure__KeyVaultUri', value: keyVault.properties.vaultUri }
+            { name: 'Azure__Storage__ServiceUri', value: storageAccount.properties.primaryEndpoints.blob }
+            {
+              name: 'ConnectionStrings__DefaultConnection'
+              value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Database=${sqlDatabase.name};Authentication=Active Directory Default;Encrypt=True;TrustServerCertificate=False;'
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+
 // ── RBAC: Container App → Key Vault (Key Vault Secrets User) ──────────────────
 var keyVaultSecretsUserRoleId = '4633458b-17de-408a-b874-0445c86b69e6'
 
@@ -376,7 +654,7 @@ resource containerAppKeyVaultAccess 'Microsoft.Authorization/roleAssignments@202
   scope: keyVault
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', keyVaultSecretsUserRoleId)
-    principalId: containerApp.identity.principalId
+    principalId: workloadIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }
@@ -388,9 +666,41 @@ resource containerAppKeyVaultCryptoAccess 'Microsoft.Authorization/roleAssignmen
   scope: keyVault
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', keyVaultCryptoUserRoleId)
-    principalId: containerApp.identity.principalId
+    principalId: workloadIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
+}
+
+var storageBlobDataContributorRoleId = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+
+resource containerAppStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(storageAccount.id, containerApp.id, storageBlobDataContributorRoleId)
+  scope: storageAccount
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataContributorRoleId)
+    principalId: workloadIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource sqlEntraAdministrator 'Microsoft.Sql/servers/administrators@2023-08-01-preview' = {
+  parent: sqlServer
+  name: 'ActiveDirectory'
+  properties: {
+    administratorType: 'ActiveDirectory'
+    login: workloadIdentity.name
+    sid: workloadIdentity.properties.principalId
+    tenantId: subscription().tenantId
+  }
+}
+
+resource sqlEntraOnlyAuthentication 'Microsoft.Sql/servers/azureADOnlyAuthentications@2023-08-01-preview' = {
+  parent: sqlServer
+  name: 'Default'
+  properties: {
+    azureADOnlyAuthentication: true
+  }
+  dependsOn: [sqlEntraAdministrator]
 }
 
 // Explicitly export the Meter/Application Insights stream from the workload.
@@ -398,7 +708,7 @@ resource containerAppDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-
   name: '${resourcePrefix}-api-diagnostics'
   scope: containerApp
   properties: {
-    workspaceId: logAnalytics.properties.customerId
+    workspaceId: logAnalytics.id
     logs: [
       {
         category: 'ContainerAppConsoleLogs'
@@ -426,7 +736,7 @@ resource containerAppAcrPull 'Microsoft.Authorization/roleAssignments@2022-04-01
   scope: containerRegistry
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', acrPullRoleId)
-    principalId: containerApp.identity.principalId
+    principalId: workloadIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }
@@ -685,12 +995,92 @@ resource budget 'Microsoft.Consumption/budgets@2023-11-01' = {
   }
 }
 
-// ── WAF Policy (Azure-managed rule set for Container App / SWA) ─────────────────
-resource wafPolicy 'Microsoft.Network/FrontDoorWebApplicationFirewallPolicies@2022-05-01' = if (environment == 'prod') {
+// ── Front Door Premium + WAF ─────────────────────────────────────────────────
+resource frontDoorProfile 'Microsoft.Cdn/profiles@2024-02-01' = if (environment == 'prod') {
+  name: '${resourcePrefix}-afd'
+  location: 'global'
+  sku: { name: 'Premium_AzureFrontDoor' }
+}
+
+resource frontDoorEndpoint 'Microsoft.Cdn/profiles/afdEndpoints@2024-02-01' = if (environment == 'prod') {
+  parent: frontDoorProfile
+  name: frontDoorEndpointName
+  location: 'global'
+  properties: { enabledState: 'Enabled' }
+}
+
+resource frontDoorApiDomain 'Microsoft.Cdn/profiles/customDomains@2024-02-01' = if (environment == 'prod') {
+  parent: frontDoorProfile
+  name: 'api-domain'
+  properties: {
+    hostName: replace(apiPublicBaseUrl, 'https://', '')
+    tlsSettings: {
+      certificateType: 'ManagedCertificate'
+      minimumTlsVersion: 'TLS12'
+    }
+  }
+}
+
+resource frontDoorOriginGroup 'Microsoft.Cdn/profiles/originGroups@2024-02-01' = if (environment == 'prod') {
+  parent: frontDoorProfile
+  name: 'api-origin-group'
+  properties: {
+    healthProbeSettings: {
+      probeIntervalInSeconds: 60
+      probePath: '/health'
+      probeProtocol: 'Https'
+      probeRequestType: 'GET'
+    }
+    loadBalancingSettings: {
+      additionalLatencyInMilliseconds: 50
+      sampleSize: 4
+      successfulSamplesRequired: 3
+    }
+  }
+}
+
+resource frontDoorApiOrigin 'Microsoft.Cdn/profiles/originGroups/origins@2024-02-01' = if (environment == 'prod') {
+  parent: frontDoorOriginGroup
+  name: 'container-app-api'
+  properties: {
+    enabledState: 'Enabled'
+    enforceCertificateNameCheck: true
+    hostName: containerApp.properties.configuration.ingress.fqdn
+    httpPort: 80
+    httpsPort: 443
+    originHostHeader: containerApp.properties.configuration.ingress.fqdn
+    priority: 1
+    weight: 1000
+    sharedPrivateLinkResource: {
+      groupId: 'managedEnvironments'
+      privateLink: { id: containerAppsEnv.id }
+      privateLinkLocation: location
+      requestMessage: 'PawTrack Front Door private origin access'
+    }
+  }
+}
+
+resource frontDoorApiRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = if (environment == 'prod') {
+  parent: frontDoorEndpoint
+  name: 'api-route'
+  properties: {
+    enabledState: 'Enabled'
+    forwardingProtocol: 'HttpsOnly'
+    httpsRedirect: 'Enabled'
+    linkToDefaultDomain: 'Enabled'
+    originGroup: { id: frontDoorOriginGroup.id }
+    patternsToMatch: ['/*']
+    supportedProtocols: ['Http', 'Https']
+    customDomains: [{ id: frontDoorApiDomain.id }]
+  }
+  dependsOn: [frontDoorApiOrigin]
+}
+
+resource wafPolicy 'Microsoft.Network/FrontDoorWebApplicationFirewallPolicies@2024-02-01' = if (environment == 'prod') {
   name: '${replace(resourcePrefix, '-', '')}waf'
   location: 'global'
   sku: {
-    name: 'Classic_AzureFrontDoor'
+    name: 'Premium_AzureFrontDoor'
   }
   properties: {
     policySettings: {
@@ -715,9 +1105,33 @@ resource wafPolicy 'Microsoft.Network/FrontDoorWebApplicationFirewallPolicies@20
     }
   }
 }
+
+resource frontDoorSecurityPolicy 'Microsoft.Cdn/profiles/securityPolicies@2024-02-01' = if (environment == 'prod') {
+  parent: frontDoorProfile
+  name: 'api-waf-policy'
+  properties: {
+    parameters: {
+      type: 'WebApplicationFirewall'
+      wafPolicy: { id: wafPolicy.id }
+      associations: [
+        {
+          domains: [
+            { id: frontDoorEndpoint.id }
+            { id: frontDoorApiDomain.id }
+          ]
+          patternsToMatch: ['/*']
+        }
+      ]
+    }
+  }
+  dependsOn: [frontDoorApiRoute]
+}
 // ── Outputs ───────────────────────────────────────────────────────────────────
-output containerAppUrl string = 'https://${containerApp.properties.configuration.ingress.fqdn}'
+output containerAppUrl string = environment == 'prod'
+  ? 'https://${frontDoorEndpoint!.properties.hostName}'
+  : 'https://${containerApp.properties.configuration.ingress.fqdn}'
 output containerAppName string = containerApp.name
+output migrationJobName string = migrationJob.name
 output acrLoginServer string = containerRegistry.properties.loginServer
 output keyVaultUri string = keyVault.properties.vaultUri
 output appInsightsConnectionString string = appInsights.properties.ConnectionString

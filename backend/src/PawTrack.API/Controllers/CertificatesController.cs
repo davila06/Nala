@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,8 @@ namespace PawTrack.API.Controllers;
 
 [ApiController]
 [Route("api/certificates")]
+[Route("api/v1/certificates")]
+[ApiVersion("1.0")]
 [Authorize]
 public sealed class CertificatesController(ISender sender) : ControllerBase
 {

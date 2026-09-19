@@ -1,5 +1,5 @@
-import { useOfflineReportQueue } from '../hooks/useOfflineReportQueue'
-import type { QueuedReport } from '@/shared/lib/offlineQueue'
+import { useOfflineReportQueue } from "../hooks/useOfflineReportQueue";
+import type { QueuedReport } from "@/shared/lib/offlineQueue";
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -8,11 +8,11 @@ function PendingBanner({
   isSyncing,
   onRetry,
 }: {
-  items: QueuedReport[]
-  isSyncing: boolean
-  onRetry: () => void
+  items: QueuedReport[];
+  isSyncing: boolean;
+  onRetry: () => void;
 }) {
-  const count = items.length
+  const count = items.length;
   return (
     <div
       role="status"
@@ -26,12 +26,12 @@ function PendingBanner({
               className="inline-block size-3.5 animate-spin rounded-full border-2 border-brand-400 border-t-transparent"
               aria-hidden="true"
             />
-            Sincronizando {count} reporte{count !== 1 ? 's' : ''}…
+            Sincronizando {count} reporte{count !== 1 ? "s" : ""}…
           </>
         ) : (
           <>
             <span aria-hidden="true">📵</span>
-            {count} reporte{count !== 1 ? 's' : ''} pendiente{count !== 1 ? 's' : ''} de sincronización
+            {count} reporte{count !== 1 ? "s" : ""} pendiente{count !== 1 ? "s" : ""} de sincronización
           </>
         )}
       </span>
@@ -45,30 +45,24 @@ function PendingBanner({
         </button>
       )}
     </div>
-  )
+  );
 }
 
-function ConflictBanner({
-  item,
-  onDismiss,
-}: {
-  item: QueuedReport
-  onDismiss: () => void
-}) {
+function ConflictBanner({ item, onDismiss }: { item: QueuedReport; onDismiss: () => void }) {
   return (
     <div
       role="alert"
       className="flex items-start justify-between gap-3 bg-warn-50 px-4 py-2.5 text-sm border-b border-warn-200"
     >
       <span className="text-warn-800">
-        <span aria-hidden="true">⚠️</span>{' '}
-        <strong>{item.petName}</strong> ya tiene un reporte activo — el reporte guardado el{' '}
-        {new Date(item.capturedAt).toLocaleString('es-CR', {
-          day: 'numeric',
-          month: 'short',
-          hour: '2-digit',
-          minute: '2-digit',
-        })}{' '}
+        <span aria-hidden="true">⚠️</span> <strong>{item.petName}</strong> ya tiene un reporte activo — el reporte
+        guardado el{" "}
+        {new Date(item.capturedAt).toLocaleString("es-CR", {
+          day: "numeric",
+          month: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+        })}{" "}
         no se enviará.
       </span>
       <button
@@ -80,16 +74,10 @@ function ConflictBanner({
         ✕
       </button>
     </div>
-  )
+  );
 }
 
-function DoneBanner({
-  item,
-  onDismiss,
-}: {
-  item: QueuedReport
-  onDismiss: () => void
-}) {
+function DoneBanner({ item, onDismiss }: { item: QueuedReport; onDismiss: () => void }) {
   return (
     <div
       role="status"
@@ -97,8 +85,7 @@ function DoneBanner({
       className="flex items-center justify-between gap-3 bg-rescue-50 px-4 py-2.5 text-sm border-b border-rescue-200"
     >
       <span className="text-rescue-800">
-        <span aria-hidden="true">✅</span>{' '}
-        Reporte de <strong>{item.petName}</strong> sincronizado correctamente.
+        <span aria-hidden="true">✅</span> Reporte de <strong>{item.petName}</strong> sincronizado correctamente.
       </span>
       <button
         type="button"
@@ -109,7 +96,45 @@ function DoneBanner({
         ✕
       </button>
     </div>
-  )
+  );
+}
+
+function FailedBanner({
+  item,
+  onRetry,
+  onDismiss,
+}: {
+  item: QueuedReport;
+  onRetry: () => void;
+  onDismiss: () => void;
+}) {
+  return (
+    <div
+      role="alert"
+      className="flex items-start justify-between gap-3 border-b border-danger-200 bg-danger-50 px-4 py-2.5 text-sm"
+    >
+      <span className="text-danger-800">
+        <strong>{item.petName}</strong>: {item.failureReason ?? "El reporte requiere revisión."}
+      </span>
+      <span className="flex shrink-0 gap-2">
+        <button
+          type="button"
+          onClick={onRetry}
+          className="rounded-lg border border-danger-300 px-2.5 py-1.5 text-xs font-semibold text-danger-800"
+        >
+          Reintentar
+        </button>
+        <button
+          type="button"
+          onClick={onDismiss}
+          aria-label="Descartar reporte fallido"
+          className="rounded-full p-1.5 text-danger-700"
+        >
+          ✕
+        </button>
+      </span>
+    </div>
+  );
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -120,26 +145,31 @@ function DoneBanner({
  * This component owns the `useOfflineReportQueue` hook call (single instance).
  */
 export function OfflineQueueBanner() {
-  const { pendingItems, conflictItems, doneSinceMount, isSyncing, retryNow, dismiss } =
-    useOfflineReportQueue()
+  const { pendingItems, conflictItems, failedItems, doneSinceMount, isSyncing, retryNow, retryItem, dismiss } =
+    useOfflineReportQueue();
 
   const hasAnything =
-    pendingItems.length > 0 || conflictItems.length > 0 || doneSinceMount.length > 0
+    pendingItems.length > 0 || conflictItems.length > 0 || failedItems.length > 0 || doneSinceMount.length > 0;
 
-  if (!hasAnything) return null
+  if (!hasAnything) return null;
 
   return (
     <div className="offline-queue-banners" aria-label="Estado de sincronización offline">
-      {pendingItems.length > 0 && (
-        <PendingBanner items={pendingItems} isSyncing={isSyncing} onRetry={retryNow} />
-      )}
+      {pendingItems.length > 0 && <PendingBanner items={pendingItems} isSyncing={isSyncing} onRetry={retryNow} />}
       {conflictItems.map((item) => (
         <ConflictBanner key={item.id} item={item} onDismiss={() => void dismiss(item.id)} />
+      ))}
+      {failedItems.map((item) => (
+        <FailedBanner
+          key={item.id}
+          item={item}
+          onRetry={() => void retryItem(item.id)}
+          onDismiss={() => void dismiss(item.id)}
+        />
       ))}
       {doneSinceMount.map((item) => (
         <DoneBanner key={item.id} item={item} onDismiss={() => void dismiss(item.id)} />
       ))}
     </div>
-  )
+  );
 }
-

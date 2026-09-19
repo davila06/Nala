@@ -5,23 +5,23 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Target environment'
+        description: "Target environment"
         required: true
-        default: 'prod'
+        default: "prod"
         type: choice
         options: [dev, staging, prod]
       what_if:
-        description: 'Run what-if analysis only (no actual changes)'
+        description: "Run what-if analysis only (no actual changes)"
         required: false
-        default: 'true'
+        default: true
         type: boolean
 
   # Also trigger on changes to infra/ on main — but only what-if
   push:
     branches: [main]
     paths:
-      - 'infra/**'
-      - '.github/workflows/infra.yml'
+      - "infra/**"
+      - ".github/workflows/infra.yml"
 
 jobs:
   validate-and-deploy:
@@ -32,6 +32,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Verify production governance approvals
+        if: (inputs.environment || 'prod') == 'prod' && github.event_name == 'workflow_dispatch' && inputs.what_if == false
+        shell: pwsh
+        env:
+          PRODHAB_REGISTRATION_CONFIRMED: ${{ vars.PRODHAB_REGISTRATION_CONFIRMED }}
+          AZURE_DPA_CONFIRMED: ${{ vars.AZURE_DPA_CONFIRMED }}
+          B2B_CONTRACTS_APPROVED: ${{ vars.B2B_CONTRACTS_APPROVED }}
+          SLA_APPROVED: ${{ vars.SLA_APPROVED }}
+          PRICING_APPROVED: ${{ vars.PRICING_APPROVED }}
+          LEGAL_APPROVAL_REFERENCE: ${{ vars.LEGAL_APPROVAL_REFERENCE }}
+        run: ./scripts/Test-GoLiveGovernance.ps1
 
       - name: Login to Azure
         uses: azure/login@v2

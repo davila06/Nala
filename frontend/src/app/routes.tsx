@@ -23,6 +23,8 @@ const PetDetailPage = lazy(() => import("@/features/pets/pages/PetDetailPage"));
 const ActivateCollarTagPage = lazy(() => import("@/features/pets/pages/ActivateCollarTagPage"));
 const CollarHandoverRedeemPage = lazy(() => import("@/features/pets/pages/CollarHandoverRedeemPage"));
 const PublicPetProfilePage = lazy(() => import("@/features/pets/pages/PublicPetProfilePage"));
+const HealthHubPage = lazy(() => import("@/features/medical/pages/HealthHubPage"));
+const NetworkHubPage = lazy(() => import("@/features/network/pages/NetworkHubPage"));
 
 // LostPets + Notifications (Sprint 3)
 const ReportLostPage = lazy(() => import("@/features/lost-pets/pages/ReportLostPage"));
@@ -414,6 +416,22 @@ export const router = createBrowserRouter([
             element: (
               <S>
                 <DashboardPage />
+              </S>
+            ),
+          },
+          {
+            path: "/salud",
+            element: (
+              <S>
+                <HealthHubPage />
+              </S>
+            ),
+          },
+          {
+            path: "/red",
+            element: (
+              <S>
+                <NetworkHubPage />
               </S>
             ),
           },

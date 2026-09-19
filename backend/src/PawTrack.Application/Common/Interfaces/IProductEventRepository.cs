@@ -13,6 +13,28 @@ public interface IProductEventRepository
         string? canton,
         string? correlationId = null,
         CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ProductCohortMetric>> GetPerformanceByCohortAsync(
+        DateTimeOffset from,
+        DateTimeOffset to,
+        string? canton,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed record ProductEventCount(string EventName, int Count);
+
+public sealed record ProductCohortMetric(
+    string Cohort,
+    string Canton,
+    int RegisteredPets,
+    int ActivatedPets,
+    int LostReports,
+    int ReunitedReports,
+    double? AverageFirstResponseMinutes,
+    double? AverageReunionMinutes,
+    double RecoveryRatePercent,
+    double FirstResponseSloPercent)
+{
+    public double ActivationRatePercent => RegisteredPets == 0
+        ? 0
+        : Math.Round(ActivatedPets * 100d / RegisteredPets, 2);
+}

@@ -2,9 +2,11 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using PawTrack.Application.Clinics.Queries.GetPublicClinics;
+using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Pets.Commands.RecordPublicQrScan;
 using PawTrack.Application.Pets.Queries.GetPublicPetProfile;
 using PawTrack.Application.Safety.Commands.CreateAnonymousContactRequest;
+using PawTrack.Infrastructure.Storage;
 using System.Security.Claims;
 
 namespace PawTrack.API.Controllers;
@@ -12,8 +14,34 @@ namespace PawTrack.API.Controllers;
 [ApiController]
 [Route("api/public")]
 [EnableRateLimiting("public-api")] // 30 req/min per IP — prevents QR-scan farming
-public sealed class PublicController(ISender sender, ILogger<PublicController> logger) : ControllerBase
+public sealed class PublicController(
+    ISender sender,
+    ILogger<PublicController> logger,
+    IBlobStorageService blobStorage) : ControllerBase
 {
+    [HttpGet("media/{containerName}/{**blobName}")]
+    [ResponseCache(Duration = 300, Location = ResponseCacheLocation.Any)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetPublicMedia(
+        string containerName,
+        string blobName,
+        CancellationToken cancellationToken)
+    {
+        if (!PublicMediaPolicy.IsPublicContainer(containerName) ||
+            string.IsNullOrWhiteSpace(blobName) ||
+            blobName.Split('/').Any(segment => segment is "." or ".."))
+            return NotFound();
+
+        var bytes = await blobStorage.DownloadAsync(
+            $"https://storage.invalid/{containerName}/{blobName}",
+            cancellationToken);
+
+        if (bytes is null) return NotFound();
+
+        return File(bytes, ResolveMediaContentType(blobName));
+    }
+
     [HttpPost("lost-pets/{id:guid}/contact")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(4096)]
@@ -152,6 +180,14 @@ public sealed class PublicController(ISender sender, ILogger<PublicController> l
         var raw = Request.Headers.UserAgent.ToString();
         return string.IsNullOrWhiteSpace(raw) ? null : raw[..Math.Min(raw.Length, 512)];
     }
+
+    private static string ResolveMediaContentType(string blobName) =>
+        Path.GetExtension(blobName).ToLowerInvariant() switch
+        {
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            _ => "image/jpeg",
+        };
 
     // ── GET /api/public/emergency-vets ────────────────────────────────────────
     [HttpGet("emergency-vets")]

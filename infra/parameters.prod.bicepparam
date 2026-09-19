@@ -9,10 +9,11 @@ param location = 'eastus'
 
 // frontendUrl: dominio definitivo de producción
 param frontendUrl = 'https://pawtrack.cr'
+param apiPublicBaseUrl = 'https://api.pawtrack.cr'
 
 // alertEmailAddress: Set to your ops/on-call email
 param alertEmailAddress = 'ops@pawtrack.cr'
 
 // sqlAdminPassword: Provide securely — never commit plain value
-// Use: --parameters sqlAdminPassword="$(az keyvault secret show ...)"
-param sqlAdminPassword = readEnvironmentVariable('SQL_ADMIN_PASSWORD')
+// CI injects it with: --parameters sqlAdminPassword="${{ secrets.SQL_ADMIN_PASSWORD }}"
+param sqlAdminPassword = readEnvironmentVariable('SQL_ADMIN_PASSWORD', '')

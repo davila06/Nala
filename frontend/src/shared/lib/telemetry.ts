@@ -9,16 +9,10 @@
  *   import { trackEvent, trackException } from '@/shared/lib/telemetry'
  *   trackException(error, { page: 'DashboardPage' })
  */
-import {
-  ApplicationInsights,
-  type ICustomProperties,
-  type SeverityLevel,
-} from "@microsoft/applicationinsights-web";
+import { ApplicationInsights, type ICustomProperties, type SeverityLevel } from "@microsoft/applicationinsights-web";
 import { apiClient } from "./apiClient";
 
-const connectionString = import.meta.env.VITE_APPINSIGHTS_CONNECTION_STRING as
-  | string
-  | undefined;
+const connectionString = import.meta.env.VITE_APPINSIGHTS_CONNECTION_STRING as string | undefined;
 
 let appInsights: ApplicationInsights | null = null;
 
@@ -29,10 +23,7 @@ if (connectionString) {
       enableAutoRouteTracking: true, // track SPA route changes
       disableFetchTracking: false, // track fetch() calls
       enableCorsCorrelation: true, // propagate correlation headers to API
-      correlationHeaderExcludedDomains: [
-        "*.openstreetmap.org",
-        "fonts.googleapis.com",
-      ],
+      correlationHeaderExcludedDomains: ["*.openstreetmap.org", "fonts.googleapis.com"],
       maxBatchInterval: 15_000,
       disableExceptionTracking: false,
     },
@@ -43,10 +34,7 @@ if (connectionString) {
 
 // ── Public helpers ─────────────────────────────────────────────────────────────
 
-export function trackException(
-  error: Error,
-  properties?: ICustomProperties,
-): void {
+export function trackException(error: Error, properties?: ICustomProperties): void {
   if (appInsights) {
     appInsights.trackException({ exception: error, properties });
   } else {
@@ -100,16 +88,12 @@ export interface ProductEventProperties extends ICustomProperties {
   placement?: string;
 }
 
-/** Emits the privacy-safe, versioned events used by the activation funnel. */
-export function trackProductEvent(
+export function buildProductEvent(
   name: ProductEventName,
-  properties: Omit<
-    ProductEventProperties,
-    "schemaVersion" | "eventId" | "occurredAt" | "anonymousId"
-  >,
-): void {
-  const anonymousId = getAnonymousId();
-  const event: ProductEventProperties & { eventName: ProductEventName } = {
+  properties: Omit<ProductEventProperties, "schemaVersion" | "eventId" | "occurredAt" | "anonymousId">,
+  anonymousId = getAnonymousId(),
+): ProductEventProperties & { eventName: ProductEventName } {
+  return {
     schemaVersion: "1",
     eventId: crypto.randomUUID(),
     occurredAt: new Date().toISOString(),
@@ -118,6 +102,14 @@ export function trackProductEvent(
     ...properties,
     source: properties.source as string,
   };
+}
+
+/** Emits the privacy-safe, versioned events used by the activation funnel. */
+export function trackProductEvent(
+  name: ProductEventName,
+  properties: Omit<ProductEventProperties, "schemaVersion" | "eventId" | "occurredAt" | "anonymousId">,
+): void {
+  const event = buildProductEvent(name, properties);
 
   trackEvent(name, event);
   void apiClient.post("/product-events", event).catch(() => {

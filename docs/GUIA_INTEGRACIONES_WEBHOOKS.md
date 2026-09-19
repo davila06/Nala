@@ -18,6 +18,10 @@ vencimiento y deben revocarse ante sospecha.
 
 ## Webhooks salientes
 
+La administración de suscripciones para nuevas integraciones usa
+`POST /api/v1/webhooks`. La ruta histórica `/api/webhooks` permanece disponible
+durante la ventana de compatibilidad v1.
+
 Las suscripciones de webhook se encolan y entregan mediante outbox/fanout. El
 consumidor debe:
 
@@ -29,6 +33,10 @@ consumidor debe:
 6. registrar fallos sin incluir secretos.
 
 Los estados de entrega incluyen `Pending`, `Delivered`, `Failed` y `Disabled`.
+
+Cada entrega incluye un identificador estable, timestamp UTC, versión de
+esquema y firma HMAC. El receptor debe deduplicar por identificador. PawTrack no
+garantiza orden global; garantiza reintentos acotados y entrega al menos una vez.
 
 ## WhatsApp
 

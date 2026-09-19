@@ -490,9 +490,6 @@ builder.Services.AddRateLimiter(options =>
 // ── Health Checks ─────────────────────────────────────────────────────────────
 var sqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? string.Empty;
-var blobConnectionString = builder.Configuration["Azure:Storage:ConnectionString"]
-    ?? string.Empty;
-
 builder.Services.AddHealthChecks()
     .AddSqlServer(
         sqlConnectionString,
@@ -500,7 +497,7 @@ builder.Services.AddHealthChecks()
         failureStatus: HealthStatus.Unhealthy,
         tags: ["ready", "live"])
     .AddAzureBlobStorage(
-        _ => new Azure.Storage.Blobs.BlobServiceClient(blobConnectionString),
+        _ => PawTrack.Infrastructure.Storage.BlobStorageService.CreateServiceClient(builder.Configuration),
         name: "blob-storage",
         failureStatus: HealthStatus.Degraded,
         tags: ["ready"]);
@@ -563,20 +560,24 @@ var app = builder.Build();
 // Guard runs here so WebApplicationFactory's ConfigureWebHost overrides
 // (UseEnvironment + ConfigureAppConfiguration) are visible to the check.
 StartupGuards.EnsureJwtKeyStrength(app.Configuration, app.Environment);
+StartupGuards.EnsureSandboxIsolation(app.Configuration, app.Environment);
 
 // ── Database migrations ───────────────────────────────────────────────────────
-// Applies all pending EF Core migrations on startup.
-// - Fresh DB:            runs all 28+ migrations in order.
-// - EnsureCreated DB:    fake-applies the baseline so Migrate() doesn't crash
-//                        on existing tables, then applies any new migrations.
-// - Already-migrated DB: no-op (idempotent).
-// Skipped in the Testing environment (integration tests manage their own schema).
-if (!app.Environment.IsEnvironment("Testing"))
+// Production migrations run in a dedicated Container Apps Job before a new
+// revision receives traffic. Local development may still migrate on startup.
+var migrationDecision = PawTrack.API.Services.MigrationExecutionPolicy.Resolve(
+    app.Configuration,
+    app.Environment.EnvironmentName);
+
+if (!app.Environment.IsEnvironment("Testing") && migrationDecision.ApplyMigrations)
 {
     var migrationLogger = app.Services.GetRequiredService<ILogger<Program>>();
     await PawTrack.API.Services.MigrationHelper.ApplyMigrationsAsync(
         app.Services, migrationLogger);
 }
+
+if (migrationDecision.ExitAfterMigration)
+    return;
 
 if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Local"))
 {
@@ -597,6 +598,7 @@ app.UseHttpsRedirection();
 app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<LegacyPartnerApiDeprecationMiddleware>();
 app.UseCors("Frontend");
 app.UseRateLimiter();
 // Enable request body buffering so the WhatsApp signature filter can read

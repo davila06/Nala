@@ -22,6 +22,33 @@ no asume que Application Insights capture automaticamente todos los `Meter`.
 | Webhooks salientes    |       99% entregas exitosas | 24 horas | fallos >= 5% durante 15 min |
 | Webhooks salientes    |                   p95 < 2 s | 24 horas | p95 >= 2 s durante 15 min   |
 | Exports clinicos      | 99% solicitudes completadas | 30 dias  | fallos >= 1% durante 30 min |
+| Primera respuesta     |     75% en menos de 6 horas | 30 dias  | SLO < 70% por canton        |
+| Reunificacion         |              mediana < 72 h | 90 dias  | degradacion > 20% mensual   |
+
+## Analitica de producto
+
+`GET /api/v1/product-events/performance` requiere rol `Admin` y acepta `from`,
+`to` y `canton`. La consulta agrega en SQL y devuelve cohortes mensuales con:
+
+- mascotas registradas y activadas;
+- reportes de perdida y reunificaciones;
+- conversion de activacion y recuperacion;
+- minutos promedio hasta primera respuesta y reunificacion;
+- porcentaje de primeras respuestas dentro del SLO de seis horas.
+
+El rango máximo es 366 días. `Sin especificar` se mantiene como grupo separado
+para que la ausencia de cantón sea visible y no infle silenciosamente otro
+territorio.
+
+Definiciones:
+
+$$
+Activacion = \frac{mascotas\ con\ perfil\ completo\ o\ QR\ activo}{mascotas\ registradas}
+$$
+
+$$
+Recuperacion = \frac{casos\ con\ handover\ o\ reunificacion}{reportes\ de\ perdida}
+$$
 
 ## Consultas KQL de referencia
 

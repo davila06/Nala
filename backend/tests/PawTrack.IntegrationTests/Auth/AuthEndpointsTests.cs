@@ -107,6 +107,32 @@ public sealed class AuthEndpointsTests(PawTrackWebApplicationFactory factory)
     }
 
     [Fact]
+    public async Task OpenApiDocument_ContainsVersionedPartnerSurface()
+    {
+        var devClient = factory.WithWebHostBuilder(builder => builder.UseEnvironment("Development")).CreateClient();
+
+        var document = await devClient.GetStringAsync("/openapi/v1.json");
+
+        document.Should().Contain("/api/v1/pets/lookup");
+        document.Should().Contain("/api/v1/clinics");
+        document.Should().Contain("/api/v1/certificates");
+        document.Should().Contain("/api/v1/webhooks");
+        document.Should().Contain("/api/v1/widget");
+        document.Should().Contain("/api/v1/product-events");
+    }
+
+    [Fact]
+    public async Task LegacyPartnerRoute_AdvertisesVersionedSuccessor()
+    {
+        var response = await _client.GetAsync("/api/widget/clinic/00000000-0000-0000-0000-000000000001/config");
+
+        response.Headers.GetValues("Deprecation").Should().ContainSingle("true");
+        response.Headers.GetValues("Sunset").Should().ContainSingle();
+        response.Headers.GetValues("Link").Should().Contain(value =>
+            value.Contains("/api/v1/widget", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task ForgotPassword_UnknownEmail_Returns202()
     {
         var response = await _client.PostAsJsonAsync("/api/auth/forgot-password", new

@@ -10,6 +10,7 @@ namespace PawTrack.API.Controllers;
 
 [ApiController]
 [Route("api/product-events")]
+[Route("api/v1/product-events")]
 [ApiVersion("1.0")]
 public sealed class ProductAnalyticsController(ISender sender) : ControllerBase
 {
@@ -110,6 +111,31 @@ public sealed class ProductAnalyticsController(ISender sender) : ControllerBase
             System.Text.Encoding.UTF8.GetBytes(csv.ToString()),
             "text/csv; charset=utf-8",
             $"pawtrack-funnel-{start:yyyyMMdd}-{end:yyyyMMdd}.csv");
+    }
+
+    [HttpGet("performance")]
+    [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetPerformance(
+        [FromQuery] DateTimeOffset? from,
+        [FromQuery] DateTimeOffset? to,
+        [FromQuery] string? canton,
+        CancellationToken cancellationToken)
+    {
+        var end = to ?? DateTimeOffset.UtcNow;
+        var start = from ?? end.AddDays(-90);
+        if (start >= end || end - start > TimeSpan.FromDays(366))
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid date range",
+                Detail = "The performance range must be positive and no longer than 366 days.",
+                Status = StatusCodes.Status400BadRequest,
+            });
+
+        var result = await sender.Send(
+            new GetProductPerformanceQuery(start, end, canton),
+            cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : Problem();
     }
 
     private static string EscapeCsv(string? value) =>

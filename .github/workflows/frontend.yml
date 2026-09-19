@@ -52,7 +52,7 @@ jobs:
     # Only deploy on push to main (not PRs)
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
-      name: production
+      name: ${{ vars.PRODUCTION_ENVIRONMENT_NAME || 'production' }}
       url: ${{ steps.deploy.outputs.static_web_app_url }}
 
     defaults:
@@ -62,6 +62,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Verify production governance approvals
+        shell: pwsh
+        env:
+          PRODHAB_REGISTRATION_CONFIRMED: ${{ vars.PRODHAB_REGISTRATION_CONFIRMED }}
+          AZURE_DPA_CONFIRMED: ${{ vars.AZURE_DPA_CONFIRMED }}
+          B2B_CONTRACTS_APPROVED: ${{ vars.B2B_CONTRACTS_APPROVED }}
+          SLA_APPROVED: ${{ vars.SLA_APPROVED }}
+          PRICING_APPROVED: ${{ vars.PRICING_APPROVED }}
+          LEGAL_APPROVAL_REFERENCE: ${{ vars.LEGAL_APPROVAL_REFERENCE }}
+        run: ../scripts/Test-GoLiveGovernance.ps1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

@@ -12,6 +12,8 @@ import { BottomNav } from "./BottomNav";
 // Maps route prefixes to { label, description } for the sub-header breadcrumb.
 const PAGE_CONTEXT: Record<string, { label: string; icon: string }> = {
   "/dashboard": { label: "Mis mascotas", icon: "🐾" },
+  "/salud": { label: "Salud", icon: "♥" },
+  "/red": { label: "Red local", icon: "◎" },
   "/pets/new": { label: "Registrar mascota", icon: "➕" },
   "/pets": { label: "Detalle de mascota", icon: "🐾" },
   "/perfil": { label: "Mi perfil", icon: "👤" },
@@ -42,6 +44,8 @@ function resolvePageContext(pathname: string) {
 const TOP_LEVEL_ROUTES = new Set([
   "/dashboard",
   "/map",
+  "/salud",
+  "/red",
   "/notifications",
   "/perfil",
   "/allies/panel",
@@ -58,7 +62,7 @@ const TOP_LEVEL_ROUTES = new Set([
 const NAV_MAIN = [
   {
     to: "/dashboard",
-    label: "Inicio",
+    label: "Mascota",
     icon: (active: boolean) => (
       <svg
         viewBox="0 0 20 20"
@@ -78,7 +82,7 @@ const NAV_MAIN = [
   },
   {
     to: "/map",
-    label: "Mapa",
+    label: "Encontrar",
     icon: (active: boolean) => (
       <svg
         viewBox="0 0 20 20"
@@ -98,8 +102,8 @@ const NAV_MAIN = [
     ),
   },
   {
-    to: "/servicios",
-    label: "Servicios",
+    to: "/salud",
+    label: "Salud",
     icon: (active: boolean) => (
       <svg
         viewBox="0 0 20 20"
@@ -112,19 +116,15 @@ const NAV_MAIN = [
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
-          d="M4 6.5A2.5 2.5 0 0 1 6.5 4h1A2.5 2.5 0 0 1 10 6.5v1A2.5 2.5 0 0 1 7.5 10h-1A2.5 2.5 0 0 1 4 7.5v-1Z"
+          d="M10 17.5S3.5 13.5 3.5 8.5A3.5 3.5 0 0 1 10 6.6a3.5 3.5 0 0 1 6.5 1.9c0 5-6.5 9-6.5 9Z"
         />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M10 12.5A2.5 2.5 0 0 1 12.5 10h1a2.5 2.5 0 0 1 2.5 2.5v1a2.5 2.5 0 0 1-2.5 2.5h-1a2.5 2.5 0 0 1-2.5-2.5v-1Z"
-        />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 10h5M10 7.5v5" />
       </svg>
     ),
   },
   {
-    to: "/adopciones",
-    label: "Adopciones",
+    to: "/red",
+    label: "Red",
     icon: (active: boolean) => (
       <svg
         viewBox="0 0 20 20"

@@ -17,7 +17,7 @@ vi.mock("@/shared/hooks/useScrollToTop", () => ({
 }));
 
 describe("AuthenticatedLayout", () => {
-  it("shows role-specific navigation in the desktop more menu", () => {
+  it("shows four primary modes and role-specific actions in the more menu", () => {
     act(() => {
       useAuthStore.getState().setAuth(
         {
@@ -35,25 +35,28 @@ describe("AuthenticatedLayout", () => {
       initialEntries: ["/dashboard"],
     });
 
-    expect(screen.getByRole("link", { name: "Adopciones" })).toHaveAttribute(
-      "href",
-      "/adopciones",
+    expect(
+      screen.getAllByRole("link", { name: "Mascota" }).every((link) => link.getAttribute("href") === "/dashboard"),
+    ).toBe(true);
+    expect(
+      screen.getAllByRole("link", { name: "Encontrar" }).every((link) => link.getAttribute("href") === "/map"),
+    ).toBe(true);
+    expect(screen.getAllByRole("link", { name: "Salud" }).every((link) => link.getAttribute("href") === "/salud")).toBe(
+      true,
     );
+    expect(screen.getAllByRole("link", { name: "Red" }).every((link) => link.getAttribute("href") === "/red")).toBe(
+      true,
+    );
+    expect(screen.queryByRole("link", { name: "Adopciones" })).not.toBeInTheDocument();
 
     const moreButton = screen.getByRole("button", { name: "Más opciones" });
     expect(moreButton).toHaveAttribute("aria-expanded", "false");
-    expect(
-      screen.queryByRole("menuitem", { name: "Administración" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("menuitem", { name: "Administración" })).not.toBeInTheDocument();
 
     fireEvent.click(moreButton);
 
     expect(moreButton).toHaveAttribute("aria-expanded", "true");
-    expect(
-      screen.getByRole("menuitem", { name: "Administración" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("menuitem", { name: "Estadísticas" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "Administración" })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "Estadísticas" })).toBeInTheDocument();
   });
 });

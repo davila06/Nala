@@ -11,6 +11,19 @@ Current machine-to-machine endpoint:
 - `GET /api/v1/pets/lookup?chip={chip}`
 - `GET /api/v1/pets/lookup?qr={publicQrUrl}`
 
+Superficie v1 adicional:
+
+- `/api/v1/clinics/*`
+- `/api/v1/certificates/*`
+- `/api/v1/widget/*`
+- `/api/v1/webhooks/*`
+- `/api/v1/product-events/*`
+
+Las rutas históricas sin prefijo se conservan durante la ventana de migración.
+Los clientes partner nuevos deben usar exclusivamente `/api/v1`. El header
+`Api-Version: 1.0` se acepta como negociación adicional, pero no sustituye el
+path versionado en integraciones nuevas.
+
 Required scope: `scan`.
 
 Responses use JSON and RFC 7807-compatible problem details for validation and authorization errors. The public OpenAPI document is exposed at `/openapi/v1.json` while the API remains versioned under `/api/v1`.
@@ -77,6 +90,14 @@ intentional and prevents accidental use of a production database.
 
 Production credentials must never be accepted by a sandbox deployment. The sandbox is a deployment/configuration boundary, not a shared production flag.
 
+El sandbox debe usar base de datos, Storage Account, Key Vault y API keys
+separados. `appsettings.Sandbox.json` deshabilita entregas externas; el pipeline
+de sandbox debe inyectar únicamente identidades y endpoints del entorno sandbox.
+
 ## Compatibility
 
 `/api/v1` is additive-only for the current contract. Breaking changes require `/api/v2`, a migration notice, and a deprecation period documented in the changelog.
+
+La ventana mínima de deprecación es de 180 días. Las respuestas de endpoints
+deprecados deben incluir `Deprecation`, `Sunset` y un `Link` a la guía de
+migración antes de retirar la versión.
