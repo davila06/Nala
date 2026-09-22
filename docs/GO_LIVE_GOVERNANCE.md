@@ -19,6 +19,15 @@ Las cinco confirmaciones deben contener exactamente `true`. La referencia no
 debe contener documentos confidenciales ni secretos; debe apuntar al sistema
 corporativo donde reside la evidencia.
 
+## Proveedores externos
+
+Antes de un release que dependa de Azure, WhatsApp, GPS, pagos o correo, el
+release manager debe ejecutar el gate de
+[EXTERNAL_PROVIDER_VALIDATION.md](EXTERNAL_PROVIDER_VALIDATION.md). La evidencia
+local es redactada, no contiene secretos y vence a los 90 días. Una referencia
+de Key Vault o un adaptador de código no sustituyen contrato, cuenta aprobada y
+prueba controlada.
+
 ## Control de cambios
 
 - Las variables viven en el GitHub Environment protegido `production`.

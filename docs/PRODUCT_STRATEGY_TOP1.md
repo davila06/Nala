@@ -1,7 +1,7 @@
 # PawTrack CR - Estrategia para ser el ecosistema #1 animal
 
 > Estado: activo para estrategia y discovery. No sustituye contratos legales ni
-> declara capacidades no verificadas. Corte: 2026-09-09.
+> declara capacidades no verificadas. Corte: 2026-09-22.
 
 ## 1. Tesis central
 

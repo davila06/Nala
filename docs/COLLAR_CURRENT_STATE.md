@@ -1,7 +1,7 @@
 # Estado Actual de Collares GPS
 
 **Estado:** activo  
-**Corte:** 2026-09-09
+**Corte:** 2026-09-22
 
 ## Implementado
 
@@ -34,6 +34,8 @@ y bateria tienen cooldown para evitar notificaciones repetidas.
 Tractive es el proveedor soportado con OAuth2. Un OEM futuro debe cumplir el
 contrato de ingesta, seguridad de device key, precision, webhook/polling,
 retencion y pruebas BOLA. Ver [GUIA_INTEGRACIONES_WEBHOOKS.md](GUIA_INTEGRACIONES_WEBHOOKS.md).
+La activación de un proveedor real exige evidencia contractual y prueba
+controlada en [EXTERNAL_PROVIDER_VALIDATION.md](EXTERNAL_PROVIDER_VALIDATION.md).
 
 ## No confundir
 

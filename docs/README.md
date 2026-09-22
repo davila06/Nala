@@ -1,9 +1,9 @@
 # PawTrack CR - Mapa oficial de documentacion
 
-> Fuente de navegacion oficial. Actualizado: 2026-09-10.
+> Fuente de navegacion oficial. Actualizado: 2026-09-22.
 
 Esta carpeta fue auditada contra `backend/src` y `frontend/src` el
-2026-09-09. Los manuales operativos por rol viven en
+2026-09-22. Los manuales operativos por rol viven en
 [Manuales/](Manuales/); los documentos historicos se conservan para
 trazabilidad, pero no son contratos vigentes.
 
@@ -54,6 +54,7 @@ Estados documentales:
 | [GUIA_QA_E2E.md](GUIA_QA_E2E.md)                                                 | Estrategia de pruebas                                     |
 | [GUIA_ACCESIBILIDAD_Y_UX.md](GUIA_ACCESIBILIDAD_Y_UX.md)                         | Criterios frontend y accesibilidad                        |
 | [RUNBOOK_JOBS_BACKGROUND.md](RUNBOOK_JOBS_BACKGROUND.md)                         | Jobs y tareas programadas                                 |
+| [EXTERNAL_PROVIDER_VALIDATION.md](EXTERNAL_PROVIDER_VALIDATION.md)               | Gate de proveedores externos y evidencia de go-live       |
 | [RUNBOOK_MODERACION_Y_BIENESTAR.md](RUNBOOK_MODERACION_Y_BIENESTAR.md)           | Bienestar y moderacion                                    |
 | [COLLAR_CURRENT_STATE.md](COLLAR_CURRENT_STATE.md)                               | Estado actual de collares                                 |
 | [ADOPTIONS_CURRENT_STATE.md](ADOPTIONS_CURRENT_STATE.md)                         | Estado actual de adopciones                               |
@@ -67,6 +68,7 @@ Estados documentales:
   [RUNBOOK_REPORTES_INSTITUCIONALES.md](RUNBOOK_REPORTES_INSTITUCIONALES.md).
 - Salud y clinicas: [expediente.md](expediente.md), [CUMPLIMIENTO_PROTECCION_DATOS.md](CUMPLIMIENTO_PROTECCION_DATOS.md), [senasa.md](senasa.md).
 - Collares: [COLLAR_CURRENT_STATE.md](COLLAR_CURRENT_STATE.md), [jimiiot.md](jimiiot.md).
+- Proveedores externos: [EXTERNAL_PROVIDER_VALIDATION.md](EXTERNAL_PROVIDER_VALIDATION.md), [GUIA_INTEGRACIONES_WEBHOOKS.md](GUIA_INTEGRACIONES_WEBHOOKS.md).
 - B2B/B2G: [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md), [todolist-b2b-enterprise.md](todolist-b2b-enterprise.md).
 - Adopciones: [ADOPTIONS_CURRENT_STATE.md](ADOPTIONS_CURRENT_STATE.md), [adopciones.md](adopciones.md).
 - NALA y reportes: [NALA_REPORTING_GUIDE.md](NALA_REPORTING_GUIDE.md), [MANUAL_NALA.md](MANUAL_NALA.md), [RUNBOOK_REPORTES_INSTITUCIONALES.md](RUNBOOK_REPORTES_INSTITUCIONALES.md).
@@ -76,6 +78,7 @@ Estados documentales:
 ## Operacion transversal
 
 - [RUNBOOK_JOBS_BACKGROUND.md](RUNBOOK_JOBS_BACKGROUND.md)
+- [EXTERNAL_PROVIDER_VALIDATION.md](EXTERNAL_PROVIDER_VALIDATION.md)
 - [GUIA_QA_E2E.md](GUIA_QA_E2E.md)
 - [GUIA_ACCESIBILIDAD_Y_UX.md](GUIA_ACCESIBILIDAD_Y_UX.md)
 - [RUNBOOK_MODERACION_Y_BIENESTAR.md](RUNBOOK_MODERACION_Y_BIENESTAR.md)
@@ -109,7 +112,8 @@ verdad sin una fecha de revision posterior a 2026-09-09:
 - [sprint-plan-enterprise.md](sprint-plan-enterprise.md): plan de sprint completado.
 - [ROLLOUT_SPRINT5.md](ROLLOUT_SPRINT5.md): rollout historico.
 - [benchmark.md](benchmark.md): investigacion de mercado fechada.
-- [sponsor.md](sponsor.md): propuesta de inversion.
+- [sponsor.md](sponsor.md): brief de due diligence; no es una oferta ni una
+  fuente de tracción sin evidencia fechada.
 - [influencer.md](influencer.md): material comercial temporal.
 - [pricing.md](pricing.md): estrategia y propuestas de monetización; no catálogo activo.
 - [precios.md](precios.md): estrategia histórica y propuestas; no catálogo activo.
@@ -126,6 +130,11 @@ Toda nueva capacidad debe actualizar, en la misma entrega:
 3. `PRODUCT_STRATEGY_TOP1.md` si cambia una apuesta estrategica.
 4. Un runbook o manual si cambia una operacion humana.
 5. Pruebas y evidencia reproducible.
+
+Los cambios de proveedores externos deben actualizar además
+`EXTERNAL_PROVIDER_VALIDATION.md`; los cambios de adopciones deben actualizar
+`ADOPTIONS_CURRENT_STATE.md`. Los documentos históricos conservan su fecha y
+quedan subordinados a estas fuentes canónicas.
 
 No crear otro documento maestro ni otra tabla de precios sin actualizar este
 indice y retirar la fuente duplicada.

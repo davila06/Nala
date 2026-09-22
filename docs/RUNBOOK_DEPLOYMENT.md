@@ -2,7 +2,7 @@
 
 **Estado:** activo  
 **Audiencia:** DevOps y mantenedores  
-**Corte:** 2026-09-09
+**Corte:** 2026-09-22
 
 ## Arquitectura vigente
 
@@ -31,7 +31,10 @@ npm run build                  # desde frontend
 ```
 
 Validar `git diff --check`, migraciones pendientes, secretos en Key Vault,
-CORS, `App__BaseUrl`, `VITE_API_URL`, health checks y workflow CI.
+CORS, `App__BaseUrl`, `VITE_API_URL`, health checks y workflow CI. Antes del
+go-live, ejecutar el gate de evidencia redactada de
+[EXTERNAL_PROVIDER_VALIDATION.md](EXTERNAL_PROVIDER_VALIDATION.md); nunca
+reemplazarlo con secretos pegados en terminal o documentos.
 
 ## Secuencia
 
@@ -43,7 +46,8 @@ CORS, `App__BaseUrl`, `VITE_API_URL`, health checks y workflow CI.
 6. Construir y publicar backend con tag inmutable.
 7. Construir y publicar frontend con la URL API correcta por ambiente.
 8. Configurar dominio, DNS, HTTPS y CORS.
-9. Ejecutar health, smoke, autenticacion y un flujo de negocio.
+9. Ejecutar health, smoke, autenticacion, un flujo de negocio y la prueba
+   controlada de cada proveedor externo aprobado.
 10. Habilitar alertas y registrar version, migraciones y rollback.
 
 ## Rollback

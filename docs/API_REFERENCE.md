@@ -1,7 +1,7 @@
 # PawTrack CR - Referencia API
 
 **Estado:** activo  
-**Corte:** 2026-09-09  
+**Corte:** 2026-09-22
 **Contrato:** OpenAPI `1.0`
 
 ## Fuentes

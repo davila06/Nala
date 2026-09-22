@@ -2,7 +2,7 @@
 
 **Estado:** activo  
 **Audiencia:** DevOps y desarrolladores backend  
-**Corte:** 2026-09-09
+**Corte:** 2026-09-22
 
 ## Regla comun
 
@@ -28,6 +28,7 @@ unidad de negocio.
 | Embedding refresh                | regenera embeddings pendientes                          | programado                        |
 | Regulatory export                | genera exports solicitados                              | lock distribuido                  |
 | Webhook delivery                 | entrega y reintenta webhooks                            | outbox/fanout                     |
+| Search location sharing expiry   | vence sharing GPS y crea auditoría sin coordenadas      | cada minuto + lock distribuido    |
 
 ## Diagnostico
 
@@ -36,6 +37,9 @@ unidad de negocio.
 3. Verificar excepciones y conteos de filas afectadas.
 4. Reprocesar solo si la operacion es idempotente.
 5. Comparar estado antes/despues y documentar el incidente.
+
+El job de expiración de sharing solo persiste actor, incidente, conexión,
+modo y marcas de tiempo. Nunca guarda latitud, longitud ni trayectorias.
 
 No ejecutar el mismo job manualmente en dos instancias ni borrar tablas de
 outbox, auditoria o retencion para "destrabar" un ciclo.

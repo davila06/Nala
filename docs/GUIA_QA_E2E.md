@@ -2,7 +2,7 @@
 
 **Estado:** activo  
 **Audiencia:** QA, frontend y backend  
-**Corte:** 2026-09-09
+**Corte:** 2026-09-22
 
 ## Capas de prueba
 
@@ -28,6 +28,8 @@
 - reportar perdida y avistamiento;
 - chat enmascarado y handover;
 - collar: activacion, GPS, zona segura y modo perdido;
+- coordinación: dos participantes autorizados, consentimiento explícito,
+  sharing aproximado por defecto, roster de destinatarios y stop-sharing;
 - clinica: scan, grant medico y certificado;
 - tienda: catalogo y pedido;
 - proveedor: servicio, agenda y reserva;
@@ -46,3 +48,7 @@ requiere limite de tamano y content type.
 Usar usuarios y referencias de [pruebas.md](pruebas.md). No usar credenciales
 reales ni bases productivas. Las suscripciones deben tener `ExpiresAt` futuro y
 los seriales unicos por prueba.
+
+La validación con credenciales reales de WhatsApp, GPS, pagos, Azure y correo
+se realiza solo en staging/producción controlada siguiendo
+[EXTERNAL_PROVIDER_VALIDATION.md](EXTERNAL_PROVIDER_VALIDATION.md).

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Estado Verificado — PawTrack CR</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+</head>
+<body>
+<aside id="sidebar">
+  <div class="brand"><span>🐾</span><strong>PawTrack CR<br>Documentación</strong></div>
+  <nav><ul>
+    <li><a href="index.html" class="h2">← Inicio</a></li>
+    <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>
+    <li><a href="STATUS.html" class="h2 active">✅ Estado Verificado</a></li>
+    <li><a href="EXTERNAL_PROVIDER_VALIDATION.html" class="h2">🔐 Validación de Proveedores</a></li>
+    <li><a href="GO_LIVE_GOVERNANCE.html" class="h2">🛡️ Gobierno de Go-Live</a></li>
+    <li><a href="CHANGELOG.html" class="h2">📝 Changelog</a></li>
+    <li><a href="sponsor.html" class="h2">📑 Brief de Due Diligence</a></li>
+    <li><a href="FEATURES.html" class="h2">🧭 Features por Plan</a></li>
+    <li><a href="PRICING_AND_PLANS.html" class="h2">💳 Planes y Capacidades</a></li>
+    <li><a href="planes.html" class="h2">📋 Catálogo de Planes y Tiers</a></li>
+    <li><a href="precios.html" class="h2">📊 Precios y Modelo Comercial</a></li>
+    <li><a href="publicidad.html" class="h2">🪧 Guía de Publicidad y Vallas</a></li>
+    <li><a href="VALLAS_COMERCIALES.html" class="h2">📣 Vallas Comerciales</a></li>
+    <li><a href="inversionistas.html" class="h2">💼 Pitch para Inversionistas</a></li>
+    <li><a href="influencer.html" class="h2">🤝 Colaboración con Influencers</a></li>
+    <li><a href="API_REFERENCE.html" class="h2">🔌 Referencia API</a></li>
+    <li><a href="B2B_ESTADO_ACTUAL.html" class="h2">🏢 Estado Actual B2B</a></li>
+    <li><a href="CONSOLIDACION_DOCUMENTAL.html" class="h2">🗂️ Consolidación Documental</a></li>
+    <li><a href="COLLAR_CURRENT_STATE.html" class="h2">📡 Estado Actual de Collares</a></li>
+    <li><a href="ADOPTIONS_CURRENT_STATE.html" class="h2">🏡 Estado Actual de Adopciones</a></li>
+    <li><a href="NALA_REPORTING_GUIDE.html" class="h2">📊 NALA y Reportes</a></li>
+    <li><a href="sinpe.html" class="h2">💸 Automatización SINPE Móvil</a></li>
+    <li><a href="NALA.html" class="h2">🐾 Producto PawTrack CR</a></li>
+    <li><a href="MANUAL_USUARIO.html" class="h2">📱 Manual de Usuario</a></li>
+    <li><a href="MANUAL_ADMINISTRADOR.html" class="h2">⚙️ Manual de Administrador</a></li>
+    <li><a href="MANUAL_ALIADOS.html" class="h2">🤝 Manual de Aliados</a></li>
+    <li><a href="MANUAL_CLINICAS.html" class="h2">🏥 Manual de Clínicas Veterinarias</a></li>
+    <li><a href="MANUAL_MUNICIPALIDADES.html" class="h2">🏛️ Manual de Municipalidades</a></li>
+    <li><a href="MANUAL_TIENDAS.html" class="h2">🏪 Manual de Tiendas</a></li>
+    <li><a href="MANUAL_PROVEEDORES.html" class="h2">🧰 Manual de Proveedores</a></li>
+    <li><a href="MANUAL_SOPORTE.html" class="h2">🎧 Manual de Soporte</a></li>
+    <li><a href="MANUAL_TECNICO.html" class="h2">🛠️ Manual Técnico</a></li>
+    <li><a href="GUIA_ONBOARDING_DEV.html" class="h2">🚀 Guía de Onboarding Dev</a></li>
+    <li><a href="GUIA_DEPLOY_PASO_A_PASO.html" class="h2">☁️ Guía de Deploy Paso a Paso</a></li>
+    <li><a href="RUNBOOK_OPERACIONES.html" class="h2">📟 Runbook de Operaciones</a></li>
+    <li><a href="DEPLOY_INFO.html" class="h2">🗂️ Datos de Despliegue Beta</a></li>
+    <li><a href="RUNBOOK_DEPLOYMENT.html" class="h2">🚢 Runbook de Deployment</a></li>
+    <li><a href="RUNBOOK_SEGURIDAD_INCIDENTES.html" class="h2">🛡️ Seguridad e Incidentes</a></li>
+    <li><a href="RUNBOOK_BACKUPS_RECUPERACION.html" class="h2">💾 Backups y Recuperación</a></li>
+    <li><a href="MATRIZ_RETENCION_DATOS.html" class="h2">🧾 Retención de Datos</a></li>
+    <li><a href="GUIA_QA_E2E.html" class="h2">🧪 Guía QA y E2E</a></li>
+    <li><a href="GUIA_INTEGRACIONES_WEBHOOKS.html" class="h2">🔗 Integraciones y Webhooks</a></li>
+    <li><a href="RUNBOOK_JOBS_BACKGROUND.html" class="h2">⏱️ Jobs en Background</a></li>
+    <li><a href="RUNBOOK_MODERACION_Y_BIENESTAR.html" class="h2">🐾 Moderación y Bienestar</a></li>
+    <li><a href="CUMPLIMIENTO_PROTECCION_DATOS.html" class="h2">📜 Cumplimiento Protección de Datos</a></li>
+    <li><a href="POLITICA_DE_PRIVACIDAD.html" class="h2">🔒 Política de Privacidad</a></li>
+    <li><a href="TERMINOS_DE_USO.html" class="h2">📋 Términos de Uso</a></li>
+  </ul></nav>
+</aside>
+<main id="main">
+  <div id="content"><p style="color:#888;padding:2rem">Cargando…</p></div>
+</main>
+<script>
+const md = "# PawTrack CR - Estado verificado\r\n\r\n> Corte: 2026-09-22. Este documento es el estado operativo actual, no una\r\n> promesa comercial.\r\n\r\nLa documentacion operativa por rol fue contrastada con el router frontend,\r\n`UserRole` y los controllers actuales. La entrada oficial es\r\n[docs/README.md](README.md); los manuales de `Owner`, `Ally`, `Admin`, `Clinic`,\r\n`Municipality`, `Store`, `ServiceProvider` y `Support` estan bajo\r\n[Manuales/](Manuales/).\r\n\r\n## Resumen ejecutivo\r\n\r\nPawTrack tiene una base funcional amplia y diferenciada para identidad de\r\nmascotas, perdida y reunificacion, salud, red local, instituciones y\r\nmarketplaces. El nucleo tecnico compila y las suites verificadas recientes\r\nestan verdes, pero el producto no debe etiquetarse como completamente\r\nproduction-ready hasta cerrar calidad de entrega, claims comerciales,\r\nobservabilidad de negocio y validacion operativa.\r\n\r\n## Evidencia tecnica reciente\r\n\r\n- Backend solution build: correcto.\r\n- Backend unit tests: 1528 correctos.\r\n- Backend integration tests: 112 correctos.\r\n- Frontend typecheck: correcto.\r\n- Frontend tests: 33 archivos, 104 correctos.\r\n- Frontend lint: correcto, sin errores ni warnings.\r\n- Frontend production build: correcto.\r\n- Migraciones: `AddFirstResponseEventIdempotency` y\r\n  `AddSearchLocationSharingSessions` aplicadas en `PawTrackDev`.\r\n- Expiración de sharing SignalR: sesiones persistentes sin coordenadas, TTL Redis,\r\n  job distribuido y auditoría autónoma de `SearchLocationSharingExpired`.\r\n- Proveedores externos: gate `scripts/Test-ExternalProviderReadiness.ps1` exige\r\n  evidencia redactada de contrato/aprobación y prueba para Azure, WhatsApp, GPS,\r\n  pagos y correo antes de un go-live; no lee ni registra secretos.\r\n- Funnel P0: eventos frontend iniciales instrumentados con `eventId`, timestamp e\r\n  identidad anónima para registro de mascota,\r\n  completitud básica, generación/escaneo de QR, reporte de pérdida, avistamiento,\r\n  mascota encontrada, handover y reunificación; ingestión, deduplicación SQL,\r\n  retención, consulta y dashboard Admin ya implementados. Exportación partner y\r\n  E2E adicionales de broadcast/export partner pendientes.\r\n- Export CSV del funnel agregado para Admin disponible sin PII, con rango\r\n  máximo de 366 días y filtro opcional por cantón.\r\n- E2E recovery: escenario Playwright principal pasa 1/1 contra backend, SQL/\r\n  migraciones, Azurite y frontend preview local; cubre perdida, QR, chat\r\n  enmascarado, broadcast y handover. Store Partner analytics export ya tiene\r\n  gate, cuota mensual de 20 y auditoria; falta E2E dedicado.\r\n- Adopciones: 11 pruebas de integración verifican directorio, detalle, ferias,\r\n  solicitudes y flujos autorizados de shelter; el alcance no incluye pagos ni\r\n  custodia financiera.\r\n- Supply chain: workflow CI agregado para Gitleaks, npm audit de producción y\r\n  vulnerabilidades transitivas de NuGet; falta observar su primera ejecución CI.\r\n- Enterprise clinic/auth slice: TOTP MFA with protected secrets and one-time\r\n  recovery codes; privileged-role MFA policy is enabled outside Development;\r\n  authenticated rate limits partition by API key/user with IP fallback; clinic\r\n  operations UI covers veterinarian permissions and scheduling; medical retention\r\n  purges superseded versions and expired export metadata. Public certificate\r\n  verification now validates the detached PDF signature when Key Vault or a\r\n  configured development public key is available.\r\n- Integracion real de pagos: no forma parte del alcance de tiendas actual.\r\n- Tiendas: pedidos comunicados por PawTrack; la tienda controla disponibilidad,\r\n  aceptacion, rechazo, entrega y estados.\r\n\r\nLas cifras deben regenerarse en CI; no copiar numeros de una auditoria antigua\r\nsin volver a ejecutar los comandos.\r\n\r\n## Capacidades activas comprobadas\r\n\r\n### Recuperacion\r\n\r\n- Perfil publico, QR y escaneo.\r\n- Reporte de perdida, Case Room y avistamientos.\r\n- Matching visual y geografia.\r\n- Mapa publico, zonas de busqueda y coordinacion SignalR.\r\n- Broadcast multicanal.\r\n- Chat enmascarado y handover seguro.\r\n- Recompensas, fraude y modo offline.\r\n\r\n### Salud\r\n\r\n- Expediente medico y consentimiento de datos de salud.\r\n- Recordatorios, alertas y exportacion.\r\n- Clinicas verificadas, grants y certificados.\r\n- API y widgets para planes Partner.\r\n\r\n### Red y ecosistema\r\n\r\n- Aliados, refugios, adopciones y ferias.\r\n- Municipalidades y reportes institucionales.\r\n- Tiendas y marketplace de servicios.\r\n- GPS/collares, bundles, suscripciones e incentivos.\r\n\r\n## Riesgos abiertos que bloquean escala\r\n\r\n### P0 cerrados en este corte\r\n\r\n- Claims comerciales principales revisados y brief de patrocinio consolidado en\r\n  `docs/sponsor.md`; no se publican cifras de tracción sin fuente.\r\n- `secrets/sa_password.txt` existe solo como secreto local y no está versionado.\r\n- Funnel de recuperación correlacionado por `lostEventId`, con medianas SQL y\r\n  `FirstResponseRecorded` idempotente.\r\n\r\n### P0/P1 pendientes operativos\r\n\r\n- Primera ejecución CI de Gitleaks, npm audit y NuGet audit.\r\n- Completar evidencia real y vigente de contratos/cuentas de Azure, WhatsApp,\r\n  GPS, pagos y correo mediante el gate de proveedores; esta evidencia requiere\r\n  operadores autorizados y no puede sustituirse por configuración local.\r\n- Prueba E2E de dos clientes SignalR para validar visualmente el roster de\r\n  destinatarios; las pruebas unitarias del hub y el contrato backend ya pasan.\r\n- Activación de Azure Monitor, alertas y ventana real de medición SLO.\r\n\r\n### P1\r\n\r\n- Gates obligatorios de lint/build/tests en CI.\r\n- Contrato API versionado o verificado automaticamente.\r\n- Pruebas BOLA/IDOR uniformes en dominios sensibles.\r\n- Observabilidad de negocio: activacion QR, reportes, tiempo a primer avistamiento,\r\n  tiempo a reunificacion, densidad territorial y conversion por canal.\r\n- Runbooks y SLA para clinicas, municipalidades, aliados y proveedores.\r\n- Runbook SLO tecnico agregado en `docs/OBSERVABILITY_SLO_RUNBOOK.md`; la\r\n  activacion de Azure Monitor, alertas y ventana real de medicion sigue pendiente.\r\n- Validacion de pagos y reembolsos solo donde el producto realmente custodie o\r\n  confirme fondos; tiendas actuales quedan fuera.\r\n\r\n### P2\r\n\r\n- Simplificar navegacion en cuatro modos: Mi mascota, Perdida/Encontrada,\r\n  Salud y Red local.\r\n- Consolidar migraciones, jobs, retenciones y bounded contexts en documentacion.\r\n- Instrumentar experimentos de onboarding y notificaciones.\r\n- Preparar interoperabilidad LATAM despues de probar densidad en Costa Rica.\r\n\r\n## Fuente tecnica de tiers y capacidades\r\n\r\nLa autoridad tecnica es el codigo en:\r\n\r\n- `backend/src/PawTrack.Domain/Subscriptions/SubscriptionTier.cs`\r\n- `backend/src/PawTrack.Domain/Subscriptions/SubscriptionPricing.cs`\r\n- `backend/src/PawTrack.Infrastructure/Subscriptions/SubscriptionService.cs`\r\n- handlers y validators de cada modulo.\r\n\r\nLa documentacion comercial consolidada esta en [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md).\r\n\r\n## Regla de estado\r\n\r\nUna capacidad solo puede marcarse como activa si tiene implementacion, control\r\nde autorizacion, persistencia cuando aplique, prueba y evidencia de operacion.\r\nUna propuesta comercial, una migracion existente o un enum no constituyen por\r\nsi solos una capacidad vendible.\r\n";
+const html = DOMPurify.sanitize(marked.parse(md));
+const content = document.getElementById('content');
+content.innerHTML = html;
+
+// Rewrite relative .md links to .html within docs/html
+content.querySelectorAll('a').forEach(a => {
+  const href = a.getAttribute('href');
+  if (href && !href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('#') && !href.startsWith('mailto:')) {
+    const m = href.match(/^(?:(?:\.\.\/)*)?(?:(?:docs|Manuales)\/)*([A-Za-z0-9_-]+)\.md(#.*)?$/i);
+    if (m) {
+      a.setAttribute('href', m[1] + '.html' + (m[2] || ''));
+    }
+  }
+});
+
+// Build sidebar nav from rendered headings
+const headings = content.querySelectorAll('h2, h3');
+const sidebar  = document.querySelector('#sidebar nav ul');
+headings.forEach((h, i) => {
+  if (!h.id) {
+    h.id = 'h-' + i + '-' + h.textContent.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').slice(0, 50);
+  }
+  const li = document.createElement('li');
+  const a  = document.createElement('a');
+  a.href      = '#' + h.id;
+  a.textContent = h.textContent.replace(/^#+\s*/, '');
+  a.className = h.tagName.toLowerCase();
+  li.appendChild(a);
+  sidebar.appendChild(li);
+});
+
+// Highlight active link on scroll
+const links = sidebar.querySelectorAll('a[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const active = sidebar.querySelector('a[href="#' + e.target.id + '"]');
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -75% 0px' });
+content.querySelectorAll('h2, h3').forEach(h => obs.observe(h));
+</script>
+</body>
+</html>

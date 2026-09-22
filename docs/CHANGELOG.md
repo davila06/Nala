@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-09-22
+
+### Operational readiness and documentation
+
+- Added a redacted-evidence gate for Azure, WhatsApp, GPS, payments and email;
+  no provider is considered production-validated solely from configuration.
+- Added persistent, coordinate-free location-sharing sessions and a distributed
+  expiration job that records autonomous sharing-expiry audit events.
+- Corrected product analytics correlation/median validation and import-job EF
+  tracking; refreshed the verified test evidence.
+- Consolidated commercial, adoption and operational documentation around the
+  2026-09-22 canonical state.
+
 ## 2026-09-18
 
 ### SuperAdmin and community campaigns

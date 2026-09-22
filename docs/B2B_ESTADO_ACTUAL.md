@@ -1,6 +1,6 @@
 # PawTrack CR — Estado B2B/B2G y Marketplace de Servicios
 
-> Corte verificado: 2026-09-09
+> Corte verificado: 2026-09-22
 > Fuente técnica: `SubscriptionTier`, `SubscriptionPricing`, controllers, handlers y rutas frontend actuales.
 >
 > Este documento distingue capacidades implementadas de propuestas comerciales. Una capacidad no debe venderse como activa si aparece en `📋`.

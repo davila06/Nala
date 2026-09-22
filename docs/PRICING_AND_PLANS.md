@@ -1,7 +1,7 @@
 # PawTrack CR - Planes y capacidades comerciales
 
 > Estado: activo como consolidacion tecnica; precios sujetos a aprobacion
-> comercial y legal. Corte: 2026-09-09.
+> comercial y legal. Corte: 2026-09-22.
 >
 > La autoridad tecnica son `SubscriptionTier`, `SubscriptionPricing` y los
 > gates del backend. Este documento no convierte una capacidad tecnica en una
@@ -34,6 +34,9 @@ habilita únicamente cuando el GitHub Environment `production` contiene:
 
 El gate automatizado y sus responsables están definidos en
 [GO_LIVE_GOVERNANCE.md](GO_LIVE_GOVERNANCE.md).
+El flujo de adopciones incluye directorio, solicitudes, revisión y ferias;
+no procesa pagos, escrow ni custodia financiera. Ver
+[ADOPTIONS_CURRENT_STATE.md](ADOPTIONS_CURRENT_STATE.md).
 
 ## Política de Precios e Impuesto sobre el Valor Agregado (IVA 13%)
 

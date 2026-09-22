@@ -12,11 +12,17 @@ $sourceDir = if (Test-Path (Join-Path $DocsPath "FEATURES.md")) {
 $htmlDir = Join-Path $sourceDir "html"
 
 $docs = @(
+  @{ file = "STATUS.md";                      title = "Estado Verificado";                icon = "✅"; back = "../STATUS.md" }
+  @{ file = "EXTERNAL_PROVIDER_VALIDATION.md"; title = "Validación de Proveedores";         icon = "🔐"; back = "../EXTERNAL_PROVIDER_VALIDATION.md" }
+  @{ file = "GO_LIVE_GOVERNANCE.md";           title = "Gobierno de Go-Live";              icon = "🛡️"; back = "../GO_LIVE_GOVERNANCE.md" }
+  @{ file = "CHANGELOG.md";                   title = "Changelog";                       icon = "📝"; back = "../CHANGELOG.md" }
+  @{ file = "sponsor.md";                     title = "Brief de Due Diligence";            icon = "📑"; back = "../sponsor.md" }
   @{ file = "FEATURES.md";                    title = "Features por Plan";                 icon = "🧭"; back = "../FEATURES.md" }
   @{ file = "PRICING_AND_PLANS.md";           title = "Planes y Capacidades";             icon = "💳"; back = "../PRICING_AND_PLANS.md" }
   @{ file = "planes.md";                      title = "Catálogo de Planes y Tiers";       icon = "📋"; back = "../planes.md" }
   @{ file = "precios.md";                     title = "Precios y Modelo Comercial";       icon = "📊"; back = "../precios.md" }
   @{ file = "publicidad.md";                  title = "Guía de Publicidad y Vallas";      icon = "🪧"; back = "../publicidad.md" }
+  @{ file = "VALLAS_COMERCIALES.md";          title = "Vallas Comerciales";              icon = "📣"; back = "../VALLAS_COMERCIALES.md" }
   @{ file = "inversionistas.md";              title = "Pitch para Inversionistas";         icon = "💼"; back = "../inversionistas.md" }
   @{ file = "influencer.md";                  title = "Colaboración con Influencers";      icon = "🤝"; back = "../influencer.md" }
   @{ file = "API_REFERENCE.md";               title = "Referencia API";                    icon = "🔌"; back = "../API_REFERENCE.md" }
@@ -152,12 +158,12 @@ content.querySelectorAll('h2, h3').forEach(h => obs.observe(h));
   Write-Host "Generated: $([System.IO.Path]::GetFileName($htmlOut))"
 }
 
-# Sync sponsors.html from inversionistas.html so legacy links continue to work
-$invHtml = Join-Path $htmlDir "inversionistas.html"
+# Sync sponsors.html from sponsor.html so legacy links continue to show the canonical brief.
+$invHtml = Join-Path $htmlDir "sponsor.html"
 $sponsorsHtml = Join-Path $htmlDir "sponsors.html"
 if (Test-Path $invHtml) {
     Copy-Item -Path $invHtml -Destination $sponsorsHtml -Force
-    Write-Host "Updated: sponsors.html (synced from inversionistas.html)"
+  Write-Host "Updated: sponsors.html (synced from sponsor.html)"
 }
 
 Write-Host "`nDone. Open docs/html/index.html in a browser."

@@ -14,11 +14,17 @@
   <nav><ul>
     <li><a href="index.html" class="h2">← Inicio</a></li>
     <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>
+    <li><a href="STATUS.html" class="h2">✅ Estado Verificado</a></li>
+    <li><a href="EXTERNAL_PROVIDER_VALIDATION.html" class="h2">🔐 Validación de Proveedores</a></li>
+    <li><a href="GO_LIVE_GOVERNANCE.html" class="h2">🛡️ Gobierno de Go-Live</a></li>
+    <li><a href="CHANGELOG.html" class="h2">📝 Changelog</a></li>
+    <li><a href="sponsor.html" class="h2">📑 Brief de Due Diligence</a></li>
     <li><a href="FEATURES.html" class="h2">🧭 Features por Plan</a></li>
     <li><a href="PRICING_AND_PLANS.html" class="h2">💳 Planes y Capacidades</a></li>
     <li><a href="planes.html" class="h2">📋 Catálogo de Planes y Tiers</a></li>
     <li><a href="precios.html" class="h2">📊 Precios y Modelo Comercial</a></li>
     <li><a href="publicidad.html" class="h2">🪧 Guía de Publicidad y Vallas</a></li>
+    <li><a href="VALLAS_COMERCIALES.html" class="h2">📣 Vallas Comerciales</a></li>
     <li><a href="inversionistas.html" class="h2">💼 Pitch para Inversionistas</a></li>
     <li><a href="influencer.html" class="h2">🤝 Colaboración con Influencers</a></li>
     <li><a href="API_REFERENCE.html" class="h2">🔌 Referencia API</a></li>
@@ -59,7 +65,7 @@
   <div id="content"><p style="color:#888;padding:2rem">Cargando…</p></div>
 </main>
 <script>
-const md = "# Estado Actual de Adopciones\r\n\r\n**Estado:** activo  \r\n**Corte:** 2026-09-09\r\n\r\n## Actores\r\n\r\n- Visitante: consulta directorio, detalle y ferias.\r\n- `Owner`: aplica para adoptar y recibe notificaciones.\r\n- `Ally` verificado con `AllyType = Shelter`: publica animales, administra\r\n  aplicaciones y ferias.\r\n- `Admin`: consulta estadisticas y modera operaciones administrativas.\r\n\r\n## Rutas\r\n\r\nPublicas: `/adopciones`, `/adopciones/:id`, `/adopciones/ferias`.\r\nOwner: `/mis-adopciones`. Shelter: `/shelter/dashboard`,\r\n`/shelter/publicar` y `/shelter/animales/:id/aplicaciones`.\r\n\r\n## Estados del animal\r\n\r\n`Available`, `InProcess`, `Adopted`, `Paused`, `Removed`. Publicar requiere\r\nshelter verificado. El acceso base limita animales activos; `ShelterPlus`\r\nhabilita animales ilimitados, ferias y destaque segun los gates actuales.\r\n\r\n## Aplicaciones\r\n\r\nEl adoptante envia una solicitud con nota. El shelter revisa, aprueba o\r\nrechaza, recibe y envia notificaciones, y marca el animal adoptado cuando la\r\nentrega termina. Las consultas de aplicaciones son paginadas y deben validar\r\nownership del shelter.\r\n\r\n## Privacidad\r\n\r\nPublicar una zona de referencia no equivale a publicar la direccion exacta del\r\nrefugio. Fotos y notas deben pasar por Blob Storage y sanitizacion. No publicar\r\nPII del adoptante o del shelter sin necesidad.\r\n\r\nLa especificacion tecnica historica es\r\n[adopciones.md](adopciones.md); el manual operativo esta en\r\n[Manuales/MANUAL_ALIADOS.md](Manuales/MANUAL_ALIADOS.md).\r\n";
+const md = "# Estado Actual de Adopciones\r\n\r\n**Estado:** activo  \r\n**Corte:** 2026-09-22\r\n\r\n## Actores\r\n\r\n- Visitante: consulta directorio, detalle y ferias.\r\n- `Owner`: aplica para adoptar y recibe notificaciones.\r\n- `Ally` verificado con `AllyType = Shelter`: publica animales, administra\r\n  aplicaciones y ferias.\r\n- `Admin`: consulta estadisticas y modera operaciones administrativas.\r\n\r\n## Rutas\r\n\r\nPublicas: `/adopciones`, `/adopciones/:id`, `/adopciones/ferias`.\r\nOwner: `/mis-adopciones`. Shelter: `/shelter/dashboard`,\r\n`/shelter/publicar` y `/shelter/animales/:id/aplicaciones`.\r\n\r\n## Estados del animal\r\n\r\n`Available`, `InProcess`, `Adopted`, `Paused`, `Removed`. Publicar requiere\r\nshelter verificado. El acceso base limita animales activos; `ShelterPlus`\r\nhabilita animales ilimitados, ferias y destaque segun los gates actuales.\r\n\r\n## Aplicaciones\r\n\r\nEl adoptante envia una solicitud con nota. El shelter revisa, aprueba o\r\nrechaza, recibe y envia notificaciones, y marca el animal adoptado cuando la\r\nentrega termina. Las consultas de aplicaciones son paginadas y deben validar\r\nownership del shelter.\r\n\r\n## Límites comerciales y operativos\r\n\r\n- El módulo no procesa pagos, depósitos, escrow ni custodia financiera de una\r\n  adopción.\r\n- La plataforma no verifica por sí sola la idoneidad legal del adoptante ni\r\n  sustituye los criterios y contrato del refugio.\r\n- Las organizaciones deben completar la verificación y la entrega fuera de la\r\n  plataforma cuando su proceso lo requiera.\r\n- No presentar adopciones como un marketplace transaccional hasta que esos\r\n  flujos cuenten con contrato, operación y controles específicos.\r\n\r\n## Privacidad\r\n\r\nPublicar una zona de referencia no equivale a publicar la direccion exacta del\r\nrefugio. Fotos y notas deben pasar por Blob Storage y sanitizacion. No publicar\r\nPII del adoptante o del shelter sin necesidad.\r\n\r\nLa especificacion tecnica historica es\r\n[adopciones.md](adopciones.md); el manual operativo esta en\r\n[Manuales/MANUAL_ALIADOS.md](Manuales/MANUAL_ALIADOS.md).\r\n";
 const html = DOMPurify.sanitize(marked.parse(md));
 const content = document.getElementById('content');
 content.innerHTML = html;
