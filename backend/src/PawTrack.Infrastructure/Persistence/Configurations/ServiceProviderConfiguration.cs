@@ -38,6 +38,7 @@ public sealed class ProviderServiceConfiguration : IEntityTypeConfiguration<Prov
 {
     public void Configure(EntityTypeBuilder<ProviderService> builder)
     {
+        builder.Property(x => x.PlanRestricted).IsRequired().HasDefaultValue(false);
         builder.ToTable("ProviderServices");
         builder.HasKey(x => x.Id);
 

@@ -18,6 +18,7 @@ public sealed class StoreLocation
     /// <summary>True for the store's original/default location — cannot be deactivated.</summary>
     public bool IsPrimary { get; private set; }
     public bool IsActive { get; private set; }
+    public bool PlanRestricted { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset? UpdatedAt { get; private set; }
 
@@ -60,4 +61,7 @@ public sealed class StoreLocation
         IsActive = true;
         UpdatedAt = DateTimeOffset.UtcNow;
     }
+
+    public void RestrictByPlan() { if (!IsPrimary) { IsActive = false; PlanRestricted = true; UpdatedAt = DateTimeOffset.UtcNow; } }
+    public void RestoreFromPlan() { if (PlanRestricted) { IsActive = true; PlanRestricted = false; UpdatedAt = DateTimeOffset.UtcNow; } }
 }

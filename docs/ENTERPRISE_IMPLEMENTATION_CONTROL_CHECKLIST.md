@@ -115,7 +115,11 @@
 ### Proveedores
 
     - [x] Implementar modo lectura/inactivo para recursos excedentes tras downgrade.
+    - [x] Marcar recursos restringidos por plan para distinguirlos de bajas manuales.
+    - [x] Reactivar recursos marcados cuando el upgrade eleva el límite.
+    - [x] Generar/aplicar migración `AddPlanRestrictedResourceFlags`.
     - [ ] Reactivar recursos elegibles al upgrade.
+    - [x] Reactivar servicios proveedores marcados `PlanRestricted` al upgrade.
     - [ ] Agregar pruebas de upgrade/reactivación.
 
 ### Municipalidades

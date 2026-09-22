@@ -13,6 +13,7 @@ public sealed class ProviderService
     public decimal PriceCrc { get; private set; }
     public int Capacity { get; private set; }
     public ProviderServiceStatus Status { get; private set; }
+    public bool PlanRestricted { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset? UpdatedAt { get; private set; }
 
@@ -40,6 +41,8 @@ public sealed class ProviderService
     public void Pause() => Status = ProviderServiceStatus.Paused;
     public void Publish() => Status = ProviderServiceStatus.Published;
     public void Archive() => Status = ProviderServiceStatus.Archived;
+    public void RestrictByPlan() { if (Status == ProviderServiceStatus.Published) { Status = ProviderServiceStatus.Paused; PlanRestricted = true; } }
+    public void RestoreFromPlan() { if (PlanRestricted) { Status = ProviderServiceStatus.Published; PlanRestricted = false; } }
 
     public void Update(
         string name,

@@ -13,6 +13,7 @@ public sealed class StoreProduct
     public decimal PriceCrc { get; private set; }
     public string? ImageUrl { get; private set; }
     public bool IsAvailable { get; private set; }
+    public bool PlanRestricted { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
 
     public static StoreProduct Create(
@@ -42,4 +43,6 @@ public sealed class StoreProduct
 
     public void SetImageUrl(string url) => ImageUrl = url;
     public void SetAvailable(bool available) => IsAvailable = available;
+    public void RestrictByPlan() { IsAvailable = false; PlanRestricted = true; }
+    public void RestoreFromPlan() { if (PlanRestricted) { IsAvailable = true; PlanRestricted = false; } }
 }

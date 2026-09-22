@@ -133,6 +133,11 @@ public sealed class SubscriptionExpirationJob(
 
         var products = await storeRepository.GetProductsByStoreAsync(store.Id, ct);
         var productLimit = subscription.Tier == SubscriptionTier.StorePartner ? 1000 : 100;
+        foreach (var product in products.Where(product => product.PlanRestricted))
+        {
+            product.RestoreFromPlan();
+            storeRepository.UpdateProduct(product);
+        }
         var activeProductIndex = 0;
         foreach (var product in products.Where(product => product.IsAvailable).OrderByDescending(product => product.CreatedAt))
         {
@@ -143,13 +148,18 @@ public sealed class SubscriptionExpirationJob(
                 activeProductIndex++;
                 continue;
             }
-            product.SetAvailable(false);
+            product.RestrictByPlan();
             storeRepository.UpdateProduct(product);
             activeProductIndex++;
         }
 
         var locations = await storeRepository.GetLocationsByStoreAsync(store.Id, ct);
         var locationLimit = subscription.Tier == SubscriptionTier.StorePartner ? 5 : 1;
+        foreach (var location in locations.Where(location => location.PlanRestricted))
+        {
+            location.RestoreFromPlan();
+            storeRepository.UpdateLocation(location);
+        }
         var activeLocationIndex = 0;
         foreach (var location in locations.Where(location => location.IsActive).OrderByDescending(location => location.CreatedAt))
         {
@@ -159,7 +169,7 @@ public sealed class SubscriptionExpirationJob(
                 activeLocationIndex++;
                 continue;
             }
-            location.Deactivate();
+            location.RestrictByPlan();
             storeRepository.UpdateLocation(location);
             activeLocationIndex++;
         }
@@ -173,12 +183,17 @@ public sealed class SubscriptionExpirationJob(
     {
         if (subscription.UserId is null) return;
 
-        if (subscription.Tier is SubscriptionTier.UserPlus or SubscriptionTier.UserFamilia)
+        if (subscription.Tier is SubscriptionTier.StorePlus or SubscriptionTier.StorePartner)
         {
             var provider = await providerRepository.GetByUserIdAsync(subscription.UserId.Value, ct);
             if (provider is not null)
             {
                 var services = await providerRepository.GetServicesByProviderAsync(provider.Id, ct);
+                foreach (var service in services.Where(service => service.PlanRestricted))
+                {
+                    service.RestoreFromPlan();
+                    providerRepository.UpdateService(service);
+                }
                 var serviceIndex = 0;
                 foreach (var service in services.Where(service => service.Status == PawTrack.Domain.ServiceProviders.ProviderServiceStatus.Published))
                 {
@@ -187,7 +202,7 @@ public sealed class SubscriptionExpirationJob(
                         serviceIndex++;
                         continue;
                     }
-                    service.Pause();
+                    service.RestrictByPlan();
                     providerRepository.UpdateService(service);
                     serviceIndex++;
                 }

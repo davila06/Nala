@@ -34,6 +34,7 @@ public sealed class StoreProductConfiguration : IEntityTypeConfiguration<StorePr
 {
     public void Configure(EntityTypeBuilder<StoreProduct> builder)
     {
+        builder.Property(x => x.PlanRestricted).IsRequired().HasDefaultValue(false);
         builder.ToTable("StoreProducts");
         builder.HasKey(x => x.Id);
 
@@ -107,6 +108,7 @@ public sealed class StoreLocationConfiguration : IEntityTypeConfiguration<StoreL
 {
     public void Configure(EntityTypeBuilder<StoreLocation> builder)
     {
+        builder.Property(x => x.PlanRestricted).IsRequired().HasDefaultValue(false);
         builder.ToTable("StoreLocations");
         builder.HasKey(x => x.Id);
 
