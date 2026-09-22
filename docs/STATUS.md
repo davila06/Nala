@@ -31,6 +31,9 @@ observabilidad de negocio y validacion operativa.
   `AddSearchLocationSharingSessions` aplicadas en `PawTrackDev`.
 - Expiración de sharing SignalR: sesiones persistentes sin coordenadas, TTL Redis,
   job distribuido y auditoría autónoma de `SearchLocationSharingExpired`.
+- Proveedores externos: gate `scripts/Test-ExternalProviderReadiness.ps1` exige
+  evidencia redactada de contrato/aprobación y prueba para Azure, WhatsApp, GPS,
+  pagos y correo antes de un go-live; no lee ni registra secretos.
 - Funnel P0: eventos frontend iniciales instrumentados con `eventId`, timestamp e
   identidad anónima para registro de mascota,
   completitud básica, generación/escaneo de QR, reporte de pérdida, avistamiento,
@@ -43,6 +46,9 @@ observabilidad de negocio y validacion operativa.
   migraciones, Azurite y frontend preview local; cubre perdida, QR, chat
   enmascarado, broadcast y handover. Store Partner analytics export ya tiene
   gate, cuota mensual de 20 y auditoria; falta E2E dedicado.
+- Adopciones: 11 pruebas de integración verifican directorio, detalle, ferias,
+  solicitudes y flujos autorizados de shelter; el alcance no incluye pagos ni
+  custodia financiera.
 - Supply chain: workflow CI agregado para Gitleaks, npm audit de producción y
   vulnerabilidades transitivas de NuGet; falta observar su primera ejecución CI.
 - Enterprise clinic/auth slice: TOTP MFA with protected secrets and one-time
@@ -98,6 +104,9 @@ sin volver a ejecutar los comandos.
 ### P0/P1 pendientes operativos
 
 - Primera ejecución CI de Gitleaks, npm audit y NuGet audit.
+- Completar evidencia real y vigente de contratos/cuentas de Azure, WhatsApp,
+  GPS, pagos y correo mediante el gate de proveedores; esta evidencia requiere
+  operadores autorizados y no puede sustituirse por configuración local.
 - Prueba E2E de dos clientes SignalR para validar visualmente el roster de
   destinatarios; las pruebas unitarias del hub y el contrato backend ya pasan.
 - Activación de Azure Monitor, alertas y ventana real de medición SLO.

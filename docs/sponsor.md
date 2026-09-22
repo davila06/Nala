@@ -16,19 +16,19 @@ Las cifras nacionales de mercado y de mascotas perdidas deben citar una fuente p
 
 ## Capacidades implementadas
 
-| Área                                              | Estado verificado                                                     |
-| ------------------------------------------------- | --------------------------------------------------------------------- |
-| Identidad, QR, perfil público y microchip         | Implementado                                                          |
-| Reportes de pérdida, avistamientos y mapa público | Implementado                                                          |
-| Matching visual y predicción geográfica           | Implementado                                                          |
-| Chat enmascarado y handover seguro                | Implementado                                                          |
-| Coordinación de búsqueda con SignalR              | Implementado con consentimiento de ubicación                          |
-| Difusión por canales externos                     | Implementado según configuración del proveedor                        |
-| Expediente médico, consentimiento y exportación   | Implementado                                                          |
-| Clínicas, certificados y grants de acceso         | Implementado con gates de autorización                                |
-| Municipalidades, tiendas y suscripciones          | Implementado; validar operación comercial                             |
-| Collar GPS, historial, alertas y zonas seguras    | Implementado; depende de proveedores/configuración                    |
-| Adopciones                                        | Parcial; revisar estado actual antes de venderlo como módulo completo |
+| Área                                              | Estado verificado                                                                                  |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Identidad, QR, perfil público y microchip         | Implementado                                                                                       |
+| Reportes de pérdida, avistamientos y mapa público | Implementado                                                                                       |
+| Matching visual y predicción geográfica           | Implementado                                                                                       |
+| Chat enmascarado y handover seguro                | Implementado                                                                                       |
+| Coordinación de búsqueda con SignalR              | Implementado con consentimiento de ubicación                                                       |
+| Difusión por canales externos                     | Implementado según configuración del proveedor                                                     |
+| Expediente médico, consentimiento y exportación   | Implementado                                                                                       |
+| Clínicas, certificados y grants de acceso         | Implementado con gates de autorización                                                             |
+| Municipalidades, tiendas y suscripciones          | Implementado; validar operación comercial                                                          |
+| Collar GPS, historial, alertas y zonas seguras    | Implementado; depende de proveedores/configuración                                                 |
+| Adopciones                                        | Directorio, solicitudes, revisión shelter y ferias implementados; sin pagos ni custodia financiera |
 
 ## Evidencia técnica
 

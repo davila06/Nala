@@ -62,6 +62,7 @@ appsettings.Testing.json
 
 # User secrets (local dev only)
 **/secrets.json
+scripts/external-provider-evidence.local.json
 
 # ===========================
 # OS / Editor

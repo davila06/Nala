@@ -1,7 +1,7 @@
 # Estado Actual de Adopciones
 
 **Estado:** activo  
-**Corte:** 2026-09-09
+**Corte:** 2026-09-22
 
 ## Actores
 
@@ -29,6 +29,17 @@ El adoptante envia una solicitud con nota. El shelter revisa, aprueba o
 rechaza, recibe y envia notificaciones, y marca el animal adoptado cuando la
 entrega termina. Las consultas de aplicaciones son paginadas y deben validar
 ownership del shelter.
+
+## Límites comerciales y operativos
+
+- El módulo no procesa pagos, depósitos, escrow ni custodia financiera de una
+  adopción.
+- La plataforma no verifica por sí sola la idoneidad legal del adoptante ni
+  sustituye los criterios y contrato del refugio.
+- Las organizaciones deben completar la verificación y la entrega fuera de la
+  plataforma cuando su proceso lo requiera.
+- No presentar adopciones como un marketplace transaccional hasta que esos
+  flujos cuenten con contrato, operación y controles específicos.
 
 ## Privacidad
 

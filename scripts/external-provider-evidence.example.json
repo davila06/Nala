@@ -1,0 +1,44 @@
+{
+  "providers": [
+    {
+      "name": "Azure",
+      "environment": "Production",
+      "status": "Pending",
+      "contractReference": "",
+      "validatedAtUtc": "",
+      "testReference": ""
+    },
+    {
+      "name": "WhatsApp",
+      "environment": "Production",
+      "status": "Pending",
+      "contractReference": "",
+      "validatedAtUtc": "",
+      "testReference": ""
+    },
+    {
+      "name": "GPS",
+      "environment": "Production",
+      "status": "Pending",
+      "contractReference": "",
+      "validatedAtUtc": "",
+      "testReference": ""
+    },
+    {
+      "name": "Payments",
+      "environment": "Production",
+      "status": "Pending",
+      "contractReference": "",
+      "validatedAtUtc": "",
+      "testReference": ""
+    },
+    {
+      "name": "Email",
+      "environment": "Production",
+      "status": "Pending",
+      "contractReference": "",
+      "validatedAtUtc": "",
+      "testReference": ""
+    }
+  ]
+}
