@@ -25,21 +25,31 @@ if (!HTMLElement.prototype.scrollIntoView) {
 }
 
 const originalConsoleError = console.error;
+const isAggregateNetworkError = (value: unknown): boolean =>
+  value instanceof AggregateError || (value instanceof Error && value.name === "AggregateError");
+
 console.error = (...args: unknown[]) => {
   const isAggregateNetworkNoise = args.some((arg) => {
-    if (arg instanceof AggregateError) return true;
     if (typeof arg === "string") return arg.includes("AggregateError");
-    return arg instanceof Error && arg.name === "AggregateError";
+    return isAggregateNetworkError(arg);
   });
   if (!isAggregateNetworkNoise) originalConsoleError(...args);
 };
 
-const originalStderrWrite = process.stderr.write.bind(process.stderr);
-process.stderr.write = ((chunk: string | Uint8Array, ...args: unknown[]) => {
+type StderrWriteArgs = [
+  encoding?: BufferEncoding | ((error?: Error | null) => void),
+  callback?: (error?: Error | null) => void,
+];
+
+const originalStderrWrite = process.stderr.write.bind(process.stderr) as (
+  chunk: string | Uint8Array,
+  ...args: StderrWriteArgs
+) => boolean;
+process.stderr.write = (chunk: string | Uint8Array, ...args: StderrWriteArgs) => {
   const text = typeof chunk === "string" ? chunk : Buffer.from(chunk).toString("utf8");
   if (text.includes("AggregateError")) return true;
-  return originalStderrWrite(chunk, ...(args as []));
-}) as typeof process.stderr.write;
+  return originalStderrWrite(chunk, ...args);
+};
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: "bypass" });
@@ -47,12 +57,12 @@ beforeAll(() => {
   // jsdom surfaces rejected requests as noisy AggregateError events. Tests still
   // assert request outcomes through MSW; suppress only the browser-level noise.
   window.addEventListener("error", (event) => {
-    if (event.error instanceof AggregateError || event.error?.name === "AggregateError") {
+    if (isAggregateNetworkError(event.error)) {
       event.preventDefault();
     }
   });
   window.addEventListener("unhandledrejection", (event) => {
-    if (event.reason instanceof AggregateError || event.reason?.name === "AggregateError") {
+    if (isAggregateNetworkError(event.reason)) {
       event.preventDefault();
     }
   });

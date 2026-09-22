@@ -57,8 +57,8 @@ const PACKAGES = [
 ];
 
 const STATS = [
-  { icon: "🏛️", value: "82", label: "municipalidades en CR" },
-  { icon: "🐾", value: "14,000+", label: "mascotas en el sistema" },
+  { icon: "🏛️", value: "Por periodo", label: "municipalidades reportadas" },
+  { icon: "🐾", value: "Por periodo", label: "mascotas registradas" },
   { icon: "🔍", value: "Datos", label: "métricas verificables por periodo" },
   { icon: "⚡", value: "Por caso", label: "tiempo de reunificación" },
 ];

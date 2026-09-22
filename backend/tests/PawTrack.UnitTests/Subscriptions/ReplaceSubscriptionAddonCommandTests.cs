@@ -26,7 +26,7 @@ public sealed class ReplaceSubscriptionAddonCommandTests
         var result = await new ReplaceSubscriptionAddonCommandHandler(
             repository, unitOfWork, auditLog: auditLog)
             .Handle(new ReplaceSubscriptionAddonCommand(
-                existing.Id, "MaxPets", 2m, 2_000m, DateTimeOffset.UtcNow.AddDays(30), Guid.NewGuid()), default);
+                existing.Id, "MaxPets", 2m, 1_000m, DateTimeOffset.UtcNow.AddDays(30), Guid.NewGuid()), default);
 
         result.IsSuccess.Should().BeTrue();
         await auditLog.Received(1).AddAsync(

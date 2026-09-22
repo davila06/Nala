@@ -23,6 +23,7 @@ using PawTrack.Infrastructure.Regulatory;
 using PawTrack.Infrastructure.Auth;
 using PawTrack.Infrastructure.Bot;
 using PawTrack.Infrastructure.Broadcast;
+using PawTrack.Infrastructure.SearchCoordination;
 using PawTrack.Infrastructure.Broadcast.Channels;
 using PawTrack.Infrastructure.CastrationCampaigns;
 using PawTrack.Infrastructure.Chat;
@@ -165,6 +166,8 @@ public static class InfrastructureServiceCollectionExtensions
 
         // Audit log
         services.AddScoped<IAuditLogRepository, PawTrack.Infrastructure.Audit.AuditLogRepository>();
+        services.AddScoped<ISearchLocationSharingSessionRepository, SearchLocationSharingSessionRepository>();
+        services.AddHostedService<SearchLocationSharingExpirationHostedService>();
 
         // Clinics
         services.AddScoped<IClinicRepository, ClinicRepository>();

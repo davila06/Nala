@@ -36,7 +36,6 @@ public sealed class StoreProductImportProcessor(
         {
             job.AddError(0, "store", "STORE_NOT_FOUND", "No existe una tienda para el tenant.", null);
             job.Fail();
-            importRepository.Update(job);
             await unitOfWork.SaveChangesAsync(cancellationToken);
             return job;
         }
@@ -77,7 +76,6 @@ public sealed class StoreProductImportProcessor(
         }
 
         job.Complete();
-        importRepository.Update(job);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return job;
     }
@@ -97,7 +95,6 @@ public sealed class StoreProductImportProcessor(
         {
             job.AddError(0, "provider", "PROVIDER_NOT_FOUND", "No existe un proveedor para el tenant.", null);
             job.Fail();
-            importRepository.Update(job);
             await unitOfWork.SaveChangesAsync(cancellationToken);
             return job;
         }
@@ -131,7 +128,6 @@ public sealed class StoreProductImportProcessor(
             job.AddImported();
         }
         job.Complete();
-        importRepository.Update(job);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return job;
     }

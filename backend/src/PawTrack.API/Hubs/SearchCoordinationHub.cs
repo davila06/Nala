@@ -9,6 +9,7 @@ using PawTrack.Application.LostPets.Queries.IsSearchParticipant;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Audit;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace PawTrack.API.Hubs;
 
@@ -24,7 +25,8 @@ public sealed class SearchCoordinationHub(
     ISender sender,
     IDistributedCache cache,
     IAuditLogRepository? auditLog = null,
-    IUnitOfWork? unitOfWork = null) : Hub
+    IUnitOfWork? unitOfWork = null,
+    ISearchLocationSharingSessionRepository? sessionRepository = null) : Hub
 {
     // Per-connection location-update throttle (R61), backed by IDistributedCache (Redis)
     // so it's honored across all Container App instances, not just the one holding the
@@ -51,12 +53,16 @@ public sealed class SearchCoordinationHub(
         if (check.IsFailure || !check.Value) return; // not a participant — silently deny, no info leak
 
         await Groups.AddToGroupAsync(Context.ConnectionId, GroupName(lostEventId));
+        await AddRecipient(lostEventId, Context.ConnectionId);
+        await PublishRecipientState(lostEventId);
     }
 
     /// <summary>Leaves the group when the user navigates away.</summary>
     public async Task LeaveSearch(Guid lostEventId)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, GroupName(lostEventId));
+        await RemoveRecipient(lostEventId, Context.ConnectionId);
+        await PublishRecipientState(lostEventId);
     }
 
     /// <summary>Starts an explicit, expiring location-sharing session.</summary>
@@ -64,16 +70,35 @@ public sealed class SearchCoordinationHub(
     {
         if (!TryGetUserId(out var userId) || !await IsParticipant(lostEventId, userId)) return;
 
+        var expiresAt = DateTimeOffset.UtcNow.Add(_locationSharingLifetime);
+        var session = new SharingSession(userId, precise ? "precise" : "approximate", expiresAt);
         var key = SharingKey(lostEventId, Context.ConnectionId);
         await cache.SetStringAsync(
             key,
-            precise ? "precise" : "approximate",
+            JsonSerializer.Serialize(session),
             new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = _locationSharingLifetime });
+        await cache.SetStringAsync(
+            SessionMarkerKey(lostEventId, Context.ConnectionId),
+            JsonSerializer.Serialize(session),
+            new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = _locationSharingLifetime.Add(TimeSpan.FromMinutes(1)) });
+        if (sessionRepository is not null && unitOfWork is not null)
+        {
+            await sessionRepository.AddAsync(
+                PawTrack.Domain.SearchCoordination.SearchLocationSharingSession.Start(
+                    lostEventId,
+                    userId,
+                    Context.ConnectionId,
+                    precise,
+                    DateTimeOffset.UtcNow,
+                    _locationSharingLifetime),
+                Context.ConnectionAborted);
+            await unitOfWork.SaveChangesAsync(Context.ConnectionAborted);
+        }
         await WriteSharingAudit(userId, lostEventId, AuditAction.SearchLocationSharingStarted,
             precise ? "precise" : "approximate");
         await Clients.Group(GroupName(lostEventId)).SendAsync(
             "LocationSharingStateChanged",
-            new LocationSharingState(Context.ConnectionId, true, precise, DateTimeOffset.UtcNow.Add(_locationSharingLifetime)));
+            new LocationSharingState(Context.ConnectionId, true, precise, expiresAt, await GetRecipientCount(lostEventId)));
     }
 
     /// <summary>Immediately stops this connection's location-sharing session.</summary>
@@ -81,10 +106,22 @@ public sealed class SearchCoordinationHub(
     {
         if (!TryGetUserId(out var userId)) return;
         await cache.RemoveAsync(SharingKey(lostEventId, Context.ConnectionId));
+        await cache.RemoveAsync(SessionMarkerKey(lostEventId, Context.ConnectionId));
+        if (sessionRepository is not null && unitOfWork is not null)
+        {
+            var session = await sessionRepository.GetActiveAsync(
+                lostEventId, Context.ConnectionId, Context.ConnectionAborted);
+            if (session is not null)
+            {
+                session.Stop(DateTimeOffset.UtcNow);
+                sessionRepository.Update(session);
+                await unitOfWork.SaveChangesAsync(Context.ConnectionAborted);
+            }
+        }
         await WriteSharingAudit(userId, lostEventId, AuditAction.SearchLocationSharingStopped, null);
         await Clients.Group(GroupName(lostEventId)).SendAsync(
             "LocationSharingStateChanged",
-            new LocationSharingState(Context.ConnectionId, false, false, null));
+            new LocationSharingState(Context.ConnectionId, false, false, null, await GetRecipientCount(lostEventId)));
     }
 
     // ── Zone state transitions ────────────────────────────────────────────────
@@ -154,8 +191,8 @@ public sealed class SearchCoordinationHub(
         var check = await sender.Send(new IsSearchParticipantQuery(lostEventId, userId));
         if (check.IsFailure || !check.Value) return;
 
-        var sharingMode = await cache.GetStringAsync(SharingKey(lostEventId, Context.ConnectionId));
-        if (sharingMode is null) return; // explicit consent is required
+        var session = await GetActiveSession(lostEventId, Context.ConnectionId);
+        if (session is null) return; // explicit consent is required
 
         // Reject NaN, Infinity, and out-of-range values before broadcasting.
         // A malicious or buggy client must not be able to propagate garbage coordinates
@@ -176,13 +213,13 @@ public sealed class SearchCoordinationHub(
         // The authenticated UserId (account GUID) must NOT be broadcast to other group
         // members — it is cross-referenceable with other API endpoints and would allow
         // any participant to build an identity-linked GPS-tracking map of volunteers.
-        var precise = sharingMode == "precise";
+        var precise = session.Mode == "precise";
         var payload = new LocationBroadcastPayload(
             Context.ConnectionId,
             precise ? lat : RoundCoordinate(lat),
             precise ? lng : RoundCoordinate(lng),
             precise,
-            DateTimeOffset.UtcNow.Add(_locationSharingLifetime));
+            session.ExpiresAt);
 
         await Clients.OthersInGroup(GroupName(lostEventId))
             .SendAsync("LocationUpdated", payload);
@@ -205,6 +242,71 @@ public sealed class SearchCoordinationHub(
 
     private static string SharingKey(Guid lostEventId, string connectionId) =>
         $"search-loc-sharing:{lostEventId:N}:{connectionId}";
+
+    private static string SessionMarkerKey(Guid lostEventId, string connectionId) =>
+        $"search-loc-sharing-marker:{lostEventId:N}:{connectionId}";
+
+    private static string RecipientsKey(Guid lostEventId) =>
+        $"search-loc-recipients:{lostEventId:N}";
+
+    private async Task<SharingSession?> GetActiveSession(Guid lostEventId, string connectionId)
+    {
+        var active = await cache.GetStringAsync(SharingKey(lostEventId, connectionId));
+        if (active is not null)
+            return JsonSerializer.Deserialize<SharingSession>(active);
+
+        var markerJson = await cache.GetStringAsync(SessionMarkerKey(lostEventId, connectionId));
+        if (markerJson is null) return null;
+
+        var expired = JsonSerializer.Deserialize<SharingSession>(markerJson);
+        if (expired is not null)
+        {
+            await cache.RemoveAsync(SessionMarkerKey(lostEventId, connectionId));
+            await WriteSharingAudit(expired.UserId, lostEventId, AuditAction.SearchLocationSharingExpired, null);
+            await PublishRecipientState(lostEventId);
+        }
+
+        return null;
+    }
+
+    private async Task AddRecipient(Guid lostEventId, string connectionId)
+    {
+        var recipients = await GetRecipients(lostEventId);
+        if (!recipients.Contains(connectionId, StringComparer.Ordinal))
+            recipients.Add(connectionId);
+        await SaveRecipients(lostEventId, recipients);
+    }
+
+    private async Task RemoveRecipient(Guid lostEventId, string connectionId)
+    {
+        var recipients = await GetRecipients(lostEventId);
+        recipients.RemoveAll(id => string.Equals(id, connectionId, StringComparison.Ordinal));
+        await SaveRecipients(lostEventId, recipients);
+    }
+
+    private async Task<List<string>> GetRecipients(Guid lostEventId)
+    {
+        var json = await cache.GetStringAsync(RecipientsKey(lostEventId));
+        return json is null ? [] : JsonSerializer.Deserialize<List<string>>(json) ?? [];
+    }
+
+    private async Task SaveRecipients(Guid lostEventId, List<string> recipients) =>
+        await cache.SetStringAsync(
+            RecipientsKey(lostEventId),
+            JsonSerializer.Serialize(recipients),
+            new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = _locationSharingLifetime });
+
+    private async Task<int> GetRecipientCount(Guid lostEventId) =>
+        Math.Max(0, (await GetRecipients(lostEventId)).Count - 1);
+
+    private async Task PublishRecipientState(Guid lostEventId)
+    {
+        if (Clients is null) return;
+        var recipients = await GetRecipients(lostEventId);
+        await Clients.Group(GroupName(lostEventId)).SendAsync(
+            "LocationSharingRecipientsChanged",
+            new LocationSharingRecipientsState(Math.Max(0, recipients.Count - 1), recipients));
+    }
 
     private async Task<bool> IsParticipant(Guid lostEventId, Guid userId)
     {
@@ -259,4 +361,11 @@ public sealed record LocationSharingState(
     string ClientId,
     bool IsSharing,
     bool IsPrecise,
-    DateTimeOffset? ExpiresAt);
+    DateTimeOffset? ExpiresAt,
+    int RecipientCount);
+
+public sealed record LocationSharingRecipientsState(
+    int RecipientCount,
+    IReadOnlyList<string> ClientIds);
+
+internal sealed record SharingSession(Guid UserId, string Mode, DateTimeOffset ExpiresAt);

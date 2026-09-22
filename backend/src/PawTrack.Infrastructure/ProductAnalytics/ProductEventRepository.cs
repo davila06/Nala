@@ -108,12 +108,12 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
                 COUNT(CASE WHEN [LostAt] IS NOT NULL AND [ReunitedAt] >= [LostAt] THEN 1 END) AS [ReunitedReports],
                 MAX([MedianFirstResponseMinutes]) AS [MedianFirstResponseMinutes],
                 MAX([MedianReunionMinutes]) AS [MedianReunionMinutes],
-                CASE WHEN COUNT(CASE WHEN [LostAt] IS NOT NULL THEN 1 END) = 0 THEN 0
+                CAST(CASE WHEN COUNT(CASE WHEN [LostAt] IS NOT NULL THEN 1 END) = 0 THEN 0.0
                     ELSE 100.0 * COUNT(CASE WHEN [ReunitedAt] >= [LostAt] THEN 1 END)
-                        / COUNT(CASE WHEN [LostAt] IS NOT NULL THEN 1 END) END AS [RecoveryRatePercent],
-                CASE WHEN COUNT(CASE WHEN [FirstResponseMinutes] IS NOT NULL THEN 1 END) = 0 THEN 0
+                        / COUNT(CASE WHEN [LostAt] IS NOT NULL THEN 1 END) END AS float) AS [RecoveryRatePercent],
+                CAST(CASE WHEN COUNT(CASE WHEN [FirstResponseMinutes] IS NOT NULL THEN 1 END) = 0 THEN 0.0
                     ELSE 100.0 * COUNT(CASE WHEN [FirstResponseMinutes] <= 360 THEN 1 END)
-                        / COUNT(CASE WHEN [FirstResponseMinutes] IS NOT NULL THEN 1 END) END AS [FirstResponseSloPercent]
+                        / COUNT(CASE WHEN [FirstResponseMinutes] IS NOT NULL THEN 1 END) END AS float) AS [FirstResponseSloPercent]
             FROM WithMedians
             GROUP BY [Cohort], [Canton]
             ORDER BY [Cohort] DESC, [Canton]

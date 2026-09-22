@@ -154,7 +154,7 @@ Suite integral para hospitales veterinarios y clínicas que operan con altos est
 
 - **Todo lo de Clínica Plus, más:**
 - **Certificados Veterinarios PDF verificables:** Emisión digital de certificados médicos con código criptográfico único, renderizado QuestPDF de alta resolución y verificación pública inmediata en `/verificar/{código}`.
-- **Pasaporte Oficial de Vacunas SENASA-Ready:** Emisión del pasaporte oficial digital que valida esquema de vacunación (incluyendo rabia obligatoria en perros), desparasitación y microchip bajo estricta cadena de custodia.
+- **Pasaporte veterinario verificable SENASA-ready:** Emisión de un documento digital verificable con esquema de vacunación (incluyendo rabia obligatoria en perros), desparasitación y microchip bajo trazabilidad interna. No es un documento oficial de SENASA.
 - **Validación SENASA:** Requiere clínica verificada (`ClinicVerification.Verified`) y médico veterinario autorizado con carné activo del Colegio de Médicos Veterinarios de Costa Rica (`ClinicVeterinarian.Authorized`).
 - **Gestión de cuerpo médico:** Alta y administración de múltiples médicos veterinarios con control granular de permisos (`medical:read`, `medical:write`, `certificates:issue`).
 - **Integración API Keys:** Generación y rotación de claves API seguras para sincronización con software veterinario de escritorio o ERPs externos.

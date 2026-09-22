@@ -1,6 +1,6 @@
 # PawTrack CR - Estado verificado
 
-> Corte: 2026-09-09. Este documento es el estado operativo actual, no una
+> Corte: 2026-09-22. Este documento es el estado operativo actual, no una
 > promesa comercial.
 
 La documentacion operativa por rol fue contrastada con el router frontend,
@@ -21,12 +21,16 @@ observabilidad de negocio y validacion operativa.
 ## Evidencia tecnica reciente
 
 - Backend solution build: correcto.
-- Backend unit tests: 1340 correctos en la validacion del 2026-09-09.
-- Backend integration tests: 102 correctos.
+- Backend unit tests: 1528 correctos.
+- Backend integration tests: 112 correctos.
 - Frontend typecheck: correcto.
-- Frontend tests: 20 archivos, 53 correctos.
+- Frontend tests: 33 archivos, 104 correctos.
 - Frontend lint: correcto, sin errores ni warnings.
 - Frontend production build: correcto.
+- Migraciones: `AddFirstResponseEventIdempotency` y
+  `AddSearchLocationSharingSessions` aplicadas en `PawTrackDev`.
+- Expiración de sharing SignalR: sesiones persistentes sin coordenadas, TTL Redis,
+  job distribuido y auditoría autónoma de `SearchLocationSharingExpired`.
 - Funnel P0: eventos frontend iniciales instrumentados con `eventId`, timestamp e
   identidad anónima para registro de mascota,
   completitud básica, generación/escaneo de QR, reporte de pérdida, avistamiento,
@@ -83,20 +87,24 @@ sin volver a ejecutar los comandos.
 
 ## Riesgos abiertos que bloquean escala
 
-### P0
+### P0 cerrados en este corte
 
-- Corregir claims de "production-ready", "SENASA-ready", tasas de recuperacion
-  y certificaciones hasta contar con evidencia legal/operativa.
-- Verificar y rotar cualquier secreto real en `secrets/sa_password.txt`; el
-  archivo no debe contener credenciales utilizables ni estar versionado.
-- Definir el funnel de activacion y recuperacion con eventos reales.
-- Completar pruebas E2E del ciclo registro -> QR -> perdida -> avistamiento ->
-  handover -> reunificacion.
-- Cerrar la fuente unica de planes y responsabilidades comerciales.
+- Claims comerciales principales revisados y brief de patrocinio consolidado en
+  `docs/sponsor.md`; no se publican cifras de tracción sin fuente.
+- `secrets/sa_password.txt` existe solo como secreto local y no está versionado.
+- Funnel de recuperación correlacionado por `lostEventId`, con medianas SQL y
+  `FirstResponseRecorded` idempotente.
+
+### P0/P1 pendientes operativos
+
+- Primera ejecución CI de Gitleaks, npm audit y NuGet audit.
+- Prueba E2E de dos clientes SignalR para validar visualmente el roster de
+  destinatarios; las pruebas unitarias del hub y el contrato backend ya pasan.
+- Activación de Azure Monitor, alertas y ventana real de medición SLO.
 
 ### P1
 
-- Lint frontend sin errores y gates obligatorios en CI.
+- Gates obligatorios de lint/build/tests en CI.
 - Contrato API versionado o verificado automaticamente.
 - Pruebas BOLA/IDOR uniformes en dominios sensibles.
 - Observabilidad de negocio: activacion QR, reportes, tiempo a primer avistamiento,

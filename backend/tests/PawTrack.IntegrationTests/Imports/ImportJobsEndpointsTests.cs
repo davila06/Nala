@@ -4,6 +4,9 @@ using System.Net.Http.Json;
 using System.Text;
 using FluentAssertions;
 using PawTrack.IntegrationTests.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using PawTrack.Domain.Subscriptions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PawTrack.IntegrationTests.Imports;
 
@@ -14,7 +17,18 @@ public sealed class ImportJobsEndpointsTests(PawTrackWebApplicationFactory facto
     [Fact]
     public async Task CreateStoreImport_WithSameIdempotencyKey_ReturnsSameJob()
     {
-        var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        var email = $"import_{Guid.NewGuid():N}@pawtrack.cr";
+        var client = await AuthHelper.CreateAuthenticatedClientAsync(factory, email);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var user = await db.Users.SingleAsync(x => x.Email == email);
+            var subscription = Subscription.CreateForUser(
+                user.Id, SubscriptionTier.StorePartner, "IMPORT-TEST", 25000m);
+            subscription.Activate();
+            await db.Subscriptions.AddAsync(subscription);
+            await db.SaveChangesAsync();
+        }
         using var content = new MultipartFormDataContent();
         content.Add(new StringContent("StoreProducts"), "resourceType");
         var csv = new ByteArrayContent(Encoding.UTF8.GetBytes("name,description,category,priceCrc\nCollar,Azul,Accessories,12000"));

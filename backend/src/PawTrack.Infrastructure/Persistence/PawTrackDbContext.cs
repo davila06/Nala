@@ -39,6 +39,7 @@ using PawTrack.Domain.ServiceProviders;
 using PawTrack.Domain.Webhooks;
 using PawTrack.Domain.ProductAnalytics;
 using PawTrack.Domain.Imports;
+using PawTrack.Domain.SearchCoordination;
 
 namespace PawTrack.Infrastructure.Persistence;
 
@@ -160,6 +161,7 @@ public sealed class PawTrackDbContext(
     public DbSet<RegulatorySubmission> RegulatorySubmissions => Set<RegulatorySubmission>();
     public DbSet<ProductEvent> ProductEvents => Set<ProductEvent>();
     public DbSet<AnonymousContactRequest> AnonymousContactRequests => Set<AnonymousContactRequest>();
+    public DbSet<SearchLocationSharingSession> SearchLocationSharingSessions => Set<SearchLocationSharingSession>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -79,7 +79,7 @@ export function ReuniteButton({ lostEventId, petId, petName, onSuccess }: Reunit
       setCelebrating(false);
       onSuccess?.();
     }, 3500);
-  }, [hapticSuccess, mutation, onSuccess, petId]);
+  }, [hapticSuccess, lostEventId, mutation, onSuccess, petId]);
 
   return (
     <>

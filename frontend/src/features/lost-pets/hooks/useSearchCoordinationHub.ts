@@ -18,6 +18,12 @@ export interface LocationSharingState {
   isSharing: boolean;
   isPrecise: boolean;
   expiresAt: string | null;
+  recipientCount: number;
+}
+
+export interface LocationSharingRecipientsState {
+  recipientCount: number;
+  clientIds: string[];
 }
 
 interface UseSearchCoordinationHubOptions {
@@ -27,6 +33,7 @@ interface UseSearchCoordinationHubOptions {
   onZoneReleased?: (zone: SearchZone) => void;
   onLocationUpdated?: (location: VolunteerLocation) => void;
   onLocationSharingStateChanged?: (state: LocationSharingState) => void;
+  onLocationSharingRecipientsChanged?: (state: LocationSharingRecipientsState) => void;
 }
 
 export function useSearchCoordinationHub({
@@ -36,6 +43,7 @@ export function useSearchCoordinationHub({
   onZoneReleased,
   onLocationUpdated,
   onLocationSharingStateChanged,
+  onLocationSharingRecipientsChanged,
 }: UseSearchCoordinationHubOptions) {
   const connectionRef = useRef<signalR.HubConnection | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -57,6 +65,9 @@ export function useSearchCoordinationHub({
     connection.on("LocationUpdated", (loc: VolunteerLocation) => onLocationUpdated?.(loc));
     connection.on("LocationSharingStateChanged", (state: LocationSharingState) =>
       onLocationSharingStateChanged?.(state),
+    );
+    connection.on("LocationSharingRecipientsChanged", (state: LocationSharingRecipientsState) =>
+      onLocationSharingRecipientsChanged?.(state),
     );
 
     connection
@@ -84,7 +95,15 @@ export function useSearchCoordinationHub({
         .catch(() => {})
         .finally(() => connection.stop());
     };
-  }, [lostEventId, onLocationUpdated, onZoneClaimed, onZoneCleared, onZoneReleased, onLocationSharingStateChanged]);
+  }, [
+    lostEventId,
+    onLocationUpdated,
+    onZoneClaimed,
+    onZoneCleared,
+    onZoneReleased,
+    onLocationSharingStateChanged,
+    onLocationSharingRecipientsChanged,
+  ]);
 
   const claimZone = useCallback(
     async (zoneId: string) => {

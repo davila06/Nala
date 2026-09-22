@@ -29,6 +29,7 @@ export default function SearchCoordinationPage() {
   const [activating, setActivating] = useState(false);
   const [activateError, setActivateError] = useState<string | null>(null);
   const [sharingState, setSharingState] = useState<LocationSharingState | null>(null);
+  const [recipientCount, setRecipientCount] = useState(0);
 
   const eventId = lostEventId ?? "";
 
@@ -60,6 +61,7 @@ export default function SearchCoordinationPage() {
       onZoneCleared: mergeZone,
       onZoneReleased: mergeZone,
       onLocationSharingStateChanged: setSharingState,
+      onLocationSharingRecipientsChanged: ({ recipientCount: count }) => setRecipientCount(count),
     });
 
   // Stats derived from zone list
@@ -139,8 +141,8 @@ export default function SearchCoordinationPage() {
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-700 bg-zinc-900 px-4 py-3 text-xs text-zinc-300">
         <span>
           {sharingState?.isSharing
-            ? `Tu ubicación se comparte ${sharingState.isPrecise ? "con precisión" : "de forma aproximada"} hasta ${new Date(sharingState.expiresAt ?? "").toLocaleTimeString("es-CR")}.`
-            : "Tu ubicación no se comparte con el equipo."}
+            ? `Tu ubicación se comparte ${sharingState.isPrecise ? "con precisión" : "de forma aproximada"} hasta ${new Date(sharingState.expiresAt ?? "").toLocaleTimeString("es-CR")}. ${recipientCount} ${recipientCount === 1 ? "participante recibe" : "participantes reciben"} esta señal.`
+            : `Tu ubicación no se comparte con el equipo. ${recipientCount} participantes están conectados.`}
         </span>
         <div className="flex gap-2">
           {!sharingState?.isSharing ? (
