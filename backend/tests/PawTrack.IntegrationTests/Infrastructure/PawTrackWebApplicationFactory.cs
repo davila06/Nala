@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using PawTrack.Application.Certificates.Interfaces;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Payments.Interfaces;
 using PawTrack.Infrastructure.Persistence;
 
 namespace PawTrack.IntegrationTests.Infrastructure;
@@ -27,6 +28,7 @@ public sealed class PawTrackWebApplicationFactory : WebApplicationFactory<Progra
     public string? LastVerificationToken => _emailSender.LastVerificationToken;
 
     private readonly CapturingEmailSender _emailSender = new();
+    public CapturingPaymentGateway PaymentGateway { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -87,6 +89,12 @@ public sealed class PawTrackWebApplicationFactory : WebApplicationFactory<Progra
             var blobDescriptors = services.Where(d => d.ServiceType == typeof(IBlobStorageService)).ToList();
             foreach (var d in blobDescriptors) services.Remove(d);
             services.AddSingleton<IBlobStorageService, StubBlobStorageService>();
+
+            var paymentGatewayDescriptors = services
+                .Where(d => d.ServiceType == typeof(IPaymentGatewayService))
+                .ToList();
+            foreach (var descriptor in paymentGatewayDescriptors) services.Remove(descriptor);
+            services.AddSingleton<IPaymentGatewayService>(PaymentGateway);
 
             // ── Override JwtBearerOptions to use the test key at VALIDATION time ──
             // Program.cs captures jwtKey at startup (before ConfigureWebHost runs),

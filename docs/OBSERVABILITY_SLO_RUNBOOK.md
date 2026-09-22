@@ -33,7 +33,7 @@ no asume que Application Insights capture automaticamente todos los `Meter`.
 - mascotas registradas y activadas;
 - reportes de perdida y reunificaciones;
 - conversion de activacion y recuperacion;
-- minutos promedio hasta primera respuesta y reunificacion;
+- minutos medianos hasta primera respuesta y reunificacion, calculados por incidente de pérdida;
 - porcentaje de primeras respuestas dentro del SLO de seis horas.
 
 El rango máximo es 366 días. `Sin especificar` se mantiene como grupo separado

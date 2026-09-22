@@ -7,6 +7,7 @@ using PawTrack.Application.Payments.Interfaces;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Domain.Payments;
 using PawTrack.Domain.Subscriptions;
+using PawTrack.Domain.Audit;
 
 namespace PawTrack.Infrastructure.Payments;
 
@@ -56,6 +57,7 @@ public sealed class SubscriptionRecurringBillingHostedService(
         var userRepo = scope.ServiceProvider.GetRequiredService<IUserRepository>();
         var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var auditLog = scope.ServiceProvider.GetService<IAuditLogRepository>();
         var addonRepository = scope.ServiceProvider.GetService<ISubscriptionAddonRepository>();
 
         // Look for subscriptions due for renewal within the next 2 days
@@ -150,6 +152,13 @@ public sealed class SubscriptionRecurringBillingHostedService(
                     }
                 }
 
+                if (auditLog is not null)
+                {
+                    await auditLog.AddAsync(AuditLogEntry.Create(
+                        Guid.Empty, AuditAction.SubscriptionRenewed, "Subscription",
+                        sub.Id.ToString(), $"Amount={grossRenewalPrice}"), cancellationToken);
+                }
+
                 await unitOfWork.SaveChangesAsync(cancellationToken);
                 renewedCount++;
 
@@ -197,6 +206,12 @@ public sealed class SubscriptionRecurringBillingHostedService(
             {
                 transaction.MarkFailed(chargeResult.ErrorMessage ?? "Declinado por el banco.");
                 transactionRepo.Update(transaction);
+                if (auditLog is not null)
+                {
+                    await auditLog.AddAsync(AuditLogEntry.Create(
+                        Guid.Empty, AuditAction.SubscriptionRenewalFailed, "Subscription",
+                        sub.Id.ToString(), chargeResult.ErrorCode ?? "gateway_failure"), cancellationToken);
+                }
                 await unitOfWork.SaveChangesAsync(cancellationToken);
                 failedCount++;
 

@@ -57,12 +57,7 @@ function fireCelebration() {
   }, 300);
 }
 
-export function ReuniteButton({
-  lostEventId,
-  petId,
-  petName,
-  onSuccess,
-}: ReuniteButtonProps) {
+export function ReuniteButton({ lostEventId, petId, petName, onSuccess }: ReuniteButtonProps) {
   const [confirming, setConfirming] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
   const mutation = useUpdateLostPetStatus(lostEventId, petId);
@@ -73,6 +68,7 @@ export function ReuniteButton({
     trackProductEvent("PetReunited", {
       source: "lost-pet-owner",
       petId,
+      correlationId: lostEventId,
     });
     setConfirming(false);
     setCelebrating(true);
@@ -169,12 +165,9 @@ export function ReuniteButton({
           <div className="mb-3 flex justify-center text-4xl" aria-hidden="true">
             🐾
           </div>
-          <p className="mb-1 text-center font-display text-lg font-semibold text-rescue-900">
-            ¿Fue encontrado?
-          </p>
+          <p className="mb-1 text-center font-display text-lg font-semibold text-rescue-900">¿Fue encontrado?</p>
           <p className="mb-4 text-center text-sm text-rescue-700">
-            Confirma que <strong>{petName}</strong> fue reunificado con su
-            familia.
+            Confirma que <strong>{petName}</strong> fue reunificado con su familia.
           </p>
           <div className="flex gap-2">
             <button

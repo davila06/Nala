@@ -24,11 +24,11 @@ public sealed class StoreProductImportProcessor(
         CancellationToken cancellationToken)
     {
         var existing = await importRepository.GetByIdempotencyKeyAsync(tenantId, idempotencyKey, cancellationToken);
-        if (existing is not null) return existing;
+        if (existing is not null && existing.Status is not (ImportJobStatus.Pending or ImportJobStatus.Processing)) return existing;
 
         var rows = ParseRows(payload, format).ToList();
-        var job = ImportJob.Create(tenantId, "StoreProducts", format, fileHash, idempotencyKey, rows.Count);
-        await importRepository.AddAsync(job, cancellationToken);
+        var job = existing ?? ImportJob.Create(tenantId, "StoreProducts", format, fileHash, idempotencyKey, rows.Count);
+        if (existing is null) await importRepository.AddAsync(job, cancellationToken);
         job.Start();
 
         var store = await storeRepository.GetByUserIdAsync(tenantId, cancellationToken);
@@ -87,10 +87,10 @@ public sealed class StoreProductImportProcessor(
         byte[] payload, CancellationToken cancellationToken)
     {
         var existing = await importRepository.GetByIdempotencyKeyAsync(tenantId, idempotencyKey, cancellationToken);
-        if (existing is not null) return existing;
+        if (existing is not null && existing.Status is not (ImportJobStatus.Pending or ImportJobStatus.Processing)) return existing;
         var rows = ParseRows(payload, format).ToList();
-        var job = ImportJob.Create(tenantId, "ProviderServices", format, fileHash, idempotencyKey, rows.Count);
-        await importRepository.AddAsync(job, cancellationToken);
+        var job = existing ?? ImportJob.Create(tenantId, "ProviderServices", format, fileHash, idempotencyKey, rows.Count);
+        if (existing is null) await importRepository.AddAsync(job, cancellationToken);
         job.Start();
         var provider = await providerRepository.GetByUserIdAsync(tenantId, cancellationToken);
         if (provider is null)

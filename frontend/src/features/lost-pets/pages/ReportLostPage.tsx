@@ -7,11 +7,7 @@ import { useReportLost } from "../hooks/useLostPets";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { LastSeenMap } from "../components/LastSeenMap";
 import { useNeighborCountInArea } from "@/features/locations/hooks/useNeighbor";
-import {
-  estimateSearchRadius,
-  hoursElapsedSince,
-  resolveSearchRadiusWithLocalStats,
-} from "../utils/searchRadius";
+import { estimateSearchRadius, hoursElapsedSince, resolveSearchRadiusWithLocalStats } from "../utils/searchRadius";
 import { useRecoveryRates } from "../hooks/useRecoveryStats";
 import { addQueuedReport } from "@/shared/lib/offlineQueue";
 import { Skeleton } from "@/shared/ui/Spinner";
@@ -19,10 +15,7 @@ import type { LastSeenCoords } from "../components/LastSeenMap";
 import { trackProductEvent } from "@/shared/lib/telemetry";
 
 /** datetime-local inputs need LOCAL time, not UTC */
-const toLocalDatetime = (d: Date) =>
-  new Date(d.getTime() - d.getTimezoneOffset() * 60000)
-    .toISOString()
-    .slice(0, 16);
+const toLocalDatetime = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 
 export default function ReportLostPage() {
   const { id } = useParams<{ id: string }>();
@@ -41,9 +34,7 @@ export default function ReportLostPage() {
 
   const [description, setDescription] = useState("");
   const [publicMessage, setPublicMessage] = useState("");
-  const [lastSeenAt, setLastSeenAt] = useState(() =>
-    toLocalDatetime(new Date()),
-  );
+  const [lastSeenAt, setLastSeenAt] = useState(() => toLocalDatetime(new Date()));
   const [coords, setCoords] = useState<LastSeenCoords | null>(null);
   const [recentPhoto, setRecentPhoto] = useState<File | null>(null);
   const [contactName, setContactName] = useState("");
@@ -57,11 +48,7 @@ export default function ReportLostPage() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [direction, setDirection] = useState<1 | -1>(1);
 
-  const { data: neighborCount } = useNeighborCountInArea(
-    coords?.lat,
-    coords?.lng,
-    500,
-  );
+  const { data: neighborCount } = useNeighborCountInArea(coords?.lat, coords?.lng, 500);
 
   // Auto-request geolocation on mount and seed the pin with the first fix
   useEffect(() => {
@@ -100,10 +87,7 @@ export default function ReportLostPage() {
     return (
       <div className="mx-auto max-w-lg px-4 py-10 text-center">
         <p className="text-sand-500">Mascota no encontrada.</p>
-        <Link
-          to="/dashboard"
-          className="mt-4 inline-block text-sm text-brand-600 hover:underline"
-        >
+        <Link to="/dashboard" className="mt-4 inline-block text-sm text-brand-600 hover:underline">
           ← Volver
         </Link>
       </div>
@@ -153,12 +137,11 @@ export default function ReportLostPage() {
         rewardAmount: rewardAmount !== "" ? parseFloat(rewardAmount) : null,
         rewardNote: rewardNote.trim() || null,
       });
-      const recentPhotoUrl = recentPhoto
-        ? URL.createObjectURL(recentPhoto)
-        : null;
+      const recentPhotoUrl = recentPhoto ? URL.createObjectURL(recentPhoto) : null;
       trackProductEvent("LostPetReported", {
         source: "report-lost",
         petId: pet.id,
+        correlationId: result.id,
       });
       void navigate(`/pets/${pet.id}/lost-confirmed`, {
         state: {
@@ -179,10 +162,7 @@ export default function ReportLostPage() {
     hoursElapsedSince(new Date(lastSeenAt).toISOString()),
   );
 
-  const estimatedRadius = resolveSearchRadiusWithLocalStats(
-    heuristicRadius,
-    localRecoveryStats?.p90DistanceMeters,
-  );
+  const estimatedRadius = resolveSearchRadiusWithLocalStats(heuristicRadius, localRecoveryStats?.p90DistanceMeters);
 
   const goNext = () => {
     setDirection(1);
@@ -220,12 +200,10 @@ export default function ReportLostPage() {
           <div className="mb-3 text-5xl" aria-hidden="true">
             📵
           </div>
-          <h2 className="text-lg font-bold text-brand-800">
-            Sin conexión — reporte guardado
-          </h2>
+          <h2 className="text-lg font-bold text-brand-800">Sin conexión — reporte guardado</h2>
           <p className="mt-2 text-sm text-brand-700">
-            El reporte de <strong>{pet.name}</strong> quedó guardado en tu
-            dispositivo. Se enviará automáticamente al recuperar conexión.
+            El reporte de <strong>{pet.name}</strong> quedó guardado en tu dispositivo. Se enviará automáticamente al
+            recuperar conexión.
           </p>
           <Link
             to="/dashboard"
@@ -238,12 +216,9 @@ export default function ReportLostPage() {
         <>
           {/* ── Wizard header ───────────────────────────────────────── */}
           <div className="mb-6 rounded-2xl border border-danger-200 bg-linear-to-br from-danger-50 to-warn-50 p-5">
-            <h1 className="text-lg font-bold text-danger-700">
-              🚨 Reportar a {pet.name} como perdido
-            </h1>
+            <h1 className="text-lg font-bold text-danger-700">🚨 Reportar a {pet.name} como perdido</h1>
             <p className="mt-1 text-sm text-danger-600">
-              Completa los 3 pasos. Cuanta más información, más rápido lo
-              encontramos.
+              Completa los 3 pasos. Cuanta más información, más rápido lo encontramos.
             </p>
           </div>
 
@@ -258,11 +233,7 @@ export default function ReportLostPage() {
                     <motion.div
                       animate={{
                         scale: isActive ? 1.1 : 1,
-                        backgroundColor: isDone
-                          ? "#17a26d"
-                          : isActive
-                            ? "#e8521e"
-                            : "#e2d3c4",
+                        backgroundColor: isDone ? "#17a26d" : isActive ? "#e8521e" : "#e2d3c4",
                       }}
                       className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm"
                       transition={{
@@ -276,11 +247,7 @@ export default function ReportLostPage() {
                     <span
                       className={[
                         "mt-1 text-[10px] font-semibold",
-                        isActive
-                          ? "text-brand-600"
-                          : isDone
-                            ? "text-rescue-600"
-                            : "text-sand-400",
+                        isActive ? "text-brand-600" : isDone ? "text-rescue-600" : "text-sand-400",
                       ].join(" ")}
                     >
                       {s.label}
@@ -301,10 +268,7 @@ export default function ReportLostPage() {
           </div>
 
           {error && (
-            <div
-              role="alert"
-              className="mb-4 rounded-xl bg-danger-50 px-4 py-3 text-sm text-danger-600"
-            >
+            <div role="alert" className="mb-4 rounded-xl bg-danger-50 px-4 py-3 text-sm text-danger-600">
               Ocurrió un error. Intenta de nuevo.
             </div>
           )}
@@ -330,10 +294,7 @@ export default function ReportLostPage() {
                   {step === 1 && (
                     <div className="space-y-5">
                       <div>
-                        <label
-                          htmlFor="lastSeenAt"
-                          className="mb-1 block text-sm font-semibold text-sand-700"
-                        >
+                        <label htmlFor="lastSeenAt" className="mb-1 block text-sm font-semibold text-sand-700">
                           ¿Cuándo fue visto por última vez?
                         </label>
                         <input
@@ -349,9 +310,7 @@ export default function ReportLostPage() {
 
                       <div>
                         <div className="mb-2 flex items-center justify-between">
-                          <span className="text-sm font-semibold text-sand-700">
-                            📍 Última ubicación conocida
-                          </span>
+                          <span className="text-sm font-semibold text-sand-700">📍 Última ubicación conocida</span>
                           {coords ? (
                             <button
                               type="button"
@@ -361,9 +320,7 @@ export default function ReportLostPage() {
                               Quitar pin
                             </button>
                           ) : (
-                            <span className="text-xs text-sand-400">
-                              Opcional
-                            </span>
+                            <span className="text-xs text-sand-400">Opcional</span>
                           )}
                         </div>
 
@@ -417,24 +374,13 @@ export default function ReportLostPage() {
                   {step === 2 && (
                     <div className="space-y-5">
                       <div>
-                        <p className="mb-1.5 text-sm font-semibold text-sand-700">
-                          📷 Foto reciente (opcional)
-                        </p>
-                        <p className="mb-2 text-xs text-sand-500">
-                          Se usará en el flyer de búsqueda y perfil público.
-                        </p>
-                        <PhotoUpload
-                          value={recentPhoto}
-                          onChange={setRecentPhoto}
-                          disabled={isPending}
-                        />
+                        <p className="mb-1.5 text-sm font-semibold text-sand-700">📷 Foto reciente (opcional)</p>
+                        <p className="mb-2 text-xs text-sand-500">Se usará en el flyer de búsqueda y perfil público.</p>
+                        <PhotoUpload value={recentPhoto} onChange={setRecentPhoto} disabled={isPending} />
                       </div>
 
                       <div>
-                        <label
-                          htmlFor="description"
-                          className="mb-1 block text-sm font-semibold text-sand-700"
-                        >
+                        <label htmlFor="description" className="mb-1 block text-sm font-semibold text-sand-700">
                           Descripción (opcional)
                         </label>
                         <textarea
@@ -446,21 +392,14 @@ export default function ReportLostPage() {
                           placeholder="Collar, señas particulares, zona específica…"
                           className="w-full resize-none rounded-xl border border-sand-300 field-input px-4 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
                         />
-                        <p className="mt-1 text-right text-xs text-sand-400">
-                          {description.length}/1000
-                        </p>
+                        <p className="mt-1 text-right text-xs text-sand-400">{description.length}/1000</p>
                       </div>
 
                       <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4">
-                        <label
-                          htmlFor="publicMessage"
-                          className="mb-0.5 block text-sm font-semibold text-brand-800"
-                        >
+                        <label htmlFor="publicMessage" className="mb-0.5 block text-sm font-semibold text-brand-800">
                           💬 Mensaje para quien encuentre a {pet.name}
                         </label>
-                        <p className="mb-2 text-xs text-brand-700">
-                          Se mostrará en el perfil QR público.
-                        </p>
+                        <p className="mb-2 text-xs text-brand-700">Se mostrará en el perfil QR público.</p>
                         <textarea
                           id="publicMessage"
                           value={publicMessage}
@@ -470,24 +409,15 @@ export default function ReportLostPage() {
                           placeholder={`Si encontraste a ${pet.name}, por favor contáctame. ¡Muchas gracias!`}
                           className="w-full resize-none rounded-xl border border-brand-300 field-input px-4 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
                         />
-                        <p className="mt-1 text-right text-xs text-brand-600">
-                          {publicMessage.length}/200
-                        </p>
+                        <p className="mt-1 text-right text-xs text-brand-600">{publicMessage.length}/200</p>
                       </div>
 
                       <div className="rounded-2xl border border-warn-200 bg-warn-50 p-4">
-                        <p className="mb-0.5 text-sm font-semibold text-warn-800">
-                          🏅 Recompensa (opcional)
-                        </p>
-                        <p className="mb-3 text-xs text-warn-700">
-                          No se gestiona dentro de la plataforma.
-                        </p>
+                        <p className="mb-0.5 text-sm font-semibold text-warn-800">🏅 Recompensa (opcional)</p>
+                        <p className="mb-3 text-xs text-warn-700">No se gestiona dentro de la plataforma.</p>
                         <div className="space-y-3">
                           <div>
-                            <label
-                              htmlFor="rewardAmount"
-                              className="mb-1 block text-xs font-medium text-warn-800"
-                            >
+                            <label htmlFor="rewardAmount" className="mb-1 block text-xs font-medium text-warn-800">
                               Monto (₡)
                             </label>
                             <input
@@ -503,10 +433,7 @@ export default function ReportLostPage() {
                             />
                           </div>
                           <div>
-                            <label
-                              htmlFor="rewardNote"
-                              className="mb-1 block text-xs font-medium text-warn-800"
-                            >
+                            <label htmlFor="rewardNote" className="mb-1 block text-xs font-medium text-warn-800">
                               Nota
                             </label>
                             <input
@@ -528,19 +455,14 @@ export default function ReportLostPage() {
                   {step === 3 && (
                     <div className="space-y-5">
                       <div className="rounded-2xl border border-sand-200 bg-surface-warm p-5">
-                        <p className="mb-1 text-sm font-semibold text-sand-700">
-                          📞 Contacto de emergencia
-                        </p>
+                        <p className="mb-1 text-sm font-semibold text-sand-700">📞 Contacto de emergencia</p>
                         <p className="mb-4 text-xs text-sand-500">
-                          Quien encuentre a {pet.name} verá tu nombre. El
-                          teléfono solo se muestra a usuarios registrados.
+                          Quien encuentre a {pet.name} verá tu nombre. El teléfono solo se muestra a usuarios
+                          registrados.
                         </p>
                         <div className="space-y-3">
                           <div>
-                            <label
-                              htmlFor="contactName"
-                              className="mb-1 block text-xs font-medium text-sand-600"
-                            >
+                            <label htmlFor="contactName" className="mb-1 block text-xs font-medium text-sand-600">
                               Nombre de contacto
                             </label>
                             <input
@@ -554,10 +476,7 @@ export default function ReportLostPage() {
                             />
                           </div>
                           <div>
-                            <label
-                              htmlFor="contactPhone"
-                              className="mb-1 block text-xs font-medium text-sand-600"
-                            >
+                            <label htmlFor="contactPhone" className="mb-1 block text-xs font-medium text-sand-600">
                               Número de teléfono
                             </label>
                             <input
@@ -576,9 +495,7 @@ export default function ReportLostPage() {
 
                       {/* Summary card */}
                       <div className="rounded-2xl border border-danger-200 bg-danger-50/30 p-4 space-y-2">
-                        <p className="text-xs font-bold uppercase tracking-wider text-sand-500">
-                          Resumen del reporte
-                        </p>
+                        <p className="text-xs font-bold uppercase tracking-wider text-sand-500">Resumen del reporte</p>
                         <div className="grid grid-cols-2 gap-2 text-xs text-sand-700">
                           <div>
                             <span className="text-sand-400">Mascota</span>
@@ -586,9 +503,7 @@ export default function ReportLostPage() {
                             <strong>{pet.name}</strong>
                           </div>
                           <div>
-                            <span className="text-sand-400">
-                              Última vez visto
-                            </span>
+                            <span className="text-sand-400">Última vez visto</span>
                             <br />
                             <strong>
                               {new Date(lastSeenAt).toLocaleString("es-CR", {
@@ -601,17 +516,13 @@ export default function ReportLostPage() {
                             <span className="text-sand-400">Ubicación</span>
                             <br />
                             <strong>
-                              {coords
-                                ? `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`
-                                : "No indicada"}
+                              {coords ? `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` : "No indicada"}
                             </strong>
                           </div>
                           <div>
                             <span className="text-sand-400">Foto reciente</span>
                             <br />
-                            <strong>
-                              {recentPhoto ? "✓ Adjuntada" : "No adjuntada"}
-                            </strong>
+                            <strong>{recentPhoto ? "✓ Adjuntada" : "No adjuntada"}</strong>
                           </div>
                         </div>
                       </div>

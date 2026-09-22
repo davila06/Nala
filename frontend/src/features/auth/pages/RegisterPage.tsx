@@ -1,37 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useRegister } from "../hooks/useAuth";
 import PasswordStrengthIndicator from "../components/PasswordStrengthIndicator";
 import { Button } from "@/shared/ui/Button";
 import { Input } from "@/shared/ui/Input";
 import { Alert } from "@/shared/ui/Alert";
-import { useCountUp } from "@/shared/hooks/useCountUp";
 import { AmbientPaws } from "@/shared/ui/AmbientPaws";
 import { REGISTER_PAWS } from "@/shared/ui/ambientPawsConfig";
 import { useAuthStore } from "@/features/auth/store/authStore";
-
-function StatItem({
-  end,
-  suffix,
-  label,
-  started,
-}: {
-  end: number;
-  suffix: string;
-  label: string;
-  started: boolean;
-}) {
-  const count = useCountUp(end, 1400, started);
-  return (
-    <div>
-      <p className="font-display text-2xl font-semibold text-rescue-400">
-        {count.toLocaleString("es-CR")}
-        {suffix}
-      </p>
-      <p className="text-xs text-trust-300 mt-0.5">{label}</p>
-    </div>
-  );
-}
 
 export default function RegisterPage() {
   const { mutate: register, isPending, error } = useRegister();
@@ -45,22 +21,6 @@ export default function RegisterPage() {
   const [isAdultConfirmed, setIsAdultConfirmed] = useState(false);
   const [validationError, setValidationError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const [statsStarted, setStatsStarted] = useState(false);
-
-  useEffect(() => {
-    const el = panelRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setStatsStarted(true);
-      },
-      { threshold: 0.3 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setValidationError("");
@@ -73,9 +33,7 @@ export default function RegisterPage() {
       return;
     }
     if (!isAdultConfirmed) {
-      setValidationError(
-        "Debes confirmar que eres mayor de edad o cuentas con autorización de tu tutor legal.",
-      );
+      setValidationError("Debes confirmar que eres mayor de edad o cuentas con autorización de tu tutor legal.");
       return;
     }
     register({
@@ -90,7 +48,6 @@ export default function RegisterPage() {
     <div className="min-h-dvh lg:grid lg:grid-cols-[1fr_560px]">
       {/* Animated Brand panel */}
       <div
-        ref={panelRef}
         className="hidden lg:flex flex-col justify-between bg-trust-900 bg-topo px-12 py-14 text-white overflow-hidden"
         aria-hidden="true"
         style={{ position: "relative" }}
@@ -100,12 +57,8 @@ export default function RegisterPage() {
 
         {/* Logo */}
         <div className="flex items-center gap-3 relative z-10">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 text-xl">
-            🐾
-          </span>
-          <span className="font-display text-2xl font-semibold tracking-tight">
-            PawTrack CR
-          </span>
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 text-xl">🐾</span>
+          <span className="font-display text-2xl font-semibold tracking-tight">PawTrack CR</span>
         </div>
 
         {/* Hero copy */}
@@ -130,27 +83,10 @@ export default function RegisterPage() {
           </ul>
         </div>
 
-        {/* Animated stats */}
-        <div className="flex gap-8 relative z-10">
-          <StatItem
-            end={12000}
-            suffix="+"
-            label="mascotas registradas"
-            started={statsStarted}
-          />
-          <StatItem
-            end={94}
-            suffix=" %"
-            label="tasa de recuperación"
-            started={statsStarted}
-          />
-          <StatItem
-            end={480}
-            suffix="+"
-            label="aliados verificados"
-            started={statsStarted}
-          />
-        </div>
+        <p className="relative z-10 max-w-md text-sm text-trust-300">
+          Las métricas de recuperación se publican únicamente cuando cuentan con datos verificables y un periodo
+          definido.
+        </p>
       </div>
 
       {/* Form panel */}
@@ -163,9 +99,7 @@ export default function RegisterPage() {
           >
             🐾
           </span>
-          <span className="font-display text-xl font-semibold text-sand-900">
-            PawTrack CR
-          </span>
+          <span className="font-display text-xl font-semibold text-sand-900">PawTrack CR</span>
         </div>
 
         <div className="w-full max-w-sm">
@@ -184,12 +118,8 @@ export default function RegisterPage() {
                 Ir al inicio
               </Link>
             </nav>
-            <h1 className="font-display text-3xl font-semibold text-sand-900">
-              Crear cuenta
-            </h1>
-            <p className="mt-2 text-sm text-sand-500">
-              Es gratis. Sin tarjeta de crédito.
-            </p>
+            <h1 className="font-display text-3xl font-semibold text-sand-900">Crear cuenta</h1>
+            <p className="mt-2 text-sm text-sand-500">Es gratis. Sin tarjeta de crédito.</p>
           </div>
 
           {(validationError || error) && (
@@ -265,8 +195,7 @@ export default function RegisterPage() {
                 className="mt-0.5 h-4 w-4 shrink-0 rounded border-sand-300 text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               />
               <span>
-                Confirmo que soy mayor de edad o que cuento con la autorización
-                de mi tutor legal para usar PawTrack CR.
+                Confirmo que soy mayor de edad o que cuento con la autorización de mi tutor legal para usar PawTrack CR.
               </span>
             </label>
 

@@ -7,6 +7,7 @@ using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Promotions;
 using PawTrack.Domain.Subscriptions;
+using PawTrack.Application.Subscriptions.Services;
 
 namespace PawTrack.Application.Promotions;
 
@@ -260,7 +261,8 @@ public sealed class RedeemPromotionCodeCommandHandler(
     IPromotionCodeRepository promoRepository,
     ISubscriptionRepository subscriptionRepository,
     ISubscriptionPlanRepository planRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<RedeemPromotionCodeCommand, Result<SubscriptionDto>>
 {
     private static readonly string GenericInvalidMsg = "Código no válido o expirado.";
@@ -276,6 +278,15 @@ public sealed class RedeemPromotionCodeCommandHandler(
         // 1. Anti-enumeration: same message for all "bad code" cases
         if (code is null || !code.CanRedeem)
             return Result.Failure<SubscriptionDto>(GenericInvalidMsg);
+
+        if (entitlementService is not null)
+        {
+            var decision = await entitlementService.AuthorizeAsync(
+                request.UserId, "PromotionRedemptionsPerCycle", 1m,
+                new EntitlementContext("promotion-redemption", code.Id), ct);
+            if (decision.Included && !decision.Allowed)
+                return Result.Failure<SubscriptionDto>("La cuota de redenciones promocionales del ciclo se agotó.");
+        }
 
         // 2. Self-redemption guard
         if (code.CreatedByAdminId == request.UserId)

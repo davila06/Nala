@@ -63,6 +63,7 @@ public sealed class Round61SecurityRegressionTests
 
         // Act — two consecutive calls on the same connection, no sleep between them
         // (elapsed ≈ 0 ms, well within any reasonable cooldown window)
+        await hub.StartLocationSharing(lostEventId);
         await hub.UpdateLocation(lostEventId, 9.93, -84.08);
         await hub.UpdateLocation(lostEventId, 9.94, -84.09);
 
@@ -87,6 +88,7 @@ public sealed class Round61SecurityRegressionTests
         var (hub, groupProxy) = BuildHub(userId, connectionId, isParticipant: true);
 
         // Act
+        await hub.StartLocationSharing(lostEventId);
         await hub.UpdateLocation(lostEventId, 9.93, -84.08);
 
         // Assert — first call must always broadcast

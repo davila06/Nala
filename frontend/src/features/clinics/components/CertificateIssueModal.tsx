@@ -13,10 +13,7 @@ interface CertificateIssueModalProps {
   onClose: () => void;
 }
 
-export function CertificateIssueModal({
-  clinicId,
-  onClose,
-}: CertificateIssueModalProps) {
+export function CertificateIssueModal({ clinicId, onClose }: CertificateIssueModalProps) {
   const [step, setStep] = useState<"form" | "done">("form");
   const [certificateId, setCertificateId] = useState<string | null>(null);
   const [verificationCode, setVerificationCode] = useState("");
@@ -37,15 +34,11 @@ export function CertificateIssueModal({
 
   const { data: issuers, isLoading: issuersLoading } = useCertificateIssuers();
   const { mutateAsync: issue, isPending, error } = useIssueVaccinePassport();
-  const { mutateAsync: createVeterinarian, isPending: creatingVet } =
-    useCreateVeterinarian();
-  const { mutateAsync: downloadPdf, isPending: downloadingPdf } =
-    useDownloadCertificatePdf();
+  const { mutateAsync: createVeterinarian, isPending: creatingVet } = useCreateVeterinarian();
+  const { mutateAsync: downloadPdf, isPending: downloadingPdf } = useDownloadCertificatePdf();
 
   const activeVeterinarians = issuers?.veterinarians ?? [];
-  const selectedVeterinarian = activeVeterinarians.find(
-    (vet: ClinicVeterinarianDto) => vet.id === form.veterinarianId,
-  );
+  const selectedVeterinarian = activeVeterinarians.find((vet: ClinicVeterinarianDto) => vet.id === form.veterinarianId);
   const isVerified = issuers?.verification?.status === "Verified";
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -85,11 +78,8 @@ export function CertificateIssueModal({
 
   const field = (key: keyof typeof form) => ({
     value: form[key],
-    onChange: (
-      e: React.ChangeEvent<
-        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-      >,
-    ) => setForm((f) => ({ ...f, [key]: e.target.value })),
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+      setForm((f) => ({ ...f, [key]: e.target.value })),
   });
 
   const handleCreateVeterinarian = async () => {
@@ -128,14 +118,10 @@ export function CertificateIssueModal({
         >
           <div className="mb-5 flex items-start justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-trust-600">
-                Tier Partner
-              </p>
-              <h2 className="mt-1 text-xl font-black text-sand-900">
-                Emitir certificado veterinario
-              </h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-trust-600">Tier Partner</p>
+              <h2 className="mt-1 text-xl font-black text-sand-900">Emitir certificado veterinario</h2>
               <p className="mt-1 text-xs text-sand-500">
-                SENASA-ready, verificable y sin integración oficial directa.
+                Certificado verificable dentro de PawTrack; sin integración oficial directa.
               </p>
             </div>
             <button
@@ -144,12 +130,7 @@ export function CertificateIssueModal({
               aria-label="Cerrar"
               className="rounded-xl p-2 text-sand-400 hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
             >
-              <svg
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                className="h-4 w-4"
-                aria-hidden="true"
-              >
+              <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                 <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z" />
               </svg>
             </button>
@@ -159,15 +140,10 @@ export function CertificateIssueModal({
             <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
               {!isVerified && (
                 <div className="rounded-2xl border border-warn-200 bg-warn-50 px-4 py-3 text-xs text-warn-800">
-                  La clínica debe estar verificada por administración para
-                  emitir pasaportes.
+                  La clínica debe estar verificada por administración para emitir pasaportes.
                 </div>
               )}
-              {issuersLoading && (
-                <p className="text-xs text-sand-500">
-                  Cargando autorización de emisión…
-                </p>
-              )}
+              {issuersLoading && <p className="text-xs text-sand-500">Cargando autorización de emisión…</p>}
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="block text-xs font-semibold text-sand-700">
                   ID de mascota (PawTrack)
@@ -207,15 +183,11 @@ export function CertificateIssueModal({
               </div>
 
               <div className="rounded-2xl border border-sand-100 bg-surface-warm p-3">
-                <p className="mb-2 text-xs font-bold text-sand-700">
-                  Solicitar revisión de veterinario
-                </p>
+                <p className="mb-2 text-xs font-bold text-sand-700">Solicitar revisión de veterinario</p>
                 <div className="grid gap-2 sm:grid-cols-2">
                   <input
                     value={newVet.fullName}
-                    onChange={(e) =>
-                      setNewVet((v) => ({ ...v, fullName: e.target.value }))
-                    }
+                    onChange={(e) => setNewVet((v) => ({ ...v, fullName: e.target.value }))}
                     placeholder="Nombre completo"
                     className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
                   />
@@ -234,11 +206,7 @@ export function CertificateIssueModal({
                 <button
                   type="button"
                   onClick={() => void handleCreateVeterinarian()}
-                  disabled={
-                    creatingVet ||
-                    !newVet.fullName.trim() ||
-                    !newVet.licenseNumber.trim()
-                  }
+                  disabled={creatingVet || !newVet.fullName.trim() || !newVet.licenseNumber.trim()}
                   className="mt-2 rounded-xl border border-trust-200 px-3 py-2 text-xs font-semibold text-trust-700 disabled:opacity-50"
                 >
                   {creatingVet ? "Guardando…" : "Enviar a revisión"}
@@ -307,14 +275,13 @@ export function CertificateIssueModal({
                 />
               </div>
               <p className="rounded-2xl border border-sand-100 bg-sand-50 px-4 py-3 text-xs text-sand-600">
-                Documento preparado para trazabilidad sanitaria. No sustituye
-                trámites o certificaciones oficiales de la autoridad competente.
+                Documento preparado para trazabilidad sanitaria. No sustituye trámites o certificaciones oficiales de la
+                autoridad competente.
               </p>
               {error && (
                 <p className="text-xs text-danger-600">
-                  Error al emitir el pasaporte. Verifica plan Partner, acceso al
-                  expediente, clínica verificada, veterinario autorizado y
-                  vacuna requerida.
+                  Error al emitir el pasaporte. Verifica plan Partner, acceso al expediente, clínica verificada,
+                  veterinario autorizado y vacuna requerida.
                 </p>
               )}
               <button
@@ -322,31 +289,19 @@ export function CertificateIssueModal({
                 disabled={isPending || !isVerified || !form.veterinarianId}
                 className="w-full rounded-2xl bg-trust-600 py-3 text-sm font-bold text-white hover:bg-trust-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400"
               >
-                {isPending
-                  ? "Generando PDF…"
-                  : "Emitir pasaporte SENASA-ready →"}
+                {isPending ? "Generando PDF…" : "Emitir pasaporte veterinario →"}
               </button>
             </form>
           )}
 
           {step === "done" && (
             <div className="flex flex-col items-center gap-4 py-4 text-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-rescue-100 text-3xl">
-                ✅
-              </div>
-              <h3 className="text-lg font-black text-sand-900">
-                Pasaporte emitido
-              </h3>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-rescue-100 text-3xl">✅</div>
+              <h3 className="text-lg font-black text-sand-900">Pasaporte emitido</h3>
               <div className="w-full rounded-2xl bg-surface-warm p-4">
-                <p className="text-xs text-sand-500 mb-1">
-                  Código de verificación
-                </p>
-                <p className="font-mono text-2xl font-black tracking-[0.2em] text-sand-900">
-                  {verificationCode}
-                </p>
-                <p className="mt-1 text-[10px] text-sand-400">
-                  pawtrack.cr/verificar/{verificationCode}
-                </p>
+                <p className="text-xs text-sand-500 mb-1">Código de verificación</p>
+                <p className="font-mono text-2xl font-black tracking-[0.2em] text-sand-900">{verificationCode}</p>
+                <p className="mt-1 text-[10px] text-sand-400">pawtrack.cr/verificar/{verificationCode}</p>
               </div>
               {certificateId && (
                 <button

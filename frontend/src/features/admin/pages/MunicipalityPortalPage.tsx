@@ -2,11 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/features/auth/store/authStore";
-import {
-  useCapturedAnimals,
-  useRecordCapture,
-  useUpdateCaptureStatus,
-} from "../hooks/useMunicipal";
+import { useCapturedAnimals, useRecordCapture, useUpdateCaptureStatus } from "../hooks/useMunicipal";
 import { STATUS_LABELS, type CapturedAnimalStatus } from "../api/municipalApi";
 
 const PACKAGES = [
@@ -63,8 +59,8 @@ const PACKAGES = [
 const STATS = [
   { icon: "🏛️", value: "82", label: "municipalidades en CR" },
   { icon: "🐾", value: "14,000+", label: "mascotas en el sistema" },
-  { icon: "🔍", value: "68%", label: "tasa de recuperación" },
-  { icon: "⚡", value: "< 72h", label: "tiempo promedio de reunificación" },
+  { icon: "🔍", value: "Datos", label: "métricas verificables por periodo" },
+  { icon: "⚡", value: "Por caso", label: "tiempo de reunificación" },
 ];
 
 export default function MunicipalityPortalPage() {
@@ -75,16 +71,13 @@ export default function MunicipalityPortalPage() {
     <div className="animate-fade-in-up">
       {/* Hero */}
       <section className="border-b border-sand-200 bg-linear-to-br from-trust-50 via-surface to-rescue-50 px-4 py-16 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.4em] text-trust-600">
-          Sector público
-        </p>
+        <p className="text-xs font-semibold uppercase tracking-[0.4em] text-trust-600">Sector público</p>
         <h1 className="mt-3 font-display text-3xl font-black tracking-tight text-sand-950 sm:text-4xl">
           PawTrack para Municipalidades
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-base text-sand-600">
-          Herramienta oficial de control animal para cantones costarricenses.
-          Gestión de animales capturados, reportes al SENASA y coordinación con
-          dueños de mascotas en tiempo real.
+          Herramienta oficial de control animal para cantones costarricenses. Gestión de animales capturados, reportes
+          al SENASA y coordinación con dueños de mascotas en tiempo real.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <a
@@ -116,9 +109,7 @@ export default function MunicipalityPortalPage() {
               <p className="text-2xl" aria-hidden="true">
                 {s.icon}
               </p>
-              <p className="mt-1 text-2xl font-black tabular-nums text-sand-900">
-                {s.value}
-              </p>
+              <p className="mt-1 text-2xl font-black tabular-nums text-sand-900">{s.value}</p>
               <p className="text-xs text-sand-500">{s.label}</p>
             </motion.div>
           ))}
@@ -128,12 +119,9 @@ export default function MunicipalityPortalPage() {
       {/* Packages */}
       <section className="bg-surface-warm px-4 py-12">
         <div className="mx-auto max-w-4xl">
-          <h2 className="mb-2 text-center text-2xl font-black text-sand-900">
-            Planes institucionales
-          </h2>
+          <h2 className="mb-2 text-center text-2xl font-black text-sand-900">Planes institucionales</h2>
           <p className="mb-8 text-center text-sm text-sand-500">
-            Facturación anual · Incluye acceso sin límite de usuarios · Contrato
-            adaptado a requerimientos de Hacienda
+            Facturación anual · Incluye acceso sin límite de usuarios · Contrato adaptado a requerimientos de Hacienda
           </p>
           <div className="grid gap-5 sm:grid-cols-3">
             {PACKAGES.map((pkg, i) => (
@@ -154,26 +142,16 @@ export default function MunicipalityPortalPage() {
                   </span>
                 )}
                 <div className="mb-4">
-                  <span
-                    className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${pkg.badge}`}
-                  >
+                  <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${pkg.badge}`}>
                     {pkg.name}
                   </span>
-                  <p className="mt-2 text-2xl font-extrabold text-sand-900">
-                    {pkg.price}
-                  </p>
+                  <p className="mt-2 text-2xl font-extrabold text-sand-900">{pkg.price}</p>
                   <p className="text-xs text-sand-400">{pkg.period}</p>
                 </div>
                 <ul className="mb-5 flex-1 space-y-2">
                   {pkg.features.map((f) => (
-                    <li
-                      key={f}
-                      className="flex items-start gap-2 text-xs text-sand-700"
-                    >
-                      <span
-                        className="mt-0.5 shrink-0 text-rescue-600"
-                        aria-hidden="true"
-                      >
+                    <li key={f} className="flex items-start gap-2 text-xs text-sand-700">
+                      <span className="mt-0.5 shrink-0 text-rescue-600" aria-hidden="true">
                         ✓
                       </span>
                       {f}
@@ -200,9 +178,7 @@ export default function MunicipalityPortalPage() {
       {/* Benefits for public admin */}
       <section className="border-t border-sand-200 bg-surface px-4 py-12">
         <div className="mx-auto max-w-3xl">
-          <h2 className="mb-6 text-center text-xl font-black text-sand-900">
-            ¿Por qué PawTrack Municipal?
-          </h2>
+          <h2 className="mb-6 text-center text-xl font-black text-sand-900">¿Por qué PawTrack Municipal?</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {[
               {
@@ -226,16 +202,11 @@ export default function MunicipalityPortalPage() {
                 body: "Cuando un animal capturado tiene placa QR, el dueño recibe una notificación inmediata.",
               },
             ].map((b) => (
-              <div
-                key={b.title}
-                className="rounded-2xl border border-sand-200 p-4"
-              >
+              <div key={b.title} className="rounded-2xl border border-sand-200 p-4">
                 <p className="text-2xl" aria-hidden="true">
                   {b.icon}
                 </p>
-                <p className="mt-2 text-sm font-bold text-sand-900">
-                  {b.title}
-                </p>
+                <p className="mt-2 text-sm font-bold text-sand-900">{b.title}</p>
                 <p className="mt-1 text-xs text-sand-500">{b.body}</p>
               </div>
             ))}
@@ -245,19 +216,13 @@ export default function MunicipalityPortalPage() {
 
       {/* CTA */}
       <section className="bg-trust-900 px-4 py-12 text-center text-white">
-        <h2 className="font-display text-2xl font-black">
-          ¿Su cantón quiere unirse a la red?
-        </h2>
+        <h2 className="font-display text-2xl font-black">¿Su cantón quiere unirse a la red?</h2>
         <p className="mx-auto mt-3 max-w-md text-sm text-trust-100/90">
           Escríbanos a{" "}
-          <a
-            href="mailto:municipios@pawtrack.cr"
-            className="font-bold text-white underline hover:no-underline"
-          >
+          <a href="mailto:municipios@pawtrack.cr" className="font-bold text-white underline hover:no-underline">
             municipios@pawtrack.cr
           </a>{" "}
-          y coordinamos una demostración sin costo con su equipo de bienestar
-          animal.
+          y coordinamos una demostración sin costo con su equipo de bienestar animal.
         </p>
       </section>
 
@@ -271,15 +236,10 @@ export default function MunicipalityPortalPage() {
 
 function CapturePortal() {
   const [canton, setCanton] = useState("");
-  const [filterStatus, setFilterStatus] = useState<CapturedAnimalStatus | "">(
-    "",
-  );
+  const [filterStatus, setFilterStatus] = useState<CapturedAnimalStatus | "">("");
   const [showForm, setShowForm] = useState(false);
 
-  const { data, isLoading } = useCapturedAnimals(
-    canton || undefined,
-    filterStatus || undefined,
-  );
+  const { data, isLoading } = useCapturedAnimals(canton || undefined, filterStatus || undefined);
   const { mutateAsync: record, isPending: recording } = useRecordCapture();
   const { mutateAsync: updateStatus } = useUpdateCaptureStatus();
 
@@ -312,12 +272,8 @@ function CapturePortal() {
       <div className="mx-auto max-w-4xl">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-trust-600">
-              Portal operativo
-            </p>
-            <h2 className="mt-1 text-2xl font-black text-sand-900">
-              Animales capturados
-            </h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-trust-600">Portal operativo</p>
+            <h2 className="mt-1 text-2xl font-black text-sand-900">Animales capturados</h2>
           </div>
           <button
             type="button"
@@ -339,9 +295,7 @@ function CapturePortal() {
           />
           <select
             value={filterStatus}
-            onChange={(e) =>
-              setFilterStatus(e.target.value as CapturedAnimalStatus | "")
-            }
+            onChange={(e) => setFilterStatus(e.target.value as CapturedAnimalStatus | "")}
             className="rounded-xl border border-sand-200 px-3 py-2 text-sm field-input outline-none focus:border-trust-400"
           >
             <option value="">Todos los estados</option>
@@ -357,17 +311,12 @@ function CapturePortal() {
         {isLoading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-16 animate-pulse rounded-2xl bg-sand-100"
-              />
+              <div key={i} className="h-16 animate-pulse rounded-2xl bg-sand-100" />
             ))}
           </div>
         ) : !data?.items.length ? (
           <div className="flex flex-col items-center rounded-2xl border border-dashed border-sand-200 py-10 text-center">
-            <p className="text-sm text-sand-400">
-              No hay registros que coincidan.
-            </p>
+            <p className="text-sm text-sand-400">No hay registros que coincidan.</p>
           </div>
         ) : (
           <AnimatePresence>
@@ -383,22 +332,13 @@ function CapturePortal() {
                     <div className="min-w-0">
                       <p className="font-semibold text-sand-900">
                         {animal.species}
-                        {animal.breed ? ` — ${animal.breed}` : ""} ·{" "}
-                        {animal.color}
+                        {animal.breed ? ` — ${animal.breed}` : ""} · {animal.color}
                       </p>
                       <p className="text-xs text-sand-500">
-                        📍 {animal.canton} ·{" "}
-                        {new Date(animal.capturedAt).toLocaleDateString(
-                          "es-CR",
-                        )}
-                        {animal.collarChipNumber &&
-                          ` · Chip: ${animal.collarChipNumber}`}
+                        📍 {animal.canton} · {new Date(animal.capturedAt).toLocaleDateString("es-CR")}
+                        {animal.collarChipNumber && ` · Chip: ${animal.collarChipNumber}`}
                       </p>
-                      {animal.notes && (
-                        <p className="mt-1 text-xs text-sand-400">
-                          {animal.notes}
-                        </p>
-                      )}
+                      {animal.notes && <p className="mt-1 text-xs text-sand-400">{animal.notes}</p>}
                     </div>
                     <div className="flex items-center gap-2">
                       <span
@@ -446,9 +386,7 @@ function CapturePortal() {
                 transition={{ type: "spring", stiffness: 400, damping: 35 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <h3 className="mb-4 text-lg font-black text-sand-900">
-                  Registrar animal capturado
-                </h3>
+                <h3 className="mb-4 text-lg font-black text-sand-900">Registrar animal capturado</h3>
                 <form
                   className="space-y-3"
                   onSubmit={(e) => {
@@ -476,17 +414,10 @@ function CapturePortal() {
                         ["color", "Color", "Negro y blanco"],
                         ["breed", "Raza (opcional)", "Labrador"],
                         ["estimatedAge", "Edad aprox. (opcional)", "2 años"],
-                        [
-                          "collarChipNumber",
-                          "Nº chip/collar (opcional)",
-                          "985...",
-                        ],
+                        ["collarChipNumber", "Nº chip/collar (opcional)", "985..."],
                       ] as const
                     ).map(([k, label, ph]) => (
-                      <label
-                        key={k}
-                        className="block text-xs font-semibold text-sand-700"
-                      >
+                      <label key={k} className="block text-xs font-semibold text-sand-700">
                         {label}
                         <input
                           className="mt-1 w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-trust-400 field-input"

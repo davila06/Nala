@@ -121,6 +121,7 @@ public sealed class Round37SecurityRegressionTests
         var (hub, _, groupProxy) = BuildHub(userId, isParticipant: true);
 
         // Act
+        await hub.StartLocationSharing(lostEventId);
         await hub.UpdateLocation(lostEventId, lat: 9.934_739, lng: -84.087_502);
 
         // Assert — broadcast must have been sent to group

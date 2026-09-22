@@ -3,6 +3,7 @@ using PawTrack.Application.Common;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Notifications;
+using PawTrack.Domain.ProductAnalytics;
 using PawTrack.Domain.Sightings;
 using Microsoft.Extensions.Options;
 using PawTrack.Application.Common.Settings;
@@ -21,6 +22,7 @@ public sealed class ReportSightingCommandHandler(
     IPiiScrubber piiScrubber,
     INotificationDispatcher notificationDispatcher,
     IAnimalPhotoValidator animalPhotoValidator,
+    IProductEventRepository productEventRepository,
     IOptions<ResolveCheckSettings> settings,
     IOptions<AnimalPhotoValidationSettings> validationSettings,
     IUnitOfWork unitOfWork)
@@ -87,6 +89,29 @@ public sealed class ReportSightingCommandHandler(
 
         await sightingRepository.AddAsync(sighting, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        if (activeLostReport is not null)
+        {
+            var lostEventId = activeLostReport.Id.ToString();
+            var hasFirstResponse = await productEventRepository
+                .ExistsByEventNameAndCorrelationIdAsync(
+                    "FirstResponseRecorded", lostEventId, cancellationToken);
+
+            if (!hasFirstResponse)
+            {
+                var firstResponse = ProductEvent.Create(
+                    Guid.NewGuid(),
+                    "FirstResponseRecorded",
+                    "1",
+                    request.SightedAt,
+                    anonymousId: "server:sighting",
+                    source: "sighting-created",
+                    petId: request.PetId,
+                    correlationId: lostEventId);
+                await productEventRepository.AddAsync(firstResponse, cancellationToken);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+        }
 
         // Notify owner if the pet has an active lost report
         if (activeLostReport is not null)

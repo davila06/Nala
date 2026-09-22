@@ -16,6 +16,9 @@ public enum AuditAction
     // Subscriptions
     SubscriptionActivated,
     SubscriptionCancelled,
+    SubscriptionRenewed,
+    SubscriptionRenewalFailed,
+    SubscriptionAddonReplaced,
 
     // Privileged access
     SuperAdminAssigned,
@@ -73,6 +76,11 @@ public enum AuditAction
     RegulatoryExportDownloaded,
     RegulatoryExportExpired,
     RegulatorySubmissionPrepared,
+
+    // Responsible search coordination
+    SearchLocationSharingStarted,
+    SearchLocationSharingStopped,
+    SearchLocationSharingExpired,
 }
 
 public sealed class AuditLogEntry

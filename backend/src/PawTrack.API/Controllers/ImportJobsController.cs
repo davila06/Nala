@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Imports;
 using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Imports;
@@ -15,10 +16,13 @@ namespace PawTrack.API.Controllers;
 public sealed class ImportJobsController(
     IImportJobRepository repository,
     StoreProductImportProcessor storeProductImportProcessor,
+    IUnitOfWork unitOfWork,
+    IImportQueue importQueue,
     IEntitlementService? entitlementService = null) : ControllerBase
 {
     private const long MaxFileBytes = 5 * 1024 * 1024;
     private const int TechnicalMaxRows = 10_000;
+    private const long AsyncThresholdBytes = 1 * 1024 * 1024;
 
     [HttpPost]
     [RequestSizeLimit(MaxFileBytes)]
@@ -71,6 +75,19 @@ public sealed class ImportJobsController(
             return Accepted(new ImportJobResponse(existing.Id, existing.Status.ToString(), existing.RowCount, existing.ImportedCount, existing.DuplicateCount));
 
         var hash = Convert.ToHexString(SHA256.HashData(bytes));
+        if (bytes.Length > AsyncThresholdBytes)
+        {
+            var pending = ImportJob.Create(tenantId, resourceType, format, hash, idempotencyKey, rowCount);
+            await repository.AddAsync(pending, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            var queued = await importQueue.EnqueueAsync(
+                new ImportWorkItem(tenantId, resourceType, format, hash, idempotencyKey, bytes), cancellationToken);
+            if (!queued)
+                return StatusCode(StatusCodes.Status429TooManyRequests,
+                    new ProblemDetails { Detail = "La cola de importaciones está llena.", Status = 429 });
+            return Accepted(new ImportJobResponse(pending.Id, pending.Status.ToString(), pending.RowCount, 0, 0));
+        }
+
         var job = resourceType == "StoreProducts"
             ? await storeProductImportProcessor.ProcessAsync(tenantId, format, hash, idempotencyKey, bytes, cancellationToken)
             : await storeProductImportProcessor.ProcessProviderServicesAsync(tenantId, format, hash, idempotencyKey, bytes, cancellationToken);

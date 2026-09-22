@@ -10,6 +10,14 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
     public Task<bool> ExistsByEventIdAsync(Guid eventId, CancellationToken cancellationToken = default) =>
         db.ProductEvents.AsNoTracking().AnyAsync(x => x.EventId == eventId, cancellationToken);
 
+    public Task<bool> ExistsByEventNameAndCorrelationIdAsync(
+        string eventName,
+        string correlationId,
+        CancellationToken cancellationToken = default) =>
+        db.ProductEvents.AsNoTracking().AnyAsync(
+            x => x.EventName == eventName && x.CorrelationId == correlationId,
+            cancellationToken);
+
     public async Task AddAsync(ProductEvent productEvent, CancellationToken cancellationToken = default) =>
         await db.ProductEvents.AddAsync(productEvent, cancellationToken);
 
@@ -56,7 +64,7 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
         const string sql = """
             WITH Journeys AS (
                 SELECT
-                    COALESCE(CONVERT(nvarchar(36), [PetId]), [AnonymousId]) AS [JourneyId],
+                    COALESCE(NULLIF([CorrelationId], ''), COALESCE(CONVERT(nvarchar(36), [PetId]), [AnonymousId])) AS [JourneyId],
                     COALESCE(MAX(NULLIF([Canton], '')), N'Sin especificar') AS [Canton],
                     MIN(CASE WHEN [EventName] = N'PetRegistered' THEN [OccurredAt] END) AS [RegisteredAt],
                     MIN(CASE WHEN [EventName] IN (N'PetProfileCompleted', N'QrActivated') THEN [OccurredAt] END) AS [ActivatedAt],
@@ -66,32 +74,48 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
                 FROM [ProductEvents]
                 WHERE [OccurredAt] >= {0} AND [OccurredAt] < {1}
                   AND ({2} IS NULL OR [Canton] = {2})
-                GROUP BY COALESCE(CONVERT(nvarchar(36), [PetId]), [AnonymousId])
+                GROUP BY COALESCE(NULLIF([CorrelationId], ''), COALESCE(CONVERT(nvarchar(36), [PetId]), [AnonymousId]))
+            ), JourneyMetrics AS (
+                SELECT
+                    [JourneyId],
+                    CONCAT(DATEPART(year, COALESCE([RegisteredAt], [LostAt])), '-',
+                        RIGHT(CONCAT('0', DATEPART(month, COALESCE([RegisteredAt], [LostAt]))), 2)) AS [Cohort],
+                    [Canton],
+                    [RegisteredAt],
+                    [ActivatedAt],
+                    [LostAt],
+                    [ReunitedAt],
+                    CASE WHEN [FirstResponseAt] >= [LostAt]
+                        THEN CAST(DATEDIFF_BIG(second, [LostAt], [FirstResponseAt]) AS float) / 60 END AS [FirstResponseMinutes],
+                    CASE WHEN [ReunitedAt] >= [LostAt]
+                        THEN CAST(DATEDIFF_BIG(second, [LostAt], [ReunitedAt]) AS float) / 60 END AS [ReunionMinutes]
+                FROM Journeys
+                WHERE [RegisteredAt] IS NOT NULL OR [LostAt] IS NOT NULL
+            ), WithMedians AS (
+                SELECT *,
+                    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY [FirstResponseMinutes])
+                        OVER (PARTITION BY [Cohort], [Canton]) AS [MedianFirstResponseMinutes],
+                    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY [ReunionMinutes])
+                        OVER (PARTITION BY [Cohort], [Canton]) AS [MedianReunionMinutes]
+                FROM JourneyMetrics
             )
             SELECT
-                CONCAT(DATEPART(year, COALESCE([RegisteredAt], [LostAt])), '-',
-                    RIGHT(CONCAT('0', DATEPART(month, COALESCE([RegisteredAt], [LostAt]))), 2)) AS [Cohort],
+                [Cohort],
                 [Canton],
                 COUNT(CASE WHEN [RegisteredAt] IS NOT NULL THEN 1 END) AS [RegisteredPets],
                 COUNT(CASE WHEN [RegisteredAt] IS NOT NULL AND [ActivatedAt] >= [RegisteredAt] THEN 1 END) AS [ActivatedPets],
                 COUNT(CASE WHEN [LostAt] IS NOT NULL THEN 1 END) AS [LostReports],
                 COUNT(CASE WHEN [LostAt] IS NOT NULL AND [ReunitedAt] >= [LostAt] THEN 1 END) AS [ReunitedReports],
-                AVG(CASE WHEN [FirstResponseAt] >= [LostAt]
-                    THEN CAST(DATEDIFF_BIG(second, [LostAt], [FirstResponseAt]) AS float) / 60 END) AS [AverageFirstResponseMinutes],
-                AVG(CASE WHEN [ReunitedAt] >= [LostAt]
-                    THEN CAST(DATEDIFF_BIG(second, [LostAt], [ReunitedAt]) AS float) / 60 END) AS [AverageReunionMinutes],
+                MAX([MedianFirstResponseMinutes]) AS [MedianFirstResponseMinutes],
+                MAX([MedianReunionMinutes]) AS [MedianReunionMinutes],
                 CASE WHEN COUNT(CASE WHEN [LostAt] IS NOT NULL THEN 1 END) = 0 THEN 0
                     ELSE 100.0 * COUNT(CASE WHEN [ReunitedAt] >= [LostAt] THEN 1 END)
                         / COUNT(CASE WHEN [LostAt] IS NOT NULL THEN 1 END) END AS [RecoveryRatePercent],
-                CASE WHEN COUNT(CASE WHEN [FirstResponseAt] >= [LostAt] THEN 1 END) = 0 THEN 0
-                    ELSE 100.0 * COUNT(CASE WHEN DATEDIFF(minute, [LostAt], [FirstResponseAt]) <= 360 THEN 1 END)
-                        / COUNT(CASE WHEN [FirstResponseAt] >= [LostAt] THEN 1 END) END AS [FirstResponseSloPercent]
-            FROM Journeys
-            WHERE [RegisteredAt] IS NOT NULL OR [LostAt] IS NOT NULL
-            GROUP BY
-                CONCAT(DATEPART(year, COALESCE([RegisteredAt], [LostAt])), '-',
-                    RIGHT(CONCAT('0', DATEPART(month, COALESCE([RegisteredAt], [LostAt]))), 2)),
-                [Canton]
+                CASE WHEN COUNT(CASE WHEN [FirstResponseMinutes] IS NOT NULL THEN 1 END) = 0 THEN 0
+                    ELSE 100.0 * COUNT(CASE WHEN [FirstResponseMinutes] <= 360 THEN 1 END)
+                        / COUNT(CASE WHEN [FirstResponseMinutes] IS NOT NULL THEN 1 END) END AS [FirstResponseSloPercent]
+            FROM WithMedians
+            GROUP BY [Cohort], [Canton]
             ORDER BY [Cohort] DESC, [Canton]
             """;
 
@@ -109,8 +133,8 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
             row.ActivatedPets,
             row.LostReports,
             row.ReunitedReports,
-            row.AverageFirstResponseMinutes,
-            row.AverageReunionMinutes,
+            row.MedianFirstResponseMinutes,
+            row.MedianReunionMinutes,
             Math.Round(row.RecoveryRatePercent, 2),
             Math.Round(row.FirstResponseSloPercent, 2)))
             .ToList();
@@ -124,8 +148,8 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
         public int ActivatedPets { get; init; }
         public int LostReports { get; init; }
         public int ReunitedReports { get; init; }
-        public double? AverageFirstResponseMinutes { get; init; }
-        public double? AverageReunionMinutes { get; init; }
+        public double? MedianFirstResponseMinutes { get; init; }
+        public double? MedianReunionMinutes { get; init; }
         public double RecoveryRatePercent { get; init; }
         public double FirstResponseSloPercent { get; init; }
     }

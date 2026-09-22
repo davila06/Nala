@@ -73,6 +73,19 @@ public sealed class ServiceProvidersController(ISender sender) : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
     }
 
+    [HttpGet("analytics")]
+    [Authorize(Roles = "ServiceProvider")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetAnalytics(
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetProviderAnalyticsQuery(userId, from, to), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
     [HttpPost("services")]
     [Authorize(Roles = "ServiceProvider")]
     [EnableRateLimiting("public-api")]

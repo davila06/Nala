@@ -57,6 +57,7 @@ public sealed class Round43SecurityRegressionTests
         INotificationDispatcher? dispatcher = null,
         IImageProcessor? imageProcessor = null,
         IAnimalPhotoValidator? animalPhotoValidator = null,
+        IProductEventRepository? productEventRepo = null,
         IUnitOfWork? uow = null)
     {
         sightingRepo ??= Substitute.For<ISightingRepository>();
@@ -69,6 +70,7 @@ public sealed class Round43SecurityRegressionTests
         pii ??= Substitute.For<IPiiScrubber>();
         dispatcher ??= Substitute.For<INotificationDispatcher>();
         imageProcessor ??= Substitute.For<IImageProcessor>();
+        productEventRepo ??= Substitute.For<IProductEventRepository>();
         uow ??= Substitute.For<IUnitOfWork>();
 
         var settings = Options.Create(new ResolveCheckSettings());
@@ -85,7 +87,7 @@ public sealed class Round43SecurityRegressionTests
         return new ReportSightingCommandHandler(
             sightingRepo, petRepo, lostPetRepo, userRepo, locationRepo,
             notifRepo, blob, imageProcessor, pii, dispatcher,
-            animalPhotoValidator, settings, validationSettings, uow);
+            animalPhotoValidator, productEventRepo, settings, validationSettings, uow);
     }
 
     // ── Helpers — ReportFoundPetCommandHandler ────────────────────────────────

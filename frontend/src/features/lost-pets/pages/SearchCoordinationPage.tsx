@@ -6,11 +6,8 @@ import { MapContainer, TileLayer } from "react-leaflet";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useAuthStore } from "@/features/auth/store/authStore";
-import {
-  searchCoordinationApi,
-  type SearchZone,
-} from "../api/searchCoordinationApi";
-import { useSearchCoordinationHub } from "../hooks/useSearchCoordinationHub";
+import { searchCoordinationApi, type SearchZone } from "../api/searchCoordinationApi";
+import { useSearchCoordinationHub, type LocationSharingState } from "../hooks/useSearchCoordinationHub";
 import { SearchZonePolygon } from "../components/SearchZonePolygon";
 import { Alert } from "@/shared/ui/Alert";
 import markerIcon2xUrl from "leaflet/dist/images/marker-icon-2x.png";
@@ -18,8 +15,7 @@ import markerIconUrl from "leaflet/dist/images/marker-icon.png";
 import markerShadowUrl from "leaflet/dist/images/marker-shadow.png";
 
 // Fix Leaflet default icon paths broken by bundlers
-delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)
-  ._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2xUrl,
   iconUrl: markerIconUrl,
@@ -32,6 +28,7 @@ export default function SearchCoordinationPage() {
   const [zones, setZones] = useState<SearchZone[]>([]);
   const [activating, setActivating] = useState(false);
   const [activateError, setActivateError] = useState<string | null>(null);
+  const [sharingState, setSharingState] = useState<LocationSharingState | null>(null);
 
   const eventId = lostEventId ?? "";
 
@@ -52,18 +49,17 @@ export default function SearchCoordinationPage() {
 
   // Merge a single updated zone into local state (from SignalR broadcasts)
   const mergeZone = useCallback((updated: SearchZone) => {
-    setZones((prev) =>
-      prev.map((z) => (z.id === updated.id ? { ...z, ...updated } : z)),
-    );
+    setZones((prev) => prev.map((z) => (z.id === updated.id ? { ...z, ...updated } : z)));
   }, []);
 
   // SignalR hub connection
-  const { isConnected, claimZone, clearZone, releaseZone } =
+  const { isConnected, claimZone, clearZone, releaseZone, startLocationSharing, stopLocationSharing } =
     useSearchCoordinationHub({
       lostEventId: eventId,
       onZoneClaimed: mergeZone,
       onZoneCleared: mergeZone,
       onZoneReleased: mergeZone,
+      onLocationSharingStateChanged: setSharingState,
     });
 
   // Stats derived from zone list
@@ -82,9 +78,7 @@ export default function SearchCoordinationPage() {
       setZones(fresh);
       void res;
     } catch {
-      setActivateError(
-        "No se pudo activar el modo coordinación. Intenta de nuevo.",
-      );
+      setActivateError("No se pudo activar el modo coordinación. Intenta de nuevo.");
     } finally {
       setActivating(false);
     }
@@ -94,9 +88,7 @@ export default function SearchCoordinationPage() {
   const mapCenter: [number, number] = (() => {
     try {
       if (zones.length > 0) {
-        const parsed = JSON.parse(
-          zones[Math.floor(zones.length / 2)].geoJsonPolygon,
-        ) as {
+        const parsed = JSON.parse(zones[Math.floor(zones.length / 2)].geoJsonPolygon) as {
           coordinates: [number, number][][];
         };
         const [lng, lat] = parsed.coordinates[0][0];
@@ -123,13 +115,9 @@ export default function SearchCoordinationPage() {
             />
           </span>
           <div>
-            <h1 className="text-sm font-extrabold text-white tracking-tight">
-              ⚡ Centro de Búsqueda
-            </h1>
+            <h1 className="text-sm font-extrabold text-white tracking-tight">⚡ Centro de Búsqueda</h1>
             <p className="text-xs text-zinc-400">
-              {isConnected
-                ? "🟢 Tiempo real activo"
-                : "🔴 Sin conexión en tiempo real"}
+              {isConnected ? "🟢 Tiempo real activo" : "🔴 Sin conexión en tiempo real"}
             </p>
           </div>
         </div>
@@ -148,6 +136,42 @@ export default function SearchCoordinationPage() {
         )}
       </header>
 
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-700 bg-zinc-900 px-4 py-3 text-xs text-zinc-300">
+        <span>
+          {sharingState?.isSharing
+            ? `Tu ubicación se comparte ${sharingState.isPrecise ? "con precisión" : "de forma aproximada"} hasta ${new Date(sharingState.expiresAt ?? "").toLocaleTimeString("es-CR")}.`
+            : "Tu ubicación no se comparte con el equipo."}
+        </span>
+        <div className="flex gap-2">
+          {!sharingState?.isSharing ? (
+            <>
+              <button
+                type="button"
+                onClick={() => void startLocationSharing(false)}
+                className="rounded-lg bg-rescue-600 px-3 py-2 font-semibold text-white hover:bg-rescue-700"
+              >
+                Compartir ubicación aproximada
+              </button>
+              <button
+                type="button"
+                onClick={() => void startLocationSharing(true)}
+                className="rounded-lg border border-zinc-600 px-3 py-2 font-semibold text-zinc-200 hover:bg-zinc-800"
+              >
+                Compartir precisa
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => void stopLocationSharing()}
+              className="rounded-lg bg-danger-600 px-3 py-2 font-semibold text-white hover:bg-danger-700"
+            >
+              Dejar de compartir
+            </button>
+          )}
+        </div>
+      </div>
+
       {activateError && <Alert variant="error">{activateError}</Alert>}
 
       {/* ── War Room Stats Bar ── */}
@@ -164,14 +188,8 @@ export default function SearchCoordinationPage() {
               layout
               className="flex flex-1 flex-col items-center rounded-lg bg-zinc-800/60 px-2 py-1.5"
             >
-              <span
-                className={`text-base font-black tabular-nums ${stat.color}`}
-              >
-                {stat.value}
-              </span>
-              <span className="text-[10px] text-zinc-500 uppercase tracking-wide">
-                {stat.label}
-              </span>
+              <span className={`text-base font-black tabular-nums ${stat.color}`}>{stat.value}</span>
+              <span className="text-[10px] text-zinc-500 uppercase tracking-wide">{stat.label}</span>
             </motion.div>
           ))}
         </div>
@@ -225,12 +243,9 @@ export default function SearchCoordinationPage() {
       {!isLoading && total === 0 && (
         <div className="absolute inset-x-0 bottom-24 mx-auto max-w-sm rounded-2xl field-input p-5 shadow-lg text-center">
           <p className="text-3xl">🗺️</p>
-          <p className="mt-2 text-sm font-semibold text-sand-700">
-            Aún no hay zonas de búsqueda
-          </p>
+          <p className="mt-2 text-sm font-semibold text-sand-700">Aún no hay zonas de búsqueda</p>
           <p className="mt-1 text-xs text-sand-500">
-            El dueño de la mascota puede activar el modo coordinación para
-            dividir el área en zonas.
+            El dueño de la mascota puede activar el modo coordinación para dividir el área en zonas.
           </p>
         </div>
       )}

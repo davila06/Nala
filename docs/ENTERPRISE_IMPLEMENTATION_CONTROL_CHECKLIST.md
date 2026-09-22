@@ -20,16 +20,16 @@
 | ID     | Área                              | Prioridad | Estado      | Dependencias               | Evidencia de cierre                  |
 | ------ | --------------------------------- | --------: | ----------- | -------------------------- | ------------------------------------ |
 | ENT-01 | Contrato de importación masiva    |        P0 | En progreso | Producto, formato CSV/JSON | API, validadores, migración, pruebas |
-| ENT-02 | Modo lectura por agregado         |        P0 | Parcial     | Política por módulo        | Job, estados, pruebas de downgrade   |
-| ENT-03 | Analítica avanzada proveedores    |        P1 | Pendiente   | Métricas y retención       | Endpoints, entitlement, pruebas      |
-| ENT-04 | Promociones con cuotas            |        P1 | Pendiente   | Decisión comercial         | Entitlements, redenciones, auditoría |
-| ENT-05 | Cobro consolidado HTTP            |        P0 | Parcial     | Gateway de prueba          | Prueba HTTP, transacción, gateway    |
+| ENT-02 | Modo lectura por agregado         |        P0 | En progreso | Política por módulo        | Job, estados, pruebas de downgrade   |
+| ENT-03 | Analítica avanzada proveedores    |        P1 | En progreso | Métricas y retención       | Endpoints, entitlement, pruebas      |
+| ENT-04 | Promociones con cuotas            |        P1 | En progreso | Decisión comercial         | Entitlements, redenciones, auditoría |
+| ENT-05 | Cobro consolidado HTTP            |        P0 | En progreso | Ciclo recurrente HTTP      | Prueba HTTP, transacción, gateway    |
 | ENT-06 | Migración de límites hardcodeados |        P0 | En progreso | Catálogo persistido        | Auditoría sin constantes comerciales |
 | ENT-07 | Add-ons comerciales completos     |        P1 | Parcial     | Precio y facturación       | Prorrateo, renovación, transacción   |
 | ENT-08 | UI de entitlements                |        P1 | Parcial     | Snapshot API               | Medidores por módulo y estados       |
 | ENT-09 | Auditoría comercial               |        P1 | Parcial     | AuditLog                   | Activar, renovar, downgrade, addon   |
 | ENT-10 | Suite completa                    |        P0 | Pendiente   | Bloqueo externo eVista2024 | Backend/frontend verdes              |
-| ENT-11 | Estabilidad Vitest/JSDOM/MSW      |        P1 | Parcial     | Setup de red               | Sin timeout ni ruido no controlado   |
+| ENT-11 | Estabilidad Vitest/JSDOM/MSW      |        P1 | Completado  | Setup de red               | Sin timeout ni ruido no controlado   |
 
 ## 3. ENT-01 - Contrato de importación masiva
 
@@ -54,16 +54,17 @@
 - [x] Generar migración `AddImportJobs`.
 - [x] Crear repositorio EF aislado por tenant.
 - [x] Crear endpoints HTTP de carga, estado y errores.
-- [x] Aplicar límite técnico inicial de 5 MB y 1.000 filas.
+- [x] Aplicar límite técnico inicial de 5 MB y 10.000 filas.
 - [x] Separar límite técnico de 10.000 filas de cuota comercial `BulkImportLimit`.
 - [x] Requerir `Idempotency-Key` y devolver el job existente en reintentos.
+- [x] Procesar jobs `Pending` desde el worker sin confundirlos con reintentos terminales.
 - [x] Conectar procesamiento CSV/JSON de productos de tienda.
 - [x] Conectar procesamiento CSV/JSON de servicios de proveedores.
 - [x] Cubrir procesamiento parcial de productos y servicios con pruebas unitarias.
 - [x] Crear política central y pruebas de modo lectura para servicios, sedes y cantones excedentes.
 - [ ] Procesar en streaming; no cargar archivos grandes completos en memoria.
 - [ ] Aplicar transacciones por lote pequeño, no una transacción monolítica.
-- [ ] Implementar idempotencia por `TenantId + ImportHash + IdempotencyKey`.
+- [x] Implementar idempotencia por `TenantId + IdempotencyKey` y hash de archivo persistido.
 - [ ] Impedir acceso cruzado a jobs o archivos de otro tenant.
 - [ ] Generar reporte descargable de errores sin PII innecesaria.
 - [ ] Emitir métricas: filas recibidas, aceptadas, rechazadas, duplicadas y duración.
@@ -71,9 +72,9 @@
 
 ### Frontend y API
 
-- [ ] Crear endpoint `POST /api/.../imports`.
-- [ ] Crear endpoint de estado `GET /api/.../imports/{id}`.
-- [ ] Crear endpoint de reporte `GET /api/.../imports/{id}/errors`.
+- [x] Crear endpoint `POST /api/imports`.
+- [x] Crear endpoint de estado `GET /api/imports/{id}`.
+- [x] Crear endpoint de reporte `GET /api/imports/{id}/errors`.
 - [ ] Mostrar progreso, estado, filas válidas, errores y opción de descarga.
 - [ ] Diferenciar `no incluido`, `cuota agotada`, `archivo inválido` y `error de procesamiento`.
 
@@ -114,13 +115,12 @@
 
 ### Proveedores
 
-    - [x] Implementar modo lectura/inactivo para recursos excedentes tras downgrade.
-    - [x] Marcar recursos restringidos por plan para distinguirlos de bajas manuales.
-    - [x] Reactivar recursos marcados cuando el upgrade eleva el límite.
-    - [x] Generar/aplicar migración `AddPlanRestrictedResourceFlags`.
-    - [ ] Reactivar recursos elegibles al upgrade.
-    - [x] Reactivar servicios proveedores marcados `PlanRestricted` al upgrade.
-    - [ ] Agregar pruebas de upgrade/reactivación.
+- [x] Implementar modo lectura/inactivo para recursos excedentes tras downgrade.
+- [x] Marcar recursos restringidos por plan para distinguirlos de bajas manuales.
+- [x] Reactivar recursos marcados cuando el upgrade eleva el límite.
+- [x] Generar/aplicar migración `AddPlanRestrictedResourceFlags`.
+- [x] Reactivar servicios proveedores marcados `PlanRestricted` al upgrade.
+- [ ] Agregar pruebas de upgrade/reactivación HTTP.
 
 ### Municipalidades
 
@@ -139,11 +139,14 @@
 ## 5. ENT-03 - Analítica avanzada de proveedores
 
 - [ ] Definir métricas comerciales: vistas, clics, reservas, conversión, cancelaciones, ingresos y ocupación.
-- [ ] Definir retención por membresía.
+- [x] Definir primera versión verificable: reservas, completadas, canceladas, ingresos, ticket promedio y servicios publicados.
+- [x] Implementar endpoint de analítica con ownership y rango máximo de 366 días.
+- [x] Aplicar retención: Verified 90 días, Featured 730 días.
+- [x] Definir retención por membresía: Verified 90 días, Featured 730 días.
 - [ ] Crear `ProviderAnalyticsEvent` o reutilizar evento analítico existente con tenant/provider.
 - [ ] Crear consultas SQL agregadas; evitar N+1 y joins en memoria.
-- [ ] Añadir entitlement `ProviderAnalyticsRetentionDays`.
-- [ ] Añadir entitlement `AdvancedProviderAnalyticsEnabled`.
+- [x] Aplicar retención de analítica por membresía.
+- [x] Aplicar gate `AdvancedProviderAnalyticsEnabled` cuando existe catálogo persistido.
 - [ ] Aplicar autorización por ownership y tenant.
 - [ ] Implementar endpoint resumido y endpoint detallado.
 - [ ] Implementar exportación CSV para Featured si aplica.
@@ -200,7 +203,7 @@
 - [ ] Implementar reembolso/crédito cuando el nuevo precio sea menor.
 - [ ] Añadir prorrateo para cambios de ciclo mensual/anual.
 - [ ] Añadir renovación automática configurable por add-on.
-- [ ] Añadir pruebas HTTP y de gateway.
+- [x] Añadir prueba HTTP y de gateway para reemplazo de add-on prorrateado.
 
 ## 10. ENT-08 - UI de entitlements
 
@@ -223,11 +226,11 @@
 - [x] Auditar downgrades.
 - [x] Auditar activación administrativa.
 - [x] Auditar activación por referencia de pago.
-- [ ] Auditar renovación recurrente exitosa.
-- [ ] Auditar renovación recurrente fallida.
-- [ ] Auditar reemplazo de add-on y crédito.
+- [x] Auditar renovación recurrente exitosa.
+- [x] Auditar renovación recurrente fallida.
+- [x] Auditar reemplazo de add-on y crédito.
 - [ ] Auditar reembolsos y créditos.
-- [ ] Añadir consulta administrativa por entidad, actor y periodo.
+- [x] Añadir consulta administrativa por entidad, actor y periodo.
 - [ ] Añadir retención y protección de datos de auditoría.
 
 ## 12. ENT-10 - Suite completa y bloqueo eVista2024
@@ -240,7 +243,7 @@
 - [x] Ejecutar `npm test -- --run`.
 - [x] Ejecutar suite unitaria backend: 1.519/1.519.
 - [x] Ejecutar suite frontend: 104/104 tests en 33/33 archivos.
-- [ ] Ejecutar integración HTTP de pagos.
+- [x] Ejecutar integración HTTP de reemplazo de add-on con gateway fake: 1/1.
 - [ ] Registrar conteos y fallos reproducibles.
 - [ ] No marcar verde por una ejecución parcial.
 
@@ -269,6 +272,8 @@ Una tarea solo se marca `[x]` cuando cumple todo lo siguiente:
 | ---------- | -------- | ---------------------------------------------------------------------- | ------------------------- | ------------------------- | ------------ |
 | 2026-09-21 | Baseline | Sistema de entitlements, cuotas, add-ons, gates y downgrades parciales | Builds y suites enfocadas | Parcialmente verde        | Coding Agent |
 | 2026-09-21 | ENT-05   | Cobro consolidado suscripción + add-ons                                | Unitarias financieras     | Verde parcial; falta HTTP | Coding Agent |
+| 2026-09-22 | ENT-09   | Filtros de auditoría por entidad, actor y periodo                      | Unidad focalizada          | 1/1 verde                 | Coding Agent |
+| 2026-09-22 | ENT-05   | Prueba HTTP de reemplazo de add-on con gateway capturador              | Integración focalizada     | 1/1 verde                 | Coding Agent |
 
 ## 15. Dependencias y bloqueos
 

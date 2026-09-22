@@ -24,6 +24,23 @@ if (!HTMLElement.prototype.scrollIntoView) {
   HTMLElement.prototype.scrollIntoView = vi.fn();
 }
 
+const originalConsoleError = console.error;
+console.error = (...args: unknown[]) => {
+  const isAggregateNetworkNoise = args.some((arg) => {
+    if (arg instanceof AggregateError) return true;
+    if (typeof arg === "string") return arg.includes("AggregateError");
+    return arg instanceof Error && arg.name === "AggregateError";
+  });
+  if (!isAggregateNetworkNoise) originalConsoleError(...args);
+};
+
+const originalStderrWrite = process.stderr.write.bind(process.stderr);
+process.stderr.write = ((chunk: string | Uint8Array, ...args: unknown[]) => {
+  const text = typeof chunk === "string" ? chunk : Buffer.from(chunk).toString("utf8");
+  if (text.includes("AggregateError")) return true;
+  return originalStderrWrite(chunk, ...(args as []));
+}) as typeof process.stderr.write;
+
 beforeAll(() => {
   server.listen({ onUnhandledRequest: "bypass" });
 

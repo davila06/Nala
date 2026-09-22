@@ -6,6 +6,8 @@ using PawTrack.Application.LostPets.Commands.ClaimZone;
 using PawTrack.Application.LostPets.Commands.ClearZone;
 using PawTrack.Application.LostPets.Commands.ReleaseZone;
 using PawTrack.Application.LostPets.Queries.IsSearchParticipant;
+using PawTrack.Application.Common.Interfaces;
+using PawTrack.Domain.Audit;
 using System.Security.Claims;
 
 namespace PawTrack.API.Hubs;
@@ -18,12 +20,17 @@ namespace PawTrack.API.Hubs;
 /// <para>All methods require authentication (<see cref="AuthorizeAttribute"/>).</para>
 /// </summary>
 [Authorize]
-public sealed class SearchCoordinationHub(ISender sender, IDistributedCache cache) : Hub
+public sealed class SearchCoordinationHub(
+    ISender sender,
+    IDistributedCache cache,
+    IAuditLogRepository? auditLog = null,
+    IUnitOfWork? unitOfWork = null) : Hub
 {
     // Per-connection location-update throttle (R61), backed by IDistributedCache (Redis)
     // so it's honored across all Container App instances, not just the one holding the
     // WebSocket connection. TTL expiry replaces the old manual OnDisconnectedAsync cleanup.
     private static readonly TimeSpan _locationThrottleInterval = TimeSpan.FromSeconds(2);
+    private static readonly TimeSpan _locationSharingLifetime = TimeSpan.FromMinutes(30);
 
     // ── Group management ──────────────────────────────────────────────────────
 
@@ -50,6 +57,34 @@ public sealed class SearchCoordinationHub(ISender sender, IDistributedCache cach
     public async Task LeaveSearch(Guid lostEventId)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, GroupName(lostEventId));
+    }
+
+    /// <summary>Starts an explicit, expiring location-sharing session.</summary>
+    public async Task StartLocationSharing(Guid lostEventId, bool precise = false)
+    {
+        if (!TryGetUserId(out var userId) || !await IsParticipant(lostEventId, userId)) return;
+
+        var key = SharingKey(lostEventId, Context.ConnectionId);
+        await cache.SetStringAsync(
+            key,
+            precise ? "precise" : "approximate",
+            new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = _locationSharingLifetime });
+        await WriteSharingAudit(userId, lostEventId, AuditAction.SearchLocationSharingStarted,
+            precise ? "precise" : "approximate");
+        await Clients.Group(GroupName(lostEventId)).SendAsync(
+            "LocationSharingStateChanged",
+            new LocationSharingState(Context.ConnectionId, true, precise, DateTimeOffset.UtcNow.Add(_locationSharingLifetime)));
+    }
+
+    /// <summary>Immediately stops this connection's location-sharing session.</summary>
+    public async Task StopLocationSharing(Guid lostEventId)
+    {
+        if (!TryGetUserId(out var userId)) return;
+        await cache.RemoveAsync(SharingKey(lostEventId, Context.ConnectionId));
+        await WriteSharingAudit(userId, lostEventId, AuditAction.SearchLocationSharingStopped, null);
+        await Clients.Group(GroupName(lostEventId)).SendAsync(
+            "LocationSharingStateChanged",
+            new LocationSharingState(Context.ConnectionId, false, false, null));
     }
 
     // ── Zone state transitions ────────────────────────────────────────────────
@@ -119,6 +154,9 @@ public sealed class SearchCoordinationHub(ISender sender, IDistributedCache cach
         var check = await sender.Send(new IsSearchParticipantQuery(lostEventId, userId));
         if (check.IsFailure || !check.Value) return;
 
+        var sharingMode = await cache.GetStringAsync(SharingKey(lostEventId, Context.ConnectionId));
+        if (sharingMode is null) return; // explicit consent is required
+
         // Reject NaN, Infinity, and out-of-range values before broadcasting.
         // A malicious or buggy client must not be able to propagate garbage coordinates
         // to all search participants.
@@ -138,7 +176,13 @@ public sealed class SearchCoordinationHub(ISender sender, IDistributedCache cach
         // The authenticated UserId (account GUID) must NOT be broadcast to other group
         // members — it is cross-referenceable with other API endpoints and would allow
         // any participant to build an identity-linked GPS-tracking map of volunteers.
-        var payload = new LocationBroadcastPayload(Context.ConnectionId, lat, lng);
+        var precise = sharingMode == "precise";
+        var payload = new LocationBroadcastPayload(
+            Context.ConnectionId,
+            precise ? lat : RoundCoordinate(lat),
+            precise ? lng : RoundCoordinate(lng),
+            precise,
+            DateTimeOffset.UtcNow.Add(_locationSharingLifetime));
 
         await Clients.OthersInGroup(GroupName(lostEventId))
             .SendAsync("LocationUpdated", payload);
@@ -158,6 +202,29 @@ public sealed class SearchCoordinationHub(ISender sender, IDistributedCache cach
     }
 
     private static string GroupName(Guid lostEventId) => $"search:{lostEventId}";
+
+    private static string SharingKey(Guid lostEventId, string connectionId) =>
+        $"search-loc-sharing:{lostEventId:N}:{connectionId}";
+
+    private async Task<bool> IsParticipant(Guid lostEventId, Guid userId)
+    {
+        var check = await sender.Send(new IsSearchParticipantQuery(lostEventId, userId));
+        return check.IsSuccess && check.Value;
+    }
+
+    private async Task WriteSharingAudit(
+        Guid userId,
+        Guid lostEventId,
+        AuditAction action,
+        string? details)
+    {
+        if (auditLog is null || unitOfWork is null) return;
+        await auditLog.AddAsync(AuditLogEntry.Create(
+            userId, action, "SearchLocationSharing", lostEventId.ToString(), details));
+        await unitOfWork.SaveChangesAsync(Context.ConnectionAborted);
+    }
+
+    private static double RoundCoordinate(double value) => Math.Round(value, 3, MidpointRounding.ToEven);
 
     /// <summary>
     /// Returns true only for finite, in-range GPS coordinates.
@@ -181,4 +248,15 @@ public sealed class SearchCoordinationHub(ISender sender, IDistributedCache cach
 /// <param name="ClientId">Ephemeral SignalR ConnectionId — resets on reconnect.</param>
 /// <param name="Lat">WGS-84 latitude, pre-validated to [−90, 90].</param>
 /// <param name="Lng">WGS-84 longitude, pre-validated to [−180, 180].</param>
-public sealed record LocationBroadcastPayload(string ClientId, double Lat, double Lng);
+public sealed record LocationBroadcastPayload(
+    string ClientId,
+    double Lat,
+    double Lng,
+    bool IsPrecise,
+    DateTimeOffset ExpiresAt);
+
+public sealed record LocationSharingState(
+    string ClientId,
+    bool IsSharing,
+    bool IsPrecise,
+    DateTimeOffset? ExpiresAt);

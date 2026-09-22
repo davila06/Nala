@@ -18,9 +18,12 @@ public sealed class AdminAuditController(ISender sender) : ControllerBase
         [FromQuery] string? entityType,
         [FromQuery] string? entityId,
         [FromQuery] int take = 100,
+        [FromQuery] Guid? actorId = null,
+        [FromQuery] DateTimeOffset? from = null,
+        [FromQuery] DateTimeOffset? to = null,
         CancellationToken ct = default)
     {
-        var result = await sender.Send(new GetAuditLogQuery(entityType, entityId, take), ct);
+        var result = await sender.Send(new GetAuditLogQuery(entityType, entityId, take, actorId, from, to), ct);
         return Ok(result.Value);
     }
 }

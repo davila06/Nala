@@ -4,6 +4,7 @@ using PawTrack.Application.Payments.Interfaces;
 using PawTrack.Application.Subscriptions.DTOs;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Application.Subscriptions.Services;
+using PawTrack.Domain.Audit;
 using PawTrack.Domain.Common;
 
 namespace PawTrack.Application.Subscriptions.Commands.ManageSubscriptionAddon;
@@ -26,7 +27,8 @@ public sealed class ReplaceSubscriptionAddonCommandHandler(
     ISubscriptionRepository? subscriptionRepository = null,
     IUserPaymentProfileRepository? paymentProfileRepository = null,
     IPaymentTransactionRepository? transactionRepository = null,
-    IPaymentGatewayService? gatewayService = null)
+    IPaymentGatewayService? gatewayService = null,
+    IAuditLogRepository? auditLog = null)
     : IRequestHandler<ReplaceSubscriptionAddonCommand, Result<ReplaceSubscriptionAddonResult>>
 {
     public async Task<Result<ReplaceSubscriptionAddonResult>> Handle(
@@ -91,6 +93,13 @@ public sealed class ReplaceSubscriptionAddonCommandHandler(
                 existing.SubscriptionId, request.EntitlementKey, request.Units,
                 DateTimeOffset.UtcNow, request.ExpiresAt, request.PriceCrc);
             await addonRepository.AddAsync(replacement, cancellationToken);
+            if (auditLog is not null)
+            {
+                await auditLog.AddAsync(AuditLogEntry.Create(
+                    request.ActorId, AuditAction.SubscriptionAddonReplaced, "SubscriptionAddon",
+                    existing.Id.ToString(),
+                    $"credit={quote.UnusedCreditCrc};due={quote.AmountDueCrc};replacement={replacement.Id}"), cancellationToken);
+            }
             await unitOfWork.SaveChangesAsync(cancellationToken);
             return Result.Success(new ReplaceSubscriptionAddonResult(
                 SubscriptionAddonDto.FromDomain(replacement), quote));

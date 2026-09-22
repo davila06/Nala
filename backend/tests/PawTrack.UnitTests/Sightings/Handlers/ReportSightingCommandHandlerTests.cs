@@ -25,6 +25,7 @@ public sealed class ReportSightingCommandHandlerTests
     private readonly IPiiScrubber _piiScrubber = Substitute.For<IPiiScrubber>();
     private readonly INotificationDispatcher _dispatcher = Substitute.For<INotificationDispatcher>();
     private readonly IAnimalPhotoValidator _animalValidator = Substitute.For<IAnimalPhotoValidator>();
+    private readonly IProductEventRepository _productEventRepo = Substitute.For<IProductEventRepository>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
 
     private readonly ReportSightingCommandHandler _sut;
@@ -40,7 +41,7 @@ public sealed class ReportSightingCommandHandlerTests
             _sightingRepo, _petRepo, _lostPetRepo, _userRepo,
             _userLocationRepo, _notificationRepo,
             _blobService, _imageProcessor, _piiScrubber, _dispatcher,
-            _animalValidator,
+            _animalValidator, _productEventRepo,
             Options.Create(new ResolveCheckSettings()),
             Options.Create(new AnimalPhotoValidationSettings()),
             _uow);
@@ -126,6 +127,12 @@ public sealed class ReportSightingCommandHandlerTests
         await _dispatcher.Received(1).DispatchSightingAlertAsync(
             owner.Id, owner.Email, owner.Name, pet.Name,
             Arg.Any<string>(), Arg.Any<CancellationToken>());
+        await _productEventRepo.Received(1).AddAsync(
+            Arg.Is<PawTrack.Domain.ProductAnalytics.ProductEvent>(eventRecord =>
+                eventRecord.EventName == "FirstResponseRecorded" &&
+                eventRecord.CorrelationId == lostReport.Id.ToString() &&
+                eventRecord.PetId == pet.Id),
+            Arg.Any<CancellationToken>());
     }
 
     [Fact]

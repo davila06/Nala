@@ -68,14 +68,7 @@ function HoloStatItem({ end, suffix, label, started }: HoloStatItemProps) {
 
 function EyeIcon({ open }: { open: boolean }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      className="h-4 w-4"
-      aria-hidden="true"
-    >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4" aria-hidden="true">
       {open ? (
         <>
           <path
@@ -92,11 +85,7 @@ function EyeIcon({ open }: { open: boolean }) {
         </>
       ) : (
         <>
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
           <circle cx="12" cy="12" r="3" />
         </>
       )}
@@ -115,22 +104,15 @@ function extractLoginError(err: unknown): string {
   const e = err as AxiosLike;
   const status = e.response?.status;
   const detail = e.response?.data?.detail;
-  if (status === 423)
-    return "Cuenta bloqueada temporalmente por múltiples intentos fallidos. Intenta en 15 minutos.";
-  if (detail?.toLowerCase().includes("locked"))
-    return "Cuenta bloqueada temporalmente. Intenta en 15 minutos.";
-  if (detail?.toLowerCase().includes("verified"))
-    return "Debes verificar tu correo antes de iniciar sesión.";
+  if (status === 423) return "Cuenta bloqueada temporalmente por múltiples intentos fallidos. Intenta en 15 minutos.";
+  if (detail?.toLowerCase().includes("locked")) return "Cuenta bloqueada temporalmente. Intenta en 15 minutos.";
+  if (detail?.toLowerCase().includes("verified")) return "Debes verificar tu correo antes de iniciar sesión.";
   if (status === 401) return "Correo o contraseña incorrectos.";
   return "No se pudo iniciar sesión. Intenta de nuevo.";
 }
 
 function isVerifiedError(err: unknown): boolean {
-  return (
-    (err as AxiosLike | null)?.response?.data?.detail
-      ?.toLowerCase()
-      .includes("verified") === true
-  );
+  return (err as AxiosLike | null)?.response?.data?.detail?.toLowerCase().includes("verified") === true;
 }
 
 // ── Brand panel ───────────────────────────────────────────────────────────────
@@ -141,9 +123,7 @@ function BrandPanel() {
   const { data: overview } = useRecoveryOverview();
 
   const totalReunited = overview?.recoveredCount ?? 0;
-  const recoveryPct = overview
-    ? Math.round(overview.overallRecoveryRate * 100)
-    : 0;
+  const recoveryPct = overview ? Math.round(overview.overallRecoveryRate * 100) : 0;
   const totalReports = overview?.totalReports ?? 0;
 
   useEffect(() => {
@@ -170,12 +150,8 @@ function BrandPanel() {
 
       <div className="relative z-10">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 text-xl">
-            🐾
-          </span>
-          <span className="font-display text-2xl font-semibold tracking-tight">
-            PawTrack CR
-          </span>
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 text-xl">🐾</span>
+          <span className="font-display text-2xl font-semibold tracking-tight">PawTrack CR</span>
         </div>
         <p className="mt-1.5 pl-13 text-[11px] font-semibold uppercase tracking-widest text-brand-300">
           NALA · Núcleo de Ayuda y Localización Animal
@@ -189,10 +165,8 @@ function BrandPanel() {
           <em className="not-italic text-brand-400">a casa.</em>
         </p>
         <p className="text-trust-200 text-base leading-relaxed max-w-sm">
-          Identidad digital con QR y microchip, búsqueda por IA, GPS de collar y
-          alertas instantáneas por WhatsApp — respaldado por una red de
-          clínicas, aliados, municipalidades y servicios para mascotas en todo
-          Costa Rica.
+          Identidad digital con QR y microchip, búsqueda por IA, GPS de collar y alertas instantáneas por WhatsApp —
+          respaldado por una red de clínicas, aliados, municipalidades y servicios para mascotas en todo Costa Rica.
         </p>
       </div>
 
@@ -200,46 +174,14 @@ function BrandPanel() {
       <div className="flex gap-3 relative z-10">
         {totalReunited > 0 ? (
           <>
-            <HoloStatItem
-              end={totalReports}
-              suffix="+"
-              label="casos atendidos"
-              started={statsStarted}
-            />
-            <HoloStatItem
-              end={recoveryPct}
-              suffix=" %"
-              label="tasa de recuperación"
-              started={statsStarted}
-            />
-            <HoloStatItem
-              end={totalReunited}
-              suffix="+"
-              label="mascotas reunidas"
-              started={statsStarted}
-            />
+            <HoloStatItem end={totalReports} suffix="+" label="casos atendidos" started={statsStarted} />
+            <HoloStatItem end={recoveryPct} suffix=" %" label="tasa de recuperación" started={statsStarted} />
+            <HoloStatItem end={totalReunited} suffix="+" label="mascotas reunidas" started={statsStarted} />
           </>
         ) : (
-          <>
-            <HoloStatItem
-              end={12000}
-              suffix="+"
-              label="mascotas registradas"
-              started={statsStarted}
-            />
-            <HoloStatItem
-              end={94}
-              suffix=" %"
-              label="tasa de recuperación"
-              started={statsStarted}
-            />
-            <HoloStatItem
-              end={480}
-              suffix="+"
-              label="aliados verificados"
-              started={statsStarted}
-            />
-          </>
+          <p className="max-w-sm text-sm text-trust-300">
+            Las métricas públicas se mostrarán cuando exista un periodo con datos verificables.
+          </p>
         )}
       </div>
     </div>
@@ -319,19 +261,12 @@ function VerifyEmailModal({ email, onClose }: VerifyEmailModalProps) {
             </span>
           </motion.div>
 
-          <h2
-            id="verify-modal-title"
-            className="font-display text-2xl font-semibold text-sand-900 text-center"
-          >
+          <h2 id="verify-modal-title" className="font-display text-2xl font-semibold text-sand-900 text-center">
             Confirma tu correo
           </h2>
           <p className="mt-3 text-sm text-sand-500 text-center leading-relaxed">
-            La cuenta{" "}
-            <strong className="font-semibold text-sand-700 break-all">
-              {email}
-            </strong>{" "}
-            aún no ha sido verificada. Revisa tu bandeja de entrada o la carpeta
-            de spam para el enlace que te enviamos al registrarte.
+            La cuenta <strong className="font-semibold text-sand-700 break-all">{email}</strong> aún no ha sido
+            verificada. Revisa tu bandeja de entrada o la carpeta de spam para el enlace que te enviamos al registrarte.
           </p>
 
           <div className="mt-7 flex flex-col gap-3">
@@ -411,12 +346,9 @@ function InlineForgotForm({ initialEmail, onBack }: InlineForgotFormProps) {
               </span>
             </motion.div>
             <div>
-              <h2 className="font-display text-2xl font-bold text-sand-900">
-                ¡Revisa tu correo!
-              </h2>
+              <h2 className="font-display text-2xl font-bold text-sand-900">¡Revisa tu correo!</h2>
               <p className="mt-2 text-sm text-sand-500 leading-relaxed">
-                Si el correo está registrado recibirás un enlace en unos
-                minutos. Revisa también tu carpeta de spam.
+                Si el correo está registrado recibirás un enlace en unos minutos. Revisa también tu carpeta de spam.
               </p>
             </div>
             <Button variant="secondary" fullWidth onClick={onBack}>
@@ -431,12 +363,8 @@ function InlineForgotForm({ initialEmail, onBack }: InlineForgotFormProps) {
             transition={{ type: "spring", stiffness: 290, damping: 26 }}
           >
             <div className="mb-8">
-              <h2 className="font-display text-3xl font-semibold text-sand-900">
-                Recuperar contraseña
-              </h2>
-              <p className="mt-2 text-sm text-sand-500">
-                Te enviaremos un enlace seguro a tu correo registrado.
-              </p>
+              <h2 className="font-display text-3xl font-semibold text-sand-900">Recuperar contraseña</h2>
+              <p className="mt-2 text-sm text-sand-500">Te enviaremos un enlace seguro a tu correo registrado.</p>
             </div>
             <form onSubmit={handleSubmit} noValidate className="space-y-5">
               <Input
@@ -472,11 +400,7 @@ export default function LoginPage() {
   const justRegistered = searchParams.get("registered") === "true";
 
   const { mutate: login, isPending, error } = useLogin(returnTo);
-  const {
-    mutate: passkeyLogin,
-    isPending: isPasskeyPending,
-    error: passkeyError,
-  } = usePasskeyLogin(returnTo);
+  const { mutate: passkeyLogin, isPending: isPasskeyPending, error: passkeyError } = usePasskeyLogin(returnTo);
   const [showForgot, setShowForgot] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
 
@@ -485,23 +409,14 @@ export default function LoginPage() {
     password: "",
   }));
   const [showPassword, setShowPassword] = useState(false);
-  const [emailTouched, setEmailTouched] = useState(
-    () => !!localStorage.getItem("pawtrack:lastEmail"),
-  );
+  const [emailTouched, setEmailTouched] = useState(() => !!localStorage.getItem("pawtrack:lastEmail"));
   const emailDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [emailValidNow, setEmailValidNow] = useState(false);
 
-  const {
-    tilt: formTilt,
-    onMove: onFormMove,
-    onLeave: onFormLeave,
-  } = useTilt(4);
+  const { tilt: formTilt, onMove: onFormMove, onLeave: onFormLeave } = useTilt(4);
 
   const emailInvalid =
-    emailValidNow &&
-    emailTouched &&
-    form.email.length > 0 &&
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
+    emailValidNow && emailTouched && form.email.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
 
   const errorMsg = extractLoginError(error);
   const verifyError = isVerifiedError(error);
@@ -542,9 +457,7 @@ export default function LoginPage() {
             >
               🐾
             </span>
-            <span className="font-display text-xl font-semibold text-sand-900">
-              PawTrack CR
-            </span>
+            <span className="font-display text-xl font-semibold text-sand-900">PawTrack CR</span>
           </div>
           <p className="text-[10px] font-semibold uppercase tracking-widest text-sand-400">
             NALA · Núcleo de Ayuda y Localización Animal
@@ -578,34 +491,22 @@ export default function LoginPage() {
                     <h1 className="font-display text-3xl font-semibold text-sand-900 text-balance">
                       Bienvenido de vuelta
                     </h1>
-                    <p className="mt-2 text-sm text-sand-500">
-                      Ingresa para acceder al panel de tu mascota.
-                    </p>
+                    <p className="mt-2 text-sm text-sand-500">Ingresa para acceder al panel de tu mascota.</p>
                   </div>
 
                   {justRegistered && (
                     <Alert variant="success" className="mb-6">
-                      Cuenta creada exitosamente. Revisa tu correo para
-                      verificarla.
+                      Cuenta creada exitosamente. Revisa tu correo para verificarla.
                     </Alert>
                   )}
 
                   {error && !verifyError && (
-                    <Alert
-                      variant="error"
-                      className="mb-6"
-                      id="login-error"
-                      role="alert"
-                    >
+                    <Alert variant="error" className="mb-6" id="login-error" role="alert">
                       {errorMsg}
                     </Alert>
                   )}
 
-                  <form
-                    onSubmit={handleSubmit}
-                    noValidate
-                    className="space-y-5"
-                  >
+                  <form onSubmit={handleSubmit} noValidate className="space-y-5">
                     <div>
                       <Input
                         label="Correo electrónico"
@@ -622,30 +523,19 @@ export default function LoginPage() {
                         onChange={handleEmailChange}
                         onBlur={handleEmailBlur}
                         aria-describedby={
-                          emailInvalid
-                            ? "email-error"
-                            : error && !verifyError
-                              ? "login-error"
-                              : undefined
+                          emailInvalid ? "email-error" : error && !verifyError ? "login-error" : undefined
                         }
                         aria-invalid={emailInvalid || undefined}
                       />
                       {emailInvalid && (
-                        <p
-                          id="email-error"
-                          className="mt-1.5 text-xs text-danger-600"
-                          role="alert"
-                        >
+                        <p id="email-error" className="mt-1.5 text-xs text-danger-600" role="alert">
                           Ingresa un correo electrónico válido.
                         </p>
                       )}
                     </div>
 
                     <div>
-                      <label
-                        htmlFor="password"
-                        className="mb-1.5 block text-sm font-medium text-sand-700"
-                      >
+                      <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-sand-700">
                         Contraseña
                       </label>
                       <div className="relative">
@@ -659,23 +549,15 @@ export default function LoginPage() {
                           required
                           placeholder="••••••••"
                           value={form.password}
-                          onChange={(e) =>
-                            setForm({ ...form, password: e.target.value })
-                          }
-                          aria-describedby={
-                            error && !verifyError ? "login-error" : undefined
-                          }
+                          onChange={(e) => setForm({ ...form, password: e.target.value })}
+                          aria-describedby={error && !verifyError ? "login-error" : undefined}
                           className="block w-full rounded-xl border border-sand-300 bg-surface py-2.5 pl-3.5 pr-10 text-sm text-sand-900 shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200 placeholder:text-sand-400"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword((v) => !v)}
                           tabIndex={-1}
-                          aria-label={
-                            showPassword
-                              ? "Ocultar contraseña"
-                              : "Mostrar contraseña"
-                          }
+                          aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                           aria-pressed={showPassword}
                           className="absolute inset-y-0 right-0 flex items-center px-3 text-sand-400 hover:text-sand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-inset rounded-r-xl"
                         >
@@ -695,13 +577,7 @@ export default function LoginPage() {
                       </button>
                     </div>
 
-                    <Button
-                      type="submit"
-                      loading={isPending}
-                      disabled={emailInvalid}
-                      fullWidth
-                      size="lg"
-                    >
+                    <Button type="submit" loading={isPending} disabled={emailInvalid} fullWidth size="lg">
                       {isPending ? "Ingresando…" : "Ingresar"}
                     </Button>
                     <Button
@@ -712,14 +588,11 @@ export default function LoginPage() {
                       onClick={() => passkeyLogin(form.email)}
                       disabled={!form.email || isPending}
                     >
-                      {isPasskeyPending
-                        ? "Verificando passkey…"
-                        : "Ingresar con passkey"}
+                      {isPasskeyPending ? "Verificando passkey…" : "Ingresar con passkey"}
                     </Button>
                     {passkeyError && (
                       <p className="text-xs text-danger-600" role="alert">
-                        No se pudo autenticar con passkey. Usa tu contraseña o
-                        MFA.
+                        No se pudo autenticar con passkey. Usa tu contraseña o MFA.
                       </p>
                     )}
                   </form>
@@ -768,10 +641,7 @@ export default function LoginPage() {
                   exit={{ opacity: 0, rotateY: -9 }}
                   transition={{ duration: 0.42, ease: [0.34, 1.1, 0.64, 1] }}
                 >
-                  <InlineForgotForm
-                    initialEmail={form.email}
-                    onBack={() => setShowForgot(false)}
-                  />
+                  <InlineForgotForm initialEmail={form.email} onBack={() => setShowForgot(false)} />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -781,12 +651,7 @@ export default function LoginPage() {
 
       {/* AnimatePresence in parent so portalled modal gets exit animations */}
       <AnimatePresence>
-        {showVerifyModal && (
-          <VerifyEmailModal
-            email={form.email}
-            onClose={() => setShowVerifyModal(false)}
-          />
-        )}
+        {showVerifyModal && <VerifyEmailModal email={form.email} onClose={() => setShowVerifyModal(false)} />}
       </AnimatePresence>
     </div>
   );

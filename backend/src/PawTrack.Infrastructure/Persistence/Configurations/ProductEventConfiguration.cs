@@ -24,5 +24,8 @@ public sealed class ProductEventConfiguration : IEntityTypeConfiguration<Product
         builder.HasIndex(x => new { x.EventName, x.OccurredAt });
         builder.HasIndex(x => new { x.Canton, x.OccurredAt });
         builder.HasIndex(x => new { x.CorrelationId, x.OccurredAt });
+        builder.HasIndex(x => new { x.EventName, x.CorrelationId })
+            .IsUnique()
+            .HasFilter("[EventName] = N'FirstResponseRecorded' AND [CorrelationId] IS NOT NULL");
     }
 }

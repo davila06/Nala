@@ -25,6 +25,7 @@ public sealed class ReportSightingAnimalValidationTests
     private readonly IPiiScrubber _piiScrubber = Substitute.For<IPiiScrubber>();
     private readonly INotificationDispatcher _dispatcher = Substitute.For<INotificationDispatcher>();
     private readonly IAnimalPhotoValidator _validator = Substitute.For<IAnimalPhotoValidator>();
+    private readonly IProductEventRepository _productEventRepo = Substitute.For<IProductEventRepository>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
 
     private readonly Pet _pet;
@@ -48,7 +49,7 @@ public sealed class ReportSightingAnimalValidationTests
         new(_sightingRepo, _petRepo, _lostPetRepo, _userRepo,
             _userLocationRepo, _notificationRepo,
             _blobService, _imageProcessor, _piiScrubber, _dispatcher,
-            _validator,
+            _validator, _productEventRepo,
             Options.Create(new Application.Common.Settings.ResolveCheckSettings()),
             Options.Create(settings ?? new AnimalPhotoValidationSettings()),
             _uow);

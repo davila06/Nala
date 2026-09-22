@@ -7,10 +7,7 @@ import {
   useSetWelfareCaseSeverity,
   useStartWelfareCaseTriage,
 } from "../hooks/useAdmin";
-import type {
-  AnimalWelfareCaseSummaryDto,
-  WelfareSeverity,
-} from "../api/adminApi";
+import type { AnimalWelfareCaseSummaryDto, WelfareSeverity } from "../api/adminApi";
 import { Input } from "@/shared/ui";
 
 const SEVERITY_LABELS: Record<WelfareSeverity, string> = {
@@ -27,40 +24,25 @@ const SEVERITY_CLASS: Record<WelfareSeverity, string> = {
   Critical: "bg-danger-50 text-danger-700 border-danger-200",
 };
 
-function WelfareCaseCard({
-  welfareCase,
-}: {
-  welfareCase: AnimalWelfareCaseSummaryDto;
-}) {
+function WelfareCaseCard({ welfareCase }: { welfareCase: AnimalWelfareCaseSummaryDto }) {
   const triage = useStartWelfareCaseTriage();
   const severity = useSetWelfareCaseSeverity();
   const assign = useAssignWelfareCase();
   const resolve = useResolveWelfareCase();
   const dismiss = useDismissWelfareCase();
-  const [organizationUserId, setOrganizationUserId] = useState(
-    welfareCase.assignedOrganizationUserId ?? "",
-  );
+  const [organizationUserId, setOrganizationUserId] = useState(welfareCase.assignedOrganizationUserId ?? "");
   const [role, setRole] = useState(welfareCase.assignedRole ?? "Municipality");
   const [reason, setReason] = useState("Caso revisado por NALA Ops");
 
-  const isClosed = ["Resolved", "Dismissed", "ClosedNoAction"].includes(
-    welfareCase.status,
-  );
-  const busy =
-    triage.isPending ||
-    severity.isPending ||
-    assign.isPending ||
-    resolve.isPending ||
-    dismiss.isPending;
+  const isClosed = ["Resolved", "Dismissed", "ClosedNoAction"].includes(welfareCase.status);
+  const busy = triage.isPending || severity.isPending || assign.isPending || resolve.isPending || dismiss.isPending;
 
   return (
     <li className="rounded-2xl border border-sand-200 bg-surface p-4 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <p className="font-black text-sand-900">
-              #{welfareCase.publicCode}
-            </p>
+            <p className="font-black text-sand-900">#{welfareCase.publicCode}</p>
             <span
               className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${SEVERITY_CLASS[welfareCase.severity]}`}
             >
@@ -71,8 +53,7 @@ function WelfareCaseCard({
             </span>
           </div>
           <p className="mt-1 text-xs text-sand-500">
-            {welfareCase.type} · {welfareCase.canton} ·{" "}
-            {new Date(welfareCase.createdAt).toLocaleDateString("es-CR")}
+            {welfareCase.type} · {welfareCase.canton} · {new Date(welfareCase.createdAt).toLocaleDateString("es-CR")}
           </p>
         </div>
         {!isClosed && (
@@ -122,9 +103,7 @@ function WelfareCaseCard({
       <div className="mt-2 flex flex-wrap gap-2">
         <button
           type="button"
-          disabled={
-            busy || isClosed || !organizationUserId.trim() || !role.trim()
-          }
+          disabled={busy || isClosed || !organizationUserId.trim() || !role.trim()}
           onClick={() =>
             void assign.mutateAsync({
               caseId: welfareCase.id,
@@ -139,9 +118,7 @@ function WelfareCaseCard({
         <button
           type="button"
           disabled={busy || isClosed || !reason.trim()}
-          onClick={() =>
-            void resolve.mutateAsync({ caseId: welfareCase.id, reason })
-          }
+          onClick={() => void resolve.mutateAsync({ caseId: welfareCase.id, reason })}
           className="rounded-xl bg-sand-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
         >
           Resolver
@@ -149,9 +126,7 @@ function WelfareCaseCard({
         <button
           type="button"
           disabled={busy || isClosed || !reason.trim()}
-          onClick={() =>
-            void dismiss.mutateAsync({ caseId: welfareCase.id, reason })
-          }
+          onClick={() => void dismiss.mutateAsync({ caseId: welfareCase.id, reason })}
           className="rounded-xl bg-danger-100 px-3 py-1.5 text-xs font-semibold text-danger-700 disabled:opacity-50"
         >
           Descartar
@@ -193,12 +168,9 @@ export function AdminWelfareCasesTab() {
   return (
     <section className="space-y-4">
       <div className="rounded-2xl border border-sand-200 bg-sand-50 p-4">
-        <p className="text-sm font-black text-sand-900">
-          Bienestar animal SENASA-ready
-        </p>
+        <p className="text-sm font-black text-sand-900">Gestión de bienestar animal</p>
         <p className="mt-1 text-xs text-sand-500">
-          Cola interna para triage, severidad, asignación operativa y cierre
-          documentado sin exponer datos sensibles.
+          Cola interna para triage, severidad, asignación operativa y cierre documentado sin exponer datos sensibles.
         </p>
       </div>
       <ul className="space-y-3">

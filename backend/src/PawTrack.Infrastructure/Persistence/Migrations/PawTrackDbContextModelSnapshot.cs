@@ -4459,6 +4459,10 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CorrelationId", "OccurredAt");
 
+                    b.HasIndex("EventName", "CorrelationId")
+                        .IsUnique()
+                        .HasFilter("[EventName] = N'FirstResponseRecorded' AND [CorrelationId] IS NOT NULL");
+
                     b.HasIndex("EventName", "OccurredAt");
 
                     b.ToTable("ProductEvents", (string)null);

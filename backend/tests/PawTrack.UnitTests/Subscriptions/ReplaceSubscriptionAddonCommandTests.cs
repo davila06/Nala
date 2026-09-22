@@ -12,6 +12,32 @@ namespace PawTrack.UnitTests.Subscriptions;
 public sealed class ReplaceSubscriptionAddonCommandTests
 {
     [Fact]
+    public async Task Replace_audits_the_proration_credit()
+    {
+        var subscriptionId = Guid.NewGuid();
+        var existing = SubscriptionAddon.Create(
+            subscriptionId, "MaxPets", 1m, DateTimeOffset.UtcNow.AddDays(-15),
+            DateTimeOffset.UtcNow.AddDays(15), 3_000m);
+        var repository = Substitute.For<ISubscriptionAddonRepository>();
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var auditLog = Substitute.For<IAuditLogRepository>();
+        repository.GetByIdAsync(existing.Id, Arg.Any<CancellationToken>()).Returns(existing);
+
+        var result = await new ReplaceSubscriptionAddonCommandHandler(
+            repository, unitOfWork, auditLog: auditLog)
+            .Handle(new ReplaceSubscriptionAddonCommand(
+                existing.Id, "MaxPets", 2m, 2_000m, DateTimeOffset.UtcNow.AddDays(30), Guid.NewGuid()), default);
+
+        result.IsSuccess.Should().BeTrue();
+        await auditLog.Received(1).AddAsync(
+            Arg.Is<PawTrack.Domain.Audit.AuditLogEntry>(entry =>
+                entry.Action == PawTrack.Domain.Audit.AuditAction.SubscriptionAddonReplaced &&
+                entry.EntityId == existing.Id.ToString() &&
+                entry.Details!.Contains("credit=", StringComparison.Ordinal)),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task Replace_deactivates_old_addon_and_returns_proration_credit()
     {
         var subscriptionId = Guid.NewGuid();

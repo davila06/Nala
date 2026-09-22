@@ -47,15 +47,9 @@ export default function InstitutionalReportsPage() {
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
       <header>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-600">
-          SENASA-ready
-        </p>
-        <h1 className="mt-1 text-3xl font-black text-sand-900">
-          Reportes institucionales
-        </h1>
-        <p className="mt-1 text-sm text-sand-500">
-          Exports agregados, auditables y sin envío oficial externo.
-        </p>
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-600">Reportes regulatorios</p>
+        <h1 className="mt-1 text-3xl font-black text-sand-900">Reportes institucionales</h1>
+        <p className="mt-1 text-sm text-sand-500">Exports agregados, auditables y sin envío oficial externo.</p>
       </header>
       <form
         className="grid gap-3 rounded-2xl border border-sand-200 bg-surface p-5 md:grid-cols-5"
@@ -68,9 +62,7 @@ export default function InstitutionalReportsPage() {
           Reporte
           <select
             value={reportType}
-            onChange={(event) =>
-              setReportType(event.target.value as ReportType)
-            }
+            onChange={(event) => setReportType(event.target.value as ReportType)}
             className="mt-1 block w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm"
           >
             {(catalog.data ?? []).map((item) => (
@@ -128,9 +120,7 @@ export default function InstitutionalReportsPage() {
         </button>
       </form>
       {request.isError && (
-        <p className="rounded-xl bg-danger-50 p-3 text-sm text-danger-700">
-          No fue posible solicitar el export.
-        </p>
+        <p className="rounded-xl bg-danger-50 p-3 text-sm text-danger-700">No fue posible solicitar el export.</p>
       )}
       <section className="space-y-3">
         <h2 className="text-lg font-black text-sand-900">Mis exports</h2>
@@ -144,8 +134,7 @@ export default function InstitutionalReportsPage() {
                 {item.exportCode} · {item.reportType}
               </p>
               <p className="text-xs text-sand-500">
-                {item.format} · {item.status} · {item.periodStart} a{" "}
-                {item.periodEnd}
+                {item.format} · {item.status} · {item.periodStart} a {item.periodEnd}
               </p>
             </div>
             <div className="flex gap-2">
@@ -162,10 +151,7 @@ export default function InstitutionalReportsPage() {
                 <button
                   type="button"
                   onClick={() =>
-                    void nalaApi.downloadExport(
-                      item.id,
-                      `${item.exportCode}.${item.format.toLowerCase()}`,
-                    )
+                    void nalaApi.downloadExport(item.id, `${item.exportCode}.${item.format.toLowerCase()}`)
                   }
                   className="rounded-xl bg-sand-900 px-3 py-1.5 text-xs font-bold text-white"
                 >

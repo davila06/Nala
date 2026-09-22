@@ -22,7 +22,10 @@ public sealed record AuditLogEntryDto(
 public sealed record GetAuditLogQuery(
     string? EntityType,
     string? EntityId,
-    int Take = 100) : IRequest<Result<IReadOnlyList<AuditLogEntryDto>>>;
+    int Take = 100,
+    Guid? ActorId = null,
+    DateTimeOffset? From = null,
+    DateTimeOffset? To = null) : IRequest<Result<IReadOnlyList<AuditLogEntryDto>>>;
 
 public sealed class GetAuditLogQueryHandler(IAuditLogRepository repo)
     : IRequestHandler<GetAuditLogQuery, Result<IReadOnlyList<AuditLogEntryDto>>>
@@ -30,12 +33,12 @@ public sealed class GetAuditLogQueryHandler(IAuditLogRepository repo)
     public async Task<Result<IReadOnlyList<AuditLogEntryDto>>> Handle(
         GetAuditLogQuery request, CancellationToken ct)
     {
-        IReadOnlyList<AuditLogEntry> entries;
+        if (request.From.HasValue && request.To.HasValue && request.To <= request.From)
+            return Result.Failure<IReadOnlyList<AuditLogEntryDto>>("El rango de auditoría debe ser válido.");
 
-        if (!string.IsNullOrWhiteSpace(request.EntityType) && !string.IsNullOrWhiteSpace(request.EntityId))
-            entries = await repo.GetByEntityAsync(request.EntityType, request.EntityId, ct);
-        else
-            entries = await repo.GetRecentAsync(Math.Clamp(request.Take, 1, 500), ct);
+        var entries = await repo.GetFilteredAsync(new AuditLogFilter(
+            request.EntityType, request.EntityId, request.ActorId,
+            request.From, request.To, Math.Clamp(request.Take, 1, 500)), ct);
 
         return Result.Success<IReadOnlyList<AuditLogEntryDto>>(
             entries.Select(AuditLogEntryDto.FromDomain).ToList());

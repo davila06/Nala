@@ -22,10 +22,8 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 function statusClass(status?: string) {
-  if (status === "Verified" || status === "Authorized")
-    return "bg-rescue-100 text-rescue-800";
-  if (status === "Rejected" || status === "Revoked" || status === "Suspended")
-    return "bg-danger-100 text-danger-700";
+  if (status === "Verified" || status === "Authorized") return "bg-rescue-100 text-rescue-800";
+  if (status === "Rejected" || status === "Revoked" || status === "Suspended") return "bg-danger-100 text-danger-700";
   if (status === "Expired") return "bg-warn-100 text-warn-700";
   return "bg-sand-100 text-sand-700";
 }
@@ -36,36 +34,19 @@ export function ClinicVerificationPanel() {
   const vetSignatureInput = useRef<HTMLInputElement>(null);
   const [selectedVetId, setSelectedVetId] = useState<string | null>(null);
   const [newVet, setNewVet] = useState({ fullName: "", licenseNumber: "" });
-  const [revokeReason, setRevokeReason] = useState(
-    "Ya no labora en la clínica",
-  );
+  const [revokeReason, setRevokeReason] = useState("Ya no labora en la clínica");
 
-  const { data: verification, isLoading: loadingVerification } =
-    useMyClinicVerification();
-  const { data: veterinarians, isLoading: loadingVeterinarians } =
-    useMyClinicVeterinarians();
-  const { mutateAsync: submitVerification, isPending: submittingVerification } =
-    useSubmitClinicVerification();
-  const {
-    mutateAsync: uploadVerificationDocument,
-    isPending: uploadingVerification,
-  } = useUploadClinicVerificationDocument();
-  const { mutateAsync: createVeterinarian, isPending: creatingVeterinarian } =
-    useCreateVeterinarian();
-  const {
-    mutateAsync: uploadVeterinarianDocument,
-    isPending: uploadingVetDoc,
-  } = useUploadVeterinarianDocument();
-  const {
-    mutateAsync: uploadVeterinarianSignature,
-    isPending: uploadingSignature,
-  } = useUploadVeterinarianSignature();
-  const { mutateAsync: revokeVeterinarian, isPending: revokingVeterinarian } =
-    useRevokeVeterinarian();
+  const { data: verification, isLoading: loadingVerification } = useMyClinicVerification();
+  const { data: veterinarians, isLoading: loadingVeterinarians } = useMyClinicVeterinarians();
+  const { mutateAsync: submitVerification, isPending: submittingVerification } = useSubmitClinicVerification();
+  const { mutateAsync: uploadVerificationDocument, isPending: uploadingVerification } =
+    useUploadClinicVerificationDocument();
+  const { mutateAsync: createVeterinarian, isPending: creatingVeterinarian } = useCreateVeterinarian();
+  const { mutateAsync: uploadVeterinarianDocument, isPending: uploadingVetDoc } = useUploadVeterinarianDocument();
+  const { mutateAsync: uploadVeterinarianSignature, isPending: uploadingSignature } = useUploadVeterinarianSignature();
+  const { mutateAsync: revokeVeterinarian, isPending: revokingVeterinarian } = useRevokeVeterinarian();
 
-  const handleClinicDoc = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleClinicDoc = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     await uploadVerificationDocument(file);
@@ -79,9 +60,7 @@ export function ClinicVerificationPanel() {
     event.target.value = "";
   };
 
-  const handleVetSignature = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleVetSignature = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || !selectedVetId) return;
     await uploadVeterinarianSignature({ veterinarianId: selectedVetId, file });
@@ -98,16 +77,12 @@ export function ClinicVerificationPanel() {
     <section className="space-y-4 rounded-2xl border border-sand-100 bg-surface px-4 py-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-sm font-bold text-sand-900">
-            Verificación SENASA-ready
-          </h2>
+          <h2 className="text-sm font-bold text-sand-900">Verificación veterinaria</h2>
           <p className="mt-0.5 text-xs text-sand-500">
             Documentos privados, revisión admin y veterinarios autorizados.
           </p>
         </div>
-        <span
-          className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${statusClass(verification?.status)}`}
-        >
+        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${statusClass(verification?.status)}`}>
           {verification ? STATUS_LABEL[verification.status] : "Sin solicitud"}
         </span>
       </div>
@@ -117,22 +92,10 @@ export function ClinicVerificationPanel() {
       ) : (
         <div className="rounded-xl border border-sand-100 bg-surface-warm px-3 py-3 text-xs text-sand-600">
           <p>
-            Documento:{" "}
-            <strong>
-              {verification?.hasDocument ? "Cargado" : "Pendiente"}
-            </strong>
+            Documento: <strong>{verification?.hasDocument ? "Cargado" : "Pendiente"}</strong>
           </p>
-          {verification?.expiresAt && (
-            <p>
-              Vence:{" "}
-              {new Date(verification.expiresAt).toLocaleDateString("es-CR")}
-            </p>
-          )}
-          {verification?.rejectionReason && (
-            <p className="text-danger-700">
-              Motivo: {verification.rejectionReason}
-            </p>
-          )}
+          {verification?.expiresAt && <p>Vence: {new Date(verification.expiresAt).toLocaleDateString("es-CR")}</p>}
+          {verification?.rejectionReason && <p className="text-danger-700">Motivo: {verification.rejectionReason}</p>}
         </div>
       )}
 
@@ -163,69 +126,47 @@ export function ClinicVerificationPanel() {
       </div>
 
       <div className="border-t border-sand-100 pt-4">
-        <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-sand-400">
-          Veterinarios
-        </h3>
+        <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-sand-400">Veterinarios</h3>
         <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_0.8fr_auto]">
           <input
             value={newVet.fullName}
-            onChange={(e) =>
-              setNewVet((v) => ({ ...v, fullName: e.target.value }))
-            }
+            onChange={(e) => setNewVet((v) => ({ ...v, fullName: e.target.value }))}
             placeholder="Nombre completo"
             className="rounded-xl border border-sand-200 px-3 py-2 text-sm"
           />
           <input
             value={newVet.licenseNumber}
-            onChange={(e) =>
-              setNewVet((v) => ({ ...v, licenseNumber: e.target.value }))
-            }
+            onChange={(e) => setNewVet((v) => ({ ...v, licenseNumber: e.target.value }))}
             placeholder="Licencia"
             className="rounded-xl border border-sand-200 px-3 py-2 text-sm"
           />
           <button
             type="button"
             onClick={() => void handleCreateVet()}
-            disabled={
-              creatingVeterinarian ||
-              !newVet.fullName.trim() ||
-              !newVet.licenseNumber.trim()
-            }
+            disabled={creatingVeterinarian || !newVet.fullName.trim() || !newVet.licenseNumber.trim()}
             className="rounded-xl bg-trust-600 px-3 py-2 text-xs font-bold text-white disabled:opacity-50"
           >
             {creatingVeterinarian ? "Guardando…" : "Agregar"}
           </button>
         </div>
 
-        {loadingVeterinarians && (
-          <p className="mt-3 text-xs text-sand-500">Cargando veterinarios…</p>
-        )}
+        {loadingVeterinarians && <p className="mt-3 text-xs text-sand-500">Cargando veterinarios…</p>}
         {veterinarians && veterinarians.length === 0 && (
-          <p className="mt-3 text-xs text-sand-500">
-            Aún no hay veterinarios registrados.
-          </p>
+          <p className="mt-3 text-xs text-sand-500">Aún no hay veterinarios registrados.</p>
         )}
         {veterinarians && veterinarians.length > 0 && (
           <ul className="mt-3 space-y-2">
             {veterinarians.map((vet) => (
-              <li
-                key={vet.id}
-                className="rounded-xl border border-sand-100 bg-surface-warm px-3 py-3"
-              >
+              <li key={vet.id} className="rounded-xl border border-sand-100 bg-surface-warm px-3 py-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <p className="text-sm font-semibold text-sand-900">
-                      {vet.fullName}
-                    </p>
+                    <p className="text-sm font-semibold text-sand-900">{vet.fullName}</p>
                     <p className="text-[11px] text-sand-500">
-                      {vet.licenseNumber} · Documento{" "}
-                      {vet.hasDocument ? "cargado" : "pendiente"} · Firma{" "}
+                      {vet.licenseNumber} · Documento {vet.hasDocument ? "cargado" : "pendiente"} · Firma{" "}
                       {vet.hasSignature ? "cargada" : "opcional"}
                     </p>
                   </div>
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${statusClass(vet.status)}`}
-                  >
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${statusClass(vet.status)}`}>
                     {STATUS_LABEL[vet.status] ?? vet.status}
                   </span>
                 </div>

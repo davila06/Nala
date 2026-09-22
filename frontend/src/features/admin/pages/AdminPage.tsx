@@ -50,6 +50,7 @@ import { AdminSubscriptionAddonsTab } from "../components/AdminSubscriptionAddon
 import { AdminClinicWidgetDomainsTab } from "../components/AdminClinicWidgetDomainsTab";
 import { AdminWelfareCasesTab } from "../components/AdminWelfareCasesTab";
 import { ProductFunnelTab } from "../components/ProductFunnelTab";
+import { ProductPerformanceTab } from "../components/ProductPerformanceTab";
 import { useAdoptionAdminStats } from "../hooks/useAdmin";
 
 type Tab =
@@ -71,7 +72,8 @@ type Tab =
   | "provider-verifications"
   | "service-provider-operations"
   | "provider-incidents"
-  | "product-funnel";
+  | "product-funnel"
+  | "product-performance";
 
 const ALLY_TYPE_LABELS: Record<string, string> = {
   VeterinaryClinic: "Veterinaria",
@@ -940,6 +942,7 @@ export default function AdminPage() {
             "billboards",
             "collar-tags",
             "product-funnel",
+            "product-performance",
           ] as const
         ).map((tab) => {
           const count =
@@ -989,7 +992,9 @@ export default function AdminPage() {
                                               ? "Vallas"
                                               : tab === "collar-tags"
                                                 ? "CollarTags"
-                                                : "Funnel producto";
+                                                : tab === "product-funnel"
+                                                  ? "Funnel producto"
+                                                  : "Performance recuperación";
           return (
             <button
               key={tab}
@@ -1042,6 +1047,7 @@ export default function AdminPage() {
           {activeTab === "billboards" && <AdminBillboardsTab />}
           {activeTab === "collar-tags" && <CollarTagInventorySection />}
           {activeTab === "product-funnel" && <ProductFunnelTab />}
+          {activeTab === "product-performance" && <ProductPerformanceTab />}
         </motion.div>
       </AnimatePresence>
     </div>

@@ -16,6 +16,7 @@ using PawTrack.Application.ServiceProviders;
 using PawTrack.Application.ServiceProviders.Payments;
 using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Infrastructure.AI;
+using PawTrack.Infrastructure.Imports;
 using PawTrack.Infrastructure.Allies;
 using PawTrack.Infrastructure.AnimalWelfare;
 using PawTrack.Infrastructure.Regulatory;
@@ -305,6 +306,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<PawTrack.Application.Imports.IImportJobRepository,
             PawTrack.Infrastructure.Imports.ImportJobRepository>();
         services.AddScoped<PawTrack.Application.Imports.StoreProductImportProcessor>();
+        services.AddSingleton<ImportQueue>();
+        services.AddSingleton<PawTrack.Application.Imports.IImportQueue>(sp => sp.GetRequiredService<ImportQueue>());
+        services.AddHostedService(sp => sp.GetRequiredService<ImportQueue>());
         services.AddScoped<PawTrack.Application.Clinics.Interfaces.IClinicWidgetDomainRepository,
             PawTrack.Infrastructure.Clinics.ClinicWidgetDomainRepository>();
         services.AddScoped<IEntitlementRepository, EntitlementRepository>();
