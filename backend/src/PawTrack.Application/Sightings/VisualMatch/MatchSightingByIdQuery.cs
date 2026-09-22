@@ -25,7 +25,8 @@ public sealed record MatchSightingByIdQuery(
     Guid SightingId,
     Guid RequestingUserId,
     double? Lat = null,
-    double? Lng = null)
+    double? Lng = null,
+    string? IdempotencyKey = null)
     : IRequest<Result<IReadOnlyList<VisualMatchDto>>>;
 
 public sealed class MatchSightingByIdQueryHandler(
@@ -36,7 +37,8 @@ public sealed class MatchSightingByIdQueryHandler(
     ISubscriptionService subscriptionService,
     IUnitOfWork unitOfWork,
     VisualMatchSettings settings,
-    ILogger<MatchSightingByIdQueryHandler> logger)
+    ILogger<MatchSightingByIdQueryHandler> logger,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<MatchSightingByIdQuery, Result<IReadOnlyList<VisualMatchDto>>>
 {
     private const int TopK = 35;
@@ -48,9 +50,24 @@ public sealed class MatchSightingByIdQueryHandler(
         MatchSightingByIdQuery request,
         CancellationToken cancellationToken)
     {
-        // ── 0. Enforce monthly AI search quota for free plan ──────────────────
-        var monthlyLimit = await subscriptionService.GetMonthlyAiSearchLimitAsync(
-            request.RequestingUserId, cancellationToken);
+        EntitlementDecision? entitlementDecision = null;
+        if (entitlementService is not null)
+        {
+            entitlementDecision = await entitlementService.AuthorizeAsync(
+                request.RequestingUserId,
+                "AiMatchesPerCycle",
+                1m,
+                new EntitlementContext("visual-match", request.SightingId),
+                cancellationToken);
+            if (!entitlementDecision.Allowed)
+                return Result.Failure<IReadOnlyList<VisualMatchDto>>(
+                    "La cuota de matching IA del plan está agotada o no está incluida.");
+        }
+
+        // ── 0. Legacy quota path while older environments migrate ────────────
+        var monthlyLimit = entitlementService is null
+            ? await subscriptionService.GetMonthlyAiSearchLimitAsync(request.RequestingUserId, cancellationToken)
+            : null;
 
         if (monthlyLimit.HasValue)
         {
@@ -89,6 +106,19 @@ public sealed class MatchSightingByIdQueryHandler(
         if (probeVector is null)
             return Result.Failure<IReadOnlyList<VisualMatchDto>>(
                 "No se pudo analizar la foto. Intenta de nuevo en unos momentos.");
+
+        if (entitlementService is not null)
+        {
+            var consumption = await entitlementService.ConsumeAsync(
+                request.RequestingUserId,
+                "AiMatchesPerCycle",
+                1m,
+                request.IdempotencyKey ?? $"visual-match:{request.SightingId:N}",
+                new EntitlementContext("visual-match", request.SightingId),
+                cancellationToken);
+            if (!consumption.Consumed)
+                return Result.Failure<IReadOnlyList<VisualMatchDto>>("La cuota de matching IA del plan está agotada.");
+        }
 
         // ── 3. Use sighting coordinates as default probe location ─────────────
         var probeLat = request.Lat ?? sighting.Lat;

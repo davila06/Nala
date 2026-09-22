@@ -12,16 +12,19 @@ public sealed class CreatePetCommandHandlerTests
     private readonly IBlobStorageService _blobStorage = Substitute.For<IBlobStorageService>();
     private readonly IImageProcessor _imageProcessor = Substitute.For<IImageProcessor>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
-    private readonly PawTrack.Application.Subscriptions.Services.ISubscriptionService _subscriptionService =
-        Substitute.For<PawTrack.Application.Subscriptions.Services.ISubscriptionService>();
+    private readonly PawTrack.Application.Subscriptions.Services.IEntitlementService _entitlementService =
+        Substitute.For<PawTrack.Application.Subscriptions.Services.IEntitlementService>();
 
     private readonly CreatePetCommandHandler _sut;
 
     public CreatePetCommandHandlerTests()
     {
-        // Return permissive limit so tests aren't blocked by subscription gating
-        _subscriptionService.GetPetLimitAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns(10);
-        _sut = new CreatePetCommandHandler(_petRepo, _blobStorage, _imageProcessor, _subscriptionService, _uow);
+        _entitlementService.AuthorizeAsync(
+            Arg.Any<Guid>(), "MaxPets", 1m, Arg.Any<PawTrack.Application.Subscriptions.Services.EntitlementContext>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new PawTrack.Application.Subscriptions.Services.EntitlementDecision(
+                true, true, 10m, 0m, 10m, null, PawTrack.Domain.Subscriptions.SubscriptionTier.UserPlus));
+        _sut = new CreatePetCommandHandler(_petRepo, _blobStorage, _imageProcessor, _entitlementService, _uow);
     }
 
     [Fact]

@@ -21,6 +21,8 @@ public sealed class CollarConfiguration : IEntityTypeConfiguration<Collar>
         builder.Property(x => x.LastLat);
         builder.Property(x => x.LastLng);
         builder.Property(x => x.LastSeenAt);
+        builder.Property(x => x.LastLocationRecordedAt);
+        builder.Property(x => x.LastPositionOnline);
         builder.Property(x => x.IsActive).IsRequired();
         builder.Property(x => x.RegisteredAt).IsRequired();
         builder.Property(x => x.CollarTagSerial).HasMaxLength(30);
@@ -50,6 +52,8 @@ public sealed class CollarLocationConfiguration : IEntityTypeConfiguration<Colla
         builder.Property(x => x.Lng).IsRequired();
         builder.Property(x => x.Accuracy);
         builder.Property(x => x.RecordedAt).IsRequired();
+        builder.Property(x => x.ReceivedAt).IsRequired();
+        builder.Property(x => x.IsOnline).IsRequired();
 
         // Supports time-range queries and auto-purge of old points
         builder.HasIndex(x => new { x.CollarId, x.RecordedAt });

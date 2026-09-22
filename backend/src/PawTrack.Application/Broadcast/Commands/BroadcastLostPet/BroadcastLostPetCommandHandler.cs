@@ -16,7 +16,8 @@ public sealed class BroadcastLostPetCommandHandler(
     ISubscriptionService subscriptionService,
     IClinicRepository clinicRepository,
     ITrackingLinkService trackingLinkService,
-    IPublicAppUrlProvider publicAppUrlProvider)
+    IPublicAppUrlProvider publicAppUrlProvider,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<BroadcastLostPetCommand, Result<IReadOnlyList<BroadcastAttemptDto>>>
 {
     public async Task<Result<IReadOnlyList<BroadcastAttemptDto>>> Handle(
@@ -33,6 +34,19 @@ public sealed class BroadcastLostPetCommandHandler(
 
         if (lostEvent.Status != LostPetStatus.Active)
             return Result.Failure<IReadOnlyList<BroadcastAttemptDto>>("Only active reports can be broadcast.");
+
+        var runId = request.BroadcastRunId ?? Guid.CreateVersion7();
+        if (entitlementService is not null)
+        {
+            var decision = await entitlementService.AuthorizeAsync(
+                request.RequestingUserId,
+                "BroadcastsPerCasePerDay",
+                1m,
+                new EntitlementContext("lost-pet-broadcast", lostEvent.Id),
+                cancellationToken);
+            if (!decision.Allowed)
+                return Result.Failure<IReadOnlyList<BroadcastAttemptDto>>("La cuota diaria de difusión de este caso se agotó.");
+        }
 
         // ── Resolve related data ──────────────────────────────────────────────
         var pet = await petRepository.GetByIdAsync(lostEvent.PetId, cancellationToken);
@@ -85,8 +99,21 @@ public sealed class BroadcastLostPetCommandHandler(
             RestrictToPaidChannels: !isPlus,
             NearbyFeaturedClinics: nearbyClinics);
 
+        if (entitlementService is not null)
+        {
+            var consumption = await entitlementService.ConsumeAsync(
+                request.RequestingUserId,
+                "BroadcastsPerCasePerDay",
+                1m,
+                $"broadcast-run:{runId:N}",
+                new EntitlementContext("lost-pet-broadcast", lostEvent.Id),
+                cancellationToken);
+            if (!consumption.Consumed)
+                return Result.Failure<IReadOnlyList<BroadcastAttemptDto>>("La cuota diaria de difusión de este caso se agotó.");
+        }
+
         // ── Fan out ───────────────────────────────────────────────────────────
-        var results = await broadcastService.BroadcastAsync(context, cancellationToken);
+        var results = await broadcastService.BroadcastAsync(context, runId, cancellationToken);
 
         return Result.Success<IReadOnlyList<BroadcastAttemptDto>>(results);
     }

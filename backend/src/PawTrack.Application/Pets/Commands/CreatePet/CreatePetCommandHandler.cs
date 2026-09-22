@@ -11,7 +11,7 @@ public sealed class CreatePetCommandHandler(
     IPetRepository petRepository,
     IBlobStorageService blobStorage,
     IImageProcessor imageProcessor,
-    ISubscriptionService subscriptionService,
+    IEntitlementService entitlementService,
     IUnitOfWork unitOfWork)
     : IRequestHandler<CreatePetCommand, Result<string>>
 {
@@ -20,13 +20,19 @@ public sealed class CreatePetCommandHandler(
     public async Task<Result<string>> Handle(
         CreatePetCommand request, CancellationToken cancellationToken)
     {
-        var limit = await subscriptionService.GetPetLimitAsync(request.OwnerId, cancellationToken);
-        if (limit != -1)
+        var decision = await entitlementService.AuthorizeAsync(
+            request.OwnerId,
+            "MaxPets",
+            1m,
+            new EntitlementContext("pet", null, request.OwnerId),
+            cancellationToken);
+        var limit = decision.Limit;
+        if (!decision.Allowed || limit is not null)
         {
             var count = await petRepository.CountByOwnerAsync(request.OwnerId, cancellationToken);
-            if (count >= limit)
+            if (!decision.Allowed || count >= limit)
                 return Result.Failure<string>(
-                    $"Tu plan permite hasta {limit} mascota(s). Actualiza a Plus para registrar más.");
+                    $"Tu plan permite hasta {limit ?? 0} mascota(s). Actualiza tu plan para registrar más.");
         }
 
         var pet = Pet.Create(

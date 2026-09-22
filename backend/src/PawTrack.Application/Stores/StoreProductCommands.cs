@@ -1,6 +1,7 @@
 using FluentValidation;
 using MediatR;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Stores;
 
@@ -25,7 +26,10 @@ public sealed class AddStoreProductCommandValidator : AbstractValidator<AddStore
     }
 }
 
-public sealed class AddStoreProductCommandHandler(IStoreRepository repo, IUnitOfWork uow)
+public sealed class AddStoreProductCommandHandler(
+    IStoreRepository repo,
+    IUnitOfWork uow,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<AddStoreProductCommand, Result<StoreProductDto>>
 {
     public async Task<Result<StoreProductDto>> Handle(AddStoreProductCommand request, CancellationToken ct)
@@ -33,6 +37,19 @@ public sealed class AddStoreProductCommandHandler(IStoreRepository repo, IUnitOf
         var store = await repo.GetByUserIdAsync(request.StoreOwnerUserId, ct);
         if (store is null) return Result.Failure<StoreProductDto>("Tienda no encontrada.");
         if (store.Status != StoreStatus.Active) return Result.Failure<StoreProductDto>("La tienda no está activa.");
+
+        if (entitlementService is not null)
+        {
+            var decision = await entitlementService.AuthorizeAsync(
+                request.StoreOwnerUserId,
+                "MaxActiveProducts",
+                1m,
+                new EntitlementContext("store", store.Id),
+                ct);
+            var activeProducts = await repo.GetProductsByStoreAsync(store.Id, ct);
+            if (!decision.Allowed || (decision.Limit.HasValue && activeProducts.Count >= decision.Limit.Value))
+                return Result.Failure<StoreProductDto>("La tienda alcanzó el límite de productos activos de su plan.");
+        }
 
         var product = StoreProduct.Create(store.Id, request.Name, request.Description, request.Category, request.PriceCrc);
         await repo.AddProductAsync(product, ct);

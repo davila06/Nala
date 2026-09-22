@@ -38,6 +38,8 @@ public sealed class PaymentTransactionConfiguration : IEntityTypeConfiguration<P
         builder.Property(x => x.UserId).IsRequired();
         builder.Property(x => x.PaymentProfileId);
         builder.Property(x => x.AmountCrc).HasColumnType("decimal(12,2)").IsRequired();
+        builder.Property(x => x.GrossAmountCrc).HasColumnType("decimal(12,2)").IsRequired();
+        builder.Property(x => x.ProrationCreditCrc).HasColumnType("decimal(12,2)").IsRequired();
         builder.Property(x => x.Currency).IsRequired().HasMaxLength(10);
         builder.Property(x => x.TransactionReference).IsRequired().HasMaxLength(100);
         builder.Property(x => x.GatewayAuthorizationCode).HasMaxLength(100);

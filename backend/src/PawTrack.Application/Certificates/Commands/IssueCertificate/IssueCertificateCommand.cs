@@ -54,6 +54,10 @@ public sealed class IssueCertificateCommandHandler(
         if (subscription is null || subscription.Tier != Domain.Subscriptions.SubscriptionTier.ClinicPartner)
             return Result.Failure<CertificateDto>("PDF certificate issuance requires an active Clínica Partner subscription.");
 
+        var cycleStart = new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, 1, 0, 0, 0, TimeSpan.Zero);
+        if (await certificateRepository.CountForClinicSinceAsync(request.ClinicId, cycleStart, null, cancellationToken) >= 500)
+            return Result.Failure<CertificateDto>("La clínica alcanzó la cuota mensual de certificados.");
+
         var code = GenerateVerificationCode();
         var certificate = VetCertificate.Issue(
             request.PetId,

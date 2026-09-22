@@ -8,6 +8,11 @@ namespace PawTrack.Infrastructure.LostPets;
 
 public sealed class LostPetRepository(PawTrackDbContext dbContext) : ILostPetRepository
 {
+    public Task<int> CountActiveByOwnerAsync(Guid ownerId, CancellationToken cancellationToken = default) =>
+        dbContext.LostPetEvents.CountAsync(
+            report => report.OwnerId == ownerId && report.Status == LostPetStatus.Active,
+            cancellationToken);
+
     public async Task<LostPetEvent?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
         await dbContext.LostPetEvents
             .AsTracking()

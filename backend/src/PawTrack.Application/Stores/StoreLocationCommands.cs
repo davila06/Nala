@@ -71,7 +71,8 @@ public sealed class CreateStoreLocationCommandValidator : AbstractValidator<Crea
 public sealed class CreateStoreLocationCommandHandler(
     IStoreRepository storeRepo,
     ISubscriptionService subscriptionService,
-    IUnitOfWork uow)
+    IUnitOfWork uow,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<CreateStoreLocationCommand, Result<StoreLocationDto>>
 {
     public async Task<Result<StoreLocationDto>> Handle(CreateStoreLocationCommand request, CancellationToken ct)
@@ -82,6 +83,15 @@ public sealed class CreateStoreLocationCommandHandler(
         var store = storeResult.Value!;
 
         var existing = await storeRepo.GetLocationsByStoreAsync(store.Id, ct);
+        if (entitlementService is not null)
+        {
+            var decision = await entitlementService.AuthorizeAsync(
+                request.StoreOwnerUserId, "MaxLocations", 1m,
+                new EntitlementContext("store-location", store.Id), ct);
+            var activeLocations = existing.Count(location => location.IsActive);
+            if (!decision.Allowed || decision.Limit.HasValue && activeLocations >= decision.Limit.Value)
+                return Result.Failure<StoreLocationDto>("La tienda alcanzó el límite de sedes de su plan.");
+        }
         var isFirst = existing.Count == 0;
 
         var location = StoreLocation.Create(

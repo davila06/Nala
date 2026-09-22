@@ -46,6 +46,8 @@ import { AdminBillboardsTab } from "@/features/advertising/components/AdminBillb
 import { AdminAdoptionsTab } from "../components/AdminAdoptionsTab";
 import { CollarTagInventorySection } from "../components/CollarTagInventorySection";
 import { AdminSubscriptionPlansTab } from "../components/AdminSubscriptionPlansTab";
+import { AdminSubscriptionAddonsTab } from "../components/AdminSubscriptionAddonsTab";
+import { AdminClinicWidgetDomainsTab } from "../components/AdminClinicWidgetDomainsTab";
 import { AdminWelfareCasesTab } from "../components/AdminWelfareCasesTab";
 import { ProductFunnelTab } from "../components/ProductFunnelTab";
 import { useAdoptionAdminStats } from "../hooks/useAdmin";
@@ -57,6 +59,8 @@ type Tab =
   | "microchips"
   | "subscriptions"
   | "subscription-plans"
+  | "subscription-addons"
+  | "widget-domains"
   | "bundles"
   | "promotions"
   | "stores"
@@ -923,6 +927,8 @@ export default function AdminPage() {
             "microchips",
             "subscriptions",
             "subscription-plans",
+            "subscription-addons",
+            "widget-domains",
             "bundles",
             "promotions",
             "adoptions",
@@ -959,27 +965,31 @@ export default function AdminPage() {
                       ? "Suscripciones"
                       : tab === "subscription-plans"
                         ? "Planes y precios"
-                        : tab === "bundles"
-                          ? "Bundles"
-                          : tab === "promotions"
-                            ? "Promociones"
-                            : tab === "adoptions"
-                              ? "Adopciones"
-                              : tab === "welfare"
-                                ? "Bienestar"
-                                : tab === "stores"
-                                  ? "Tiendas"
-                                  : tab === "provider-verifications"
-                                    ? "Verificación proveedores"
-                                    : tab === "service-provider-operations"
-                                      ? "Operación proveedores"
-                                      : tab === "provider-incidents"
-                                        ? "Incidentes proveedores"
-                                        : tab === "billboards"
-                                          ? "Vallas"
-                                          : tab === "collar-tags"
-                                            ? "CollarTags"
-                                            : "Funnel producto";
+                        : tab === "subscription-addons"
+                          ? "Add-ons"
+                          : tab === "widget-domains"
+                            ? "Dominios widget"
+                            : tab === "bundles"
+                              ? "Bundles"
+                              : tab === "promotions"
+                                ? "Promociones"
+                                : tab === "adoptions"
+                                  ? "Adopciones"
+                                  : tab === "welfare"
+                                    ? "Bienestar"
+                                    : tab === "stores"
+                                      ? "Tiendas"
+                                      : tab === "provider-verifications"
+                                        ? "Verificación proveedores"
+                                        : tab === "service-provider-operations"
+                                          ? "Operación proveedores"
+                                          : tab === "provider-incidents"
+                                            ? "Incidentes proveedores"
+                                            : tab === "billboards"
+                                              ? "Vallas"
+                                              : tab === "collar-tags"
+                                                ? "CollarTags"
+                                                : "Funnel producto";
           return (
             <button
               key={tab}
@@ -1019,6 +1029,8 @@ export default function AdminPage() {
           {activeTab === "microchips" && <MicrochipConflictsTab />}
           {activeTab === "subscriptions" && <SubscriptionsTab />}
           {activeTab === "subscription-plans" && <AdminSubscriptionPlansTab />}
+          {activeTab === "subscription-addons" && <AdminSubscriptionAddonsTab />}
+          {activeTab === "widget-domains" && <AdminClinicWidgetDomainsTab />}
           {activeTab === "bundles" && <BundlesTab />}
           {activeTab === "promotions" && <AdminPromotionManager />}
           {activeTab === "adoptions" && <AdminAdoptionsTab />}

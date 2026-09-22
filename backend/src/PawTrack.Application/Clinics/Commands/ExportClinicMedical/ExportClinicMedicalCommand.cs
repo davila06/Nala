@@ -3,6 +3,7 @@ using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Medical;
 using PawTrack.Domain.Medical;
 using PawTrack.Domain.Common;
+using PawTrack.Application.Subscriptions.Services;
 
 namespace PawTrack.Application.Clinics.Commands.ExportClinicMedical;
 
@@ -20,10 +21,10 @@ public sealed class ExportClinicMedicalCommandHandler(
     IMedicalPdfExporter pdfExporter,
     IClinicMedicalExportRepository exportRepository,
     IBlobStorageService blobStorage,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<ExportClinicMedicalCommand, Result<ClinicMedicalExportDto>>
 {
-    private const int MonthlyExportLimit = 20;
     private static readonly TimeSpan ExportLifetime = TimeSpan.FromHours(24);
 
     public async Task<Result<ClinicMedicalExportDto>> Handle(ExportClinicMedicalCommand request, CancellationToken ct)
@@ -38,8 +39,20 @@ public sealed class ExportClinicMedicalCommandHandler(
         if (grant is null || !grant.HasPermission(ClinicMedicalAccessPermission.Export))
             return Result.Failure<ClinicMedicalExportDto>("El consentimiento no permite exportar el expediente.");
 
+        if (entitlementService is not null)
+        {
+            var decision = await entitlementService.AuthorizeAsync(
+                request.ClinicId,
+                "ClinicMedicalExportsPerCycle",
+                1m,
+                new EntitlementContext("clinic-medical-export", request.ClinicId),
+                ct);
+            if (!decision.Allowed)
+                return Result.Failure<ClinicMedicalExportDto>("La clínica alcanzó el límite de exportaciones médicas del ciclo.");
+        }
+
         var monthStart = new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, 1, 0, 0, 0, TimeSpan.Zero);
-        if (await exportRepository.CountForClinicSinceAsync(request.ClinicId, monthStart, ct) >= MonthlyExportLimit)
+        if (entitlementService is null && await exportRepository.CountForClinicSinceAsync(request.ClinicId, monthStart, ct) >= 20)
             return Result.Failure<ClinicMedicalExportDto>("La clínica alcanzó el límite mensual de exportaciones.");
         if (await exportRepository.ExistsForPetSinceAsync(request.ClinicId, request.PetId, DateTimeOffset.UtcNow.AddHours(-24), ct))
             return Result.Failure<ClinicMedicalExportDto>("Esta mascota ya fue exportada durante las últimas 24 horas.");
@@ -51,6 +64,18 @@ public sealed class ExportClinicMedicalCommandHandler(
         var blobName = $"{clinic.Id}/{pet.Id}/{exportId}.pdf";
         using var stream = new MemoryStream(bytes);
         var blobUrl = await blobStorage.UploadAsync("clinic-medical-exports", blobName, stream, "application/pdf", ct);
+        if (entitlementService is not null)
+        {
+            var consumption = await entitlementService.ConsumeAsync(
+                request.ClinicId,
+                "ClinicMedicalExportsPerCycle",
+                1m,
+                $"clinic-medical-export:{request.ClinicId:N}:{request.PetId:N}:{DateTimeOffset.UtcNow:yyyyMMddHH}",
+                new EntitlementContext("clinic-medical-export", request.ClinicId),
+                ct);
+            if (!consumption.Consumed)
+                return Result.Failure<ClinicMedicalExportDto>("La clínica alcanzó el límite de exportaciones médicas del ciclo.");
+        }
         var export = ClinicMedicalExport.Complete(clinic.Id, pet.Id, request.RequestingUserId, blobUrl, records.Count, ExportLifetime);
         await exportRepository.AddAsync(export, ct);
         await unitOfWork.SaveChangesAsync(ct);

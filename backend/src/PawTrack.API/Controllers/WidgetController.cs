@@ -4,8 +4,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using PawTrack.Application.Clinics.Queries.GetMyClinic;
+using PawTrack.Application.Clinics.Commands.ManageWidgetDomain;
+using PawTrack.Application.Clinics.Interfaces;
 using PawTrack.Application.Subscriptions.Interfaces;
+using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Subscriptions;
+using PawTrack.Domain.Clinics;
 
 namespace PawTrack.API.Controllers;
 
@@ -18,11 +22,13 @@ namespace PawTrack.API.Controllers;
 [Route("api/v1/widget")]
 [ApiVersion("1.0")]
 [AllowAnonymous]
-public sealed class WidgetController(ISubscriptionRepository subscriptionRepository) : ControllerBase
+public sealed class WidgetController(
+    ISubscriptionRepository subscriptionRepository,
+    IClinicWidgetDomainRepository widgetDomainRepository) : ControllerBase
 {
     [HttpGet("clinic/{clinicId:guid}/config")]
     [EnableRateLimiting("public-api")]
-    [ResponseCache(Duration = 300)]
+    [ResponseCache(Duration = 300, VaryByHeader = "Origin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetConfig(Guid clinicId, CancellationToken cancellationToken)
@@ -31,6 +37,25 @@ public sealed class WidgetController(ISubscriptionRepository subscriptionReposit
         var sub = await subscriptionRepository.GetActiveForClinicAsync(clinicId, cancellationToken);
         if (sub is null || sub.Tier < SubscriptionTier.ClinicPartner)
             return NotFound(new ProblemDetails { Detail = "Widget not available for this clinic.", Status = 404 });
+
+        var origin = Request.Headers.Origin.FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(origin))
+        {
+            try
+            {
+                var requestedDomain = ClinicWidgetDomain.Create(clinicId, origin).Domain;
+                var allowed = await widgetDomainRepository.ExistsActiveAsync(
+                    clinicId, requestedDomain, cancellationToken);
+                if (!allowed)
+                    return StatusCode(StatusCodes.Status403Forbidden,
+                        new ProblemDetails { Detail = "Widget origin is not authorized for this clinic.", Status = 403 });
+            }
+            catch (ArgumentException)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden,
+                    new ProblemDetails { Detail = "Widget origin is invalid.", Status = 403 });
+            }
+        }
 
         // Reuse GetMyClinic query via UserId lookup — not ideal but avoids a new query
         // Just return the tier confirmation; real config is minimal for now

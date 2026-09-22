@@ -10,6 +10,8 @@ public enum AuditAction
     ClinicApproved,
     ClinicRejected,
     ClinicProfileUpdated,
+    ClinicWidgetDomainAuthorized,
+    ClinicWidgetDomainRevoked,
 
     // Subscriptions
     SubscriptionActivated,

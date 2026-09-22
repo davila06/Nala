@@ -168,6 +168,18 @@ public sealed class ServiceProviderRepository(PawTrackDbContext db) : IServicePr
         await db.ProviderBookings.AsNoTracking().Where(booking => booking.ServiceProviderId == serviceProviderId)
             .OrderByDescending(booking => booking.StartsAt).Skip(skip).Take(take).ToListAsync(ct);
 
+    public Task<int> CountBookingsByProviderSinceAsync(
+        Guid serviceProviderId,
+        DateTimeOffset since,
+        CancellationToken ct = default) =>
+        db.ProviderBookings.CountAsync(booking =>
+            booking.ServiceProviderId == serviceProviderId &&
+            booking.CreatedAt >= since &&
+            booking.Status != ProviderBookingStatus.CancelledByCustomer &&
+            booking.Status != ProviderBookingStatus.CancelledByProvider &&
+            booking.Status != ProviderBookingStatus.Refunded,
+            ct);
+
     public async Task<IReadOnlyList<ProviderBooking>> GetRequestedBookingsCreatedBeforeAsync(DateTimeOffset cutoff, int take, CancellationToken ct = default) =>
         await db.ProviderBookings.Where(booking => booking.Status == ProviderBookingStatus.Requested && booking.CreatedAt < cutoff)
             .OrderBy(booking => booking.CreatedAt).Take(take).ToListAsync(ct);

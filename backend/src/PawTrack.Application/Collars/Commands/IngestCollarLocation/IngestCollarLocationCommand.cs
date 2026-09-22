@@ -47,11 +47,23 @@ public sealed class IngestCollarLocationCommandHandler(
         if (collar is null || !collar.IsActive)
             return Result.Failure<bool>("Collar no encontrado o inactivo.");
 
-        collar.UpdateLocation(request.Lat, request.Lng, request.BatteryPercent);
+        var outcome = collar.UpdateLocation(request.Lat, request.Lng, request.BatteryPercent, request.Timestamp);
+        if (!outcome.Accepted)
+        {
+            await auditRepository.AddAsync(
+                CollarAuditEntry.Create(
+                    CollarAuditEvent.LocationIngestFailed,
+                    outcome.RejectionReason ?? "Stale or out-of-order position rejected.",
+                    collarId: request.CollarId, serial: request.Serial),
+                cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            return Result.Failure<bool>(outcome.RejectionReason ?? "Position rejected.");
+        }
+
         collarRepository.Update(collar);
 
         await collarRepository.AddLocationAsync(
-            CollarLocation.Record(collar.Id, request.Lat, request.Lng, request.AccuracyMeters),
+            CollarLocation.Record(collar.Id, request.Lat, request.Lng, request.Timestamp, request.AccuracyMeters),
             cancellationToken);
 
         if (collar.IsLost && collar.LostPetEventId is not null)

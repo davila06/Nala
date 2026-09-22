@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using PawTrack.Application.Subscriptions.Services;
 
 namespace PawTrack.API.Middleware;
 
@@ -19,6 +20,11 @@ public sealed class ExceptionHandlingMiddleware(
             logger.LogWarning("Validation failure: {Errors}", string.Join("; ", ex.Errors.Select(e => e.ErrorMessage)));
             await WriteProblemAsync(context, StatusCodes.Status422UnprocessableEntity,
                 "Validation Error", ex.Errors.Select(e => e.ErrorMessage));
+        }
+        catch (EntitlementLimitReachedException ex)
+        {
+            logger.LogInformation("Entitlement limit reached: {Entitlement}", ex.Entitlement);
+            await WriteEntitlementProblemAsync(context, ex);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("imagen", StringComparison.OrdinalIgnoreCase)
                                                  || ex.Message.Contains("image", StringComparison.OrdinalIgnoreCase))
@@ -71,5 +77,28 @@ public sealed class ExceptionHandlingMiddleware(
         });
 
         await context.Response.WriteAsync(json);
+    }
+
+    private static async Task WriteEntitlementProblemAsync(
+        HttpContext context,
+        EntitlementLimitReachedException exception)
+    {
+        context.Response.StatusCode = StatusCodes.Status409Conflict;
+        context.Response.ContentType = "application/problem+json";
+        var problem = new ProblemDetails
+        {
+            Type = "https://pawtrack.cr/problems/entitlement-limit-reached",
+            Title = "Límite del plan alcanzado",
+            Status = StatusCodes.Status409Conflict,
+            Detail = "La capacidad solicitada excede el límite disponible para el plan actual.",
+            Instance = context.Request.Path,
+        };
+        problem.Extensions["code"] = "PLAN_LIMIT_REACHED";
+        problem.Extensions["entitlement"] = exception.Entitlement;
+        problem.Extensions["limit"] = exception.Limit;
+        problem.Extensions["consumed"] = exception.Consumed;
+        problem.Extensions["remaining"] = exception.Remaining;
+        problem.Extensions["resetsAt"] = exception.ResetsAt;
+        await context.Response.WriteAsJsonAsync(problem);
     }
 }

@@ -16,5 +16,6 @@ public interface IMultichannelBroadcastService
     /// <returns>One <see cref="BroadcastAttemptDto"/> per attempted channel.</returns>
     Task<IReadOnlyList<BroadcastAttemptDto>> BroadcastAsync(
         BroadcastMessageContext context,
+        Guid broadcastRunId,
         CancellationToken cancellationToken = default);
 }

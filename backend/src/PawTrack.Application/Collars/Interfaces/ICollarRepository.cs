@@ -5,6 +5,7 @@ namespace PawTrack.Application.Collars.Interfaces;
 public interface ICollarRepository
 {
     Task<Collar?> GetActiveForPetAsync(Guid petId, CancellationToken cancellationToken = default);
+    Task<int> CountActiveByOwnerAsync(Guid ownerId, CancellationToken cancellationToken = default);
     Task<Collar?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<CollarLocation>> GetLocationHistoryAsync(
         Guid collarId,

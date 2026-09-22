@@ -93,6 +93,7 @@ public sealed class CollarsController(ISender sender) : ControllerBase
     [EnableRateLimiting("location-update")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> RecordLocation(
         Guid petId,
         [FromBody] RecordLocationRequest request,
@@ -119,10 +120,16 @@ public sealed class CollarsController(ISender sender) : ControllerBase
                 return Forbid();
         }
 
-        collar.UpdateLocation(request.Lat, request.Lng, request.BatteryPercent);
+        // Own/generic push devices may not report their own clock; fall back to
+        // server receipt time, which is still monotonic per collar under normal load.
+        var recordedAt = request.RecordedAt ?? DateTimeOffset.UtcNow;
+        var outcome = collar.UpdateLocation(request.Lat, request.Lng, request.BatteryPercent, recordedAt);
+        if (!outcome.Accepted)
+            return UnprocessableEntity(new ProblemDetails { Detail = outcome.RejectionReason });
+
         collarRepository.Update(collar);
         await collarRepository.AddLocationAsync(
-            CollarLocation.Record(collar.Id, request.Lat, request.Lng, request.Accuracy),
+            CollarLocation.Record(collar.Id, request.Lat, request.Lng, recordedAt, request.Accuracy),
             cancellationToken);
 
         if (collar.IsLost && collar.LostPetEventId is not null)
@@ -130,7 +137,7 @@ public sealed class CollarsController(ISender sender) : ControllerBase
             var lostPetEvent = await lostPetRepository.GetByIdAsync(collar.LostPetEventId.Value, cancellationToken);
             if (lostPetEvent is not null)
             {
-                lostPetEvent.UpdateLastSeenLocation(request.Lat, request.Lng, DateTimeOffset.UtcNow);
+                lostPetEvent.UpdateLastSeenLocation(request.Lat, request.Lng, recordedAt);
                 lostPetRepository.Update(lostPetEvent);
             }
         }
@@ -485,7 +492,7 @@ public sealed class CollarsController(ISender sender) : ControllerBase
 }
 
 public sealed record RegisterCollarRequest(Guid PetId, CollarProvider Provider, string? ExternalDeviceId);
-public sealed record RecordLocationRequest(double Lat, double Lng, int? BatteryPercent, int? Accuracy);
+public sealed record RecordLocationRequest(double Lat, double Lng, int? BatteryPercent, int? Accuracy, DateTimeOffset? RecordedAt = null);
 public sealed record UpdateCollarNotificationPreferencesRequest(
     bool OfflineAlertsEnabled,
     int OfflineThresholdMinutes,

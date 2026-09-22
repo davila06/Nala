@@ -6,6 +6,7 @@ using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Municipalities;
 using PawTrack.Domain.Subscriptions;
+using PawTrack.Domain.Audit;
 
 namespace PawTrack.Application.Subscriptions.Commands.ActivateSubscription;
 
@@ -16,7 +17,8 @@ public sealed class ActivateSubscriptionCommandHandler(
     IClinicRepository clinicRepository,
     IStoreRepository storeRepository,
     IMunicipalProfileRepository municipalRepo,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IAuditLogRepository? auditLog = null)
     : IRequestHandler<ActivateSubscriptionCommand, Result<SubscriptionDto>>
 {
     public async Task<Result<SubscriptionDto>> Handle(
@@ -37,6 +39,12 @@ public sealed class ActivateSubscriptionCommandHandler(
         await SyncClinicFeaturedAsync(subscription, true, cancellationToken);
         await SyncStoreFeaturedAsync(subscription, true, cancellationToken);
         await SyncMunicipalTierAsync(subscription, activate: true, cancellationToken);
+        if (auditLog is not null)
+        {
+            await auditLog.AddAsync(AuditLogEntry.Create(
+                Guid.Empty, AuditAction.SubscriptionActivated, "Subscription",
+                subscription.Id.ToString(), $"Tier={subscription.Tier} Months={subscription.BillingMonths}"), cancellationToken);
+        }
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success(SubscriptionDto.FromDomain(subscription));

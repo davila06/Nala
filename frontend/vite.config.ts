@@ -25,8 +25,7 @@ export default defineConfig(({ mode }) => ({
       manifest: {
         name: "PawTrack CR",
         short_name: "PawTrack",
-        description:
-          "Identidad digital de mascotas y recuperación en caso de pérdida",
+        description: "Identidad digital de mascotas y recuperación en caso de pérdida",
         theme_color: "#f97316",
         background_color: "#ffffff",
         display: "standalone",
@@ -65,9 +64,7 @@ export default defineConfig(({ mode }) => ({
   define:
     mode === "test" || process.env.VITEST
       ? {
-          "import.meta.env.VITE_API_URL": JSON.stringify(
-            "http://localhost:5000",
-          ),
+          "import.meta.env.VITE_API_URL": JSON.stringify("http://localhost:5000"),
         }
       : undefined,
   server: {
@@ -86,8 +83,7 @@ export default defineConfig(({ mode }) => ({
         widget: resolve(__dirname, "src/widget/widget.ts"),
       },
       output: {
-        entryFileNames: (chunk) =>
-          chunk.name === "widget" ? "widget.js" : "assets/[name]-[hash].js",
+        entryFileNames: (chunk) => (chunk.name === "widget" ? "widget.js" : "assets/[name]-[hash].js"),
       },
     },
   },
@@ -100,6 +96,8 @@ export default defineConfig(({ mode }) => ({
       },
     },
     setupFiles: ["./tests/setup.ts"],
+    fileParallelism: false,
+    maxWorkers: 1,
     // Playwright specs live under e2e/ and use @playwright/test's test/expect —
     // incompatible with Vitest; Vitest's default include glob would otherwise
     // pick them up too since they also match *.spec.ts.

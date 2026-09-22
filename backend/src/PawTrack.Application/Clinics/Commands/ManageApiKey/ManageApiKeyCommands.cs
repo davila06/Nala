@@ -44,6 +44,10 @@ public sealed class CreateClinicApiKeyCommandHandler(
         if (request.Scopes is not null && request.Scopes.Any(scope => !ClinicApiScope.All.Contains(scope)))
             return Result.Failure<ClinicApiKeyDto>("La solicitud contiene un scope de API no permitido.");
 
+        var existingKeys = await keyRepository.GetForClinicAsync(request.ClinicId, cancellationToken);
+        if (existingKeys.Count(key => !key.IsRevoked) >= 10)
+            return Result.Failure<ClinicApiKeyDto>("La clínica alcanzó el límite de API keys activas de su plan.");
+
         // Generate a random 32-byte key and hash it for storage
         var rawBytes = RandomNumberGenerator.GetBytes(32);
         var rawKey = "ptwk_" + Convert.ToBase64String(rawBytes)

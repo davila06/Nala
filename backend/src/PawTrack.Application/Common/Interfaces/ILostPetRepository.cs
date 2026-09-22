@@ -7,6 +7,7 @@ public interface ILostPetRepository
 {
     Task<LostPetEvent?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<LostPetEvent?> GetActiveByPetIdAsync(Guid petId, CancellationToken cancellationToken = default);
+    Task<int> CountActiveByOwnerAsync(Guid ownerId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Returns all <b>active</b> lost pet reports whose last-seen coordinates

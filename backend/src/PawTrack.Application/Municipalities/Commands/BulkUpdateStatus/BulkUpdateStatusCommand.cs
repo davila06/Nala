@@ -4,6 +4,7 @@ using PawTrack.Application.Municipalities.DTOs;
 using PawTrack.Application.Municipalities.Interfaces;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Municipalities;
+using PawTrack.Application.Subscriptions.Services;
 
 namespace PawTrack.Application.Municipalities.Commands.BulkUpdateStatus;
 
@@ -20,7 +21,8 @@ public sealed record BulkUpdateResultDto(int Updated, int NotFound);
 public sealed class BulkUpdateStatusCommandHandler(
     ICapturedAnimalRepository repository,
     IMunicipalSubscriptionService subscriptionService,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<BulkUpdateStatusCommand, Result<BulkUpdateResultDto>>
 {
     public async Task<Result<BulkUpdateResultDto>> Handle(
@@ -28,6 +30,15 @@ public sealed class BulkUpdateStatusCommandHandler(
     {
         if (!await subscriptionService.IsFullOrAboveAsync(request.RequestingUserId, ct))
             return Result.Failure<BulkUpdateResultDto>("La actualización masiva requiere el plan Full o Red Regional.");
+
+        if (entitlementService is not null)
+        {
+            var decision = await entitlementService.AuthorizeAsync(
+                request.RequestingUserId, "BulkUpdateLimit", request.AnimalIds.Count,
+                new EntitlementContext("municipality-bulk-update"), ct);
+            if (!decision.Allowed)
+                return Result.Failure<BulkUpdateResultDto>("La operación excede el límite de actualización masiva del plan.");
+        }
 
         int updated = 0, notFound = 0;
 

@@ -1,14 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  Polyline,
-  useMap,
-} from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { useCollarHistory, useCollarStatus } from "../hooks/useCollar";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,6 +14,8 @@ import { CollarHandoverDialog } from "./CollarHandoverDialog";
 import { CollarLostModeToggle } from "./CollarLostModeToggle";
 import { CollarSafeZonesPanel } from "./CollarSafeZonesPanel";
 import { CollarLocationHistoryPanel } from "./CollarLocationHistoryPanel";
+import { isPositionStale } from "../lib/collarFreshness";
+import { formatRelative } from "@/shared/lib/formatDate";
 
 interface CollarGpsTabProps {
   petId: string;
@@ -65,10 +60,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
   const [showAuditLog, setShowAuditLog] = useState(false);
   const [showHandoverDialog, setShowHandoverDialog] = useState(false);
 
-  const { data: history, isFetching: historyFetching } = useCollarHistory(
-    petId,
-    hours,
-  );
+  const { data: history, isFetching: historyFetching } = useCollarHistory(petId, hours);
 
   const deactivate = useMutation({
     mutationFn: () => collarApi.deactivate(collar!.collarTagSerial!),
@@ -93,12 +85,9 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
         <span className="text-4xl" aria-hidden="true">
           📡
         </span>
-        <h3 className="mt-2 text-sm font-semibold text-sand-700">
-          Sin dispositivo GPS registrado
-        </h3>
+        <h3 className="mt-2 text-sm font-semibold text-sand-700">Sin dispositivo GPS registrado</h3>
         <p className="mt-1 text-xs text-sand-400">
-          Conecta un collar GPS para ver la posición en tiempo real y el
-          historial de trayectoria.
+          Conecta un collar GPS para ver la posición en tiempo real y el historial de trayectoria.
         </p>
         {isOwner && (
           <div className="mt-4 flex flex-col gap-2 items-center">
@@ -129,20 +118,21 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
           <p className="text-sm font-semibold text-sand-900">
             {PROVIDER_LABELS[collar.provider] ?? collar.provider}
             {collar.provider === "Own" && collar.collarTagSerial && (
-              <span className="ml-2 text-xs font-mono font-normal text-sand-400">
-                {collar.collarTagSerial}
-              </span>
+              <span className="ml-2 text-xs font-mono font-normal text-sand-400">{collar.collarTagSerial}</span>
             )}
             {collar.externalDeviceId && collar.provider !== "Own" && (
-              <span className="ml-2 text-xs font-normal text-sand-400">
-                {collar.externalDeviceId}
-              </span>
+              <span className="ml-2 text-xs font-normal text-sand-400">{collar.externalDeviceId}</span>
             )}
           </p>
           <p className="text-xs text-sand-500">
-            {collar.lastSeenAt
-              ? `Última señal: ${new Date(collar.lastSeenAt).toLocaleString("es-CR")}`
+            {collar.lastLocationRecordedAt
+              ? `Posición: ${formatRelative(collar.lastLocationRecordedAt)}`
               : "Sin señal reciente"}
+            {collar.lastPositionOnline === false && (
+              <span className="ml-1 font-semibold text-warn-600">
+                · el proveedor reporta el dispositivo desconectado
+              </span>
+            )}
           </p>
         </div>
         {collar.batteryPercent !== null && (
@@ -155,10 +145,17 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
             <span className="text-[10px] text-sand-400">Batería</span>
           </div>
         )}
-        <span
-          className={`h-2 w-2 rounded-full shrink-0 ${collar.isActive ? "bg-rescue-500" : "bg-sand-300"}`}
-        />
+        <span className={`h-2 w-2 rounded-full shrink-0 ${collar.isActive ? "bg-rescue-500" : "bg-sand-300"}`} />
       </motion.div>
+
+      {isPositionStale(collar.positionAgeSeconds, collar.offlineThresholdMinutes) && (
+        <div
+          role="status"
+          className="rounded-xl border border-warn-200 bg-warn-50 px-3 py-2 text-xs font-semibold text-warn-800"
+        >
+          ⚠️ Esta posición ya no es reciente. No confíes en ella para localizar a tu mascota en este momento.
+        </div>
+      )}
 
       <CollarStatusBadge
         isActive={collar.isActive}
@@ -174,19 +171,11 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
       {isOwner && <CollarLostModeToggle petId={petId} collarId={collar.id} />}
 
       {isOwner && collar.lastLat !== null && collar.lastLng !== null && (
-        <CollarSafeZonesPanel
-          collarId={collar.id}
-          centerLat={collar.lastLat}
-          centerLng={collar.lastLng}
-        />
+        <CollarSafeZonesPanel collarId={collar.id} centerLat={collar.lastLat} centerLng={collar.lastLng} />
       )}
 
       {isOwner && collar.lastLat !== null && collar.lastLng !== null && (
-        <CollarLocationHistoryPanel
-          collarId={collar.id}
-          centerLat={collar.lastLat}
-          centerLng={collar.lastLng}
-        />
+        <CollarLocationHistoryPanel collarId={collar.id} centerLat={collar.lastLat} centerLng={collar.lastLng} />
       )}
 
       {isOwner && (
@@ -196,9 +185,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
             onClick={() => setShowNotificationPrefs((v) => !v)}
             className="text-xs text-sand-500 underline hover:text-sand-700"
           >
-            {showNotificationPrefs
-              ? "Ocultar notificaciones"
-              : "⚙️ Configurar notificaciones"}
+            {showNotificationPrefs ? "Ocultar notificaciones" : "⚙️ Configurar notificaciones"}
           </button>
           {showNotificationPrefs && (
             <div className="mt-2">
@@ -208,9 +195,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
                 offlineAlertsEnabled={collar.offlineAlertsEnabled}
                 offlineThresholdMinutes={collar.offlineThresholdMinutes}
                 batteryAlertsEnabled={collar.batteryAlertsEnabled}
-                batteryAlertThresholdPercent={
-                  collar.batteryAlertThresholdPercent
-                }
+                batteryAlertThresholdPercent={collar.batteryAlertThresholdPercent}
               />
             </div>
           )}
@@ -247,15 +232,11 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
               onClick={() => generateKey.mutate()}
               className="text-xs text-brand-600 underline hover:text-brand-800 disabled:opacity-40"
             >
-              {generateKey.isPending
-                ? "Generando…"
-                : "🔑 Generar clave de dispositivo (push OEM)"}
+              {generateKey.isPending ? "Generando…" : "🔑 Generar clave de dispositivo (push OEM)"}
             </button>
             {generatedKey && (
               <div className="rounded-2xl border-2 border-amber-400 bg-amber-50 p-4 space-y-2">
-                <p className="text-xs font-bold text-amber-800">
-                  ⚠️ Copia esta clave — solo se muestra una vez
-                </p>
+                <p className="text-xs font-bold text-amber-800">⚠️ Copia esta clave — solo se muestra una vez</p>
                 <div className="flex items-center gap-2">
                   <code className="flex-1 break-all rounded-lg bg-amber-100 px-3 py-2 text-[11px] font-mono text-amber-900">
                     {generatedKey}
@@ -273,8 +254,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
                   </button>
                 </div>
                 <p className="text-[10px] text-amber-700">
-                  Usa esta clave en el header{" "}
-                  <code className="font-mono">X-Collar-Key</code> para{" "}
+                  Usa esta clave en el header <code className="font-mono">X-Collar-Key</code> para{" "}
                   <code className="font-mono">POST /api/collars/ingest</code>.
                 </p>
               </div>
@@ -294,10 +274,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
               🔄 Transferir a otro propietario
             </button>
           ) : (
-            <CollarHandoverDialog
-              collarId={collar.id}
-              onClose={() => setShowHandoverDialog(false)}
-            />
+            <CollarHandoverDialog collarId={collar.id} onClose={() => setShowHandoverDialog(false)} />
           )}
           {!showDeactivateConfirm ? (
             <button
@@ -309,12 +286,9 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
             </button>
           ) : (
             <div className="rounded-2xl border border-red-200 bg-red-50 p-4 space-y-3">
-              <p className="text-sm font-semibold text-red-800">
-                ¿Desvincular {collar.collarTagSerial}?
-              </p>
+              <p className="text-sm font-semibold text-red-800">¿Desvincular {collar.collarTagSerial}?</p>
               <p className="text-xs text-red-700">
-                El collar dejará de reportar posición. Podrás reactivarlo más
-                adelante.
+                El collar dejará de reportar posición. Podrás reactivarlo más adelante.
               </p>
               <div className="flex gap-2">
                 <button
@@ -349,9 +323,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
               onClick={() => setHours(opt.value)}
               className={[
                 "rounded-xl px-2.5 py-1 text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
-                hours === opt.value
-                  ? "bg-brand-600 text-white"
-                  : "bg-sand-100 text-sand-600 hover:bg-sand-200",
+                hours === opt.value ? "bg-brand-600 text-white" : "bg-sand-100 text-sand-600 hover:bg-sand-200",
               ].join(" ")}
             >
               {opt.label}
@@ -363,41 +335,27 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
       {/* Track stats */}
       {history && history.length > 0 && (
         <div className="flex gap-3 text-xs text-sand-500">
-          <span className="font-semibold text-sand-700">{history.length}</span>{" "}
-          puntos registrados
-          {historyFetching && (
-            <span className="text-brand-500 animate-pulse">
-              · actualizando…
-            </span>
-          )}
+          <span className="font-semibold text-sand-700">{history.length}</span> puntos registrados
+          {historyFetching && <span className="text-brand-500 animate-pulse">· actualizando…</span>}
         </div>
       )}
 
       {/* Map */}
       {collar.lastLat !== null && collar.lastLng !== null ? (
-        <div
-          className="overflow-hidden rounded-2xl border border-sand-200"
-          style={{ height: 320 }}
-        >
+        <div className="overflow-hidden rounded-2xl border border-sand-200" style={{ height: 320 }}>
           <MapContainer
             center={[collar.lastLat, collar.lastLng]}
             zoom={15}
             className="h-full w-full"
             zoomControl={false}
           >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution="© OpenStreetMap"
-            />
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="© OpenStreetMap" />
 
             {/* Historical track polyline */}
             {history &&
               history.length >= 2 &&
               (() => {
-                const positions = history.map((p): [number, number] => [
-                  p.lat,
-                  p.lng,
-                ]);
+                const positions = history.map((p): [number, number] => [p.lat, p.lng]);
                 return (
                   <>
                     <FitBounds positions={positions} />
@@ -424,8 +382,13 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
               <Popup>
                 <strong>Posición actual</strong>
                 <br />
-                {collar.lastSeenAt &&
-                  new Date(collar.lastSeenAt).toLocaleString("es-CR")}
+                {collar.lastLocationRecordedAt ? formatRelative(collar.lastLocationRecordedAt) : "Sin señal reciente"}
+                {collar.lastPositionOnline === false && (
+                  <>
+                    <br />
+                    <span className="font-semibold text-warn-600">Dispositivo reportado desconectado</span>
+                  </>
+                )}
               </Popup>
             </Marker>
           </MapContainer>
@@ -437,8 +400,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
       )}
 
       <p className="text-center text-[10px] text-sand-400">
-        Posición en tiempo real · trayectoria de hasta 7 días · actualización
-        automática cada 30 s.
+        Posición en tiempo real · trayectoria de hasta 7 días · actualización automática cada 30 s.
       </p>
     </div>
   );

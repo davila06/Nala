@@ -3,6 +3,7 @@ using MediatR;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Municipalities.DTOs;
 using PawTrack.Application.Municipalities.Interfaces;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Municipalities;
 
@@ -17,7 +18,8 @@ public sealed record RecordCaptureCommand(
     string? EstimatedAge,
     string? Notes,
     string? CollarChipNumber,
-    DateTimeOffset? CapturedAt) : IRequest<Result<CapturedAnimalDto>>;
+    DateTimeOffset? CapturedAt,
+    string? IdempotencyKey = null) : IRequest<Result<CapturedAnimalDto>>;
 
 public sealed class RecordCaptureCommandValidator : AbstractValidator<RecordCaptureCommand>
 {
@@ -32,13 +34,26 @@ public sealed class RecordCaptureCommandValidator : AbstractValidator<RecordCapt
 
 public sealed class RecordCaptureCommandHandler(
     ICapturedAnimalRepository repository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<RecordCaptureCommand, Result<CapturedAnimalDto>>
 {
     public async Task<Result<CapturedAnimalDto>> Handle(
         RecordCaptureCommand request,
         CancellationToken cancellationToken)
     {
+        if (entitlementService is not null)
+        {
+            var decision = await entitlementService.AuthorizeAsync(
+                request.RecordedByUserId,
+                "MaxCapturesPerYear",
+                1m,
+                new EntitlementContext("municipality-capture"),
+                cancellationToken);
+            if (!decision.Allowed)
+                return Result.Failure<CapturedAnimalDto>("La municipalidad alcanzó la cuota anual de capturas.");
+        }
+
         var animal = CapturedAnimal.Record(
             request.RecordedByUserId,
             request.Canton,
@@ -49,6 +64,19 @@ public sealed class RecordCaptureCommandHandler(
             request.Notes,
             request.CollarChipNumber,
             request.CapturedAt);
+
+        if (entitlementService is not null)
+        {
+            var consumption = await entitlementService.ConsumeAsync(
+                request.RecordedByUserId,
+                "MaxCapturesPerYear",
+                1m,
+                request.IdempotencyKey ?? $"municipality-capture:{Guid.NewGuid():N}",
+                new EntitlementContext("municipality-capture"),
+                cancellationToken);
+            if (!consumption.Consumed)
+                return Result.Failure<CapturedAnimalDto>("La municipalidad alcanzó la cuota anual de capturas.");
+        }
 
         await repository.AddAsync(animal, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);

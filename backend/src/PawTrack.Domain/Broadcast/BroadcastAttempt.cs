@@ -14,6 +14,7 @@ public sealed class BroadcastAttempt
 
     /// <summary>The <c>LostPetEvent.Id</c> that originated this broadcast.</summary>
     public Guid LostPetEventId { get; private set; }
+    public Guid BroadcastRunId { get; private set; }
 
     public BroadcastChannel Channel { get; private set; }
     public BroadcastStatus Status { get; private set; }
@@ -44,6 +45,7 @@ public sealed class BroadcastAttempt
 
     public static BroadcastAttempt CreatePending(
         Guid lostPetEventId,
+        Guid broadcastRunId,
         BroadcastChannel channel,
         string? trackingUrl)
     {
@@ -51,6 +53,7 @@ public sealed class BroadcastAttempt
         {
             Id = Guid.CreateVersion7(),
             LostPetEventId = lostPetEventId,
+            BroadcastRunId = broadcastRunId,
             Channel = channel,
             Status = BroadcastStatus.Pending,
             TrackingUrl = trackingUrl,

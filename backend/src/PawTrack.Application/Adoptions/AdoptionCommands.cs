@@ -195,7 +195,8 @@ public sealed class PublishAdoptablePetCommandHandler(
     IAdoptionRepository adoptionRepository,
     ISubscriptionService subscriptionService,
     IUnitOfWork unitOfWork,
-    ILogger<PublishAdoptablePetCommandHandler> logger)
+    ILogger<PublishAdoptablePetCommandHandler> logger,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<PublishAdoptablePetCommand, Result<AdoptablePetDto>>
 {
     public const string NotVerifiedShelterError = "not_verified_shelter";
@@ -208,13 +209,27 @@ public sealed class PublishAdoptablePetCommandHandler(
         if (ally is null || ally.AllyType != AllyType.Shelter)
             return Result.Failure<AdoptablePetDto>(NotVerifiedShelterError);
 
-        // ShelterBasic is limited to 5 active animals; ShelterPlus is unlimited
-        var tier = await subscriptionService.GetActiveUserTierAsync(request.OrganizationUserId, ct);
-        if (tier < SubscriptionTier.ShelterPlus)
+        if (entitlementService is not null)
         {
+            var decision = await entitlementService.AuthorizeAsync(
+                request.OrganizationUserId,
+                "MaxActiveAdoptablePets",
+                1m,
+                new EntitlementContext("shelter", request.OrganizationUserId),
+                ct);
             var activeCount = await adoptionRepository.CountByOrganizationAsync(request.OrganizationUserId, ct);
-            if (activeCount >= 5)
+            if (!decision.Allowed || (decision.Limit.HasValue && activeCount >= decision.Limit.Value))
                 return Result.Failure<AdoptablePetDto>(ShelterBasicLimitError);
+        }
+        else
+        {
+            var tier = await subscriptionService.GetActiveUserTierAsync(request.OrganizationUserId, ct);
+            if (tier < SubscriptionTier.ShelterPlus)
+            {
+                var activeCount = await adoptionRepository.CountByOrganizationAsync(request.OrganizationUserId, ct);
+                if (activeCount >= 5)
+                    return Result.Failure<AdoptablePetDto>(ShelterBasicLimitError);
+            }
         }
         if (ally is null || ally.AllyType != AllyType.Shelter)
             return Result.Failure<AdoptablePetDto>(NotVerifiedShelterError);

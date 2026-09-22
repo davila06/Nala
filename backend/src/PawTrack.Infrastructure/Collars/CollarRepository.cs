@@ -7,6 +7,11 @@ namespace PawTrack.Infrastructure.Collars;
 
 public sealed class CollarRepository(PawTrackDbContext dbContext) : ICollarRepository
 {
+    public Task<int> CountActiveByOwnerAsync(Guid ownerId, CancellationToken cancellationToken = default) =>
+        dbContext.Collars.CountAsync(
+            collar => collar.OwnerId == ownerId && collar.IsActive,
+            cancellationToken);
+
     public Task<Collar?> GetActiveForPetAsync(Guid petId, CancellationToken cancellationToken = default) =>
         dbContext.Collars.FirstOrDefaultAsync(c => c.PetId == petId && c.IsActive, cancellationToken);
 

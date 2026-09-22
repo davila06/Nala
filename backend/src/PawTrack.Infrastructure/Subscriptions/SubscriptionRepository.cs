@@ -7,6 +7,16 @@ namespace PawTrack.Infrastructure.Subscriptions;
 
 public sealed class SubscriptionRepository(PawTrackDbContext dbContext) : ISubscriptionRepository
 {
+    public Task<Subscription?> GetActiveForSubjectAsync(Guid subjectId, CancellationToken cancellationToken = default) =>
+        dbContext.Subscriptions
+            .Where(s => (s.UserId == subjectId || s.ClinicId == subjectId)
+                && s.Status == SubscriptionStatus.Active
+                && (s.StartsAt == null || s.StartsAt <= DateTimeOffset.UtcNow)
+                && s.ExpiresAt > DateTimeOffset.UtcNow)
+            .OrderByDescending(s => s.ActivatedAt)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cancellationToken);
+
     public Task<Subscription?> GetActiveForUserAsync(Guid userId, CancellationToken cancellationToken = default) =>
         dbContext.Subscriptions
             .Where(s => s.UserId == userId

@@ -52,6 +52,16 @@ export interface SubscriptionPlanDto {
   version: string;
 }
 
+export interface SubscriptionAddonDto {
+  id: string;
+  subscriptionId: string;
+  entitlementKey: string;
+  units: number;
+  startsAt: string;
+  expiresAt: string;
+  isActive: boolean;
+}
+
 export interface PendingAllyDto {
   userId: string;
   organizationName: string;
@@ -306,6 +316,14 @@ export const adminApi = {
         data: { version },
       })
       .then((r) => r.data),
+
+  getSubscriptionAddons: (subscriptionId: string) =>
+    apiClient
+      .get<SubscriptionAddonDto[]>(`/admin/subscription-addons/subscription/${subscriptionId}`)
+      .then((r) => r.data),
+
+  deactivateSubscriptionAddon: (id: string) =>
+    apiClient.post<SubscriptionAddonDto>(`/admin/subscription-addons/${id}/deactivate`).then((r) => r.data),
 
   // ── Adoptions admin ────────────────────────────────────────────────────────
 

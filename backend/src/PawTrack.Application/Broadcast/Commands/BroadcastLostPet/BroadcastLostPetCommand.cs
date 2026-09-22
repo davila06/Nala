@@ -11,4 +11,5 @@ namespace PawTrack.Application.Broadcast.Commands.BroadcastLostPet;
 /// </summary>
 public sealed record BroadcastLostPetCommand(
     Guid LostPetEventId,
-    Guid RequestingUserId) : IRequest<Result<IReadOnlyList<BroadcastAttemptDto>>>;
+    Guid RequestingUserId,
+    Guid? BroadcastRunId = null) : IRequest<Result<IReadOnlyList<BroadcastAttemptDto>>>;

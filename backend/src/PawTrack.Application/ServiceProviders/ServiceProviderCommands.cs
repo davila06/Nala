@@ -4,6 +4,7 @@ using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Logging;
 using PawTrack.Application.Common;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Audit;
 using PawTrack.Domain.Auth;
 using PawTrack.Domain.Common;
@@ -451,7 +452,10 @@ public sealed class AddProviderServiceCommandValidator : AbstractValidator<AddPr
     }
 }
 
-public sealed class AddProviderServiceCommandHandler(IServiceProviderRepository repository, IUnitOfWork unitOfWork)
+public sealed class AddProviderServiceCommandHandler(
+    IServiceProviderRepository repository,
+    IUnitOfWork unitOfWork,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<AddProviderServiceCommand, Result<ProviderServiceDto>>
 {
     public async Task<Result<ProviderServiceDto>> Handle(AddProviderServiceCommand request, CancellationToken ct)
@@ -462,6 +466,26 @@ public sealed class AddProviderServiceCommandHandler(IServiceProviderRepository 
             return Result.Failure<ProviderServiceDto>("El proveedor debe estar activo para publicar servicios.");
         if (!provider.HasCatalogAccess)
             return Result.Failure<ProviderServiceDto>("Se requiere membresia Verificada o superior para publicar servicios del catalogo.");
+
+        if (entitlementService is not null)
+        {
+            var decision = await entitlementService.AuthorizeAsync(
+                request.OwnerUserId,
+                "MaxActiveServices",
+                1m,
+                new EntitlementContext("service-provider", provider.Id),
+                ct);
+            var services = await repository.GetServicesByProviderAsync(provider.Id, ct);
+            var activeCount = services.Count(service => service.Status != ProviderServiceStatus.Archived);
+            var membershipLimit = provider.MembershipTier switch
+            {
+                ProviderMembershipTier.Verified => 25m,
+                ProviderMembershipTier.Featured => 100m,
+                _ => decision.Limit ?? 3m,
+            };
+            if ((decision.Included && !decision.Allowed) || activeCount >= membershipLimit)
+                return Result.Failure<ProviderServiceDto>("El proveedor alcanzó el límite de servicios de su membresía.");
+        }
 
         var service = ProviderService.Create(
             provider.Id, request.Name, request.Description, request.Modality,
@@ -686,7 +710,10 @@ public sealed class AddServiceAvailabilityBlockCommandValidator : AbstractValida
     }
 }
 
-public sealed class AddServiceAvailabilityBlockCommandHandler(IServiceProviderRepository repository, IUnitOfWork unitOfWork)
+public sealed class AddServiceAvailabilityBlockCommandHandler(
+    IServiceProviderRepository repository,
+    IUnitOfWork unitOfWork,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<AddServiceAvailabilityBlockCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(AddServiceAvailabilityBlockCommand request, CancellationToken ct)
@@ -695,6 +722,17 @@ public sealed class AddServiceAvailabilityBlockCommandHandler(IServiceProviderRe
         var service = await repository.GetServiceByIdAsync(request.ProviderServiceId, ct);
         if (provider is null || service is null || service.ServiceProviderId != provider.Id)
             return Result.Failure<Guid>("Servicio no encontrado.");
+        if (entitlementService is not null)
+        {
+            var decision = await entitlementService.AuthorizeAsync(
+                provider.Id, "MaxScheduleBlocks", 1m,
+                new EntitlementContext("provider-schedule-block", provider.Id), ct);
+            var blocks = await repository.GetAvailabilityBlocksByServiceRangeAsync(
+                service.Id, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddYears(1), ct);
+            var membershipLimit = provider.MembershipTier == ProviderMembershipTier.Featured ? 100m : 20m;
+            if ((decision.Included && !decision.Allowed) || blocks.Count(block => block.IsActive) >= membershipLimit)
+                return Result.Failure<Guid>("El proveedor alcanzó el límite de bloqueos de agenda.");
+        }
         var block = ServiceAvailabilityBlock.Create(service.Id, request.StartsAt, request.EndsAt, request.Reason);
         await repository.AddAvailabilityBlockAsync(block, ct);
         await unitOfWork.SaveChangesAsync(ct);

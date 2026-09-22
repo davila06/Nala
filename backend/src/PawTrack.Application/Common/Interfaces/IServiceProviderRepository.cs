@@ -52,6 +52,7 @@ public interface IServiceProviderRepository
     Task<ProviderBooking?> GetBookingByIdAsync(Guid bookingId, CancellationToken ct = default);
     Task<IReadOnlyList<ProviderBooking>> GetBookingsByCustomerAsync(Guid customerUserId, int skip, int take, CancellationToken ct = default);
     Task<IReadOnlyList<ProviderBooking>> GetBookingsByProviderAsync(Guid serviceProviderId, int skip, int take, CancellationToken ct = default);
+    Task<int> CountBookingsByProviderSinceAsync(Guid serviceProviderId, DateTimeOffset since, CancellationToken ct = default);
     Task<IReadOnlyList<ProviderBooking>> GetRequestedBookingsCreatedBeforeAsync(DateTimeOffset cutoff, int take, CancellationToken ct = default);
     Task<IReadOnlyList<ProviderBooking>> GetPaymentPendingBookingsCreatedBeforeAsync(DateTimeOffset cutoff, int take, CancellationToken ct = default);
     Task<IReadOnlyList<ProviderBooking>> GetConfirmedBookingsStartingBetweenAsync(

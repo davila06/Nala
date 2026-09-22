@@ -301,7 +301,15 @@ public static class InfrastructureServiceCollectionExtensions
         // Subscriptions + payments
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
+        services.AddScoped<ISubscriptionAddonRepository, SubscriptionAddonRepository>();
+        services.AddScoped<PawTrack.Application.Imports.IImportJobRepository,
+            PawTrack.Infrastructure.Imports.ImportJobRepository>();
+        services.AddScoped<PawTrack.Application.Imports.StoreProductImportProcessor>();
+        services.AddScoped<PawTrack.Application.Clinics.Interfaces.IClinicWidgetDomainRepository,
+            PawTrack.Infrastructure.Clinics.ClinicWidgetDomainRepository>();
+        services.AddScoped<IEntitlementRepository, EntitlementRepository>();
         services.AddScoped<ISubscriptionService, SubscriptionService>();
+        services.AddScoped<IEntitlementService, EntitlementService>();
         services.AddSingleton<IPaymentService, SinpePaymentService>();
         services.AddHostedService<SubscriptionExpirationJob>();
         services.AddHostedService<SubscriptionRenewalNotificationJob>();

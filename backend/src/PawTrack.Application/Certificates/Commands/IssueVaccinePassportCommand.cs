@@ -70,6 +70,10 @@ public sealed class IssueVaccinePassportCommandHandler(
         if (subscription is null || subscription.Tier != Domain.Subscriptions.SubscriptionTier.ClinicPartner)
             return Result.Failure<CertificateDto>("El Pasaporte de Vacunas requiere una suscripción Clínica Partner activa.");
 
+        var cycleStart = new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, 1, 0, 0, 0, TimeSpan.Zero);
+        if (await certificateRepository.CountForClinicSinceAsync(request.ClinicId, cycleStart, CertificateType.VaccinePassport, ct) >= 250)
+            return Result.Failure<CertificateDto>("La clínica alcanzó la cuota mensual de pasaportes.");
+
         var pet = await petRepository.GetByIdAsync(request.PetId, ct);
         if (pet is null) return Result.Failure<CertificateDto>("Mascota no encontrada.");
 

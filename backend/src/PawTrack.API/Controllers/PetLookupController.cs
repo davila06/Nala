@@ -89,7 +89,8 @@ public sealed class PetLookupController(
         }
 
         var result = await sender.Send(
-            new PerformClinicScanCommand(clinicId, input, inputType),
+            new PerformClinicScanCommand(clinicId, input, inputType,
+                Request.Headers["Idempotency-Key"].FirstOrDefault()),
             cancellationToken);
 
         if (result.IsFailure)

@@ -75,7 +75,8 @@ public sealed class MunicipalController(ISender sender, IMunicipalSubscriptionSe
             request.EstimatedAge,
             request.Notes,
             request.CollarChipNumber,
-            request.CapturedAt), cancellationToken);
+            request.CapturedAt,
+            Request.Headers["Idempotency-Key"].FirstOrDefault()), cancellationToken);
 
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });

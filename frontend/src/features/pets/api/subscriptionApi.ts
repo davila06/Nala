@@ -46,6 +46,26 @@ export interface SubscriptionPlanCatalogDto {
   version: string;
 }
 
+export interface EntitlementValueDto {
+  key: string;
+  valueType: "Numeric" | "Boolean" | "Text";
+  numericValue: number | null;
+  booleanValue: boolean | null;
+  textValue: string | null;
+  unit: string | null;
+  resetPeriod: string | null;
+  consumed: number;
+}
+
+export interface EntitlementSnapshotDto {
+  subjectId: string;
+  subscriptionId: string | null;
+  tier: SubscriptionTier;
+  cycleStart: string | null;
+  cycleEnd: string | null;
+  entitlements: Record<string, EntitlementValueDto>;
+}
+
 export const IVA_RATE = 0.13;
 
 export function calculateIva(baseAmountCrc: number): number {
@@ -60,23 +80,6 @@ export function calculateEffectivePrice(baseAmountCrc: number, requiresInvoice: 
   return requiresInvoice ? calculateTotalWithIva(baseAmountCrc) : Math.round(baseAmountCrc);
 }
 
-export const TIER_PRICE_CRC: Record<SubscriptionTier, number> = {
-  Free: 0,
-  UserPlus: 2990,
-  UserFamilia: 4990,
-  ClinicBasic: 0,
-  ClinicPlus: 15000,
-  ClinicPartner: 35000,
-  StoreBasic: 0,
-  StorePlus: 12000,
-  StorePartner: 25000,
-  ShelterBasic: 0,
-  ShelterPlus: 8000,
-  MuniBasica: 150000,
-  MuniFull: 300000,
-  MuniRedRegional: 500000,
-};
-
 export const subscriptionApi = {
   getCatalog: () => apiClient.get<SubscriptionPlanCatalogDto[]>("/catalog/subscription-plans").then((r) => r.data),
 
@@ -86,6 +89,8 @@ export const subscriptionApi = {
         params: clinicId ? { clinicId } : undefined,
       })
       .then((r) => r.data),
+
+  getEntitlements: () => apiClient.get<EntitlementSnapshotDto>("/subscriptions/entitlements").then((r) => r.data),
 
   create: (tier: SubscriptionTier, billingMonths: number, clinicId?: string, requiresInvoice?: boolean) =>
     apiClient

@@ -39,7 +39,8 @@ public sealed record MatchSightingPhotoQuery(
     string PhotoContentType,
     double? Lat,
     double? Lng,
-    Guid RequestingUserId)
+    Guid RequestingUserId,
+    string? IdempotencyKey = null)
     : IRequest<Result<IReadOnlyList<VisualMatchDto>>>;
 
 // ── Settings ──────────────────────────────────────────────────────────────────
@@ -57,7 +58,8 @@ public sealed class MatchSightingPhotoQueryHandler(
     ISubscriptionService subscriptionService,
     IUnitOfWork unitOfWork,
     VisualMatchSettings settings,
-    ILogger<MatchSightingPhotoQueryHandler> logger)
+    ILogger<MatchSightingPhotoQueryHandler> logger,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<MatchSightingPhotoQuery, Result<IReadOnlyList<VisualMatchDto>>>
 {
     // Per spec: return up to 35 candidates.
@@ -72,9 +74,24 @@ public sealed class MatchSightingPhotoQueryHandler(
         MatchSightingPhotoQuery request,
         CancellationToken cancellationToken)
     {
-        // ── 0. Enforce monthly AI search quota for free plan ──────────────────
-        var monthlyLimit = await subscriptionService.GetMonthlyAiSearchLimitAsync(
-            request.RequestingUserId, cancellationToken);
+        EntitlementDecision? entitlementDecision = null;
+        if (entitlementService is not null)
+        {
+            entitlementDecision = await entitlementService.AuthorizeAsync(
+                request.RequestingUserId,
+                "AiMatchesPerCycle",
+                1m,
+                new EntitlementContext("visual-match"),
+                cancellationToken);
+            if (!entitlementDecision.Allowed)
+                return Result.Failure<IReadOnlyList<VisualMatchDto>>(
+                    "La cuota de matching IA del plan está agotada o no está incluida.");
+        }
+
+        // ── 0. Legacy quota path while older environments migrate ────────────
+        var monthlyLimit = entitlementService is null
+            ? await subscriptionService.GetMonthlyAiSearchLimitAsync(request.RequestingUserId, cancellationToken)
+            : null;
 
         if (monthlyLimit.HasValue)
         {
@@ -106,6 +123,19 @@ public sealed class MatchSightingPhotoQueryHandler(
         if (probeVector is null)
             return Result.Failure<IReadOnlyList<VisualMatchDto>>(
                 "No se pudo analizar la imagen. Asegúrate de usar una foto clara con buena iluminación.");
+
+        if (entitlementService is not null)
+        {
+            var consumption = await entitlementService.ConsumeAsync(
+                request.RequestingUserId,
+                "AiMatchesPerCycle",
+                1m,
+                request.IdempotencyKey ?? $"visual-match:{Guid.NewGuid():N}",
+                new EntitlementContext("visual-match"),
+                cancellationToken);
+            if (!consumption.Consumed)
+                return Result.Failure<IReadOnlyList<VisualMatchDto>>("La cuota de matching IA del plan está agotada.");
+        }
 
         // ── 2. Load active lost-pet profiles ──────────────────────────────────
         var profiles = await visualMatchRepository.GetActiveLostPetProfilesAsync(cancellationToken);

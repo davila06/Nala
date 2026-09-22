@@ -202,7 +202,8 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
             return Forbid();
 
         var result = await sender.Send(
-            new PerformClinicScanCommand(clinicResult.Value.Id, request.Input, inputType),
+            new PerformClinicScanCommand(clinicResult.Value.Id, request.Input, inputType,
+                Request.Headers["Idempotency-Key"].FirstOrDefault()),
             cancellationToken);
 
         return result.IsFailure

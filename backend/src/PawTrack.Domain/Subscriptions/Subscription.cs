@@ -79,6 +79,34 @@ public sealed class Subscription
         };
     }
 
+    public static Subscription CreateScheduledForClinic(
+        Guid clinicId,
+        Guid ownerId,
+        SubscriptionTier tier,
+        string paymentReference,
+        decimal amountCrc,
+        DateTimeOffset startsAt,
+        int billingMonths = 1)
+    {
+        ValidateClinicTier(tier);
+        if (startsAt <= DateTimeOffset.UtcNow)
+            throw new ArgumentException("Scheduled subscription must start in the future.", nameof(startsAt));
+
+        return new Subscription
+        {
+            Id = Guid.CreateVersion7(),
+            ClinicId = clinicId,
+            ClinicOwnerId = ownerId,
+            Tier = tier,
+            Status = SubscriptionStatus.PendingPayment,
+            PaymentReference = paymentReference,
+            AmountCrc = amountCrc,
+            BillingMonths = billingMonths,
+            StartsAt = startsAt,
+            CreatedAt = DateTimeOffset.UtcNow,
+        };
+    }
+
     public static Subscription CreateForClinic(
         Guid clinicId,
         Guid ownerId,

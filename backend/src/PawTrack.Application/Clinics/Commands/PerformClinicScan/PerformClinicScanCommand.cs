@@ -3,6 +3,7 @@ using MediatR;
 using PawTrack.Application.Clinics.Commands.TrackClinicView;
 using PawTrack.Application.Clinics.DTOs;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Clinics;
 using PawTrack.Domain.Common;
 
@@ -15,7 +16,8 @@ namespace PawTrack.Application.Clinics.Commands.PerformClinicScan;
 public sealed record PerformClinicScanCommand(
     Guid ClinicId,
     string Input,
-    ScanInputType InputType) : IRequest<Result<ClinicScanResultDto>>;
+    ScanInputType InputType,
+    string? IdempotencyKey = null) : IRequest<Result<ClinicScanResultDto>>;
 
 public sealed class PerformClinicScanCommandHandler(
     IClinicRepository clinicRepository,
@@ -24,7 +26,8 @@ public sealed class PerformClinicScanCommandHandler(
     IPetRepository petRepository,
     IUserRepository userRepository,
     INotificationDispatcher notificationDispatcher,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<PerformClinicScanCommand, Result<ClinicScanResultDto>>
 {
     // Matches the pet Id embedded in QR profile URLs: /p/{guid}
@@ -44,6 +47,19 @@ public sealed class PerformClinicScanCommandHandler(
         if (clinic.Status != ClinicStatus.Active)
             return Result.Failure<ClinicScanResultDto>("Clinic account is not active.");
 
+        EntitlementDecision? decision = null;
+        if (entitlementService is not null)
+        {
+            decision = await entitlementService.AuthorizeAsync(
+                request.ClinicId,
+                "MaxClinicScansPerCycle",
+                1m,
+                new EntitlementContext("clinic-scan", request.ClinicId),
+                cancellationToken);
+            if (!decision.Allowed)
+                return Result.Failure<ClinicScanResultDto>("La clínica alcanzó su cuota de escaneos del ciclo.");
+        }
+
         // Resolve pet from input
         var pet = request.InputType switch
         {
@@ -52,6 +68,19 @@ public sealed class PerformClinicScanCommandHandler(
                                           request.Input.Trim().ToUpperInvariant(), cancellationToken),
             _ => null,
         };
+
+        if (entitlementService is not null)
+        {
+            var consumption = await entitlementService.ConsumeAsync(
+                request.ClinicId,
+                "MaxClinicScansPerCycle",
+                1m,
+                request.IdempotencyKey ?? $"clinic-scan:{Guid.NewGuid():N}",
+                new EntitlementContext("clinic-scan", request.ClinicId),
+                cancellationToken);
+            if (!consumption.Consumed)
+                return Result.Failure<ClinicScanResultDto>("La clínica alcanzó su cuota de escaneos del ciclo.");
+        }
 
         // Record audit scan regardless of match result
         var scan = ClinicScan.Create(clinic.Id, request.Input, request.InputType, pet?.Id);

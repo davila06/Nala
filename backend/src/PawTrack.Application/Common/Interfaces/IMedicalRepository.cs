@@ -11,6 +11,7 @@ public interface IMedicalRepository
     void Delete(MedicalRecord record);
 
     Task<IReadOnlyList<VetReminder>> GetUpcomingRemindersAsync(Guid petId, CancellationToken ct = default);
+    Task<int> CountActiveRemindersByOwnerAsync(Guid ownerId, CancellationToken ct = default);
     Task<IReadOnlyList<VetReminder>> GetRemindersDueSoonAsync(DateOnly today, int daysAhead, CancellationToken ct = default);
     Task<VetReminder?> GetReminderByIdAsync(Guid id, CancellationToken ct = default);
     Task AddReminderAsync(VetReminder reminder, CancellationToken ct = default);

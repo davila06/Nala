@@ -18,6 +18,8 @@ public sealed class PaymentTransaction
     public Guid UserId { get; private set; }
     public Guid? PaymentProfileId { get; private set; }
     public decimal AmountCrc { get; private set; }
+    public decimal GrossAmountCrc { get; private set; }
+    public decimal ProrationCreditCrc { get; private set; }
     public string Currency { get; private set; } = "CRC";
     public string TransactionReference { get; private set; } = string.Empty;
     public string? GatewayAuthorizationCode { get; private set; }
@@ -46,6 +48,8 @@ public sealed class PaymentTransaction
             UserId = userId,
             PaymentProfileId = paymentProfileId,
             AmountCrc = amountCrc,
+            GrossAmountCrc = amountCrc,
+            ProrationCreditCrc = 0m,
             Currency = currency.ToUpperInvariant(),
             TransactionReference = transactionReference.Trim(),
             Purpose = purpose.Trim(),
@@ -53,6 +57,15 @@ public sealed class PaymentTransaction
             Status = PaymentTransactionStatus.Pending,
             CreatedAt = DateTimeOffset.UtcNow,
         };
+    }
+
+    public void ApplyProration(decimal grossAmountCrc, decimal creditCrc)
+    {
+        if (grossAmountCrc < 0 || creditCrc < 0 || creditCrc > grossAmountCrc)
+            throw new ArgumentOutOfRangeException(nameof(creditCrc));
+        GrossAmountCrc = grossAmountCrc;
+        ProrationCreditCrc = creditCrc;
+        AmountCrc = grossAmountCrc - creditCrc;
     }
 
     public void MarkSucceeded(string? authCode = null)

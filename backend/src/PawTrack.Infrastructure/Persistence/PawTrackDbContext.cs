@@ -38,6 +38,7 @@ using PawTrack.Domain.Regulatory;
 using PawTrack.Domain.ServiceProviders;
 using PawTrack.Domain.Webhooks;
 using PawTrack.Domain.ProductAnalytics;
+using PawTrack.Domain.Imports;
 
 namespace PawTrack.Infrastructure.Persistence;
 
@@ -79,9 +80,15 @@ public sealed class PawTrackDbContext(
     public DbSet<ClinicScan> ClinicScans => Set<ClinicScan>();
     public DbSet<ClinicProfileView> ClinicProfileViews => Set<ClinicProfileView>();
     public DbSet<ClinicApiKey> ClinicApiKeys => Set<ClinicApiKey>();
+    public DbSet<ClinicWidgetDomain> ClinicWidgetDomains => Set<ClinicWidgetDomain>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
+    public DbSet<SubscriptionAddon> SubscriptionAddons => Set<SubscriptionAddon>();
+    public DbSet<ImportJob> ImportJobs => Set<ImportJob>();
+    public DbSet<ImportRowError> ImportRowErrors => Set<ImportRowError>();
+    public DbSet<PlanEntitlement> PlanEntitlements => Set<PlanEntitlement>();
+    public DbSet<EntitlementConsumption> EntitlementConsumptions => Set<EntitlementConsumption>();
     public DbSet<UserPaymentProfile> UserPaymentProfiles => Set<UserPaymentProfile>();
     public DbSet<PaymentTransaction> PaymentTransactions => Set<PaymentTransaction>();
     public DbSet<UserBillingProfile> UserBillingProfiles => Set<UserBillingProfile>();

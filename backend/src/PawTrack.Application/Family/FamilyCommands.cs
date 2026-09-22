@@ -53,11 +53,10 @@ public sealed class InviteFamilyMemberCommandHandler(
     IFamilyRepository familyRepository,
     IEmailSender emailSender,
     IUnitOfWork unitOfWork,
-    ILogger<InviteFamilyMemberCommandHandler> logger)
+    ILogger<InviteFamilyMemberCommandHandler> logger,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<InviteFamilyMemberCommand, Result<FamilyInvitationDto>>
 {
-    private const int MaxMembers = 5;
-
     public async Task<Result<FamilyInvitationDto>> Handle(
         InviteFamilyMemberCommand request, CancellationToken ct)
     {
@@ -69,8 +68,21 @@ public sealed class InviteFamilyMemberCommandHandler(
             return Result.Failure<FamilyInvitationDto>("Solo el dueño puede invitar miembros.");
 
         var count = await familyRepository.CountActiveMembersAsync(account.Id, ct);
-        if (count >= MaxMembers)
-            return Result.Failure<FamilyInvitationDto>($"La cuenta familiar ya tiene el máximo de {MaxMembers} miembros.");
+        var maxMembers = 5m;
+        if (entitlementService is not null)
+        {
+            var decision = await entitlementService.AuthorizeAsync(
+                request.OwnerId,
+                "MaxFamilyMembers",
+                1m,
+                new EntitlementContext("family-member", account.Id),
+                ct);
+            if (decision.Limit.HasValue) maxMembers = decision.Limit.Value;
+            if (!decision.Allowed || count >= maxMembers)
+                return Result.Failure<FamilyInvitationDto>($"La cuenta familiar ya tiene el máximo de {maxMembers:0} miembros.");
+        }
+        else if (count >= maxMembers)
+            return Result.Failure<FamilyInvitationDto>($"La cuenta familiar ya tiene el máximo de {maxMembers:0} miembros.");
 
         // Limit open invitations to prevent spam
         const int MaxPendingInvitations = 3;

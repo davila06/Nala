@@ -207,10 +207,10 @@ public sealed class GetMedicalHistoryQueryHandler(
     IPetRepository petRepository,
     IMedicalRepository medicalRepository,
     IFamilyRepository familyRepository,
-    ISubscriptionService subscriptionService)
+    ISubscriptionService subscriptionService,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<GetMedicalHistoryQuery, Result<MedicalHistoryResultDto>>
 {
-    private const int PlusPreviewLimit = 3;
 
     public async Task<Result<MedicalHistoryResultDto>> Handle(
         GetMedicalHistoryQuery request, CancellationToken ct)
@@ -235,8 +235,16 @@ public sealed class GetMedicalHistoryQueryHandler(
         // Plus: preview — last 3 records, sensitive fields masked
         if (tier == PawTrack.Domain.Subscriptions.SubscriptionTier.UserPlus)
         {
+            var previewLimit = 3;
+            if (entitlementService is not null)
+            {
+                var decision = await entitlementService.AuthorizeAsync(
+                    request.RequestingUserId, "MedicalRecordsPreviewLimit", 1m,
+                    new EntitlementContext("medical-preview", request.PetId), ct);
+                if (decision.Limit.HasValue) previewLimit = (int)decision.Limit.Value;
+            }
             var preview = records
-                .Take(PlusPreviewLimit)
+                .Take(previewLimit)
                 .Select(r => MedicalRecordDto.FromDomain(r) with
                 {
                     DocumentUrl = null,       // documents are Familia-only
@@ -248,7 +256,7 @@ public sealed class GetMedicalHistoryQueryHandler(
                 })
                 .ToList();
             return Result.Success(new MedicalHistoryResultDto(
-                preview, total, "plus_preview", true, PlusPreviewLimit));
+                preview, total, "plus_preview", true, previewLimit));
         }
 
         // Explorador: return empty — frontend shows count teaser from /medical/count
@@ -579,7 +587,8 @@ public sealed class CreateVetReminderCommandHandler(
     IMedicalRepository medicalRepository,
     IFamilyRepository familyRepository,
     ISubscriptionService subscriptionService,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<CreateVetReminderCommand, Result<VetReminderDto>>
 {
     public async Task<Result<VetReminderDto>> Handle(CreateVetReminderCommand request, CancellationToken ct)
@@ -592,6 +601,20 @@ public sealed class CreateVetReminderCommandHandler(
         if (pet is null) return Result.Failure<VetReminderDto>("Mascota no encontrada.");
         if (!await FamilyAccessChecker.CanAccessPetAsync(pet.OwnerId, request.RequestingUserId, familyRepository, ct))
             return Result.Failure<VetReminderDto>("Acceso denegado.");
+
+        if (entitlementService is not null)
+        {
+            var decision = await entitlementService.AuthorizeAsync(
+                request.RequestingUserId,
+                "MaxActiveVetReminders",
+                1m,
+                new EntitlementContext("vet-reminder", request.PetId),
+                ct);
+            var activeCount = await medicalRepository.CountActiveRemindersByOwnerAsync(
+                pet.OwnerId, ct);
+            if (!decision.Allowed || decision.Limit.HasValue && activeCount >= decision.Limit.Value)
+                return Result.Failure<VetReminderDto>("La cuenta alcanzó el límite de recordatorios veterinarios.");
+        }
 
         var reminder = VetReminder.Create(
             request.PetId, request.RequestingUserId, request.Type,

@@ -26,3 +26,18 @@ public sealed record SubscriptionPlanDto(
         plan.UpdatedAt,
         plan.Version);
 }
+
+public sealed record SubscriptionAddonDto(
+    Guid Id,
+    Guid SubscriptionId,
+    string EntitlementKey,
+    decimal Units,
+    decimal? PriceCrc,
+    DateTimeOffset StartsAt,
+    DateTimeOffset ExpiresAt,
+    bool IsActive)
+{
+    public static SubscriptionAddonDto FromDomain(SubscriptionAddon addon) => new(
+        addon.Id, addon.SubscriptionId, addon.EntitlementKey, addon.Units, addon.PriceCrc,
+        addon.StartsAt, addon.ExpiresAt, addon.IsActive);
+}

@@ -14,6 +14,7 @@ public sealed class BroadcastAttemptConfiguration : IEntityTypeConfiguration<Bro
         builder.Property(a => a.Id).ValueGeneratedNever();
 
         builder.Property(a => a.LostPetEventId).IsRequired();
+        builder.Property(a => a.BroadcastRunId).IsRequired();
 
         builder.Property(a => a.Channel)
             .IsRequired()
@@ -37,5 +38,6 @@ public sealed class BroadcastAttemptConfiguration : IEntityTypeConfiguration<Bro
         builder.HasIndex(a => a.LostPetEventId);
         // Supports the per-channel retry query (find failed attempts for a given event + channel).
         builder.HasIndex(a => new { a.LostPetEventId, a.Channel });
+        builder.HasIndex(a => a.BroadcastRunId);
     }
 }

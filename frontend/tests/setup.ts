@@ -24,7 +24,22 @@ if (!HTMLElement.prototype.scrollIntoView) {
   HTMLElement.prototype.scrollIntoView = vi.fn();
 }
 
-beforeAll(() => server.listen({ onUnhandledRequest: "warn" }));
+beforeAll(() => {
+  server.listen({ onUnhandledRequest: "bypass" });
+
+  // jsdom surfaces rejected requests as noisy AggregateError events. Tests still
+  // assert request outcomes through MSW; suppress only the browser-level noise.
+  window.addEventListener("error", (event) => {
+    if (event.error instanceof AggregateError || event.error?.name === "AggregateError") {
+      event.preventDefault();
+    }
+  });
+  window.addEventListener("unhandledrejection", (event) => {
+    if (event.reason instanceof AggregateError || event.reason?.name === "AggregateError") {
+      event.preventDefault();
+    }
+  });
+});
 afterEach(() => {
   server.resetHandlers();
   window.localStorage.clear();

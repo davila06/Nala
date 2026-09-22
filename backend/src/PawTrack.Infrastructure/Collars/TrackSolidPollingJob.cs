@@ -73,16 +73,26 @@ public sealed class TrackSolidPollingJob(
             return;
 
         var modifiedCount = 0;
+        var rejectedCount = 0;
         foreach (var collar in collars)
         {
             if (!positions.TryGetValue(collar.ExternalDeviceId!, out var pos))
                 continue;
 
-            collar.UpdateLocation(pos.Lat, pos.Lng, pos.BatteryPercent);
+            var outcome = collar.UpdateLocation(pos.Lat, pos.Lng, pos.BatteryPercent, pos.RecordedAt, pos.IsOnline);
+            if (!outcome.Accepted)
+            {
+                rejectedCount++;
+                logger.LogDebug(
+                    "TrackSolidPollingJob: rejected position for collar {CollarId} (IMEI {Imei}): {Reason}",
+                    collar.Id, collar.ExternalDeviceId, outcome.RejectionReason);
+                continue;
+            }
+
             db.Collars.Update(collar);
 
             await db.CollarLocations.AddAsync(
-                CollarLocation.Record(collar.Id, pos.Lat, pos.Lng, pos.AccuracyMeters),
+                CollarLocation.Record(collar.Id, pos.Lat, pos.Lng, pos.RecordedAt, pos.AccuracyMeters, pos.IsOnline),
                 cancellationToken);
 
             if (collar.IsLost && collar.LostPetEventId is not null)
@@ -91,7 +101,7 @@ public sealed class TrackSolidPollingJob(
                     .FirstOrDefaultAsync(e => e.Id == collar.LostPetEventId.Value, cancellationToken);
                 if (lostPetEvent is not null)
                 {
-                    lostPetEvent.UpdateLastSeenLocation(pos.Lat, pos.Lng, DateTimeOffset.UtcNow);
+                    lostPetEvent.UpdateLastSeenLocation(pos.Lat, pos.Lng, pos.RecordedAt);
                     db.LostPetEvents.Update(lostPetEvent);
                 }
             }
@@ -103,7 +113,9 @@ public sealed class TrackSolidPollingJob(
         if (modifiedCount > 0)
         {
             await db.SaveChangesAsync(cancellationToken);
-            logger.LogDebug("TrackSolidPollingJob: successfully updated {Count} collar locations.", modifiedCount);
+            logger.LogDebug(
+                "TrackSolidPollingJob: successfully updated {Count} collar locations ({Rejected} rejected as stale/out-of-order).",
+                modifiedCount, rejectedCount);
         }
     }
 }

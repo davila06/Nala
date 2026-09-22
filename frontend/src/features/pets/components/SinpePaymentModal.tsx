@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCreateSubscription, useReportPayment, useSubscriptionCatalog } from "../hooks/useSubscription";
 import { subscriptionApi } from "../api/subscriptionApi";
 import type { SubscriptionTier } from "../api/subscriptionApi";
-import { TIER_PRICE_CRC } from "../api/subscriptionApi";
 import { useHaptic } from "@/shared/hooks/useHaptic";
 import { SecureCardPaymentForm, type CardPaymentData } from "@/features/payments/components/SecureCardPaymentForm";
 import { useChargeCard } from "@/features/payments/hooks/usePaymentProfiles";
@@ -76,7 +75,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
 
   const catalogPlan = catalog?.find((plan) => plan.tier === tier);
   const isUserPlan = tier === "UserPlus" || tier === "UserFamilia";
-  const monthlyPrice = catalogPlan?.monthlyPriceCrc ?? TIER_PRICE_CRC[tier];
+  const monthlyPrice = catalogPlan?.monthlyPriceCrc ?? catalogPlan?.annualPriceCrc ?? 0;
   const basePrice = isUserPlan
     ? monthlyPrice * billingMonths * (billingMonths === 12 ? 0.8 : 1)
     : (catalogPlan?.annualPriceCrc ?? monthlyPrice);

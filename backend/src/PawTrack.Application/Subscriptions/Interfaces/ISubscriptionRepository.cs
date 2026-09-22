@@ -4,6 +4,7 @@ namespace PawTrack.Application.Subscriptions.Interfaces;
 
 public interface ISubscriptionRepository
 {
+    Task<Subscription?> GetActiveForSubjectAsync(Guid subjectId, CancellationToken cancellationToken = default);
     Task<Subscription?> GetActiveForUserAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<Subscription?> GetActiveForClinicAsync(Guid clinicId, CancellationToken cancellationToken = default);
     Task<Subscription?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);

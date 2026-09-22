@@ -23,6 +23,7 @@ public sealed class MultichannelBroadcastService(
 {
     public async Task<IReadOnlyList<BroadcastAttemptDto>> BroadcastAsync(
         BroadcastMessageContext context,
+        Guid broadcastRunId,
         CancellationToken cancellationToken = default)
     {
         var broadcasters = channelBroadcasters.ToList();
@@ -62,6 +63,7 @@ public sealed class MultichannelBroadcastService(
 
             var attempt = BroadcastAttempt.CreatePending(
                 context.LostPetEventId,
+                broadcastRunId,
                 broadcaster.Channel,
                 trackingUrl);
 

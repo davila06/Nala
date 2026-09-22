@@ -28,6 +28,12 @@ public sealed class MedicalRepository(PawTrackDbContext db) : IMedicalRepository
             .OrderBy(r => r.DueDate)
             .ToListAsync(ct);
 
+    public Task<int> CountActiveRemindersByOwnerAsync(Guid ownerId, CancellationToken ct = default) =>
+        (from reminder in db.VetReminders
+         join pet in db.Pets on reminder.PetId equals pet.Id
+         where pet.OwnerId == ownerId && !reminder.IsCompleted
+         select reminder.Id).CountAsync(ct);
+
     public async Task<IReadOnlyList<VetReminder>> GetRemindersDueSoonAsync(
         DateOnly today, int daysAhead, CancellationToken ct = default)
     {

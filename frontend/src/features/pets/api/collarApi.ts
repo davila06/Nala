@@ -18,6 +18,12 @@ export interface CollarDto {
   offlineThresholdMinutes: number;
   batteryAlertsEnabled: boolean;
   batteryAlertThresholdPercent: number;
+  /** Device/provider timestamp of the last accepted fix — use this, not lastSeenAt, for freshness. */
+  lastLocationRecordedAt: string | null;
+  /** Connectivity flag reported by the provider at the last accepted fix. */
+  lastPositionOnline: boolean | null;
+  /** Seconds since the last accepted fix was recorded by the device/provider. */
+  positionAgeSeconds: number | null;
 }
 
 export interface CollarConnectivityStatusDto {
@@ -92,10 +98,7 @@ export interface LocationPointDto {
 }
 
 export const collarApi = {
-  getStatus: (petId: string) =>
-    apiClient
-      .get<CollarDto | null>(`/collars/pet/${petId}`)
-      .then((r) => r.data),
+  getStatus: (petId: string) => apiClient.get<CollarDto | null>(`/collars/pet/${petId}`).then((r) => r.data),
 
   getHistory: (petId: string, hours = 24, maxPoints = 500) =>
     apiClient
@@ -104,11 +107,7 @@ export const collarApi = {
       })
       .then((r) => r.data),
 
-  register: (
-    petId: string,
-    provider: CollarProvider,
-    externalDeviceId?: string,
-  ) =>
+  register: (petId: string, provider: CollarProvider, externalDeviceId?: string) =>
     apiClient
       .post<CollarDto>("/collars", {
         petId,
@@ -120,9 +119,7 @@ export const collarApi = {
   // ── CollarTag activation ───────────────────────────────────────────────────
 
   checkSerial: (serial: string) =>
-    apiClient
-      .get<{ available: boolean; status: string }>(`/collars/tag/${serial}`)
-      .then((r) => r.data),
+    apiClient.get<{ available: boolean; status: string }>(`/collars/tag/${serial}`).then((r) => r.data),
 
   activate: (serial: string, petId: string) =>
     apiClient
@@ -133,8 +130,7 @@ export const collarApi = {
       }>(`/collars/tag/${serial}/activate`, { petId })
       .then((r) => r.data),
 
-  deactivate: (serial: string) =>
-    apiClient.delete(`/collars/tag/${serial}/deactivate`).then(() => undefined),
+  deactivate: (serial: string) => apiClient.delete(`/collars/tag/${serial}/deactivate`).then(() => undefined),
 
   generateDeviceKey: (collarId: string) =>
     apiClient
@@ -147,21 +143,11 @@ export const collarApi = {
   // ── Connectivity alerts (offline + battery) ────────────────────────────────
 
   getConnectivityStatus: (collarId: string) =>
-    apiClient
-      .get<CollarConnectivityStatusDto>(
-        `/collars/${collarId}/connectivity-status`,
-      )
-      .then((r) => r.data),
+    apiClient.get<CollarConnectivityStatusDto>(`/collars/${collarId}/connectivity-status`).then((r) => r.data),
 
-  updateNotificationPreferences: (
-    collarId: string,
-    preferences: CollarNotificationPreferences,
-  ) =>
+  updateNotificationPreferences: (collarId: string, preferences: CollarNotificationPreferences) =>
     apiClient
-      .put<CollarNotificationPreferences>(
-        `/collars/${collarId}/notification-preferences`,
-        preferences,
-      )
+      .put<CollarNotificationPreferences>(`/collars/${collarId}/notification-preferences`, preferences)
       .then((r) => r.data),
 
   // ── Audit log ───────────────────────────────────────────────────────────────
@@ -176,16 +162,10 @@ export const collarApi = {
   // ── Handover (ownership transfer) ────────────────────────────────────────
 
   generateHandoverCode: (collarId: string) =>
-    apiClient
-      .post<GenerateCollarHandoverCodeResultDto>(
-        `/collars/${collarId}/handover/generate`,
-      )
-      .then((r) => r.data),
+    apiClient.post<GenerateCollarHandoverCodeResultDto>(`/collars/${collarId}/handover/generate`).then((r) => r.data),
 
   cancelHandoverCode: (handoverCodeId: string) =>
-    apiClient
-      .post(`/collars/handover/${handoverCodeId}/cancel`)
-      .then(() => undefined),
+    apiClient.post(`/collars/handover/${handoverCodeId}/cancel`).then(() => undefined),
 
   redeemHandoverCode: (handoverCodeId: string, pin: string) =>
     apiClient
@@ -198,9 +178,7 @@ export const collarApi = {
   // ── Lost mode ─────────────────────────────────────────────────────
 
   getLostModeStatus: (collarId: string) =>
-    apiClient
-      .get<CollarLostModeStatusDto>(`/collars/${collarId}/lost-mode-status`)
-      .then((r) => r.data),
+    apiClient.get<CollarLostModeStatusDto>(`/collars/${collarId}/lost-mode-status`).then((r) => r.data),
 
   activateLostMode: (collarId: string) =>
     apiClient
@@ -211,22 +189,14 @@ export const collarApi = {
       .then((r) => r.data),
 
   deactivateLostMode: (collarId: string, reason?: string) =>
-    apiClient
-      .post(`/collars/${collarId}/lost-mode/deactivate`, { reason })
-      .then(() => undefined),
+    apiClient.post(`/collars/${collarId}/lost-mode/deactivate`, { reason }).then(() => undefined),
 
   // ── Safe zones (geofencing) ──────────────────────────────────────
 
   getSafeZones: (collarId: string) =>
-    apiClient
-      .get<CollarSafeZoneDto[]>(`/collars/${collarId}/safe-zones`)
-      .then((r) => r.data),
+    apiClient.get<CollarSafeZoneDto[]>(`/collars/${collarId}/safe-zones`).then((r) => r.data),
 
-  createSafeZone: (
-    collarId: string,
-    name: string,
-    points: CollarSafeZonePoint[],
-  ) =>
+  createSafeZone: (collarId: string, name: string, points: CollarSafeZonePoint[]) =>
     apiClient
       .post<CollarSafeZoneDto>(`/collars/${collarId}/safe-zones`, {
         name,
@@ -234,12 +204,7 @@ export const collarApi = {
       })
       .then((r) => r.data),
 
-  updateSafeZone: (
-    zoneId: string,
-    name: string,
-    points: CollarSafeZonePoint[],
-    enabled: boolean,
-  ) =>
+  updateSafeZone: (zoneId: string, name: string, points: CollarSafeZonePoint[], enabled: boolean) =>
     apiClient
       .put<CollarSafeZoneDto>(`/collars/safe-zones/${zoneId}`, {
         name,
@@ -248,17 +213,11 @@ export const collarApi = {
       })
       .then((r) => r.data),
 
-  deleteSafeZone: (zoneId: string) =>
-    apiClient.delete(`/collars/safe-zones/${zoneId}`).then(() => undefined),
+  deleteSafeZone: (zoneId: string) => apiClient.delete(`/collars/safe-zones/${zoneId}`).then(() => undefined),
 
   // ── Location history / export / heatmap ──────────────────────────
 
-  getLocationHistoryRange: (
-    collarId: string,
-    from?: string,
-    to?: string,
-    maxPoints = 2000,
-  ) =>
+  getLocationHistoryRange: (collarId: string, from?: string, to?: string, maxPoints = 2000) =>
     apiClient
       .get<CollarLocationPointDto[]>(`/collars/${collarId}/location-history`, {
         params: { from, to, maxPoints },

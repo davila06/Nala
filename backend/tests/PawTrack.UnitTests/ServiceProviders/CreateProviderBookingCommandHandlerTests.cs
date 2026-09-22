@@ -4,11 +4,39 @@ using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.ServiceProviders;
 using PawTrack.Domain.Pets;
 using PawTrack.Domain.ServiceProviders;
+using PawTrack.Application.Subscriptions.Services;
+using PawTrack.Domain.Subscriptions;
 
 namespace PawTrack.UnitTests.ServiceProviders;
 
 public sealed class CreateProviderBookingCommandHandlerTests
 {
+    [Fact]
+    public async Task Handle_ProviderBookingQuotaExhausted_ReturnsFailure()
+    {
+        var providers = Substitute.For<IServiceProviderRepository>();
+        var pets = Substitute.For<IPetRepository>();
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var entitlements = Substitute.For<IEntitlementService>();
+        var customerUserId = Guid.NewGuid();
+        var provider = ServiceProvider.Create(Guid.NewGuid(), "Escuela", "Servicio", ServiceProviderCategory.Trainer, "San Jose", 9m, -84m, "provider@example.cr");
+        provider.Activate();
+        var service = ProviderService.Create(provider.Id, "Sesion", "Individual", ServiceModality.AtProviderLocation, 60, 25_000m, 1);
+        var pet = Pet.Create(customerUserId, "Luna", PetSpecies.Dog, null, null);
+        pets.GetByIdAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(pet);
+        providers.GetServiceByIdAsync(service.Id, Arg.Any<CancellationToken>()).Returns(service);
+        providers.GetByIdAsync(provider.Id, Arg.Any<CancellationToken>()).Returns(provider);
+        entitlements.AuthorizeAsync(provider.Id, "MaxBookingsPerCycle", 1m, Arg.Any<EntitlementContext>(), Arg.Any<CancellationToken>())
+            .Returns(new EntitlementDecision(false, true, 100m, 100m, 0m, DateTimeOffset.UtcNow.AddDays(1), SubscriptionTier.Free));
+
+        var handler = new CreateProviderBookingCommandHandler(providers, pets, unitOfWork, entitlementService: entitlements);
+        var result = await handler.Handle(new CreateProviderBookingCommand(
+            customerUserId, service.Id, pet.Id, DateTimeOffset.UtcNow.AddDays(2), 1, null), default);
+
+        result.IsFailure.Should().BeTrue();
+        await providers.DidNotReceive().TryAddBookingAsync(Arg.Any<ProviderBooking>(), Arg.Any<int>(), Arg.Any<CancellationToken>());
+    }
+
     [Fact]
     public async Task Handle_PetBelongsToAnotherUser_ReturnsFailureWithoutCreatingBooking()
     {

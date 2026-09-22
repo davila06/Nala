@@ -1085,6 +1085,9 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("BroadcastRunId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Channel")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -1122,6 +1125,8 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BroadcastRunId");
 
                     b.HasIndex("LostPetEventId");
 
@@ -2158,6 +2163,36 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.ToTable("ClinicScans", (string)null);
                 });
 
+            modelBuilder.Entity("PawTrack.Domain.Clinics.ClinicWidgetDomain", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClinicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Domain")
+                        .IsRequired()
+                        .HasMaxLength(253)
+                        .HasColumnType("nvarchar(253)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClinicId", "Domain")
+                        .IsUnique();
+
+                    b.HasIndex("ClinicId", "IsActive");
+
+                    b.ToTable("ClinicWidgetDomains", (string)null);
+                });
+
             modelBuilder.Entity("PawTrack.Domain.Collars.Collar", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2198,6 +2233,12 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
 
                     b.Property<double?>("LastLng")
                         .HasColumnType("float");
+
+                    b.Property<DateTimeOffset?>("LastLocationRecordedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool?>("LastPositionOnline")
+                        .HasColumnType("bit");
 
                     b.Property<DateTimeOffset?>("LastSeenAt")
                         .HasColumnType("datetimeoffset");
@@ -2353,11 +2394,17 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("CollarId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("IsOnline")
+                        .HasColumnType("bit");
+
                     b.Property<double>("Lat")
                         .HasColumnType("float");
 
                     b.Property<double>("Lng")
                         .HasColumnType("float");
+
+                    b.Property<DateTimeOffset>("ReceivedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset>("RecordedAt")
                         .HasColumnType("datetimeoffset");
@@ -2637,6 +2684,103 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("IX_FosterVolunteers_HomeLatLng");
 
                     b.ToTable("FosterVolunteers", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Imports.ImportJob", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("DuplicateCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FileHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Format")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("ImportedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ResourceType")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<int>("RowCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "FileHash");
+
+                    b.HasIndex("TenantId", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.ToTable("ImportJobs", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Imports.ImportRowError", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("Column")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<Guid>("ImportJobId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("RawValue")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("RowNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ImportJobId", "RowNumber");
+
+                    b.ToTable("ImportRowErrors", (string)null);
                 });
 
             modelBuilder.Entity("PawTrack.Domain.Incentives.ContributorScore", b =>
@@ -3883,8 +4027,14 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<decimal>("GrossAmountCrc")
+                        .HasColumnType("decimal(12,2)");
+
                     b.Property<Guid?>("PaymentProfileId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("ProrationCreditCrc")
+                        .HasColumnType("decimal(12,2)");
 
                     b.Property<string>("Purpose")
                         .IsRequired()
@@ -5645,6 +5795,118 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.ToTable("StoreProducts", (string)null);
                 });
 
+            modelBuilder.Entity("PawTrack.Domain.Subscriptions.EntitlementConsumption", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("ConsumedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("ContextId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContextType")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<DateTimeOffset>("CycleEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("CycleStart")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("EntitlementKey")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("SubjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("SubscriptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Units")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubjectId", "EntitlementKey", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("SubjectId", "EntitlementKey", "CycleStart", "CycleEnd");
+
+                    b.ToTable("EntitlementConsumptions", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Subscriptions.PlanEntitlement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool?>("BooleanValue")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("EntitlementKey")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("NumericValue")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ResetPeriod")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("TextValue")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Unit")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ValueType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("Version")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlanId", "EntitlementKey")
+                        .IsUnique();
+
+                    b.HasIndex("PlanId", "IsActive");
+
+                    b.ToTable("PlanEntitlements", (string)null);
+                });
+
             modelBuilder.Entity("PawTrack.Domain.Subscriptions.Subscription", b =>
                 {
                     b.Property<Guid>("Id")
@@ -5722,6 +5984,48 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId", "Status");
 
                     b.ToTable("Subscriptions", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Subscriptions.SubscriptionAddon", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("EntitlementKey")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("PriceCrc")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<DateTimeOffset>("StartsAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Units")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubscriptionId", "IsActive");
+
+                    b.HasIndex("SubscriptionId", "EntitlementKey", "StartsAt", "ExpiresAt");
+
+                    b.ToTable("SubscriptionAddons", (string)null);
                 });
 
             modelBuilder.Entity("PawTrack.Domain.Subscriptions.SubscriptionPlan", b =>
@@ -5975,6 +6279,15 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("PawTrack.Domain.Imports.ImportRowError", b =>
+                {
+                    b.HasOne("PawTrack.Domain.Imports.ImportJob", null)
+                        .WithMany("_errors")
+                        .HasForeignKey("ImportJobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("PawTrack.Domain.Stores.StoreOrderItem", b =>
                 {
                     b.HasOne("PawTrack.Domain.Stores.StoreOrder", null)
@@ -5992,6 +6305,11 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("PawTrack.Domain.Chat.ChatThread", b =>
                 {
                     b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Imports.ImportJob", b =>
+                {
+                    b.Navigation("_errors");
                 });
 
             modelBuilder.Entity("PawTrack.Domain.Stores.StoreOrder", b =>

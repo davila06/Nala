@@ -6,6 +6,7 @@ using PawTrack.Application.Municipalities.Interfaces;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Domain.Municipalities;
 using PawTrack.Domain.Subscriptions;
+using PawTrack.Application.Subscriptions.Services;
 
 namespace PawTrack.Infrastructure.Subscriptions;
 
@@ -37,7 +38,9 @@ public sealed class SubscriptionExpirationJob(
             var clinicRepository = scope.ServiceProvider.GetRequiredService<IClinicRepository>();
             var storeRepository = scope.ServiceProvider.GetRequiredService<IStoreRepository>();
             var clinicApiKeyRepository = scope.ServiceProvider.GetRequiredService<IClinicApiKeyRepository>();
+            var widgetDomainRepository = scope.ServiceProvider.GetRequiredService<PawTrack.Application.Clinics.Interfaces.IClinicWidgetDomainRepository>();
             var municipalRepo = scope.ServiceProvider.GetRequiredService<IMunicipalProfileRepository>();
+            var providerRepository = scope.ServiceProvider.GetRequiredService<PawTrack.Application.Common.Interfaces.IServiceProviderRepository>();
             var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
             var expired = await subscriptionRepository.GetExpiredActiveAsync(ct);
@@ -63,6 +66,12 @@ public sealed class SubscriptionExpirationJob(
                         {
                             key.Revoke();
                             clinicApiKeyRepository.Update(key);
+                        }
+                        var widgetDomains = await widgetDomainRepository.GetForClinicAsync(sub.ClinicId.Value, ct);
+                        foreach (var domain in widgetDomains.Where(domain => domain.IsActive))
+                        {
+                            domain.Deactivate();
+                            widgetDomainRepository.Update(domain);
                         }
                     }
                 }
@@ -93,6 +102,8 @@ public sealed class SubscriptionExpirationJob(
             {
                 sub.Activate(SubscriptionPricing.IsMunicipalTier(sub.Tier) ? 12 : 1);
                 subscriptionRepository.Update(sub);
+                await ApplyDowngradeResourceModeAsync(sub, storeRepository, ct);
+                await ApplyProviderAndMunicipalReadModeAsync(sub, providerRepository, municipalRepo, ct);
             }
 
             if (expired.Count == 0 && scheduledDue.Count == 0) return;
@@ -106,6 +117,92 @@ public sealed class SubscriptionExpirationJob(
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             logger.LogError(ex, "[SubscriptionExpiration] Failed to expire due subscriptions.");
+        }
+    }
+
+    private static async Task ApplyDowngradeResourceModeAsync(
+        Subscription subscription,
+        IStoreRepository storeRepository,
+        CancellationToken ct)
+    {
+        if (subscription.UserId is null || subscription.Tier is not (SubscriptionTier.StorePlus or SubscriptionTier.StorePartner))
+            return;
+
+        var store = await storeRepository.GetByUserIdAsync(subscription.UserId.Value, ct);
+        if (store is null) return;
+
+        var products = await storeRepository.GetProductsByStoreAsync(store.Id, ct);
+        var productLimit = subscription.Tier == SubscriptionTier.StorePartner ? 1000 : 100;
+        var activeProductIndex = 0;
+        foreach (var product in products.Where(product => product.IsAvailable).OrderByDescending(product => product.CreatedAt))
+        {
+            if (!DowngradeResourcePolicy.ShouldPauseProviderService(
+                    PawTrack.Domain.ServiceProviders.ProviderServiceStatus.Published,
+                    activeProductIndex, productLimit))
+            {
+                activeProductIndex++;
+                continue;
+            }
+            product.SetAvailable(false);
+            storeRepository.UpdateProduct(product);
+            activeProductIndex++;
+        }
+
+        var locations = await storeRepository.GetLocationsByStoreAsync(store.Id, ct);
+        var locationLimit = subscription.Tier == SubscriptionTier.StorePartner ? 5 : 1;
+        var activeLocationIndex = 0;
+        foreach (var location in locations.Where(location => location.IsActive).OrderByDescending(location => location.CreatedAt))
+        {
+            if (!DowngradeResourcePolicy.ShouldDeactivateStoreLocation(
+                    location.IsPrimary, location.IsActive, activeLocationIndex, locationLimit))
+            {
+                activeLocationIndex++;
+                continue;
+            }
+            location.Deactivate();
+            storeRepository.UpdateLocation(location);
+            activeLocationIndex++;
+        }
+    }
+
+    private static async Task ApplyProviderAndMunicipalReadModeAsync(
+        Subscription subscription,
+        PawTrack.Application.Common.Interfaces.IServiceProviderRepository providerRepository,
+        IMunicipalProfileRepository municipalRepository,
+        CancellationToken ct)
+    {
+        if (subscription.UserId is null) return;
+
+        if (subscription.Tier is SubscriptionTier.UserPlus or SubscriptionTier.UserFamilia)
+        {
+            var provider = await providerRepository.GetByUserIdAsync(subscription.UserId.Value, ct);
+            if (provider is not null)
+            {
+                var services = await providerRepository.GetServicesByProviderAsync(provider.Id, ct);
+                var serviceIndex = 0;
+                foreach (var service in services.Where(service => service.Status == PawTrack.Domain.ServiceProviders.ProviderServiceStatus.Published))
+                {
+                    if (!DowngradeResourcePolicy.ShouldPauseProviderService(service.Status, serviceIndex, 3))
+                    {
+                        serviceIndex++;
+                        continue;
+                    }
+                    service.Pause();
+                    providerRepository.UpdateService(service);
+                    serviceIndex++;
+                }
+            }
+        }
+
+        if (SubscriptionPricing.IsMunicipalTier(subscription.Tier))
+        {
+            var profile = await municipalRepository.GetByUserIdAsync(subscription.UserId.Value, ct);
+            if (profile is not null && subscription.Tier == SubscriptionTier.MuniBasica)
+            {
+                var allowedCantons = profile.AllCantons.Take(1).ToList();
+                profile.SetAdditionalCantons([]);
+                municipalRepository.Update(profile);
+            }
         }
     }
 }

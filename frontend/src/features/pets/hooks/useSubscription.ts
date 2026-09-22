@@ -9,6 +9,14 @@ export function useMySubscription(clinicId?: string) {
   });
 }
 
+export function useMyEntitlements() {
+  return useQuery({
+    queryKey: ["subscription", "entitlements"],
+    queryFn: subscriptionApi.getEntitlements,
+    staleTime: 60_000,
+  });
+}
+
 export function useSubscriptionCatalog() {
   return useQuery({
     queryKey: ["subscription", "catalog"],

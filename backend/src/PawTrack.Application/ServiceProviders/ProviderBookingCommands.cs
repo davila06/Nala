@@ -7,6 +7,7 @@ using PawTrack.Domain.Audit;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Notifications;
 using PawTrack.Domain.ServiceProviders;
+using PawTrack.Application.Subscriptions.Services;
 
 namespace PawTrack.Application.ServiceProviders;
 
@@ -69,7 +70,8 @@ public sealed class CreateProviderBookingCommandHandler(
     IUserRepository? userRepository = null,
     IEmailSender? emailSender = null,
     INotificationRepository? notificationRepository = null,
-    TelemetryClient? telemetryClient = null)
+    TelemetryClient? telemetryClient = null,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<CreateProviderBookingCommand, Result<ProviderBookingDto>>
 {
     public async Task<Result<ProviderBookingDto>> Handle(CreateProviderBookingCommand request, CancellationToken ct)
@@ -89,6 +91,21 @@ public sealed class CreateProviderBookingCommandHandler(
             return Result.Failure<ProviderBookingDto>("Proveedor no disponible.");
         if (!provider.HasCatalogAccess)
             return Result.Failure<ProviderBookingDto>("Este proveedor no tiene reservas habilitadas.");
+
+        if (entitlementService is not null)
+        {
+            var decision = await entitlementService.AuthorizeAsync(
+                provider.Id,
+                "MaxBookingsPerCycle",
+                1m,
+                new EntitlementContext("provider-booking", provider.Id),
+                ct);
+            var cycleStart = new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, 1, 0, 0, 0, TimeSpan.Zero);
+            var bookingCount = await providerRepository.CountBookingsByProviderSinceAsync(provider.Id, cycleStart, ct);
+            var membershipLimit = provider.MembershipTier == ProviderMembershipTier.Featured ? 1_000m : 100m;
+            if ((decision.Included && !decision.Allowed) || bookingCount >= membershipLimit)
+                return Result.Failure<ProviderBookingDto>("El proveedor alcanzó el límite de reservas de su membresía.");
+        }
 
         var endsAt = request.StartsAt.AddMinutes(service.DurationMinutes);
         var availabilityRules = await providerRepository.GetActiveAvailabilityRulesAsync(service.Id, ct);

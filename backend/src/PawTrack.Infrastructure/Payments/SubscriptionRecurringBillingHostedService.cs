@@ -56,6 +56,7 @@ public sealed class SubscriptionRecurringBillingHostedService(
         var userRepo = scope.ServiceProvider.GetRequiredService<IUserRepository>();
         var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var addonRepository = scope.ServiceProvider.GetService<ISubscriptionAddonRepository>();
 
         // Look for subscriptions due for renewal within the next 2 days
         var expiringSubscriptions = await subscriptionRepo.GetExpiringWithinAsync(2, cancellationToken);
@@ -98,21 +99,30 @@ public sealed class SubscriptionRecurringBillingHostedService(
                 renewalPrice = sub.AmountCrc;
             }
 
+            var activeAddons = addonRepository is null
+                ? []
+                : (await addonRepository.GetForSubscriptionAsync(sub.Id, cancellationToken))
+                    .Where(addon => addon.IsActive && addon.PriceCrc.HasValue)
+                    .ToList();
+            var addonGrossPrice = activeAddons.Sum(addon => addon.PriceCrc!.Value);
+            var grossRenewalPrice = renewalPrice + addonGrossPrice;
+
             var orderRef = $"REC-{Guid.NewGuid():N}"[..16].ToUpperInvariant();
             var transaction = PaymentTransaction.Record(
                 userId: sub.UserId.Value,
-                amountCrc: renewalPrice,
+                amountCrc: grossRenewalPrice,
                 transactionReference: orderRef,
                 purpose: "SubscriptionRecurring",
                 paymentProfileId: paymentProfile.Id,
                 targetEntityId: sub.Id);
+            transaction.ApplyProration(grossRenewalPrice, 0m);
 
             await transactionRepo.AddAsync(transaction, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
             var chargeResult = await gatewayService.ChargeAsync(
                 new ChargePaymentRequest(
-                    AmountCrc: renewalPrice,
+                    AmountCrc: grossRenewalPrice,
                     PaymentInstrumentOrCustomerToken: paymentProfile.ProviderToken,
                     OrderReference: orderRef,
                     Purpose: "SubscriptionRecurring",
@@ -130,6 +140,16 @@ public sealed class SubscriptionRecurringBillingHostedService(
                 sub.RenewRecurring(billingMonths);
                 subscriptionRepo.Update(sub);
 
+                if (addonRepository is not null)
+                {
+                    var addons = await addonRepository.GetForSubscriptionAsync(sub.Id, cancellationToken);
+                    foreach (var addon in addons.Where(addon => addon.IsActive))
+                    {
+                        addon.RenewRecurring(billingMonths);
+                        addonRepository.Update(addon);
+                    }
+                }
+
                 await unitOfWork.SaveChangesAsync(cancellationToken);
                 renewedCount++;
 
@@ -139,7 +159,7 @@ public sealed class SubscriptionRecurringBillingHostedService(
                         user.Email,
                         user.Name,
                         sub.Tier.ToString(),
-                        renewalPrice,
+                        grossRenewalPrice,
                         paymentProfile.LastFourDigits ?? "4242",
                         sub.ExpiresAt ?? DateTimeOffset.UtcNow.AddMonths(billingMonths),
                         cancellationToken);
@@ -159,7 +179,7 @@ public sealed class SubscriptionRecurringBillingHostedService(
                             await billingService.EmitInvoiceForTransactionAsync(
                                 new EmitInvoiceRequest(
                                     UserId: sub.UserId.Value,
-                                    TotalAmountCrc: renewalPrice,
+                                    TotalAmountCrc: grossRenewalPrice,
                                     Description: $"Renovación Suscripción {sub.Tier} ({billingMonths}m)",
                                     CodigoCabys: CabysCatalog.SoftwareSubscriptionCabys,
                                     PaymentMethodCode: "02",

@@ -7,6 +7,9 @@ namespace PawTrack.Infrastructure.Stores;
 
 public sealed class StoreOrderRepository(PawTrackDbContext db) : IStoreOrderRepository
 {
+    public Task<int> CountByStoreSinceAsync(Guid storeId, DateTimeOffset since, CancellationToken ct = default) =>
+        db.StoreOrders.CountAsync(order => order.StoreId == storeId && order.PlacedAt >= since, ct);
+
     public Task<StoreOrder?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         db.StoreOrders
             .Include(o => o.Items)

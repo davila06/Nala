@@ -11,6 +11,7 @@ using PawTrack.Application.Subscriptions.Commands.ScheduleSubscriptionDowngrade;
 using PawTrack.Application.Subscriptions.Queries.GetAdminSubscriptions;
 using PawTrack.Application.Subscriptions.Queries.GetMySubscription;
 using PawTrack.Application.Subscriptions.Queries.GetSubscriptionQrCode;
+using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Subscriptions;
 using System.Security.Claims;
 
@@ -19,8 +20,17 @@ namespace PawTrack.API.Controllers;
 [ApiController]
 [Route("api/subscriptions")]
 [Authorize]
-public sealed class SubscriptionsController(ISender sender) : ControllerBase
+public sealed class SubscriptionsController(ISender sender, IEntitlementService entitlementService) : ControllerBase
 {
+    // ── GET /api/subscriptions/entitlements ────────────────────────────────
+    [HttpGet("entitlements")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetEntitlements(CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        return Ok(await entitlementService.GetSnapshotAsync(userId, cancellationToken));
+    }
+
     // ── GET /api/subscriptions/me ────────────────────────────────────────────
     [HttpGet("me")]
     [ProducesResponseType(StatusCodes.Status200OK)]

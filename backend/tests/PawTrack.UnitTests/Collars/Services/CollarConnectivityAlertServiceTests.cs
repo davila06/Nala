@@ -42,7 +42,7 @@ public sealed class CollarConnectivityAlertServiceTests
     public async Task RunOfflineDetection_LastSeenBeyondThreshold_MarksOfflineAndNotifies()
     {
         var collar = MakeCollar();
-        collar.UpdateLocation(9.9, -84.1, 50);
+        collar.UpdateLocation(9.9, -84.1, 50, DateTimeOffset.UtcNow);
         typeof(Collar).GetProperty("LastSeenAt")!.SetValue(collar, DateTimeOffset.UtcNow.AddHours(-3));
         _collarRepo.GetActiveCollarsWithAlertsEnabledAsync(Arg.Any<CancellationToken>())
             .Returns(new[] { collar });
@@ -66,7 +66,7 @@ public sealed class CollarConnectivityAlertServiceTests
     public async Task RunOfflineDetection_RecentAlertAlreadySent_DoesNotDuplicateNotification()
     {
         var collar = MakeCollar();
-        collar.UpdateLocation(9.9, -84.1, 50);
+        collar.UpdateLocation(9.9, -84.1, 50, DateTimeOffset.UtcNow);
         typeof(Collar).GetProperty("LastSeenAt")!.SetValue(collar, DateTimeOffset.UtcNow.AddHours(-3));
         _collarRepo.GetActiveCollarsWithAlertsEnabledAsync(Arg.Any<CancellationToken>())
             .Returns(new[] { collar });
@@ -85,7 +85,7 @@ public sealed class CollarConnectivityAlertServiceTests
     public async Task RunOfflineDetection_WithinThreshold_DoesNothing()
     {
         var collar = MakeCollar();
-        collar.UpdateLocation(9.9, -84.1, 50); // LastSeenAt = now
+        collar.UpdateLocation(9.9, -84.1, 50, DateTimeOffset.UtcNow); // LastSeenAt = now
         _collarRepo.GetActiveCollarsWithAlertsEnabledAsync(Arg.Any<CancellationToken>())
             .Returns(new[] { collar });
 
@@ -114,7 +114,7 @@ public sealed class CollarConnectivityAlertServiceTests
     public async Task RunBatteryAlertDetection_BelowThreshold_SendsAlert()
     {
         var collar = MakeCollar();
-        collar.UpdateLocation(9.9, -84.1, 15); // below default 20% threshold
+        collar.UpdateLocation(9.9, -84.1, 15, DateTimeOffset.UtcNow); // below default 20% threshold
         _collarRepo.GetActiveCollarsWithAlertsEnabledAsync(Arg.Any<CancellationToken>())
             .Returns(new[] { collar });
         _petRepo.GetByIdAsync(collar.PetId, Arg.Any<CancellationToken>()).Returns(MakePet());
@@ -135,7 +135,7 @@ public sealed class CollarConnectivityAlertServiceTests
     public async Task RunBatteryAlertDetection_AboveThreshold_DoesNothing()
     {
         var collar = MakeCollar();
-        collar.UpdateLocation(9.9, -84.1, 80);
+        collar.UpdateLocation(9.9, -84.1, 80, DateTimeOffset.UtcNow);
         _collarRepo.GetActiveCollarsWithAlertsEnabledAsync(Arg.Any<CancellationToken>())
             .Returns(new[] { collar });
 
@@ -148,7 +148,7 @@ public sealed class CollarConnectivityAlertServiceTests
     public async Task RunBatteryAlertDetection_AlreadyAlertedWithinCooldown_DoesNotDuplicate()
     {
         var collar = MakeCollar();
-        collar.UpdateLocation(9.9, -84.1, 10);
+        collar.UpdateLocation(9.9, -84.1, 10, DateTimeOffset.UtcNow);
         _collarRepo.GetActiveCollarsWithAlertsEnabledAsync(Arg.Any<CancellationToken>())
             .Returns(new[] { collar });
         _notificationRepo.HasRecentByUserTypeAndEntityAsync(

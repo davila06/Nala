@@ -96,7 +96,8 @@ public sealed class PlaceStoreOrderCommandHandler(
     IUnitOfWork uow,
     ILogger<PlaceStoreOrderCommandHandler> logger,
     IUserRepository? userRepo = null,
-    IEmailSender? emailSender = null)
+    IEmailSender? emailSender = null,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<PlaceStoreOrderCommand, Result<StoreOrderDto>>
 {
     public async Task<Result<StoreOrderDto>> Handle(PlaceStoreOrderCommand request, CancellationToken ct)
@@ -109,6 +110,20 @@ public sealed class PlaceStoreOrderCommandHandler(
         var tier = await subscriptionService.GetActiveUserTierAsync(store.UserId, ct);
         if (tier is not (Domain.Subscriptions.SubscriptionTier.StorePlus or Domain.Subscriptions.SubscriptionTier.StorePartner))
             return Result.Failure<StoreOrderDto>("Esta tienda aún no acepta pedidos en línea. Contáctalos directamente.");
+
+        if (entitlementService is not null)
+        {
+            var decision = await entitlementService.AuthorizeAsync(
+                store.UserId,
+                "MaxOrdersPerCycle",
+                1m,
+                new EntitlementContext("store-order", store.Id),
+                ct);
+            var cycleStart = new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, 1, 0, 0, 0, TimeSpan.Zero);
+            var orderCount = await orderRepo.CountByStoreSinceAsync(store.Id, cycleStart, ct);
+            if (!decision.Allowed || decision.Limit.HasValue && orderCount >= decision.Limit.Value)
+                return Result.Failure<StoreOrderDto>("La tienda alcanzó el límite de pedidos del ciclo.");
+        }
 
         // Batch-load all requested products in one query — avoids N+1
         var requestedIds = request.Lines.Select(l => l.ProductId).Distinct();

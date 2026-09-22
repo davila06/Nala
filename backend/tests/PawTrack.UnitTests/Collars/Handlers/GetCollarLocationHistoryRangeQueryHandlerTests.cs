@@ -29,7 +29,7 @@ public sealed class GetCollarLocationHistoryRangeQueryHandlerTests
     public async Task Handle_Owner_ReturnsPoints()
     {
         var collar = MakeCollar(OwnerId);
-        var point = CollarLocation.Record(CollarId, 9.9, -84.1, 5);
+        var point = CollarLocation.Record(CollarId, 9.9, -84.1, DateTimeOffset.UtcNow, 5);
         _collarRepo.GetByIdAsync(CollarId, Arg.Any<CancellationToken>()).Returns(collar);
         _collarRepo.GetLocationHistoryRangeAsync(
                 CollarId, Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(), Arg.Any<int>(), Arg.Any<CancellationToken>())

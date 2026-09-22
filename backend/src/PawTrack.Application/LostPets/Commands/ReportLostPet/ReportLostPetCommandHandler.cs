@@ -19,7 +19,8 @@ public sealed class ReportLostPetCommandHandler(
     IClinicRepository clinicRepository,
     INeighborAlertRepository neighborAlertRepository,
     IUnitOfWork unitOfWork,
-    ILostPetSearchRadiusCalculator searchRadiusCalculator)
+    ILostPetSearchRadiusCalculator searchRadiusCalculator,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<ReportLostPetCommand, Result<string>>
 {
     private const string LostPetPhotosContainer = "lost-pet-photos";
@@ -34,6 +35,20 @@ public sealed class ReportLostPetCommandHandler(
 
         if (pet.OwnerId != request.RequestingUserId)
             return Result.Failure<string>("Access denied.");
+
+        if (entitlementService is not null)
+        {
+            var decision = await entitlementService.AuthorizeAsync(
+                request.RequestingUserId,
+                "MaxActiveLostCases",
+                1m,
+                new EntitlementContext("lost-pet-case", request.PetId),
+                cancellationToken);
+            var activeCases = await lostPetRepository.CountActiveByOwnerAsync(
+                request.RequestingUserId, cancellationToken);
+            if (!decision.Allowed || decision.Limit.HasValue && activeCases >= decision.Limit.Value)
+                return Result.Failure<string>("La cuenta alcanzó el límite de casos activos de su plan.");
+        }
 
         var existingReport = await lostPetRepository.GetActiveByPetIdAsync(request.PetId, cancellationToken);
         if (existingReport is not null)

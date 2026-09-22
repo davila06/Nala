@@ -18,6 +18,12 @@ public sealed class Collar
     public double? LastLat { get; private set; }
     public double? LastLng { get; private set; }
     public DateTimeOffset? LastSeenAt { get; private set; }
+
+    /// <summary>Device/provider timestamp of the last accepted position — the authoritative fix time, distinct from <see cref="LastSeenAt"/> (server receipt).</summary>
+    public DateTimeOffset? LastLocationRecordedAt { get; private set; }
+
+    /// <summary>Connectivity flag reported by the provider at the last accepted fix.</summary>
+    public bool? LastPositionOnline { get; private set; }
     public bool IsActive { get; private set; }
     public DateTimeOffset RegisteredAt { get; private set; }
     /// <summary>Physical serial of the CollarTag device; null for third-party integrations.</summary>
@@ -62,13 +68,34 @@ public sealed class Collar
 
     // ── Behaviour ────────────────────────────────────────────────────────────
 
-    public void UpdateLocation(double lat, double lng, int? batteryPercent)
+    /// <summary>Tolerance for device clock drift; positions timestamped further in the future are rejected.</summary>
+    private static readonly TimeSpan MaxClockSkewTolerance = TimeSpan.FromMinutes(5);
+
+    /// <summary>
+    /// Applies a new GPS fix. Rejects positions that are not strictly newer (by device/provider
+    /// timestamp) than the last accepted fix, and positions timestamped further in the future than
+    /// <see cref="MaxClockSkewTolerance"/> allows — preventing a stale or spoofed fix from masquerading
+    /// as current and silently clearing the offline flag.
+    /// </summary>
+    public LocationUpdateOutcome UpdateLocation(double lat, double lng, int? batteryPercent, DateTimeOffset recordedAt, bool isOnline = true)
     {
+        var now = DateTimeOffset.UtcNow;
+        if (recordedAt > now + MaxClockSkewTolerance)
+            return LocationUpdateOutcome.Reject(
+                $"Position rejected: recordedAt {recordedAt:O} is further in the future than the allowed clock-skew tolerance.");
+
+        if (LastLocationRecordedAt is { } lastRecordedAt && recordedAt <= lastRecordedAt)
+            return LocationUpdateOutcome.Reject(
+                $"Position rejected: recordedAt {recordedAt:O} is not newer than the last accepted fix at {lastRecordedAt:O}.");
+
         LastLat = lat;
         LastLng = lng;
         BatteryPercent = batteryPercent;
-        LastSeenAt = DateTimeOffset.UtcNow;
-        IsOffline = false; // any fresh report clears the offline flag
+        LastLocationRecordedAt = recordedAt;
+        LastPositionOnline = isOnline;
+        LastSeenAt = now; // server receipt heartbeat — unaffected by device clock skew
+        IsOffline = false; // any fresh, accepted report clears the offline flag
+        return LocationUpdateOutcome.Accept();
     }
 
     /// <summary>Updates collar heartbeat and battery without location update (e.g. stationary / indoors).</summary>
@@ -120,4 +147,11 @@ public sealed class Collar
         BatteryAlertThresholdPercent = batteryAlertThresholdPercent;
         return Result.Success(true);
     }
+}
+
+/// <summary>Outcome of applying a GPS fix — distinguishes acceptance from rejection with a diagnosable reason.</summary>
+public readonly record struct LocationUpdateOutcome(bool Accepted, string? RejectionReason)
+{
+    public static LocationUpdateOutcome Accept() => new(true, null);
+    public static LocationUpdateOutcome Reject(string reason) => new(false, reason);
 }

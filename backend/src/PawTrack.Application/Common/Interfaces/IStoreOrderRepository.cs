@@ -22,6 +22,7 @@ public interface IStoreOrderRepository
     Task<IReadOnlyList<StoreOrder>> GetByCustomerPagedAsync(Guid customerId, int skip, int take, CancellationToken ct = default);
     Task<int> CountByCustomerAsync(Guid customerId, CancellationToken ct = default);
     Task<IReadOnlyList<StoreOrder>> GetByStoreAsync(Guid storeId, int page, int pageSize, CancellationToken ct = default);
+    Task<int> CountByStoreSinceAsync(Guid storeId, DateTimeOffset since, CancellationToken ct = default);
     Task<StoreOrderMonthlyStats> GetMonthlyStatsAsync(
         Guid storeId, int year, int month, Guid? locationId = null, CancellationToken ct = default);
     Task AddAsync(StoreOrder order, CancellationToken ct = default);

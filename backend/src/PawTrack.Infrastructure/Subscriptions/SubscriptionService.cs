@@ -4,7 +4,9 @@ using PawTrack.Domain.Subscriptions;
 
 namespace PawTrack.Infrastructure.Subscriptions;
 
-public sealed class SubscriptionService(ISubscriptionRepository repository) : ISubscriptionService
+public sealed class SubscriptionService(
+    ISubscriptionRepository repository,
+    IEntitlementService? entitlementService = null) : ISubscriptionService
 {
     public async Task<SubscriptionTier> GetActiveUserTierAsync(Guid userId, CancellationToken ct = default)
     {
@@ -26,19 +28,32 @@ public sealed class SubscriptionService(ISubscriptionRepository repository) : IS
         return tier == SubscriptionTier.UserFamilia;
     }
 
-    public async Task<int> GetPetLimitAsync(Guid userId, CancellationToken ct = default) =>
-        await GetActiveUserTierAsync(userId, ct) switch
+    public async Task<int> GetPetLimitAsync(Guid userId, CancellationToken ct = default)
+    {
+        var entitlement = await GetNumericEntitlementAsync(userId, "MaxPets", ct);
+        if (entitlement.HasValue) return (int)entitlement.Value;
+
+        return await GetActiveUserTierAsync(userId, ct) switch
         {
-            SubscriptionTier.UserFamilia => -1, // unlimited
+            SubscriptionTier.UserFamilia => -1,
             SubscriptionTier.UserPlus => 3,
             _ => 1,
         };
+    }
 
-    public async Task<int> GetScanHistoryLimitAsync(Guid userId, CancellationToken ct = default) =>
-        await IsAtLeastPlusAsync(userId, ct) ? int.MaxValue : 5;
+    public async Task<int> GetScanHistoryLimitAsync(Guid userId, CancellationToken ct = default)
+    {
+        var entitlement = await GetNumericEntitlementAsync(userId, "ScanHistoryRetentionDays", ct);
+        if (entitlement.HasValue) return (int)entitlement.Value;
+        return await IsAtLeastPlusAsync(userId, ct) ? int.MaxValue : 5;
+    }
 
-    public async Task<int?> GetMonthlyAiSearchLimitAsync(Guid userId, CancellationToken ct = default) =>
-        await IsAtLeastPlusAsync(userId, ct) ? (int?)null : 3;
+    public async Task<int?> GetMonthlyAiSearchLimitAsync(Guid userId, CancellationToken ct = default)
+    {
+        var entitlement = await GetNumericEntitlementAsync(userId, "AiMatchesPerCycle", ct);
+        if (entitlement.HasValue) return (int)entitlement.Value;
+        return await IsAtLeastPlusAsync(userId, ct) ? null : 3;
+    }
 
     public async Task<double> GetAlertRadiusMultiplierAsync(Guid userId, CancellationToken ct = default) =>
         await GetActiveUserTierAsync(userId, ct) switch
@@ -47,4 +62,16 @@ public sealed class SubscriptionService(ISubscriptionRepository repository) : IS
             SubscriptionTier.UserPlus => 3.33,
             _ => 1.0,
         };
+
+    private async Task<decimal?> GetNumericEntitlementAsync(
+        Guid userId,
+        string key,
+        CancellationToken ct)
+    {
+        if (entitlementService is null) return null;
+        var snapshot = await entitlementService.GetSnapshotAsync(userId, ct);
+        return snapshot.Entitlements.TryGetValue(key, out var entitlement)
+            ? entitlement.NumericValue
+            : null;
+    }
 }

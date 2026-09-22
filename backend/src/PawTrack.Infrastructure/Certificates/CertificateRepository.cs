@@ -27,6 +27,16 @@ public sealed class CertificateRepository(PawTrackDbContext dbContext) : ICertif
             .Take(pageSize)
             .ToListAsync(cancellationToken);
 
+    public Task<int> CountForClinicSinceAsync(
+        Guid clinicId,
+        DateTimeOffset since,
+        CertificateType? type = null,
+        CancellationToken cancellationToken = default) =>
+        dbContext.VetCertificates.CountAsync(certificate =>
+            certificate.ClinicId == clinicId && certificate.IssuedAt >= since &&
+            (type == null || certificate.Type == type),
+            cancellationToken);
+
     public async Task AddAsync(VetCertificate certificate, CancellationToken cancellationToken = default) =>
         await dbContext.VetCertificates.AddAsync(certificate, cancellationToken);
 

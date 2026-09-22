@@ -153,7 +153,8 @@ public sealed class SightingsController(ISender sender) : ControllerBase
                 request.Photo.ContentType,
                 request.Lat,
                 request.Lng,
-                userId),
+                userId,
+                Request.Headers["Idempotency-Key"].FirstOrDefault()),
             cancellationToken);
 
         return result.IsSuccess
@@ -189,7 +190,8 @@ public sealed class SightingsController(ISender sender) : ControllerBase
             return Unauthorized();
 
         var result = await sender.Send(
-            new MatchSightingByIdQuery(sightingId, userId, lat, lng),
+            new MatchSightingByIdQuery(sightingId, userId, lat, lng,
+                Request.Headers["Idempotency-Key"].FirstOrDefault()),
             cancellationToken);
 
         if (result.IsFailure)
