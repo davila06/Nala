@@ -1,294 +1,239 @@
-# Términos de Uso — PawTrack CR
+# Términos y Condiciones de Uso de PawTrack CR
 
-**Versión:** 1.3-draft
-**Fecha de entrada en vigor:** Pendiente de aprobación legal
+**Versión propuesta:** 2.0
+**Fecha de entrada en vigor:** [DD de MES de AAAA]
 **Última actualización:** 23 de septiembre de 2026
 
-> Documento de trabajo sujeto a aprobación legal local. No constituye todavía
-> el contrato final de adhesión ni sustituye contratos
-> específicos con clínicas, municipalidades, anunciantes, proveedores,
-> aliados o inversionistas.
+> **Control previo a publicación:** completar todos los campos entre corchetes y obtener aprobación jurídica local. Este texto no debe publicarse como vigente mientras falten la razón social, cédula jurídica, domicilio, contactos, precios o condiciones particulares aplicables.
 
----
+## 1. Identificación del operador
 
-## 1. Aceptación de estos términos
+PawTrack CR es una plataforma digital operada por **[RAZÓN SOCIAL COMPLETA]**, cédula jurídica **[NÚMERO]**, con domicilio en **[DOMICILIO COMPLETO]**, representada por **[NOMBRE Y CALIDAD DEL REPRESENTANTE]**, en adelante, **“PawTrack”**.
 
-Al crear una cuenta, usar el sitio web, instalar la PWA o utilizar cualquiera de las funcionalidades de PawTrack CR, aceptas estos Términos de Uso.
+Canales oficiales:
 
-Si no aceptas estos términos, debes abstenerte de utilizar la plataforma.
+- Consultas legales y notificaciones: **[CORREO LEGAL]**.
+- Soporte: **[CORREO DE SOPORTE]**.
+- Privacidad y datos personales: **[CORREO DE PRIVACIDAD]**.
+- Reclamos de consumo: **[CANAL Y CORREO]**.
 
----
+PawTrack CR y NALA son **[INDICAR SI SON MARCAS, NOMBRES COMERCIALES O PRODUCTOS DE LA MISMA ENTIDAD]**.
 
-## 2. Quién opera PawTrack CR
+## 2. Objeto y ámbito
 
-PawTrack CR es una plataforma digital para identificación, seguimiento y recuperación de mascotas en Costa Rica. La plataforma se opera desde Costa Rica y está orientada a servicios de recuperación de mascotas, reportes de pérdida, coordinación comunitaria y gestión de aliados, clínicas, municipios y usuarios individuales.
+Estos Términos regulan el acceso y uso del sitio web, aplicación web progresiva, aplicaciones, códigos QR, perfiles, mapas, reportes, chats, notificaciones y demás servicios digitales de PawTrack.
 
-**Responsable de la operación y atención:** entidad jurídica por confirmar antes del go-live
-**Correo de contacto legal y consultas generales:** <legal@pawtrack.cr>  
-**Correo de soporte operativo:** <soporte@pawtrack.cr>  
-**Domicilio operativo:** Costa Rica, dirección legal por confirmar antes del go-live
+Las condiciones particulares de planes de pago, clínicas, veterinarios, proveedores, tiendas, refugios, anunciantes, municipalidades u otros módulos complementan estos Términos. En caso de contradicción, prevalecerán las condiciones particulares respecto del módulo correspondiente, sin afectar derechos irrenunciables reconocidos por la legislación costarricense.
 
-La razón social, cédula jurídica, representante legal, domicilio para
-notificaciones y mecanismo formal de atención deben completarse antes de
-publicar estos términos como versión vinculante.
+## 3. Aceptación y contratación electrónica
 
----
+Antes de crear una cuenta, PawTrack pondrá estos Términos y la Política de Privacidad a disposición de la persona usuaria de forma clara, accesible y descargable. La aceptación se realizará mediante una acción afirmativa, como marcar una casilla y seleccionar el botón de registro o contratación.
 
-## 3. Descripción del servicio
+PawTrack conservará evidencia razonable de:
 
-PawTrack CR permite, entre otras cosas:
+- la identidad o identificador de la cuenta;
+- la versión aceptada;
+- la fecha y hora de aceptación;
+- el medio utilizado;
+- los consentimientos opcionales otorgados o rechazados.
 
-1. Registrar mascotas y asociarlas a perfiles digitales.
-2. Generar y gestionar códigos QR de identificación para mascotas.
-3. Publicar perfiles públicos con información controlada por el dueño.
-4. Activar reportes de mascota perdida, con mensajes públicos y estados de caso.
-5. Registrar avistamientos georreferenciados, fotos y notas relevantes.
-6. Coordinar búsquedas mediante mapas, cuadrículas geográficas y notificaciones.
-7. Facilitar chat enmascarado entre dueño y encontrador.
-8. Gestionar entregas seguras mediante códigos de confirmación o validaciones internas.
-9. Dar acceso a aliados verificados, centros veterinarios, voluntarios y entidades municipales.
-10. Administrar planes Freemium/Plus/Familia, además de módulos B2B para clínicas y B2G para municipalidades.
-11. Publicar y consultar animales en adopción, solicitudes y ferias cuando corresponda.
-12. Operar perfiles, catálogos, reservas, pedidos y vallas publicitarias según el rol y el estado de la cuenta.
+La aceptación de estos Términos no implica consentimiento automático para publicidad, analítica no esencial, geolocalización continua, datos veterinarios, publicación de perfiles o comunicaciones promocionales. Cuando corresponda, PawTrack solicitará autorizaciones separadas.
 
-La disponibilidad de funciones puede variar según plan, rol, ubicación o condiciones operativas.
+Si una persona no acepta estos Términos, no deberá crear una cuenta ni utilizar funciones que requieran aceptación.
 
----
+## 4. Elegibilidad y menores de edad
 
-## 4. Requisitos de uso
+La contratación directa de planes y el uso autónomo de funciones que impliquen publicación, geolocalización, chat o coordinación de entregas están dirigidos a personas mayores de edad con capacidad jurídica suficiente.
 
-Para usar PawTrack CR con cuenta, debes:
+Una persona menor de edad solo podrá utilizar funciones autorizadas mediante una cuenta administrada o supervisada por su padre, madre o persona tutora legal. PawTrack podrá restringir funciones, solicitar verificación razonable o cerrar una cuenta cuando existan indicios de uso no autorizado por una persona menor.
 
-1. Proporcionar información veraz, actualizada y completa.
-2. Mantener la confidencialidad de tus credenciales de acceso.
-3. Usar la plataforma exclusivamente para fines legítimos de identificación, búsqueda, ayuda comunitaria y recuperación de mascotas.
-4. Ser responsable por toda actividad realizada desde tu cuenta.
-5. Notificar de inmediato cualquier uso no autorizado o sospecha de acceso indebido.
-6. Respetar la privacidad de terceros, especialmente en reportes de avistamiento, mensajes y datos de contacto.
-7. En el caso de clínicas y veterinarios, aportar información documental veraz, vigente y comprobable cuando se solicite verificación para emitir certificados o documentos `SENASA-ready`.
-8. En el caso de dueños de mascotas, mantener actualizados y veraces los datos sanitarios y de microchip que decidas registrar.
-9. Los reportes de bienestar animal deben realizarse de buena fe y con información razonablemente verificable. PawTrack puede aplicar rate limits, moderación, suppression, bloqueo o cierre de reportes abusivos o falsos.
+La persona adulta responsable responde por la creación, supervisión y uso de la cuenta del menor bajo su cuidado, sin perjuicio de las obligaciones legales que correspondan a PawTrack.
 
-Si eres menor de edad, debes usar la plataforma con autorización y supervisión de tu padre, madre o tutor legal.
+## 5. Cuenta y seguridad
 
-Durante el registro se solicita confirmar mayoría de edad o autorización del
-tutor. PawTrack no realiza verificación formal de identidad o edad; la persona
-que registra la cuenta sigue siendo responsable de la veracidad de esa
-confirmación.
+La persona usuaria se obliga a:
 
----
+1. proporcionar información veraz, suficiente y actualizada;
+2. proteger sus credenciales y mecanismos de autenticación;
+3. no compartir la cuenta ni permitir accesos no autorizados;
+4. informar sin demora accesos sospechosos o incidentes;
+5. mantener actualizados sus medios de contacto;
+6. utilizar la cuenta únicamente para fines lícitos.
 
-## 5. Uso permitido y uso prohibido
+PawTrack podrá aplicar controles de acceso, verificación y recuperación de cuenta. La persona usuaria no será responsable de actividad posterior a una notificación verificable de compromiso de cuenta cuando esa actividad resulte atribuible a hechos fuera de su control, sin perjuicio del análisis de cada caso.
 
-### 5.1 Uso permitido
+## 6. Servicios y funcionalidades
 
-El servicio debe usarse para fines legítimos de:
+Según el plan, rol, ubicación, disponibilidad y condiciones particulares, PawTrack puede permitir:
 
-- identificación y trazabilidad de mascotas,
-- búsqueda y recuperación de mascotas perdidas,
-- coordinación de ayuda comunitaria,
-- gestión de reportes, aliados y clínicas,
-- soporte veterinario y cuidado de animales.
+- registrar mascotas y asociarlas a perfiles digitales;
+- generar y administrar identificadores QR;
+- crear perfiles públicos con información seleccionada;
+- reportar mascotas perdidas o encontradas;
+- registrar avistamientos, fotografías, notas y ubicaciones;
+- coordinar búsquedas y enviar notificaciones;
+- utilizar chat protegido o enmascarado;
+- coordinar entregas mediante códigos o validaciones;
+- consultar servicios de clínicas, refugios, proveedores o municipalidades;
+- gestionar adopciones, reservas, pedidos o eventos;
+- utilizar expedientes y documentos veterinarios;
+- acceder a funciones de matching visual o recomendaciones automatizadas;
+- contratar planes o módulos comerciales habilitados.
 
-### 5.2 Uso prohibido
+PawTrack podrá incorporar, modificar o retirar funciones por razones técnicas, legales, de seguridad o de producto. Cuando el cambio afecte materialmente un servicio pagado, se comunicará de forma previa y razonable y se aplicarán las condiciones de cancelación o reembolso que correspondan.
 
-No puedes:
+## 7. Perfiles públicos, reportes y ubicación
 
-1. Publicar información falsa, suplantar identidad o crear reportes inexistentes.
-2. Compartir contenido ilegal, difamatorio, fraudulento o que vulnere derechos de terceros.
-3. Cargar malware, intentar acceder sin autorización o afectar la seguridad de la plataforma.
-4. Extraer, recopilar o reutilizar datos masivamente sin autorización escrita.
-5. Utilizar la plataforma para acoso, amenazas, intimidación, extorsión o abuso.
-6. Publicar datos personales de terceros sin base legal o consentimiento aplicable.
-7. Interferir con la operación de reportes, mapas, chat o validaciones del sistema.
-8. Presentar licencias, documentos veterinarios, firmas, sellos o respaldos alterados, vencidos, falsos o pertenecientes a terceros no autorizados.
-9. Declarar deliberadamente un microchip que no corresponde a la mascota o intentar modificar un microchip verificado sin el flujo de revisión correspondiente.
-10. Presentar una capacidad técnica, certificado, badge, membresía, valla,
-    recompensa o integración institucional como aprobada comercial o
-    regulatoriamente cuando PawTrack la marque como propuesta, técnica o
-    pendiente.
+La persona usuaria decide, dentro de las opciones habilitadas, qué información se publica. PawTrack protegerá por diseño y por defecto teléfonos, domicilios, identidad del reportante, mensajes privados y coordenadas exactas, salvo autorización específica, necesidad funcional claramente informada u obligación legal.
 
-PawTrack CR podrá suspender o eliminar cuentas por incumplimiento, sin perjuicio de otras medidas legales o administrativas que correspondan.
+La ubicación mostrada públicamente será aproximada cuando la precisión exacta no sea necesaria. El usuario debe evitar publicar domicilios, rutinas, datos de menores o información de terceros que no sea indispensable.
 
-Los anuncios y vallas son campañas administradas por PawTrack. Una tarifa de
-referencia no constituye por sí sola un contrato, reserva de inventario ni
-obligación de publicar; la campaña requiere revisión, aprobación, creativo
-válido y activación administrativa.
+Los reportes deben emitirse de buena fe. PawTrack podrá ocultar, limitar o retirar contenido manifiestamente falso, abusivo, duplicado, ilegal o riesgoso.
 
----
+## 8. Contenido de usuarios
 
-## 6. Contenido generado por usuarios
+La persona usuaria conserva la titularidad de los textos, imágenes, reportes y demás contenido que aporte, siempre que tenga derecho a utilizarlo.
 
-Tú conservas la titularidad del contenido que publicas en la plataforma (textos, fotos, reportes, mensajes, avistamientos, certificados o información de mascotas), pero otorgas a PawTrack CR una licencia no exclusiva, mundial, limitada y necesaria para:
+Al cargar contenido, concede a PawTrack una licencia no exclusiva, gratuita, revocable cuando legal y técnicamente corresponda, y limitada a lo necesario para alojar, reproducir, transformar técnicamente, mostrar, moderar y procesar el contenido con el fin de prestar, asegurar y mejorar el servicio contratado.
 
-1. alojar, reproducir y mostrar ese contenido dentro de la plataforma;
-2. procesarlo para operar funciones del servicio, como mapas, avisos, notificaciones, historial de avistamientos, matching, chat y recuperación de casos;
-3. moderarlo para prevenir fraude, abuso, riesgos de seguridad y uso indebido.
-4. generar métricas agregadas de operación, seguridad, rendimiento y campañas,
-   aplicando las limitaciones descritas en la Política de Privacidad.
+La licencia termina cuando el contenido se elimina de los sistemas activos, salvo copias temporales, respaldos, evidencia de seguridad, obligaciones legales o defensa de reclamaciones conforme a la Política de Privacidad.
 
-Esta licencia existe solo en la medida necesaria para operar y sostener la funcionalidad de PawTrack CR.
+La persona usuaria garantiza que el contenido no vulnera derechos de autor, imagen, privacidad, marcas ni otros derechos de terceros.
 
----
+## 9. Conductas prohibidas
 
-## 7. Propiedad intelectual
+Queda prohibido:
 
-El software, diseño, marca, logotipos, documentación, estructura visual y demás elementos de PawTrack CR están protegidos por la normativa aplicable de propiedad intelectual.
+- suplantar identidad o crear reportes deliberadamente falsos;
+- acosar, amenazar, extorsionar, discriminar o poner en riesgo a otras personas;
+- publicar datos personales de terceros sin autorización o fundamento válido;
+- cargar malware, evadir controles o intentar accesos no autorizados;
+- extraer datos de forma masiva, automatizada o contraria a las instrucciones del servicio;
+- alterar evidencias, licencias, firmas, sellos o documentos veterinarios;
+- asociar deliberadamente un microchip con una mascota incorrecta;
+- utilizar información de ubicación para vigilancia, persecución, robo u otro daño;
+- presentar una insignia, verificación, certificado o integración como aval estatal cuando no lo sea;
+- interferir con mapas, reportes, chats, notificaciones, pagos o mecanismos de seguridad;
+- utilizar el servicio para actos contrarios a la legislación costarricense.
 
-No se concede ninguna licencia para su uso comercial o explotación fuera del uso normal del servicio, salvo autorización escrita expresa.
+PawTrack podrá preservar evidencia y colaborar con autoridades competentes cuando exista una obligación legal o requerimiento válido.
 
----
+## 10. Reglas por módulo
 
-## 7.1 Reglas especiales por módulo
+### 10.1 Clínicas y servicios veterinarios
 
-### Adopciones
+PawTrack provee tecnología y coordinación. Salvo indicación contractual expresa, no presta servicios veterinarios ni sustituye el criterio profesional. La verificación de un perfil no equivale a licencia estatal, aval profesional, póliza ni garantía de calidad. La clínica o profesional responde por su habilitación, actos profesionales, diagnósticos, tratamientos, certificados y deberes frente a sus clientes.
 
-Los perfiles de animales, solicitudes y ferias no constituyen por sí mismos un
-contrato de adopción. El refugio u organización responsable debe verificar la
-identidad, condiciones, salud y entrega según sus propios procedimientos. La
-publicación de un animal no garantiza disponibilidad, idoneidad, estado médico,
-titularidad legal ni éxito de la adopción.
+La expresión “SENASA-ready” significa únicamente que el documento o exportación busca ajustarse a una estructura técnica prevista. No implica aprobación, certificación, envío ni integración oficial con SENASA.
 
-### Clínicas y proveedores
+### 10.2 Adopciones
 
-PawTrack facilita herramientas y coordinación, pero no presta servicios
-veterinarios, de entrenamiento, hospedaje, grooming, transporte o cuidado en
-nombre de terceros. La verificación de una clínica o proveedor no equivale a
-licencia estatal, aval profesional, seguro ni garantía de calidad.
+Una publicación no perfecciona por sí sola un contrato de adopción ni garantiza disponibilidad, titularidad, estado de salud o idoneidad. La organización responsable debe aplicar sus verificaciones y documentar la entrega conforme a la ley y sus procedimientos.
 
-### Tiendas y pedidos
+### 10.3 Proveedores y tiendas
 
-PawTrack comunica solicitudes entre clientes y tiendas. No es vendedor,
-depositario del inventario, transportista ni garante de disponibilidad,
-entrega, devolución, garantía o calidad del producto. Los pagos y acuerdos
-comerciales se coordinan conforme al flujo vigente y a la información que la
-tienda confirme.
+Cuando PawTrack actúe únicamente como intermediario tecnológico, el proveedor o tienda será responsable de la descripción, precio, existencias, facturación, entrega, calidad, garantía, cancelación y devolución. Antes de confirmar una transacción se identificará al proveedor contractual y se mostrarán las condiciones aplicables.
 
-### Vallas y anuncios
+Si PawTrack aparece como vendedor, cobrador, comisionista o proveedor directo en una operación determinada, lo indicará expresamente y asumirá las obligaciones que legalmente correspondan a ese rol.
 
-Las tarifas de referencia, descuentos y paquetes publicitarios son propuestas
-comerciales hasta que exista una orden, aprobación, factura y activación válida.
-PawTrack no garantiza impresiones, conversiones, exclusividad, audiencia mínima
-ni resultados de ventas. Los anunciantes deben contar con derechos sobre sus
-creativos y responder por sus afirmaciones publicitarias.
+### 10.4 Municipalidades y entidades públicas
 
-### Recompensas y fondos
+El acceso institucional se regirá además por el convenio, contrato, competencia legal y permisos configurados. La presencia de una entidad pública en la plataforma no implica aval general de PawTrack ni delegación automática de potestades públicas.
 
-Las funciones de handover y bounty no implican que PawTrack custodie fondos,
-procese escrow, libere pagos o garantice recompensas. Cualquier modelo futuro
-de custodia, comisión, payout o reembolso requiere habilitación expresa,
-contrato específico y revisión legal.
+### 10.5 Anuncios y vallas
 
----
+Toda campaña requiere una orden o acuerdo específico. Las tarifas de referencia no reservan inventario. El anunciante garantiza sus derechos sobre los creativos, la exactitud de sus afirmaciones y el cumplimiento normativo. PawTrack no garantiza ventas, conversiones, exclusividad ni una audiencia mínima salvo compromiso escrito.
 
-## 8. Disponibilidad, cambios y mantenimiento
+### 10.6 Recompensas
 
-PawTrack CR busca mantener continuidad del servicio, pero no garantiza disponibilidad ininterrumpida ni ausencia de fallas.
+Salvo habilitación y contrato expreso, PawTrack no custodia fondos, no opera escrow y no garantiza el pago de recompensas. La persona que ofrece una recompensa es responsable de sus condiciones y pago.
 
-Podrán existir interrupciones por mantenimiento, actualización, fallas técnicas, incidencias de seguridad, limitaciones de proveedores o causas ajenas al control razonable de la plataforma.
+## 11. Planes, precios, pagos y renovación
 
-PawTrack CR puede modificar, añadir o retirar funcionalidades cuando sea razonable y necesario para mejorar la seguridad, operación o experiencia del servicio.
+Antes de contratar, PawTrack mostrará al consumidor:
 
----
+- el plan y sus funcionalidades;
+- el precio total, impuestos y moneda;
+- periodicidad y duración;
+- modalidad de pago;
+- renovación automática, si existe;
+- procedimiento de cancelación;
+- condiciones de reembolso;
+- restricciones o límites relevantes.
 
-## 9. Integraciones de terceros
+**Condiciones comerciales vigentes:** [INSERTAR ENLACE INTERNO O ANEXO APROBADO].
 
-La plataforma puede usar servicios de terceros para infraestructura, monitoreo,
-notificaciones, mapas, mensajería, almacenamiento, análisis, autenticación,
-procesamiento de imágenes y pagos manuales o referencias de pago. Ejemplos
-incluyen Azure, almacenamiento Blob, Redis, Application Insights, proveedores de
-correo, Meta/WhatsApp, Telegram, Facebook, mapas, Computer Vision y servicios
-de procesamiento de imágenes. La disponibilidad y tratamiento de cada servicio
-depende de su configuración y sus propios términos.
+Ningún cargo recurrente se realizará sin información previa y autorización válida. Los cambios de precio no se aplicarán retroactivamente y se comunicarán antes del siguiente periodo afectado. La cancelación impedirá renovaciones futuras, sin perjuicio del acceso ya pagado hasta el final del periodo cuando así corresponda.
 
-La operación de esos servicios está sujeta a sus propios términos y políticas. PawTrack CR no controla en toda su extensión servicios externos, pero sí aplica medidas razonables para supervisar su uso y proteger la información tratada.
+Los pagos mediante SINPE u otros mecanismos se procesarán según el flujo informado. PawTrack no solicitará contraseñas bancarias ni credenciales financieras completas.
 
----
+Las promociones indicarán vigencia, disponibilidad, restricciones y precio posterior. Cualquier derecho imperativo de garantía, retracto, devolución o reclamo prevalecerá sobre disposiciones incompatibles de estos Términos.
 
-## 10. Datos públicos, privados y de contacto
+## 12. Propiedad intelectual
 
-PawTrack CR está diseñado para facilitar la recuperación de mascotas. Por ello, algunos datos pueden hacerse visibles en perfiles públicos o en reportes activos.
+El software, marcas, diseños, documentación, bases estructuradas, interfaces y demás activos de PawTrack pertenecen a su titular o licenciantes. Se concede una licencia personal, limitada, no exclusiva, revocable y no transferible para utilizar el servicio conforme a estos Términos.
 
-Sin embargo, PawTrack CR no expone de forma pública información sensible de contacto del dueño, del reportante o de terceros, salvo que exista una autorización expresa, un requisito legal o una funcionalidad de la plataforma que lo haga de forma controlada y segura.
+No se autoriza copiar, vender, sublicenciar, descompilar, explotar comercialmente ni crear servicios derivados, excepto cuando una norma imperativa lo permita.
 
-En particular, la plataforma se comporta de forma protegida respecto a:
+## 13. Servicios de terceros
 
-- número de teléfono,
-- identidad del reportante,
-- dirección o datos privados del hogar,
-- mensajes entre usuarios con información sensible,
-- ubicación exacta de una mascota o de una persona fuera del contexto del caso operativo.
+PawTrack puede integrar infraestructura, mapas, mensajería, almacenamiento, autenticación, analítica, procesamiento de imágenes y otros servicios de terceros. La Política de Privacidad describe las categorías de destinatarios y tratamientos.
 
----
+PawTrack seleccionará y administrará proveedores con medidas contractuales, técnicas y organizativas razonables. No obstante, ciertos servicios de terceros pueden estar sujetos a sus propias condiciones cuando la persona usuaria establezca una relación directa con ellos.
 
-## 11. Exoneraciones y límites de responsabilidad
+## 14. Disponibilidad y soporte
 
-1. PawTrack CR es una herramienta de apoyo para la identificación y recuperación de mascotas, pero no garantiza resultados de reunificación en todos los casos.
-2. La persona usuaria sigue siendo responsable de decisiones de campo, coordinación física de búsquedas, medidas de seguridad personal y uso responsable de la información recibida.
-3. En la máxima medida permitida por la ley, PawTrack CR no será responsable por daños indirectos, incidentales, punitivos o lucro cesante derivados del uso o imposibilidad de uso del servicio.
-4. PawTrack CR no garantiza la exactitud absoluta de datos geográficos, fotos,
-   coincidencias visuales, evaluaciones automáticas, recomendaciones, métricas
-   de campañas o resultados de notificación.
-5. PawTrack no garantiza disponibilidad de anunciantes, proveedores, clínicas,
-   municipalidades, refugios, servicios de terceros ni resultados de reservas,
-   pedidos, adopciones o campañas publicitarias.
+PawTrack procurará una operación razonablemente continua, pero pueden ocurrir mantenimientos, incidentes, actualizaciones, fallas de terceros o eventos fuera de control razonable. Los niveles de servicio garantizados, si existen, constarán en un acuerdo específico.
 
-Nada en estos términos limita derechos irrenunciables de consumidores o normas imperativas que resulten aplicables.
+Canal de soporte: **[CORREO O PORTAL]**. Horario y niveles de atención: **[CONDICIONES]**.
 
----
+## 15. Moderación, suspensión y terminación
 
-## 12. Suspensión y terminación
+PawTrack podrá advertir, limitar, suspender o terminar una cuenta por incumplimiento, fraude, riesgo de seguridad, daño a terceros, uso ilegal o falta de pago.
 
-PawTrack CR puede suspender temporalmente o terminar cuentas que:
+Salvo casos urgentes o legalmente restringidos, se informará el motivo y se ofrecerá un canal de revisión. PawTrack podrá actuar de inmediato cuando sea necesario proteger personas, animales, datos, evidencia o sistemas.
 
-1. incumplan estos términos;
-2. presenten actividad fraudulenta, sospechosa o de alto riesgo;
-3. comprometan la seguridad de usuarios, mascotas o del sistema;
-4. realicen uso indebido de reportes, contactos, mapas, chat, microchip,
-   facturación, campañas, adopciones o módulos de aliados, proveedores,
-   tiendas, clínicas o municipalidades.
+La persona usuaria puede cancelar su cuenta desde **[RUTA FUNCIONAL]** o mediante **[CANAL]**. Antes del cierre podrá solicitar sus datos, sujeto a derechos de terceros y obligaciones de conservación. La terminación no elimina obligaciones pendientes ni licencias necesarias para conservar evidencia legítima.
 
-La persona usuaria puede dejar de usar la plataforma en cualquier momento y solicitar el cierre de su cuenta conforme al procedimiento de privacidad y atención de usuarios.
+## 16. Responsabilidad
 
----
+PawTrack es una herramienta de apoyo y no garantiza la recuperación de una mascota, la exactitud absoluta de ubicaciones, coincidencias automatizadas, contenido aportado por terceros ni resultados comerciales.
 
-## 13. Ley aplicable y jurisdicción
+Cada persona es responsable de adoptar medidas prudentes en búsquedas, encuentros y entregas. No debe exponerse a riesgos físicos ni ingresar sin autorización a propiedad privada.
 
-Estos términos se rigen por la legislación de la República de Costa Rica.
+En la máxima medida permitida por la ley, PawTrack no responderá por daños indirectos o lucro cesante que no sean consecuencia directa de un incumplimiento imputable. Ninguna disposición excluye responsabilidad por dolo, conducta que legalmente no pueda limitarse, ni derechos irrenunciables del consumidor.
 
-Cualquier controversia en relación con la prestación del servicio o estos términos se someterá a la jurisdicción competente de Costa Rica, salvo que una norma imperativa de aplicación directa disponga otra cosa.
+Las limitaciones particulares para relaciones B2B o B2G se establecerán en sus contratos específicos.
 
----
+## 17. Privacidad
 
-## 14. Cambios a estos términos
+El tratamiento de datos se rige por la Política de Privacidad vigente y por los consentimientos específicos aplicables. Si existe contradicción sobre tratamiento de datos, prevalecerá la disposición que brinde mayor claridad y protección conforme a la legislación aplicable.
 
-PawTrack CR puede actualizar estos Términos de Uso. Los cambios relevantes se
-comunicarán por medios razonables, por ejemplo mediante aviso dentro de la
-plataforma, correo electrónico o actualización visible en el sitio.
+## 18. Cambios a los Términos
 
-La continuidad del uso no debe considerarse por sí sola aceptación de cambios
-materiales cuando la legislación aplicable exija una aceptación renovada. La
-versión, fecha de aceptación y evidencia de comunicación deben conservarse
-para las cuentas autenticadas.
+PawTrack podrá actualizar estos Términos por cambios legales, de seguridad, técnicos o funcionales. La versión y fecha estarán visibles.
 
-## 15. Pendientes de aprobación
+Los cambios materiales se comunicarán por medios razonables antes de entrar en vigor. Cuando la naturaleza del cambio o la ley lo requiera, se solicitará aceptación renovada. La falta de aceptación podrá limitar funciones afectadas o permitir la terminación sin nuevos cargos.
 
-Antes de activar el uso comercial abierto deben aprobarse expresamente:
+## 19. Reclamos y solución de controversias
 
-- identidad jurídica y domicilio para notificaciones;
-- límites de responsabilidad y derechos irrenunciables de consumidores;
-- adopciones, tiendas, proveedores, clínicas, publicidad y recompensas;
-- tratamiento de menores y autorización del tutor;
-- pagos, cancelaciones, reembolsos, impuestos y marketplace;
-- jurisdicción, resolución de controversias y atención de reclamos;
-- versión técnica de términos registrada durante el alta.
+Los reclamos podrán presentarse en **[CANAL]**, indicando nombre, cuenta, hechos y pretensión. PawTrack acusará recibo y tramitará el reclamo mediante un procedimiento documentado.
 
----
+Las partes procurarán una solución directa de buena fe, sin limitar el derecho de la persona consumidora a acudir a autoridades administrativas o judiciales competentes.
 
-## 15. Contacto
+## 20. Ley aplicable y jurisdicción
 
-Para consultas legales, dudas sobre estos términos, reclamos o atención general:
+Estos Términos se rigen por las leyes de la República de Costa Rica. Las controversias serán conocidas por las autoridades costarricenses competentes, respetando las normas imperativas sobre consumidores, competencia territorial y acceso a la justicia.
 
-**Correo legal:** <legal@pawtrack.cr>  
-**Correo de soporte:** <soporte@pawtrack.cr>  
-**Asunto recomendado:** Términos de Uso — PawTrack CR
+## 21. Disposiciones generales
+
+Si una disposición es inválida o inaplicable, se interpretará o separará en la medida necesaria sin afectar las restantes. La falta de ejercicio de un derecho no implica renuncia. PawTrack no podrá ceder el contrato en perjuicio de derechos del consumidor sin la comunicación o autorización exigida por ley.
+
+## 22. Contacto
+
+- Operador: **[RAZÓN SOCIAL Y CÉDULA]**.
+- Domicilio: **[DOMICILIO]**.
+- Legal: **[CORREO]**.
+- Soporte: **[CORREO]**.
+- Privacidad: **[CORREO]**.
+- Reclamos: **[CANAL]**.

@@ -1,384 +1,327 @@
-# Política de Privacidad — PawTrack CR
+# Política de Privacidad de PawTrack CR
 
-**Versión:** 1.3-draft
-**Fecha de entrada en vigor:** Pendiente de aprobación legal
+**Versión propuesta:** 2.0
+**Fecha de entrada en vigor:** [DD de MES de AAAA]
 **Última actualización:** 23 de septiembre de 2026
 
-> Documento de trabajo sujeto a aprobación legal local. La aplicación práctica
-> depende de la configuración del servicio, los consentimientos otorgados y los
-> contratos con encargados de tratamiento.
+> **Control previo a publicación:** completar todos los campos entre corchetes, verificar que la configuración técnica coincida con esta política y obtener aprobación jurídica local.
 
----
+## 1. Responsable del tratamiento
 
-## 1. Objeto
+El responsable de las bases de datos y del tratamiento descrito en esta Política es **[RAZÓN SOCIAL COMPLETA]**, cédula jurídica **[NÚMERO]**, con domicilio en **[DOMICILIO COMPLETO]**, en adelante, **“PawTrack”**.
 
-Esta Política de Privacidad explica cómo PawTrack CR recopila, usa, almacena,
-comparte y protege los datos personales de sus usuarios, aliados, clínicas,
-municipalidades y de cualquier persona que interactúe con la plataforma.
+Contactos:
 
-PawTrack CR es un servicio digital orientado a la identificación, recuperación y
-protección de mascotas, con funciones de mapa, notificaciones, avistamientos,
-chat, coordinación de búsqueda, reportes de pérdida, salud, adopciones,
-proveedores, tiendas, clínicas, municipalidades, NALA y vallas publicitarias.
+- Privacidad y ejercicio de derechos: **[CORREO DE PRIVACIDAD]**.
+- Soporte: **[CORREO DE SOPORTE]**.
+- Domicilio para notificaciones: **[DOMICILIO]**.
+- Responsable interno de privacidad: **[CARGO O UNIDAD]**.
 
----
+PawTrack CR y NALA son **[INDICAR RELACIÓN JURÍDICA Y COMERCIAL]**.
 
-## 2. Responsable del tratamiento
+## 2. Alcance
 
-**Responsable de la operación y tratamiento de datos:** entidad jurídica por confirmar antes del go-live
-**Correo de privacidad:** <privacidad@pawtrack.cr>  
-**Correo de soporte:** <soporte@pawtrack.cr>  
-**Domicilio operativo:** Costa Rica
-
-La razón social, cédula jurídica, representante legal, domicilio para
-notificaciones y canal formal de atención deberán incorporarse antes del
-lanzamiento comercial abierto. Mientras esa información no esté formalizada,
-este documento no debe presentarse como aviso legal final.
-
----
+Esta Política explica cómo PawTrack recopila, utiliza, almacena, consulta, comparte, protege, conserva y elimina datos personales cuando una persona utiliza sus sitios, aplicación web progresiva, aplicaciones, perfiles, códigos QR, mapas, chats, notificaciones, módulos veterinarios, servicios comerciales o canales de soporte.
 
-## 3. Datos que recopilamos
+También aplica a representantes y personal autorizado de clínicas, refugios, proveedores, tiendas, aliados, anunciantes y entidades públicas que utilicen la plataforma.
 
-### 3.1 Datos que proporcionas directamente
+## 3. Principios
 
-1. Datos de cuenta: nombre, correo electrónico, contraseña almacenada como hash,
-   confirmación de mayoría de edad o autorización de tutor y rol dentro de la plataforma.
-2. Datos del perfil: teléfono, ciudad, datos de contacto, foto de perfil y preferencias del usuario.
-3. Datos de mascotas: nombre, especie, raza, edad o cumpleaños, foto, estado actual, microchip, historial de salud y documentos asociados.
-4. Datos de reportes: información de pérdida, avistamientos, ubicaciones, mensajes públicos, fotos y evidencias relevantes.
-5. Datos de comunicación: mensajes, chats, solicitudes de apoyo, notificaciones, respuestas de casos y contenido enviado dentro de la plataforma.
-6. Datos de entidades asociadas: clínicas, refugios, aliados, colaboradores y perfiles municipales o B2B.
-7. Datos comerciales: planes/tier, referencia de pago SINPE, importe, plazo,
-   estado de activación, pedidos, reservas, servicios, eventos de vallas y
-   preferencias comerciales. PawTrack no almacena credenciales bancarias.
+PawTrack tratará datos personales conforme a principios de legalidad, consentimiento informado cuando corresponda, calidad, finalidad, proporcionalidad, seguridad, confidencialidad, transparencia y respeto a la autodeterminación informativa.
 
-### 3.2 Datos técnicos y de uso
+PawTrack procurará recopilar solo los datos adecuados y necesarios para finalidades informadas. El acceso se limitará según rol, relación con el caso, organización y necesidad funcional.
 
-1. Dirección IP, tipo de navegador, sistema operativo y datos de dispositivo.
-2. Datos de sesión, uso de la app, navegación, eventos, interacción en la plataforma y telemetría técnica.
-3. Registros de seguridad, auditoría, autenticación, acceso y diagnósticos del sistema.
-4. Identificadores de sesión, tokens de acceso y eventos de seguridad relevantes.
-5. Eventos de producto y entrega publicitaria: impresiones, clics, conversiones,
-   placement, campaña, fecha, IP hash, identificador de visitante pseudonimizado
-   y datos técnicos necesarios para deduplicación y límites de frecuencia.
-
-### 3.3 Datos de ubicación
-
-Podemos tratar coordenadas geográficas asociadas a:
-
-- reportes de pérdida,
-- avistamientos,
-- ubicaciones del mapamundi,
-- historial de GPS de mascotas con plan habilitado,
-- geofencing y coordinación de búsqueda.
-
-La ubicación exacta de una mascota o de una persona puede estar protegida por
-diseño y no exponerse públicamente salvo la finalidad autorizada por el usuario
-o por la lógica del caso de búsqueda. Las ubicaciones de collar se purgan según
-la configuración técnica vigente y no deben entenderse como historial permanente.
+## 4. Categorías de datos
 
-### 3.4 Datos de salud y documentos veterinarios
+### 4.1 Cuenta e identidad
 
-Cuando se usa el módulo de expediente médico, historial clínico o certificados, PawTrack CR puede procesar datos relacionados con vacunas, desparasitaciones, visitas veterinarias, diagnósticos, tratamientos y documentos exportables con fines de cuidado y coordinación con clínicas afiliadas.
+Podemos recopilar nombre, correo, teléfono, ciudad, fotografía, rol, identificadores de cuenta, confirmación de mayoría de edad o autorización del tutor y datos necesarios para verificar o recuperar la cuenta.
 
-Para la emisión de certificados o documentos veterinarios `SENASA-ready`, las
-clínicas y veterinarios pueden aportar documentos de verificación, licencias,
-respaldos y firmas o sellos. Estos documentos se almacenan en contenedores
-privados y solo son accesibles para la clínica propietaria, usuarios autorizados
-de administración y procesos internos de auditoría. `SENASA-ready` no significa
-aprobación ni integración oficial con SENASA.
+Las contraseñas no se almacenan en texto legible. Se procesan mediante mecanismos de autenticación y protección acordes con la arquitectura vigente.
 
-La identidad sanitaria de una mascota puede incluir sexo, color, señas particulares, estado de esterilización, cantón aproximado de residencia, microchip declarado y estado de verificación del microchip. Estos datos se usan para expediente, certificados, trazabilidad y atención clínica autorizada, y no se exponen completos en perfiles públicos.
+### 4.2 Mascotas
 
-### 3.5 Casos de bienestar y reportes institucionales
+Podemos tratar nombre, especie, raza, edad, fecha aproximada de nacimiento, sexo, color, señas particulares, fotografías, estado, identificadores QR, microchip, condición de esterilización, ubicación aproximada y relación con la persona responsable.
 
-PawTrack CR puede procesar reportes de abandono, negligencia, maltrato presunto,
-animales heridos, capturas municipales y otros casos de bienestar animal. El
-reportante puede usar el flujo anónimo cuando esté disponible. Las descripciones
-se sanitizan para retirar PII innecesaria y la evidencia se almacena en Blob
-privado con acceso por rol y auditoría.
+Los datos de una mascota no siempre constituyen por sí mismos datos personales. Esta Política aplica cuando esos datos identifican o pueden vincularse con una persona física.
 
-Los reportes institucionales y NALA se generan de forma agregada por periodo,
-cantón, especie, estado u organización autorizada. Los datos públicos aplican
-supresión para grupos pequeños y no muestran domicilios, teléfonos, correos,
-identidad del reportante, evidencia ni coordenadas exactas. Estos exports pueden
-describirse como `SENASA-ready`, pero no constituyen envíos oficiales,
-aprobación ni integración con SENASA.
+### 4.3 Reportes, avistamientos y bienestar animal
 
-### 3.6 Datos de pagos y facturación
+Podemos tratar descripciones, fechas, fotografías, ubicaciones, evidencia, estado del caso, comunicaciones, entregas y datos del reportante. Cuando exista un flujo anónimo, la identidad no se mostrará a usuarios ordinarios, aunque pueden conservarse registros técnicos limitados para seguridad, prevención de abuso y obligaciones legales.
 
-Cuando existen solicitudes de suscripción, bundles, pedidos, reservas o avisos
-de pago, PawTrack CR puede registrar referencia, importe, estado, plazo,
-producto, evidencia operativa y auditoría necesarios para gestionar el servicio.
-En el flujo actual de suscripciones, la referencia SINPE se verifica
-manualmente. PawTrack no recibe ni almacena contraseñas bancarias, números de
-tarjeta ni credenciales financieras completas.
+### 4.4 Ubicación
 
----
+Podemos tratar:
 
-## 4. Finalidades del tratamiento
+- ubicación aproximada escogida para perfiles o publicaciones;
+- coordenadas de reportes y avistamientos;
+- ubicación temporal de una mascota mediante dispositivos habilitados;
+- geofencing y eventos relacionados;
+- datos técnicos necesarios para mapas y coordinación.
 
-PawTrack CR trata datos personales para:
+Las coordenadas exactas se protegerán por diseño y por defecto. Solo se expondrán cuando sea necesario para una finalidad informada y exista permiso suficiente. PawTrack podrá reducir precisión, aplicar desfase geográfico o limitar el acceso por rol.
 
-1. Crear, administrar y proteger cuentas de usuarios, aliados, clínicas y municipalidades.
-2. Operar la plataforma de identificación, QR, perfiles públicos y reportes de pérdida.
-3. Procesar avistamientos, mapamundi, notificaciones y coordinación de búsqueda.
-4. Facilitar chat enmascarado, mensajes de apoyo y validaciones de entrega segura.
-5. Mantener trazabilidad de mascotas perdidas y eventos de reunificación.
-6. Mejorar la seguridad, prevenir fraude, abuso, accesos no autorizados y uso indebido.
-7. Ejecutar matching visual por IA y comparación de perfiles relacionados con mascotas.
-8. Desplegar funciones de salud, expediente veterinario y exportación de PDF cuando corresponda.
-9. Gestionar roles, permisos, afiliación de clínicas y permisos de acceso a información.
-10. Cumplir obligaciones legales, regulatorias o de soporte de seguridad y atención al usuario.
-11. Operar adopciones, reservas, pedidos, verificación de proveedores y
-    campañas publicitarias, incluyendo métricas agregadas de desempeño.
+La persona puede desactivar permisos de ubicación en su dispositivo, aunque ciertas funciones dejarán de operar.
 
----
+### 4.5 Comunicaciones
 
-## 5. Base jurídica del tratamiento
+Podemos tratar chats, mensajes, solicitudes, respuestas, notificaciones y comunicaciones con soporte. PawTrack puede moderar o revisar contenido cuando sea necesario para atender reportes, prevenir fraude, investigar incidentes, proteger a las personas o cumplir la ley, aplicando acceso restringido y trazabilidad.
 
-Según el tipo de dato y finalidad, PawTrack CR puede tratar información con base en:
+### 4.6 Información veterinaria y documentos
 
-1. Ejecución de la relación contractual o prestación del servicio solicitado por la persona usuaria.
-2. Consentimiento, cuando la funcionalidad así lo requiera o cuando se solicite un dato opcional o un permiso específico.
-3. Interés legítimo para seguridad, prevención de fraude, mejora técnica y operación del sistema.
-4. Cumplimiento de obligaciones legales aplicables.
-5. Protección de intereses vitales o del bienestar animal cuando la situación lo exija.
-6. Consentimiento específico y diferenciado para datos de salud de la mascota
-   cuando el módulo médico lo solicite.
+Cuando se habilite el módulo médico, podremos tratar datos de la mascota sobre vacunas, desparasitación, visitas, diagnósticos, tratamientos, documentos, microchip y certificados. También podremos tratar identidad, licencia, firma, sello y documentación de la clínica o profesional.
 
----
+Los datos veterinarios pueden estar vinculados con datos personales del propietario o del profesional. Se almacenarán con controles reforzados y no se utilizarán para publicidad.
 
-## 6. Datos que pueden hacerse públicos
+La expresión “SENASA-ready” no significa aprobación, certificación, transmisión ni integración oficial con SENASA.
 
-PawTrack CR está diseñado para facilitar la recuperación de mascotas. Por ello, ciertos datos asociados a un perfil público o a un reporte activo pueden mostrarse a terceros en la plataforma, como por ejemplo:
+### 4.7 Información comercial y pagos
 
-- nombre de la mascota,
-- especie, raza y foto general,
-- estado de la mascota (perdida/activa/reunificada),
-- mensaje público del dueño,
-- información básica del caso activo,
-- ubicación aproximada o geolocalización relevante para la búsqueda,
-- resultados de avistamientos y coordinación de caso.
-- nombre, descripción, categoría y ubicación aproximada de organizaciones,
-  clínicas, tiendas, proveedores y animales en adopción cuando esos perfiles
-  estén publicados.
+Podemos tratar plan, producto, periodo, importe, moneda, impuestos, estado, referencia SINPE, comprobante, pedidos, reservas, reembolsos, facturación y auditoría. PawTrack no solicita contraseñas bancarias ni almacena credenciales financieras completas. Si se incorpora un procesador, se informará su identidad o categoría y se aplicarán sus condiciones.
 
-No obstante, PawTrack CR no expone de forma pública información sensible como:
+### 4.8 Información técnica y de seguridad
 
-- número de teléfono del dueño,
-- dirección exacta del domicilio,
-- nombre completo de la persona reportante en contextos no autorizados,
-- mensajes privados con contenido sensible,
-- contacto directo sin consentimiento o protección.
+Podemos tratar dirección IP, tipo de dispositivo, navegador, sistema operativo, identificadores de sesión, fechas y horas, registros de acceso, auditoría, errores, rendimiento, eventos de seguridad y señales para prevenir abuso.
 
-Cuando la plataforma habilita un contacto controlado, se usa un mecanismo seguro para revelar solo la información necesaria y en el momento oportuno.
+Los tokens y secretos se administran mediante controles técnicos y no deben almacenarse en ubicaciones de cliente no previstas por la arquitectura de seguridad.
 
----
+### 4.9 Analítica y publicidad
 
-## 7. Compartición de datos
+Con consentimiento cuando sea requerido, podemos tratar eventos de navegación, impresiones, clics, conversiones, campaña, placement, identificador pseudonimizado, IP truncada o transformada y datos para deduplicación o frecuencia.
 
-Podemos compartir datos personales con:
+PawTrack no utiliza mensajes privados, ubicación exacta ni expedientes veterinarios para segmentación publicitaria. Los anunciantes recibirán métricas agregadas o pseudonimizadas y no recibirán por defecto nombre, teléfono, correo o domicilio de quien visualice una campaña.
 
-1. Proveedores tecnológicos que procesan datos por cuenta de PawTrack CR, como infraestructura cloud, almacenamiento, telemetría, mensajería, correo y monitoreo.
-2. Aliados operativos, clínicas afiliadas, rescates verificados, organizaciones de apoyo y municipalidades, cuando la finalidad del caso o la lógica del sistema lo requiera.
-3. Autoridades competentes, cuando exista obligación legal, requerimiento válido o riesgo serio para la seguridad o bienestar animal.
-4. Socios de soporte técnico o cumplimiento, cuando es necesario para la operación del servicio.
+### 4.10 Matching visual y automatización
 
-PawTrack CR no vende datos personales ni usa datos médicos, ubicación exacta o
-mensajes privados para publicidad contextual. Las vallas reciben métricas de
-entrega agregadas y pseudonimizadas; una campaña no recibe por defecto el
-nombre, teléfono, correo o domicilio de quien la visualiza.
+Podemos utilizar fotografías y características visuales de mascotas para sugerir posibles coincidencias. Estos resultados son orientativos, pueden contener errores y no sustituyen la verificación humana.
 
-Las clínicas, proveedores, tiendas, refugios, aliados y municipalidades pueden
-recibir únicamente la información necesaria para una finalidad autorizada y
-según sus permisos, grants, rol, tenant o relación con el caso. Cada entidad
-debe cumplir sus propias obligaciones legales cuando actúe como responsable
-independiente de un tratamiento.
+Antes de activar proveedores externos, PawTrack documentará el dato enviado, finalidad, región, conservación, contrato y controles aplicables. La persona podrá reportar resultados incorrectos y solicitar revisión.
 
----
+## 5. Finalidades
 
-## 8. Transferencias internacionales
+Tratamos datos para:
 
-Algunos proveedores tecnológicos pueden almacenar o procesar datos fuera de Costa Rica. En esos casos aplicamos medidas contractuales y organizativas razonables para proteger la información, de acuerdo con la normativa aplicable.
-Los proveedores pueden incluir infraestructura cloud, almacenamiento, correo,
-mensajería, mapas, analítica, procesamiento de imágenes y monitoreo. Antes del
-lanzamiento comercial abierto, PawTrack debe mantener un inventario de
-encargados, regiones de procesamiento, contratos/DPA y garantías aplicables a
-transferencias internacionales, incluida la infraestructura Azure desplegada
-fuera de Costa Rica.
+1. crear, autenticar, administrar y proteger cuentas;
+2. registrar e identificar mascotas;
+3. operar perfiles y códigos QR;
+4. gestionar reportes, avistamientos, mapas y búsquedas;
+5. facilitar comunicación protegida y entregas;
+6. administrar consentimientos, roles y permisos;
+7. prestar módulos veterinarios, comerciales e institucionales autorizados;
+8. gestionar planes, pagos, facturación, reservas y pedidos;
+9. prevenir fraude, abuso, accesos no autorizados y riesgos de seguridad;
+10. moderar contenido y atender soporte, reclamos o incidentes;
+11. ejecutar matching visual y otras ayudas automatizadas autorizadas;
+12. medir rendimiento técnico y mejorar el servicio;
+13. operar campañas y analítica no esencial cuando exista la autorización necesaria;
+14. cumplir obligaciones legales y responder requerimientos válidos;
+15. formular, ejercer o defender reclamaciones;
+16. generar estadísticas agregadas o datos anonimizados que no identifiquen razonablemente a una persona.
 
----
+Si PawTrack desea utilizar datos para una finalidad incompatible o materialmente distinta, informará previamente y solicitará un nuevo consentimiento cuando corresponda.
 
-## 9. Conservación de datos
+## 6. Fundamento y consentimiento
 
-Conservamos los datos solo por el tiempo necesario para:
+PawTrack tratará datos con apoyo en la relación solicitada por la persona, el consentimiento informado cuando sea exigible, obligaciones legales y finalidades necesarias de seguridad o defensa de derechos, según corresponda en cada caso.
 
-1. cumplir las finalidades del servicio;
-2. mantener trazabilidad operativa y seguridad;
-3. resolver casos de pérdida, avistamiento, reclamos o incidentes;
-4. cumplir obligaciones legales, regulatorias o de defensa de reclamaciones.
+Se solicitará una decisión separada, específica y revocable para tratamientos opcionales como:
 
-Cuando el dato ya no es necesario, se elimina o anonimizan de forma segura, salvo obligación legal de conservación.
+- publicación de un perfil;
+- ubicación continua o geofencing;
+- datos y documentos veterinarios;
+- matching visual cuando requiera un proveedor o uso adicional;
+- analítica no esencial;
+- comunicaciones promocionales;
+- publicidad personalizada, si llegara a habilitarse;
+- información o participación de menores.
 
-Los periodos técnicos de referencia incluyen: ubicaciones crudas de collar,
-30 días; vistas de perfil clínico, 90 días; avistamientos, 730 días por
-defecto; chats cerrados, 730 días; notificaciones leídas, 365 días. Las
-notificaciones no leídas no se purgan automáticamente por ese job. QR scans,
-grants, auditoría, exports y backups tienen reglas específicas, excepciones y
-posibles obligaciones legales. Ver [MATRIZ_RETENCION_DATOS.md](MATRIZ_RETENCION_DATOS.md).
+Negarse a un tratamiento opcional no impedirá utilizar funciones que no dependan de ese dato. Cuando un dato sea indispensable, la interfaz explicará la consecuencia de no proporcionarlo.
 
-Los backups pueden conservar datos durante una ventana distinta y no se
-restauran para fines ordinarios de producto. Un hold legal, una investigación
-de seguridad o una obligación de defensa puede suspender temporalmente una
-purga; toda excepción debe tener motivo, responsable y fecha de revisión.
+PawTrack conservará evidencia de la versión del aviso y de las decisiones otorgadas. La revocación no afecta tratamientos anteriores válidamente realizados ni la conservación exigida por ley o necesaria para reclamaciones legítimas.
 
----
+## 7. Información pública
 
-## 10. Seguridad de la información
+Según la configuración elegida, podrán mostrarse:
 
-Aplicamos medidas técnicas, organizativas y administrativas razonables para proteger la información, incluyendo:
+- nombre y fotografía de la mascota;
+- especie, raza, color y señas generales;
+- condición de perdida, encontrada, activa o reunificada;
+- mensaje público;
+- zona aproximada relevante;
+- información básica de un caso;
+- perfiles publicados de organizaciones, servicios o adopciones.
 
-- controles de acceso;
-- cifrado y gestión segura de secretos;
-- almacenamiento controlado para datos sensibles;
-- registro de actividades y auditoría;
-- monitoreo de seguridad;
-- validaciones para prevenir abuso o accesos no autorizados.
+No se publicarán por defecto:
 
-Ningún sistema es completamente infalible; por ello, también mantenemos procedimientos para la respuesta ante incidentes y la investigación de accesos indebidos.
+- teléfono o correo personal;
+- domicilio exacto;
+- coordenadas exactas;
+- identidad completa de un reportante protegido;
+- documentos de identidad;
+- chats privados;
+- comprobantes de pago;
+- expedientes veterinarios completos;
+- documentos de verificación de profesionales;
+- datos de menores.
 
-Cuando corresponda, PawTrack documentará el incidente, limitará el acceso,
-preservará evidencia, evaluará el riesgo y comunicará a las personas afectadas
-o a la autoridad competente según la ley aplicable y la gravedad del evento.
+La persona puede modificar la visibilidad desde la configuración disponible. Ciertos datos pueden mantenerse restringidos por seguridad aunque el usuario solicite hacerlos públicos.
 
----
+## 8. Destinatarios y roles
 
-## 11. Derechos de las personas titulares
+Podemos facilitar datos, de forma proporcional a la finalidad, a:
 
-La persona titular puede, según corresponda, solicitar:
+- proveedores que actúan por cuenta de PawTrack en infraestructura, almacenamiento, mensajería, mapas, autenticación, monitoreo, soporte o procesamiento;
+- clínicas y profesionales autorizados por la relación y los permisos vigentes;
+- refugios, aliados, proveedores o tiendas respecto de casos o transacciones pertinentes;
+- municipalidades u otras entidades públicas cuando exista convenio, competencia, permiso o requerimiento válido;
+- asesores profesionales sujetos a confidencialidad;
+- autoridades competentes ante obligación legal o solicitud válida;
+- una entidad sucesora en una reorganización, sujeta a salvaguardas y comunicación cuando proceda.
 
-1. acceso a sus datos personales;
-2. corrección de datos inexactos o incompletos;
-3. eliminación o supresión cuando proceda;
-4. oposición a ciertos tratamientos;
-5. limitación del tratamiento;
-6. retiro del consentimiento cuando la base jurídica lo permita;
-7. portabilidad de ciertos datos cuando sea aplicable.
+Cada tercero puede actuar como encargado de PawTrack o como responsable independiente. Los contratos y avisos particulares identificarán el rol aplicable.
 
-Existe un mecanismo de autoservicio para usuarios autenticados:
-`GET /api/auth/me/export` descarga un JSON con los datos personales incluidos
-en el alcance de exportación. La eliminación de cuenta se solicita mediante
-`DELETE /api/auth/me` con confirmación de contraseña. La exportación no incluye
-mensajes escritos por otras personas ni datos de terceros.
+PawTrack no vende bases de datos personales.
 
-Para ejercer estos derechos, escribe a: **<privacidad@pawtrack.cr>**.
+## 9. Proveedores y transferencias internacionales
 
-PawTrack CR podrá solicitar verificación de identidad para proteger datos de terceros y evitar accesos indebidos.
+Algunos proveedores pueden procesar datos fuera de Costa Rica. Antes de habilitarlos, PawTrack mantendrá un inventario que incluya proveedor, servicio, categorías de datos, finalidad, ubicación o región, subencargados, retención, medidas de seguridad, mecanismo contractual y procedimiento de eliminación.
 
-### Procedimiento para ejercer derechos
+PawTrack celebrará acuerdos de tratamiento o cláusulas de protección cuando corresponda y limitará el acceso a lo necesario. La lista o categorías actualizadas estarán disponibles en **[ENLACE O CANAL]**.
 
-La solicitud debe incluir nombre, correo asociado, derecho que se ejerce,
-descripción concreta y, cuando sea necesario, una verificación razonable de
-identidad. Privacidad registrará la solicitud, confirmará recepción, evaluará
-si existen datos de terceros, excepciones legales o necesidad de conservar
-auditoría y responderá dentro del plazo legal aplicable. Si la solicitud se
-rechaza o limita, se explicará el motivo y el canal de revisión disponible.
+No se activará un proveedor para datos de alto riesgo mientras no se complete su evaluación contractual, técnica y de privacidad.
 
----
+## 10. Conservación y eliminación
 
-## 12. Cookies y tecnologías similares
+PawTrack conservará datos durante el tiempo necesario para la finalidad informada, la relación contractual, seguridad, cumplimiento legal o defensa de reclamaciones.
 
-PawTrack CR puede usar cookies, almacenamiento local y tecnologías análogas para:
+La matriz interna de retención deberá coincidir con los procesos automáticos, almacenamiento, telemetría, respaldos y ambientes. Antes de publicar esta Política deben confirmarse los siguientes periodos propuestos:
 
-- autenticación y manejo de sesión,
-- recordar preferencias,
-- seguridad y protección contra abuso,
-- métricas técnicas y análisis de uso,
-- funcionamiento de la PWA.
+- ubicación cruda de collar: **[CONFIRMAR, PROPUESTA 30 DÍAS]**;
+- vistas de expedientes clínicos: **[CONFIRMAR, PROPUESTA 90 DÍAS]**;
+- avistamientos: **[CONFIRMAR, PROPUESTA 730 DÍAS]**;
+- chats cerrados: **[CONFIRMAR, PROPUESTA 730 DÍAS]**;
+- notificaciones leídas: **[CONFIRMAR, PROPUESTA 365 DÍAS]**;
+- pagos, facturas y comprobantes: **[DEFINIR SEGÚN REQUISITOS LEGALES Y FISCALES]**;
+- auditoría y seguridad: **[DEFINIR]**;
+- respaldos: **[DEFINIR VENTANA]**.
 
-La aceptación del uso de cookies puede variar según el navegador y la configuración del sitio. Algunas funciones pueden verse afectadas si se deshabilitan.
+Cuando venza el plazo, los datos se eliminarán, anonimizarán o bloquearán según corresponda. Un deber legal, incidente, investigación o preservación de evidencia puede suspender temporalmente la eliminación; la excepción tendrá motivo, responsable y fecha de revisión.
 
-En particular, el sistema puede usar cookies httpOnly para renovación de
-sesión, memoria local para preferencias, identificadores pseudonimizados para
-entrega de vallas y caché/service worker para funcionamiento de la PWA. El
-almacenamiento local no debe contener contraseñas ni tokens de acceso.
+## 11. Seguridad y confidencialidad
 
-Las cookies y tecnologías no esenciales deben gestionarse mediante el banner y
-las preferencias disponibles. La analítica de Application Insights y los
-eventos de producto no se inicializan ni se envían antes de la aceptación
-explícita de analítica; la persona puede retirar o cambiar su elección mediante
-el mecanismo de preferencias que PawTrack habilite. El retiro no afecta la
-legalidad del tratamiento realizado antes de ese retiro.
+PawTrack aplicará medidas razonables y proporcionales, incluyendo:
 
----
+- acceso basado en rol y mínimo privilegio;
+- autenticación y gestión de sesiones;
+- cifrado en tránsito y, cuando corresponda, en reposo;
+- almacenamiento privado para evidencia y documentos;
+- gestión segura de secretos;
+- registros de auditoría y monitoreo;
+- segregación entre organizaciones y ambientes;
+- revisión de proveedores;
+- copias de seguridad y continuidad;
+- pruebas y gestión de vulnerabilidades;
+- procedimientos de incidentes.
 
-## 13. Menores de edad
+El personal y terceros con acceso estarán sujetos a deberes de confidencialidad. Ningún sistema es infalible, pero PawTrack mantendrá controles y procedimientos para reducir y gestionar riesgos.
 
-PawTrack CR no está diseñado para el tratamiento autónomo de datos de menores
-sin supervisión apropiada. El registro exige confirmar mayoría de edad o
-autorización del tutor, pero PawTrack no realiza verificación formal de
-identidad o edad. Si se detecta un uso no autorizado, se puede solicitar
-restricción o eliminación mediante privacidad@pawtrack.cr.
+## 12. Incidentes de seguridad
 
----
+Ante un incidente, PawTrack procurará:
 
-## 14. Datos de salud y cuidado de mascotas
+1. contener y analizar el evento;
+2. preservar evidencia;
+3. determinar datos y personas afectadas;
+4. evaluar riesgos y obligaciones;
+5. documentar decisiones;
+6. comunicar a autoridades o personas afectadas cuando corresponda;
+7. corregir causas y dar seguimiento.
 
-Cuando se usa el módulo médico, veterinario o de expediente de mascota, PawTrack CR procesa información sensible relacionada con la salud del animal para mejorar su atención y coordinación con clínicas y tutores responsables. Este tratamiento se realiza en función de la finalidad operativa del servicio y de la relación de cuidado con la mascota.
+Las comunicaciones se realizarán por los canales disponibles y contendrán información útil para reducir riesgos, salvo restricciones legales o de seguridad.
 
-El consentimiento específico de datos de salud se registra por separado del
-consentimiento general. Sin ese consentimiento, el backend bloquea la creación
-de nuevos registros médicos. Revocar el consentimiento no necesariamente
-elimina registros que deban conservarse por obligaciones legales, auditoría o
-defensa de reclamaciones; esos casos se evalúan individualmente.
+## 13. Derechos de las personas
 
-La información médica no se utiliza para publicidad. El acceso de una clínica
-depende de la relación autorizada, el grant, los permisos y los scopes
-correspondientes. Los certificados verificables muestran un conjunto mínimo de
-datos y no convierten a PawTrack en autoridad veterinaria o regulatoria.
+La persona titular podrá solicitar, según resulte aplicable:
 
-### Decisiones automatizadas y matching visual
+- acceso a sus datos;
+- información sobre su tratamiento;
+- rectificación o actualización;
+- supresión cuando proceda;
+- revocación del consentimiento;
+- oposición a tratamientos particulares;
+- entrega de una copia en formato disponible;
+- revisión de una decisión automatizada relevante.
 
-El matching visual, filtros, recomendaciones, métricas y algunas alertas pueden
-usar reglas automatizadas o modelos de terceros. Son herramientas de apoyo y
-pueden producir falsos positivos o resultados incompletos; no sustituyen la
-decisión del dueño, veterinario, autoridad o equipo de soporte. La persona
-puede reportar un resultado incorrecto a soporte o privacidad.
+Las facilidades adicionales ofrecidas por PawTrack no reducen los derechos reconocidos por la legislación costarricense.
 
----
+### Procedimiento
 
-## 15. Cambios a esta política
+La solicitud puede presentarse en **[CORREO O FORMULARIO]** e incluir:
 
-PawTrack CR puede actualizar esta Política de Privacidad para reflejar cambios normativos, operativos, técnicos o regulatorios. Publicaremos la versión vigente con su fecha de actualización.
+- nombre y correo asociado;
+- derecho solicitado;
+- descripción de los datos o cuenta;
+- medio para recibir respuesta;
+- verificación razonable de identidad cuando sea necesaria.
 
-Cuando el cambio sea material, notificaremos por medios razonables dentro de la plataforma, por correo electrónico o por avisos visibles dentro del servicio.
+PawTrack confirmará recepción, registrará la solicitud, verificará identidad de forma proporcional, evaluará derechos de terceros y responderá dentro del plazo legal aplicable. Si rechaza o limita una solicitud, explicará el fundamento y el canal de revisión disponible.
 
----
+También podrán habilitarse opciones de “Descargar mis datos” y “Eliminar mi cuenta” dentro de la configuración. Esas funciones no sustituyen el canal de privacidad.
 
-## 16. Contacto
+## 14. Menores de edad
 
-Consultas de privacidad, ejercicio de derechos, dudas sobre tratamiento de datos o atención general:
+PawTrack no está dirigido al uso autónomo de menores en funciones de publicación, geolocalización, chat o coordinación de entregas. Cuando se permita una cuenta supervisada, se solicitará autorización verificable y participación de la persona adulta responsable de acuerdo con el riesgo de la función.
 
-**Correo de privacidad:** <privacidad@pawtrack.cr>  
-**Correo de soporte:** <soporte@pawtrack.cr>  
-**Asunto recomendado:** Privacidad de datos — PawTrack CR
+Si PawTrack detecta datos de un menor recopilados sin autorización suficiente, podrá restringir la cuenta, solicitar verificación o eliminar los datos, salvo conservación legal o de seguridad.
 
----
+No se utilizarán datos de menores para publicidad personalizada.
 
-## 17. Referencia normativa
+## 15. Cookies, almacenamiento local y tecnologías similares
 
-Esta política se redacta considerando principios de protección de datos aplicables en Costa Rica, con atención especial a la Ley de Protección de la Persona frente al Tratamiento de sus Datos Personales (Ley N.° 8968), su reglamento y demás normas que resulten aplicables, sin perjuicio de otras disposiciones regulatorias vigentes en el país.
+PawTrack puede utilizar:
 
-## 18. Pendientes de aprobación
+- tecnologías estrictamente necesarias para autenticación, seguridad y sesión;
+- almacenamiento local para preferencias y funcionamiento de la PWA;
+- caché y service workers;
+- analítica y medición no esencial, previa elección cuando corresponda;
+- identificadores pseudonimizados para frecuencia y medición publicitaria autorizada.
 
-Antes de publicar esta política como versión vigente deben confirmarse:
+Las cookies no esenciales y la analítica de producto no se activarán antes de la decisión requerida. La persona podrá cambiar su elección mediante **[PANEL DE PREFERENCIAS]**.
 
-- responsable jurídico, domicilio, representante y registro aplicable;
-- inventario de encargados, regiones de tratamiento y DPA, incluido Azure;
-- base jurídica y avisos diferenciados para salud, ubicación, fotos,
-  embeddings, publicidad, comunicaciones y menores;
-- procedimiento, plazos y responsables para derechos de titulares y brechas;
-- retención legal de auditoría, backups, pagos, chats, ubicación y evidencias;
-- consentimiento/versionado de términos, privacidad y cookies;
-- revisión de transferencias internacionales y proveedores reales.
+No se almacenarán contraseñas ni tokens de acceso en almacenamiento local cuando la arquitectura de seguridad no lo autorice.
+
+## 16. Comunicaciones
+
+PawTrack podrá enviar comunicaciones operativas necesarias sobre cuenta, seguridad, reportes, pagos o servicio. Las comunicaciones promocionales requerirán la autorización aplicable e incluirán un mecanismo razonable para dejar de recibirlas.
+
+Cancelar comunicaciones promocionales no afecta avisos operativos indispensables.
+
+## 17. Datos agregados y anonimizados
+
+PawTrack puede generar estadísticas agregadas o anonimizadas para operación, seguridad, investigación, planificación y reportes institucionales. Se aplicarán medidas para evitar que grupos pequeños, ubicaciones exactas o combinaciones de atributos permitan identificar razonablemente a una persona.
+
+Si un conjunto puede reidentificarse razonablemente, seguirá tratándose como dato personal y sujeto a esta Política.
+
+## 18. Cambios a esta Política
+
+PawTrack podrá actualizar esta Política por cambios legales, técnicos o funcionales. Publicará la versión y fecha vigentes.
+
+Los cambios materiales se comunicarán por medios razonables. Cuando cambie una finalidad o tratamiento sujeto a consentimiento, PawTrack solicitará una nueva decisión antes de aplicar el cambio cuando corresponda.
+
+Se conservará evidencia de las versiones aceptadas o comunicadas.
+
+## 19. Legislación y autoridad competente
+
+Esta Política se interpreta conforme a la legislación de la República de Costa Rica, incluida la Ley N.° 8968, su Reglamento y las demás normas aplicables.
+
+La persona titular conserva su derecho de acudir a la Agencia de Protección de Datos de los Habitantes y a las autoridades competentes.
+
+Antes del lanzamiento, PawTrack deberá documentar si sus bases requieren inscripción u otro trámite ante la autoridad, de acuerdo con su estructura, finalidad y modelo de operación.
+
+## 20. Contacto
+
+- Responsable: **[RAZÓN SOCIAL Y CÉDULA]**.
+- Domicilio: **[DOMICILIO]**.
+- Privacidad: **[CORREO]**.
+- Soporte: **[CORREO]**.
+- Formulario de derechos: **[ENLACE INTERNO]**.
