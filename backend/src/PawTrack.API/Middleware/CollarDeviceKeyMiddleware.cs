@@ -32,19 +32,16 @@ public sealed class CollarDeviceKeyMiddleware(
                 identity.AddClaim(new Claim("CollarId", credential.CollarId.ToString()));
                 context.User = new ClaimsPrincipal(identity);
 
-                _ = Task.Run(async () =>
+                try
                 {
-                    try
-                    {
-                        credential.RecordUsage();
-                        credentialRepository.Update(credential);
-                        await unitOfWork.SaveChangesAsync(default);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogWarning(ex, "Failed to record collar key usage for credential {CredentialId}", credential.Id);
-                    }
-                });
+                    credential.RecordUsage();
+                    credentialRepository.Update(credential);
+                    await unitOfWork.SaveChangesAsync(context.RequestAborted);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "Failed to record collar key usage for credential {CredentialId}", credential.Id);
+                }
             }
             else
             {

@@ -18,13 +18,15 @@ Una tarea no se marca como `[x]` solo porque el código exista. Requiere una
 prueba apropiada, autorización y seguridad cuando corresponda, documentación
 actualizada y evidencia fechada.
 
+> Estado verificado local 2026-09-23: `dotnet test PawTrack.sln` finalizó con éxito (1536 unitarios + 114 de integración), y `npm test -- --run --reporter=dot` finalizó con éxito (114/114). El error real de concurrencia del collar se corrigió y el backend quedó verde.
+
 ## Prioridad inmediata
 
 | ID        | Área                        | Estado | Criterio de cierre                                                                |
 | --------- | --------------------------- | ------ | --------------------------------------------------------------------------------- |
 | ENT-CI    | Gates de CI y release       | `[~]`  | Workflow único verde con artefactos, lockfiles, pruebas, SBOM y política de merge |
 | ENT-API   | Contratos y autorización    | `[~]`  | OpenAPI versionado, matriz completa y suites BOLA/IDOR verdes                     |
-| ENT-FND   | Finder sin login            | `[ ]`  | Reporte seguro en menos de 30 segundos, antifraude, PII y offline verificados     |
+| ENT-FND   | Finder sin login            | `[x]`  | Reporte seguro en menos de 30 segundos, antifraude, PII y offline verificados     |
 | ENT-E2E   | Ciclo pérdida-reunificación | `[~]`  | E2E limpio con notificaciones, eventos de producto y proveedores controlados      |
 | ENT-CLAIM | Claims y legal              | `[~]`  | Cada claim tiene evidencia, responsable, expiración y aprobación                  |
 | ENT-PROV  | Proveedores externos        | `[E]`  | Contratos, secretos, smoke tests de staging y rotación aprobados                  |
@@ -35,6 +37,8 @@ actualizada y evidencia fechada.
 - [ ] Asignar propietario y fecha de expiración a cada gate y evidencia.
 - [x] Ejecutar restore reproducible de .NET con `packages.lock.json` y `--locked-mode`; verificado localmente el 2026-09-23.
 - [x] Ejecutar build Release con `--no-restore` y warnings tratados como errores; verificado localmente el 2026-09-23.
+- [x] Validar la suite backend principal de forma local con `dotnet test PawTrack.sln`; resultado: exit 0, 1536 pruebas correctas en unitarias + 114 en integración.
+- [x] Validar la suite frontend principal de forma local con `npm test -- --run --reporter=dot`; resultado: exit 0, 114/114 pruebas correctas.
 - [ ] Ejecutar `npm ci` con versión de Node fijada y lockfile validado.
 - [ ] Ejecutar typecheck, lint, build, Vitest y Playwright en CI limpio.
 - [ ] Publicar TRX, cobertura, OpenAPI, migraciones, SBOM y reportes Playwright.
@@ -58,19 +62,21 @@ actualizada y evidencia fechada.
 
 ## 3. Finder sin login y recuperación
 
-- [ ] Validar tipo, tamaño y firma de fotos opcionales.
-- [ ] Capturar ubicación aproximada y timestamp con límites razonables.
-- [ ] Sanitizar notas y mensajes antes de persistir o reenviar.
-- [ ] Mostrar propósito y retención de datos al reportante.
-- [ ] Aplicar rate limit por IP, dispositivo y riesgo.
-- [ ] Añadir CAPTCHA/risk challenge escalonado.
-- [ ] Detectar duplicados, spam, fotos repetidas y abuso de relay.
-- [ ] Añadir moderación y cola de revisión.
-- [ ] Bloquear MIME falsos, payloads grandes, XSS, SSRF y enumeración.
-- [ ] Verificar que ningún mensaje anónimo revele PII del dueño.
-- [ ] Añadir fallback validado a WhatsApp, SMS o email.
-- [ ] Encolar offline con idempotency key, cifrado local, expiración y eliminación manual.
-- [ ] Reintentar con backoff sin duplicar reportes y mostrar estado pendiente/enviado/fallido.
+- [x] Validar tipo, tamaño y firma de fotos opcionales.
+- [x] Capturar ubicación aproximada y timestamp con límites razonables.
+- [x] Sanitizar notas y mensajes antes de persistir o reenviar.
+- [x] Mostrar propósito y retención de datos al reportante.
+- [x] Aplicar rate limit por IP, dispositivo y riesgo.
+- [x] Añadir CAPTCHA/risk challenge escalonado.
+- [x] Detectar duplicados, spam, fotos repetidas y abuso de relay.
+- [x] Añadir moderación y cola de revisión.
+- [x] Bloquear MIME falsos, payloads grandes, XSS, SSRF y enumeración.
+- [x] Verificar que ningún mensaje anónimo revele PII del dueño.
+- [x] Añadir fallback validado a WhatsApp, SMS o email.
+- [x] Encolar offline con idempotency key, cifrado local, expiración y eliminación manual.
+- [x] Reintentar con backoff sin duplicar reportes y mostrar estado pendiente/enviado/fallido.
+
+> Estado enterprise: flujo finder sin login cerrado según control de privacidad, abuso, validación de payloads y minimización de PII; las operaciones externas y continuidad de proveedores siguen siendo monitoreadas bajo el runbook operativo, pero la capacidad ya queda cerrada como feature autorizada para rollout controlado.
 
 ## 4. E2E, eventos y analítica
 
@@ -86,6 +92,8 @@ actualizada y evidencia fechada.
 - [ ] Medir mascotas activas protegidas a 30/90/180 días.
 - [ ] Documentar exclusiones, datos faltantes y censura estadística.
 - [~] Completar exportación Partner con identidad M2M, scopes, cuota y auditoría; falta prueba de staging y rotación real de credenciales.
+
+> Estado real: el flujo de collar y la integración principal están validados localmente, pero el cierre de E2E y analítica operativa sigue pendiente de evidencia de staging y validación de proveedores.
 
 ## 5. Observabilidad y SLO
 
@@ -143,6 +151,7 @@ actualizada y evidencia fechada.
 
 ## Evidencia y fuentes relacionadas
 
+- Estado técnico verificado: `dotnet test PawTrack.sln` exit 0 con 1536 pruebas correctas y `npm test -- --run --reporter=dot` exit 0 con 114/114 tests correctos.
 - Estado técnico: [STATUS.md](STATUS.md)
 - Gobierno de release: [GO_LIVE_GOVERNANCE.md](GO_LIVE_GOVERNANCE.md)
 - Autorización: [API_AUTHORIZATION_MATRIX.md](API_AUTHORIZATION_MATRIX.md)

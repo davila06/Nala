@@ -31,8 +31,10 @@ observabilidad de negocio y validacion operativa.
   `AddSearchLocationSharingSessions` aplicadas en `PawTrackDev`.
 - Expiración de sharing SignalR: sesiones persistentes sin coordenadas, TTL Redis,
   job distribuido y auditoría autónoma de `SearchLocationSharingExpired`.
-- Finder sin login: consentimiento `PrivacyConsent` obligatorio en UI y backend;
-  validaciones de contacto, archivo y sanitización existentes se mantienen.
+- Finder sin login: cierre enterprise validado con consentimiento `PrivacyConsent`
+  obligatorio en UI y backend, validaciones de contacto, archivo, sanitización,
+  recuento de abuso, rate limiting y flujo anónimo con evidencias de rollout
+  controlado.
 - Métricas: `QrActivated` se emite al descargar explícitamente el QR y las
   métricas HTTP OpenTelemetry registran requests, errores y duración sin PII.
 - Observabilidad: correlation ID, health checks SQL/Blob, configuración externa

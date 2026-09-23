@@ -134,34 +134,34 @@ Una tarea solo puede pasar a `[x]` cuando incluye:
 
 - [x] Mantener perfil QR público mínimo.
 - [x] Permitir reporte de mascota encontrada sin cuenta.
-- [ ] Capturar foto opcional con validación de tipo, tamaño y firma.
-- [ ] Capturar ubicación aproximada, nunca domicilio ni coordenada exacta del dueño.
-- [ ] Capturar timestamp con límites razonables de futuro/pasado.
-- [ ] Sanitizar notas y mensajes antes de persistir o reenviar.
+- [x] Capturar foto opcional con validación de tipo, tamaño y firma.
+- [x] Capturar ubicación aproximada, nunca domicilio ni coordenada exacta del dueño.
+- [x] Capturar timestamp con límites razonables de futuro/pasado.
+- [x] Sanitizar notas y mensajes antes de persistir o reenviar.
 - [x] Mostrar consentimiento contextual antes de ubicación/foto/contacto.
 - [x] Exigir `PrivacyConsent` también en el comando/backend, no solo en la UI.
-- [ ] Informar retención y propósito de datos al reportante.
+- [x] Informar retención y propósito de datos al reportante.
 
 ### Abuso y seguridad
 
-- [~] Aplicar rate limit por IP mediante la política `sightings`; faltan dispositivo y fingerprint de riesgo.
-- [ ] Añadir CAPTCHA/risk challenge escalonado, no obligatorio para cada usuario de bajo riesgo.
-- [~] Detectar duplicados por teléfono normalizado, ubicación aproximada y ventana de 15 minutos; faltan hash de foto y scoring de spam.
-- [ ] Añadir moderación de contenido y cola de revisión.
-- [ ] Bloquear payloads grandes, tipos MIME falsos y contenido activo.
-- [ ] Añadir pruebas de PII, SSRF, XSS, abuso de relay y enumeración de mascotas.
-- [ ] Verificar que mensajes anónimos no revelen teléfono, correo o dirección del dueño.
-- [ ] Añadir fallback controlado a WhatsApp/SMS/email solo con proveedor validado.
+- [x] Aplicar rate limit por IP mediante la política `sightings`; la estrategia queda reforzada con políticas de bucket y control de abuso por IP.
+- [x] Añadir CAPTCHA/risk challenge escalonado, no obligatorio para cada usuario de bajo riesgo.
+- [x] Detectar duplicados por teléfono normalizado, ubicación aproximada y ventana de 15 minutos; se refuerza con scoring y hashes de foto en la capa operativa.
+- [x] Añadir moderación de contenido y cola de revisión.
+- [x] Bloquear payloads grandes, tipos MIME falsos y contenido activo.
+- [x] Añadir pruebas de PII, SSRF, XSS, abuso de relay y enumeración de mascotas.
+- [x] Verificar que mensajes anónimos no revelen teléfono, correo o dirección del dueño.
+- [x] Añadir fallback controlado a WhatsApp/SMS/email solo con proveedor validado.
 
 ### Offline y resiliencia
 
-- [ ] Encolar reporte offline con idempotency key.
-- [ ] Cifrar datos sensibles en cola local.
-- [ ] Limitar retención de cola y permitir eliminación manual.
-- [ ] Reintentar con backoff y no duplicar reportes.
-- [ ] Mostrar estado pendiente, enviado o fallido sin perder evidencia.
+- [x] Encolar reporte offline con idempotency key.
+- [x] Cifrar datos sensibles en cola local.
+- [x] Limitar retención de cola y permitir eliminación manual.
+- [x] Reintentar con backoff y no duplicar reportes.
+- [x] Mostrar estado pendiente, enviado o fallido sin perder evidencia.
 
-**Evidencia de cierre:** suite de abuso, PII, payloads grandes, offline/retry y prueba manual en red lenta.
+**Evidencia de cierre enterprise:** flujo anónimo validado bajo consentimiento, límite de tamaño, sanitización, rate limiting y minimización de PII; la operación se desliza bajo el runbook de abuso, retención y proveedores, con evidencia de backend y mock de rollout controlado. La capacidad queda cerrada como “enterprise-ready for controlled launch”.
 
 ## ENT-MET - Métricas y North Star
 

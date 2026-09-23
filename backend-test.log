@@ -1,0 +1,16 @@
+  Determinando los proyectos que se van a restaurar...
+  Todos los proyectos est├ín actualizados para la restauraci├│n.
+  PawTrack.Domain -> C:\Nala\backend\src\PawTrack.Domain\bin\Debug\net9.0\PawTrack.Domain.dll
+  PawTrack.Application -> C:\Nala\backend\src\PawTrack.Application\bin\Debug\net9.0\PawTrack.Application.dll
+  PawTrack.Infrastructure -> C:\Nala\backend\src\PawTrack.Infrastructure\bin\Debug\net9.0\PawTrack.Infrastructure.dll
+  PawTrack.API -> C:\Nala\backend\src\PawTrack.API\bin\Debug\net9.0\PawTrack.API.dll
+  PawTrack.UnitTests -> C:\Nala\backend\tests\PawTrack.UnitTests\bin\Debug\net9.0\PawTrack.UnitTests.dll
+Serie de pruebas para C:\Nala\backend\tests\PawTrack.UnitTests\bin\Debug\net9.0\PawTrack.UnitTests.dll (.NETCoreApp,Version=v9.0)
+  PawTrack.IntegrationTests -> C:\Nala\backend\tests\PawTrack.IntegrationTests\bin\Debug\net9.0\PawTrack.IntegrationTests.dll
+Serie de pruebas para C:\Nala\backend\tests\PawTrack.IntegrationTests\bin\Debug\net9.0\PawTrack.IntegrationTests.dll (.NETCoreApp,Version=v9.0)
+1 archivos de prueba en total coincidieron con el patr├│n especificado.
+1 archivos de prueba en total coincidieron con el patr├│n especificado.
+
+Correctas! - Con error:     0, Superado:  1536, Omitido:     0, Total:  1536, Duraci├│n: 2 s - PawTrack.UnitTests.dll (net9.0)
+
+Correctas! - Con error:     0, Superado:   114, Omitido:     0, Total:   114, Duraci├│n: 1 m 5 s - PawTrack.IntegrationTests.dll (net9.0)
