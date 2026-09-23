@@ -9,10 +9,20 @@ Este runbook cubre los indicadores tecnicos que ya se emiten desde el backend:
 - `pawtrack.webhook.failed`
 - `pawtrack.webhook.delivery.duration_ms`
 - `pawtrack.medical.exported`
+- `pawtrack.api.requests`
+- `pawtrack.api.errors`
+- `pawtrack.api.request.duration_ms`
+
+El health check `external-provider-configuration` valida la presencia de
+configuración no secreta necesaria para Azure Storage, Application Insights,
+correo y canales de broadcast. No imprime valores y no forma parte del probe
+`/health/ready` hasta que el entorno tenga evidencia contractual aprobada.
 
 La instrumentacion se publica en el `Meter` `PawTrack.Enterprise`. El colector
 de produccion debe exportar ese Meter a Azure Monitor/OpenTelemetry; el codigo
 no asume que Application Insights capture automaticamente todos los `Meter`.
+Las métricas HTTP usan solo método, primer segmento de ruta y clase de estado
+para evitar cardinalidad peligrosa; no incluyen usuario, email, token ni PII.
 
 ## Objetivos iniciales
 
@@ -33,7 +43,7 @@ no asume que Application Insights capture automaticamente todos los `Meter`.
 - mascotas registradas y activadas;
 - reportes de perdida y reunificaciones;
 - conversion de activacion y recuperacion;
-- minutos medianos hasta primera respuesta y reunificacion, calculados por incidente de pérdida;
+- minutos medianos y p90 hasta primera respuesta y reunificacion, calculados por incidente de pérdida;
 - porcentaje de primeras respuestas dentro del SLO de seis horas.
 
 El rango máximo es 366 días. `Sin especificar` se mantiene como grupo separado

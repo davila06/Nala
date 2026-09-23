@@ -2,18 +2,12 @@ import type { APIRequestContext } from "@playwright/test";
 import { API_URL } from "./env";
 
 /** Logs a seeded test user in via the real API and returns the JWT access token. */
-export async function apiLogin(
-  request: APIRequestContext,
-  email: string,
-  password: string,
-): Promise<string> {
+export async function apiLogin(request: APIRequestContext, email: string, password: string): Promise<string> {
   const res = await request.post(`${API_URL}/api/auth/login`, {
     data: { email, password },
   });
   if (!res.ok()) {
-    throw new Error(
-      `apiLogin failed for ${email}: ${res.status()} ${await res.text()}`,
-    );
+    throw new Error(`apiLogin failed for ${email}: ${res.status()} ${await res.text()}`);
   }
   const body = (await res.json()) as { accessToken: string };
   return body.accessToken;
@@ -24,11 +18,7 @@ function authHeaders(token: string) {
 }
 
 /** Creates a bare-minimum pet (no photo) owned by the given token's user. */
-export async function createPet(
-  request: APIRequestContext,
-  ownerToken: string,
-  name: string,
-): Promise<string> {
+export async function createPet(request: APIRequestContext, ownerToken: string, name: string): Promise<string> {
   const res = await request.post(`${API_URL}/api/pets`, {
     headers: authHeaders(ownerToken),
     multipart: { name, species: "Dog" },
@@ -41,11 +31,7 @@ export async function createPet(
 }
 
 /** Reports a pet lost and returns the real lost-event ID. */
-export async function reportLostPet(
-  request: APIRequestContext,
-  ownerToken: string,
-  petId: string,
-): Promise<string> {
+export async function reportLostPet(request: APIRequestContext, ownerToken: string, petId: string): Promise<string> {
   const res = await request.post(`${API_URL}/api/lost-pets`, {
     headers: authHeaders(ownerToken),
     multipart: {
@@ -60,9 +46,7 @@ export async function reportLostPet(
     },
   });
   if (res.status() !== 201) {
-    throw new Error(
-      `reportLostPet failed: ${res.status()} ${await res.text()}`,
-    );
+    throw new Error(`reportLostPet failed: ${res.status()} ${await res.text()}`);
   }
   const body = (await res.json()) as { id: string };
   return body.id;
@@ -74,9 +58,7 @@ export async function getPublicPetProfile(
 ): Promise<{ id: string; status: string; name: string }> {
   const res = await request.get(`${API_URL}/api/public/pets/${petId}`);
   if (!res.ok()) {
-    throw new Error(
-      `getPublicPetProfile failed: ${res.status()} ${await res.text()}`,
-    );
+    throw new Error(`getPublicPetProfile failed: ${res.status()} ${await res.text()}`);
   }
   return (await res.json()) as { id: string; status: string; name: string };
 }
@@ -86,16 +68,11 @@ export async function generateHandoverCode(
   ownerToken: string,
   lostEventId: string,
 ): Promise<string> {
-  const res = await request.post(
-    `${API_URL}/api/lost-pets/${lostEventId}/handover/code`,
-    {
-      headers: authHeaders(ownerToken),
-    },
-  );
+  const res = await request.post(`${API_URL}/api/lost-pets/${lostEventId}/handover/code`, {
+    headers: authHeaders(ownerToken),
+  });
   if (!res.ok()) {
-    throw new Error(
-      `generateHandoverCode failed: ${res.status()} ${await res.text()}`,
-    );
+    throw new Error(`generateHandoverCode failed: ${res.status()} ${await res.text()}`);
   }
   return ((await res.json()) as { code: string }).code;
 }
@@ -106,17 +83,12 @@ export async function verifyHandoverCode(
   lostEventId: string,
   code: string,
 ): Promise<void> {
-  const res = await request.post(
-    `${API_URL}/api/lost-pets/${lostEventId}/handover/verify`,
-    {
-      headers: authHeaders(rescuerToken),
-      data: { code },
-    },
-  );
+  const res = await request.post(`${API_URL}/api/lost-pets/${lostEventId}/handover/verify`, {
+    headers: authHeaders(rescuerToken),
+    data: { code },
+  });
   if (!res.ok()) {
-    throw new Error(
-      `verifyHandoverCode failed: ${res.status()} ${await res.text()}`,
-    );
+    throw new Error(`verifyHandoverCode failed: ${res.status()} ${await res.text()}`);
   }
 }
 
@@ -130,11 +102,22 @@ export async function openMaskedChat(
     data: { lostPetEventId: lostEventId },
   });
   if (!res.ok()) {
-    throw new Error(
-      `openMaskedChat failed: ${res.status()} ${await res.text()}`,
-    );
+    throw new Error(`openMaskedChat failed: ${res.status()} ${await res.text()}`);
   }
   return ((await res.json()) as { threadId: string }).threadId;
+}
+
+export async function activateSearchCoordination(
+  request: APIRequestContext,
+  ownerToken: string,
+  lostEventId: string,
+): Promise<void> {
+  const res = await request.post(`${API_URL}/api/search-coordination/${lostEventId}/activate`, {
+    headers: authHeaders(ownerToken),
+  });
+  if (!res.ok()) {
+    throw new Error(`activateSearchCoordination failed: ${res.status()} ${await res.text()}`);
+  }
 }
 
 export async function sendMaskedChatMessage(
@@ -143,17 +126,12 @@ export async function sendMaskedChatMessage(
   threadId: string,
   body: string,
 ): Promise<void> {
-  const res = await request.post(
-    `${API_URL}/api/chat/threads/${threadId}/messages`,
-    {
-      headers: authHeaders(finderToken),
-      data: { body },
-    },
-  );
+  const res = await request.post(`${API_URL}/api/chat/threads/${threadId}/messages`, {
+    headers: authHeaders(finderToken),
+    data: { body },
+  });
   if (!res.ok()) {
-    throw new Error(
-      `sendMaskedChatMessage failed: ${res.status()} ${await res.text()}`,
-    );
+    throw new Error(`sendMaskedChatMessage failed: ${res.status()} ${await res.text()}`);
   }
 }
 
@@ -162,16 +140,11 @@ export async function getMaskedChatMessages(
   ownerToken: string,
   threadId: string,
 ): Promise<Array<{ body: string; isFromMe: boolean }>> {
-  const res = await request.get(
-    `${API_URL}/api/chat/threads/${threadId}/messages`,
-    {
-      headers: authHeaders(ownerToken),
-    },
-  );
+  const res = await request.get(`${API_URL}/api/chat/threads/${threadId}/messages`, {
+    headers: authHeaders(ownerToken),
+  });
   if (!res.ok()) {
-    throw new Error(
-      `getMaskedChatMessages failed: ${res.status()} ${await res.text()}`,
-    );
+    throw new Error(`getMaskedChatMessages failed: ${res.status()} ${await res.text()}`);
   }
   return (await res.json()) as Array<{ body: string; isFromMe: boolean }>;
 }
@@ -181,17 +154,12 @@ export async function reuniteLostPet(
   ownerToken: string,
   lostEventId: string,
 ): Promise<void> {
-  const res = await request.put(
-    `${API_URL}/api/lost-pets/${lostEventId}/status`,
-    {
-      headers: authHeaders(ownerToken),
-      data: { newStatus: "Reunited" },
-    },
-  );
+  const res = await request.put(`${API_URL}/api/lost-pets/${lostEventId}/status`, {
+    headers: authHeaders(ownerToken),
+    data: { newStatus: "Reunited" },
+  });
   if (!res.ok()) {
-    throw new Error(
-      `reuniteLostPet failed: ${res.status()} ${await res.text()}`,
-    );
+    throw new Error(`reuniteLostPet failed: ${res.status()} ${await res.text()}`);
   }
 }
 
@@ -200,16 +168,11 @@ export async function triggerLostPetBroadcast(
   ownerToken: string,
   lostEventId: string,
 ): Promise<void> {
-  const res = await request.post(
-    `${API_URL}/api/broadcast/lost-pets/${lostEventId}`,
-    {
-      headers: authHeaders(ownerToken),
-    },
-  );
+  const res = await request.post(`${API_URL}/api/broadcast/lost-pets/${lostEventId}`, {
+    headers: authHeaders(ownerToken),
+  });
   if (!res.ok()) {
-    throw new Error(
-      `triggerLostPetBroadcast failed: ${res.status()} ${await res.text()}`,
-    );
+    throw new Error(`triggerLostPetBroadcast failed: ${res.status()} ${await res.text()}`);
   }
 }
 
@@ -218,16 +181,11 @@ export async function getLostPetBroadcastStatus(
   ownerToken: string,
   lostEventId: string,
 ): Promise<unknown> {
-  const res = await request.get(
-    `${API_URL}/api/broadcast/lost-pets/${lostEventId}`,
-    {
-      headers: authHeaders(ownerToken),
-    },
-  );
+  const res = await request.get(`${API_URL}/api/broadcast/lost-pets/${lostEventId}`, {
+    headers: authHeaders(ownerToken),
+  });
   if (!res.ok()) {
-    throw new Error(
-      `getLostPetBroadcastStatus failed: ${res.status()} ${await res.text()}`,
-    );
+    throw new Error(`getLostPetBroadcastStatus failed: ${res.status()} ${await res.text()}`);
   }
   return res.json();
 }
@@ -241,13 +199,9 @@ export async function createClinicApiKey(
     headers: authHeaders(clinicToken),
     data: { label, scopes: ["scan"] },
   });
-  if (!res.ok())
-    throw new Error(
-      `createClinicApiKey failed: ${res.status()} ${await res.text()}`,
-    );
+  if (!res.ok()) throw new Error(`createClinicApiKey failed: ${res.status()} ${await res.text()}`);
   const body = (await res.json()) as { id: string; rawKey?: string };
-  if (!body.rawKey)
-    throw new Error("createClinicApiKey did not return the one-time raw key.");
+  if (!body.rawKey) throw new Error("createClinicApiKey did not return the one-time raw key.");
   return { id: body.id, key: body.rawKey };
 }
 
@@ -256,19 +210,12 @@ export async function rotateClinicApiKey(
   clinicToken: string,
   keyId: string,
 ): Promise<{ id: string; key: string }> {
-  const res = await request.post(
-    `${API_URL}/api/clinics/me/api-keys/${keyId}/rotate`,
-    {
-      headers: authHeaders(clinicToken),
-    },
-  );
-  if (!res.ok())
-    throw new Error(
-      `rotateClinicApiKey failed: ${res.status()} ${await res.text()}`,
-    );
+  const res = await request.post(`${API_URL}/api/clinics/me/api-keys/${keyId}/rotate`, {
+    headers: authHeaders(clinicToken),
+  });
+  if (!res.ok()) throw new Error(`rotateClinicApiKey failed: ${res.status()} ${await res.text()}`);
   const body = (await res.json()) as { id: string; rawKey?: string };
-  if (!body.rawKey)
-    throw new Error("rotateClinicApiKey did not return the one-time raw key.");
+  if (!body.rawKey) throw new Error("rotateClinicApiKey did not return the one-time raw key.");
   return { id: body.id, key: body.rawKey };
 }
 
@@ -277,12 +224,9 @@ export async function lookupWithClinicApiKey(
   apiKey: string,
   chip = `E2E-NOT-FOUND-${Date.now()}`,
 ): Promise<number> {
-  const res = await request.get(
-    `${API_URL}/api/v1/pets/lookup?chip=${encodeURIComponent(chip)}`,
-    {
-      headers: { "X-PawTrack-Key": apiKey },
-    },
-  );
+  const res = await request.get(`${API_URL}/api/v1/pets/lookup?chip=${encodeURIComponent(chip)}`, {
+    headers: { "X-PawTrack-Key": apiKey },
+  });
   return res.status();
 }
 
@@ -314,13 +258,8 @@ export async function grantPlusSubscription(
   });
   if (mine.ok()) {
     const raw = await mine.text();
-    const current = raw
-      ? (JSON.parse(raw) as { tier: string; isActive: boolean } | null)
-      : null;
-    if (
-      current?.isActive &&
-      (current.tier === "UserPlus" || current.tier === "UserFamilia")
-    ) {
+    const current = raw ? (JSON.parse(raw) as { tier: string; isActive: boolean } | null) : null;
+    if (current?.isActive && (current.tier === "UserPlus" || current.tier === "UserFamilia")) {
       return;
     }
   }
@@ -330,20 +269,16 @@ export async function grantPlusSubscription(
     data: { tier: "UserFamilia" },
   });
   if (create.status() !== 201) {
-    throw new Error(
-      `create subscription failed: ${create.status()} ${await create.text()}`,
-    );
+    throw new Error(`create subscription failed: ${create.status()} ${await create.text()}`);
   }
   const sub = (await create.json()) as { id: string };
 
-  const activate = await request.put(
-    `${API_URL}/api/subscriptions/admin/${sub.id}/activate`,
-    { headers: authHeaders(adminToken), data: { billingMonths: 1 } },
-  );
+  const activate = await request.put(`${API_URL}/api/subscriptions/admin/${sub.id}/activate`, {
+    headers: authHeaders(adminToken),
+    data: { billingMonths: 1 },
+  });
   if (!activate.ok()) {
-    throw new Error(
-      `activate subscription failed: ${activate.status()} ${await activate.text()}`,
-    );
+    throw new Error(`activate subscription failed: ${activate.status()} ${await activate.text()}`);
   }
 }
 
@@ -358,9 +293,7 @@ export async function registerCollarSerial(
     data: { serial, firmwareVersion: "1.0.0" },
   });
   if (res.status() !== 201) {
-    throw new Error(
-      `registerCollarSerial failed: ${res.status()} ${await res.text()}`,
-    );
+    throw new Error(`registerCollarSerial failed: ${res.status()} ${await res.text()}`);
   }
 }
 
@@ -371,14 +304,12 @@ export async function activateCollar(
   serial: string,
   petId: string,
 ): Promise<string> {
-  const res = await request.post(
-    `${API_URL}/api/collars/tag/${serial}/activate`,
-    { headers: authHeaders(ownerToken), data: { petId } },
-  );
+  const res = await request.post(`${API_URL}/api/collars/tag/${serial}/activate`, {
+    headers: authHeaders(ownerToken),
+    data: { petId },
+  });
   if (!res.ok()) {
-    throw new Error(
-      `activateCollar failed: ${res.status()} ${await res.text()}`,
-    );
+    throw new Error(`activateCollar failed: ${res.status()} ${await res.text()}`);
   }
 
   const status = await request.get(`${API_URL}/api/collars/pet/${petId}`, {
@@ -396,14 +327,12 @@ export async function recordManualLocation(
   lat: number,
   lng: number,
 ): Promise<void> {
-  const res = await request.post(
-    `${API_URL}/api/collars/pet/${petId}/location`,
-    { headers: authHeaders(ownerToken), data: { lat, lng } },
-  );
+  const res = await request.post(`${API_URL}/api/collars/pet/${petId}/location`, {
+    headers: authHeaders(ownerToken),
+    data: { lat, lng },
+  });
   if (!res.ok()) {
-    throw new Error(
-      `recordManualLocation failed: ${res.status()} ${await res.text()}`,
-    );
+    throw new Error(`recordManualLocation failed: ${res.status()} ${await res.text()}`);
   }
 }
 
@@ -415,17 +344,12 @@ export async function createSafeZone(
   name: string,
   points: { lat: number; lng: number }[],
 ): Promise<void> {
-  const res = await request.post(
-    `${API_URL}/api/collars/${collarId}/safe-zones`,
-    {
-      headers: authHeaders(ownerToken),
-      data: { name, polygonJson: JSON.stringify(points) },
-    },
-  );
+  const res = await request.post(`${API_URL}/api/collars/${collarId}/safe-zones`, {
+    headers: authHeaders(ownerToken),
+    data: { name, polygonJson: JSON.stringify(points) },
+  });
   if (!res.ok()) {
-    throw new Error(
-      `createSafeZone failed: ${res.status()} ${await res.text()}`,
-    );
+    throw new Error(`createSafeZone failed: ${res.status()} ${await res.text()}`);
   }
 }
 

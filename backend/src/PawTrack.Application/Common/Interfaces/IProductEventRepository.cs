@@ -35,6 +35,8 @@ public sealed record ProductCohortMetric(
     int ReunitedReports,
     double? MedianFirstResponseMinutes,
     double? MedianReunionMinutes,
+    double? P90FirstResponseMinutes,
+    double? P90ReunionMinutes,
     double RecoveryRatePercent,
     double FirstResponseSloPercent)
 {

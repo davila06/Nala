@@ -1,5 +1,5 @@
 export { Button } from "./Button";
-export { Input, Textarea, FormField } from "./Input";
+export { Input, Textarea, Select, FormField } from "./Input";
 export { Spinner, Skeleton, PageSpinner } from "./Spinner";
 export { Badge } from "./Badge";
 export { Alert } from "./Alert";

@@ -70,6 +70,7 @@ public sealed class PetsController(
     [EnableRateLimiting("public-api")] // 30/min — each call can upload a 5 MB photo to Azure Blob Storage    [Consumes("multipart/form-data")]
     [RequestSizeLimit(5_242_880)] // 5 MB
     [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> CreatePet(
         [FromForm] CreatePetRequest request,
@@ -77,6 +78,9 @@ public sealed class PetsController(
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
+
+        if (!User.IsInRole("Owner"))
+            return Forbid();
 
         var (photoBytes, contentType, fileName) = await ReadPhotoAsync(request.Photo);
 
@@ -117,6 +121,9 @@ public sealed class PetsController(
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
+
+        if (!User.IsInRole("Owner"))
+            return Forbid();
 
         var (photoBytes, contentType, fileName) = await ReadPhotoAsync(request.Photo);
 

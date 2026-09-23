@@ -241,7 +241,7 @@ public sealed class Round43SecurityRegressionTests
             PetSpecies.Dog, null, "marrón", "Mediano",
             9.93, -84.08,
             "Juan", "+50688881234", null,
-            photoStream, "image/jpeg");
+            photoStream, "image/jpeg", true);
 
         // Act
         await handler.Handle(command, CancellationToken.None);
@@ -281,7 +281,7 @@ public sealed class Round43SecurityRegressionTests
             PetSpecies.Cat, null, "gris", "Pequeño",
             9.93, -84.08,
             "Maria", "+50688885678", null,
-            null, null); // no photo
+            null, null, true); // no photo
 
         // Act
         await handler.Handle(command, CancellationToken.None);

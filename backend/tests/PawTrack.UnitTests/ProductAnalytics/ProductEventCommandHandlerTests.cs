@@ -38,7 +38,7 @@ public sealed class ProductEventCommandHandlerTests
             .Returns([
                 new ProductCohortMetric(
                     "2026-09", "San José", 100, 72, 20, 16,
-                    48, 240, 80, 75),
+                    48, 240, 60, 300, 80, 75),
             ]);
         var handler = new GetProductPerformanceQueryHandler(repository);
 

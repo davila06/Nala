@@ -21,7 +21,7 @@ public sealed class ReportFoundPetContactPhoneValidatorTests
             9.9281, -84.0907,
             "Juan Pérez",
             phone,
-            null, null, null);
+            null, null, null, true);
 
     // ── Valid phone formats ───────────────────────────────────────────────────
 

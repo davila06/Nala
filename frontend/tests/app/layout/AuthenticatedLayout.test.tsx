@@ -58,5 +58,11 @@ describe("AuthenticatedLayout", () => {
     expect(moreButton).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByRole("menuitem", { name: "Administración" })).toBeInTheDocument();
     expect(screen.getByRole("menuitem", { name: "Estadísticas" })).toBeInTheDocument();
+
+    expect(screen.getByRole("link", { name: "Saltar al contenido" })).toHaveAttribute("href", "#main-content");
+    expect(screen.getByRole("main")).toHaveAttribute("id", "main-content");
+
+    fireEvent.keyDown(moreButton, { key: "Escape" });
+    expect(moreButton).toHaveAttribute("aria-expanded", "false");
   });
 });

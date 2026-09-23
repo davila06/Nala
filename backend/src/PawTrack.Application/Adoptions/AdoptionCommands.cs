@@ -102,8 +102,6 @@ public sealed class SubmitOwnerAdoptionCommandHandler(
         var pet = await petRepository.GetByIdAsync(request.PetId, ct);
         if (pet is null || pet.OwnerId != request.OwnerUserId)
             return Result.Failure<AdoptablePetDto>("pet_not_owned");
-        if (string.IsNullOrWhiteSpace(pet.PhotoUrl))
-            return Result.Failure<AdoptablePetDto>("adoption_photo_required");
 
         var animal = AdoptablePet.CreateOwnerSubmission(
             request.OwnerUserId, pet, request.Size, request.AgeCategory,

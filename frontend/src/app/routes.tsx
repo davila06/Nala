@@ -444,12 +444,25 @@ export const router = createBrowserRouter([
             ),
           },
           {
-            path: "/pets/new",
-            element: (
-              <S>
-                <CreatePetPage />
-              </S>
-            ),
+            element: <RoleGuard roles={["Owner"]} />,
+            children: [
+              {
+                path: "/pets/new",
+                element: (
+                  <S>
+                    <CreatePetPage />
+                  </S>
+                ),
+              },
+              {
+                path: "/pets/:id/edit",
+                element: (
+                  <S>
+                    <CreatePetPage />
+                  </S>
+                ),
+              },
+            ],
           },
           {
             path: "/collars/activate",
@@ -472,14 +485,6 @@ export const router = createBrowserRouter([
             element: (
               <S>
                 <PetDetailPage />
-              </S>
-            ),
-          },
-          {
-            path: "/pets/:id/edit",
-            element: (
-              <S>
-                <CreatePetPage />
               </S>
             ),
           },

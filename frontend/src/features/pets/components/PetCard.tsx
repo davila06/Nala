@@ -27,7 +27,7 @@ export const PetCard = ({ pet }: PetCardProps) => (
     to={`/pets/${pet.id}`}
     aria-label={`Ver detalles de ${pet.name}${pet.status === "Lost" ? " — perdido/a" : ""}`}
     className={[
-      "group relative flex flex-col overflow-hidden rounded-2xl border shadow-sm transition-all duration-200",
+      "group relative flex flex-col overflow-hidden rounded-2xl border shadow-sm transition-[transform,box-shadow] duration-200",
       "hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none",
       pet.status === "Lost"
         ? "border-danger-300 animate-[pulse-border_2s_ease-in-out_infinite]"
@@ -35,9 +35,7 @@ export const PetCard = ({ pet }: PetCardProps) => (
     ].join(" ")}
   >
     {/* Photo area */}
-    <div
-      className={`relative h-44 overflow-hidden ${pet.status === "Lost" ? "bg-danger-50" : "bg-sand-100"}`}
-    >
+    <div className={`relative h-44 overflow-hidden ${pet.status === "Lost" ? "bg-danger-50" : "bg-sand-100"}`}>
       {pet.photoUrl ? (
         <img
           src={pet.photoUrl}
@@ -46,9 +44,7 @@ export const PetCard = ({ pet }: PetCardProps) => (
           loading="lazy"
         />
       ) : (
-        <div className="flex h-full items-center justify-center text-5xl">
-          {SPECIES_EMOJI[pet.species] ?? "🐾"}
-        </div>
+        <div className="flex h-full items-center justify-center text-5xl">{SPECIES_EMOJI[pet.species] ?? "🐾"}</div>
       )}
 
       {/* Lost banner overlay */}
@@ -62,9 +58,7 @@ export const PetCard = ({ pet }: PetCardProps) => (
     {/* Info */}
     <div className="flex flex-1 flex-col gap-1 p-4">
       <div className="flex items-start justify-between gap-2">
-        <p className="flex-1 truncate font-semibold text-sand-900">
-          {pet.name}
-        </p>
+        <p className="flex-1 truncate font-semibold text-sand-900">{pet.name}</p>
         <PetStatusBadge status={pet.status} />
       </div>
       <p className="text-sm text-sand-500">
@@ -76,12 +70,7 @@ export const PetCard = ({ pet }: PetCardProps) => (
       {pet.status === "Lost" && pet.activeLostEventId && (
         <span className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-danger-600">
           Ver sala de búsqueda
-          <svg
-            viewBox="0 0 16 16"
-            fill="currentColor"
-            className="h-3 w-3"
-            aria-hidden="true"
-          >
+          <svg viewBox="0 0 16 16" fill="currentColor" className="h-3 w-3" aria-hidden="true">
             <path
               fillRule="evenodd"
               d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z"

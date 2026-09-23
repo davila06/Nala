@@ -8,7 +8,8 @@ namespace PawTrack.IntegrationTests.Auth;
 [Collection("Integration")]
 public sealed class WebAuthnSqlConcurrencyTests
 {
-    private const string ConnectionString = "Server=(localdb)\\MSSQLLocalDB;Database=PawTrackDev;Integrated Security=True;TrustServerCertificate=True;";
+    private static string ConnectionString => Environment.GetEnvironmentVariable("PAWTRACK_SQL_CONNECTION")
+        ?? "Server=(localdb)\\MSSQLLocalDB;Database=PawTrackDev;Integrated Security=True;TrustServerCertificate=True;";
 
     [Fact]
     public async Task ConcurrentRegistrationOfSameCredentialId_AllowsExactlyOne()

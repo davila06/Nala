@@ -199,9 +199,9 @@ h4 {
   letter-spacing: -0.02em;
 }
 
-/* ── Select / dropdown — always light so options are readable ────────────── */
-/* The native popup inherits the OS color scheme; forcing light here ensures
-   options are always readable regardless of dark mode.                        */
+/* ── Select / dropdown ───────────────────────────────────────────────────── */
+/* Native controls follow the active color scheme while keeping option text
+  readable in both light and dark system themes.                              */
 select {
   color-scheme: light;
   background-color: #ffffff;
@@ -213,17 +213,38 @@ select option {
   color: #352823;
 }
 
-/* Dark-mode variant: keep the field itself styled dark but still force
-   the popup (which the browser controls) to light.                          */
+/* Dark-mode variant keeps the popup and field aligned with the app surface. */
 @media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --color-bg: #18181c;
+    --color-surface: #27272f;
+    --color-surface-warm: #222228;
+    --color-ink: #f4f4f5;
+    --color-ink-secondary: #d1d1d6;
+    --color-ink-tertiary: #a0a0ab;
+    --color-border: #3f3f49;
+    --color-border-strong: #52525e;
+    --color-sand-50: #222228;
+    --color-sand-100: #27272f;
+    --color-sand-200: #3f3f49;
+    --color-sand-300: #52525e;
+    --color-sand-400: #71717d;
+    --color-sand-500: #a0a0ab;
+    --color-sand-600: #c5c5cc;
+    --color-sand-700: #d1d1d6;
+    --color-sand-800: #e4e4e7;
+    --color-sand-900: #f4f4f5;
+  }
+
   select {
-    color-scheme: light;
-    background-color: #ffffff;
-    color: #352823;
+    color-scheme: dark;
+    background-color: var(--color-surface);
+    color: var(--color-ink);
   }
   select option {
-    background-color: #ffffff;
-    color: #352823;
+    background-color: var(--color-surface);
+    color: var(--color-ink);
   }
 }
 

@@ -1,6 +1,6 @@
 # PawTrack CR - Estado verificado
 
-> Corte: 2026-09-22. Este documento es el estado operativo actual, no una
+> Corte: 2026-09-23. Este documento es el estado operativo actual, no una
 > promesa comercial.
 
 La documentacion operativa por rol fue contrastada con el router frontend,
@@ -31,6 +31,13 @@ observabilidad de negocio y validacion operativa.
   `AddSearchLocationSharingSessions` aplicadas en `PawTrackDev`.
 - Expiración de sharing SignalR: sesiones persistentes sin coordenadas, TTL Redis,
   job distribuido y auditoría autónoma de `SearchLocationSharingExpired`.
+- Finder sin login: consentimiento `PrivacyConsent` obligatorio en UI y backend;
+  validaciones de contacto, archivo y sanitización existentes se mantienen.
+- Métricas: `QrActivated` se emite al descargar explícitamente el QR y las
+  métricas HTTP OpenTelemetry registran requests, errores y duración sin PII.
+- Observabilidad: correlation ID, health checks SQL/Blob, configuración externa
+  y métricas de requests ya están instrumentados; dashboards Azure y alertas
+  reales siguen pendientes.
 - Proveedores externos: gate `scripts/Test-ExternalProviderReadiness.ps1` exige
   evidencia redactada de contrato/aprobación y prueba para Azure, WhatsApp, GPS,
   pagos y correo antes de un go-live; no lee ni registra secretos.

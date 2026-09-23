@@ -17,29 +17,29 @@
 
 ## Matriz crítica
 
-| Superficie                        | Lectura pública           | Lectura autenticada                  | Mutación           | PII/riesgo               | Prueba requerida                                                   |
-| --------------------------------- | ------------------------- | ------------------------------------ | ------------------ | ------------------------ | ------------------------------------------------------------------ |
-| Perfil QR `/api/public/pets/{id}` | Public, DTO mínimo        | Igual                                | Ninguna            | No dueño/teléfono exacto | ID enumerable, minimización                                        |
-| Contacto de pérdida               | Relay anónimo             | Owner recibe aviso interno           | Finder envía msg   | Sin teléfono expuesto    | Rate limit + active event + PII minimization                       |
-| Mascotas `/api/pets/{id}`         | No                        | Owner                                | Owner              | Perfil, microchip, fotos | IDOR read/write                                                    |
-| Reporte pérdida                   | No                        | Owner                                | Owner              | Contacto y coordenadas   | Pet ownership                                                      |
-| Avistamientos                     | DTO público mínimo        | Owner/ally autorizado según caso     | Actor validado     | GPS/foto                 | Caso cruzado                                                       |
-| Case Room                         | No                        | Owner                                | Owner              | PII, alertas, chat       | LostEvent ownership                                                |
-| Chat                              | No                        | Participant                          | Participant        | Mensajes/contacto        | Thread membership; owner resolved server-side from LostPetEvent    |
-| Handover                          | No                        | Owner genera / participante verifica | Estado válido      | Código sensible          | Brute force/replay                                                 |
-| Expediente médico                 | No                        | Owner/grant clinic/admin             | Grant + permiso    | Datos de salud           | Tenant/grant matrix; QR/chip no puede override PetId; export scope |
-| Certificados                      | Público solo verificación | Clinic owner/admin/owner pet         | Clinic/admin       | Documentos               | Clinic/pet ownership                                               |
-| Collares/GPS                      | No                        | Pet owner/admin/device key           | Owner/device       | Ubicación exacta         | Pet/collar binding                                                 |
-| Tiendas/productos                 | Catálogo público          | Store owner                          | Store owner        | Datos comerciales        | Store ownership                                                    |
-| Pedidos tienda                    | No                        | Customer own / Store own             | Actor según estado | Dirección/notas          | Cross-customer/store                                               |
-| Proveedores/reservas              | Directorio mínimo         | Customer/provider participant        | Participant        | Dirección/agenda         | Booking ownership                                                  |
-| Municipalidades                   | DTO público mínimo        | Municipality tenant/admin            | Tenant/admin       | Capturas/PII             | Institution isolation                                              |
-| NALA/reportes                     | No                        | Role + scope                         | Role + scope       | Datos agregados          | Scope/canton isolation                                             |
-| Campañas de castración            | Publicadas, DTO mínimo    | Owner own / Clinic tenant / Admin    | Role + tenant      | Salud, consentimiento    | Pet ownership, clinic tenant, capacidad y concurrencia             |
-| Ferias de adopción                | Publicadas                | Ally Shelter/Admin                   | Ally Shelter/Admin | Ubicación y animales     | Shelter verificado + ShelterPlus; Admin auditado                   |
-| Gestión SuperAdmin                | No                        | SuperAdmin                           | SuperAdmin + MFA   | Privilegio crítico       | Primary-role claim, TOTP fresco, no self/last revoke, auditoría    |
-| Product funnel                    | No                        | Admin                                | No                 | Datos agregados          | Admin-only + range                                                 |
-| Export partner                    | No                        | Partner scope                        | No                 | Agregado                 | Scope + suppression                                                |
+| Superficie                              | Lectura pública           | Lectura autenticada                  | Mutación           | PII/riesgo               | Prueba requerida                                                   |
+| --------------------------------------- | ------------------------- | ------------------------------------ | ------------------ | ------------------------ | ------------------------------------------------------------------ |
+| Perfil QR `/api/public/pets/{id}`       | Public, DTO mínimo        | Igual                                | Ninguna            | No dueño/teléfono exacto | ID enumerable, minimización                                        |
+| Contacto de pérdida                     | Relay anónimo             | Owner recibe aviso interno           | Finder envía msg   | Sin teléfono expuesto    | Rate limit + active event + PII minimization                       |
+| Mascotas `/api/pets` y `/api/pets/{id}` | No                        | Owner                                | Owner              | Perfil, microchip, fotos | Roles no Owner reciben 403; IDOR read/write                        |
+| Reporte pérdida                         | No                        | Owner                                | Owner              | Contacto y coordenadas   | Pet ownership                                                      |
+| Avistamientos                           | DTO público mínimo        | Owner/ally autorizado según caso     | Actor validado     | GPS/foto                 | Caso cruzado                                                       |
+| Case Room                               | No                        | Owner                                | Owner              | PII, alertas, chat       | LostEvent ownership                                                |
+| Chat                                    | No                        | Participant                          | Participant        | Mensajes/contacto        | Thread membership; owner resolved server-side from LostPetEvent    |
+| Handover                                | No                        | Owner genera / participante verifica | Estado válido      | Código sensible          | Brute force/replay                                                 |
+| Expediente médico                       | No                        | Owner/grant clinic/admin             | Grant + permiso    | Datos de salud           | Tenant/grant matrix; QR/chip no puede override PetId; export scope |
+| Certificados                            | Público solo verificación | Clinic owner/admin/owner pet         | Clinic/admin       | Documentos               | Clinic/pet ownership                                               |
+| Collares/GPS                            | No                        | Pet owner/admin/device key           | Owner/device       | Ubicación exacta         | Pet/collar binding                                                 |
+| Tiendas/productos                       | Catálogo público          | Store owner                          | Store owner        | Datos comerciales        | Store ownership                                                    |
+| Pedidos tienda                          | No                        | Customer own / Store own             | Actor según estado | Dirección/notas          | Cross-customer/store                                               |
+| Proveedores/reservas                    | Directorio mínimo         | Customer/provider participant        | Participant        | Dirección/agenda         | Booking ownership                                                  |
+| Municipalidades                         | DTO público mínimo        | Municipality tenant/admin            | Tenant/admin       | Capturas/PII             | Institution isolation                                              |
+| NALA/reportes                           | No                        | Role + scope                         | Role + scope       | Datos agregados          | Scope/canton isolation                                             |
+| Campañas de castración                  | Publicadas, DTO mínimo    | Owner own / Clinic tenant / Admin    | Role + tenant      | Salud, consentimiento    | Pet ownership, clinic tenant, capacidad y concurrencia             |
+| Ferias de adopción                      | Publicadas                | Ally Shelter/Admin                   | Ally Shelter/Admin | Ubicación y animales     | Shelter verificado + ShelterPlus; Admin auditado                   |
+| Gestión SuperAdmin                      | No                        | SuperAdmin                           | SuperAdmin + MFA   | Privilegio crítico       | Primary-role claim, TOTP fresco, no self/last revoke, auditoría    |
+| Product funnel                          | No                        | Admin                                | No                 | Datos agregados          | Admin-only + range                                                 |
+| Export partner                          | No                        | Partner scope                        | No                 | Agregado                 | Scope + suppression                                                |
 
 ## Reglas obligatorias
 

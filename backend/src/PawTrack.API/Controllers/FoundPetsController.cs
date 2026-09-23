@@ -115,7 +115,8 @@ public sealed class FoundPetsController(ISender sender) : ControllerBase
             request.ContactPhone,
             request.Note,
             photoStream,
-            contentType);
+            contentType,
+            request.PrivacyConsent);
 
         var result = await sender.Send(command, cancellationToken);
 
@@ -172,6 +173,7 @@ public sealed class ReportFoundPetRequest
     public string ContactName { get; set; } = string.Empty;
     public string ContactPhone { get; set; } = string.Empty;
     public string? Note { get; set; }
+    public bool PrivacyConsent { get; set; }
     public IFormFile? Photo { get; set; }
 }
 

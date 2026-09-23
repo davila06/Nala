@@ -1,12 +1,9 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Button, Input } from "@/shared/ui";
+import { Button, Input, Select, Textarea } from "@/shared/ui";
 import { toast } from "@/shared/lib/toast";
 import { Skeleton } from "@/shared/ui/Spinner";
-import {
-  SERVICE_MODALITY_LABELS,
-  type ServiceModality,
-} from "../api/serviceProvidersApi";
+import { SERVICE_MODALITY_LABELS, type ServiceModality } from "../api/serviceProvidersApi";
 import {
   useAddServiceAvailabilityBlock,
   useAddServiceAvailabilityRule,
@@ -20,19 +17,8 @@ import {
   useUpdateProviderService,
 } from "../hooks/useServiceProviders";
 
-const modalities = Object.entries(SERVICE_MODALITY_LABELS) as [
-  ServiceModality,
-  string,
-][];
-const weekdays = [
-  "Domingo",
-  "Lunes",
-  "Martes",
-  "Miercoles",
-  "Jueves",
-  "Viernes",
-  "Sabado",
-];
+const modalities = Object.entries(SERVICE_MODALITY_LABELS) as [ServiceModality, string][];
+const weekdays = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
 
 export default function ProviderServicesPage() {
   const { data: services = [], isLoading } = useMyProviderServices();
@@ -46,12 +32,8 @@ export default function ProviderServicesPage() {
     startsAtLocalTime: "09:00",
     endsAtLocalTime: "17:00",
   });
-  const { data: rules = [] } = useServiceAvailabilityRules(
-    availability.serviceId,
-  );
-  const deactivateRule = useDeactivateServiceAvailabilityRule(
-    availability.serviceId,
-  );
+  const { data: rules = [] } = useServiceAvailabilityRules(availability.serviceId);
+  const deactivateRule = useDeactivateServiceAvailabilityRule(availability.serviceId);
   const setServiceStatus = useSetProviderServiceStatus();
   const updateService = useUpdateProviderService();
   const [editServiceId, setEditServiceId] = useState<string | null>(null);
@@ -70,9 +52,7 @@ export default function ProviderServicesPage() {
     reason: "",
   });
   const { data: blocks = [] } = useServiceAvailabilityBlocks(block.serviceId);
-  const deactivateBlock = useDeactivateServiceAvailabilityBlock(
-    block.serviceId,
-  );
+  const deactivateBlock = useDeactivateServiceAvailabilityBlock(block.serviceId);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -81,8 +61,7 @@ export default function ProviderServicesPage() {
     priceCrc: "",
     capacity: "1",
   });
-  const setField = (key: keyof typeof form, value: string) =>
-    setForm((current) => ({ ...current, [key]: value }));
+  const setField = (key: keyof typeof form, value: string) => setForm((current) => ({ ...current, [key]: value }));
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!form.name.trim() || !form.description.trim() || form.priceCrc === "")
@@ -144,8 +123,7 @@ export default function ProviderServicesPage() {
   };
   const submitEdit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!editServiceId || !editForm.name.trim() || !editForm.description.trim())
-      return;
+    if (!editServiceId || !editForm.name.trim() || !editForm.description.trim()) return;
     updateService.mutate(
       {
         serviceId: editServiceId,
@@ -167,15 +145,9 @@ export default function ProviderServicesPage() {
   };
   const submitBlock = (event: React.FormEvent) => {
     event.preventDefault();
-    if (
-      !block.serviceId ||
-      !block.startsAt ||
-      !block.endsAt ||
-      !block.reason.trim()
-    )
+    if (!block.serviceId || !block.startsAt || !block.endsAt || !block.reason.trim())
       return toast.error("Completa servicio, rango y motivo.");
-    if (block.endsAt <= block.startsAt)
-      return toast.error("El cierre debe terminar despues de iniciar.");
+    if (block.endsAt <= block.startsAt) return toast.error("El cierre debe terminar despues de iniciar.");
     addBlock.mutate(
       {
         serviceId: block.serviceId,
@@ -210,12 +182,8 @@ export default function ProviderServicesPage() {
       </Helmet>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-ink-900">
-            Mis servicios
-          </h1>
-          <p className="text-sm text-sand-600">
-            Configura lo que los clientes veran en tu perfil.
-          </p>
+          <h1 className="font-display text-2xl font-semibold text-ink-900">Mis servicios</h1>
+          <p className="text-sm text-sand-600">Configura lo que los clientes veran en tu perfil.</p>
         </div>
         {!showForm ? (
           <Button size="sm" onClick={() => setShowForm(true)}>
@@ -224,42 +192,29 @@ export default function ProviderServicesPage() {
         ) : null}
       </div>
       {showForm ? (
-        <form
-          onSubmit={submit}
-          className="space-y-3 rounded-xl border border-brand-200 bg-brand-50 p-4"
-        >
+        <form onSubmit={submit} className="space-y-3 rounded-xl border border-brand-200 bg-brand-50 p-4">
           <label className="block text-sm font-medium text-sand-700">
             Nombre
-            <Input
-              value={form.name}
-              onChange={(event) => setField("name", event.target.value)}
-              required
-            />
+            <Input value={form.name} onChange={(event) => setField("name", event.target.value)} required />
           </label>
-          <label className="block text-sm font-medium text-sand-700">
-            Modalidad
-            <select
-              value={form.modality}
-              onChange={(event) => setField("modality", event.target.value)}
-              className="mt-1 w-full rounded-lg border border-sand-200 bg-surface px-3 py-2"
-            >
-              {modalities.map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block text-sm font-medium text-sand-700">
-            Descripcion
-            <textarea
-              rows={3}
-              value={form.description}
-              onChange={(event) => setField("description", event.target.value)}
-              className="mt-1 w-full rounded-lg border border-sand-200 bg-surface px-3 py-2"
-              required
-            />
-          </label>
+          <Select
+            label="Modalidad"
+            value={form.modality}
+            onChange={(event) => setField("modality", event.target.value)}
+          >
+            {modalities.map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </Select>
+          <Textarea
+            label="Descripción"
+            rows={3}
+            value={form.description}
+            onChange={(event) => setField("description", event.target.value)}
+            required
+          />
           <div className="grid gap-3 sm:grid-cols-3">
             <label className="text-sm font-medium text-sand-700">
               Duracion (min)
@@ -268,9 +223,7 @@ export default function ProviderServicesPage() {
                 min="15"
                 max="1440"
                 value={form.durationMinutes}
-                onChange={(event) =>
-                  setField("durationMinutes", event.target.value)
-                }
+                onChange={(event) => setField("durationMinutes", event.target.value)}
               />
             </label>
             <label className="text-sm font-medium text-sand-700">
@@ -297,29 +250,18 @@ export default function ProviderServicesPage() {
             <Button type="submit" size="sm" loading={add.isPending}>
               Publicar
             </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="secondary"
-              onClick={() => setShowForm(false)}
-            >
+            <Button type="button" size="sm" variant="secondary" onClick={() => setShowForm(false)}>
               Cancelar
             </Button>
           </div>
         </form>
       ) : null}
       {services.length ? (
-        <form
-          onSubmit={submitAvailability}
-          className="space-y-3 rounded-xl border border-trust-200 bg-trust-50 p-4"
-        >
+        <form onSubmit={submitAvailability} className="space-y-3 rounded-xl border border-trust-200 bg-trust-50 p-4">
           <div>
-            <h2 className="font-semibold text-ink-900">
-              Disponibilidad semanal
-            </h2>
+            <h2 className="font-semibold text-ink-900">Disponibilidad semanal</h2>
             <p className="text-sm text-sand-600">
-              Los clientes solo podran solicitar horarios dentro de estas
-              franjas.
+              Los clientes solo podran solicitar horarios dentro de estas franjas.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-4">
@@ -395,14 +337,9 @@ export default function ProviderServicesPage() {
           {availability.serviceId ? (
             <ul className="space-y-2 border-t border-trust-100 pt-3">
               {rules.map((rule) => (
-                <li
-                  key={rule.id}
-                  className="flex items-center justify-between gap-3 text-sm text-sand-700"
-                >
+                <li key={rule.id} className="flex items-center justify-between gap-3 text-sm text-sand-700">
                   <span>
-                    {weekdays[rule.dayOfWeek]} ·{" "}
-                    {rule.startsAtLocalTime.slice(0, 5)}–
-                    {rule.endsAtLocalTime.slice(0, 5)}{" "}
+                    {weekdays[rule.dayOfWeek]} · {rule.startsAtLocalTime.slice(0, 5)}–{rule.endsAtLocalTime.slice(0, 5)}{" "}
                     {!rule.isActive ? "(inactivo)" : ""}
                   </span>
                   {rule.isActive ? (
@@ -413,8 +350,7 @@ export default function ProviderServicesPage() {
                       onClick={() =>
                         deactivateRule.mutate(rule.id, {
                           onSuccess: () => toast.success("Horario desactivado"),
-                          onError: () =>
-                            toast.error("No se pudo desactivar el horario."),
+                          onError: () => toast.error("No se pudo desactivar el horario."),
                         })
                       }
                     >
@@ -428,17 +364,10 @@ export default function ProviderServicesPage() {
         </form>
       ) : null}
       {services.length ? (
-        <form
-          onSubmit={submitBlock}
-          className="space-y-3 rounded-xl border border-warn-200 bg-warn-50 p-4"
-        >
+        <form onSubmit={submitBlock} className="space-y-3 rounded-xl border border-warn-200 bg-warn-50 p-4">
           <div>
-            <h2 className="font-semibold text-ink-900">
-              Cierres excepcionales
-            </h2>
-            <p className="text-sm text-sand-600">
-              Bloquea fechas u horas puntuales sin cambiar tu horario semanal.
-            </p>
+            <h2 className="font-semibold text-ink-900">Cierres excepcionales</h2>
+            <p className="text-sm text-sand-600">Bloquea fechas u horas puntuales sin cambiar tu horario semanal.</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-4">
             <label className="text-sm font-medium text-sand-700">
@@ -509,10 +438,7 @@ export default function ProviderServicesPage() {
               {blocks
                 .filter((item) => item.isActive)
                 .map((item) => (
-                  <li
-                    key={item.id}
-                    className="flex items-center justify-between gap-3"
-                  >
+                  <li key={item.id} className="flex items-center justify-between gap-3">
                     <span>
                       {new Date(item.startsAt).toLocaleString("es-CR", {
                         dateStyle: "medium",
@@ -531,8 +457,7 @@ export default function ProviderServicesPage() {
                       onClick={() =>
                         deactivateBlock.mutate(item.id, {
                           onSuccess: () => toast.success("Cierre desactivado"),
-                          onError: () =>
-                            toast.error("No se pudo desactivar el cierre."),
+                          onError: () => toast.error("No se pudo desactivar el cierre."),
                         })
                       }
                     >
@@ -547,10 +472,7 @@ export default function ProviderServicesPage() {
       {services.length ? (
         <ul className="space-y-3">
           {services.map((service) => (
-            <li
-              key={service.id}
-              className="rounded-xl border border-sand-100 bg-surface p-4"
-            >
+            <li key={service.id} className="rounded-xl border border-sand-100 bg-surface p-4">
               {editServiceId === service.id ? (
                 <form onSubmit={submitEdit} className="space-y-3">
                   <label className="block text-sm font-medium text-sand-700">
@@ -647,19 +569,10 @@ export default function ProviderServicesPage() {
                     </label>
                   </div>
                   <div className="flex gap-2">
-                    <Button
-                      type="submit"
-                      size="sm"
-                      loading={updateService.isPending}
-                    >
+                    <Button type="submit" size="sm" loading={updateService.isPending}>
                       Guardar
                     </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => setEditServiceId(null)}
-                    >
+                    <Button type="button" size="sm" variant="secondary" onClick={() => setEditServiceId(null)}>
                       Cancelar
                     </Button>
                   </div>
@@ -668,29 +581,18 @@ export default function ProviderServicesPage() {
                 <>
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
-                      <p className="font-semibold text-ink-900">
-                        {service.name}
-                      </p>
+                      <p className="font-semibold text-ink-900">{service.name}</p>
                       <p className="text-sm text-brand-600">
-                        {SERVICE_MODALITY_LABELS[service.modality]} ·{" "}
-                        {service.durationMinutes} min · capacidad{" "}
+                        {SERVICE_MODALITY_LABELS[service.modality]} · {service.durationMinutes} min · capacidad{" "}
                         {service.capacity}
                       </p>
                     </div>
-                    <p className="font-semibold text-rescue-700">
-                      CRC {service.priceCrc.toLocaleString("es-CR")}
-                    </p>
+                    <p className="font-semibold text-rescue-700">CRC {service.priceCrc.toLocaleString("es-CR")}</p>
                   </div>
-                  <p className="mt-2 text-sm text-sand-600">
-                    {service.description}
-                  </p>
+                  <p className="mt-2 text-sm text-sand-600">{service.description}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {service.status !== "Archived" ? (
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => startEditing(service)}
-                      >
+                      <Button size="sm" variant="secondary" onClick={() => startEditing(service)}>
                         Editar
                       </Button>
                     ) : null}
@@ -703,10 +605,8 @@ export default function ProviderServicesPage() {
                           setServiceStatus.mutate(
                             { serviceId: service.id, status: "Paused" },
                             {
-                              onSuccess: () =>
-                                toast.success("Servicio pausado"),
-                              onError: () =>
-                                toast.error("No se pudo pausar el servicio."),
+                              onSuccess: () => toast.success("Servicio pausado"),
+                              onError: () => toast.error("No se pudo pausar el servicio."),
                             },
                           )
                         }
@@ -722,10 +622,8 @@ export default function ProviderServicesPage() {
                           setServiceStatus.mutate(
                             { serviceId: service.id, status: "Published" },
                             {
-                              onSuccess: () =>
-                                toast.success("Servicio publicado"),
-                              onError: () =>
-                                toast.error("No se pudo publicar el servicio."),
+                              onSuccess: () => toast.success("Servicio publicado"),
+                              onError: () => toast.error("No se pudo publicar el servicio."),
                             },
                           )
                         }
@@ -742,10 +640,8 @@ export default function ProviderServicesPage() {
                           setServiceStatus.mutate(
                             { serviceId: service.id, status: "Archived" },
                             {
-                              onSuccess: () =>
-                                toast.success("Servicio archivado"),
-                              onError: () =>
-                                toast.error("No se pudo archivar el servicio."),
+                              onSuccess: () => toast.success("Servicio archivado"),
+                              onError: () => toast.error("No se pudo archivar el servicio."),
                             },
                           )
                         }
@@ -760,9 +656,7 @@ export default function ProviderServicesPage() {
           ))}
         </ul>
       ) : (
-        <p className="py-10 text-center text-sm text-sand-500">
-          Aun no has publicado servicios.
-        </p>
+        <p className="py-10 text-center text-sm text-sand-500">Aun no has publicado servicios.</p>
       )}
     </main>
   );

@@ -10,6 +10,7 @@ import { BillboardBanner } from "@/features/advertising/components/BillboardBann
 import { MapContainer } from "@/features/map/components/MapContainer";
 import { trackProductEvent } from "@/shared/lib/telemetry";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import { EmptyState } from "@/shared/ui";
 
 const SPECIES = new Set(["Dog", "Cat", "Bird", "Rabbit", "Other"]);
 const SIZES = new Set(["XSmall", "Small", "Medium", "Large", "XLarge"]);
@@ -196,11 +197,15 @@ export default function AdoptionDirectoryPage() {
                 ))}
               </div>
             ) : animals.length === 0 ? (
-              <div className="py-20 text-center text-sand-400">
-                <p className="text-4xl mb-3">🔍</p>
-                <p className="text-base font-medium">No encontramos animales con estos filtros</p>
-                <p className="text-sm mt-1">Intenta ajustar los filtros o ampliar el radio de búsqueda</p>
-              </div>
+              <EmptyState
+                icon={
+                  <span aria-hidden="true" className="text-3xl">
+                    🔍
+                  </span>
+                }
+                title="No encontramos animales con estos filtros"
+                description="Intenta ajustar los filtros o ampliar el radio de búsqueda."
+              />
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {animals.map((animal) => (

@@ -19,16 +19,8 @@ const ZONE_NAME = `E2E Casa ${Date.now()}`;
 let petId: string;
 
 test.beforeAll(async ({ request }) => {
-  const ownerToken = await apiLogin(
-    request,
-    TEST_USERS.owner.email,
-    TEST_USERS.owner.password,
-  );
-  const adminToken = await apiLogin(
-    request,
-    TEST_USERS.admin.email,
-    TEST_USERS.admin.password,
-  );
+  const ownerToken = await apiLogin(request, TEST_USERS.owner.email, TEST_USERS.owner.password);
+  const adminToken = await apiLogin(request, TEST_USERS.admin.email, TEST_USERS.admin.password);
 
   // Grant Plus first: the owner test user may already own a pet from prior
   // runs/seeds, and the Free tier caps pets at 1.
@@ -50,20 +42,16 @@ test.beforeAll(async ({ request }) => {
 });
 
 test.describe("Collar — Safe zones", () => {
-  test("owner sees the API-created zone and can toggle it inactive", async ({
-    page,
-  }) => {
+  test("owner sees the API-created zone and can toggle it inactive", async ({ page }) => {
     await loginViaUi(page, TEST_USERS.owner.email, TEST_USERS.owner.password);
     await page.goto(`/pets/${petId}`);
-    await page.getByRole("button", { name: /GPS/ }).click();
+    await page.getByRole("tab", { name: /GPS/ }).click();
 
     const zoneRow = page.locator("li", { hasText: ZONE_NAME });
     await expect(zoneRow).toBeVisible();
     await expect(zoneRow.getByRole("button", { name: "Activa" })).toBeVisible();
 
     await zoneRow.getByRole("button", { name: "Activa" }).click();
-    await expect(zoneRow.getByRole("button", { name: "Inactiva" })).toBeVisible(
-      { timeout: 10_000 },
-    );
+    await expect(zoneRow.getByRole("button", { name: "Inactiva" })).toBeVisible({ timeout: 10_000 });
   });
 });

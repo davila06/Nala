@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { markOnboardingDone } from "./onboardingStorage";
+import { useAuthStore } from "@/features/auth/store/authStore";
 
 const STEPS = [
   {
@@ -30,7 +31,10 @@ interface OnboardingWizardProps {
 }
 
 export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
+  const role = useAuthStore((state) => state.user?.role);
   const [step, setStep] = useState(0);
+
+  if (role !== "Owner") return null;
 
   const dismiss = () => {
     markOnboardingDone();
@@ -71,10 +75,7 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
           {/* Content */}
           <div className="px-6 py-5">
             {/* Step dots */}
-            <div
-              className="mb-4 flex justify-center gap-1.5"
-              aria-label={`Paso ${step + 1} de ${STEPS.length}`}
-            >
+            <div className="mb-4 flex justify-center gap-1.5" aria-label={`Paso ${step + 1} de ${STEPS.length}`}>
               {STEPS.map((_, i) => (
                 <span
                   key={i}
@@ -83,15 +84,10 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
               ))}
             </div>
 
-            <h2
-              id="onboarding-title"
-              className="mb-2 text-center font-display text-xl font-bold text-sand-900"
-            >
+            <h2 id="onboarding-title" className="mb-2 text-center font-display text-xl font-bold text-sand-900">
               {current.title}
             </h2>
-            <p className="text-center text-sm leading-relaxed text-sand-600">
-              {current.body}
-            </p>
+            <p className="text-center text-sm leading-relaxed text-sand-600">{current.body}</p>
 
             <div className="mt-6 flex flex-col gap-2">
               {current.finalAction ? (
@@ -125,4 +121,3 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
     </div>
   );
 }
-

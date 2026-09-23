@@ -40,10 +40,7 @@ export default function AdoptionDetailPage() {
       <div className="mx-auto max-w-lg px-4 py-20 text-center">
         <p className="text-4xl mb-3">🐾</p>
         <p className="text-sand-500">Este animal no está disponible.</p>
-        <Link
-          to="/adopciones"
-          className="mt-4 inline-block text-brand-600 underline text-sm"
-        >
+        <Link to="/adopciones" className="mt-4 inline-block text-brand-600 underline text-sm">
           Ver todos los animales
         </Link>
       </div>
@@ -57,10 +54,7 @@ export default function AdoptionDetailPage() {
     <>
       <Helmet>
         <title>{animal.name} · Adopciones · PawTrack CR</title>
-        <meta
-          name="description"
-          content={`Adopta a ${animal.name} en Costa Rica. ${animal.story.slice(0, 120)}`}
-        />
+        <meta name="description" content={`Adopta a ${animal.name} en Costa Rica. ${animal.story.slice(0, 120)}`} />
       </Helmet>
 
       <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
@@ -80,6 +74,8 @@ export default function AdoptionDetailPage() {
               <img
                 src={animal.photoUrls[photoIndex]}
                 alt={animal.name}
+                width={672}
+                height={288}
                 className="h-full w-full object-cover"
               />
             </div>
@@ -91,20 +87,14 @@ export default function AdoptionDetailPage() {
                     onClick={() => setPhotoIndex(i)}
                     className={`h-14 w-14 rounded-lg overflow-hidden border-2 transition-colors ${i === photoIndex ? "border-brand-500" : "border-transparent"}`}
                   >
-                    <img
-                      src={url}
-                      alt=""
-                      className="h-full w-full object-cover"
-                    />
+                    <img src={url} alt="" width={56} height={56} className="h-full w-full object-cover" />
                   </button>
                 ))}
               </div>
             )}
           </div>
         ) : (
-          <div className="h-48 rounded-2xl bg-sand-100 flex items-center justify-center text-5xl">
-            🐾
-          </div>
+          <div className="h-48 rounded-2xl bg-sand-100 flex items-center justify-center text-5xl">🐾</div>
         )}
 
         {/* Name + status */}
@@ -134,9 +124,7 @@ export default function AdoptionDetailPage() {
                 Adoptado ✓
               </span>
             )}
-            {animal.refLabel && (
-              <p className="text-xs text-sand-400 mt-1">📍 {animal.refLabel}</p>
-            )}
+            {animal.refLabel && <p className="text-xs text-sand-400 mt-1">📍 {animal.refLabel}</p>}
           </div>
         </div>
 
@@ -153,46 +141,30 @@ export default function AdoptionDetailPage() {
 
         {/* Story */}
         <section>
-          <h2 className="text-sm font-semibold text-ink-800 mb-2">
-            Historia y personalidad
-          </h2>
-          <p className="text-sm text-ink-700 leading-relaxed whitespace-pre-line">
-            {animal.story}
-          </p>
+          <h2 className="text-sm font-semibold text-ink-800 mb-2">Historia y personalidad</h2>
+          <p className="text-sm text-ink-700 leading-relaxed whitespace-pre-line">{animal.story}</p>
         </section>
 
         {/* Requirements */}
         {animal.requirements && (
           <section>
-            <h2 className="text-sm font-semibold text-ink-800 mb-2">
-              Requisitos para el adoptante
-            </h2>
-            <p className="text-sm text-ink-700 leading-relaxed">
-              {animal.requirements}
-            </p>
+            <h2 className="text-sm font-semibold text-ink-800 mb-2">Requisitos para el adoptante</h2>
+            <p className="text-sm text-ink-700 leading-relaxed">{animal.requirements}</p>
           </section>
         )}
 
         {/* Medical notes */}
         {animal.medicalNotes && (
           <section>
-            <h2 className="text-sm font-semibold text-ink-800 mb-2">
-              Notas médicas
-            </h2>
-            <p className="text-sm text-ink-700 leading-relaxed">
-              {animal.medicalNotes}
-            </p>
+            <h2 className="text-sm font-semibold text-ink-800 mb-2">Notas médicas</h2>
+            <p className="text-sm text-ink-700 leading-relaxed">{animal.medicalNotes}</p>
           </section>
         )}
 
         {/* Organization */}
         <section className="rounded-lg border border-sand-200 bg-surface-warm p-4">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-sand-500">
-            Publicado por
-          </h2>
-          <p className="mt-1 text-base font-bold text-sand-900">
-            {animal.organizationName}
-          </p>
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-sand-500">Publicado por</h2>
+          <p className="mt-1 text-base font-bold text-sand-900">{animal.organizationName}</p>
         </section>
 
         {/* CTA */}
@@ -243,9 +215,7 @@ export default function AdoptionDetailPage() {
               correlationId: animal.organizationUserId,
             });
             setApplyOpen(false);
-            toast.success(
-              "¡Solicitud enviada! La organización te contactará pronto.",
-            );
+            toast.success("¡Solicitud enviada! La organización te contactará pronto.");
           }}
         />
       )}
@@ -253,13 +223,7 @@ export default function AdoptionDetailPage() {
   );
 }
 
-function Chip({
-  children,
-  color,
-}: {
-  children: React.ReactNode;
-  color: string;
-}) {
+function Chip({ children, color }: { children: React.ReactNode; color: string }) {
   const colorMap: Record<string, string> = {
     green: "bg-green-50 text-green-700",
     blue: "bg-blue-50 text-blue-700",

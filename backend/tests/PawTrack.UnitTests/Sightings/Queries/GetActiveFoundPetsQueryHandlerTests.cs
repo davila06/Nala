@@ -56,4 +56,27 @@ public sealed class GetActiveFoundPetsQueryHandlerTests
             Arg.Is<int>(n => n >= 1 && n <= 100),
             Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task Handle_PublicProjection_RoundsFinderCoordinates()
+    {
+        var report = Domain.Sightings.FoundPetReport.Create(
+            Domain.Pets.PetSpecies.Dog,
+            null,
+            "Brown",
+            "Medium",
+            9.934739,
+            -84.087502,
+            "Finder",
+            "+50688881234",
+            "Near the park");
+        _repo.GetOpenReportsAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+            .Returns([report]);
+
+        var result = await _sut.Handle(new GetActiveFoundPetsQuery(), CancellationToken.None);
+
+        result.Value.Should().ContainSingle();
+        result.Value[0].FoundLat.Should().Be(9.935);
+        result.Value[0].FoundLng.Should().Be(-84.088);
+    }
 }

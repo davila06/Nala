@@ -101,16 +101,14 @@ public sealed class AdoptablePet
         Guid ownerId, Pet pet, PetSize size, AgeCategory ageCategory,
         string story, string? requirements, double refLat, double refLng, string? refLabel)
     {
-        if (string.IsNullOrWhiteSpace(pet.PhotoUrl))
-            throw new InvalidOperationException("A photo is required for an owner adoption submission.");
-
         var animal = Create(ownerId, pet.Name, pet.Species, size, ageCategory, story,
             refLat, refLng, refLabel, pet.Breed, null, requirements, null,
             isSterilized: pet.SterilizedStatus == SterilizedStatus.Yes,
             isMicrochipped: !string.IsNullOrWhiteSpace(pet.MicrochipId));
         animal.Source = AdoptionSource.Owner;
         animal.Status = AdoptionStatus.PendingReview;
-        animal._photoUrls.Add(pet.PhotoUrl);
+        if (!string.IsNullOrWhiteSpace(pet.PhotoUrl))
+            animal._photoUrls.Add(pet.PhotoUrl);
         return animal;
     }
 

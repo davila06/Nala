@@ -11,6 +11,7 @@ import {
 } from "../api/serviceProvidersApi";
 import { usePublicServiceProviders } from "../hooks/useServiceProviders";
 import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
+import { EmptyState } from "@/shared/ui";
 
 const categories: Array<ServiceProviderCategory | "All"> = [
   "All",
@@ -34,6 +35,8 @@ function ProviderCard({ provider }: { provider: PublicServiceProviderDto }) {
           <img
             src={provider.logoUrl}
             alt={provider.name}
+            width={224}
+            height={112}
             className="h-full w-full object-cover"
           />
         ) : (
@@ -51,17 +54,11 @@ function ProviderCard({ provider }: { provider: PublicServiceProviderDto }) {
         <p className="line-clamp-1 text-sm font-semibold text-ink-900 transition-colors group-hover:text-brand-600">
           {provider.name}
         </p>
-        <p className="text-xs font-medium text-brand-600">
-          {SERVICE_PROVIDER_CATEGORY_LABELS[provider.category]}
-        </p>
+        <p className="text-xs font-medium text-brand-600">{SERVICE_PROVIDER_CATEGORY_LABELS[provider.category]}</p>
         {provider.isVerified ? (
-          <p className="text-xs font-semibold text-rescue-700">
-            Verificado por PawTrack CR
-          </p>
+          <p className="text-xs font-semibold text-rescue-700">Verificado por PawTrack CR</p>
         ) : null}
-        <p className="line-clamp-2 text-xs text-sand-500">
-          {provider.description}
-        </p>
+        <p className="line-clamp-2 text-xs text-sand-500">{provider.description}</p>
         <p className="line-clamp-1 text-xs text-sand-400">{provider.address}</p>
       </div>
     </Link>
@@ -69,9 +66,7 @@ function ProviderCard({ provider }: { provider: PublicServiceProviderDto }) {
 }
 
 export default function ServiceProviderDirectoryPage() {
-  const [category, setCategory] = useState<ServiceProviderCategory | "All">(
-    "All",
-  );
+  const [category, setCategory] = useState<ServiceProviderCategory | "All">("All");
   const [query, setQuery] = useState("");
   const [modality, setModality] = useState<ServiceModality | "All">("All");
   const [minPriceCrc, setMinPriceCrc] = useState("");
@@ -116,15 +111,10 @@ export default function ServiceProviderDirectoryPage() {
             Ir a inicio
           </Link>
           <div className="max-w-2xl space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">
-              Directorio local
-            </p>
-            <h1 className="font-display text-3xl font-semibold text-ink-900">
-              Servicios para tu mascota
-            </h1>
+            <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">Directorio local</p>
+            <h1 className="font-display text-3xl font-semibold text-ink-900">Servicios para tu mascota</h1>
             <p className="text-sm text-sand-600">
-              Encuentra apoyo confiable para el cuidado, entrenamiento y
-              bienestar de tu companero.
+              Encuentra apoyo confiable para el cuidado, entrenamiento y bienestar de tu companero.
             </p>
           </div>
         </header>
@@ -143,21 +133,17 @@ export default function ServiceProviderDirectoryPage() {
                 key={item}
                 type="button"
                 onClick={() => setCategory(item)}
-                className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition ${category === item ? "border-brand-600 bg-brand-600 text-white" : "border-sand-200 bg-surface text-sand-600 hover:border-brand-300"}`}
+                className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${category === item ? "border-brand-600 bg-brand-600 text-white" : "border-brand-200 bg-brand-50 text-brand-700 hover:border-brand-300 hover:text-brand-600"}`}
               >
-                {item === "All"
-                  ? "Todos"
-                  : SERVICE_PROVIDER_CATEGORY_LABELS[item]}
+                {item === "All" ? "Todos" : SERVICE_PROVIDER_CATEGORY_LABELS[item]}
               </button>
             ))}
           </div>
           <div className="grid gap-2 sm:grid-cols-3">
             <select
               value={modality}
-              onChange={(event) =>
-                setModality(event.target.value as ServiceModality | "All")
-              }
-              className="rounded-lg border border-sand-200 bg-surface px-3 py-2 text-sm text-sand-700"
+              onChange={(event) => setModality(event.target.value as ServiceModality | "All")}
+              className="rounded-lg border border-sand-200 bg-surface px-3 py-2 text-sm text-ink-700"
             >
               <option value="All">Todas las modalidades</option>
               {Object.entries(SERVICE_MODALITY_LABELS).map(([value, label]) => (
@@ -224,18 +210,36 @@ export default function ServiceProviderDirectoryPage() {
             ))}
           </div>
         ) : (
-          <div className="py-16 text-center text-sm text-sand-500">
-            No encontramos proveedores con esos criterios.
-          </div>
+          <EmptyState
+            subtle
+            icon={
+              <span aria-hidden="true" className="text-2xl">
+                🔎
+              </span>
+            }
+            title="No encontramos proveedores"
+            description="Prueba con otra categoría, zona o rango de precio."
+            action={
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  setCategory("All");
+                  setModality("All");
+                  setMinPriceCrc("");
+                  setMaxPriceCrc("");
+                }}
+                className="text-sm font-semibold text-brand-600 hover:underline"
+              >
+                Limpiar filtros
+              </button>
+            }
+          />
         )}
         <section className="flex flex-col items-start justify-between gap-3 rounded-xl border border-brand-100 bg-brand-50 p-5 sm:flex-row sm:items-center">
           <div>
-            <p className="font-semibold text-ink-900">
-              Ofreces servicios para mascotas?
-            </p>
-            <p className="text-sm text-sand-600">
-              Crea tu perfil para aparecer en el directorio.
-            </p>
+            <p className="font-semibold text-ink-900">Ofreces servicios para mascotas?</p>
+            <p className="text-sm text-sand-600">Crea tu perfil para aparecer en el directorio.</p>
           </div>
           <Link
             to="/servicio/registro"
@@ -246,10 +250,7 @@ export default function ServiceProviderDirectoryPage() {
         </section>
         <p className="text-center text-xs text-sand-400">
           ¿Tienes otro tipo de negocio?{" "}
-          <Link
-            to="/registro-negocio"
-            className="font-semibold text-brand-600 hover:underline"
-          >
+          <Link to="/registro-negocio" className="font-semibold text-brand-600 hover:underline">
             Ver todos los perfiles →
           </Link>
         </p>

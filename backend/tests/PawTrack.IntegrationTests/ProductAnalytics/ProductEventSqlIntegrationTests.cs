@@ -9,8 +9,8 @@ namespace PawTrack.IntegrationTests.ProductAnalytics;
 [Collection("Integration")]
 public sealed class ProductEventSqlIntegrationTests
 {
-    private const string ConnectionString =
-        "Server=(localdb)\\MSSQLLocalDB;Database=PawTrackDev;Integrated Security=True;TrustServerCertificate=True;";
+    private static string ConnectionString => Environment.GetEnvironmentVariable("PAWTRACK_SQL_CONNECTION")
+        ?? "Server=(localdb)\\MSSQLLocalDB;Database=PawTrackDev;Integrated Security=True;TrustServerCertificate=True;";
 
     [Fact]
     public async Task PerformanceByCohort_GroupsSeparateLostIncidentsAndCalculatesMedian()
@@ -42,6 +42,7 @@ public sealed class ProductEventSqlIntegrationTests
             metric.LostReports.Should().Be(2);
             metric.ReunitedReports.Should().Be(0);
             metric.MedianFirstResponseMinutes.Should().BeApproximately(2.5, 0.01);
+            metric.P90FirstResponseMinutes.Should().BeApproximately(3.7, 0.01);
         }
         finally
         {

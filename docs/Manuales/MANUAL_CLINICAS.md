@@ -25,6 +25,11 @@ Las clínicas veterinarias afiliadas a PawTrack CR forman parte de la red de ide
 
 Al identificarla, el sistema **notifica automáticamente al dueño** que su mascota fue vista en tu clínica.
 
+Las clínicas no pueden registrar mascotas como propietarias desde el portal.
+El dueño debe crear el perfil de la mascota; la clínica puede identificarla por
+QR o microchip y trabajar con su expediente únicamente mediante el grant de
+acceso correspondiente.
+
 ---
 
 ## 2. Registro de la clínica

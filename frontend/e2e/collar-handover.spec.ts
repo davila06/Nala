@@ -13,16 +13,8 @@ import {
 let petId: string;
 
 test.beforeAll(async ({ request }) => {
-  const ownerToken = await apiLogin(
-    request,
-    TEST_USERS.owner.email,
-    TEST_USERS.owner.password,
-  );
-  const adminToken = await apiLogin(
-    request,
-    TEST_USERS.admin.email,
-    TEST_USERS.admin.password,
-  );
+  const ownerToken = await apiLogin(request, TEST_USERS.owner.email, TEST_USERS.owner.password);
+  const adminToken = await apiLogin(request, TEST_USERS.admin.email, TEST_USERS.admin.password);
 
   // Grant Plus first: the owner test user may already own a pet from prior
   // runs/seeds, and the Free tier caps pets at 1.
@@ -35,22 +27,16 @@ test.beforeAll(async ({ request }) => {
 });
 
 test.describe("Collar — Handover PIN transfer", () => {
-  test("owner generates a PIN, then redeems it to release the serial", async ({
-    page,
-  }) => {
+  test("owner generates a PIN, then redeems it to release the serial", async ({ page }) => {
     await loginViaUi(page, TEST_USERS.owner.email, TEST_USERS.owner.password);
     await page.goto(`/pets/${petId}`);
-    await page.getByRole("button", { name: /GPS/ }).click();
+    await page.getByRole("tab", { name: /GPS/ }).click();
 
-    await page
-      .getByRole("button", { name: /Transferir a otro propietario/ })
-      .click();
+    await page.getByRole("button", { name: /Transferir a otro propietario/ }).click();
 
     const [generateResponse] = await Promise.all([
       page.waitForResponse((res) => res.url().includes("/handover/generate")),
-      page
-        .getByRole("button", { name: /Generar PIN de transferencia/ })
-        .click(),
+      page.getByRole("button", { name: /Generar PIN de transferencia/ }).click(),
     ]);
     const { handoverCodeId, pin } = (await generateResponse.json()) as {
       handoverCodeId: string;

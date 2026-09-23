@@ -96,7 +96,11 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
                     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY [FirstResponseMinutes])
                         OVER (PARTITION BY [Cohort], [Canton]) AS [MedianFirstResponseMinutes],
                     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY [ReunionMinutes])
-                        OVER (PARTITION BY [Cohort], [Canton]) AS [MedianReunionMinutes]
+                        OVER (PARTITION BY [Cohort], [Canton]) AS [MedianReunionMinutes],
+                    PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY [FirstResponseMinutes])
+                        OVER (PARTITION BY [Cohort], [Canton]) AS [P90FirstResponseMinutes],
+                    PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY [ReunionMinutes])
+                        OVER (PARTITION BY [Cohort], [Canton]) AS [P90ReunionMinutes]
                 FROM JourneyMetrics
             )
             SELECT
@@ -108,6 +112,8 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
                 COUNT(CASE WHEN [LostAt] IS NOT NULL AND [ReunitedAt] >= [LostAt] THEN 1 END) AS [ReunitedReports],
                 MAX([MedianFirstResponseMinutes]) AS [MedianFirstResponseMinutes],
                 MAX([MedianReunionMinutes]) AS [MedianReunionMinutes],
+                MAX([P90FirstResponseMinutes]) AS [P90FirstResponseMinutes],
+                MAX([P90ReunionMinutes]) AS [P90ReunionMinutes],
                 CAST(CASE WHEN COUNT(CASE WHEN [LostAt] IS NOT NULL THEN 1 END) = 0 THEN 0.0
                     ELSE 100.0 * COUNT(CASE WHEN [ReunitedAt] >= [LostAt] THEN 1 END)
                         / COUNT(CASE WHEN [LostAt] IS NOT NULL THEN 1 END) END AS float) AS [RecoveryRatePercent],
@@ -135,6 +141,8 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
             row.ReunitedReports,
             row.MedianFirstResponseMinutes,
             row.MedianReunionMinutes,
+            row.P90FirstResponseMinutes,
+            row.P90ReunionMinutes,
             Math.Round(row.RecoveryRatePercent, 2),
             Math.Round(row.FirstResponseSloPercent, 2)))
             .ToList();
@@ -150,6 +158,8 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
         public int ReunitedReports { get; init; }
         public double? MedianFirstResponseMinutes { get; init; }
         public double? MedianReunionMinutes { get; init; }
+        public double? P90FirstResponseMinutes { get; init; }
+        public double? P90ReunionMinutes { get; init; }
         public double RecoveryRatePercent { get; init; }
         public double FirstResponseSloPercent { get; init; }
     }

@@ -23,7 +23,7 @@ export function AnimalCard({ animal }: AnimalCardProps) {
     <Link
       to={`/adopciones/${animal.id}`}
       aria-label={`Ver historia, requisitos y notas de ${animal.name}`}
-      className="group rounded-2xl border border-sand-100 bg-surface hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
+      className="group rounded-2xl border border-sand-100 bg-surface transition-[transform,box-shadow] duration-200 hover:shadow-md hover:-translate-y-0.5 overflow-hidden"
     >
       {/* Photo */}
       <div className="relative h-40 bg-sand-100 flex items-center justify-center overflow-hidden">
@@ -34,9 +34,7 @@ export function AnimalCard({ animal }: AnimalCardProps) {
             className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
-          <span className="text-5xl select-none opacity-60">
-            {SPECIES_EMOJI[animal.species] ?? "🐾"}
-          </span>
+          <span className="text-5xl select-none opacity-60">{SPECIES_EMOJI[animal.species] ?? "🐾"}</span>
         )}
         {animal.status === "InProcess" && (
           <span className="absolute top-2 left-2 bg-warn-400 text-white text-[10px] font-bold rounded-full px-2 py-0.5">
@@ -57,11 +55,7 @@ export function AnimalCard({ animal }: AnimalCardProps) {
             {animal.name}
           </p>
           <span className="text-xs text-sand-400 shrink-0">
-            {SIZE_ORDER.indexOf(animal.size) <= 1
-              ? "pequeño"
-              : animal.size === "Medium"
-                ? "mediano"
-                : "grande"}
+            {SIZE_ORDER.indexOf(animal.size) <= 1 ? "pequeño" : animal.size === "Medium" ? "mediano" : "grande"}
           </span>
         </div>
 
@@ -91,20 +85,13 @@ export function AnimalCard({ animal }: AnimalCardProps) {
           )}
         </div>
 
-        <p className="text-[11px] text-sand-400 line-clamp-1">
-          📍 {animal.refLabel ?? "Costa Rica"}
-        </p>
+        <p className="text-[11px] text-sand-400 line-clamp-1">📍 {animal.refLabel ?? "Costa Rica"}</p>
 
         <p className="text-xs text-sand-500 line-clamp-1">
-          <span>Publicado por</span>{" "}
-          <strong className="font-semibold text-sand-700">
-            {animal.organizationName}
-          </strong>
+          <span>Publicado por</span> <strong className="font-semibold text-sand-700">{animal.organizationName}</strong>
         </p>
 
-        <p className="text-xs text-sand-500 line-clamp-2 leading-relaxed">
-          {animal.story}
-        </p>
+        <p className="text-xs text-sand-500 line-clamp-2 leading-relaxed">{animal.story}</p>
       </div>
     </Link>
   );

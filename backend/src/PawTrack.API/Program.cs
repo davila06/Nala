@@ -500,7 +500,11 @@ builder.Services.AddHealthChecks()
         _ => PawTrack.Infrastructure.Storage.BlobStorageService.CreateServiceClient(builder.Configuration),
         name: "blob-storage",
         failureStatus: HealthStatus.Degraded,
-        tags: ["ready"]);
+        tags: ["ready"])
+    .AddCheck<PawTrack.API.HealthChecks.ExternalProviderConfigurationHealthCheck>(
+        "external-provider-configuration",
+        failureStatus: HealthStatus.Unhealthy,
+        tags: ["external"]);
 
 // ── Controllers ───────────────────────────────────────────────────────────────
 builder.Services.AddControllers()
@@ -597,6 +601,7 @@ app.UseResponseCompression();
 app.UseHttpsRedirection();
 app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseMiddleware<EnterpriseRequestMetricsMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<LegacyPartnerApiDeprecationMiddleware>();
 app.UseCors("Frontend");

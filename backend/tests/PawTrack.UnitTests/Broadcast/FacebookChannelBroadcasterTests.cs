@@ -10,7 +10,7 @@ namespace PawTrack.UnitTests.Broadcast;
 
 /// <summary>
 /// Coverage for <see cref="FacebookChannelBroadcaster"/> — previously untested despite
-/// making a real HTTP call to the Graph API (see docs/TODOs.md §13.2).
+/// making a real HTTP call to the Graph API (see docs/MASTER_TODO.md).
 /// </summary>
 public sealed class FacebookChannelBroadcasterTests
 {

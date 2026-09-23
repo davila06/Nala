@@ -10,4 +10,7 @@ public static class EnterpriseMetrics
     public static readonly Counter<long> WebhookFailed = Meter.CreateCounter<long>("pawtrack.webhook.failed");
     public static readonly Counter<long> MedicalExports = Meter.CreateCounter<long>("pawtrack.medical.exported");
     public static readonly Histogram<double> WebhookDeliveryDurationMs = Meter.CreateHistogram<double>("pawtrack.webhook.delivery.duration_ms");
+    public static readonly Counter<long> ApiRequests = Meter.CreateCounter<long>("pawtrack.api.requests");
+    public static readonly Counter<long> ApiErrors = Meter.CreateCounter<long>("pawtrack.api.errors");
+    public static readonly Histogram<double> ApiRequestDurationMs = Meter.CreateHistogram<double>("pawtrack.api.request.duration_ms");
 }

@@ -13,16 +13,8 @@ import {
 let petId: string;
 
 test.beforeAll(async ({ request }) => {
-  const ownerToken = await apiLogin(
-    request,
-    TEST_USERS.owner.email,
-    TEST_USERS.owner.password,
-  );
-  const adminToken = await apiLogin(
-    request,
-    TEST_USERS.admin.email,
-    TEST_USERS.admin.password,
-  );
+  const ownerToken = await apiLogin(request, TEST_USERS.owner.email, TEST_USERS.owner.password);
+  const adminToken = await apiLogin(request, TEST_USERS.admin.email, TEST_USERS.admin.password);
 
   // Grant Plus first: the owner test user may already own a pet from prior
   // runs/seeds, and the Free tier caps pets at 1.
@@ -35,12 +27,10 @@ test.beforeAll(async ({ request }) => {
 });
 
 test.describe("Collar — Lost Mode", () => {
-  test("owner activates and deactivates lost mode from the GPS tab", async ({
-    page,
-  }) => {
+  test("owner activates and deactivates lost mode from the GPS tab", async ({ page }) => {
     await loginViaUi(page, TEST_USERS.owner.email, TEST_USERS.owner.password);
     await page.goto(`/pets/${petId}`);
-    await page.getByRole("button", { name: /GPS/ }).click();
+    await page.getByRole("tab", { name: /GPS/ }).click();
 
     const activateBtn = page.getByRole("button", {
       name: /Marcar mascota como perdida/,

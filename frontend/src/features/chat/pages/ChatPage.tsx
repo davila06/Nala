@@ -1,10 +1,6 @@
 ﻿import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  useChatMessages,
-  useChatThreads,
-  useOpenChatThread,
-} from "../hooks/useChatThread";
+import { useChatMessages, useChatThreads, useOpenChatThread } from "../hooks/useChatThread";
 import { useChatSignalR } from "../hooks/useChatSignalR";
 import { ChatPanel } from "../components/ChatPanel";
 import { useAuthStore } from "@/features/auth/store/authStore";
@@ -31,9 +27,7 @@ export default function ChatPage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const currentUserId = useAuthStore((s) => s.user?.id);
 
-  const [activeThreadId, setActiveThreadId] = useState<string | null>(
-    threadIdParam ?? null,
-  );
+  const [activeThreadId, setActiveThreadId] = useState<string | null>(threadIdParam ?? null);
   const [openError, setOpenError] = useState<string | null>(null);
 
   const { mutateAsync: openThread, isPending: isOpening } = useOpenChatThread();
@@ -57,10 +51,9 @@ export default function ChatPage() {
     }
   };
 
-  // Prefetch messages for the active thread (ChatPanel also fetches internally).
-  useChatMessages(activeThreadId ?? "", !!activeThreadId);
-  // Real-time push — reduces poll load when connection is healthy
-  useChatSignalR(activeThreadId);
+  // Real-time push — polling remains only as a bounded fallback.
+  const connectionState = useChatSignalR(activeThreadId);
+  useChatMessages(activeThreadId ?? "", !!activeThreadId, connectionState);
 
   const activeThread = threads.find((t) => t.threadId === activeThreadId);
 
@@ -69,9 +62,7 @@ export default function ChatPage() {
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
         <p className="text-4xl">💬</p>
         <h1 className="text-xl font-bold text-sand-900">Chat seguro</h1>
-        <p className="text-sm text-sand-500">
-          Debes iniciar sesión para usar el chat.
-        </p>
+        <p className="text-sm text-sand-500">Debes iniciar sesión para usar el chat.</p>
         <Button onClick={() => void navigate("/login")}>Iniciar sesión</Button>
       </div>
     );
@@ -81,39 +72,26 @@ export default function ChatPage() {
     <div className="flex h-dvh flex-col field-input pb-[env(safe-area-inset-bottom,0px)]">
       {/* Topbar */}
       <div className="flex items-center gap-3 border-b border-sand-200 field-input px-4 py-3">
-        <button
-          type="button"
-          onClick={() => void navigate(-1)}
-          className="text-sm text-sand-500 hover:text-sand-800"
-        >
+        <button type="button" onClick={() => void navigate(-1)} className="text-sm text-sand-500 hover:text-sand-800">
           ← Volver
         </button>
-        <h1 className="text-sm font-bold text-sand-900">
-          Chat seguro · PawTrack
-        </h1>
+        <h1 className="text-sm font-bold text-sand-900">Chat seguro · PawTrack</h1>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar: thread list (owner view) */}
         {isOwner && (
           <aside className="w-64 shrink-0 overflow-y-auto border-r border-sand-100 bg-surface-warm">
-            <p className="px-4 py-3 text-xs font-semibold uppercase tracking-widest text-sand-500">
-              Conversaciones
-            </p>
+            <p className="px-4 py-3 text-xs font-semibold uppercase tracking-widest text-sand-500">Conversaciones</p>
             {threadsLoading && (
               <div className="space-y-2 px-4">
                 {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="h-14 animate-pulse rounded-xl bg-sand-200"
-                  />
+                  <div key={i} className="h-14 animate-pulse rounded-xl bg-sand-200" />
                 ))}
               </div>
             )}
             {!threadsLoading && threads.length === 0 && (
-              <p className="px-4 py-2 text-xs text-sand-400">
-                Sin mensajes aún.
-              </p>
+              <p className="px-4 py-2 text-xs text-sand-400">Sin mensajes aún.</p>
             )}
             {threads.map((t) => (
               <button
@@ -125,18 +103,14 @@ export default function ChatPage() {
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-sand-900">
-                    {t.otherPartyName}
-                  </span>
+                  <span className="text-sm font-semibold text-sand-900">{t.otherPartyName}</span>
                   {t.unreadCount > 0 && (
                     <span className="rounded-full bg-sand-900 px-1.5 py-0.5 text-[10px] font-bold text-white">
                       {t.unreadCount}
                     </span>
                   )}
                 </div>
-                <span className="text-xs text-sand-400">
-                  {new Date(t.lastMessageAt).toLocaleDateString("es-CR")}
-                </span>
+                <span className="text-xs text-sand-400">{new Date(t.lastMessageAt).toLocaleDateString("es-CR")}</span>
               </button>
             ))}
           </aside>
@@ -149,16 +123,15 @@ export default function ChatPage() {
               threadId={activeThreadId}
               lostPetEventId={lostPetEventId ?? ""}
               otherPartyName={activeThread?.otherPartyName ?? "Participante"}
+              connectionState={connectionState}
             />
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
               <p className="text-4xl">💬</p>
-              <h2 className="text-lg font-bold text-sand-900">
-                Chat con el dueño
-              </h2>
+              <h2 className="text-lg font-bold text-sand-900">Chat con el dueño</h2>
               <p className="max-w-xs text-sm text-sand-500">
-                Tu número de teléfono y correo nunca se comparten. La
-                conversación es completamente anónima para ambas partes.
+                Tu número de teléfono y correo nunca se comparten. La conversación es completamente anónima para ambas
+                partes.
               </p>
               {openError && <Alert variant="error">{openError}</Alert>}
               {!isOwner && (

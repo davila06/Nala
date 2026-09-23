@@ -1,11 +1,6 @@
 ﻿import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  useChatMessages,
-  useSendChatMessage,
-  useOtherPartyTyping,
-  useNotifyTyping,
-} from "../hooks/useChatThread";
+import { useChatMessages, useSendChatMessage, useOtherPartyTyping, useNotifyTyping } from "../hooks/useChatThread";
 import type { ChatMessage } from "../api/chatApi";
 import { Alert } from "@/shared/ui/Alert";
 import { useHaptic } from "@/shared/hooks/useHaptic";
@@ -27,13 +22,7 @@ function relativeTime(dateStr: string): string {
 
 // ── Message bubble ────────────────────────────────────────────────────────────
 
-function MessageBubble({
-  msg,
-  isLatest,
-}: {
-  msg: ChatMessage;
-  isLatest: boolean;
-}) {
+function MessageBubble({ msg, isLatest }: { msg: ChatMessage; isLatest: boolean }) {
   const mine = msg.isFromMe;
 
   return (
@@ -53,32 +42,22 @@ function MessageBubble({
         </div>
       )}
 
-      <div
-        className={`flex max-w-[78%] flex-col ${mine ? "items-end" : "items-start"}`}
-      >
+      <div className={`flex max-w-[78%] flex-col ${mine ? "items-end" : "items-start"}`}>
         {/* Bubble */}
         <div
           className={[
             "relative rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm",
-            mine
-              ? "rounded-br-sm bg-brand-500 text-white"
-              : "rounded-bl-sm field-input border border-sand-200",
+            mine ? "rounded-br-sm bg-brand-500 text-white" : "rounded-bl-sm field-input border border-sand-200",
           ].join(" ")}
         >
           <p className="whitespace-pre-wrap wrap-break-word">{msg.body}</p>
         </div>
 
         {/* Meta — time + read receipt */}
-        <div
-          className={`mt-1 flex items-center gap-1 ${mine ? "flex-row-reverse" : ""}`}
-        >
-          <span className="text-[10px] text-sand-400">
-            {relativeTime(msg.sentAt)}
-          </span>
+        <div className={`mt-1 flex items-center gap-1 ${mine ? "flex-row-reverse" : ""}`}>
+          <span className="text-[10px] text-sand-400">{relativeTime(msg.sentAt)}</span>
           {mine && (
-            <span
-              className={`text-[10px] ${msg.isReadByRecipient ? "text-brand-400" : "text-sand-300"}`}
-            >
+            <span className={`text-[10px] ${msg.isReadByRecipient ? "text-brand-400" : "text-sand-300"}`}>
               {msg.isReadByRecipient ? "✓✓" : "✓"}
             </span>
           )}
@@ -119,30 +98,18 @@ interface ChatPanelProps {
   threadId: string;
   lostPetEventId: string;
   otherPartyName: string;
-  connectionState?:
-    | "connecting"
-    | "connected"
-    | "reconnecting"
-    | "disconnected";
+  connectionState?: "connecting" | "connected" | "reconnecting" | "disconnected";
 }
 
-export function ChatPanel({
-  threadId,
-  lostPetEventId,
-  otherPartyName,
-  connectionState,
-}: ChatPanelProps) {
+export function ChatPanel({ threadId, lostPetEventId, otherPartyName, connectionState }: ChatPanelProps) {
   const [text, setText] = useState("");
   const [sendError, setSendError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { tap, error: hapticError } = useHaptic();
 
-  const { data: messages = [], isFetching } = useChatMessages(threadId);
-  const { mutateAsync: sendMessage, isPending } = useSendChatMessage(
-    threadId,
-    lostPetEventId,
-  );
+  const { data: messages = [], isFetching } = useChatMessages(threadId, true, connectionState ?? "disconnected");
+  const { mutateAsync: sendMessage, isPending } = useSendChatMessage(threadId, lostPetEventId);
   const { data: otherPartyIsTyping = false } = useOtherPartyTyping(threadId);
   const notifyTyping = useNotifyTyping(threadId);
 
@@ -181,10 +148,7 @@ export function ChatPanel({
       setText("");
     } catch (err: unknown) {
       hapticError();
-      const msg =
-        err instanceof Error
-          ? err.message
-          : "No se pudo enviar el mensaje. Intenta de nuevo.";
+      const msg = err instanceof Error ? err.message : "No se pudo enviar el mensaje. Intenta de nuevo.";
       setSendError(msg);
     }
   };
@@ -197,15 +161,11 @@ export function ChatPanel({
           {otherPartyName[0]?.toUpperCase() ?? "?"}
         </div>
         <div>
-          <p className="text-sm font-semibold text-sand-900">
-            {otherPartyName}
-          </p>
+          <p className="text-sm font-semibold text-sand-900">{otherPartyName}</p>
           <p className="text-[10px] text-sand-400">
             Chat cifrado · sin compartir datos personales
             {isFetching && " · actualizando…"}
-            {connectionState === "reconnecting" && (
-              <span className="ml-1 text-warn-600">· reconectando…</span>
-            )}
+            {connectionState === "reconnecting" && <span className="ml-1 text-warn-600">· reconectando…</span>}
           </p>
         </div>
       </div>
@@ -218,18 +178,13 @@ export function ChatPanel({
               💬
             </div>
             <p className="text-sm text-sand-500 max-w-xs leading-relaxed">
-              Esta conversación es cifrada y anónima. Coordina la entrega de
-              forma segura.
+              Esta conversación es cifrada y anónima. Coordina la entrega de forma segura.
             </p>
           </div>
         )}
         <AnimatePresence initial={false}>
           {messages.map((m, i) => (
-            <MessageBubble
-              key={m.messageId}
-              msg={m}
-              isLatest={i === messages.length - 1}
-            />
+            <MessageBubble key={m.messageId} msg={m} isLatest={i === messages.length - 1} />
           ))}
         </AnimatePresence>
         {/* Show typing indicator: isPending = current user sending; otherPartyIsTyping = real polling */}

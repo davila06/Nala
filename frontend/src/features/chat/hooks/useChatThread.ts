@@ -1,20 +1,21 @@
 import { useMemo, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  chatApi,
-  type OpenThreadPayload,
-  type SendMessagePayload,
-} from "../api/chatApi";
+import { chatApi, type OpenThreadPayload, type SendMessagePayload } from "../api/chatApi";
 
 // ── Query keys ─────────────────────────────────────────────────────────────────
 
 const keys = {
-  threads: (lostPetEventId: string) =>
-    ["chat", "threads", lostPetEventId] as const,
+  threads: (lostPetEventId: string) => ["chat", "threads", lostPetEventId] as const,
   thread: (threadId: string) => ["chat", "thread", threadId] as const,
   messages: (threadId: string) => ["chat", "messages", threadId] as const,
   typing: (threadId: string) => ["chat", "typing", threadId] as const,
 };
+
+type ChatTransportState = "connecting" | "connected" | "reconnecting" | "disconnected";
+
+export function getChatMessagesRefetchInterval(state: ChatTransportState): number | false {
+  return state === "connected" ? false : 10_000;
+}
 
 // ── Hooks ─────────────────────────────────────────────────────────────────────
 
@@ -37,13 +38,16 @@ export function useChatThreads(lostPetEventId: string, enabled = true) {
   });
 }
 
-export function useChatMessages(threadId: string, enabled = true) {
+export function useChatMessages(
+  threadId: string,
+  enabled = true,
+  connectionState: ChatTransportState = "disconnected",
+) {
   return useQuery({
     queryKey: keys.messages(threadId),
     queryFn: () => chatApi.getMessages(threadId),
     enabled: enabled && !!threadId,
-    // SignalR push via useChatSignalR mounted at page level; poll stays as fallback
-    refetchInterval: 10_000,
+    refetchInterval: getChatMessagesRefetchInterval(connectionState),
     staleTime: 5_000,
   });
 }
@@ -65,8 +69,7 @@ export function useSendChatMessage(threadId: string, lostPetEventId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: SendMessagePayload) =>
-      chatApi.sendMessage(threadId, payload),
+    mutationFn: (payload: SendMessagePayload) => chatApi.sendMessage(threadId, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: keys.messages(threadId) });
       void queryClient.invalidateQueries({

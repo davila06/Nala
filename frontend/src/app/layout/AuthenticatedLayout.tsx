@@ -208,10 +208,19 @@ export default function AuthenticatedLayout() {
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const moreMenuRef = useRef<HTMLDivElement>(null);
+  const moreTriggerRef = useRef<HTMLButtonElement>(null);
+  const userTriggerRef = useRef<HTMLButtonElement>(null);
+  const mobileUserTriggerRef = useRef<HTMLButtonElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
   const { mutate: logout } = useLogout();
   const navigate = useNavigate();
   const location = useLocation();
   useScrollToTop();
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => mainRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [location.pathname]);
 
   // Close desktop menus on outside click.
   useEffect(() => {
@@ -225,6 +234,31 @@ export default function AuthenticatedLayout() {
     document.addEventListener("mousedown", handleOutside);
     return () => document.removeEventListener("mousedown", handleOutside);
   }, [dropdownOpen, moreMenuOpen]);
+
+  function handleMenuKeyDown(
+    event: React.KeyboardEvent,
+    menuRef: React.RefObject<HTMLDivElement | null>,
+    close: () => void,
+    triggerRef: React.RefObject<HTMLButtonElement | null>,
+  ) {
+    const items = Array.from(menuRef.current?.querySelectorAll<HTMLElement>("[role='menuitem']") ?? []);
+    if (event.key === "Escape") {
+      event.preventDefault();
+      close();
+      triggerRef.current?.focus();
+      return;
+    }
+    if (!items.length || !["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const current = items.indexOf(document.activeElement as HTMLElement);
+    const next =
+      event.key === "Home"
+        ? 0
+        : event.key === "End"
+          ? items.length - 1
+          : (current + (event.key === "ArrowUp" ? -1 : 1) + items.length) % items.length;
+    items[next]?.focus();
+  }
 
   function handleLogout() {
     setDropdownOpen(false);
@@ -276,6 +310,12 @@ export default function AuthenticatedLayout() {
 
   return (
     <div className="min-h-dvh bg-sand-100">
+      <a
+        href="#main-content"
+        className="sr-only fixed left-4 top-4 z-50 rounded-lg bg-surface px-4 py-2 text-sm font-semibold text-ink-900 shadow-lg focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-brand-500"
+      >
+        Saltar al contenido
+      </a>
       {/* ── Top bar ─────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 border-b border-sand-200 bg-surface/95 backdrop-blur-sm">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4">
@@ -309,9 +349,13 @@ export default function AuthenticatedLayout() {
               <div className="relative" ref={moreMenuRef}>
                 <button
                   type="button"
+                  ref={moreTriggerRef}
                   aria-label="Más opciones"
                   aria-haspopup="menu"
                   aria-expanded={moreMenuOpen}
+                  onKeyDown={(event) =>
+                    handleMenuKeyDown(event, moreMenuRef, () => setMoreMenuOpen(false), moreTriggerRef)
+                  }
                   onClick={() => {
                     setMoreMenuOpen((isOpen) => !isOpen);
                     setDropdownOpen(false);
@@ -335,6 +379,10 @@ export default function AuthenticatedLayout() {
                   {moreMenuOpen && (
                     <motion.div
                       role="menu"
+                      aria-label="Más opciones"
+                      onKeyDown={(event) =>
+                        handleMenuKeyDown(event, moreMenuRef, () => setMoreMenuOpen(false), moreTriggerRef)
+                      }
                       initial={{ opacity: 0, scale: 0.95, y: -6 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95, y: -6 }}
@@ -346,7 +394,9 @@ export default function AuthenticatedLayout() {
                           to={extraNav.to}
                           role="menuitem"
                           onClick={() => setMoreMenuOpen(false)}
-                          className={navLinkPlainCls}
+                          className={(args) =>
+                            `${navLinkPlainCls(args)} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400`
+                          }
                         >
                           {extraNav.label}
                         </NavLink>
@@ -356,7 +406,9 @@ export default function AuthenticatedLayout() {
                           to={adminStatsNav.to}
                           role="menuitem"
                           onClick={() => setMoreMenuOpen(false)}
-                          className={navLinkPlainCls}
+                          className={(args) =>
+                            `${navLinkPlainCls(args)} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400`
+                          }
                         >
                           {adminStatsNav.label}
                         </NavLink>
@@ -366,7 +418,9 @@ export default function AuthenticatedLayout() {
                           to={superAdminNav.to}
                           role="menuitem"
                           onClick={() => setMoreMenuOpen(false)}
-                          className={navLinkPlainCls}
+                          className={(args) =>
+                            `${navLinkPlainCls(args)} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400`
+                          }
                         >
                           {superAdminNav.label}
                         </NavLink>
@@ -384,7 +438,7 @@ export default function AuthenticatedLayout() {
           {/* ── Report lost CTA — shown for Owners only ──────────────────── */}
           {user?.role === "Owner" && (
             <Link
-              to="/dashboard"
+              to="/dashboard?action=report-lost"
               className="hidden md:flex items-center gap-1.5 rounded-xl bg-danger-500 px-3.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-danger-600 transition-base"
             >
               <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5" aria-hidden="true">
@@ -394,7 +448,7 @@ export default function AuthenticatedLayout() {
                   clipRule="evenodd"
                 />
               </svg>
-              Mascota perdida
+              Elegir mascota perdida
             </Link>
           )}
 
@@ -406,6 +460,7 @@ export default function AuthenticatedLayout() {
             <div className="relative" ref={dropdownRef}>
               <button
                 type="button"
+                ref={userTriggerRef}
                 onClick={() => {
                   setDropdownOpen((v) => !v);
                   setMenuOpen(false);
@@ -414,6 +469,9 @@ export default function AuthenticatedLayout() {
                 aria-label="Menú de usuario"
                 aria-expanded={dropdownOpen}
                 aria-haspopup="menu"
+                onKeyDown={(event) =>
+                  handleMenuKeyDown(event, dropdownRef, () => setDropdownOpen(false), userTriggerRef)
+                }
                 className={`hidden md:flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white transition-base focus-visible:ring-2 focus-visible:ring-brand-400 ${avatarColor(user?.name)}`}
               >
                 {getInitials(user?.name)}
@@ -424,6 +482,10 @@ export default function AuthenticatedLayout() {
                 {dropdownOpen && (
                   <motion.div
                     role="menu"
+                    aria-label="Menú de usuario"
+                    onKeyDown={(event) =>
+                      handleMenuKeyDown(event, dropdownRef, () => setDropdownOpen(false), userTriggerRef)
+                    }
                     initial={{ opacity: 0, scale: 0.95, y: -6 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: -6 }}
@@ -568,6 +630,7 @@ export default function AuthenticatedLayout() {
             {/* Mobile avatar toggle (visible only on mobile) */}
             <button
               type="button"
+              ref={mobileUserTriggerRef}
               onClick={() => {
                 setMenuOpen((v) => !v);
                 setDropdownOpen(false);
@@ -575,6 +638,13 @@ export default function AuthenticatedLayout() {
               }}
               aria-label="Menú de usuario"
               aria-expanded={menuOpen}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") {
+                  event.preventDefault();
+                  setMenuOpen(false);
+                  mobileUserTriggerRef.current?.focus();
+                }
+              }}
               className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white transition-base focus-visible:ring-2 focus-visible:ring-brand-400 md:hidden ${avatarColor(user?.name)}`}
             >
               {getInitials(user?.name)}
@@ -637,7 +707,7 @@ export default function AuthenticatedLayout() {
               <>
                 <hr className="my-1 border-sand-200" />
                 <Link
-                  to="/dashboard"
+                  to="/dashboard?action=report-lost"
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-2 rounded-xl bg-danger-500 px-3 py-2 text-sm font-semibold text-white"
                 >
@@ -648,7 +718,7 @@ export default function AuthenticatedLayout() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  Reportar mascota perdida
+                  Elegir mascota perdida
                 </Link>
               </>
             )}
@@ -742,7 +812,10 @@ export default function AuthenticatedLayout() {
       {/* ── Main content ───────────────────────────────────────────────── */}
       <AnimatePresence mode="wait" initial={false}>
         <motion.main
+          ref={mainRef}
           key={location.pathname}
+          id="main-content"
+          tabIndex={-1}
           className="mx-auto max-w-6xl px-4 py-6 pb-24 md:pb-6"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

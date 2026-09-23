@@ -5,21 +5,18 @@ import { Skeleton } from "@/shared/ui/Spinner";
 import { usePublicStores } from "../hooks/useStores";
 import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
 import type { PublicStoreDto } from "../api/storesApi";
+import { EmptyState } from "@/shared/ui";
 
 function StoreCard({ store }: { store: PublicStoreDto }) {
   return (
     <Link
       to={`/map?storeId=${store.id}`}
-      className="group rounded-2xl border border-sand-100 bg-surface hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
+      className="group rounded-2xl border border-sand-100 bg-surface transition-[transform,box-shadow] duration-200 hover:shadow-md hover:-translate-y-0.5 overflow-hidden"
     >
       {/* Logo / placeholder */}
       <div className="relative h-28 bg-sand-100 flex items-center justify-center overflow-hidden">
         {store.logoUrl ? (
-          <img
-            src={store.logoUrl}
-            alt={store.name}
-            className="h-full w-full object-cover"
-          />
+          <img src={store.logoUrl} alt={store.name} width={288} height={112} className="h-full w-full object-cover" />
         ) : (
           <span className="text-4xl select-none">🛒</span>
         )}
@@ -35,11 +32,7 @@ function StoreCard({ store }: { store: PublicStoreDto }) {
         <p className="font-semibold text-ink-900 text-sm leading-tight line-clamp-1 group-hover:text-brand-600 transition-colors">
           {store.name}
         </p>
-        {store.description && (
-          <p className="text-xs text-sand-500 line-clamp-2">
-            {store.description}
-          </p>
-        )}
+        {store.description && <p className="text-xs text-sand-500 line-clamp-2">{store.description}</p>}
         <p className="text-xs text-sand-400 line-clamp-1">📍 {store.address}</p>
       </div>
     </Link>
@@ -77,21 +70,16 @@ export default function StoreDirectoryPage() {
       <div className="mx-auto max-w-3xl px-4 py-8 space-y-8">
         {/* Header */}
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-ink-900">
-            🛒 Tiendas de mascotas
-          </h1>
+          <h1 className="text-2xl font-bold text-ink-900">🛒 Tiendas de mascotas</h1>
           <p className="text-sm text-sand-500">
-            Descubre tiendas locales y haz tus pedidos directamente desde
-            PawTrack CR.
+            Descubre tiendas locales y haz tus pedidos directamente desde PawTrack CR.
           </p>
         </div>
         {/* Billboard — Directory placement */}
         <BillboardBanner placement="Directory" />
         {/* Search */}
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sand-400 pointer-events-none">
-            🔍
-          </span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sand-400 pointer-events-none">🔍</span>
           <input
             type="search"
             placeholder="Buscar por nombre, descripción o dirección…"
@@ -111,28 +99,32 @@ export default function StoreDirectoryPage() {
         )}
 
         {!isLoading && filtered.length === 0 && (
-          <div className="text-center py-16 text-sand-400 space-y-2">
-            <p className="text-4xl">🐾</p>
-            <p className="font-semibold text-sand-600">
-              No encontramos tiendas
-            </p>
-            {query && (
-              <button
-                className="text-sm text-brand-500 underline"
-                onClick={() => setQuery("")}
-              >
-                Limpiar búsqueda
-              </button>
-            )}
-          </div>
+          <EmptyState
+            icon={
+              <span aria-hidden="true" className="text-3xl">
+                🐾
+              </span>
+            }
+            title="No encontramos tiendas"
+            description="Prueba con otro nombre, descripción o dirección."
+            action={
+              query ? (
+                <button
+                  type="button"
+                  className="text-sm font-semibold text-brand-600 underline"
+                  onClick={() => setQuery("")}
+                >
+                  Limpiar búsqueda
+                </button>
+              ) : undefined
+            }
+          />
         )}
 
         {/* Featured */}
         {featured.length > 0 && (
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold text-sand-600 uppercase tracking-wide">
-              Tiendas destacadas
-            </h2>
+            <h2 className="text-sm font-semibold text-sand-600 uppercase tracking-wide">Tiendas destacadas</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {featured.map((s) => (
                 <StoreCard key={s.id} store={s} />
@@ -145,9 +137,7 @@ export default function StoreDirectoryPage() {
         {rest.length > 0 && (
           <section className="space-y-3">
             {featured.length > 0 && (
-              <h2 className="text-sm font-semibold text-sand-600 uppercase tracking-wide">
-                Todas las tiendas
-              </h2>
+              <h2 className="text-sm font-semibold text-sand-600 uppercase tracking-wide">Todas las tiendas</h2>
             )}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {rest.map((s) => (
@@ -159,12 +149,8 @@ export default function StoreDirectoryPage() {
 
         {/* CTA */}
         <div className="rounded-2xl bg-brand-50 border border-brand-100 p-5 text-center space-y-2">
-          <p className="font-semibold text-ink-900 text-sm">
-            ¿Tienes una tienda de mascotas?
-          </p>
-          <p className="text-xs text-sand-600">
-            Regístrala gratis y empieza a recibir pedidos en minutos.
-          </p>
+          <p className="font-semibold text-ink-900 text-sm">¿Tienes una tienda de mascotas?</p>
+          <p className="text-xs text-sand-600">Regístrala gratis y empieza a recibir pedidos en minutos.</p>
           <Link
             to="/tienda/registro"
             className="inline-block mt-1 rounded-xl bg-brand-500 px-5 py-2 text-sm font-semibold text-white hover:bg-brand-600 transition-colors"
@@ -174,10 +160,7 @@ export default function StoreDirectoryPage() {
         </div>
         <p className="text-center text-xs text-sand-400">
           ¿Tienes otro tipo de negocio?{" "}
-          <Link
-            to="/registro-negocio"
-            className="font-semibold text-brand-600 hover:underline"
-          >
+          <Link to="/registro-negocio" className="font-semibold text-brand-600 hover:underline">
             Ver todos los perfiles →
           </Link>
         </p>

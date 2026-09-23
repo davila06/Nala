@@ -17,11 +17,7 @@ export async function presetCookieConsent(page: Page): Promise<void> {
 }
 
 /** Logs in through the real login form (not a token injection) and waits for redirect off /login. */
-export async function loginViaUi(
-  page: Page,
-  email: string,
-  password: string,
-): Promise<void> {
+export async function loginViaUi(page: Page, email: string, password: string): Promise<void> {
   await page.goto("/login");
   // Let the initial SW registration / precache activity on a cold preview-server
   // page settle before interacting — otherwise the page can intermittently
@@ -30,7 +26,7 @@ export async function loginViaUi(
   await presetCookieConsent(page);
   await page.getByLabel("Correo electrónico").fill(email);
   await page.getByLabel("Contraseña", { exact: true }).fill(password);
-  await page.getByRole("button", { name: /Ingresar/ }).click();
+  await page.getByRole("button", { name: "Ingresar", exact: true }).click();
   await page.waitForURL((url) => !url.pathname.startsWith("/login"), {
     timeout: 15_000,
   });

@@ -10,6 +10,8 @@ interface ProductCohortMetric {
   reunitedReports: number;
   medianFirstResponseMinutes: number | null;
   medianReunionMinutes: number | null;
+  p90FirstResponseMinutes: number | null;
+  p90ReunionMinutes: number | null;
   recoveryRatePercent: number;
   firstResponseSloPercent: number;
 }

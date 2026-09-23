@@ -12,6 +12,9 @@ public sealed class ReportFoundPetCommandValidator : AbstractValidator<ReportFou
 
     public ReportFoundPetCommandValidator()
     {
+        RuleFor(x => x.PrivacyConsent)
+            .Equal(true)
+            .WithMessage("Debes aceptar el aviso de privacidad para enviar el reporte.");
         RuleFor(x => x.FoundLat).InclusiveBetween(-90, 90);
         RuleFor(x => x.FoundLng).InclusiveBetween(-180, 180);
         RuleFor(x => x.ContactName).NotEmpty().MaximumLength(100);

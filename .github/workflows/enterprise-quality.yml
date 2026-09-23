@@ -1,0 +1,218 @@
+name: Enterprise Quality Gate
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enterprise-quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend Release, unit and integration tests
+    runs-on: ubuntu-latest
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: PawTrack_CI!2026
+          MSSQL_PID: Developer
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'PawTrack_CI!2026' -Q 'SELECT 1' -C"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      PAWTRACK_SQL_CONNECTION: "Server=localhost,1433;Database=PawTrackCI;User Id=sa;Password=PawTrack_CI!2026;TrustServerCertificate=True;"
+      ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=PawTrackCI;User Id=sa;Password=PawTrack_CI!2026;TrustServerCertificate=True;"
+      Jwt__Key: "ci-enterprise-quality-jwt-key-minimum-32-characters!"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Restore
+        run: dotnet restore
+      - name: Build Release
+        run: dotnet build PawTrack.sln --no-restore --configuration Release
+      - name: Unit tests
+        run: >
+          dotnet test backend/tests/PawTrack.UnitTests/PawTrack.UnitTests.csproj
+          --no-build --configuration Release
+          --logger "trx;LogFileName=unit.trx"
+          --results-directory artifacts/unit
+      - name: Integration tests
+        run: >
+          dotnet test backend/tests/PawTrack.IntegrationTests/PawTrack.IntegrationTests.csproj
+          --no-build --configuration Release
+          --logger "trx;LogFileName=integration.trx"
+          --results-directory artifacts/integration
+      - name: Upload backend test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enterprise-backend-tests-${{ github.sha }}
+          path: artifacts/
+
+  frontend:
+    name: Frontend typecheck, lint, tests and build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Unit tests
+        run: npm test -- --run --reporter=verbose
+      - name: Production build
+        run: npm run build
+        env:
+          VITE_API_URL: https://placeholder-api.invalid
+      - name: Upload frontend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: enterprise-frontend-dist-${{ github.sha }}
+          path: frontend/dist/
+
+  migration:
+    name: Expand-contract migration gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup PowerShell
+        shell: pwsh
+        run: |
+          $base = if ('${{ github.event_name }}' -eq 'pull_request') {
+            '${{ github.event.pull_request.base.sha }}'
+          } elseif ('${{ github.event.before }}' -and '${{ github.event.before }}' -ne '0000000000000000000000000000000000000000') {
+            '${{ github.event.before }}'
+          } else {
+            git rev-parse HEAD~1
+          }
+          ./scripts/Test-ExpandContractMigrations.ps1 -BaseRef $base -HeadRef '${{ github.sha }}'
+
+  openapi:
+    name: OpenAPI lint and contract surface
+    runs-on: ubuntu-latest
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: PawTrack_CI!2026
+          MSSQL_PID: Developer
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'PawTrack_CI!2026' -Q 'SELECT 1' -C"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=PawTrackOpenApi;User Id=sa;Password=PawTrack_CI!2026;TrustServerCertificate=True;"
+      Jwt__Key: "ci-enterprise-quality-jwt-key-minimum-32-characters!"
+      ASPNETCORE_ENVIRONMENT: Testing
+      ASPNETCORE_URLS: http://localhost:5199
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Restore and build
+        run: |
+          dotnet restore
+          dotnet build PawTrack.sln --no-restore --configuration Release
+      - name: Start API
+        shell: bash
+        run: |
+          nohup dotnet backend/src/PawTrack.API/bin/Release/net9.0/PawTrack.API.dll > /tmp/pawtrack-openapi.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl --silent --fail http://localhost:5199/health/live > /dev/null; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/pawtrack-openapi.log
+          exit 1
+      - name: Download and lint OpenAPI
+        run: |
+          curl --fail --silent http://localhost:5199/openapi/v1.json -o openapi.json
+          grep -q '"openapi":"3.' openapi.json
+          grep -q 'product-events' openapi.json
+          grep -q 'public/pets' openapi.json
+          npx --yes @redocly/cli lint openapi.json
+      - name: Detect OpenAPI breaking changes
+        shell: pwsh
+        run: ./scripts/Test-OpenApiBreakingChanges.ps1 -BaselinePath docs/openapi-v1.surface.json -CurrentPath openapi.json
+      - name: Generate TypeScript contract artifact
+        run: |
+          mkdir -p artifacts
+          npx --yes openapi-typescript openapi.json -o artifacts/openapi.d.ts
+      - name: Upload OpenAPI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: enterprise-openapi-${{ github.sha }}
+          path: |
+            openapi.json
+            artifacts/openapi.d.ts
+      - name: Upload API log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enterprise-openapi-api-log-${{ github.sha }}
+          path: /tmp/pawtrack-openapi.log
+
+  security:
+    name: Secret and dependency scanning
+    uses: ./.github/workflows/security-supply-chain.yml
+
+  enterprise-gate:
+    name: Enterprise quality gate
+    if: always()
+    needs: [backend, frontend, migration, openapi, security]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all enterprise jobs to pass
+        env:
+          BACKEND: ${{ needs.backend.result }}
+          FRONTEND: ${{ needs.frontend.result }}
+          MIGRATION: ${{ needs.migration.result }}
+          OPENAPI: ${{ needs.openapi.result }}
+          SECURITY: ${{ needs.security.result }}
+        run: |
+          echo "backend=$BACKEND frontend=$FRONTEND migration=$MIGRATION openapi=$OPENAPI security=$SECURITY"
+          test "$BACKEND" = success
+          test "$FRONTEND" = success
+          test "$MIGRATION" = success
+          test "$OPENAPI" = success
+          test "$SECURITY" = success

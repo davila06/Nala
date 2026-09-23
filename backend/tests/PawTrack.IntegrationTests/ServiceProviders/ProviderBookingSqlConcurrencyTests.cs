@@ -9,7 +9,8 @@ namespace PawTrack.IntegrationTests.ServiceProviders;
 [Collection("Integration")]
 public sealed class ProviderBookingSqlConcurrencyTests
 {
-    private const string ConnectionString = "Server=(localdb)\\MSSQLLocalDB;Database=PawTrackDev;Integrated Security=True;TrustServerCertificate=True;";
+    private static string ConnectionString => Environment.GetEnvironmentVariable("PAWTRACK_SQL_CONNECTION")
+        ?? "Server=(localdb)\\MSSQLLocalDB;Database=PawTrackDev;Integrated Security=True;TrustServerCertificate=True;";
 
     [Fact]
     public async Task TryAddBookingAsync_ConcurrentRequestsForCapacityOne_AllowsExactlyOne()

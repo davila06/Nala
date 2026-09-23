@@ -27,4 +27,4 @@ movil, desktop, zoom 200% y navegacion sin mouse.
 
 Un cambio frontend no se cierra si rompe typecheck, lint, tests, responsive,
 lectores de pantalla o mensajes de error. Registrar excepciones conocidas en
-[ERRORES_PENDIENTES.md](ERRORES_PENDIENTES.md).
+[MASTER_TODO.md](MASTER_TODO.md).

@@ -2,17 +2,9 @@ import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/shared/ui/Button";
-import { Input } from "@/shared/ui/Input";
-import {
-  usePublishAnimal,
-  useUploadAdoptionPhoto,
-} from "../hooks/useAdoptions";
-import type {
-  PetSpecies,
-  PetSize,
-  AgeCategory,
-  PublishAnimalPayload,
-} from "../api/adoptionsApi";
+import { Input, Select } from "@/shared/ui/Input";
+import { usePublishAnimal, useUploadAdoptionPhoto } from "../hooks/useAdoptions";
+import type { PetSpecies, PetSize, AgeCategory, PublishAnimalPayload } from "../api/adoptionsApi";
 import { SPECIES_LABELS, SIZE_LABELS, AGE_LABELS } from "../api/adoptionsApi";
 import { toast } from "@/shared/lib/toast";
 
@@ -48,8 +40,7 @@ export default function ShelterPublishPage() {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const set = (partial: Partial<PublishAnimalPayload>) =>
-    setForm((f) => ({ ...f, ...partial }));
+  const set = (partial: Partial<PublishAnimalPayload>) => setForm((f) => ({ ...f, ...partial }));
 
   const handleSubmit = () => {
     if (!form.name.trim() || !form.story.trim()) {
@@ -85,21 +76,14 @@ export default function ShelterPublishPage() {
       </Helmet>
 
       <div className="mx-auto max-w-xl px-4 py-8 space-y-6">
-        <Link
-          to="/shelter/dashboard"
-          className="inline-flex text-sm font-semibold text-brand-600 hover:underline"
-        >
+        <Link to="/shelter/dashboard" className="inline-flex text-sm font-semibold text-brand-600 hover:underline">
           Volver al panel del shelter
         </Link>
-        <h1 className="text-xl font-bold text-ink-900">
-          Publicar animal en adopción
-        </h1>
+        <h1 className="text-xl font-bold text-ink-900">Publicar animal en adopción</h1>
 
         {/* Basic info */}
         <section className="space-y-4">
-          <h2 className="text-sm font-semibold text-ink-700 border-b border-sand-100 pb-2">
-            Información básica
-          </h2>
+          <h2 className="text-sm font-semibold text-ink-700 border-b border-sand-100 pb-2">Información básica</h2>
 
           <Input
             label="Nombre *"
@@ -110,77 +94,48 @@ export default function ShelterPublishPage() {
           />
 
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label
-                htmlFor="adoption-species"
-                className="block text-xs text-sand-500 mb-1"
-              >
-                Especie *
-              </label>
-              <select
-                id="adoption-species"
-                value={form.species}
-                onChange={(e) => set({ species: e.target.value as PetSpecies })}
-                className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-              >
-                {(Object.entries(SPECIES_LABELS) as [PetSpecies, string][]).map(
-                  ([v, l]) => (
-                    <option key={v} value={v}>
-                      {l}
-                    </option>
-                  ),
-                )}
-              </select>
-            </div>
-            <div>
-              <label
-                htmlFor="adoption-size"
-                className="block text-xs text-sand-500 mb-1"
-              >
-                Tamaño *
-              </label>
-              <select
-                id="adoption-size"
-                value={form.size}
-                onChange={(e) => set({ size: e.target.value as PetSize })}
-                className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-              >
-                {(Object.entries(SIZE_LABELS) as [PetSize, string][]).map(
-                  ([v, l]) => (
-                    <option key={v} value={v}>
-                      {l}
-                    </option>
-                  ),
-                )}
-              </select>
-            </div>
+            <Select
+              label="Especie"
+              required
+              id="adoption-species"
+              value={form.species}
+              onChange={(e) => set({ species: e.target.value as PetSpecies })}
+            >
+              {(Object.entries(SPECIES_LABELS) as [PetSpecies, string][]).map(([v, l]) => (
+                <option key={v} value={v}>
+                  {l}
+                </option>
+              ))}
+            </Select>
+            <Select
+              label="Tamaño"
+              required
+              id="adoption-size"
+              value={form.size}
+              onChange={(e) => set({ size: e.target.value as PetSize })}
+            >
+              {(Object.entries(SIZE_LABELS) as [PetSize, string][]).map(([v, l]) => (
+                <option key={v} value={v}>
+                  {l}
+                </option>
+              ))}
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label
-                htmlFor="adoption-age-category"
-                className="block text-xs text-sand-500 mb-1"
-              >
-                Categoría de edad *
-              </label>
-              <select
-                id="adoption-age-category"
-                value={form.ageCategory}
-                onChange={(e) =>
-                  set({ ageCategory: e.target.value as AgeCategory })
-                }
-                className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-              >
-                {(Object.entries(AGE_LABELS) as [AgeCategory, string][]).map(
-                  ([v, l]) => (
-                    <option key={v} value={v}>
-                      {l}
-                    </option>
-                  ),
-                )}
-              </select>
-            </div>
+            <Select
+              label="Categoría de edad"
+              required
+              id="adoption-age-category"
+              value={form.ageCategory}
+              onChange={(e) => set({ ageCategory: e.target.value as AgeCategory })}
+            >
+              {(Object.entries(AGE_LABELS) as [AgeCategory, string][]).map(([v, l]) => (
+                <option key={v} value={v}>
+                  {l}
+                </option>
+              ))}
+            </Select>
             <Input
               label="Raza (opcional)"
               value={form.breed ?? ""}
@@ -192,14 +147,9 @@ export default function ShelterPublishPage() {
 
         {/* Story */}
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold text-ink-700 border-b border-sand-100 pb-2">
-            Historia y personalidad
-          </h2>
+          <h2 className="text-sm font-semibold text-ink-700 border-b border-sand-100 pb-2">Historia y personalidad</h2>
           <div>
-            <label
-              htmlFor="adoption-story"
-              className="block text-xs text-sand-500 mb-1"
-            >
+            <label htmlFor="adoption-story" className="block text-xs text-sand-500 mb-1">
               Historia *
             </label>
             <textarea
@@ -211,15 +161,10 @@ export default function ShelterPublishPage() {
               placeholder="Cuéntanos cómo llegó, cómo es su personalidad, qué necesidades especiales tiene…"
               className="w-full rounded-xl border border-sand-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 resize-none"
             />
-            <p className="text-right text-xs text-sand-400 mt-1">
-              {form.story.length}/2000
-            </p>
+            <p className="text-right text-xs text-sand-400 mt-1">{form.story.length}/2000</p>
           </div>
           <div>
-            <label
-              htmlFor="adoption-requirements"
-              className="block text-xs text-sand-500 mb-1"
-            >
+            <label htmlFor="adoption-requirements" className="block text-xs text-sand-500 mb-1">
               Requisitos para el adoptante
             </label>
             <textarea
@@ -233,10 +178,7 @@ export default function ShelterPublishPage() {
             />
           </div>
           <div>
-            <label
-              htmlFor="adoption-medical-notes"
-              className="block text-xs text-sand-500 mb-1"
-            >
+            <label htmlFor="adoption-medical-notes" className="block text-xs text-sand-500 mb-1">
               Notas médicas
             </label>
             <textarea
@@ -253,9 +195,7 @@ export default function ShelterPublishPage() {
 
         {/* Characteristics */}
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold text-ink-700 border-b border-sand-100 pb-2">
-            Características
-          </h2>
+          <h2 className="text-sm font-semibold text-ink-700 border-b border-sand-100 pb-2">Características</h2>
           <div className="grid grid-cols-2 gap-2">
             {(
               [
@@ -268,10 +208,7 @@ export default function ShelterPublishPage() {
                 ["needsYard", "Necesita patio"],
               ] as [keyof PublishAnimalPayload, string][]
             ).map(([key, label]) => (
-              <label
-                key={key}
-                className="flex items-center gap-2 text-sm text-ink-700 cursor-pointer"
-              >
+              <label key={key} className="flex items-center gap-2 text-sm text-ink-700 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={!!form[key]}
@@ -286,12 +223,9 @@ export default function ShelterPublishPage() {
 
         {/* Location reference */}
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold text-ink-700 border-b border-sand-100 pb-2">
-            Zona de referencia
-          </h2>
+          <h2 className="text-sm font-semibold text-ink-700 border-b border-sand-100 pb-2">Zona de referencia</h2>
           <p className="text-xs text-sand-400">
-            La ubicación exacta no se muestra públicamente — solo la zona de
-            referencia.
+            La ubicación exacta no se muestra públicamente — solo la zona de referencia.
           </p>
           <Input
             label="Zona (ej: San José, Escazú)"
@@ -304,9 +238,7 @@ export default function ShelterPublishPage() {
         {!publishedId ? (
           <Button
             onClick={handleSubmit}
-            disabled={
-              publish.isPending || !form.name.trim() || !form.story.trim()
-            }
+            disabled={publish.isPending || !form.name.trim() || !form.story.trim()}
             className="w-full"
           >
             {publish.isPending ? "Publicando…" : "Publicar animal"}
@@ -314,12 +246,8 @@ export default function ShelterPublishPage() {
         ) : (
           /* Step 2: inline photo upload after successful publish */
           <section className="space-y-4 rounded-2xl border-2 border-dashed border-brand-200 bg-brand-50 p-5">
-            <h2 className="text-sm font-semibold text-brand-700">
-              📸 Paso 2 — Fotos (hasta 5)
-            </h2>
-            <p className="text-xs text-sand-500">
-              Añade fotos para que los adoptantes conozcan mejor al animal.
-            </p>
+            <h2 className="text-sm font-semibold text-brand-700">📸 Paso 2 — Fotos (hasta 5)</h2>
+            <p className="text-xs text-sand-500">Añade fotos para que los adoptantes conozcan mejor al animal.</p>
 
             <input
               ref={fileInputRef}
@@ -337,23 +265,14 @@ export default function ShelterPublishPage() {
               onClick={() => fileInputRef.current?.click()}
               className="w-full rounded-xl border-2 border-dashed border-sand-300 py-6 text-sm text-sand-500 hover:border-brand-400 hover:text-brand-600 transition-colors"
             >
-              {photoFiles.length > 0
-                ? `${photoFiles.length} foto(s) seleccionada(s)`
-                : "Toca para seleccionar fotos"}
+              {photoFiles.length > 0 ? `${photoFiles.length} foto(s) seleccionada(s)` : "Toca para seleccionar fotos"}
             </button>
 
             {photoFiles.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {photoFiles.map((f, i) => (
-                  <div
-                    key={i}
-                    className="relative h-16 w-16 rounded-lg overflow-hidden bg-sand-100"
-                  >
-                    <img
-                      src={URL.createObjectURL(f)}
-                      alt={f.name}
-                      className="h-full w-full object-cover"
-                    />
+                  <div key={i} className="relative h-16 w-16 rounded-lg overflow-hidden bg-sand-100">
+                    <img src={URL.createObjectURL(f)} alt={f.name} className="h-full w-full object-cover" />
                   </div>
                 ))}
               </div>
@@ -367,11 +286,7 @@ export default function ShelterPublishPage() {
                 disabled={uploading}
                 className="flex-1"
               >
-                {uploading
-                  ? "Subiendo…"
-                  : photoFiles.length
-                    ? "Subir y terminar"
-                    : "Terminar sin fotos"}
+                {uploading ? "Subiendo…" : photoFiles.length ? "Subir y terminar" : "Terminar sin fotos"}
               </Button>
             </div>
           </section>

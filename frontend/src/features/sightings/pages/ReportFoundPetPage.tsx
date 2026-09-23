@@ -6,6 +6,7 @@ import { BREEDS_BY_SPECIES } from "@/features/pets/data/breeds";
 import { LastSeenMap } from "@/features/lost-pets/components/LastSeenMap";
 import { useGeolocation } from "@/features/lost-pets/hooks/useGeolocation";
 import { trackProductEvent } from "@/shared/lib/telemetry";
+import { Input, Select, Textarea } from "@/shared/ui";
 
 // ── Step types ────────────────────────────────────────────────────────────────
 
@@ -28,11 +29,7 @@ function StepIndicator({ current, total }: { current: Step; total: number }) {
         <div
           key={step}
           className={`h-2 w-8 rounded-full transition-colors ${
-            step === current
-              ? "bg-rescue-500"
-              : step < current
-                ? "bg-rescue-200"
-                : "bg-sand-200"
+            step === current ? "bg-rescue-500" : step < current ? "bg-rescue-200" : "bg-sand-200"
           }`}
         />
       ))}
@@ -76,15 +73,14 @@ export default function ReportFoundPetPage() {
 
   useEffect(() => {
     if (geo.status === "denied") {
-      setGpsError(
-        "Permiso de ubicación denegado. Toca el mapa para marcar dónde encontraste la mascota.",
-      );
+      setGpsError("Permiso de ubicación denegado. Toca el mapa para marcar dónde encontraste la mascota.");
     }
   }, [geo.status]);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
+  const [privacyConsent, setPrivacyConsent] = useState(false);
 
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -107,6 +103,7 @@ export default function ReportFoundPetPage() {
       contactPhone: contactPhone.trim(),
       note: note.trim() || null,
       photo: photoFile,
+      privacyConsent,
     };
 
     try {
@@ -145,12 +142,8 @@ export default function ReportFoundPetPage() {
         <p className="text-3xl" aria-hidden="true">
           🐾
         </p>
-        <h1 className="mt-2 text-xl font-bold text-sand-900">
-          Encontré una mascota
-        </h1>
-        <p className="mt-1 text-sm text-sand-500">
-          Ayúdanos a reunirla con su familia
-        </p>
+        <h1 className="mt-2 text-xl font-bold text-sand-900">Encontré una mascota</h1>
+        <p className="mt-1 text-sm text-sand-500">Ayúdanos a reunirla con su familia</p>
       </div>
 
       <StepIndicator current={step} total={4} />
@@ -167,26 +160,17 @@ export default function ReportFoundPetPage() {
             tabIndex={0}
             aria-label="Subir foto de la mascota"
             onClick={() => fileInputRef.current?.click()}
-            onKeyDown={(e) =>
-              (e.key === "Enter" || e.key === " ") &&
-              fileInputRef.current?.click()
-            }
+            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && fileInputRef.current?.click()}
             className="flex h-48 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-sand-300 bg-sand-50 transition hover:border-rescue-400 hover:bg-rescue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-400"
           >
             {photoPreview ? (
-              <img
-                src={photoPreview}
-                alt="Vista previa"
-                className="h-full w-full rounded-xl object-cover"
-              />
+              <img src={photoPreview} alt="Vista previa" className="h-full w-full rounded-xl object-cover" />
             ) : (
               <>
                 <span className="text-4xl" aria-hidden="true">
                   📷
                 </span>
-                <p className="mt-2 text-sm text-sand-500">
-                  Toca para agregar una foto
-                </p>
+                <p className="mt-2 text-sm text-sand-500">Toca para agregar una foto</p>
               </>
             )}
           </div>
@@ -197,9 +181,7 @@ export default function ReportFoundPetPage() {
             className="hidden"
             onChange={handlePhotoChange}
           />
-          <p className="text-center text-xs text-sand-400">
-            La foto es opcional pero ayuda mucho
-          </p>
+          <p className="text-center text-xs text-sand-400">La foto es opcional pero ayuda mucho</p>
           <button
             type="button"
             onClick={() => setStep(2)}
@@ -235,93 +217,72 @@ export default function ReportFoundPetPage() {
                     }`}
                   >
                     <span className="text-xl">{opt.emoji}</span>
-                    <span className="mt-1 text-[10px] text-sand-600">
-                      {opt.label}
-                    </span>
+                    <span className="mt-1 text-[10px] text-sand-600">{opt.label}</span>
                   </button>
                 ))}
               </div>
             </fieldset>
           </div>
 
+          <label className="flex items-start gap-2 rounded-lg bg-sand-50 p-3 text-xs text-sand-600">
+            <input
+              type="checkbox"
+              checked={privacyConsent}
+              onChange={(event) => setPrivacyConsent(event.target.checked)}
+              className="mt-0.5"
+            />
+            <span>
+              Acepto el aviso de privacidad y autorizo el uso de mis datos de contacto, ubicación aproximada y evidencia
+              para intentar reunir esta mascota con su familia.
+            </span>
+          </label>
+
           {species && (
-            <div>
-              <label
-                htmlFor="found-breed"
-                className="mb-1 block text-sm font-medium text-sand-700"
-              >
-                Raza
-              </label>
-              <select
-                id="found-breed"
-                value={breedEstimate}
-                onChange={(e) => setBreedEstimate(e.target.value)}
-                className="w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-              >
-                <option value="">Selecciona una raza (opcional)</option>
-                {BREEDS_BY_SPECIES[species].map((breed) => (
-                  <option key={breed} value={breed}>
-                    {breed}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <Select
+              label="Raza"
+              id="found-breed"
+              value={breedEstimate}
+              onChange={(e) => setBreedEstimate(e.target.value)}
+            >
+              <option value="">Selecciona una raza (opcional)</option>
+              {BREEDS_BY_SPECIES[species].map((breed) => (
+                <option key={breed} value={breed}>
+                  {breed}
+                </option>
+              ))}
+            </Select>
           )}
 
-          <div>
-            <label
-              htmlFor="found-color"
-              className="mb-1 block text-sm font-medium text-sand-700"
-            >
-              Color / descripción
-            </label>
-            <input
-              id="found-color"
-              value={colorDescription}
-              onChange={(e) => setColorDescription(e.target.value)}
-              maxLength={200}
-              placeholder="Ej: naranja con manchas blancas"
-              className="w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-            />
-          </div>
+          <Input
+            label="Color / descripción"
+            id="found-color"
+            value={colorDescription}
+            onChange={(e) => setColorDescription(e.target.value)}
+            maxLength={200}
+            placeholder="Ej: naranja con manchas blancas"
+          />
 
-          <div>
-            <label
-              htmlFor="found-size"
-              className="mb-1 block text-sm font-medium text-sand-700"
-            >
-              Tamaño aproximado
-            </label>
-            <select
-              id="found-size"
-              value={sizeEstimate}
-              onChange={(e) => setSizeEstimate(e.target.value)}
-              className="w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-            >
-              <option value="">Selecciona una opción</option>
-              <option value="Pequeño">Pequeño (menos de 10 kg)</option>
-              <option value="Mediano">Mediano (10–25 kg)</option>
-              <option value="Grande">Grande (más de 25 kg)</option>
-            </select>
-          </div>
+          <Select
+            label="Tamaño aproximado"
+            id="found-size"
+            value={sizeEstimate}
+            onChange={(e) => setSizeEstimate(e.target.value)}
+          >
+            <option value="">Selecciona una opción</option>
+            <option value="Pequeño">Pequeño (menos de 10 kg)</option>
+            <option value="Mediano">Mediano (10–25 kg)</option>
+            <option value="Grande">Grande (más de 25 kg)</option>
+          </Select>
 
-          <div>
-            <label
-              htmlFor="found-note"
-              className="mb-1 block text-sm font-medium text-sand-700"
-            >
-              Nota adicional
-            </label>
-            <textarea
-              id="found-note"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              maxLength={500}
-              rows={3}
-              placeholder="¿Algo más que quieras agregar?"
-              className="w-full resize-none rounded-lg border border-sand-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-            />
-          </div>
+          <Textarea
+            label="Nota adicional"
+            id="found-note"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            maxLength={500}
+            rows={3}
+            placeholder="¿Algo más que quieras agregar?"
+          />
 
           <div className="flex gap-3">
             <button
@@ -344,18 +305,10 @@ export default function ReportFoundPetPage() {
       {/* ── Step 3: GPS location ── */}
       {step === 3 && (
         <div className="space-y-4">
-          {gpsError && (
-            <p className="rounded-xl bg-warn-50 px-3 py-2 text-center text-xs text-warn-700">
-              {gpsError}
-            </p>
-          )}
+          {gpsError && <p className="rounded-xl bg-warn-50 px-3 py-2 text-center text-xs text-warn-700">{gpsError}</p>}
 
           <LastSeenMap
-            value={
-              foundLat !== null && foundLng !== null
-                ? { lat: foundLat, lng: foundLng }
-                : null
-            }
+            value={foundLat !== null && foundLng !== null ? { lat: foundLat, lng: foundLng } : null}
             onChange={(coords) => {
               setFoundLat(coords.lat);
               setFoundLng(coords.lng);
@@ -411,15 +364,11 @@ export default function ReportFoundPetPage() {
       {step === 4 && (
         <div className="space-y-4">
           <p className="text-sm text-sand-500">
-            Tus datos solo se compartirán con el dueño si encontramos una
-            coincidencia.
+            Tus datos solo se compartirán con el dueño si encontramos una coincidencia.
           </p>
 
           <div>
-            <label
-              htmlFor="found-contact-name"
-              className="mb-1 block text-sm font-medium text-sand-700"
-            >
+            <label htmlFor="found-contact-name" className="mb-1 block text-sm font-medium text-sand-700">
               Tu nombre <span className="text-danger-500">*</span>
             </label>
             <input
@@ -434,10 +383,7 @@ export default function ReportFoundPetPage() {
           </div>
 
           <div>
-            <label
-              htmlFor="found-contact-phone"
-              className="mb-1 block text-sm font-medium text-sand-700"
-            >
+            <label htmlFor="found-contact-phone" className="mb-1 block text-sm font-medium text-sand-700">
               Teléfono <span className="text-danger-500">*</span>
             </label>
             <input
@@ -453,9 +399,7 @@ export default function ReportFoundPetPage() {
             />
           </div>
 
-          {submitError && (
-            <p className="text-center text-sm text-danger-600">{submitError}</p>
-          )}
+          {submitError && <p className="text-center text-sm text-danger-600">{submitError}</p>}
 
           <div className="flex gap-3">
             <button
@@ -468,11 +412,7 @@ export default function ReportFoundPetPage() {
               onClick={() => {
                 void handleSubmit();
               }}
-              disabled={
-                !contactName.trim() ||
-                contactPhone.trim().length < 7 ||
-                isPending
-              }
+              disabled={!contactName.trim() || contactPhone.trim().length < 7 || !privacyConsent || isPending}
               className="flex-1 rounded-xl bg-rescue-500 py-3 text-sm font-semibold text-white transition hover:bg-rescue-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isPending ? (

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { HolographicPetCard } from "../components/HolographicPetCard";
 import { OnboardingWizard } from "../components/OnboardingWizard";
 import { shouldShowOnboarding } from "../components/onboardingStorage";
@@ -17,11 +17,14 @@ import { usePullToRefresh } from "@/shared/hooks/usePullToRefresh";
 
 export default function DashboardPage() {
   const { data: pets, isLoading, isError, refetch } = usePets();
+  const [searchParams] = useSearchParams();
   const user = useAuthStore((s) => s.user);
   const { isPlus, isFamilia } = useMyTier();
   const lostCount = useMemo(() => (pets ?? []).filter((p) => p.status === "Lost").length, [pets]);
   const petLimit = isFamilia ? -1 : isPlus ? 3 : 1;
   const petCount = pets?.length ?? 0;
+  const isChoosingLostPet = searchParams.get("action") === "report-lost";
+  const activePets = useMemo(() => (pets ?? []).filter((pet) => pet.status === "Active"), [pets]);
   const atPetLimit = petLimit !== -1 && petCount >= petLimit;
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "Lost" | "Active">("all");
@@ -68,7 +71,7 @@ export default function DashboardPage() {
         {/* Pull-to-refresh indicator */}
         {(pullProgress > 0 || isRefreshing) && (
           <div
-            className="flex items-center justify-center gap-2 overflow-hidden transition-all"
+            className="flex items-center justify-center gap-2 overflow-hidden transition-[height,opacity]"
             style={{
               height: `${Math.max(pullProgress, isRefreshing ? 1 : 0) * 44}px`,
               opacity: Math.max(pullProgress, isRefreshing ? 1 : 0),
@@ -106,7 +109,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex flex-col items-end gap-1.5">
-            {!isFamilia && petCount > 0 && (
+            {user?.role === "Owner" && !isFamilia && petCount > 0 && (
               <p className="text-xs text-sand-500">
                 {petLimit === -1 ? "" : `${petCount} / ${petLimit} mascotas`}
                 {atPetLimit && !isPlus && (
@@ -120,7 +123,7 @@ export default function DashboardPage() {
                 )}
               </p>
             )}
-            {atPetLimit ? (
+            {user?.role !== "Owner" ? null : atPetLimit ? (
               <button
                 type="button"
                 onClick={() => setShowFreemium(true)}
@@ -138,6 +141,37 @@ export default function DashboardPage() {
             )}
           </div>
         </div>
+
+        {isChoosingLostPet && !isLoading && !isError && (
+          <section
+            className="mb-8 rounded-2xl border border-danger-200 bg-danger-50 p-4"
+            aria-labelledby="lost-pet-choice-title"
+          >
+            <div className="mb-3">
+              <h2 id="lost-pet-choice-title" className="text-base font-semibold text-danger-900">
+                ¿Qué mascota necesitas reportar como perdida?
+              </h2>
+              <p className="mt-1 text-sm text-danger-700">
+                Selecciona una mascota activa para iniciar su caso de búsqueda.
+              </p>
+            </div>
+            {activePets.length > 0 ? (
+              <div className="grid gap-2 sm:grid-cols-2">
+                {activePets.map((pet) => (
+                  <Link
+                    key={pet.id}
+                    to={`/pets/${pet.id}/report-lost`}
+                    className="rounded-xl border border-danger-200 bg-surface px-4 py-3 text-sm font-semibold text-danger-800 transition-colors hover:border-danger-400 hover:bg-danger-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger-400"
+                  >
+                    {pet.name}
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <Alert variant="warning">No tienes mascotas activas disponibles para reportar.</Alert>
+            )}
+          </section>
+        )}
 
         {/* Quick actions */}
         <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -251,12 +285,14 @@ export default function DashboardPage() {
             title="Aún no tienes mascotas"
             description="Registra tu primera mascota y genera su placa QR de identidad."
             action={
-              <Link
-                to="/pets/new"
-                className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-base hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
-              >
-                Registrar mi primera mascota
-              </Link>
+              user?.role === "Owner" ? (
+                <Link
+                  to="/pets/new"
+                  className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-base hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                >
+                  Registrar mi primera mascota
+                </Link>
+              ) : undefined
             }
           />
         )}

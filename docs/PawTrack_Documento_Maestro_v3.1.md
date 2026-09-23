@@ -25,7 +25,7 @@ Ciclo central del producto:
 PawTrack CR es un MVP amplio con modulos operativos, 1315 pruebas unitarias de
 backend y 52 pruebas frontend verificadas en el ultimo corte. La preparacion
 para produccion depende de los gates de `docs/STATUS.md` y
-`docs/ERRORES_PENDIENTES.md`.
+`docs/MASTER_TODO.md`.
 
 ### Módulos implementados (septiembre 2026)
 

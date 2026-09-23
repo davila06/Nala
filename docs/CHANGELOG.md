@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-09-23
+
+### Enterprise execution
+
+- Added mandatory privacy consent to anonymous found-pet reports at both UI and
+  backend validation boundaries.
+- Added `QrActivated` product event on explicit QR download.
+- Added low-cardinality HTTP request metrics and external-provider configuration
+  health checks without exposing secrets or PII.
+- Started OpenAPI-generated TypeScript contract artifacts in the enterprise CI
+  quality gate.
+
 ## 2026-09-22
 
 ### Operational readiness and documentation

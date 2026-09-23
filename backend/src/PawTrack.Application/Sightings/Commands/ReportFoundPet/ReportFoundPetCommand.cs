@@ -16,7 +16,8 @@ public sealed record ReportFoundPetCommand(
     string ContactPhone,
     string? Note,
     Stream? PhotoStream,
-    string? PhotoContentType) : IRequest<Result<ReportFoundPetResult>>;
+    string? PhotoContentType,
+    bool PrivacyConsent) : IRequest<Result<ReportFoundPetResult>>;
 
 public sealed record ReportFoundPetResult(
     Guid ReportId,

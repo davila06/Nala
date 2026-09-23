@@ -125,25 +125,22 @@ public sealed class SendChatMessageCommandHandler(
                 "ChatHub push failed for thread {ThreadId}", command.ThreadId),
                 CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
 
-        // ── Notify recipient (fire-and-forget; don't block the caller) ─────────
+        // ── Notify recipient after persistence, within the request scope ───────
         var recipientId = command.SenderUserId == thread.OwnerUserId
             ? thread.InitiatorUserId
             : thread.OwnerUserId;
 
-        _ = Task.Run(async () =>
+        try
         {
-            try
+            var recipient = await userRepository.GetByIdAsync(recipientId, CancellationToken.None);
+            if (recipient is not null)
             {
-                // Use None — this runs after the HTTP request completes
-                var recipient = await userRepository.GetByIdAsync(recipientId, CancellationToken.None);
-                if (recipient is null) return;
-
                 var lostEvent = await lostPetRepository.GetByIdAsync(thread.LostPetEventId, CancellationToken.None);
-                var petName = lostEvent is null ? "tu mascota" : string.Empty;
+                var petName = "tu mascota";
                 if (lostEvent is not null)
                 {
                     var pet = await petRepository.GetByIdAsync(lostEvent.PetId, CancellationToken.None);
-                    petName = pet?.Name ?? "tu mascota";
+                    petName = pet?.Name ?? petName;
                 }
 
                 await notificationDispatcher.DispatchNewChatMessageAsync(
@@ -153,11 +150,11 @@ public sealed class SendChatMessageCommandHandler(
                     command.ThreadId.ToString(),
                     CancellationToken.None);
             }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "Failed to dispatch chat notification for thread {ThreadId}", command.ThreadId);
-            }
-        }, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to dispatch chat notification for thread {ThreadId}", command.ThreadId);
+        }
 
         return Result.Success(message.Id);
     }

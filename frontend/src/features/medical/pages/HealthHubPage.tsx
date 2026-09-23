@@ -1,11 +1,13 @@
 import { HeartPulse, Plus, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { usePets } from "@/features/pets/hooks/usePets";
+import { useAuthStore } from "@/features/auth/store/authStore";
 import { Alert } from "@/shared/ui/Alert";
 import { Skeleton } from "@/shared/ui/Spinner";
 
 export default function HealthHubPage() {
   const { data: pets, isLoading, isError } = usePets();
+  const role = useAuthStore((state) => state.user?.role);
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
@@ -14,9 +16,11 @@ export default function HealthHubPage() {
           <p className="text-xs font-semibold uppercase text-brand-600">Salud</p>
           <h1 className="font-display text-2xl font-semibold text-sand-900">Expedientes de tus mascotas</h1>
         </div>
-        <Link className="rounded-lg bg-brand-500 p-2 text-white" to="/pets/new" aria-label="Registrar mascota">
-          <Plus className="h-5 w-5" />
-        </Link>
+        {role === "Owner" && (
+          <Link className="rounded-lg bg-brand-500 p-2 text-white" to="/pets/new" aria-label="Registrar mascota">
+            <Plus className="h-5 w-5" />
+          </Link>
+        )}
       </header>
 
       {isError && <Alert variant="error">No se pudieron cargar los expedientes.</Alert>}
@@ -50,10 +54,10 @@ export default function HealthHubPage() {
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <p className="truncate font-semibold text-sand-900">{pet.name}</p>
-              <p className="text-sm text-sand-500">Expediente, vacunas y recordatorios</p>
+              <p className="break-words text-base font-semibold leading-tight text-brand-600">{pet.name}</p>
+              <p className="mt-1 text-sm text-sand-500">Expediente, vacunas y recordatorios</p>
             </div>
-            <ShieldCheck className="h-5 w-5 text-trust-600" aria-hidden="true" />
+            <ShieldCheck className="h-5 w-5 shrink-0 text-trust-600" aria-hidden="true" />
           </Link>
         ))}
       </div>

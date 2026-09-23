@@ -12,6 +12,7 @@ secciones de producto sin actualizar primero la fuente canonica.
 | Familia              | Fuente canonica                                                              | Historicos o soporte                                                                      |
 | -------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | Producto/estado      | `STATUS.md`                                                                  | `NALA.md`, `CCNAla.md`                                                                    |
+| Backlog enterprise   | `MASTER_TODO.md`                                                             | Listas históricas de TODOs, errores y decisiones consolidadas y eliminadas                |
 | Features/tier        | `FEATURES.md` + `PRICING_AND_PLANS.md`                                       | `planes.md`, `precios.md`, `pricing.md`, `featuresB2B.md`                                 |
 | Deploy               | `RUNBOOK_DEPLOYMENT.md`                                                      | `GUIA_DEPLOY_PASO_A_PASO.md`, `operacional.md`, `pasos-para-ir-live.md`, `DEPLOY_INFO.md` |
 | Seguridad API        | `API_AUTHORIZATION_MATRIX.md` + `API_REFERENCE.md`                           | notas de auditoria antiguas                                                               |

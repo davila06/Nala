@@ -22,9 +22,7 @@ export default function OwnerAdoptionSubmissionPage() {
   const [responsibility, setResponsibility] = useState(false);
   const [transfer, setTransfer] = useState(false);
 
-  const eligiblePets = pets.filter(
-    (pet) => pet.status === "Active" && pet.photoUrl,
-  );
+  const eligiblePets = pets.filter((pet) => pet.status === "Active");
 
   const submit = () => {
     if (!petId || !story.trim() || !responsibility || !transfer) return;
@@ -55,25 +53,21 @@ export default function OwnerAdoptionSubmissionPage() {
       <Helmet>
         <title>Dar en adopción · PawTrack CR</title>
       </Helmet>
-      <Link
-        to="/dashboard"
-        className="text-sm font-semibold text-brand-600 hover:underline"
-      >
+      <Link to="/dashboard" className="text-sm font-semibold text-brand-600 hover:underline">
         Volver a mis mascotas
       </Link>
       <header>
-        <h1 className="font-display text-2xl font-semibold text-ink-900">
-          Dar una mascota en adopción
-        </h1>
+        <h1 className="font-display text-2xl font-semibold text-ink-900">Dar una mascota en adopción</h1>
         <p className="mt-2 text-sm text-sand-600">
-          Revisaremos tu solicitud antes de publicarla. Tu dirección y datos de
-          contacto no se mostrarán públicamente.
+          Revisaremos tu solicitud antes de publicarla. Tu dirección y datos de contacto no se mostrarán públicamente.
         </p>
       </header>
+      <Alert variant="info">
+        Puedes enviar la solicitud aunque la mascota todavía no tenga una foto. Agregarla ayudará a que su perfil sea
+        más claro durante la revisión.
+      </Alert>
       {eligiblePets.length === 0 && !isLoading ? (
-        <Alert variant="error">
-          Necesitas una mascota activa con foto para solicitar una adopción.
-        </Alert>
+        <Alert variant="error">Necesitas una mascota activa para solicitar una adopción.</Alert>
       ) : (
         <section className="space-y-4">
           <label className="block text-sm font-medium text-sand-700">
@@ -111,9 +105,7 @@ export default function OwnerAdoptionSubmissionPage() {
               Edad
               <select
                 value={ageCategory}
-                onChange={(event) =>
-                  setAgeCategory(event.target.value as AgeCategory)
-                }
+                onChange={(event) => setAgeCategory(event.target.value as AgeCategory)}
                 className="mt-1 w-full rounded-lg border border-sand-200 bg-surface px-3 py-2"
               >
                 {Object.entries(AGE_LABELS).map(([value, label]) => (
@@ -161,29 +153,17 @@ export default function OwnerAdoptionSubmissionPage() {
               checked={responsibility}
               onChange={(event) => setResponsibility(event.target.checked)}
             />
-            Confirmo que soy responsable de esta mascota y que la información es
-            correcta.
+            Confirmo que soy responsable de esta mascota y que la información es correcta.
           </label>
           <label className="flex gap-2 text-sm text-sand-700">
-            <input
-              type="checkbox"
-              checked={transfer}
-              onChange={(event) => setTransfer(event.target.checked)}
-            />
-            Entiendo que la adopción implica una transferencia responsable, no
-            una venta.
+            <input type="checkbox" checked={transfer} onChange={(event) => setTransfer(event.target.checked)} />
+            Entiendo que la adopción implica una transferencia responsable, no una venta.
           </label>
           <Button
             type="button"
             fullWidth
             loading={submission.isPending}
-            disabled={
-              !petId ||
-              !story.trim() ||
-              !responsibility ||
-              !transfer ||
-              isLoading
-            }
+            disabled={!petId || !story.trim() || !responsibility || !transfer || isLoading}
             onClick={submit}
           >
             Enviar a revisión

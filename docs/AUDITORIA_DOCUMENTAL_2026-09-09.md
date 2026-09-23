@@ -67,7 +67,7 @@ El codigo define: `Owner`, `Ally`, `Admin`, `Clinic`, `Municipality`, `Store`,
 - `B2B_ESTADO_ACTUAL.md`, `featuresB2B.md`, `SERVICE_PROVIDERS_OPERABILITY.md`,
   `SERVICE_PROVIDERS_THREAT_MODEL.md`, `SERVICE_PROVIDERS_ENTERPRISE_TODOLIST.md`
 - `API_CLINIC_PARTNER_v1.md`, `CATALOGO_METRICAS_NALA.md`,
-  `OBSERVABILITY_SLO_RUNBOOK.md`, `DEPLOY_INFO.md`, `ERRORES_PENDIENTES.md`
+  `OBSERVABILITY_SLO_RUNBOOK.md`, `DEPLOY_INFO.md`, `MASTER_TODO.md`
 - `B2B_E2E_RUNBOOK.md`, `CHANGELOG.md`, `checklist-lanzamiento.md`,
   `GUIA_SCOPES_REPORTES.md`, `sinpe.md`, `usuarios-prueba.md`,
   `MANUAL_ALIADOS_REFUGIOS.md`, `MANUAL_MUNICIPAL_REPORTES.md`,
@@ -76,7 +76,7 @@ El codigo define: `Owner`, `Ally`, `Admin`, `Clinic`, `Municipality`, `Store`,
 
 ## Documentos conservados como historicos o de trabajo
 
-`TODOs.md`, `pendientesTotales.md`, `sprint-plan-enterprise.md`,
+`pendientesTotales.md`, `sprint-plan-enterprise.md`,
 `ROLLOUT_SPRINT5.md`, `benchmark.md`, `sponsor.md`, `influencer.md`,
 `adopciones.md`, `adopciones-todolist.md`, `ganancia.md`, `planes.md`,
 `precios.md`, `pricing.md`, `publicidad.md`, `vallasPublicitarias.md`,
@@ -88,8 +88,8 @@ El codigo define: `Owner`, `Ally`, `Admin`, `Clinic`, `Municipality`, `Store`,
 `adopciones.md` y los documentos de propuesta/comerciales no enlazados como
 fuentes activas.
 
-`PRODUCT_P0_ENTERPRISE_TODOLIST.md` y `PRODUCT_STRATEGY_TOP1.md` siguen siendo
-fuentes activas de backlog/estrategia y no deben tratarse como manuales de uso.
+`MASTER_TODO.md` y `PRODUCT_STRATEGY_TOP1.md` siguen siendo fuentes activas de
+backlog/estrategia y no deben tratarse como manuales de uso.
 La etiqueta historica aplica a los documentos de trabajo fechados, incluso
 cuando una tarea concreta siga siendo valida.
 

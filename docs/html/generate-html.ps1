@@ -16,6 +16,7 @@ $docs = @(
   @{ file = "EXTERNAL_PROVIDER_VALIDATION.md"; title = "Validación de Proveedores";         icon = "🔐"; back = "../EXTERNAL_PROVIDER_VALIDATION.md" }
   @{ file = "GO_LIVE_GOVERNANCE.md";           title = "Gobierno de Go-Live";              icon = "🛡️"; back = "../GO_LIVE_GOVERNANCE.md" }
   @{ file = "CHANGELOG.md";                   title = "Changelog";                       icon = "📝"; back = "../CHANGELOG.md" }
+  @{ file = "MASTER_TODO.md";                    title = "Backlog Maestro";              icon = "🗺️"; back = "../MASTER_TODO.md" }
   @{ file = "sponsor.md";                     title = "Brief de Due Diligence";            icon = "📑"; back = "../sponsor.md" }
   @{ file = "FEATURES.md";                    title = "Features por Plan";                 icon = "🧭"; back = "../FEATURES.md" }
   @{ file = "PRICING_AND_PLANS.md";           title = "Planes y Capacidades";             icon = "💳"; back = "../PRICING_AND_PLANS.md" }

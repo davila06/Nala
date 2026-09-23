@@ -1,4 +1,5 @@
 import { useSightingsByPet } from "../hooks/useSightings";
+import { formatDateTime } from "@/shared/lib/formatDate";
 
 interface SightingListProps {
   petId: string;
@@ -36,11 +37,7 @@ export function SightingList({ petId }: SightingListProps) {
   }
 
   if (isError) {
-    return (
-      <p className="text-sm text-danger-500">
-        No se pudieron cargar los avistamientos.
-      </p>
-    );
+    return <p className="text-sm text-danger-500">No se pudieron cargar los avistamientos.</p>;
   }
 
   if (!sightings || sightings.length === 0) {
@@ -63,6 +60,8 @@ export function SightingList({ petId }: SightingListProps) {
               <img
                 src={s.photoUrl}
                 alt="Avistamiento"
+                width={56}
+                height={56}
                 className="h-14 w-14 flex-shrink-0 rounded-lg object-cover"
               />
             )}
@@ -73,25 +72,14 @@ export function SightingList({ petId }: SightingListProps) {
                 >
                   {PRIORITY_STYLES[s.priorityBadge].label}
                 </span>
-                <span className="text-xs font-semibold text-sand-500">
-                  {s.priorityScore}/100
-                </span>
+                <span className="text-xs font-semibold text-sand-500">{s.priorityScore}/100</span>
               </div>
               <p className="mt-2 text-xs font-semibold text-sand-700">
-                <span aria-hidden="true">📍</span> {s.lat.toFixed(4)},{" "}
-                {s.lng.toFixed(4)}
+                <span aria-hidden="true">📍</span> {s.lat.toFixed(4)}, {s.lng.toFixed(4)}
               </p>
-              {s.note && (
-                <p className="mt-0.5 line-clamp-2 text-xs text-sand-500">
-                  {s.note}
-                </p>
-              )}
-              <p className="mt-2 text-xs text-sand-600">
-                {s.recommendedAction}
-              </p>
-              <p className="mt-1 text-xs text-sand-400">
-                {new Date(s.sightedAt).toLocaleString()}
-              </p>
+              {s.note && <p className="mt-0.5 line-clamp-2 text-xs text-sand-500">{s.note}</p>}
+              <p className="mt-2 text-xs text-sand-600">{s.recommendedAction}</p>
+              <p className="mt-1 text-xs text-sand-400">{formatDateTime(s.sightedAt)}</p>
             </div>
           </div>
         </li>

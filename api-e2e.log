@@ -1,0 +1,39 @@
+[09:34:16 WRN]  The property 'AdoptablePet._photoUrls' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+[09:34:16 WRN]  The property 'AdoptionFair._animalIds' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+[09:34:17 INF]  [Migrations] Database is up to date. No migrations to apply.
+[09:34:18 INF]  ClinicProfileViewPurgeHostedService next run in 17:25:41.3699121
+[09:34:18 INF]  StaleReportCheckerHostedService next run in 22:25:41.3635891
+[09:34:18 INF]  RiskAlertHostedService started. First run in 00:01:00.
+[09:34:18 INF]  QrScanRetentionHostedService next run in 16:25:41.3606910
+[09:34:18 INF]  PersonalDataRetentionHostedService next run in 17:25:41.3588628
+[09:34:18 INF]  EmbeddingRefreshHostedService started. First run in 00:00:30.
+[09:34:18 INF]  VerificationExpirationHostedService next run in 17:45:41.2407591
+[09:34:18 INF]  VerificationRenewalReminderHostedService next run in 23:25:41.2384055
+[09:34:18 INF]  VetReminderHostedService: next run in 1.04:25:41.1638254 (at 09/24/2026 14:00:00)
+[09:34:18 INF]  HealthAlertHostedService: next run in 1.05:25:41.1578569 (at 09/24/2026 15:00:00)
+[09:34:18 INF]  SubscriptionRecurringBillingHostedService next run in 18:25:41.1564789
+[09:34:18 INF]  Now listening on: http://localhost:5199
+[09:34:18 INF]  Application started. Press Ctrl+C to shut down.
+[09:34:18 INF]  Hosting environment: Development
+[09:34:18 INF]  Content root path: C:\Nala\backend\src\PawTrack.API
+[09:35:04 INF]  Push skipped (VAPID not configured). User=aa000003-0000-0000-0000-000000000003 [Batería baja del collar] El collar de Toby GPS tiene 12% de batería. Cárgalo pronto.
+[09:35:04 INF]  CollarConnectivityAlertService: sent 1 low-battery alert(s).
+[09:35:45 WRN]  Failed to determine the https port for redirect.
+[09:35:45 INF] 01a0cee8-9a29-7178-a81c-741daf32b5c1 Handling LoginCommand
+[09:35:46 INF] 01a0cee8-9a29-7178-a81c-741daf32b5c1 Auth.Login.Success UserId=aa000004-0000-0000-0000-000000000004 Role=Owner
+[09:35:46 INF] 01a0cee8-9a29-7178-a81c-741daf32b5c1 Handled LoginCommand in 917ms
+[09:35:46 INF] 01a0cee8-9e4e-795a-b06e-3356d7b2c339 Handling LoginCommand
+[09:35:46 INF] 01a0cee8-9e4e-795a-b06e-3356d7b2c339 Auth.Login.Success UserId=d73fc5ea-6f8f-4adf-9756-07480962eaf3 Role=Owner
+[09:35:46 INF] 01a0cee8-9e4e-795a-b06e-3356d7b2c339 Handled LoginCommand in 312ms
+[09:35:46 INF] 01a0cee8-9f96-717c-b495-830e8ec018dc Handling CreatePetCommand
+[09:35:47 INF] 01a0cee8-9f96-717c-b495-830e8ec018dc Handled CreatePetCommand in 116ms
+[09:35:53 INF] 01a0cee8-ba36-71d1-92a2-b25b07a31b44 Handling LoginCommand
+[09:35:54 INF] 01a0cee8-ba36-71d1-92a2-b25b07a31b44 Auth.Login.Success UserId=aa000004-0000-0000-0000-000000000004 Role=Owner
+[09:35:54 INF] 01a0cee8-ba36-71d1-92a2-b25b07a31b44 Handled LoginCommand in 415ms
+[09:35:54 INF] 01a0cee8-bbf1-7542-af41-d09cd51c7f8c Handling LoginCommand
+[09:35:54 INF] 01a0cee8-bbf1-7542-af41-d09cd51c7f8c Auth.Login.Success UserId=d73fc5ea-6f8f-4adf-9756-07480962eaf3 Role=Owner
+[09:35:54 INF] 01a0cee8-bbf1-7542-af41-d09cd51c7f8c Handled LoginCommand in 359ms
+[09:35:54 INF] 01a0cee8-bd6b-7c24-8e7a-05c4a1469839 Handling CreatePetCommand
+[09:35:54 INF] 01a0cee8-bd6b-7c24-8e7a-05c4a1469839 Handled CreatePetCommand in 6ms
+[09:50:03 INF]  Push skipped (VAPID not configured). User=aa000003-0000-0000-0000-000000000003 [Batería baja del collar] El collar de Toby GPS tiene 12% de batería. Cárgalo pronto.
+[09:50:03 INF]  CollarConnectivityAlertService: sent 1 low-battery alert(s).
