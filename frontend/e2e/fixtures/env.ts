@@ -7,7 +7,7 @@ export const COORDINATION_FIXTURE = {
 };
 
 export const TEST_USERS = {
-  owner: { email: "owner_familia@test.cr", password: "Test123!" },
+  owner: { email: "owner_plus@test.cr", password: "Test123!" },
   finder: {
     email: process.env.E2E_FINDER_EMAIL ?? "owner@pawtrack.test",
     password: process.env.E2E_FINDER_PASSWORD ?? "Test123!",

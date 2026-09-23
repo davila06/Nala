@@ -259,7 +259,7 @@ export async function grantPlusSubscription(
   if (mine.ok()) {
     const raw = await mine.text();
     const current = raw ? (JSON.parse(raw) as { tier: string; isActive: boolean } | null) : null;
-    if (current?.isActive && (current.tier === "UserPlus" || current.tier === "UserFamilia")) {
+    if (current?.isActive && current.tier === "UserFamilia") {
       return;
     }
   }
