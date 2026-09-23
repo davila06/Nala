@@ -43,6 +43,7 @@ describe("buildProductEvent", () => {
   });
 
   it("posts recovery completion to the product analytics endpoint", () => {
+    window.localStorage.setItem("pawtrack_cookie_consent", "accepted");
     trackProductEvent("PetReunited", { source: "handover", petId: "pet-1" });
 
     expect(postMock).toHaveBeenCalledWith(
@@ -53,5 +54,14 @@ describe("buildProductEvent", () => {
         petId: "pet-1",
       }),
     );
+  });
+
+  it("does not post product analytics before explicit analytics consent", () => {
+    window.localStorage.removeItem("pawtrack_cookie_consent");
+    postMock.mockClear();
+
+    trackProductEvent("PetReunited", { source: "handover", petId: "pet-1" });
+
+    expect(postMock).not.toHaveBeenCalled();
   });
 });

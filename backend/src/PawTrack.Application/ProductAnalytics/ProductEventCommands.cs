@@ -122,12 +122,19 @@ public sealed class GetProductFunnelQueryHandler(IProductEventRepository reposit
 public sealed record GetProductPerformanceQuery(
     DateTimeOffset From,
     DateTimeOffset To,
-    string? Canton = null) : IRequest<Result<ProductPerformanceDto>>;
+    string? Canton = null,
+    string? Channel = null,
+    string? Species = null) : IRequest<Result<ProductPerformanceDto>>;
 
 public sealed record ProductPerformanceDto(
     DateTimeOffset From,
     DateTimeOffset To,
     string? Canton,
+    string? Channel,
+    string? Species,
+    int ActiveProtectedPets30Days,
+    int ActiveProtectedPets90Days,
+    int ActiveProtectedPets180Days,
     IReadOnlyList<ProductCohortMetric> Cohorts);
 
 public sealed class GetProductPerformanceQueryHandler(IProductEventRepository repository)
@@ -141,12 +148,22 @@ public sealed class GetProductPerformanceQueryHandler(IProductEventRepository re
             request.From,
             request.To,
             request.Canton,
+            request.Channel,
+            request.Species,
+            cancellationToken);
+        var activeProtected = await repository.GetActiveProtectedCountsAsync(
+            request.To,
             cancellationToken);
 
         return Result.Success(new ProductPerformanceDto(
             request.From,
             request.To,
             request.Canton,
+            request.Channel,
+            request.Species,
+            activeProtected.Days30,
+            activeProtected.Days90,
+            activeProtected.Days180,
             cohorts));
     }
 }

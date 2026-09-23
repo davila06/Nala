@@ -23,6 +23,7 @@ export default function ReportLostPage() {
   const { data: pet, isLoading } = usePetDetail(id ?? "");
   const { mutateAsync: reportLost, isPending, error } = useReportLost();
   const geo = useGeolocation();
+  const { status: geoStatus, coords: geoCoords, error: geoError, request: requestGeo } = geo;
 
   // ── All hooks must be called before any early return (Rules of Hooks) ─────
   // useRecoveryRates depends on pet data; use safe defaults while loading.
@@ -52,16 +53,16 @@ export default function ReportLostPage() {
 
   // Auto-request geolocation on mount and seed the pin with the first fix
   useEffect(() => {
-    geo.request();
-  }, [geo]);
+    requestGeo();
+  }, [requestGeo]);
 
   // Once geolocation resolves, auto-place the pin at the user's position
   // (only if the user hasn't already placed it manually)
   useEffect(() => {
-    if (geo.status === "granted" && geo.coords && !coords) {
-      setCoords(geo.coords);
+    if (geoStatus === "granted" && geoCoords && !coords) {
+      setCoords(geoCoords);
     }
-  }, [geo.status, geo.coords, coords]);
+  }, [geoStatus, geoCoords, coords]);
 
   if (isLoading) {
     return (
@@ -324,23 +325,23 @@ export default function ReportLostPage() {
                           )}
                         </div>
 
-                        {geo.status === "requesting" && (
+                        {geoStatus === "requesting" && (
                           <div className="mb-2 flex items-center gap-2 rounded-lg bg-trust-50 px-3 py-2 text-xs text-trust-600">
                             <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-trust-400 border-t-transparent" />
                             Obteniendo tu ubicación…
                           </div>
                         )}
-                        {geo.status === "denied" && geo.error && (
+                        {geoStatus === "denied" && geoError && (
                           <div className="mb-2 rounded-lg bg-brand-50 px-3 py-2 text-xs text-brand-700">
-                            ⚠️ {geo.error}
+                            ⚠️ {geoError}
                           </div>
                         )}
 
                         <LastSeenMap
                           value={coords}
                           onChange={setCoords}
-                          userCoords={geo.coords}
-                          geoStatus={geo.status}
+                          userCoords={geoCoords}
+                          geoStatus={geoStatus}
                           petName={pet.name}
                           estimatedRadius={estimatedRadius}
                           className="h-64 w-full overflow-hidden rounded-2xl border border-sand-200 shadow-sm"

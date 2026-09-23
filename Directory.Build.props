@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Deterministic>true</Deterministic>
     <LangVersion>latest</LangVersion>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <Company>PawTrack CR</Company>
     <Product>PawTrack CR — Plataforma de Identidad y Recuperación de Mascotas</Product>
     <Copyright>Copyright © 2026 PawTrack CR. Todos los derechos reservados.</Copyright>

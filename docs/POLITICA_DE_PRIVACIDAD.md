@@ -1,10 +1,10 @@
 # Política de Privacidad — PawTrack CR
 
-**Versión:** 1.2
-**Fecha de entrada en vigor:** 10 de septiembre de 2026
-**Última actualización:** 10 de septiembre de 2026
+**Versión:** 1.3-draft
+**Fecha de entrada en vigor:** Pendiente de aprobación legal
+**Última actualización:** 23 de septiembre de 2026
 
-> Documento informativo sujeto a revisión legal local. La aplicación práctica
+> Documento de trabajo sujeto a aprobación legal local. La aplicación práctica
 > depende de la configuración del servicio, los consentimientos otorgados y los
 > contratos con encargados de tratamiento.
 
@@ -25,14 +25,15 @@ proveedores, tiendas, clínicas, municipalidades, NALA y vallas publicitarias.
 
 ## 2. Responsable del tratamiento
 
-**Responsable de la operación y tratamiento de datos:** PawTrack CR  
+**Responsable de la operación y tratamiento de datos:** entidad jurídica por confirmar antes del go-live
 **Correo de privacidad:** <privacidad@pawtrack.cr>  
 **Correo de soporte:** <soporte@pawtrack.cr>  
 **Domicilio operativo:** Costa Rica
 
-La razón social, cédula jurídica y representante legal responsables deberán
-incorporarse antes del lanzamiento comercial abierto. Mientras esa información
-no esté formalizada, este documento no debe presentarse como aviso legal final.
+La razón social, cédula jurídica, representante legal, domicilio para
+notificaciones y canal formal de atención deberán incorporarse antes del
+lanzamiento comercial abierto. Mientras esa información no esté formalizada,
+este documento no debe presentarse como aviso legal final.
 
 ---
 
@@ -304,8 +305,11 @@ entrega de vallas y caché/service worker para funcionamiento de la PWA. El
 almacenamiento local no debe contener contraseñas ni tokens de acceso.
 
 Las cookies y tecnologías no esenciales deben gestionarse mediante el banner y
-las preferencias disponibles. La persona puede retirar o cambiar su elección
-desde el navegador o el mecanismo de preferencias que PawTrack habilite.
+las preferencias disponibles. La analítica de Application Insights y los
+eventos de producto no se inicializan ni se envían antes de la aceptación
+explícita de analítica; la persona puede retirar o cambiar su elección mediante
+el mecanismo de preferencias que PawTrack habilite. El retiro no afecta la
+legalidad del tratamiento realizado antes de ese retiro.
 
 ---
 
@@ -365,3 +369,16 @@ Consultas de privacidad, ejercicio de derechos, dudas sobre tratamiento de datos
 ## 17. Referencia normativa
 
 Esta política se redacta considerando principios de protección de datos aplicables en Costa Rica, con atención especial a la Ley de Protección de la Persona frente al Tratamiento de sus Datos Personales (Ley N.° 8968), su reglamento y demás normas que resulten aplicables, sin perjuicio de otras disposiciones regulatorias vigentes en el país.
+
+## 18. Pendientes de aprobación
+
+Antes de publicar esta política como versión vigente deben confirmarse:
+
+- responsable jurídico, domicilio, representante y registro aplicable;
+- inventario de encargados, regiones de tratamiento y DPA, incluido Azure;
+- base jurídica y avisos diferenciados para salud, ubicación, fotos,
+  embeddings, publicidad, comunicaciones y menores;
+- procedimiento, plazos y responsables para derechos de titulares y brechas;
+- retención legal de auditoría, backups, pagos, chats, ubicación y evidencias;
+- consentimiento/versionado de términos, privacidad y cookies;
+- revisión de transferencias internacionales y proveedores reales.

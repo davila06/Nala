@@ -11,12 +11,15 @@
  */
 import { ApplicationInsights, type ICustomProperties, type SeverityLevel } from "@microsoft/applicationinsights-web";
 import { apiClient } from "./apiClient";
+import { getCookieConsent } from "@/shared/ui/cookieConsent";
 
 const connectionString = import.meta.env.VITE_APPINSIGHTS_CONNECTION_STRING as string | undefined;
 
 let appInsights: ApplicationInsights | null = null;
 
-if (connectionString) {
+function initializeAnalytics(): void {
+  if (appInsights || !connectionString || getCookieConsent() !== "accepted") return;
+
   appInsights = new ApplicationInsights({
     config: {
       connectionString,
@@ -30,6 +33,13 @@ if (connectionString) {
   });
   appInsights.loadAppInsights();
   appInsights.trackPageView();
+}
+
+initializeAnalytics();
+
+/** Enables non-essential analytics after explicit cookie consent. */
+export function enableAnalyticsTelemetry(): void {
+  initializeAnalytics();
 }
 
 // ── Public helpers ─────────────────────────────────────────────────────────────
@@ -109,6 +119,8 @@ export function trackProductEvent(
   name: ProductEventName,
   properties: Omit<ProductEventProperties, "schemaVersion" | "eventId" | "occurredAt" | "anonymousId">,
 ): void {
+  if (getCookieConsent() !== "accepted") return;
+
   const event = buildProductEvent(name, properties);
 
   trackEvent(name, event);

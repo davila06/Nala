@@ -181,7 +181,7 @@ export const router = createBrowserRouter([
           {
             path: "/map",
             element: (
-              <S>
+              <S skeleton="map">
                 <PublicMapPage />
               </S>
             ),
@@ -414,7 +414,7 @@ export const router = createBrowserRouter([
           {
             path: "/dashboard",
             element: (
-              <S>
+              <S skeleton="dashboard">
                 <DashboardPage />
               </S>
             ),
@@ -483,7 +483,7 @@ export const router = createBrowserRouter([
           {
             path: "/pets/:id",
             element: (
-              <S>
+              <S skeleton="detail">
                 <PetDetailPage />
               </S>
             ),
@@ -491,7 +491,7 @@ export const router = createBrowserRouter([
           {
             path: "/pets/:id/report-lost",
             element: (
-              <S>
+              <S skeleton="form">
                 <ReportLostPage />
               </S>
             ),
@@ -719,7 +719,7 @@ export const router = createBrowserRouter([
               {
                 path: "/clinica/portal",
                 element: (
-                  <S>
+                  <S skeleton="dashboard">
                     <ClinicDashboardPage />
                   </S>
                 ),

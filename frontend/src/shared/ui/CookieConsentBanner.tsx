@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getCookieConsent, type ConsentState } from "./cookieConsent";
+import { enableAnalyticsTelemetry } from "@/shared/lib/telemetry";
 
 const STORAGE_KEY = "pawtrack_cookie_consent";
 
@@ -16,6 +17,7 @@ export function CookieConsentBanner() {
   const handleAccept = () => {
     localStorage.setItem(STORAGE_KEY, "accepted");
     setConsent("accepted");
+    enableAnalyticsTelemetry();
   };
 
   const handleReject = () => {
@@ -36,14 +38,14 @@ export function CookieConsentBanner() {
         role="dialog"
         aria-modal="false"
         aria-label="Aviso de cookies y privacidad"
-        className="fixed bottom-0 left-0 right-0 z-[9000] border-t border-sand-200 bg-white/95 px-4 py-4 shadow-2xl backdrop-blur-sm sm:bottom-4 sm:left-4 sm:right-auto sm:max-w-sm sm:rounded-2xl sm:border"
+        className="fixed bottom-0 left-0 right-0 z-9000 border-t border-sand-200 bg-white/95 px-4 py-4 shadow-2xl backdrop-blur-sm sm:bottom-4 sm:left-4 sm:right-auto sm:max-w-sm sm:rounded-2xl sm:border"
       >
         <p className="mb-3 text-sm leading-relaxed text-sand-700">
           <span className="mr-1" aria-hidden="true">
             🍪
           </span>
-          Usamos cookies esenciales para el funcionamiento de la app y cookies
-          de analítica (Application Insights) para mejorar el servicio.{" "}
+          Usamos cookies esenciales para el funcionamiento de la app y cookies de analítica (Application Insights) para
+          mejorar el servicio.{" "}
           <a
             href="/legal/politica-de-privacidad.html"
             className="font-semibold text-brand-600 underline underline-offset-2 hover:text-brand-700"
@@ -72,4 +74,3 @@ export function CookieConsentBanner() {
     </AnimatePresence>
   );
 }
-

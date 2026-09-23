@@ -46,7 +46,7 @@ jobs:
         with:
           dotnet-version: 9.0.x
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore --locked-mode
       - name: Build Release
         run: dotnet build PawTrack.sln --no-restore --configuration Release
       - name: Unit tests

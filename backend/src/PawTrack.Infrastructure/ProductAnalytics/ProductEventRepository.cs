@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Domain.Pets;
 using PawTrack.Domain.ProductAnalytics;
 using PawTrack.Infrastructure.Persistence;
 
@@ -59,6 +60,8 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
         DateTimeOffset from,
         DateTimeOffset to,
         string? canton,
+        string? channel = null,
+        string? species = null,
         CancellationToken cancellationToken = default)
     {
         const string sql = """
@@ -66,21 +69,30 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
                 SELECT
                     COALESCE(NULLIF([CorrelationId], ''), COALESCE(CONVERT(nvarchar(36), [PetId]), [AnonymousId])) AS [JourneyId],
                     COALESCE(MAX(NULLIF([Canton], '')), N'Sin especificar') AS [Canton],
+                    COALESCE(MAX(NULLIF([Source], '')), N'Sin especificar') AS [Channel],
+                    COALESCE(MAX(CASE p.[Species]
+                        WHEN 0 THEN N'Dog' WHEN 1 THEN N'Cat' WHEN 2 THEN N'Bird'
+                        WHEN 3 THEN N'Rabbit' WHEN 4 THEN N'Other' END), N'Sin especificar') AS [Species],
                     MIN(CASE WHEN [EventName] = N'PetRegistered' THEN [OccurredAt] END) AS [RegisteredAt],
                     MIN(CASE WHEN [EventName] IN (N'PetProfileCompleted', N'QrActivated') THEN [OccurredAt] END) AS [ActivatedAt],
                     MIN(CASE WHEN [EventName] = N'LostPetReported' THEN [OccurredAt] END) AS [LostAt],
                     MIN(CASE WHEN [EventName] IN (N'SightingCreated', N'FirstResponseRecorded') THEN [OccurredAt] END) AS [FirstResponseAt],
                     MIN(CASE WHEN [EventName] IN (N'HandoverCompleted', N'PetReunited') THEN [OccurredAt] END) AS [ReunitedAt]
-                FROM [ProductEvents]
-                WHERE [OccurredAt] >= {0} AND [OccurredAt] < {1}
-                  AND ({2} IS NULL OR [Canton] = {2})
-                GROUP BY COALESCE(NULLIF([CorrelationId], ''), COALESCE(CONVERT(nvarchar(36), [PetId]), [AnonymousId]))
+                                FROM [ProductEvents] AS e
+                                LEFT JOIN [Pets] AS p ON e.[PetId] = p.[Id]
+                                WHERE e.[OccurredAt] >= {0} AND e.[OccurredAt] < {1}
+                                    AND ({2} IS NULL OR e.[Canton] = {2})
+                                    AND ({3} IS NULL OR e.[Source] = {3})
+                                    AND ({4} IS NULL OR p.[Species] = {4})
+                                GROUP BY COALESCE(NULLIF(e.[CorrelationId], ''), COALESCE(CONVERT(nvarchar(36), e.[PetId]), e.[AnonymousId]))
             ), JourneyMetrics AS (
                 SELECT
                     [JourneyId],
                     CONCAT(DATEPART(year, COALESCE([RegisteredAt], [LostAt])), '-',
                         RIGHT(CONCAT('0', DATEPART(month, COALESCE([RegisteredAt], [LostAt]))), 2)) AS [Cohort],
                     [Canton],
+                    [Channel],
+                    [Species],
                     [RegisteredAt],
                     [ActivatedAt],
                     [LostAt],
@@ -106,6 +118,8 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
             SELECT
                 [Cohort],
                 [Canton],
+                [Channel],
+                [Species],
                 COUNT(CASE WHEN [RegisteredAt] IS NOT NULL THEN 1 END) AS [RegisteredPets],
                 COUNT(CASE WHEN [RegisteredAt] IS NOT NULL AND [ActivatedAt] >= [RegisteredAt] THEN 1 END) AS [ActivatedPets],
                 COUNT(CASE WHEN [LostAt] IS NOT NULL THEN 1 END) AS [LostReports],
@@ -121,20 +135,24 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
                     ELSE 100.0 * COUNT(CASE WHEN [FirstResponseMinutes] <= 360 THEN 1 END)
                         / COUNT(CASE WHEN [FirstResponseMinutes] IS NOT NULL THEN 1 END) END AS float) AS [FirstResponseSloPercent]
             FROM WithMedians
-            GROUP BY [Cohort], [Canton]
-            ORDER BY [Cohort] DESC, [Canton]
+                GROUP BY [Cohort], [Canton], [Channel], [Species]
+            ORDER BY [Cohort] DESC, [Canton], [Channel], [Species]
             """;
 
         var rows = await db.Database.SqlQueryRaw<ProductCohortMetricRow>(
                 sql,
                 from,
                 to,
-                string.IsNullOrWhiteSpace(canton) ? DBNull.Value : canton.Trim())
+                string.IsNullOrWhiteSpace(canton) ? DBNull.Value : canton.Trim(),
+                string.IsNullOrWhiteSpace(channel) ? DBNull.Value : channel.Trim(),
+                ParseSpecies(species))
             .ToListAsync(cancellationToken);
 
         return rows.Select(row => new ProductCohortMetric(
             row.Cohort,
             row.Canton,
+            row.Channel,
+            row.Species,
             row.RegisteredPets,
             row.ActivatedPets,
             row.LostReports,
@@ -148,10 +166,55 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
             .ToList();
     }
 
+    public async Task<ActiveProtectedCounts> GetActiveProtectedCountsAsync(
+        DateTimeOffset asOf,
+        CancellationToken cancellationToken = default)
+    {
+        var activityNames = new[]
+        {
+            "QrScanned", "SightingCreated", "FirstResponseRecorded", "PetReunited",
+            "HandoverCompleted", "HealthRecordUpdated", "AlertCreated", "AdoptionCompleted",
+        };
+
+        var activity = db.Pets
+            .AsNoTracking()
+            .Where(pet => pet.Status == PetStatus.Active &&
+                (pet.PhotoUrl != null || pet.MicrochipId != null))
+            .Join(
+                db.ProductEvents.AsNoTracking(),
+                pet => pet.Id,
+                productEvent => productEvent.PetId,
+                (pet, productEvent) => new { pet.Id, productEvent.EventName, productEvent.OccurredAt })
+            .Where(row => activityNames.Contains(row.EventName) && row.OccurredAt <= asOf);
+
+        async Task<int> CountSinceAsync(int days) => await activity
+            .Where(row => row.OccurredAt >= asOf.AddDays(-days))
+            .Select(row => row.Id)
+            .Distinct()
+            .CountAsync(cancellationToken);
+
+        return new ActiveProtectedCounts(
+            await CountSinceAsync(30),
+            await CountSinceAsync(90),
+            await CountSinceAsync(180));
+    }
+
+    private static object ParseSpecies(string? species)
+    {
+        if (string.IsNullOrWhiteSpace(species))
+            return DBNull.Value;
+
+        return Enum.TryParse<PetSpecies>(species.Trim(), true, out var parsed)
+            ? (int)parsed
+            : DBNull.Value;
+    }
+
     private sealed class ProductCohortMetricRow
     {
         public string Cohort { get; init; } = string.Empty;
         public string Canton { get; init; } = string.Empty;
+        public string Channel { get; init; } = string.Empty;
+        public string Species { get; init; } = string.Empty;
         public int RegisteredPets { get; init; }
         public int ActivatedPets { get; init; }
         public int LostReports { get; init; }

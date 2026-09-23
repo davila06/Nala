@@ -15,6 +15,21 @@ public sealed class FoundPetRepository(PawTrackDbContext dbContext) : IFoundPetR
             .AsTracking()
             .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
 
+    public Task<bool> HasRecentDuplicateAsync(
+        string contactPhone,
+        double foundLat,
+        double foundLng,
+        DateTimeOffset since,
+        CancellationToken cancellationToken = default) =>
+        dbContext.FoundPetReports.AsNoTracking().AnyAsync(
+            r => r.ContactPhone == contactPhone &&
+                 r.ReportedAt >= since &&
+                 r.FoundLat >= foundLat - 0.001 &&
+                 r.FoundLat <= foundLat + 0.001 &&
+                 r.FoundLng >= foundLng - 0.001 &&
+                 r.FoundLng <= foundLng + 0.001,
+            cancellationToken);
+
     public async Task<IReadOnlyList<FoundPetReport>> GetOpenReportsAsync(
         int maxResults = 100, CancellationToken cancellationToken = default)
     {

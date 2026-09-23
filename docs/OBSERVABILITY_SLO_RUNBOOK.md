@@ -12,6 +12,9 @@ Este runbook cubre los indicadores tecnicos que ya se emiten desde el backend:
 - `pawtrack.api.requests`
 - `pawtrack.api.errors`
 - `pawtrack.api.request.duration_ms`
+- `pawtrack.product.events.ingested`
+- `pawtrack.product.funnel.queries`
+- `pawtrack.north_star.active_protected_pets` con etiqueta `window` (`30d`, `90d`, `180d`)
 
 El health check `external-provider-configuration` valida la presencia de
 configuración no secreta necesaria para Azure Storage, Application Insights,
@@ -77,6 +80,13 @@ customMetrics
 | where name == "pawtrack.webhook.delivery.duration_ms"
 | summarize p50=percentile(value, 50), p95=percentile(value, 95),
             p99=percentile(value, 99) by bin(timestamp, 5m)
+| order by timestamp asc
+```
+
+```kusto
+customMetrics
+| where name == "pawtrack.north_star.active_protected_pets"
+| summarize active_protected=avg(value) by tostring(customDimensions.window), bin(timestamp, 1h)
 | order by timestamp asc
 ```
 

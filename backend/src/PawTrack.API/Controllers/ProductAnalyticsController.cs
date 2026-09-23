@@ -1,9 +1,11 @@
 using System.Security.Claims;
+using System.Diagnostics;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using PawTrack.Application.ProductAnalytics;
+using PawTrack.Infrastructure.Observability;
 using Asp.Versioning;
 
 namespace PawTrack.API.Controllers;
@@ -43,6 +45,9 @@ public sealed class ProductAnalyticsController(ISender sender) : ControllerBase
                 Status = StatusCodes.Status422UnprocessableEntity,
             });
 
+        if (result.Value)
+            EnterpriseMetrics.ProductEventsIngested.Add(1);
+
         return Accepted(new { accepted = result.Value });
     }
 
@@ -69,6 +74,9 @@ public sealed class ProductAnalyticsController(ISender sender) : ControllerBase
         var result = await sender.Send(
             new GetProductFunnelQuery(start, end, canton),
             cancellationToken);
+        if (result.IsSuccess)
+            EnterpriseMetrics.ProductFunnelQueries.Add(1);
+
         return result.IsSuccess ? Ok(result.Value) : Problem();
     }
 
@@ -120,6 +128,8 @@ public sealed class ProductAnalyticsController(ISender sender) : ControllerBase
         [FromQuery] DateTimeOffset? from,
         [FromQuery] DateTimeOffset? to,
         [FromQuery] string? canton,
+        [FromQuery] string? channel,
+        [FromQuery] string? species,
         CancellationToken cancellationToken)
     {
         var end = to ?? DateTimeOffset.UtcNow;
@@ -133,8 +143,21 @@ public sealed class ProductAnalyticsController(ISender sender) : ControllerBase
             });
 
         var result = await sender.Send(
-            new GetProductPerformanceQuery(start, end, canton),
+            new GetProductPerformanceQuery(start, end, canton, channel, species),
             cancellationToken);
+        if (result.IsSuccess)
+        {
+            EnterpriseMetrics.NorthStarActiveProtectedPets.Record(
+                result.Value!.ActiveProtectedPets30Days,
+                new TagList { { "window", "30d" } });
+            EnterpriseMetrics.NorthStarActiveProtectedPets.Record(
+                result.Value.ActiveProtectedPets90Days,
+                new TagList { { "window", "90d" } });
+            EnterpriseMetrics.NorthStarActiveProtectedPets.Record(
+                result.Value.ActiveProtectedPets180Days,
+                new TagList { { "window", "180d" } });
+        }
+
         return result.IsSuccess ? Ok(result.Value) : Problem();
     }
 

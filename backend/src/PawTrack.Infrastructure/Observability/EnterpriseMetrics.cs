@@ -13,4 +13,8 @@ public static class EnterpriseMetrics
     public static readonly Counter<long> ApiRequests = Meter.CreateCounter<long>("pawtrack.api.requests");
     public static readonly Counter<long> ApiErrors = Meter.CreateCounter<long>("pawtrack.api.errors");
     public static readonly Histogram<double> ApiRequestDurationMs = Meter.CreateHistogram<double>("pawtrack.api.request.duration_ms");
+    public static readonly Counter<long> ProductEventsIngested = Meter.CreateCounter<long>("pawtrack.product.events.ingested");
+    public static readonly Counter<long> ProductFunnelQueries = Meter.CreateCounter<long>("pawtrack.product.funnel.queries");
+    public static readonly Histogram<long> NorthStarActiveProtectedPets =
+        Meter.CreateHistogram<long>("pawtrack.north_star.active_protected_pets");
 }

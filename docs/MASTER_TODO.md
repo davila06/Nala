@@ -33,8 +33,8 @@ actualizada y evidencia fechada.
 
 - [ ] Registrar por release commit, migraciones, resultados, artefactos y aprobadores.
 - [ ] Asignar propietario y fecha de expiración a cada gate y evidencia.
-- [ ] Ejecutar restore reproducible de .NET con lock/versiones fijadas.
-- [ ] Ejecutar build Release con `--no-restore` y warnings tratados como errores.
+- [x] Ejecutar restore reproducible de .NET con `packages.lock.json` y `--locked-mode`; verificado localmente el 2026-09-23.
+- [x] Ejecutar build Release con `--no-restore` y warnings tratados como errores; verificado localmente el 2026-09-23.
 - [ ] Ejecutar `npm ci` con versión de Node fijada y lockfile validado.
 - [ ] Ejecutar typecheck, lint, build, Vitest y Playwright en CI limpio.
 - [ ] Publicar TRX, cobertura, OpenAPI, migraciones, SBOM y reportes Playwright.
@@ -49,7 +49,7 @@ actualizada y evidencia fechada.
 - [ ] Consumir en frontend tipos generados desde `/openapi/v1.json` donde corresponda.
 - [ ] Versionar endpoints públicos y Partner; documentar deprecación y sunset.
 - [ ] Completar la matriz endpoint -> rol -> ownership -> tenant -> PII -> rate limit.
-- [ ] Añadir suites BOLA/IDOR para clínicas, collares, reportes institucionales y Partner.
+- [~] Ampliar suites BOLA/IDOR: existen regresiones para clínica, collares, B2B y ahora owner-to-owner sobre mascotas; siguen pendientes cobertura sistemática de reportes institucionales y Partner.
 - [ ] Añadir casos cross-tenant con IDs válidos de otro tenant.
 - [ ] Verificar autorización en exportaciones, descargas y websockets.
 - [ ] Revisar minimización de campos, coordenadas y PII en endpoints públicos.
@@ -96,8 +96,8 @@ actualizada y evidencia fechada.
 - [ ] Mantener logs estructurados sin PII, tokens ni coordenadas exactas.
 - [ ] Clasificar dependencias críticas, degradables y opcionales.
 - [ ] Definir fail-fast, timeouts, retries, circuit breakers y fallback por proveedor.
-- [ ] Definir SLO, burn rate y error budget para API, jobs, webhooks, broadcast, finder y reunificación.
-- [ ] Crear queries KQL, alertas como código y dashboard Azure Monitor.
+- [~] Definir SLO, burn rate y error budget para API, jobs, webhooks, broadcast, finder y reunificación; la infraestructura Bicep ya declara Application Insights, Action Group y alertas base, falta aprobar objetivos y evidencia operativa.
+- [~] Crear queries KQL, alertas como código y dashboard Azure Monitor; alertas base existen en `infra/main.bicep`, faltan queries/dashboard y validación en suscripción.
 - [ ] Definir on-call, severidad, escalamiento y runbook por alerta.
 - [ ] Ejecutar una prueba controlada de alerta con evidencia.
 
@@ -136,7 +136,7 @@ actualizada y evidencia fechada.
 
 - [x] Reemplazar el polling de mensajes de chat cuando SignalR está conectado; mantener fallback de 10 s durante reconexión o caída. Los pedidos siguen pendientes hasta contar con un canal de eventos equivalente.
 - [x] Añadir Error Boundary por feature o página crítica mediante `RouteShell` y `FeatureErrorBoundary`.
-- [ ] Añadir skeletons específicos por ruta en lugar de depender solo del skeleton genérico.
+- [x] Añadir skeletons específicos para dashboard, detalle, formularios, directorios y mapa en `RouteShell`; quedan superficies secundarias para una segunda iteración visual.
 - [ ] Completar pruebas visuales responsive en móvil, tablet y escritorio.
 - [ ] Ejecutar auditoría manual WCAG con teclado y lector de pantalla.
 - [ ] Verificar animaciones 3D y fondos animados en dispositivos de bajo rendimiento.
@@ -150,6 +150,7 @@ actualizada y evidencia fechada.
 - QA E2E: [GUIA_QA_E2E.md](GUIA_QA_E2E.md)
 - Accesibilidad: [GUIA_ACCESIBILIDAD_Y_UX.md](GUIA_ACCESIBILIDAD_Y_UX.md)
 - Claims: [CLAIM_EVIDENCE_MATRIX.md](CLAIM_EVIDENCE_MATRIX.md)
+- Revisión legal: [LEGAL_REVIEW_REGISTER.md](LEGAL_REVIEW_REGISTER.md)
 
 ## Regla de mantenimiento
 

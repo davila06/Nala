@@ -37,6 +37,7 @@ Estados documentales:
 | [RUNBOOK_OPERACIONES.md](RUNBOOK_OPERACIONES.md)                                 | Operacion, incidentes y continuidad                          |
 | [POLITICA_DE_PRIVACIDAD.md](POLITICA_DE_PRIVACIDAD.md)                           | Politica de privacidad para revision legal                   |
 | [TERMINOS_DE_USO.md](TERMINOS_DE_USO.md)                                         | Terminos de uso para revision legal                          |
+| [LEGAL_REVIEW_REGISTER.md](LEGAL_REVIEW_REGISTER.md)                             | Registro de bloqueadores y aprobaciones legales              |
 | [API_AUTHORIZATION_MATRIX.md](API_AUTHORIZATION_MATRIX.md)                       | Ownership, BOLA/IDOR y versionado API                        |
 | [AUDITORIA_DOCUMENTAL_2026-09-09.md](AUDITORIA_DOCUMENTAL_2026-09-09.md)         | Resultado de la auditoria documental                         |
 | [CONSOLIDACION_DOCUMENTAL.md](CONSOLIDACION_DOCUMENTAL.md)                       | Jerarquia de fuentes y documentos historicos                 |

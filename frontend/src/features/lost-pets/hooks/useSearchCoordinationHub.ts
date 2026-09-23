@@ -46,6 +46,22 @@ export function useSearchCoordinationHub({
   onLocationSharingRecipientsChanged,
 }: UseSearchCoordinationHubOptions) {
   const connectionRef = useRef<signalR.HubConnection | null>(null);
+  const callbacksRef = useRef({
+    onZoneClaimed,
+    onZoneCleared,
+    onZoneReleased,
+    onLocationUpdated,
+    onLocationSharingStateChanged,
+    onLocationSharingRecipientsChanged,
+  });
+  callbacksRef.current = {
+    onZoneClaimed,
+    onZoneCleared,
+    onZoneReleased,
+    onLocationUpdated,
+    onLocationSharingStateChanged,
+    onLocationSharingRecipientsChanged,
+  };
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
@@ -59,29 +75,29 @@ export function useSearchCoordinationHub({
       .configureLogging(signalR.LogLevel.Warning)
       .build();
 
-    connection.on("ZoneClaimed", (zone: SearchZone) => onZoneClaimed?.(zone));
-    connection.on("ZoneCleared", (zone: SearchZone) => onZoneCleared?.(zone));
-    connection.on("ZoneReleased", (zone: SearchZone) => onZoneReleased?.(zone));
-    connection.on("LocationUpdated", (loc: VolunteerLocation) => onLocationUpdated?.(loc));
+    connection.on("ZoneClaimed", (zone: SearchZone) => callbacksRef.current.onZoneClaimed?.(zone));
+    connection.on("ZoneCleared", (zone: SearchZone) => callbacksRef.current.onZoneCleared?.(zone));
+    connection.on("ZoneReleased", (zone: SearchZone) => callbacksRef.current.onZoneReleased?.(zone));
+    connection.on("LocationUpdated", (loc: VolunteerLocation) => callbacksRef.current.onLocationUpdated?.(loc));
     connection.on("LocationSharingStateChanged", (state: LocationSharingState) =>
-      onLocationSharingStateChanged?.(state),
+      callbacksRef.current.onLocationSharingStateChanged?.(state),
     );
     connection.on("LocationSharingRecipientsChanged", (state: LocationSharingRecipientsState) =>
-      onLocationSharingRecipientsChanged?.(state),
+      callbacksRef.current.onLocationSharingRecipientsChanged?.(state),
     );
 
     connection
       .start()
       .then(async () => {
-        setIsConnected(true);
         await connection.invoke("JoinSearch", lostEventId);
+        setIsConnected(true);
       })
       .catch(() => setIsConnected(false));
 
     connection.onreconnected(() => {
       void (async () => {
-        setIsConnected(true);
         await connection.invoke("JoinSearch", lostEventId);
+        setIsConnected(true);
       })();
     });
 
@@ -95,15 +111,7 @@ export function useSearchCoordinationHub({
         .catch(() => {})
         .finally(() => connection.stop());
     };
-  }, [
-    lostEventId,
-    onLocationUpdated,
-    onZoneClaimed,
-    onZoneCleared,
-    onZoneReleased,
-    onLocationSharingStateChanged,
-    onLocationSharingRecipientsChanged,
-  ]);
+  }, [lostEventId]);
 
   const claimZone = useCallback(
     async (zoneId: string) => {

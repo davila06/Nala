@@ -21,6 +21,11 @@ public interface IProductEventRepository
         DateTimeOffset from,
         DateTimeOffset to,
         string? canton,
+        string? channel = null,
+        string? species = null,
+        CancellationToken cancellationToken = default);
+    Task<ActiveProtectedCounts> GetActiveProtectedCountsAsync(
+        DateTimeOffset asOf,
         CancellationToken cancellationToken = default);
 }
 
@@ -29,6 +34,8 @@ public sealed record ProductEventCount(string EventName, int Count);
 public sealed record ProductCohortMetric(
     string Cohort,
     string Canton,
+    string Channel,
+    string Species,
     int RegisteredPets,
     int ActivatedPets,
     int LostReports,
@@ -44,3 +51,5 @@ public sealed record ProductCohortMetric(
         ? 0
         : Math.Round(ActivatedPets * 100d / RegisteredPets, 2);
 }
+
+public sealed record ActiveProtectedCounts(int Days30, int Days90, int Days180);

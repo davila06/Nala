@@ -1,10 +1,11 @@
 # Términos de Uso — PawTrack CR
 
-**Versión:** 1.2
-**Fecha de entrada en vigor:** 10 de septiembre de 2026
-**Última actualización:** 10 de septiembre de 2026
+**Versión:** 1.3-draft
+**Fecha de entrada en vigor:** Pendiente de aprobación legal
+**Última actualización:** 23 de septiembre de 2026
 
-> Documento operativo sujeto a revisión legal local. No sustituye contratos
+> Documento de trabajo sujeto a aprobación legal local. No constituye todavía
+> el contrato final de adhesión ni sustituye contratos
 > específicos con clínicas, municipalidades, anunciantes, proveedores,
 > aliados o inversionistas.
 
@@ -22,10 +23,14 @@ Si no aceptas estos términos, debes abstenerte de utilizar la plataforma.
 
 PawTrack CR es una plataforma digital para identificación, seguimiento y recuperación de mascotas en Costa Rica. La plataforma se opera desde Costa Rica y está orientada a servicios de recuperación de mascotas, reportes de pérdida, coordinación comunitaria y gestión de aliados, clínicas, municipios y usuarios individuales.
 
-**Responsable de la operación y atención:** PawTrack CR  
+**Responsable de la operación y atención:** entidad jurídica por confirmar antes del go-live
 **Correo de contacto legal y consultas generales:** <legal@pawtrack.cr>  
 **Correo de soporte operativo:** <soporte@pawtrack.cr>  
-**Domicilio operativo:** Costa Rica
+**Domicilio operativo:** Costa Rica, dirección legal por confirmar antes del go-live
+
+La razón social, cédula jurídica, representante legal, domicilio para
+notificaciones y mecanismo formal de atención deben completarse antes de
+publicar estos términos como versión vinculante.
 
 ---
 
@@ -257,9 +262,26 @@ Cualquier controversia en relación con la prestación del servicio o estos tér
 
 ## 14. Cambios a estos términos
 
-PawTrack CR puede actualizar estos Términos de Uso. Los cambios relevantes se comunicarán por medios razonables, por ejemplo mediante aviso dentro de la plataforma, correo electrónico o actualización visible en el sitio.
+PawTrack CR puede actualizar estos Términos de Uso. Los cambios relevantes se
+comunicarán por medios razonables, por ejemplo mediante aviso dentro de la
+plataforma, correo electrónico o actualización visible en el sitio.
 
-La continuidad del uso después de la entrada en vigor de los cambios implica la aceptación de la versión actualizada.
+La continuidad del uso no debe considerarse por sí sola aceptación de cambios
+materiales cuando la legislación aplicable exija una aceptación renovada. La
+versión, fecha de aceptación y evidencia de comunicación deben conservarse
+para las cuentas autenticadas.
+
+## 15. Pendientes de aprobación
+
+Antes de activar el uso comercial abierto deben aprobarse expresamente:
+
+- identidad jurídica y domicilio para notificaciones;
+- límites de responsabilidad y derechos irrenunciables de consumidores;
+- adopciones, tiendas, proveedores, clínicas, publicidad y recompensas;
+- tratamiento de menores y autorización del tutor;
+- pagos, cancelaciones, reembolsos, impuestos y marketplace;
+- jurisdicción, resolución de controversias y atención de reclamos;
+- versión técnica de términos registrada durante el alta.
 
 ---
 

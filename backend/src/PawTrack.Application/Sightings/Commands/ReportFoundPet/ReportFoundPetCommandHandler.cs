@@ -27,6 +27,18 @@ public sealed class ReportFoundPetCommandHandler(
     public async Task<Result<ReportFoundPetResult>> Handle(
         ReportFoundPetCommand request, CancellationToken cancellationToken)
     {
+        var normalizedPhone = request.ContactPhone.Trim();
+        if (await foundPetRepository.HasRecentDuplicateAsync(
+                normalizedPhone,
+                request.FoundLat,
+                request.FoundLng,
+                DateTimeOffset.UtcNow.AddMinutes(-15),
+                cancellationToken))
+        {
+            return Result.Failure<ReportFoundPetResult>(
+                "Ya existe un reporte reciente para esta ubicación y contacto.");
+        }
+
         // 1. Persist new report (no photo yet so we get the ID first)
         var report = FoundPetReport.Create(
             request.FoundSpecies,
@@ -36,7 +48,7 @@ public sealed class ReportFoundPetCommandHandler(
             request.FoundLat,
             request.FoundLng,
             request.ContactName,
-            request.ContactPhone,
+            normalizedPhone,
             request.Note);
 
         await foundPetRepository.AddAsync(report, cancellationToken);
@@ -63,8 +75,8 @@ public sealed class ReportFoundPetCommandHandler(
         // 4. Find candidate lost-pet events in a ~5 km bounding box
         var north = request.FoundLat + BboxHalfDeg;
         var south = request.FoundLat - BboxHalfDeg;
-        var east  = request.FoundLng + BboxHalfDeg;
-        var west  = request.FoundLng - BboxHalfDeg;
+        var east = request.FoundLng + BboxHalfDeg;
+        var west = request.FoundLng - BboxHalfDeg;
 
         var candidates = await lostPetRepository.GetActiveLostPetsForMatchAsync(
             north, south, east, west, cancellationToken);

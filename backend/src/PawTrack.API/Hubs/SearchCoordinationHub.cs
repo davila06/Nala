@@ -8,6 +8,7 @@ using PawTrack.Application.LostPets.Commands.ReleaseZone;
 using PawTrack.Application.LostPets.Queries.IsSearchParticipant;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Audit;
+using System.Collections.Concurrent;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -33,6 +34,7 @@ public sealed class SearchCoordinationHub(
     // WebSocket connection. TTL expiry replaces the old manual OnDisconnectedAsync cleanup.
     private static readonly TimeSpan _locationThrottleInterval = TimeSpan.FromSeconds(2);
     private static readonly TimeSpan _locationSharingLifetime = TimeSpan.FromMinutes(30);
+    private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> _recipientLocks = new();
 
     // ── Group management ──────────────────────────────────────────────────────
 
@@ -53,16 +55,22 @@ public sealed class SearchCoordinationHub(
         if (check.IsFailure || !check.Value) return; // not a participant — silently deny, no info leak
 
         await Groups.AddToGroupAsync(Context.ConnectionId, GroupName(lostEventId));
-        await AddRecipient(lostEventId, Context.ConnectionId);
-        await PublishRecipientState(lostEventId);
+        await using (await AcquireRecipientLock(lostEventId))
+        {
+            await AddRecipient(lostEventId, Context.ConnectionId);
+            await PublishRecipientState(lostEventId);
+        }
     }
 
     /// <summary>Leaves the group when the user navigates away.</summary>
     public async Task LeaveSearch(Guid lostEventId)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, GroupName(lostEventId));
-        await RemoveRecipient(lostEventId, Context.ConnectionId);
-        await PublishRecipientState(lostEventId);
+        await using (await AcquireRecipientLock(lostEventId))
+        {
+            await RemoveRecipient(lostEventId, Context.ConnectionId);
+            await PublishRecipientState(lostEventId);
+        }
     }
 
     /// <summary>Starts an explicit, expiring location-sharing session.</summary>
@@ -275,6 +283,22 @@ public sealed class SearchCoordinationHub(
         if (!recipients.Contains(connectionId, StringComparer.Ordinal))
             recipients.Add(connectionId);
         await SaveRecipients(lostEventId, recipients);
+    }
+
+    private static async ValueTask<IAsyncDisposable> AcquireRecipientLock(Guid lostEventId)
+    {
+        var gate = _recipientLocks.GetOrAdd(lostEventId, static _ => new SemaphoreSlim(1, 1));
+        await gate.WaitAsync();
+        return new SemaphoreReleaser(gate);
+    }
+
+    private sealed class SemaphoreReleaser(SemaphoreSlim semaphore) : IAsyncDisposable
+    {
+        public ValueTask DisposeAsync()
+        {
+            semaphore.Release();
+            return ValueTask.CompletedTask;
+        }
     }
 
     private async Task RemoveRecipient(Guid lostEventId, string connectionId)
