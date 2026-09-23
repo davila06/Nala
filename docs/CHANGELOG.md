@@ -2,6 +2,16 @@
 
 ## 2026-09-23
 
+### Competitive strategy and Marketplace governance
+
+- Added `COMPETITIVE_INTELLIGENCE_2026-09-23.md` with a dated comparison against
+  Tractive, Pawfit, 11pets, PetHub, Petco Love Lost and adjacent categories.
+- Added `AZURE_MARKETPLACE_GO_TO_MARKET.md` with the SaaS offer, fulfillment,
+  tenant mapping, security and private-preview gates.
+- Updated strategy, backlog, status and documentary indexes to distinguish
+  implemented AI capabilities from the remaining AI-first and Marketplace work.
+- Removed the unreferenced duplicate `FEATURES original.md`.
+
 ### Enterprise execution
 
 - Added mandatory privacy consent to anonymous found-pet reports at both UI and

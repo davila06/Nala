@@ -26,6 +26,8 @@ Estados documentales:
 | -------------------------------------------------------------------------------- | ------------------------------------------------------------ |
 | [STATUS.md](STATUS.md)                                                           | Estado tecnico y operativo verificado                        |
 | [PRODUCT_STRATEGY_TOP1.md](PRODUCT_STRATEGY_TOP1.md)                             | Estrategia, north star, moat y roadmap                       |
+| [COMPETITIVE_INTELLIGENCE_2026-09-23.md](COMPETITIVE_INTELLIGENCE_2026-09-23.md) | Brechas competitivas y estrategia IA-first                   |
+| [AZURE_MARKETPLACE_GO_TO_MARKET.md](AZURE_MARKETPLACE_GO_TO_MARKET.md)           | Oferta SaaS y preparación de Azure Marketplace               |
 | [MASTER_TODO.md](MASTER_TODO.md)                                                 | Backlog único de pendientes enterprise, producto y operación |
 | [FEATURES.md](FEATURES.md)                                                       | Matriz de capacidades por plan                               |
 | [consolidado.md](consolidado.md)                                                 | NALA, roles, features por rol y matriz completa de planes    |
@@ -123,6 +125,10 @@ verdad sin una fecha de revision posterior a 2026-09-09:
 - [planes.md](planes.md): resumen histórico subordinado a `PRICING_AND_PLANS.md`.
 - [featuresB2B.md](featuresB2B.md): detalle histórico subordinado a `FEATURES.md` y `B2B_ESTADO_ACTUAL.md`.
 - [publicidad.md](publicidad.md): propuesta de tarifas de vallas; billing no implementado.
+
+`FEATURES original.md` fue eliminado el 2026-09-23 por ser un duplicado sin
+referencias y sin autoridad documental. `FEATURES.md` es la única matriz de
+capacidades y planes.
 
 ## Regla de mantenimiento
 

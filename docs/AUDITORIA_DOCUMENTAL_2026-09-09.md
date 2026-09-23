@@ -6,6 +6,19 @@
 
 ## Resultado
 
+### Addendum 2026-09-23
+
+Se agregó una revisión competitiva con fuentes públicas fechadas en
+`COMPETITIVE_INTELLIGENCE_2026-09-23.md` y un plan separado para la oferta SaaS
+de Azure Marketplace en `AZURE_MARKETPLACE_GO_TO_MARKET.md`. La revisión
+confirma que el matching visual con Azure Vision y la proyección de movimiento
+son capacidades existentes, pero que el copiloto/agentes IA, MLOps de modelos,
+identidad portable y fulfillment de Marketplace siguen abiertos.
+
+Se eliminó `FEATURES original.md`, un duplicado no referenciado. El resto de
+documentos históricos de esta auditoría se conserva porque todavía tiene
+referencias o valor de trazabilidad; no son fuentes de estado vigente.
+
 La documentacion fue clasificada por responsabilidad y contrastada con la
 implementacion. La fuente vigente es [README.md](README.md), junto con
 [STATUS.md](STATUS.md), [FEATURES.md](FEATURES.md),

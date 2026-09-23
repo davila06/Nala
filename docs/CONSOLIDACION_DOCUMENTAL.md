@@ -12,6 +12,8 @@ secciones de producto sin actualizar primero la fuente canonica.
 | Familia              | Fuente canonica                                                              | Historicos o soporte                                                                      |
 | -------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | Producto/estado      | `STATUS.md`                                                                  | `NALA.md`, `CCNAla.md`                                                                    |
+| Competencia/IA-first | `COMPETITIVE_INTELLIGENCE_2026-09-23.md`                                     | investigaciones de mercado anteriores                                                     |
+| Azure Marketplace    | `AZURE_MARKETPLACE_GO_TO_MARKET.md`                                          | notas de cloud o marketplace no aprobadas                                                 |
 | Backlog enterprise   | `MASTER_TODO.md`                                                             | Listas históricas de TODOs, errores y decisiones consolidadas y eliminadas                |
 | Features/tier        | `FEATURES.md` + `PRICING_AND_PLANS.md`                                       | `planes.md`, `precios.md`, `pricing.md`, `featuresB2B.md`                                 |
 | Deploy               | `RUNBOOK_DEPLOYMENT.md`                                                      | `GUIA_DEPLOY_PASO_A_PASO.md`, `operacional.md`, `pasos-para-ir-live.md`, `DEPLOY_INFO.md` |

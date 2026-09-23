@@ -1,13 +1,24 @@
 # PawTrack CR - Estrategia para ser el ecosistema #1 animal
 
 > Estado: activo para estrategia y discovery. No sustituye contratos legales ni
-> declara capacidades no verificadas. Corte: 2026-09-22.
+> declara capacidades no verificadas. Corte: 2026-09-23.
+
+> La investigación competitiva y el plan de Azure Marketplace viven en
+> [COMPETITIVE_INTELLIGENCE_2026-09-23.md](COMPETITIVE_INTELLIGENCE_2026-09-23.md)
+> y [AZURE_MARKETPLACE_GO_TO_MARKET.md](AZURE_MARKETPLACE_GO_TO_MARKET.md).
 
 ## 1. Tesis central
 
 PawTrack no debe competir como otra app de mascotas, otro mapa de perdidos o
 otro marketplace. Debe convertirse en la **capa de identidad, confianza y
 coordinacion de cada animal por territorio**.
+
+La ambición de estar en el top 3 mundial se trata como un resultado a ganar, no
+como un claim actual. El primer objetivo medible es liderazgo en Costa Rica en
+recuperación e identidad animal; la expansión latinoamericana solo comienza
+cuando exista densidad territorial, outcomes reproducibles y una oferta B2B
+comprable. La categoría global defendible es **AI-native pet recovery and care
+network**, no "la mejor app de mascotas" en abstracto.
 
 El activo defensible no es el QR aislado: es el grafo de relaciones y eventos
 entre mascota, familia, finder, clinica, tienda, refugio, municipalidad,
@@ -99,11 +110,19 @@ aseguradoras y fabricantes. Mantener consentimientos, auditoria y minimizacion.
 
 **Moat:** estandar de identidad animal local, no solo una app de consumidor.
 
+### G. IA operativa, no IA decorativa
+
+El matching visual con Azure Vision y la proyección geográfica son capacidades
+reales, pero no bastan para llamar al producto IA-first. La siguiente capa debe
+ser un copiloto por rol con herramientas, aprobación humana, citación de fuentes,
+trazas, evaluación, drift monitoring y rollback. Los agentes nunca deben
+diagnosticar, exponer PII ni ejecutar acciones sensibles sin autorización.
+
 ## 5. Mejoras necesarias por horizonte
 
-### Ahora: confiabilidad y activacion
+### Ahora: confiabilidad, activacion y posición local
 
-- [ ] Cambiar claims de produccion por estados verificables.
+- [x] Cambiar claims de produccion por estados verificables.
 - [ ] Crear funnel de onboarding y evento de activacion QR.
 - [ ] Simplificar home en Mi mascota, Perdida/Encontrada, Salud y Red local.
 - [ ] Finder sin login con QR, foto, ubicacion, contacto enmascarado y offline.
@@ -111,6 +130,8 @@ aseguradoras y fabricantes. Mantener consentimientos, auditoria y minimizacion.
 - [ ] Limpiar fuentes documentales y fijar una unica matriz comercial.
 - [ ] Cerrar lint, contratos API, secret scanning y gates CI.
 - [ ] Resolver alertas, errores de red y observabilidad de negocio.
+- [ ] Cerrar la oferta SaaS y el fulfillment de Azure Marketplace para clientes
+      institucionales, sin presentarlo como integración existente.
 
 ### Siguiente: confianza y red
 
@@ -122,6 +143,9 @@ aseguradoras y fabricantes. Mantener consentimientos, auditoria y minimizacion.
       falsos positivos.
 - [ ] Programa de aliados con respuesta, cobertura y calidad medibles.
 - [ ] Marketplace contextual basado en necesidad, no solo posicionamiento.
+- [ ] Construir copiloto de recuperación con aprobación humana y evaluación
+      reproducible.
+- [ ] Crear dataset consentido y benchmark de matching por especie y territorio.
 
 ### Despues: plataforma regional
 
@@ -130,6 +154,7 @@ aseguradoras y fabricantes. Mantener consentimientos, auditoria y minimizacion.
 - [ ] Soporte de paises, moneda, privacidad y regulacion por jurisdiccion.
 - [ ] Integraciones de seguros, telemedicina y hardware con contratos claros.
 - [ ] Modelos predictivos de riesgo territorial auditables y no discriminatorios.
+- [ ] Lanzar agentes por rol y RAG regional con fuentes versionadas y citadas.
 
 ## 6. Lo que no se debe construir todavia
 

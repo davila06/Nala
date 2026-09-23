@@ -43,6 +43,12 @@ observabilidad de negocio y validacion operativa.
 - Proveedores externos: gate `scripts/Test-ExternalProviderReadiness.ps1` exige
   evidencia redactada de contrato/aprobación y prueba para Azure, WhatsApp, GPS,
   pagos y correo antes de un go-live; no lee ni registra secretos.
+- IA: matching visual con Azure Vision y proyección de movimiento están
+  implementados; NALA todavía no tiene copiloto/agentes con tool-calling,
+  evaluación continua, RAG regional ni MLOps/Responsible AI completo.
+- Azure Marketplace: no existe todavía fulfillment, metering, mapping de
+  suscripción a tenant ni oferta publicada. El diseño objetivo está en
+  `AZURE_MARKETPLACE_GO_TO_MARKET.md` y permanece como gate abierto.
 - Funnel P0: eventos frontend iniciales instrumentados con `eventId`, timestamp e
   identidad anónima para registro de mascota,
   completitud básica, generación/escaneo de QR, reporte de pérdida, avistamiento,

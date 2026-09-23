@@ -29,6 +29,9 @@ actualizada y evidencia fechada.
 | ENT-FND   | Finder sin login            | `[x]`  | Reporte seguro en menos de 30 segundos, antifraude, PII y offline verificados     |
 | ENT-E2E   | Ciclo pérdida-reunificación | `[~]`  | E2E limpio con notificaciones, eventos de producto y proveedores controlados      |
 | ENT-CLAIM | Claims y legal              | `[~]`  | Cada claim tiene evidencia, responsable, expiración y aprobación                  |
+| COMP-AI   | IA-first operativa          | `[ ]`  | Copiloto/agentes con herramientas, aprobación, evaluación y Responsible AI        |
+| COMP-NET  | Liderazgo territorial       | `[ ]`  | 2-3 cantones con densidad, outcomes y partners verificables                       |
+| MKT-AZURE | Azure Marketplace           | `[ ]`  | SaaS offer, fulfillment, tenant mapping, seguridad y private preview              |
 | ENT-PROV  | Proveedores externos        | `[E]`  | Contratos, secretos, smoke tests de staging y rotación aprobados                  |
 
 ## 1. Calidad, CI y release
@@ -94,6 +97,43 @@ actualizada y evidencia fechada.
 - [~] Completar exportación Partner con identidad M2M, scopes, cuota y auditoría; falta prueba de staging y rotación real de credenciales.
 
 > Estado real: el flujo de collar y la integración principal están validados localmente, pero el cierre de E2E y analítica operativa sigue pendiente de evidencia de staging y validación de proveedores.
+
+## 4A. Competitividad e IA-first
+
+- [ ] Implementar copiloto de recuperación con herramientas limitadas por rol,
+      aprobación humana y auditoría.
+- [ ] Crear benchmark consentido de matching visual con precision/recall,
+      calibración, falsos positivos y métricas por especie/territorio.
+- [ ] Añadir explicaciones de matching y de proyección sin presentar una
+      predicción como certeza.
+- [ ] Crear registro de modelos, datasets, prompts, evaluaciones, drift,
+      fairness, rollback y red-team.
+- [ ] Construir RAG regional con fuentes legales/operativas versionadas y
+      citación.
+- [ ] Cerrar escalamiento humano y SLA para casos críticos antes de prometer
+      hotline o recuperación 24/7.
+- [ ] Activar identidad portable QR/NFC/microchip con exportación verificable y
+      API versionada.
+
+> Matriz competitiva vigente: [COMPETITIVE_INTELLIGENCE_2026-09-23.md](COMPETITIVE_INTELLIGENCE_2026-09-23.md).
+
+## 4B. Azure Marketplace y canal institucional
+
+- [ ] Elegir oferta inicial `NALA Recovery & Care Cloud` y unidad de cobro por
+      tenant antes de introducir metering por evento.
+- [ ] Implementar persistencia de `MarketplaceSubscription` y mapping a tenant,
+      plan y entitlements.
+- [ ] Implementar SaaS fulfillment idempotente: activate, update, suspend,
+      reinstate y cancel.
+- [ ] Implementar landing page, onboarding, reconciliación y alertas de
+      discrepancia.
+- [ ] Preparar SSO/RBAC, soporte, SLA, DR, SBOM, seguridad y privacidad para
+      compradores institucionales.
+- [ ] Ejecutar private preview con 2-3 organizaciones ancla en Costa Rica.
+- [ ] Completar publicación, certificación, private offers, partner/CSP y
+      co-sell readiness en Partner Center.
+
+> Plan de implementación: [AZURE_MARKETPLACE_GO_TO_MARKET.md](AZURE_MARKETPLACE_GO_TO_MARKET.md). Hoy no existe integración Marketplace en el código.
 
 ## 5. Observabilidad y SLO
 
