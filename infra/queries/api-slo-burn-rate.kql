@@ -1,0 +1,13 @@
+// SLO API: 99.9% availability. Error budget = 0.1% of requests.
+// Burn rate 14x consumes a 30-day budget in about 2 hours; 6x in about 5 hours.
+let totalRequests = toscalar(
+    AppRequests
+    | where TimeGenerated > ago(1h)
+    | summarize count());
+let failedRequests = toscalar(
+    AppRequests
+    | where TimeGenerated > ago(1h)
+    | where Success == false
+    | summarize count());
+print burnRate = iff(totalRequests == 0, 0.0,
+    todouble(failedRequests) / todouble(totalRequests) / 0.001)

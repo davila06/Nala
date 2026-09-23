@@ -112,6 +112,7 @@ jobs:
       - name: Setup PowerShell
         shell: pwsh
         run: |
+          New-Item -ItemType Directory -Force artifacts | Out-Null
           $base = if ('${{ github.event_name }}' -eq 'pull_request') {
             '${{ github.event.pull_request.base.sha }}'
           } elseif ('${{ github.event.before }}' -and '${{ github.event.before }}' -ne '0000000000000000000000000000000000000000') {
@@ -119,7 +120,14 @@ jobs:
           } else {
             git rev-parse HEAD~1
           }
-          ./scripts/Test-ExpandContractMigrations.ps1 -BaseRef $base -HeadRef '${{ github.sha }}'
+          ./scripts/Test-ExpandContractMigrations.ps1 -BaseRef $base -HeadRef '${{ github.sha }}' *>&1 |
+            Tee-Object -FilePath artifacts/migration-gate.log
+      - name: Upload migration gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enterprise-migration-gate-${{ github.sha }}
+          path: artifacts/migration-gate.log
 
   openapi:
     name: OpenAPI lint and contract surface
@@ -196,10 +204,29 @@ jobs:
     name: Secret and dependency scanning
     uses: ./.github/workflows/security-supply-chain.yml
 
+  sbom:
+    name: Software bill of materials
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Generate CycloneDX SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: cyclonedx-json
+          output-file: artifacts/pawtrack-sbom.cdx.json
+          upload-artifact: false
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: enterprise-sbom-${{ github.sha }}
+          path: artifacts/pawtrack-sbom.cdx.json
+
   enterprise-gate:
     name: Enterprise quality gate
     if: always()
-    needs: [backend, frontend, migration, openapi, security]
+    needs: [backend, frontend, migration, openapi, security, sbom]
     runs-on: ubuntu-latest
     steps:
       - name: Require all enterprise jobs to pass
@@ -209,10 +236,12 @@ jobs:
           MIGRATION: ${{ needs.migration.result }}
           OPENAPI: ${{ needs.openapi.result }}
           SECURITY: ${{ needs.security.result }}
+          SBOM: ${{ needs.sbom.result }}
         run: |
-          echo "backend=$BACKEND frontend=$FRONTEND migration=$MIGRATION openapi=$OPENAPI security=$SECURITY"
+          echo "backend=$BACKEND frontend=$FRONTEND migration=$MIGRATION openapi=$OPENAPI security=$SECURITY sbom=$SBOM"
           test "$BACKEND" = success
           test "$FRONTEND" = success
           test "$MIGRATION" = success
           test "$OPENAPI" = success
           test "$SECURITY" = success
+          test "$SBOM" = success

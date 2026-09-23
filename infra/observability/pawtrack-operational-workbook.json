@@ -1,0 +1,51 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# PawTrack operational SLO\n\nAPI availability target: 99.9%. Use the burn-rate alerts for escalation."
+      },
+      "name": "header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "AppRequests\n| summarize total=count(), failed=countif(Success == false), availability=100.0 * countif(Success == true) / count() by bin(TimeGenerated, 5m), cloud_RoleName\n| extend errorBudgetBurn = iff(total == 0, 0.0, todouble(failed) / todouble(total) / 0.001)\n| order by TimeGenerated asc",
+        "size": 0,
+        "title": "API availability and error-budget burn",
+        "timeContext": { "durationMs": 86400000 },
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "api-slo"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "AppRequests\n| summarize p50=percentile(DurationMs, 50), p95=percentile(DurationMs, 95), p99=percentile(DurationMs, 99) by bin(TimeGenerated, 5m), cloud_RoleName\n| order by TimeGenerated asc",
+        "size": 0,
+        "title": "API latency percentiles",
+        "timeContext": { "durationMs": 86400000 },
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "api-latency"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customMetrics\n| where name == 'pawtrack.north_star.active_protected_pets'\n| summarize activeProtected=avg(value) by tostring(customDimensions.window), bin(timestamp, 1h)\n| order by timestamp asc",
+        "size": 0,
+        "title": "North Star: active protected pets",
+        "timeContext": { "durationMs": 2592000000 },
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "north-star"
+    }
+  ]
+}

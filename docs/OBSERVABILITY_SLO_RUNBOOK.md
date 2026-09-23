@@ -65,6 +65,36 @@ $$
 
 ## Consultas KQL de referencia
 
+El SLO de disponibilidad API es 99.9%, por lo que el error budget es 0.1% de
+las solicitudes. La consulta canónica está en
+`infra/queries/api-slo-burn-rate.kql` y se despliega con dos ventanas:
+
+- alerta severidad 1: burn rate mayor que 14x durante 1 hora;
+- alerta severidad 2: burn rate mayor que 6x durante 6 horas.
+
+Ambas reglas notifican el Action Group `${resourcePrefix}-alerts-ag` definido
+en `infra/main.bicep`. El `what-if` y la prueba controlada siguen requiriendo
+una suscripción y un workspace Azure autorizados.
+
+El Workbook operativo se despliega como `${resourcePrefix} operational SLO` y
+se versiona en `infra/observability/pawtrack-operational-workbook.json`.
+Incluye disponibilidad/burn rate, percentiles de latencia y North Star. Hoy no
+se muestra tenant porque los eventos de producto todavía no llevan una
+atribución tenant-safe; no se debe inferir esa dimensión desde el usuario o la
+API key.
+
+| Severidad | Condición | Respuesta |
+| --- | --- | --- |
+| 1 | Burn rate >14x durante 1h o disponibilidad fallando | On-call confirma en 15 min, contiene tráfico/dependencia y abre incidente P1. |
+| 2 | Burn rate >6x durante 6h o latencia p95 sostenida | On-call revisa en 30 min, escala al responsable del servicio y abre P2 si persiste. |
+| 3 | Webhook, broadcast o proveedor degradado sin impacto general | Registrar ticket operativo, revisar retries y resolver durante horario laboral. |
+
+Escalamiento: el Action Group notifica al correo operativo configurado; si no
+hay confirmación en 15 minutos para severidad 1 o 30 minutos para severidad 2,
+se debe escalar al release manager y al responsable de plataforma. La prueba
+controlada requiere activar una alerta en un workspace no productivo y adjuntar
+la evidencia de notificación antes de marcarla como validada.
+
 ```kusto
 customMetrics
 | where name in (

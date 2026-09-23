@@ -68,7 +68,7 @@ Una tarea solo puede pasar a `[x]` cuando incluye:
 - [ ] Ejecutar tests frontend Vitest y publicar cobertura.
 - [ ] Ejecutar Playwright en frontend preview, no contra Vite dev.
 - [ ] Publicar traces, screenshots, videos y reportes Playwright en fallos.
-- [ ] Publicar OpenAPI, resultados de migración y SBOM como artefactos.
+- [x] Publicar OpenAPI, resultados de migración y SBOM como artefactos.
 - [ ] Bloquear merge si falla cualquier gate P0.
 
 ### Seguridad y migraciones
@@ -202,7 +202,7 @@ Una tarea solo puede pasar a `[x]` cuando incluye:
 - [x] Instrumentar métricas HTTP de latencia y errores con etiquetas de baja cardinalidad.
 - [ ] Instrumentar latencia, errores y retries de proveedores externos.
 - [ ] Instrumentar ingestión, jobs, outbox, SignalR y colas offline.
-- [ ] Añadir métricas de negocio del funnel y North Star.
+- [x] Añadir métricas de negocio del funnel y North Star con cardinalidad acotada.
 - [ ] Añadir logs estructurados sin PII, tokens ni coordenadas exactas.
 
 ### Health y resiliencia
@@ -216,10 +216,10 @@ Una tarea solo puede pasar a `[x]` cuando incluye:
 ### SLO y alertas
 
 - [ ] Definir SLO de API, jobs, webhooks, broadcast, finder y reunificación.
-- [ ] Calcular burn rate y error budget.
-- [ ] Crear queries KQL y alertas como código.
-- [ ] Crear dashboard Azure Monitor por servicio, tenant y región.
-- [ ] Definir on-call, severidad, escalamiento y runbook por alerta.
+- [x] Calcular burn rate y error budget para el SLO API 99.9%.
+- [x] Crear queries KQL y alertas como código para ventanas de 1h y 6h.
+- [~] Crear dashboard Azure Monitor por servicio y región; tenant queda bloqueado hasta atribución tenant-safe.
+- [x] Definir on-call, severidad, escalamiento y runbook por alerta.
 - [ ] Ejecutar prueba controlada de alerta y registrar evidencia.
 
 **Evidencia de cierre:** dashboard, alertas activas, queries versionadas y simulación de incidente.
@@ -255,8 +255,8 @@ Una tarea solo puede pasar a `[x]` cuando incluye:
 - [x] Separar `implementado`, `beta`, `verificado por PawTrack` y aval externo.
 - [x] Alinear Markdown y HTML generados con las fuentes canónicas.
 - [x] Crear matriz claim -> evidencia técnica -> evidencia operativa -> aprobación legal -> superficies en `docs/CLAIM_EVIDENCE_MATRIX.md`.
-- [ ] Añadir expiración y responsable a cada claim.
-- [ ] Gatear claims en UI/marketing por configuración aprobada.
+- [x] Añadir expiración, responsable y referencia de aprobación a cada claim.
+- [~] Gatear la consistencia de claims antes de publicación mediante `scripts/Test-ClaimGovernance.ps1`; falta conectar el registro aprobado a UI/marketing.
 
 ### Aprobación externa
 

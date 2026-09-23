@@ -180,7 +180,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IClinicMedicalExportRepository, ClinicMedicalExportRepository>();
         services.AddScoped<IWebhookRepository, WebhookRepository>();
         services.AddScoped<IWebhookFanout, WebhookFanout>();
-        services.AddHttpClient("OutboundWebhooks", client => client.Timeout = TimeSpan.FromSeconds(15));
+        services.AddHttpClient("OutboundWebhooks", client => client.Timeout = TimeSpan.FromSeconds(15))
+            .AddStandardResilienceHandler();
         services.AddHostedService<OutboundWebhookHostedService>();
         services.AddSingleton<IMfaService, TotpMfaService>();
         services.AddSingleton<IDataProtectionService, DataProtectionService>();

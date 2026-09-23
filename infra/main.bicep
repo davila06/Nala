@@ -758,6 +758,106 @@ resource alertActionGroup 'Microsoft.Insights/actionGroups@2023-09-01-preview' =
   }
 }
 
+// ── Azure Monitor: shared operational workbook ─────────────────────────────
+resource operationalWorkbook 'Microsoft.Insights/workbooks@2022-04-01' = {
+  name: guid(resourceGroup().id, resourcePrefix, 'operational-workbook')
+  location: location
+  kind: 'shared'
+  properties: {
+    displayName: '${resourcePrefix} operational SLO'
+    serializedData: loadTextContent('observability/pawtrack-operational-workbook.json')
+    version: 'Notebook/1.0'
+    sourceId: logAnalytics.id
+    category: 'workbook'
+  }
+}
+
+// ── Azure Monitor: API SLO burn rate, fast window ───────────────────────────
+resource apiBurnRateFastAlert 'Microsoft.Insights/scheduledQueryRules@2023-12-01' = {
+  name: '${resourcePrefix}-alert-api-burn-rate-fast'
+  location: location
+  properties: {
+    displayName: 'PawTrack API SLO burn rate 14x (1h)'
+    description: 'API error budget burn rate exceeded 14x over the last hour'
+    severity: 1
+    enabled: true
+    evaluationFrequency: 'PT5M'
+    scopes: [logAnalytics.id]
+    targetResourceTypes: ['microsoft.operationalinsights/workspaces']
+    windowSize: 'PT1H'
+    criteria: {
+      allOf: [
+        {
+          query: '''
+            let totalRequests = toscalar(AppRequests | where TimeGenerated > ago(1h) | summarize count());
+            let failedRequests = toscalar(AppRequests | where TimeGenerated > ago(1h) | where Success == false | summarize count());
+            print burnRate = iff(totalRequests == 0, 0.0, todouble(failedRequests) / todouble(totalRequests) / 0.001)
+          '''
+          timeAggregation: 'Maximum'
+          metricMeasureColumn: 'burnRate'
+          operator: 'GreaterThan'
+          threshold: 14
+          failingPeriods: {
+            numberOfEvaluationPeriods: 1
+            minFailingPeriodsToAlert: 1
+          }
+        }
+      ]
+    }
+    actions: {
+      actionGroups: [alertActionGroup.id]
+      customProperties: {
+        slo: 'api-availability-99.9'
+        burnRateWindow: '1h'
+      }
+    }
+    autoMitigate: true
+  }
+}
+
+// ── Azure Monitor: API SLO burn rate, slow window ───────────────────────────
+resource apiBurnRateSlowAlert 'Microsoft.Insights/scheduledQueryRules@2023-12-01' = {
+  name: '${resourcePrefix}-alert-api-burn-rate-slow'
+  location: location
+  properties: {
+    displayName: 'PawTrack API SLO burn rate 6x (6h)'
+    description: 'API error budget burn rate exceeded 6x over the last six hours'
+    severity: 2
+    enabled: true
+    evaluationFrequency: 'PT5M'
+    scopes: [logAnalytics.id]
+    targetResourceTypes: ['microsoft.operationalinsights/workspaces']
+    windowSize: 'PT6H'
+    criteria: {
+      allOf: [
+        {
+          query: '''
+            let totalRequests = toscalar(AppRequests | where TimeGenerated > ago(6h) | summarize count());
+            let failedRequests = toscalar(AppRequests | where TimeGenerated > ago(6h) | where Success == false | summarize count());
+            print burnRate = iff(totalRequests == 0, 0.0, todouble(failedRequests) / todouble(totalRequests) / 0.001)
+          '''
+          timeAggregation: 'Maximum'
+          metricMeasureColumn: 'burnRate'
+          operator: 'GreaterThan'
+          threshold: 6
+          failingPeriods: {
+            numberOfEvaluationPeriods: 1
+            minFailingPeriodsToAlert: 1
+          }
+        }
+      ]
+    }
+    actions: {
+      actionGroups: [alertActionGroup.id]
+      customProperties: {
+        slo: 'api-availability-99.9'
+        burnRateWindow: '6h'
+      }
+    }
+    autoMitigate: true
+  }
+}
+
 // ── Azure Monitor: Alert — HTTP 5xx error rate > 1% ──────────────────────────
 resource alertHttp5xx 'Microsoft.Insights/metricAlerts@2018-03-01' = {
   name: '${resourcePrefix}-alert-5xx'
