@@ -62,6 +62,8 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
         string? canton,
         string? channel = null,
         string? species = null,
+        Guid? tenantId = null,
+        string? tenantType = null,
         CancellationToken cancellationToken = default)
     {
         const string sql = """
@@ -84,6 +86,8 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
                                     AND ({2} IS NULL OR e.[Canton] = {2})
                                     AND ({3} IS NULL OR e.[Source] = {3})
                                     AND ({4} IS NULL OR p.[Species] = {4})
+                                      AND ({5} IS NULL OR e.[TenantId] = {5})
+                                      AND ({6} IS NULL OR e.[TenantType] = {6})
                                 GROUP BY COALESCE(NULLIF(e.[CorrelationId], ''), COALESCE(CONVERT(nvarchar(36), e.[PetId]), e.[AnonymousId]))
             ), JourneyMetrics AS (
                 SELECT
@@ -145,7 +149,10 @@ public sealed class ProductEventRepository(PawTrackDbContext db) : IProductEvent
                 to,
                 string.IsNullOrWhiteSpace(canton) ? DBNull.Value : canton.Trim(),
                 string.IsNullOrWhiteSpace(channel) ? DBNull.Value : channel.Trim(),
-                ParseSpecies(species))
+                ParseSpecies(species),
+                tenantId.HasValue ? tenantId.Value : DBNull.Value,
+                string.IsNullOrWhiteSpace(tenantType) ? DBNull.Value : tenantType.Trim())
+
             .ToListAsync(cancellationToken);
 
         return rows.Select(row => new ProductCohortMetric(

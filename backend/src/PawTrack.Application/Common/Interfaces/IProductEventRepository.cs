@@ -23,6 +23,8 @@ public interface IProductEventRepository
         string? canton,
         string? channel = null,
         string? species = null,
+        Guid? tenantId = null,
+        string? tenantType = null,
         CancellationToken cancellationToken = default);
     Task<ActiveProtectedCounts> GetActiveProtectedCountsAsync(
         DateTimeOffset asOf,

@@ -6,13 +6,14 @@ using PawTrack.Domain.Common;
 
 namespace PawTrack.Application.AnimalWelfare.Queries;
 
-public sealed record DownloadWelfareEvidenceQuery(Guid EvidenceId, Guid ActorUserId)
+public sealed record DownloadWelfareEvidenceQuery(Guid EvidenceId, Guid ActorUserId, bool CanAccessAll = false)
     : IRequest<Result<DownloadWelfareEvidenceDto>>;
 
 public sealed record DownloadWelfareEvidenceDto(byte[] Bytes, string ContentType, string FileName);
 
 public sealed class DownloadWelfareEvidenceQueryHandler(
     IAnimalWelfareEvidenceRepository evidenceRepository,
+    IAnimalWelfareCaseRepository caseRepository,
     IAnimalWelfareAuditRepository auditRepository,
     IBlobStorageService blobStorage,
     IUnitOfWork unitOfWork)
@@ -22,6 +23,11 @@ public sealed class DownloadWelfareEvidenceQueryHandler(
     {
         var evidence = await evidenceRepository.GetByIdAsync(request.EvidenceId, ct);
         if (evidence is null) return Result.Failure<DownloadWelfareEvidenceDto>("Evidencia no encontrada.");
+
+        var welfareCase = await caseRepository.GetByIdAsync(evidence.CaseId, ct);
+        if (welfareCase is null ||
+            (!request.CanAccessAll && welfareCase.AssignedOrganizationUserId != request.ActorUserId))
+            return Result.Failure<DownloadWelfareEvidenceDto>("Evidencia no encontrada.");
 
         var bytes = await blobStorage.DownloadAsync(evidence.BlobUrl, ct);
         if (bytes is null) return Result.Failure<DownloadWelfareEvidenceDto>("Archivo de evidencia no disponible.");

@@ -22,6 +22,19 @@ public sealed class ProductEventTests
         result.Canton.Should().Be("San Jose");
     }
 
+    [Fact]
+    public void Create_PersistsTenantAttributionWithoutUsingClientPayload()
+    {
+        var tenantId = Guid.NewGuid();
+
+        var result = ProductEvent.Create(
+            Guid.NewGuid(), "PetRegistered", "1", DateTimeOffset.UtcNow,
+            "anonymous", "partner", tenantId: tenantId, tenantType: "Clinic");
+
+        result.TenantId.Should().Be(tenantId);
+        result.TenantType.Should().Be("Clinic");
+    }
+
     [Theory]
     [InlineData("")]
     [InlineData(" ")]

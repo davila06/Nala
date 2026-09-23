@@ -11,6 +11,7 @@ using PawTrack.Domain.Audit;
 using System.Collections.Concurrent;
 using System.Security.Claims;
 using System.Text.Json;
+using PawTrack.Infrastructure.Observability;
 
 namespace PawTrack.API.Hubs;
 
@@ -52,9 +53,14 @@ public sealed class SearchCoordinationHub(
         var check = await sender.Send(
             new IsSearchParticipantQuery(lostEventId, userId));
 
-        if (check.IsFailure || !check.Value) return; // not a participant — silently deny, no info leak
+        if (check.IsFailure || !check.Value)
+        {
+            EnterpriseMetrics.SignalRRejected.Add(1, new KeyValuePair<string, object?>("operation", "join"));
+            return; // not a participant — silently deny, no info leak
+        }
 
         await Groups.AddToGroupAsync(Context.ConnectionId, GroupName(lostEventId));
+        EnterpriseMetrics.SignalRJoins.Add(1);
         await using (await AcquireRecipientLock(lostEventId))
         {
             await AddRecipient(lostEventId, Context.ConnectionId);
@@ -144,13 +150,18 @@ public sealed class SearchCoordinationHub(
         // without this check any authenticated user can claim all 49 zones,
         // paralysing a coordinated field search.
         var check = await sender.Send(new IsSearchParticipantQuery(lostEventId, userId));
-        if (check.IsFailure || !check.Value) return;
+        if (check.IsFailure || !check.Value)
+        {
+            EnterpriseMetrics.SignalRRejected.Add(1, new KeyValuePair<string, object?>("operation", "claim-zone"));
+            return;
+        }
 
         var result = await sender.Send(new ClaimZoneCommand(zoneId, userId));
         if (result.IsFailure) return;
 
         await Clients.Group(GroupName(lostEventId))
             .SendAsync("ZoneClaimed", result.Value);
+        EnterpriseMetrics.SignalRBroadcasts.Add(1, new KeyValuePair<string, object?>("event", "ZoneClaimed"));
     }
 
     /// <summary>Marks a taken zone as fully searched. Broadcasts <c>ZoneCleared</c> to all group members on success.</summary>
@@ -159,13 +170,18 @@ public sealed class SearchCoordinationHub(
         if (!TryGetUserId(out var userId)) return;
 
         var check = await sender.Send(new IsSearchParticipantQuery(lostEventId, userId));
-        if (check.IsFailure || !check.Value) return;
+        if (check.IsFailure || !check.Value)
+        {
+            EnterpriseMetrics.SignalRRejected.Add(1, new KeyValuePair<string, object?>("operation", "clear-zone"));
+            return;
+        }
 
         var result = await sender.Send(new ClearZoneCommand(zoneId, userId));
         if (result.IsFailure) return;
 
         await Clients.Group(GroupName(lostEventId))
             .SendAsync("ZoneCleared", result.Value);
+        EnterpriseMetrics.SignalRBroadcasts.Add(1, new KeyValuePair<string, object?>("event", "ZoneCleared"));
     }
 
     /// <summary>Releases a taken zone back to Free. Broadcasts <c>ZoneReleased</c> to all group members on success.</summary>
@@ -174,13 +190,18 @@ public sealed class SearchCoordinationHub(
         if (!TryGetUserId(out var userId)) return;
 
         var check = await sender.Send(new IsSearchParticipantQuery(lostEventId, userId));
-        if (check.IsFailure || !check.Value) return;
+        if (check.IsFailure || !check.Value)
+        {
+            EnterpriseMetrics.SignalRRejected.Add(1, new KeyValuePair<string, object?>("operation", "release-zone"));
+            return;
+        }
 
         var result = await sender.Send(new ReleaseZoneCommand(zoneId, userId));
         if (result.IsFailure) return;
 
         await Clients.Group(GroupName(lostEventId))
             .SendAsync("ZoneReleased", result.Value);
+        EnterpriseMetrics.SignalRBroadcasts.Add(1, new KeyValuePair<string, object?>("event", "ZoneReleased"));
     }
 
     // ── Optional GPS sharing (opt-in, not persisted) ──────────────────────────

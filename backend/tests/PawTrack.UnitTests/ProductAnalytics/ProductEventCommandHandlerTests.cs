@@ -34,7 +34,7 @@ public sealed class ProductEventCommandHandlerTests
         var repository = Substitute.For<IProductEventRepository>();
         var from = new DateTimeOffset(2026, 9, 1, 0, 0, 0, TimeSpan.Zero);
         var to = from.AddMonths(1);
-        repository.GetPerformanceByCohortAsync(from, to, null, null, null, Arg.Any<CancellationToken>())
+        repository.GetPerformanceByCohortAsync(from, to, null, null, null, null, null, Arg.Any<CancellationToken>())
             .Returns([
                 new ProductCohortMetric(
                     "2026-09", "San José", "Sin especificar", "Sin especificar", 100, 72, 20, 16,
@@ -61,7 +61,7 @@ public sealed class ProductEventCommandHandlerTests
         var repository = Substitute.For<IProductEventRepository>();
         var from = new DateTimeOffset(2026, 9, 1, 0, 0, 0, TimeSpan.Zero);
         var to = from.AddMonths(1);
-        repository.GetPerformanceByCohortAsync(from, to, "San José", "WhatsApp", "Dog", Arg.Any<CancellationToken>())
+        repository.GetPerformanceByCohortAsync(from, to, "San José", "WhatsApp", "Dog", null, null, Arg.Any<CancellationToken>())
             .Returns([
                 new ProductCohortMetric(
                     "2026-09", "San José", "WhatsApp", "Dog", 100, 72, 20, 16,

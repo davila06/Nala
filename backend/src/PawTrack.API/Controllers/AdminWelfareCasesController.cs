@@ -159,7 +159,9 @@ public sealed class AdminWelfareCasesController(ISender sender) : ControllerBase
     public async Task<IActionResult> DownloadEvidence(Guid evidenceId, CancellationToken cancellationToken)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
-        var result = await sender.Send(new DownloadWelfareEvidenceQuery(evidenceId, userId), cancellationToken);
+        var result = await sender.Send(
+            new DownloadWelfareEvidenceQuery(evidenceId, userId, User.IsInRole("Admin")),
+            cancellationToken);
         return result.IsSuccess
             ? File(result.Value!.Bytes, result.Value.ContentType, result.Value.FileName)
             : NotFound();

@@ -17,7 +17,9 @@ public sealed record IngestProductEventCommand(
     Guid? UserId,
     Guid? PetId,
     string? Canton,
-    string? CorrelationId) : IRequest<Result<bool>>;
+    string? CorrelationId,
+    Guid? TenantId = null,
+    string? TenantType = null) : IRequest<Result<bool>>;
 
 public sealed class IngestProductEventCommandValidator : AbstractValidator<IngestProductEventCommand>
 {
@@ -68,7 +70,9 @@ public sealed class IngestProductEventCommandHandler(
             request.UserId,
             request.PetId,
             request.Canton,
-            request.CorrelationId);
+            request.CorrelationId,
+            request.TenantId,
+            request.TenantType);
 
         await repository.AddAsync(productEvent, cancellationToken);
         try
@@ -124,7 +128,9 @@ public sealed record GetProductPerformanceQuery(
     DateTimeOffset To,
     string? Canton = null,
     string? Channel = null,
-    string? Species = null) : IRequest<Result<ProductPerformanceDto>>;
+    string? Species = null,
+    Guid? TenantId = null,
+    string? TenantType = null) : IRequest<Result<ProductPerformanceDto>>;
 
 public sealed record ProductPerformanceDto(
     DateTimeOffset From,
@@ -150,6 +156,8 @@ public sealed class GetProductPerformanceQueryHandler(IProductEventRepository re
             request.Canton,
             request.Channel,
             request.Species,
+            request.TenantId,
+            request.TenantType,
             cancellationToken);
         var activeProtected = await repository.GetActiveProtectedCountsAsync(
             request.To,

@@ -18,12 +18,14 @@ public sealed class ProductEventConfiguration : IEntityTypeConfiguration<Product
         builder.Property(x => x.Source).HasMaxLength(100).IsRequired();
         builder.Property(x => x.Canton).HasMaxLength(100);
         builder.Property(x => x.CorrelationId).HasMaxLength(100);
+        builder.Property(x => x.TenantType).HasMaxLength(50);
         builder.Property(x => x.OccurredAt).IsRequired();
         builder.Property(x => x.ReceivedAt).IsRequired();
         builder.HasIndex(x => x.EventId).IsUnique();
         builder.HasIndex(x => new { x.EventName, x.OccurredAt });
         builder.HasIndex(x => new { x.Canton, x.OccurredAt });
         builder.HasIndex(x => new { x.CorrelationId, x.OccurredAt });
+        builder.HasIndex(x => new { x.TenantId, x.TenantType, x.OccurredAt });
         builder.HasIndex(x => new { x.EventName, x.CorrelationId })
             .IsUnique()
             .HasFilter("[EventName] = N'FirstResponseRecorded' AND [CorrelationId] IS NOT NULL");

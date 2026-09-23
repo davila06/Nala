@@ -37,6 +37,12 @@ Responses use JSON and RFC 7807-compatible problem details for validation and au
 - `certificates`: certificate operations.
 - `analytics`: scan and visibility analytics.
 
+`GET /api/v1/product-events/performance/export` requiere una API key clínica
+activa con scope `analytics`. Devuelve CSV agregado por cohorte, cantón, canal
+y especie, sin PII ni datos de otros tenants. La cuota es de 20 exportaciones
+por clínica y mes calendario; cada exportación queda auditada con tenant,
+rango y API key.
+
 Keys expire after one year, can be rotated or revoked, and their raw value is shown only once. Existing keys are backfilled with the export scope by migration and can be narrowed by rotation.
 
 ## Clinical exports

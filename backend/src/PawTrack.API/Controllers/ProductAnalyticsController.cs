@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using PawTrack.Application.ProductAnalytics;
 using PawTrack.Infrastructure.Observability;
+using PawTrack.Application.Common.Interfaces;
+using PawTrack.Domain.Audit;
 using Asp.Versioning;
 
 namespace PawTrack.API.Controllers;
@@ -14,7 +16,10 @@ namespace PawTrack.API.Controllers;
 [Route("api/product-events")]
 [Route("api/v1/product-events")]
 [ApiVersion("1.0")]
-public sealed class ProductAnalyticsController(ISender sender) : ControllerBase
+public sealed class ProductAnalyticsController(
+    ISender sender,
+    IAuditLogRepository auditLogRepository,
+    IUnitOfWork unitOfWork) : ControllerBase
 {
     [HttpPost]
     [AllowAnonymous]
@@ -35,7 +40,9 @@ public sealed class ProductAnalyticsController(ISender sender) : ControllerBase
             userId,
             request.PetId,
             request.Canton,
-            request.CorrelationId), cancellationToken);
+            request.CorrelationId,
+            TryGetTenantId(),
+            TryGetTenantType()), cancellationToken);
 
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails
@@ -161,6 +168,83 @@ public sealed class ProductAnalyticsController(ISender sender) : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : Problem();
     }
 
+    [HttpGet("performance/export")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> ExportPartnerPerformance(
+        [FromQuery] DateTimeOffset? from,
+        [FromQuery] DateTimeOffset? to,
+        [FromQuery] string? canton,
+        [FromQuery] string? channel,
+        [FromQuery] string? species,
+        CancellationToken cancellationToken)
+    {
+        var keyId = User.FindFirstValue("ClinicApiKeyId");
+        if (!Guid.TryParse(keyId, out _) || !TryGetTenantId().HasValue)
+            return Forbid();
+
+        var actorId = TryGetUserId();
+        var tenantId = TryGetTenantId()!.Value;
+        if (!actorId.HasValue)
+            return Forbid();
+
+        var end = to ?? DateTimeOffset.UtcNow;
+        var start = from ?? end.AddDays(-90);
+        if (start >= end || end - start > TimeSpan.FromDays(366))
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid date range",
+                Detail = "The performance range must be positive and no longer than 366 days.",
+                Status = StatusCodes.Status400BadRequest,
+            });
+
+        var monthStart = new DateTimeOffset(end.Year, end.Month, 1, 0, 0, 0, TimeSpan.Zero);
+        if (await auditLogRepository.CountByActionSinceAsync(
+                AuditAction.PartnerAnalyticsExported, actorId.Value, monthStart, cancellationToken) >= 20)
+            return StatusCode(StatusCodes.Status429TooManyRequests, new ProblemDetails
+            {
+                Title = "Analytics export quota exceeded",
+                Detail = "This Partner tenant has reached its monthly analytics export quota.",
+                Status = StatusCodes.Status429TooManyRequests,
+            });
+
+        var result = await sender.Send(
+            new GetProductPerformanceQuery(start, end, canton, channel, species, tenantId, "Clinic"),
+            cancellationToken);
+        if (result.IsFailure)
+            return Problem();
+
+        var csv = new System.Text.StringBuilder(
+            "cohort,canton,channel,species,registeredPets,activatedPets,lostReports,reunitedReports,recoveryRatePercent,medianFirstResponseMinutes,medianReunionMinutes,p90FirstResponseMinutes,p90ReunionMinutes\n");
+        foreach (var row in result.Value!.Cohorts)
+        {
+            csv.Append(EscapeCsv(row.Cohort)).Append(',')
+                .Append(EscapeCsv(row.Canton)).Append(',')
+                .Append(EscapeCsv(row.Channel)).Append(',')
+                .Append(EscapeCsv(row.Species)).Append(',')
+                .Append(row.RegisteredPets).Append(',')
+                .Append(row.ActivatedPets).Append(',')
+                .Append(row.LostReports).Append(',')
+                .Append(row.ReunitedReports).Append(',')
+                .Append(row.RecoveryRatePercent).Append(',')
+                .Append(row.MedianFirstResponseMinutes).Append(',')
+                .Append(row.MedianReunionMinutes).Append(',')
+                .Append(row.P90FirstResponseMinutes).Append(',')
+                .Append(row.P90ReunionMinutes).Append('\n');
+        }
+
+        await auditLogRepository.AddAsync(
+            AuditLogEntry.Create(actorId.Value, AuditAction.PartnerAnalyticsExported,
+                "PartnerAnalytics", tenantId.ToString(), $"range={start:O}/{end:O};key={keyId}"),
+            cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return File(
+            System.Text.Encoding.UTF8.GetBytes(csv.ToString()),
+            "text/csv; charset=utf-8",
+            $"pawtrack-partner-performance-{start:yyyyMMdd}-{end:yyyyMMdd}.csv");
+    }
+
     private static string EscapeCsv(string? value) =>
         string.IsNullOrEmpty(value) ? string.Empty : $"\"{value.Replace("\"", "\"\"", StringComparison.Ordinal)}\"";
 
@@ -169,6 +253,15 @@ public sealed class ProductAnalyticsController(ISender sender) : ControllerBase
         var claim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
         return Guid.TryParse(claim, out var userId) ? userId : null;
     }
+
+    private Guid? TryGetTenantId()
+    {
+        var claim = User.FindFirstValue("ClinicId");
+        return Guid.TryParse(claim, out var tenantId) ? tenantId : null;
+    }
+
+    private string? TryGetTenantType() =>
+        User.FindFirstValue("ClinicId") is null ? null : "Clinic";
 }
 
 public sealed record IngestProductEventRequest(

@@ -10,6 +10,7 @@ import { Alert } from "@/shared/ui/Alert";
 import { useCountUp } from "@/shared/hooks/useCountUp";
 import { AmbientPaws } from "@/shared/ui/AmbientPaws";
 import { LOGIN_PAWS } from "@/shared/ui/ambientPawsConfig";
+import { isClaimApproved } from "@/shared/config/claimGovernance";
 
 // ── Tilt hook — tracks mouse position relative to an element ─────────────────
 
@@ -122,6 +123,7 @@ function BrandPanel() {
   const [statsStarted, setStatsStarted] = useState(false);
   const { data: overview } = useRecoveryOverview();
 
+  const recoveryClaimApproved = isClaimApproved("recovery");
   const totalReunited = overview?.recoveredCount ?? 0;
   const recoveryPct = overview ? Math.round(overview.overallRecoveryRate * 100) : 0;
   const totalReports = overview?.totalReports ?? 0;
@@ -172,7 +174,7 @@ function BrandPanel() {
 
       {/* Holographic stat cards — mouse-tracked 3D tilt */}
       <div className="flex gap-3 relative z-10">
-        {totalReunited > 0 ? (
+        {recoveryClaimApproved && totalReunited > 0 ? (
           <>
             <HoloStatItem end={totalReports} suffix="+" label="casos atendidos" started={statsStarted} />
             <HoloStatItem end={recoveryPct} suffix=" %" label="tasa de recuperación" started={statsStarted} />

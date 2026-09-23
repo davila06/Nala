@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Diagnostics;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Outbox;
 using PawTrack.Infrastructure.Persistence;
+using PawTrack.Infrastructure.Observability;
 
 namespace PawTrack.Infrastructure.Outbox;
 
@@ -46,6 +48,8 @@ public sealed class OutboxProcessorHostedService(
 
     private async Task ProcessBatchAsync(CancellationToken ct)
     {
+        var stopwatch = Stopwatch.StartNew();
+        EnterpriseMetrics.JobRuns.Add(1, new KeyValuePair<string, object?>("job", "OutboxProcessor"));
         await using var scope = scopeFactory.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<PawTrackDbContext>();
         var publisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
@@ -56,7 +60,14 @@ public sealed class OutboxProcessorHostedService(
             .Take(BatchSize)
             .ToListAsync(ct);
 
-        if (messages.Count == 0) return;
+        if (messages.Count == 0)
+        {
+            EnterpriseMetrics.JobDurationMs.Record(stopwatch.Elapsed.TotalMilliseconds,
+                new KeyValuePair<string, object?>("job", "OutboxProcessor"));
+            return;
+        }
+
+        EnterpriseMetrics.OutboxPending.Add(messages.Count);
 
         logger.LogDebug("OutboxProcessor: processing {Count} pending messages", messages.Count);
 
@@ -80,15 +91,19 @@ public sealed class OutboxProcessorHostedService(
 
                 await publisher.Publish(payload, ct);
                 msg.MarkProcessed();
+                EnterpriseMetrics.OutboxProcessed.Add(1);
             }
             catch (Exception ex)
             {
                 msg.MarkFailed(ex.Message);
+                EnterpriseMetrics.OutboxFailed.Add(1);
                 logger.LogWarning(ex, "OutboxProcessor: failed to deliver message {Id} type={Type}", msg.Id, msg.MessageType);
             }
         }
 
         await db.SaveChangesAsync(ct);
+        EnterpriseMetrics.JobDurationMs.Record(stopwatch.Elapsed.TotalMilliseconds,
+            new KeyValuePair<string, object?>("job", "OutboxProcessor"));
         logger.LogDebug("OutboxProcessor: batch done — {Processed} delivered", messages.Count(m => m.Status == OutboxMessageStatus.Processed));
     }
 }

@@ -470,8 +470,8 @@
       },
       "Microsoft.Bcl.Memory": {
         "type": "Transitive",
-        "resolved": "9.0.0",
-        "contentHash": "bTUtGfpGyJnohQzjdXbtc7MqNzkv7CWUSRz54+ucNm0i32rZiIU0VdVPHDBShOl1qhVKRjW8mnEBz3d2vH93tQ=="
+        "resolved": "9.0.14",
+        "contentHash": "laQCcjTM2FnbyznkAu9hwBuQh3z2/OtJKwjGkJOUevylFpFXZIUVq/+MU2jM0HQm1n5wsjjwtLIDOiWJ6Nai3A=="
       },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
@@ -592,12 +592,12 @@
       },
       "Microsoft.Extensions.Caching.StackExchangeRedis": {
         "type": "Transitive",
-        "resolved": "9.0.3",
-        "contentHash": "KG/ec3DjwEfTKJCF7vobLJvyU7ChI7N6sE3z0v/W2RQYUqd0IxklYutPaN0cZRyAmt2EtmGg30+dVeV5Cr73Dw==",
+        "resolved": "9.0.5",
+        "contentHash": "bSn4ak8sjP8dfT4OoKXcUIMwodxfQhE+6eBP9HgyNFpsffSp/Tlnjn8aaB0Sqp+5l1s7XzpKiXHHbuCiiLDnTw==",
         "dependencies": {
-          "Microsoft.Extensions.Caching.Abstractions": "9.0.3",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.3",
-          "Microsoft.Extensions.Options": "9.0.3",
+          "Microsoft.Extensions.Caching.Abstractions": "9.0.5",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.5",
+          "Microsoft.Extensions.Options": "9.0.5",
           "StackExchange.Redis": "2.7.27"
         }
       },
@@ -1367,8 +1367,8 @@
       },
       "System.Security.Cryptography.Pkcs": {
         "type": "Transitive",
-        "resolved": "9.0.3",
-        "contentHash": "4XYeGOYBYtvaF2bH+cps+vPWjI5jQCWR7R1B4dI9I1Da9JQrXYP7mxdci+zKV2Ie4JafaOnOoNaDtzxkaXUxCg=="
+        "resolved": "9.0.18",
+        "contentHash": "NKMKhUdLGNZryY9GXXTF5dXyP6S37EYXhiA2JYvwshJbd4DRq07IOS9it8Opi9atadvv5rlNkD76Mio+5Oo2aQ=="
       },
       "System.Security.Cryptography.ProtectedData": {
         "type": "Transitive",
@@ -1377,10 +1377,10 @@
       },
       "System.Security.Cryptography.Xml": {
         "type": "Transitive",
-        "resolved": "9.0.3",
-        "contentHash": "dPG84G5/szhNQ8utXUB4NmrJLGvFe8yd4P0MFjy0/VNxkQNGR6CkkLjptkO5b5rcnw/4c2xDKcrwLxgc1zKWgg==",
+        "resolved": "9.0.18",
+        "contentHash": "UoE37brJoIJPMds6wqDaweVrORmdM3XDPGLRU01Mg6Koh3SjgogSfz4+zDsriaEluHMRCx/Qc7yeEw7F9QMcJA==",
         "dependencies": {
-          "System.Security.Cryptography.Pkcs": "9.0.3"
+          "System.Security.Cryptography.Pkcs": "9.0.18"
         }
       },
       "System.Security.Principal.Windows": {
@@ -1503,9 +1503,10 @@
           "Fido2": "[4.0.0, )",
           "MediatR": "[12.4.1, )",
           "Microsoft.AspNetCore.DataProtection": "[9.0.3, )",
+          "Microsoft.Bcl.Memory": "[9.0.14, )",
           "Microsoft.EntityFrameworkCore.SqlServer": "[9.0.3, )",
           "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite": "[9.0.3, )",
-          "Microsoft.Extensions.Caching.StackExchangeRedis": "[9.0.3, )",
+          "Microsoft.Extensions.Caching.StackExchangeRedis": "[9.0.5, )",
           "Microsoft.Extensions.Configuration.Binder": "[9.0.3, )",
           "Microsoft.Extensions.Hosting.Abstractions": "[9.0.3, )",
           "Microsoft.Extensions.Http": "[9.0.3, )",
@@ -1520,6 +1521,7 @@
           "SixLabors.ImageSharp": "[3.1.12, )",
           "SixLabors.ImageSharp.Drawing": "[2.1.7, )",
           "System.IdentityModel.Tokens.Jwt": "[8.9.0, )",
+          "System.Security.Cryptography.Xml": "[9.0.18, )",
           "WebPush": "[1.0.13, )"
         }
       }

@@ -113,6 +113,8 @@ public sealed class ClinicApiKeyMiddleware(
             return ClinicApiScope.Certificates;
         if (path.StartsWithSegments("/api/clinics/me/stats") || path.StartsWithSegments("/api/clinics/me/visibility-stats"))
             return ClinicApiScope.Analytics;
+        if (path.StartsWithSegments("/api/v1/product-events/performance/export"))
+            return ClinicApiScope.Analytics;
         return null;
     }
 

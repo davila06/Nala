@@ -13,6 +13,8 @@ public sealed class ProductEvent
     public string AnonymousId { get; private set; } = string.Empty;
     public Guid? UserId { get; private set; }
     public Guid? PetId { get; private set; }
+    public Guid? TenantId { get; private set; }
+    public string? TenantType { get; private set; }
     public string Source { get; private set; } = string.Empty;
     public string? Canton { get; private set; }
     public string? CorrelationId { get; private set; }
@@ -28,6 +30,8 @@ public sealed class ProductEvent
         Guid? petId = null,
         string? canton = null,
         string? correlationId = null,
+        Guid? tenantId = null,
+        string? tenantType = null,
         DateTimeOffset? receivedAt = null)
     {
         if (eventId == Guid.Empty) throw new ArgumentException("EventId is required.", nameof(eventId));
@@ -47,6 +51,8 @@ public sealed class ProductEvent
             AnonymousId = anonymousId.Trim(),
             UserId = userId,
             PetId = petId,
+            TenantId = tenantId,
+            TenantType = string.IsNullOrWhiteSpace(tenantType) ? null : tenantType.Trim(),
             Source = source.Trim(),
             Canton = string.IsNullOrWhiteSpace(canton) ? null : canton.Trim(),
             CorrelationId = string.IsNullOrWhiteSpace(correlationId) ? null : correlationId.Trim(),

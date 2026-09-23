@@ -17,4 +17,19 @@ public static class EnterpriseMetrics
     public static readonly Counter<long> ProductFunnelQueries = Meter.CreateCounter<long>("pawtrack.product.funnel.queries");
     public static readonly Histogram<long> NorthStarActiveProtectedPets =
         Meter.CreateHistogram<long>("pawtrack.north_star.active_protected_pets");
+    public static readonly Counter<long> ExternalProviderRequests =
+        Meter.CreateCounter<long>("pawtrack.provider.requests");
+    public static readonly Counter<long> ExternalProviderFailures =
+        Meter.CreateCounter<long>("pawtrack.provider.failures");
+    public static readonly Histogram<double> ExternalProviderDurationMs =
+        Meter.CreateHistogram<double>("pawtrack.provider.duration_ms");
+    public static readonly Counter<long> JobRuns = Meter.CreateCounter<long>("pawtrack.job.runs");
+    public static readonly Counter<long> JobFailures = Meter.CreateCounter<long>("pawtrack.job.failures");
+    public static readonly Histogram<double> JobDurationMs = Meter.CreateHistogram<double>("pawtrack.job.duration_ms");
+    public static readonly Counter<long> OutboxPending = Meter.CreateCounter<long>("pawtrack.outbox.pending");
+    public static readonly Counter<long> OutboxProcessed = Meter.CreateCounter<long>("pawtrack.outbox.processed");
+    public static readonly Counter<long> OutboxFailed = Meter.CreateCounter<long>("pawtrack.outbox.failed");
+    public static readonly Counter<long> SignalRJoins = Meter.CreateCounter<long>("pawtrack.signalr.joins");
+    public static readonly Counter<long> SignalRRejected = Meter.CreateCounter<long>("pawtrack.signalr.rejected");
+    public static readonly Counter<long> SignalRBroadcasts = Meter.CreateCounter<long>("pawtrack.signalr.broadcasts");
 }

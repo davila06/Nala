@@ -15,6 +15,10 @@ Este runbook cubre los indicadores tecnicos que ya se emiten desde el backend:
 - `pawtrack.product.events.ingested`
 - `pawtrack.product.funnel.queries`
 - `pawtrack.north_star.active_protected_pets` con etiqueta `window` (`30d`, `90d`, `180d`)
+- `pawtrack.provider.requests`, `pawtrack.provider.failures`, `pawtrack.provider.duration_ms`
+- `pawtrack.job.runs`, `pawtrack.job.failures`, `pawtrack.job.duration_ms`
+- `pawtrack.outbox.pending`, `pawtrack.outbox.processed`, `pawtrack.outbox.failed`
+- `pawtrack.signalr.joins`, `pawtrack.signalr.rejected`, `pawtrack.signalr.broadcasts`
 
 El health check `external-provider-configuration` valida la presencia de
 configuración no secreta necesaria para Azure Storage, Application Insights,
@@ -51,7 +55,9 @@ para evitar cardinalidad peligrosa; no incluyen usuario, email, token ni PII.
 
 El rango máximo es 366 días. `Sin especificar` se mantiene como grupo separado
 para que la ausencia de cantón sea visible y no infle silenciosamente otro
-territorio.
+territorio. Los eventos históricos y anónimos sin identidad organizacional
+permanecen con tenant nulo y deben tratarse como `legacy`; no se les asigna un
+tenant por inferencia.
 
 Definiciones:
 
@@ -83,11 +89,11 @@ se muestra tenant porque los eventos de producto todavía no llevan una
 atribución tenant-safe; no se debe inferir esa dimensión desde el usuario o la
 API key.
 
-| Severidad | Condición | Respuesta |
-| --- | --- | --- |
-| 1 | Burn rate >14x durante 1h o disponibilidad fallando | On-call confirma en 15 min, contiene tráfico/dependencia y abre incidente P1. |
-| 2 | Burn rate >6x durante 6h o latencia p95 sostenida | On-call revisa en 30 min, escala al responsable del servicio y abre P2 si persiste. |
-| 3 | Webhook, broadcast o proveedor degradado sin impacto general | Registrar ticket operativo, revisar retries y resolver durante horario laboral. |
+| Severidad | Condición                                                    | Respuesta                                                                           |
+| --------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| 1         | Burn rate >14x durante 1h o disponibilidad fallando          | On-call confirma en 15 min, contiene tráfico/dependencia y abre incidente P1.       |
+| 2         | Burn rate >6x durante 6h o latencia p95 sostenida            | On-call revisa en 30 min, escala al responsable del servicio y abre P2 si persiste. |
+| 3         | Webhook, broadcast o proveedor degradado sin impacto general | Registrar ticket operativo, revisar retries y resolver durante horario laboral.     |
 
 Escalamiento: el Action Group notifica al correo operativo configurado; si no
 hay confirmación en 15 minutos para severidad 1 o 30 minutos para severidad 2,

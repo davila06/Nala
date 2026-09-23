@@ -85,14 +85,14 @@ actualizada y evidencia fechada.
 - [ ] Calcular p50/p90 por cohorte, cantón, canal y periodo.
 - [ ] Medir mascotas activas protegidas a 30/90/180 días.
 - [ ] Documentar exclusiones, datos faltantes y censura estadística.
-- [ ] Completar exportación Partner con identidad M2M, scopes, cuota y auditoría.
+- [~] Completar exportación Partner con identidad M2M, scopes, cuota y auditoría; falta prueba de staging y rotación real de credenciales.
 
 ## 5. Observabilidad y SLO
 
 - [ ] Definir nombres, unidades y cardinalidad máxima de métricas OpenTelemetry.
 - [ ] Instrumentar proveedores externos: latencia, errores y retries.
 - [ ] Instrumentar ingestión, jobs, outbox, SignalR y colas offline.
-- [ ] Añadir métricas de funnel y North Star.
+- [x] Añadir métricas de funnel y North Star.
 - [ ] Mantener logs estructurados sin PII, tokens ni coordenadas exactas.
 - [ ] Clasificar dependencias críticas, degradables y opcionales.
 - [ ] Definir fail-fast, timeouts, retries, circuit breakers y fallback por proveedor.

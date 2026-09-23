@@ -42,6 +42,7 @@ public enum AuditAction
     StoreRejected,
     StoreSuspended,
     StoreAnalyticsExported,
+    PartnerAnalyticsExported,
 
     // Service providers
     ServiceProviderApproved,
