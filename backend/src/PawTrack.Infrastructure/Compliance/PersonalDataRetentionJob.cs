@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Common.Settings;
+using PawTrack.Application.Clinics.Interfaces;
 
 namespace PawTrack.Infrastructure.Compliance;
 
@@ -19,6 +20,7 @@ public sealed class PersonalDataRetentionJob(
     IProductEventRepository productEventRepository,
     IMedicalRepository medicalRepository,
     IClinicMedicalExportRepository clinicMedicalExportRepository,
+    IClinicCrmRepository clinicCrmRepository,
     IUnitOfWork unitOfWork,
     IOptions<PersonalDataRetentionSettings> settings,
     ILogger<PersonalDataRetentionJob> logger)
@@ -45,8 +47,10 @@ public sealed class PersonalDataRetentionJob(
         var expiredExports = await clinicMedicalExportRepository.ExpireBeforeAsync(now, cancellationToken);
         var exportMetadataCutoff = now.AddDays(-config.ExpiredClinicExportRetentionDays);
         var deletedExportMetadata = await clinicMedicalExportRepository.DeleteExpiredBeforeAsync(exportMetadataCutoff, cancellationToken);
+        var deletedCrmActivities = await clinicCrmRepository.DeleteActivitiesBeforeAsync(now.AddDays(-config.ClinicCrmActivityRetentionDays), cancellationToken);
+        var deletedCrmTasks = await clinicCrmRepository.DeleteCompletedTasksBeforeAsync(now.AddDays(-config.ClinicCrmCompletedTaskRetentionDays), cancellationToken);
 
-        if (deletedSightings > 0 || deletedThreads > 0 || deletedNotifications > 0 || deletedProductEvents > 0 || deletedMedicalVersions > 0 || expiredExports > 0 || deletedExportMetadata > 0)
+        if (deletedSightings > 0 || deletedThreads > 0 || deletedNotifications > 0 || deletedProductEvents > 0 || deletedMedicalVersions > 0 || expiredExports > 0 || deletedExportMetadata > 0 || deletedCrmActivities > 0 || deletedCrmTasks > 0)
         {
             // All three deletes use ExecuteDeleteAsync which bypasses the change tracker,
             // so SaveChangesAsync here only commits any other pending changes.
@@ -54,7 +58,7 @@ public sealed class PersonalDataRetentionJob(
         }
 
         logger.LogInformation(
-            "PersonalDataRetentionJob finished. Sightings={Sightings} ChatThreads={Threads} Notifications={Notifications} ProductEvents={ProductEvents} MedicalVersions={MedicalVersions} ExpiredExports={ExpiredExports} ExportMetadata={ExportMetadata}",
-            deletedSightings, deletedThreads, deletedNotifications, deletedProductEvents, deletedMedicalVersions, expiredExports, deletedExportMetadata);
+            "PersonalDataRetentionJob finished. Sightings={Sightings} ChatThreads={Threads} Notifications={Notifications} ProductEvents={ProductEvents} MedicalVersions={MedicalVersions} ExpiredExports={ExpiredExports} ExportMetadata={ExportMetadata} CrmActivities={CrmActivities} CrmTasks={CrmTasks}",
+            deletedSightings, deletedThreads, deletedNotifications, deletedProductEvents, deletedMedicalVersions, expiredExports, deletedExportMetadata, deletedCrmActivities, deletedCrmTasks);
     }
 }

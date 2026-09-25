@@ -27,4 +27,8 @@ public sealed class PersonalDataRetentionSettings
 
     /// <summary>Days to retain export metadata after expiry. Default: 2555 (7 years).</summary>
     public int ExpiredClinicExportRetentionDays { get; init; } = 2555;
+
+    public int ClinicCrmActivityRetentionDays { get; init; } = 365;
+
+    public int ClinicCrmCompletedTaskRetentionDays { get; init; } = 730;
 }

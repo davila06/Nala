@@ -28,16 +28,25 @@ public sealed class ClinicBillingDomainTests
     }
 
     [Fact]
-    public void Sale_VoidAfterPayment_RequiresReasonAndPreservesAuditState()
+    public void Sale_VoidAfterPayment_RequiresFullRefundWithEvidence()
     {
         var sale = ClinicSale.Create(Guid.NewGuid(), Guid.NewGuid(), null, null, Guid.NewGuid(), "REC-002");
         sale.AddLine("Consulta", ClinicSaleLineType.Service, 1, 10000m, null, null);
-        sale.RecordPayment(10000m, ClinicPaymentMethod.Cash, null, Guid.NewGuid());
+        var payment = sale.RecordPayment(10000m, ClinicPaymentMethod.Cash, null, Guid.NewGuid());
 
+        var beforeRefund = () => sale.Void("Error de facturación", Guid.NewGuid());
+        beforeRefund.Should().Throw<InvalidOperationException>();
+        var withoutEvidence = () => sale.RecordRefund(payment.Id, 10000m, "Error de facturación", "", Guid.NewGuid());
+        withoutEvidence.Should().Throw<ArgumentException>();
+        sale.RecordRefund(payment.Id, 10000m, "Error de facturación", "REEM-001", Guid.NewGuid());
+        var duplicateRefund = () => sale.RecordRefund(payment.Id, 1m, "Duplicada", "REEM-002", Guid.NewGuid());
+        duplicateRefund.Should().Throw<InvalidOperationException>();
         sale.Void("Error de facturación", Guid.NewGuid());
 
         sale.Status.Should().Be(ClinicSaleStatus.Voided);
         sale.VoidReason.Should().Be("Error de facturación");
+        sale.PaidCrc.Should().Be(0m);
+        sale.Refunds.Should().ContainSingle(refund => refund.PaymentId == payment.Id && refund.AmountCrc == 10000m);
     }
 
     [Fact]

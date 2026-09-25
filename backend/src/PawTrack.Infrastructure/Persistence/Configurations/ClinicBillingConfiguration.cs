@@ -20,8 +20,10 @@ public sealed class ClinicSaleConfiguration : IEntityTypeConfiguration<ClinicSal
         builder.HasIndex(x => new { x.ClinicId, x.ReceiptNumber }).IsUnique();
         builder.HasMany(x => x.Lines).WithOne().HasForeignKey(x => x.SaleId).OnDelete(DeleteBehavior.Cascade);
         builder.HasMany(x => x.Payments).WithOne().HasForeignKey(x => x.SaleId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(x => x.Refunds).WithOne().HasForeignKey(x => x.SaleId).OnDelete(DeleteBehavior.Cascade);
         builder.Navigation(x => x.Lines).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Navigation(x => x.Payments).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(x => x.Refunds).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }
 
@@ -52,6 +54,22 @@ public sealed class ClinicSalePaymentConfiguration : IEntityTypeConfiguration<Cl
         builder.Property(x => x.Reference).HasMaxLength(100);
         builder.Property(x => x.ReceivedAt).IsRequired();
         builder.HasIndex(x => new { x.ClinicId, x.ReceivedAt });
+    }
+}
+
+public sealed class ClinicSaleRefundConfiguration : IEntityTypeConfiguration<ClinicSaleRefund>
+{
+    public void Configure(EntityTypeBuilder<ClinicSaleRefund> builder)
+    {
+        builder.ToTable("ClinicSaleRefunds");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).ValueGeneratedNever();
+        builder.Property(x => x.Method).HasConversion<string>().HasMaxLength(30).IsRequired();
+        builder.Property(x => x.AmountCrc).HasColumnType("decimal(12,2)");
+        builder.Property(x => x.Reason).HasMaxLength(300).IsRequired();
+        builder.Property(x => x.EvidenceReference).HasMaxLength(120).IsRequired();
+        builder.HasIndex(x => new { x.ClinicId, x.RefundedAt });
+        builder.HasIndex(x => new { x.ClinicId, x.EvidenceReference }).IsUnique();
     }
 }
 

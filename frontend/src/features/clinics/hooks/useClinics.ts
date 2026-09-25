@@ -324,6 +324,136 @@ export function useAdjustClinicInventoryLot() {
   });
 }
 
+export function useClinicSalesReport(businessDate: string) {
+  return useQuery({
+    queryKey: ["clinics", "sales-report", businessDate],
+    queryFn: () => clinicsApi.getSalesReport(businessDate),
+    staleTime: 30_000,
+    enabled: Boolean(businessDate),
+  });
+}
+
+export function useClinicFinanceMembers() {
+  return useQuery({
+    queryKey: ["clinics", "finance-members"],
+    queryFn: clinicsApi.getFinanceMembers,
+    staleTime: 30_000,
+  });
+}
+
+export function useGrantClinicFinanceMember() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ email, role }: { email: string; role: "Cashier" | "Administrator" }) =>
+      clinicsApi.grantFinanceMember(email, role),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["clinics", "finance-members"] }),
+  });
+}
+
+export function useRevokeClinicFinanceMember() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: clinicsApi.revokeFinanceMember,
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["clinics", "finance-members"] }),
+  });
+}
+
+export function useCreateClinicSale(businessDate: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: clinicsApi.createSale,
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["clinics", "sales-report", businessDate] }),
+  });
+}
+
+export function useRegisterClinicSalePayment(businessDate: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      saleId,
+      payload,
+    }: {
+      saleId: string;
+      payload: Parameters<typeof clinicsApi.registerSalePayment>[1];
+    }) => clinicsApi.registerSalePayment(saleId, payload),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["clinics", "sales-report", businessDate] }),
+  });
+}
+
+export function useVoidClinicSale(businessDate: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ saleId, reason }: { saleId: string; reason: string }) => clinicsApi.voidSale(saleId, reason),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["clinics", "sales-report", businessDate] }),
+  });
+}
+
+export function useCloseClinicCash(businessDate: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => clinicsApi.closeCash(businessDate),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["clinics", "sales-report", businessDate] }),
+  });
+}
+
+export function useClinicCrmDashboard(today: string) {
+  return useQuery({
+    queryKey: ["clinics", "crm-dashboard", today],
+    queryFn: () => clinicsApi.getCrmDashboard(today),
+    staleTime: 30_000,
+    enabled: Boolean(today),
+  });
+}
+
+export function useClinicCommunicationTemplates() {
+  return useQuery({
+    queryKey: ["clinics", "crm-templates"],
+    queryFn: clinicsApi.getCommunicationTemplates,
+    staleTime: 300_000,
+  });
+}
+
+export function useSendClinicCommunicationTemplate(today: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ petId, templateKey, requestId }: { petId: string; templateKey: string; requestId: string }) =>
+      clinicsApi.sendCommunicationTemplate(petId, templateKey, "Email", requestId),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["clinics", "crm-dashboard", today] }),
+  });
+}
+
+export function useUpsertClinicCommunicationPreference(today: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: clinicsApi.upsertCommunicationPreference,
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["clinics", "crm-dashboard", today] }),
+  });
+}
+
+export function useLogClinicCommunicationActivity(today: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: clinicsApi.logCommunicationActivity,
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["clinics", "crm-dashboard", today] }),
+  });
+}
+
+export function useCreateClinicCrmTask(today: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: clinicsApi.createCrmTask,
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["clinics", "crm-dashboard", today] }),
+  });
+}
+
+export function useCompleteClinicCrmTask(today: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: clinicsApi.completeCrmTask,
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["clinics", "crm-dashboard", today] }),
+  });
+}
+
 export function useUploadClinicalConsultationAttachment() {
   return useMutation({
     mutationFn: ({ consultationId, file }: { consultationId: string; file: File }) =>

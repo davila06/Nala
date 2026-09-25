@@ -116,33 +116,72 @@ del sistema.
 - [x] Métodos de pago: efectivo, tarjeta, SINPE, transferencia y crédito interno.
 - [x] Pagos parciales.
 - [x] Cuentas por cobrar.
-- [x] Descuentos con permiso.
+- [x] Descuentos sólo con permiso administrativo.
 - [x] Recibos.
-- [x] Cierre de caja diario.
-- [x] Anulación con motivo.
-- [~] Integración o export para factura electrónica. Base de recibo y reporte
-  implementada; integración tributaria externa queda como proveedor/gate fiscal.
-- [~] Reporte por método de pago, veterinario y servicio. Implementado por método
-  y servicio; desglose por veterinario queda para dashboard analítico ligado a
-  agenda/consulta.
+- [x] Cierre de caja diario con total neto por método y fecha de Costa Rica;
+      movimientos nuevos se rechazan tras el cierre.
+- [x] Anulación con motivo y devoluciones manuales trazadas por pago, monto y
+      comprobante; anulación de venta cobrada exige devolución íntegra previa.
+- [~] Presentación a proveedor fiscal vía HTTPS con clave idempotente por venta,
+  emisor verificado y estado `SubmittedToProvider`. No equivale a factura
+  aceptada por Hacienda: faltan proveedor homologado, XML fiscal, firma,
+  acuse tributario y nota de crédito para devoluciones fiscalizadas.
+- [~] Reporte por método de pago, veterinario y servicio. Totales de cobros
+  netos de devoluciones; ventas anuladas excluidas de servicios. Pendiente
+  atribución de cobros sin cita y conciliación bancaria externa.
 - [x] Auditoría financiera sin exponer datos sensibles.
+- [x] Membresías de cajero/administrador separadas del rol global: concesión y
+      revocación por titular con MFA; devolución, anulación, cierre y fiscal requieren
+      además MFA del actor. Ruta de caja de personal con permisos backend por clínica.
+
+**UI CP4:** caja dedicada en `/clinica/caja` para titular y colaboradores;
+el cajero no ve acciones administrativas. La devolución registra una operación
+externa ya efectuada, no mueve dinero desde NALA. El cierre no es conciliación
+bancaria certificada. Ninguna venta con presentación fiscal pendiente o enviada
+puede anularse ni devolverse localmente sin flujo de nota de crédito.
 
 **Gate de salida:** la clínica puede cobrar y cerrar el día desde NALA o con
 integración aprobada.
 
 ### CP5 - Comunicación y CRM clínico
 
-- [ ] Perfil de cliente clínico.
-- [ ] Historial de comunicaciones por dueño/mascota.
-- [ ] Plantillas de WhatsApp/email.
+- [~] Perfil de cliente clínico. Lectura por mascota/tutor en dashboard acotado;
+  falta vista detallada, búsqueda y paginación.
+- [~] Historial de comunicaciones por dueño/mascota. Registro manual y últimas
+  50 actividades visibles; correo con `X-Message-Id` de SendGrid se marca
+  `Sent` (aceptado por proveedor), nunca `Delivered` sin webhook firmado.
+- [~] Catálogo de plantillas clínicas fijo para email; nombres candidatos de
+  WhatsApp sin homologación Meta. El envío de WhatsApp permanece bloqueado.
 - [ ] Confirmación de cita.
 - [ ] Recordatorio de cita.
 - [ ] Recordatorio de vacuna y desparasitación.
 - [ ] Seguimiento postconsulta.
 - [ ] Envío de receta o indicaciones.
-- [ ] Tareas internas: llamar, confirmar resultado, enviar documento.
-- [ ] Segmentos: vacunas vencidas, controles pendientes, inactivos, geriátricos.
-- [ ] Opt-in/opt-out y consentimiento de comunicaciones.
+- [x] Tareas internas: llamar, confirmar resultado, enviar documento; crear,
+      consultar y completar con auditoría.
+- [~] Segmentos: seguimientos propios próximos, inactivos, geriátricos y tareas
+  abiertas. Falta segmentación de vacunas con autorización médica y paginación.
+- [~] Opt-in/opt-out por canal y propósito persistido y auditado: opt-in sólo
+  mediante API del tutor autenticado y control en ficha de mascota; opt-out desde
+  clínica o tutor. El job distribuido purga actividad a 365 días y tareas
+  completadas a 730 días; conserva preferencias/opt-outs. Pendiente evidencia
+  legal de consentimiento y validación de entrega por proveedor.
+
+**Estado CP5:** correo clínico a pedido con opt-in, correo del tutor verificado,
+plantilla fija, clave idempotente y aceptación SendGrid. No hay automatización
+programada de recordatorios ni entrega confirmada; WhatsApp requiere destino
+verificado y plantillas aprobadas. El gate de salida permanece abierto.
+
+**Contrato proveedor pendiente de homologación:** `ClinicFiscal:ProviderUrl`
+debe ser HTTPS; `ClinicFiscal:ApiToken` se inyecta como secreto. El emisor se
+configura por `ClinicFiscal:Issuers:{clinicId:N}:TaxId` y `Verified=true` tras
+revisión documental. La respuesta HTTP 202 con `X-Fiscal-Reference` sólo
+confirma recepción del integrador; no es clave ni aprobación de Hacienda.
+`SendGrid:ApiKey` y `SendGrid:FromEmail` deben estar configurados; sólo HTTP 202
+con `X-Message-Id` confirma aceptación de correo. No configurar credenciales
+reales en archivos versionados. Antes de producción se requieren pruebas con
+el proveedor fiscal seleccionado, mensajes XML firmados, estado Hacienda,
+reintentos ambiguos, notas de crédito y webhooks firmados de entrega.
 
 **Gate de salida:** NALA ayuda a retener clientes y reducir no-shows.
 

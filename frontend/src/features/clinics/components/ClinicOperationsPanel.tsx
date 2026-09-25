@@ -1,11 +1,17 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { certificateApi, type ClinicVeterinarianDto } from "../api/certificateApi";
 import type {
   ClinicAgendaAuditEntryDto,
   ClinicAgendaItemDto,
+  ClinicCommunicationChannel,
+  ClinicCommunicationPurpose,
+  ClinicCrmDashboardDto,
+  ClinicCrmTaskType,
   ClinicInventoryItemDto,
   ClinicInventoryItemType,
+  ClinicPaymentMethod,
   ClinicalConsultationTemplateDto,
   ClinicScheduleBlockDto,
   VeterinarianAppointmentStatus,
@@ -23,13 +29,28 @@ import {
   useDownloadClinicAgendaAuditCsv,
   useDownloadClinicalConsultationPrescription,
   useAdjustClinicInventoryLot,
+  useClinicSalesReport,
+  useClinicFinanceMembers,
+  useGrantClinicFinanceMember,
+  useRevokeClinicFinanceMember,
+  useCloseClinicCash,
+  useClinicCrmDashboard,
+  useClinicCommunicationTemplates,
+  useSendClinicCommunicationTemplate,
+  useCreateClinicSale,
+  useCreateClinicCrmTask,
   useClinicInventory,
   useClinicInventoryValuation,
   useReceiveClinicInventoryLot,
+  useRegisterClinicSalePayment,
   useRescheduleClinicAppointment,
+  useLogClinicCommunicationActivity,
   useUpdateClinicScheduleBlock,
   useUpdateClinicAppointmentStatus,
+  useUpsertClinicCommunicationPreference,
   useUploadClinicalConsultationAttachment,
+  useVoidClinicSale,
+  useCompleteClinicCrmTask,
 } from "../hooks/useClinics";
 import { Button, Input } from "@/shared/ui";
 import { toast } from "@/shared/lib/toast";
@@ -151,6 +172,19 @@ export function ClinicOperationsPanel() {
   const { data: consultationTemplates = [] } = useClinicalConsultationTemplates();
   const { data: inventory = [] } = useClinicInventory();
   const { data: inventoryValuation } = useClinicInventoryValuation();
+  const businessDate = agendaDate;
+  const { data: salesReport } = useClinicSalesReport(businessDate);
+  const createSale = useCreateClinicSale(businessDate);
+  const registerPayment = useRegisterClinicSalePayment(businessDate);
+  const closeCash = useCloseClinicCash(businessDate);
+  const voidSale = useVoidClinicSale(businessDate);
+  const { data: crmDashboard } = useClinicCrmDashboard(businessDate);
+  const { data: communicationTemplates = [] } = useClinicCommunicationTemplates();
+  const sendTemplate = useSendClinicCommunicationTemplate(businessDate);
+  const upsertPreference = useUpsertClinicCommunicationPreference(businessDate);
+  const logActivity = useLogClinicCommunicationActivity(businessDate);
+  const createCrmTask = useCreateClinicCrmTask(businessDate);
+  const completeCrmTask = useCompleteClinicCrmTask(businessDate);
   const downloadAudit = useDownloadClinicAgendaAuditCsv();
   const uploadAttachment = useUploadClinicalConsultationAttachment();
   const downloadPrescription = useDownloadClinicalConsultationPrescription();
@@ -493,6 +527,578 @@ export function ClinicOperationsPanel() {
           )
         }
       />
+      <ClinicFinanceSection
+        appointments={agenda ?? []}
+        report={salesReport}
+        isCreatingSale={createSale.isPending}
+        isRegisteringPayment={registerPayment.isPending}
+        isClosingCash={closeCash.isPending}
+        isVoidingSale={voidSale.isPending}
+        onCreateSale={(payload, onCreated) =>
+          createSale.mutate(payload, {
+            onSuccess: (sale) => {
+              onCreated(sale.id);
+              toast.success("Venta creada.");
+            },
+            onError: () => toast.error("No se pudo crear la venta."),
+          })
+        }
+        onRegisterPayment={(saleId, payload) =>
+          registerPayment.mutate(
+            { saleId, payload },
+            {
+              onSuccess: () => toast.success("Pago registrado."),
+              onError: () => toast.error("No se pudo registrar el pago."),
+            },
+          )
+        }
+        onVoidSale={(saleId, reason) =>
+          voidSale.mutate(
+            { saleId, reason },
+            {
+              onSuccess: () => toast.success("Venta anulada."),
+              onError: () => toast.error("No se pudo anular la venta."),
+            },
+          )
+        }
+        onCloseCash={() =>
+          closeCash.mutate(undefined, {
+            onSuccess: () => toast.success("Caja cerrada."),
+            onError: () => toast.error("No se pudo cerrar la caja."),
+          })
+        }
+      />
+      <ClinicFinanceTeamSection />
+      <ClinicCrmSection
+        dashboard={crmDashboard}
+        templates={communicationTemplates}
+        isSendingTemplate={sendTemplate.isPending}
+        onSendTemplate={(petId, templateKey, requestId, onAccepted) =>
+          sendTemplate.mutate(
+            { petId, templateKey, requestId },
+            {
+              onSuccess: () => {
+                onAccepted();
+                toast.success("Correo aceptado por proveedor.");
+              },
+              onError: () => toast.error("El proveedor no confirmó la aceptación del correo."),
+            },
+          )
+        }
+        isSavingPreference={upsertPreference.isPending}
+        isLoggingActivity={logActivity.isPending}
+        isCreatingTask={createCrmTask.isPending}
+        isCompletingTask={completeCrmTask.isPending}
+        onSavePreference={(payload) =>
+          upsertPreference.mutate(payload, {
+            onSuccess: () => toast.success("Preferencia guardada."),
+            onError: () => toast.error("No se pudo guardar la preferencia."),
+          })
+        }
+        onLogActivity={(payload) =>
+          logActivity.mutate(payload, {
+            onSuccess: () => toast.success("Contacto registrado."),
+            onError: () => toast.error("No se pudo registrar el contacto."),
+          })
+        }
+        onCreateTask={(payload) =>
+          createCrmTask.mutate(payload, {
+            onSuccess: () => toast.success("Tarea CRM creada."),
+            onError: () => toast.error("No se pudo crear la tarea CRM."),
+          })
+        }
+        onCompleteTask={(taskId) =>
+          completeCrmTask.mutate(taskId, {
+            onSuccess: () => toast.success("Tarea completada."),
+            onError: () => toast.error("No se pudo completar la tarea."),
+          })
+        }
+      />
+    </section>
+  );
+}
+
+function ClinicFinanceTeamSection() {
+  const { data: members = [] } = useClinicFinanceMembers();
+  const grant = useGrantClinicFinanceMember();
+  const revoke = useRevokeClinicFinanceMember();
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<"Cashier" | "Administrator">("Cashier");
+
+  return (
+    <section className="space-y-3 border-t border-sand-200 pt-4">
+      <h3 className="text-sm font-bold text-sand-900">Personal de caja</h3>
+      <Link
+        to="/clinica/caja"
+        className="inline-block text-sm font-semibold text-brand-700 underline underline-offset-2"
+      >
+        Abrir caja clínica
+      </Link>
+      <div className="flex flex-wrap gap-2">
+        <Input
+          type="email"
+          aria-label="Correo del colaborador"
+          placeholder="Correo verificado"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+        />
+        <select
+          className="field-input"
+          aria-label="Rol financiero"
+          value={role}
+          onChange={(event) => setRole(event.target.value as "Cashier" | "Administrator")}
+        >
+          <option value="Cashier">Cajero</option>
+          <option value="Administrator">Administrador</option>
+        </select>
+        <Button
+          disabled={!email.includes("@") || grant.isPending}
+          onClick={() =>
+            grant.mutate(
+              { email, role },
+              {
+                onSuccess: () => {
+                  setEmail("");
+                  toast.success("Acceso financiero asignado.");
+                },
+                onError: () => toast.error("Se requiere titular con MFA y cuenta verificada."),
+              },
+            )
+          }
+        >
+          Asignar acceso
+        </Button>
+      </div>
+      {members
+        .filter((member) => !member.isRevoked)
+        .map((member) => (
+          <div
+            key={member.id}
+            className="flex flex-wrap items-center justify-between gap-3 border-b border-sand-100 py-2 text-sm"
+          >
+            <span>
+              {member.email} · {member.role === "Cashier" ? "Cajero" : "Administrador"}
+            </span>
+            <Button
+              variant="secondary"
+              disabled={revoke.isPending}
+              onClick={() =>
+                revoke.mutate(member.userId, {
+                  onSuccess: () => toast.success("Acceso revocado."),
+                  onError: () => toast.error("No se pudo revocar el acceso."),
+                })
+              }
+            >
+              Revocar
+            </Button>
+          </div>
+        ))}
+    </section>
+  );
+}
+
+function ClinicCrmSection({
+  dashboard,
+  templates,
+  isSendingTemplate,
+  onSendTemplate,
+  isSavingPreference,
+  isLoggingActivity,
+  isCreatingTask,
+  isCompletingTask,
+  onSavePreference,
+  onLogActivity,
+  onCreateTask,
+  onCompleteTask,
+}: {
+  dashboard?: ClinicCrmDashboardDto;
+  templates: Array<{ key: string; label: string }>;
+  isSendingTemplate: boolean;
+  onSendTemplate: (petId: string, templateKey: string, requestId: string, onAccepted: () => void) => void;
+  isSavingPreference: boolean;
+  isLoggingActivity: boolean;
+  isCreatingTask: boolean;
+  isCompletingTask: boolean;
+  onSavePreference: (
+    payload: Parameters<typeof import("../api/clinicsApi").clinicsApi.upsertCommunicationPreference>[0],
+  ) => void;
+  onLogActivity: (
+    payload: Parameters<typeof import("../api/clinicsApi").clinicsApi.logCommunicationActivity>[0],
+  ) => void;
+  onCreateTask: (payload: Parameters<typeof import("../api/clinicsApi").clinicsApi.createCrmTask>[0]) => void;
+  onCompleteTask: (taskId: string) => void;
+}) {
+  const today = new Date().toISOString().slice(0, 10);
+  const [petId, setPetId] = useState("");
+  const [templateKey, setTemplateKey] = useState("clinical-follow-up");
+  const [templateRequestId, setTemplateRequestId] = useState(() => crypto.randomUUID());
+  const [channel, setChannel] = useState<ClinicCommunicationChannel>("WhatsApp");
+  const [purpose, setPurpose] = useState<ClinicCommunicationPurpose>("ClinicalFollowUp");
+  const [subject, setSubject] = useState("Seguimiento clínico");
+  const [body, setBody] = useState("Se contactó al tutor para seguimiento posterior a consulta.");
+  const [taskType, setTaskType] = useState<ClinicCrmTaskType>("FollowUpTreatment");
+  const [taskDueDate, setTaskDueDate] = useState(today);
+  const [taskTitle, setTaskTitle] = useState("Llamar al tutor");
+
+  return (
+    <section className="space-y-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+      <h3 className="text-sm font-bold text-emerald-950">Comunicación y CRM clínico</h3>
+      <div className="grid gap-2 sm:grid-cols-4">
+        {(dashboard?.segments ?? []).map((segment) => (
+          <div key={segment.key} className="rounded-xl border border-emerald-100 bg-surface p-3 text-xs text-sand-700">
+            <p className="font-bold text-sand-900">{segment.count}</p>
+            <p>{segment.label}</p>
+          </div>
+        ))}
+      </div>
+      <div className="grid gap-2 sm:grid-cols-3">
+        <Input
+          value={petId}
+          onChange={(event) => setPetId(event.target.value)}
+          placeholder="ID mascota"
+          aria-label="ID mascota CRM"
+        />
+        <select
+          value={channel}
+          onChange={(event) => setChannel(event.target.value as ClinicCommunicationChannel)}
+          className="field-input"
+          aria-label="Canal CRM"
+        >
+          <option value="WhatsApp">WhatsApp</option>
+          <option value="Email">Email</option>
+          <option value="Phone">Teléfono</option>
+          <option value="InApp">App</option>
+        </select>
+        <select
+          value={purpose}
+          onChange={(event) => setPurpose(event.target.value as ClinicCommunicationPurpose)}
+          className="field-input"
+          aria-label="Propósito CRM"
+        >
+          <option value="AppointmentConfirmation">Confirmación cita</option>
+          <option value="ClinicalFollowUp">Seguimiento clínico</option>
+          <option value="VaccineReminder">Recordatorio vacuna</option>
+          <option value="PrescriptionDelivery">Entrega receta</option>
+          <option value="Billing">Cobro</option>
+          <option value="Marketing">Marketing</option>
+        </select>
+      </div>
+      <div className="grid gap-2 sm:grid-cols-4">
+        <Input value={subject} onChange={(event) => setSubject(event.target.value)} aria-label="Asunto comunicación" />
+        <Input value={body} onChange={(event) => setBody(event.target.value)} aria-label="Detalle comunicación" />
+        <Button
+          disabled={!petId || isLoggingActivity}
+          onClick={() =>
+            onLogActivity({ petId, channel, purpose, direction: "Outbound", status: "LoggedExternally", subject, body })
+          }
+        >
+          Registrar contacto
+        </Button>
+        <Button
+          variant="secondary"
+          disabled={!petId || isSavingPreference}
+          onClick={() =>
+            onSavePreference({ petId, channel, purpose, isOptedIn: false, consentSource: "Opt-out solicitado" })
+          }
+        >
+          Registrar opt-out
+        </Button>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <select
+          className="field-input"
+          aria-label="Plantilla clínica"
+          value={templateKey}
+          onChange={(event) => {
+            setTemplateKey(event.target.value);
+            setTemplateRequestId(crypto.randomUUID());
+          }}
+        >
+          {templates.map((template) => (
+            <option key={template.key} value={template.key}>
+              {template.label}
+            </option>
+          ))}
+        </select>
+        <Button
+          disabled={!petId || !templates.some((template) => template.key === templateKey) || isSendingTemplate}
+          onClick={() =>
+            onSendTemplate(petId, templateKey, templateRequestId, () => setTemplateRequestId(crypto.randomUUID()))
+          }
+        >
+          Enviar correo clínico
+        </Button>
+      </div>
+      {(dashboard?.preferences ?? []).slice(0, 10).map((preference) => (
+        <p key={preference.id} className="text-xs text-sand-700">
+          {preference.petName} · {preference.channel} · {preference.purpose}:{" "}
+          {preference.isOptedIn ? "Autorizado" : "No autorizado"}
+        </p>
+      ))}
+      <div className="grid gap-2 sm:grid-cols-4">
+        <select
+          value={taskType}
+          onChange={(event) => setTaskType(event.target.value as ClinicCrmTaskType)}
+          className="field-input"
+          aria-label="Tipo tarea CRM"
+        >
+          <option value="CallClient">Llamar cliente</option>
+          <option value="ConfirmAppointment">Confirmar cita</option>
+          <option value="FollowUpTreatment">Seguimiento tratamiento</option>
+          <option value="SendDocument">Enviar documento</option>
+          <option value="CollectPayment">Gestionar cobro</option>
+          <option value="Reactivation">Reactivación</option>
+        </select>
+        <input
+          type="date"
+          value={taskDueDate}
+          onChange={(event) => setTaskDueDate(event.target.value)}
+          className="field-input"
+          aria-label="Fecha tarea CRM"
+        />
+        <Input value={taskTitle} onChange={(event) => setTaskTitle(event.target.value)} aria-label="Título tarea CRM" />
+        <Button
+          disabled={!petId || !taskTitle || isCreatingTask}
+          onClick={() => onCreateTask({ petId, type: taskType, dueDate: taskDueDate, title: taskTitle })}
+        >
+          Crear tarea
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {(dashboard?.openTasks ?? []).slice(0, 5).map((task) => (
+          <div
+            key={task.id}
+            className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-emerald-100 bg-surface p-3 text-xs"
+          >
+            <span>
+              <strong>{task.petName}</strong> · {task.title} · {task.dueDate}
+            </span>
+            <Button variant="secondary" disabled={isCompletingTask} onClick={() => onCompleteTask(task.id)}>
+              Completar
+            </Button>
+          </div>
+        ))}
+      </div>
+      {(dashboard?.recentActivities ?? []).slice(0, 5).map((activity) => (
+        <p key={activity.id} className="text-xs text-sand-700">
+          {activity.petName} · {activity.channel} · {activity.subject} · {activity.status}
+        </p>
+      ))}
+    </section>
+  );
+}
+
+function ClinicFinanceSection({
+  appointments,
+  report,
+  isCreatingSale,
+  isRegisteringPayment,
+  isClosingCash,
+  isVoidingSale,
+  onCreateSale,
+  onRegisterPayment,
+  onVoidSale,
+  onCloseCash,
+}: {
+  appointments: ClinicAgendaItemDto[];
+  report?: {
+    totalPaidCrc: number;
+    byPaymentMethod: Record<string, number>;
+    byService: Record<string, number>;
+    byVeterinarian: Record<string, number>;
+  };
+  isCreatingSale: boolean;
+  isRegisteringPayment: boolean;
+  isClosingCash: boolean;
+  isVoidingSale: boolean;
+  onCreateSale: (
+    payload: Parameters<typeof import("../api/clinicsApi").clinicsApi.createSale>[0],
+    onCreated: (saleId: string) => void,
+  ) => void;
+  onRegisterPayment: (
+    saleId: string,
+    payload: { amountCrc: number; method: ClinicPaymentMethod; reference?: string | null },
+  ) => void;
+  onVoidSale: (saleId: string, reason: string) => void;
+  onCloseCash: () => void;
+}) {
+  const [receiptNumber, setReceiptNumber] = useState(`REC-${Date.now().toString().slice(-6)}`);
+  const [description, setDescription] = useState("Consulta veterinaria");
+  const [amount, setAmount] = useState(15000);
+  const [discount, setDiscount] = useState(0);
+  const [lastSaleId, setLastSaleId] = useState("");
+  const [appointmentId, setAppointmentId] = useState("");
+  const [paymentAmount, setPaymentAmount] = useState(15000);
+  const [paymentMethod, setPaymentMethod] = useState<ClinicPaymentMethod>("Sinpe");
+  const [paymentReference, setPaymentReference] = useState("");
+  const [voidReason, setVoidReason] = useState("Anulación solicitada");
+
+  return (
+    <section className="space-y-3 rounded-2xl border border-brand-200 bg-brand-50 p-4">
+      <h3 className="text-sm font-bold text-brand-900">Caja y cobros</h3>
+      <div className="rounded-xl border border-brand-100 bg-surface p-3 text-xs text-sand-700">
+        <p className="font-bold text-sand-900">
+          Cobros registrados: ₡{(report?.totalPaidCrc ?? 0).toLocaleString("es-CR")}
+        </p>
+        <p className="mt-2 font-semibold text-sand-900">Por método de pago</p>
+        {Object.entries(report?.byPaymentMethod ?? {}).map(([method, value]) => (
+          <p key={method}>
+            {method}: ₡{value.toLocaleString("es-CR")}
+          </p>
+        ))}
+        <p className="mt-2 font-semibold text-sand-900">Ventas por servicio</p>
+        {Object.entries(report?.byService ?? {})
+          .slice(0, 5)
+          .map(([service, value]) => (
+            <p key={service}>
+              {service}: ₡{value.toLocaleString("es-CR")}
+            </p>
+          ))}
+      </div>
+      <div className="border-t border-brand-200 pt-3">
+        <h4 className="text-sm font-semibold text-brand-900">Dashboard por veterinario</h4>
+        <p className="text-xs text-sand-600">Cobros vinculados a citas, agrupados por veterinario</p>
+        <dl className="mt-2 divide-y divide-brand-100 text-sm">
+          {Object.entries(report?.byVeterinarian ?? {}).map(([veterinarian, value]) => (
+            <div key={veterinarian} className="flex justify-between gap-3 py-2">
+              <dt>{veterinarian}</dt>
+              <dd>₡{value.toLocaleString("es-CR")}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+      <div className="grid gap-2 sm:grid-cols-4">
+        <Input
+          value={receiptNumber}
+          onChange={(event) => setReceiptNumber(event.target.value)}
+          aria-label="Número de recibo"
+        />
+        <Input
+          value={description}
+          onChange={(event) => setDescription(event.target.value)}
+          aria-label="Servicio cobrado"
+        />
+        <input
+          type="number"
+          min={0}
+          value={amount}
+          onChange={(event) => setAmount(Number(event.target.value))}
+          className="field-input"
+          aria-label="Monto"
+        />
+        <input
+          type="number"
+          min={0}
+          value={discount}
+          onChange={(event) => setDiscount(Number(event.target.value))}
+          className="field-input"
+          aria-label="Descuento"
+        />
+      </div>
+      <select
+        value={appointmentId}
+        onChange={(event) => setAppointmentId(event.target.value)}
+        className="field-input"
+        aria-label="Cita para venta"
+      >
+        <option value="">Venta sin cita</option>
+        {appointments.map((appointment) => (
+          <option key={appointment.appointmentId} value={appointment.appointmentId}>
+            {appointment.petName} · {appointment.veterinarianName}
+          </option>
+        ))}
+      </select>
+      <Button
+        disabled={
+          !receiptNumber.trim() ||
+          !description.trim() ||
+          amount <= 0 ||
+          discount < 0 ||
+          discount > amount ||
+          isCreatingSale
+        }
+        onClick={() =>
+          onCreateSale(
+            {
+              appointmentId: appointmentId || null,
+              petId: appointments.find((appointment) => appointment.appointmentId === appointmentId)?.petId ?? null,
+              receiptNumber,
+              lines: [{ description, type: "Service", quantity: 1, unitPriceCrc: amount }],
+              discountCrc: discount,
+              discountReason: discount > 0 ? "Descuento autorizado" : null,
+            },
+            (saleId) => {
+              setLastSaleId(saleId);
+              setPaymentAmount(amount - discount);
+            },
+          )
+        }
+      >
+        {isCreatingSale ? "Creando..." : "Crear venta"}
+      </Button>
+      <div className="grid gap-2 sm:grid-cols-4">
+        <Input
+          value={lastSaleId}
+          onChange={(event) => setLastSaleId(event.target.value)}
+          placeholder="ID venta"
+          aria-label="ID venta"
+        />
+        <input
+          type="number"
+          min={1}
+          value={paymentAmount}
+          onChange={(event) => setPaymentAmount(Number(event.target.value))}
+          className="field-input"
+          aria-label="Monto pago"
+        />
+        <select
+          value={paymentMethod}
+          onChange={(event) => setPaymentMethod(event.target.value as ClinicPaymentMethod)}
+          className="field-input"
+          aria-label="Método de pago"
+        >
+          <option value="Cash">Efectivo</option>
+          <option value="Card">Tarjeta</option>
+          <option value="Sinpe">SINPE</option>
+          <option value="Transfer">Transferencia</option>
+          <option value="InternalCredit">Crédito interno</option>
+        </select>
+        <Input
+          value={paymentReference}
+          onChange={(event) => setPaymentReference(event.target.value)}
+          placeholder="Referencia"
+          aria-label="Referencia pago"
+        />
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          disabled={!lastSaleId || isRegisteringPayment}
+          onClick={() =>
+            onRegisterPayment(lastSaleId, {
+              amountCrc: paymentAmount,
+              method: paymentMethod,
+              reference: paymentReference || null,
+            })
+          }
+        >
+          Registrar pago
+        </Button>
+        <Button
+          variant="secondary"
+          disabled={!lastSaleId || isVoidingSale}
+          onClick={() => onVoidSale(lastSaleId, voidReason)}
+        >
+          Anular venta
+        </Button>
+        <Input
+          value={voidReason}
+          onChange={(event) => setVoidReason(event.target.value)}
+          aria-label="Motivo de anulación"
+        />
+        <Button variant="secondary" disabled={isClosingCash} onClick={onCloseCash}>
+          Cerrar caja diaria
+        </Button>
+      </div>
     </section>
   );
 }

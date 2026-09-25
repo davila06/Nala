@@ -24,8 +24,16 @@ public enum AuditAction
     ClinicInventoryAdjusted,
     ClinicSaleCreated,
     ClinicSalePaymentRecorded,
+    ClinicSaleRefundRecorded,
+    ClinicFiscalSubmitted,
     ClinicSaleVoided,
     ClinicCashClosed,
+    ClinicFinanceMemberGranted,
+    ClinicFinanceMemberRevoked,
+    ClinicCrmPreferenceUpdated,
+    ClinicCrmActivityLogged,
+    ClinicCrmTaskCreated,
+    ClinicCrmTaskCompleted,
 
     // Subscriptions
     SubscriptionActivated,

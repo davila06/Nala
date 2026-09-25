@@ -5,6 +5,7 @@ using NSubstitute;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Common.Settings;
 using PawTrack.Infrastructure.Compliance;
+using PawTrack.Application.Clinics.Interfaces;
 
 namespace PawTrack.UnitTests.Compliance;
 
@@ -21,11 +22,25 @@ public sealed class PersonalDataRetentionJobTests
     private readonly IProductEventRepository _productEventRepo = Substitute.For<IProductEventRepository>();
     private readonly IMedicalRepository _medicalRepo = Substitute.For<IMedicalRepository>();
     private readonly IClinicMedicalExportRepository _exportRepo = Substitute.For<IClinicMedicalExportRepository>();
+    private readonly IClinicCrmRepository _crmRepo = Substitute.For<IClinicCrmRepository>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
     private readonly ILogger<PersonalDataRetentionJob> _logger = Substitute.For<ILogger<PersonalDataRetentionJob>>();
 
     private PersonalDataRetentionJob CreateSut(PersonalDataRetentionSettings settings) =>
-        new(_sightingRepo, _chatRepo, _notificationRepo, _productEventRepo, _medicalRepo, _exportRepo, _unitOfWork, Options.Create(settings), _logger);
+        new(_sightingRepo, _chatRepo, _notificationRepo, _productEventRepo, _medicalRepo, _exportRepo, _crmRepo, _unitOfWork, Options.Create(settings), _logger);
+
+    [Fact]
+    public async Task ExecuteAsync_PurgesOnlyOldActivityAndClosedTasks()
+    {
+        var before = DateTimeOffset.UtcNow;
+        await CreateSut(new PersonalDataRetentionSettings { ClinicCrmActivityRetentionDays = 365, ClinicCrmCompletedTaskRetentionDays = 730 })
+            .ExecuteAsync(CancellationToken.None);
+
+        await _crmRepo.Received(1).DeleteActivitiesBeforeAsync(
+            Arg.Is<DateTimeOffset>(date => date >= before.AddDays(-366) && date <= before.AddDays(-364)), Arg.Any<CancellationToken>());
+        await _crmRepo.Received(1).DeleteCompletedTasksBeforeAsync(
+            Arg.Is<DateTimeOffset>(date => date >= before.AddDays(-731) && date <= before.AddDays(-729)), Arg.Any<CancellationToken>());
+    }
 
     [Fact]
     public async Task ExecuteAsync_UsesConfiguredRetentionWindows()

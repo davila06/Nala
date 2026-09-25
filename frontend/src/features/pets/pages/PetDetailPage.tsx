@@ -1,4 +1,5 @@
 ﻿import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { jsPDF } from "jspdf";
 import { formatDate, formatDateTime } from "@/shared/lib/formatDate";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -25,6 +26,12 @@ import { AnnualReportButton } from "@/features/medical/components/AnnualReportBu
 import { ActivityTab } from "@/features/medical/components/ActivityTab";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
+import {
+  clinicsApi,
+  type ClinicCommunicationChannel,
+  type ClinicCommunicationPurpose,
+} from "@/features/clinics/api/clinicsApi";
+import { toast } from "@/shared/lib/toast";
 
 export default function PetDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -219,6 +226,8 @@ export default function PetDetailPage() {
               <dd className="font-medium text-sand-800">{formatDate(pet.createdAt)}</dd>
             </div>
           </dl>
+
+          {currentUserId === pet.ownerId && <PetClinicCommunicationPreferences petId={pet.id} />}
 
           {/* Edit / Delete */}
           <div className="flex flex-wrap gap-3">
@@ -443,5 +452,87 @@ export default function PetDetailPage() {
         </PlanGate>
       )}
     </main>
+  );
+}
+
+function PetClinicCommunicationPreferences({ petId }: { petId: string }) {
+  const queryClient = useQueryClient();
+  const [clinicId, setClinicId] = useState("");
+  const [channel, setChannel] = useState<ClinicCommunicationChannel>("Email");
+  const [purpose, setPurpose] = useState<ClinicCommunicationPurpose>("ClinicalFollowUp");
+  const { data: preferences = [] } = useQuery({
+    queryKey: ["owner", "clinic-communication", petId],
+    queryFn: () => clinicsApi.getOwnerCommunicationPreferences(petId),
+  });
+  const update = useMutation({
+    mutationFn: (isOptedIn: boolean) =>
+      clinicsApi.setOwnerCommunicationPreference(selectedClinicId, petId, { channel, purpose, isOptedIn }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["owner", "clinic-communication", petId] });
+      toast.success("Preferencia de comunicación actualizada.");
+    },
+    onError: () => toast.error("No se pudo actualizar la preferencia."),
+  });
+  const clinics = [...new Map(preferences.map((preference) => [preference.clinicId, preference.clinicName])).entries()];
+  const selectedClinicId = clinics.some(([id]) => id === clinicId) ? clinicId : (clinics[0]?.[0] ?? "");
+  const optedIn = preferences.some(
+    (preference) =>
+      preference.clinicId === selectedClinicId &&
+      preference.channel === channel &&
+      preference.purpose === purpose &&
+      preference.isOptedIn,
+  );
+
+  if (clinics.length === 0) return null;
+  return (
+    <section className="space-y-3 border-t border-sand-200 pt-4">
+      <h2 className="text-sm font-semibold text-sand-900">Comunicaciones clínicas</h2>
+      <div className="grid gap-2 sm:grid-cols-3">
+        <select
+          className="field-input"
+          aria-label="Clínica"
+          value={selectedClinicId}
+          onChange={(event) => setClinicId(event.target.value)}
+        >
+          {clinics.map(([id, name]) => (
+            <option key={id} value={id}>
+              {name}
+            </option>
+          ))}
+        </select>
+        <select
+          className="field-input"
+          aria-label="Canal de comunicación"
+          value={channel}
+          onChange={(event) => setChannel(event.target.value as ClinicCommunicationChannel)}
+        >
+          <option value="Email">Email</option>
+          <option value="WhatsApp">WhatsApp</option>
+          <option value="Phone">Teléfono</option>
+          <option value="InApp">App</option>
+        </select>
+        <select
+          className="field-input"
+          aria-label="Motivo de comunicación"
+          value={purpose}
+          onChange={(event) => setPurpose(event.target.value as ClinicCommunicationPurpose)}
+        >
+          <option value="ClinicalFollowUp">Seguimiento clínico</option>
+          <option value="AppointmentConfirmation">Confirmación de cita</option>
+          <option value="VaccineReminder">Recordatorio de vacuna</option>
+          <option value="PrescriptionDelivery">Receta</option>
+          <option value="Billing">Cobros</option>
+          <option value="Marketing">Promociones</option>
+        </select>
+      </div>
+      <button
+        type="button"
+        disabled={update.isPending}
+        onClick={() => update.mutate(!optedIn)}
+        className="rounded border border-brand-300 px-3 py-2 text-sm font-semibold text-brand-800 disabled:opacity-50"
+      >
+        {optedIn ? "Revocar autorización" : "Autorizar comunicaciones"}
+      </button>
+    </section>
   );
 }

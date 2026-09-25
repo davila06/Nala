@@ -36,6 +36,8 @@ using PawTrack.Application.Clinics.Commands.CreateClinicalConsultation;
 using PawTrack.Application.Clinics.Commands.UploadClinicalConsultationAttachment;
 using PawTrack.Application.Clinics.Commands.ManageClinicInventory;
 using PawTrack.Application.Clinics.Commands.ManageClinicBilling;
+using PawTrack.Application.Clinics.Commands.ManageClinicFinanceAccess;
+using PawTrack.Application.Clinics.Commands.ManageClinicCrm;
 using PawTrack.Application.Clinics.Queries.DownloadClinicalConsultationPrescription;
 using PawTrack.Application.Clinics.Queries.GetClinicalConsultationTemplates;
 using PawTrack.Application.Clinics.Commands.ExportClinicMedical;
@@ -1332,6 +1334,30 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
     }
 
+    [HttpGet("me/sales/{saleId:guid}/ledger")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetMySaleLedger(Guid saleId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinic = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinic.IsFailure || clinic.Value is null) return Forbid();
+        var result = await sender.Send(new GetClinicSaleLedgerQuery(clinic.Value.Id, userId, saleId), ct);
+        return result.IsSuccess ? Ok(result.Value) : NotFound();
+    }
+
+    [HttpPost("me/sales/{saleId:guid}/refunds")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> RecordMySaleRefund(Guid saleId, [FromBody] RecordClinicSaleRefundRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinic = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinic.IsFailure || clinic.Value is null) return Forbid();
+        var result = await sender.Send(new RecordClinicSaleRefundCommand(clinic.Value.Id, userId, saleId, request.PaymentId, request.AmountCrc, request.Reason, request.EvidenceReference), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
     [HttpPost("me/sales/{saleId:guid}/void")]
     [Authorize(Roles = "Clinic")]
     [EnableRateLimiting("public-api")]
@@ -1356,6 +1382,18 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         return result.IsSuccess ? Created(string.Empty, new { cashCloseId = result.Value }) : UnprocessableEntity(result.Errors);
     }
 
+    [HttpPost("me/sales/{saleId:guid}/fiscal-submission")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> SubmitMyFiscalSale(Guid saleId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinic = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinic.IsFailure || clinic.Value is null) return Forbid();
+        var result = await sender.Send(new SubmitClinicSaleFiscalCommand(clinic.Value.Id, userId, saleId), ct);
+        return result.IsSuccess ? Accepted(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
     [HttpGet("me/sales-report")]
     [Authorize(Roles = "Clinic")]
     [EnableRateLimiting("public-api")]
@@ -1366,6 +1404,249 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
         var result = await sender.Send(new GetClinicSalesReportQuery(clinicResult.Value.Id, userId, businessDate), ct);
         return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("me/finance/members")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetFinanceMembers(CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinic = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinic.IsFailure || clinic.Value is null) return Forbid();
+        var result = await sender.Send(new GetClinicFinanceMembershipsQuery(clinic.Value.Id, userId), ct);
+        return result.IsSuccess ? Ok(result.Value) : Forbid();
+    }
+
+    [HttpGet("finance-workspaces")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetMyFinanceWorkspaces(CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        return Ok(await sender.Send(new GetMyClinicFinanceWorkspacesQuery(userId), ct));
+    }
+
+    [HttpPut("me/finance/members")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GrantFinanceMember([FromBody] GrantClinicFinanceMemberRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinic = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinic.IsFailure || clinic.Value is null) return Forbid();
+        if (!Enum.TryParse<ClinicFinanceRole>(request.Role, true, out var role) || !Enum.IsDefined(role)) return BadRequest();
+        var result = await sender.Send(new GrantClinicFinanceMembershipCommand(clinic.Value.Id, userId, request.Email, role), ct);
+        return result.IsSuccess ? Ok(new { membershipId = result.Value }) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpDelete("me/finance/members/{memberUserId:guid}")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> RevokeFinanceMember(Guid memberUserId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinic = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinic.IsFailure || clinic.Value is null) return Forbid();
+        var result = await sender.Send(new RevokeClinicFinanceMembershipCommand(clinic.Value.Id, userId, memberUserId), ct);
+        return result.IsSuccess ? NoContent() : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("{clinicId:guid}/finance/sales")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> CreateFinanceSale(Guid clinicId, [FromBody] CreateClinicSaleRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new CreateClinicSaleCommand(clinicId, userId, request.AppointmentId, request.ConsultationId, request.PetId, request.ReceiptNumber, request.Lines, request.DiscountCrc, request.DiscountReason), ct);
+        return result.IsSuccess ? Created(string.Empty, result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("{clinicId:guid}/finance/sales/{saleId:guid}/payments")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> RegisterFinancePayment(Guid clinicId, Guid saleId, [FromBody] RegisterClinicSalePaymentRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        if (!Enum.TryParse<ClinicPaymentMethod>(request.Method, true, out var method) || !Enum.IsDefined(method)) return BadRequest();
+        var result = await sender.Send(new RegisterClinicSalePaymentCommand(clinicId, userId, saleId, request.AmountCrc, method, request.Reference), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("{clinicId:guid}/finance/sales/{saleId:guid}/ledger")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetFinanceSaleLedger(Guid clinicId, Guid saleId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetClinicSaleLedgerQuery(clinicId, userId, saleId), ct);
+        return result.IsSuccess ? Ok(result.Value) : NotFound();
+    }
+
+    [HttpPost("{clinicId:guid}/finance/sales/{saleId:guid}/refunds")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> RecordFinanceRefund(Guid clinicId, Guid saleId, [FromBody] RecordClinicSaleRefundRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new RecordClinicSaleRefundCommand(clinicId, userId, saleId, request.PaymentId, request.AmountCrc, request.Reason, request.EvidenceReference), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("{clinicId:guid}/finance/sales/{saleId:guid}/void")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> VoidFinanceSale(Guid clinicId, Guid saleId, [FromBody] ReasonRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new VoidClinicSaleCommand(clinicId, userId, saleId, request.Reason), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("{clinicId:guid}/finance/cash-closes")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> CloseFinanceCash(Guid clinicId, [FromBody] CloseClinicCashRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new CloseClinicCashCommand(clinicId, userId, request.BusinessDate), ct);
+        return result.IsSuccess ? Created(string.Empty, new { cashCloseId = result.Value }) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("{clinicId:guid}/finance/sales/{saleId:guid}/fiscal-submission")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> SubmitFinanceFiscalSale(Guid clinicId, Guid saleId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new SubmitClinicSaleFiscalCommand(clinicId, userId, saleId), ct);
+        return result.IsSuccess ? Accepted(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("{clinicId:guid}/finance/sales-report")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetFinanceReport(Guid clinicId, [FromQuery] DateOnly businessDate, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetClinicSalesReportQuery(clinicId, userId, businessDate), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("me/crm-dashboard")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetClinicCrmDashboard([FromQuery] DateOnly? today, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        var result = await sender.Send(new GetClinicCrmDashboardQuery(clinicResult.Value.Id, userId, today ?? DateOnly.FromDateTime(DateTime.UtcNow)), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("me/crm/templates")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public IActionResult GetClinicCommunicationTemplates() => Ok(ClinicCommunicationTemplates.All);
+
+    [HttpPost("me/crm/send-template")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> SendClinicCommunicationTemplate([FromBody] SendClinicCommunicationTemplateRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinic = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinic.IsFailure || clinic.Value is null) return Forbid();
+        if (!Enum.TryParse<ClinicCommunicationChannel>(request.Channel, true, out var channel) || !Enum.IsDefined(channel)) return BadRequest();
+        var result = await sender.Send(new SendClinicCommunicationTemplateCommand(clinic.Value.Id, userId,
+            request.PetId, request.RequestId, request.TemplateKey, channel), ct);
+        return result.IsSuccess ? Accepted(new { activityId = result.Value }) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPut("me/crm/preferences")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> UpsertClinicCommunicationPreference([FromBody] UpsertClinicCommunicationPreferenceRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        if (!Enum.TryParse<ClinicCommunicationChannel>(request.Channel, ignoreCase: true, out var channel))
+            return BadRequest(new ProblemDetails { Detail = "Canal inválido.", Status = 400 });
+        if (!Enum.TryParse<ClinicCommunicationPurpose>(request.Purpose, ignoreCase: true, out var purpose))
+            return BadRequest(new ProblemDetails { Detail = "Propósito inválido.", Status = 400 });
+        var result = await sender.Send(new UpsertClinicCommunicationPreferenceCommand(clinicResult.Value.Id, userId, request.PetId, channel, purpose, request.IsOptedIn, request.ConsentSource), ct);
+        return result.IsSuccess ? NoContent() : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPut("{clinicId:guid}/pets/{petId:guid}/communication-preferences")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> SetOwnerClinicCommunicationPreference(Guid clinicId, Guid petId, [FromBody] SetOwnerClinicCommunicationPreferenceRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        if (!Enum.TryParse<ClinicCommunicationChannel>(request.Channel, true, out var channel)
+            || !Enum.TryParse<ClinicCommunicationPurpose>(request.Purpose, true, out var purpose))
+            return BadRequest(new ProblemDetails { Detail = "Canal o propósito inválido.", Status = 400 });
+        var result = await sender.Send(new SetOwnerClinicCommunicationPreferenceCommand(clinicId, userId, petId, channel, purpose, request.IsOptedIn), ct);
+        return result.IsSuccess ? NoContent() : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("pets/{petId:guid}/communication-preferences")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetOwnerClinicCommunicationPreferences(Guid petId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetOwnerClinicCommunicationPreferencesQuery(userId, petId), ct);
+        return result.IsSuccess ? Ok(result.Value) : NotFound();
+    }
+
+    [HttpPost("me/crm/activities")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> LogClinicCommunicationActivity([FromBody] LogClinicCommunicationActivityRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        if (!Enum.TryParse<ClinicCommunicationChannel>(request.Channel, ignoreCase: true, out var channel))
+            return BadRequest(new ProblemDetails { Detail = "Canal inválido.", Status = 400 });
+        if (!Enum.TryParse<ClinicCommunicationPurpose>(request.Purpose, ignoreCase: true, out var purpose))
+            return BadRequest(new ProblemDetails { Detail = "Propósito inválido.", Status = 400 });
+        if (!Enum.TryParse<ClinicCommunicationDirection>(request.Direction, ignoreCase: true, out var direction))
+            return BadRequest(new ProblemDetails { Detail = "Dirección inválida.", Status = 400 });
+        if (!Enum.TryParse<ClinicCommunicationStatus>(request.Status, ignoreCase: true, out var status))
+            return BadRequest(new ProblemDetails { Detail = "Estado inválido.", Status = 400 });
+        var result = await sender.Send(new LogClinicCommunicationActivityCommand(clinicResult.Value.Id, userId, request.PetId, channel, purpose, direction, status, request.Subject, request.Body, request.ProviderMessageId), ct);
+        return result.IsSuccess ? Accepted() : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("me/crm/tasks")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> CreateClinicCrmTask([FromBody] CreateClinicCrmTaskRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        if (!Enum.TryParse<ClinicCrmTaskType>(request.Type, ignoreCase: true, out var type))
+            return BadRequest(new ProblemDetails { Detail = "Tipo de tarea inválido.", Status = 400 });
+        var result = await sender.Send(new CreateClinicCrmTaskCommand(clinicResult.Value.Id, userId, request.PetId, type, request.DueDate, request.Title, request.Notes), ct);
+        return result.IsSuccess ? Created(string.Empty, new { taskId = result.Value }) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("me/crm/tasks/{taskId:guid}/complete")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> CompleteClinicCrmTask(Guid taskId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        var result = await sender.Send(new CompleteClinicCrmTaskCommand(clinicResult.Value.Id, userId, taskId), ct);
+        return result.IsSuccess ? NoContent() : UnprocessableEntity(result.Errors);
     }
 
     [HttpPut("me/veterinarians/{veterinarianId:guid}/permissions")]
@@ -1656,7 +1937,14 @@ public sealed record ReceiveClinicInventoryLotRequest(string LotNumber, DateOnly
 public sealed record AdjustClinicInventoryLotRequest(int QuantityDelta, string Reason);
 public sealed record CreateClinicSaleRequest(Guid? AppointmentId, Guid? ConsultationId, Guid? PetId, string ReceiptNumber, IReadOnlyList<ClinicSaleLineInput> Lines, decimal DiscountCrc = 0, string? DiscountReason = null);
 public sealed record RegisterClinicSalePaymentRequest(decimal AmountCrc, string Method, string? Reference);
+public sealed record RecordClinicSaleRefundRequest(Guid PaymentId, decimal AmountCrc, string Reason, string EvidenceReference);
 public sealed record CloseClinicCashRequest(DateOnly BusinessDate);
+public sealed record GrantClinicFinanceMemberRequest(string Email, string Role);
+public sealed record UpsertClinicCommunicationPreferenceRequest(Guid PetId, string Channel, string Purpose, bool IsOptedIn, string ConsentSource);
+public sealed record SetOwnerClinicCommunicationPreferenceRequest(string Channel, string Purpose, bool IsOptedIn);
+public sealed record LogClinicCommunicationActivityRequest(Guid PetId, string Channel, string Purpose, string Direction, string Status, string Subject, string Body, string? ProviderMessageId = null);
+public sealed record CreateClinicCrmTaskRequest(Guid PetId, string Type, DateOnly DueDate, string Title, string? Notes = null);
+public sealed record SendClinicCommunicationTemplateRequest(Guid PetId, Guid RequestId, string TemplateKey, string Channel);
 public sealed record SetVeterinarianPermissionsRequest(IReadOnlyList<string> Permissions);
 
 public sealed record ClinicScanRequest(

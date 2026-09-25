@@ -1,7 +1,19 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import PetDetailPage from "@/features/pets/pages/PetDetailPage";
 import { renderWithProviders } from "../../utils/renderWithProviders";
+import { useAuthStore } from "@/features/auth/store/authStore";
+
+vi.mock("@/features/clinics/api/clinicsApi", () => ({
+  clinicsApi: {
+    getOwnerCommunicationPreferences: vi
+      .fn()
+      .mockResolvedValue([
+        { clinicId: "clinic-1", clinicName: "Clínica Norte", channel: null, purpose: null, isOptedIn: false },
+      ]),
+    setOwnerCommunicationPreference: vi.fn().mockResolvedValue(undefined),
+  },
+}));
 
 vi.mock("@/features/pets/hooks/usePets", () => ({
   usePetDetail: vi.fn(),
@@ -37,6 +49,7 @@ vi.mock("@/features/pets/api/petsApi", () => ({
 
 import { usePetDetail, usePetScanHistory } from "@/features/pets/hooks/usePets";
 import { useActiveLostReport } from "@/features/lost-pets/hooks/useLostPets";
+import { clinicsApi } from "@/features/clinics/api/clinicsApi";
 
 const mockUsePetDetail = vi.mocked(usePetDetail);
 const mockUsePetScanHistory = vi.mocked(usePetScanHistory);
@@ -93,22 +106,14 @@ describe("PetDetailPage lost-state actions", () => {
 
     fireEvent.click(screen.getByRole("tab", { name: /reportes/i }));
 
-    expect(
-      screen.getByText(/luna está reportado como perdido/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /avatar para whatsapp/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /¡luna fue encontrado!/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/luna está reportado como perdido/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /avatar para whatsapp/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /¡luna fue encontrado!/i })).toBeInTheDocument();
     expect(screen.getByText(/1 escaneo hoy/i)).toBeInTheDocument();
   });
 
   it("shows report lost CTA only when pet status is active", () => {
-    mockUseActiveLostReport.mockReturnValue({ data: undefined } as ReturnType<
-      typeof useActiveLostReport
-    >);
+    mockUseActiveLostReport.mockReturnValue({ data: undefined } as ReturnType<typeof useActiveLostReport>);
 
     mockUsePetDetail.mockReturnValue({
       data: {
@@ -131,8 +136,22 @@ describe("PetDetailPage lost-state actions", () => {
 
     fireEvent.click(screen.getByRole("tab", { name: /reportes/i }));
 
-    expect(
-      screen.getByRole("link", { name: /reportar a luna como perdido/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /reportar a luna como perdido/i })).toBeInTheDocument();
+  });
+
+  it("lets the owner manage clinical communication consent for an associated clinic", async () => {
+    act(() => useAuthStore.setState({ user: { id: "owner-1" } as ReturnType<typeof useAuthStore.getState>["user"] }));
+    renderPage();
+
+    expect(await screen.findByText("Clínica Norte")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Autorizar comunicaciones" }));
+    await waitFor(() =>
+      expect(clinicsApi.setOwnerCommunicationPreference).toHaveBeenCalledWith(
+        "clinic-1",
+        "pet-1",
+        expect.objectContaining({ channel: "Email", purpose: "ClinicalFollowUp", isOptedIn: true }),
+      ),
+    );
+    act(() => useAuthStore.setState({ user: null }));
   });
 });

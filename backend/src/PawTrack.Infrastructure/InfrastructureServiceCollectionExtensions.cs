@@ -180,6 +180,13 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IClinicalConsultationRepository, ClinicalConsultationRepository>();
         services.AddScoped<IClinicInventoryRepository, ClinicInventoryRepository>();
         services.AddScoped<IClinicBillingRepository, ClinicBillingRepository>();
+        services.AddScoped<IClinicFinanceAccessRepository, ClinicFinanceAccessRepository>();
+        services.AddScoped<IClinicCrmRepository, ClinicCrmRepository>();
+        services.AddScoped<IClinicEmailGateway, SendGridClinicEmailGateway>();
+        services.AddHttpClient("ClinicSendGrid", client => client.Timeout = TimeSpan.FromSeconds(15));
+        services.AddScoped<IClinicFiscalGateway, ConfiguredClinicFiscalGateway>();
+        services.AddSingleton<IClinicFiscalIssuerRegistry, ConfiguredClinicFiscalIssuerRegistry>();
+        services.AddHttpClient("ClinicFiscal", client => client.Timeout = TimeSpan.FromSeconds(15));
         services.AddScoped<IVeterinarianAppointmentRepository, VeterinarianAppointmentRepository>();
         services.AddScoped<IVeterinarianScheduleBlockRepository, VeterinarianScheduleBlockRepository>();
         services.AddScoped<IClinicMedicalExportRepository, ClinicMedicalExportRepository>();

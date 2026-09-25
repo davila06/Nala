@@ -28,6 +28,7 @@ public sealed class ClinicSale
 {
     private readonly List<ClinicSaleLine> _lines = [];
     private readonly List<ClinicSalePayment> _payments = [];
+    private readonly List<ClinicSaleRefund> _refunds = [];
 
     private ClinicSale() { }
 
@@ -49,9 +50,10 @@ public sealed class ClinicSale
 
     public IReadOnlyList<ClinicSaleLine> Lines => _lines.AsReadOnly();
     public IReadOnlyList<ClinicSalePayment> Payments => _payments.AsReadOnly();
+    public IReadOnlyList<ClinicSaleRefund> Refunds => _refunds.AsReadOnly();
     public decimal SubtotalCrc => _lines.Sum(line => line.LineTotalCrc);
     public decimal TotalCrc => Math.Max(0m, SubtotalCrc - DiscountCrc);
-    public decimal PaidCrc => _payments.Sum(payment => payment.AmountCrc);
+    public decimal PaidCrc => _payments.Sum(payment => payment.AmountCrc) - _refunds.Sum(refund => refund.AmountCrc);
     public decimal BalanceCrc => Math.Max(0m, TotalCrc - PaidCrc);
 
     public static ClinicSale Create(
@@ -117,9 +119,29 @@ public sealed class ClinicSale
         return payment;
     }
 
+    public ClinicSaleRefund RecordRefund(Guid paymentId, decimal amountCrc, string reason, string evidenceReference, Guid refundedByUserId)
+    {
+        if (Status == ClinicSaleStatus.Voided) throw new InvalidOperationException("La venta ya fue anulada.");
+        var payment = _payments.SingleOrDefault(item => item.Id == paymentId)
+            ?? throw new InvalidOperationException("El pago no pertenece a la venta.");
+        if (amountCrc <= 0) throw new ArgumentOutOfRangeException(nameof(amountCrc));
+        if (amountCrc > payment.AmountCrc - _refunds.Where(item => item.PaymentId == paymentId).Sum(item => item.AmountCrc))
+            throw new InvalidOperationException("La devolución excede el pago pendiente.");
+        if (string.IsNullOrWhiteSpace(reason) || string.IsNullOrWhiteSpace(evidenceReference))
+            throw new ArgumentException("Motivo y comprobante de devolución son obligatorios.");
+        if (refundedByUserId == Guid.Empty) throw new ArgumentException("Responsable requerido.", nameof(refundedByUserId));
+        if (_refunds.Any(item => item.EvidenceReference == evidenceReference.Trim()))
+            throw new InvalidOperationException("Comprobante de devolución duplicado.");
+        var refund = ClinicSaleRefund.Create(Id, ClinicId, payment.Id, payment.Method, amountCrc, reason, evidenceReference, refundedByUserId);
+        _refunds.Add(refund);
+        RecalculateStatus();
+        return refund;
+    }
+
     public void Void(string reason, Guid voidedByUserId)
     {
         if (Status == ClinicSaleStatus.Voided) throw new InvalidOperationException("La venta ya fue anulada.");
+        if (PaidCrc > 0) throw new InvalidOperationException("Se deben registrar todas las devoluciones antes de anular.");
         if (string.IsNullOrWhiteSpace(reason)) throw new ArgumentException("Void reason is required.", nameof(reason));
         if (voidedByUserId == Guid.Empty) throw new ArgumentException("VoidedByUserId is required.", nameof(voidedByUserId));
 
@@ -220,6 +242,37 @@ public sealed class ClinicSalePayment
             ReceivedAt = DateTimeOffset.UtcNow,
         };
     }
+}
+
+public sealed class ClinicSaleRefund
+{
+    private ClinicSaleRefund() { }
+
+    public Guid Id { get; private set; }
+    public Guid SaleId { get; private set; }
+    public Guid ClinicId { get; private set; }
+    public Guid PaymentId { get; private set; }
+    public ClinicPaymentMethod Method { get; private set; }
+    public decimal AmountCrc { get; private set; }
+    public string Reason { get; private set; } = string.Empty;
+    public string EvidenceReference { get; private set; } = string.Empty;
+    public Guid RefundedByUserId { get; private set; }
+    public DateTimeOffset RefundedAt { get; private set; }
+
+    public static ClinicSaleRefund Create(Guid saleId, Guid clinicId, Guid paymentId, ClinicPaymentMethod method,
+        decimal amountCrc, string reason, string evidenceReference, Guid refundedByUserId) => new()
+        {
+            Id = Guid.CreateVersion7(),
+            SaleId = saleId,
+            ClinicId = clinicId,
+            PaymentId = paymentId,
+            Method = method,
+            AmountCrc = amountCrc,
+            Reason = reason.Trim(),
+            EvidenceReference = evidenceReference.Trim(),
+            RefundedByUserId = refundedByUserId,
+            RefundedAt = DateTimeOffset.UtcNow,
+        };
 }
 
 public sealed class ClinicCashClose

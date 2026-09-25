@@ -60,6 +60,7 @@ const ClinicDirectoryPage = lazy(() => import("@/features/clinics/pages/ClinicDi
 const ClinicPublicProfilePage = lazy(() => import("@/features/clinics/pages/ClinicPublicProfilePage"));
 const ClinicPendingPage = lazy(() => import("@/features/clinics/pages/ClinicPendingPage"));
 const ClinicDashboardPage = lazy(() => import("@/features/clinics/pages/ClinicDashboardPage"));
+const ClinicFinanceWorkspacePage = lazy(() => import("@/features/clinics/pages/ClinicFinanceWorkspacePage"));
 
 // Tiendas de mascotas
 const StoreRegistrationPage = lazy(() => import("@/features/stores/pages/StoreRegistrationPage"));
@@ -713,6 +714,14 @@ export const router = createBrowserRouter([
           },
 
           // ── Clinic + Admin only ──────────────────────────────────────────────
+          {
+            path: "/clinica/caja",
+            element: (
+              <S skeleton="dashboard">
+                <ClinicFinanceWorkspacePage />
+              </S>
+            ),
+          },
           {
             element: <RoleGuard roles={["Clinic", "Admin"]} />,
             children: [

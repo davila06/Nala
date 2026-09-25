@@ -17,6 +17,14 @@ const downloadPrescriptionMutate = vi.fn();
 const addInventoryItemMutate = vi.fn();
 const receiveInventoryLotMutate = vi.fn();
 const adjustInventoryLotMutate = vi.fn();
+const createSaleMutate = vi.fn();
+const registerPaymentMutate = vi.fn();
+const closeCashMutate = vi.fn();
+const voidSaleMutate = vi.fn();
+const saveCrmPreferenceMutate = vi.fn();
+const logCrmActivityMutate = vi.fn();
+const createCrmTaskMutate = vi.fn();
+const completeCrmTaskMutate = vi.fn();
 
 vi.mock("@/features/clinics/hooks/useClinics", () => ({
   useClinicAgenda: () => ({
@@ -169,6 +177,48 @@ vi.mock("@/features/clinics/hooks/useClinics", () => ({
     mutate: adjustInventoryLotMutate,
     isPending: false,
   }),
+  useClinicSalesReport: () => ({
+    data: {
+      totalPaidCrc: 15000,
+      byPaymentMethod: { Sinpe: 15000 },
+      byService: { "Consulta veterinaria": 15000 },
+      byVeterinarian: { "Dra. Mora": 15000 },
+    },
+  }),
+  useCreateClinicSale: () => ({ mutate: createSaleMutate, isPending: false }),
+  useRegisterClinicSalePayment: () => ({ mutate: registerPaymentMutate, isPending: false }),
+  useCloseClinicCash: () => ({ mutate: closeCashMutate, isPending: false }),
+  useVoidClinicSale: () => ({ mutate: voidSaleMutate, isPending: false }),
+  useClinicFinanceMembers: () => ({ data: [] }),
+  useGrantClinicFinanceMember: () => ({ mutate: vi.fn(), isPending: false }),
+  useRevokeClinicFinanceMember: () => ({ mutate: vi.fn(), isPending: false }),
+  useClinicCrmDashboard: () => ({
+    data: {
+      preferences: [],
+      recentActivities: [],
+      openTasks: [
+        {
+          id: "crm-task-1",
+          petId: "pet-1",
+          petName: "Max",
+          ownerUserId: "owner-1",
+          ownerName: "Ana",
+          type: "FollowUpTreatment",
+          status: "Open",
+          dueDate: "2026-09-25",
+          title: "Llamar al tutor",
+          notes: null,
+        },
+      ],
+      segments: [{ key: "vaccines-due", label: "Vacunas o controles próximos", count: 1, petIds: ["pet-1"] }],
+    },
+  }),
+  useClinicCommunicationTemplates: () => ({ data: [{ key: "clinical-follow-up", label: "Seguimiento clínico" }] }),
+  useSendClinicCommunicationTemplate: () => ({ mutate: vi.fn(), isPending: false }),
+  useUpsertClinicCommunicationPreference: () => ({ mutate: saveCrmPreferenceMutate, isPending: false }),
+  useLogClinicCommunicationActivity: () => ({ mutate: logCrmActivityMutate, isPending: false }),
+  useCreateClinicCrmTask: () => ({ mutate: createCrmTaskMutate, isPending: false }),
+  useCompleteClinicCrmTask: () => ({ mutate: completeCrmTaskMutate, isPending: false }),
 }));
 
 vi.mock("@/features/clinics/api/certificateApi", () => ({
@@ -196,6 +246,10 @@ describe("ClinicOperationsPanel", () => {
     expect(screen.getByText("Cirugia")).toBeInTheDocument();
     expect(screen.getByText("ClinicAppointmentStatusChanged")).toBeInTheDocument();
     expect(screen.getAllByText("Vacuna rabia").length).toBeGreaterThan(0);
+    expect(screen.getByText(/Cobros registrados/)).toBeInTheDocument();
+    expect(screen.getByText("Comunicación y CRM clínico")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Enviar correo clínico" })).toBeInTheDocument();
+    expect(screen.getByText("Personal de caja")).toBeInTheDocument();
     expect(screen.getAllByText(/Dra\. Ana Mora/).length).toBeGreaterThan(0);
 
     await userEvent.click(screen.getByRole("button", { name: /Pasar a Confirmada/i }));

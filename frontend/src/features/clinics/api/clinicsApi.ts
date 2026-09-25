@@ -300,6 +300,159 @@ export interface ClinicalInventoryUseInput {
   reason: ClinicInventoryMovementReason;
 }
 
+export type ClinicSaleLineType = "Service" | "InventoryItem" | "Other";
+export type ClinicPaymentMethod = "Cash" | "Card" | "Sinpe" | "Transfer" | "InternalCredit";
+
+export interface ClinicSaleCreatePayload {
+  appointmentId?: string | null;
+  consultationId?: string | null;
+  petId?: string | null;
+  receiptNumber: string;
+  lines: Array<{
+    description: string;
+    type: ClinicSaleLineType;
+    quantity: number;
+    unitPriceCrc: number;
+    inventoryItemId?: string | null;
+    inventoryLotId?: string | null;
+  }>;
+  discountCrc?: number;
+  discountReason?: string | null;
+}
+
+export interface ClinicSaleDto {
+  id: string;
+  receiptNumber: string;
+  status: string;
+  subtotalCrc: number;
+  discountCrc: number;
+  totalCrc: number;
+  paidCrc: number;
+  balanceCrc: number;
+}
+
+export interface ClinicSaleLedgerDto {
+  sale: ClinicSaleDto;
+  payments: Array<{
+    id: string;
+    amountCrc: number;
+    method: ClinicPaymentMethod;
+    reference: string | null;
+    receivedAt: string;
+  }>;
+  refunds: Array<{
+    id: string;
+    paymentId: string;
+    amountCrc: number;
+    method: ClinicPaymentMethod;
+    evidenceReference: string;
+    refundedAt: string;
+  }>;
+}
+
+export interface ClinicFinanceWorkspaceDto {
+  clinicId: string;
+  clinicName: string;
+  role: "Cashier" | "Administrator";
+}
+
+export interface ClinicFinanceMembershipDto {
+  id: string;
+  userId: string;
+  email: string;
+  role: ClinicFinanceWorkspaceDto["role"];
+  isRevoked: boolean;
+  grantedAt: string;
+}
+
+export interface ClinicFiscalSubmissionDto {
+  id: string;
+  status: "PendingProvider" | "SubmittedToProvider" | "Failed";
+  providerReference: string | null;
+}
+
+export interface ClinicCommunicationTemplateDto {
+  key: string;
+  label: string;
+  purpose: ClinicCommunicationPurpose;
+  whatsAppTemplateName: string;
+}
+
+export interface ClinicSalesReportDto {
+  totalPaidCrc: number;
+  byPaymentMethod: Record<string, number>;
+  byService: Record<string, number>;
+  byVeterinarian: Record<string, number>;
+}
+
+export type ClinicCommunicationChannel = "WhatsApp" | "Email" | "Phone" | "InApp";
+export type ClinicCommunicationPurpose =
+  | "AppointmentConfirmation"
+  | "ClinicalFollowUp"
+  | "VaccineReminder"
+  | "PrescriptionDelivery"
+  | "Billing"
+  | "Marketing";
+export type ClinicCommunicationDirection = "Outbound" | "Inbound";
+export type ClinicCommunicationStatus = "Draft" | "Queued" | "Sent" | "Delivered" | "Failed" | "LoggedExternally";
+export type ClinicCrmTaskType =
+  | "CallClient"
+  | "ConfirmAppointment"
+  | "FollowUpTreatment"
+  | "SendDocument"
+  | "CollectPayment"
+  | "Reactivation";
+
+export interface ClinicCrmDashboardDto {
+  preferences: Array<{
+    id: string;
+    petId: string;
+    petName: string;
+    ownerUserId: string;
+    ownerName: string;
+    channel: ClinicCommunicationChannel;
+    purpose: ClinicCommunicationPurpose;
+    isOptedIn: boolean;
+    consentSource: string;
+    updatedAt: string;
+  }>;
+  recentActivities: Array<{
+    id: string;
+    petId: string;
+    petName: string;
+    ownerUserId: string;
+    ownerName: string;
+    channel: ClinicCommunicationChannel;
+    purpose: ClinicCommunicationPurpose;
+    direction: ClinicCommunicationDirection;
+    status: ClinicCommunicationStatus;
+    subject: string;
+    body: string;
+    createdAt: string;
+  }>;
+  openTasks: Array<{
+    id: string;
+    petId: string;
+    petName: string;
+    ownerUserId: string;
+    ownerName: string;
+    type: ClinicCrmTaskType;
+    status: string;
+    dueDate: string;
+    title: string;
+    notes: string | null;
+  }>;
+  segments: Array<{ key: string; label: string; count: number; petIds: string[] }>;
+}
+
+export interface OwnerClinicCommunicationPreferenceDto {
+  clinicId: string;
+  clinicName: string;
+  channel: ClinicCommunicationChannel | null;
+  purpose: ClinicCommunicationPurpose | null;
+  isOptedIn: boolean;
+}
+
 // ── API client methods ─────────────────────────────────────────────────────────
 
 export const clinicsApi = {
@@ -463,6 +616,164 @@ export const clinicsApi = {
     apiClient
       .post<ClinicInventoryMovementReason>(`/clinics/me/inventory/lots/${lotId}/adjustments`, { quantityDelta, reason })
       .then((r) => r.data),
+
+  createSale: (payload: ClinicSaleCreatePayload): Promise<ClinicSaleDto> =>
+    apiClient.post<ClinicSaleDto>("/clinics/me/sales", payload).then((r) => r.data),
+
+  registerSalePayment: (
+    saleId: string,
+    payload: { amountCrc: number; method: ClinicPaymentMethod; reference?: string | null },
+  ): Promise<ClinicSaleDto> =>
+    apiClient.post<ClinicSaleDto>(`/clinics/me/sales/${saleId}/payments`, payload).then((r) => r.data),
+
+  voidSale: (saleId: string, reason: string): Promise<ClinicSaleDto> =>
+    apiClient.post<ClinicSaleDto>(`/clinics/me/sales/${saleId}/void`, { reason }).then((r) => r.data),
+
+  closeCash: (businessDate: string): Promise<{ cashCloseId: string }> =>
+    apiClient.post<{ cashCloseId: string }>("/clinics/me/cash-closes", { businessDate }).then((r) => r.data),
+
+  getSalesReport: (businessDate: string): Promise<ClinicSalesReportDto> =>
+    apiClient.get<ClinicSalesReportDto>("/clinics/me/sales-report", { params: { businessDate } }).then((r) => r.data),
+
+  getSaleLedger: (saleId: string): Promise<ClinicSaleLedgerDto> =>
+    apiClient.get<ClinicSaleLedgerDto>(`/clinics/me/sales/${saleId}/ledger`).then((r) => r.data),
+
+  recordSaleRefund: (
+    saleId: string,
+    paymentId: string,
+    amountCrc: number,
+    reason: string,
+    evidenceReference: string,
+  ): Promise<ClinicSaleDto> =>
+    apiClient
+      .post<ClinicSaleDto>(`/clinics/me/sales/${saleId}/refunds`, { paymentId, amountCrc, reason, evidenceReference })
+      .then((r) => r.data),
+
+  submitFiscalSale: (saleId: string): Promise<ClinicFiscalSubmissionDto> =>
+    apiClient.post<ClinicFiscalSubmissionDto>(`/clinics/me/sales/${saleId}/fiscal-submission`).then((r) => r.data),
+
+  getFinanceMembers: (): Promise<ClinicFinanceMembershipDto[]> =>
+    apiClient.get<ClinicFinanceMembershipDto[]>("/clinics/me/finance/members").then((r) => r.data),
+
+  grantFinanceMember: (email: string, role: ClinicFinanceWorkspaceDto["role"]): Promise<{ membershipId: string }> =>
+    apiClient.put<{ membershipId: string }>("/clinics/me/finance/members", { email, role }).then((r) => r.data),
+
+  revokeFinanceMember: (memberUserId: string): Promise<void> =>
+    apiClient.delete(`/clinics/me/finance/members/${memberUserId}`).then(() => undefined),
+
+  getFinanceWorkspaces: (): Promise<ClinicFinanceWorkspaceDto[]> =>
+    apiClient.get<ClinicFinanceWorkspaceDto[]>("/clinics/finance-workspaces").then((r) => r.data),
+
+  getStaffSalesReport: (clinicId: string, businessDate: string): Promise<ClinicSalesReportDto> =>
+    apiClient
+      .get<ClinicSalesReportDto>(`/clinics/${clinicId}/finance/sales-report`, { params: { businessDate } })
+      .then((r) => r.data),
+
+  createStaffSale: (clinicId: string, payload: ClinicSaleCreatePayload): Promise<ClinicSaleDto> =>
+    apiClient.post<ClinicSaleDto>(`/clinics/${clinicId}/finance/sales`, payload).then((r) => r.data),
+
+  registerStaffPayment: (
+    clinicId: string,
+    saleId: string,
+    amountCrc: number,
+    method: ClinicPaymentMethod,
+    reference: string,
+  ): Promise<ClinicSaleDto> =>
+    apiClient
+      .post<ClinicSaleDto>(`/clinics/${clinicId}/finance/sales/${saleId}/payments`, { amountCrc, method, reference })
+      .then((r) => r.data),
+
+  getStaffSaleLedger: (clinicId: string, saleId: string): Promise<ClinicSaleLedgerDto> =>
+    apiClient.get<ClinicSaleLedgerDto>(`/clinics/${clinicId}/finance/sales/${saleId}/ledger`).then((r) => r.data),
+
+  recordStaffRefund: (
+    clinicId: string,
+    saleId: string,
+    paymentId: string,
+    amountCrc: number,
+    reason: string,
+    evidenceReference: string,
+  ): Promise<ClinicSaleDto> =>
+    apiClient
+      .post<ClinicSaleDto>(`/clinics/${clinicId}/finance/sales/${saleId}/refunds`, {
+        paymentId,
+        amountCrc,
+        reason,
+        evidenceReference,
+      })
+      .then((r) => r.data),
+
+  voidStaffSale: (clinicId: string, saleId: string, reason: string): Promise<ClinicSaleDto> =>
+    apiClient.post<ClinicSaleDto>(`/clinics/${clinicId}/finance/sales/${saleId}/void`, { reason }).then((r) => r.data),
+
+  closeStaffCash: (clinicId: string, businessDate: string): Promise<{ cashCloseId: string }> =>
+    apiClient
+      .post<{ cashCloseId: string }>(`/clinics/${clinicId}/finance/cash-closes`, { businessDate })
+      .then((r) => r.data),
+
+  submitStaffFiscalSale: (clinicId: string, saleId: string): Promise<ClinicFiscalSubmissionDto> =>
+    apiClient
+      .post<ClinicFiscalSubmissionDto>(`/clinics/${clinicId}/finance/sales/${saleId}/fiscal-submission`)
+      .then((r) => r.data),
+
+  getCommunicationTemplates: (): Promise<ClinicCommunicationTemplateDto[]> =>
+    apiClient.get<ClinicCommunicationTemplateDto[]>("/clinics/me/crm/templates").then((r) => r.data),
+
+  sendCommunicationTemplate: (
+    petId: string,
+    templateKey: string,
+    channel: ClinicCommunicationChannel,
+    requestId: string,
+  ): Promise<{ activityId: string }> =>
+    apiClient
+      .post<{ activityId: string }>("/clinics/me/crm/send-template", { petId, templateKey, channel, requestId })
+      .then((r) => r.data),
+
+  getCrmDashboard: (today: string): Promise<ClinicCrmDashboardDto> =>
+    apiClient.get<ClinicCrmDashboardDto>("/clinics/me/crm-dashboard", { params: { today } }).then((r) => r.data),
+
+  upsertCommunicationPreference: (payload: {
+    petId: string;
+    channel: ClinicCommunicationChannel;
+    purpose: ClinicCommunicationPurpose;
+    isOptedIn: boolean;
+    consentSource: string;
+  }): Promise<void> => apiClient.put("/clinics/me/crm/preferences", payload).then(() => undefined),
+
+  logCommunicationActivity: (payload: {
+    petId: string;
+    channel: ClinicCommunicationChannel;
+    purpose: ClinicCommunicationPurpose;
+    direction: ClinicCommunicationDirection;
+    status: ClinicCommunicationStatus;
+    subject: string;
+    body: string;
+    providerMessageId?: string | null;
+  }): Promise<void> => apiClient.post("/clinics/me/crm/activities", payload).then(() => undefined),
+
+  createCrmTask: (payload: {
+    petId: string;
+    type: ClinicCrmTaskType;
+    dueDate: string;
+    title: string;
+    notes?: string | null;
+  }): Promise<{ taskId: string }> =>
+    apiClient.post<{ taskId: string }>("/clinics/me/crm/tasks", payload).then((r) => r.data),
+
+  completeCrmTask: (taskId: string): Promise<void> =>
+    apiClient.post(`/clinics/me/crm/tasks/${taskId}/complete`).then(() => undefined),
+
+  getOwnerCommunicationPreferences: (petId: string): Promise<OwnerClinicCommunicationPreferenceDto[]> =>
+    apiClient
+      .get<OwnerClinicCommunicationPreferenceDto[]>(`/clinics/pets/${petId}/communication-preferences`)
+      .then((r) => r.data),
+
+  setOwnerCommunicationPreference: (
+    clinicId: string,
+    petId: string,
+    payload: { channel: ClinicCommunicationChannel; purpose: ClinicCommunicationPurpose; isOptedIn: boolean },
+  ): Promise<void> =>
+    apiClient.put(`/clinics/${clinicId}/pets/${petId}/communication-preferences`, payload).then(() => undefined),
 
   uploadConsultationAttachment: (consultationId: string, file: File): Promise<{ attachmentUrl: string }> => {
     const form = new FormData();
