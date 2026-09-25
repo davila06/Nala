@@ -17,6 +17,50 @@ public sealed class ClinicAgendaEndpointsTests(PawTrackWebApplicationFactory fac
     : IClassFixture<PawTrackWebApplicationFactory>
 {
     [Fact]
+    public async Task ReceptionistCanConfirmOnlyItsClinicAppointment()
+    {
+        var clinicEmail = $"clinic-staff-{Guid.NewGuid():N}@pawtrack.cr";
+        var staffEmail = $"reception-staff-{Guid.NewGuid():N}@pawtrack.cr";
+        var clinicClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, clinicEmail);
+        var staffClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, staffEmail);
+        Guid clinicId;
+        Guid foreignClinicId;
+        Guid appointmentId;
+        var startsAt = DateTimeOffset.UtcNow.AddDays(1);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var jwt = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
+            var owner = await db.Users.SingleAsync(user => user.Email == clinicEmail);
+            owner.AssignClinicRole();
+            owner.ConfigureMfa("protected");
+            var clinic = Clinic.Create(owner.Id, "Clinica Staff", $"VET-{Guid.NewGuid():N}"[..12], "San Jose", 9.93m, -84.08m, clinicEmail);
+            clinic.Activate();
+            var foreignClinic = Clinic.Create(Guid.NewGuid(), "Clinica Ajena", $"VET-{Guid.NewGuid():N}"[..12], "San Jose", 9.93m, -84.08m, "foreign@test.cr");
+            foreignClinic.Activate();
+            var appointment = VeterinarianAppointment.Schedule(clinic.Id, Guid.NewGuid(), Guid.NewGuid(), startsAt, TimeSpan.FromMinutes(30));
+            await db.Clinics.AddRangeAsync(clinic, foreignClinic);
+            await db.VeterinarianAppointments.AddAsync(appointment);
+            await db.SaveChangesAsync();
+            clinicId = clinic.Id;
+            foreignClinicId = foreignClinic.Id;
+            appointmentId = appointment.Id;
+            clinicClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt.GenerateAccessToken(owner.Id, owner.Email, owner.Name, owner.Role, mfaVerified: true));
+        }
+
+        var grant = await clinicClient.PutAsJsonAsync("/api/clinics/me/staff/members", new { email = staffEmail, role = "Receptionist" });
+        grant.StatusCode.Should().Be(HttpStatusCode.OK);
+        var workspaces = await staffClient.GetAsync("/api/clinics/staff-workspaces");
+        workspaces.StatusCode.Should().Be(HttpStatusCode.OK);
+        var own = await staffClient.GetAsync($"/api/clinics/{clinicId}/staff/appointments?from={Uri.EscapeDataString(startsAt.AddHours(-1).ToString("O"))}&to={Uri.EscapeDataString(startsAt.AddHours(2).ToString("O"))}");
+        own.StatusCode.Should().Be(HttpStatusCode.OK);
+        var foreign = await staffClient.GetAsync($"/api/clinics/{foreignClinicId}/staff/appointments?from={Uri.EscapeDataString(startsAt.AddHours(-1).ToString("O"))}&to={Uri.EscapeDataString(startsAt.AddHours(2).ToString("O"))}");
+        foreign.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var confirm = await staffClient.PatchAsJsonAsync($"/api/clinics/{clinicId}/staff/appointments/{appointmentId}/status", new { status = "Confirmed" });
+        confirm.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+    [Fact]
     public async Task ClinicCanScheduleListAndConfirmAppointment()
     {
         var clinicEmail = $"clinic-agenda-{Guid.NewGuid():N}@pawtrack.cr";

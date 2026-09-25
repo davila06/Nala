@@ -341,6 +341,27 @@ export function useClinicFinanceMembers() {
   });
 }
 
+export function useClinicStaffMembers() {
+  return useQuery({ queryKey: ["clinics", "staff-members"], queryFn: clinicsApi.getStaffMembers, staleTime: 30_000 });
+}
+
+export function useGrantClinicStaffMember() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ email, role, veterinarianId }: { email: string; role: "Veterinarian" | "Receptionist" | "Assistant" | "ReadOnly"; veterinarianId: string | null }) =>
+      clinicsApi.grantStaffMember(email, role, veterinarianId),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["clinics", "staff-members"] }),
+  });
+}
+
+export function useRevokeClinicStaffMember() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: clinicsApi.revokeStaffMember,
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["clinics", "staff-members"] }),
+  });
+}
+
 export function useGrantClinicFinanceMember() {
   const queryClient = useQueryClient();
   return useMutation({

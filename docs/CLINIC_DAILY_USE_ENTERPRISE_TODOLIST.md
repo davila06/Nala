@@ -189,22 +189,108 @@ históricos cuyo supuesto XML de respuesta era su propio XML firmado (o cadena
 vacía). Hacer respaldo y auditar las filas afectadas antes de aplicarla; no
 convierte documentos locales en facturas aceptadas por Hacienda.
 
+**Tareas de homologación externa pendientes (bloqueadas por terceros):**
+
+- [ ] Fiscal: firma de contrato y alcance con el integrador; validar URL HTTPS,
+      token, idempotency key y certificado raíz del proveedor.
+- [ ] Fiscal: pruebas con XML firmados reales, acuses de Hacienda, nota de crédito,
+      reintento idempotente y manejo de errores de timeout / 429 / 5xx.
+- [ ] Fiscal: confirmación documental del emisor y SKU/estado verificado por clínica.
+- [ ] Meta/WhatsApp: aprobación de plantillas, número verificado, consentimiento y
+      temas de privacidad para el destino del cliente.
+- [ ] Meta/WhatsApp: webhook firmado de entrega/lectura y mapeo de estados reales;
+      nada se marcará como entregado sin ese webhook.
+- [ ] CRM: campañas y recordatorios sólo con consentimiento persistido y con auditoría
+      de canal, propósito, template y result code del proveedor.
+
 **Gate de salida:** NALA ayuda a retener clientes y reducir no-shows.
 
 ### CP6 - Panel diario y operación interna
 
-- [ ] Dashboard de hoy.
-- [ ] Sala de espera.
-- [ ] Consultas en progreso.
-- [ ] Tareas pendientes.
-- [ ] Certificados por emitir.
-- [ ] Pagos pendientes.
-- [ ] Alertas de inventario.
-- [ ] Mascotas perdidas cercanas.
-- [ ] Métricas del día.
-- [ ] Notificaciones internas por rol.
+- [x] Dashboard de hoy y operaciones clínicas principales; la pantalla de operación ya
+      expone agenda por día/semana, estados, bloqueos, inventario, caja, CRM y
+      comunicación desde la UI operativa.
+- [x] Sala de espera y agenda por veterinario con filtros por día/semana.
+- [x] Consultas en progreso y cambio de estado de cita por coordinación.
+- [~] Tareas pendientes internas: faltan prioridades por rol, automatización de tareas
+  de recordatorio y flujo de cierre por persona coordinadora.
+- [~] Certificados por emitir y seguimientos postconsulta.
+- [~] Pagos pendientes y cierre diario por método; requiere conciliar movimientos
+  no documentados y banco externo.
+- [x] Alertas de inventario y lotes por stock mínimo.
+- [ ] Mascotas perdidas cercanas y alertas geográficas operativas.
+- [x] Métricas del día con reportes de ventas, COBR y trazas de acción.
+- [~] Notificaciones internas por rol; falta aprobación de destinatarios, frecuencia y
+  deduplicación por sesión.
 
-**Gate de salida:** NALA es la primera pantalla operativa de la clínica.
+**Gate de salida:** NALA es la primera pantalla operativa de la clínica, con agenda,
+operación, inventario, pagos y CRM visibles en un mismo panel.
+
+### CP6 - Tareas de ejecución para la siguiente iteración
+
+#### Sprint CP6-A: dashboard operativo del día
+
+- [ ] 1. Consolidar el resumen diario en un bloque visible de la primera pantalla:
+     - citas del día
+     - consultas en espera / en progreso
+     - pagos pendientes
+     - inventario crítico
+     - tareas internas abiertas
+     - alertas del día.
+- [ ] 2. Añadir tarjetas de resumen con métricas por clínica y sede:
+     - total de citas programadas
+     - total de consultas completadas
+     - total de pagos del día
+     - total de alertas de inventario.
+- [ ] 3. Validar que el dashboard use la fecha local de Costa Rica (`America/Costa_Rica`)
+     para todas las métricas diarias y no UTC.
+- [ ] 4. Ordenar la vista por prioridad operativa: urgentes primero, luego hoy, luego
+     próximos 7 días.
+- [ ] 5. Exponer el resumen diario para titular, recepción y veterinario con el mismo
+     patrón de permisos clínicos ya implementado.
+
+#### Sprint CP6-B: tareas internas por rol
+
+- [ ] 6. Crear panel de tareas internas con filtros por rol y estado:
+     - recepción: confirmar citas, reprogramar y registrar no-shows
+     - veterinario: consultas pendientes, firmar y cerrar expediente
+     - cajero: pagos pendientes, devoluciones, cierre de caja
+     - gerente: alertas, inventario, métricas y tareas de seguimiento.
+- [ ] 7. Añadir prioridad, vencimiento y responsable por tarea; ocultar tareas no
+     pertinentes para el rol activo del usuario.
+- [ ] 8. Garantizar deduplicación y reintentos para tareas repetidas en el mismo día;
+     una tarea nueva no debe aparecer duplicada por un refresh del dashboard.
+- [ ] 9. Registrar auditoría de creación, cambio de estado y cierre de cada tarea interna.
+
+#### Sprint CP6-C: seguimientos clínicos y recordatorios
+
+- [ ] 10. Cerrar flujo de recordatorio de cita y seguimiento postconsulta.
+- [ ] 11. Activar recordatorio de vacuna y desparasitación con validación de consentimiento
+      y canal autorizado por el tutor.
+- [ ] 12. Enviar mensajes de receta/indicaciones solo al destinatario verificado y con
+      plantillas o contenido aprobados.
+- [ ] 13. Diferenciar `Sent` del proveedor de `Delivered` confirmado por webhook firmado.
+
+#### Sprint CP6-D: hardening y seguridad del panel
+
+- [ ] 14. Reforzar MFA de sesión para rutas de caja, personal clínico y tareas sensibles.
+- [ ] 15. Revisar permisos por clínica y por usuario interno para impedir acceso cruzado
+      entre sedes o usuarios no autorizados.
+- [ ] 16. Añadir control de acceso a tareas internas según rol y permiso del miembro clínico.
+- [ ] 17. Validar BOLA/IDOR en endpoints del dashboard, agenda y tareas internas.
+
+#### Sprint CP6-E: cierre de homologación externa
+
+- [ ] 18. Documentar evidencia de aprobación del proveedor fiscal (HTTPS, token, emisor,
+      idempotency, acuse, nota de crédito, error handling).
+- [ ] 19. Documentar evidencia de aprobación de Meta/WhatsApp (plantillas, número
+      verificado, consentimiento, webhook firmado, entregas reales).
+- [ ] 20. Requiere cierre legal/comercial con terceros antes de marcar CP4 y CP5 como
+      finales para producción.
+
+**Estado de la fase:** la base funcional de CP6 está en UI y backend, pero la salida
+final exige aprobación de proveedores externos y cierre de la operación diaria con
+notas de crédito, entregas confirmadas y plantillas autorizadas.
 
 ### CP7 - Multiusuario, seguridad y auditoría enterprise
 

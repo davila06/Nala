@@ -12,6 +12,7 @@ import type {
   ClinicInventoryItemDto,
   ClinicInventoryItemType,
   ClinicPaymentMethod,
+  ClinicStaffRole,
   ClinicalConsultationTemplateDto,
   ClinicScheduleBlockDto,
   VeterinarianAppointmentStatus,
@@ -31,6 +32,9 @@ import {
   useAdjustClinicInventoryLot,
   useClinicSalesReport,
   useClinicFinanceMembers,
+  useClinicStaffMembers,
+  useGrantClinicStaffMember,
+  useRevokeClinicStaffMember,
   useGrantClinicFinanceMember,
   useRevokeClinicFinanceMember,
   useCloseClinicCash,
@@ -106,6 +110,65 @@ function todayInputValue() {
   }).format(new Date());
 }
 
+function formatCrDate(value: string | Date) {
+  const date = typeof value === "string" ? new Date(`${value}T00:00:00`) : value;
+  return new Intl.DateTimeFormat("es-CR", {
+    timeZone: "America/Costa_Rica",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+}
+
+type InternalTaskRole = "All" | "Reception" | "Veterinarian" | "Cashier" | "Manager";
+
+function resolveInternalRole(taskType: ClinicCrmTaskType): InternalTaskRole {
+  switch (taskType) {
+    case "ConfirmAppointment":
+    case "CallClient":
+      return "Reception";
+    case "FollowUpTreatment":
+    case "SendDocument":
+    case "Reactivation":
+      return "Veterinarian";
+    case "CollectPayment":
+      return "Cashier";
+    default:
+      return "Manager";
+  }
+}
+
+function resolveTaskPriority(dueDate: string) {
+  const today = new Date();
+  const due = new Date(`${dueDate}T00:00:00`);
+  const diffDays = Math.round((due.getTime() - today.getTime()) / 86400000);
+
+  if (diffDays <= 0) return "Urgente";
+  if (diffDays <= 2) return "Hoy";
+  return "Próximo";
+}
+
+function roleLabel(role: InternalTaskRole) {
+  switch (role) {
+    case "Reception":
+      return "Recepción";
+    case "Veterinarian":
+      return "Veterinario";
+    case "Cashier":
+      return "Caja";
+    case "Manager":
+      return "Gerencia";
+    default:
+      return "Todo";
+  }
+}
+
+const INTERNAL_TASK_PRIORITY_ORDER: Record<string, number> = {
+  Urgente: 0,
+  Hoy: 1,
+  Próximo: 2,
+};
+
 function VeterinarianRow({ veterinarian }: { veterinarian: ClinicVeterinarianDto }) {
   const queryClient = useQueryClient();
   const [permissions, setPermissions] = useState<string[]>(
@@ -169,6 +232,7 @@ export function ClinicOperationsPanel() {
   });
   const [agendaDate, setAgendaDate] = useState(todayInputValue());
   const [agendaMode, setAgendaMode] = useState<"day" | "week">("day");
+  const [selectedTaskRole, setSelectedTaskRole] = useState<InternalTaskRole>("All");
   const range = agendaMode === "day" ? dayRange(agendaDate) : weekRange(agendaDate);
   const { data: agenda = [], isLoading: agendaLoading } = useClinicAgenda(range.from, range.to);
   const { data: blocks = [], isLoading: blocksLoading } = useClinicScheduleBlocks(range.from, range.to);
@@ -230,6 +294,49 @@ export function ClinicOperationsPanel() {
 
   if (isLoading) return <div className="h-40 animate-pulse rounded-2xl bg-sand-100" />;
 
+  const todayFocus = new Intl.DateTimeFormat("es-CR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "America/Costa_Rica",
+  }).format(new Date());
+
+  const dailySummary = {
+    scheduled: agenda.filter((appointment) => appointment.status === "Scheduled" || appointment.status === "Confirmed")
+      .length,
+    inProgress: agenda.filter(
+      (appointment) => appointment.status === "CheckedIn" || appointment.status === "InConsultation",
+    ).length,
+    stockAlerts: inventory.filter((item) => item.isBelowMinimum || item.totalAvailable <= item.minimumStock).length,
+    openTasks: crmDashboard?.openTasks.length ?? 0,
+    revenue: salesReport?.totalPaidCrc ?? 0,
+  };
+
+  const nextTasks = crmDashboard?.openTasks.slice(0, 4) ?? [];
+  const internalTasks = [...(crmDashboard?.openTasks ?? [])]
+    .map((task) => ({
+      ...task,
+      role: resolveInternalRole(task.type as ClinicCrmTaskType),
+      priority: resolveTaskPriority(task.dueDate),
+    }))
+    .sort((left, right) => {
+      const priorityDelta =
+        (INTERNAL_TASK_PRIORITY_ORDER[left.priority] ?? 99) - (INTERNAL_TASK_PRIORITY_ORDER[right.priority] ?? 99);
+      if (priorityDelta !== 0) return priorityDelta;
+      return new Date(left.dueDate).getTime() - new Date(right.dueDate).getTime();
+    });
+
+  const visibleTaskGroups = (
+    selectedTaskRole === "All"
+      ? (["Reception", "Veterinarian", "Cashier", "Manager"] as InternalTaskRole[])
+      : [selectedTaskRole]
+  ).map((role) => ({
+    role,
+    label: roleLabel(role),
+    tasks: internalTasks.filter((task) => task.role === role),
+  }));
+
   return (
     <section className="space-y-5">
       <header>
@@ -238,6 +345,138 @@ export function ClinicOperationsPanel() {
           Administra permisos por veterinario y agenda consultas con protección contra solapamientos.
         </p>
       </header>
+
+      <div className="rounded-2xl border border-sand-200 bg-surface p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sand-500">Dashboard del día</p>
+            <h3 className="mt-1 text-base font-black text-sand-900">{todayFocus}</h3>
+          </div>
+          <span className="rounded-full border border-brand-200 bg-brand-50 px-2.5 py-1 text-[11px] font-bold text-brand-700">
+            local · CR
+          </span>
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="rounded-xl border border-sand-200 bg-sand-50 p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sand-500">Citas</p>
+            <p className="mt-2 text-2xl font-black text-sand-900">{dailySummary.scheduled}</p>
+          </div>
+          <div className="rounded-xl border border-sand-200 bg-sand-50 p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sand-500">En consulta</p>
+            <p className="mt-2 text-2xl font-black text-sand-900">{dailySummary.inProgress}</p>
+          </div>
+          <div className="rounded-xl border border-sand-200 bg-sand-50 p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sand-500">Inventario</p>
+            <p className="mt-2 text-2xl font-black text-sand-900">{dailySummary.stockAlerts}</p>
+          </div>
+          <div className="rounded-xl border border-sand-200 bg-sand-50 p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sand-500">Tareas</p>
+            <p className="mt-2 text-2xl font-black text-sand-900">{dailySummary.openTasks}</p>
+          </div>
+          <div className="rounded-xl border border-brand-200 bg-brand-50 p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-700">Cobros</p>
+            <p className="mt-2 text-2xl font-black text-brand-800">₡{dailySummary.revenue.toLocaleString("es-CR")}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-sand-200 bg-surface p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sand-500">Tareas internas</p>
+            <h3 className="mt-1 text-sm font-black text-sand-900">Tareas internas por rol</h3>
+          </div>
+          <label className="flex items-center gap-2 text-xs font-semibold text-sand-700">
+            <span>Rol</span>
+            <select
+              aria-label="Filtrar tareas por rol"
+              value={selectedTaskRole}
+              onChange={(event) => setSelectedTaskRole(event.target.value as InternalTaskRole)}
+              className="field-input min-w-[160px]"
+            >
+              <option value="All">Todo</option>
+              <option value="Reception">Recepción</option>
+              <option value="Veterinarian">Veterinario</option>
+              <option value="Cashier">Caja</option>
+              <option value="Manager">Gerencia</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="mt-4 space-y-3">
+          {visibleTaskGroups.map(({ role, label, tasks }) => (
+            <div key={role} className="rounded-xl border border-sand-200 bg-sand-50 p-3">
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <h4 className="text-sm font-bold text-sand-900">{label}</h4>
+                <span className="rounded-full bg-sand-200 px-2 py-1 text-[10px] font-bold uppercase text-sand-700">
+                  {tasks.length} tareas
+                </span>
+              </div>
+              {tasks.length === 0 ? (
+                <p className="text-xs text-sand-500">Sin tareas para este rol.</p>
+              ) : (
+                <div className="space-y-2">
+                  {tasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className="flex items-start justify-between gap-3 rounded-lg border border-sand-200 bg-surface p-2.5"
+                    >
+                      <div>
+                        <p className="text-sm font-bold text-sand-900">{task.title}</p>
+                        <p className="mt-1 text-xs text-sand-500">
+                          {task.petName} · {task.ownerName}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span className="inline-flex rounded-full bg-brand-100 px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-brand-700">
+                          {task.priority}
+                        </span>
+                        <p className="mt-1 text-[11px] font-semibold text-sand-600">{formatCrDate(task.dueDate)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-sand-200 bg-surface p-4">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-sm font-black text-sand-900">Tareas del día</h3>
+          <span className="rounded-full bg-sand-100 px-2 py-1 text-[11px] font-semibold text-sand-600">
+            {dailySummary.openTasks} abiertas
+          </span>
+        </div>
+        <div className="mt-3 space-y-2">
+          {nextTasks.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-sand-300 p-3 text-sm text-sand-500">
+              No hay tareas pendientes para el día.
+            </p>
+          ) : (
+            nextTasks.map((task) => (
+              <div
+                key={task.id}
+                className="flex items-start justify-between gap-3 rounded-xl border border-sand-200 bg-sand-50 p-3"
+              >
+                <div>
+                  <p className="text-sm font-bold text-sand-900">{task.title}</p>
+                  <p className="mt-1 text-xs text-sand-500">
+                    {task.petName} · {task.ownerName}
+                  </p>
+                </div>
+                <div className="text-right text-[11px] text-sand-500">
+                  <div>{task.status}</div>
+                  <div className="mt-1">{formatCrDate(task.dueDate)}</div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
       <ClinicAgendaSection
         date={agendaDate}
         onDateChange={setAgendaDate}
@@ -573,6 +812,7 @@ export function ClinicOperationsPanel() {
         }
       />
       <ClinicFinanceTeamSection />
+      <ClinicStaffTeamSection veterinarians={veterinarians} />
       <ClinicCrmSection
         dashboard={crmDashboard}
         templates={communicationTemplates}
@@ -689,6 +929,116 @@ function ClinicFinanceTeamSection() {
               onClick={() =>
                 revoke.mutate(member.userId, {
                   onSuccess: () => toast.success("Acceso revocado."),
+                  onError: () => toast.error("No se pudo revocar el acceso."),
+                })
+              }
+            >
+              Revocar
+            </Button>
+          </div>
+        ))}
+    </section>
+  );
+}
+
+function ClinicStaffTeamSection({ veterinarians }: { veterinarians: ClinicVeterinarianDto[] }) {
+  const { data: members = [] } = useClinicStaffMembers();
+  const grant = useGrantClinicStaffMember();
+  const revoke = useRevokeClinicStaffMember();
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<ClinicStaffRole>("Receptionist");
+  const [veterinarianId, setVeterinarianId] = useState("");
+
+  return (
+    <section className="space-y-3 border-t border-sand-200 pt-4">
+      <h3 className="text-sm font-bold text-sand-900">Equipo clínico</h3>
+      <Link
+        to="/clinica/equipo"
+        className="inline-block text-sm font-semibold text-brand-700 underline underline-offset-2"
+      >
+        Abrir agenda de equipo
+      </Link>
+      <div className="flex flex-wrap gap-2">
+        <Input
+          type="email"
+          aria-label="Correo del empleado clínico"
+          placeholder="Correo verificado"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+        />
+        <select
+          className="field-input"
+          aria-label="Rol clínico"
+          value={role}
+          onChange={(event) => {
+            setRole(event.target.value as ClinicStaffRole);
+            setVeterinarianId("");
+          }}
+        >
+          <option value="Receptionist">Recepción</option>
+          <option value="Veterinarian">Veterinario</option>
+          <option value="Assistant">Asistente</option>
+          <option value="ReadOnly">Solo lectura</option>
+        </select>
+        {role === "Veterinarian" && (
+          <select
+            className="field-input"
+            aria-label="Veterinario autorizado"
+            value={veterinarianId}
+            onChange={(event) => setVeterinarianId(event.target.value)}
+          >
+            <option value="">Selecciona veterinario</option>
+            {veterinarians
+              .filter((veterinarian) => veterinarian.isActive)
+              .map((veterinarian) => (
+                <option key={veterinarian.id} value={veterinarian.id}>
+                  {veterinarian.fullName}
+                </option>
+              ))}
+          </select>
+        )}
+        <Button
+          disabled={!email.includes("@") || (role === "Veterinarian" && !veterinarianId) || grant.isPending}
+          onClick={() =>
+            grant.mutate(
+              { email, role, veterinarianId: role === "Veterinarian" ? veterinarianId : null },
+              {
+                onSuccess: () => {
+                  setEmail("");
+                  toast.success("Acceso clínico asignado.");
+                },
+                onError: () => toast.error("Se requiere titular con MFA y cuenta verificada."),
+              },
+            )
+          }
+        >
+          Asignar acceso clínico
+        </Button>
+      </div>
+      {members
+        .filter((member) => !member.isRevoked)
+        .map((member) => (
+          <div
+            key={member.userId}
+            className="flex flex-wrap items-center justify-between gap-3 border-b border-sand-100 py-2 text-sm"
+          >
+            <span>
+              {member.email} ·{" "}
+              {
+                {
+                  Veterinarian: "Veterinario",
+                  Receptionist: "Recepción",
+                  Assistant: "Asistente",
+                  ReadOnly: "Solo lectura",
+                }[member.role]
+              }
+            </span>
+            <Button
+              variant="secondary"
+              disabled={revoke.isPending}
+              onClick={() =>
+                revoke.mutate(member.userId, {
+                  onSuccess: () => toast.success("Acceso clínico revocado."),
                   onError: () => toast.error("No se pudo revocar el acceso."),
                 })
               }

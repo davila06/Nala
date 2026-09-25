@@ -18,6 +18,68 @@ public sealed class ClinicalConsultationEndpointsTests(PawTrackWebApplicationFac
     : IClassFixture<PawTrackWebApplicationFactory>
 {
     [Fact]
+    public async Task StaffVeterinarianCanDocumentAndSignOwnConsultation()
+    {
+        var clinicEmail = $"clinic-vet-staff-{Guid.NewGuid():N}@pawtrack.cr";
+        var staffEmail = $"vet-staff-{Guid.NewGuid():N}@pawtrack.cr";
+        var ownerEmail = $"pet-vet-staff-{Guid.NewGuid():N}@pawtrack.cr";
+        var clinicClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, clinicEmail);
+        var staffClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, staffEmail);
+        _ = await AuthHelper.CreateAuthenticatedClientAsync(factory, ownerEmail);
+        Guid clinicId;
+        Guid veterinarianId;
+        Guid appointmentId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var jwt = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
+            var clinicUser = await db.Users.SingleAsync(user => user.Email == clinicEmail);
+            clinicUser.AssignClinicRole();
+            clinicUser.ConfigureMfa("protected");
+            var owner = await db.Users.SingleAsync(user => user.Email == ownerEmail);
+            var pet = Pet.Create(owner.Id, "Nala", PetSpecies.Dog, null, null);
+            var clinic = Clinic.Create(clinicUser.Id, "Clinica Vet", $"VET-{Guid.NewGuid():N}"[..12], "San Jose", 9.93m, -84.08m, clinicEmail);
+            clinic.Activate();
+            var veterinarian = ClinicVeterinarian.Create(clinic.Id, "Dra. Ana Mora", $"VET-{Guid.NewGuid():N}"[..12]);
+            var (grant, code) = ClinicMedicalAccessGrant.Generate(pet.Id, clinic.Id, owner.Id, "Owner");
+            grant.TryAccept(code).Should().BeTrue();
+            var appointment = VeterinarianAppointment.Schedule(clinic.Id, veterinarian.Id, pet.Id, DateTimeOffset.UtcNow.AddHours(1), TimeSpan.FromMinutes(30));
+            appointment.Confirm(); appointment.CheckIn(); appointment.StartConsultation();
+            await db.Pets.AddAsync(pet);
+            await db.Clinics.AddAsync(clinic);
+            await db.ClinicVeterinarians.AddAsync(veterinarian);
+            await db.ClinicMedicalAccessGrants.AddAsync(grant);
+            await db.VeterinarianAppointments.AddAsync(appointment);
+            await db.SaveChangesAsync();
+            clinicId = clinic.Id;
+            veterinarianId = veterinarian.Id;
+            appointmentId = appointment.Id;
+            clinicClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt.GenerateAccessToken(clinicUser.Id, clinicUser.Email, clinicUser.Name, clinicUser.Role, mfaVerified: true));
+        }
+
+        var member = await clinicClient.PutAsJsonAsync("/api/clinics/me/staff/members", new
+        {
+            email = staffEmail, role = "Veterinarian", veterinarianId
+        });
+        member.StatusCode.Should().Be(HttpStatusCode.OK);
+        var request = new
+        {
+            reason = "Control", subjective = "S", objective = "O", assessment = "A", plan = "P",
+            diagnosis = "Sano", treatment = "Vacuna", ownerSummary = "Indicaciones para casa"
+        };
+        var create = await staffClient.PostAsJsonAsync($"/api/clinics/{clinicId}/staff/appointments/{appointmentId}/consultation", request);
+        create.StatusCode.Should().Be(HttpStatusCode.Created);
+        var consultation = await create.Content.ReadFromJsonAsync<ConsultationResponse>();
+        var close = await staffClient.PostAsJsonAsync($"/api/clinics/{clinicId}/staff/consultations/{consultation!.Id}/close", new { signedByName = "Dra. Ana Mora" });
+        close.StatusCode.Should().Be(HttpStatusCode.OK);
+        var closed = await close.Content.ReadFromJsonAsync<ConsultationResponse>();
+        closed!.Status.Should().Be("Closed");
+        using var afterScope = factory.Services.CreateScope();
+        var afterDb = afterScope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+        (await afterDb.MedicalRecords.AnyAsync(record => record.PetId == closed.PetId)).Should().BeTrue();
+    }
+
+    [Fact]
     public async Task ClinicCanCreateAndCloseStructuredConsultation()
     {
         var clinicEmail = $"clinic-consult-{Guid.NewGuid():N}@pawtrack.cr";

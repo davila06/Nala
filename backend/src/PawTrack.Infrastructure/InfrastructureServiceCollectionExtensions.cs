@@ -181,6 +181,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IClinicInventoryRepository, ClinicInventoryRepository>();
         services.AddScoped<IClinicBillingRepository, ClinicBillingRepository>();
         services.AddScoped<IClinicFinanceAccessRepository, ClinicFinanceAccessRepository>();
+        services.AddScoped<IClinicStaffAccessRepository, ClinicStaffAccessRepository>();
         services.AddScoped<IClinicCrmRepository, ClinicCrmRepository>();
         services.AddScoped<IClinicEmailGateway, SendGridClinicEmailGateway>();
         services.AddHttpClient("ClinicSendGrid", client => client.Timeout = TimeSpan.FromSeconds(15));

@@ -1,6 +1,8 @@
 using MediatR;
 using PawTrack.Application.Certificates.Interfaces;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Clinics.Interfaces;
+using PawTrack.Domain.Clinics;
 using PawTrack.Domain.Certificates;
 using PawTrack.Domain.Common;
 
@@ -28,7 +30,8 @@ public sealed class GetClinicAgendaQueryHandler(
     IClinicRepository clinicRepository,
     IVeterinarianAppointmentRepository appointmentRepository,
     IPetRepository petRepository,
-    IClinicVeterinarianRepository veterinarianRepository)
+    IClinicVeterinarianRepository veterinarianRepository,
+    IClinicStaffAccessRepository staffAccess)
     : IRequestHandler<GetClinicAgendaQuery, Result<IReadOnlyList<ClinicAgendaItemDto>>>
 {
     public async Task<Result<IReadOnlyList<ClinicAgendaItemDto>>> Handle(
@@ -39,7 +42,8 @@ public sealed class GetClinicAgendaQueryHandler(
             return Result.Failure<IReadOnlyList<ClinicAgendaItemDto>>("El rango de agenda es inválido.");
 
         var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
-        if (clinic is null || clinic.UserId != request.RequestingUserId)
+        if (clinic is null || clinic.UserId != request.RequestingUserId &&
+            !await staffAccess.HasPermissionAsync(request.ClinicId, request.RequestingUserId, ClinicStaffPermission.ViewAgenda, cancellationToken))
             return Result.Failure<IReadOnlyList<ClinicAgendaItemDto>>("Acceso denegado.");
 
         var appointments = await appointmentRepository.GetForClinicAsync(

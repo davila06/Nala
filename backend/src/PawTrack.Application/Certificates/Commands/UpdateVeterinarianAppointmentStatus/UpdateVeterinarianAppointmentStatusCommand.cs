@@ -1,5 +1,7 @@
 using MediatR;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Clinics.Interfaces;
+using PawTrack.Domain.Clinics;
 using PawTrack.Domain.Audit;
 using PawTrack.Domain.Certificates;
 using PawTrack.Domain.Common;
@@ -17,7 +19,8 @@ public sealed class UpdateVeterinarianAppointmentStatusCommandHandler(
     IClinicRepository clinicRepository,
     IVeterinarianAppointmentRepository appointmentRepository,
     IAuditLogRepository auditLogRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IClinicStaffAccessRepository staffAccess)
     : IRequestHandler<UpdateVeterinarianAppointmentStatusCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(
@@ -25,12 +28,21 @@ public sealed class UpdateVeterinarianAppointmentStatusCommandHandler(
         CancellationToken cancellationToken)
     {
         var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
-        if (clinic is null || clinic.UserId != request.RequestingUserId)
+        if (clinic is null || clinic.UserId != request.RequestingUserId &&
+            !await staffAccess.HasPermissionAsync(request.ClinicId, request.RequestingUserId, ClinicStaffPermission.ManageAgenda, cancellationToken))
             return Result.Failure<Guid>("Acceso denegado.");
 
         var appointment = await appointmentRepository.GetByIdAsync(request.AppointmentId, cancellationToken);
         if (appointment is null || appointment.ClinicId != request.ClinicId)
             return Result.Failure<Guid>("Cita no encontrada.");
+        if (clinic.UserId != request.RequestingUserId && request.Status is
+            VeterinarianAppointmentStatus.InConsultation or VeterinarianAppointmentStatus.Completed)
+        {
+            var member = await staffAccess.GetAsync(request.ClinicId, request.RequestingUserId, cancellationToken);
+            if (member?.Role != ClinicStaffRole.Veterinarian || member.IsRevoked ||
+                member.VeterinarianId != appointment.VeterinarianId)
+                return Result.Failure<Guid>("La transición clínica requiere al veterinario asignado.");
+        }
 
         try
         {

@@ -37,6 +37,7 @@ using PawTrack.Application.Clinics.Commands.UploadClinicalConsultationAttachment
 using PawTrack.Application.Clinics.Commands.ManageClinicInventory;
 using PawTrack.Application.Clinics.Commands.ManageClinicBilling;
 using PawTrack.Application.Clinics.Commands.ManageClinicFinanceAccess;
+using PawTrack.Application.Clinics.Commands.ManageClinicStaff;
 using PawTrack.Application.Clinics.Commands.ManageClinicCrm;
 using PawTrack.Application.Clinics.Queries.DownloadClinicalConsultationPrescription;
 using PawTrack.Application.Clinics.Queries.GetClinicalConsultationTemplates;
@@ -1088,6 +1089,75 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
     }
 
+    [HttpGet("staff-workspaces")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetStaffWorkspaces(CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        return Ok(await sender.Send(new GetMyClinicStaffWorkspacesQuery(userId), ct));
+    }
+
+    [HttpGet("me/staff/members")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetClinicStaffMembers(CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinic = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinic.IsFailure || clinic.Value is null) return Forbid();
+        var result = await sender.Send(new GetClinicStaffMembersQuery(clinic.Value.Id, userId), ct);
+        return result.IsSuccess ? Ok(result.Value) : Forbid();
+    }
+
+    [HttpPut("me/staff/members")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicFinanceMfa")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GrantClinicStaffMember([FromBody] GrantClinicStaffMemberRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinic = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinic.IsFailure || clinic.Value is null) return Forbid();
+        if (!Enum.TryParse<ClinicStaffRole>(request.Role, true, out var role) || !Enum.IsDefined(role)) return BadRequest();
+        var result = await sender.Send(new GrantClinicStaffMembershipCommand(clinic.Value.Id, userId,
+            request.Email, role, request.VeterinarianId), ct);
+        return result.IsSuccess ? Ok(new { membershipId = result.Value }) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpDelete("me/staff/members/{memberUserId:guid}")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicFinanceMfa")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> RevokeClinicStaffMember(Guid memberUserId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinic = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinic.IsFailure || clinic.Value is null) return Forbid();
+        var result = await sender.Send(new RevokeClinicStaffMembershipCommand(clinic.Value.Id, userId, memberUserId), ct);
+        return result.IsSuccess ? NoContent() : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("{clinicId:guid}/staff/appointments")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetStaffAgenda(Guid clinicId, [FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetClinicAgendaQuery(clinicId, userId, from, to), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPatch("{clinicId:guid}/staff/appointments/{appointmentId:guid}/status")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> UpdateStaffAppointmentStatus(Guid clinicId, Guid appointmentId,
+        [FromBody] UpdateVeterinarianAppointmentStatusRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        if (!Enum.TryParse<PawTrack.Domain.Certificates.VeterinarianAppointmentStatus>(request.Status, true, out var status) || !Enum.IsDefined(status)) return BadRequest();
+        var result = await sender.Send(new UpdateVeterinarianAppointmentStatusCommand(clinicId, userId, appointmentId, status), ct);
+        return result.IsSuccess ? NoContent() : UnprocessableEntity(result.Errors);
+    }
+
     [HttpPatch("me/appointments/{appointmentId:guid}/status")]
     [Authorize(Roles = "Clinic")]
     [EnableRateLimiting("public-api")]
@@ -1164,6 +1234,33 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
             request.PrescriptionInstructions), ct);
 
         return result.IsSuccess ? Created(string.Empty, result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("{clinicId:guid}/staff/appointments/{appointmentId:guid}/consultation")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> CreateStaffConsultation(Guid clinicId, Guid appointmentId,
+        [FromBody] CreateClinicalConsultationRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new CreateClinicalConsultationCommand(clinicId, userId, appointmentId,
+            request.Reason, request.Subjective, request.Objective, request.Assessment, request.Plan,
+            request.WeightKg, request.TemperatureC, request.HeartRateBpm, request.RespiratoryRateRpm,
+            request.BodyConditionScore, request.PainScore, request.HydrationStatus, request.Diagnosis,
+            request.Treatment, request.OwnerSummary, request.PrescriptionInstructions), ct);
+        return result.IsSuccess ? Created(string.Empty, result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("{clinicId:guid}/staff/consultations/{consultationId:guid}/close")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> CloseStaffConsultation(Guid clinicId, Guid consultationId,
+        [FromBody] CloseClinicalConsultationRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new CloseClinicalConsultationCommand(clinicId, userId, consultationId,
+            request.SignedByName, request.InventoryUses), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
     }
 
     [HttpGet("me/consultation-templates")]
@@ -1940,6 +2037,7 @@ public sealed record RegisterClinicSalePaymentRequest(decimal AmountCrc, string 
 public sealed record RecordClinicSaleRefundRequest(Guid PaymentId, decimal AmountCrc, string Reason, string EvidenceReference);
 public sealed record CloseClinicCashRequest(DateOnly BusinessDate);
 public sealed record GrantClinicFinanceMemberRequest(string Email, string Role);
+public sealed record GrantClinicStaffMemberRequest(string Email, string Role, Guid? VeterinarianId = null);
 public sealed record UpsertClinicCommunicationPreferenceRequest(Guid PetId, string Channel, string Purpose, bool IsOptedIn, string ConsentSource);
 public sealed record SetOwnerClinicCommunicationPreferenceRequest(string Channel, string Purpose, bool IsOptedIn);
 public sealed record LogClinicCommunicationActivityRequest(Guid PetId, string Channel, string Purpose, string Direction, string Status, string Subject, string Body, string? ProviderMessageId = null);

@@ -190,6 +190,9 @@ vi.mock("@/features/clinics/hooks/useClinics", () => ({
   useCloseClinicCash: () => ({ mutate: closeCashMutate, isPending: false }),
   useVoidClinicSale: () => ({ mutate: voidSaleMutate, isPending: false }),
   useClinicFinanceMembers: () => ({ data: [] }),
+  useClinicStaffMembers: () => ({ data: [] }),
+  useGrantClinicStaffMember: () => ({ mutate: vi.fn(), isPending: false }),
+  useRevokeClinicStaffMember: () => ({ mutate: vi.fn(), isPending: false }),
   useGrantClinicFinanceMember: () => ({ mutate: vi.fn(), isPending: false }),
   useRevokeClinicFinanceMember: () => ({ mutate: vi.fn(), isPending: false }),
   useClinicCrmDashboard: () => ({
@@ -250,6 +253,7 @@ describe("ClinicOperationsPanel", () => {
     expect(screen.getByText("Comunicación y CRM clínico")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Enviar correo clínico" })).toBeInTheDocument();
     expect(screen.getByText("Personal de caja")).toBeInTheDocument();
+    expect(screen.getByText("Equipo clínico")).toBeInTheDocument();
     expect(screen.getAllByText(/Dra\. Ana Mora/).length).toBeGreaterThan(0);
 
     await userEvent.click(screen.getByRole("button", { name: /Pasar a Confirmada/i }));
@@ -261,5 +265,19 @@ describe("ClinicOperationsPanel", () => {
         onError: expect.any(Function),
       }),
     );
+  });
+
+  it("groups internal tasks by role and shows CR-local due dates with priority ordering", async () => {
+    renderWithProviders(<ClinicOperationsPanel />);
+
+    expect(await screen.findByText("Tareas internas por rol")).toBeInTheDocument();
+    expect(screen.getByLabelText("Filtrar tareas por rol")).toBeInTheDocument();
+    expect(screen.getByText("Urgente")).toBeInTheDocument();
+    expect(screen.getAllByText("25/09/2026").length).toBeGreaterThan(0);
+
+    await userEvent.selectOptions(screen.getByLabelText("Filtrar tareas por rol"), "Reception");
+
+    expect((screen.getByLabelText("Filtrar tareas por rol") as HTMLSelectElement).value).toBe("Reception");
+    expect(screen.getAllByText("Recepción").length).toBeGreaterThan(0);
   });
 });

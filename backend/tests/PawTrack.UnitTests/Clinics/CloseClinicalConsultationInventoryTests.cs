@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using PawTrack.Application.Clinics.Commands.CloseClinicalConsultation;
 using PawTrack.Application.Clinics.Interfaces;
+using PawTrack.Application.Certificates.Interfaces;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Audit;
 using PawTrack.Domain.Certificates;
@@ -16,7 +17,8 @@ public sealed class CloseClinicalConsultationInventoryTests
     public async Task Handle_WithInventoryUses_ConsumesStockWithConsultationTrace()
     {
         var clinicUserId = Guid.NewGuid();
-        var clinicId = Guid.NewGuid();
+        var clinic = Clinic.Create(clinicUserId, "Clinica Test", "VET-123", "San Jose", 9.93m, -84.08m, "clinic@test.cr");
+        var clinicId = clinic.Id;
         var item = ClinicInventoryItem.Create(clinicId, "Vacuna rabia", ClinicInventoryItemType.Vaccine, "unidad", 1);
         var lot = ClinicInventoryLot.Receive(clinicId, item.Id, "RAB-001", DateOnly.FromDateTime(DateTime.UtcNow.AddYears(1)), 3, 1200m, null);
         var appointment = VeterinarianAppointment.Schedule(clinicId, Guid.NewGuid(), Guid.NewGuid(), DateTimeOffset.UtcNow.AddHours(-1), TimeSpan.FromMinutes(30), clinicUserId);
@@ -38,6 +40,8 @@ public sealed class CloseClinicalConsultationInventoryTests
         var medical = Substitute.For<IMedicalRepository>();
         var audit = Substitute.For<IAuditLogRepository>();
         var unitOfWork = Substitute.For<IUnitOfWork>();
+        var clinics = Substitute.For<IClinicRepository>();
+        clinics.GetByIdAsync(clinicId, Arg.Any<CancellationToken>()).Returns(clinic);
 
         var handler = new CloseClinicalConsultationCommandHandler(
             consultations,
@@ -45,7 +49,10 @@ public sealed class CloseClinicalConsultationInventoryTests
             medical,
             inventory,
             audit,
-            unitOfWork);
+            unitOfWork,
+            clinics,
+            Substitute.For<IClinicStaffAccessRepository>(),
+            Substitute.For<IClinicVeterinarianRepository>());
 
         var result = await handler.Handle(new CloseClinicalConsultationCommand(
             clinicId,

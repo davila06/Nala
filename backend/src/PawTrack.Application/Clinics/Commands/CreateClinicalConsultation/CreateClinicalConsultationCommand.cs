@@ -120,18 +120,26 @@ public sealed class CreateClinicalConsultationCommandHandler(
     IClinicMedicalAccessGrantRepository grantRepository,
     IClinicScanRepository clinicScanRepository,
     IAuditLogRepository auditLogRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IClinicStaffAccessRepository staffAccess)
     : IRequestHandler<CreateClinicalConsultationCommand, Result<ClinicalConsultationDto>>
 {
     public async Task<Result<ClinicalConsultationDto>> Handle(CreateClinicalConsultationCommand request, CancellationToken cancellationToken)
     {
         var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
-        if (clinic is null || clinic.Status != ClinicStatus.Active || clinic.UserId != request.ClinicUserId)
+        if (clinic is null || clinic.Status != ClinicStatus.Active)
             return Result.Failure<ClinicalConsultationDto>("La clínica no está activa.");
 
         var appointment = await appointmentRepository.GetByIdAsync(request.AppointmentId, cancellationToken);
         if (appointment is null || appointment.ClinicId != request.ClinicId)
             return Result.Failure<ClinicalConsultationDto>("Cita no encontrada.");
+        if (clinic.UserId != request.ClinicUserId)
+        {
+            var member = await staffAccess.GetAsync(request.ClinicId, request.ClinicUserId, cancellationToken);
+            if (member?.Role != ClinicStaffRole.Veterinarian || !member.Allows(ClinicStaffPermission.WriteMedical)
+                || member.VeterinarianId != appointment.VeterinarianId)
+                return Result.Failure<ClinicalConsultationDto>("El veterinario asignado no tiene acceso de escritura.");
+        }
         if (appointment.Status != VeterinarianAppointmentStatus.InConsultation)
             return Result.Failure<ClinicalConsultationDto>("La cita debe estar en consulta para documentarla.");
 

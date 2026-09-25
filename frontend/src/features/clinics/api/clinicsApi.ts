@@ -231,6 +231,11 @@ export interface ClinicalConsultationDto {
   closedAt: string | null;
 }
 
+export type ClinicalConsultationCreatePayload = Omit<
+  ClinicalConsultationDto,
+  "id" | "appointmentId" | "petId" | "veterinarianId" | "status" | "attachmentUrl" | "signedByName" | "closedAt"
+>;
+
 export interface ClinicalConsultationTemplateDto {
   key: string;
   label: string;
@@ -354,6 +359,22 @@ export interface ClinicFinanceWorkspaceDto {
   clinicId: string;
   clinicName: string;
   role: "Cashier" | "Administrator";
+}
+
+export type ClinicStaffRole = "Veterinarian" | "Receptionist" | "Assistant" | "ReadOnly";
+
+export interface ClinicStaffMemberDto {
+  userId: string;
+  email: string;
+  role: ClinicStaffRole;
+  veterinarianId: string | null;
+  isRevoked: boolean;
+}
+
+export interface ClinicStaffWorkspaceDto {
+  clinicId: string;
+  clinicName: string;
+  role: ClinicStaffRole;
 }
 
 export interface ClinicFinanceMembershipDto {
@@ -559,10 +580,7 @@ export const clinicsApi = {
 
   createConsultation: (
     appointmentId: string,
-    payload: Omit<
-      ClinicalConsultationDto,
-      "id" | "appointmentId" | "petId" | "veterinarianId" | "status" | "attachmentUrl" | "signedByName" | "closedAt"
-    >,
+    payload: ClinicalConsultationCreatePayload,
   ): Promise<ClinicalConsultationDto> =>
     apiClient
       .post<ClinicalConsultationDto>(`/clinics/me/appointments/${appointmentId}/consultation`, payload)
@@ -654,6 +672,30 @@ export const clinicsApi = {
 
   getFinanceMembers: (): Promise<ClinicFinanceMembershipDto[]> =>
     apiClient.get<ClinicFinanceMembershipDto[]>("/clinics/me/finance/members").then((r) => r.data),
+
+  getStaffMembers: (): Promise<ClinicStaffMemberDto[]> =>
+    apiClient.get<ClinicStaffMemberDto[]>("/clinics/me/staff/members").then((response) => response.data),
+
+  grantStaffMember: (email: string, role: ClinicStaffRole, veterinarianId: string | null): Promise<{ membershipId: string }> =>
+    apiClient.put<{ membershipId: string }>("/clinics/me/staff/members", { email, role, veterinarianId }).then((response) => response.data),
+
+  revokeStaffMember: (memberUserId: string): Promise<void> =>
+    apiClient.delete(`/clinics/me/staff/members/${memberUserId}`).then(() => undefined),
+
+  getStaffWorkspaces: (): Promise<ClinicStaffWorkspaceDto[]> =>
+    apiClient.get<ClinicStaffWorkspaceDto[]>("/clinics/staff-workspaces").then((response) => response.data),
+
+  getStaffAgenda: (clinicId: string, from: string, to: string): Promise<ClinicAgendaItemDto[]> =>
+    apiClient.get<ClinicAgendaItemDto[]>(`/clinics/${clinicId}/staff/appointments`, { params: { from, to } }).then((response) => response.data),
+
+  updateStaffAppointmentStatus: (clinicId: string, appointmentId: string, status: VeterinarianAppointmentStatus): Promise<void> =>
+    apiClient.patch(`/clinics/${clinicId}/staff/appointments/${appointmentId}/status`, { status }).then(() => undefined),
+
+  createStaffConsultation: (clinicId: string, appointmentId: string, payload: ClinicalConsultationCreatePayload): Promise<ClinicalConsultationDto> =>
+    apiClient.post<ClinicalConsultationDto>(`/clinics/${clinicId}/staff/appointments/${appointmentId}/consultation`, payload).then((response) => response.data),
+
+  closeStaffConsultation: (clinicId: string, consultationId: string, signedByName: string): Promise<ClinicalConsultationDto> =>
+    apiClient.post<ClinicalConsultationDto>(`/clinics/${clinicId}/staff/consultations/${consultationId}/close`, { signedByName }).then((response) => response.data),
 
   grantFinanceMember: (email: string, role: ClinicFinanceWorkspaceDto["role"]): Promise<{ membershipId: string }> =>
     apiClient.put<{ membershipId: string }>("/clinics/me/finance/members", { email, role }).then((r) => r.data),

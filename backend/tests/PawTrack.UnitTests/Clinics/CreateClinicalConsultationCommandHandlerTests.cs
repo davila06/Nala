@@ -15,6 +15,43 @@ namespace PawTrack.UnitTests.Clinics;
 public sealed class CreateClinicalConsultationCommandHandlerTests
 {
     [Fact]
+    public async Task Handle_AssignedStaffVeterinarianWithGrant_CreatesConsultation()
+    {
+        var clinic = Clinic.Create(Guid.NewGuid(), "Clinica Test", "VET-123", "San Jose", 9.93m, -84.08m, "clinic@test.cr");
+        clinic.Activate();
+        var userId = Guid.NewGuid();
+        var veterinarian = ClinicVeterinarian.Create(clinic.Id, "Dra. Ana", "VET-999");
+        var pet = Pet.Create(Guid.NewGuid(), "Nala", PetSpecies.Dog, null, null);
+        var appointment = VeterinarianAppointment.Schedule(clinic.Id, veterinarian.Id, pet.Id, DateTimeOffset.UtcNow.AddHours(1), TimeSpan.FromMinutes(30));
+        appointment.Confirm(); appointment.CheckIn(); appointment.StartConsultation();
+        var clinics = Substitute.For<IClinicRepository>();
+        clinics.GetByIdAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(clinic);
+        var appointments = Substitute.For<IVeterinarianAppointmentRepository>();
+        appointments.GetByIdAsync(appointment.Id, Arg.Any<CancellationToken>()).Returns(appointment);
+        var veterinarians = Substitute.For<IClinicVeterinarianRepository>();
+        veterinarians.GetByIdAsync(veterinarian.Id, Arg.Any<CancellationToken>()).Returns(veterinarian);
+        var pets = Substitute.For<IPetRepository>();
+        pets.GetByIdAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(pet);
+        var grants = Substitute.For<IClinicMedicalAccessGrantRepository>();
+        var (grant, code) = ClinicMedicalAccessGrant.Generate(pet.Id, clinic.Id, pet.OwnerId, "Owner");
+        grant.TryAccept(code).Should().BeTrue();
+        grants.GetActiveGrantAsync(clinic.Id, pet.Id, Arg.Any<CancellationToken>()).Returns(grant);
+        var staff = Substitute.For<IClinicStaffAccessRepository>();
+        staff.GetAsync(clinic.Id, userId, Arg.Any<CancellationToken>())
+            .Returns(ClinicStaffMembership.Grant(clinic.Id, userId, ClinicStaffRole.Veterinarian, clinic.UserId, veterinarian.Id));
+        var consultations = Substitute.For<IClinicalConsultationRepository>();
+        var handler = new CreateClinicalConsultationCommandHandler(clinics, appointments, veterinarians, pets,
+            consultations, grants, Substitute.For<IClinicScanRepository>(), Substitute.For<IAuditLogRepository>(),
+            Substitute.For<IUnitOfWork>(), staff);
+
+        var result = await handler.Handle(new CreateClinicalConsultationCommand(clinic.Id, userId, appointment.Id,
+            "Control", "S", "O", "A", "P", null, null, null, null, null, null, null, "Dx", "Tx", "Resumen"), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        await consultations.Received(1).AddAsync(Arg.Any<ClinicalConsultation>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task Handle_AppointmentInConsultation_CreatesConsultationAndAudit()
     {
         var clinicUserId = Guid.NewGuid();
@@ -54,7 +91,8 @@ public sealed class CreateClinicalConsultationCommandHandlerTests
             grants,
             scans,
             audit,
-            unitOfWork);
+            unitOfWork,
+            Substitute.For<IClinicStaffAccessRepository>());
 
         var result = await handler.Handle(new CreateClinicalConsultationCommand(
             clinic.Id,
@@ -119,7 +157,8 @@ public sealed class CreateClinicalConsultationCommandHandlerTests
             grants,
             scans,
             Substitute.For<IAuditLogRepository>(),
-            Substitute.For<IUnitOfWork>());
+            Substitute.For<IUnitOfWork>(),
+            Substitute.For<IClinicStaffAccessRepository>());
 
         var result = await handler.Handle(new CreateClinicalConsultationCommand(
             clinic.Id, clinicUserId, appointment.Id, "Control", "S", "O", "A", "P",

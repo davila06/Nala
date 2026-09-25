@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using PawTrack.Application.Clinics.Commands.CreateClinicalConsultation;
 using PawTrack.Application.Clinics.Interfaces;
+using PawTrack.Application.Certificates.Interfaces;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Audit;
 using PawTrack.Domain.Certificates;
@@ -40,7 +41,10 @@ public sealed class CloseClinicalConsultationCommandHandler(
     IMedicalRepository medicalRepository,
     IClinicInventoryRepository inventoryRepository,
     IAuditLogRepository auditLogRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IClinicRepository clinicRepository,
+    IClinicStaffAccessRepository staffAccess,
+    IClinicVeterinarianRepository veterinarianRepository)
     : IRequestHandler<CloseClinicalConsultationCommand, Result<ClinicalConsultationDto>>
 {
     public async Task<Result<ClinicalConsultationDto>> Handle(CloseClinicalConsultationCommand request, CancellationToken cancellationToken)
@@ -52,6 +56,19 @@ public sealed class CloseClinicalConsultationCommandHandler(
         var appointment = await appointmentRepository.GetByIdAsync(consultation.AppointmentId, cancellationToken);
         if (appointment is null || appointment.ClinicId != request.ClinicId)
             return Result.Failure<ClinicalConsultationDto>("Cita no encontrada.");
+
+        var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
+        if (clinic is null || clinic.Id != request.ClinicId)
+            return Result.Failure<ClinicalConsultationDto>("Acceso denegado.");
+        if (clinic.UserId != request.ClinicUserId)
+        {
+            var member = await staffAccess.GetAsync(request.ClinicId, request.ClinicUserId, cancellationToken);
+            var veterinarian = await veterinarianRepository.GetByIdAsync(appointment.VeterinarianId, cancellationToken);
+            if (member?.Role != ClinicStaffRole.Veterinarian || !member.Allows(ClinicStaffPermission.WriteMedical)
+                || member.VeterinarianId != appointment.VeterinarianId || veterinarian?.ClinicId != request.ClinicId
+                || !veterinarian.IsActive || !string.Equals(veterinarian.FullName, request.SignedByName.Trim(), StringComparison.OrdinalIgnoreCase))
+                return Result.Failure<ClinicalConsultationDto>("Solo el veterinario asignado y autorizado puede firmar.");
+        }
 
         try
         {
