@@ -86,6 +86,10 @@ public sealed class PawTrackDbContext(
     public DbSet<ClinicInventoryItem> ClinicInventoryItems => Set<ClinicInventoryItem>();
     public DbSet<ClinicInventoryLot> ClinicInventoryLots => Set<ClinicInventoryLot>();
     public DbSet<ClinicInventoryMovement> ClinicInventoryMovements => Set<ClinicInventoryMovement>();
+    public DbSet<ClinicSale> ClinicSales => Set<ClinicSale>();
+    public DbSet<ClinicSaleLine> ClinicSaleLines => Set<ClinicSaleLine>();
+    public DbSet<ClinicSalePayment> ClinicSalePayments => Set<ClinicSalePayment>();
+    public DbSet<ClinicCashClose> ClinicCashCloses => Set<ClinicCashClose>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();

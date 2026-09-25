@@ -22,6 +22,7 @@ import {
   useDeleteClinicScheduleBlock,
   useDownloadClinicAgendaAuditCsv,
   useDownloadClinicalConsultationPrescription,
+  useAdjustClinicInventoryLot,
   useClinicInventory,
   useClinicInventoryValuation,
   useReceiveClinicInventoryLot,
@@ -154,6 +155,7 @@ export function ClinicOperationsPanel() {
   const uploadAttachment = useUploadClinicalConsultationAttachment();
   const downloadPrescription = useDownloadClinicalConsultationPrescription();
   const addInventoryItem = useAddClinicInventoryItem();
+  const adjustInventoryLot = useAdjustClinicInventoryLot();
   const receiveInventoryLot = useReceiveClinicInventoryLot();
   const updateStatus = useUpdateClinicAppointmentStatus(range.from, range.to);
   const reschedule = useRescheduleClinicAppointment(range.from, range.to);
@@ -464,6 +466,7 @@ export function ClinicOperationsPanel() {
         inventory={inventory}
         valuation={inventoryValuation}
         isSavingItem={addInventoryItem.isPending}
+        isAdjustingLot={adjustInventoryLot.isPending}
         isReceivingLot={receiveInventoryLot.isPending}
         onAddItem={(payload) =>
           addInventoryItem.mutate(payload, {
@@ -480,6 +483,15 @@ export function ClinicOperationsPanel() {
             },
           )
         }
+        onAdjustLot={(lotId, quantityDelta, reason) =>
+          adjustInventoryLot.mutate(
+            { lotId, quantityDelta, reason },
+            {
+              onSuccess: () => toast.success("Ajuste registrado."),
+              onError: () => toast.error("No se pudo registrar el ajuste."),
+            },
+          )
+        }
       />
     </section>
   );
@@ -489,9 +501,11 @@ function ClinicInventorySection({
   inventory,
   valuation,
   isSavingItem,
+  isAdjustingLot,
   isReceivingLot,
   onAddItem,
   onReceiveLot,
+  onAdjustLot,
 }: {
   inventory: ClinicInventoryItemDto[];
   valuation?: {
@@ -500,6 +514,7 @@ function ClinicInventorySection({
     byLocation: Array<{ locationName: string; availableQuantity: number; valueCrc: number }>;
   };
   isSavingItem: boolean;
+  isAdjustingLot: boolean;
   isReceivingLot: boolean;
   onAddItem: (payload: { name: string; type: ClinicInventoryItemType; unit: string; minimumStock: number }) => void;
   onReceiveLot: (
@@ -512,6 +527,7 @@ function ClinicInventorySection({
       supplierName: string | null;
     },
   ) => void;
+  onAdjustLot: (lotId: string, quantityDelta: number, reason: string) => void;
 }) {
   const [name, setName] = useState("");
   const [type, setType] = useState<ClinicInventoryItemType>("Vaccine");
@@ -523,6 +539,10 @@ function ClinicInventorySection({
   const [quantity, setQuantity] = useState(1);
   const [unitCostCrc, setUnitCostCrc] = useState(0);
   const [supplierName, setSupplierName] = useState("");
+  const [adjustLotId, setAdjustLotId] = useState("");
+  const [adjustDelta, setAdjustDelta] = useState(0);
+  const [adjustReason, setAdjustReason] = useState("Ajuste manual");
+  const lots = inventory.flatMap((item) => (item.lots ?? []).map((lot) => ({ ...lot, itemName: item.name })));
 
   return (
     <section className="space-y-3 rounded-2xl border border-rescue-200 bg-rescue-50 p-4">
@@ -658,6 +678,40 @@ function ClinicInventorySection({
       >
         {isReceivingLot ? "Recibiendo..." : "Recibir lote"}
       </Button>
+      <div className="grid gap-2 sm:grid-cols-[1fr_100px_1fr_auto]">
+        <select
+          value={adjustLotId}
+          onChange={(event) => setAdjustLotId(event.target.value)}
+          className="field-input"
+          aria-label="Lote para ajuste"
+        >
+          <option value="">Lote para ajuste</option>
+          {lots.map((lot) => (
+            <option key={lot.id} value={lot.id}>
+              {lot.itemName} · {lot.lotNumber} ({lot.availableQuantity})
+            </option>
+          ))}
+        </select>
+        <input
+          type="number"
+          value={adjustDelta}
+          onChange={(event) => setAdjustDelta(Number(event.target.value))}
+          className="field-input"
+          aria-label="Cantidad ajuste"
+        />
+        <Input
+          value={adjustReason}
+          onChange={(event) => setAdjustReason(event.target.value)}
+          placeholder="Motivo ajuste"
+          aria-label="Motivo ajuste"
+        />
+        <Button
+          disabled={!adjustLotId || adjustDelta === 0 || !adjustReason.trim() || isAdjustingLot}
+          onClick={() => onAdjustLot(adjustLotId, adjustDelta, adjustReason)}
+        >
+          {isAdjustingLot ? "Ajustando..." : "Ajustar"}
+        </Button>
+      </div>
     </section>
   );
 }

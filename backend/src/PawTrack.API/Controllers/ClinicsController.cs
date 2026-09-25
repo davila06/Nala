@@ -35,6 +35,7 @@ using PawTrack.Application.Clinics.Commands.CloseClinicalConsultation;
 using PawTrack.Application.Clinics.Commands.CreateClinicalConsultation;
 using PawTrack.Application.Clinics.Commands.UploadClinicalConsultationAttachment;
 using PawTrack.Application.Clinics.Commands.ManageClinicInventory;
+using PawTrack.Application.Clinics.Commands.ManageClinicBilling;
 using PawTrack.Application.Clinics.Queries.DownloadClinicalConsultationPrescription;
 using PawTrack.Application.Clinics.Queries.GetClinicalConsultationTemplates;
 using PawTrack.Application.Clinics.Commands.ExportClinicMedical;
@@ -1305,6 +1306,68 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
     }
 
+    [HttpPost("me/sales")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> CreateClinicSale([FromBody] CreateClinicSaleRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        var result = await sender.Send(new CreateClinicSaleCommand(clinicResult.Value.Id, userId, request.AppointmentId, request.ConsultationId, request.PetId, request.ReceiptNumber, request.Lines, request.DiscountCrc, request.DiscountReason), ct);
+        return result.IsSuccess ? Created(string.Empty, result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("me/sales/{saleId:guid}/payments")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> RegisterClinicSalePayment(Guid saleId, [FromBody] RegisterClinicSalePaymentRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        if (!Enum.TryParse<ClinicPaymentMethod>(request.Method, ignoreCase: true, out var method))
+            return BadRequest(new ProblemDetails { Detail = "Método de pago inválido.", Status = 400 });
+        var result = await sender.Send(new RegisterClinicSalePaymentCommand(clinicResult.Value.Id, userId, saleId, request.AmountCrc, method, request.Reference), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("me/sales/{saleId:guid}/void")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> VoidClinicSale(Guid saleId, [FromBody] ReasonRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        var result = await sender.Send(new VoidClinicSaleCommand(clinicResult.Value.Id, userId, saleId, request.Reason), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("me/cash-closes")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> CloseClinicCash([FromBody] CloseClinicCashRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        var result = await sender.Send(new CloseClinicCashCommand(clinicResult.Value.Id, userId, request.BusinessDate), ct);
+        return result.IsSuccess ? Created(string.Empty, new { cashCloseId = result.Value }) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("me/sales-report")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetClinicSalesReport([FromQuery] DateOnly businessDate, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        var result = await sender.Send(new GetClinicSalesReportQuery(clinicResult.Value.Id, userId, businessDate), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
     [HttpPut("me/veterinarians/{veterinarianId:guid}/permissions")]
     [Authorize(Roles = "Clinic")]
     [EnableRateLimiting("public-api")]
@@ -1591,6 +1654,9 @@ public sealed record CloseClinicalConsultationRequest(string SignedByName, IRead
 public sealed record AddClinicInventoryItemRequest(string Name, string Type, string Unit, int MinimumStock);
 public sealed record ReceiveClinicInventoryLotRequest(string LotNumber, DateOnly? ExpiresAt, int Quantity, decimal UnitCostCrc, string? SupplierName, string? LocationName = null);
 public sealed record AdjustClinicInventoryLotRequest(int QuantityDelta, string Reason);
+public sealed record CreateClinicSaleRequest(Guid? AppointmentId, Guid? ConsultationId, Guid? PetId, string ReceiptNumber, IReadOnlyList<ClinicSaleLineInput> Lines, decimal DiscountCrc = 0, string? DiscountReason = null);
+public sealed record RegisterClinicSalePaymentRequest(decimal AmountCrc, string Method, string? Reference);
+public sealed record CloseClinicCashRequest(DateOnly BusinessDate);
 public sealed record SetVeterinarianPermissionsRequest(IReadOnlyList<string> Permissions);
 
 public sealed record ClinicScanRequest(

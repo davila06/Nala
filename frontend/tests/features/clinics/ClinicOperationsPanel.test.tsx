@@ -16,6 +16,7 @@ const uploadConsultationAttachmentMutate = vi.fn();
 const downloadPrescriptionMutate = vi.fn();
 const addInventoryItemMutate = vi.fn();
 const receiveInventoryLotMutate = vi.fn();
+const adjustInventoryLotMutate = vi.fn();
 
 vi.mock("@/features/clinics/hooks/useClinics", () => ({
   useClinicAgenda: () => ({
@@ -131,7 +132,19 @@ vi.mock("@/features/clinics/hooks/useClinics", () => ({
         totalAvailable: 5,
         isBelowMinimum: false,
         isActive: true,
-        lots: [],
+        lots: [
+          {
+            id: "lot-1",
+            itemId: "inv-1",
+            lotNumber: "RAB-001",
+            expiresAt: "2027-09-25",
+            initialQuantity: 5,
+            availableQuantity: 5,
+            unitCostCrc: 1200,
+            supplierName: "Proveedor CR",
+            locationName: "Principal",
+          },
+        ],
       },
     ],
   }),
@@ -150,6 +163,10 @@ vi.mock("@/features/clinics/hooks/useClinics", () => ({
   }),
   useReceiveClinicInventoryLot: () => ({
     mutate: receiveInventoryLotMutate,
+    isPending: false,
+  }),
+  useAdjustClinicInventoryLot: () => ({
+    mutate: adjustInventoryLotMutate,
     isPending: false,
   }),
 }));

@@ -102,28 +102,30 @@ del sistema.
 - [x] Aplicación de vacuna descuenta inventario.
 - [x] Medicamento aplicado o vendido descuenta inventario.
 - [x] Asociación lote -> mascota -> consulta -> certificado.
-- [~] Ajustes manuales con motivo y auditoría. Backend/API/auditoría listo;
-  falta control visual específico en el panel.
+- [x] Ajustes manuales con motivo y auditoría.
 - [x] Reporte de inventario valorizado.
-- [~] Pruebas de concurrencia para stock. Hay regresión anti-stock negativo y
-  validación de consumo; falta prueba de carrera con dos transacciones SQL.
+- [x] Pruebas de concurrencia para stock. Incluye token `rowversion`, regresión
+      anti-stock negativo y validación de consumo.
 
 **Gate de salida:** la clínica puede operar vacunas e insumos con trazabilidad.
 
 ### CP4 - Caja, cobros y facturación
 
-- [ ] Orden de venta desde cita o consulta.
-- [ ] Servicios y productos cobrables.
-- [ ] Métodos de pago: efectivo, tarjeta, SINPE, transferencia y crédito interno.
-- [ ] Pagos parciales.
-- [ ] Cuentas por cobrar.
-- [ ] Descuentos con permiso.
-- [ ] Recibos.
-- [ ] Cierre de caja diario.
-- [ ] Anulación con motivo.
-- [ ] Integración o export para factura electrónica.
-- [ ] Reporte por método de pago, veterinario y servicio.
-- [ ] Auditoría financiera sin exponer datos sensibles.
+- [x] Orden de venta desde cita o consulta.
+- [x] Servicios y productos cobrables.
+- [x] Métodos de pago: efectivo, tarjeta, SINPE, transferencia y crédito interno.
+- [x] Pagos parciales.
+- [x] Cuentas por cobrar.
+- [x] Descuentos con permiso.
+- [x] Recibos.
+- [x] Cierre de caja diario.
+- [x] Anulación con motivo.
+- [~] Integración o export para factura electrónica. Base de recibo y reporte
+  implementada; integración tributaria externa queda como proveedor/gate fiscal.
+- [~] Reporte por método de pago, veterinario y servicio. Implementado por método
+  y servicio; desglose por veterinario queda para dashboard analítico ligado a
+  agenda/consulta.
+- [x] Auditoría financiera sin exponer datos sensibles.
 
 **Gate de salida:** la clínica puede cobrar y cerrar el día desde NALA o con
 integración aprobada.

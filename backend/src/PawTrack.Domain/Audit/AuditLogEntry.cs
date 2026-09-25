@@ -22,6 +22,10 @@ public enum AuditAction
     ClinicalConsultationClosed,
     ClinicalConsultationAttachmentUploaded,
     ClinicInventoryAdjusted,
+    ClinicSaleCreated,
+    ClinicSalePaymentRecorded,
+    ClinicSaleVoided,
+    ClinicCashClosed,
 
     // Subscriptions
     SubscriptionActivated,

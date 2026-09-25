@@ -179,6 +179,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IClinicProfileChangeRepository, ClinicProfileChangeRepository>();
         services.AddScoped<IClinicalConsultationRepository, ClinicalConsultationRepository>();
         services.AddScoped<IClinicInventoryRepository, ClinicInventoryRepository>();
+        services.AddScoped<IClinicBillingRepository, ClinicBillingRepository>();
         services.AddScoped<IVeterinarianAppointmentRepository, VeterinarianAppointmentRepository>();
         services.AddScoped<IVeterinarianScheduleBlockRepository, VeterinarianScheduleBlockRepository>();
         services.AddScoped<IClinicMedicalExportRepository, ClinicMedicalExportRepository>();
