@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
 using PawTrack.Application.CastrationCampaigns.Interfaces;
+using PawTrack.Application.Clinics.Interfaces;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.AnimalWelfare.Interfaces;
 using PawTrack.Application.Regulatory.Interfaces;
@@ -176,7 +177,10 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddHostedService<ClinicProfileViewPurgeHostedService>();
         services.AddScoped<IClinicApiKeyRepository, ClinicApiKeyRepository>();
         services.AddScoped<IClinicProfileChangeRepository, ClinicProfileChangeRepository>();
+        services.AddScoped<IClinicalConsultationRepository, ClinicalConsultationRepository>();
+        services.AddScoped<IClinicInventoryRepository, ClinicInventoryRepository>();
         services.AddScoped<IVeterinarianAppointmentRepository, VeterinarianAppointmentRepository>();
+        services.AddScoped<IVeterinarianScheduleBlockRepository, VeterinarianScheduleBlockRepository>();
         services.AddScoped<IClinicMedicalExportRepository, ClinicMedicalExportRepository>();
         services.AddScoped<IWebhookRepository, WebhookRepository>();
         services.AddScoped<IWebhookFanout, WebhookFanout>();

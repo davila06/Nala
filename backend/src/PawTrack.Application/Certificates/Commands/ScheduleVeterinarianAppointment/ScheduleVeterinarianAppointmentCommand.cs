@@ -2,8 +2,10 @@ using FluentValidation;
 using MediatR;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Certificates.Interfaces;
+using PawTrack.Domain.Audit;
 using PawTrack.Domain.Certificates;
 using PawTrack.Domain.Common;
+using PawTrack.Domain.Medical;
 
 namespace PawTrack.Application.Certificates.Commands.ScheduleVeterinarianAppointment;
 
@@ -27,6 +29,10 @@ public sealed class ScheduleVeterinarianAppointmentCommandHandler(
     IClinicRepository clinicRepository,
     IClinicVeterinarianRepository veterinarianRepository,
     IVeterinarianAppointmentRepository appointmentRepository,
+    IVeterinarianScheduleBlockRepository blockRepository,
+    IPetRepository petRepository,
+    IMedicalRepository medicalRepository,
+    IAuditLogRepository auditLogRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<ScheduleVeterinarianAppointmentCommand, Result<Guid>>
 {
@@ -38,13 +44,36 @@ public sealed class ScheduleVeterinarianAppointmentCommandHandler(
         var veterinarian = await veterinarianRepository.GetByIdAsync(request.VeterinarianId, ct);
         if (veterinarian is null || veterinarian.ClinicId != request.ClinicId || !veterinarian.IsActive)
             return Result.Failure<Guid>("El veterinario no está autorizado.");
+
+        var pet = await petRepository.GetByIdAsync(request.PetId, ct);
+        if (pet is null)
+            return Result.Failure<Guid>("Mascota no encontrada.");
+
         var endsAt = request.StartsAt.AddMinutes(request.DurationMinutes);
+        if (await blockRepository.HasOverlapAsync(request.VeterinarianId, request.StartsAt, endsAt, ct))
+            return Result.Failure<Guid>("El veterinario tiene la agenda bloqueada en ese horario.");
         if (await appointmentRepository.HasOverlapAsync(request.VeterinarianId, request.StartsAt, endsAt, ct))
             return Result.Failure<Guid>("El veterinario ya tiene una cita en ese horario.");
         var appointment = VeterinarianAppointment.Schedule(
             request.ClinicId, request.VeterinarianId, request.PetId,
             request.StartsAt, TimeSpan.FromMinutes(request.DurationMinutes), request.RequestingUserId);
         await appointmentRepository.AddAsync(appointment, ct);
+        var reminder = VetReminder.Create(
+            request.PetId,
+            pet.OwnerId,
+            MedicalRecordType.Checkup,
+            DateOnly.FromDateTime(request.StartsAt.UtcDateTime),
+            $"Cita veterinaria — {pet.Name}",
+            $"Consulta programada para {request.StartsAt:dd/MM/yyyy HH:mm}.");
+        await medicalRepository.AddReminderAsync(reminder, ct);
+        await auditLogRepository.AddAsync(
+            AuditLogEntry.Create(
+                request.RequestingUserId,
+                AuditAction.ClinicAppointmentScheduled,
+                "VeterinarianAppointment",
+                appointment.Id.ToString(),
+                $"{request.StartsAt:O}|{request.DurationMinutes}"),
+            ct);
         await unitOfWork.SaveChangesAsync(ct);
         return Result.Success(appointment.Id);
     }

@@ -82,6 +82,10 @@ public sealed class PawTrackDbContext(
     public DbSet<ClinicProfileView> ClinicProfileViews => Set<ClinicProfileView>();
     public DbSet<ClinicApiKey> ClinicApiKeys => Set<ClinicApiKey>();
     public DbSet<ClinicWidgetDomain> ClinicWidgetDomains => Set<ClinicWidgetDomain>();
+    public DbSet<ClinicalConsultation> ClinicalConsultations => Set<ClinicalConsultation>();
+    public DbSet<ClinicInventoryItem> ClinicInventoryItems => Set<ClinicInventoryItem>();
+    public DbSet<ClinicInventoryLot> ClinicInventoryLots => Set<ClinicInventoryLot>();
+    public DbSet<ClinicInventoryMovement> ClinicInventoryMovements => Set<ClinicInventoryMovement>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
@@ -109,6 +113,7 @@ public sealed class PawTrackDbContext(
     public DbSet<VaccinePassport> VaccinePassports => Set<VaccinePassport>();
     public DbSet<ClinicVeterinarian> ClinicVeterinarians => Set<ClinicVeterinarian>();
     public DbSet<VeterinarianAppointment> VeterinarianAppointments => Set<VeterinarianAppointment>();
+    public DbSet<VeterinarianScheduleBlock> VeterinarianScheduleBlocks => Set<VeterinarianScheduleBlock>();
     public DbSet<ClinicVerification> ClinicVerifications => Set<ClinicVerification>();
     public DbSet<CertificateAuditLog> CertificateAuditLogs => Set<CertificateAuditLog>();
     public DbSet<VerificationAuditLog> VerificationAuditLogs => Set<VerificationAuditLog>();

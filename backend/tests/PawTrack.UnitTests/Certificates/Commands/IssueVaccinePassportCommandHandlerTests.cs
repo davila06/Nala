@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using PawTrack.Application.Certificates.Commands;
 using PawTrack.Application.Certificates.Interfaces;
+using PawTrack.Application.Clinics.Interfaces;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Domain.Certificates;
@@ -24,6 +25,7 @@ public sealed class IssueVaccinePassportCommandHandlerTests
     private readonly ICertificateAuditLogRepository _auditLogs = Substitute.For<ICertificateAuditLogRepository>();
     private readonly IUserRepository _users = Substitute.For<IUserRepository>();
     private readonly ISubscriptionRepository _subscriptions = Substitute.For<ISubscriptionRepository>();
+    private readonly IClinicInventoryRepository _inventory = Substitute.For<IClinicInventoryRepository>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
 
     private IssueVaccinePassportCommandHandler BuildHandler() => new(
@@ -38,6 +40,7 @@ public sealed class IssueVaccinePassportCommandHandlerTests
         _auditLogs,
         _users,
         _subscriptions,
+        _inventory,
         _unitOfWork);
 
     private static ClinicVerification MakeVerifiedClinic(Clinic clinic)

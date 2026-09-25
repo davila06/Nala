@@ -22,17 +22,18 @@ actualizada y evidencia fechada.
 
 ## Prioridad inmediata
 
-| ID        | Área                        | Estado | Criterio de cierre                                                                |
-| --------- | --------------------------- | ------ | --------------------------------------------------------------------------------- |
-| ENT-CI    | Gates de CI y release       | `[~]`  | Workflow único verde con artefactos, lockfiles, pruebas, SBOM y política de merge |
-| ENT-API   | Contratos y autorización    | `[~]`  | OpenAPI versionado, matriz completa y suites BOLA/IDOR verdes                     |
-| ENT-FND   | Finder sin login            | `[x]`  | Reporte seguro en menos de 30 segundos, antifraude, PII y offline verificados     |
-| ENT-E2E   | Ciclo pérdida-reunificación | `[~]`  | E2E limpio con notificaciones, eventos de producto y proveedores controlados      |
-| ENT-CLAIM | Claims y legal              | `[~]`  | Cada claim tiene evidencia, responsable, expiración y aprobación                  |
-| COMP-AI   | IA-first operativa          | `[ ]`  | Copiloto/agentes con herramientas, aprobación, evaluación y Responsible AI        |
-| COMP-NET  | Liderazgo territorial       | `[ ]`  | 2-3 cantones con densidad, outcomes y partners verificables                       |
-| MKT-AZURE | Azure Marketplace           | `[ ]`  | SaaS offer, fulfillment, tenant mapping, seguridad y private preview              |
-| ENT-PROV  | Proveedores externos        | `[E]`  | Contratos, secretos, smoke tests de staging y rotación aprobados                  |
+| ID         | Área                        | Estado | Criterio de cierre                                                                |
+| ---------- | --------------------------- | ------ | --------------------------------------------------------------------------------- |
+| ENT-CI     | Gates de CI y release       | `[~]`  | Workflow único verde con artefactos, lockfiles, pruebas, SBOM y política de merge |
+| ENT-API    | Contratos y autorización    | `[~]`  | OpenAPI versionado, matriz completa y suites BOLA/IDOR verdes                     |
+| ENT-FND    | Finder sin login            | `[x]`  | Reporte seguro en menos de 30 segundos, antifraude, PII y offline verificados     |
+| ENT-E2E    | Ciclo pérdida-reunificación | `[~]`  | E2E limpio con notificaciones, eventos de producto y proveedores controlados      |
+| ENT-CLINIC | Uso diario en clínicas      | `[~]`  | Agenda, consulta, inventario, caja, comunicación y analítica enterprise           |
+| ENT-CLAIM  | Claims y legal              | `[~]`  | Cada claim tiene evidencia, responsable, expiración y aprobación                  |
+| COMP-AI    | IA-first operativa          | `[ ]`  | Copiloto/agentes con herramientas, aprobación, evaluación y Responsible AI        |
+| COMP-NET   | Liderazgo territorial       | `[ ]`  | 2-3 cantones con densidad, outcomes y partners verificables                       |
+| MKT-AZURE  | Azure Marketplace           | `[ ]`  | SaaS offer, fulfillment, tenant mapping, seguridad y private preview              |
+| ENT-PROV   | Proveedores externos        | `[E]`  | Contratos, secretos, smoke tests de staging y rotación aprobados                  |
 
 ## 1. Calidad, CI y release
 

@@ -12,6 +12,16 @@ public enum AuditAction
     ClinicProfileUpdated,
     ClinicWidgetDomainAuthorized,
     ClinicWidgetDomainRevoked,
+    ClinicAppointmentScheduled,
+    ClinicAppointmentStatusChanged,
+    ClinicAppointmentRescheduled,
+    ClinicScheduleBlockCreated,
+    ClinicScheduleBlockUpdated,
+    ClinicScheduleBlockDeleted,
+    ClinicalConsultationCreated,
+    ClinicalConsultationClosed,
+    ClinicalConsultationAttachmentUploaded,
+    ClinicInventoryAdjusted,
 
     // Subscriptions
     SubscriptionActivated,

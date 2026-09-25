@@ -22,12 +22,27 @@ using PawTrack.Application.Clinics.Queries.SearchClinicsForAccess;
 using PawTrack.Application.Certificates.Commands.ManageCertificateIssuers;
 using PawTrack.Application.Certificates.Queries.GetClinicCertificateIssuers;
 using PawTrack.Application.Certificates.Commands.ScheduleVeterinarianAppointment;
+using PawTrack.Application.Certificates.Commands.RescheduleVeterinarianAppointment;
 using PawTrack.Application.Certificates.Commands.SetVeterinarianPermissions;
+using PawTrack.Application.Certificates.Commands.UpdateVeterinarianAppointmentStatus;
+using PawTrack.Application.Certificates.Commands.CreateVeterinarianScheduleBlock;
+using PawTrack.Application.Certificates.Commands.DeleteVeterinarianScheduleBlock;
+using PawTrack.Application.Certificates.Commands.UpdateVeterinarianScheduleBlock;
+using PawTrack.Application.Certificates.Queries.GetClinicAgenda;
+using PawTrack.Application.Certificates.Queries.GetClinicScheduleBlocks;
+using PawTrack.Application.Audit;
+using PawTrack.Application.Clinics.Commands.CloseClinicalConsultation;
+using PawTrack.Application.Clinics.Commands.CreateClinicalConsultation;
+using PawTrack.Application.Clinics.Commands.UploadClinicalConsultationAttachment;
+using PawTrack.Application.Clinics.Commands.ManageClinicInventory;
+using PawTrack.Application.Clinics.Queries.DownloadClinicalConsultationPrescription;
+using PawTrack.Application.Clinics.Queries.GetClinicalConsultationTemplates;
 using PawTrack.Application.Clinics.Commands.ExportClinicMedical;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Medical.ClinicAccess;
 using PawTrack.Application.Pets.SanitaryIdentity;
 using PawTrack.Domain.Auth;
+using PawTrack.Domain.Audit;
 using PawTrack.Domain.Clinics;
 using PawTrack.Domain.Medical;
 using System.Security.Claims;
@@ -501,6 +516,12 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         return Enum.TryParse(claim, true, out role);
     }
 
+    private static string EscapeCsv(string? value)
+    {
+        if (string.IsNullOrEmpty(value)) return string.Empty;
+        return $"\"{value.Replace("\"", "\"\"")}\"";
+    }
+
     // ── Admin endpoints ───────────────────────────────────────────────────────
 
     [HttpGet("admin/pending")]
@@ -914,6 +935,376 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         return result.IsSuccess ? Created(string.Empty, new { appointmentId = result.Value }) : UnprocessableEntity(result.Errors);
     }
 
+    [HttpPost("me/veterinarians/{veterinarianId:guid}/blocks")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> CreateVeterinarianScheduleBlock(
+        Guid veterinarianId,
+        [FromBody] CreateVeterinarianScheduleBlockRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(new CreateVeterinarianScheduleBlockCommand(
+            clinicResult.Value.Id,
+            userId,
+            veterinarianId,
+            request.StartsAt,
+            request.EndsAt,
+            request.Reason), ct);
+
+        return result.IsSuccess ? Created(string.Empty, new { blockId = result.Value }) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("me/schedule-blocks")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetVeterinarianScheduleBlocks(
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(new GetClinicScheduleBlocksQuery(
+            clinicResult.Value.Id,
+            userId,
+            from,
+            to), ct);
+
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPatch("me/schedule-blocks/{blockId:guid}")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> UpdateVeterinarianScheduleBlock(
+        Guid blockId,
+        [FromBody] UpdateVeterinarianScheduleBlockRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(new UpdateVeterinarianScheduleBlockCommand(
+            clinicResult.Value.Id,
+            userId,
+            blockId,
+            request.StartsAt,
+            request.EndsAt,
+            request.Reason), ct);
+
+        return result.IsSuccess ? NoContent() : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpDelete("me/schedule-blocks/{blockId:guid}")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> DeleteVeterinarianScheduleBlock(
+        Guid blockId,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(new DeleteVeterinarianScheduleBlockCommand(
+            clinicResult.Value.Id,
+            userId,
+            blockId), ct);
+
+        return result.IsSuccess ? NoContent() : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("me/agenda-audit")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetClinicAgendaAudit(
+        [FromQuery] DateTimeOffset? from,
+        [FromQuery] DateTimeOffset? to,
+        [FromQuery] string? format,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(new GetAuditLogQuery(
+            EntityType: null,
+            EntityId: null,
+            Take: 200,
+            ActorId: userId,
+            From: from,
+            To: to), ct);
+        if (result.IsFailure) return UnprocessableEntity(result.Errors);
+
+        var actions = new HashSet<string>(StringComparer.Ordinal)
+        {
+            AuditAction.ClinicAppointmentScheduled.ToString(),
+            AuditAction.ClinicAppointmentStatusChanged.ToString(),
+            AuditAction.ClinicAppointmentRescheduled.ToString(),
+            AuditAction.ClinicScheduleBlockCreated.ToString(),
+            AuditAction.ClinicScheduleBlockUpdated.ToString(),
+            AuditAction.ClinicScheduleBlockDeleted.ToString(),
+        };
+        var entries = result.Value.Where(entry => actions.Contains(entry.Action)).ToList();
+
+        if (string.Equals(format, "csv", StringComparison.OrdinalIgnoreCase))
+        {
+            var csv = "performedAt,action,entityType,entityId,details\n" + string.Join("\n", entries.Select(entry =>
+                $"{entry.PerformedAt:O},{entry.Action},{entry.EntityType},{entry.EntityId},{EscapeCsv(entry.Details)}"));
+            return File(System.Text.Encoding.UTF8.GetBytes(csv), "text/csv", "clinic-agenda-audit.csv");
+        }
+
+        return Ok(entries);
+    }
+
+    [HttpGet("me/appointments")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetVeterinarianAgenda(
+        [FromQuery] DateTimeOffset from,
+        [FromQuery] DateTimeOffset to,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(new GetClinicAgendaQuery(
+            clinicResult.Value.Id,
+            userId,
+            from,
+            to), ct);
+
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPatch("me/appointments/{appointmentId:guid}/status")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> UpdateVeterinarianAppointmentStatus(
+        Guid appointmentId,
+        [FromBody] UpdateVeterinarianAppointmentStatusRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        if (!Enum.TryParse<PawTrack.Domain.Certificates.VeterinarianAppointmentStatus>(request.Status, ignoreCase: true, out var status))
+            return BadRequest(new ProblemDetails { Detail = "Estado de cita inválido.", Status = 400 });
+
+        var result = await sender.Send(new UpdateVeterinarianAppointmentStatusCommand(
+            clinicResult.Value.Id, userId, appointmentId, status), ct);
+
+        return result.IsSuccess ? NoContent() : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPatch("me/appointments/{appointmentId:guid}/time")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> RescheduleVeterinarianAppointment(
+        Guid appointmentId,
+        [FromBody] RescheduleVeterinarianAppointmentRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(new RescheduleVeterinarianAppointmentCommand(
+            clinicResult.Value.Id,
+            userId,
+            appointmentId,
+            request.StartsAt,
+            request.DurationMinutes), ct);
+
+        return result.IsSuccess ? NoContent() : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("me/appointments/{appointmentId:guid}/consultation")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> CreateClinicalConsultation(
+        Guid appointmentId,
+        [FromBody] CreateClinicalConsultationRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(new CreateClinicalConsultationCommand(
+            clinicResult.Value.Id,
+            userId,
+            appointmentId,
+            request.Reason,
+            request.Subjective,
+            request.Objective,
+            request.Assessment,
+            request.Plan,
+            request.WeightKg,
+            request.TemperatureC,
+            request.HeartRateBpm,
+            request.RespiratoryRateRpm,
+            request.BodyConditionScore,
+            request.PainScore,
+            request.HydrationStatus,
+            request.Diagnosis,
+            request.Treatment,
+            request.OwnerSummary,
+            request.PrescriptionInstructions), ct);
+
+        return result.IsSuccess ? Created(string.Empty, result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("me/consultation-templates")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetClinicalConsultationTemplates(CancellationToken ct)
+    {
+        if (!TryGetUserId(out _)) return Unauthorized();
+        var result = await sender.Send(new GetClinicalConsultationTemplatesQuery(), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("me/consultations/{consultationId:guid}/prescription")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> DownloadClinicalConsultationPrescription(Guid consultationId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(new DownloadClinicalConsultationPrescriptionQuery(
+            clinicResult.Value.Id,
+            userId,
+            consultationId), ct);
+        return result.IsSuccess
+            ? File(result.Value!, "text/plain", $"consulta-{consultationId}-indicaciones.txt")
+            : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("me/consultations/{consultationId:guid}/attachment")]
+    [Authorize(Roles = "Clinic")]
+    [Consumes("multipart/form-data")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(5_242_880)]
+    public async Task<IActionResult> UploadClinicalConsultationAttachment(
+        Guid consultationId,
+        IFormFile file,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        if (file.Length <= 0) return BadRequest(new ProblemDetails { Detail = "Archivo requerido.", Status = 400 });
+        var allowed = new[] { "application/pdf", "image/jpeg", "image/png" };
+        if (!allowed.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
+            return BadRequest(new ProblemDetails { Detail = "Solo se aceptan PDF, JPEG o PNG.", Status = 400 });
+
+        using var ms = new MemoryStream();
+        await file.CopyToAsync(ms, ct);
+        var result = await sender.Send(new UploadClinicalConsultationAttachmentCommand(
+            clinicResult.Value.Id,
+            userId,
+            consultationId,
+            ms.ToArray(),
+            file.ContentType), ct);
+
+        return result.IsSuccess ? Ok(new { attachmentUrl = result.Value }) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("me/consultations/{consultationId:guid}/close")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> CloseClinicalConsultation(
+        Guid consultationId,
+        [FromBody] CloseClinicalConsultationRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+
+        var result = await sender.Send(new CloseClinicalConsultationCommand(
+            clinicResult.Value.Id,
+            userId,
+            consultationId,
+            request.SignedByName,
+            request.InventoryUses), ct);
+
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("me/inventory")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetClinicInventory(CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        var result = await sender.Send(new GetClinicInventoryQuery(clinicResult.Value.Id, userId), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("me/inventory/valuation")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetClinicInventoryValuation(CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        var result = await sender.Send(new GetClinicInventoryValuationQuery(clinicResult.Value.Id, userId), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("me/inventory/items")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> AddClinicInventoryItem([FromBody] AddClinicInventoryItemRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        if (!Enum.TryParse<ClinicInventoryItemType>(request.Type, ignoreCase: true, out var type))
+            return BadRequest(new ProblemDetails { Detail = "Tipo de inventario inválido.", Status = 400 });
+        var result = await sender.Send(new AddClinicInventoryItemCommand(clinicResult.Value.Id, userId, request.Name, type, request.Unit, request.MinimumStock), ct);
+        return result.IsSuccess ? Created(string.Empty, result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("me/inventory/items/{itemId:guid}/lots")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> ReceiveClinicInventoryLot(Guid itemId, [FromBody] ReceiveClinicInventoryLotRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        var result = await sender.Send(new ReceiveClinicInventoryLotCommand(clinicResult.Value.Id, userId, itemId, request.LotNumber, request.ExpiresAt, request.Quantity, request.UnitCostCrc, request.SupplierName, request.LocationName), ct);
+        return result.IsSuccess ? Created(string.Empty, result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpPost("me/inventory/lots/{lotId:guid}/adjustments")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> AdjustClinicInventoryLot(Guid lotId, [FromBody] AdjustClinicInventoryLotRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        var result = await sender.Send(new AdjustClinicInventoryLotCommand(clinicResult.Value.Id, userId, lotId, request.QuantityDelta, request.Reason), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
     [HttpPut("me/veterinarians/{veterinarianId:guid}/permissions")]
     [Authorize(Roles = "Clinic")]
     [EnableRateLimiting("public-api")]
@@ -1175,6 +1566,31 @@ public sealed record UpdateClinicProfileRequest(
 
 public sealed record ReviewProfileChangeRequest(bool Approve, string? Reason);
 public sealed record ScheduleVeterinarianAppointmentRequest(Guid PetId, DateTimeOffset StartsAt, int DurationMinutes);
+public sealed record CreateVeterinarianScheduleBlockRequest(DateTimeOffset StartsAt, DateTimeOffset EndsAt, string Reason);
+public sealed record UpdateVeterinarianScheduleBlockRequest(DateTimeOffset StartsAt, DateTimeOffset EndsAt, string Reason);
+public sealed record UpdateVeterinarianAppointmentStatusRequest(string Status);
+public sealed record RescheduleVeterinarianAppointmentRequest(DateTimeOffset StartsAt, int DurationMinutes);
+public sealed record CreateClinicalConsultationRequest(
+    string Reason,
+    string Subjective,
+    string Objective,
+    string Assessment,
+    string Plan,
+    decimal? WeightKg,
+    decimal? TemperatureC,
+    int? HeartRateBpm,
+    int? RespiratoryRateRpm,
+    int? BodyConditionScore,
+    int? PainScore,
+    string? HydrationStatus,
+    string Diagnosis,
+    string Treatment,
+    string OwnerSummary,
+    string? PrescriptionInstructions = null);
+public sealed record CloseClinicalConsultationRequest(string SignedByName, IReadOnlyList<ClinicalInventoryUseInput>? InventoryUses = null);
+public sealed record AddClinicInventoryItemRequest(string Name, string Type, string Unit, int MinimumStock);
+public sealed record ReceiveClinicInventoryLotRequest(string LotNumber, DateOnly? ExpiresAt, int Quantity, decimal UnitCostCrc, string? SupplierName, string? LocationName = null);
+public sealed record AdjustClinicInventoryLotRequest(int QuantityDelta, string Reason);
 public sealed record SetVeterinarianPermissionsRequest(IReadOnlyList<string> Permissions);
 
 public sealed record ClinicScanRequest(

@@ -2,7 +2,9 @@ using FluentValidation;
 using MediatR;
 using PawTrack.Application.Certificates.DTOs;
 using PawTrack.Application.Certificates.Interfaces;
+using PawTrack.Application.Clinics.Interfaces;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Domain.Clinics;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Domain.Certificates;
 using PawTrack.Domain.Common;
@@ -20,8 +22,14 @@ public sealed record IssueVaccinePassportCommand(
     string? VetLicense,
     string? PetColor,
     IReadOnlyList<PassportVaccineEntryInput> Vaccines,
-    PassportParasiteEntryInput? ParasiteControl)
+    PassportParasiteEntryInput? ParasiteControl,
+    IReadOnlyList<CertificateInventoryUseInput>? InventoryUses = null)
     : IRequest<Result<CertificateDto>>;
+
+public sealed record CertificateInventoryUseInput(
+    Guid ItemId,
+    int Quantity,
+    ClinicInventoryMovementReason Reason);
 
 public sealed record PassportVaccineEntryInput(
     string VaccineName,
@@ -60,6 +68,7 @@ public sealed class IssueVaccinePassportCommandHandler(
     ICertificateAuditLogRepository auditLogRepository,
     IUserRepository userRepository,
     ISubscriptionRepository subscriptionRepository,
+    IClinicInventoryRepository inventoryRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<IssueVaccinePassportCommand, Result<CertificateDto>>
 {
@@ -160,6 +169,9 @@ public sealed class IssueVaccinePassportCommandHandler(
 
         await certificateRepository.AddAsync(cert, ct);
         await vaccinePassportRepository.AddAsync(passport, ct);
+        var inventoryResult = await ConsumeInventoryAsync(request, cert.Id, ct);
+        if (inventoryResult.IsFailure)
+            return Result.Failure<CertificateDto>(inventoryResult.Errors.ToArray());
         await auditLogRepository.AddAsync(
             CertificateAuditLog.Create(cert.Id, CertificateAuditAction.Issued, request.IssuedByUserId), ct);
         await unitOfWork.SaveChangesAsync(ct);
@@ -192,4 +204,44 @@ public sealed class IssueVaccinePassportCommandHandler(
         vaccines.Any(vaccine =>
             vaccine.VaccineName.Contains("rabia", StringComparison.OrdinalIgnoreCase) ||
             vaccine.VaccineName.Contains("rabies", StringComparison.OrdinalIgnoreCase));
+
+    private async Task<Result<bool>> ConsumeInventoryAsync(
+        IssueVaccinePassportCommand request,
+        Guid certificateId,
+        CancellationToken cancellationToken)
+    {
+        if (request.InventoryUses is null || request.InventoryUses.Count == 0)
+            return Result.Success(true);
+
+        foreach (var use in request.InventoryUses)
+        {
+            if (use.Quantity <= 0)
+                return Result.Failure<bool>("La cantidad de inventario debe ser positiva.");
+            var item = await inventoryRepository.GetItemByIdAsync(use.ItemId, cancellationToken);
+            if (item is null || item.ClinicId != request.ClinicId)
+                return Result.Failure<bool>("Producto clínico no encontrado.");
+            var lots = await inventoryRepository.GetAvailableLotsByItemAsync(use.ItemId, cancellationToken);
+            if (lots.Sum(lot => lot.AvailableQuantity) < use.Quantity)
+                return Result.Failure<bool>("No hay stock suficiente.");
+
+            var remaining = use.Quantity;
+            foreach (var lot in lots)
+            {
+                if (remaining == 0) break;
+                var consume = Math.Min(remaining, lot.AvailableQuantity);
+                var movement = lot.Consume(
+                    consume,
+                    use.Reason,
+                    request.IssuedByUserId,
+                    request.PetId,
+                    consultationId: null,
+                    certificateId);
+                inventoryRepository.UpdateLot(lot);
+                await inventoryRepository.AddMovementAsync(movement, cancellationToken);
+                remaining -= consume;
+            }
+        }
+
+        return Result.Success(true);
+    }
 }

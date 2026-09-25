@@ -22,47 +22,48 @@ Estados documentales:
 
 ## Fuentes activas
 
-| Documento                                                                        | Proposito                                                    |
-| -------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| [STATUS.md](STATUS.md)                                                           | Estado tecnico y operativo verificado                        |
-| [PRODUCT_STRATEGY_TOP1.md](PRODUCT_STRATEGY_TOP1.md)                             | Estrategia, north star, moat y roadmap                       |
-| [COMPETITIVE_INTELLIGENCE_2026-09-23.md](COMPETITIVE_INTELLIGENCE_2026-09-23.md) | Brechas competitivas y estrategia IA-first                   |
-| [AZURE_MARKETPLACE_GO_TO_MARKET.md](AZURE_MARKETPLACE_GO_TO_MARKET.md)           | Oferta SaaS y preparación de Azure Marketplace               |
-| [MASTER_TODO.md](MASTER_TODO.md)                                                 | Backlog único de pendientes enterprise, producto y operación |
-| [FEATURES.md](FEATURES.md)                                                       | Matriz de capacidades por plan                               |
-| [consolidado.md](consolidado.md)                                                 | NALA, roles, features por rol y matriz completa de planes    |
-| [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md)                                     | Fuente comercial consolidada                                 |
-| [inversionistas.md](inversionistas.md)                                           | Pitch informativo sujeto a due diligence                     |
-| [VALLAS_COMERCIALES.md](VALLAS_COMERCIALES.md)                                   | Dossier comercial para anunciantes de vallas                 |
-| [PawTrack_Documento_Maestro_v3.1.md](PawTrack_Documento_Maestro_v3.1.md)         | Arquitectura y especificacion consolidada                    |
-| [pruebas.md](pruebas.md)                                                         | Usuarios, runtime local y validacion manual                  |
-| [RUNBOOK_OPERACIONES.md](RUNBOOK_OPERACIONES.md)                                 | Operacion, incidentes y continuidad                          |
-| [POLITICA_DE_PRIVACIDAD.md](POLITICA_DE_PRIVACIDAD.md)                           | Politica de privacidad para revision legal                   |
-| [TERMINOS_DE_USO.md](TERMINOS_DE_USO.md)                                         | Terminos de uso para revision legal                          |
-| [LEGAL_REVIEW_REGISTER.md](LEGAL_REVIEW_REGISTER.md)                             | Registro de bloqueadores y aprobaciones legales              |
-| [API_AUTHORIZATION_MATRIX.md](API_AUTHORIZATION_MATRIX.md)                       | Ownership, BOLA/IDOR y versionado API                        |
-| [AUDITORIA_DOCUMENTAL_2026-09-09.md](AUDITORIA_DOCUMENTAL_2026-09-09.md)         | Resultado de la auditoria documental                         |
-| [CONSOLIDACION_DOCUMENTAL.md](CONSOLIDACION_DOCUMENTAL.md)                       | Jerarquia de fuentes y documentos historicos                 |
-| [API_REFERENCE.md](API_REFERENCE.md)                                             | Referencia organizada de la API                              |
-| [RUNBOOK_DEPLOYMENT.md](RUNBOOK_DEPLOYMENT.md)                                   | Deployment canonico                                          |
-| [RUNBOOK_SEGURIDAD_INCIDENTES.md](RUNBOOK_SEGURIDAD_INCIDENTES.md)               | Respuesta a incidentes de seguridad                          |
-| [RUNBOOK_BACKUPS_RECUPERACION.md](RUNBOOK_BACKUPS_RECUPERACION.md)               | Backups y continuidad                                        |
-| [MATRIZ_RETENCION_DATOS.md](MATRIZ_RETENCION_DATOS.md)                           | Retencion y derechos de datos                                |
-| [RUNBOOK_MFA_Y_ACCESOS_PRIVILEGIADOS.md](RUNBOOK_MFA_Y_ACCESOS_PRIVILEGIADOS.md) | MFA y roles privilegiados                                    |
-| [RUNBOOK_PAGOS_SINPE.md](RUNBOOK_PAGOS_SINPE.md)                                 | Pagos y activaciones manuales                                |
-| [integracionPagos.md](integracionPagos.md)                                       | Arquitectura de pasarela de pagos, tarjetas y SINPE          |
-| [DICCIONARIO_DATOS.md](DICCIONARIO_DATOS.md)                                     | Entidades y sensibilidad de datos                            |
-| [GUIA_INTEGRACIONES_WEBHOOKS.md](GUIA_INTEGRACIONES_WEBHOOKS.md)                 | Integraciones y webhooks                                     |
-| [GUIA_QA_E2E.md](GUIA_QA_E2E.md)                                                 | Estrategia de pruebas                                        |
-| [GUIA_ACCESIBILIDAD_Y_UX.md](GUIA_ACCESIBILIDAD_Y_UX.md)                         | Criterios frontend y accesibilidad                           |
-| [RUNBOOK_JOBS_BACKGROUND.md](RUNBOOK_JOBS_BACKGROUND.md)                         | Jobs y tareas programadas                                    |
-| [EXTERNAL_PROVIDER_VALIDATION.md](EXTERNAL_PROVIDER_VALIDATION.md)               | Gate de proveedores externos y evidencia de go-live          |
-| [RUNBOOK_MODERACION_Y_BIENESTAR.md](RUNBOOK_MODERACION_Y_BIENESTAR.md)           | Bienestar y moderacion                                       |
-| [COLLAR_CURRENT_STATE.md](COLLAR_CURRENT_STATE.md)                               | Estado actual de collares                                    |
-| [ADOPTIONS_CURRENT_STATE.md](ADOPTIONS_CURRENT_STATE.md)                         | Estado actual de adopciones                                  |
-| [NALA_REPORTING_GUIDE.md](NALA_REPORTING_GUIDE.md)                               | NALA y reportes institucionales                              |
-| [pendientesTiendas.md](pendientesTiendas.md)                                     | Backlog enterprise de tiendas                                |
-| [legal.md](legal.md)                                                             | Borrador legal y operativo de tiendas                        |
+| Documento                                                                          | Proposito                                                    |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| [STATUS.md](STATUS.md)                                                             | Estado tecnico y operativo verificado                        |
+| [PRODUCT_STRATEGY_TOP1.md](PRODUCT_STRATEGY_TOP1.md)                               | Estrategia, north star, moat y roadmap                       |
+| [COMPETITIVE_INTELLIGENCE_2026-09-23.md](COMPETITIVE_INTELLIGENCE_2026-09-23.md)   | Brechas competitivas y estrategia IA-first                   |
+| [AZURE_MARKETPLACE_GO_TO_MARKET.md](AZURE_MARKETPLACE_GO_TO_MARKET.md)             | Oferta SaaS y preparación de Azure Marketplace               |
+| [CLINIC_DAILY_USE_ENTERPRISE_TODOLIST.md](CLINIC_DAILY_USE_ENTERPRISE_TODOLIST.md) | Roadmap enterprise para uso diario de clínicas               |
+| [MASTER_TODO.md](MASTER_TODO.md)                                                   | Backlog único de pendientes enterprise, producto y operación |
+| [FEATURES.md](FEATURES.md)                                                         | Matriz de capacidades por plan                               |
+| [consolidado.md](consolidado.md)                                                   | NALA, roles, features por rol y matriz completa de planes    |
+| [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md)                                       | Fuente comercial consolidada                                 |
+| [inversionistas.md](inversionistas.md)                                             | Pitch informativo sujeto a due diligence                     |
+| [VALLAS_COMERCIALES.md](VALLAS_COMERCIALES.md)                                     | Dossier comercial para anunciantes de vallas                 |
+| [PawTrack_Documento_Maestro_v3.1.md](PawTrack_Documento_Maestro_v3.1.md)           | Arquitectura y especificacion consolidada                    |
+| [pruebas.md](pruebas.md)                                                           | Usuarios, runtime local y validacion manual                  |
+| [RUNBOOK_OPERACIONES.md](RUNBOOK_OPERACIONES.md)                                   | Operacion, incidentes y continuidad                          |
+| [POLITICA_DE_PRIVACIDAD.md](POLITICA_DE_PRIVACIDAD.md)                             | Politica de privacidad para revision legal                   |
+| [TERMINOS_DE_USO.md](TERMINOS_DE_USO.md)                                           | Terminos de uso para revision legal                          |
+| [LEGAL_REVIEW_REGISTER.md](LEGAL_REVIEW_REGISTER.md)                               | Registro de bloqueadores y aprobaciones legales              |
+| [API_AUTHORIZATION_MATRIX.md](API_AUTHORIZATION_MATRIX.md)                         | Ownership, BOLA/IDOR y versionado API                        |
+| [AUDITORIA_DOCUMENTAL_2026-09-09.md](AUDITORIA_DOCUMENTAL_2026-09-09.md)           | Resultado de la auditoria documental                         |
+| [CONSOLIDACION_DOCUMENTAL.md](CONSOLIDACION_DOCUMENTAL.md)                         | Jerarquia de fuentes y documentos historicos                 |
+| [API_REFERENCE.md](API_REFERENCE.md)                                               | Referencia organizada de la API                              |
+| [RUNBOOK_DEPLOYMENT.md](RUNBOOK_DEPLOYMENT.md)                                     | Deployment canonico                                          |
+| [RUNBOOK_SEGURIDAD_INCIDENTES.md](RUNBOOK_SEGURIDAD_INCIDENTES.md)                 | Respuesta a incidentes de seguridad                          |
+| [RUNBOOK_BACKUPS_RECUPERACION.md](RUNBOOK_BACKUPS_RECUPERACION.md)                 | Backups y continuidad                                        |
+| [MATRIZ_RETENCION_DATOS.md](MATRIZ_RETENCION_DATOS.md)                             | Retencion y derechos de datos                                |
+| [RUNBOOK_MFA_Y_ACCESOS_PRIVILEGIADOS.md](RUNBOOK_MFA_Y_ACCESOS_PRIVILEGIADOS.md)   | MFA y roles privilegiados                                    |
+| [RUNBOOK_PAGOS_SINPE.md](RUNBOOK_PAGOS_SINPE.md)                                   | Pagos y activaciones manuales                                |
+| [integracionPagos.md](integracionPagos.md)                                         | Arquitectura de pasarela de pagos, tarjetas y SINPE          |
+| [DICCIONARIO_DATOS.md](DICCIONARIO_DATOS.md)                                       | Entidades y sensibilidad de datos                            |
+| [GUIA_INTEGRACIONES_WEBHOOKS.md](GUIA_INTEGRACIONES_WEBHOOKS.md)                   | Integraciones y webhooks                                     |
+| [GUIA_QA_E2E.md](GUIA_QA_E2E.md)                                                   | Estrategia de pruebas                                        |
+| [GUIA_ACCESIBILIDAD_Y_UX.md](GUIA_ACCESIBILIDAD_Y_UX.md)                           | Criterios frontend y accesibilidad                           |
+| [RUNBOOK_JOBS_BACKGROUND.md](RUNBOOK_JOBS_BACKGROUND.md)                           | Jobs y tareas programadas                                    |
+| [EXTERNAL_PROVIDER_VALIDATION.md](EXTERNAL_PROVIDER_VALIDATION.md)                 | Gate de proveedores externos y evidencia de go-live          |
+| [RUNBOOK_MODERACION_Y_BIENESTAR.md](RUNBOOK_MODERACION_Y_BIENESTAR.md)             | Bienestar y moderacion                                       |
+| [COLLAR_CURRENT_STATE.md](COLLAR_CURRENT_STATE.md)                                 | Estado actual de collares                                    |
+| [ADOPTIONS_CURRENT_STATE.md](ADOPTIONS_CURRENT_STATE.md)                           | Estado actual de adopciones                                  |
+| [NALA_REPORTING_GUIDE.md](NALA_REPORTING_GUIDE.md)                                 | NALA y reportes institucionales                              |
+| [pendientesTiendas.md](pendientesTiendas.md)                                       | Backlog enterprise de tiendas                                |
+| [legal.md](legal.md)                                                               | Borrador legal y operativo de tiendas                        |
 
 ## Documentacion por dominio
 

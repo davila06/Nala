@@ -1839,6 +1839,41 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.ToTable("VeterinarianAppointments", (string)null);
                 });
 
+            modelBuilder.Entity("PawTrack.Domain.Certificates.VeterinarianScheduleBlock", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClinicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("EndsAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTimeOffset>("StartsAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("VeterinarianId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClinicId", "VeterinarianId", "StartsAt");
+
+                    b.ToTable("VeterinarianScheduleBlocks", (string)null);
+                });
+
             modelBuilder.Entity("PawTrack.Domain.Chat.ChatMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2057,6 +2092,154 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.ToTable("ClinicApiKeys", (string)null);
                 });
 
+            modelBuilder.Entity("PawTrack.Domain.Clinics.ClinicInventoryItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClinicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MinimumStock")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClinicId", "Type", "Name");
+
+                    b.ToTable("ClinicInventoryItems", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Clinics.ClinicInventoryLot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AvailableQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ClinicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("ExpiresAt")
+                        .HasColumnType("date");
+
+                    b.Property<int>("InitialQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LocationName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("LotNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTimeOffset>("ReceivedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("SupplierName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal>("UnitCostCrc")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId", "AvailableQuantity", "ExpiresAt");
+
+                    b.HasIndex("ClinicId", "ItemId", "LocationName", "LotNumber");
+
+                    b.ToTable("ClinicInventoryLots", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Clinics.ClinicInventoryMovement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CertificateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClinicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ConsultationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("LotId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("PetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("QuantityDelta")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CertificateId")
+                        .HasFilter("[CertificateId] IS NOT NULL");
+
+                    b.HasIndex("ConsultationId")
+                        .HasFilter("[ConsultationId] IS NOT NULL");
+
+                    b.HasIndex("ClinicId", "ItemId", "CreatedAt");
+
+                    b.ToTable("ClinicInventoryMovements", (string)null);
+                });
+
             modelBuilder.Entity("PawTrack.Domain.Clinics.ClinicProfileChange", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2191,6 +2374,127 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.HasIndex("ClinicId", "IsActive");
 
                     b.ToTable("ClinicWidgetDomains", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Clinics.ClinicalConsultation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Assessment")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("AttachmentUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int?>("BodyConditionScore")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ClinicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ClosedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("ClosedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Diagnosis")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("HeartRateBpm")
+                        .HasColumnType("int");
+
+                    b.Property<string>("HydrationStatus")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Objective")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("OwnerSummary")
+                        .IsRequired()
+                        .HasMaxLength(1500)
+                        .HasColumnType("nvarchar(1500)");
+
+                    b.Property<int?>("PainScore")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("PetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Plan")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("PrescriptionInstructions")
+                        .HasMaxLength(1500)
+                        .HasColumnType("nvarchar(1500)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int?>("RespiratoryRateRpm")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SignedByName")
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Subjective")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<decimal?>("TemperatureC")
+                        .HasColumnType("decimal(4,1)");
+
+                    b.Property<string>("Treatment")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("VeterinarianId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("WeightKg")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId")
+                        .IsUnique();
+
+                    b.HasIndex("ClinicId", "PetId", "CreatedAt");
+
+                    b.ToTable("ClinicalConsultations", (string)null);
                 });
 
             modelBuilder.Entity("PawTrack.Domain.Collars.Collar", b =>

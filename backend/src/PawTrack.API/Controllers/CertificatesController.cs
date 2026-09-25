@@ -119,7 +119,7 @@ public sealed class CertificatesController(ISender sender) : ControllerBase
                 request.PetId, request.ClinicId, userId,
                 request.VeterinarianId,
                 request.VetName, request.VetLicense, request.PetColor,
-                vaccines!, parasite),
+                vaccines!, parasite, request.InventoryUses),
             cancellationToken);
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
@@ -199,7 +199,8 @@ public sealed record IssueVaccinePassportRequest(
     string? VetLicense,
     string? PetColor,
     IReadOnlyList<VaccineEntryRequest> Vaccines,
-    ParasiteControlRequest? ParasiteControl);
+    ParasiteControlRequest? ParasiteControl,
+    IReadOnlyList<CertificateInventoryUseInput>? InventoryUses = null);
 
 public sealed record VaccineEntryRequest(
     string VaccineName,

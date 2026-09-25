@@ -163,27 +163,156 @@ export interface ClinicVisibilityStatsDto {
   scanResultViews: number;
 }
 
+export type VeterinarianAppointmentStatus =
+  | "Scheduled"
+  | "Confirmed"
+  | "CheckedIn"
+  | "InConsultation"
+  | "Completed"
+  | "NoShow"
+  | "Cancelled";
+
+export interface ClinicAgendaItemDto {
+  appointmentId: string;
+  clinicId: string;
+  veterinarianId: string;
+  veterinarianName: string;
+  petId: string;
+  petName: string;
+  startsAt: string;
+  endsAt: string;
+  status: VeterinarianAppointmentStatus;
+}
+
+export interface ClinicScheduleBlockDto {
+  blockId: string;
+  clinicId: string;
+  veterinarianId: string;
+  veterinarianName: string;
+  startsAt: string;
+  endsAt: string;
+  reason: string;
+}
+
+export interface ClinicAgendaAuditEntryDto {
+  id: string;
+  adminUserId: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  details: string | null;
+  performedAt: string;
+}
+
+export interface ClinicalConsultationDto {
+  id: string;
+  appointmentId: string;
+  petId: string;
+  veterinarianId: string;
+  status: "Draft" | "Closed";
+  reason: string;
+  subjective: string;
+  objective: string;
+  assessment: string;
+  plan: string;
+  weightKg: number | null;
+  temperatureC: number | null;
+  heartRateBpm: number | null;
+  respiratoryRateRpm: number | null;
+  bodyConditionScore: number | null;
+  painScore: number | null;
+  hydrationStatus: string | null;
+  diagnosis: string;
+  treatment: string;
+  ownerSummary: string;
+  prescriptionInstructions: string | null;
+  attachmentUrl: string | null;
+  signedByName: string | null;
+  closedAt: string | null;
+}
+
+export interface ClinicalConsultationTemplateDto {
+  key: string;
+  label: string;
+  reason: string;
+  subjective: string;
+  objective: string;
+  assessment: string;
+  plan: string;
+  diagnosis: string;
+  treatment: string;
+  ownerSummary: string;
+  prescriptionInstructions: string | null;
+}
+
+export type ClinicInventoryItemType = "Vaccine" | "Medication" | "Dewormer" | "Supply" | "Food" | "Service";
+export type ClinicInventoryMovementReason =
+  | "StockReceived"
+  | "ConsultationUse"
+  | "Sale"
+  | "Adjustment"
+  | "Expired"
+  | "Damaged";
+
+export interface ClinicInventoryItemDto {
+  id: string;
+  clinicId: string;
+  name: string;
+  type: ClinicInventoryItemType;
+  unit: string;
+  minimumStock: number;
+  totalAvailable: number;
+  isBelowMinimum: boolean;
+  isActive: boolean;
+  lots: ClinicInventoryLotDto[] | null;
+}
+
+export interface ClinicInventoryLotDto {
+  id: string;
+  itemId: string;
+  lotNumber: string;
+  expiresAt: string | null;
+  initialQuantity: number;
+  availableQuantity: number;
+  unitCostCrc: number;
+  supplierName: string | null;
+  locationName: string;
+}
+
+export interface ClinicInventoryValuationDto {
+  clinicId: string;
+  totalValueCrc: number;
+  totalUnits: number;
+  lines: Array<{
+    itemId: string;
+    itemName: string;
+    type: ClinicInventoryItemType;
+    availableQuantity: number;
+    valueCrc: number;
+    isBelowMinimum: boolean;
+  }>;
+  byLocation: Array<{ locationName: string; availableQuantity: number; valueCrc: number }>;
+}
+
+export interface ClinicalInventoryUseInput {
+  itemId: string;
+  quantity: number;
+  reason: ClinicInventoryMovementReason;
+}
+
 // ── API client methods ─────────────────────────────────────────────────────────
 
 export const clinicsApi = {
   register: (payload: RegisterClinicRequest): Promise<ClinicDto> =>
     apiClient.post<ClinicDto>("/clinics/register", payload).then((r) => r.data),
 
-  getMyClinic: (): Promise<ClinicDto> =>
-    apiClient.get<ClinicDto>("/clinics/me").then((r) => r.data),
+  getMyClinic: (): Promise<ClinicDto> => apiClient.get<ClinicDto>("/clinics/me").then((r) => r.data),
 
   updateMyProfile: (payload: UpdateClinicProfileRequest): Promise<ClinicDto> =>
-    apiClient
-      .put<ClinicDto>("/clinics/me/profile", payload)
-      .then((r) => r.data),
+    apiClient.put<ClinicDto>("/clinics/me/profile", payload).then((r) => r.data),
 
-  scan: (
-    input: string,
-    inputType: ScanInputType,
-  ): Promise<ClinicScanResultDto> =>
-    apiClient
-      .post<ClinicScanResultDto>("/clinics/scan", { input, inputType })
-      .then((r) => r.data),
+  scan: (input: string, inputType: ScanInputType): Promise<ClinicScanResultDto> =>
+    apiClient.post<ClinicScanResultDto>("/clinics/scan", { input, inputType }).then((r) => r.data),
 
   getPublicClinics: (
     lat?: number,
@@ -202,21 +331,13 @@ export const clinicsApi = {
       .then((r) => r.data),
 
   getPublicProfile: (clinicId: string): Promise<PublicClinicProfileDto> =>
-    apiClient
-      .get<PublicClinicProfileDto>(`/clinics/public/${clinicId}`)
-      .then((r) => r.data),
+    apiClient.get<PublicClinicProfileDto>(`/clinics/public/${clinicId}`).then((r) => r.data),
 
   searchForAccess: (query: string): Promise<ClinicAccessSearchResultDto[]> =>
-    apiClient
-      .get<
-        ClinicAccessSearchResultDto[]
-      >("/clinics/search", { params: { query } })
-      .then((r) => r.data),
+    apiClient.get<ClinicAccessSearchResultDto[]>("/clinics/search", { params: { query } }).then((r) => r.data),
 
   getScanStats: (year?: number, month?: number): Promise<ClinicScanStatsDto> =>
-    apiClient
-      .get<ClinicScanStatsDto>("/clinics/me/stats", { params: { year, month } })
-      .then((r) => r.data),
+    apiClient.get<ClinicScanStatsDto>("/clinics/me/stats", { params: { year, month } }).then((r) => r.data),
 
   uploadLogo: (file: File): Promise<{ logoUrl: string }> => {
     const form = new FormData();
@@ -229,24 +350,16 @@ export const clinicsApi = {
   },
 
   getApiKeys: (): Promise<ClinicApiKeyDto[]> =>
-    apiClient
-      .get<ClinicApiKeyDto[]>("/clinics/me/api-keys")
-      .then((r) => r.data),
+    apiClient.get<ClinicApiKeyDto[]>("/clinics/me/api-keys").then((r) => r.data),
 
   createApiKey: (label: string, scopes?: string[]): Promise<ClinicApiKeyDto> =>
-    apiClient
-      .post<ClinicApiKeyDto>("/clinics/me/api-keys", { label, scopes })
-      .then((r) => r.data),
+    apiClient.post<ClinicApiKeyDto>("/clinics/me/api-keys", { label, scopes }).then((r) => r.data),
 
   revokeApiKey: (keyId: string): Promise<void> =>
     apiClient.delete(`/clinics/me/api-keys/${keyId}`).then(() => undefined),
 
   getNearbyAlerts: (radiusKm = 15): Promise<NearbyAlertDto[]> =>
-    apiClient
-      .get<
-        NearbyAlertDto[]
-      >("/clinics/me/nearby-alerts", { params: { radiusKm } })
-      .then((r) => r.data),
+    apiClient.get<NearbyAlertDto[]>("/clinics/me/nearby-alerts", { params: { radiusKm } }).then((r) => r.data),
 
   getVisibilityStats: (days = 30): Promise<ClinicVisibilityStatsDto> =>
     apiClient
@@ -255,24 +368,138 @@ export const clinicsApi = {
       })
       .then((r) => r.data),
 
-  // Fire-and-forget — called when a user opens a clinic popup or profile
-  trackView: (
-    clinicId: string,
-    source: "map" | "directory" | "search" | "alert",
-  ): void => {
-    void apiClient
-      .post(`/clinics/${clinicId}/view`, null, { params: { source } })
-      .catch(() => undefined);
+  getAgenda: (from: string, to: string): Promise<ClinicAgendaItemDto[]> =>
+    apiClient
+      .get<ClinicAgendaItemDto[]>("/clinics/me/appointments", {
+        params: { from, to },
+      })
+      .then((r) => r.data),
+
+  updateAppointmentStatus: (appointmentId: string, status: VeterinarianAppointmentStatus): Promise<void> =>
+    apiClient.patch(`/clinics/me/appointments/${appointmentId}/status`, { status }).then(() => undefined),
+
+  rescheduleAppointment: (appointmentId: string, startsAt: string, durationMinutes: number): Promise<void> =>
+    apiClient
+      .patch(`/clinics/me/appointments/${appointmentId}/time`, { startsAt, durationMinutes })
+      .then(() => undefined),
+
+  createScheduleBlock: (
+    veterinarianId: string,
+    startsAt: string,
+    endsAt: string,
+    reason: string,
+  ): Promise<{ blockId: string }> =>
+    apiClient
+      .post<{ blockId: string }>(`/clinics/me/veterinarians/${veterinarianId}/blocks`, { startsAt, endsAt, reason })
+      .then((r) => r.data),
+
+  getScheduleBlocks: (from: string, to: string): Promise<ClinicScheduleBlockDto[]> =>
+    apiClient
+      .get<ClinicScheduleBlockDto[]>("/clinics/me/schedule-blocks", { params: { from, to } })
+      .then((r) => r.data),
+
+  updateScheduleBlock: (blockId: string, startsAt: string, endsAt: string, reason: string): Promise<void> =>
+    apiClient.patch(`/clinics/me/schedule-blocks/${blockId}`, { startsAt, endsAt, reason }).then(() => undefined),
+
+  deleteScheduleBlock: (blockId: string): Promise<void> =>
+    apiClient.delete(`/clinics/me/schedule-blocks/${blockId}`).then(() => undefined),
+
+  createConsultation: (
+    appointmentId: string,
+    payload: Omit<
+      ClinicalConsultationDto,
+      "id" | "appointmentId" | "petId" | "veterinarianId" | "status" | "attachmentUrl" | "signedByName" | "closedAt"
+    >,
+  ): Promise<ClinicalConsultationDto> =>
+    apiClient
+      .post<ClinicalConsultationDto>(`/clinics/me/appointments/${appointmentId}/consultation`, payload)
+      .then((r) => r.data),
+
+  closeConsultation: (consultationId: string, signedByName: string): Promise<ClinicalConsultationDto> =>
+    apiClient
+      .post<ClinicalConsultationDto>(`/clinics/me/consultations/${consultationId}/close`, { signedByName })
+      .then((r) => r.data),
+
+  closeConsultationWithInventory: (
+    consultationId: string,
+    signedByName: string,
+    inventoryUses: ClinicalInventoryUseInput[],
+  ): Promise<ClinicalConsultationDto> =>
+    apiClient
+      .post<ClinicalConsultationDto>(`/clinics/me/consultations/${consultationId}/close`, {
+        signedByName,
+        inventoryUses,
+      })
+      .then((r) => r.data),
+
+  getInventory: (): Promise<ClinicInventoryItemDto[]> =>
+    apiClient.get<ClinicInventoryItemDto[]>("/clinics/me/inventory").then((r) => r.data),
+
+  getInventoryValuation: (): Promise<ClinicInventoryValuationDto> =>
+    apiClient.get<ClinicInventoryValuationDto>("/clinics/me/inventory/valuation").then((r) => r.data),
+
+  addInventoryItem: (payload: {
+    name: string;
+    type: ClinicInventoryItemType;
+    unit: string;
+    minimumStock: number;
+  }): Promise<ClinicInventoryItemDto> =>
+    apiClient.post<ClinicInventoryItemDto>("/clinics/me/inventory/items", payload).then((r) => r.data),
+
+  receiveInventoryLot: (
+    itemId: string,
+    payload: {
+      lotNumber: string;
+      expiresAt: string | null;
+      quantity: number;
+      unitCostCrc: number;
+      supplierName: string | null;
+      locationName?: string | null;
+    },
+  ): Promise<ClinicInventoryLotDto> =>
+    apiClient.post<ClinicInventoryLotDto>(`/clinics/me/inventory/items/${itemId}/lots`, payload).then((r) => r.data),
+
+  adjustInventoryLot: (lotId: string, quantityDelta: number, reason: string): Promise<ClinicInventoryMovementReason> =>
+    apiClient
+      .post<ClinicInventoryMovementReason>(`/clinics/me/inventory/lots/${lotId}/adjustments`, { quantityDelta, reason })
+      .then((r) => r.data),
+
+  uploadConsultationAttachment: (consultationId: string, file: File): Promise<{ attachmentUrl: string }> => {
+    const form = new FormData();
+    form.append("file", file);
+    return apiClient
+      .post<{ attachmentUrl: string }>(`/clinics/me/consultations/${consultationId}/attachment`, form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((r) => r.data);
   },
 
-  getEmergencyVets: (
-    lat?: number,
-    lng?: number,
-    radiusKm = 30,
-  ): Promise<EmergencyVetDto[]> =>
+  getConsultationTemplates: (): Promise<ClinicalConsultationTemplateDto[]> =>
+    apiClient.get<ClinicalConsultationTemplateDto[]>("/clinics/me/consultation-templates").then((r) => r.data),
+
+  downloadConsultationPrescription: (consultationId: string): Promise<Blob> =>
     apiClient
-      .get<
-        EmergencyVetDto[]
-      >("/public/emergency-vets", { params: { lat, lng, radiusKm } })
+      .get(`/clinics/me/consultations/${consultationId}/prescription`, { responseType: "blob" })
+      .then((r) => r.data as Blob),
+
+  getAgendaAudit: (from: string, to: string): Promise<ClinicAgendaAuditEntryDto[]> =>
+    apiClient
+      .get<ClinicAgendaAuditEntryDto[]>("/clinics/me/agenda-audit", { params: { from, to } })
       .then((r) => r.data),
+
+  downloadAgendaAuditCsv: (from: string, to: string): Promise<Blob> =>
+    apiClient
+      .get("/clinics/me/agenda-audit", {
+        params: { from, to, format: "csv" },
+        responseType: "blob",
+      })
+      .then((r) => r.data as Blob),
+
+  // Fire-and-forget — called when a user opens a clinic popup or profile
+  trackView: (clinicId: string, source: "map" | "directory" | "search" | "alert"): void => {
+    void apiClient.post(`/clinics/${clinicId}/view`, null, { params: { source } }).catch(() => undefined);
+  },
+
+  getEmergencyVets: (lat?: number, lng?: number, radiusKm = 30): Promise<EmergencyVetDto[]> =>
+    apiClient.get<EmergencyVetDto[]>("/public/emergency-vets", { params: { lat, lng, radiusKm } }).then((r) => r.data),
 };
