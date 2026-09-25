@@ -1347,7 +1347,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/sales/{saleId:guid}/refunds")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicFinanceMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> RecordMySaleRefund(Guid saleId, [FromBody] RecordClinicSaleRefundRequest request, CancellationToken ct)
     {
@@ -1359,7 +1359,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/sales/{saleId:guid}/void")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicFinanceMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> VoidClinicSale(Guid saleId, [FromBody] ReasonRequest request, CancellationToken ct)
     {
@@ -1371,7 +1371,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/cash-closes")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicFinanceMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> CloseClinicCash([FromBody] CloseClinicCashRequest request, CancellationToken ct)
     {
@@ -1383,7 +1383,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/sales/{saleId:guid}/fiscal-submission")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicFinanceMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> SubmitMyFiscalSale(Guid saleId, CancellationToken ct)
     {
@@ -1428,7 +1428,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPut("me/finance/members")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicFinanceMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> GrantFinanceMember([FromBody] GrantClinicFinanceMemberRequest request, CancellationToken ct)
     {
@@ -1441,7 +1441,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpDelete("me/finance/members/{memberUserId:guid}")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicFinanceMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> RevokeFinanceMember(Guid memberUserId, CancellationToken ct)
     {
@@ -1484,7 +1484,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("{clinicId:guid}/finance/sales/{saleId:guid}/refunds")]
-    [Authorize]
+    [Authorize(Policy = "ClinicFinanceMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> RecordFinanceRefund(Guid clinicId, Guid saleId, [FromBody] RecordClinicSaleRefundRequest request, CancellationToken ct)
     {
@@ -1494,7 +1494,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("{clinicId:guid}/finance/sales/{saleId:guid}/void")]
-    [Authorize]
+    [Authorize(Policy = "ClinicFinanceMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> VoidFinanceSale(Guid clinicId, Guid saleId, [FromBody] ReasonRequest request, CancellationToken ct)
     {
@@ -1504,7 +1504,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("{clinicId:guid}/finance/cash-closes")]
-    [Authorize]
+    [Authorize(Policy = "ClinicFinanceMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> CloseFinanceCash(Guid clinicId, [FromBody] CloseClinicCashRequest request, CancellationToken ct)
     {
@@ -1514,7 +1514,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("{clinicId:guid}/finance/sales/{saleId:guid}/fiscal-submission")]
-    [Authorize]
+    [Authorize(Policy = "ClinicFinanceMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> SubmitFinanceFiscalSale(Guid clinicId, Guid saleId, CancellationToken ct)
     {

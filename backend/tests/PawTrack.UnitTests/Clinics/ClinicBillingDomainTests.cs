@@ -39,6 +39,8 @@ public sealed class ClinicBillingDomainTests
         var withoutEvidence = () => sale.RecordRefund(payment.Id, 10000m, "Error de facturación", "", Guid.NewGuid());
         withoutEvidence.Should().Throw<ArgumentException>();
         sale.RecordRefund(payment.Id, 10000m, "Error de facturación", "REEM-001", Guid.NewGuid());
+        var repayRefundedSale = () => sale.RecordPayment(10000m, ClinicPaymentMethod.Cash, null, Guid.NewGuid());
+        repayRefundedSale.Should().Throw<InvalidOperationException>();
         var duplicateRefund = () => sale.RecordRefund(payment.Id, 1m, "Duplicada", "REEM-002", Guid.NewGuid());
         duplicateRefund.Should().Throw<InvalidOperationException>();
         sale.Void("Error de facturación", Guid.NewGuid());

@@ -154,6 +154,7 @@ public sealed class ClinicSale
     private void EnsureOpen()
     {
         if (Status == ClinicSaleStatus.Voided) throw new InvalidOperationException("La venta está anulada.");
+        if (_refunds.Count > 0) throw new InvalidOperationException("Una venta con devoluciones no puede modificarse ni cobrarse de nuevo.");
         if (Status == ClinicSaleStatus.Paid) throw new InvalidOperationException("La venta ya está pagada.");
     }
 

@@ -36,6 +36,23 @@ public sealed class ClinicFiscalGatewayTests
         handler.Calls.Should().Be(1);
     }
 
+    [Fact]
+    public async Task ProviderReference_ConfirmsSubmissionOnly()
+    {
+        var handler = new StubHandler(HttpStatusCode.Accepted, "fiscal-123");
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["ClinicFiscal:ProviderUrl"] = "https://fiscal.example.test/invoices",
+            ["ClinicFiscal:ApiToken"] = "test-token"
+        }).Build();
+        var gateway = new ConfiguredClinicFiscalGateway(new FixedClientFactory(handler), configuration);
+
+        var result = await gateway.SubmitAsync(Guid.NewGuid(), Guid.NewGuid(), "3101111111", "REC-1", 1000m, CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().Be("fiscal-123");
+    }
+
     private sealed class FixedClientFactory(StubHandler handler) : IHttpClientFactory
     {
         public HttpClient CreateClient(string name) => new(handler, disposeHandler: false);

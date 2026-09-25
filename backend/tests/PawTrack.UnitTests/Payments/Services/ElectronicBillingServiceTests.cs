@@ -51,6 +51,8 @@ public sealed class ElectronicBillingServiceTests
         result.Value.TotalAmountCrc.Should().Be(2990m);
         result.Value.SubtotalCrc.Should().Be(2646.02m);
         result.Value.IvaAmountCrc.Should().Be(343.98m);
+        result.Value.Status.Should().Be(ElectronicInvoiceStatus.Signed.ToString());
+        result.Value.ProcessedAt.Should().BeNull();
 
         await _invoiceRepo.Received(1).AddAsync(Arg.Any<ElectronicInvoice>(), Arg.Any<CancellationToken>());
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());

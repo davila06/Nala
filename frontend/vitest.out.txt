@@ -1,0 +1,10 @@
+
+ RUN  v4.1.11 C:/Nala/frontend
+
+┬╖┬╖┬╖┬╖┬╖
+
+ Test Files  3 passed (3)
+      Tests  5 passed (5)
+   Start at  16:13:56
+   Duration  26.70s (transform 2.04s, setup 1.29s, import 21.56s, tests 965ms, environment 2.10s)
+

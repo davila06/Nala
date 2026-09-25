@@ -14,6 +14,24 @@ namespace PawTrack.UnitTests.Auth;
 public sealed class SuperAdminSecurityTests
 {
     [Fact]
+    public void ClinicAccessToken_OnlyIncludesMfaClaimAfterSessionChallenge()
+    {
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["Jwt:Key"] = "test-only-signing-key-at-least-32-bytes-long",
+            ["Jwt:Issuer"] = "pawtrack-tests",
+            ["Jwt:Audience"] = "pawtrack-tests",
+        }).Build();
+        var service = new JwtTokenService(configuration);
+
+        var standard = new JwtSecurityTokenHandler().ReadJwtToken(service.GenerateAccessToken(Guid.NewGuid(), "clinic@test.cr", "Clinic", UserRole.Clinic));
+        var verified = new JwtSecurityTokenHandler().ReadJwtToken(service.GenerateAccessToken(Guid.NewGuid(), "clinic@test.cr", "Clinic", UserRole.Clinic, mfaVerified: true));
+
+        standard.Claims.Should().NotContain(claim => claim.Type == "mfa");
+        verified.Claims.Should().Contain(claim => claim.Type == "mfa" && claim.Value == "true");
+    }
+
+    [Fact]
     public void GenerateAccessToken_ForSuperAdmin_EmitsPrimaryAndInheritedAdminClaims()
     {
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
@@ -24,7 +42,7 @@ public sealed class SuperAdminSecurityTests
         }).Build();
         var service = new JwtTokenService(configuration);
 
-        var token = service.GenerateAccessToken(Guid.NewGuid(), "root@pawtrack.cr", "Root", UserRole.SuperAdmin);
+        var token = service.GenerateAccessToken(Guid.NewGuid(), "root@pawtrack.cr", "Root", UserRole.SuperAdmin, mfaVerified: true);
         var claims = new JwtSecurityTokenHandler().ReadJwtToken(token).Claims.ToList();
 
         claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value)

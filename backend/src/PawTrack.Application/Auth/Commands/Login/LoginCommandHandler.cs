@@ -85,7 +85,7 @@ public sealed class LoginCommandHandler(
         userRepository.Update(user);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var accessToken = jwtTokenService.GenerateAccessToken(user.Id, user.Email, user.Name, user.Role);
+        var accessToken = jwtTokenService.GenerateAccessToken(user.Id, user.Email, user.Name, user.Role, mfaVerified: user.HasMfa && mfaValid);
 
         logger.LogInformation("Auth.Login.Success UserId={UserId} Role={Role}", user.Id, user.Role);
 

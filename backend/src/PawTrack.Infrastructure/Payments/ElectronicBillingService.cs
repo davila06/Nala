@@ -109,14 +109,12 @@ public sealed class ElectronicBillingService(
             logger.LogWarning(ex, "Failed to upload invoice PDF blob for clave {Clave}", clave50);
         }
 
-        invoice.MarkAcceptedByHacienda(invoice.SignedXmlUrl ?? string.Empty);
-
         await invoiceRepository.AddAsync(invoice, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation(
-            "Emitted electronic {DocType} successfully. Clave: {Clave}, Amount: ₡{Amount}",
-            docTypeCode, clave50, request.TotalAmountCrc);
+            "Prepared electronic document {DocType}. Clave: {Clave}, Amount: ₡{Amount}, Status: {Status}",
+            docTypeCode, clave50, request.TotalAmountCrc, invoice.Status);
 
         return Result.Success(ElectronicInvoiceDto.FromDomain(invoice));
     }

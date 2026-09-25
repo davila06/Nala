@@ -98,8 +98,12 @@ function weekRange(value: string) {
 }
 
 function todayInputValue() {
-  const today = new Date();
-  return today.toISOString().slice(0, 10);
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Costa_Rica",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 }
 
 function VeterinarianRow({ veterinarian }: { veterinarian: ClinicVeterinarianDto }) {

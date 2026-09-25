@@ -132,7 +132,9 @@ del sistema.
 - [x] Auditoría financiera sin exponer datos sensibles.
 - [x] Membresías de cajero/administrador separadas del rol global: concesión y
       revocación por titular con MFA; devolución, anulación, cierre y fiscal requieren
-      además MFA del actor. Ruta de caja de personal con permisos backend por clínica.
+      además MFA del actor y claim de sesión emitido tras desafío. El refresh no
+      conserva esa elevación: para operaciones sensibles se requiere nuevo login MFA.
+      Ruta de caja de personal con permisos backend por clínica.
 
 **UI CP4:** caja dedicada en `/clinica/caja` para titular y colaboradores;
 el cajero no ve acciones administrativas. La devolución registra una operación
@@ -182,6 +184,10 @@ con `X-Message-Id` confirma aceptación de correo. No configurar credenciales
 reales en archivos versionados. Antes de producción se requieren pruebas con
 el proveedor fiscal seleccionado, mensajes XML firmados, estado Hacienda,
 reintentos ambiguos, notas de crédito y webhooks firmados de entrega.
+La migración `DemoteUnverifiedElectronicInvoices` corrige únicamente documentos
+históricos cuyo supuesto XML de respuesta era su propio XML firmado (o cadena
+vacía). Hacer respaldo y auditar las filas afectadas antes de aplicarla; no
+convierte documentos locales en facturas aceptadas por Hacienda.
 
 **Gate de salida:** NALA ayuda a retener clientes y reducir no-shows.
 

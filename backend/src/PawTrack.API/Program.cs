@@ -182,6 +182,10 @@ builder.Services.AddAuthorization(options =>
         .RequireClaim("platform_role", "SuperAdmin")
         .RequireClaim("mfa", "true"));
 
+    options.AddPolicy("ClinicFinanceMfa", policy => policy
+        .RequireAuthenticatedUser()
+        .RequireClaim("mfa", "true"));
+
     // Internal-only health checks — requires Admin JWT or internal network request.
     options.AddPolicy("HealthCheckPolicy", policy =>
         policy.RequireAuthenticatedUser()

@@ -38,6 +38,23 @@ public sealed class ClinicEmailGatewayTests
         handler.Calls.Should().Be(1);
     }
 
+    [Fact]
+    public async Task ProviderReceipt_ConfirmsSubmissionOnly()
+    {
+        var handler = new StubHandler(HttpStatusCode.Accepted, "sg-123");
+        var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["SendGrid:ApiKey"] = "test-key",
+            ["SendGrid:FromEmail"] = "clinic@pawtrack.cr"
+        }).Build();
+        var gateway = new SendGridClinicEmailGateway(new FixedClientFactory(handler), config);
+
+        var result = await gateway.SendAsync("owner@test.cr", "Seguimiento", "Hola", Guid.NewGuid(), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().Be("sg-123");
+    }
+
     private sealed class FixedClientFactory(StubHandler handler) : IHttpClientFactory
     {
         public HttpClient CreateClient(string name) => new(handler, disposeHandler: false);

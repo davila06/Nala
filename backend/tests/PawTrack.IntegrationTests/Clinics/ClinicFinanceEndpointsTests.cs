@@ -40,9 +40,25 @@ public sealed class ClinicFinanceEndpointsTests(PawTrackWebApplicationFactory fa
         }
 
         var grant = await clinicClient.PutAsJsonAsync("/api/clinics/me/finance/members", new { email = staffEmail, role = "Cashier" });
+        grant.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var jwt = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
+            var owner = await db.Users.SingleAsync(user => user.Email == clinicEmail);
+            clinicClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt.GenerateAccessToken(owner.Id, owner.Email, owner.Name, owner.Role, mfaVerified: true));
+        }
+        grant = await clinicClient.PutAsJsonAsync("/api/clinics/me/finance/members", new { email = staffEmail, role = "Cashier" });
         grant.StatusCode.Should().Be(HttpStatusCode.OK);
         var workspaces = await staffClient.GetFromJsonAsync<List<FinanceWorkspace>>("/api/clinics/finance-workspaces");
         workspaces.Should().ContainSingle(workspace => workspace.ClinicId == clinicId && workspace.Role == "Cashier");
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var jwt = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
+            var staff = await db.Users.SingleAsync(user => user.Email == staffEmail);
+            staffClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt.GenerateAccessToken(staff.Id, staff.Email, staff.Name, staff.Role, mfaVerified: true));
+        }
 
         var saleResponse = await staffClient.PostAsJsonAsync($"/api/clinics/{clinicId}/finance/sales", new
         {
@@ -60,6 +76,22 @@ public sealed class ClinicFinanceEndpointsTests(PawTrackWebApplicationFactory fa
 
         var promotion = await clinicClient.PutAsJsonAsync("/api/clinics/me/finance/members", new { email = staffEmail, role = "Administrator" });
         promotion.StatusCode.Should().Be(HttpStatusCode.OK);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var jwt = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
+            var staff = await db.Users.SingleAsync(user => user.Email == staffEmail);
+            staffClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt.GenerateAccessToken(staff.Id, staff.Email, staff.Name, staff.Role));
+        }
+        var deniedWithoutSessionMfa = await staffClient.PostAsJsonAsync($"/api/clinics/{clinicId}/finance/sales/{sale.Id}/void", new { reason = "Error" });
+        deniedWithoutSessionMfa.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var jwt = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
+            var staff = await db.Users.SingleAsync(user => user.Email == staffEmail);
+            staffClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt.GenerateAccessToken(staff.Id, staff.Email, staff.Name, staff.Role, mfaVerified: true));
+        }
         var ledger = await staffClient.GetFromJsonAsync<SaleLedgerResponse>($"/api/clinics/{clinicId}/finance/sales/{sale.Id}/ledger");
         ledger!.Payments.Should().ContainSingle();
         var refund = await staffClient.PostAsJsonAsync($"/api/clinics/{clinicId}/finance/sales/{sale.Id}/refunds", new
