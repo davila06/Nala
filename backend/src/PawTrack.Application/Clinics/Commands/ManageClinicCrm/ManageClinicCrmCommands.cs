@@ -18,10 +18,30 @@ public sealed record ClinicCrmActivityDto(Guid Id, Guid PetId, string PetName, G
     public static ClinicCrmActivityDto FromReadModel(ClinicCrmActivityReadModel model) => new(model.Id, model.PetId, model.PetName, model.OwnerUserId, model.OwnerName, model.Channel.ToString(), model.Purpose.ToString(), model.Direction.ToString(), model.Status.ToString(), model.Subject, model.Body, model.CreatedAt);
 }
 
-public sealed record ClinicCrmTaskDto(Guid Id, Guid PetId, string PetName, Guid OwnerUserId, string OwnerName, string Type, string Status, DateOnly DueDate, string Title, string? Notes)
+public sealed record ClinicCrmTaskDto(
+    Guid Id,
+    Guid? PetId,
+    string? PetName,
+    Guid? OwnerUserId,
+    string? OwnerName,
+    string Type,
+    string AssignedRole,
+    Guid? AssignedToUserId,
+    string? AssignedToName,
+    string Priority,
+    string Status,
+    DateOnly DueDate,
+    string Title,
+    string? Notes)
 {
-    public static ClinicCrmTaskDto FromReadModel(ClinicCrmTaskReadModel model) => new(model.Id, model.PetId, model.PetName, model.OwnerUserId, model.OwnerName, model.Type.ToString(), model.Status.ToString(), model.DueDate, model.Title, model.Notes);
-    public static ClinicCrmTaskDto FromDomain(ClinicCrmTask task, string petName, string ownerName) => new(task.Id, task.PetId, petName, task.OwnerUserId, ownerName, task.Type.ToString(), task.Status.ToString(), task.DueDate, task.Title, task.Notes);
+    public static ClinicCrmTaskDto FromReadModel(ClinicCrmTaskReadModel model) => new(
+        model.Id, model.PetId, model.PetName, model.OwnerUserId, model.OwnerName, model.Type.ToString(),
+        model.AssignedRole.ToString(), model.AssignedToUserId, model.AssignedToName, model.Priority.ToString(), model.Status.ToString(),
+        model.DueDate, model.Title, model.Notes);
+
+    public static ClinicCrmTaskDto FromDomain(ClinicCrmTask task, string? petName, string? ownerName, string? assignedToName = null) => new(
+        task.Id, task.PetId, petName, task.OwnerUserId, ownerName, task.Type.ToString(), task.AssignedRole.ToString(),
+        task.AssignedToUserId, assignedToName, task.Priority.ToString(), task.Status.ToString(), task.DueDate, task.Title, task.Notes);
 }
 
 public sealed record ClinicCrmSegmentDto(string Key, string Label, int Count, IReadOnlyList<Guid> PetIds);
@@ -164,51 +184,147 @@ public sealed class LogClinicCommunicationActivityCommandHandler(
     }
 }
 
-public sealed record CreateClinicCrmTaskCommand(Guid ClinicId, Guid ClinicUserId, Guid PetId, ClinicCrmTaskType Type, DateOnly DueDate, string Title, string? Notes) : IRequest<Result<Guid>>;
+public sealed record CreateClinicCrmTaskCommand(
+    Guid ClinicId,
+    Guid ClinicUserId,
+    Guid? PetId,
+    ClinicCrmTaskType Type,
+    DateOnly DueDate,
+    string Title,
+    string? Notes,
+    Guid IdempotencyKey,
+    ClinicCrmTaskPriority Priority = ClinicCrmTaskPriority.Normal,
+    ClinicInternalTaskRole? AssignedRole = null,
+    Guid? AssignedToUserId = null) : IRequest<Result<Guid>>;
 
 public sealed class CreateClinicCrmTaskCommandValidator : AbstractValidator<CreateClinicCrmTaskCommand>
 {
     public CreateClinicCrmTaskCommandValidator()
     {
-        RuleFor(x => x.PetId).NotEmpty();
+        RuleFor(x => x.PetId).Must(petId => !petId.HasValue || petId.Value != Guid.Empty);
+        RuleFor(x => x.IdempotencyKey).NotEmpty();
         RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
     }
 }
 
-public sealed class CreateClinicCrmTaskCommandHandler(IClinicRepository clinicRepository, IPetRepository petRepository, IClinicCrmRepository crmRepository, IAuditLogRepository auditLogRepository, IUnitOfWork unitOfWork)
+public sealed class CreateClinicCrmTaskCommandHandler(
+    IClinicRepository clinicRepository,
+    IPetRepository petRepository,
+    IClinicStaffAccessRepository staffAccess,
+    IClinicFinanceAccessRepository financeAccess,
+    IClinicCrmRepository crmRepository,
+    IAuditLogRepository auditLogRepository,
+    IUnitOfWork unitOfWork)
     : IRequestHandler<CreateClinicCrmTaskCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateClinicCrmTaskCommand request, CancellationToken cancellationToken)
     {
         var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
-        if (clinic is null || clinic.UserId != request.ClinicUserId)
+        if (clinic is null)
             return Result.Failure<Guid>("Acceso denegado.");
-        var pet = await petRepository.GetByIdAsync(request.PetId, cancellationToken);
-        if (pet is null)
-            return Result.Failure<Guid>("Mascota no encontrada.");
-        if (!await crmRepository.HasClinicPatientRelationshipAsync(request.ClinicId, request.PetId, cancellationToken))
-            return Result.Failure<Guid>("Paciente no vinculado a esta clínica.");
-        var task = ClinicCrmTask.Create(request.ClinicId, request.PetId, pet.OwnerId, request.Type, request.DueDate, request.Title, request.Notes, request.ClinicUserId);
+        var isOwner = clinic.UserId == request.ClinicUserId;
+        var staffMembership = isOwner ? null : await staffAccess.GetAsync(request.ClinicId, request.ClinicUserId, cancellationToken);
+        var financeMembership = isOwner ? null : await financeAccess.GetAsync(request.ClinicId, request.ClinicUserId, cancellationToken);
+        var actorRole = isOwner ? ClinicInternalTaskRole.Manager : staffMembership?.InternalTaskRole ?? financeMembership?.InternalTaskRole;
+        var isManager = financeMembership?.InternalTaskRole == ClinicInternalTaskRole.Manager;
+        var canWorkType = staffMembership?.CanWorkCrmTask(request.Type) == true
+            || financeMembership?.CanWorkCrmTask(request.Type) == true;
+        if (!isOwner && !canWorkType)
+            return Result.Failure<Guid>("Acceso denegado.");
+
+        var assignedRole = request.AssignedRole ?? (isOwner || isManager
+            ? ClinicCrmTask.DefaultAssignedRoleFor(request.Type)
+            : actorRole);
+        if (!assignedRole.HasValue || !Enum.IsDefined(assignedRole.Value))
+            return Result.Failure<Guid>("Rol responsable inválido.");
+        if (assignedRole.Value != ClinicCrmTask.DefaultAssignedRoleFor(request.Type))
+            return Result.Failure<Guid>("El tipo de tarea no corresponde al rol responsable.");
+        if (!isOwner && !isManager && assignedRole != actorRole)
+            return Result.Failure<Guid>("No puedes asignar tareas a otro rol.");
+
+        var assignedUserId = request.AssignedToUserId ?? (assignedRole == actorRole ? request.ClinicUserId : null);
+        if (assignedUserId.HasValue && !(isOwner && assignedUserId == clinic.UserId))
+        {
+            var targetStaff = await staffAccess.GetAsync(request.ClinicId, assignedUserId.Value, cancellationToken);
+            var targetFinance = await financeAccess.GetAsync(request.ClinicId, assignedUserId.Value, cancellationToken);
+            if (targetStaff?.InternalTaskRole != assignedRole && targetFinance?.InternalTaskRole != assignedRole)
+                return Result.Failure<Guid>("La persona responsable no pertenece al rol seleccionado.");
+        }
+
+        Guid? ownerUserId = null;
+        if (request.PetId.HasValue)
+        {
+            var pet = await petRepository.GetByIdAsync(request.PetId.Value, cancellationToken);
+            if (pet is null)
+                return Result.Failure<Guid>("Mascota no encontrada.");
+            if (!await crmRepository.HasClinicPatientRelationshipAsync(request.ClinicId, request.PetId.Value, cancellationToken))
+                return Result.Failure<Guid>("Paciente no vinculado a esta clínica.");
+            ownerUserId = pet.OwnerId;
+        }
+
+        var existing = await crmRepository.GetTaskByIdempotencyKeyAsync(request.ClinicId, request.IdempotencyKey, cancellationToken);
+        if (existing is not null)
+        {
+            return existing.MatchesRequest(request.PetId, ownerUserId, request.Type, assignedRole.Value,
+                    assignedUserId, request.Priority, request.DueDate, request.Title, request.Notes)
+                ? Result.Success(existing.Id)
+                : Result.Failure<Guid>("IDEMPOTENCY_CONFLICT");
+        }
+
+        var task = ClinicCrmTask.Create(request.ClinicId, request.PetId, ownerUserId, request.Type, request.DueDate,
+            request.Title, request.Notes, request.ClinicUserId, assignedRole, request.Priority, assignedUserId, request.IdempotencyKey);
         await crmRepository.AddTaskAsync(task, cancellationToken);
         await auditLogRepository.AddAsync(AuditLogEntry.Create(request.ClinicUserId, AuditAction.ClinicCrmTaskCreated, "ClinicCrmTask", task.Id.ToString(), task.Title), cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            crmRepository.DetachTask(task);
+            var winner = await crmRepository.GetTaskByIdempotencyKeyAsync(request.ClinicId, request.IdempotencyKey, cancellationToken);
+            if (winner is null) throw;
+            if (!winner.MatchesRequest(request.PetId, ownerUserId, request.Type, assignedRole.Value,
+                    assignedUserId, request.Priority, request.DueDate, request.Title, request.Notes))
+                return Result.Failure<Guid>("IDEMPOTENCY_CONFLICT");
+            return Result.Success(winner.Id);
+        }
         return Result.Success(task.Id);
     }
 }
 
 public sealed record CompleteClinicCrmTaskCommand(Guid ClinicId, Guid ClinicUserId, Guid TaskId) : IRequest<Result<bool>>;
 
-public sealed class CompleteClinicCrmTaskCommandHandler(IClinicRepository clinicRepository, IClinicCrmRepository crmRepository, IAuditLogRepository auditLogRepository, IUnitOfWork unitOfWork)
+public sealed class CompleteClinicCrmTaskCommandHandler(
+    IClinicRepository clinicRepository,
+    IClinicStaffAccessRepository staffAccess,
+    IClinicFinanceAccessRepository financeAccess,
+    IClinicCrmRepository crmRepository,
+    IAuditLogRepository auditLogRepository,
+    IUnitOfWork unitOfWork)
     : IRequestHandler<CompleteClinicCrmTaskCommand, Result<bool>>
 {
     public async Task<Result<bool>> Handle(CompleteClinicCrmTaskCommand request, CancellationToken cancellationToken)
     {
         var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
-        if (clinic is null || clinic.UserId != request.ClinicUserId)
+        if (clinic is null)
             return Result.Failure<bool>("Acceso denegado.");
         var task = await crmRepository.GetTaskByIdAsync(request.TaskId, cancellationToken);
         if (task is null || task.ClinicId != request.ClinicId)
             return Result.Failure<bool>("Tarea CRM no encontrada.");
+        if (clinic.UserId != request.ClinicUserId)
+        {
+            var staffMembership = await staffAccess.GetAsync(request.ClinicId, request.ClinicUserId, cancellationToken);
+            var financeMembership = await financeAccess.GetAsync(request.ClinicId, request.ClinicUserId, cancellationToken);
+            var isManager = financeMembership?.InternalTaskRole == ClinicInternalTaskRole.Manager;
+            var assignedToActor = !task.AssignedToUserId.HasValue || task.AssignedToUserId == request.ClinicUserId;
+            var staffCanComplete = staffMembership?.InternalTaskRole == task.AssignedRole
+                && staffMembership.CanWorkCrmTask(task.Type) && assignedToActor;
+            var financeCanComplete = financeMembership?.InternalTaskRole == task.AssignedRole
+                && financeMembership.CanWorkCrmTask(task.Type) && assignedToActor;
+            if (!isManager && !staffCanComplete && !financeCanComplete)
+                return Result.Failure<bool>("Acceso denegado.");
+        }
         try { task.Complete(request.ClinicUserId); }
         catch (InvalidOperationException ex) { return Result.Failure<bool>(ex.Message); }
         crmRepository.UpdateTask(task);
@@ -220,19 +336,44 @@ public sealed class CompleteClinicCrmTaskCommandHandler(IClinicRepository clinic
 
 public sealed record GetClinicCrmDashboardQuery(Guid ClinicId, Guid ClinicUserId, DateOnly Today) : IRequest<Result<ClinicCrmDashboardDto>>;
 
-public sealed class GetClinicCrmDashboardQueryHandler(IClinicRepository clinicRepository, IClinicCrmRepository crmRepository)
+public sealed class GetClinicCrmDashboardQueryHandler(
+    IClinicRepository clinicRepository,
+    IClinicStaffAccessRepository staffAccess,
+    IClinicFinanceAccessRepository financeAccess,
+    IClinicCrmRepository crmRepository)
     : IRequestHandler<GetClinicCrmDashboardQuery, Result<ClinicCrmDashboardDto>>
 {
     public async Task<Result<ClinicCrmDashboardDto>> Handle(GetClinicCrmDashboardQuery request, CancellationToken cancellationToken)
     {
         var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
-        if (clinic is null || clinic.UserId != request.ClinicUserId)
+        if (clinic is null)
             return Result.Failure<ClinicCrmDashboardDto>("Acceso denegado.");
-        var dashboard = await crmRepository.GetDashboardAsync(request.ClinicId, request.Today, cancellationToken);
+        var isOwner = clinic.UserId == request.ClinicUserId;
+        var staffMembership = isOwner ? null : await staffAccess.GetAsync(request.ClinicId, request.ClinicUserId, cancellationToken);
+        var financeMembership = isOwner ? null : await financeAccess.GetAsync(request.ClinicId, request.ClinicUserId, cancellationToken);
+        var isManager = financeMembership?.InternalTaskRole == ClinicInternalTaskRole.Manager;
+        var allowedRoles = new HashSet<ClinicInternalTaskRole>();
+        if (staffMembership?.InternalTaskRole is { } staffRole)
+            allowedRoles.Add(staffRole);
+        if (financeMembership?.InternalTaskRole is { } financeRole)
+            allowedRoles.Add(financeRole);
+        if (isManager)
+            allowedRoles.UnionWith(Enum.GetValues<ClinicInternalTaskRole>());
+        if (!isOwner && allowedRoles.Count == 0)
+            return Result.Failure<ClinicCrmDashboardDto>("Acceso denegado.");
+        var dashboard = await crmRepository.GetDashboardAsync(
+            request.ClinicId,
+            request.Today,
+            isOwner || isManager ? null : allowedRoles.ToArray(),
+            null,
+            isOwner,
+            isOwner || isManager ? null : request.ClinicUserId,
+            cancellationToken);
+        var tasks = dashboard.OpenTasks;
         return Result.Success(new ClinicCrmDashboardDto(
-            dashboard.Preferences.Select(ClinicCrmPreferenceDto.FromReadModel).ToList(),
-            dashboard.RecentActivities.Select(ClinicCrmActivityDto.FromReadModel).ToList(),
-            dashboard.OpenTasks.Select(ClinicCrmTaskDto.FromReadModel).ToList(),
-            dashboard.Segments.Select(segment => new ClinicCrmSegmentDto(segment.Key, segment.Label, segment.Count, segment.PetIds)).ToList()));
+            isOwner ? dashboard.Preferences.Select(ClinicCrmPreferenceDto.FromReadModel).ToList() : [],
+            isOwner ? dashboard.RecentActivities.Select(ClinicCrmActivityDto.FromReadModel).ToList() : [],
+            tasks.Select(ClinicCrmTaskDto.FromReadModel).ToList(),
+            isOwner ? dashboard.Segments.Select(segment => new ClinicCrmSegmentDto(segment.Key, segment.Label, segment.Count, segment.PetIds)).ToList() : []));
     }
 }

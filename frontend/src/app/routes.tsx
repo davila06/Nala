@@ -61,6 +61,7 @@ const ClinicPublicProfilePage = lazy(() => import("@/features/clinics/pages/Clin
 const ClinicPendingPage = lazy(() => import("@/features/clinics/pages/ClinicPendingPage"));
 const ClinicDashboardPage = lazy(() => import("@/features/clinics/pages/ClinicDashboardPage"));
 const ClinicFinanceWorkspacePage = lazy(() => import("@/features/clinics/pages/ClinicFinanceWorkspacePage"));
+const StaffClinicCrmWorkspacePage = lazy(() => import("@/features/clinics/pages/StaffClinicCrmWorkspacePage"));
 
 // Tiendas de mascotas
 const StoreRegistrationPage = lazy(() => import("@/features/stores/pages/StoreRegistrationPage"));
@@ -719,6 +720,14 @@ export const router = createBrowserRouter([
             element: (
               <S skeleton="dashboard">
                 <ClinicFinanceWorkspacePage />
+              </S>
+            ),
+          },
+          {
+            path: "/clinica/equipo",
+            element: (
+              <S skeleton="dashboard">
+                <StaffClinicCrmWorkspacePage />
               </S>
             ),
           },

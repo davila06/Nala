@@ -180,6 +180,8 @@ vi.mock("@/features/clinics/hooks/useClinics", () => ({
   useClinicSalesReport: () => ({
     data: {
       totalPaidCrc: 15000,
+      pendingBalanceCrc: 12000,
+      pendingSaleCount: 2,
       byPaymentMethod: { Sinpe: 15000 },
       byService: { "Consulta veterinaria": 15000 },
       byVeterinarian: { "Dra. Mora": 15000 },
@@ -207,6 +209,10 @@ vi.mock("@/features/clinics/hooks/useClinics", () => ({
           ownerUserId: "owner-1",
           ownerName: "Ana",
           type: "FollowUpTreatment",
+          assignedRole: "Veterinarian",
+          assignedToUserId: null,
+          assignedToName: null,
+          priority: "Urgent",
           status: "Open",
           dueDate: "2026-09-25",
           title: "Llamar al tutor",
@@ -250,6 +256,8 @@ describe("ClinicOperationsPanel", () => {
     expect(screen.getByText("ClinicAppointmentStatusChanged")).toBeInTheDocument();
     expect(screen.getAllByText("Vacuna rabia").length).toBeGreaterThan(0);
     expect(screen.getByText(/Cobros registrados/)).toBeInTheDocument();
+    expect(screen.getByText("Saldo pendiente").parentElement).toHaveTextContent("12");
+    expect(screen.getByText("2 ventas con saldo pendiente")).toBeInTheDocument();
     expect(screen.getByText("Comunicación y CRM clínico")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Enviar correo clínico" })).toBeInTheDocument();
     expect(screen.getByText("Personal de caja")).toBeInTheDocument();
@@ -272,12 +280,12 @@ describe("ClinicOperationsPanel", () => {
 
     expect(await screen.findByText("Tareas internas por rol")).toBeInTheDocument();
     expect(screen.getByLabelText("Filtrar tareas por rol")).toBeInTheDocument();
-    expect(screen.getByText("Urgente")).toBeInTheDocument();
+    expect(screen.getByText("Alta")).toBeInTheDocument();
     expect(screen.getAllByText("25/09/2026").length).toBeGreaterThan(0);
 
-    await userEvent.selectOptions(screen.getByLabelText("Filtrar tareas por rol"), "Reception");
+    await userEvent.selectOptions(screen.getByLabelText("Filtrar tareas por rol"), "Receptionist");
 
-    expect((screen.getByLabelText("Filtrar tareas por rol") as HTMLSelectElement).value).toBe("Reception");
+    expect((screen.getByLabelText("Filtrar tareas por rol") as HTMLSelectElement).value).toBe("Receptionist");
     expect(screen.getAllByText("Recepción").length).toBeGreaterThan(0);
   });
 });

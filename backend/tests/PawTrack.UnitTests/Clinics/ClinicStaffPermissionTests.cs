@@ -24,6 +24,31 @@ public sealed class ClinicStaffPermissionTests
     }
 
     [Fact]
+    public void Assistant_CanWorkPreparationAndInventoryTasksWithoutClientCommunicationAccess()
+    {
+        var member = ClinicStaffMembership.Grant(Guid.NewGuid(), Guid.NewGuid(), ClinicStaffRole.Assistant, Guid.NewGuid());
+
+        member.CanWorkCrmTask(ClinicCrmTaskType.PrepareConsultation).Should().BeTrue();
+        member.CanWorkCrmTask(ClinicCrmTaskType.ReviewInventory).Should().BeTrue();
+        member.CanWorkCrmTask(ClinicCrmTaskType.FollowUpTreatment).Should().BeFalse();
+        member.Allows(ClinicStaffPermission.ViewCrm).Should().BeFalse();
+    }
+
+    [Fact]
+    public void FinanceRoles_AreRestrictedToTheirOperationalTaskScope()
+    {
+        var clinicId = Guid.NewGuid();
+        var grantorId = Guid.NewGuid();
+        var cashier = ClinicFinanceMembership.Grant(clinicId, Guid.NewGuid(), ClinicFinanceRole.Cashier, grantorId);
+        var manager = ClinicFinanceMembership.Grant(clinicId, Guid.NewGuid(), ClinicFinanceRole.Administrator, grantorId);
+
+        cashier.CanWorkCrmTask(ClinicCrmTaskType.CollectPayment).Should().BeTrue();
+        cashier.CanWorkCrmTask(ClinicCrmTaskType.CloseCash).Should().BeFalse();
+        manager.CanWorkCrmTask(ClinicCrmTaskType.CloseCash).Should().BeTrue();
+        manager.CanWorkCrmTask(ClinicCrmTaskType.ReviewOperations).Should().BeTrue();
+    }
+
+    [Fact]
     public async Task OwnerCannotGrantForeignVeterinarianAsClinicalStaff()
     {
         var (owner, _) = User.Create("clinic@pawtrack.cr", "hash", "Owner");

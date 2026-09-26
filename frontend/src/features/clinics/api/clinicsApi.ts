@@ -401,6 +401,8 @@ export interface ClinicCommunicationTemplateDto {
 
 export interface ClinicSalesReportDto {
   totalPaidCrc: number;
+  pendingBalanceCrc: number;
+  pendingSaleCount: number;
   byPaymentMethod: Record<string, number>;
   byService: Record<string, number>;
   byVeterinarian: Record<string, number>;
@@ -422,7 +424,15 @@ export type ClinicCrmTaskType =
   | "FollowUpTreatment"
   | "SendDocument"
   | "CollectPayment"
-  | "Reactivation";
+  | "Reactivation"
+  | "PrepareConsultation"
+  | "ReviewInventory"
+  | "ProcessRefund"
+  | "CloseCash"
+  | "ReviewOperations";
+
+export type ClinicInternalTaskRole = "Receptionist" | "Veterinarian" | "Assistant" | "Cashier" | "Manager";
+export type ClinicCrmTaskPriority = "Urgent" | "High" | "Normal" | "Low";
 
 export interface ClinicCrmDashboardDto {
   preferences: Array<{
@@ -453,11 +463,15 @@ export interface ClinicCrmDashboardDto {
   }>;
   openTasks: Array<{
     id: string;
-    petId: string;
-    petName: string;
-    ownerUserId: string;
-    ownerName: string;
+    petId: string | null;
+    petName: string | null;
+    ownerUserId: string | null;
+    ownerName: string | null;
     type: ClinicCrmTaskType;
+    assignedRole: ClinicInternalTaskRole;
+    assignedToUserId: string | null;
+    assignedToName: string | null;
+    priority: ClinicCrmTaskPriority;
     status: string;
     dueDate: string;
     title: string;
@@ -676,8 +690,14 @@ export const clinicsApi = {
   getStaffMembers: (): Promise<ClinicStaffMemberDto[]> =>
     apiClient.get<ClinicStaffMemberDto[]>("/clinics/me/staff/members").then((response) => response.data),
 
-  grantStaffMember: (email: string, role: ClinicStaffRole, veterinarianId: string | null): Promise<{ membershipId: string }> =>
-    apiClient.put<{ membershipId: string }>("/clinics/me/staff/members", { email, role, veterinarianId }).then((response) => response.data),
+  grantStaffMember: (
+    email: string,
+    role: ClinicStaffRole,
+    veterinarianId: string | null,
+  ): Promise<{ membershipId: string }> =>
+    apiClient
+      .put<{ membershipId: string }>("/clinics/me/staff/members", { email, role, veterinarianId })
+      .then((response) => response.data),
 
   revokeStaffMember: (memberUserId: string): Promise<void> =>
     apiClient.delete(`/clinics/me/staff/members/${memberUserId}`).then(() => undefined),
@@ -685,17 +705,65 @@ export const clinicsApi = {
   getStaffWorkspaces: (): Promise<ClinicStaffWorkspaceDto[]> =>
     apiClient.get<ClinicStaffWorkspaceDto[]>("/clinics/staff-workspaces").then((response) => response.data),
 
+  getStaffCrmDashboard: (clinicId: string, today: string): Promise<ClinicCrmDashboardDto> =>
+    apiClient
+      .get<ClinicCrmDashboardDto>(`/clinics/${clinicId}/staff/crm-dashboard`, { params: { today } })
+      .then((response) => response.data),
+
+  createStaffCrmTask: (
+    clinicId: string,
+    payload: {
+      petId: string | null;
+      type: ClinicCrmTaskType;
+      dueDate: string;
+      title: string;
+      notes?: string | null;
+      idempotencyKey: string;
+      priority: ClinicCrmTaskPriority;
+      assignedRole?: ClinicInternalTaskRole | null;
+      assignedToUserId?: string | null;
+    },
+  ): Promise<{ taskId: string }> =>
+    apiClient
+      .post<{ taskId: string }>(`/clinics/${clinicId}/staff/crm/tasks`, payload)
+      .then((response) => response.data),
+
+  completeStaffCrmTask: (clinicId: string, taskId: string): Promise<void> =>
+    apiClient.post(`/clinics/${clinicId}/staff/crm/tasks/${taskId}/complete`).then(() => undefined),
+
   getStaffAgenda: (clinicId: string, from: string, to: string): Promise<ClinicAgendaItemDto[]> =>
-    apiClient.get<ClinicAgendaItemDto[]>(`/clinics/${clinicId}/staff/appointments`, { params: { from, to } }).then((response) => response.data),
+    apiClient
+      .get<ClinicAgendaItemDto[]>(`/clinics/${clinicId}/staff/appointments`, { params: { from, to } })
+      .then((response) => response.data),
 
-  updateStaffAppointmentStatus: (clinicId: string, appointmentId: string, status: VeterinarianAppointmentStatus): Promise<void> =>
-    apiClient.patch(`/clinics/${clinicId}/staff/appointments/${appointmentId}/status`, { status }).then(() => undefined),
+  updateStaffAppointmentStatus: (
+    clinicId: string,
+    appointmentId: string,
+    status: VeterinarianAppointmentStatus,
+  ): Promise<void> =>
+    apiClient
+      .patch(`/clinics/${clinicId}/staff/appointments/${appointmentId}/status`, { status })
+      .then(() => undefined),
 
-  createStaffConsultation: (clinicId: string, appointmentId: string, payload: ClinicalConsultationCreatePayload): Promise<ClinicalConsultationDto> =>
-    apiClient.post<ClinicalConsultationDto>(`/clinics/${clinicId}/staff/appointments/${appointmentId}/consultation`, payload).then((response) => response.data),
+  createStaffConsultation: (
+    clinicId: string,
+    appointmentId: string,
+    payload: ClinicalConsultationCreatePayload,
+  ): Promise<ClinicalConsultationDto> =>
+    apiClient
+      .post<ClinicalConsultationDto>(`/clinics/${clinicId}/staff/appointments/${appointmentId}/consultation`, payload)
+      .then((response) => response.data),
 
-  closeStaffConsultation: (clinicId: string, consultationId: string, signedByName: string): Promise<ClinicalConsultationDto> =>
-    apiClient.post<ClinicalConsultationDto>(`/clinics/${clinicId}/staff/consultations/${consultationId}/close`, { signedByName }).then((response) => response.data),
+  closeStaffConsultation: (
+    clinicId: string,
+    consultationId: string,
+    signedByName: string,
+  ): Promise<ClinicalConsultationDto> =>
+    apiClient
+      .post<ClinicalConsultationDto>(`/clinics/${clinicId}/staff/consultations/${consultationId}/close`, {
+        signedByName,
+      })
+      .then((response) => response.data),
 
   grantFinanceMember: (email: string, role: ClinicFinanceWorkspaceDto["role"]): Promise<{ membershipId: string }> =>
     apiClient.put<{ membershipId: string }>("/clinics/me/finance/members", { email, role }).then((r) => r.data),
@@ -794,11 +862,15 @@ export const clinicsApi = {
   }): Promise<void> => apiClient.post("/clinics/me/crm/activities", payload).then(() => undefined),
 
   createCrmTask: (payload: {
-    petId: string;
+    petId: string | null;
     type: ClinicCrmTaskType;
     dueDate: string;
     title: string;
     notes?: string | null;
+    idempotencyKey: string;
+    priority: ClinicCrmTaskPriority;
+    assignedRole?: ClinicInternalTaskRole | null;
+    assignedToUserId?: string | null;
   }): Promise<{ taskId: string }> =>
     apiClient.post<{ taskId: string }>("/clinics/me/crm/tasks", payload).then((r) => r.data),
 

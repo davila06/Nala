@@ -285,7 +285,13 @@ public sealed class CloseClinicCashCommandHandler(IClinicRepository clinicReposi
     }
 }
 
-public sealed record ClinicSalesReportDto(decimal TotalPaidCrc, IReadOnlyDictionary<string, decimal> ByPaymentMethod, IReadOnlyDictionary<string, decimal> ByService, IReadOnlyDictionary<string, decimal> ByVeterinarian);
+public sealed record ClinicSalesReportDto(
+    decimal TotalPaidCrc,
+    decimal PendingBalanceCrc,
+    int PendingSaleCount,
+    IReadOnlyDictionary<string, decimal> ByPaymentMethod,
+    IReadOnlyDictionary<string, decimal> ByService,
+    IReadOnlyDictionary<string, decimal> ByVeterinarian);
 public sealed record GetClinicSalesReportQuery(Guid ClinicId, Guid ClinicUserId, DateOnly BusinessDate) : IRequest<Result<ClinicSalesReportDto>>;
 
 public sealed class GetClinicSalesReportQueryHandler(IClinicRepository clinicRepository, IClinicBillingRepository billingRepository, IClinicFinanceAccessRepository financeAccess)
@@ -301,6 +307,7 @@ public sealed class GetClinicSalesReportQueryHandler(IClinicRepository clinicRep
         var refunds = await billingRepository.GetRefundsForClinicOnDateAsync(request.ClinicId, request.BusinessDate, cancellationToken);
         var sales = await billingRepository.GetSalesForClinicOnDateAsync(request.ClinicId, request.BusinessDate, cancellationToken);
         var byVeterinarian = await billingRepository.GetSalesByVeterinarianForClinicOnDateAsync(request.ClinicId, request.BusinessDate, cancellationToken);
+        var pendingSales = sales.Where(sale => sale.Status is ClinicSaleStatus.Open or ClinicSaleStatus.PartiallyPaid).ToList();
         var byMethod = payments.Select(payment => (payment.Method, payment.AmountCrc))
             .Concat(refunds.Select(refund => (refund.Method, -refund.AmountCrc)))
             .GroupBy(movement => movement.Method.ToString()).ToDictionary(group => group.Key, group => group.Sum(movement => movement.Item2));
@@ -308,6 +315,12 @@ public sealed class GetClinicSalesReportQueryHandler(IClinicRepository clinicRep
             .SelectMany(sale => sale.Lines)
             .GroupBy(line => line.Description)
             .ToDictionary(group => group.Key, group => group.Sum(line => line.LineTotalCrc));
-        return Result.Success(new ClinicSalesReportDto(payments.Sum(payment => payment.AmountCrc) - refunds.Sum(refund => refund.AmountCrc), byMethod, byService, byVeterinarian));
+        return Result.Success(new ClinicSalesReportDto(
+            payments.Sum(payment => payment.AmountCrc) - refunds.Sum(refund => refund.AmountCrc),
+            pendingSales.Sum(sale => sale.BalanceCrc),
+            pendingSales.Count,
+            byMethod,
+            byService,
+            byVeterinarian));
     }
 }

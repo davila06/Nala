@@ -49,10 +49,15 @@ public sealed class ClinicCrmTaskConfiguration : IEntityTypeConfiguration<Clinic
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedNever();
         builder.Property(x => x.Type).HasConversion<string>().HasMaxLength(40).IsRequired();
+        builder.Property(x => x.AssignedRole).HasConversion<string>().HasMaxLength(30).IsRequired();
+        builder.Property(x => x.Priority).HasConversion<string>().HasMaxLength(20).IsRequired();
         builder.Property(x => x.Status).HasConversion<string>().HasMaxLength(30).IsRequired();
         builder.Property(x => x.Title).IsRequired().HasMaxLength(200);
         builder.Property(x => x.Notes).HasMaxLength(1000);
-        builder.HasIndex(x => new { x.ClinicId, x.Status, x.DueDate });
+        builder.Property(x => x.IdempotencyKey).IsRequired();
+        builder.HasIndex(x => new { x.ClinicId, x.IdempotencyKey }).IsUnique();
+        builder.HasIndex(x => new { x.ClinicId, x.AssignedRole, x.Status, x.Priority, x.DueDate });
+        builder.HasIndex(x => new { x.ClinicId, x.AssignedToUserId, x.Status });
         builder.HasIndex(x => new { x.ClinicId, x.PetId });
     }
 }

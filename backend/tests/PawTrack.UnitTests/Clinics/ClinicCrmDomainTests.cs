@@ -45,6 +45,46 @@ public sealed class ClinicCrmDomainTests
     }
 
     [Fact]
+    public void InternalTask_PersistsPriorityRoleAssigneeAndIdempotencyKeyWithoutPetContext()
+    {
+        var clinicId = Guid.NewGuid();
+        var creatorId = Guid.NewGuid();
+        var assigneeId = Guid.NewGuid();
+        var idempotencyKey = Guid.NewGuid();
+        var task = ClinicCrmTask.Create(
+            clinicId,
+            null,
+            null,
+            ClinicCrmTaskType.CloseCash,
+            new DateOnly(2026, 9, 25),
+            "Cerrar caja",
+            null,
+            creatorId,
+            ClinicInternalTaskRole.Cashier,
+            ClinicCrmTaskPriority.High,
+            assigneeId,
+            idempotencyKey);
+
+        task.PetId.Should().BeNull();
+        task.OwnerUserId.Should().BeNull();
+        task.AssignedRole.Should().Be(ClinicInternalTaskRole.Cashier);
+        task.Priority.Should().Be(ClinicCrmTaskPriority.High);
+        task.AssignedToUserId.Should().Be(assigneeId);
+        task.IdempotencyKey.Should().Be(idempotencyKey);
+    }
+
+    [Fact]
+    public void InternalTask_RejectsAnEmptyIdempotencyKey()
+    {
+        var act = () => ClinicCrmTask.Create(
+            Guid.NewGuid(), null, null, ClinicCrmTaskType.ReviewOperations,
+            new DateOnly(2026, 9, 25), "Revisar operación", null, Guid.NewGuid(),
+            ClinicInternalTaskRole.Manager, ClinicCrmTaskPriority.Normal, null, Guid.Empty);
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
     public void ProviderMessage_MustHaveReceiptBeforeSentState()
     {
         var activity = ClinicClientCommunicationActivity.Log(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),

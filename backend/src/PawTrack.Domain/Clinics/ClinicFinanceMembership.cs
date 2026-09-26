@@ -35,6 +35,16 @@ public sealed class ClinicFinanceMembership
     public bool Allows(ClinicFinancePermission permission) => !IsRevoked &&
         (Role == ClinicFinanceRole.Administrator || permission is ClinicFinancePermission.Collect or ClinicFinancePermission.ViewReport);
 
+    public bool CanWorkCrmTask(ClinicCrmTaskType type) => !IsRevoked &&
+        (Role == ClinicFinanceRole.Administrator || type == ClinicCrmTaskType.CollectPayment);
+
+    public ClinicInternalTaskRole? InternalTaskRole => IsRevoked ? null : Role switch
+    {
+        ClinicFinanceRole.Cashier => ClinicInternalTaskRole.Cashier,
+        ClinicFinanceRole.Administrator => ClinicInternalTaskRole.Manager,
+        _ => null,
+    };
+
     public void ChangeRole(ClinicFinanceRole role) { if (IsRevoked) throw new InvalidOperationException("Membership is revoked."); Role = role; }
 
     public void Revoke(Guid revokedByUserId)

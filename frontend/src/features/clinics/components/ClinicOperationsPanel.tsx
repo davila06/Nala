@@ -7,8 +7,10 @@ import type {
   ClinicAgendaItemDto,
   ClinicCommunicationChannel,
   ClinicCommunicationPurpose,
+  ClinicCrmTaskPriority,
   ClinicCrmDashboardDto,
   ClinicCrmTaskType,
+  ClinicInternalTaskRole,
   ClinicInventoryItemDto,
   ClinicInventoryItemType,
   ClinicPaymentMethod,
@@ -58,6 +60,16 @@ import {
 } from "../hooks/useClinics";
 import { Button, Input } from "@/shared/ui";
 import { toast } from "@/shared/lib/toast";
+import {
+  daysFromClinicToday,
+  formatCostaRicaDate,
+  formatCostaRicaTime,
+  getClinicDateInputValue,
+  getClinicDayRange,
+  getClinicWeekRange,
+  toCostaRicaDateTimeInput,
+  toCostaRicaUtc,
+} from "../clinicDateTime";
 
 const PERMISSIONS = [
   ["medical:read", "Leer expedientes"],
@@ -83,90 +95,31 @@ const NEXT_STATUS: Partial<Record<VeterinarianAppointmentStatus, VeterinarianApp
   InConsultation: "Completed",
 };
 
-function dayRange(value: string) {
-  const start = new Date(`${value}T00:00:00`);
-  const end = new Date(start);
-  end.setDate(end.getDate() + 1);
-  return { from: start.toISOString(), to: end.toISOString() };
-}
-
-function weekRange(value: string) {
-  const selected = new Date(`${value}T00:00:00`);
-  const day = selected.getDay();
-  const mondayOffset = day === 0 ? -6 : 1 - day;
-  const start = new Date(selected);
-  start.setDate(selected.getDate() + mondayOffset);
-  const end = new Date(start);
-  end.setDate(start.getDate() + 7);
-  return { from: start.toISOString(), to: end.toISOString() };
-}
-
-function todayInputValue() {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Costa_Rica",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date());
-}
-
-function formatCrDate(value: string | Date) {
-  const date = typeof value === "string" ? new Date(`${value}T00:00:00`) : value;
-  return new Intl.DateTimeFormat("es-CR", {
-    timeZone: "America/Costa_Rica",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(date);
-}
-
-type InternalTaskRole = "All" | "Reception" | "Veterinarian" | "Cashier" | "Manager";
-
-function resolveInternalRole(taskType: ClinicCrmTaskType): InternalTaskRole {
-  switch (taskType) {
-    case "ConfirmAppointment":
-    case "CallClient":
-      return "Reception";
-    case "FollowUpTreatment":
-    case "SendDocument":
-    case "Reactivation":
-      return "Veterinarian";
-    case "CollectPayment":
-      return "Cashier";
-    default:
-      return "Manager";
-  }
-}
-
-function resolveTaskPriority(dueDate: string) {
-  const today = new Date();
-  const due = new Date(`${dueDate}T00:00:00`);
-  const diffDays = Math.round((due.getTime() - today.getTime()) / 86400000);
-
-  if (diffDays <= 0) return "Urgente";
-  if (diffDays <= 2) return "Hoy";
-  return "Próximo";
-}
+type InternalTaskRole = "All" | ClinicInternalTaskRole;
 
 function roleLabel(role: InternalTaskRole) {
-  switch (role) {
-    case "Reception":
-      return "Recepción";
-    case "Veterinarian":
-      return "Veterinario";
-    case "Cashier":
-      return "Caja";
-    case "Manager":
-      return "Gerencia";
-    default:
-      return "Todo";
-  }
+  if (role === "All") return "Todo";
+  return {
+    Receptionist: "Recepción",
+    Veterinarian: "Veterinario",
+    Assistant: "Asistencia",
+    Cashier: "Caja",
+    Manager: "Gerencia",
+  }[role];
 }
 
-const INTERNAL_TASK_PRIORITY_ORDER: Record<string, number> = {
-  Urgente: 0,
-  Hoy: 1,
-  Próximo: 2,
+const INTERNAL_TASK_PRIORITY_ORDER: Record<ClinicCrmTaskPriority, number> = {
+  Urgent: 0,
+  High: 1,
+  Normal: 2,
+  Low: 3,
+};
+
+const INTERNAL_TASK_PRIORITY_LABELS: Record<ClinicCrmTaskPriority, string> = {
+  Urgent: "Urgente",
+  High: "Alta",
+  Normal: "Normal",
+  Low: "Baja",
 };
 
 function VeterinarianRow({ veterinarian }: { veterinarian: ClinicVeterinarianDto }) {
@@ -230,10 +183,10 @@ export function ClinicOperationsPanel() {
     queryKey: ["clinic-veterinarians"],
     queryFn: certificateApi.getMyVeterinarians,
   });
-  const [agendaDate, setAgendaDate] = useState(todayInputValue());
+  const [agendaDate, setAgendaDate] = useState(getClinicDateInputValue());
   const [agendaMode, setAgendaMode] = useState<"day" | "week">("day");
   const [selectedTaskRole, setSelectedTaskRole] = useState<InternalTaskRole>("All");
-  const range = agendaMode === "day" ? dayRange(agendaDate) : weekRange(agendaDate);
+  const range = agendaMode === "day" ? getClinicDayRange(agendaDate) : getClinicWeekRange(agendaDate);
   const { data: agenda = [], isLoading: agendaLoading } = useClinicAgenda(range.from, range.to);
   const { data: blocks = [], isLoading: blocksLoading } = useClinicScheduleBlocks(range.from, range.to);
   const { data: auditEntries = [], isLoading: auditLoading } = useClinicAgendaAudit(range.from, range.to);
@@ -278,7 +231,7 @@ export function ClinicOperationsPanel() {
     mutationFn: () =>
       certificateApi.scheduleAppointment(selectedVeterinarian, {
         petId,
-        startsAt: new Date(startsAt).toISOString(),
+        startsAt: toCostaRicaUtc(startsAt).toISOString(),
         durationMinutes,
       }),
     onSuccess: () => {
@@ -302,39 +255,55 @@ export function ClinicOperationsPanel() {
     timeZone: "America/Costa_Rica",
   }).format(new Date());
 
+  const todayCr = getClinicDateInputValue();
+  const lowStockItems = inventory.filter((item) => item.isBelowMinimum || item.totalAvailable <= item.minimumStock);
+  const expiringLots = inventory
+    .flatMap((item) => item.lots ?? [])
+    .filter(
+      (lot) =>
+        lot.availableQuantity > 0 &&
+        lot.expiresAt &&
+        daysFromClinicToday(lot.expiresAt) >= 0 &&
+        daysFromClinicToday(lot.expiresAt) <= 30,
+    );
+  const overdueTasks = (crmDashboard?.openTasks ?? []).filter((task) => task.dueDate < todayCr);
+  const dailyAlerts = [
+    ...(lowStockItems.length > 0 ? [`${lowStockItems.length} productos bajo mínimo`] : []),
+    ...(expiringLots.length > 0 ? [`${expiringLots.length} lotes vencen dentro de 30 días`] : []),
+    ...((salesReport?.pendingSaleCount ?? 0) > 0
+      ? [`${salesReport?.pendingSaleCount} ventas con saldo pendiente`]
+      : []),
+    ...(overdueTasks.length > 0 ? [`${overdueTasks.length} tareas vencidas`] : []),
+  ];
   const dailySummary = {
     scheduled: agenda.filter((appointment) => appointment.status === "Scheduled" || appointment.status === "Confirmed")
       .length,
     inProgress: agenda.filter(
       (appointment) => appointment.status === "CheckedIn" || appointment.status === "InConsultation",
     ).length,
-    stockAlerts: inventory.filter((item) => item.isBelowMinimum || item.totalAvailable <= item.minimumStock).length,
+    stockAlerts: lowStockItems.length,
     openTasks: crmDashboard?.openTasks.length ?? 0,
     revenue: salesReport?.totalPaidCrc ?? 0,
+    pendingBalance: salesReport?.pendingBalanceCrc ?? 0,
+    pendingSales: salesReport?.pendingSaleCount ?? 0,
+    alertCount: dailyAlerts.length,
   };
 
-  const nextTasks = crmDashboard?.openTasks.slice(0, 4) ?? [];
-  const internalTasks = [...(crmDashboard?.openTasks ?? [])]
-    .map((task) => ({
-      ...task,
-      role: resolveInternalRole(task.type as ClinicCrmTaskType),
-      priority: resolveTaskPriority(task.dueDate),
-    }))
-    .sort((left, right) => {
-      const priorityDelta =
-        (INTERNAL_TASK_PRIORITY_ORDER[left.priority] ?? 99) - (INTERNAL_TASK_PRIORITY_ORDER[right.priority] ?? 99);
-      if (priorityDelta !== 0) return priorityDelta;
-      return new Date(left.dueDate).getTime() - new Date(right.dueDate).getTime();
-    });
+  const internalTasks = [...(crmDashboard?.openTasks ?? [])].sort((left, right) => {
+    const priorityDelta = INTERNAL_TASK_PRIORITY_ORDER[left.priority] - INTERNAL_TASK_PRIORITY_ORDER[right.priority];
+    if (priorityDelta !== 0) return priorityDelta;
+    return left.dueDate.localeCompare(right.dueDate);
+  });
+  const nextTasks = internalTasks.slice(0, 4);
 
   const visibleTaskGroups = (
     selectedTaskRole === "All"
-      ? (["Reception", "Veterinarian", "Cashier", "Manager"] as InternalTaskRole[])
+      ? (["Receptionist", "Veterinarian", "Assistant", "Cashier", "Manager"] as InternalTaskRole[])
       : [selectedTaskRole]
   ).map((role) => ({
     role,
     label: roleLabel(role),
-    tasks: internalTasks.filter((task) => task.role === role),
+    tasks: internalTasks.filter((task) => task.assignedRole === role),
   }));
 
   return (
@@ -357,7 +326,7 @@ export function ClinicOperationsPanel() {
           </span>
         </div>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-xl border border-sand-200 bg-sand-50 p-3">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sand-500">Citas</p>
             <p className="mt-2 text-2xl font-black text-sand-900">{dailySummary.scheduled}</p>
@@ -378,7 +347,28 @@ export function ClinicOperationsPanel() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-700">Cobros</p>
             <p className="mt-2 text-2xl font-black text-brand-800">₡{dailySummary.revenue.toLocaleString("es-CR")}</p>
           </div>
+          <div className="rounded-xl border border-warn-200 bg-warn-50 p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-warn-700">Saldo pendiente</p>
+            <p className="mt-2 text-xl font-black text-warn-900">
+              ₡{dailySummary.pendingBalance.toLocaleString("es-CR")}
+            </p>
+            <p className="text-[11px] text-warn-800">{dailySummary.pendingSales} ventas</p>
+          </div>
+          <div className="rounded-xl border border-sand-200 bg-sand-50 p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sand-500">Alertas activas</p>
+            <p className="mt-2 text-2xl font-black text-sand-900">{dailySummary.alertCount}</p>
+          </div>
         </div>
+        <ul
+          aria-label="Alertas operativas del día"
+          className="mt-3 flex flex-wrap gap-x-5 gap-y-1 border-t border-sand-200 pt-3 text-xs text-sand-600"
+        >
+          {dailyAlerts.length === 0 ? (
+            <li>Sin alertas operativas.</li>
+          ) : (
+            dailyAlerts.map((alert) => <li key={alert}>{alert}</li>)
+          )}
+        </ul>
       </div>
 
       <div className="rounded-2xl border border-sand-200 bg-surface p-4">
@@ -396,8 +386,9 @@ export function ClinicOperationsPanel() {
               className="field-input min-w-[160px]"
             >
               <option value="All">Todo</option>
-              <option value="Reception">Recepción</option>
+              <option value="Receptionist">Recepción</option>
               <option value="Veterinarian">Veterinario</option>
+              <option value="Assistant">Asistencia</option>
               <option value="Cashier">Caja</option>
               <option value="Manager">Gerencia</option>
             </select>
@@ -424,15 +415,22 @@ export function ClinicOperationsPanel() {
                     >
                       <div>
                         <p className="text-sm font-bold text-sand-900">{task.title}</p>
-                        <p className="mt-1 text-xs text-sand-500">
-                          {task.petName} · {task.ownerName}
-                        </p>
+                        <p className="mt-1 text-xs text-sand-500">{task.type}</p>
+                        {(task.petName || task.ownerName) && (
+                          <p className="mt-1 text-xs text-sand-500">
+                            {task.petName ?? "Operación"}
+                            {task.ownerName ? ` · ${task.ownerName}` : ""}
+                          </p>
+                        )}
                       </div>
                       <div className="text-right">
                         <span className="inline-flex rounded-full bg-brand-100 px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-brand-700">
-                          {task.priority}
+                          {INTERNAL_TASK_PRIORITY_LABELS[task.priority]}
                         </span>
-                        <p className="mt-1 text-[11px] font-semibold text-sand-600">{formatCrDate(task.dueDate)}</p>
+                        <p className="mt-1 text-[10px] text-sand-500">{task.assignedToName ?? "Cola del rol"}</p>
+                        <p className="mt-1 text-[11px] font-semibold text-sand-600">
+                          {formatCostaRicaDate(task.dueDate)}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -464,12 +462,13 @@ export function ClinicOperationsPanel() {
                 <div>
                   <p className="text-sm font-bold text-sand-900">{task.title}</p>
                   <p className="mt-1 text-xs text-sand-500">
-                    {task.petName} · {task.ownerName}
+                    {task.petName ?? "Operación"}
+                    {task.ownerName ? ` · ${task.ownerName}` : ""}
                   </p>
                 </div>
                 <div className="text-right text-[11px] text-sand-500">
                   <div>{task.status}</div>
-                  <div className="mt-1">{formatCrDate(task.dueDate)}</div>
+                  <div className="mt-1">{formatCostaRicaDate(task.dueDate)}</div>
                 </div>
               </div>
             ))
@@ -518,7 +517,7 @@ export function ClinicOperationsPanel() {
           reschedule.mutate(
             {
               appointmentId: appointment.appointmentId,
-              startsAt: new Date(startsAtValue).toISOString(),
+              startsAt: toCostaRicaUtc(startsAtValue).toISOString(),
               durationMinutes: durationValue,
             },
             {
@@ -672,8 +671,8 @@ export function ClinicOperationsPanel() {
             createBlock.mutate(
               {
                 veterinarianId: blockVeterinarianId,
-                startsAt: new Date(blockStartsAt).toISOString(),
-                endsAt: new Date(blockEndsAt).toISOString(),
+                startsAt: toCostaRicaUtc(blockStartsAt).toISOString(),
+                endsAt: toCostaRicaUtc(blockEndsAt).toISOString(),
                 reason: blockReason.trim() || "Bloqueo de agenda",
               },
               {
@@ -700,8 +699,8 @@ export function ClinicOperationsPanel() {
             updateBlock.mutate(
               {
                 blockId: block.blockId,
-                startsAt: new Date(startsAtValue).toISOString(),
-                endsAt: new Date(endsAtValue).toISOString(),
+                startsAt: toCostaRicaUtc(startsAtValue).toISOString(),
+                endsAt: toCostaRicaUtc(endsAtValue).toISOString(),
                 reason: reasonValue.trim() || "Bloqueo de agenda",
               },
               {
@@ -845,9 +844,12 @@ export function ClinicOperationsPanel() {
             onError: () => toast.error("No se pudo registrar el contacto."),
           })
         }
-        onCreateTask={(payload) =>
+        onCreateTask={(payload, onCreated) =>
           createCrmTask.mutate(payload, {
-            onSuccess: () => toast.success("Tarea CRM creada."),
+            onSuccess: () => {
+              onCreated();
+              toast.success("Tarea CRM creada.");
+            },
             onError: () => toast.error("No se pudo crear la tarea CRM."),
           })
         }
@@ -1079,10 +1081,13 @@ function ClinicCrmSection({
   onLogActivity: (
     payload: Parameters<typeof import("../api/clinicsApi").clinicsApi.logCommunicationActivity>[0],
   ) => void;
-  onCreateTask: (payload: Parameters<typeof import("../api/clinicsApi").clinicsApi.createCrmTask>[0]) => void;
+  onCreateTask: (
+    payload: Parameters<typeof import("../api/clinicsApi").clinicsApi.createCrmTask>[0],
+    onCreated: () => void,
+  ) => void;
   onCompleteTask: (taskId: string) => void;
 }) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getClinicDateInputValue();
   const [petId, setPetId] = useState("");
   const [templateKey, setTemplateKey] = useState("clinical-follow-up");
   const [templateRequestId, setTemplateRequestId] = useState(() => crypto.randomUUID());
@@ -1093,6 +1098,8 @@ function ClinicCrmSection({
   const [taskType, setTaskType] = useState<ClinicCrmTaskType>("FollowUpTreatment");
   const [taskDueDate, setTaskDueDate] = useState(today);
   const [taskTitle, setTaskTitle] = useState("Llamar al tutor");
+  const [taskPriority, setTaskPriority] = useState<ClinicCrmTaskPriority>("Normal");
+  const [taskIdempotencyKey, setTaskIdempotencyKey] = useState(() => crypto.randomUUID());
 
   return (
     <section className="space-y-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
@@ -1202,6 +1209,11 @@ function ClinicCrmSection({
           <option value="SendDocument">Enviar documento</option>
           <option value="CollectPayment">Gestionar cobro</option>
           <option value="Reactivation">Reactivación</option>
+          <option value="PrepareConsultation">Preparar consulta</option>
+          <option value="ReviewInventory">Revisar inventario</option>
+          <option value="ProcessRefund">Procesar devolución</option>
+          <option value="CloseCash">Cerrar caja</option>
+          <option value="ReviewOperations">Revisar operación diaria</option>
         </select>
         <input
           type="date"
@@ -1210,10 +1222,33 @@ function ClinicCrmSection({
           className="field-input"
           aria-label="Fecha tarea CRM"
         />
+        <select
+          value={taskPriority}
+          onChange={(event) => setTaskPriority(event.target.value as ClinicCrmTaskPriority)}
+          className="field-input"
+          aria-label="Prioridad tarea CRM"
+        >
+          <option value="Urgent">Urgente</option>
+          <option value="High">Alta</option>
+          <option value="Normal">Normal</option>
+          <option value="Low">Baja</option>
+        </select>
         <Input value={taskTitle} onChange={(event) => setTaskTitle(event.target.value)} aria-label="Título tarea CRM" />
         <Button
-          disabled={!petId || !taskTitle || isCreatingTask}
-          onClick={() => onCreateTask({ petId, type: taskType, dueDate: taskDueDate, title: taskTitle })}
+          disabled={!taskTitle.trim() || !taskDueDate || isCreatingTask}
+          onClick={() =>
+            onCreateTask(
+              {
+                petId: petId || null,
+                type: taskType,
+                dueDate: taskDueDate,
+                title: taskTitle,
+                idempotencyKey: taskIdempotencyKey,
+                priority: taskPriority,
+              },
+              () => setTaskIdempotencyKey(crypto.randomUUID()),
+            )
+          }
         >
           Crear tarea
         </Button>
@@ -1225,7 +1260,8 @@ function ClinicCrmSection({
             className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-emerald-100 bg-surface p-3 text-xs"
           >
             <span>
-              <strong>{task.petName}</strong> · {task.title} · {task.dueDate}
+              <strong>{task.petName ?? "Operación"}</strong> · {task.title} · {task.dueDate} · {task.assignedRole} ·{" "}
+              {task.priority}
             </span>
             <Button variant="secondary" disabled={isCompletingTask} onClick={() => onCompleteTask(task.id)}>
               Completar
@@ -1709,7 +1745,9 @@ function ClinicAgendaAuditSection({
           {entries.slice(0, 8).map((entry) => (
             <li key={entry.id} className="rounded-xl border border-sand-100 bg-surface-warm p-3 text-xs text-sand-600">
               <p className="font-bold text-sand-900">{entry.action}</p>
-              <p>{new Date(entry.performedAt).toLocaleString("es-CR")}</p>
+              <p>
+                {formatCostaRicaDate(entry.performedAt)} {formatCostaRicaTime(entry.performedAt)}
+              </p>
               {entry.details && <p className="truncate">{entry.details}</p>}
             </li>
           ))}
@@ -1720,7 +1758,7 @@ function ClinicAgendaAuditSection({
 }
 
 function toLocalDateTimeInput(value: string) {
-  return new Date(value).toISOString().slice(0, 16);
+  return toCostaRicaDateTimeInput(value);
 }
 
 function ClinicScheduleBlocksList({
@@ -1757,9 +1795,7 @@ function ClinicScheduleBlocksList({
             <div>
               <p className="text-sm font-bold text-warn-900">{block.reason}</p>
               <p className="text-xs text-warn-700">
-                {block.veterinarianName} ·{" "}
-                {new Date(block.startsAt).toLocaleTimeString("es-CR", { hour: "2-digit", minute: "2-digit" })}-
-                {new Date(block.endsAt).toLocaleTimeString("es-CR", { hour: "2-digit", minute: "2-digit" })}
+                {block.veterinarianName} · {formatCostaRicaTime(block.startsAt)}-{formatCostaRicaTime(block.endsAt)}
               </p>
             </div>
             <div className="flex gap-2">
@@ -1909,8 +1945,6 @@ function ClinicAgendaSection({
         <ul className="space-y-2">
           {agenda.map((appointment) => {
             const next = NEXT_STATUS[appointment.status];
-            const startsAt = new Date(appointment.startsAt);
-            const endsAt = new Date(appointment.endsAt);
             return (
               <li
                 key={appointment.appointmentId}
@@ -1920,10 +1954,9 @@ function ClinicAgendaSection({
                   <div>
                     <p className="text-sm font-bold text-sand-900">{appointment.petName}</p>
                     <p className="text-xs text-sand-500">
-                      {mode === "week" && `${startsAt.toLocaleDateString("es-CR")} · `}
-                      {appointment.veterinarianName} ·{" "}
-                      {startsAt.toLocaleTimeString("es-CR", { hour: "2-digit", minute: "2-digit" })}-
-                      {endsAt.toLocaleTimeString("es-CR", { hour: "2-digit", minute: "2-digit" })}
+                      {mode === "week" && `${formatCostaRicaDate(appointment.startsAt)} · `}
+                      {appointment.veterinarianName} · {formatCostaRicaTime(appointment.startsAt)}-
+                      {formatCostaRicaTime(appointment.endsAt)}
                     </p>
                   </div>
                   <span className="rounded-full bg-brand-100 px-2 py-1 text-[11px] font-bold text-brand-700">
@@ -1949,12 +1982,12 @@ function ClinicAgendaSection({
                           variant="secondary"
                           onClick={() => {
                             setEditingId(appointment.appointmentId);
-                            const local = new Date(appointment.startsAt);
-                            setEditingStartsAt(local.toISOString().slice(0, 16));
+                            const starts = new Date(appointment.startsAt);
+                            setEditingStartsAt(toCostaRicaDateTimeInput(appointment.startsAt));
                             setEditingDuration(
                               Math.max(
                                 15,
-                                Math.round((new Date(appointment.endsAt).getTime() - local.getTime()) / 60000),
+                                Math.round((new Date(appointment.endsAt).getTime() - starts.getTime()) / 60000),
                               ),
                             );
                           }}

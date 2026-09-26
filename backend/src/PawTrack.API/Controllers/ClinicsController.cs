@@ -520,6 +520,9 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         return Enum.TryParse(claim, true, out role);
     }
 
+    private static DateOnly GetCostaRicaDate() =>
+        DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("America/Costa_Rica")).DateTime);
+
     private static string EscapeCsv(string? value)
     {
         if (string.IsNullOrEmpty(value)) return string.Empty;
@@ -1631,15 +1634,60 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpGet("me/crm-dashboard")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicFinanceMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> GetClinicCrmDashboard([FromQuery] DateOnly? today, CancellationToken ct)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
         var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
         if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
-        var result = await sender.Send(new GetClinicCrmDashboardQuery(clinicResult.Value.Id, userId, today ?? DateOnly.FromDateTime(DateTime.UtcNow)), ct);
+        var result = await sender.Send(new GetClinicCrmDashboardQuery(clinicResult.Value.Id, userId, today ?? GetCostaRicaDate()), ct);
         return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("{clinicId:guid}/staff/crm-dashboard")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetStaffClinicCrmDashboard(Guid clinicId, [FromQuery] DateOnly? today, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetClinicCrmDashboardQuery(clinicId, userId, today ?? GetCostaRicaDate()), ct);
+        return result.IsSuccess ? Ok(result.Value) : Forbid();
+    }
+
+    [HttpPost("{clinicId:guid}/staff/crm/tasks")]
+    [Authorize(Policy = "ClinicStaffMfa")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> CreateStaffClinicCrmTask(Guid clinicId, [FromBody] CreateClinicCrmTaskRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        if (!Enum.TryParse<ClinicCrmTaskType>(request.Type, true, out var type) || !Enum.IsDefined(type))
+            return BadRequest(new ProblemDetails { Detail = "Tipo de tarea inválido.", Status = 400 });
+        if (!Enum.TryParse<ClinicCrmTaskPriority>(request.Priority, true, out var priority) || !Enum.IsDefined(priority))
+            return BadRequest(new ProblemDetails { Detail = "Prioridad de tarea inválida.", Status = 400 });
+        ClinicInternalTaskRole? assignedRole = null;
+        if (!string.IsNullOrWhiteSpace(request.AssignedRole))
+        {
+            if (!Enum.TryParse<ClinicInternalTaskRole>(request.AssignedRole, true, out var parsedRole) || !Enum.IsDefined(parsedRole))
+                return BadRequest(new ProblemDetails { Detail = "Rol responsable inválido.", Status = 400 });
+            assignedRole = parsedRole;
+        }
+        var result = await sender.Send(new CreateClinicCrmTaskCommand(clinicId, userId, request.PetId, type,
+            request.DueDate, request.Title, request.Notes, request.IdempotencyKey, priority, assignedRole,
+            request.AssignedToUserId), ct);
+        if (result.IsSuccess) return Created(string.Empty, new { taskId = result.Value });
+        if (result.Errors.Contains("IDEMPOTENCY_CONFLICT", StringComparer.Ordinal)) return Conflict();
+        return Forbid();
+    }
+
+    [HttpPost("{clinicId:guid}/staff/crm/tasks/{taskId:guid}/complete")]
+    [Authorize(Policy = "ClinicStaffMfa")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> CompleteStaffClinicCrmTask(Guid clinicId, Guid taskId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new CompleteClinicCrmTaskCommand(clinicId, userId, taskId), ct);
+        return result.IsSuccess ? NoContent() : Forbid();
     }
 
     [HttpGet("me/crm/templates")]
@@ -1648,7 +1696,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     public IActionResult GetClinicCommunicationTemplates() => Ok(ClinicCommunicationTemplates.All);
 
     [HttpPost("me/crm/send-template")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicFinanceMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> SendClinicCommunicationTemplate([FromBody] SendClinicCommunicationTemplateRequest request, CancellationToken ct)
     {
@@ -1662,7 +1710,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPut("me/crm/preferences")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicFinanceMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> UpsertClinicCommunicationPreference([FromBody] UpsertClinicCommunicationPreferenceRequest request, CancellationToken ct)
     {
@@ -1701,7 +1749,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/crm/activities")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicFinanceMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> LogClinicCommunicationActivity([FromBody] LogClinicCommunicationActivityRequest request, CancellationToken ct)
     {
@@ -1721,21 +1769,33 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/crm/tasks")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicFinanceMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> CreateClinicCrmTask([FromBody] CreateClinicCrmTaskRequest request, CancellationToken ct)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
         var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
         if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
-        if (!Enum.TryParse<ClinicCrmTaskType>(request.Type, ignoreCase: true, out var type))
+        if (!Enum.TryParse<ClinicCrmTaskType>(request.Type, ignoreCase: true, out var type) || !Enum.IsDefined(type))
             return BadRequest(new ProblemDetails { Detail = "Tipo de tarea inválido.", Status = 400 });
-        var result = await sender.Send(new CreateClinicCrmTaskCommand(clinicResult.Value.Id, userId, request.PetId, type, request.DueDate, request.Title, request.Notes), ct);
-        return result.IsSuccess ? Created(string.Empty, new { taskId = result.Value }) : UnprocessableEntity(result.Errors);
+        if (!Enum.TryParse<ClinicCrmTaskPriority>(request.Priority, true, out var priority) || !Enum.IsDefined(priority))
+            return BadRequest(new ProblemDetails { Detail = "Prioridad de tarea inválida.", Status = 400 });
+        ClinicInternalTaskRole? assignedRole = null;
+        if (!string.IsNullOrWhiteSpace(request.AssignedRole))
+        {
+            if (!Enum.TryParse<ClinicInternalTaskRole>(request.AssignedRole, true, out var parsedRole) || !Enum.IsDefined(parsedRole))
+                return BadRequest(new ProblemDetails { Detail = "Rol responsable inválido.", Status = 400 });
+            assignedRole = parsedRole;
+        }
+        var result = await sender.Send(new CreateClinicCrmTaskCommand(clinicResult.Value.Id, userId, request.PetId,
+            type, request.DueDate, request.Title, request.Notes, request.IdempotencyKey, priority, assignedRole,
+            request.AssignedToUserId), ct);
+        if (result.IsSuccess) return Created(string.Empty, new { taskId = result.Value });
+        return result.Errors.Contains("IDEMPOTENCY_CONFLICT", StringComparer.Ordinal) ? Conflict() : UnprocessableEntity(result.Errors);
     }
 
     [HttpPost("me/crm/tasks/{taskId:guid}/complete")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicFinanceMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> CompleteClinicCrmTask(Guid taskId, CancellationToken ct)
     {
@@ -2041,7 +2101,16 @@ public sealed record GrantClinicStaffMemberRequest(string Email, string Role, Gu
 public sealed record UpsertClinicCommunicationPreferenceRequest(Guid PetId, string Channel, string Purpose, bool IsOptedIn, string ConsentSource);
 public sealed record SetOwnerClinicCommunicationPreferenceRequest(string Channel, string Purpose, bool IsOptedIn);
 public sealed record LogClinicCommunicationActivityRequest(Guid PetId, string Channel, string Purpose, string Direction, string Status, string Subject, string Body, string? ProviderMessageId = null);
-public sealed record CreateClinicCrmTaskRequest(Guid PetId, string Type, DateOnly DueDate, string Title, string? Notes = null);
+public sealed record CreateClinicCrmTaskRequest(
+    Guid? PetId,
+    string Type,
+    DateOnly DueDate,
+    string Title,
+    string? Notes = null,
+    Guid IdempotencyKey = default,
+    string Priority = "Normal",
+    string? AssignedRole = null,
+    Guid? AssignedToUserId = null);
 public sealed record SendClinicCommunicationTemplateRequest(Guid PetId, Guid RequestId, string TemplateKey, string Channel);
 public sealed record SetVeterinarianPermissionsRequest(IReadOnlyList<string> Permissions);
 

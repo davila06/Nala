@@ -230,37 +230,50 @@ operación, inventario, pagos y CRM visibles en un mismo panel.
 
 #### Sprint CP6-A: dashboard operativo del día
 
-- [ ] 1. Consolidar el resumen diario en un bloque visible de la primera pantalla:
-     - citas del día
-     - consultas en espera / en progreso
-     - pagos pendientes
-     - inventario crítico
-     - tareas internas abiertas
-     - alertas del día.
-- [ ] 2. Añadir tarjetas de resumen con métricas por clínica y sede:
-     - total de citas programadas
-     - total de consultas completadas
-     - total de pagos del día
-     - total de alertas de inventario.
-- [ ] 3. Validar que el dashboard use la fecha local de Costa Rica (`America/Costa_Rica`)
-     para todas las métricas diarias y no UTC.
-- [ ] 4. Ordenar la vista por prioridad operativa: urgentes primero, luego hoy, luego
-     próximos 7 días.
-- [ ] 5. Exponer el resumen diario para titular, recepción y veterinario con el mismo
-     patrón de permisos clínicos ya implementado.
+- [~] 1. Consolidar el resumen diario en un bloque visible de la primera pantalla:
+  - citas del día
+  - consultas en espera / en progreso
+  - pagos pendientes
+  - inventario crítico
+  - tareas internas abiertas
+  - alertas del día. Parcial: el panel muestra citas, consultas en progreso,
+    inventario bajo, tareas, cobros y saldos abiertos, con alertas de stock bajo,
+    vencimiento próximo, ventas pendientes y tareas vencidas. Falta una métrica
+    explícita de sala de espera y una bandeja con navegación por alerta.
+- [~] 2. Añadir tarjetas de resumen con métricas por clínica y sede:
+  - total de citas programadas
+  - total de consultas completadas
+  - total de pagos del día
+  - total de alertas de inventario. Parcial: las métricas actuales ya muestran
+    ventas y saldos pendientes por clínica; faltan consultas completadas y sedes.
+- [x] 3. La agenda y las consultas diarias usan fechas de clínica en
+     `America/Costa_Rica`, incluidas medianoche CR -> UTC, entrada `datetime-local`,
+     formato de vencimiento y fecha por defecto del endpoint.
+- [~] 4. La cola de trabajo ordena por prioridad persistida (urgente/alta/normal/baja)
+  y vencimiento; falta una agenda unificada priorizada para citas, caja, alertas y
+  próximos 7 días.
+- [~] 5. El titular conserva el dashboard completo y existe una API de tareas CRM
+  acotada por membresía; `/clinica/equipo` combina membresías clínicas/financieras y
+  muestra colas de recepción, veterinario, asistencia, caja y gerencia. Falta integrar
+  agenda y métricas al resumen operativo del colaborador.
 
 #### Sprint CP6-B: tareas internas por rol
 
-- [ ] 6. Crear panel de tareas internas con filtros por rol y estado:
-     - recepción: confirmar citas, reprogramar y registrar no-shows
-     - veterinario: consultas pendientes, firmar y cerrar expediente
-     - cajero: pagos pendientes, devoluciones, cierre de caja
-     - gerente: alertas, inventario, métricas y tareas de seguimiento.
-- [ ] 7. Añadir prioridad, vencimiento y responsable por tarea; ocultar tareas no
-     pertinentes para el rol activo del usuario.
-- [ ] 8. Garantizar deduplicación y reintentos para tareas repetidas en el mismo día;
-     una tarea nueva no debe aparecer duplicada por un refresh del dashboard.
-- [ ] 9. Registrar auditoría de creación, cambio de estado y cierre de cada tarea interna.
+- [~] 6. Crear panel de tareas internas con filtros por rol y estado:
+  - recepción: confirmar citas, reprogramar y registrar no-shows
+  - veterinario: consultas pendientes, firmar y cerrar expediente
+  - cajero: cobro de saldos pendientes; gerencia financiera: devoluciones y cierre
+    de caja; asistencia: preparación clínica y revisión de inventario. La ruta
+    conecta caja y operación. Falta unificar agenda/consulta y acciones financieras
+    dentro de la cola.
+- [x] 7. Las tareas persisten prioridad, vencimiento, rol responsable y responsable
+     individual opcional. El creador se asigna cuando pertenece al rol de la tarea;
+     el backend valida asignados activos de la clínica.
+- [x] 8. Clave idempotente única por clínica: reintentos iguales devuelven el mismo ID,
+     payload distinto devuelve conflicto y una carrera concurrente recupera la fila
+     ganadora sin duplicar.
+- [~] 9. Creación y cierre registran auditoría; faltan cancelación, reasignación y
+  exportación completa del historial de cambios de tarea.
 
 #### Sprint CP6-C: seguimientos clínicos y recordatorios
 
@@ -273,11 +286,25 @@ operación, inventario, pagos y CRM visibles en un mismo panel.
 
 #### Sprint CP6-D: hardening y seguridad del panel
 
-- [ ] 14. Reforzar MFA de sesión para rutas de caja, personal clínico y tareas sensibles.
-- [ ] 15. Revisar permisos por clínica y por usuario interno para impedir acceso cruzado
-      entre sedes o usuarios no autorizados.
-- [ ] 16. Añadir control de acceso a tareas internas según rol y permiso del miembro clínico.
-- [ ] 17. Validar BOLA/IDOR en endpoints del dashboard, agenda y tareas internas.
+- [~] 14. Escrituras de tareas staff, cambios CRM del titular y acciones de caja/
+  membresías sensibles exigen claim MFA del access token. El refresh no conserva
+  elevación; el step-up expira con el token. Falta MFA en acciones clínicas sensibles
+  adicionales y dispositivos/sesiones confiables.
+- [~] 15. Rutas staff validan membresía activa por clínica y la revocación corta acceso
+  con el mismo token. Falta aplicar la misma matriz a todos los endpoints existentes
+  de agenda/consulta/inventario y escenarios multi-sede.
+- [x] 16. Colas filtradas por rol, tipo y responsable en SQL; caja, gerencia y asistencia
+      usan membresías apropiadas. Las respuestas staff excluyen preferencias, historial de
+      comunicación y segmentos de clientes.
+- [~] 17. Pruebas HTTP cubren MFA, BOLA entre clínicas, tipos fuera de rol, perfiles de
+  asistencia/caja/gerencia, minimización de datos, revocación, idempotencia y orden.
+  Falta extender la matriz a agenda, sedes y todos los endpoints internos.
+
+**Migración requerida:** antes del despliegue, aplicar
+`AddClinicOperationalTaskMetadata`. La migración permite tareas sin mascota, rellena
+rol derivado, prioridad normal y clave única para tareas históricas e indexa las colas.
+Hacer respaldo antes de aplicar. El downgrade elimina tareas sin mascota/tutor porque
+el esquema anterior no puede representarlas; exportarlas antes de revertir.
 
 #### Sprint CP6-E: cierre de homologación externa
 

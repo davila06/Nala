@@ -29,8 +29,13 @@ public sealed class ClinicStaffMembership
             throw new ArgumentException("Only veterinarians can be linked to a registration.", nameof(veterinarianId));
         return new ClinicStaffMembership
         {
-            Id = Guid.CreateVersion7(), ClinicId = clinicId, UserId = userId, Role = role, VeterinarianId = veterinarianId,
-            GrantedByUserId = grantedByUserId, GrantedAt = DateTimeOffset.UtcNow,
+            Id = Guid.CreateVersion7(),
+            ClinicId = clinicId,
+            UserId = userId,
+            Role = role,
+            VeterinarianId = veterinarianId,
+            GrantedByUserId = grantedByUserId,
+            GrantedAt = DateTimeOffset.UtcNow,
         };
     }
 
@@ -44,6 +49,22 @@ public sealed class ClinicStaffMembership
             or ClinicStaffPermission.ManageInventory,
         ClinicStaffRole.ReadOnly => permission is ClinicStaffPermission.ViewAgenda,
         _ => false,
+    };
+
+    public bool CanWorkCrmTask(ClinicCrmTaskType type) => !IsRevoked && Role switch
+    {
+        ClinicStaffRole.Receptionist => type is ClinicCrmTaskType.CallClient or ClinicCrmTaskType.ConfirmAppointment,
+        ClinicStaffRole.Veterinarian => type is ClinicCrmTaskType.FollowUpTreatment or ClinicCrmTaskType.SendDocument or ClinicCrmTaskType.Reactivation,
+        ClinicStaffRole.Assistant => type is ClinicCrmTaskType.PrepareConsultation or ClinicCrmTaskType.ReviewInventory,
+        _ => false,
+    };
+
+    public ClinicInternalTaskRole? InternalTaskRole => IsRevoked ? null : Role switch
+    {
+        ClinicStaffRole.Receptionist => ClinicInternalTaskRole.Receptionist,
+        ClinicStaffRole.Veterinarian => ClinicInternalTaskRole.Veterinarian,
+        ClinicStaffRole.Assistant => ClinicInternalTaskRole.Assistant,
+        _ => null,
     };
 
     public void ChangeRole(ClinicStaffRole role, Guid? veterinarianId)

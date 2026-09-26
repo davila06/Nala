@@ -186,6 +186,10 @@ builder.Services.AddAuthorization(options =>
         .RequireAuthenticatedUser()
         .RequireClaim("mfa", "true"));
 
+    options.AddPolicy("ClinicStaffMfa", policy => policy
+        .RequireAuthenticatedUser()
+        .RequireClaim("mfa", "true"));
+
     // Internal-only health checks — requires Admin JWT or internal network request.
     options.AddPolicy("HealthCheckPolicy", policy =>
         policy.RequireAuthenticatedUser()
