@@ -51,6 +51,7 @@ public sealed class PawTrackDbContext(
     public DbSet<User> Users => Set<User>();
     public DbSet<AllyProfile> AllyProfiles => Set<AllyProfile>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<TrustedDevice> TrustedDevices => Set<TrustedDevice>();
     public DbSet<WebAuthnCredential> WebAuthnCredentials => Set<WebAuthnCredential>();
     public DbSet<Pet> Pets => Set<Pet>();
     public DbSet<PetSanitaryIdentityAuditLog> PetSanitaryIdentityAuditLogs => Set<PetSanitaryIdentityAuditLog>();

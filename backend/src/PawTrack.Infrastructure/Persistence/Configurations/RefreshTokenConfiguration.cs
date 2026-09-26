@@ -17,6 +17,10 @@ public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refresh
             .IsRequired()
             .HasMaxLength(64); // SHA-256 hex = 64 chars
 
+        builder.Property(rt => rt.SessionId).IsRequired();
+        builder.HasIndex(rt => new { rt.UserId, rt.SessionId })
+            .HasDatabaseName("IX_RefreshTokens_UserId_SessionId");
+
         builder.HasIndex(rt => rt.TokenHash).IsUnique();
 
         // Explicit index on UserId for O(log n) theft-detection and token-rotation queries.

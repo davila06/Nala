@@ -88,14 +88,18 @@ public sealed class RefreshTokenCommandHandler(
         user.RevokeRefreshToken(existing.Id);
 
         var (rawToken, newHash) = jwtTokenService.GenerateRefreshToken();
-        var rollingExpiry   = DateTimeOffset.UtcNow.AddDays(RefreshTokenExpiryDays);
-        var expiresAt       = rollingExpiry < absoluteDeadline ? rollingExpiry : absoluteDeadline;
-        user.AddRefreshToken(newHash, expiresAt, sessionIssuedAt: existing.SessionIssuedAt);
+        var rollingExpiry = DateTimeOffset.UtcNow.AddDays(RefreshTokenExpiryDays);
+        var expiresAt = rollingExpiry < absoluteDeadline ? rollingExpiry : absoluteDeadline;
+        user.AddRefreshToken(newHash, expiresAt,
+            sessionIssuedAt: existing.SessionIssuedAt,
+            sessionId: existing.SessionId);
 
         userRepository.Update(user);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var accessToken = jwtTokenService.GenerateAccessToken(user.Id, user.Email, user.Name, user.Role);
+        var accessToken = jwtTokenService.GenerateAccessToken(
+            user.Id, user.Email, user.Name, user.Role,
+            sessionId: existing.SessionId);
 
         logger.LogInformation("Auth.Refresh.Success UserId={UserId}", user.Id);
 

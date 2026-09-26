@@ -13,6 +13,7 @@ import type { PetSpecies } from "@/features/sightings/api/fostersApi";
 import { Button, Input, Badge, PageSpinner, Card } from "@/shared/ui";
 import { toast } from "@/shared/lib/toast";
 import { registerPasskey } from "../api/webauthn";
+import { AccountSecuritySection } from "../components/AccountSecuritySection";
 import { LastSeenMap } from "@/features/lost-pets/components/LastSeenMap";
 import { useGeolocation } from "@/features/lost-pets/hooks/useGeolocation";
 import { usePushSubscription } from "@/features/notifications/hooks/usePushSubscription";
@@ -585,6 +586,8 @@ export default function ProfilePage() {
           </Button>
         </div>
       </Card>
+
+      <AccountSecuritySection hasMfa={serverProfile?.hasMfa ?? false} />
 
       {/* ── Foster section ────────────────────────────────────────────── */}
       <Card>

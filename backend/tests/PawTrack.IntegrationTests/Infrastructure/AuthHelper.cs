@@ -53,6 +53,28 @@ public static class AuthHelper
         return client;
     }
 
+    public static async Task<HttpClient> CreateMfaAuthenticatedClientAsync(
+        PawTrackWebApplicationFactory factory,
+        string email)
+    {
+        var client = await CreateAuthenticatedClientAsync(factory, email);
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+        var jwt = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
+        var user = await db.Users.SingleAsync(candidate => candidate.Email == email.ToLowerInvariant());
+        user.ConfigureMfa("integration-protected-secret");
+        await db.SaveChangesAsync();
+        var sessionId = await db.RefreshTokens
+            .Where(token => token.UserId == user.Id && !token.IsRevoked)
+            .OrderByDescending(token => token.CreatedAt)
+            .Select(token => token.SessionId)
+            .FirstAsync();
+        var token = jwt.GenerateAccessToken(user.Id, user.Email, user.Name, user.Role,
+            mfaVerified: true, sessionId: sessionId);
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        return client;
+    }
+
     /// <summary>Legacy overload for existing tests that pass an HttpClient directly.</summary>
     public static Task<(HttpClient Client, string Token)> RegisterAndLoginAsync(
         HttpClient client, string? email = null, string role = "User") =>

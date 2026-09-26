@@ -105,6 +105,7 @@ function extractLoginError(err: unknown): string {
   const e = err as AxiosLike;
   const status = e.response?.status;
   const detail = e.response?.data?.detail;
+  if (detail === "MFA_REQUIRED") return "El código de autenticación es necesario o no es válido.";
   if (status === 423) return "Cuenta bloqueada temporalmente por múltiples intentos fallidos. Intenta en 15 minutos.";
   if (detail?.toLowerCase().includes("locked")) return "Cuenta bloqueada temporalmente. Intenta en 15 minutos.";
   if (detail?.toLowerCase().includes("verified")) return "Debes verificar tu correo antes de iniciar sesión.";
@@ -114,6 +115,10 @@ function extractLoginError(err: unknown): string {
 
 function isVerifiedError(err: unknown): boolean {
   return (err as AxiosLike | null)?.response?.data?.detail?.toLowerCase().includes("verified") === true;
+}
+
+function isMfaRequired(err: unknown): boolean {
+  return (err as AxiosLike | null)?.response?.data?.detail === "MFA_REQUIRED";
 }
 
 // ── Brand panel ───────────────────────────────────────────────────────────────
@@ -405,6 +410,8 @@ export default function LoginPage() {
   const { mutate: passkeyLogin, isPending: isPasskeyPending, error: passkeyError } = usePasskeyLogin(returnTo);
   const [showForgot, setShowForgot] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [mfaChallenge, setMfaChallenge] = useState(false);
+  const [mfaCode, setMfaCode] = useState("");
 
   const [form, setForm] = useState(() => ({
     email: localStorage.getItem("pawtrack:lastEmail") ?? "",
@@ -427,6 +434,10 @@ export default function LoginPage() {
     if (verifyError) setShowVerifyModal(true);
   }, [verifyError]);
 
+  useEffect(() => {
+    if (isMfaRequired(error)) setMfaChallenge(true);
+  }, [error]);
+
   const handleEmailBlur = () => {
     setEmailTouched(true);
     if (emailDebounceRef.current) clearTimeout(emailDebounceRef.current);
@@ -441,7 +452,7 @@ export default function LoginPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     localStorage.setItem("pawtrack:lastEmail", form.email);
-    login({ email: form.email, password: form.password });
+    login({ email: form.email, password: form.password, mfaCode: mfaChallenge ? mfaCode : undefined });
   }
 
   return (
@@ -568,6 +579,21 @@ export default function LoginPage() {
                       </div>
                     </div>
 
+                    {mfaChallenge && (
+                      <Input
+                        label="Código de autenticación"
+                        id="mfa-code"
+                        type="text"
+                        inputMode="text"
+                        autoComplete="one-time-code"
+                        maxLength={32}
+                        required
+                        value={mfaCode}
+                        onChange={(event) => setMfaCode(event.target.value.trim())}
+                        aria-describedby={error ? "login-error" : undefined}
+                      />
+                    )}
+
                     <div className="flex items-center justify-end">
                       {/* Triggers rotateY flip — no navigation */}
                       <button
@@ -579,8 +605,14 @@ export default function LoginPage() {
                       </button>
                     </div>
 
-                    <Button type="submit" loading={isPending} disabled={emailInvalid} fullWidth size="lg">
-                      {isPending ? "Ingresando…" : "Ingresar"}
+                    <Button
+                      type="submit"
+                      loading={isPending}
+                      disabled={emailInvalid || (mfaChallenge && !mfaCode)}
+                      fullWidth
+                      size="lg"
+                    >
+                      {isPending ? "Ingresando…" : mfaChallenge ? "Verificar e ingresar" : "Ingresar"}
                     </Button>
                     <Button
                       type="button"

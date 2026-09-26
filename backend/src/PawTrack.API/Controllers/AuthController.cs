@@ -18,6 +18,8 @@ using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Auth.Queries.ExportMyData;
 using PawTrack.Application.Auth.Queries.GetMyProfile;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace PawTrack.API.Controllers;
 
@@ -28,7 +30,11 @@ public sealed class AuthController(
     IHostEnvironment environment,
     IUserRepository userRepository,
     IMfaService mfaService,
-    IUnitOfWork unitOfWork) : ControllerBase
+    IUnitOfWork unitOfWork,
+    IRefreshTokenRepository refreshTokenRepository,
+    ITrustedDeviceRepository trustedDeviceRepository,
+    IJtiBlocklist jtiBlocklist,
+    IJwtTokenService jwtTokenService) : ControllerBase
 {
     [HttpPost("register")]
     [EnableRateLimiting("register")]
@@ -77,12 +83,16 @@ public sealed class AuthController(
         [FromBody] LoginRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new LoginCommand(request.Email, request.Password, request.MfaCode), cancellationToken);
+        Request.Cookies.TryGetValue("trustedDevice", out var trustedDeviceToken);
+        var result = await sender.Send(new LoginCommand(request.Email, request.Password, request.MfaCode, trustedDeviceToken), cancellationToken);
 
         if (result.IsFailure)
             return Unauthorized(new ProblemDetails { Title = "Authentication failed", Detail = string.Join("; ", result.Errors), Status = 401 });
 
         var token = result.Value!;
+
+        if (!string.IsNullOrWhiteSpace(token.RenewedTrustedDeviceToken))
+            Response.Cookies.Append("trustedDevice", token.RenewedTrustedDeviceToken, TrustedDeviceCookieOptions());
 
         // Refresh token in HttpOnly cookie.
         // SameSite=Lax: safer than None, compatible with OAuth redirect flows
@@ -136,17 +146,56 @@ public sealed class AuthController(
         return Ok(new { recoveryCodes });
     }
 
+    [HttpPost("mfa/step-up")]
+    [Authorize]
+    [EnableRateLimiting("mfa-step-up")]
+    [RequestSizeLimit(256)]
+    public async Task<IActionResult> MfaStepUp([FromBody] MfaStepUpRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        if (!TryGetSessionId(out var sessionId))
+            return BadRequest(new ProblemDetails { Detail = "La sesión actual no tiene identificador.", Status = 400 });
+        var user = await userRepository.GetByIdAsync(userId, ct);
+        if (user is null) return Unauthorized();
+        if (!user.HasMfa)
+            return UnprocessableEntity(new ProblemDetails { Detail = "MFA no está configurado.", Status = 422 });
+
+        var validTotp = mfaService.Verify(user.MfaSecretProtected!, request.Code);
+        var validRecoveryCode = !validTotp && user.ConsumeMfaRecoveryCode(request.Code);
+        if (!validTotp && !validRecoveryCode)
+            return UnprocessableEntity(new ProblemDetails { Detail = "El código MFA no es válido.", Status = 422 });
+
+        if (validRecoveryCode)
+        {
+            userRepository.Update(user);
+            await unitOfWork.SaveChangesAsync(ct);
+        }
+
+        var elevatedToken = jwtTokenService.GenerateAccessToken(
+            user.Id, user.Email, user.Name, user.Role,
+            mfaVerified: true,
+            sessionId: sessionId);
+        return Ok(new { accessToken = elevatedToken, expiresIn = jwtTokenService.AccessTokenExpirySeconds });
+    }
+
     [HttpDelete("mfa")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "MfaStepUp")]
     [EnableRateLimiting("change-password")]
     public async Task<IActionResult> DisableMfa(CancellationToken ct)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
         var user = await userRepository.GetByIdAsync(userId, ct);
         if (user is null) return Unauthorized();
+        var activeSessions = await refreshTokenRepository.GetActiveSessionsByUserIdAsync(userId, ct);
         user.DisableMfa();
+        user.RevokeAllRefreshTokens();
+        await trustedDeviceRepository.RevokeAllForUserAsync(userId, ct);
         userRepository.Update(user);
         await unitOfWork.SaveChangesAsync(ct);
+        foreach (var session in activeSessions)
+            await jtiBlocklist.AddAsync($"session:{session.SessionId:N}", DateTimeOffset.UtcNow.AddDays(90), ct);
+        Response.Cookies.Delete("refreshToken", new CookieOptions { Path = "/api/auth" });
+        Response.Cookies.Delete("trustedDevice", new CookieOptions { Path = "/api/auth" });
         return NoContent();
     }
 
@@ -250,6 +299,9 @@ public sealed class AuthController(
             : null;
 
         await sender.Send(new LogoutCommand(userId, rawToken, jti, expiresAt), cancellationToken);
+
+        if (TryGetSessionId(out var sessionId))
+            await jtiBlocklist.AddAsync($"session:{sessionId:N}", DateTimeOffset.UtcNow.AddDays(90), cancellationToken);
 
         // Must match the Path used when the cookie was set.
         Response.Cookies.Delete("refreshToken", new CookieOptions { Path = "/api/auth" });
@@ -417,18 +469,135 @@ public sealed class AuthController(
         return Ok(result.Value);
     }
 
+    [HttpGet("me/sessions")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetMySessions(CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var currentSessionId = TryGetSessionId(out var sessionId) ? sessionId : (Guid?)null;
+        var sessions = await refreshTokenRepository.GetActiveSessionsByUserIdAsync(userId, ct);
+        return Ok(sessions.Select(session => new
+        {
+            session.SessionId,
+            session.StartedAt,
+            session.LastActivityAt,
+            session.ExpiresAt,
+            IsCurrent = currentSessionId == session.SessionId,
+        }));
+    }
+
+    [HttpDelete("me/sessions/{sessionId:guid}")]
+    [Authorize(Policy = "MfaStepUp")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> RevokeMySession(Guid sessionId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        if (!await refreshTokenRepository.RevokeSessionAsync(userId, sessionId, ct)) return NotFound();
+        await trustedDeviceRepository.RevokeForSessionAsync(userId, sessionId, ct);
+        await unitOfWork.SaveChangesAsync(ct);
+        await jtiBlocklist.AddAsync($"session:{sessionId:N}", DateTimeOffset.UtcNow.AddDays(90), ct);
+
+        if (TryGetSessionId(out var currentSessionId) && currentSessionId == sessionId)
+        {
+            var jti = User.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti);
+            var expClaim = User.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Exp);
+            if (!string.IsNullOrWhiteSpace(jti) && long.TryParse(expClaim, out var expSeconds))
+                await jtiBlocklist.AddAsync(jti, DateTimeOffset.FromUnixTimeSeconds(expSeconds), ct);
+            Response.Cookies.Delete("refreshToken", new CookieOptions { Path = "/api/auth" });
+        }
+
+        return NoContent();
+    }
+
+    [HttpGet("me/trusted-devices")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetMyTrustedDevices(CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var devices = await trustedDeviceRepository.GetActiveByUserIdAsync(userId, ct);
+        return Ok(devices.Select(device => new
+        {
+            device.Id,
+            device.DeviceName,
+            device.CreatedAt,
+            device.LastUsedAt,
+            device.ExpiresAt,
+            device.LastSessionId,
+        }));
+    }
+
+    [HttpPost("me/trusted-devices")]
+    [Authorize(Policy = "MfaStepUp")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(512)]
+    public async Task<IActionResult> TrustCurrentDevice([FromBody] TrustDeviceRequest request, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        if (!TryGetSessionId(out var sessionId))
+            return BadRequest(new ProblemDetails { Detail = "La sesión actual no tiene identificador de sesión.", Status = 400 });
+        var user = await userRepository.GetByIdAsync(userId, ct);
+        if (user is null) return Unauthorized();
+        if (!user.HasMfa)
+            return UnprocessableEntity(new ProblemDetails { Detail = "Configure MFA antes de confiar este dispositivo.", Status = 422 });
+        if (string.IsNullOrWhiteSpace(request.DeviceName) || request.DeviceName.Length > 100)
+            return BadRequest(new ProblemDetails { Detail = "El nombre del dispositivo debe tener entre 1 y 100 caracteres.", Status = 400 });
+
+        var (device, rawToken) = PawTrack.Domain.Auth.TrustedDevice.Create(
+            userId, sessionId, request.DeviceName, TimeSpan.FromDays(30));
+        await trustedDeviceRepository.AddAsync(device, ct);
+        await unitOfWork.SaveChangesAsync(ct);
+        Response.Cookies.Append("trustedDevice", rawToken, TrustedDeviceCookieOptions(device.ExpiresAt));
+        return Created(string.Empty, new { device.Id, device.DeviceName, device.CreatedAt, device.ExpiresAt });
+    }
+
+    [HttpDelete("me/trusted-devices/{deviceId:guid}")]
+    [Authorize(Policy = "MfaStepUp")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> RevokeTrustedDevice(Guid deviceId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var device = await trustedDeviceRepository.GetByIdAsync(userId, deviceId, ct);
+        if (device is null || !device.IsActive) return NotFound();
+        device.Revoke();
+        trustedDeviceRepository.Update(device);
+        await unitOfWork.SaveChangesAsync(ct);
+
+        if (Request.Cookies.TryGetValue("trustedDevice", out var rawToken)
+            && device.TokenHash == ComputeHash(rawToken))
+            Response.Cookies.Delete("trustedDevice", new CookieOptions { Path = "/api/auth" });
+        return NoContent();
+    }
+
     private bool TryGetUserId(out Guid userId)
     {
         var raw = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
         return Guid.TryParse(raw, out userId);
     }
+
+    private bool TryGetSessionId(out Guid sessionId) => Guid.TryParse(User.FindFirstValue("sid"), out sessionId);
+
+    private CookieOptions TrustedDeviceCookieOptions(DateTimeOffset? expiresAt = null) => new()
+    {
+        HttpOnly = true,
+        Secure = !environment.IsDevelopment(),
+        SameSite = SameSiteMode.Strict,
+        Expires = expiresAt ?? DateTimeOffset.UtcNow.AddDays(30),
+        Path = "/api/auth",
+    };
+
+    private static string ComputeHash(string token) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token))).ToLowerInvariant();
 }
 
 public sealed record EnableMfaRequest(string Secret, string Code);
+public sealed record MfaStepUpRequest(string Code);
 
 // Request models — co-located with controller
 public sealed record RegisterRequest(string Name, string Email, string Password, bool IsAdultConfirmed);
 public sealed record LoginRequest(string Email, string Password, string? MfaCode = null);
+public sealed record TrustDeviceRequest(string DeviceName);
 public sealed record ForgotPasswordRequest(string Email);
 public sealed record ResetPasswordRequest(string Token, string NewPassword);
 public sealed record UpdateMyProfileRequest(string Name);

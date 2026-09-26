@@ -169,6 +169,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
                     if (await blocklist.IsBlockedAsync(jti, ctx.HttpContext.RequestAborted))
                         ctx.Fail("Token has been revoked.");
+
+                    var sessionId = ctx.Principal?.FindFirst("sid")?.Value;
+                    if (Guid.TryParse(sessionId, out var parsedSessionId)
+                        && await blocklist.IsBlockedAsync($"session:{parsedSessionId:N}", ctx.HttpContext.RequestAborted))
+                        ctx.Fail("Session has been revoked.");
                 }
             }
         };
@@ -191,6 +196,15 @@ builder.Services.AddAuthorization(options =>
         .RequireClaim("mfa", "true"));
 
     options.AddPolicy("ClinicOperationsMfa", policy => policy
+        .RequireAuthenticatedUser()
+        .RequireClaim("mfa", "true"));
+
+    options.AddPolicy("ClinicAdminMfa", policy => policy
+        .RequireAuthenticatedUser()
+        .RequireRole("Admin")
+        .RequireClaim("mfa", "true"));
+
+    options.AddPolicy("MfaStepUp", policy => policy
         .RequireAuthenticatedUser()
         .RequireClaim("mfa", "true"));
 
@@ -294,6 +308,18 @@ builder.Services.AddRateLimiter(options =>
             {
                 PermitLimit = builder.Configuration.GetValue("RateLimiting:ChangePassword:PermitLimit", 5),
                 Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:ChangePassword:WindowSeconds", 60)),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0,
+            }));
+
+    // ── Auth: MFA step-up — limit OTP/recovery-code guesses to 5 per 5 min/IP.
+    options.AddPolicy("mfa-step-up", ctx =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: RateLimiterIpKey.GetClient(ctx),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:MfaStepUp:PermitLimit", 5),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:MfaStepUp:WindowSeconds", 300)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                 QueueLimit = 0,
             }));

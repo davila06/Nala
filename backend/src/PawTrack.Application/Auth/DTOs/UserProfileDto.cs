@@ -8,7 +8,8 @@ public sealed record UserProfileDto(
     bool IsAdmin,
     DateTimeOffset CreatedAt,
     bool IsAdultConfirmed,
-    bool HasHealthDataConsent)
+    bool HasHealthDataConsent,
+    bool HasMfa)
 {
     public static UserProfileDto FromDomain(PawTrack.Domain.Auth.User user) => new(
         user.Id.ToString(),
@@ -18,5 +19,6 @@ public sealed record UserProfileDto(
         user.Role is PawTrack.Domain.Auth.UserRole.Admin or PawTrack.Domain.Auth.UserRole.SuperAdmin,
         user.CreatedAt,
         user.IsAdultConfirmed,
-        user.HasHealthDataConsent);
+        user.HasHealthDataConsent,
+        user.HasMfa);
 }

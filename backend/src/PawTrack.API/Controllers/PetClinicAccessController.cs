@@ -34,6 +34,7 @@ public sealed class PetClinicAccessController(ISender sender) : ControllerBase
     /// The clinic enters the code to activate permanent access.
     /// </summary>
     [HttpPost("code")]
+    [Authorize(Policy = "MfaStepUp")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(256)]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -58,6 +59,7 @@ public sealed class PetClinicAccessController(ISender sender) : ControllerBase
     /// Owner enters the code their clinic generated to activate the grant.
     /// </summary>
     [HttpPost("accept")]
+    [Authorize(Policy = "MfaStepUp")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(256)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -80,6 +82,7 @@ public sealed class PetClinicAccessController(ISender sender) : ControllerBase
     // ── DELETE /api/pets/{petId}/clinic-access/{clinicId} ─────────────────────
     /// <summary>Owner revokes a clinic's access to this pet's expediente.</summary>
     [HttpDelete("{clinicId:guid}")]
+    [Authorize(Policy = "MfaStepUp")]
     [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]

@@ -29,8 +29,7 @@ export function useUpdateProfile() {
 
 export function useChangePassword() {
   return useMutation({
-    mutationFn: (data: { currentPassword: string; newPassword: string }) =>
-      authApi.changePassword(data),
+    mutationFn: (data: { currentPassword: string; newPassword: string }) => authApi.changePassword(data),
   });
 }
 
@@ -38,8 +37,7 @@ export function useDeleteAccount() {
   const clearAuth = useAuthStore((s) => s.clearAuth);
 
   return useMutation({
-    mutationFn: (data: { confirmPassword: string }) =>
-      authApi.deleteAccount(data),
+    mutationFn: (data: { confirmPassword: string }) => authApi.deleteAccount(data),
     onSuccess: () => {
       clearAuth();
     },
@@ -74,5 +72,76 @@ export function useExportMyData() {
       link.remove();
       URL.revokeObjectURL(url);
     },
+  });
+}
+
+export function useMySessions() {
+  return useQuery({
+    queryKey: ["auth", "sessions"],
+    queryFn: authApi.getSessions,
+    staleTime: 30_000,
+  });
+}
+
+export function useRevokeMySession() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: authApi.revokeSession,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auth", "sessions"] }),
+  });
+}
+
+export function useMyTrustedDevices() {
+  return useQuery({
+    queryKey: ["auth", "trusted-devices"],
+    queryFn: authApi.getTrustedDevices,
+    staleTime: 30_000,
+  });
+}
+
+export function useTrustCurrentDevice() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: authApi.trustDevice,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auth", "trusted-devices"] }),
+  });
+}
+
+export function useRevokeTrustedDevice() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: authApi.revokeTrustedDevice,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auth", "trusted-devices"] }),
+  });
+}
+
+export function useSetupMfa() {
+  return useMutation({ mutationFn: authApi.setupMfa });
+}
+
+export function useEnableMfa() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: authApi.enableMfa,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auth", "me"] }),
+  });
+}
+
+export function useMfaStepUp() {
+  const setAuth = useAuthStore((state) => state.setAuth);
+  const user = useAuthStore((state) => state.user);
+  return useMutation({
+    mutationFn: authApi.stepUpMfa,
+    onSuccess: ({ accessToken }) => {
+      if (user) setAuth(user, accessToken);
+    },
+  });
+}
+
+export function useDisableMfa() {
+  const clearAuth = useAuthStore((state) => state.clearAuth);
+  return useMutation({
+    mutationFn: authApi.disableMfa,
+    onSuccess: () => clearAuth(),
   });
 }

@@ -192,7 +192,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     /// Requires an active Clinic account.
     /// </summary>
     [HttpPost("scan")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("clinic-scan")] // 30/min — each scan writes DB + dispatches owner notification
     [RequestSizeLimit(2048)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -448,7 +448,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/api-keys")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(512)]
     public async Task<IActionResult> CreateApiKey(
@@ -470,7 +470,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpDelete("me/api-keys/{keyId:guid}")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> RevokeApiKey(Guid keyId, CancellationToken cancellationToken)
     {
@@ -488,7 +488,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
 
     // ── POST /api/clinics/me/api-keys/{id}/rotate — revoke old, issue new ─────
     [HttpPost("me/api-keys/{keyId:guid}/rotate")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> RotateApiKey(Guid keyId, CancellationToken cancellationToken)
     {
@@ -543,7 +543,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPut("admin/{clinicId:guid}/review")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", Policy = "ClinicAdminMfa")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(512)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -561,7 +561,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPut("admin/profile-changes/{changeId:guid}/review")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", Policy = "ClinicAdminMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> ReviewProfileChange(
         Guid changeId,
@@ -585,7 +585,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPut("admin/{clinicId:guid}/certificate-verification")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", Policy = "ClinicAdminMfa")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(512)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -621,7 +621,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPut("admin/verifications/{verificationId:guid}/review")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", Policy = "ClinicAdminMfa")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(1024)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -667,7 +667,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPut("admin/veterinarians/{veterinarianId:guid}/review")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", Policy = "ClinicAdminMfa")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(1024)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -685,7 +685,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("admin/veterinarians/{veterinarianId:guid}/suspend")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", Policy = "ClinicAdminMfa")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(512)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -759,7 +759,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("patients/{petId:guid}/microchip/verify")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("clinic-scan")]
     [RequestSizeLimit(512)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -785,7 +785,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     /// Option B: qrOrChipInput provided — scan is created inline (records this consult visit).
     /// </summary>
     [HttpPost("patients/medical")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [Consumes("multipart/form-data")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(5_242_880)]
@@ -844,7 +844,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     /// Owner enters the code to activate permanent access.
     /// </summary>
     [HttpPost("access-grants/code")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(256)]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -868,7 +868,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
 
     /// <summary>Clinic enters the code the owner generated to activate a grant.</summary>
     [HttpPost("access-grants/accept")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(256)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -1833,7 +1833,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("patients/{petId:guid}/medical/export")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> ExportPatientMedical(Guid petId, CancellationToken ct)
     {
@@ -1877,7 +1877,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/verification")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(128)]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -1893,7 +1893,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/verification/document")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [Consumes("multipart/form-data")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(5_242_880)]

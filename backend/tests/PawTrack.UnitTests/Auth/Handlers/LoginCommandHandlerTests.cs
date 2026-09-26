@@ -16,13 +16,15 @@ public sealed class LoginCommandHandlerTests
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
     private readonly ILogger<LoginCommandHandler> _logger = Substitute.For<ILogger<LoginCommandHandler>>();
     private readonly IMfaPolicy _mfaPolicy = Substitute.For<IMfaPolicy>();
+    private readonly ITrustedDeviceRepository _trustedDeviceRepository = Substitute.For<ITrustedDeviceRepository>();
 
     private readonly LoginCommandHandler _sut;
 
     public LoginCommandHandlerTests()
     {
         _mfaPolicy.RequireForPrivilegedRoles.Returns(false);
-        _sut = new LoginCommandHandler(_userRepo, _hasher, _jwtService, _mfaService, _uow, _logger, _mfaPolicy);
+        _sut = new LoginCommandHandler(
+            _userRepo, _hasher, _jwtService, _mfaService, _uow, _logger, _mfaPolicy, _trustedDeviceRepository);
     }
 
     [Fact]
@@ -36,7 +38,9 @@ public sealed class LoginCommandHandlerTests
         var cmd = new LoginCommand("user@example.com", "correctpassword");
         _userRepo.GetByEmailAsync(cmd.Email, Arg.Any<CancellationToken>()).Returns(user);
         _hasher.Verify(cmd.Password, user.PasswordHash).Returns(true);
-        _jwtService.GenerateAccessToken(user.Id, user.Email, user.Name, user.Role).Returns("access_token");
+        _jwtService.GenerateAccessToken(
+            Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<UserRole>(), Arg.Any<bool>(), Arg.Any<Guid?>())
+            .Returns("access_token");
         _jwtService.GenerateRefreshToken().Returns(("raw_refresh", "hash_refresh"));
         _jwtService.AccessTokenExpirySeconds.Returns(900);
         _uow.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);

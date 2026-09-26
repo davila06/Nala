@@ -6,6 +6,7 @@ public sealed class RefreshToken
 
     public Guid Id { get; private set; }
     public Guid UserId { get; private set; }
+    public Guid SessionId { get; private set; }
     public string TokenHash { get; private set; } = string.Empty; // SHA-256 hash — nunca el token plano
     public DateTimeOffset ExpiresAt { get; private set; }
     public bool IsRevoked { get; private set; }
@@ -22,13 +23,15 @@ public sealed class RefreshToken
         Guid userId,
         string tokenHash,
         DateTimeOffset expiresAt,
-        DateTimeOffset? sessionIssuedAt = null)
+        DateTimeOffset? sessionIssuedAt = null,
+        Guid? sessionId = null)
     {
         var now = DateTimeOffset.UtcNow;
         return new()
         {
             Id = Guid.CreateVersion7(),
             UserId = userId,
+            SessionId = sessionId ?? Guid.CreateVersion7(),
             TokenHash = tokenHash,
             ExpiresAt = expiresAt,
             IsRevoked = false,
@@ -39,5 +42,5 @@ public sealed class RefreshToken
 
     public bool IsActive => !IsRevoked && ExpiresAt > DateTimeOffset.UtcNow;
 
-    internal void Revoke() => IsRevoked = true;
+    public void Revoke() => IsRevoked = true;
 }

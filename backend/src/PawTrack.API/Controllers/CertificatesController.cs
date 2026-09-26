@@ -66,6 +66,7 @@ public sealed class CertificatesController(ISender sender) : ControllerBase
 
     // ── POST /api/certificates ────────────────────────────────────────────────
     [HttpPost]
+    [Authorize(Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
@@ -98,7 +99,7 @@ public sealed class CertificatesController(ISender sender) : ControllerBase
     // ── POST /api/certificates/passport ───────────────────────────────────────
     // Emits an OIRSA-format vaccine passport (Clinic Partner only)
     [HttpPost("passport")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(2048)]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -149,6 +150,7 @@ public sealed class CertificatesController(ISender sender) : ControllerBase
 
     // ── POST /api/certificates/{id}/revoke ───────────────────────────────────
     [HttpPost("{id:guid}/revoke")]
+    [Authorize(Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(512)]
     [ProducesResponseType(StatusCodes.Status200OK)]

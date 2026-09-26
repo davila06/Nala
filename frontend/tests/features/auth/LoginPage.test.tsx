@@ -46,6 +46,36 @@ describe("LoginPage", () => {
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(/correo o contraseña incorrectos/i));
   });
 
+  it("asks for an MFA code and resubmits credentials after MFA_REQUIRED", async () => {
+    let receivedMfaCode: string | undefined;
+    server.use(
+      http.post("http://localhost:5000/api/auth/login", async ({ request }) => {
+        const body = (await request.json()) as { mfaCode?: string };
+        if (!body.mfaCode) {
+          return HttpResponse.json({ detail: "MFA_REQUIRED" }, { status: 401 });
+        }
+        receivedMfaCode = body.mfaCode;
+        return HttpResponse.json({
+          user: { id: "uid", name: "Ana", email: "ana@test.cr", isAdmin: false },
+          accessToken: "token",
+          expiresIn: 900,
+        });
+      }),
+    );
+
+    const user = userEvent.setup();
+    renderWithProviders(<LoginPage />);
+    await user.type(screen.getByLabelText(/correo/i), "ana@test.cr");
+    await user.type(screen.getByLabelText(/contraseña/i, { selector: "input" }), "SecurePass1!");
+    await user.click(screen.getByRole("button", { name: /^ingresar$/i }));
+
+    const mfaInput = await screen.findByLabelText(/código de autenticación/i);
+    await user.type(mfaInput, "123456");
+    await user.click(screen.getByRole("button", { name: /^verificar e ingresar$/i }));
+
+    await waitFor(() => expect(receivedMfaCode).toBe("123456"));
+  });
+
   it("disables submit button while pending", async () => {
     server.use(
       http.post("http://localhost:5000/api/auth/login", async () => {

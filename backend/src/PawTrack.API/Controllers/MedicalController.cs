@@ -119,6 +119,7 @@ public sealed class MedicalController(ISender sender) : ControllerBase
         return Ok(result.Value);
     }
     [HttpPost]
+    [Authorize(Policy = "MfaStepUp")]
     [Consumes("multipart/form-data")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(5_242_880)] // 5MB — PDF/photo documents
@@ -177,6 +178,7 @@ public sealed class MedicalController(ISender sender) : ControllerBase
 
     // ── PUT /api/pets/{petId}/medical/reminders/{id}/complete ─────────────────
     [HttpPut("reminders/{reminderId:guid}/complete")]
+    [Authorize(Policy = "MfaStepUp")]
     [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> CompleteReminder(Guid petId, Guid reminderId, CancellationToken ct)
@@ -234,6 +236,7 @@ public sealed class MedicalController(ISender sender) : ControllerBase
 
     // ── DELETE /api/pets/{petId}/medical/{recordId} ───────────────────────────
     [HttpDelete("{recordId:guid}")]
+    [Authorize(Policy = "MfaStepUp")]
     [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
@@ -248,6 +251,7 @@ public sealed class MedicalController(ISender sender) : ControllerBase
 
     // ── PUT /api/pets/{petId}/medical/{recordId} ──────────────────────────────
     [HttpPut("{recordId:guid}")]
+    [Authorize(Policy = "MfaStepUp")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(4096)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -278,6 +282,7 @@ public sealed class MedicalController(ISender sender) : ControllerBase
 
     // ── POST /api/pets/{petId}/medical/reminders ──────────────────────────────
     [HttpPost("reminders")]
+    [Authorize(Policy = "MfaStepUp")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(2048)]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -302,6 +307,7 @@ public sealed class MedicalController(ISender sender) : ControllerBase
 
     // ── DELETE /api/pets/{petId}/medical/reminders/{reminderId} ──────────────
     [HttpDelete("reminders/{reminderId:guid}")]
+    [Authorize(Policy = "MfaStepUp")]
     [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]

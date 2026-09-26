@@ -112,6 +112,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAllyProfileRepository, AllyProfileRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<ITrustedDeviceRepository, TrustedDeviceRepository>();
         services.AddScoped<IWebAuthnCredentialRepository, WebAuthnCredentialRepository>();
         services.AddScoped<IPetRepository, PetRepository>();
         services.AddScoped<IPetSanitaryIdentityAuditRepository, PetSanitaryIdentityAuditRepository>();

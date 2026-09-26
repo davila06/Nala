@@ -129,7 +129,8 @@ public sealed class WebAuthnController(
         credentialRepository.Update(credential);
         await unitOfWork.SaveChangesAsync(ct);
         var (rawRefresh, refreshHash) = jwtTokenService.GenerateRefreshToken();
-        user.AddRefreshToken(refreshHash, DateTimeOffset.UtcNow.AddDays(30));
+        var sessionId = Guid.CreateVersion7();
+        user.AddRefreshToken(refreshHash, DateTimeOffset.UtcNow.AddDays(30), sessionId: sessionId);
         userRepository.Update(user);
         await unitOfWork.SaveChangesAsync(ct);
         Response.Cookies.Append("refreshToken", rawRefresh, new CookieOptions
@@ -142,7 +143,8 @@ public sealed class WebAuthnController(
         });
         return Ok(new
         {
-            accessToken = jwtTokenService.GenerateAccessToken(user.Id, user.Email, user.Name, user.Role),
+            accessToken = jwtTokenService.GenerateAccessToken(
+                user.Id, user.Email, user.Name, user.Role, sessionId: sessionId),
             user = UserProfileDto.FromDomain(user),
         });
     }

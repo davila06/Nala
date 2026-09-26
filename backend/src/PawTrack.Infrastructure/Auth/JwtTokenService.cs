@@ -31,7 +31,7 @@ public sealed class JwtTokenService : IJwtTokenService
 
     public int AccessTokenExpirySeconds => _expirySeconds;
 
-    public string GenerateAccessToken(Guid userId, string email, string name, UserRole role, bool mfaVerified = false)
+    public string GenerateAccessToken(Guid userId, string email, string name, UserRole role, bool mfaVerified = false, Guid? sessionId = null)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -56,6 +56,8 @@ public sealed class JwtTokenService : IJwtTokenService
 
         if (mfaVerified)
             claims.Add(new Claim("mfa", "true", ClaimValueTypes.Boolean));
+        if (sessionId.HasValue)
+            claims.Add(new Claim("sid", sessionId.Value.ToString("N")));
 
         var token = new JwtSecurityToken(
             issuer: _issuer,

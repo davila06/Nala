@@ -1,4 +1,5 @@
 using PawTrack.Domain.Auth;
+using PawTrack.Application.Auth.DTOs;
 
 namespace PawTrack.Application.Common.Interfaces;
 
@@ -15,6 +16,8 @@ public interface IRefreshTokenRepository
     Task<RefreshToken?> GetByHashAsync(string tokenHash, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<RefreshToken>> GetActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<RefreshSessionSummaryDto>> GetActiveSessionsByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<bool> RevokeSessionAsync(Guid userId, Guid sessionId, CancellationToken cancellationToken = default);
     Task AddAsync(RefreshToken token, CancellationToken cancellationToken = default);
     void Update(RefreshToken token);
 }

@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using PawTrack.Application.Auth.DTOs;
@@ -14,7 +16,8 @@ public sealed class LoginCommandHandler(
     IMfaService mfaService,
     IUnitOfWork unitOfWork,
     ILogger<LoginCommandHandler> logger,
-    IMfaPolicy mfaPolicy)
+    IMfaPolicy mfaPolicy,
+    ITrustedDeviceRepository trustedDeviceRepository)
     : IRequestHandler<LoginCommand, Result<AuthTokenDto>>
 {
     private static readonly int RefreshTokenExpiryDays = 30;
@@ -60,14 +63,19 @@ public sealed class LoginCommandHandler(
             return Result.Failure<AuthTokenDto>("Email address not yet verified. Please check your inbox.");
         }
 
-        var privilegedMfaRequired = user.Role is PawTrack.Domain.Auth.UserRole.Admin
+        var privilegedRole = user.Role is PawTrack.Domain.Auth.UserRole.Admin
             or PawTrack.Domain.Auth.UserRole.Support
-            or PawTrack.Domain.Auth.UserRole.SuperAdmin
-            && mfaPolicy.RequireForPrivilegedRoles;
+            or PawTrack.Domain.Auth.UserRole.SuperAdmin;
+        var privilegedMfaRequired = mfaPolicy.RequireForPrivilegedRoles && privilegedRole;
         var mfaRequired = user.HasMfa || privilegedMfaRequired;
-        var mfaValid = !mfaRequired || (user.HasMfa && !string.IsNullOrWhiteSpace(request.MfaCode)
+        var mfaCodeValid = user.HasMfa && !string.IsNullOrWhiteSpace(request.MfaCode)
             && (mfaService.Verify(user.MfaSecretProtected!, request.MfaCode)
-                || user.ConsumeMfaRecoveryCode(request.MfaCode)));
+                || user.ConsumeMfaRecoveryCode(request.MfaCode));
+        var trustedDevice = user.HasMfa && !privilegedRole && !string.IsNullOrWhiteSpace(request.TrustedDeviceToken)
+            ? await trustedDeviceRepository.GetByTokenHashAsync(user.Id, ComputeHash(request.TrustedDeviceToken), cancellationToken)
+            : null;
+        var trustedDeviceValid = trustedDevice?.IsActive == true;
+        var mfaValid = !mfaRequired || mfaCodeValid || trustedDeviceValid;
         if (!mfaValid)
         {
             logger.LogWarning("Auth.Login.MfaRequiredOrInvalid UserId={UserId}", user.Id);
@@ -80,12 +88,25 @@ public sealed class LoginCommandHandler(
 
         var (rawToken, tokenHash) = jwtTokenService.GenerateRefreshToken();
         var expiresAt = DateTimeOffset.UtcNow.AddDays(RefreshTokenExpiryDays);
-        var refreshToken = user.AddRefreshToken(tokenHash, expiresAt);
+        var sessionId = Guid.CreateVersion7();
+        user.AddRefreshToken(tokenHash, expiresAt, sessionId: sessionId);
+
+        string? renewedTrustedDeviceToken = null;
+        if (trustedDeviceValid && trustedDevice is not null)
+        {
+            var rotatedProof = jwtTokenService.GenerateRefreshToken();
+            trustedDevice.RotateToken(request.TrustedDeviceToken!, rotatedProof.hash, sessionId);
+            trustedDeviceRepository.Update(trustedDevice);
+            renewedTrustedDeviceToken = rotatedProof.rawToken;
+        }
 
         userRepository.Update(user);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var accessToken = jwtTokenService.GenerateAccessToken(user.Id, user.Email, user.Name, user.Role, mfaVerified: user.HasMfa && mfaValid);
+        var accessToken = jwtTokenService.GenerateAccessToken(
+            user.Id, user.Email, user.Name, user.Role,
+            mfaVerified: user.HasMfa && mfaValid,
+            sessionId: sessionId);
 
         logger.LogInformation("Auth.Login.Success UserId={UserId} Role={Role}", user.Id, user.Role);
 
@@ -93,6 +114,12 @@ public sealed class LoginCommandHandler(
             AccessToken: accessToken,
             RefreshToken: rawToken,
             ExpiresIn: jwtTokenService.AccessTokenExpirySeconds,
-            User: UserProfileDto.FromDomain(user)));
+            User: UserProfileDto.FromDomain(user))
+        {
+            RenewedTrustedDeviceToken = renewedTrustedDeviceToken,
+        });
     }
+
+    private static string ComputeHash(string token) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token))).ToLowerInvariant();
 }

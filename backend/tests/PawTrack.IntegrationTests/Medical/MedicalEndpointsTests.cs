@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PawTrack.Application.Auth.Commands.Register;
 using PawTrack.Application.Auth.Commands.VerifyEmail;
@@ -119,7 +120,7 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
     public async Task DeleteRecord_NonExistentRecord_Returns422()
     {
         // Authenticated + any plan — a non-existent record should always return 422
-        var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        var client = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, $"medical-delete-{Guid.NewGuid():N}@pawtrack.cr");
 
         var response = await client.DeleteAsync(
             $"/api/pets/{Guid.NewGuid()}/medical/{Guid.NewGuid()}");
@@ -131,7 +132,7 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
     [Fact]
     public async Task UpdateRecord_NonExistentRecord_Returns422()
     {
-        var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        var client = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, $"medical-update-{Guid.NewGuid():N}@pawtrack.cr");
 
         var response = await client.PutAsJsonAsync(
             $"/api/pets/{Guid.NewGuid()}/medical/{Guid.NewGuid()}",
@@ -143,7 +144,7 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
     [Fact]
     public async Task UpdateRecord_InvalidType_Returns400()
     {
-        var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        var client = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, $"medical-invalid-{Guid.NewGuid():N}@pawtrack.cr");
 
         var response = await client.PutAsJsonAsync(
             $"/api/pets/{Guid.NewGuid()}/medical/{Guid.NewGuid()}",
@@ -157,7 +158,7 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
     [Fact]
     public async Task CreateReminder_NonExistentPet_Returns422()
     {
-        var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        var client = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, $"reminder-create-{Guid.NewGuid():N}@pawtrack.cr");
 
         var response = await client.PostAsJsonAsync(
             $"/api/pets/{Guid.NewGuid()}/medical/reminders",
@@ -169,7 +170,7 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
     [Fact]
     public async Task CreateReminder_InvalidType_Returns400()
     {
-        var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        var client = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, $"reminder-invalid-{Guid.NewGuid():N}@pawtrack.cr");
 
         var response = await client.PostAsJsonAsync(
             $"/api/pets/{Guid.NewGuid()}/medical/reminders",
@@ -183,7 +184,7 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
     [Fact]
     public async Task DeleteReminder_NonExistentReminder_Returns422()
     {
-        var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        var client = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, $"reminder-delete-{Guid.NewGuid():N}@pawtrack.cr");
 
         var response = await client.DeleteAsync(
             $"/api/pets/{Guid.NewGuid()}/medical/reminders/{Guid.NewGuid()}");
@@ -208,6 +209,34 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
         var response = await client.DeleteAsync(
             $"/api/pets/{Guid.NewGuid()}/clinic-access/{Guid.NewGuid()}");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task OtherOwner_CannotReadOrRevokePetClinicAccessGrants()
+    {
+        var ownerEmail = $"medical-grant-owner-{Guid.NewGuid():N}@pawtrack.cr";
+        var outsiderEmail = $"medical-grant-outsider-{Guid.NewGuid():N}@pawtrack.cr";
+        var ownerClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, ownerEmail);
+        var outsiderClient = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, outsiderEmail);
+        Guid petId;
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var owner = await db.Users.SingleAsync(user => user.Email == ownerEmail);
+            var pet = Pet.Create(owner.Id, "Owner-only pet", PetSpecies.Dog, null, null);
+            await db.Pets.AddAsync(pet);
+            await db.SaveChangesAsync();
+            petId = pet.Id;
+        }
+
+        var ownerRead = await ownerClient.GetAsync($"/api/pets/{petId}/clinic-access");
+        ownerRead.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var outsiderRead = await outsiderClient.GetAsync($"/api/pets/{petId}/clinic-access");
+        outsiderRead.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var outsiderRevoke = await outsiderClient.DeleteAsync($"/api/pets/{petId}/clinic-access/{Guid.NewGuid()}");
+        outsiderRevoke.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

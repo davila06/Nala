@@ -10,6 +10,24 @@ export interface RegisterRequest {
 export interface LoginRequest {
   email: string;
   password: string;
+  mfaCode?: string;
+}
+
+export interface AuthSession {
+  sessionId: string;
+  startedAt: string;
+  lastActivityAt: string;
+  expiresAt: string;
+  isCurrent: boolean;
+}
+
+export interface TrustedDevice {
+  id: string;
+  deviceName: string;
+  createdAt: string;
+  lastUsedAt: string;
+  expiresAt: string;
+  lastSessionId: string;
 }
 
 export interface WebAuthnRegisterRequest {
@@ -66,6 +84,7 @@ export interface UserProfile {
   createdAt: string;
   isAdultConfirmed: boolean;
   hasHealthDataConsent: boolean;
+  hasMfa: boolean; // Expose the server-owned MFA state
 }
 
 // ── JWT decode helper (no signature validation — server validates on every request) ──
@@ -148,4 +167,27 @@ export const authApi = {
     apiClient.post<{ consentedAt: string }>("/auth/me/health-data-consent").then((r) => r.data),
 
   exportMyData: () => apiClient.get<unknown>("/auth/me/export").then((r) => r.data),
+
+  setupMfa: () => apiClient.post<{ secret: string; otpauthUri: string }>("/auth/mfa/setup").then((r) => r.data),
+
+  enableMfa: (data: { secret: string; code: string }) =>
+    apiClient.post<{ recoveryCodes: string[] }>("/auth/mfa/enable", data).then((r) => r.data),
+
+  stepUpMfa: (code: string) =>
+    apiClient.post<{ accessToken: string; expiresIn: number }>("/auth/mfa/step-up", { code }).then((r) => r.data),
+
+  disableMfa: () => apiClient.delete<void>("/auth/mfa"),
+
+  getSessions: () => apiClient.get<AuthSession[]>("/auth/me/sessions").then((r) => r.data),
+
+  revokeSession: (sessionId: string) => apiClient.delete<void>(`/auth/me/sessions/${sessionId}`),
+
+  getTrustedDevices: () => apiClient.get<TrustedDevice[]>("/auth/me/trusted-devices").then((r) => r.data),
+
+  trustDevice: (deviceName: string) =>
+    apiClient
+      .post<Omit<TrustedDevice, "lastUsedAt" | "lastSessionId">>("/auth/me/trusted-devices", { deviceName })
+      .then((r) => r.data),
+
+  revokeTrustedDevice: (deviceId: string) => apiClient.delete<void>(`/auth/me/trusted-devices/${deviceId}`),
 };

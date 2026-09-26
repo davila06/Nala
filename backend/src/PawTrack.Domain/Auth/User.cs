@@ -209,9 +209,13 @@ public sealed class User
         return true;
     }
 
-    public RefreshToken AddRefreshToken(string tokenHash, DateTimeOffset expiresAt, DateTimeOffset? sessionIssuedAt = null)
+    public RefreshToken AddRefreshToken(
+        string tokenHash,
+        DateTimeOffset expiresAt,
+        DateTimeOffset? sessionIssuedAt = null,
+        Guid? sessionId = null)
     {
-        var refreshToken = RefreshToken.Create(Id, tokenHash, expiresAt, sessionIssuedAt);
+        var refreshToken = RefreshToken.Create(Id, tokenHash, expiresAt, sessionIssuedAt, sessionId);
         _refreshTokens.Add(refreshToken);
         return refreshToken;
     }
@@ -220,6 +224,12 @@ public sealed class User
     {
         var token = _refreshTokens.FirstOrDefault(t => t.Id == tokenId);
         token?.Revoke();
+    }
+
+    public void RevokeRefreshTokensForSession(Guid sessionId)
+    {
+        foreach (var token in _refreshTokens.Where(token => token.SessionId == sessionId && !token.IsRevoked))
+            token.Revoke();
     }
 
     public void RevokeAllRefreshTokens()

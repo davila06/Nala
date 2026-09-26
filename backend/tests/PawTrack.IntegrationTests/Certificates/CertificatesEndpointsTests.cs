@@ -30,7 +30,7 @@ public sealed class CertificatesEndpointsTests(PawTrackWebApplicationFactory fac
     [Fact]
     public async Task Issue_WithoutPartnerSubscription_Returns422()
     {
-        var client = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        var client = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, $"certificate-issue-{Guid.NewGuid():N}@pawtrack.cr");
 
         // The clinic exists but has no ClinicPartner subscription
         var response = await client.PostAsJsonAsync("/api/certificates", new

@@ -2,6 +2,7 @@
 
 > Estado: fuente de control para convertir NALA en app diaria de clínicas.  
 > Corte: 2026-09-25.  
+> Control enterprise de seguridad: [CLINIC_ENTERPRISE_SECURITY_CONTROL_MATRIX.md](CLINIC_ENTERPRISE_SECURITY_CONTROL_MATRIX.md).  
 > Principio rector: NALA debe pasar de ser una capa de identidad, recuperación,
 > expediente autorizado y certificación a ser el sistema operativo diario de una
 > clínica veterinaria sin sacrificar privacidad, consentimiento ni trazabilidad.
@@ -294,28 +295,38 @@ operación, inventario, pagos y CRM visibles en un mismo panel.
 
 - [~] 14. Escrituras de tareas staff, cambios CRM del titular y acciones sensibles de
   caja/membresía exigen claim MFA del access token. También exigen step-up agenda,
-  estado/reprogramación/bloqueo de citas, creación/cierre/adjuntos de consulta,
-  permisos veterinarios y altas/recepción/ajuste de inventario. El refresh no conserva
-  elevación; el step-up expira con el token. Faltan otras mutaciones clínicas y
-  dispositivos/sesiones confiables.
+  consulta, expediente/reminders del tutor, grants, certificados, inventario,
+  escaneo/identidad sanitaria, API keys, verificación y cambios administrativos clínicos.
+  El refresh no conserva
+  elevación; sesiones/dispositivos confiables tienen listado, revocación, prueba rotada,
+  bloqueo de access tokens hermanos y MFA. Trusted devices no sustituyen TOTP para
+  Admin/Support/SuperAdmin. Pendiente: aprobación de excepciones de bajo riesgo y
+  revisión de nuevas rutas fuera de los controladores inventariados.
 - [~] 15. Rutas staff validan membresía activa por clínica y la revocación corta acceso
   con el mismo token. Hay pruebas con recursos ajenos reales para agenda, consulta,
-  lote de inventario, venta y CRM (dashboard, responsables y tareas); falta aplicar y
-  probar la matriz en todos los endpoints, recursos relacionados y escenarios multi-sede.
+  grants de mascota, lote de inventario, venta, CRM, sesiones y dispositivos; existe
+  catálogo estructural de 110 acciones de `ClinicsController` y 27 acciones relacionadas
+  de Medical/Certificates/PetClinicAccess. Falta ejecutar BOLA dinámico contra cada ID/ruta y cada sede física; el modelo no tiene
+  entidad de sucursal (`LocationName` de inventario no es un límite de autorización).
 - [x] 16. Colas filtradas por rol, tipo y responsable en SQL; caja, gerencia y asistencia
       usan membresías apropiadas. Las respuestas staff excluyen preferencias, historial de
       comunicación y segmentos de clientes.
 - [~] 17. Pruebas HTTP cubren MFA, BOLA entre clínicas para agenda/estado, cierre de
-  consulta, ajuste de lote, creación/ledger de venta y lectura/creación/cierre de tareas
-  CRM, además de tipos fuera de rol, perfiles de asistencia/caja/gerencia, minimización
-  de datos, revocación, idempotencia y orden. La matriz aún no cubre cada endpoint ni
-  cada sede; los `LocationName` de inventario no equivalen a autorización de sedes.
+  consulta, grants de mascota, ajuste de lote, creación/ledger de venta y tareas CRM,
+  más aislamiento usuario-sesión/dispositivo, refresh sin MFA y step-up para grants/
+  certificados. La matriz estructural cubre 137 acciones, pero no ejecuta IDOR contra cada recurso
+  ni cada sede; seguir SEC-01/SEC-02 en el documento de control enterprise.
 
 **Migración requerida:** antes del despliegue, aplicar
 `AddClinicOperationalTaskMetadata`. La migración permite tareas sin mascota, rellena
 rol derivado, prioridad normal y clave única para tareas históricas e indexa las colas.
 Hacer respaldo antes de aplicar. El downgrade elimina tareas sin mascota/tutor porque
 el esquema anterior no puede representarlas; exportarlas antes de revertir.
+`AddTrustedSessionLifecycle` también está generada y pendiente. En `PawTrackDev`, la
+consulta de solo lectura registra ambas como pendientes junto con el lote clínico;
+no se aplicó ninguna migración a una base compartida. El estado de Azure compartido
+no es verificable sin un target/conexión identificados. Ver matriz enterprise antes
+de planificar una ventana y backup.
 
 #### Sprint CP6-E: cierre de homologación externa
 
@@ -335,13 +346,15 @@ notas de crédito, entregas confirmadas y plantillas autorizadas.
 - [ ] Usuarios internos por clínica.
 - [ ] Invitación y revocación de usuario.
 - [ ] Roles y permisos granulares.
-- [ ] MFA obligatorio para admin, certificados, caja e integraciones.
+- [x] MFA obligatorio para mutaciones clínicas/integraciones y step-up para acciones
+      administrativas, certificados, caja y accesos médicos; mantener allowlist revisada.
 - [ ] Auditoría de acceso a expediente.
 - [ ] Auditoría de cambios clínicos.
 - [ ] Auditoría de caja e inventario.
-- [ ] Sesiones y dispositivos confiables.
+- [x] Sesiones y dispositivos confiables con revocación y step-up MFA.
 - [ ] Export de auditoría para propietario de clínica.
-- [ ] Pruebas BOLA/IDOR por clínica, veterinario, usuario interno y mascota.
+- [~] Pruebas BOLA/IDOR: catálogo estructural 137 acciones y casos HTTP en familias
+  críticas; falta matriz dinámica de cada recurso, usuario interno, veterinario y sede.
 
 **Gate de salida:** operación multiusuario segura y defendible para clínicas
 medianas o redes.
