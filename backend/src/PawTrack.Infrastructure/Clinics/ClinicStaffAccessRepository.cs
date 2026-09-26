@@ -33,6 +33,29 @@ public sealed class ClinicStaffAccessRepository(PawTrackDbContext db) : IClinicS
                select new ClinicStaffWorkspaceReadModel(clinic.Id, clinic.Name, member.Role))
             .Take(50).ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<ClinicTaskAssigneeReadModel>> ListTaskAssigneesAsync(Guid clinicId, CancellationToken cancellationToken = default)
+    {
+        var clinical = from member in db.ClinicStaffMemberships.AsNoTracking()
+                       join user in db.Users.AsNoTracking() on member.UserId equals user.Id
+                       where member.ClinicId == clinicId && !member.IsRevoked
+                       select new ClinicTaskAssigneeReadModel(member.UserId, user.Name,
+                           member.Role == ClinicStaffRole.Receptionist ? ClinicInternalTaskRole.Receptionist
+                           : member.Role == ClinicStaffRole.Veterinarian ? ClinicInternalTaskRole.Veterinarian
+                           : ClinicInternalTaskRole.Assistant);
+        var clinicalCandidates = await clinical.Take(200).ToListAsync(cancellationToken);
+        var finance = from member in db.ClinicFinanceMemberships.AsNoTracking()
+                      join user in db.Users.AsNoTracking() on member.UserId equals user.Id
+                      where member.ClinicId == clinicId && !member.IsRevoked
+                      select new ClinicTaskAssigneeReadModel(member.UserId, user.Name,
+                          member.Role == ClinicFinanceRole.Cashier ? ClinicInternalTaskRole.Cashier : ClinicInternalTaskRole.Manager);
+        var financeCandidates = await finance.Take(200).ToListAsync(cancellationToken);
+        return clinicalCandidates.Concat(financeCandidates)
+            .Distinct()
+            .OrderBy(candidate => candidate.DisplayName, StringComparer.OrdinalIgnoreCase)
+            .Take(200)
+            .ToList();
+    }
+
     public async Task AddAsync(ClinicStaffMembership member, CancellationToken cancellationToken = default) =>
         await db.ClinicStaffMemberships.AddAsync(member, cancellationToken);
 }

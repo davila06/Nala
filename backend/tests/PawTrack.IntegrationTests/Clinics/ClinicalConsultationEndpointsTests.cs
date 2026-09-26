@@ -59,14 +59,32 @@ public sealed class ClinicalConsultationEndpointsTests(PawTrackWebApplicationFac
 
         var member = await clinicClient.PutAsJsonAsync("/api/clinics/me/staff/members", new
         {
-            email = staffEmail, role = "Veterinarian", veterinarianId
+            email = staffEmail,
+            role = "Veterinarian",
+            veterinarianId
         });
         member.StatusCode.Should().Be(HttpStatusCode.OK);
         var request = new
         {
-            reason = "Control", subjective = "S", objective = "O", assessment = "A", plan = "P",
-            diagnosis = "Sano", treatment = "Vacuna", ownerSummary = "Indicaciones para casa"
+            reason = "Control",
+            subjective = "S",
+            objective = "O",
+            assessment = "A",
+            plan = "P",
+            diagnosis = "Sano",
+            treatment = "Vacuna",
+            ownerSummary = "Indicaciones para casa"
         };
+        var createWithoutMfa = await staffClient.PostAsJsonAsync($"/api/clinics/{clinicId}/staff/appointments/{appointmentId}/consultation", request);
+        createWithoutMfa.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var jwt = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
+            var staff = await db.Users.SingleAsync(user => user.Email == staffEmail);
+            staffClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
+                jwt.GenerateAccessToken(staff.Id, staff.Email, staff.Name, staff.Role, mfaVerified: true));
+        }
         var create = await staffClient.PostAsJsonAsync($"/api/clinics/{clinicId}/staff/appointments/{appointmentId}/consultation", request);
         create.StatusCode.Should().Be(HttpStatusCode.Created);
         var consultation = await create.Content.ReadFromJsonAsync<ConsultationResponse>();
@@ -88,6 +106,8 @@ public sealed class ClinicalConsultationEndpointsTests(PawTrackWebApplicationFac
         _ = await AuthHelper.CreateAuthenticatedClientAsync(factory, ownerEmail);
 
         Guid appointmentId;
+        Guid foreignConsultationId;
+        string mfaToken;
         using (var scope = factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
@@ -109,13 +129,26 @@ public sealed class ClinicalConsultationEndpointsTests(PawTrackWebApplicationFac
             appointment.Confirm();
             appointment.CheckIn();
             appointment.StartConsultation();
+            var foreignClinic = Clinic.Create(Guid.NewGuid(), "Otra Clinica Consulta", $"VET-{Guid.NewGuid():N}"[..12], "Cartago", 9.86m, -83.92m, $"foreign-consult-{Guid.NewGuid():N}@pawtrack.cr");
+            foreignClinic.Activate();
+            var foreignVeterinarian = ClinicVeterinarian.Create(foreignClinic.Id, "Dra. Otra", $"VET-{Guid.NewGuid():N}"[..12]);
+            var foreignAppointment = VeterinarianAppointment.Schedule(foreignClinic.Id, foreignVeterinarian.Id, pet.Id, DateTimeOffset.UtcNow.AddHours(2), TimeSpan.FromMinutes(30));
+            var foreignConsultation = ClinicalConsultation.Create(foreignClinic.Id, foreignAppointment.Id, pet.Id,
+                foreignVeterinarian.Id, owner.Id, clinicUser.Id, "Control", "S", "O", "A", "P", null, null,
+                null, null, null, null, null, "Sano", "Ninguno", "Resumen");
+            await db.Clinics.AddAsync(foreignClinic);
+            await db.ClinicVeterinarians.AddAsync(foreignVeterinarian);
+            await db.VeterinarianAppointments.AddAsync(foreignAppointment);
+            await db.ClinicalConsultations.AddAsync(foreignConsultation);
             await db.VeterinarianAppointments.AddAsync(appointment);
             await db.SaveChangesAsync();
             appointmentId = appointment.Id;
+            foreignConsultationId = foreignConsultation.Id;
             clinicClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt.GenerateAccessToken(clinicUser.Id, clinicUser.Email, clinicUser.Name, clinicUser.Role));
+            mfaToken = jwt.GenerateAccessToken(clinicUser.Id, clinicUser.Email, clinicUser.Name, clinicUser.Role, mfaVerified: true);
         }
 
-        var create = await clinicClient.PostAsJsonAsync($"/api/clinics/me/appointments/{appointmentId}/consultation", new
+        var createPayload = new
         {
             reason = "Control general",
             subjective = "Come bien",
@@ -132,8 +165,14 @@ public sealed class ClinicalConsultationEndpointsTests(PawTrackWebApplicationFac
             diagnosis = "Sano",
             treatment = "Vacuna anual",
             ownerSummary = "Nala está estable."
-        });
+        };
+        var createWithoutMfa = await clinicClient.PostAsJsonAsync($"/api/clinics/me/appointments/{appointmentId}/consultation", createPayload);
+        createWithoutMfa.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        clinicClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", mfaToken);
+        var create = await clinicClient.PostAsJsonAsync($"/api/clinics/me/appointments/{appointmentId}/consultation", createPayload);
         create.StatusCode.Should().Be(HttpStatusCode.Created);
+        var foreignClose = await clinicClient.PostAsJsonAsync($"/api/clinics/me/consultations/{foreignConsultationId}/close", new { signedByName = "No autorizado" });
+        foreignClose.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
         var consultation = await create.Content.ReadFromJsonAsync<ConsultationResponse>();
         consultation.Should().NotBeNull();
         consultation!.Status.Should().Be("Draft");

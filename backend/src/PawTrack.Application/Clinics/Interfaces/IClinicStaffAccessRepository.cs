@@ -4,6 +4,7 @@ namespace PawTrack.Application.Clinics.Interfaces;
 
 public sealed record ClinicStaffMemberReadModel(Guid UserId, string Email, ClinicStaffRole Role, Guid? VeterinarianId, bool IsRevoked);
 public sealed record ClinicStaffWorkspaceReadModel(Guid ClinicId, string ClinicName, ClinicStaffRole Role);
+public sealed record ClinicTaskAssigneeReadModel(Guid UserId, string DisplayName, ClinicInternalTaskRole Role);
 
 public interface IClinicStaffAccessRepository
 {
@@ -11,5 +12,6 @@ public interface IClinicStaffAccessRepository
     Task<ClinicStaffMembership?> GetAsync(Guid clinicId, Guid userId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ClinicStaffMemberReadModel>> ListMembersAsync(Guid clinicId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ClinicStaffWorkspaceReadModel>> ListWorkspacesAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ClinicTaskAssigneeReadModel>> ListTaskAssigneesAsync(Guid clinicId, CancellationToken cancellationToken = default);
     Task AddAsync(ClinicStaffMembership member, CancellationToken cancellationToken = default);
 }

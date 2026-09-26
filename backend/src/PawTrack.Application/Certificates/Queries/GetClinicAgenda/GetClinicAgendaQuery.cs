@@ -31,7 +31,8 @@ public sealed class GetClinicAgendaQueryHandler(
     IVeterinarianAppointmentRepository appointmentRepository,
     IPetRepository petRepository,
     IClinicVeterinarianRepository veterinarianRepository,
-    IClinicStaffAccessRepository staffAccess)
+    IClinicStaffAccessRepository staffAccess,
+    IClinicFinanceAccessRepository financeAccess)
     : IRequestHandler<GetClinicAgendaQuery, Result<IReadOnlyList<ClinicAgendaItemDto>>>
 {
     public async Task<Result<IReadOnlyList<ClinicAgendaItemDto>>> Handle(
@@ -43,7 +44,8 @@ public sealed class GetClinicAgendaQueryHandler(
 
         var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
         if (clinic is null || clinic.UserId != request.RequestingUserId &&
-            !await staffAccess.HasPermissionAsync(request.ClinicId, request.RequestingUserId, ClinicStaffPermission.ViewAgenda, cancellationToken))
+            !await staffAccess.HasPermissionAsync(request.ClinicId, request.RequestingUserId, ClinicStaffPermission.ViewAgenda, cancellationToken) &&
+            !await financeAccess.HasPermissionAsync(request.ClinicId, request.RequestingUserId, ClinicFinancePermission.ViewReport, cancellationToken))
             return Result.Failure<IReadOnlyList<ClinicAgendaItemDto>>("Acceso denegado.");
 
         var appointments = await appointmentRepository.GetForClinicAsync(

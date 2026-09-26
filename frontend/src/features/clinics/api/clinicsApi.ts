@@ -361,6 +361,24 @@ export interface ClinicFinanceWorkspaceDto {
   role: "Cashier" | "Administrator";
 }
 
+export interface ClinicTaskAssigneeDto {
+  userId: string;
+  displayName: string;
+  role: ClinicInternalTaskRole;
+}
+
+export interface ClinicTaskAssigneeDto {
+  userId: string;
+  displayName: string;
+  role: ClinicInternalTaskRole;
+}
+
+export interface ClinicTaskAssigneeDto {
+  userId: string;
+  displayName: string;
+  role: ClinicInternalTaskRole;
+}
+
 export type ClinicStaffRole = "Veterinarian" | "Receptionist" | "Assistant" | "ReadOnly";
 
 export interface ClinicStaffMemberDto {
@@ -730,6 +748,11 @@ export const clinicsApi = {
 
   completeStaffCrmTask: (clinicId: string, taskId: string): Promise<void> =>
     apiClient.post(`/clinics/${clinicId}/staff/crm/tasks/${taskId}/complete`).then(() => undefined),
+
+  getStaffTaskAssignees: (clinicId: string): Promise<ClinicTaskAssigneeDto[]> =>
+    apiClient
+      .get<ClinicTaskAssigneeDto[]>(`/clinics/${clinicId}/staff/task-assignees`)
+      .then((response) => response.data),
 
   getStaffAgenda: (clinicId: string, from: string, to: string): Promise<ClinicAgendaItemDto[]> =>
     apiClient

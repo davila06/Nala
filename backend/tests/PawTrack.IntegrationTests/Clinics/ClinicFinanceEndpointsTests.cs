@@ -22,6 +22,7 @@ public sealed class ClinicFinanceEndpointsTests(PawTrackWebApplicationFactory fa
         var clinicClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, clinicEmail);
         var staffClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, staffEmail);
         Guid clinicId;
+        Guid foreignClinicId;
         using (var scope = factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
@@ -33,9 +34,13 @@ public sealed class ClinicFinanceEndpointsTests(PawTrackWebApplicationFactory fa
             staff.ConfigureMfa("protected");
             var clinic = Clinic.Create(owner.Id, "Clinica Caja", $"VET-{Guid.NewGuid():N}"[..12], "San Jose", 9.93m, -84.08m, clinicEmail);
             clinic.Activate();
+            var foreignClinic = Clinic.Create(Guid.NewGuid(), "Otra Clinica Caja", $"VET-{Guid.NewGuid():N}"[..12], "Cartago", 9.86m, -83.92m, $"foreign-finance-{Guid.NewGuid():N}@pawtrack.cr");
+            foreignClinic.Activate();
             await db.Clinics.AddAsync(clinic);
+            await db.Clinics.AddAsync(foreignClinic);
             await db.SaveChangesAsync();
             clinicId = clinic.Id;
+            foreignClinicId = foreignClinic.Id;
             clinicClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt.GenerateAccessToken(owner.Id, owner.Email, owner.Name, owner.Role));
         }
 
@@ -69,7 +74,16 @@ public sealed class ClinicFinanceEndpointsTests(PawTrackWebApplicationFactory fa
         var sale = await saleResponse.Content.ReadFromJsonAsync<SaleResponse>();
         sale.Should().NotBeNull();
 
-        var payment = await staffClient.PostAsJsonAsync($"/api/clinics/{clinicId}/finance/sales/{sale!.Id}/payments", new { amountCrc = 1000m, method = "Cash", reference = "CASH-1" });
+        var foreignSale = await staffClient.PostAsJsonAsync($"/api/clinics/{foreignClinicId}/finance/sales", new
+        {
+            receiptNumber = $"REC-{Guid.NewGuid():N}"[..16],
+            lines = new[] { new { description = "Consulta", type = "Service", quantity = 1, unitPriceCrc = 1000m } }
+        });
+        foreignSale.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var foreignLedger = await staffClient.GetAsync($"/api/clinics/{foreignClinicId}/finance/sales/{sale!.Id}/ledger");
+        foreignLedger.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        var payment = await staffClient.PostAsJsonAsync($"/api/clinics/{clinicId}/finance/sales/{sale.Id}/payments", new { amountCrc = 1000m, method = "Cash", reference = "CASH-1" });
         payment.StatusCode.Should().Be(HttpStatusCode.OK);
         var deniedVoid = await staffClient.PostAsJsonAsync($"/api/clinics/{clinicId}/finance/sales/{sale.Id}/void", new { reason = "Error" });
         deniedVoid.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);

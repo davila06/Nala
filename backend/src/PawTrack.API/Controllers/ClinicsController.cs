@@ -926,7 +926,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/veterinarians/{veterinarianId:guid}/appointments")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> ScheduleVeterinarianAppointment(
         Guid veterinarianId,
@@ -943,7 +943,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/veterinarians/{veterinarianId:guid}/blocks")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> CreateVeterinarianScheduleBlock(
         Guid veterinarianId,
@@ -987,7 +987,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPatch("me/schedule-blocks/{blockId:guid}")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> UpdateVeterinarianScheduleBlock(
         Guid blockId,
@@ -1010,7 +1010,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpDelete("me/schedule-blocks/{blockId:guid}")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> DeleteVeterinarianScheduleBlock(
         Guid blockId,
@@ -1150,7 +1150,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPatch("{clinicId:guid}/staff/appointments/{appointmentId:guid}/status")]
-    [Authorize]
+    [Authorize(Policy = "ClinicStaffMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> UpdateStaffAppointmentStatus(Guid clinicId, Guid appointmentId,
         [FromBody] UpdateVeterinarianAppointmentStatusRequest request, CancellationToken ct)
@@ -1162,7 +1162,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPatch("me/appointments/{appointmentId:guid}/status")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> UpdateVeterinarianAppointmentStatus(
         Guid appointmentId,
@@ -1182,7 +1182,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPatch("me/appointments/{appointmentId:guid}/time")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> RescheduleVeterinarianAppointment(
         Guid appointmentId,
@@ -1204,7 +1204,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/appointments/{appointmentId:guid}/consultation")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> CreateClinicalConsultation(
         Guid appointmentId,
@@ -1240,7 +1240,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("{clinicId:guid}/staff/appointments/{appointmentId:guid}/consultation")]
-    [Authorize]
+    [Authorize(Policy = "ClinicStaffMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> CreateStaffConsultation(Guid clinicId, Guid appointmentId,
         [FromBody] CreateClinicalConsultationRequest request, CancellationToken ct)
@@ -1255,7 +1255,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("{clinicId:guid}/staff/consultations/{consultationId:guid}/close")]
-    [Authorize]
+    [Authorize(Policy = "ClinicStaffMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> CloseStaffConsultation(Guid clinicId, Guid consultationId,
         [FromBody] CloseClinicalConsultationRequest request, CancellationToken ct)
@@ -1295,7 +1295,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/consultations/{consultationId:guid}/attachment")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [Consumes("multipart/form-data")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(5_242_880)]
@@ -1325,7 +1325,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/consultations/{consultationId:guid}/close")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> CloseClinicalConsultation(
         Guid consultationId,
@@ -1371,7 +1371,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/inventory/items")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> AddClinicInventoryItem([FromBody] AddClinicInventoryItemRequest request, CancellationToken ct)
     {
@@ -1385,7 +1385,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/inventory/items/{itemId:guid}/lots")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> ReceiveClinicInventoryLot(Guid itemId, [FromBody] ReceiveClinicInventoryLotRequest request, CancellationToken ct)
     {
@@ -1397,7 +1397,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/inventory/lots/{lotId:guid}/adjustments")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> AdjustClinicInventoryLot(Guid lotId, [FromBody] AdjustClinicInventoryLotRequest request, CancellationToken ct)
     {
@@ -1655,6 +1655,16 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         return result.IsSuccess ? Ok(result.Value) : Forbid();
     }
 
+    [HttpGet("{clinicId:guid}/staff/task-assignees")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetStaffTaskAssignees(Guid clinicId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetClinicTaskAssigneesQuery(clinicId, userId), ct);
+        return result.IsSuccess ? Ok(result.Value) : Forbid();
+    }
+
     [HttpPost("{clinicId:guid}/staff/crm/tasks")]
     [Authorize(Policy = "ClinicStaffMfa")]
     [EnableRateLimiting("public-api")]
@@ -1807,7 +1817,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPut("me/veterinarians/{veterinarianId:guid}/permissions")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> SetVeterinarianPermissions(
         Guid veterinarianId,
@@ -1938,7 +1948,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/veterinarians")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(512)]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -1966,7 +1976,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/veterinarians/{veterinarianId:guid}/document")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [Consumes("multipart/form-data")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(5_242_880)]
@@ -2000,7 +2010,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/veterinarians/{veterinarianId:guid}/signature")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [Consumes("multipart/form-data")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(2_097_152)]
@@ -2021,7 +2031,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpPost("me/veterinarians/{veterinarianId:guid}/revoke")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(512)]
     [ProducesResponseType(StatusCodes.Status200OK)]

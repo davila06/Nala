@@ -97,3 +97,28 @@ public sealed class GetMyClinicStaffWorkspacesQueryHandler(IClinicStaffAccessRep
     public Task<IReadOnlyList<ClinicStaffWorkspaceReadModel>> Handle(GetMyClinicStaffWorkspacesQuery request, CancellationToken ct) =>
         staff.ListWorkspacesAsync(request.UserId, ct);
 }
+
+public sealed record GetClinicTaskAssigneesQuery(Guid ClinicId, Guid RequestingUserId)
+    : IRequest<Result<IReadOnlyList<ClinicTaskAssigneeReadModel>>>;
+
+public sealed class GetClinicTaskAssigneesQueryHandler(
+    IClinicRepository clinics,
+    IClinicFinanceAccessRepository financeAccess,
+    IClinicStaffAccessRepository staff)
+    : IRequestHandler<GetClinicTaskAssigneesQuery, Result<IReadOnlyList<ClinicTaskAssigneeReadModel>>>
+{
+    public async Task<Result<IReadOnlyList<ClinicTaskAssigneeReadModel>>> Handle(
+        GetClinicTaskAssigneesQuery request,
+        CancellationToken cancellationToken)
+    {
+        var clinic = await clinics.GetByIdAsync(request.ClinicId, cancellationToken);
+        if (clinic is null || clinic.Status != ClinicStatus.Active)
+            return Result.Failure<IReadOnlyList<ClinicTaskAssigneeReadModel>>("Clínica no disponible.");
+        var isOwner = clinic.UserId == request.RequestingUserId;
+        var isFinanceManager = await financeAccess.HasPermissionAsync(
+            request.ClinicId, request.RequestingUserId, ClinicFinancePermission.ManageStaff, cancellationToken);
+        if (!isOwner && !isFinanceManager)
+            return Result.Failure<IReadOnlyList<ClinicTaskAssigneeReadModel>>("Acceso denegado.");
+        return Result.Success(await staff.ListTaskAssigneesAsync(request.ClinicId, cancellationToken));
+    }
+}

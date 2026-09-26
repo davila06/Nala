@@ -10,8 +10,15 @@ import {
   type ClinicFinanceWorkspaceDto,
   type ClinicInternalTaskRole,
   type ClinicStaffWorkspaceDto,
+  type VeterinarianAppointmentStatus,
 } from "../api/clinicsApi";
-import { daysFromClinicToday, formatCostaRicaDate, getClinicDateInputValue } from "../clinicDateTime";
+import {
+  daysFromClinicToday,
+  formatCostaRicaDate,
+  formatCostaRicaTime,
+  getClinicDateInputValue,
+  getClinicDayRange,
+} from "../clinicDateTime";
 
 const TASK_TYPES_BY_ROLE: Record<ClinicInternalTaskRole, ClinicCrmTaskType[]> = {
   Receptionist: ["CallClient", "ConfirmAppointment"],
@@ -118,6 +125,28 @@ function taskPriorityLabel(dueDate: string, priority: ClinicCrmTaskPriority) {
   return PRIORITY_LABELS[priority];
 }
 
+function nextAppointmentStatus(status: VeterinarianAppointmentStatus, roles: ClinicInternalTaskRole[]) {
+  if (roles.includes("Receptionist")) {
+    if (status === "Scheduled") return "Confirmed";
+    if (status === "Confirmed") return "CheckedIn";
+  }
+  if (roles.includes("Veterinarian")) {
+    if (status === "CheckedIn") return "InConsultation";
+    if (status === "InConsultation") return "Completed";
+  }
+  return null;
+}
+
+const APPOINTMENT_STATUS_LABELS: Record<VeterinarianAppointmentStatus, string> = {
+  Scheduled: "Programada",
+  Confirmed: "Confirmada",
+  CheckedIn: "En sala",
+  InConsultation: "En consulta",
+  Completed: "Completada",
+  NoShow: "No asistió",
+  Cancelled: "Cancelada",
+};
+
 export default function StaffClinicCrmWorkspacePage() {
   const queryClient = useQueryClient();
   const [clinicId, setClinicId] = useState("");
@@ -128,6 +157,8 @@ export default function StaffClinicCrmWorkspacePage() {
   const [notes, setNotes] = useState("");
   const [priority, setPriority] = useState<ClinicCrmTaskPriority>("Normal");
   const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
+  const [assignedToUserId, setAssignedToUserId] = useState("");
+  const [businessDate, setBusinessDate] = useState(getClinicDateInputValue);
   const { data: staffWorkspaces = [], isLoading: isLoadingStaffWorkspaces } = useQuery({
     queryKey: ["clinics", "staff-workspaces"],
     queryFn: clinicsApi.getStaffWorkspaces,
@@ -144,14 +175,35 @@ export default function StaffClinicCrmWorkspacePage() {
     ? [...new Set(selectedWorkspace.roles.flatMap((role) => TASK_TYPES_BY_ROLE[role]))]
     : [];
   const activeTaskType = allowedTaskTypes.includes(taskType) ? taskType : (allowedTaskTypes[0] ?? "CallClient");
+  const activeTaskRole = TASK_OWNER_ROLE_BY_TYPE[activeTaskType];
   const canUseCrm = allowedTaskTypes.length > 0;
-  const today = getClinicDateInputValue();
-  const dashboardKey = ["clinics", "staff-crm-dashboard", activeClinicId, today];
+  const dayRange = getClinicDayRange(businessDate);
+  const dashboardKey = ["clinics", "staff-crm-dashboard", activeClinicId, businessDate];
   const { data: dashboard, isLoading: isLoadingDashboard } = useQuery({
     queryKey: dashboardKey,
-    queryFn: () => clinicsApi.getStaffCrmDashboard(activeClinicId, today),
+    queryFn: () => clinicsApi.getStaffCrmDashboard(activeClinicId, businessDate),
     enabled: Boolean(activeClinicId && canUseCrm),
   });
+  const agendaKey = ["clinics", "staff-agenda", activeClinicId, dayRange.from, dayRange.to];
+  const { data: agenda = [], isLoading: isLoadingAgenda } = useQuery({
+    queryKey: agendaKey,
+    queryFn: () => clinicsApi.getStaffAgenda(activeClinicId, dayRange.from, dayRange.to),
+    enabled: Boolean(activeClinicId),
+  });
+  const hasFinanceWorkspace =
+    selectedWorkspace?.roles.some((role) => role === "Cashier" || role === "Manager") ?? false;
+  const { data: salesReport, isLoading: isLoadingSales } = useQuery({
+    queryKey: ["clinics", "staff-sales-report", activeClinicId, businessDate],
+    queryFn: () => clinicsApi.getStaffSalesReport(activeClinicId, businessDate),
+    enabled: Boolean(activeClinicId && hasFinanceWorkspace),
+  });
+  const canAssignIndividuals = selectedWorkspace?.roles.includes("Manager") ?? false;
+  const { data: assignees = [] } = useQuery({
+    queryKey: ["clinics", "staff-task-assignees", activeClinicId],
+    queryFn: () => clinicsApi.getStaffTaskAssignees(activeClinicId),
+    enabled: Boolean(activeClinicId && canAssignIndividuals),
+  });
+  const taskAssignees = assignees.filter((assignee) => assignee.role === activeTaskRole);
   const createTask = useMutation({
     mutationFn: () =>
       clinicsApi.createStaffCrmTask(activeClinicId, {
@@ -162,12 +214,14 @@ export default function StaffClinicCrmWorkspacePage() {
         notes: notes.trim() || null,
         idempotencyKey,
         priority,
-        assignedRole: TASK_OWNER_ROLE_BY_TYPE[activeTaskType],
+        assignedRole: activeTaskRole,
+        assignedToUserId: assignedToUserId || null,
       }),
     onSuccess: () => {
       setPetId("");
       setTitle("");
       setNotes("");
+      setAssignedToUserId("");
       setIdempotencyKey(crypto.randomUUID());
       void queryClient.invalidateQueries({ queryKey: dashboardKey });
       toast.success("Tarea asignada al equipo.");
@@ -182,6 +236,26 @@ export default function StaffClinicCrmWorkspacePage() {
     },
     onError: () => toast.error("No se pudo completar la tarea o ya no tienes acceso."),
   });
+  const updateAppointmentStatus = useMutation({
+    mutationFn: ({ appointmentId, status }: { appointmentId: string; status: VeterinarianAppointmentStatus }) =>
+      clinicsApi.updateStaffAppointmentStatus(activeClinicId, appointmentId, status),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: agendaKey });
+      toast.success("Estado de cita actualizado.");
+    },
+    onError: () => toast.error("Se requiere MFA reciente y permiso de agenda para cambiar el estado."),
+  });
+
+  const todayMetrics = {
+    appointments: agenda.filter(
+      (appointment) => appointment.status === "Scheduled" || appointment.status === "Confirmed",
+    ).length,
+    inProgress: agenda.filter(
+      (appointment) => appointment.status === "CheckedIn" || appointment.status === "InConsultation",
+    ).length,
+    completed: agenda.filter((appointment) => appointment.status === "Completed").length,
+    openTasks: dashboard?.openTasks.length ?? 0,
+  };
 
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
@@ -221,6 +295,97 @@ export default function StaffClinicCrmWorkspacePage() {
       )}
       {selectedWorkspace && canUseCrm && (
         <>
+          <section aria-labelledby="staff-daily-heading" className="space-y-4 border-b border-sand-200 pb-5">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 id="staff-daily-heading" className="text-base font-semibold text-sand-900">
+                  Agenda de hoy
+                </h2>
+                <p className="mt-1 text-xs text-sand-500">Horario local de Costa Rica</p>
+              </div>
+              <input
+                aria-label="Fecha del resumen operativo"
+                className="field-input"
+                type="date"
+                value={businessDate}
+                onChange={(event) => setBusinessDate(event.target.value)}
+              />
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="border-l-2 border-brand-500 pl-3">
+                <p className="text-xs text-sand-500">Citas por atender</p>
+                <p className="text-lg font-semibold text-sand-900">{todayMetrics.appointments}</p>
+              </div>
+              <div className="border-l-2 border-warn-400 pl-3">
+                <p className="text-xs text-sand-500">En sala / consulta</p>
+                <p className="text-lg font-semibold text-sand-900">{todayMetrics.inProgress}</p>
+              </div>
+              <div className="border-l-2 border-rescue-500 pl-3">
+                <p className="text-xs text-sand-500">Completadas</p>
+                <p className="text-lg font-semibold text-sand-900">{todayMetrics.completed}</p>
+              </div>
+              <div className="border-l-2 border-sand-400 pl-3">
+                <p className="text-xs text-sand-500">Tareas abiertas</p>
+                <p className="text-lg font-semibold text-sand-900">{todayMetrics.openTasks}</p>
+              </div>
+              {hasFinanceWorkspace && (
+                <div className="border-l-2 border-warn-500 pl-3">
+                  <p className="text-xs text-sand-500">Saldo pendiente</p>
+                  <p className="text-lg font-semibold text-sand-900">
+                    ₡{(salesReport?.pendingBalanceCrc ?? 0).toLocaleString("es-CR")}
+                  </p>
+                  <p className="text-[11px] text-sand-500">{salesReport?.pendingSaleCount ?? 0} ventas</p>
+                </div>
+              )}
+            </div>
+            {isLoadingAgenda || (hasFinanceWorkspace && isLoadingSales) ? (
+              <div className="h-16 animate-pulse rounded-lg bg-sand-100" />
+            ) : agenda.length === 0 ? (
+              <p className="border-l-2 border-sand-300 py-2 pl-3 text-sm text-sand-600">No hay citas en esta fecha.</p>
+            ) : (
+              <ul className="divide-y divide-sand-200">
+                {agenda.map((appointment) => {
+                  const nextStatus = nextAppointmentStatus(appointment.status, selectedWorkspace.roles);
+                  return (
+                    <li
+                      key={appointment.appointmentId}
+                      className="flex flex-wrap items-center justify-between gap-3 py-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-sand-900">{appointment.petName}</p>
+                        <p className="mt-1 text-xs text-sand-600">
+                          {formatCostaRicaTime(appointment.startsAt)} · {appointment.veterinarianName}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-semibold text-sand-600">
+                          {APPOINTMENT_STATUS_LABELS[appointment.status]}
+                        </span>
+                        {nextStatus && (
+                          <Button
+                            variant="secondary"
+                            disabled={updateAppointmentStatus.isPending}
+                            onClick={() =>
+                              updateAppointmentStatus.mutate({
+                                appointmentId: appointment.appointmentId,
+                                status: nextStatus,
+                              })
+                            }
+                          >
+                            {APPOINTMENT_STATUS_LABELS[nextStatus]}
+                          </Button>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            <p className="text-xs text-sand-500">
+              El cambio de estado clínico requiere la membresía veterinaria asignada y MFA vigente.
+            </p>
+          </section>
+
           <section className="space-y-3 border-b border-sand-200 pb-5">
             <div className="flex items-end justify-between gap-3">
               <div>
@@ -239,7 +404,10 @@ export default function StaffClinicCrmWorkspacePage() {
                 aria-label="Tipo de tarea interna"
                 className="field-input"
                 value={activeTaskType}
-                onChange={(event) => setTaskType(event.target.value as ClinicCrmTaskType)}
+                onChange={(event) => {
+                  setTaskType(event.target.value as ClinicCrmTaskType);
+                  setAssignedToUserId("");
+                }}
               >
                 {allowedTaskTypes.map((type) => (
                   <option key={type} value={type}>
@@ -247,6 +415,21 @@ export default function StaffClinicCrmWorkspacePage() {
                   </option>
                 ))}
               </select>
+              {canAssignIndividuals && (
+                <select
+                  aria-label="Responsable individual"
+                  className="field-input"
+                  value={assignedToUserId}
+                  onChange={(event) => setAssignedToUserId(event.target.value)}
+                >
+                  <option value="">Cola de {INTERNAL_ROLE_LABELS[activeTaskRole]}</option>
+                  {taskAssignees.map((assignee) => (
+                    <option key={assignee.userId} value={assignee.userId}>
+                      {assignee.displayName}
+                    </option>
+                  ))}
+                </select>
+              )}
               <input
                 aria-label="Vencimiento de tarea"
                 className="field-input"

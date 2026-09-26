@@ -242,6 +242,8 @@ public sealed class ClinicCrmEndpointsTests(PawTrackWebApplicationFactory factor
         var cashierClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, cashierEmail);
         var managerClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, managerEmail);
         Guid clinicId;
+        Guid foreignClinicId;
+        Guid assistantUserId;
 
         using (var scope = factory.Services.CreateScope())
         {
@@ -253,6 +255,8 @@ public sealed class ClinicCrmEndpointsTests(PawTrackWebApplicationFactory factor
             var manager = await db.Users.SingleAsync(user => user.Email == managerEmail);
             var clinic = Clinic.Create(owner.Id, "Clinica Operativa", $"VET-{Guid.NewGuid():N}"[..12], "San Jose", 9.93m, -84.08m, ownerEmail);
             clinic.Activate();
+            var foreignClinic = Clinic.Create(Guid.NewGuid(), "Otra Clinica Operativa", $"VET-{Guid.NewGuid():N}"[..12], "Puntarenas", 9.98m, -84.83m, $"foreign-ops-{Guid.NewGuid():N}@pawtrack.cr");
+            foreignClinic.Activate();
             var date = new DateOnly(2026, 9, 25);
             var assistantTask = ClinicCrmTask.Create(clinic.Id, null, null, ClinicCrmTaskType.PrepareConsultation,
                 date, "Preparar consultorio", null, owner.Id, ClinicInternalTaskRole.Assistant,
@@ -264,6 +268,7 @@ public sealed class ClinicCrmEndpointsTests(PawTrackWebApplicationFactory factor
                 date, "Revisar operación diaria", null, owner.Id, ClinicInternalTaskRole.Manager,
                 ClinicCrmTaskPriority.Normal, manager.Id, Guid.NewGuid());
             await db.Clinics.AddAsync(clinic);
+            await db.Clinics.AddAsync(foreignClinic);
             await db.ClinicStaffMemberships.AddAsync(ClinicStaffMembership.Grant(clinic.Id, assistant.Id, ClinicStaffRole.Assistant, owner.Id));
             await db.ClinicFinanceMemberships.AddRangeAsync(
                 ClinicFinanceMembership.Grant(clinic.Id, cashier.Id, ClinicFinanceRole.Cashier, owner.Id),
@@ -271,6 +276,8 @@ public sealed class ClinicCrmEndpointsTests(PawTrackWebApplicationFactory factor
             await db.ClinicCrmTasks.AddRangeAsync(assistantTask, cashierTask, managerTask);
             await db.SaveChangesAsync();
             clinicId = clinic.Id;
+            foreignClinicId = foreignClinic.Id;
+            assistantUserId = assistant.Id;
             assistantClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
                 jwt.GenerateAccessToken(assistant.Id, assistant.Email, assistant.Name, assistant.Role, mfaVerified: true));
             cashierClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
@@ -298,6 +305,30 @@ public sealed class ClinicCrmEndpointsTests(PawTrackWebApplicationFactory factor
             nameof(ClinicCrmTaskType.PrepareConsultation),
             nameof(ClinicCrmTaskType.ReviewOperations));
 
+        var foreignDashboard = await managerClient.GetAsync($"/api/clinics/{foreignClinicId}/staff/crm-dashboard?today=2026-09-25");
+        foreignDashboard.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var foreignAssignees = await managerClient.GetAsync($"/api/clinics/{foreignClinicId}/staff/task-assignees");
+        foreignAssignees.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var foreignTaskPayload = new
+        {
+            petId = (Guid?)null,
+            type = nameof(ClinicCrmTaskType.ReviewOperations),
+            dueDate = "2026-09-25",
+            title = "Tarea fuera de clínica",
+            idempotencyKey = Guid.NewGuid(),
+            priority = nameof(ClinicCrmTaskPriority.Normal)
+        };
+        var foreignTask = await managerClient.PostAsJsonAsync($"/api/clinics/{foreignClinicId}/staff/crm/tasks", foreignTaskPayload);
+        foreignTask.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+
+        var assigneesResponse = await managerClient.GetAsync($"/api/clinics/{clinicId}/staff/task-assignees");
+        assigneesResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var assigneesJson = await System.Text.Json.JsonDocument.ParseAsync(await assigneesResponse.Content.ReadAsStreamAsync());
+        assigneesJson.RootElement.EnumerateArray().Should().Contain(candidate =>
+            candidate.GetProperty("userId").GetGuid() == assistantUserId &&
+            candidate.GetProperty("role").GetString() == nameof(ClinicInternalTaskRole.Assistant));
+        assigneesJson.RootElement.EnumerateArray().First().TryGetProperty("email", out _).Should().BeFalse();
+
         var deniedCashAction = await cashierClient.PostAsJsonAsync($"/api/clinics/{clinicId}/staff/crm/tasks", new
         {
             petId = (Guid?)null,
@@ -319,6 +350,36 @@ public sealed class ClinicCrmEndpointsTests(PawTrackWebApplicationFactory factor
             priority = nameof(ClinicCrmTaskPriority.Urgent)
         });
         managerCreate.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var assignedAssistantTask = await managerClient.PostAsJsonAsync($"/api/clinics/{clinicId}/staff/crm/tasks", new
+        {
+            petId = (Guid?)null,
+            type = nameof(ClinicCrmTaskType.PrepareConsultation),
+            dueDate = "2026-09-25",
+            title = "Preparar consultorio",
+            idempotencyKey = Guid.NewGuid(),
+            priority = nameof(ClinicCrmTaskPriority.High),
+            assignedRole = nameof(ClinicInternalTaskRole.Assistant),
+            assignedToUserId = assistantUserId
+        });
+        assignedAssistantTask.StatusCode.Should().Be(HttpStatusCode.Created);
+        using var assignedTaskPayload = await System.Text.Json.JsonDocument.ParseAsync(await assignedAssistantTask.Content.ReadAsStreamAsync());
+        var assignedTaskId = assignedTaskPayload.RootElement.GetProperty("taskId").GetGuid();
+        var foreignCompletion = await managerClient.PostAsync($"/api/clinics/{foreignClinicId}/staff/crm/tasks/{assignedTaskId}/complete", null);
+        foreignCompletion.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+
+        var invalidAssignee = await managerClient.PostAsJsonAsync($"/api/clinics/{clinicId}/staff/crm/tasks", new
+        {
+            petId = (Guid?)null,
+            type = nameof(ClinicCrmTaskType.PrepareConsultation),
+            dueDate = "2026-09-25",
+            title = "Asignación inválida",
+            idempotencyKey = Guid.NewGuid(),
+            priority = nameof(ClinicCrmTaskPriority.High),
+            assignedRole = nameof(ClinicInternalTaskRole.Assistant),
+            assignedToUserId = Guid.NewGuid()
+        });
+        invalidAssignee.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     private sealed record CrmDashboardResponse(List<CrmPreferenceResponse> Preferences);

@@ -238,24 +238,29 @@ operación, inventario, pagos y CRM visibles en un mismo panel.
   - tareas internas abiertas
   - alertas del día. Parcial: el panel muestra citas, consultas en progreso,
     inventario bajo, tareas, cobros y saldos abiertos, con alertas de stock bajo,
-    vencimiento próximo, ventas pendientes y tareas vencidas. Falta una métrica
+    vencimiento próximo, ventas pendientes y tareas vencidas. `/clinica/equipo`
+    ahora integra agenda y métricas diarias para el colaborador. Falta una métrica
     explícita de sala de espera y una bandeja con navegación por alerta.
 - [~] 2. Añadir tarjetas de resumen con métricas por clínica y sede:
   - total de citas programadas
   - total de consultas completadas
   - total de pagos del día
   - total de alertas de inventario. Parcial: las métricas actuales ya muestran
-    ventas y saldos pendientes por clínica; faltan consultas completadas y sedes.
+    ventas y saldos pendientes por clínica; el espacio del colaborador también
+    cuenta citas, consultas en progreso/completadas y tareas. Faltan agregados
+    comparables por sede y un reporte consolidado multi-sede.
 - [x] 3. La agenda y las consultas diarias usan fechas de clínica en
      `America/Costa_Rica`, incluidas medianoche CR -> UTC, entrada `datetime-local`,
      formato de vencimiento y fecha por defecto del endpoint.
 - [~] 4. La cola de trabajo ordena por prioridad persistida (urgente/alta/normal/baja)
-  y vencimiento; falta una agenda unificada priorizada para citas, caja, alertas y
-  próximos 7 días.
+  y vencimiento; agenda y métricas ya conviven en el espacio del colaborador, pero
+  aún no hay una única cola priorizada que combine citas, caja, alertas y próximos
+  7 días.
 - [~] 5. El titular conserva el dashboard completo y existe una API de tareas CRM
-  acotada por membresía; `/clinica/equipo` combina membresías clínicas/financieras y
-  muestra colas de recepción, veterinario, asistencia, caja y gerencia. Falta integrar
-  agenda y métricas al resumen operativo del colaborador.
+  acotada por membresía; `/clinica/equipo` combina membresías clínicas/financieras,
+  agenda del día y métricas de trabajo, y muestra colas de recepción, veterinario,
+  asistencia, caja y gerencia. La consulta queda limitada a la clínica seleccionada;
+  no es todavía un resumen agregado entre sedes.
 
 #### Sprint CP6-B: tareas internas por rol
 
@@ -263,9 +268,10 @@ operación, inventario, pagos y CRM visibles en un mismo panel.
   - recepción: confirmar citas, reprogramar y registrar no-shows
   - veterinario: consultas pendientes, firmar y cerrar expediente
   - cajero: cobro de saldos pendientes; gerencia financiera: devoluciones y cierre
-    de caja; asistencia: preparación clínica y revisión de inventario. La ruta
-    conecta caja y operación. Falta unificar agenda/consulta y acciones financieras
-    dentro de la cola.
+    de caja; asistencia: preparación clínica y revisión de inventario. El espacio
+    del colaborador integra agenda/métricas con esas colas y permite a recepción
+    cambiar estado de cita; caja y operación mantienen acciones específicas, aún
+    sin una cola única de trabajo priorizada.
 - [x] 7. Las tareas persisten prioridad, vencimiento, rol responsable y responsable
      individual opcional. El creador se asigna cuando pertenece al rol de la tarea;
      el backend valida asignados activos de la clínica.
@@ -286,19 +292,24 @@ operación, inventario, pagos y CRM visibles en un mismo panel.
 
 #### Sprint CP6-D: hardening y seguridad del panel
 
-- [~] 14. Escrituras de tareas staff, cambios CRM del titular y acciones de caja/
-  membresías sensibles exigen claim MFA del access token. El refresh no conserva
-  elevación; el step-up expira con el token. Falta MFA en acciones clínicas sensibles
-  adicionales y dispositivos/sesiones confiables.
+- [~] 14. Escrituras de tareas staff, cambios CRM del titular y acciones sensibles de
+  caja/membresía exigen claim MFA del access token. También exigen step-up agenda,
+  estado/reprogramación/bloqueo de citas, creación/cierre/adjuntos de consulta,
+  permisos veterinarios y altas/recepción/ajuste de inventario. El refresh no conserva
+  elevación; el step-up expira con el token. Faltan otras mutaciones clínicas y
+  dispositivos/sesiones confiables.
 - [~] 15. Rutas staff validan membresía activa por clínica y la revocación corta acceso
-  con el mismo token. Falta aplicar la misma matriz a todos los endpoints existentes
-  de agenda/consulta/inventario y escenarios multi-sede.
+  con el mismo token. Hay pruebas con recursos ajenos reales para agenda, consulta,
+  lote de inventario, venta y CRM (dashboard, responsables y tareas); falta aplicar y
+  probar la matriz en todos los endpoints, recursos relacionados y escenarios multi-sede.
 - [x] 16. Colas filtradas por rol, tipo y responsable en SQL; caja, gerencia y asistencia
       usan membresías apropiadas. Las respuestas staff excluyen preferencias, historial de
       comunicación y segmentos de clientes.
-- [~] 17. Pruebas HTTP cubren MFA, BOLA entre clínicas, tipos fuera de rol, perfiles de
-  asistencia/caja/gerencia, minimización de datos, revocación, idempotencia y orden.
-  Falta extender la matriz a agenda, sedes y todos los endpoints internos.
+- [~] 17. Pruebas HTTP cubren MFA, BOLA entre clínicas para agenda/estado, cierre de
+  consulta, ajuste de lote, creación/ledger de venta y lectura/creación/cierre de tareas
+  CRM, además de tipos fuera de rol, perfiles de asistencia/caja/gerencia, minimización
+  de datos, revocación, idempotencia y orden. La matriz aún no cubre cada endpoint ni
+  cada sede; los `LocationName` de inventario no equivalen a autorización de sedes.
 
 **Migración requerida:** antes del despliegue, aplicar
 `AddClinicOperationalTaskMetadata`. La migración permite tareas sin mascota, rellena
