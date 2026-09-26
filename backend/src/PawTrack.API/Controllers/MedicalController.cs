@@ -184,7 +184,7 @@ public sealed class MedicalController(ISender sender) : ControllerBase
     public async Task<IActionResult> CompleteReminder(Guid petId, Guid reminderId, CancellationToken ct)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
-        var result = await sender.Send(new CompleteVetReminderCommand(reminderId, userId), ct);
+        var result = await sender.Send(new CompleteVetReminderCommand(reminderId, userId, petId), ct);
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
         return NoContent();
@@ -243,7 +243,7 @@ public sealed class MedicalController(ISender sender) : ControllerBase
     public async Task<IActionResult> DeleteRecord(Guid petId, Guid recordId, CancellationToken ct)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
-        var result = await sender.Send(new DeleteMedicalRecordCommand(recordId, userId), ct);
+        var result = await sender.Send(new DeleteMedicalRecordCommand(recordId, userId, petId), ct);
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
         return NoContent();
@@ -271,7 +271,7 @@ public sealed class MedicalController(ISender sender) : ControllerBase
             request.Date, request.Description,
             request.VetName, request.ClinicName, request.NextDueDate,
             request.WeightKg, request.DosageDescription,
-            request.Frequency, request.DurationDays, request.MedicationEndDate), ct);
+            request.Frequency, request.DurationDays, request.MedicationEndDate, petId), ct);
 
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
@@ -314,7 +314,7 @@ public sealed class MedicalController(ISender sender) : ControllerBase
     public async Task<IActionResult> DeleteReminder(Guid petId, Guid reminderId, CancellationToken ct)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
-        var result = await sender.Send(new DeleteVetReminderCommand(reminderId, userId), ct);
+        var result = await sender.Send(new DeleteVetReminderCommand(reminderId, userId, petId), ct);
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
         return NoContent();

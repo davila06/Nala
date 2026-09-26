@@ -92,7 +92,8 @@ public sealed class RefreshTokenCommandHandler(
         var expiresAt = rollingExpiry < absoluteDeadline ? rollingExpiry : absoluteDeadline;
         user.AddRefreshToken(newHash, expiresAt,
             sessionIssuedAt: existing.SessionIssuedAt,
-            sessionId: existing.SessionId);
+            sessionId: existing.SessionId,
+            activeClinicId: existing.ActiveClinicId);
 
         userRepository.Update(user);
         await unitOfWork.SaveChangesAsync(cancellationToken);

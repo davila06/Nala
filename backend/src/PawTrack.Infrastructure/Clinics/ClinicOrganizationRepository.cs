@@ -11,5 +11,6 @@ public sealed class ClinicOrganizationRepository(PawTrackDbContext dbContext) : 
         await dbContext.ClinicOrganizations.AddAsync(organization, cancellationToken);
         await dbContext.ClinicOrganizationMemberships.AddRangeAsync(organization.Memberships, cancellationToken);
         await dbContext.ClinicOrganizationSites.AddRangeAsync(organization.Sites, cancellationToken);
+        await dbContext.ClinicOrganizationSiteAccess.AddRangeAsync(organization.SiteAccess, cancellationToken);
     }
 }

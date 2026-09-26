@@ -15,6 +15,7 @@ using PawTrack.Application.Clinics.Commands.ReviewClinicProfileChange;
 using PawTrack.Application.Clinics.Queries.GetClinicScanStats;
 using PawTrack.Application.Clinics.Queries.GetMyClinic;
 using PawTrack.Application.Clinics.Queries.GetNearbyActiveAlerts;
+using PawTrack.Application.Clinics.Queries.GetAccessibleClinicSites;
 using PawTrack.Application.Clinics.Queries.GetPendingClinics;
 using PawTrack.Application.Clinics.Queries.GetPetMedicalHistoryForClinic;
 using PawTrack.Application.Clinics.Queries.GetPublicClinics;
@@ -1099,6 +1100,16 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
         return Ok(await sender.Send(new GetMyClinicStaffWorkspacesQuery(userId), ct));
+    }
+
+    [HttpGet("accessible-sites")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetAccessibleClinicSites(CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetAccessibleClinicSitesQuery(userId), ct);
+        return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
     }
 
     [HttpGet("me/staff/members")]

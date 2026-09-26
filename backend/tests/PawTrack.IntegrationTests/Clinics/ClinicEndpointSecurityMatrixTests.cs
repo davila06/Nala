@@ -2,18 +2,26 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Reflection;
+using System.Text.Json;
 using FluentAssertions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using NSubstitute;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Clinics.Interfaces;
 using PawTrack.API.Controllers;
 using PawTrack.Domain.Clinics;
+using PawTrack.Domain.Certificates;
 using PawTrack.Domain.Medical;
 using PawTrack.Domain.Pets;
+using PawTrack.Domain.Common;
+using PawTrack.Domain.Subscriptions;
 using PawTrack.IntegrationTests.Infrastructure;
 
 namespace PawTrack.IntegrationTests.Clinics;
@@ -32,7 +40,7 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
         "DeleteVeterinarianScheduleBlock", "DownloadClinicalConsultationPrescription",
         "DownloadClinicVerificationDocument", "DownloadMyVerificationDocument", "DownloadPatientMedicalExport",
         "DownloadVeterinarianDocument", "DownloadVeterinarianDocumentForAdmin", "ExportPatientMedical",
-        "GenerateAccessCode", "GetApiKeys", "GetAuthorizedPets", "GetCertificateIssuers", "GetClinicAgendaAudit",
+        "GenerateAccessCode", "GetAccessibleClinicSites", "GetApiKeys", "GetAuthorizedPets", "GetCertificateIssuers", "GetClinicAgendaAudit",
         "GetClinicalConsultationTemplates", "GetClinicCommunicationTemplates", "GetClinicCrmDashboard",
         "GetClinicInventory", "GetClinicInventoryValuation", "GetClinicSalesReport", "GetClinicStaffMembers",
         "GetClinicVerificationsForAdmin", "GetFinanceMembers", "GetFinanceReport", "GetFinanceSaleLedger",
@@ -135,6 +143,33 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
         "CertificatesController.Issue", "CertificatesController.IssuePassport", "CertificatesController.Download",
         "CertificatesController.Revoke",
     };
+
+    private static readonly HashSet<string> ClinicIdTenantCases = new(StringComparer.Ordinal)
+    {
+        "GetStaffAgenda", "UpdateStaffAppointmentStatus", "CreateStaffConsultation", "CloseStaffConsultation",
+        "GetFinanceReport", "GetFinanceSaleLedger", "CreateFinanceSale", "RegisterFinancePayment",
+        "RecordFinanceRefund", "VoidFinanceSale", "CloseFinanceCash", "SubmitFinanceFiscalSale",
+        "GetStaffClinicCrmDashboard", "GetStaffTaskAssignees", "CreateStaffClinicCrmTask",
+        "CompleteStaffClinicCrmTask", "SetOwnerClinicCommunicationPreference",
+    };
+
+    private static readonly HashSet<string> ClinicIdPublicOrAdminCases = new(StringComparer.Ordinal)
+    {
+        "GetPublicClinicProfile", "TrackView", "ReviewClinic", "VerifyClinicForCertificates",
+    };
+
+    [Fact]
+    public void EveryClinicIdRouteIsClassifiedForDynamicBolaTesting()
+    {
+        var actions = GetClinicActions()
+            .Where(action => action.AttributeRouteInfo?.Template?.Contains("{clinicId:guid}", StringComparison.OrdinalIgnoreCase) == true)
+            .Select(action => action.ActionName)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        actions.Should().BeEquivalentTo(ClinicIdTenantCases.Concat(ClinicIdPublicOrAdminCases),
+            "new clinicId actions must be classified and supplied with real-own/foreign resource HTTP cases");
+    }
 
     [Fact]
     public void EveryClinicEndpointDeclaresAuthenticationOrAnonymousAccess()
@@ -282,6 +317,7 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
         var staffClient = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, staffEmail);
         Guid primaryClinicId;
         Guid foreignClinicId;
+        Guid appointmentId;
 
         using (var scope = factory.Services.CreateScope())
         {
@@ -295,22 +331,260 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
             var organization = ClinicOrganization.Create("Red", owner.Id, primary.Id);
             organization.AddSite(foreign.Id);
             organization.AddMember(staff.Id, ClinicOrganizationRole.Member);
+            var veterinarian = ClinicVeterinarian.Create(primary.Id, "Dra. Mora", $"VET-{Guid.NewGuid():N}"[..12]);
+            var pet = Pet.Create(owner.Id, "Max", PetSpecies.Dog, null, null);
+            var appointment = VeterinarianAppointment.Schedule(primary.Id, veterinarian.Id, pet.Id,
+                DateTimeOffset.UtcNow.AddDays(1), TimeSpan.FromMinutes(30));
             db.Clinics.AddRange(primary, foreign);
+            db.ClinicVeterinarians.Add(veterinarian);
+            db.Pets.Add(pet);
+            db.VeterinarianAppointments.Add(appointment);
             db.ClinicOrganizations.Add(organization);
             db.ClinicOrganizationSites.AddRange(organization.Sites);
             db.ClinicOrganizationMemberships.AddRange(organization.Memberships);
             db.ClinicStaffMemberships.Add(ClinicStaffMembership.Grant(primary.Id, staff.Id, ClinicStaffRole.Receptionist, owner.Id));
+            db.ClinicFinanceMemberships.Add(ClinicFinanceMembership.Grant(primary.Id, staff.Id, ClinicFinanceRole.Administrator, owner.Id));
             await db.SaveChangesAsync();
             primaryClinicId = primary.Id;
             foreignClinicId = foreign.Id;
+            appointmentId = appointment.Id;
         }
 
         var from = Uri.EscapeDataString(DateTimeOffset.UtcNow.AddHours(-1).ToString("O"));
         var to = Uri.EscapeDataString(DateTimeOffset.UtcNow.AddHours(1).ToString("O"));
-        var own = await staffClient.GetAsync($"/api/clinics/{primaryClinicId}/staff/appointments?from={from}&to={to}");
-        own.StatusCode.Should().Be(HttpStatusCode.OK);
-        var foreign = await staffClient.GetAsync($"/api/clinics/{foreignClinicId}/staff/appointments?from={from}&to={to}");
-        foreign.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var date = DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd");
+        var cases = new (string Action, Func<Guid, string> Path, HttpStatusCode Denied)[]
+        {
+            ("GetStaffAgenda", id => $"/api/clinics/{id}/staff/appointments?from={from}&to={to}", HttpStatusCode.UnprocessableEntity),
+            ("GetStaffClinicCrmDashboard", id => $"/api/clinics/{id}/staff/crm-dashboard?today={date}", HttpStatusCode.Forbidden),
+            ("GetStaffTaskAssignees", id => $"/api/clinics/{id}/staff/task-assignees", HttpStatusCode.Forbidden),
+            ("GetFinanceReport", id => $"/api/clinics/{id}/finance/sales-report?businessDate={date}", HttpStatusCode.UnprocessableEntity),
+        };
+        foreach (var prefix in new[] { "/api/clinics", "/api/v1/clinics" })
+            foreach (var scenario in cases)
+            {
+                var own = await staffClient.GetAsync(scenario.Path(primaryClinicId).Replace("/api/clinics", prefix, StringComparison.Ordinal));
+                own.StatusCode.Should().Be(HttpStatusCode.OK, $"{scenario.Action} must be usable for authorized clinic staff");
+                var foreignResponse = await staffClient.GetAsync(scenario.Path(foreignClinicId).Replace("/api/clinics", prefix, StringComparison.Ordinal));
+                foreignResponse.StatusCode.Should().Be(scenario.Denied, $"{scenario.Action} must reject a member of another clinic in the same organization");
+            }
+
+        var receipt = $"BOLA-{Guid.NewGuid():N}"[..16];
+        var salePayload = new
+        {
+            receiptNumber = receipt,
+            lines = new[] { new { description = "Consulta", type = "Service", quantity = 1, unitPriceCrc = 1000m } },
+        };
+        var ownSale = await staffClient.PostAsJsonAsync($"/api/clinics/{primaryClinicId}/finance/sales", salePayload);
+        ownSale.StatusCode.Should().Be(HttpStatusCode.Created);
+        using var saleJson = JsonDocument.Parse(await ownSale.Content.ReadAsStringAsync());
+        var saleId = saleJson.RootElement.GetProperty("id").GetGuid();
+        var foreignSale = await staffClient.PostAsJsonAsync($"/api/v1/clinics/{foreignClinicId}/finance/sales", salePayload);
+        foreignSale.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+
+        var ownLedger = await staffClient.GetAsync($"/api/clinics/{primaryClinicId}/finance/sales/{saleId}/ledger");
+        ownLedger.StatusCode.Should().Be(HttpStatusCode.OK);
+        var foreignLedger = await staffClient.GetAsync($"/api/v1/clinics/{foreignClinicId}/finance/sales/{saleId}/ledger");
+        foreignLedger.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        var foreignAppointment = await staffClient.PatchAsJsonAsync(
+            $"/api/v1/clinics/{foreignClinicId}/staff/appointments/{appointmentId}/status", new { status = "Confirmed" });
+        foreignAppointment.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var ownAppointment = await staffClient.PatchAsJsonAsync(
+            $"/api/clinics/{primaryClinicId}/staff/appointments/{appointmentId}/status", new { status = "Confirmed" });
+        ownAppointment.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var foreignPayment = await staffClient.PostAsJsonAsync(
+            $"/api/v1/clinics/{foreignClinicId}/finance/sales/{saleId}/payments",
+            new { amountCrc = 1000m, method = "Cash", reference = "BOLA-CASH" });
+        foreignPayment.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var ownPayment = await staffClient.PostAsJsonAsync(
+            $"/api/clinics/{primaryClinicId}/finance/sales/{saleId}/payments",
+            new { amountCrc = 1000m, method = "Cash", reference = "BOLA-CASH" });
+        ownPayment.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var taskPayload = new
+        {
+            type = "CallClient",
+            dueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)),
+            title = "Contactar tutor",
+            idempotencyKey = Guid.NewGuid(),
+            priority = "Normal",
+            assignedRole = "Receptionist",
+        };
+        var ownTask = await staffClient.PostAsJsonAsync($"/api/clinics/{primaryClinicId}/staff/crm/tasks", taskPayload);
+        ownTask.StatusCode.Should().Be(HttpStatusCode.Created);
+        using var taskJson = JsonDocument.Parse(await ownTask.Content.ReadAsStringAsync());
+        var taskId = taskJson.RootElement.GetProperty("taskId").GetGuid();
+        var foreignTask = await staffClient.PostAsJsonAsync($"/api/v1/clinics/{foreignClinicId}/staff/crm/tasks", taskPayload);
+        foreignTask.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var foreignCompletion = await staffClient.PostAsync($"/api/v1/clinics/{foreignClinicId}/staff/crm/tasks/{taskId}/complete", null);
+        foreignCompletion.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var ownCompletion = await staffClient.PostAsync($"/api/clinics/{primaryClinicId}/staff/crm/tasks/{taskId}/complete", null);
+        ownCompletion.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var paidLedger = await staffClient.GetAsync($"/api/clinics/{primaryClinicId}/finance/sales/{saleId}/ledger");
+        paidLedger.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var ledgerJson = JsonDocument.Parse(await paidLedger.Content.ReadAsStringAsync());
+        var paymentId = ledgerJson.RootElement.GetProperty("payments")[0].GetProperty("id").GetGuid();
+        var refundPayload = new
+        {
+            paymentId,
+            amountCrc = 1000m,
+            reason = "Servicio cancelado",
+            evidenceReference = $"REF-{Guid.NewGuid():N}",
+        };
+        var foreignRefund = await staffClient.PostAsJsonAsync($"/api/v1/clinics/{foreignClinicId}/finance/sales/{saleId}/refunds", refundPayload);
+        foreignRefund.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var ownRefund = await staffClient.PostAsJsonAsync($"/api/clinics/{primaryClinicId}/finance/sales/{saleId}/refunds", refundPayload);
+        ownRefund.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var foreignVoid = await staffClient.PostAsJsonAsync($"/api/v1/clinics/{foreignClinicId}/finance/sales/{saleId}/void", new { reason = "Servicio cancelado" });
+        foreignVoid.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var ownVoid = await staffClient.PostAsJsonAsync($"/api/clinics/{primaryClinicId}/finance/sales/{saleId}/void", new { reason = "Servicio cancelado" });
+        ownVoid.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var closeDate = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(-6));
+        var foreignClose = await staffClient.PostAsJsonAsync($"/api/v1/clinics/{foreignClinicId}/finance/cash-closes", new { businessDate = closeDate });
+        foreignClose.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var ownClose = await staffClient.PostAsJsonAsync($"/api/clinics/{primaryClinicId}/finance/cash-closes", new { businessDate = closeDate });
+        ownClose.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        using var verifyScope = factory.Services.CreateScope();
+        var verifyDb = verifyScope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+        (await verifyDb.ClinicSales.CountAsync(sale => sale.ClinicId == foreignClinicId)).Should().Be(0);
+        (await verifyDb.ClinicCrmTasks.CountAsync(task => task.ClinicId == foreignClinicId)).Should().Be(0);
+        (await verifyDb.VeterinarianAppointments.SingleAsync(item => item.Id == appointmentId)).Status
+            .Should().Be(VeterinarianAppointmentStatus.Confirmed);
+        (await verifyDb.ClinicSalePayments.CountAsync(payment => payment.SaleId == saleId)).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task FinanceFiscalSubmissionRejectsAnotherOrganizationSiteBeforeCallingProvider()
+    {
+        var issuer = Substitute.For<IClinicFiscalIssuerRegistry>();
+        issuer.GetVerifiedIssuerTaxId(Arg.Any<Guid>()).Returns("123456789");
+        var gateway = Substitute.For<IClinicFiscalGateway>();
+        gateway.SubmitAsync(Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<string>(),
+                Arg.Any<string>(), Arg.Any<decimal>(), Arg.Any<CancellationToken>())
+            .Returns(Result.Success("stub-fiscal-reference"));
+        using var app = factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
+        {
+            services.RemoveAll<IClinicFiscalIssuerRegistry>();
+            services.RemoveAll<IClinicFiscalGateway>();
+            services.AddSingleton(issuer);
+            services.AddSingleton(gateway);
+        }));
+        var ownerEmail = $"fiscal-owner-{Guid.NewGuid():N}@pawtrack.cr";
+        var staffEmail = $"fiscal-staff-{Guid.NewGuid():N}@pawtrack.cr";
+        _ = await AuthHelper.CreateAuthenticatedClientAsync(factory, ownerEmail);
+        var authenticatedStaff = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, staffEmail);
+        var staffClient = app.CreateClient();
+        staffClient.DefaultRequestHeaders.Authorization = authenticatedStaff.DefaultRequestHeaders.Authorization;
+        Guid ownClinicId;
+        Guid foreignClinicId;
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var owner = await db.Users.SingleAsync(user => user.Email == ownerEmail);
+            var staff = await db.Users.SingleAsync(user => user.Email == staffEmail);
+            var ownClinic = Clinic.Create(owner.Id, "Fiscal A", $"VET-{Guid.NewGuid():N}"[..12], "San Jose", 9.93m, -84.08m, ownerEmail);
+            var foreignClinic = Clinic.Create(Guid.NewGuid(), "Fiscal B", $"VET-{Guid.NewGuid():N}"[..12], "Cartago", 9.86m, -83.92m, "foreign@pawtrack.test");
+            ownClinic.Activate();
+            foreignClinic.Activate();
+            var organization = ClinicOrganization.Create("Fiscal Red", owner.Id, ownClinic.Id);
+            organization.AddSite(foreignClinic.Id);
+            organization.AddMember(staff.Id, ClinicOrganizationRole.FinanceManager);
+            db.Clinics.AddRange(ownClinic, foreignClinic);
+            db.ClinicOrganizations.Add(organization);
+            db.ClinicOrganizationMemberships.AddRange(organization.Memberships);
+            db.ClinicOrganizationSites.AddRange(organization.Sites);
+            db.ClinicFinanceMemberships.Add(ClinicFinanceMembership.Grant(ownClinic.Id, staff.Id, ClinicFinanceRole.Administrator, owner.Id));
+            await db.SaveChangesAsync();
+            ownClinicId = ownClinic.Id;
+            foreignClinicId = foreignClinic.Id;
+        }
+
+        var saleResponse = await staffClient.PostAsJsonAsync($"/api/clinics/{ownClinicId}/finance/sales", new
+        {
+            receiptNumber = $"FISC-{Guid.NewGuid():N}"[..16],
+            lines = new[] { new { description = "Consulta", type = "Service", quantity = 1, unitPriceCrc = 1000m } },
+        });
+        saleResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        using var saleJson = JsonDocument.Parse(await saleResponse.Content.ReadAsStringAsync());
+        var saleId = saleJson.RootElement.GetProperty("id").GetGuid();
+        var payment = await staffClient.PostAsJsonAsync($"/api/clinics/{ownClinicId}/finance/sales/{saleId}/payments",
+            new { amountCrc = 1000m, method = "Cash", reference = "FISC-BOLA" });
+        payment.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var denied = await staffClient.PostAsync(
+            $"/api/v1/clinics/{foreignClinicId}/finance/sales/{saleId}/fiscal-submission", null);
+        denied.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var accepted = await staffClient.PostAsync(
+            $"/api/clinics/{ownClinicId}/finance/sales/{saleId}/fiscal-submission", null);
+        accepted.StatusCode.Should().Be(HttpStatusCode.Accepted);
+        await gateway.Received(1).SubmitAsync(ownClinicId, saleId, Arg.Any<string>(), Arg.Any<string>(),
+            1000m, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task ClinicApiKeysCannotBeRotatedOrRevokedByAnotherClinic()
+    {
+        var emailA = $"key-a-{Guid.NewGuid():N}@pawtrack.cr";
+        var emailB = $"key-b-{Guid.NewGuid():N}@pawtrack.cr";
+        var clientA = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, emailA);
+        var clientB = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, emailB);
+        Guid clinicAId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var jwt = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
+            var ownerA = await db.Users.SingleAsync(user => user.Email == emailA);
+            var ownerB = await db.Users.SingleAsync(user => user.Email == emailB);
+            ownerA.AssignClinicRole();
+            ownerB.AssignClinicRole();
+            var clinicA = Clinic.Create(ownerA.Id, "Keys A", $"VET-{Guid.NewGuid():N}"[..12], "San Jose", 9.93m, -84.08m, emailA);
+            var clinicB = Clinic.Create(ownerB.Id, "Keys B", $"VET-{Guid.NewGuid():N}"[..12], "Cartago", 9.86m, -83.92m, emailB);
+            clinicA.Activate();
+            clinicB.Activate();
+            var planA = Subscription.CreateForClinic(clinicA.Id, ownerA.Id, SubscriptionTier.ClinicPartner, $"K{Guid.NewGuid():N}"[..8], 35000m);
+            var planB = Subscription.CreateForClinic(clinicB.Id, ownerB.Id, SubscriptionTier.ClinicPartner, $"K{Guid.NewGuid():N}"[..8], 35000m);
+            planA.Activate();
+            planB.Activate();
+            db.Clinics.AddRange(clinicA, clinicB);
+            db.Subscriptions.AddRange(planA, planB);
+            await db.SaveChangesAsync();
+            clinicAId = clinicA.Id;
+            clientA.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
+                jwt.GenerateAccessToken(ownerA.Id, ownerA.Email, ownerA.Name, ownerA.Role, mfaVerified: true));
+            clientB.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
+                jwt.GenerateAccessToken(ownerB.Id, ownerB.Email, ownerB.Name, ownerB.Role, mfaVerified: true));
+        }
+
+        var created = await clientA.PostAsJsonAsync("/api/clinics/me/api-keys", new { label = "Partner A", scopes = new[] { "scan" } });
+        created.StatusCode.Should().Be(HttpStatusCode.Created);
+        using var createdJson = JsonDocument.Parse(await created.Content.ReadAsStringAsync());
+        var keyId = createdJson.RootElement.GetProperty("id").GetGuid();
+        var keysB = await clientB.GetAsync("/api/v1/clinics/me/api-keys");
+        keysB.StatusCode.Should().Be(HttpStatusCode.OK);
+        var keysBJson = await keysB.Content.ReadFromJsonAsync<JsonElement>();
+        keysBJson.GetArrayLength().Should().Be(0);
+
+        var foreignRotation = await clientB.PostAsync($"/api/v1/clinics/me/api-keys/{keyId}/rotate", null);
+        foreignRotation.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var foreignRevocation = await clientB.DeleteAsync($"/api/v1/clinics/me/api-keys/{keyId}");
+        foreignRevocation.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        var ownRotation = await clientA.PostAsync($"/api/clinics/me/api-keys/{keyId}/rotate", null);
+        ownRotation.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var rotatedJson = JsonDocument.Parse(await ownRotation.Content.ReadAsStringAsync());
+        var rotatedId = rotatedJson.RootElement.GetProperty("id").GetGuid();
+        var ownRevocation = await clientA.DeleteAsync($"/api/clinics/me/api-keys/{rotatedId}");
+        ownRevocation.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        using var verifyScope = factory.Services.CreateScope();
+        var verifyDb = verifyScope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+        (await verifyDb.ClinicApiKeys.CountAsync(key => key.ClinicId == clinicAId)).Should().Be(2);
+        (await verifyDb.ClinicApiKeys.CountAsync(key => key.ClinicId == clinicAId && key.IsRevoked)).Should().Be(2);
     }
 
     [Fact]

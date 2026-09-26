@@ -39,6 +39,28 @@ public sealed class ClinicOrganizationModelTests
     }
 
     [Fact]
+    public void OrganizationMembershipDoesNotGrantAccessToEverySite()
+    {
+        var ownerId = Guid.CreateVersion7();
+        var staffId = Guid.CreateVersion7();
+        var primaryClinicId = Guid.CreateVersion7();
+        var secondaryClinicId = Guid.CreateVersion7();
+        var organization = ClinicOrganization.Create("Red", ownerId, primaryClinicId);
+        organization.AddSite(secondaryClinicId);
+        organization.AddMember(staffId, ClinicOrganizationRole.Member);
+
+        organization.SiteAccess.Should().ContainSingle(access =>
+            access.UserId == ownerId && access.ClinicId == primaryClinicId && !access.IsRevoked);
+        organization.SiteAccess.Should().NotContain(access =>
+            access.UserId == staffId && access.ClinicId == secondaryClinicId);
+
+        organization.GrantSiteAccess(staffId, secondaryClinicId, ownerId);
+
+        organization.SiteAccess.Should().Contain(access =>
+            access.UserId == staffId && access.ClinicId == secondaryClinicId && !access.IsRevoked);
+    }
+
+    [Fact]
     public void ClinicModelSupportsAnOrganizationWithMultipleSitesAndOwnerMemberships()
     {
         var options = new DbContextOptionsBuilder<PawTrackDbContext>()

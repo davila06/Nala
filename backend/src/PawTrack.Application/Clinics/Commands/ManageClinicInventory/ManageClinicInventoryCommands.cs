@@ -95,13 +95,15 @@ public sealed class AddClinicInventoryItemCommandValidator : AbstractValidator<A
 public sealed class AddClinicInventoryItemCommandHandler(
     IClinicRepository clinicRepository,
     IClinicInventoryRepository inventoryRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IClinicSiteAccessRepository siteAccess,
+    IClinicStaffAccessRepository staffAccess)
     : IRequestHandler<AddClinicInventoryItemCommand, Result<ClinicInventoryItemDto>>
 {
     public async Task<Result<ClinicInventoryItemDto>> Handle(AddClinicInventoryItemCommand request, CancellationToken cancellationToken)
     {
         var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
-        if (clinic is null || clinic.UserId != request.ClinicUserId)
+        if (clinic is null || !await ClinicInventoryAccess.CanManageAsync(clinic, request.ClinicUserId, siteAccess, staffAccess, cancellationToken))
             return Result.Failure<ClinicInventoryItemDto>("Acceso denegado.");
 
         var item = ClinicInventoryItem.Create(request.ClinicId, request.Name, request.Type, request.Unit, request.MinimumStock);
@@ -126,13 +128,15 @@ public sealed record ReceiveClinicInventoryLotCommand(
 public sealed class ReceiveClinicInventoryLotCommandHandler(
     IClinicRepository clinicRepository,
     IClinicInventoryRepository inventoryRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IClinicSiteAccessRepository siteAccess,
+    IClinicStaffAccessRepository staffAccess)
     : IRequestHandler<ReceiveClinicInventoryLotCommand, Result<ClinicInventoryLotDto>>
 {
     public async Task<Result<ClinicInventoryLotDto>> Handle(ReceiveClinicInventoryLotCommand request, CancellationToken cancellationToken)
     {
         var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
-        if (clinic is null || clinic.UserId != request.ClinicUserId)
+        if (clinic is null || !await ClinicInventoryAccess.CanManageAsync(clinic, request.ClinicUserId, siteAccess, staffAccess, cancellationToken))
             return Result.Failure<ClinicInventoryLotDto>("Acceso denegado.");
         var item = await inventoryRepository.GetItemByIdAsync(request.ItemId, cancellationToken);
         if (item is null || item.ClinicId != request.ClinicId)
@@ -161,7 +165,9 @@ public sealed record ConsumeClinicInventoryCommand(
 public sealed class ConsumeClinicInventoryCommandHandler(
     IClinicRepository clinicRepository,
     IClinicInventoryRepository inventoryRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IClinicSiteAccessRepository siteAccess,
+    IClinicStaffAccessRepository staffAccess)
     : IRequestHandler<ConsumeClinicInventoryCommand, Result<IReadOnlyList<ClinicInventoryMovementDto>>>
 {
     public async Task<Result<IReadOnlyList<ClinicInventoryMovementDto>>> Handle(ConsumeClinicInventoryCommand request, CancellationToken cancellationToken)
@@ -169,7 +175,7 @@ public sealed class ConsumeClinicInventoryCommandHandler(
         if (request.Quantity <= 0)
             return Result.Failure<IReadOnlyList<ClinicInventoryMovementDto>>("La cantidad debe ser positiva.");
         var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
-        if (clinic is null || clinic.UserId != request.ClinicUserId)
+        if (clinic is null || !await ClinicInventoryAccess.CanManageAsync(clinic, request.ClinicUserId, siteAccess, staffAccess, cancellationToken))
             return Result.Failure<IReadOnlyList<ClinicInventoryMovementDto>>("Acceso denegado.");
         var item = await inventoryRepository.GetItemByIdAsync(request.ItemId, cancellationToken);
         if (item is null || item.ClinicId != request.ClinicId)
@@ -221,7 +227,9 @@ public sealed class AdjustClinicInventoryLotCommandHandler(
     IClinicRepository clinicRepository,
     IClinicInventoryRepository inventoryRepository,
     IAuditLogRepository auditLogRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IClinicSiteAccessRepository siteAccess,
+    IClinicStaffAccessRepository staffAccess)
     : IRequestHandler<AdjustClinicInventoryLotCommand, Result<ClinicInventoryMovementDto>>
 {
     public async Task<Result<ClinicInventoryMovementDto>> Handle(AdjustClinicInventoryLotCommand request, CancellationToken cancellationToken)
@@ -229,7 +237,7 @@ public sealed class AdjustClinicInventoryLotCommandHandler(
         if (string.IsNullOrWhiteSpace(request.Reason))
             return Result.Failure<ClinicInventoryMovementDto>("El motivo del ajuste es requerido.");
         var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
-        if (clinic is null || clinic.UserId != request.ClinicUserId)
+        if (clinic is null || !await ClinicInventoryAccess.CanManageAsync(clinic, request.ClinicUserId, siteAccess, staffAccess, cancellationToken))
             return Result.Failure<ClinicInventoryMovementDto>("Acceso denegado.");
         var lot = await inventoryRepository.GetLotByIdAsync(request.LotId, cancellationToken);
         if (lot is null || lot.ClinicId != request.ClinicId)
@@ -260,13 +268,15 @@ public sealed record GetClinicInventoryQuery(Guid ClinicId, Guid ClinicUserId)
 
 public sealed class GetClinicInventoryQueryHandler(
     IClinicRepository clinicRepository,
-    IClinicInventoryRepository inventoryRepository)
+    IClinicInventoryRepository inventoryRepository,
+    IClinicSiteAccessRepository siteAccess,
+    IClinicStaffAccessRepository staffAccess)
     : IRequestHandler<GetClinicInventoryQuery, Result<IReadOnlyList<ClinicInventoryItemDto>>>
 {
     public async Task<Result<IReadOnlyList<ClinicInventoryItemDto>>> Handle(GetClinicInventoryQuery request, CancellationToken cancellationToken)
     {
         var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
-        if (clinic is null || clinic.UserId != request.ClinicUserId)
+        if (clinic is null || !await ClinicInventoryAccess.CanManageAsync(clinic, request.ClinicUserId, siteAccess, staffAccess, cancellationToken))
             return Result.Failure<IReadOnlyList<ClinicInventoryItemDto>>("Acceso denegado.");
 
         var items = await inventoryRepository.GetItemsByClinicAsync(request.ClinicId, cancellationToken);
@@ -295,13 +305,15 @@ public sealed record GetClinicInventoryValuationQuery(Guid ClinicId, Guid Clinic
 
 public sealed class GetClinicInventoryValuationQueryHandler(
     IClinicRepository clinicRepository,
-    IClinicInventoryRepository inventoryRepository)
+    IClinicInventoryRepository inventoryRepository,
+    IClinicSiteAccessRepository siteAccess,
+    IClinicStaffAccessRepository staffAccess)
     : IRequestHandler<GetClinicInventoryValuationQuery, Result<ClinicInventoryValuationDto>>
 {
     public async Task<Result<ClinicInventoryValuationDto>> Handle(GetClinicInventoryValuationQuery request, CancellationToken cancellationToken)
     {
         var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
-        if (clinic is null || clinic.UserId != request.ClinicUserId)
+        if (clinic is null || !await ClinicInventoryAccess.CanManageAsync(clinic, request.ClinicUserId, siteAccess, staffAccess, cancellationToken))
             return Result.Failure<ClinicInventoryValuationDto>("Acceso denegado.");
 
         var items = await inventoryRepository.GetItemsByClinicAsync(request.ClinicId, cancellationToken);
@@ -333,5 +345,23 @@ public sealed class GetClinicInventoryValuationQueryHandler(
             lines.Sum(line => line.AvailableQuantity),
             lines,
             byLocation));
+    }
+}
+
+internal static class ClinicInventoryAccess
+{
+    public static async Task<bool> CanManageAsync(
+        Clinic clinic,
+        Guid userId,
+        IClinicSiteAccessRepository siteAccess,
+        IClinicStaffAccessRepository staffAccess,
+        CancellationToken cancellationToken)
+    {
+        if (clinic.UserId == userId)
+            return true;
+
+        return await siteAccess.HasAccessAsync(userId, clinic.Id, cancellationToken)
+            && await staffAccess.HasPermissionAsync(
+                clinic.Id, userId, ClinicStaffPermission.ManageInventory, cancellationToken);
     }
 }

@@ -213,9 +213,10 @@ public sealed class User
         string tokenHash,
         DateTimeOffset expiresAt,
         DateTimeOffset? sessionIssuedAt = null,
-        Guid? sessionId = null)
+        Guid? sessionId = null,
+        Guid? activeClinicId = null)
     {
-        var refreshToken = RefreshToken.Create(Id, tokenHash, expiresAt, sessionIssuedAt, sessionId);
+        var refreshToken = RefreshToken.Create(Id, tokenHash, expiresAt, sessionIssuedAt, sessionId, activeClinicId);
         _refreshTokens.Add(refreshToken);
         return refreshToken;
     }

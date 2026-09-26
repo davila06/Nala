@@ -7,6 +7,7 @@ public sealed class RefreshToken
     public Guid Id { get; private set; }
     public Guid UserId { get; private set; }
     public Guid SessionId { get; private set; }
+    public Guid? ActiveClinicId { get; private set; }
     public string TokenHash { get; private set; } = string.Empty; // SHA-256 hash — nunca el token plano
     public DateTimeOffset ExpiresAt { get; private set; }
     public bool IsRevoked { get; private set; }
@@ -24,7 +25,8 @@ public sealed class RefreshToken
         string tokenHash,
         DateTimeOffset expiresAt,
         DateTimeOffset? sessionIssuedAt = null,
-        Guid? sessionId = null)
+        Guid? sessionId = null,
+        Guid? activeClinicId = null)
     {
         var now = DateTimeOffset.UtcNow;
         return new()
@@ -32,6 +34,7 @@ public sealed class RefreshToken
             Id = Guid.CreateVersion7(),
             UserId = userId,
             SessionId = sessionId ?? Guid.CreateVersion7(),
+            ActiveClinicId = activeClinicId,
             TokenHash = tokenHash,
             ExpiresAt = expiresAt,
             IsRevoked = false,
@@ -41,6 +44,12 @@ public sealed class RefreshToken
     }
 
     public bool IsActive => !IsRevoked && ExpiresAt > DateTimeOffset.UtcNow;
+
+    public void SelectActiveClinic(Guid clinicId)
+    {
+        if (clinicId == Guid.Empty) throw new ArgumentException("Clinic is required.", nameof(clinicId));
+        ActiveClinicId = clinicId;
+    }
 
     public void Revoke() => IsRevoked = true;
 }

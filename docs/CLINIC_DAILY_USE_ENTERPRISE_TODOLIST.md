@@ -313,14 +313,14 @@ operación, inventario, pagos y CRM visibles en un mismo panel.
   catálogo estructural de 110 acciones de `ClinicsController` y 27 acciones relacionadas
   de Medical/Certificates/PetClinicAccess, con verbo HTTP y template de ruta comprobados.
   Falta ejecutar BOLA dinámico contra cada ID/ruta y cada sede física; el modelo no tiene
-  entidad de sucursal (`LocationName` de inventario no es un límite de autorización).
+  entidad de ubicación interna de inventario (`LocationName` sigue siendo texto libre y no es un límite de autorización). El scope explícito por sede ya existe; agenda e inventario lo validan, pero no todos los handlers clínicos.
 - [x] 16. Colas filtradas por rol, tipo y responsable en SQL; caja, gerencia y asistencia
       usan membresías apropiadas. Las respuestas staff excluyen preferencias, historial de
       comunicación y segmentos de clientes.
 - [~] 17. Pruebas HTTP cubren MFA, BOLA entre clínicas para agenda/estado, cierre de
   consulta, grants de mascota, ajuste de lote, creación/ledger de venta y tareas CRM,
   más aislamiento usuario-sesión/dispositivo, refresh sin MFA y step-up para grants/
-  certificados. La matriz estructural cubre 137 acciones, pero no ejecuta IDOR contra cada recurso
+  certificados. La matriz estructural cubre 138 acciones, pero no ejecuta IDOR contra cada recurso
   ni cada sede; seguir SEC-01/SEC-02 en el documento de control enterprise.
 
 **Migración de despliegue:** en `PawTrackDev` local ya se aplicó la cadena pendiente, incluida
@@ -329,7 +329,7 @@ rol derivado, prioridad normal y clave única para tareas históricas e indexa l
 Para staging/producción hacer respaldo antes de aplicar. El downgrade elimina tareas sin mascota/tutor porque
 el esquema anterior no puede representarlas; exportarlas antes de revertir.
 `AddTrustedSessionLifecycle` y `AddClinicOrganizations` también están aplicadas en
-`PawTrackDev`; el backfill local produjo 6 organizaciones, 6 sedes y 0 clínicas huérfanas.
+`PawTrackDev`; el backfill local produjo 6 organizaciones, 6 sedes y 0 clínicas huérfanas. También están aplicadas `AddClinicOrganizationSiteAccess` y `FilterActiveClinicOrganizationMemberships`; agenda e inventario validan scope de sede, mientras el resto de handlers sigue en migración.
 No se aplicó ninguna migración a una base compartida. El estado de Azure compartido
 no es verificable sin un target/conexión identificados. Ver matriz enterprise antes
 de planificar una ventana y backup.
@@ -350,26 +350,26 @@ notas de crédito, entregas confirmadas y plantillas autorizadas.
 **Plan P1 de salida controlada (aún abierto):**
 
 1. Mensajería: aprobar plantillas y opt-in por propósito/canal; enviar con clave
-  idempotente, registrar `Sent` solo tras aceptación del proveedor y `Delivered`
-  solo tras webhook firmado. Probar timeout, duplicado, 429/5xx, revocación de
-  consentimiento y destino incorrecto sin filtrar datos de salud.
+   idempotente, registrar `Sent` solo tras aceptación del proveedor y `Delivered`
+   solo tras webhook firmado. Probar timeout, duplicado, 429/5xx, revocación de
+   consentimiento y destino incorrecto sin filtrar datos de salud.
 2. Fiscal: homologar emisor y proveedor con XML/firma/acuses reales en sandbox;
-  conciliar `SubmittedToProvider`, aceptado/rechazado por Hacienda y notas de
-  crédito. Probar reintentos ambiguos y devoluciones sin declarar una factura
-  aceptada antes del acuse oficial.
+   conciliar `SubmittedToProvider`, aceptado/rechazado por Hacienda y notas de
+   crédito. Probar reintentos ambiguos y devoluciones sin declarar una factura
+   aceptada antes del acuse oficial.
 3. Seguridad: completar tabla endpoint × actor (owner/staff/finanzas/ajeno) ×
-  recurso propio/ajeno × resultado, con IDs reales. Un `ClinicOrganizationSite`
-  no autoriza por sí solo: añadir pruebas inter-sede únicamente cuando exista
-  alcance efectivo de sitio en todos los módulos.
+   recurso propio/ajeno × resultado, con IDs reales. Un `ClinicOrganizationSite`
+   no autoriza por sí solo: añadir pruebas inter-sede únicamente cuando exista
+   alcance efectivo de sitio en todos los módulos.
 4. Release: identificar staging y versión exacta de `__EFMigrationsHistory`,
-  aprobar backup/restauración y generar/revisar SQL de migraciones pendientes;
-  aplicar primero allí y verificar backfill 1:1 de clínica a organización,
-  owner principal, índice filtrado, conteos y smoke funcional. No aplicar a
-  producción sin aprobación de operaciones/DBA.
+   aprobar backup/restauración y generar/revisar SQL de migraciones pendientes;
+   aplicar primero allí y verificar backfill 1:1 de clínica a organización,
+   owner principal, índice filtrado, conteos y smoke funcional. No aplicar a
+   producción sin aprobación de operaciones/DBA.
 5. Piloto: operar al menos una clínica en paralelo con su proceso actual;
-  conciliar citas, inventario, cobros, facturas y comunicaciones a diario.
-  Documentar discrepancias, recuperación ante fallos, SLA real y autorización
-  legal/comercial antes de llamar a NALA sistema principal.
+   conciliar citas, inventario, cobros, facturas y comunicaciones a diario.
+   Documentar discrepancias, recuperación ante fallos, SLA real y autorización
+   legal/comercial antes de llamar a NALA sistema principal.
 
 ### CP7 - Multiusuario, seguridad y auditoría enterprise
 
@@ -390,7 +390,7 @@ pendiente de rollout en staging.
 - [ ] Auditoría de caja e inventario.
 - [x] Sesiones y dispositivos confiables con revocación y step-up MFA.
 - [ ] Export de auditoría para propietario de clínica.
-- [~] Pruebas BOLA/IDOR: catálogo estructural 137 acciones y casos HTTP en familias
+- [~] Pruebas BOLA/IDOR: catálogo estructural 138 acciones y casos HTTP en familias
   críticas; falta matriz dinámica de cada recurso, usuario interno, veterinario y sede.
 
 **Gate de salida:** operación multiusuario segura y defendible para clínicas

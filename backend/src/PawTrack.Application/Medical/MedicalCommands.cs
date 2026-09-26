@@ -292,7 +292,7 @@ public sealed class GetVetRemindersQueryHandler(
 
 // ── Mark reminder completed ───────────────────────────────────────────────────
 
-public sealed record CompleteVetReminderCommand(Guid ReminderId, Guid RequestingUserId) : IRequest<Result<bool>>;
+public sealed record CompleteVetReminderCommand(Guid ReminderId, Guid RequestingUserId, Guid? ExpectedPetId = null) : IRequest<Result<bool>>;
 
 public sealed class CompleteVetReminderCommandHandler(
     IMedicalRepository medicalRepository,
@@ -304,7 +304,8 @@ public sealed class CompleteVetReminderCommandHandler(
         CompleteVetReminderCommand request, CancellationToken ct)
     {
         var reminder = await medicalRepository.GetReminderByIdAsync(request.ReminderId, ct);
-        if (reminder is null) return Result.Failure<bool>("Recordatorio no encontrado.");
+        if (reminder is null || request.ExpectedPetId.HasValue && reminder.PetId != request.ExpectedPetId.Value)
+            return Result.Failure<bool>("Recordatorio no encontrado.");
 
         var pet = await petRepository.GetByIdAsync(reminder.PetId, ct);
         if (pet is null || pet.OwnerId != request.RequestingUserId)
@@ -319,7 +320,7 @@ public sealed class CompleteVetReminderCommandHandler(
 
 // ── Delete medical record ─────────────────────────────────────────────────────
 
-public sealed record DeleteMedicalRecordCommand(Guid RecordId, Guid RequestingUserId)
+public sealed record DeleteMedicalRecordCommand(Guid RecordId, Guid RequestingUserId, Guid? ExpectedPetId = null)
     : IRequest<Result<Unit>>;
 
 public sealed class DeleteMedicalRecordCommandHandler(
@@ -338,7 +339,8 @@ public sealed class DeleteMedicalRecordCommandHandler(
             return Result.Failure<Unit>("El historial médico requiere el plan Familia.");
 
         var record = await medicalRepository.GetByIdAsync(request.RecordId, ct);
-        if (record is null) return Result.Failure<Unit>("Registro no encontrado.");
+        if (record is null || request.ExpectedPetId.HasValue && record.PetId != request.ExpectedPetId.Value)
+            return Result.Failure<Unit>("Registro no encontrado.");
 
         var pet = await petRepository.GetByIdAsync(record.PetId, ct);
         if (pet is null) return Result.Failure<Unit>("Mascota no encontrada.");
@@ -380,7 +382,8 @@ public sealed record UpdateMedicalRecordCommand(
     string? DosageDescription = null,
     string? Frequency = null,
     int? DurationDays = null,
-    DateOnly? MedicationEndDate = null) : IRequest<Result<MedicalRecordDto>>;
+    DateOnly? MedicationEndDate = null,
+    Guid? ExpectedPetId = null) : IRequest<Result<MedicalRecordDto>>;
 
 public sealed class UpdateMedicalRecordCommandValidator : AbstractValidator<UpdateMedicalRecordCommand>
 {
@@ -408,7 +411,8 @@ public sealed class UpdateMedicalRecordCommandHandler(
             return Result.Failure<MedicalRecordDto>("El historial médico requiere el plan Familia.");
 
         var record = await medicalRepository.GetByIdAsync(request.RecordId, ct);
-        if (record is null) return Result.Failure<MedicalRecordDto>("Registro no encontrado.");
+        if (record is null || request.ExpectedPetId.HasValue && record.PetId != request.ExpectedPetId.Value)
+            return Result.Failure<MedicalRecordDto>("Registro no encontrado.");
 
         var pet = await petRepository.GetByIdAsync(record.PetId, ct);
         if (pet is null) return Result.Failure<MedicalRecordDto>("Mascota no encontrada.");
@@ -628,7 +632,7 @@ public sealed class CreateVetReminderCommandHandler(
 
 // ── Delete vet reminder ───────────────────────────────────────────────────────
 
-public sealed record DeleteVetReminderCommand(Guid ReminderId, Guid RequestingUserId)
+public sealed record DeleteVetReminderCommand(Guid ReminderId, Guid RequestingUserId, Guid? ExpectedPetId = null)
     : IRequest<Result<Unit>>;
 
 public sealed class DeleteVetReminderCommandHandler(
@@ -646,7 +650,8 @@ public sealed class DeleteVetReminderCommandHandler(
             return Result.Failure<Unit>("Los recordatorios veterinarios requieren el plan Familia.");
 
         var reminder = await medicalRepository.GetReminderByIdAsync(request.ReminderId, ct);
-        if (reminder is null) return Result.Failure<Unit>("Recordatorio no encontrado.");
+        if (reminder is null || request.ExpectedPetId.HasValue && reminder.PetId != request.ExpectedPetId.Value)
+            return Result.Failure<Unit>("Recordatorio no encontrado.");
 
         var pet = await petRepository.GetByIdAsync(reminder.PetId, ct);
         if (pet is null) return Result.Failure<Unit>("Mascota no encontrada.");

@@ -23,9 +23,11 @@ public sealed class GetClinicAgendaQueryHandlerTests
         clinics.GetByIdAsync(foreign.Id, Arg.Any<CancellationToken>()).Returns(foreign);
         var staff = Substitute.For<IClinicStaffAccessRepository>();
         staff.HasPermissionAsync(clinic.Id, receptionistId, ClinicStaffPermission.ViewAgenda, Arg.Any<CancellationToken>()).Returns(true);
+        var siteAccess = Substitute.For<IClinicSiteAccessRepository>();
+        siteAccess.HasAccessAsync(receptionistId, clinic.Id, Arg.Any<CancellationToken>()).Returns(true);
         var handler = new GetClinicAgendaQueryHandler(clinics, Substitute.For<IVeterinarianAppointmentRepository>(),
             Substitute.For<IPetRepository>(), Substitute.For<IClinicVeterinarianRepository>(), staff,
-            Substitute.For<IClinicFinanceAccessRepository>());
+            Substitute.For<IClinicFinanceAccessRepository>(), siteAccess);
         var from = DateTimeOffset.UtcNow;
 
         var allowed = await handler.Handle(new GetClinicAgendaQuery(clinic.Id, receptionistId, from, from.AddDays(1)), CancellationToken.None);
@@ -47,9 +49,11 @@ public sealed class GetClinicAgendaQueryHandlerTests
         clinics.GetByIdAsync(foreign.Id, Arg.Any<CancellationToken>()).Returns(foreign);
         var finance = Substitute.For<IClinicFinanceAccessRepository>();
         finance.HasPermissionAsync(clinic.Id, cashierId, ClinicFinancePermission.ViewReport, Arg.Any<CancellationToken>()).Returns(true);
+        var siteAccess = Substitute.For<IClinicSiteAccessRepository>();
+        siteAccess.HasAccessAsync(cashierId, clinic.Id, Arg.Any<CancellationToken>()).Returns(true);
         var handler = new GetClinicAgendaQueryHandler(clinics, Substitute.For<IVeterinarianAppointmentRepository>(),
             Substitute.For<IPetRepository>(), Substitute.For<IClinicVeterinarianRepository>(),
-            Substitute.For<IClinicStaffAccessRepository>(), finance);
+            Substitute.For<IClinicStaffAccessRepository>(), finance, siteAccess);
         var from = DateTimeOffset.UtcNow;
 
         var allowed = await handler.Handle(new GetClinicAgendaQuery(clinic.Id, cashierId, from, from.AddDays(1)), CancellationToken.None);
@@ -102,7 +106,8 @@ public sealed class GetClinicAgendaQueryHandlerTests
         veterinarians.GetByClinicAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns([veterinarian]);
 
         var handler = new GetClinicAgendaQueryHandler(clinics, appointments, pets, veterinarians,
-            Substitute.For<IClinicStaffAccessRepository>(), Substitute.For<IClinicFinanceAccessRepository>());
+            Substitute.For<IClinicStaffAccessRepository>(), Substitute.For<IClinicFinanceAccessRepository>(),
+            Substitute.For<IClinicSiteAccessRepository>());
 
         var result = await handler.Handle(
             new GetClinicAgendaQuery(

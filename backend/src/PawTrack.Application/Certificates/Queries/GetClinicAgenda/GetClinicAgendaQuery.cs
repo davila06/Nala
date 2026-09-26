@@ -32,7 +32,8 @@ public sealed class GetClinicAgendaQueryHandler(
     IPetRepository petRepository,
     IClinicVeterinarianRepository veterinarianRepository,
     IClinicStaffAccessRepository staffAccess,
-    IClinicFinanceAccessRepository financeAccess)
+    IClinicFinanceAccessRepository financeAccess,
+    IClinicSiteAccessRepository siteAccess)
     : IRequestHandler<GetClinicAgendaQuery, Result<IReadOnlyList<ClinicAgendaItemDto>>>
 {
     public async Task<Result<IReadOnlyList<ClinicAgendaItemDto>>> Handle(
@@ -43,7 +44,11 @@ public sealed class GetClinicAgendaQueryHandler(
             return Result.Failure<IReadOnlyList<ClinicAgendaItemDto>>("El rango de agenda es inválido.");
 
         var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
-        if (clinic is null || clinic.UserId != request.RequestingUserId &&
+        var hasSiteScope = clinic is not null
+            && (clinic.UserId == request.RequestingUserId
+                || await siteAccess.HasAccessAsync(request.RequestingUserId, request.ClinicId, cancellationToken));
+        if (!hasSiteScope ||
+            clinic!.UserId != request.RequestingUserId &&
             !await staffAccess.HasPermissionAsync(request.ClinicId, request.RequestingUserId, ClinicStaffPermission.ViewAgenda, cancellationToken) &&
             !await financeAccess.HasPermissionAsync(request.ClinicId, request.RequestingUserId, ClinicFinancePermission.ViewReport, cancellationToken))
             return Result.Failure<IReadOnlyList<ClinicAgendaItemDto>>("Acceso denegado.");

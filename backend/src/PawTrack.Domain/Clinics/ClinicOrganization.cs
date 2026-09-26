@@ -4,6 +4,7 @@ public sealed class ClinicOrganization
 {
     private readonly List<ClinicOrganizationMembership> _memberships = [];
     private readonly List<ClinicOrganizationSite> _sites = [];
+    private readonly List<ClinicOrganizationSiteAccess> _siteAccess = [];
 
     private ClinicOrganization() { }
 
@@ -12,6 +13,7 @@ public sealed class ClinicOrganization
     public DateTimeOffset CreatedAt { get; private set; }
     public IReadOnlyList<ClinicOrganizationMembership> Memberships => _memberships.AsReadOnly();
     public IReadOnlyList<ClinicOrganizationSite> Sites => _sites.AsReadOnly();
+    public IReadOnlyList<ClinicOrganizationSiteAccess> SiteAccess => _siteAccess.AsReadOnly();
 
     public static ClinicOrganization Create(string name, Guid ownerUserId, Guid primaryClinicId)
     {
@@ -28,6 +30,8 @@ public sealed class ClinicOrganization
         organization._memberships.Add(ClinicOrganizationMembership.Create(
             organization.Id, ownerUserId, ClinicOrganizationRole.Owner));
         organization._sites.Add(ClinicOrganizationSite.Create(organization.Id, primaryClinicId, isPrimary: true));
+        organization._siteAccess.Add(ClinicOrganizationSiteAccess.Grant(
+            organization.Id, primaryClinicId, ownerUserId, ownerUserId));
         return organization;
     }
 
@@ -52,6 +56,17 @@ public sealed class ClinicOrganization
             && _memberships.Any(member => member.Role == ClinicOrganizationRole.Owner && !member.IsRevoked))
             throw new InvalidOperationException("Transfer organization ownership instead of adding another owner.");
         _memberships.Add(ClinicOrganizationMembership.Create(Id, userId, role));
+    }
+
+    public void GrantSiteAccess(Guid userId, Guid clinicId, Guid grantedByUserId)
+    {
+        if (!_memberships.Any(member => member.UserId == userId && !member.IsRevoked))
+            throw new InvalidOperationException("Site access requires an active organization membership.");
+        if (!_sites.Any(site => site.ClinicId == clinicId))
+            throw new InvalidOperationException("Clinic does not belong to this organization.");
+        if (_siteAccess.Any(access => access.UserId == userId && access.ClinicId == clinicId && !access.IsRevoked))
+            throw new InvalidOperationException("User already has active access to this site.");
+        _siteAccess.Add(ClinicOrganizationSiteAccess.Grant(Id, clinicId, userId, grantedByUserId));
     }
 
     public bool RevokeMember(Guid userId)

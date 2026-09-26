@@ -16,5 +16,6 @@ public sealed class ClinicOrganizationConfiguration : IEntityTypeConfiguration<C
 
         builder.Ignore(organization => organization.Memberships);
         builder.Ignore(organization => organization.Sites);
+        builder.Ignore(organization => organization.SiteAccess);
     }
 }

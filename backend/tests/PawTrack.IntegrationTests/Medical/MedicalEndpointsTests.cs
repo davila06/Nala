@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using FluentAssertions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,8 @@ using PawTrack.Application.Auth.Commands.VerifyEmail;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Pets.Commands.CreatePet;
 using PawTrack.Domain.Pets;
+using PawTrack.Domain.Medical;
+using PawTrack.Domain.Subscriptions;
 using PawTrack.IntegrationTests.Infrastructure;
 
 namespace PawTrack.IntegrationTests.Medical;
@@ -237,6 +240,113 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
         outsiderRead.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         var outsiderRevoke = await outsiderClient.DeleteAsync($"/api/pets/{petId}/clinic-access/{Guid.NewGuid()}");
         outsiderRevoke.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+    }
+
+    [Fact]
+    public async Task OwnerMedicalResourceQueriesRejectAnotherOwnersPet()
+    {
+        var ownerEmail = $"medical-resource-owner-{Guid.NewGuid():N}@pawtrack.cr";
+        var outsiderEmail = $"medical-resource-outsider-{Guid.NewGuid():N}@pawtrack.cr";
+        var ownerClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, ownerEmail);
+        var outsiderClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, outsiderEmail);
+        Guid petId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var owner = await db.Users.SingleAsync(user => user.Email == ownerEmail);
+            var outsider = await db.Users.SingleAsync(user => user.Email == outsiderEmail);
+            var pet = Pet.Create(owner.Id, "Mascota privada", PetSpecies.Dog, null, null);
+            db.Pets.Add(pet);
+            var ownerPlan = Subscription.CreateForUser(owner.Id, SubscriptionTier.UserFamilia, $"M{Guid.NewGuid():N}"[..8], 4990m);
+            var outsiderPlan = Subscription.CreateForUser(outsider.Id, SubscriptionTier.UserFamilia, $"M{Guid.NewGuid():N}"[..8], 4990m);
+            ownerPlan.Activate();
+            outsiderPlan.Activate();
+            db.Subscriptions.AddRange(ownerPlan, outsiderPlan);
+            await db.SaveChangesAsync();
+            petId = pet.Id;
+        }
+
+        var cases = new (string Path, HttpStatusCode ForeignStatus)[]
+        {
+            ($"/api/pets/{petId}/medical/count", HttpStatusCode.UnprocessableEntity),
+            ($"/api/pets/{petId}/medical/access-log", HttpStatusCode.UnprocessableEntity),
+            ($"/api/pets/{petId}/medical/health-alerts", HttpStatusCode.UnprocessableEntity),
+            ($"/api/pets/{petId}/medical", HttpStatusCode.UnprocessableEntity),
+            ($"/api/pets/{petId}/medical/weight-history", HttpStatusCode.UnprocessableEntity),
+            ($"/api/pets/{petId}/medical/reminders", HttpStatusCode.UnprocessableEntity),
+            ($"/api/pets/{petId}/medical/health-score", HttpStatusCode.UnprocessableEntity),
+            ($"/api/clinics/pets/{petId}/communication-preferences", HttpStatusCode.NotFound),
+        };
+        foreach (var scenario in cases)
+        {
+            var own = await ownerClient.GetAsync(scenario.Path);
+            own.StatusCode.Should().Be(HttpStatusCode.OK, $"the owner must be able to use {scenario.Path}");
+            var foreign = await outsiderClient.GetAsync(scenario.Path);
+            foreign.StatusCode.Should().Be(scenario.ForeignStatus, $"another owner must not read {scenario.Path}");
+        }
+    }
+
+    [Fact]
+    public async Task MedicalMutationsRejectARecordOrReminderWhenRoutePetDoesNotMatch()
+    {
+        var ownerEmail = $"medical-binding-owner-{Guid.NewGuid():N}@pawtrack.cr";
+        var otherEmail = $"medical-binding-other-{Guid.NewGuid():N}@pawtrack.cr";
+        var client = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, ownerEmail);
+        _ = await AuthHelper.CreateAuthenticatedClientAsync(factory, otherEmail);
+        Guid ownPetId;
+        Guid foreignPetId;
+        Guid recordId;
+        Guid reminderId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var owner = await db.Users.SingleAsync(user => user.Email == ownerEmail);
+            var other = await db.Users.SingleAsync(user => user.Email == otherEmail);
+            var ownPet = Pet.Create(owner.Id, "Propia", PetSpecies.Dog, null, null);
+            var foreignPet = Pet.Create(other.Id, "Ajena", PetSpecies.Dog, null, null);
+            var record = MedicalRecord.Create(ownPet.Id, owner.Id, MedicalRecordType.Checkup,
+                DateOnly.FromDateTime(DateTime.UtcNow), "Original", null, null, null);
+            var reminder = VetReminder.Create(ownPet.Id, owner.Id, MedicalRecordType.Vaccine,
+                DateOnly.FromDateTime(DateTime.UtcNow.AddDays(5)), "Refuerzo");
+            var plan = Subscription.CreateForUser(owner.Id, SubscriptionTier.UserFamilia, $"M{Guid.NewGuid():N}"[..8], 4990m);
+            plan.Activate();
+            db.Pets.AddRange(ownPet, foreignPet);
+            db.MedicalRecords.Add(record);
+            db.VetReminders.Add(reminder);
+            db.Subscriptions.Add(plan);
+            await db.SaveChangesAsync();
+            ownPetId = ownPet.Id;
+            foreignPetId = foreignPet.Id;
+            recordId = record.Id;
+            reminderId = reminder.Id;
+        }
+
+        var update = await client.PutAsJsonAsync($"/api/pets/{foreignPetId}/medical/{recordId}",
+            new { type = "Checkup", date = DateOnly.FromDateTime(DateTime.UtcNow), description = "Alterado" });
+        update.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        (await client.DeleteAsync($"/api/pets/{foreignPetId}/medical/{recordId}"))
+            .StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        (await client.PutAsync($"/api/pets/{foreignPetId}/medical/reminders/{reminderId}/complete", null))
+            .StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        (await client.DeleteAsync($"/api/pets/{foreignPetId}/medical/reminders/{reminderId}"))
+            .StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+
+        using var verifyScope = factory.Services.CreateScope();
+        var verifyDb = verifyScope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+        (await verifyDb.MedicalRecords.SingleAsync(item => item.Id == recordId)).Description.Should().Be("Original");
+        (await verifyDb.VetReminders.SingleAsync(item => item.Id == reminderId)).IsCompleted.Should().BeFalse();
+
+        var ownUpdate = await client.PutAsJsonAsync($"/api/pets/{ownPetId}/medical/{recordId}",
+            new { type = "Checkup", date = DateOnly.FromDateTime(DateTime.UtcNow), description = "Corrección autorizada" });
+        ownUpdate.StatusCode.Should().Be(HttpStatusCode.OK);
+        var revision = await ownUpdate.Content.ReadFromJsonAsync<JsonElement>();
+        var revisionId = revision.GetProperty("id").GetGuid();
+        (await client.DeleteAsync($"/api/pets/{ownPetId}/medical/{revisionId}"))
+            .StatusCode.Should().Be(HttpStatusCode.NoContent);
+        (await client.PutAsync($"/api/pets/{ownPetId}/medical/reminders/{reminderId}/complete", null))
+            .StatusCode.Should().Be(HttpStatusCode.NoContent);
+        (await client.DeleteAsync($"/api/pets/{ownPetId}/medical/reminders/{reminderId}"))
+            .StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

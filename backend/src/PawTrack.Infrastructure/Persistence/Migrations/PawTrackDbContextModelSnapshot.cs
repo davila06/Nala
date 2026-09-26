@@ -2644,8 +2644,8 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("OrganizationId", "UserId")
                         .IsUnique()
-                        .HasFilter("[IsRevoked] = 0")
-                        .HasDatabaseName("IX_ClinicOrganizationMemberships_OrganizationId_UserId");
+                        .HasDatabaseName("IX_ClinicOrganizationMemberships_OrganizationId_UserId")
+                        .HasFilter("[IsRevoked] = 0");
 
                     b.HasIndex("UserId", "IsRevoked")
                         .HasDatabaseName("IX_ClinicOrganizationMemberships_UserId_IsRevoked");
@@ -2680,6 +2680,51 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("IX_ClinicOrganizationSites_OrganizationId_IsPrimary");
 
                     b.ToTable("ClinicOrganizationSites", (string)null);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Clinics.ClinicOrganizationSiteAccess", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClinicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("GrantedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("GrantedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClinicId");
+
+                    b.HasIndex("GrantedByUserId");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("UserId", "ClinicId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_ClinicOrganizationSiteAccess_Active_UserId_ClinicId")
+                        .HasFilter("[IsRevoked] = 0");
+
+                    b.HasIndex("UserId", "ClinicId", "IsRevoked")
+                        .HasDatabaseName("IX_ClinicOrganizationSiteAccess_UserId_ClinicId_IsRevoked");
+
+                    b.ToTable("ClinicOrganizationSiteAccess", (string)null);
                 });
 
             modelBuilder.Entity("PawTrack.Domain.Clinics.ClinicProfileChange", b =>
@@ -7395,6 +7440,33 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Clinics.ClinicOrganizationSiteAccess", b =>
+                {
+                    b.HasOne("PawTrack.Domain.Clinics.Clinic", null)
+                        .WithMany()
+                        .HasForeignKey("ClinicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PawTrack.Domain.Auth.User", null)
+                        .WithMany()
+                        .HasForeignKey("GrantedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PawTrack.Domain.Clinics.ClinicOrganization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PawTrack.Domain.Auth.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

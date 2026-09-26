@@ -26,7 +26,8 @@ public sealed class ClinicInventoryCommandHandlerTests
         inventory.GetAvailableLotsByItemAsync(item.Id, Arg.Any<CancellationToken>()).Returns([older, newer]);
         var unitOfWork = Substitute.For<IUnitOfWork>();
 
-        var handler = new ConsumeClinicInventoryCommandHandler(clinics, inventory, unitOfWork);
+        var handler = new ConsumeClinicInventoryCommandHandler(clinics, inventory, unitOfWork,
+            Substitute.For<IClinicSiteAccessRepository>(), Substitute.For<IClinicStaffAccessRepository>());
 
         var result = await handler.Handle(new ConsumeClinicInventoryCommand(
             clinic.Id,
@@ -60,7 +61,8 @@ public sealed class ClinicInventoryCommandHandlerTests
         inventory.GetItemByIdAsync(item.Id, Arg.Any<CancellationToken>()).Returns(item);
         inventory.GetAvailableLotsByItemAsync(item.Id, Arg.Any<CancellationToken>()).Returns([lot]);
         var unitOfWork = Substitute.For<IUnitOfWork>();
-        var handler = new ConsumeClinicInventoryCommandHandler(clinics, inventory, unitOfWork);
+        var handler = new ConsumeClinicInventoryCommandHandler(clinics, inventory, unitOfWork,
+            Substitute.For<IClinicSiteAccessRepository>(), Substitute.For<IClinicStaffAccessRepository>());
 
         var result = await handler.Handle(new ConsumeClinicInventoryCommand(
             clinic.Id,
@@ -77,5 +79,55 @@ public sealed class ClinicInventoryCommandHandlerTests
         inventory.DidNotReceive().UpdateLot(Arg.Any<ClinicInventoryLot>());
         await inventory.DidNotReceive().AddMovementAsync(Arg.Any<ClinicInventoryMovement>(), Arg.Any<CancellationToken>());
         await unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task ConsumeInventory_StaffNeedsSiteScopeAndManageInventoryPermission()
+    {
+        var ownerId = Guid.NewGuid();
+        var staffUserId = Guid.NewGuid();
+        var clinic = Clinic.Create(ownerId, "Clinica Test", "VET-123", "San Jose", 9.93m, -84.08m, "clinic@test.cr");
+        clinic.Activate();
+        var item = ClinicInventoryItem.Create(clinic.Id, "Vacuna rabia", ClinicInventoryItemType.Vaccine, "unidad", 1);
+        var lot = ClinicInventoryLot.Receive(clinic.Id, item.Id, "LOT-1", null, 2, 1000m, null);
+        var clinics = Substitute.For<IClinicRepository>();
+        clinics.GetByIdAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(clinic);
+        var inventory = Substitute.For<IClinicInventoryRepository>();
+        inventory.GetItemByIdAsync(item.Id, Arg.Any<CancellationToken>()).Returns(item);
+        inventory.GetAvailableLotsByItemAsync(item.Id, Arg.Any<CancellationToken>()).Returns([lot]);
+        var siteAccess = Substitute.For<IClinicSiteAccessRepository>();
+        siteAccess.HasAccessAsync(staffUserId, clinic.Id, Arg.Any<CancellationToken>()).Returns(true);
+        var staffAccess = Substitute.For<IClinicStaffAccessRepository>();
+        staffAccess.HasPermissionAsync(clinic.Id, staffUserId, ClinicStaffPermission.ManageInventory, Arg.Any<CancellationToken>()).Returns(true);
+        var handler = new ConsumeClinicInventoryCommandHandler(clinics, inventory, Substitute.For<IUnitOfWork>(), siteAccess, staffAccess);
+
+        var result = await handler.Handle(new ConsumeClinicInventoryCommand(
+            clinic.Id, staffUserId, item.Id, 1, ClinicInventoryMovementReason.ConsultationUse,
+            PetId: null, ConsultationId: null, CertificateId: null), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ConsumeInventory_StaffWithPermissionButWithoutSiteScopeIsDenied()
+    {
+        var ownerId = Guid.NewGuid();
+        var staffUserId = Guid.NewGuid();
+        var clinic = Clinic.Create(ownerId, "Clinica Test", "VET-123", "San Jose", 9.93m, -84.08m, "clinic@test.cr");
+        clinic.Activate();
+        var item = ClinicInventoryItem.Create(clinic.Id, "Vacuna rabia", ClinicInventoryItemType.Vaccine, "unidad", 1);
+        var clinics = Substitute.For<IClinicRepository>();
+        clinics.GetByIdAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(clinic);
+        var siteAccess = Substitute.For<IClinicSiteAccessRepository>();
+        var staffAccess = Substitute.For<IClinicStaffAccessRepository>();
+        staffAccess.HasPermissionAsync(clinic.Id, staffUserId, ClinicStaffPermission.ManageInventory, Arg.Any<CancellationToken>()).Returns(true);
+        var handler = new ConsumeClinicInventoryCommandHandler(clinics, Substitute.For<IClinicInventoryRepository>(),
+            Substitute.For<IUnitOfWork>(), siteAccess, staffAccess);
+
+        var result = await handler.Handle(new ConsumeClinicInventoryCommand(
+            clinic.Id, staffUserId, item.Id, 1, ClinicInventoryMovementReason.ConsultationUse,
+            PetId: null, ConsultationId: null, CertificateId: null), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
     }
 }

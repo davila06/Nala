@@ -65,13 +65,14 @@ La licencia SENASA permanece inicialmente en `Clinic` porque el código la valid
 
 ### Fase 2 - Membresías, selección de sede y autorización backend
 
-- Introducir queries `GetMyClinicOrganizations` y `GetOrganizationSites`; respuestas mínimas y acotadas.
-- Crear `ClinicSiteMembership` o scope explícito en membership org para enumerar `AllowedClinicIds`; decidir con el gate de fase 0, no usar un boolean ambiguo `AllSites` sin auditoría.
-- Cambiar el contexto `me` a una sede seleccionada validada por backend y resolver el caso de usuarios con cero/una/muchas sedes.
-- Reemplazar usos de `GetByUserIdAsync` que asumen una sola clínica. Eliminar el índice único de `Clinic.UserId` sólo después de que todos los callers estén migrados.
-- Auditar todos los endpoints clínicos versionados y rutas fuera de `ClinicsController` (Medical, Certificates, PetClinicAccess, API Partner, exports, jobs y webhooks).
-- Crear política central `CanAccessClinicSite(userId, clinicId, permission)` con cache versionado/invalidation al revocar; usar MediatR/ports, no lectura directa de otra área.
-- Añadir pruebas BOLA por endpoint × rol × recurso propio/ajeno × sede asignada/no asignada.
+- [x] Crear `ClinicOrganizationSiteAccess` para scope explícito por usuario/sede y backfill desde memberships activos existentes.
+- [x] Exponer `GET /api/clinics/accessible-sites` con proyección acotada; los workspaces staff/finance existentes mantienen selector por `ClinicId`.
+- [x] Agenda: exigir owner o scope de sede más permiso operativo staff/finance.
+- [x] Inventario (seis lecturas/escrituras): exigir owner o scope de sede más `ManageInventory`.
+- [ ] Crear/seleccionar contexto activo de organización/sede validado en backend; el selector actual vive en el estado local de cada workspace.
+- [ ] Migrar los demás handlers clínicos; siguen existiendo comprobaciones directas `Clinic.UserId` y `GetByUserIdAsync` en CRM, consulta, agenda secundaria, finanzas, certificados, perfiles y exportaciones.
+- [ ] Resolver permisos organizacionales para administración multi-sede sin elevar membership org a acceso médico.
+- [ ] Completar BOLA por endpoint × rol × recurso propio/ajeno × sede asignada/no asignada, incluyendo rutas versionadas y módulos fuera de `ClinicsController`.
 
 **Gate:** la matriz HTTP negativa/positiva está verde por cada route family, y no existe query clínica sin filtro de sede.
 
@@ -108,7 +109,7 @@ La licencia SENASA permanece inicialmente en `Clinic` porque el código la valid
 
 ## Primera implementación local
 
-Fase 1 está parcialmente implementada: existen `ClinicOrganization`, `ClinicOrganizationMembership` y `ClinicOrganizationSite`; el registro HTTP crea organización, sede primaria que conserva `Clinic.Id` y Owner en la misma unidad de trabajo. `ClinicOrganizationModelTests` (3) y `ClinicOrganizationRegistrationEndpointsTests` (1) pasan en artefactos aislados. `20260926153155_AddClinicOrganizations` fue aplicada únicamente a `PawTrackDev` con conexión explícita y backfill verificado (`ClinicsWithoutSiteLink = 0`); no se aplicó a `PawTrackLocal`, Azure ni ninguna base compartida. El alta de sedes secundarias y el uso de organización desde `GetMyClinicQuery` siguen deshabilitados hasta Fase 2, porque `Clinic.UserId` todavía es único y `/me` asume un sitio.
+Fase 1 está implementada localmente y Fase 2 está en progreso: existen `ClinicOrganization`, memberships, enlaces y `ClinicOrganizationSiteAccess`; `GET /api/clinics/accessible-sites` enumera sedes accesibles. Agenda e inventario ya aplican controles de scope específicos. `PawTrackDev` tiene aplicadas hasta `20260926183000_FilterActiveClinicOrganizationMemberships`; las pruebas enfocadas de selector (1), BOLA dinámico (1), agenda (3) e inventario (4) pasan en artefactos aislados. No se aplicó a `PawTrackLocal`, Azure ni base compartida. Falta contexto activo persistido/validado y migrar el resto de handlers antes de relajar `Clinic.UserId` único o cambiar `/me`.
 
 ## Estado y riesgos
 
