@@ -274,6 +274,46 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
     }
 
     [Fact]
+    public async Task OrganizationMembershipDoesNotGrantStaffAccessToAnotherClinic()
+    {
+        var ownerEmail = $"org-owner-{Guid.NewGuid():N}@pawtrack.cr";
+        var staffEmail = $"org-staff-{Guid.NewGuid():N}@pawtrack.cr";
+        _ = await AuthHelper.CreateAuthenticatedClientAsync(factory, ownerEmail);
+        var staffClient = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, staffEmail);
+        Guid primaryClinicId;
+        Guid foreignClinicId;
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var owner = await db.Users.SingleAsync(user => user.Email == ownerEmail);
+            var staff = await db.Users.SingleAsync(user => user.Email == staffEmail);
+            var primary = Clinic.Create(owner.Id, "Principal", $"VET-{Guid.NewGuid():N}"[..12], "San Jose", 9.93m, -84.08m, ownerEmail);
+            var foreign = Clinic.Create(owner.Id, "Secundaria", $"VET-{Guid.NewGuid():N}"[..12], "Cartago", 9.86m, -83.92m, ownerEmail);
+            primary.Activate();
+            foreign.Activate();
+            var organization = ClinicOrganization.Create("Red", owner.Id, primary.Id);
+            organization.AddSite(foreign.Id);
+            organization.AddMember(staff.Id, ClinicOrganizationRole.Member);
+            db.Clinics.AddRange(primary, foreign);
+            db.ClinicOrganizations.Add(organization);
+            db.ClinicOrganizationSites.AddRange(organization.Sites);
+            db.ClinicOrganizationMemberships.AddRange(organization.Memberships);
+            db.ClinicStaffMemberships.Add(ClinicStaffMembership.Grant(primary.Id, staff.Id, ClinicStaffRole.Receptionist, owner.Id));
+            await db.SaveChangesAsync();
+            primaryClinicId = primary.Id;
+            foreignClinicId = foreign.Id;
+        }
+
+        var from = Uri.EscapeDataString(DateTimeOffset.UtcNow.AddHours(-1).ToString("O"));
+        var to = Uri.EscapeDataString(DateTimeOffset.UtcNow.AddHours(1).ToString("O"));
+        var own = await staffClient.GetAsync($"/api/clinics/{primaryClinicId}/staff/appointments?from={from}&to={to}");
+        own.StatusCode.Should().Be(HttpStatusCode.OK);
+        var foreign = await staffClient.GetAsync($"/api/clinics/{foreignClinicId}/staff/appointments?from={from}&to={to}");
+        foreign.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+    }
+
+    [Fact]
     public void SensitiveClinicalMutationsRequireAnMfaPolicy()
     {
         var actions = GetClinicActions()

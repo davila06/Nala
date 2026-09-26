@@ -264,8 +264,8 @@ export default function ClinicDashboardPage() {
                     </p>
                     <p className="text-xs text-trust-600 mt-0.5">
                       {isPlus
-                        ? "Actualiza a Partner (₡35,000/mes) para certificados PDF, API keys y widget embebible."
-                        : "Actualiza a Plus (₡15,000/mes) para posición destacada, badge verificado y estadísticas."}
+                        ? "Consulta las capacidades y el precio técnico de Partner; contratación sujeta a aprobación."
+                        : "Consulta las capacidades y el precio técnico de Plus; contratación sujeta a aprobación."}
                     </p>
                     {sub?.expiresAt && (
                       <p className="text-xs text-trust-500 mt-0.5">

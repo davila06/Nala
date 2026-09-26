@@ -1,30 +1,34 @@
 # PawTrack CR - Control de seguridad enterprise para clínicas
 
-> Estado al 2026-09-25. Este documento acompaña a `CLINIC_DAILY_USE_ENTERPRISE_TODOLIST.md` y registra evidencia verificable; no sustituye la revisión previa a producción.
+> Estado clínico revisado al 2026-09-26. Este documento acompaña a `CLINIC_DAILY_USE_ENTERPRISE_TODOLIST.md` y registra evidencia verificable; no sustituye la revisión previa a producción.
 
 ## Resumen de control
 
-| Control                          | Estado                                 | Evidencia / límite                                                                                                                                                 |
-| -------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Catálogo de endpoints clínicos   | Verificado estructuralmente            | 137 acciones únicas: 110 de `ClinicsController` + 27 de `MedicalController`, `CertificatesController` y `PetClinicAccessController`; test exacto de inventario.    |
-| Acceso anónimo                   | Verificado                             | Allowlist de 5 acciones: 4 de `ClinicsController` y `CertificatesController.Verify`; el resto declara autorización.                                                |
-| MFA de mutaciones clínicas       | Verificado por metadata y HTTP         | Todas las escrituras de las 137 acciones clínicas inventariadas usan policy MFA, salvo 10 excepciones de bajo riesgo del controlador clínico con razón registrada. |
-| BOLA/IDOR                        | Parcial, probado por familias críticas | Agenda, consulta, inventario, caja/ventas, CRM, grants seleccionados, sesiones y dispositivos tienen pruebas HTTP. No hay una petición IDOR por cada ruta/recurso. |
-| Sedes físicas                    | Bloqueado por modelo                   | No existe `ClinicSite`/`ClinicLocation`; `Clinic` es el límite de tenant actual. `ClinicInventoryLot.LocationName` es texto, no una sede autorizable.              |
-| Migración operativa CP6          | Pendiente en `PawTrackDev`             | La consulta EF de solo lectura muestra `AddClinicOperationalTaskMetadata (Pending)`.                                                                               |
-| Base compartida/Azure            | No verificable desde este entorno      | No hay conexiones MSSQL guardadas y Resource Graph no devuelve servidores ni bases SQL en la suscripción Azure seleccionada. No se afirma su estado.               |
-| Sesiones/dispositivos confiables | Implementado; migración pendiente      | Refresh sessions con `SessionId`, listado/revocación, proof de dispositivo rotado y almacenado como hash, MFA y revocación inmediata de JWT por sesión.            |
-| UI de autenticación/seguridad    | Implementado                           | Login pide TOTP/recovery si backend responde `MFA_REQUIRED`; Perfil permite setup, recovery codes, step-up, confianza y revocación.                                |
+| Control                          | Estado                                      | Evidencia / límite                                                                              |
+| -------------------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Catálogo de endpoints clínicos   | Verificado estructuralmente                 | 137 acciones: 110 de `ClinicsController` + 27 de Medical, Certificates y PetClinicAccess.       |
+| Acceso anónimo                   | Verificado                                  | Allowlist de 5 acciones; el resto declara autorización.                                         |
+| MFA de mutaciones clínicas       | Verificado por metadata y HTTP              | Las 137 acciones inventariadas tienen policy MFA o excepción justificada.                       |
+| BOLA/IDOR                        | Parcial                                     | Hay pruebas HTTP por familias críticas, no una petición por cada ruta/recurso.                  |
+| Sedes físicas                    | Fase 1 implementada; autorización pendiente | `ClinicOrganizationSite` enlaza cada `Clinic.Id`; selección/permisos de sede siguen pendientes. |
+| Migración operativa CP6          | Aplicada en `PawTrackDev`                   | Backfill local: 6 clínicas, 6 organizaciones, 6 sedes y 0 clínicas huérfanas.                   |
+| Base compartida/Azure            | No verificable                              | No hay target SQL compartido visible en este entorno.                                           |
+| Sesiones/dispositivos confiables | Implementado localmente                     | SessionId, listado/revocación, proof rotado, MFA y revocación de JWT por sesión.                |
+| UI de autenticación/seguridad    | Implementado                                | Login MFA y Perfil con setup, recovery codes, step-up y gestión de sesiones/dispositivos.       |
+
+La re-invitación organizacional se validó con una migración aditiva de índice
+filtrado y una base LocalDB temporal; staging y producción siguen pendientes.
 
 ## Matriz ejecutable de endpoints
 
 La fuente de verdad de la matriz es [ClinicEndpointSecurityMatrixTests.cs](../backend/tests/PawTrack.IntegrationTests/Clinics/ClinicEndpointSecurityMatrixTests.cs). El test contiene los catálogos explícitos de 110 acciones de `ClinicsController` y 27 acciones médicas/certificados/grants, y comprueba:
 
 1. Que el inventario runtime de `ClinicsController` coincide exactamente con el catálogo revisado.
-2. Que ninguna acción queda sin `[Authorize]` o `[AllowAnonymous]`.
-3. Que `AllowAnonymous` coincide con las cuatro rutas públicas de clínica y la verificación pública de certificado.
-4. Que toda mutación de los cuatro controladores clínicos usa una policy MFA; las diez excepciones justificadas aplican solo al catálogo de `ClinicsController`.
-5. Que iniciar o aceptar un grant clínico deniega una sesión sin MFA y acepta una sesión elevada; escrituras representativas de medical/grant/certificate también retornan 403 sin step-up.
+2. Que cada acción inventariada tenga verbo HTTP y template de ruta, incluidos aliases versionados.
+3. Que ninguna acción quede sin `[Authorize]` o `[AllowAnonymous]`.
+4. Que `AllowAnonymous` coincida con las cuatro rutas públicas de clínica y la verificación pública de certificado.
+5. Que toda mutación de los cuatro controladores clínicos use una policy MFA; las diez excepciones justificadas aplican solo al catálogo de `ClinicsController`.
+6. Que iniciar o aceptar un grant clínico deniegue una sesión sin MFA y acepte una sesión elevada; escrituras representativas de medical/grant/certificate también retornan 403 sin step-up.
 
 Las rutas de `ClinicsController` se publican bajo `/api/clinics` y `/api/v1/clinics`; el catálogo compara acciones únicas, mientras ASP.NET conserva ambas versiones de ruta.
 
@@ -77,38 +81,60 @@ La matriz prueba aislamiento real en familias con mayor impacto, pero **no es un
 
 ## Sedes y alcance de aislamiento
 
-El esquema actual no modela sucursales físicas separadas. Una `Clinic` mantiene dirección/coordenadas y funciona como unidad de autorización. El inventario guarda `LocationName` como texto libre, sin FK, membresía ni reglas de acceso por sede. Por tanto:
+**Corte 2026-09-26:** `ClinicOrganizationMembership` (`Owner`,
+`Administrator`, `FinanceManager`, `Member`) es identidad organizacional,
+no otorga acceso a la API clínica ni a las sedes. `ClinicStaffMembership`
+autoriza agenda/consulta/inventario/CRM por `ClinicId`;
+`ClinicFinanceMembership` autoriza caja por `ClinicId` con MFA para acciones
+sensibles. El inventario es **clinic-scoped**; `LocationName` es texto y no
+un identificador autorizable de sede. La organización de una clínica nueva
+tiene una sede principal y owner, pero no hay API/UI de selección de sede ni
+permisos por `ClinicOrganizationSite`.
+
+La migración aditiva `FilterActiveClinicOrganizationMemberships` cambia el
+índice de membresías a único entre filas activas (`IsRevoked = 0`), conservando
+las revocadas y permitiendo re-invitación. Validado con test de modelo y
+persistencia en base LocalDB temporal; **no** se aplicó al entorno de staging
+ni a la base `PawTrackDev`. El backfill de organizaciones proviene de la
+migración `AddClinicOrganizations` ya aplicada localmente; verificar conteos,
+owner/sede única y ausencia de huérfanos al migrar cada entorno compartido.
+
+El puente organizacional ya modela la relación organización-sede mediante `ClinicOrganizationSite`, conservando `Clinic` como identidad física y `Clinic.Id` como PK de los recursos existentes. Todavía no hay selección ni autorización por sede en los endpoints. El inventario guarda `LocationName` como texto libre, sin FK a una sede. Por tanto:
 
 - Los casos entre clínicas distintas sí son comprobables y están cubiertos en las familias anteriores.
-- No se puede afirmar aislamiento por sucursal dentro de una clínica ni crear una matriz real “por sede” con el esquema actual.
-- Antes de vender multi-sede se requiere diseñar `ClinicSite` (identidad, estado, membresías/roles, sede por defecto), asociar agenda, consultas, inventario, ventas/cierres, CRM y auditoría con FK, y decidir si los grants médicos son a la clínica o a una sede concreta.
+- No se puede afirmar aislamiento por sucursal dentro de una organización mientras no exista `AllowedClinicIds`/scope de sede y contexto activo validado.
+- Antes de vender multi-sede se requiere completar membresías/scope, asociar autorización de agenda, consultas, inventario, ventas/cierres, CRM y auditoría al `Clinic.Id` permitido, y decidir si los grants médicos son a la organización o a una sede concreta.
 - Criterio de cierre: cada endpoint que lee/escribe recurso con `SiteId` debe recibir sede explícita o resolverla desde sesión/membresía; probar recurso de sede A contra actor limitado a sede B en cada módulo y negar por defecto.
 
-No se introduce ahora una entidad de sede a medias: los datos clínicos, ventas, inventario y permisos requieren una migración coordinada y un contrato de producto explícito.
+El vínculo `ClinicOrganizationSite` no cambia el alcance de permisos existente:
+datos clínicos, ventas, inventario y staff permanecen por `ClinicId`. Operar
+varias sedes bajo una organización requiere un contrato de producto, migración
+coordinada y pruebas de autorización adicionales.
 
 ## Evidencia de migraciones
 
 Comprobación ejecutada con `ASPNETCORE_ENVIRONMENT=Development`:
 
-| Target                             | Resultado                                                                                                                                                    | Acción tomada                                                                                               |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| `PawTrackDev`                      | Última aplicada: `20260923190817_AddProductEventTenantAttribution`; 15 pendientes.                                                                           | Solo lectura con `dotnet ef migrations list`; no se aplicó ninguna.                                         |
-| `AddClinicOperationalTaskMetadata` | `Pending`. Su `Down` elimina tareas con `PetId`/`OwnerUserId` nulos.                                                                                         | Requiere backup, export de esas tareas y aprobación de ventana antes de despliegue/reversión.               |
-| `AddTrustedSessionLifecycle`       | Registrada y pendiente junto con el resto del lote. Backfill de `SessionId` usa `NEWID()` por refresh token antiguo; crea `TrustedDevices` con FK a `Users`. | No aplicada.                                                                                                |
-| Azure SQL compartido               | No localizado: cero recursos SQL en la suscripción Azure seleccionada; MSSQL extension no tiene servidores/conexiones abiertas.                              | Estado de `__EFMigrationsHistory` **desconocido** hasta recibir una conexión/target compartido verificable. |
+| Target                             | Resultado                                                            | Acción tomada                                           |
+| ---------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------- |
+| `PawTrackDev`                      | Cadena local aplicada hasta `20260926153155_AddClinicOrganizations`. | `database update` explícito; no es un deploy.           |
+| `AddClinicOperationalTaskMetadata` | Aplicada localmente; su `Down` elimina tareas sin mascota/tutor.     | Backup/export obligatorios antes de staging/producción. |
+| `AddTrustedSessionLifecycle`       | Aplicada localmente; backfill de SessionId y TrustedDevices.         | No aplicada fuera de `PawTrackDev`.                     |
+| `AddClinicOrganizations`           | Aplicada localmente; backfill 6/6/6 y 0 huérfanas.                   | No aplicada fuera de `PawTrackDev`.                     |
+| Azure SQL compartido               | No localizado en la suscripción seleccionada.                        | Historial externo desconocido.                          |
 
-**No ejecutar `database update` contra producción/compartida desde esta tarea.** Antes de aplicar: confirmar servidor/base/ambiente con el dueño, backup probado, revisar `Down` destructivo de `AddClinicOperationalTaskMetadata`, aplicar en staging primero y validar counts + smoke tests.
+**No se ejecutó ningún deploy.** Las migraciones sólo se aplicaron a `PawTrackDev` local. Antes de aplicar en staging/producción: confirmar servidor/base/ambiente con el dueño, backup probado, revisar los `Down` destructivos, ejecutar primero en staging y validar counts + smoke tests.
 
 ## Control de pendientes
 
-| ID     | Pendiente                                                | Responsable sugerido    | Criterio de salida                                                                                                                                 | Estado                                                      |
-| ------ | -------------------------------------------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| SEC-01 | BOLA dinámico de todos los recursos/IDs de 137 acciones. | Backend/Security        | Tabla endpoint × actor × recurso propio/ajeno × status; prueba HTTP negativa y positiva por fila de datos.                                         | En progreso: familias críticas; no afirmar cobertura total. |
-| SEC-02 | Modelo y pruebas de sede física.                         | Arquitectura + Clínicas | Modelo aprobado, FK `SiteId`, backfill por sede principal y matriz inter-sede para agenda, expediente, inventario, caja, CRM y exports.            | Bloqueado por falta de entidad/contrato.                    |
-| SEC-03 | Aplicar migraciones clínicas en staging/compartida.      | Release/DBA             | Target identificado, backup validado, migraciones ordenadas, `__EFMigrationsHistory` y smoke tests aprobados.                                      | No ejecutado; Azure target no disponible.                   |
-| SEC-04 | MFA estructural para acciones nuevas.                    | Backend                 | Mantener verdes las pruebas de catálogo 110+27 y de toda mutación MFA; excepción nueva requiere owner/razón/test.                                  | Implementado en CI local.                                   |
-| SEC-05 | Trusted sessions y dispositivos.                         | Auth/Security           | Listar/revocar sesión propia, MFA para trust/revoke, prueba rotada, revocación de JWT hermano, logout, refresh sin `mfa` y no bypass privilegiado. | Implementado; cobertura de integración 6 casos.             |
-| SEC-06 | Revisión de excepciones MFA y sus contratos de producto. | Product/Security        | Aprobar cada motivo de `MfaExemptWriteReasons`; excepción nueva requiere PR/test y propietario.                                                    | Revisión continua.                                          |
+| ID     | Pendiente                                      | Responsable             | Criterio de salida                                                                    | Estado                                                 |
+| ------ | ---------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| SEC-01 | BOLA dinámico de recursos/IDs de 137 acciones. | Backend/Security        | Tabla endpoint × actor × recurso propio/ajeno × status.                               | En progreso; familias críticas cubiertas.              |
+| SEC-02 | Selección y autorización de sede física.       | Arquitectura + Clínicas | `AllowedClinicIds`, contexto activo y matriz inter-sede.                              | En progreso; bridge implementado, permisos pendientes. |
+| SEC-03 | Aplicar migraciones en staging/compartida.     | Release/DBA             | Target, backup, `__EFMigrationsHistory` y smoke tests.                                | Local aplicado; externo no ejecutado.                  |
+| SEC-04 | MFA estructural para acciones nuevas.          | Backend                 | Mantener catálogo 110+27 y mutaciones MFA verdes.                                     | Implementado localmente.                               |
+| SEC-05 | Trusted sessions y dispositivos.               | Auth/Security           | Listado, revocación, rotación, JWT hermano, refresh sin MFA y no bypass privilegiado. | Implementado; 6 casos de integración.                  |
+| SEC-06 | Revisión de excepciones MFA.                   | Product/Security        | Cada excepción requiere owner, razón y test.                                          | Revisión continua.                                     |
 
 ## Comandos de verificación
 

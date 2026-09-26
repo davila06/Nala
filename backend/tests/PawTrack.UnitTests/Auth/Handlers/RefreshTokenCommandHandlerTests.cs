@@ -52,7 +52,9 @@ public sealed class RefreshTokenCommandHandlerTests
         _tokenRepo.GetByHashAsync(tokenHash, Arg.Any<CancellationToken>()).Returns(activeToken);
         _userRepo.GetByIdAsync(activeToken.UserId, Arg.Any<CancellationToken>()).Returns(user);
         _jwtService.GenerateRefreshToken().Returns(("new_raw", "new_hash"));
-        _jwtService.GenerateAccessToken(user.Id, user.Email, user.Name, user.Role).Returns("new_access");
+        _jwtService.GenerateAccessToken(
+            Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<PawTrack.Domain.Auth.UserRole>(),
+            Arg.Any<bool>(), Arg.Any<Guid?>()).Returns("new_access");
         _jwtService.AccessTokenExpirySeconds.Returns(900);
 
         var result = await _sut.Handle(new RefreshTokenCommand(rawToken), CancellationToken.None);

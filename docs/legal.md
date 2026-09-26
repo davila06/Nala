@@ -4,8 +4,8 @@
 > **No constituye asesoramiento juridico ni reemplaza la revision de un abogado
 > en Costa Rica.**
 >
-> **Version:** 0.1  
-> **Fecha:** 2026-09-08  
+> **Version:** 0.2
+> **Fecha:** 2026-09-26
 > **Alcance:** tiendas de mascotas, catalogo, solicitudes de pedido, entrega,
 > retiro y comunicaciones entre cliente y tienda.
 
@@ -32,6 +32,21 @@
 
 Estas decisiones deben quedar aprobadas por escrito antes del lanzamiento
 comercial.
+
+### Aclaracion de estado tecnico (2026-09-26)
+
+Este borrador describe el alcance legal propuesto, no una declaracion de que
+todas las funciones esten implementadas o aprobadas. El codigo permite CRUD
+tecnico de `StoreLocation` para StorePartner y pedidos con `LocationId`
+opcional, pero no hay inventario ni permisos por sede; el checkout no envia una
+sede. `PaymentReference` es un campo heredado del pedido: no existe ruta de
+reporte de pago de tienda ni confirmacion bancaria en NALA. No anunciar
+multi-sede operativo, SINPE integrado, pago confirmado, factura de la tienda ni
+stock reservado.
+
+La evolucion hacia operacion diaria esta condicionada al roadmap
+[ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md). Las decisiones
+de este borrador requieren aprobacion legal/comercial independiente.
 
 ---
 

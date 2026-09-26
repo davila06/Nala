@@ -27,6 +27,16 @@ consultar entidades de `backend/src/PawTrack.Domain` y el modelo EF.
 
 ## Reglas de modelado
 
+### Tiendas
+
+El agregado `Store` actualmente posee productos con nombre, categoria, precio y
+disponibilidad, mas pedidos con snapshot de nombre/precio y lineas. `StoreOrder`
+acepta un `LocationId` nullable; `StoreLocation` es tecnico y no implica stock,
+caja, membresias ni autorizacion por sede. No hay movimientos de inventario,
+proveedores de mercaderia ni agregado de pago de pedido de tienda. Estas son
+brechas de producto, no entidades omitidas de esta referencia. Ver
+[ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
+
 - IDs de dominio: `Guid` v7; respuestas API exponen strings.
 - Fotos y documentos: Blob Storage, nunca binarios en SQL.
 - PII de reportantes de avistamientos: no persistir en claro.

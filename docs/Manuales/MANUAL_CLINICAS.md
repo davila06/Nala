@@ -88,14 +88,23 @@ Escribe a **<soporte@pawtrack.cr>** indicando el nombre de tu clínica y número
 
 ## 3.4 Planes de clínica
 
-El registro y el perfil de directorio son la entrada gratuita. Los planes comerciales activos son:
+El registro y el perfil de directorio son la entrada gratuita. Los importes
+siguientes son referencias técnicas, no ofertas comerciales aprobadas. La
+autoridad de contratación y SLA es
+[PRICING_AND_PLANS.md](../PRICING_AND_PLANS.md).
 
-| Tier interno    |      Precio | Capacidades principales                                                                                                |
-| --------------- | ----------: | ---------------------------------------------------------------------------------------------------------------------- |
-| `ClinicPlus`    | ₡15,000/mes | Destacado en mapa, badge verificado, estadísticas de escaneos, métricas de visibilidad y certificados PDF verificables |
-| `ClinicPartner` | ₡35,000/mes | Todo ClinicPlus, API keys, widget embebible y endpoints especializados                                                 |
+| Tier interno    |      Precio | Capacidades principales                                        |
+| --------------- | ----------: | -------------------------------------------------------------- |
+| `ClinicPlus`    | ₡15,000/mes | Destacado, badge y visibilidad; sin certificados verificables  |
+| `ClinicPartner` | ₡35,000/mes | Plus, certificados y pasaportes autorizados, API keys y widget |
 
 Los gates se validan en el backend con una suscripción activa y no solo desde la interfaz. `ClinicPartner` es necesario para API keys, widget, integraciones y emisión de pasaportes veterinarios digitales SENASA-ready; `ClinicPlus` habilita las métricas y la visibilidad premium.
+
+El precio no incluye operación multi-sede ni soporte 24/7. La caja registra
+pagos externos, pero no mueve fondos, y presentar una venta al integrador
+fiscal no significa aceptación de Hacienda. Recordatorios externos y WhatsApp
+requieren consentimiento, proveedor y plantillas aprobados. Consultar
+[CLINIC_DAILY_USE_ENTERPRISE_TODOLIST.md](../CLINIC_DAILY_USE_ENTERPRISE_TODOLIST.md).
 
 ### 3.5 Perfil y permisos de integración
 

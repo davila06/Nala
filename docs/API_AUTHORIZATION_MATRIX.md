@@ -1,6 +1,6 @@
 # PawTrack CR - Matriz de autorización BOLA/IDOR
 
-> Estado: activo para revisión de seguridad. Corte: 2026-09-18.
+> Estado: activo para revisión de seguridad. Corte general: 2026-09-18; nota de tiendas/sedes revisada: 2026-09-26.
 >
 > Regla: autenticación y rol no sustituyen ownership. Cada endpoint debe validar
 > que el actor puede acceder al recurso concreto y que la respuesta minimiza PII.
@@ -40,6 +40,15 @@
 | Gestión SuperAdmin                      | No                        | SuperAdmin                           | SuperAdmin + MFA   | Privilegio crítico       | Primary-role claim, TOTP fresco, no self/last revoke, auditoría    |
 | Product funnel                          | No                        | Admin                                | No                 | Datos agregados          | Admin-only + range                                                 |
 | Export partner                          | No                        | Partner scope                        | No                 | Agregado                 | Scope + suppression                                                |
+
+### Limite de autorizacion de tiendas
+
+El ownership actual se aplica por tienda y propietario/cuenta; `StoreLocation`
+no tiene membresias ni permisos propios. El `LocationId` opcional de un pedido
+valida que la sede pertenezca a la tienda y este activa, pero no concede ni
+restringe acceso de personal por sede. No afirmar aislamiento multi-sede hasta
+implementar una matriz actor x tienda x sede y sus pruebas. Ver
+[ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
 
 ## Reglas obligatorias
 

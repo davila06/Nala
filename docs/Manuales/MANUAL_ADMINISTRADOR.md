@@ -176,11 +176,11 @@ En el tab **Tiendas**:
 
 ### 5.2 Tiers de tienda
 
-| Tier           | Capacidades                                                |
-| -------------- | ---------------------------------------------------------- |
-| `StoreBasic`   | Estado base gratuito: catálogo visible, sin pedidos in-app |
-| `StorePlus`    | Catálogo + pedidos in-app + SINPE                          |
-| `StorePartner` | Todo StorePlus + analytics + posición prioritaria          |
+| Tier           | Capacidades                                                  |
+| -------------- | ------------------------------------------------------------ |
+| `StoreBasic`   | Estado base gratuito: catálogo visible, sin pedidos in-app   |
+| `StorePlus`    | Catálogo + solicitudes de pedido in-app (sin pago procesado) |
+| `StorePartner` | Todo StorePlus + analytics + posición prioritaria            |
 
 > `StoreBasic` no es el plan pagado principal del producto actual; es un nivel de registro/directorio gratuito.
 

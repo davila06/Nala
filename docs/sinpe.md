@@ -1,14 +1,23 @@
 # Automatización de pagos SINPE Móvil — PawTrack CR
 
-**Estado actual:** conciliación manual con referencia única  
-**Fecha:** 2026-09-06  
+**Estado actual:** conciliación manual para flujos habilitados; pedidos de tienda excluidos
+**Fecha:** 2026-09-26
 **Objetivo futuro:** verificar automáticamente las transferencias SINPE y activar el producto correcto sin intervención manual, con trazabilidad financiera y controles antifraude de nivel enterprise.
 
 ---
 
 ## 1. Estado actual del flujo
 
-PawTrack genera una referencia única de 8 caracteres alfanuméricos para cada operación de pago. La referencia se almacena en la suscripción, pedido de tienda, bundle o recompensa correspondiente.
+> **Limite importante para tiendas:** este documento no describe un flujo
+> SINPE operativo para pedidos de tienda. El checkout crea una solicitud; no
+> muestra un proceso de pago verificado y `StoreOrdersController` no expone una
+> ruta para reportar pago. El campo heredado `StoreOrder.PaymentReference` no
+> demuestra deposito. Para tiendas, usar [RUNBOOK_PAGOS_SINPE.md](RUNBOOK_PAGOS_SINPE.md)
+> y [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
+
+PawTrack genera referencias para los flujos que actualmente las exponen, como
+suscripciones, bundles o recompensas. La existencia de un campo de referencia
+en una entidad no significa que exista checkout o conciliacion para ese modulo.
 
 El usuario debe:
 

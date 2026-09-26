@@ -1,6 +1,6 @@
 # PawTrack CR — Estado B2B/B2G y Marketplace de Servicios
 
-> Corte verificado: 2026-09-22
+> Corte general: 2026-09-22. Seccion de tiendas revalidada: 2026-09-26.
 > Fuente técnica: `SubscriptionTier`, `SubscriptionPricing`, controllers, handlers y rutas frontend actuales.
 >
 > Este documento distingue capacidades implementadas de propuestas comerciales. Una capacidad no debe venderse como activa si aparece en `📋`.
@@ -105,6 +105,25 @@ Antes de activar cobros deben definirse custodía de fondos, impuestos, reembols
 
 ## Matriz B2B/B2G actual
 
+**Actualización clínica 2026-09-26:** el alta ahora crea organización, vínculo
+de `Clinic` principal y membresía Owner; el modelo no expone todavía gestión de
+miembros/sitios por API ni autorización organizacional. Agenda, consulta,
+inventario, CRM y caja siguen autorizados por clínica; el staff y finanzas
+tienen membresías distintas por `ClinicId`. `ClinicPartner` no incluye
+multi-sede operativa ni SLA 24/7. La agenda ya tiene UI operativa, pero
+recordatorios externos, aceptación fiscal, homologación y rollout en staging
+siguen pendientes. Los precios técnicos y gates comerciales se rigen por
+[PRICING_AND_PLANS.md](PRICING_AND_PLANS.md).
+
+> **Tiendas:** el alcance implementado es catalogo y solicitudes de pedido, no
+> un POS. `StorePlus` y `StorePartner` son gates tecnicos; la venta publica
+> sigue bloqueada por [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md). Los pedidos
+> no reservan existencias ni confirman pagos. El campo `PaymentReference` no es
+> evidencia bancaria y no existe endpoint de reporte de pago de tienda. Aunque
+> el backend acepta `LocationId` opcional, checkout no selecciona sede y no hay
+> inventario ni permisos por sede. Ver
+> [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
+
 | Producto                 | Backend/frontend actual                                                                                        | Gate o tier               | Gaps principales                                                        |
 | ------------------------ | -------------------------------------------------------------------------------------------------------------- | ------------------------- | ----------------------------------------------------------------------- |
 | Clínica básica           | Registro, revisión, perfil público editable, directorio paginado, mapa y escaneo                               | `ClinicBasic`/estado base | Revalidación documental y UI de gestión de consentimientos              |
@@ -122,6 +141,12 @@ Antes de activar cobros deben definirse custodía de fondos, impuestos, reembols
 | Publicidad               | Vallas Map/Dashboard/Directory/Feed                                                                            | Sin catálogo aprobado     | Contratos, cobro, impresiones, CTR y moderación                         |
 | API/widget               | API clínica, widget Partner, sandbox, scopes y webhooks salientes                                              | ClinicPartner             | Observabilidad Azure y contratos de Stores pendientes                   |
 | Datos agregados          | No disponible como producto                                                                                    | Futuro                    | Anonimización, consentimiento, contratos y gobierno de datos            |
+
+> **Correccion vinculante de las filas Store de la matriz anterior:** la
+> mencion `SINPE/referencia` describe un campo/estado heredado, no un flujo de
+> pago activo. NALA no verifica depositos, no procesa reembolsos y no reserva
+> stock para pedidos de tienda. `StoreLocation` y `LocationId` son soporte
+> tecnico parcial, no operacion multi-sede con inventario/permisos aislados.
 
 ## Rutas principales
 

@@ -1,5 +1,11 @@
 # PawTrack CR — TODO B2B Enterprise
 
+> **Estado documental:** historico/sustituido al 2026-09-26. Sus checks de
+> tiendas, sedes, roles, pagos y notificaciones no son estado vigente. Consultar
+> [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md), [MASTER_TODO.md](MASTER_TODO.md)
+> y [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md). Se conserva
+> el backlog para trazabilidad.
+
 > Checklist maestro para completar y endurecer todas las funciones B2B/B2G.
 > Fecha: 2026-09-09
 > Alcance activo: tiendas de mascotas, clínicas veterinarias, proveedores de servicios, aliados/refugios, adopciones y publicidad.

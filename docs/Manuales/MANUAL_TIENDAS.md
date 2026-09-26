@@ -3,7 +3,7 @@
 **Version:** 1.0  
 **Rol:** `Store`  
 **Audiencia:** propietarios y operadores de tiendas aprobadas  
-**Ultima actualizacion:** 2026-09-10
+**Ultima actualizacion:** 2026-09-26
 
 ## 1. Alcance y registro
 
@@ -11,6 +11,12 @@ Una tienda aprobada aparece en el directorio y puede publicar un catalogo para
 recibir solicitudes de pedido. El registro inicial es publico en
 `/tienda/registro`; mientras se revisa la solicitud, consulta
 `/tienda/pendiente`.
+
+**Alcance actual:** este portal no es un POS/ERP. No controla existencias,
+compras, caja, pagos, reembolsos ni factura fiscal de la tienda. La solicitud
+no aparta producto ni garantiza el precio hasta que la tienda la revise.
+Consulte [ROADMAP_TIENDAS_USO_DIARIO.md](../ROADMAP_TIENDAS_USO_DIARIO.md) para
+el roadmap de esas capacidades.
 
 El administrador aprueba o suspende la tienda. Una cuenta de tienda solo puede
 administrar sus propios productos, pedidos, perfil y, cuando corresponda, sus
@@ -35,10 +41,11 @@ Despues de iniciar sesion, abre `/tienda/portal`. Las secciones son:
 | Tier           | Capacidad documentada                                              |
 | -------------- | ------------------------------------------------------------------ |
 | `StoreBasic`   | Directorio y catalogo base; no es un plan comercial de pago activo |
-| `StorePlus`    | Catalogo, pedidos in-app y operaciones de pedidos                  |
-| `StorePartner` | Gates tecnicos para analitica y multiples sedes                    |
+| `StorePlus`    | Catalogo y solicitudes de pedido in-app                            |
+| `StorePartner` | Analitica avanzada/export y CRUD tecnico de sedes                  |
 
-Los precios y la disponibilidad comercial se rigen por
+Los tiers son gates tecnicos; no implican venta publica aprobada. Los precios
+y la disponibilidad comercial se rigen por
 [PRICING_AND_PLANS.md](../PRICING_AND_PLANS.md). Aunque existen endpoints
 tecnicos de Partner, la decision comercial vigente mantiene multi-sede fuera
 del alcance comercial actual hasta nueva aprobacion.
@@ -47,14 +54,15 @@ del alcance comercial actual hasta nueva aprobacion.
 
 1. Abre **Ordenes** y revisa el producto, cantidad y modalidad de
    cumplimiento.
-2. Confirma que hay disponibilidad antes de aceptar.
+2. Confirma disponibilidad y precio antes de aceptar; NALA no consulta ni reserva stock.
 3. Actualiza el estado conforme avanza la preparacion.
 4. Coordina directamente con el cliente el retiro o la entrega.
 5. Marca como entregado solo cuando la entrega haya ocurrido.
 
 PawTrack comunica la solicitud, pero no vende ni intermedia el producto, no
 cobra comision y no garantiza inventario. Cualquier pago se coordina entre
-cliente y tienda; la integracion de pagos no forma parte del alcance vigente.
+cliente y tienda. Una referencia guardada en el pedido no confirma el pago y
+no hay integracion de pagos para pedidos de tienda.
 
 ## 5. Buenas practicas
 

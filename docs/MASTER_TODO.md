@@ -22,18 +22,31 @@ actualizada y evidencia fechada.
 
 ## Prioridad inmediata
 
-| ID         | Área                        | Estado | Criterio de cierre                                                                |
-| ---------- | --------------------------- | ------ | --------------------------------------------------------------------------------- |
-| ENT-CI     | Gates de CI y release       | `[~]`  | Workflow único verde con artefactos, lockfiles, pruebas, SBOM y política de merge |
-| ENT-API    | Contratos y autorización    | `[~]`  | OpenAPI versionado, matriz completa y suites BOLA/IDOR verdes                     |
-| ENT-FND    | Finder sin login            | `[x]`  | Reporte seguro en menos de 30 segundos, antifraude, PII y offline verificados     |
-| ENT-E2E    | Ciclo pérdida-reunificación | `[~]`  | E2E limpio con notificaciones, eventos de producto y proveedores controlados      |
-| ENT-CLINIC | Uso diario en clínicas      | `[~]`  | Agenda, consulta, inventario, caja, comunicación y analítica enterprise           |
-| ENT-CLAIM  | Claims y legal              | `[~]`  | Cada claim tiene evidencia, responsable, expiración y aprobación                  |
-| COMP-AI    | IA-first operativa          | `[ ]`  | Copiloto/agentes con herramientas, aprobación, evaluación y Responsible AI        |
-| COMP-NET   | Liderazgo territorial       | `[ ]`  | 2-3 cantones con densidad, outcomes y partners verificables                       |
-| MKT-AZURE  | Azure Marketplace           | `[ ]`  | SaaS offer, fulfillment, tenant mapping, seguridad y private preview              |
-| ENT-PROV   | Proveedores externos        | `[E]`  | Contratos, secretos, smoke tests de staging y rotación aprobados                  |
+Para `ENT-CLINIC` (2026-09-26): el backfill de `AddClinicOrganizations`
+está aplicado solo en local. La migración filtrada de membresías y las pruebas
+de modelo/LocalDB están implementadas, pero faltan staging, matriz dinámica
+BOLA por recurso/actor/sede, homologación fiscal, confirmación real de entrega
+de mensajes y pilotos de disposición a pagar. Los permisos de staff/finanzas
+son por clínica; pertenecer a la organización no da acceso a datos de un sitio.
+
+| ID         | Área                        | Estado | Criterio de cierre                                                                       |
+| ---------- | --------------------------- | ------ | ---------------------------------------------------------------------------------------- |
+| ENT-CI     | Gates de CI y release       | `[~]`  | Workflow único verde con artefactos, lockfiles, pruebas, SBOM y política de merge        |
+| ENT-API    | Contratos y autorización    | `[~]`  | OpenAPI versionado, matriz completa y suites BOLA/IDOR verdes                            |
+| ENT-FND    | Finder sin login            | `[x]`  | Reporte seguro en menos de 30 segundos, antifraude, PII y offline verificados            |
+| ENT-E2E    | Ciclo pérdida-reunificación | `[~]`  | E2E limpio con notificaciones, eventos de producto y proveedores controlados             |
+| ENT-CLINIC | Uso diario en clínicas      | `[~]`  | Agenda, consulta, inventario, caja, comunicación y analítica enterprise                  |
+| ENT-STORE  | Uso diario en tiendas       | `[ ]`  | Roadmap de tienda diaria; inventario, roles/sedes, integridad de pedido y gates fiscales |
+| ENT-CLAIM  | Claims y legal              | `[~]`  | Cada claim tiene evidencia, responsable, expiración y aprobación                         |
+| COMP-AI    | IA-first operativa          | `[ ]`  | Copiloto/agentes con herramientas, aprobación, evaluación y Responsible AI               |
+| COMP-NET   | Liderazgo territorial       | `[ ]`  | 2-3 cantones con densidad, outcomes y partners verificables                              |
+| MKT-AZURE  | Azure Marketplace           | `[ ]`  | SaaS offer, fulfillment, tenant mapping, seguridad y private preview                     |
+| ENT-PROV   | Proveedores externos        | `[E]`  | Contratos, secretos, smoke tests de staging y rotación aprobados                         |
+
+El alcance y criterios de salida para `ENT-STORE` estan en
+[ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md). El modulo actual
+es catalogo y comunicacion de solicitudes; no es POS, inventario ni procesador
+de pagos.
 
 ## 1. Calidad, CI y release
 

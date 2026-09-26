@@ -78,6 +78,9 @@ public sealed class PawTrackDbContext(
     public DbSet<WhatsAppProcessedMessage> WhatsAppProcessedMessages => Set<WhatsAppProcessedMessage>();
     public DbSet<SearchZone> SearchZones => Set<SearchZone>();
     public DbSet<Clinic> Clinics => Set<Clinic>();
+    public DbSet<ClinicOrganization> ClinicOrganizations => Set<ClinicOrganization>();
+    public DbSet<ClinicOrganizationMembership> ClinicOrganizationMemberships => Set<ClinicOrganizationMembership>();
+    public DbSet<ClinicOrganizationSite> ClinicOrganizationSites => Set<ClinicOrganizationSite>();
     public DbSet<ClinicProfileChange> ClinicProfileChanges => Set<ClinicProfileChange>();
     public DbSet<ClinicScan> ClinicScans => Set<ClinicScan>();
     public DbSet<ClinicProfileView> ClinicProfileViews => Set<ClinicProfileView>();

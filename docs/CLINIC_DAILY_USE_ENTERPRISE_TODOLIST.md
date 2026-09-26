@@ -94,6 +94,11 @@ del sistema.
 
 ### CP3 - Vacunas, medicamentos e inventario
 
+> Los lotes y movimientos son por `ClinicId`. La mención histórica de "sede"
+> en este checkpoint no significa inventario separado ni autorizado por
+> `ClinicOrganizationSite`; `LocationName` es texto libre. Ver la matriz de
+> seguridad para el gate multi-sede.
+
 - [x] Catálogo de productos clínicos.
 - [x] Tipos: vacuna, medicamento, antiparasitario, insumo, alimento y servicio.
 - [x] Lotes, proveedor, fecha de vencimiento y costo.
@@ -306,7 +311,8 @@ operación, inventario, pagos y CRM visibles en un mismo panel.
   con el mismo token. Hay pruebas con recursos ajenos reales para agenda, consulta,
   grants de mascota, lote de inventario, venta, CRM, sesiones y dispositivos; existe
   catálogo estructural de 110 acciones de `ClinicsController` y 27 acciones relacionadas
-  de Medical/Certificates/PetClinicAccess. Falta ejecutar BOLA dinámico contra cada ID/ruta y cada sede física; el modelo no tiene
+  de Medical/Certificates/PetClinicAccess, con verbo HTTP y template de ruta comprobados.
+  Falta ejecutar BOLA dinámico contra cada ID/ruta y cada sede física; el modelo no tiene
   entidad de sucursal (`LocationName` de inventario no es un límite de autorización).
 - [x] 16. Colas filtradas por rol, tipo y responsable en SQL; caja, gerencia y asistencia
       usan membresías apropiadas. Las respuestas staff excluyen preferencias, historial de
@@ -317,14 +323,14 @@ operación, inventario, pagos y CRM visibles en un mismo panel.
   certificados. La matriz estructural cubre 137 acciones, pero no ejecuta IDOR contra cada recurso
   ni cada sede; seguir SEC-01/SEC-02 en el documento de control enterprise.
 
-**Migración requerida:** antes del despliegue, aplicar
+**Migración de despliegue:** en `PawTrackDev` local ya se aplicó la cadena pendiente, incluida
 `AddClinicOperationalTaskMetadata`. La migración permite tareas sin mascota, rellena
 rol derivado, prioridad normal y clave única para tareas históricas e indexa las colas.
-Hacer respaldo antes de aplicar. El downgrade elimina tareas sin mascota/tutor porque
+Para staging/producción hacer respaldo antes de aplicar. El downgrade elimina tareas sin mascota/tutor porque
 el esquema anterior no puede representarlas; exportarlas antes de revertir.
-`AddTrustedSessionLifecycle` también está generada y pendiente. En `PawTrackDev`, la
-consulta de solo lectura registra ambas como pendientes junto con el lote clínico;
-no se aplicó ninguna migración a una base compartida. El estado de Azure compartido
+`AddTrustedSessionLifecycle` y `AddClinicOrganizations` también están aplicadas en
+`PawTrackDev`; el backfill local produjo 6 organizaciones, 6 sedes y 0 clínicas huérfanas.
+No se aplicó ninguna migración a una base compartida. El estado de Azure compartido
 no es verificable sin un target/conexión identificados. Ver matriz enterprise antes
 de planificar una ventana y backup.
 
@@ -341,7 +347,38 @@ de planificar una ventana y backup.
 final exige aprobación de proveedores externos y cierre de la operación diaria con
 notas de crédito, entregas confirmadas y plantillas autorizadas.
 
+**Plan P1 de salida controlada (aún abierto):**
+
+1. Mensajería: aprobar plantillas y opt-in por propósito/canal; enviar con clave
+  idempotente, registrar `Sent` solo tras aceptación del proveedor y `Delivered`
+  solo tras webhook firmado. Probar timeout, duplicado, 429/5xx, revocación de
+  consentimiento y destino incorrecto sin filtrar datos de salud.
+2. Fiscal: homologar emisor y proveedor con XML/firma/acuses reales en sandbox;
+  conciliar `SubmittedToProvider`, aceptado/rechazado por Hacienda y notas de
+  crédito. Probar reintentos ambiguos y devoluciones sin declarar una factura
+  aceptada antes del acuse oficial.
+3. Seguridad: completar tabla endpoint × actor (owner/staff/finanzas/ajeno) ×
+  recurso propio/ajeno × resultado, con IDs reales. Un `ClinicOrganizationSite`
+  no autoriza por sí solo: añadir pruebas inter-sede únicamente cuando exista
+  alcance efectivo de sitio en todos los módulos.
+4. Release: identificar staging y versión exacta de `__EFMigrationsHistory`,
+  aprobar backup/restauración y generar/revisar SQL de migraciones pendientes;
+  aplicar primero allí y verificar backfill 1:1 de clínica a organización,
+  owner principal, índice filtrado, conteos y smoke funcional. No aplicar a
+  producción sin aprobación de operaciones/DBA.
+5. Piloto: operar al menos una clínica en paralelo con su proceso actual;
+  conciliar citas, inventario, cobros, facturas y comunicaciones a diario.
+  Documentar discrepancias, recuperación ante fallos, SLA real y autorización
+  legal/comercial antes de llamar a NALA sistema principal.
+
 ### CP7 - Multiusuario, seguridad y auditoría enterprise
+
+**Estado de modelos:** ya existen membresías operativas de staff y finanzas
+por clínica y una nueva membresía de organización creada en el registro. La
+última no hereda permisos clínicos ni permite seleccionar sedes; consolidar
+roles/invitaciones/revocaciones sin ampliar acceso implícitamente. El índice
+filtrado de membresía activa tiene migración aditiva y prueba SQL temporal;
+pendiente de rollout en staging.
 
 - [ ] Usuarios internos por clínica.
 - [ ] Invitación y revocación de usuario.

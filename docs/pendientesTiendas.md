@@ -1,5 +1,13 @@
 # PawTrack CR - TODO Enterprise de Tiendas
 
+> **Estado documental:** historico/sustituido al 2026-09-26. Las casillas y
+> estimaciones de este backlog fueron acumuladas en cortes anteriores y no son
+> un inventario fiable del codigo actual. Usar
+> [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md) para capacidades verificadas,
+> [MASTER_TODO.md](MASTER_TODO.md) para pendientes activos y
+> [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md) para la ruta
+> hacia operacion diaria. Se conserva el contenido para trazabilidad.
+
 > Alcance: tiendas de mascotas, catalogo, productos, carrito, pedidos, pagos SINPE,
 > sedes, analytics, portal de vendedor, directorio publico y administracion.
 >

@@ -3,12 +3,7 @@ import "react-leaflet-cluster/dist/assets/MarkerCluster.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 import L from "leaflet";
 import { useEffect, useRef, useState } from "react";
-import {
-  MapContainer as LeafletMapContainer,
-  TileLayer,
-  useMap,
-  useMapEvents,
-} from "react-leaflet";
+import { MapContainer as LeafletMapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import type { MovementPrediction, PublicMapEvent } from "../api/publicMapApi";
 import type { MapBBox } from "../api/publicMapApi";
@@ -27,8 +22,7 @@ import type { PublicServiceProviderDto } from "@/features/service-providers/api/
 // Leaflet's default icon images reference /images/ which bundlers break.
 // We reset the icon to null so divIcon-based markers (LostPetMarker, SightingMarker)
 // are used exclusively and no PNG assets are loaded.
-delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)
-  ._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
 
 interface MapContainerProps {
   events: PublicMapEvent[];
@@ -57,11 +51,7 @@ interface MapContainerProps {
 }
 
 /** Fires current bbox on mount AND on every moveend */
-function BBoxListener({
-  onBBoxChange,
-}: {
-  onBBoxChange: (bbox: MapBBox) => void;
-}) {
+function BBoxListener({ onBBoxChange }: { onBBoxChange: (bbox: MapBBox) => void }) {
   const map = useMapEvents({
     moveend: () => {
       const b = map.getBounds();
@@ -95,11 +85,7 @@ function BBoxListener({
  * On mount (trigger=0) it auto-locates so nearby pets load immediately.
  * Calls `onLocated` once the GPS resolves or errors (used to reset spinner state).
  */
-function FlyToTarget({
-  target,
-}: {
-  target: { lat: number; lng: number; zoom?: number } | null | undefined;
-}) {
+function FlyToTarget({ target }: { target: { lat: number; lng: number; zoom?: number } | null | undefined }) {
   const map = useMap();
   useEffect(() => {
     if (!target) return;
@@ -108,13 +94,7 @@ function FlyToTarget({
   return null;
 }
 
-function LocateUser({
-  trigger,
-  onLocated,
-}: {
-  trigger: number;
-  onLocated?: () => void;
-}) {
+function LocateUser({ trigger, onLocated }: { trigger: number; onLocated?: () => void }) {
   const map = useMap();
   // Ref-latched so an unstable (inline) onLocated identity from the caller
   // never re-triggers this effect and re-flies the map — only `trigger` should.
@@ -122,20 +102,30 @@ function LocateUser({
   onLocatedRef.current = onLocated;
 
   useEffect(() => {
+    let isActive = true;
+
     if (!navigator.geolocation) {
       onLocatedRef.current?.();
-      return;
+      return () => {
+        isActive = false;
+      };
     }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        if (!isActive) return;
         map.flyTo([pos.coords.latitude, pos.coords.longitude], 13, {
           duration: 1.2,
         });
         onLocatedRef.current?.();
       },
-      () => onLocatedRef.current?.(),
+      () => {
+        if (isActive) onLocatedRef.current?.();
+      },
       { timeout: 8_000, maximumAge: 60_000 },
     );
+    return () => {
+      isActive = false;
+    };
   }, [map, trigger]); // trigger=0 on mount = auto; increment = re-locate
 
   return null;
@@ -160,17 +150,8 @@ export function MapContainer({
   const [center] = useState<[number, number]>([9.7489, -83.7534]);
 
   return (
-    <div
-      role="application"
-      aria-label="Mapa interactivo de mascotas perdidas y avistamientos"
-      className={className}
-    >
-      <LeafletMapContainer
-        center={center}
-        zoom={8}
-        scrollWheelZoom
-        style={{ height: "100%", width: "100%" }}
-      >
+    <div role="application" aria-label="Mapa interactivo de mascotas perdidas y avistamientos" className={className}>
+      <LeafletMapContainer center={center} zoom={8} scrollWheelZoom style={{ height: "100%", width: "100%" }}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -195,11 +176,7 @@ export function MapContainer({
             <ClinicMarker key={`clinic-${clinic.id}`} clinic={clinic} />
           ))}
           {stores?.map((store) => (
-            <StoreMarker
-              key={`store-${store.id}`}
-              store={store}
-              onStoreClick={onStoreClick}
-            />
+            <StoreMarker key={`store-${store.id}`} store={store} onStoreClick={onStoreClick} />
           ))}
           {adoptions?.map((animal) => (
             <AdoptionMarker key={`adoption-${animal.id}`} animal={animal} />

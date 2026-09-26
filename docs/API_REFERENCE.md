@@ -1,7 +1,7 @@
 # PawTrack CR - Referencia API
 
 **Estado:** activo  
-**Corte:** 2026-09-22
+**Corte general:** 2026-09-22; seccion de tiendas revisada contra controllers: 2026-09-26.
 **Contrato:** OpenAPI `1.0`
 
 ## Fuentes
@@ -88,6 +88,16 @@ Suscripciones de usuario:
 - `GET/POST /municipalities/captures/*`
 - `GET/POST /allies/*`
 - `GET/POST /adoptions/*`
+
+### Tiendas: alcance actual
+
+- `POST /store-orders`, `GET /store-orders/mine`, `GET /store-orders/incoming`
+- `PUT /store-orders/{id}/confirm`, `PUT /store-orders/{id}/status`
+- El pedido es una solicitud; no reserva stock ni confirma pagos.
+- `LocationId` es opcional en backend, pero checkout no permite seleccionar
+  sede. No hay endpoints de inventario/POS ni de reporte de pago de tienda.
+
+Roadmap: [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
 
 ### Administración
 

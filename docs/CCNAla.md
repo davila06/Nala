@@ -4,6 +4,12 @@
 > **Versión:** Agosto 2026  
 > **Confidencialidad:** Uso interno — no publicar como está
 
+> **Estado:** documento comercial historico (agosto de 2026), no es contrato de
+> capacidades. Sus menciones de pedidos/SINPE y planes no son vigentes para
+> decisiones tecnicas. Consultar [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md),
+> [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md) y
+> [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
+
 ---
 
 ## ¿Qué es PawTrack CR?

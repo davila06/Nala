@@ -173,6 +173,7 @@ public static class InfrastructureServiceCollectionExtensions
 
         // Clinics
         services.AddScoped<IClinicRepository, ClinicRepository>();
+        services.AddScoped<IClinicOrganizationRepository, ClinicOrganizationRepository>();
         services.AddScoped<IClinicScanRepository, ClinicScanRepository>();
         services.AddScoped<IClinicProfileViewRepository, ClinicProfileViewRepository>();
         services.AddHostedService<ClinicProfileViewPurgeHostedService>();

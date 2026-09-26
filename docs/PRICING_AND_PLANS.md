@@ -40,6 +40,12 @@ no procesa pagos, escrow ni custodia financiera. Ver
 
 ## Política de Precios e Impuesto sobre el Valor Agregado (IVA 13%)
 
+> La regla técnica actual sobre `RequiresInvoice` no equivale a dictamen
+> tributario. Antes de publicar cualquier precio, un asesor fiscal de Costa
+> Rica debe revisar el tratamiento de IVA y comprobantes tanto para factura
+> electrónica como para tiquete electrónico; no prometer un precio libre de
+> impuesto únicamente porque el comprador no solicita crédito fiscal.
+
 - **Precios Base del Servicio:** Todos los montos listados en el catálogo técnico (`SubscriptionPricing`, `BundlePrices`, `TIER_PRICE_CRC`) corresponden al costo neto base del servicio y **no reflejan el 13% de IVA**.
 - **Emisión de Factura Electrónica:** Si el cliente (dueño de mascota, clínica, tienda o institución) requiere **Factura Electrónica** formal con crédito fiscal ante la Dirección General de Tributación (DGT v4.3), **se le agrega el 13% de IVA al costo del servicio** al procesar el pago o generar la suscripción/pedido:
   - `Total Con Factura = Costo Base * 1.13` (redondeado a 2 decimales en colones).
@@ -81,6 +87,15 @@ no aplica a clinicas, tiendas, refugios ni municipalidades.
 - No hay prorrateo ni reembolso automatico implementado.
 
 ## Clinicas
+
+Esta es la fuente comercial vigente: `SubscriptionPricing` contiene referencias
+técnicas de ₡15.000/mes para ClinicPlus y ₡35.000/mes para ClinicPartner, **no
+precios publicados ni validados por disposición a pagar**. ClinicPlus se
+orienta a visibilidad y métricas; ClinicPartner a certificados verificables e
+integraciones sujetas a grants, scopes y cuotas. Ningún plan ofrece hoy
+multi-sede operativa ni soporte 24/7 contractual. La contratación requiere los
+gates de aprobación definidos arriba; antes de ajustar precios se medirán
+conversión, uso diario, retención y disposición a pagar en pilotos consentidos.
 
 | Plan          | Estado tecnico | Capacidades                                |
 | ------------- | -------------- | ------------------------------------------ |

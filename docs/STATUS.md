@@ -76,6 +76,12 @@ observabilidad de negocio y validacion operativa.
 - Integracion real de pagos: no forma parte del alcance de tiendas actual.
 - Tiendas: pedidos comunicados por PawTrack; la tienda controla disponibilidad,
   aceptacion, rechazo, entrega y estados.
+- Tiendas: `StoreProduct` no mantiene existencias; `StoreLocation` no es un
+  limite de inventario/autorizacion por sede. El checkout no envia `LocationId`.
+- Tiendas: `PaymentReference` no confirma un deposito y no hay endpoint de
+  reporte de pago para pedidos. Los pedidos no son ventas ni reservas de stock.
+- Tiendas: el estado de preparacion para uso diario y los gates pendientes se
+  consolidan en [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
 
 Las cifras deben regenerarse en CI; no copiar numeros de una auditoria antigua
 sin volver a ejecutar los comandos.

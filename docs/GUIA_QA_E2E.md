@@ -31,7 +31,8 @@
 - coordinación: dos participantes autorizados, consentimiento explícito,
   sharing aproximado por defecto, roster de destinatarios y stop-sharing;
 - clinica: scan, grant medico y certificado;
-- tienda: catalogo y pedido;
+- tienda: catalogo y pedido de una tienda. El flujo actual no debe probarse ni
+  describirse como POS: no procesa pagos ni reserva inventario;
 - proveedor: servicio, agenda y reserva;
 - municipalidad: captura, estados y reportes;
 - Admin/Support: aprobaciones, bienestar e incidentes.
@@ -42,6 +43,15 @@ Cada cambio de autorizacion requiere prueba BOLA/IDOR. Cada cambio de tier
 requiere prueba con suscripcion activa, vencida y ausente. Cada cambio de
 migracion requiere base vacia o upgrade incremental. Cada endpoint de archivo
 requiere limite de tamano y content type.
+
+### Gate E2E de tienda diaria
+
+Antes de habilitar inventario/caja para tiendas, agregar un E2E con SQL real que
+cubra solicitud repetida con la misma `Idempotency-Key`, validacion de precio y
+stock en checkout, reserva/liberacion concurrente, transiciones por tipo de
+entrega, notificacion al comprador, cancelacion/devolucion e aislamiento por
+tienda y sede. Los casos de hoy no cubren ese ciclo completo; el alcance objetivo
+esta en [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
 
 ## Datos de prueba
 

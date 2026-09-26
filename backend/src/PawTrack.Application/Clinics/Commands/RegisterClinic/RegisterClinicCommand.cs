@@ -32,6 +32,7 @@ public sealed record RegisterClinicCommand(
 
 public sealed class RegisterClinicCommandHandler(
     IClinicRepository clinicRepository,
+    IClinicOrganizationRepository organizationRepository,
     IUserRepository userRepository,
     IPasswordHasher passwordHasher,
     IUnitOfWork unitOfWork)
@@ -74,6 +75,8 @@ public sealed class RegisterClinicCommandHandler(
             request.ContactEmail);
 
         await clinicRepository.AddAsync(clinic, cancellationToken);
+        var organization = ClinicOrganization.Create(request.Name, user.Id, clinic.Id);
+        await organizationRepository.AddAsync(organization, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success(ClinicDto.FromDomain(clinic));

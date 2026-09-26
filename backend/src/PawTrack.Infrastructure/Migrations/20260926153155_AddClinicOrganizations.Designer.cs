@@ -3,18 +3,21 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using PawTrack.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace PawTrack.Infrastructure.Persistence.Migrations
+namespace PawTrack.Infrastructure.Migrations
 {
     [DbContext(typeof(PawTrackDbContext))]
-    partial class PawTrackDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260926153155_AddClinicOrganizations")]
+    partial class AddClinicOrganizations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2644,7 +2647,6 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("OrganizationId", "UserId")
                         .IsUnique()
-                        .HasFilter("[IsRevoked] = 0")
                         .HasDatabaseName("IX_ClinicOrganizationMemberships_OrganizationId_UserId");
 
                     b.HasIndex("UserId", "IsRevoked")

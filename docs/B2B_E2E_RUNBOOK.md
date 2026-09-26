@@ -37,3 +37,8 @@ o rotación; nunca deben persistirla en fixtures, logs o reportes.
 - Integración .NET B2B: 1/1.
 - Playwright smoke live: 1/1.
 - Playwright opt-in: descubierto, pendiente de seed enterprise activo.
+
+Esta evidencia no es un E2E de venta/pago/inventario de tienda. El smoke
+negativo valida que un consumidor no acceda a analytics Store; el roadmap para
+el ciclo diario completo esta en
+[ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).

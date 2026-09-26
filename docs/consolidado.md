@@ -77,6 +77,11 @@ ownership, tenant, suscripción, verificación, grant o scope de API.
 | `Admin`               | `/admin`, `/estadisticas`, `/nala`, reportes                                    | Aprobaciones, planes, usuarios, moderación, auditoría, inventario y métricas | Rol privilegiado, MFA/políticas según entorno              |
 | `Support`             | Colas autorizadas de bienestar e incidentes                                     | Triage, incidentes y resoluciones operativas                                 | Asignación manual por Admin; sin portal independiente      |
 
+La superficie `Store` cubre catalogo, solicitudes de pedido, analitica y CRUD
+tecnico de sedes. No es POS: no mantiene inventario, procesa pagos ni aplica
+permisos por sucursal. Ver [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md) y
+[ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
+
 ### 2.1 Rutas públicas importantes
 
 - `/map`: mapa de pérdidas, avistamientos, clínicas, tiendas, adopciones y servicios.
@@ -170,8 +175,13 @@ real se procesa actualmente mediante solicitud y verificación manual de SINPE.
 | Veterinarios y citas                                  | Parcial      | Sí                          |
 | Export médico                                         | No           | Sí, con scope/grants/cuotas |
 
-Precios base: `ClinicPlus` ₡15,000/mes; `ClinicPartner` ₡35,000/mes.
+Precios técnicos de referencia: `ClinicPlus` ₡15,000/mes; `ClinicPartner` ₡35,000/mes.
 `ClinicBasic` es entrada/directorio, no plan comercial principal.
+
+Corrección de alcance: los certificados verificables requieren ClinicPartner,
+no ClinicPlus. `ClinicOrganizationSite` vincula clínicas pero no aplica permisos
+multi-sede; la contratación, el SLA y el precio publicado dependen de
+[PRICING_AND_PLANS.md](PRICING_AND_PLANS.md).
 
 ### 5.2 Tiendas
 

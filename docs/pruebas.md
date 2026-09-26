@@ -262,12 +262,12 @@ medicación estructurada, peso y una alergia registrada.
 
 ### Como Store (`tienda_activa@test.cr`)
 
-| Feature               | Qué esperar                                                                            |
-| --------------------- | -------------------------------------------------------------------------------------- |
-| Portal de tienda      | `/tienda/portal` → resumen operativo y métricas de la tienda                           |
-| Catálogo de productos | `/tienda/portal/productos` → 4 productos sembrados (Alimento, Collar, Snacks, Juguete) |
-| Gestión de pedidos    | `/tienda/portal/ordenes` → 2 pedidos sembrados (1 pendiente SINPE, 1 confirmado)       |
-| Directorio público    | `/tiendas` → `PetShop CR Test` visible con catálogo disponible al público              |
+| Feature               | Qué esperar                                                                                                          |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Portal de tienda      | `/tienda/portal` → resumen operativo y métricas de la tienda                                                         |
+| Catálogo de productos | `/tienda/portal/productos` → 4 productos sembrados (Alimento, Collar, Snacks, Juguete)                               |
+| Gestión de pedidos    | `/tienda/portal/ordenes` → 2 pedidos de prueba (1 solicitud pendiente de revisión, 1 confirmada; sin pago procesado) |
+| Directorio público    | `/tiendas` → `PetShop CR Test` visible con catálogo disponible al público                                            |
 
 ---
 
