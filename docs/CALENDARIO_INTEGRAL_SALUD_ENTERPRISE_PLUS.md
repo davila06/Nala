@@ -514,6 +514,11 @@ antibioticos", "tiene dermatitis" o "debe recibir este medicamento".
       interfaces cargan mas paginas bajo demanda sin truncar silenciosamente
       a 100 eventos ([MedicalEndpointsTests.cs](../backend/tests/PawTrack.IntegrationTests/Medical/MedicalEndpointsTests.cs),
       [MedicalHistoryPagination.test.tsx](../frontend/tests/features/medical/MedicalHistoryPagination.test.tsx)).
+- [x] La nueva vista previa Plus conserva el limite configurable de entitlements
+      y enmascara adjuntos; el conteo total/clinico usa `COUNT` en SQL en vez de
+      traer todo el expediente. El endpoint legado mantiene su contrato para
+      otros consumidores ([GetMedicalHistoryPageQuery.cs](../backend/src/PawTrack.Application/Medical/GetMedicalHistoryPageQuery.cs),
+      [MedicalCommandHandlerTests.cs](../backend/tests/PawTrack.UnitTests/Medical/Handlers/MedicalCommandHandlerTests.cs)).
 - [x] `GET .../medical/consolidated-report` genera PDF de todas las paginas
       autorizadas hasta 5 000 eventos con registros, certificados/estado y
       referencia a adjuntos clasificados. No incrusta el contenido binario
@@ -529,6 +534,10 @@ antibioticos", "tiene dermatitis" o "debe recibir este medicamento".
 - [ ] Para declarar cerrado enterprise+: medir EF SQL generado y plan real
       en staging, tiempos p50/p95/p99 con concurrencia, comprobar el costo de
       paginas profundas y no comprometer disponibilidad de escrituras.
+- [ ] Paginar el panel independiente de certificados y su endpoint actual
+      `GET /api/certificates/pet/{petId}` sin cambiar silenciosamente el
+      contrato de consumidores existentes; aun carga todos los certificados
+      aunque la cronologia nueva ya los consulte por paginas.
 - [ ] Extender tipo estructurado a adjuntos de `ClinicalConsultation` que no
       esten vinculados a `MedicalRecord`, con permisos y migracion propia.
 - [ ] Diseñar exportacion asíncrona segura para >5 000 eventos y documentar

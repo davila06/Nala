@@ -181,7 +181,8 @@ function PetSanitaryIdentityPanel({ petId }: { petId: string }) {
 }
 
 function PetCertificatesPanel({ petId }: { petId: string }) {
-  const { data: certificates, isLoading } = useCertificatesForPet(petId);
+  const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage } = useCertificatesForPet(petId);
+  const certificates = data?.pages.flatMap((page) => page.items) ?? [];
   const { mutateAsync: downloadPdf, isPending } = useDownloadCertificatePdf();
 
   const handleDownload = async (certificateId: string, code: string) => {
@@ -210,11 +211,13 @@ function PetCertificatesPanel({ petId }: { petId: string }) {
 
       {isLoading && <p className="mt-3 text-xs text-sand-500">Cargando documentos…</p>}
 
-      {!isLoading && (!certificates || certificates.length === 0) && (
+      {isError && <p role="alert" className="mt-3 text-xs text-danger-600">No se pudieron cargar los certificados.</p>}
+
+      {!isLoading && !isError && certificates.length === 0 && (
         <p className="mt-3 text-xs text-sand-500">Aún no hay certificados emitidos para esta mascota.</p>
       )}
 
-      {certificates && certificates.length > 0 && (
+      {certificates.length > 0 && (
         <ul className="mt-3 space-y-2">
           {certificates.map((certificate) => (
             <li key={certificate.id} className="rounded-xl border border-sand-100 bg-surface px-3 py-2">
@@ -249,6 +252,12 @@ function PetCertificatesPanel({ petId }: { petId: string }) {
             </li>
           ))}
         </ul>
+      )}
+      {hasNextPage && (
+        <button type="button" disabled={isFetchingNextPage} onClick={() => void fetchNextPage()}
+          className="mt-3 text-xs font-medium text-brand-600 hover:underline disabled:opacity-50">
+          {isFetchingNextPage ? "Cargando…" : "Cargar más certificados"}
+        </button>
       )}
     </section>
   );

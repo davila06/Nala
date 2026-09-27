@@ -51,6 +51,18 @@ public sealed class CertificatesController(ISender sender) : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);
     }
 
+    [HttpGet("pet/{petId:guid}/page")]
+    public async Task<IActionResult> GetForPetPage(Guid petId, [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetCertificatesForPetPageQuery(
+            petId, userId, User.IsInRole("Admin"), page, pageSize), cancellationToken);
+        if (result.IsSuccess) return Ok(result.Value);
+        if (result.Errors.Contains("Acceso denegado.")) return Forbid();
+        return BadRequest(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 400 });
+    }
+
     // ── GET /api/certificates/verify/{code} ───────────────────────────────────
     [HttpGet("verify/{code}")]
     [AllowAnonymous]

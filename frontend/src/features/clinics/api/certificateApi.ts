@@ -25,6 +25,11 @@ export interface CertificateDto {
   isValid: boolean;
 }
 
+export interface CertificatePageDto {
+  items: CertificateDto[];
+  hasMore: boolean;
+}
+
 export interface CertificateVerificationDto {
   id: string;
   type: CertificateType;
@@ -138,6 +143,11 @@ export const CERTIFICATE_TYPE_LABELS: Record<CertificateType, string> = {
 };
 
 export const certificateApi = {
+  getForPetPage: (petId: string, page: number): Promise<CertificatePageDto> =>
+    apiClient.get<CertificatePageDto>(`/certificates/pet/${petId}/page`, {
+      params: { page, pageSize: 20 },
+    }).then((response) => response.data),
+
   getForPet: (petId: string) =>
     apiClient
       .get<CertificateDto[]>(`/certificates/pet/${petId}`)

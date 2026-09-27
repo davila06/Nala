@@ -582,3 +582,25 @@ public sealed class GetMedicalHistoryPageQueryHandlerTests
         await medical.Received(1).GetCurrentRecordsPageAsync(pet.Id, 0, 1, Arg.Any<CancellationToken>());
     }
 }
+
+public sealed class GetMedicalRecordCountQueryHandlerTests
+{
+    [Fact]
+    public async Task Count_UsesSqlAggregatesInsteadOfLoadingTheHistory()
+    {
+        var ownerId = Guid.NewGuid();
+        var pet = Pet.Create(ownerId, "Max", PetSpecies.Dog, null, null);
+        var pets = Substitute.For<IPetRepository>();
+        var medical = Substitute.For<IMedicalRepository>();
+        pets.GetByIdAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(pet);
+        medical.CountCurrentRecordsAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(500);
+        medical.CountCurrentClinicRecordsAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(100);
+
+        var handler = new GetMedicalRecordCountQueryHandler(pets, Substitute.For<IFamilyRepository>(), medical);
+        var result = await handler.Handle(new GetMedicalRecordCountQuery(pet.Id, ownerId), default);
+
+        result.Value!.TotalRecords.Should().Be(500);
+        result.Value.ClinicRecords.Should().Be(100);
+        await medical.DidNotReceive().GetByPetIdAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>());
+    }
+}

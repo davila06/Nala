@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   certificateApi,
   type IssueCertificateRequest,
@@ -6,9 +6,11 @@ import {
 } from "../api/certificateApi";
 
 export function useCertificatesForPet(petId: string) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ["certificates", petId],
-    queryFn: () => certificateApi.getForPet(petId),
+    queryFn: ({ pageParam }) => certificateApi.getForPetPage(petId, pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, pages) => lastPage.hasMore ? pages.length + 1 : undefined,
     enabled: !!petId,
   });
 }

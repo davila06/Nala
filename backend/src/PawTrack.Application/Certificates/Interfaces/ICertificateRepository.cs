@@ -7,6 +7,7 @@ public interface ICertificateRepository
     Task<VetCertificate?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<VetCertificate?> GetByVerificationCodeAsync(string code, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<VetCertificate>> GetForPetAsync(Guid petId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<VetCertificate>> GetForPetPageAsync(Guid petId, int skip, int take, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<VetCertificate>> GetForClinicAsync(Guid clinicId, int page, int pageSize, CancellationToken cancellationToken = default);
     Task<int> CountForClinicSinceAsync(Guid clinicId, DateTimeOffset since, CertificateType? type = null, CancellationToken cancellationToken = default);
     Task AddAsync(VetCertificate certificate, CancellationToken cancellationToken = default);

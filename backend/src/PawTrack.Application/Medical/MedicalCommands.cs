@@ -200,9 +200,9 @@ public sealed class GetMedicalRecordCountQueryHandler(
         if (!await FamilyAccessChecker.CanAccessPetAsync(pet.OwnerId, request.RequestingUserId, familyRepository, ct))
             return Result.Failure<MedicalRecordCountDto>("Acceso denegado.");
 
-        var records = await medicalRepository.GetByPetIdAsync(request.PetId, ct);
-        var clinicCount = records.Count(r => r.ClinicId.HasValue);
-        return Result.Success(new MedicalRecordCountDto(records.Count, clinicCount));
+        var totalCount = await medicalRepository.CountCurrentRecordsAsync(request.PetId, ct);
+        var clinicCount = await medicalRepository.CountCurrentClinicRecordsAsync(request.PetId, ct);
+        return Result.Success(new MedicalRecordCountDto(totalCount, clinicCount));
     }
 }
 public sealed record GetMedicalHistoryQuery(Guid PetId, Guid RequestingUserId)

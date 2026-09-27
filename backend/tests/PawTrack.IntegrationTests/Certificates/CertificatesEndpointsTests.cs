@@ -24,6 +24,42 @@ public sealed class CertificatesEndpointsTests(PawTrackWebApplicationFactory fac
     private readonly HttpClient _client = factory.CreateClient();
 
     [Fact]
+    public async Task GetPetCertificatesPage_IsBoundedAndOwned()
+    {
+        var email = $"cert-page-{Guid.NewGuid():N}@pawtrack.cr";
+        using var ownerClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, email);
+        using var outsiderClient = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        Guid petId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var owner = await db.Users.SingleAsync(user => user.Email == email);
+            var pet = Pet.Create(owner.Id, "Max", PetSpecies.Dog, null, null);
+            db.Pets.Add(pet);
+            for (var index = 0; index < 3; index++)
+                db.VetCertificates.Add(VetCertificate.Issue(pet.Id, Guid.NewGuid(), owner.Id,
+                    CertificateType.GeneralExam, $"C{index:0000000}"));
+            await db.SaveChangesAsync();
+            petId = pet.Id;
+        }
+
+        var first = await ownerClient.GetFromJsonAsync<CertificatePageResponse>(
+            $"/api/certificates/pet/{petId}/page?page=1&pageSize=2");
+        var second = await ownerClient.GetFromJsonAsync<CertificatePageResponse>(
+            $"/api/certificates/pet/{petId}/page?page=2&pageSize=2");
+        first!.Items.Should().HaveCount(2);
+        first.HasMore.Should().BeTrue();
+        second!.Items.Should().ContainSingle();
+        second.HasMore.Should().BeFalse();
+        first.Items.Concat(second.Items).Select(item => item.Id).Distinct().Should().HaveCount(3);
+        (await outsiderClient.GetAsync($"/api/certificates/pet/{petId}/page?page=1&pageSize=2"))
+            .StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    private sealed record CertificatePageItem(Guid Id);
+    private sealed record CertificatePageResponse(List<CertificatePageItem> Items, bool HasMore);
+
+    [Fact]
     public async Task Verify_UnknownCode_Returns404()
     {
         var response = await _client.GetAsync("/api/certificates/verify/UNKNW999");

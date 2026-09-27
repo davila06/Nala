@@ -19,6 +19,12 @@ public sealed class CertificateRepository(PawTrackDbContext dbContext) : ICertif
             .OrderByDescending(c => c.IssuedAt)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<VetCertificate>> GetForPetPageAsync(Guid petId, int skip, int take, CancellationToken cancellationToken = default) =>
+        await dbContext.VetCertificates.AsNoTracking()
+            .Where(certificate => certificate.PetId == petId)
+            .OrderByDescending(certificate => certificate.IssuedAt).ThenByDescending(certificate => certificate.Id)
+            .Skip(skip).Take(take).ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<VetCertificate>> GetForClinicAsync(Guid clinicId, int page, int pageSize, CancellationToken cancellationToken = default) =>
         await dbContext.VetCertificates
             .Where(c => c.ClinicId == clinicId)

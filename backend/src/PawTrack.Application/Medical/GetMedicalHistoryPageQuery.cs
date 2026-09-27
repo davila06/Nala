@@ -15,7 +15,8 @@ public sealed record GetMedicalHistoryPageQuery(Guid PetId, Guid RequestingUserI
 
 public sealed class GetMedicalHistoryPageQueryHandler(
     IPetRepository petRepository, IFamilyRepository familyRepository,
-    IMedicalRepository medicalRepository, ISubscriptionService subscriptionService)
+    IMedicalRepository medicalRepository, ISubscriptionService subscriptionService,
+    IEntitlementService? entitlementService = null)
     : IRequestHandler<GetMedicalHistoryPageQuery, Result<MedicalHistoryPageDto>>
 {
     public async Task<Result<MedicalHistoryPageDto>> Handle(GetMedicalHistoryPageQuery request, CancellationToken ct)
@@ -37,9 +38,17 @@ public sealed class GetMedicalHistoryPageQueryHandler(
         var offset = (request.Page - 1) * request.PageSize;
         if (tier == SubscriptionTier.UserPlus)
         {
-            if (offset >= 3) return Result.Success(new MedicalHistoryPageDto([], count, "plus_preview", true, 3, false));
+            var previewLimit = 3;
+            if (entitlementService is not null)
+            {
+                var decision = await entitlementService.AuthorizeAsync(request.RequestingUserId,
+                    "MedicalRecordsPreviewLimit", 1m, new EntitlementContext("medical-preview", request.PetId), ct);
+                if (decision.Limit.HasValue) previewLimit = (int)decimal.Clamp(decision.Limit.Value, 0, 10_000);
+            }
+            if (offset >= previewLimit)
+                return Result.Success(new MedicalHistoryPageDto([], count, "plus_preview", true, previewLimit, false));
             var preview = await medicalRepository.GetCurrentRecordsPageAsync(request.PetId, offset,
-                Math.Min(request.PageSize, 3 - offset), ct);
+                Math.Min(request.PageSize, previewLimit - offset), ct);
             return Result.Success(new MedicalHistoryPageDto(preview.Select(record => MedicalRecordDto.FromDomain(record) with
             {
                 DocumentUrl = null,
@@ -49,7 +58,8 @@ public sealed class GetMedicalHistoryPageQueryHandler(
                 Frequency = null,
                 DurationDays = null,
                 MedicationEndDate = null,
-            }).ToList(), count, "plus_preview", true, 3, false));
+            }).ToList(), count, "plus_preview", true, previewLimit,
+                offset + preview.Count < Math.Min(count, previewLimit)));
         }
 
         var rows = await medicalRepository.GetCurrentRecordsPageAsync(request.PetId, offset, request.PageSize + 1, ct);
