@@ -30,6 +30,8 @@ public enum AuditAction
     ClinicCashClosed,
     ClinicFinanceMemberGranted,
     ClinicFinanceMemberRevoked,
+    ClinicSiteAccessGranted,
+    ClinicSiteAccessRevoked,
     ClinicStaffGranted,
     ClinicStaffRevoked,
     ClinicCrmPreferenceUpdated,

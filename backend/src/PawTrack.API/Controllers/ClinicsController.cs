@@ -41,6 +41,7 @@ using PawTrack.Application.Clinics.Commands.ManageClinicBilling;
 using PawTrack.Application.Clinics.Commands.ManageClinicFinanceAccess;
 using PawTrack.Application.Clinics.Commands.ManageClinicStaff;
 using PawTrack.Application.Clinics.Commands.ManageClinicCrm;
+using PawTrack.Application.Clinics.Commands.ManageClinicSiteAccess;
 using PawTrack.Application.Clinics.Queries.DownloadClinicalConsultationPrescription;
 using PawTrack.Application.Clinics.Queries.GetClinicalConsultationTemplates;
 using PawTrack.Application.Clinics.Commands.ExportClinicMedical;
@@ -1136,6 +1137,42 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
 
         var result = await sender.Send(new SelectActiveClinicSiteCommand(userId, sessionId, request.ClinicId), ct);
         return result.IsSuccess ? Ok(new { clinicId = request.ClinicId }) : Forbid();
+    }
+
+    [HttpGet("{clinicId:guid}/site-access")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetClinicSiteAccess(Guid clinicId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetClinicSiteAccessQuery(clinicId, userId), ct);
+        return result.IsSuccess ? Ok(result.Value) : Forbid();
+    }
+
+    [HttpPut("{clinicId:guid}/site-access/{targetUserId:guid}")]
+    [Authorize(Policy = "ClinicOperationsMfa")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GrantClinicSiteAccess(Guid clinicId, Guid targetUserId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GrantClinicSiteAccessCommand(clinicId, userId, targetUserId), ct);
+        if (result.IsSuccess) return NoContent();
+        return result.Errors.Contains(ClinicSiteAccessErrors.TargetMustBeMember)
+            ? UnprocessableEntity(result.Errors)
+            : Forbid();
+    }
+
+    [HttpDelete("{clinicId:guid}/site-access/{targetUserId:guid}")]
+    [Authorize(Policy = "ClinicOperationsMfa")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> RevokeClinicSiteAccess(Guid clinicId, Guid targetUserId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new RevokeClinicSiteAccessCommand(clinicId, userId, targetUserId), ct);
+        if (result.IsSuccess) return NoContent();
+        if (result.Errors.Contains(ClinicSiteAccessErrors.OwnerMustRetainSite))
+            return Conflict(new ProblemDetails { Title = "No se puede retirar la última sede del Owner.", Status = 409 });
+        return Forbid();
     }
 
     [HttpGet("me/staff/members")]
