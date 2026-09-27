@@ -32,6 +32,47 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
     }
 
     [Fact]
+    public async Task Timeline_PaginatesRecordsAndRejectsAnotherOwner()
+    {
+        var email = $"timeline-owner-{Guid.NewGuid():N}@pawtrack.cr";
+        using var ownerClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, email);
+        using var otherClient = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        Guid petId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var owner = await db.Users.SingleAsync(user => user.Email == email);
+            var pet = Pet.Create(owner.Id, "Max", PetSpecies.Dog, null, null);
+            var plan = Subscription.CreateForUser(owner.Id, SubscriptionTier.UserFamilia, $"M{Guid.NewGuid():N}"[..8], 4990m);
+            plan.Activate();
+            db.Pets.Add(pet);
+            db.Subscriptions.Add(plan);
+            for (var day = 1; day <= 3; day++)
+                db.MedicalRecords.Add(MedicalRecord.Create(pet.Id, owner.Id, MedicalRecordType.Checkup,
+                    new DateOnly(2026, 9, day), $"Consulta {day}", null, null, null));
+            await db.SaveChangesAsync();
+            petId = pet.Id;
+        }
+
+        var firstResponse = await ownerClient.GetAsync($"/api/pets/{petId}/medical/timeline?page=1&pageSize=2");
+        firstResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var first = await firstResponse.Content.ReadFromJsonAsync<TimelineResponse>();
+        first!.Items.Select(item => item.Label).Should().Equal("Consulta 3", "Consulta 2");
+        first.HasMore.Should().BeTrue();
+
+        var secondResponse = await ownerClient.GetAsync($"/api/pets/{petId}/medical/timeline?page=2&pageSize=2");
+        var second = await secondResponse.Content.ReadFromJsonAsync<TimelineResponse>();
+        second!.Items.Select(item => item.Label).Should().Equal("Consulta 1");
+        second.HasMore.Should().BeFalse();
+
+        (await otherClient.GetAsync($"/api/pets/{petId}/medical/timeline?page=1&pageSize=2"))
+            .StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    private sealed record TimelineItem(string Label);
+    private sealed record TimelineResponse(List<TimelineItem> Items, bool HasMore);
+
+    [Fact]
     public async Task AddRecord_Unauthenticated_Returns401()
     {
         var client = factory.CreateClient();

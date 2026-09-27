@@ -32,7 +32,8 @@ public sealed record AddClinicMedicalRecordCommand(
     string? VetName,
     DateOnly? NextDueDate,
     byte[]? DocumentBytes,
-    string? DocumentContentType)
+    string? DocumentContentType,
+    MedicalDocumentKind? DocumentKind = null)
     : IRequest<Result<MedicalRecordDto>>;
 
 // ── Validator ─────────────────────────────────────────────────────────────────
@@ -77,6 +78,8 @@ public sealed class AddClinicMedicalRecordCommandHandler(
     public async Task<Result<MedicalRecordDto>> Handle(
         AddClinicMedicalRecordCommand request, CancellationToken ct)
     {
+        if (request.DocumentKind.HasValue && request.DocumentBytes is not { Length: > 0 })
+            return Result.Failure<MedicalRecordDto>("El tipo de documento requiere un adjunto.");
         // Verify clinic is active
         var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, ct);
         if (clinic is null || clinic.Status != ClinicStatus.Active || clinic.UserId != request.ClinicUserId)
@@ -115,7 +118,7 @@ public sealed class AddClinicMedicalRecordCommandHandler(
             var blobName = $"{pet.Id}/{record.Id}.{ext}";
             using var stream = new MemoryStream(request.DocumentBytes);
             var url = await blobStorage.UploadAsync(MedicalDocsContainer, blobName, stream, request.DocumentContentType, ct);
-            record.SetDocumentUrl(url);
+            record.SetDocumentUrl(url, request.DocumentKind);
         }
 
         await medicalRepository.AddAsync(record, ct);

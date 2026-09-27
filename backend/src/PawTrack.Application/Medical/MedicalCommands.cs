@@ -41,7 +41,8 @@ public sealed record MedicalRecordDto(
     string? DosageDescription,
     string? Frequency,
     int? DurationDays,
-    DateOnly? MedicationEndDate)
+    DateOnly? MedicationEndDate,
+    string? DocumentKind = null)
 {
     public static MedicalRecordDto FromDomain(MedicalRecord r) => new(
         r.Id, r.PetId, r.Type.ToString(), r.Date,
@@ -49,7 +50,8 @@ public sealed record MedicalRecordDto(
         r.NextDueDate, r.DocumentUrl, r.CreatedAt,
         r.ClinicId,
         r.ClinicId.HasValue ? "Clinic" : "Owner",
-        r.WeightKg, r.DosageDescription, r.Frequency, r.DurationDays, r.MedicationEndDate);
+        r.WeightKg, r.DosageDescription, r.Frequency, r.DurationDays, r.MedicationEndDate,
+        r.DocumentKind?.ToString());
 }
 
 public sealed record VetReminderDto(
@@ -82,7 +84,8 @@ public sealed record AddMedicalRecordCommand(
     string? DosageDescription = null,
     string? Frequency = null,
     int? DurationDays = null,
-    DateOnly? MedicationEndDate = null) : IRequest<Result<MedicalRecordDto>>;
+    DateOnly? MedicationEndDate = null,
+    MedicalDocumentKind? DocumentKind = null) : IRequest<Result<MedicalRecordDto>>;
 
 public sealed class AddMedicalRecordCommandHandler(
     IPetRepository petRepository,
@@ -105,6 +108,8 @@ public sealed class AddMedicalRecordCommandHandler(
     public async Task<Result<MedicalRecordDto>> Handle(
         AddMedicalRecordCommand request, CancellationToken ct)
     {
+        if (request.DocumentKind.HasValue && request.DocumentBytes is not { Length: > 0 })
+            return Result.Failure<MedicalRecordDto>("El tipo de documento requiere un adjunto.");
         var isFamilia = await subscriptionService.IsFamiliaAsync(request.RequestingUserId, ct);
         if (!isFamilia)
             return Result.Failure<MedicalRecordDto>("El historial médico requiere el plan Familia.");
@@ -139,7 +144,7 @@ public sealed class AddMedicalRecordCommandHandler(
             using var stream = new MemoryStream(request.DocumentBytes);
             var url = await blobStorage.UploadAsync(
                 MedicalDocsContainer, blobName, stream, request.DocumentContentType!, ct);
-            record.SetDocumentUrl(url);
+            record.SetDocumentUrl(url, request.DocumentKind);
         }
 
         await medicalRepository.AddAsync(record, ct);

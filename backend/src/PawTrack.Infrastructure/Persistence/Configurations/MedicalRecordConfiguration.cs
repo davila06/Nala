@@ -28,6 +28,7 @@ public sealed class MedicalRecordConfiguration : IEntityTypeConfiguration<Medica
         builder.Property(x => x.VetName).HasMaxLength(120);
         builder.Property(x => x.ClinicName).HasMaxLength(200);
         builder.Property(x => x.DocumentUrl).HasMaxLength(500);
+        builder.Property(x => x.DocumentKind).HasConversion<int?>();
         builder.Property(x => x.CreatedAt).IsRequired();
 
         builder.Property(x => x.WeightKg).HasColumnType("decimal(5,2)");

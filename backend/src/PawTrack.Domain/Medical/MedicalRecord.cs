@@ -12,6 +12,14 @@ public enum MedicalRecordType
     Allergy = 6,
 }
 
+public enum MedicalDocumentKind
+{
+    LaboratoryResult = 1,
+    Radiograph = 2,
+    Ultrasound = 3,
+    Other = 4,
+}
+
 public sealed class MedicalRecord
 {
     private MedicalRecord() { }
@@ -34,6 +42,7 @@ public sealed class MedicalRecord
     public string? ClinicName { get; private set; }
     public DateOnly? NextDueDate { get; private set; }
     public string? DocumentUrl { get; private set; }
+    public MedicalDocumentKind? DocumentKind { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
 
     // ── Per-visit health metrics ────────────────────────────────────────────
@@ -81,7 +90,13 @@ public sealed class MedicalRecord
             MedicationEndDate = medicationEndDate,
         };
 
-    public void SetDocumentUrl(string url) => DocumentUrl = url;
+    public void SetDocumentUrl(string url, MedicalDocumentKind? documentKind = null)
+    {
+        if (documentKind.HasValue && !Enum.IsDefined(documentKind.Value))
+            throw new ArgumentOutOfRangeException(nameof(documentKind));
+        DocumentUrl = url;
+        DocumentKind = documentKind;
+    }
 
     public void Supersede(Guid supersededByUserId, string reason)
     {

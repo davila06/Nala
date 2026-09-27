@@ -1,61 +1,48 @@
-import { screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ConsolidatedMedicalTimeline } from "@/features/medical/components/ConsolidatedMedicalTimeline";
-import { useCertificatesForPet } from "@/features/clinics/hooks/useCertificates";
 import { renderWithProviders } from "../../utils/renderWithProviders";
-import type { MedicalRecordDto } from "@/features/medical/api/medicalApi";
+import { medicalApi } from "@/features/medical/api/medicalApi";
+
+vi.mock("@/features/medical/api/medicalApi", () => ({ medicalApi: { getTimeline: vi.fn() } }));
 
 vi.mock("@/features/clinics/hooks/useCertificates", () => ({
-  useCertificatesForPet: vi.fn(),
   useDownloadCertificatePdf: () => ({ mutateAsync: vi.fn(), isPending: false }),
 }));
 
 describe("ConsolidatedMedicalTimeline", () => {
-  it("orders consultations, attached exams and certificates without inferring a diagnosis", () => {
-    vi.mocked(useCertificatesForPet).mockReturnValue({
-      data: [
-        {
-          id: "cert-1",
-          petId: "pet-1",
-          type: "HealthClearance",
-          issuedAt: "2026-09-18T12:00:00Z",
-          verificationCode: "SAFE-1",
-          pdfUrl: "https://example.invalid/cert.pdf",
-          isRevoked: false,
-          isValid: true,
-          clinicId: "clinic-1",
-          notes: null,
-          validUntil: null,
-        },
-      ],
-      isLoading: false,
-      isError: false,
-    } as ReturnType<typeof useCertificatesForPet>);
-    const records = [
-      {
-        id: "visit-1",
-        petId: "pet-1",
-        type: "Checkup",
-        date: "2026-09-19",
-        description: "Control clínico",
-        documentUrl: null,
-        clinicId: "clinic-1",
-        source: "Clinic",
-      },
-      {
-        id: "exam-1",
-        petId: "pet-1",
-        type: "Other",
-        date: "2026-09-17",
-        description: "Examen adjunto",
-        documentUrl: "https://example.invalid/exam.pdf",
-        clinicId: "clinic-1",
-        source: "Clinic",
-      },
-    ] as MedicalRecordDto[];
+  it("loads all timeline pages on demand instead of truncating at 100 entries", async () => {
+    vi.mocked(medicalApi.getTimeline)
+      .mockResolvedValueOnce({ items: [
+        { id: "visit-1", source: "MedicalRecord", date: "2026-09-19", label: "Control clínico",
+          kind: "Checkup", documentUrl: null, verificationCode: null, isRevoked: false },
+      ], hasMore: true })
+      .mockResolvedValueOnce({ items: [
+        { id: "cert-1", source: "Certificate", date: "2026-09-18", label: "HealthClearance",
+          kind: "Certificate", documentUrl: null, verificationCode: "SAFE-1", isRevoked: false },
+      ], hasMore: false });
 
-    renderWithProviders(<ConsolidatedMedicalTimeline petId="pet-1" records={records} />);
+    renderWithProviders(<ConsolidatedMedicalTimeline petId="paged-pet" />);
 
+    expect(await screen.findByText("Control clínico")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /cargar más/i }));
+    expect(await screen.findByText("Certificado de Salud")).toBeInTheDocument();
+    expect(medicalApi.getTimeline).toHaveBeenNthCalledWith(2, "paged-pet", 2);
+    expect(screen.queryByRole("button", { name: /cargar más/i })).not.toBeInTheDocument();
+  });
+
+  it("orders consultations, attached exams and certificates without inferring a diagnosis", async () => {
+    vi.mocked(medicalApi.getTimeline).mockResolvedValueOnce({ items: [
+      { id: "visit-1", source: "MedicalRecord", date: "2026-09-19", label: "Control clínico",
+        kind: "Checkup", documentUrl: null, verificationCode: null, isRevoked: false },
+      { id: "cert-1", source: "Certificate", date: "2026-09-18", label: "HealthClearance",
+        kind: "Certificate", documentUrl: null, verificationCode: "SAFE-1", isRevoked: false },
+      { id: "exam-1", source: "MedicalRecord", date: "2026-09-17", label: "Examen adjunto",
+        kind: "Other", documentUrl: "https://example.invalid/exam.pdf", verificationCode: null, isRevoked: false },
+    ], hasMore: false });
+
+    renderWithProviders(<ConsolidatedMedicalTimeline petId="pet-1" />);
+    await screen.findByText("Control clínico");
     const items = screen.getAllByRole("listitem");
     expect(items[0]).toHaveTextContent("Control clínico");
     expect(items[1]).toHaveTextContent("Certificado de Salud");

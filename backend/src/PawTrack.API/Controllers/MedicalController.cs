@@ -68,6 +68,21 @@ public sealed class MedicalController(ISender sender) : ControllerBase
         return Ok(result.Value);
     }
 
+    [HttpGet("timeline")]
+    [EnableRateLimiting("public-api")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetTimeline(Guid petId, [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20, CancellationToken ct = default)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetHealthTimelineQuery(petId, userId, page, pageSize), ct);
+        if (result.IsSuccess) return Ok(result.Value);
+        if (result.Errors.Contains("El historial consolidado requiere el plan Familia.")) return Forbid();
+        if (result.Errors.Contains("Acceso denegado.")) return Forbid();
+        return BadRequest(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 400 });
+    }
+
     // ── GET /api/pets/{petId}/medical/weight-history ──────────────────────────
     [HttpGet("weight-history")]
     [EnableRateLimiting("public-api")]
@@ -148,6 +163,15 @@ public sealed class MedicalController(ISender sender) : ControllerBase
         if (!Enum.TryParse<MedicalRecordType>(request.Type, ignoreCase: true, out var recordType))
             return BadRequest(new ProblemDetails { Detail = $"Tipo inválido: {request.Type}.", Status = 400 });
 
+        MedicalDocumentKind? documentKind = null;
+        if (!string.IsNullOrWhiteSpace(request.DocumentKind))
+        {
+            if (request.Document is not { Length: > 0 } ||
+                !Enum.TryParse<MedicalDocumentKind>(request.DocumentKind, true, out var parsedKind) || !Enum.IsDefined(parsedKind))
+                return BadRequest(new ProblemDetails { Detail = "Tipo de documento inválido o sin adjunto.", Status = 400 });
+            documentKind = parsedKind;
+        }
+
         var result = await sender.Send(new AddMedicalRecordCommand(
             petId, userId, recordType,
             request.Date, request.Description,
@@ -155,7 +179,7 @@ public sealed class MedicalController(ISender sender) : ControllerBase
             request.NextDueDate,
             docBytes, docContentType,
             request.WeightKg, request.DosageDescription,
-            request.Frequency, request.DurationDays, request.MedicationEndDate), ct);
+            request.Frequency, request.DurationDays, request.MedicationEndDate, documentKind), ct);
 
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
@@ -339,7 +363,8 @@ public sealed record AddMedicalRecordRequest(
     string? DosageDescription,
     string? Frequency,
     int? DurationDays,
-    DateOnly? MedicationEndDate);
+    DateOnly? MedicationEndDate,
+    string? DocumentKind = null);
 
 public sealed record UpdateMedicalRecordRequest(
     string Type,

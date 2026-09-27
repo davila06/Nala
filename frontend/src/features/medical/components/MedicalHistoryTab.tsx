@@ -1040,7 +1040,7 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
       )}
 
       {/* Records list */}
-      {accessTier === "familia" && !loadingRecords && <ConsolidatedMedicalTimeline petId={petId} records={records} />}
+      {accessTier === "familia" && !loadingRecords && <ConsolidatedMedicalTimeline petId={petId} />}
       <div>
         {/* Health score (Plus+) then weight trend (Familia) */}
         <HealthScoreCard petId={petId} petName={petName} />

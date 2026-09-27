@@ -808,6 +808,15 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         if (!Enum.TryParse<MedicalRecordType>(request.RecordType, ignoreCase: true, out var recordType))
             return BadRequest(new ProblemDetails { Detail = $"Tipo inválido: {request.RecordType}.", Status = 400 });
 
+        MedicalDocumentKind? documentKind = null;
+        if (!string.IsNullOrWhiteSpace(request.DocumentKind))
+        {
+            if (request.Document is not { Length: > 0 } ||
+                !Enum.TryParse<MedicalDocumentKind>(request.DocumentKind, true, out var parsedKind) || !Enum.IsDefined(parsedKind))
+                return BadRequest(new ProblemDetails { Detail = "Tipo de documento inválido o sin adjunto.", Status = 400 });
+            documentKind = parsedKind;
+        }
+
         ScanInputType? inputType = null;
         if (!string.IsNullOrWhiteSpace(request.InputType)
             && Enum.TryParse<ScanInputType>(request.InputType, ignoreCase: true, out var parsedInputType))
@@ -831,7 +840,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
             request.PetId, request.QrOrChipInput, inputType,
             recordType, request.Date, request.Description,
             request.VetName, request.NextDueDate,
-            docBytes, docContentType), ct);
+            docBytes, docContentType, documentKind), ct);
 
         if (result.IsFailure)
             return result.Errors.Any(e => e.Contains("acceso") || e.Contains("escaneo"))
@@ -2225,6 +2234,7 @@ public sealed class ClinicAddMedicalRecordRequest
     public string? VetName { get; init; }
     public DateOnly? NextDueDate { get; init; }
     public IFormFile? Document { get; init; }
+    public string? DocumentKind { get; init; }
 }
 
 public sealed record ClinicGenerateAccessCodeRequest(Guid PetId);

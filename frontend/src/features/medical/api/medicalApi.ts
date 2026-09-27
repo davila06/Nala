@@ -42,6 +42,22 @@ export interface MedicalHistoryResultDto {
   previewLimit: number | null;
 }
 
+export interface HealthTimelineItemDto {
+  id: string;
+  source: "MedicalRecord" | "Certificate";
+  date: string;
+  label: string;
+  kind: string;
+  documentUrl: string | null;
+  verificationCode: string | null;
+  isRevoked: boolean;
+}
+
+export interface HealthTimelinePageDto {
+  items: HealthTimelineItemDto[];
+  hasMore: boolean;
+}
+
 export interface PetReminderDto {
   reminderId: string;
   petId: string;
@@ -203,6 +219,11 @@ export interface MedicalRecordCountDto {
 }
 
 export const medicalApi = {
+  getTimeline: (petId: string, page: number): Promise<HealthTimelinePageDto> =>
+    apiClient.get<HealthTimelinePageDto>(`/pets/${petId}/medical/timeline`, {
+      params: { page, pageSize: 20 },
+    }).then((response) => response.data),
+
   getHistory: (petId: string): Promise<MedicalHistoryResultDto> =>
     apiClient
       .get<MedicalHistoryResultDto>(`/pets/${petId}/medical`)

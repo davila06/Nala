@@ -7,6 +7,20 @@ namespace PawTrack.UnitTests.Medical;
 public sealed class MedicalRecordAppendOnlyTests
 {
     [Fact]
+    public void Record_AttachmentKindIsExplicitAndUnspecifiedForLegacyRecords()
+    {
+        var record = MedicalRecord.Create(
+            Guid.NewGuid(), Guid.NewGuid(), MedicalRecordType.Other,
+            new DateOnly(2026, 9, 9), "Examen", null, null, null);
+
+        record.DocumentKind.Should().BeNull();
+        record.SetDocumentUrl("https://example.invalid/exam.pdf", MedicalDocumentKind.Radiograph);
+
+        record.DocumentKind.Should().Be(MedicalDocumentKind.Radiograph);
+        record.DocumentUrl.Should().EndWith("exam.pdf");
+    }
+
+    [Fact]
     public void Record_CapturesImmutableVersionOneSnapshot()
     {
         var record = MedicalRecord.Create(
