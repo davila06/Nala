@@ -120,6 +120,8 @@ public sealed class ClinicOrganizationSiteAccessEndpointsTests(PawTrackWebApplic
         var memberGrant = await memberClient.PutAsync(
             $"/api/clinics/{secondaryClinicId}/site-access/{otherMemberId}", null);
         memberGrant.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var memberList = await memberClient.GetAsync($"/api/clinics/{secondaryClinicId}/site-access");
+        memberList.StatusCode.Should().Be(HttpStatusCode.Forbidden);
 
         var outsiderGrant = await adminClient.PutAsync(
             $"/api/clinics/{secondaryClinicId}/site-access/{outsiderId}", null);
@@ -144,6 +146,11 @@ public sealed class ClinicOrganizationSiteAccessEndpointsTests(PawTrackWebApplic
         var sitesAfterRevoke = await memberClient.GetFromJsonAsync<List<AccessibleSiteResponse>>("/api/clinics/accessible-sites");
         sitesAfterRevoke.Should().NotContain(site => site.ClinicId == secondaryClinicId);
 
+        var ownerGrant = await ownerClient.PutAsync($"/api/clinics/{secondaryClinicId}/site-access/{otherMemberId}", null);
+        ownerGrant.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        var ownerRevoke = await ownerClient.DeleteAsync($"/api/clinics/{secondaryClinicId}/site-access/{otherMemberId}");
+        ownerRevoke.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
         var revokeLastOwnerSite = await ownerClient.DeleteAsync($"/api/clinics/{primaryClinicId}/site-access/{ownerId}");
         revokeLastOwnerSite.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
@@ -153,6 +160,12 @@ public sealed class ClinicOrganizationSiteAccessEndpointsTests(PawTrackWebApplic
             && entry.EntityType == "ClinicOrganizationSiteAccess"
             && entry.Action == AuditAction.ClinicSiteAccessGranted)).Should().Be(1);
         (await verifyDb.AuditLog.CountAsync(entry => entry.AdminUserId == adminId
+            && entry.EntityType == "ClinicOrganizationSiteAccess"
+            && entry.Action == AuditAction.ClinicSiteAccessRevoked)).Should().Be(1);
+        (await verifyDb.AuditLog.CountAsync(entry => entry.AdminUserId == ownerId
+            && entry.EntityType == "ClinicOrganizationSiteAccess"
+            && entry.Action == AuditAction.ClinicSiteAccessGranted)).Should().Be(1);
+        (await verifyDb.AuditLog.CountAsync(entry => entry.AdminUserId == ownerId
             && entry.EntityType == "ClinicOrganizationSiteAccess"
             && entry.Action == AuditAction.ClinicSiteAccessRevoked)).Should().Be(1);
     }

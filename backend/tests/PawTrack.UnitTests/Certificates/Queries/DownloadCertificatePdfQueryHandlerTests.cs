@@ -4,6 +4,7 @@ using PawTrack.Application.Certificates.Interfaces;
 using PawTrack.Application.Certificates.Queries.DownloadCertificatePdf;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Certificates;
+using PawTrack.Domain.Clinics;
 using PawTrack.Domain.Pets;
 
 namespace PawTrack.UnitTests.Certificates.Queries;
@@ -17,6 +18,7 @@ public sealed class DownloadCertificatePdfQueryHandlerTests
     private readonly IBlobStorageService _blobStorage = Substitute.For<IBlobStorageService>();
     private readonly ICertificateAuditLogRepository _auditLogs = Substitute.For<ICertificateAuditLogRepository>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
+    private readonly IActiveClinicSiteContext _siteContext = Substitute.For<IActiveClinicSiteContext>();
 
     private DownloadCertificatePdfQueryHandler BuildHandler() => new(
         _certificates,
@@ -25,7 +27,8 @@ public sealed class DownloadCertificatePdfQueryHandlerTests
         _clinics,
         _blobStorage,
         _auditLogs,
-        _unitOfWork);
+        _unitOfWork,
+        _siteContext);
 
     [Fact]
     public async Task Handle_PetOwnerDownloads_ReturnsPdfBytesAndAuditsDownload()
@@ -70,5 +73,28 @@ public sealed class DownloadCertificatePdfQueryHandlerTests
         result.IsFailure.Should().BeTrue();
         result.Errors.Should().Contain("Acceso denegado.");
         await _blobStorage.DidNotReceive().DownloadAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_ClinicOwnerCannotDownloadCertificateOutsideActiveSite()
+    {
+        var ownerId = Guid.NewGuid();
+        var clinic = Clinic.Create(ownerId, "VetSalud", "SENASA-12345", "Heredia", 10m, -84.1m, "vet@example.com");
+        var pet = Pet.Create(Guid.NewGuid(), "Nala", PetSpecies.Dog, null, null);
+        var certificate = VetCertificate.Issue(pet.Id, clinic.Id, ownerId, CertificateType.VaccinePassport, "ABCD1234");
+        certificate.SetPdfUrl("https://storage.example/certificates/cert.pdf");
+        var otherClinicId = Guid.NewGuid();
+        _certificates.GetByIdAsync(certificate.Id, Arg.Any<CancellationToken>()).Returns(certificate);
+        _clinics.GetByIdAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(clinic);
+        _siteContext.IsClinicPrincipal.Returns(true);
+        _siteContext.ClinicId.Returns(otherClinicId);
+
+        var handler = BuildHandler();
+
+        var result = await handler.Handle(new DownloadCertificatePdfQuery(certificate.Id, ownerId, IsAdmin: false), default);
+
+        result.IsFailure.Should().BeTrue();
+        await _blobStorage.DidNotReceive().DownloadAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
+        await _auditLogs.DidNotReceive().AddAsync(Arg.Any<CertificateAuditLog>(), Arg.Any<CancellationToken>());
     }
 }

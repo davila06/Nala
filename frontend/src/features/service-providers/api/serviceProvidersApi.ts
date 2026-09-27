@@ -1,13 +1,6 @@
 import { apiClient } from "@/shared/lib/apiClient";
 
-export type ServiceProviderCategory =
-  | "Trainer"
-  | "Groomer"
-  | "Hotel"
-  | "Daycare"
-  | "Walker"
-  | "Photographer"
-  | "Other";
+export type ServiceProviderCategory = "Trainer" | "Groomer" | "Hotel" | "Daycare" | "Walker" | "Photographer" | "Other";
 
 export interface PublicServiceProviderDto {
   id: string;
@@ -29,12 +22,7 @@ export interface PublicServiceProviderDto {
   hasCatalogAccess: boolean;
 }
 
-export type ServiceModality =
-  | "AtProviderLocation"
-  | "AtCustomerLocation"
-  | "Virtual"
-  | "Group"
-  | "OvernightStay";
+export type ServiceModality = "AtProviderLocation" | "AtCustomerLocation" | "Virtual" | "Group" | "OvernightStay";
 
 export interface ProviderServiceDto {
   id: string;
@@ -87,6 +75,16 @@ export interface ProviderBookingDto {
   status: ProviderBookingStatus;
 }
 
+export interface ProviderCalendarBookingDto {
+  id: string;
+  petId: string;
+  serviceName: string;
+  category: "Groomer" | "Trainer";
+  startsAt: string;
+  endsAt: string;
+  status: ProviderBookingStatus;
+}
+
 export interface ProviderVerificationDto {
   id: string;
   status: "Pending" | "Verified" | "Rejected" | "Expired";
@@ -111,10 +109,7 @@ export interface ServiceAvailabilityBlockDto {
   isActive: boolean;
 }
 
-export const SERVICE_PROVIDER_CATEGORY_LABELS: Record<
-  ServiceProviderCategory,
-  string
-> = {
+export const SERVICE_PROVIDER_CATEGORY_LABELS: Record<ServiceProviderCategory, string> = {
   Trainer: "Adiestramiento",
   Groomer: "Grooming",
   Hotel: "Hotel para mascotas",
@@ -133,9 +128,7 @@ export const SERVICE_MODALITY_LABELS: Record<ServiceModality, string> = {
 };
 
 export const serviceProvidersApi = {
-  getAll: (
-    filter: ServiceProviderDirectoryFilter = {},
-  ): Promise<PublicServiceProviderDto[]> =>
+  getAll: (filter: ServiceProviderDirectoryFilter = {}): Promise<PublicServiceProviderDto[]> =>
     apiClient
       .get<PublicServiceProviderDto[]>("/public/service-providers", {
         params: { page: 1, pageSize: 50, ...filter },
@@ -143,14 +136,10 @@ export const serviceProvidersApi = {
       .then((response) => response.data),
 
   getDetail: (id: string): Promise<PublicServiceProviderDto> =>
-    apiClient
-      .get<PublicServiceProviderDto>(`/public/service-providers/${id}`)
-      .then((response) => response.data),
+    apiClient.get<PublicServiceProviderDto>(`/public/service-providers/${id}`).then((response) => response.data),
 
   getMine: (): Promise<PublicServiceProviderDto> =>
-    apiClient
-      .get<PublicServiceProviderDto>("/service-providers/mine")
-      .then((response) => response.data),
+    apiClient.get<PublicServiceProviderDto>("/service-providers/mine").then((response) => response.data),
 
   updateProfile: (data: {
     name: string;
@@ -164,26 +153,17 @@ export const serviceProvidersApi = {
     whatsAppNumber?: string;
     isWhatsAppContactEnabled?: boolean;
   }): Promise<PublicServiceProviderDto> =>
-    apiClient
-      .put<PublicServiceProviderDto>("/service-providers/profile", data)
-      .then((response) => response.data),
+    apiClient.put<PublicServiceProviderDto>("/service-providers/profile", data).then((response) => response.data),
 
   getServices: (): Promise<ProviderServiceDto[]> =>
-    apiClient
-      .get<ProviderServiceDto[]>("/service-providers/services")
-      .then((response) => response.data),
+    apiClient.get<ProviderServiceDto[]>("/service-providers/services").then((response) => response.data),
 
   getPublicServices: (providerId: string): Promise<ProviderServiceDto[]> =>
     apiClient
-      .get<
-        ProviderServiceDto[]
-      >(`/public/service-providers/${providerId}/services`)
+      .get<ProviderServiceDto[]>(`/public/service-providers/${providerId}/services`)
       .then((response) => response.data),
 
-  getAvailability: (
-    providerServiceId: string,
-    date: string,
-  ): Promise<ProviderServiceAvailabilitySlotDto[]> =>
+  getAvailability: (providerServiceId: string, date: string): Promise<ProviderServiceAvailabilitySlotDto[]> =>
     apiClient
       .get<
         ProviderServiceAvailabilitySlotDto[]
@@ -197,19 +177,20 @@ export const serviceProvidersApi = {
     quantity: number;
     customerNote?: string;
   }): Promise<ProviderBookingDto> =>
-    apiClient
-      .post<ProviderBookingDto>("/provider-bookings", data)
-      .then((response) => response.data),
+    apiClient.post<ProviderBookingDto>("/provider-bookings", data).then((response) => response.data),
 
   getMyBookings: (): Promise<ProviderBookingDto[]> =>
+    apiClient.get<ProviderBookingDto[]>("/provider-bookings/mine").then((response) => response.data),
+
+  getCalendarBookings: (petId: string, from: string, to: string, page = 1): Promise<ProviderCalendarBookingDto[]> =>
     apiClient
-      .get<ProviderBookingDto[]>("/provider-bookings/mine")
+      .get<ProviderCalendarBookingDto[]>("/provider-bookings/mine/calendar", {
+        params: { petId, from, to, page },
+      })
       .then((response) => response.data),
 
   getIncomingBookings: (): Promise<ProviderBookingDto[]> =>
-    apiClient
-      .get<ProviderBookingDto[]>("/provider-bookings/incoming")
-      .then((response) => response.data),
+    apiClient.get<ProviderBookingDto[]>("/provider-bookings/incoming").then((response) => response.data),
 
   updateBookingStatus: (
     bookingId: string,
@@ -223,10 +204,7 @@ export const serviceProvidersApi = {
       })
       .then((response) => response.data),
 
-  rescheduleBooking: (
-    bookingId: string,
-    startsAt: string,
-  ): Promise<ProviderBookingDto> =>
+  rescheduleBooking: (bookingId: string, startsAt: string): Promise<ProviderBookingDto> =>
     apiClient
       .put<ProviderBookingDto>(`/provider-bookings/${bookingId}/reschedule`, {
         startsAt,
@@ -234,23 +212,15 @@ export const serviceProvidersApi = {
       .then((response) => response.data),
 
   getVerification: (): Promise<ProviderVerificationDto | null> =>
-    apiClient
-      .get<ProviderVerificationDto | null>("/service-providers/verification")
-      .then((response) => response.data),
+    apiClient.get<ProviderVerificationDto | null>("/service-providers/verification").then((response) => response.data),
 
-  uploadVerificationDocument: (
-    file: File,
-  ): Promise<ProviderVerificationDto> => {
+  uploadVerificationDocument: (file: File): Promise<ProviderVerificationDto> => {
     const form = new FormData();
     form.append("file", file);
     return apiClient
-      .post<ProviderVerificationDto>(
-        "/service-providers/verification/document",
-        form,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        },
-      )
+      .post<ProviderVerificationDto>("/service-providers/verification/document", form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
       .then((response) => response.data);
   },
 
@@ -268,35 +238,22 @@ export const serviceProvidersApi = {
     endsAtLocalTime: string;
   }): Promise<{ id: string }> =>
     apiClient
-      .post<{ id: string }>(
-        `/service-providers/services/${data.serviceId}/availability`,
-        {
-          dayOfWeek: data.dayOfWeek,
-          startsAtLocalTime: data.startsAtLocalTime,
-          endsAtLocalTime: data.endsAtLocalTime,
-        },
-      )
+      .post<{ id: string }>(`/service-providers/services/${data.serviceId}/availability`, {
+        dayOfWeek: data.dayOfWeek,
+        startsAtLocalTime: data.startsAtLocalTime,
+        endsAtLocalTime: data.endsAtLocalTime,
+      })
       .then((response) => response.data),
 
-  getAvailabilityRules: (
-    serviceId: string,
-  ): Promise<ServiceAvailabilityRuleDto[]> =>
+  getAvailabilityRules: (serviceId: string): Promise<ServiceAvailabilityRuleDto[]> =>
     apiClient
-      .get<
-        ServiceAvailabilityRuleDto[]
-      >(`/service-providers/services/${serviceId}/availability`)
+      .get<ServiceAvailabilityRuleDto[]>(`/service-providers/services/${serviceId}/availability`)
       .then((response) => response.data),
 
   deactivateAvailabilityRule: (ruleId: string): Promise<void> =>
-    apiClient
-      .delete(`/service-providers/availability/${ruleId}`)
-      .then(() => undefined),
+    apiClient.delete(`/service-providers/availability/${ruleId}`).then(() => undefined),
 
-  getAvailabilityBlocks: (
-    serviceId: string,
-    from: string,
-    to: string,
-  ): Promise<ServiceAvailabilityBlockDto[]> =>
+  getAvailabilityBlocks: (serviceId: string, from: string, to: string): Promise<ServiceAvailabilityBlockDto[]> =>
     apiClient
       .get<
         ServiceAvailabilityBlockDto[]
@@ -320,9 +277,7 @@ export const serviceProvidersApi = {
       .then((response) => response.data),
 
   deactivateAvailabilityBlock: (blockId: string): Promise<void> =>
-    apiClient
-      .delete(`/service-providers/availability-blocks/${blockId}`)
-      .then(() => undefined),
+    apiClient.delete(`/service-providers/availability-blocks/${blockId}`).then(() => undefined),
 
   addService: (data: {
     name: string;
@@ -332,21 +287,13 @@ export const serviceProvidersApi = {
     priceCrc: number;
     capacity: number;
   }): Promise<ProviderServiceDto> =>
-    apiClient
-      .post<ProviderServiceDto>("/service-providers/services", data)
-      .then((response) => response.data),
+    apiClient.post<ProviderServiceDto>("/service-providers/services", data).then((response) => response.data),
 
-  setServiceStatus: (
-    serviceId: string,
-    status: ProviderServiceDto["status"],
-  ): Promise<ProviderServiceDto> =>
+  setServiceStatus: (serviceId: string, status: ProviderServiceDto["status"]): Promise<ProviderServiceDto> =>
     apiClient
-      .put<ProviderServiceDto>(
-        `/service-providers/services/${serviceId}/status`,
-        {
-          status,
-        },
-      )
+      .put<ProviderServiceDto>(`/service-providers/services/${serviceId}/status`, {
+        status,
+      })
       .then((response) => response.data),
 
   updateService: (
@@ -374,7 +321,5 @@ export const serviceProvidersApi = {
     contactEmail: string;
     password: string;
   }): Promise<PublicServiceProviderDto> =>
-    apiClient
-      .post<PublicServiceProviderDto>("/service-providers/register", data)
-      .then((response) => response.data),
+    apiClient.post<PublicServiceProviderDto>("/service-providers/register", data).then((response) => response.data),
 };

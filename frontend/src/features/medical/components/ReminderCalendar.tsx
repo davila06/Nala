@@ -1,5 +1,8 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import type { VetReminderDto } from "@/features/medical/api/medicalApi";
+import { serviceProvidersApi } from "@/features/service-providers/api/serviceProvidersApi";
 
 const TYPE_COLOR: Record<string, string> = {
   Vaccine: "bg-trust-500",
@@ -38,21 +41,39 @@ function buildCalendarDays(year: number, month: number) {
 
 interface Props {
   reminders: VetReminderDto[];
+  petId: string;
 }
 
-export function ReminderCalendar({ reminders }: Props) {
+export function ReminderCalendar({ reminders, petId }: Props) {
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
   const days = buildCalendarDays(viewYear, viewMonth);
+  const from = new Date(viewYear, viewMonth, 1).toISOString();
+  const to = new Date(viewYear, viewMonth + 1, 1).toISOString();
+  const {
+    data: bookings = [],
+    isLoading: loadingBookings,
+    isError: bookingsError,
+  } = useQuery({
+    queryKey: ["provider-calendar", petId, from, to],
+    queryFn: () => serviceProvidersApi.getCalendarBookings(petId, from, to, 1),
+    enabled: !!petId,
+  });
 
   // Map "YYYY-MM-DD" → reminders
   const remindersByDay = new Map<string, VetReminderDto[]>();
   reminders.forEach((r) => {
     const existing = remindersByDay.get(r.dueDate) ?? [];
     remindersByDay.set(r.dueDate, [...existing, r]);
+  });
+  const bookingsByDay = new Map<string, typeof bookings>();
+  bookings.forEach((booking) => {
+    const date = new Date(booking.startsAt);
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    bookingsByDay.set(key, [...(bookingsByDay.get(key) ?? []), booking]);
   });
 
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
@@ -61,9 +82,8 @@ export function ReminderCalendar({ reminders }: Props) {
     return `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   }
 
-  const selectedReminders = selectedDay
-    ? (remindersByDay.get(dayKey(selectedDay)) ?? [])
-    : [];
+  const selectedReminders = selectedDay ? (remindersByDay.get(dayKey(selectedDay)) ?? []) : [];
+  const selectedBookings = selectedDay ? (bookingsByDay.get(dayKey(selectedDay)) ?? []) : [];
 
   const prevMonth = () => {
     if (viewMonth === 0) {
@@ -83,6 +103,12 @@ export function ReminderCalendar({ reminders }: Props) {
 
   return (
     <div className="rounded-2xl border border-sand-100 bg-white p-4 space-y-3">
+      {bookingsError && (
+        <p role="alert" className="text-xs text-danger-600">
+          No se pudieron cargar las reservas de servicios.
+        </p>
+      )}
+      {loadingBookings && <p className="text-xs text-sand-500">Cargando reservas…</p>}
       {/* Header */}
       <div className="flex items-center justify-between">
         <button
@@ -107,10 +133,7 @@ export function ReminderCalendar({ reminders }: Props) {
       {/* Day headers */}
       <div className="grid grid-cols-7 gap-px">
         {DAY_NAMES.map((d) => (
-          <div
-            key={d}
-            className="py-1 text-center text-xs font-semibold text-sand-400"
-          >
+          <div key={d} className="py-1 text-center text-xs font-semibold text-sand-400">
             {d}
           </div>
         ))}
@@ -122,6 +145,7 @@ export function ReminderCalendar({ reminders }: Props) {
           if (day === null) return <div key={`e-${i}`} />;
           const key = dayKey(day);
           const rems = remindersByDay.get(key) ?? [];
+          const dayBookings = bookingsByDay.get(key) ?? [];
           const isToday = key === todayStr;
           const isSelected = day === selectedDay;
           const hasOverdue = rems.some((r) => !r.isCompleted && key < todayStr);
@@ -141,11 +165,7 @@ export function ReminderCalendar({ reminders }: Props) {
             >
               <span
                 className={`text-xs font-medium ${
-                  isToday
-                    ? "text-trust-700"
-                    : hasOverdue
-                      ? "text-danger-600"
-                      : "text-sand-700"
+                  isToday ? "text-trust-700" : hasOverdue ? "text-danger-600" : "text-sand-700"
                 }`}
               >
                 {day}
@@ -153,11 +173,9 @@ export function ReminderCalendar({ reminders }: Props) {
               {/* Dots for reminders */}
               <div className="mt-0.5 flex gap-0.5 flex-wrap justify-center max-w-[28px]">
                 {rems.slice(0, 3).map((r, ri) => (
-                  <span
-                    key={ri}
-                    className={`h-1.5 w-1.5 rounded-full ${TYPE_COLOR[r.type] ?? "bg-sand-400"}`}
-                  />
+                  <span key={ri} className={`h-1.5 w-1.5 rounded-full ${TYPE_COLOR[r.type] ?? "bg-sand-400"}`} />
                 ))}
+                {dayBookings.length > 0 && <span className="h-1.5 w-1.5 rounded-full bg-trust-600" />}
               </div>
             </button>
           );
@@ -165,43 +183,52 @@ export function ReminderCalendar({ reminders }: Props) {
       </div>
 
       {/* Selected day detail */}
-      {selectedDay !== null && selectedReminders.length > 0 && (
+      {selectedDay !== null && (selectedReminders.length > 0 || selectedBookings.length > 0) && (
         <div className="border-t border-sand-100 pt-3 space-y-2">
           <p className="text-xs font-semibold text-sand-500">
             {selectedDay} de {MONTH_NAMES[viewMonth]}
           </p>
           {selectedReminders.map((r) => (
-            <div
-              key={r.id}
-              className="flex items-start gap-2 rounded-lg bg-sand-50 p-2"
-            >
-              <span
-                className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${TYPE_COLOR[r.type] ?? "bg-sand-400"}`}
-              />
+            <div key={r.id} className="flex items-start gap-2 rounded-lg bg-sand-50 p-2">
+              <span className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${TYPE_COLOR[r.type] ?? "bg-sand-400"}`} />
               <div className="min-w-0">
                 <p
                   className={`text-xs font-semibold ${r.isCompleted ? "line-through text-sand-400" : "text-sand-800"}`}
                 >
                   {r.title}
                 </p>
-                {r.notes && (
-                  <p className="text-xs text-sand-500 truncate">{r.notes}</p>
-                )}
+                {r.notes && <p className="text-xs text-sand-500 truncate">{r.notes}</p>}
               </div>
-              {r.isCompleted && (
-                <span className="ml-auto text-xs text-green-600 shrink-0">
-                  ✓
-                </span>
-              )}
+              {r.isCompleted && <span className="ml-auto text-xs text-green-600 shrink-0">✓</span>}
             </div>
           ))}
+          {selectedBookings.map((booking) => (
+            <Link
+              key={booking.id}
+              to="/mis-reservas"
+              className="block rounded-lg bg-trust-50 p-2 text-xs text-trust-800 hover:underline"
+            >
+              {booking.category === "Groomer" ? "Grooming" : "Entrenamiento"} · {booking.serviceName} ·{" "}
+              {new Date(booking.startsAt).toLocaleTimeString("es-CR", { hour: "2-digit", minute: "2-digit" })} ·{" "}
+              {booking.status === "Confirmed"
+                ? "Confirmada"
+                : booking.status === "InProgress"
+                  ? "En curso"
+                  : booking.status === "Completed"
+                    ? "Completada"
+                    : "Solicitada"}
+            </Link>
+          ))}
+          {bookings.length === 100 && (
+            <Link to="/mis-reservas" className="text-xs text-trust-700 underline">
+              Ver todas las reservas
+            </Link>
+          )}
         </div>
       )}
-      {selectedDay !== null && selectedReminders.length === 0 && (
+      {selectedDay !== null && selectedReminders.length === 0 && selectedBookings.length === 0 && (
         <div className="border-t border-sand-100 pt-3">
-          <p className="text-center text-xs text-sand-400">
-            Sin recordatorios este día
-          </p>
+          <p className="text-center text-xs text-sand-400">Sin recordatorios este día</p>
         </div>
       )}
     </div>

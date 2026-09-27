@@ -51,6 +51,8 @@ public interface IServiceProviderRepository
         Guid providerServiceId, DateTimeOffset rangeStart, DateTimeOffset rangeEnd, CancellationToken ct = default);
     Task<ProviderBooking?> GetBookingByIdAsync(Guid bookingId, CancellationToken ct = default);
     Task<IReadOnlyList<ProviderBooking>> GetBookingsByCustomerAsync(Guid customerUserId, int skip, int take, CancellationToken ct = default);
+    Task<IReadOnlyList<PawTrack.Application.ServiceProviders.ProviderCalendarBookingDto>> GetCalendarBookingsAsync(
+        Guid customerUserId, Guid petId, DateTimeOffset rangeStart, DateTimeOffset rangeEnd, int skip, int take, CancellationToken ct = default);
     Task<IReadOnlyList<ProviderBooking>> GetBookingsByProviderAsync(Guid serviceProviderId, int skip, int take, CancellationToken ct = default);
     Task<int> CountBookingsByProviderSinceAsync(Guid serviceProviderId, DateTimeOffset since, CancellationToken ct = default);
     Task<IReadOnlyList<ProviderBooking>> GetRequestedBookingsCreatedBeforeAsync(DateTimeOffset cutoff, int take, CancellationToken ct = default);

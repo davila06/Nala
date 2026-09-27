@@ -192,6 +192,29 @@ public sealed class CreateProviderBookingCommandHandler(
 public sealed record GetMyProviderBookingsQuery(Guid CustomerUserId, int Page, int PageSize)
     : IRequest<Result<IReadOnlyList<ProviderBookingDto>>>;
 
+public sealed record ProviderCalendarBookingDto(
+    Guid Id, Guid PetId, string ServiceName, ServiceProviderCategory Category,
+    DateTimeOffset StartsAt, DateTimeOffset EndsAt, string Status);
+
+public sealed record GetCalendarBookingsQuery(
+    Guid CustomerUserId, Guid PetId, DateTimeOffset From, DateTimeOffset To, int Page)
+    : IRequest<Result<IReadOnlyList<ProviderCalendarBookingDto>>>;
+
+public sealed class GetCalendarBookingsQueryHandler(IServiceProviderRepository repository)
+    : IRequestHandler<GetCalendarBookingsQuery, Result<IReadOnlyList<ProviderCalendarBookingDto>>>
+{
+    public async Task<Result<IReadOnlyList<ProviderCalendarBookingDto>>> Handle(GetCalendarBookingsQuery request, CancellationToken ct)
+    {
+        if (request.CustomerUserId == Guid.Empty || request.PetId == Guid.Empty || request.Page is < 1 or > 10_000 ||
+            request.To <= request.From || request.To - request.From > TimeSpan.FromDays(45))
+            return Result.Failure<IReadOnlyList<ProviderCalendarBookingDto>>("Rango de calendario inválido.");
+
+        var bookings = await repository.GetCalendarBookingsAsync(
+            request.CustomerUserId, request.PetId, request.From, request.To, (request.Page - 1) * 100, 100, ct);
+        return Result.Success(bookings);
+    }
+}
+
 public sealed class GetMyProviderBookingsQueryHandler(IServiceProviderRepository repository)
     : IRequestHandler<GetMyProviderBookingsQuery, Result<IReadOnlyList<ProviderBookingDto>>>
 {

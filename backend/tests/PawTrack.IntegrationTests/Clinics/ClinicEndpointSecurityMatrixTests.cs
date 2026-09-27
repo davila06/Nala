@@ -42,18 +42,18 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
         "DownloadVeterinarianDocument", "DownloadVeterinarianDocumentForAdmin", "ExportPatientMedical",
         "GenerateAccessCode", "GetAccessibleClinicSites", "GetActiveClinicSite", "GetApiKeys", "GetAuthorizedPets", "GetCertificateIssuers", "GetClinicAgendaAudit",
         "GetClinicalConsultationTemplates", "GetClinicCommunicationTemplates", "GetClinicCrmDashboard",
-        "GetClinicInventory", "GetClinicInventoryValuation", "GetClinicSalesReport", "GetClinicStaffMembers",
+        "GetClinicInventory", "GetClinicInventoryValuation", "GetClinicSalesReport", "GetClinicSiteAccess", "GetClinicStaffMembers",
         "GetClinicVerificationsForAdmin", "GetFinanceMembers", "GetFinanceReport", "GetFinanceSaleLedger",
         "GetMyClinic", "GetMyFinanceWorkspaces", "GetMySaleLedger", "GetMyVerification", "GetMyVeterinarians",
         "GetNearbyAlerts", "GetOwnerClinicCommunicationPreferences", "GetPatientMedicalHistory",
         "GetPatientSanitaryIdentity", "GetPendingClinics", "GetPendingProfileChanges", "GetPublicClinicProfile",
         "GetPublicClinics", "GetScanStats", "GetStaffAgenda", "GetStaffClinicCrmDashboard", "GetStaffTaskAssignees",
         "GetStaffWorkspaces", "GetVeterinarianAgenda", "GetVeterinarianScheduleBlocks", "GetVeterinariansForAdmin",
-        "GetVisibilityStats", "GrantClinicStaffMember", "GrantFinanceMember", "LogClinicCommunicationActivity",
+        "GetVisibilityStats", "GrantClinicSiteAccess", "GrantClinicStaffMember", "GrantFinanceMember", "LogClinicCommunicationActivity",
         "ReceiveClinicInventoryLot", "RecordFinanceRefund", "RecordMySaleRefund", "Register",
         "RegisterClinicSalePayment", "RegisterFinancePayment", "RescheduleVeterinarianAppointment",
         "ReviewClinic", "ReviewClinicVerification", "ReviewProfileChange", "ReviewVeterinarian",
-        "RevokeApiKey", "RevokeClinicStaffMember", "RevokeFinanceMember", "RevokeMyVeterinarian", "RotateApiKey",
+        "RevokeApiKey", "RevokeClinicSiteAccess", "RevokeClinicStaffMember", "RevokeFinanceMember", "RevokeMyVeterinarian", "RotateApiKey",
         "Scan", "ScheduleVeterinarianAppointment", "SearchForAccess", "SelectActiveClinicSite", "SendClinicCommunicationTemplate",
         "SetOwnerClinicCommunicationPreference", "SetVeterinarianPermissions", "SubmitFinanceFiscalSale",
         "SubmitMyFiscalSale", "SubmitMyVerification", "SubmitProfileChange", "SuspendVeterinarian", "TrackView",
@@ -72,6 +72,8 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
     private static readonly HashSet<string> SensitiveClinicalMutations = new(StringComparer.Ordinal)
     {
         "Scan",
+        "GrantClinicSiteAccess",
+        "RevokeClinicSiteAccess",
         "CreateApiKey",
         "RevokeApiKey",
         "RotateApiKey",
@@ -148,6 +150,7 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
     private static readonly HashSet<string> ClinicIdTenantCases = new(StringComparer.Ordinal)
     {
         "GetStaffAgenda", "UpdateStaffAppointmentStatus", "CreateStaffConsultation", "CloseStaffConsultation",
+        "GetClinicSiteAccess", "GrantClinicSiteAccess", "RevokeClinicSiteAccess",
         "GetFinanceReport", "GetFinanceSaleLedger", "CreateFinanceSale", "RegisterFinancePayment",
         "RecordFinanceRefund", "VoidFinanceSale", "CloseFinanceCash", "SubmitFinanceFiscalSale",
         "GetStaffClinicCrmDashboard", "GetStaffTaskAssignees", "CreateStaffClinicCrmTask",

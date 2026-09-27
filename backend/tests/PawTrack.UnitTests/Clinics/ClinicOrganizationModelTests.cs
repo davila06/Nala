@@ -61,6 +61,24 @@ public sealed class ClinicOrganizationModelTests
     }
 
     [Fact]
+    public void RevokingMembershipRevokesSiteGrantsAndReinvitationDoesNotRestoreThem()
+    {
+        var ownerId = Guid.CreateVersion7();
+        var staffId = Guid.CreateVersion7();
+        var clinicId = Guid.CreateVersion7();
+        var organization = ClinicOrganization.Create("Red", ownerId, clinicId);
+        organization.AddMember(staffId, ClinicOrganizationRole.Member);
+        organization.GrantSiteAccess(staffId, clinicId, ownerId);
+
+        organization.RevokeMember(staffId).Should().BeTrue();
+        organization.SiteAccess.Single(access => access.UserId == staffId).IsRevoked.Should().BeTrue();
+
+        organization.AddMember(staffId, ClinicOrganizationRole.Member);
+
+        organization.SiteAccess.Should().ContainSingle(access => access.UserId == staffId && access.IsRevoked);
+    }
+
+    [Fact]
     public void ClinicModelSupportsAnOrganizationWithMultipleSitesAndOwnerMemberships()
     {
         var options = new DbContextOptionsBuilder<PawTrackDbContext>()

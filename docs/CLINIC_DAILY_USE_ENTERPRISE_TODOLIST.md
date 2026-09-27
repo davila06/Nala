@@ -310,26 +310,25 @@ operación, inventario, pagos y CRM visibles en un mismo panel.
 - [~] 15. Rutas staff validan membresía activa por clínica y la revocación corta acceso
   con el mismo token. Hay pruebas con recursos ajenos reales para agenda, consulta,
   grants de mascota, lote de inventario, venta, CRM, sesiones y dispositivos; existe
-  catálogo estructural de 110 acciones de `ClinicsController` y 27 acciones relacionadas
+  catálogo estructural de 114 acciones de `ClinicsController` y 27 acciones relacionadas
   de Medical/Certificates/PetClinicAccess, con verbo HTTP y template de ruta comprobados.
-  El contexto activo por `sid` y el gate MediatR por `ClinicId` ya cubren las familias clínicas principales; falta BOLA dinámico contra cada ID/ruta y la administración MFA/auditable de grants org→sede. El modelo de ubicación interna de inventario no existe (`LocationName` es texto libre y no es un límite de autorización).
+  El contexto por `sid`, gate MediatR exhaustivo para requests con `ClinicId`/`ClinicId?`, API Owner/Admin MFA/audit para grants, y revocación efectiva por membership están implementados. Falta BOLA HTTP individual por cada ruta/nested ID y rollout compartido. El modelo de ubicación interna de inventario no existe (`LocationName` es texto libre y no es un límite de autorización).
 - [x] 16. Colas filtradas por rol, tipo y responsable en SQL; caja, gerencia y asistencia
       usan membresías apropiadas. Las respuestas staff excluyen preferencias, historial de
       comunicación y segmentos de clientes.
 - [~] 17. Pruebas HTTP cubren MFA, BOLA entre clínicas para agenda/estado, cierre de
-  consulta, grants de mascota, ajuste de lote, creación/ledger de venta y tareas CRM,
+  consulta, grants de mascota, acceso a sedes, ajuste de lote, creación/ledger de venta y tareas CRM,
   más aislamiento usuario-sesión/dispositivo, refresh sin MFA y step-up para grants/
-  certificados. La matriz estructural cubre 138 acciones, pero no ejecuta IDOR contra cada recurso
+  certificados. La matriz estructural cubre 141 acciones y el gate `ClinicId` se prueba por reflexión, pero no ejecuta IDOR HTTP contra cada recurso
   ni cada sede; seguir SEC-01/SEC-02 en el documento de control enterprise.
 
 **Migración de despliegue:** en `PawTrackDev` local ya se aplicó la cadena pendiente, incluida
 `AddClinicOperationalTaskMetadata`. La migración permite tareas sin mascota, rellena
 rol derivado, prioridad normal y clave única para tareas históricas e indexa las colas.
-Para staging/producción hacer respaldo antes de aplicar. El downgrade elimina tareas sin mascota/tutor porque
+También están aplicadas `AddClinicOrganizationSiteAccess`, `FilterActiveClinicOrganizationMemberships` y `AddActiveClinicSiteToRefreshTokens`; selección por sesión, grants Owner/Admin MFA/auditados y gate de `ClinicId` están listos. Para staging/producción hacer respaldo antes de aplicar. El downgrade elimina tareas sin mascota/tutor porque
 el esquema anterior no puede representarlas; exportarlas antes de revertir.
 `AddTrustedSessionLifecycle` y `AddClinicOrganizations` también están aplicadas en
-`PawTrackDev`; el backfill local produjo 6 organizaciones, 6 sedes y 0 clínicas huérfanas. También están aplicadas `AddClinicOrganizationSiteAccess`, `FilterActiveClinicOrganizationMemberships` y `AddActiveClinicSiteToRefreshTokens`; la selección es por sesión y el gate cubre requests clínicos con `ClinicId`. No se aplicó ninguna migración a una base compartida.
-No se aplicó ninguna migración a una base compartida. El estado de Azure compartido
+`PawTrackDev`; el backfill local produjo 6 organizaciones, 6 sedes y 0 clínicas huérfanas. No se aplicó ninguna migración a una base compartida. El estado de Azure compartido
 no es verificable sin un target/conexión identificados. Ver matriz enterprise antes
 de planificar una ventana y backup.
 

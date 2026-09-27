@@ -28,7 +28,8 @@ public sealed class RevokeCertificateCommandHandler(
     ICertificateRepository certificateRepository,
     IClinicRepository clinicRepository,
     ICertificateAuditLogRepository auditLogRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IActiveClinicSiteContext siteContext)
     : IRequestHandler<RevokeCertificateCommand, Result<CertificateDto>>
 {
     public async Task<Result<CertificateDto>> Handle(
@@ -42,7 +43,7 @@ public sealed class RevokeCertificateCommandHandler(
         if (!request.IsAdmin)
         {
             var clinic = await clinicRepository.GetByIdAsync(certificate.ClinicId, cancellationToken);
-            if (clinic is null || clinic.UserId != request.RequestingUserId)
+            if (clinic is null || clinic.UserId != request.RequestingUserId || siteContext.ClinicId != certificate.ClinicId)
                 return Result.Failure<CertificateDto>("Acceso denegado.");
         }
 

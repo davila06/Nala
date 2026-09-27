@@ -40,5 +40,6 @@ public sealed class ClinicActiveSiteBehavior<TRequest, TResponse>(IActiveClinicS
         || requestNamespace.StartsWith("PawTrack.Application.Certificates", StringComparison.Ordinal)
         || requestNamespace.StartsWith("PawTrack.Application.Medical.ClinicAccess", StringComparison.Ordinal)
         || requestNamespace.StartsWith("PawTrack.Application.Pets.SanitaryIdentity", StringComparison.Ordinal)
-        || requestNamespace.StartsWith("PawTrack.Application.CastrationCampaigns", StringComparison.Ordinal);
+        || requestNamespace.StartsWith("PawTrack.Application.CastrationCampaigns", StringComparison.Ordinal)
+        || requestNamespace.StartsWith("PawTrack.Application.Subscriptions", StringComparison.Ordinal);
 }

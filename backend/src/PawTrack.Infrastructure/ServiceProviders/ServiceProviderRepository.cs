@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Data;
 using PawTrack.Application.Common;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.ServiceProviders;
 using PawTrack.Domain.ServiceProviders;
 using PawTrack.Infrastructure.Persistence;
 
@@ -163,6 +164,34 @@ public sealed class ServiceProviderRepository(PawTrackDbContext db) : IServicePr
     public async Task<IReadOnlyList<ProviderBooking>> GetBookingsByCustomerAsync(Guid customerUserId, int skip, int take, CancellationToken ct = default) =>
         await db.ProviderBookings.AsNoTracking().Where(booking => booking.CustomerUserId == customerUserId)
             .OrderByDescending(booking => booking.StartsAt).Skip(skip).Take(take).ToListAsync(ct);
+
+    public async Task<IReadOnlyList<ProviderCalendarBookingDto>> GetCalendarBookingsAsync(
+        Guid customerUserId, Guid petId, DateTimeOffset rangeStart, DateTimeOffset rangeEnd, int skip, int take, CancellationToken ct = default)
+    {
+        var rows = await (from booking in db.ProviderBookings.AsNoTracking()
+                          join pet in db.Pets.AsNoTracking() on booking.PetId equals pet.Id
+                          join provider in db.ServiceProviders.AsNoTracking() on booking.ServiceProviderId equals provider.Id
+                          where booking.CustomerUserId == customerUserId && pet.OwnerId == customerUserId && booking.PetId == petId &&
+                                booking.StartsAt < rangeEnd && booking.EndsAt > rangeStart &&
+                                (provider.Category == ServiceProviderCategory.Groomer || provider.Category == ServiceProviderCategory.Trainer) &&
+                                (booking.Status == ProviderBookingStatus.Requested || booking.Status == ProviderBookingStatus.Confirmed ||
+                                 booking.Status == ProviderBookingStatus.InProgress || booking.Status == ProviderBookingStatus.Completed)
+                          orderby booking.StartsAt, booking.Id
+                          select new
+                          {
+                              booking.Id,
+                              booking.PetId,
+                              booking.ServiceName,
+                              provider.Category,
+                              booking.StartsAt,
+                              booking.EndsAt,
+                              booking.Status
+                          })
+            .Skip(skip).Take(take).ToListAsync(ct);
+
+        return rows.Select(row => new ProviderCalendarBookingDto(
+            row.Id, row.PetId, row.ServiceName, row.Category, row.StartsAt, row.EndsAt, row.Status.ToString())).ToList();
+    }
 
     public async Task<IReadOnlyList<ProviderBooking>> GetBookingsByProviderAsync(Guid serviceProviderId, int skip, int take, CancellationToken ct = default) =>
         await db.ProviderBookings.AsNoTracking().Where(booking => booking.ServiceProviderId == serviceProviderId)

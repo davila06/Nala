@@ -42,7 +42,7 @@ public sealed class ClinicalConsultationEndpointsTests(PawTrackWebApplicationFac
             var pet = Pet.Create(owner.Id, "Nala", PetSpecies.Dog, null, null);
             var clinic = Clinic.Create(clinicUser.Id, "Clinica Vet", $"VET-{Guid.NewGuid():N}"[..12], "San Jose", 9.93m, -84.08m, clinicEmail);
             clinic.Activate();
-            var foreignClinic = Clinic.Create(clinicUser.Id, "Otra Clinica Vet", $"VET-{Guid.NewGuid():N}"[..12], "Cartago", 9.86m, -83.92m, clinicEmail);
+            var foreignClinic = Clinic.Create(owner.Id, "Otra Clinica Vet", $"VET-{Guid.NewGuid():N}"[..12], "Cartago", 9.86m, -83.92m, ownerEmail);
             foreignClinic.Activate();
             var veterinarian = ClinicVeterinarian.Create(clinic.Id, "Dra. Ana Mora", $"VET-{Guid.NewGuid():N}"[..12]);
             var (grant, code) = ClinicMedicalAccessGrant.Generate(pet.Id, clinic.Id, owner.Id, "Owner");
@@ -93,14 +93,14 @@ public sealed class ClinicalConsultationEndpointsTests(PawTrackWebApplicationFac
         }
         var foreignCreate = await staffClient.PostAsJsonAsync(
             $"/api/v1/clinics/{foreignClinicId}/staff/appointments/{appointmentId}/consultation", request);
-        foreignCreate.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        foreignCreate.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         var create = await staffClient.PostAsJsonAsync($"/api/clinics/{clinicId}/staff/appointments/{appointmentId}/consultation", request);
         create.StatusCode.Should().Be(HttpStatusCode.Created);
         var consultation = await create.Content.ReadFromJsonAsync<ConsultationResponse>();
         var foreignClose = await staffClient.PostAsJsonAsync(
             $"/api/v1/clinics/{foreignClinicId}/staff/consultations/{consultation!.Id}/close",
             new { signedByName = "Dra. Ana Mora" });
-        foreignClose.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        foreignClose.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         var close = await staffClient.PostAsJsonAsync($"/api/clinics/{clinicId}/staff/consultations/{consultation!.Id}/close", new { signedByName = "Dra. Ana Mora" });
         close.StatusCode.Should().Be(HttpStatusCode.OK);
         var closed = await close.Content.ReadFromJsonAsync<ConsultationResponse>();

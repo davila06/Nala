@@ -50,6 +50,17 @@ public sealed class ProviderBookingsController(ISender sender) : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : Ok(Array.Empty<object>());
     }
 
+    [HttpGet("mine/calendar")]
+    public async Task<IActionResult> GetCalendar(
+        [FromQuery] Guid petId, [FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to,
+        [FromQuery] int page = 1, CancellationToken ct = default)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetCalendarBookingsQuery(userId, petId, from, to, page), ct);
+        return result.IsSuccess ? Ok(result.Value)
+            : BadRequest(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 400 });
+    }
+
     [HttpGet("incoming")]
     [Authorize(Roles = "ServiceProvider")]
     public async Task<IActionResult> GetIncoming([FromQuery] int page = 1, [FromQuery] int pageSize = 50, CancellationToken ct = default)

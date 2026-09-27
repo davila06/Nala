@@ -13,7 +13,9 @@ public sealed class ClinicSiteAccessRepository(PawTrackDbContext db) : IClinicSi
         return await db.Clinics.AsNoTracking().AnyAsync(clinic =>
             clinic.Id == clinicId &&
             (db.ClinicOrganizationSiteAccess.Any(access =>
-                 access.UserId == userId && access.ClinicId == clinicId && !access.IsRevoked)
+                 access.UserId == userId && access.ClinicId == clinicId && !access.IsRevoked
+                 && db.ClinicOrganizationMemberships.Any(member =>
+                     member.OrganizationId == access.OrganizationId && member.UserId == userId && !member.IsRevoked))
              || db.ClinicStaffMemberships.Any(member =>
                  member.UserId == userId && member.ClinicId == clinicId && !member.IsRevoked)
              || db.ClinicFinanceMemberships.Any(member =>
@@ -68,7 +70,9 @@ public sealed class ClinicSiteAccessRepository(PawTrackDbContext db) : IClinicSi
                                  join clinic in db.Clinics.AsNoTracking()
                                      on site.ClinicId equals clinic.Id
                                  where db.ClinicOrganizationSiteAccess.Any(access =>
-                                           access.UserId == userId && access.ClinicId == site.ClinicId && !access.IsRevoked)
+                                           access.UserId == userId && access.ClinicId == site.ClinicId && !access.IsRevoked
+                                           && db.ClinicOrganizationMemberships.Any(member =>
+                                               member.OrganizationId == access.OrganizationId && member.UserId == userId && !member.IsRevoked))
                                        || db.ClinicStaffMemberships.Any(member =>
                                            member.UserId == userId && member.ClinicId == site.ClinicId && !member.IsRevoked)
                                        || db.ClinicFinanceMemberships.Any(member =>

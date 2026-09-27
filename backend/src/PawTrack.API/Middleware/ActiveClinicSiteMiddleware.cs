@@ -61,6 +61,7 @@ public sealed class ActiveClinicSiteMiddleware(RequestDelegate next)
         || path.StartsWithSegments("/api/v1/medical")
         || path.StartsWithSegments("/api/pet-clinic-access")
         || path.StartsWithSegments("/api/v1/pet-clinic-access")
+        || path.StartsWithSegments("/api/subscriptions")
         || path.StartsWithSegments("/api/castration-campaigns")
         || path.StartsWithSegments("/api/v1/castration-campaigns");
 }

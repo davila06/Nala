@@ -78,6 +78,8 @@ public sealed class ClinicOrganization
                 && !member.IsRevoked && member.UserId != userId))
             throw new InvalidOperationException("An organization must retain at least one active owner.");
         membership.Revoke();
+        foreach (var access in _siteAccess.Where(access => access.UserId == userId && !access.IsRevoked))
+            access.Revoke();
         return true;
     }
 }

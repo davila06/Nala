@@ -19,16 +19,11 @@ import {
 import { PetClinicAccessManager } from "./PetClinicAccessManager";
 import { ReminderCalendar } from "./ReminderCalendar";
 import { WeightTrendChart } from "./WeightTrendChart";
+import { ConsolidatedMedicalTimeline } from "./ConsolidatedMedicalTimeline";
 import { HealthScoreCard } from "./HealthScoreCard";
-import {
-  useCertificatesForPet,
-  useDownloadCertificatePdf,
-} from "@/features/clinics/hooks/useCertificates";
+import { useCertificatesForPet, useDownloadCertificatePdf } from "@/features/clinics/hooks/useCertificates";
 import { CERTIFICATE_TYPE_LABELS } from "@/features/clinics/api/certificateApi";
-import {
-  useMyProfile,
-  useGrantHealthDataConsent,
-} from "@/features/auth/hooks/useProfile";
+import { useMyProfile, useGrantHealthDataConsent } from "@/features/auth/hooks/useProfile";
 import type {
   MedicalRecordType,
   MedicalRecordDto,
@@ -49,15 +44,7 @@ const TYPE_LABEL: Record<MedicalRecordType, string> = {
   Other: "📋 Otro",
 };
 
-const ALL_TYPES: MedicalRecordType[] = [
-  "Checkup",
-  "Vaccine",
-  "Deworming",
-  "Medication",
-  "Surgery",
-  "Allergy",
-  "Other",
-];
+const ALL_TYPES: MedicalRecordType[] = ["Checkup", "Vaccine", "Deworming", "Medication", "Surgery", "Allergy", "Other"];
 
 function PetSanitaryIdentityPanel({ petId }: { petId: string }) {
   const { data, isLoading } = usePetSanitaryIdentity(petId);
@@ -102,12 +89,8 @@ function PetSanitaryIdentityPanel({ petId }: { petId: string }) {
     <section className="rounded-2xl border border-sand-100 bg-surface px-4 py-3">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-sm font-bold text-sand-800">
-            Identidad sanitaria
-          </h3>
-          <p className="text-xs text-sand-500">
-            Datos privados para certificados y atención clínica.
-          </p>
+          <h3 className="text-sm font-bold text-sand-800">Identidad sanitaria</h3>
+          <p className="text-xs text-sand-500">Datos privados para certificados y atención clínica.</p>
         </div>
         <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] font-bold text-sand-700">
           {data?.microchipVerificationStatus ?? "Sin cargar"}
@@ -121,9 +104,7 @@ function PetSanitaryIdentityPanel({ petId }: { petId: string }) {
           <div className="grid gap-2 sm:grid-cols-2">
             <select
               value={form.sex}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, sex: e.target.value as PetSex }))
-              }
+              onChange={(e) => setForm((f) => ({ ...f, sex: e.target.value as PetSex }))}
               className="rounded-xl border border-sand-200 px-3 py-2 text-sm"
             >
               <option value="Unknown">Sexo no indicado</option>
@@ -133,26 +114,20 @@ function PetSanitaryIdentityPanel({ petId }: { petId: string }) {
             </select>
             <input
               value={form.color}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, color: e.target.value }))
-              }
+              onChange={(e) => setForm((f) => ({ ...f, color: e.target.value }))}
               placeholder="Color principal"
               className="rounded-xl border border-sand-200 px-3 py-2 text-sm"
             />
             <input
               value={form.residenceCanton}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, residenceCanton: e.target.value }))
-              }
+              onChange={(e) => setForm((f) => ({ ...f, residenceCanton: e.target.value }))}
               placeholder="Cantón de residencia"
               className="rounded-xl border border-sand-200 px-3 py-2 text-sm"
             />
             <input
               value={form.microchipId}
               disabled={data?.microchipVerificationStatus === "Verified"}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, microchipId: e.target.value }))
-              }
+              onChange={(e) => setForm((f) => ({ ...f, microchipId: e.target.value }))}
               placeholder="Microchip"
               className="rounded-xl border border-sand-200 px-3 py-2 text-sm disabled:bg-sand-50"
             />
@@ -174,44 +149,27 @@ function PetSanitaryIdentityPanel({ petId }: { petId: string }) {
             <input
               type="date"
               value={form.sterilizedAt}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, sterilizedAt: e.target.value }))
-              }
+              onChange={(e) => setForm((f) => ({ ...f, sterilizedAt: e.target.value }))}
               className="rounded-xl border border-sand-200 px-3 py-2 text-sm"
             />
           </div>
           <textarea
             value={form.distinctiveMarks}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, distinctiveMarks: e.target.value }))
-            }
+            onChange={(e) => setForm((f) => ({ ...f, distinctiveMarks: e.target.value }))}
             placeholder="Señas particulares"
             className="h-20 w-full rounded-xl border border-sand-200 px-3 py-2 text-sm"
           />
           {data?.microchipVerificationNotes && (
-            <p className="text-xs text-warn-700">
-              {data.microchipVerificationNotes}
-            </p>
+            <p className="text-xs text-warn-700">{data.microchipVerificationNotes}</p>
           )}
           <p className="text-xs text-sand-400">
-            Usa cantón aproximado, no dirección exacta. Un microchip verificado
-            solo puede cambiarse por revisión.
+            Usa cantón aproximado, no dirección exacta. Un microchip verificado solo puede cambiarse por revisión.
           </p>
           <div className="flex gap-2">
-            <Button
-              type="button"
-              size="sm"
-              onClick={() => void handleSubmit()}
-              disabled={update.isPending}
-            >
+            <Button type="button" size="sm" onClick={() => void handleSubmit()} disabled={update.isPending}>
               Guardar identidad
             </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="secondary"
-              onClick={syncFromData}
-            >
+            <Button type="button" size="sm" variant="secondary" onClick={syncFromData}>
               Restaurar
             </Button>
           </div>
@@ -239,12 +197,9 @@ function PetCertificatesPanel({ petId }: { petId: string }) {
     <section className="rounded-2xl border border-sand-100 bg-surface-warm px-4 py-3">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-sm font-bold text-sand-800">
-            Certificados y pasaportes
-          </h3>
+          <h3 className="text-sm font-bold text-sand-800">Certificados y pasaportes</h3>
           <p className="text-xs text-sand-500">
-            Documentos veterinarios verificables emitidos por clínicas
-            autorizadas.
+            Documentos veterinarios verificables emitidos por clínicas autorizadas.
           </p>
         </div>
         <span aria-hidden="true" className="text-xl">
@@ -252,57 +207,37 @@ function PetCertificatesPanel({ petId }: { petId: string }) {
         </span>
       </div>
 
-      {isLoading && (
-        <p className="mt-3 text-xs text-sand-500">Cargando documentos…</p>
-      )}
+      {isLoading && <p className="mt-3 text-xs text-sand-500">Cargando documentos…</p>}
 
       {!isLoading && (!certificates || certificates.length === 0) && (
-        <p className="mt-3 text-xs text-sand-500">
-          Aún no hay certificados emitidos para esta mascota.
-        </p>
+        <p className="mt-3 text-xs text-sand-500">Aún no hay certificados emitidos para esta mascota.</p>
       )}
 
       {certificates && certificates.length > 0 && (
         <ul className="mt-3 space-y-2">
           {certificates.map((certificate) => (
-            <li
-              key={certificate.id}
-              className="rounded-xl border border-sand-100 bg-surface px-3 py-2"
-            >
+            <li key={certificate.id} className="rounded-xl border border-sand-100 bg-surface px-3 py-2">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-sand-900">
-                    {CERTIFICATE_TYPE_LABELS[certificate.type] ??
-                      certificate.type}
+                    {CERTIFICATE_TYPE_LABELS[certificate.type] ?? certificate.type}
                   </p>
                   <p className="text-[11px] text-sand-400">
-                    {new Date(certificate.issuedAt).toLocaleDateString("es-CR")}{" "}
-                    ·{" "}
-                    <span className="font-mono">
-                      {certificate.verificationCode}
-                    </span>
+                    {new Date(certificate.issuedAt).toLocaleDateString("es-CR")} ·{" "}
+                    <span className="font-mono">{certificate.verificationCode}</span>
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <span
                     className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${certificate.isRevoked ? "bg-danger-100 text-danger-700" : certificate.isValid ? "bg-rescue-100 text-rescue-800" : "bg-warn-100 text-warn-700"}`}
                   >
-                    {certificate.isRevoked
-                      ? "Revocado"
-                      : certificate.isValid
-                        ? "Vigente"
-                        : "Vencido"}
+                    {certificate.isRevoked ? "Revocado" : certificate.isValid ? "Vigente" : "Vencido"}
                   </span>
                   {certificate.pdfUrl && (
                     <button
                       type="button"
                       disabled={isPending}
-                      onClick={() =>
-                        void handleDownload(
-                          certificate.id,
-                          certificate.verificationCode,
-                        )
-                      }
+                      onClick={() => void handleDownload(certificate.id, certificate.verificationCode)}
                       className="text-[10px] font-semibold text-trust-600 hover:underline disabled:opacity-50"
                     >
                       PDF
@@ -320,13 +255,7 @@ function PetCertificatesPanel({ petId }: { petId: string }) {
 
 // ── Record card ───────────────────────────────────────────────────────────────
 
-function RecordCard({
-  record,
-  petId,
-}: {
-  record: MedicalRecordDto;
-  petId: string;
-}) {
+function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string }) {
   const isClinic = record.source === "Clinic";
   const deleteMutation = useDeleteMedicalRecord(petId);
   const updateMutation = useUpdateMedicalRecord(petId);
@@ -397,18 +326,10 @@ function RecordCard({
   return (
     <>
       {/* ── Edit record drawer ─────────────────────────────────────────── */}
-      <Drawer
-        isOpen={editOpen}
-        onClose={closeEdit}
-        title="Editar registro médico"
-        side="bottom"
-      >
+      <Drawer isOpen={editOpen} onClose={closeEdit} title="Editar registro médico" side="bottom">
         <div className="space-y-4 pb-safe">
           <div>
-            <label
-              htmlFor={`edit-type-${record.id}`}
-              className="mb-1 block text-xs font-medium text-sand-600"
-            >
+            <label htmlFor={`edit-type-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">
               Tipo
             </label>
             <select
@@ -426,10 +347,7 @@ function RecordCard({
           </div>
 
           <div>
-            <label
-              htmlFor={`edit-date-${record.id}`}
-              className="mb-1 block text-xs font-medium text-sand-600"
-            >
+            <label htmlFor={`edit-date-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">
               Fecha
             </label>
             <Input
@@ -442,10 +360,7 @@ function RecordCard({
           </div>
 
           <div>
-            <label
-              htmlFor={`edit-desc-${record.id}`}
-              className="mb-1 block text-xs font-medium text-sand-600"
-            >
+            <label htmlFor={`edit-desc-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">
               Descripción{" "}
               <span aria-hidden="true" className="text-danger-500">
                 *
@@ -459,23 +374,15 @@ function RecordCard({
                 if (editDescError) setEditDescError("");
               }}
               rows={3}
-              aria-describedby={
-                editDescError ? `edit-desc-err-${record.id}` : undefined
-              }
+              aria-describedby={editDescError ? `edit-desc-err-${record.id}` : undefined}
               aria-invalid={!!editDescError}
               className={`w-full rounded-xl border px-3 py-2 text-sm text-sand-800 placeholder:text-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-400 ${
-                editDescError
-                  ? "border-danger-400 bg-danger-50"
-                  : "border-sand-200 bg-white"
+                editDescError ? "border-danger-400 bg-danger-50" : "border-sand-200 bg-white"
               }`}
               placeholder="Ej. Vacuna anti-rábica administrada sin reacciones"
             />
             {editDescError && (
-              <p
-                id={`edit-desc-err-${record.id}`}
-                role="alert"
-                className="mt-1 text-xs text-danger-600"
-              >
+              <p id={`edit-desc-err-${record.id}`} role="alert" className="mt-1 text-xs text-danger-600">
                 {editDescError}
               </p>
             )}
@@ -483,10 +390,7 @@ function RecordCard({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label
-                htmlFor={`edit-vet-${record.id}`}
-                className="mb-1 block text-xs font-medium text-sand-600"
-              >
+              <label htmlFor={`edit-vet-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">
                 Veterinario
               </label>
               <Input
@@ -497,10 +401,7 @@ function RecordCard({
               />
             </div>
             <div>
-              <label
-                htmlFor={`edit-clinic-${record.id}`}
-                className="mb-1 block text-xs font-medium text-sand-600"
-              >
+              <label htmlFor={`edit-clinic-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">
                 Clínica
               </label>
               <Input
@@ -513,10 +414,7 @@ function RecordCard({
           </div>
 
           <div>
-            <label
-              htmlFor={`edit-next-${record.id}`}
-              className="mb-1 block text-xs font-medium text-sand-600"
-            >
+            <label htmlFor={`edit-next-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">
               Próxima cita (opcional)
             </label>
             <Input
@@ -528,12 +426,7 @@ function RecordCard({
             />
           </div>
 
-          <Button
-            fullWidth
-            onClick={handleUpdate}
-            loading={updateMutation.isPending}
-            disabled={!editDesc.trim()}
-          >
+          <Button fullWidth onClick={handleUpdate} loading={updateMutation.isPending} disabled={!editDesc.trim()}>
             Guardar cambios
           </Button>
         </div>
@@ -543,13 +436,10 @@ function RecordCard({
       <li className="rounded-xl border border-sand-100 bg-surface-warm p-4 space-y-1">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-sm font-semibold text-sand-800">
-              {TYPE_LABEL[record.type] ?? record.type}
-            </span>
+            <span className="text-sm font-semibold text-sand-800">{TYPE_LABEL[record.type] ?? record.type}</span>
             {isClinic && (
               <span className="shrink-0 rounded-full bg-trust-100 px-2 py-0.5 text-xs font-medium text-trust-700">
-                <span aria-hidden="true">🏥</span>{" "}
-                {record.clinicName ?? "Clínica"}
+                <span aria-hidden="true">🏥</span> {record.clinicName ?? "Clínica"}
               </span>
             )}
           </div>
@@ -562,12 +452,7 @@ function RecordCard({
                 aria-label={`Editar: ${record.description}`}
                 className="flex h-7 w-7 items-center justify-center rounded-lg text-brand-400 hover:bg-brand-50 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               >
-                <svg
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="h-3.5 w-3.5"
-                  aria-hidden="true"
-                >
+                <svg viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5" aria-hidden="true">
                   <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61Zm.176 4.823L9.75 4.81l-6.286 6.287a.253.253 0 0 0-.064.108l-.558 1.953 1.953-.558a.253.253 0 0 0 .108-.064Zm1.238-3.763a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354Z" />
                 </svg>
               </button>
@@ -597,12 +482,7 @@ function RecordCard({
                 aria-label={`Eliminar: ${record.description}`}
                 className="flex h-7 w-7 items-center justify-center rounded-lg text-sand-300 hover:bg-danger-50 hover:text-danger-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger-400"
               >
-                <svg
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="h-3.5 w-3.5"
-                  aria-hidden="true"
-                >
+                <svg viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5" aria-hidden="true">
                   <path d="M11 1.75V3h2.25a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1 0-1.5H5V1.75C5 .784 5.784 0 6.75 0h2.5C10.216 0 11 .784 11 1.75ZM4.496 6.675l.66 6.6a.25.25 0 0 0 .249.225h5.19a.25.25 0 0 0 .249-.225l.66-6.6a.75.75 0 0 1 1.492.149l-.66 6.6A1.748 1.748 0 0 1 10.595 15h-5.19a1.75 1.75 0 0 1-1.741-1.575l-.66-6.6a.75.75 0 1 1 1.492-.15ZM6.5 1.75V3h3V1.75a.25.25 0 0 0-.25-.25h-2.5a.25.25 0 0 0-.25.25Z" />
                 </svg>
               </button>
@@ -622,13 +502,10 @@ function RecordCard({
             {record.durationDays ? ` (${record.durationDays} días)` : ""}
           </p>
         )}
-        {record.vetName && (
-          <p className="text-xs text-sand-500">Dr/a. {record.vetName}</p>
-        )}
+        {record.vetName && <p className="text-xs text-sand-500">Dr/a. {record.vetName}</p>}
         {record.nextDueDate && (
           <p className="text-xs font-medium text-warn-700">
-            <span aria-hidden="true">⏰</span> Próxima cita:{" "}
-            {record.nextDueDate}
+            <span aria-hidden="true">⏰</span> Próxima cita: {record.nextDueDate}
           </p>
         )}
         {record.documentUrl && (
@@ -648,20 +525,12 @@ function RecordCard({
 
 // ── Reminder card ─────────────────────────────────────────────────────────────
 
-function ReminderCard({
-  reminder,
-  petId,
-}: {
-  reminder: VetReminderDto;
-  petId: string;
-}) {
+function ReminderCard({ reminder, petId }: { reminder: VetReminderDto; petId: string }) {
   const complete = useCompleteReminder(petId);
   const deleteReminder = useDeleteVetReminder(petId);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const isOverdue =
-    !reminder.isCompleted &&
-    reminder.dueDate < new Date().toISOString().slice(0, 10);
+  const isOverdue = !reminder.isCompleted && reminder.dueDate < new Date().toISOString().slice(0, 10);
 
   return (
     <li
@@ -676,11 +545,7 @@ function ReminderCard({
       <div className="flex items-start justify-between gap-2">
         <p
           className={`text-sm font-semibold ${
-            reminder.isCompleted
-              ? "line-through text-sand-400"
-              : isOverdue
-                ? "text-danger-700"
-                : "text-trust-800"
+            reminder.isCompleted ? "line-through text-sand-400" : isOverdue ? "text-danger-700" : "text-trust-800"
           }`}
         >
           {reminder.title}
@@ -705,11 +570,7 @@ function ReminderCard({
               >
                 {deleteReminder.isPending ? "…" : "Sí, eliminar"}
               </button>
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(false)}
-                className="text-xs text-sand-400"
-              >
+              <button type="button" onClick={() => setConfirmDelete(false)} className="text-xs text-sand-400">
                 No
               </button>
             </div>
@@ -724,9 +585,7 @@ function ReminderCard({
           )}
         </div>
       </div>
-      {reminder.notes && (
-        <p className="text-xs text-sand-600">{reminder.notes}</p>
-      )}
+      {reminder.notes && <p className="text-xs text-sand-600">{reminder.notes}</p>}
       {!reminder.isCompleted && (
         <button
           type="button"
@@ -748,13 +607,7 @@ function ReminderCard({
 
 // ── Add record form ───────────────────────────────────────────────────────────
 
-function AddRecordForm({
-  petId,
-  onClose,
-}: {
-  petId: string;
-  onClose: () => void;
-}) {
+function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void }) {
   const add = useAddMedicalRecord(petId);
   const { data: profile } = useMyProfile();
   const grantConsent = useGrantHealthDataConsent();
@@ -794,17 +647,14 @@ function AddRecordForm({
 
   return (
     <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4 space-y-3">
-      <h3 className="text-sm font-semibold text-brand-800">
-        Nuevo registro médico
-      </h3>
+      <h3 className="text-sm font-semibold text-brand-800">Nuevo registro médico</h3>
 
       {profile && !profile.hasHealthDataConsent ? (
         <div className="space-y-3">
           <p className="text-sm text-sand-700">
-            Los datos de salud de tu mascota (vacunas, diagnósticos,
-            tratamientos) son datos sensibles. Antes de continuar, necesitamos
-            tu consentimiento explícito para tratarlos con fines de cuidado y
-            coordinación con clínicas veterinarias.
+            Los datos de salud de tu mascota (vacunas, diagnósticos, tratamientos) son datos sensibles. Antes de
+            continuar, necesitamos tu consentimiento explícito para tratarlos con fines de cuidado y coordinación con
+            clínicas veterinarias.
           </p>
           <div className="flex gap-2">
             <Button
@@ -812,8 +662,7 @@ function AddRecordForm({
               loading={grantConsent.isPending}
               onClick={() =>
                 grantConsent.mutate(undefined, {
-                  onError: () =>
-                    toast.error("No se pudo registrar el consentimiento"),
+                  onError: () => toast.error("No se pudo registrar el consentimiento"),
                 })
               }
             >
@@ -827,10 +676,7 @@ function AddRecordForm({
       ) : (
         <>
           <div>
-            <label
-              htmlFor="medical-record-type"
-              className="mb-1 block text-xs font-medium text-sand-600"
-            >
+            <label htmlFor="medical-record-type" className="mb-1 block text-xs font-medium text-sand-600">
               Tipo
             </label>
             <select
@@ -849,10 +695,7 @@ function AddRecordForm({
 
           {/* Date */}
           <div>
-            <label
-              htmlFor="medical-record-date"
-              className="mb-1 block text-xs font-medium text-sand-600"
-            >
+            <label htmlFor="medical-record-date" className="mb-1 block text-xs font-medium text-sand-600">
               Fecha
             </label>
             <Input
@@ -866,10 +709,7 @@ function AddRecordForm({
 
           {/* Description */}
           <div>
-            <label
-              htmlFor="medical-record-description"
-              className="mb-1 block text-xs font-medium text-sand-600"
-            >
+            <label htmlFor="medical-record-description" className="mb-1 block text-xs font-medium text-sand-600">
               Descripción *
             </label>
             <textarea
@@ -885,10 +725,7 @@ function AddRecordForm({
           {/* Vet / Clinic */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label
-                htmlFor="medical-record-vet"
-                className="mb-1 block text-xs font-medium text-sand-600"
-              >
+              <label htmlFor="medical-record-vet" className="mb-1 block text-xs font-medium text-sand-600">
                 Veterinario
               </label>
               <Input
@@ -899,10 +736,7 @@ function AddRecordForm({
               />
             </div>
             <div>
-              <label
-                htmlFor="medical-record-clinic"
-                className="mb-1 block text-xs font-medium text-sand-600"
-              >
+              <label htmlFor="medical-record-clinic" className="mb-1 block text-xs font-medium text-sand-600">
                 Clínica
               </label>
               <Input
@@ -916,10 +750,7 @@ function AddRecordForm({
 
           {/* Next due */}
           <div>
-            <label
-              htmlFor="medical-record-next-due"
-              className="mb-1 block text-xs font-medium text-sand-600"
-            >
+            <label htmlFor="medical-record-next-due" className="mb-1 block text-xs font-medium text-sand-600">
               Próxima cita (opcional)
             </label>
             <Input
@@ -933,10 +764,7 @@ function AddRecordForm({
 
           {/* Document */}
           <div>
-            <label
-              htmlFor="medical-record-document"
-              className="mb-1 block text-xs font-medium text-sand-600"
-            >
+            <label htmlFor="medical-record-document" className="mb-1 block text-xs font-medium text-sand-600">
               Documento (PDF / foto, máx. 5MB)
             </label>
             <input
@@ -949,12 +777,7 @@ function AddRecordForm({
           </div>
 
           <div className="flex gap-2 pt-1">
-            <Button
-              onClick={handleSubmit}
-              loading={add.isPending}
-              disabled={!description.trim()}
-              className="flex-1"
-            >
+            <Button onClick={handleSubmit} loading={add.isPending} disabled={!description.trim()} className="flex-1">
               Guardar
             </Button>
             <Button variant="secondary" onClick={onClose} className="flex-1">
@@ -969,13 +792,7 @@ function AddRecordForm({
 
 // ── Standalone reminder form ──────────────────────────────────────────────────
 
-function AddReminderForm({
-  petId,
-  onClose,
-}: {
-  petId: string;
-  onClose: () => void;
-}) {
+function AddReminderForm({ petId, onClose }: { petId: string; onClose: () => void }) {
   const create = useCreateVetReminder(petId);
   const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
   const [type, setType] = useState<MedicalRecordType>("Vaccine");
@@ -1002,9 +819,7 @@ function AddReminderForm({
 
   return (
     <div className="rounded-2xl border border-trust-200 bg-trust-50 p-4 space-y-3">
-      <h3 className="text-sm font-semibold text-trust-800">
-        Nuevo recordatorio
-      </h3>
+      <h3 className="text-sm font-semibold text-trust-800">Nuevo recordatorio</h3>
       <select
         id="medical-reminder-type"
         value={type}
@@ -1018,10 +833,7 @@ function AddReminderForm({
         ))}
       </select>
       <div>
-        <label
-          htmlFor="medical-reminder-title"
-          className="mb-1 block text-xs font-medium text-sand-600"
-        >
+        <label htmlFor="medical-reminder-title" className="mb-1 block text-xs font-medium text-sand-600">
           Título *
         </label>
         <Input
@@ -1032,10 +844,7 @@ function AddReminderForm({
         />
       </div>
       <div>
-        <label
-          htmlFor="medical-reminder-date"
-          className="mb-1 block text-xs font-medium text-sand-600"
-        >
+        <label htmlFor="medical-reminder-date" className="mb-1 block text-xs font-medium text-sand-600">
           Fecha *
         </label>
         <Input
@@ -1047,10 +856,7 @@ function AddReminderForm({
         />
       </div>
       <div>
-        <label
-          htmlFor="medical-reminder-notes"
-          className="mb-1 block text-xs font-medium text-sand-600"
-        >
+        <label htmlFor="medical-reminder-notes" className="mb-1 block text-xs font-medium text-sand-600">
           Notas
         </label>
         <textarea
@@ -1063,12 +869,7 @@ function AddReminderForm({
         />
       </div>
       <div className="flex gap-2">
-        <Button
-          onClick={handleSubmit}
-          loading={create.isPending}
-          disabled={!title.trim()}
-          className="flex-1"
-        >
+        <Button onClick={handleSubmit} loading={create.isPending} disabled={!title.trim()} className="flex-1">
           Crear
         </Button>
         <Button variant="secondary" onClick={onClose} className="flex-1">
@@ -1108,15 +909,10 @@ function ClinicAccessLogSection({ petId }: { petId: string }) {
       </summary>
       <ul className="mt-2 space-y-1.5">
         {logs.map((l) => (
-          <li
-            key={l.logId}
-            className="flex items-center justify-between rounded-lg border border-sand-100 px-3 py-2"
-          >
+          <li key={l.logId} className="flex items-center justify-between rounded-lg border border-sand-100 px-3 py-2">
             <span className="text-xs font-medium text-sand-700">
               🏥 {l.clinicName ?? "Clínica"}
-              <span
-                className={`ml-2 ${l.outcome === "allowed" ? "text-rescue-600" : "text-danger-600"}`}
-              >
+              <span className={`ml-2 ${l.outcome === "allowed" ? "text-rescue-600" : "text-danger-600"}`}>
                 {l.outcome === "allowed" ? "Permitido" : "Denegado"}
               </span>
             </span>
@@ -1141,18 +937,10 @@ function ClinicAccessLogSection({ petId }: { petId: string }) {
   );
 }
 
-export function MedicalHistoryTab({
-  petId,
-  petName = "",
-}: {
-  petId: string;
-  petName?: string;
-}) {
-  const { data: historyResult, isLoading: loadingRecords } =
-    useMedicalHistory(petId);
+export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petName?: string }) {
+  const { data: historyResult, isLoading: loadingRecords } = useMedicalHistory(petId);
   const { data: count } = useMedicalCount(petId);
-  const { data: reminders, isLoading: loadingReminders } =
-    useVetReminders(petId);
+  const { data: reminders, isLoading: loadingReminders } = useVetReminders(petId);
   const exportPdf = useExportMedicalPdf(petId);
 
   const [showAddForm, setShowAddForm] = useState(false);
@@ -1185,9 +973,7 @@ export function MedicalHistoryTab({
     <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-base font-semibold text-sand-800">
-          🏥 Historial médico
-        </h2>
+        <h2 className="font-display text-base font-semibold text-sand-800">🏥 Historial médico</h2>
         <div className="flex gap-2">
           <button
             type="button"
@@ -1233,29 +1019,18 @@ export function MedicalHistoryTab({
       </div>
 
       {/* Forms */}
-      {showAddForm && (
-        <AddRecordForm petId={petId} onClose={() => setShowAddForm(false)} />
-      )}
-      {showReminderForm && (
-        <AddReminderForm
-          petId={petId}
-          onClose={() => setShowReminderForm(false)}
-        />
-      )}
+      {showAddForm && <AddRecordForm petId={petId} onClose={() => setShowAddForm(false)} />}
+      {showReminderForm && <AddReminderForm petId={petId} onClose={() => setShowReminderForm(false)} />}
 
       {/* Calendar view */}
       {showCalendar && reminders && (
-        <ReminderCalendar
-          reminders={[...pendingReminders, ...completedReminders]}
-        />
+        <ReminderCalendar petId={petId} reminders={[...pendingReminders, ...completedReminders]} />
       )}
 
       {/* Pending reminders */}
       {pendingReminders.length > 0 && (
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sand-500">
-            Recordatorios pendientes
-          </p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sand-500">Recordatorios pendientes</p>
           <ul className="space-y-2">
             {pendingReminders.map((r) => (
               <ReminderCard key={r.id} reminder={r} petId={petId} />
@@ -1265,6 +1040,7 @@ export function MedicalHistoryTab({
       )}
 
       {/* Records list */}
+      {accessTier === "familia" && !loadingRecords && <ConsolidatedMedicalTimeline petId={petId} records={records} />}
       <div>
         {/* Health score (Plus+) then weight trend (Familia) */}
         <HealthScoreCard petId={petId} petName={petName} />
@@ -1290,10 +1066,7 @@ export function MedicalHistoryTab({
           aria-label="Filtrar por tipo de registro"
         >
           {ALL_FILTER_OPTIONS.map((opt) => {
-            const label =
-              opt === "Todos"
-                ? "Todos"
-                : (TYPE_LABEL[opt as MedicalRecordType] ?? opt);
+            const label = opt === "Todos" ? "Todos" : (TYPE_LABEL[opt as MedicalRecordType] ?? opt);
             const emoji = label.match(/^(\S+)\s/)?.[1];
             const text = emoji ? label.slice(emoji.length + 1) : label;
             return (
@@ -1303,14 +1076,10 @@ export function MedicalHistoryTab({
                 onClick={() => setTypeFilter(opt)}
                 aria-pressed={typeFilter === opt}
                 className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                  typeFilter === opt
-                    ? "bg-brand-600 text-white"
-                    : "bg-sand-100 text-sand-600 hover:bg-sand-200"
+                  typeFilter === opt ? "bg-brand-600 text-white" : "bg-sand-100 text-sand-600 hover:bg-sand-200"
                 }`}
               >
-                {opt !== "Todos" && emoji && (
-                  <span aria-hidden="true">{emoji} </span>
-                )}
+                {opt !== "Todos" && emoji && <span aria-hidden="true">{emoji} </span>}
                 {text}
               </button>
             );
@@ -1321,13 +1090,9 @@ export function MedicalHistoryTab({
             <div className="h-16 rounded-xl bg-sand-100" />
             <div className="h-16 rounded-xl bg-sand-100" />
           </div>
-        ) : accessTier === "explorador" &&
-          totalCount === 0 &&
-          !loadingRecords ? (
+        ) : accessTier === "explorador" && totalCount === 0 && !loadingRecords ? (
           <Card padding="sm">
-            <p className="text-center text-sm text-sand-400">
-              No hay registros médicos aún. Agrega el primero.
-            </p>
+            <p className="text-center text-sm text-sand-400">No hay registros médicos aún. Agrega el primero.</p>
           </Card>
         ) : accessTier === "explorador" && totalCount > 0 ? (
           // Explorador with clinic records: show count teaser
@@ -1341,9 +1106,8 @@ export function MedicalHistoryTab({
                 <strong>
                   {totalCount} registro{totalCount !== 1 ? "s" : ""}
                 </strong>
-                {count.clinicRecords > 0 &&
-                  ` (${count.clinicRecords} de tu veterinaria)`}
-                . Actualiza al plan Familia para verlos.
+                {count.clinicRecords > 0 && ` (${count.clinicRecords} de tu veterinaria)`}. Actualiza al plan Familia
+                para verlos.
               </p>
             )}
             <a
@@ -1368,8 +1132,7 @@ export function MedicalHistoryTab({
                   <strong>
                     {records.length} de {totalCount}
                   </strong>{" "}
-                  registros. Actualiza a Plan Familia para ver el historial
-                  completo.
+                  registros. Actualiza a Plan Familia para ver el historial completo.
                 </p>
                 <a
                   href="/precios.html"

@@ -18,7 +18,8 @@ public sealed class DownloadCertificatePdfQueryHandler(
     IClinicRepository clinicRepository,
     IBlobStorageService blobStorage,
     ICertificateAuditLogRepository auditLogRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IActiveClinicSiteContext siteContext)
     : IRequestHandler<DownloadCertificatePdfQuery, Result<CertificatePdfDownloadDto>>
 {
     public async Task<Result<CertificatePdfDownloadDto>> Handle(
@@ -58,7 +59,7 @@ public sealed class DownloadCertificatePdfQueryHandler(
     {
         var clinic = await clinicRepository.GetByIdAsync(clinicId, cancellationToken);
         if (clinic?.UserId == requestingUserId)
-            return true;
+            return siteContext.ClinicId == clinicId;
 
         var pet = await petRepository.GetByIdAsync(petId, cancellationToken);
         if (pet is null)

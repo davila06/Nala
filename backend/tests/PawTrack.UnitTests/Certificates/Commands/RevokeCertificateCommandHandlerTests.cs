@@ -14,8 +14,9 @@ public sealed class RevokeCertificateCommandHandlerTests
     private readonly IClinicRepository _clinics = Substitute.For<IClinicRepository>();
     private readonly ICertificateAuditLogRepository _auditLogs = Substitute.For<ICertificateAuditLogRepository>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
+    private readonly IActiveClinicSiteContext _siteContext = Substitute.For<IActiveClinicSiteContext>();
 
-    private RevokeCertificateCommandHandler BuildHandler() => new(_certificates, _clinics, _auditLogs, _unitOfWork);
+    private RevokeCertificateCommandHandler BuildHandler() => new(_certificates, _clinics, _auditLogs, _unitOfWork, _siteContext);
 
     [Fact]
     public async Task Handle_IssuingClinicOwnerRevokesWithReason_Succeeds()
@@ -23,6 +24,7 @@ public sealed class RevokeCertificateCommandHandlerTests
         var clinicOwnerId = Guid.NewGuid();
         var clinic = Clinic.Create(clinicOwnerId, "VetSalud", "SENASA-12345", "Heredia", 10m, -84.1m, "vet@example.com");
         var certificate = VetCertificate.Issue(Guid.NewGuid(), clinic.Id, clinicOwnerId, CertificateType.VaccinePassport, "ABCD1234");
+        _siteContext.ClinicId.Returns(clinic.Id);
 
         _certificates.GetByIdAsync(certificate.Id, Arg.Any<CancellationToken>()).Returns(certificate);
         _clinics.GetByIdAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(clinic);
@@ -53,6 +55,25 @@ public sealed class RevokeCertificateCommandHandlerTests
         var result = await BuildHandler().Handle(
             new RevokeCertificateCommand(certificate.Id, Guid.NewGuid(), IsAdmin: false, "Error en datos sanitarios"),
             default);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain("Acceso denegado.");
+        certificate.IsRevoked.Should().BeFalse();
+        _certificates.DidNotReceive().Update(Arg.Any<VetCertificate>());
+    }
+
+    [Fact]
+    public async Task Handle_IssuingClinicOwnerCannotRevokeCertificateOutsideActiveSite()
+    {
+        var clinicOwnerId = Guid.NewGuid();
+        var clinic = Clinic.Create(clinicOwnerId, "VetSalud", "SENASA-12345", "Heredia", 10m, -84.1m, "vet@example.com");
+        var certificate = VetCertificate.Issue(Guid.NewGuid(), clinic.Id, clinicOwnerId, CertificateType.VaccinePassport, "ABCD1234");
+        _certificates.GetByIdAsync(certificate.Id, Arg.Any<CancellationToken>()).Returns(certificate);
+        _clinics.GetByIdAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(clinic);
+        _siteContext.ClinicId.Returns(Guid.NewGuid());
+
+        var result = await BuildHandler().Handle(
+            new RevokeCertificateCommand(certificate.Id, clinicOwnerId, IsAdmin: false, "Motivo"), default);
 
         result.IsFailure.Should().BeTrue();
         result.Errors.Should().Contain("Acceso denegado.");

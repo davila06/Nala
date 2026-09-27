@@ -517,3 +517,34 @@ public sealed class AddMedicalRecordCommandHandlerTests
         await _uow.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 }
+
+public sealed class GetWeightHistoryQueryHandlerTests
+{
+    [Fact]
+    public async Task Handle_SignificantChange_DescribesMeasurementsWithoutMedicalAdvice()
+    {
+        var ownerId = Guid.NewGuid();
+        var pet = Pet.Create(ownerId, "Max", PetSpecies.Dog, null, null);
+        var pets = Substitute.For<IPetRepository>();
+        var medical = Substitute.For<IMedicalRepository>();
+        var subscription = Substitute.For<ISubscriptionService>();
+        var family = Substitute.For<IFamilyRepository>();
+        var breeds = Substitute.For<IBreedReferenceRepository>();
+        pets.GetByIdAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(pet);
+        subscription.IsFamiliaAsync(ownerId, Arg.Any<CancellationToken>()).Returns(true);
+        medical.GetByPetIdAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(new List<MedicalRecord>
+        {
+            MedicalRecord.Create(pet.Id, ownerId, MedicalRecordType.Checkup,
+                DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-30)), "Control anterior", null, null, null, weightKg: 10),
+            MedicalRecord.Create(pet.Id, ownerId, MedicalRecordType.Checkup,
+                DateOnly.FromDateTime(DateTime.UtcNow), "Control actual", null, null, null, weightKg: 13),
+        });
+        var handler = new GetWeightHistoryQueryHandler(pets, medical, subscription, family, breeds);
+
+        var result = await handler.Handle(new GetWeightHistoryQuery(pet.Id, ownerId), default);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.WeightChangeAlert.Should().Contain("3 kg");
+        result.Value.WeightChangeAlert.Should().NotContain("Consulta con tu veterinario");
+    }
+}

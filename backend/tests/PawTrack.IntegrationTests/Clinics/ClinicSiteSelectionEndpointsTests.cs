@@ -26,6 +26,8 @@ public sealed class ClinicSiteSelectionEndpointsTests(PawTrackWebApplicationFact
         var legacyStaffClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, legacyStaffEmail);
         Guid primaryClinicId;
         Guid secondaryClinicId;
+        Guid staffUserId;
+        ClinicOrganization organization;
 
         using (var scope = factory.Services.CreateScope())
         {
@@ -37,7 +39,7 @@ public sealed class ClinicSiteSelectionEndpointsTests(PawTrackWebApplicationFact
             var secondary = Clinic.Create(owner.Id, "Secundaria", $"VET-{Guid.NewGuid():N}"[..12], "Cartago", 9.86m, -83.92m, ownerEmail);
             primary.Activate();
             secondary.Activate();
-            var organization = ClinicOrganization.Create("Red", owner.Id, primary.Id);
+            organization = ClinicOrganization.Create("Red", owner.Id, primary.Id);
             organization.AddSite(secondary.Id);
             organization.AddMember(staff.Id, ClinicOrganizationRole.Member);
             organization.GrantSiteAccess(staff.Id, primary.Id, owner.Id);
@@ -51,6 +53,7 @@ public sealed class ClinicSiteSelectionEndpointsTests(PawTrackWebApplicationFact
             await db.SaveChangesAsync();
             primaryClinicId = primary.Id;
             secondaryClinicId = secondary.Id;
+            staffUserId = staff.Id;
         }
 
         var response = await staffClient.GetAsync("/api/clinics/accessible-sites");
@@ -65,6 +68,18 @@ public sealed class ClinicSiteSelectionEndpointsTests(PawTrackWebApplicationFact
         legacySitesResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var legacySites = await legacySitesResponse.Content.ReadFromJsonAsync<List<AccessibleSiteResponse>>();
         legacySites.Should().ContainSingle(site => site.ClinicId == primaryClinicId);
+
+        organization.RevokeMember(staffUserId).Should().BeTrue();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrackDbContext>();
+            db.ClinicOrganizationMemberships.Update(organization.Memberships.Single(member => member.UserId == staffUserId));
+            db.ClinicOrganizationSiteAccess.UpdateRange(organization.SiteAccess);
+            await db.SaveChangesAsync();
+        }
+        var afterMembershipRevocation = await staffClient.GetFromJsonAsync<List<AccessibleSiteResponse>>(
+            "/api/clinics/accessible-sites");
+        afterMembershipRevocation.Should().NotContain(site => site.ClinicId == primaryClinicId);
     }
 
     [Fact]
@@ -99,6 +114,9 @@ public sealed class ClinicSiteSelectionEndpointsTests(PawTrackWebApplicationFact
 
         var selection = await client.PutAsJsonAsync("/api/clinics/active-site", new { clinicId = primaryClinicId });
         selection.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var foreignSiteSubscription = await client.GetAsync($"/api/subscriptions/me?clinicId={secondaryClinicId}");
+        foreignSiteSubscription.StatusCode.Should().Be(HttpStatusCode.Forbidden);
 
         var unselectedSessionAgenda = await secondSessionClient.GetAsync(
             $"/api/clinics/{secondaryClinicId}/staff/appointments?from=2026-09-26T00:00:00Z&to=2026-09-27T00:00:00Z");

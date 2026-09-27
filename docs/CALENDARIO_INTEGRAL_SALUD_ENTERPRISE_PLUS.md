@@ -1,9 +1,14 @@
 # NALA - Guia enterprise+ del Calendario Integral de Salud
 
 > Corte de evidencia: 2026-09-27. Estado: propuesta de implementacion, **no** funcionalidad terminada.
-> Producto: seguimiento preventivo de mascotas para tutores y equipos clinicos autorizados.
+> Producto: Asistente Inteligente de Bienestar Animal; seguimiento, organizacion y prevencion para tutores y equipos clinicos autorizados.
 > Fuente de verdad: codigo vigente; los documentos historicos pueden estar desactualizados.
 > Este plan no autoriza recomendaciones diagnosticas, prescripciones automaticas ni envio de datos a terceros.
+
+La IA, si se incorpora, solo puede organizar informacion ya registrada, recordar
+fechas y producir resúmenes administrativos verificables. No diagnostica,
+prescribe, recomienda tratamientos ni reinterpreta exámenes. Nunca sustituye
+al profesional veterinario.
 
 ## 1. Resultado esperado y limites
 
@@ -59,6 +64,12 @@ observabilidad, retencion, despliegue reversible y evidencia de aceptacion.
       Familia, permiso de mascota y consentimiento de datos de salud; Plus tiene
       preview enmascarado y Explorador no recibe registros en el endpoint de
       historial ([MedicalCommands.cs](../backend/src/PawTrack.Application/Medical/MedicalCommands.cs)).
+- [x] Existe serie de peso, grafico y alerta ante cambio >=15% en 90 dias,
+      limitada a plan Familia; existen reservas de servicios Groomer/Trainer y
+      panel separado de certificados y adjuntos
+      ([WeightTrendChart.tsx](../frontend/src/features/medical/components/WeightTrendChart.tsx),
+      [ProviderBookingCommands.cs](../backend/src/PawTrack.Application/ServiceProviders/ProviderBookingCommands.cs),
+      [MedicalHistoryTab.tsx](../frontend/src/features/medical/components/MedicalHistoryTab.tsx)).
 
 **Brechas verificadas que condicionan el diseno:** no existe tipo separado para
 antipulgas; `Frequency` es texto, no una pauta de tomas; esterilizacion realizada
@@ -126,6 +137,8 @@ Legal y Operaciones; escenarios de negocio y politica por plan aprobados.
 | Medicamentos    | `MedicalRecord(Medication)` + pauta nueva versionable                 | Inicio, tomas, fin y pausas            | Horarios/dosis solo de receta o indicacion explicita                                       |
 | Citas           | `VeterinarianAppointment`                                             | Inicio, reprogramacion, cancelacion    | Mostrar solo mascota/tutor/clinica autorizados; cancelar oculta accion, conserva historial |
 | Esterilizacion  | `Pet.SterilizedStatus`/`SterilizedAt` y evento agendado si existe     | Cirugia planificada o realizada        | Un estado `No` no significa que se deba programar cirugia                                  |
+| Peso            | `MedicalRecord.WeightKg`                                              | Tendencia y variacion medida           | Comparar valores reales; no inferir obesidad, enfermedad ni dosis                          |
+| Servicios       | `ProviderBooking` y categoria `ServiceProvider`                       | Grooming/entrenamiento                 | Consultar por tutor, mascota y rango; excluir cancelaciones y mascotas ajenas              |
 | Manual          | `VetReminder`                                                         | Fecha elegida                          | Un recordatorio completado no certifica acto clinico                                       |
 
 - [ ] Crear especificacion de un `HealthCalendarItemDto`/read model sin tabla de
@@ -178,6 +191,13 @@ Legal y Operaciones; escenarios de negocio y politica por plan aprobados.
       requerir confirmacion veterinaria para recomendaciones clinicas.
 - [ ] Citas: incluir creador, estado, fecha local y acceso del tutor; usar la
       misma cita persistida que la agenda clinica, no duplicar reserva.
+- [ ] Peso: ofrecer registro periodico voluntario, tendencia y variacion con
+      magnitudes y fechas exactas; no etiquetar rangos genericos como diagnostico.
+- [ ] Grooming/entrenamiento: mostrar reservas efectivas del proveedor y estado
+      real, sin presentarlas como consultas o recomendaciones medicas.
+- [ ] Historial consolidado: consultas, examenes, certificados y documentos
+      aportados; etiquetar radiografias solo si el tipo fue declarado y validado,
+      nunca por extension de archivo o por inferencia de IA.
 - [ ] Esterilizacion: fecha realizada del perfil y, solo si existe agendamiento
       real, cirugia futura; conflictos entre perfil, certificado y registro
       clinico requieren regla aprobada y señal de discrepancia.
@@ -231,7 +251,7 @@ probados contra SQL Server; tiempos medidos con volumen representativo.
       estados sin depender de color, tamanos tactiles, screen reader, mes sin
       saltos de layout; validar movil y escritorio.
 - [ ] Separar visualmente `recomendado`, `registrado por tutor`, `verificado por
-    clinica` y `vencido`; copiar claramente que una pauta generica no sustituye
+  clinica` y `vencido`; copiar claramente que una pauta generica no sustituye
       indicacion veterinaria.
 - [ ] Añadir vista clinica solo donde hay permiso/grant activo; revocacion de
       acceso invalida datos en cache y enlaces del calendario inmediatamente.
@@ -304,6 +324,8 @@ retencion y consentimiento evidenciados; ningun incidente critico abierto.
 - [ ] Frontend tests de filtros, zonas horarias, eventos duplicados, MFA,
       estados de error/preview y accesibilidad; E2E de vacuna, antipulgas,
       medicamento, cita reprogramada, esterilizacion y opt-out.
+- [ ] Agregar pruebas de paginacion real para reservas/expediente, concurrencia
+      de revocacion, permisos Familia y enlaces privados en la cronologia.
 - [ ] Ensayo de carga con hogares multimascota y meses densos; revisar plan de
       ejecucion SQL, memoria, p95 y coste por 1.000 mascotas activas.
 - [ ] Desplegar bajo feature flag por cohorte, solo lectura primero; migracion
@@ -396,3 +418,93 @@ clinicas, WhatsApp homologado, sincronizacion externa o soporte multijurisdiccio
 autorizacion -> proyeccion -> motor idempotente -> pruebas reales -> piloto.
 Priorizar primero calendario de solo lectura y reconciliacion de datos; habilitar
 alertas y mutaciones gradualmente, nunca todas las mascotas historicas de golpe.
+
+## 8. Ampliacion: asistente de bienestar animal
+
+### 8.1 Politica de lenguaje y controles de IA
+
+- [ ] Publicar vocabulario aprobado: "registro", "fecha", "variacion", "sin
+      constancia en NALA". Una ausencia de dato no prueba ausencia de atencion.
+- [ ] Rechazar diagnosticos, tratamientos, medicamentos sugeridos, calculos de
+      dosis, gravedad inferida y causalidad clinica. Tampoco modificar el
+      expediente desde una respuesta de texto.
+- [ ] Resumir solo datos retornados por endpoints autorizados, con fecha, fuente
+      e identificador interno de respaldo; citar registro y diferenciar
+      informacion registrada por tutor de la verificada por clinica.
+- [ ] Aplicar la misma politica ante prompts hostiles, documentos adjuntos o
+      texto libre que intenten cambiar las instrucciones; pruebas adversariales
+      de alucinacion, filtracion entre mascotas y recomendaciones medicas.
+- [ ] No enviar expediente a un proveedor de IA externo sin consentimiento,
+      evaluacion legal y contrato especifico. Una version determinista sin LLM
+      es suficiente para alertas, fechas y resumenes factuales iniciales.
+
+Ejemplos permitidos: "Max registro 10 kg y luego 13 kg en 30 dias"; "la
+proxima vacuna registrada vence el 15 de octubre"; "no figura una consulta
+registrada este ano en NALA". Prohibidos: "tiene obesidad", "necesita
+antibioticos", "tiene dermatitis" o "debe recibir este medicamento".
+
+### 8.2 Peso - avance y trabajo abierto
+
+- [x] La respuesta de variacion >=15% en 90 dias ahora expresa la diferencia
+      registrada en kg, sin instruccion clinica ni diagnostico
+      ([MedicalCommands.cs](../backend/src/PawTrack.Application/Medical/MedicalCommands.cs),
+      [MedicalCommandHandlerTests.cs](../backend/tests/PawTrack.UnitTests/Medical/Handlers/MedicalCommandHandlerTests.cs)).
+- [x] El grafico existente sigue mostrando la serie con acceso Familia
+      ([WeightTrendChart.tsx](../frontend/src/features/medical/components/WeightTrendChart.tsx)).
+- [x] El grafico llama a la banda "Referencia de peso para la raza", no
+      "Rango saludable"; prueba de UI de lenguaje descriptivo
+      ([WeightTrendChart.test.tsx](../frontend/tests/features/medical/WeightTrendChart.test.tsx)).
+- [ ] Probar limites 14,99%/15%, aumento y descenso, mediciones repetidas,
+      peso cero, fechas fuera de orden y cambios cercanos a medianoche; revisar
+      otras etiquetas clinicas heredadas para que no afirmen diagnostico.
+- [ ] Definir registro mensual opcional, procedencia, unidades, edicion y
+      supresion auditada; no crear visitas clinicas ficticias para ingresar peso.
+- [ ] Incorporar peso al resumen administrativo autorizado y evaluar si un
+      recordatorio para medirlo requiere opt-in independiente.
+
+### 8.3 Citas no veterinarias - avance y trabajo abierto
+
+- [x] API `GET /api/provider-bookings/mine/calendar` filtra en SQL por cliente,
+      propietario actual de mascota, `petId`, rango <=45 dias, categoria
+      Groomer/Trainer y estado no cancelado; maximo 100 por pagina. Prueba HTTP
+      negativa de mascota ajena incluida
+      ([ServiceProviderRepository.cs](../backend/src/PawTrack.Infrastructure/ServiceProviders/ServiceProviderRepository.cs),
+      [ServiceProviderEndpointsTests.cs](../backend/tests/PawTrack.IntegrationTests/ServiceProviders/ServiceProviderEndpointsTests.cs)).
+- [x] Vista por mascota integra esas reservas con recordatorios y enlace a la
+      gestion de reservas; prueba UI del dia incluida
+      ([ReminderCalendar.tsx](../frontend/src/features/medical/components/ReminderCalendar.tsx),
+      [ReminderCalendar.test.tsx](../frontend/tests/features/medical/ReminderCalendar.test.tsx)).
+- [ ] Probar consulta SQL Server real y plan de ejecucion con indice por
+      cliente/mascota/fecha; prueba de volumen y pagina >1. La UI avisa si
+      alcanza 100 resultados, pero aun no pagina dentro del mes.
+- [ ] Probar reprogramacion, zona horaria, transiciones de reserva y revocacion
+      de propiedad en cliente+servidor; agregar resumen familiar autorizado si
+      se aprueba comercialmente.
+- [ ] No mostrar las reservas como atenciones medicas, ni incorporar Hotel,
+      paseos u otras categorias sin decision de producto.
+
+### 8.4 Historial consolidado - avance y trabajo abierto
+
+- [x] Cronologia de lectura para plan Familia ordena registros clinicos,
+      adjuntos y certificados ya autorizados. Los certificados se descargan
+      mediante su endpoint autenticado; los documentos mantienen el flujo de
+      acceso vigente. Una consulta cerrada aparece como `Checkup` generado al
+      cierre, sin duplicar el texto SOAP en una segunda entidad
+      ([ConsolidatedMedicalTimeline.tsx](../frontend/src/features/medical/components/ConsolidatedMedicalTimeline.tsx),
+      [CloseClinicalConsultationCommand.cs](../backend/src/PawTrack.Application/Clinics/Commands/CloseClinicalConsultation/CloseClinicalConsultationCommand.cs)).
+- [x] Prueba UI verifica orden de consulta, certificado y adjunto, y no
+      infiere tipo de radiografia desde un documento
+      ([ConsolidatedMedicalTimeline.test.tsx](../frontend/tests/features/medical/ConsolidatedMedicalTimeline.test.tsx)).
+- [ ] Diseñar metadatos estructurados de examen/radiografia y ligarlos al
+      registro/consulta de origen. No inferir contenido de PDF, URL o imagen.
+- [ ] Construir proyeccion backend paginada y reporte consolidado descargable
+      desde fuentes autorizadas; hoy la cronologia muestra maximo 100 entradas
+      de respuestas existentes y **no** es un reporte PDF integral.
+- [ ] Revisar enlaces de adjuntos contra expiracion, revocacion, descarga
+      autenticada, borrado y acceso multiusuario; no difundir URL permanente.
+- [ ] Probar consulta/exportacion con plan Plus/Explorador, grants revocados y
+      documentos eliminados; versionar el informe y registrar quien lo genero.
+
+**Gate de esta ampliacion:** las tres areas tienen un primer incremento
+funcional, pero los pendientes marcados `[ ]` impiden declarar finalizado el
+nivel enterprise+ o habilitar un asistente generativo sobre el expediente.

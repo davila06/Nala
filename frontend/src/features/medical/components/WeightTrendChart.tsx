@@ -35,9 +35,7 @@ function ChartTooltip(props: TooltipProps<number, string>) {
     <div className="rounded-xl border border-sand-200 bg-surface px-3 py-2 shadow-lg text-xs">
       <p className="font-semibold text-sand-900">{d.weightKg.toFixed(1)} kg</p>
       <p className="text-sand-500">{d.date}</p>
-      <p className="text-sand-400">
-        {d.source === "Clinic" ? `🏥 ${d.clinicName ?? "Clínica"}` : "📝 Dueño"}
-      </p>
+      <p className="text-sand-400">{d.source === "Clinic" ? `🏥 ${d.clinicName ?? "Clínica"}` : "📝 Dueño"}</p>
     </div>
   );
 }
@@ -46,9 +44,7 @@ function WeightChartInner({ petId, petName }: WeightTrendChartProps) {
   const { data, isLoading, error } = useWeightHistory(petId);
 
   // Silently skip if plan gate returned 403 — PlanGate wrapper shows the upsell
-  const is403 =
-    (error as { response?: { status?: number } } | null)?.response?.status ===
-    403;
+  const is403 = (error as { response?: { status?: number } } | null)?.response?.status === 403;
 
   if (isLoading) return <Skeleton className="h-52 w-full rounded-2xl" />;
   if (is403 || !data) return null;
@@ -96,14 +92,8 @@ function WeightChartInner({ petId, petName }: WeightTrendChartProps) {
         aria-label={`Gráfico de peso de ${petName}: ${allWeights.length} registros, de ${minW.toFixed(1)} kg a ${maxW.toFixed(1)} kg`}
       >
         <ResponsiveContainer width="100%" height={200}>
-          <LineChart
-            data={chartData}
-            margin={{ top: 4, right: 8, left: -16, bottom: 0 }}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="var(--color-sand-200)"
-            />
+          <LineChart data={chartData} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-sand-200)" />
 
             <XAxis
               dataKey="date"
@@ -131,7 +121,7 @@ function WeightChartInner({ petId, petName }: WeightTrendChartProps) {
                 fill="var(--color-rescue-100)"
                 fillOpacity={0.4}
                 label={{
-                  value: data.reference.label,
+                  value: "Referencia de peso para la raza",
                   position: "insideTopRight",
                   fontSize: 9,
                   fill: "var(--color-rescue-600)",
@@ -145,9 +135,7 @@ function WeightChartInner({ petId, petName }: WeightTrendChartProps) {
               stroke="var(--color-brand-500)"
               strokeWidth={2}
               dot={(props) => {
-                const payload = props.payload as
-                  | { source?: string }
-                  | undefined;
+                const payload = props.payload as { source?: string } | undefined;
                 const isClinic = payload?.source === "Clinic";
                 const cx = props.cx ?? 0;
                 const cy = props.cy ?? 0;
@@ -158,11 +146,7 @@ function WeightChartInner({ petId, petName }: WeightTrendChartProps) {
                     y={cy - 4}
                     width={8}
                     height={8}
-                    fill={
-                      isClinic
-                        ? "var(--color-trust-500)"
-                        : "var(--color-brand-500)"
-                    }
+                    fill={isClinic ? "var(--color-trust-500)" : "var(--color-brand-500)"}
                     rx={isClinic ? 0 : 4}
                     stroke="white"
                     strokeWidth={1.5}
@@ -187,7 +171,7 @@ function WeightChartInner({ petId, petName }: WeightTrendChartProps) {
         {data.reference && (
           <span className="flex items-center gap-1">
             <span className="inline-block h-2 w-3 rounded-sm bg-rescue-200" />
-            Rango saludable
+            Referencia de peso para la raza
           </span>
         )}
       </div>
@@ -199,9 +183,7 @@ export function WeightTrendChart({ petId, petName }: WeightTrendChartProps) {
   return (
     <PlanGate requires="Familia">
       <div className="rounded-2xl border border-sand-100 bg-surface p-4">
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-sand-500">
-          Tendencia de peso
-        </h3>
+        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-sand-500">Tendencia de peso</h3>
         <WeightChartInner petId={petId} petName={petName} />
       </div>
     </PlanGate>

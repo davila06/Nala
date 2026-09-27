@@ -55,7 +55,7 @@ public sealed class ClinicAgendaEndpointsTests(PawTrackWebApplicationFactory fac
         var own = await staffClient.GetAsync($"/api/clinics/{clinicId}/staff/appointments?from={Uri.EscapeDataString(startsAt.AddHours(-1).ToString("O"))}&to={Uri.EscapeDataString(startsAt.AddHours(2).ToString("O"))}");
         own.StatusCode.Should().Be(HttpStatusCode.OK);
         var foreign = await staffClient.GetAsync($"/api/clinics/{foreignClinicId}/staff/appointments?from={Uri.EscapeDataString(startsAt.AddHours(-1).ToString("O"))}&to={Uri.EscapeDataString(startsAt.AddHours(2).ToString("O"))}");
-        foreign.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        foreign.StatusCode.Should().Be(HttpStatusCode.Forbidden);
 
         var stepUpRequired = await staffClient.PatchAsJsonAsync($"/api/clinics/{clinicId}/staff/appointments/{appointmentId}/status", new { status = "Confirmed" });
         stepUpRequired.StatusCode.Should().Be(HttpStatusCode.Forbidden);
@@ -68,7 +68,7 @@ public sealed class ClinicAgendaEndpointsTests(PawTrackWebApplicationFactory fac
                 jwt.GenerateAccessToken(staff.Id, staff.Email, staff.Name, staff.Role, mfaVerified: true));
         }
         var foreignMutation = await staffClient.PatchAsJsonAsync($"/api/clinics/{foreignClinicId}/staff/appointments/{appointmentId}/status", new { status = "Confirmed" });
-        foreignMutation.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        foreignMutation.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         var confirm = await staffClient.PatchAsJsonAsync($"/api/clinics/{clinicId}/staff/appointments/{appointmentId}/status", new { status = "Confirmed" });
         confirm.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
@@ -116,7 +116,7 @@ public sealed class ClinicAgendaEndpointsTests(PawTrackWebApplicationFactory fac
         appointments.Should().ContainSingle();
 
         var foreign = await cashierClient.GetAsync($"/api/clinics/{foreignClinicId}/staff/appointments?from={Uri.EscapeDataString(startsAt.AddHours(-1).ToString("O"))}&to={Uri.EscapeDataString(startsAt.AddHours(2).ToString("O"))}");
-        foreign.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        foreign.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]

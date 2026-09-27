@@ -748,8 +748,8 @@ public sealed class GetWeightHistoryQueryHandler(
                 var delta = Math.Abs((last - first) / first);
                 if (delta >= 0.15m)
                     alert = last < first
-                        ? $"El peso bajó un {delta:P0} en los últimos 90 días. Consulta con tu veterinario."
-                        : $"El peso subió un {delta:P0} en los últimos 90 días. Consulta con tu veterinario.";
+                        ? $"El peso registrado bajó {first - last:0.##} kg desde la primera medición de los últimos 90 días."
+                        : $"El peso registrado subió {last - first:0.##} kg desde la primera medición de los últimos 90 días.";
             }
         }
 
