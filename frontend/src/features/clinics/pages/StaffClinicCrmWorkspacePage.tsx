@@ -270,7 +270,7 @@ export default function StaffClinicCrmWorkspacePage() {
             <span>Clínica</span>
             <select
               aria-label="Clínica del equipo"
-              className="field-input min-w-[200px]"
+              className="field-input min-w-50"
               value={activeClinicId}
               disabled={!isSiteReady}
               onChange={(event) => void selectClinic(event.target.value)}

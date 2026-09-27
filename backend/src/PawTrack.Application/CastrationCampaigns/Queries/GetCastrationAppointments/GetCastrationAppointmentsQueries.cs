@@ -16,16 +16,24 @@ public sealed class GetCampaignAppointmentsQueryHandler(
     ICastrationCampaignRepository campaignRepository,
     ICastrationAppointmentRepository appointmentRepository,
     IClinicRepository clinicRepository,
-    IUserRepository userRepository)
+    IUserRepository userRepository,
+    IActiveClinicSiteContext siteContext)
     : IRequestHandler<GetCampaignAppointmentsQuery, Result<CastrationAppointmentPageDto>>
 {
     public async Task<Result<CastrationAppointmentPageDto>> Handle(GetCampaignAppointmentsQuery request, CancellationToken ct)
     {
+        if (!siteContext.IsPlatformAdministrator
+            && (siteContext.UserId != request.RequestingUserId || !siteContext.ClinicId.HasValue))
+            return Result.Failure<CastrationAppointmentPageDto>("An active clinic site is required.");
+
         var campaign = await campaignRepository.GetByIdAsync(request.CampaignId, ct);
         if (campaign is null) return Result.Failure<CastrationAppointmentPageDto>("Campaign was not found.");
         var user = await userRepository.GetByIdAsync(request.RequestingUserId, ct);
-        var clinic = await clinicRepository.GetByUserIdAsync(request.RequestingUserId, ct);
-        if (user is null || !user.Role.IsAdminOrSuperAdmin() && clinic?.Id != campaign.ExecutingClinicId)
+        var isAdmin = user?.Role.IsAdminOrSuperAdmin() == true;
+        var clinic = !isAdmin && siteContext.ClinicId.HasValue
+            ? await clinicRepository.GetByIdAsync(siteContext.ClinicId.Value, ct)
+            : null;
+        if (user is null || !isAdmin && (clinic?.Id != campaign.ExecutingClinicId || clinic.UserId != request.RequestingUserId))
             return Result.Failure<CastrationAppointmentPageDto>("Only the executing clinic or an administrator can view this agenda.");
         var (items, total) = await appointmentRepository.GetByCampaignPagedAsync(
             request.CampaignId, (request.Page - 1) * request.PageSize, request.PageSize, ct);

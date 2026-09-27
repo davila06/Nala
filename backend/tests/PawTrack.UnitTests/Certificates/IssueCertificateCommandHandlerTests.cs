@@ -42,8 +42,7 @@ public sealed class IssueCertificateCommandHandlerTests
         var handler = new IssueCertificateCommandHandler(certificates, certificateService, subscriptions,
             clinics, pets, grants, veterinarians, unitOfWork);
         var result = await handler.Handle(new IssueCertificateCommand(pet.Id, clinic.Id, veterinarian.Id, actorId,
-            CertificateType.Vaccination, null, null, "Mascota falsa", "Cat", "Otra raza",
-            "Clínica falsa", "VET-FALSO", veterinarian.FullName), CancellationToken.None);
+            CertificateType.Vaccination, null, null), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         await certificateService.Received(1).GenerateAndStoreAsync(Arg.Is<CertificatePdfData>(data =>
@@ -82,8 +81,7 @@ public sealed class IssueCertificateCommandHandlerTests
         var handler = new IssueCertificateCommandHandler(certificates, certificateService, subscriptions,
             clinics, pets, grants, veterinarians, unitOfWork);
         var result = await handler.Handle(new IssueCertificateCommand(
-            pet.Id, clinic.Id, veterinarian.Id, clinicUserId, CertificateType.HealthClearance, null, null,
-            "Max", "Dog", null, "Vet", "SEN", veterinarian.FullName), default);
+            pet.Id, clinic.Id, veterinarian.Id, clinicUserId, CertificateType.HealthClearance, null, null), default);
 
         result.IsFailure.Should().BeTrue();
         await certificateService.DidNotReceive().GenerateAndStoreAsync(Arg.Any<CertificatePdfData>(), Arg.Any<CancellationToken>());

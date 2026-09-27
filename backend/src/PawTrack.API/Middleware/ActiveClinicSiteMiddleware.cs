@@ -20,8 +20,11 @@ public sealed class ActiveClinicSiteMiddleware(RequestDelegate next)
         var isApiKey = principal.Identities.Any(identity => identity.IsAuthenticated
             && string.Equals(identity.AuthenticationType, "ApiKey", StringComparison.Ordinal));
         var isClinicRoute = IsClinicRoute(httpContext.Request.Path);
-        var isClinicPrincipal = isApiKey || (principal.Identity?.IsAuthenticated == true && isClinicRoute);
         var isAdministrator = principal.IsInRole("Admin") || principal.IsInRole("SuperAdmin");
+        IReadOnlyList<AccessibleClinicSiteReadModel> accessibleSites = userId.HasValue && isClinicRoute && !isApiKey && !isAdministrator
+            ? await siteAccessRepository.ListAccessibleSitesAsync(userId.Value, httpContext.RequestAborted)
+            : [];
+        var isClinicPrincipal = isApiKey || principal.Identity?.IsAuthenticated == true && isClinicRoute;
         Guid? clinicId = null;
 
         if (isClinicPrincipal && userId.HasValue)
@@ -31,17 +34,16 @@ public sealed class ActiveClinicSiteMiddleware(RequestDelegate next)
                 if (await siteAccessRepository.HasAccessAsync(userId.Value, apiKeyClinicId, httpContext.RequestAborted))
                     clinicId = apiKeyClinicId;
             }
-            else if (sessionId.HasValue)
+            else
             {
-                clinicId = await siteAccessRepository.GetActiveClinicIdAsync(
-                    userId.Value, sessionId.Value, httpContext.RequestAborted);
+                if (sessionId.HasValue)
+                    clinicId = await siteAccessRepository.GetActiveClinicIdAsync(
+                        userId.Value, sessionId.Value, httpContext.RequestAborted);
 
-                if (!clinicId.HasValue)
+                if (!clinicId.HasValue && accessibleSites.Count == 1
+                    && await siteAccessRepository.HasAccessAsync(userId.Value, accessibleSites[0].ClinicId, httpContext.RequestAborted))
                 {
-                    var accessibleSites = await siteAccessRepository.ListAccessibleSitesAsync(userId.Value, httpContext.RequestAborted);
-                    if (accessibleSites.Count == 1
-                        && await siteAccessRepository.HasAccessAsync(userId.Value, accessibleSites[0].ClinicId, httpContext.RequestAborted))
-                        clinicId = accessibleSites[0].ClinicId;
+                    clinicId = accessibleSites[0].ClinicId;
                 }
             }
         }

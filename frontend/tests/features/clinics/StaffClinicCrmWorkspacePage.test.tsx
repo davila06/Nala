@@ -57,6 +57,30 @@ describe("StaffClinicCrmWorkspacePage", () => {
     expect(clinicsApi.getStaffAgenda).toHaveBeenCalledWith("clinic-active", expect.any(String), expect.any(String));
   });
 
+  it("persists a new site before loading its agenda", async () => {
+    vi.mocked(clinicsApi.getActiveClinicSite).mockResolvedValue({ clinicId: "clinic-first" });
+    vi.mocked(clinicsApi.getStaffWorkspaces).mockResolvedValueOnce([
+      { clinicId: "clinic-first", clinicName: "Clinica Norte", role: "Receptionist" },
+      { clinicId: "clinic-second", clinicName: "Clinica Sur", role: "Receptionist" },
+    ]);
+    vi.mocked(clinicsApi.getStaffCrmDashboard).mockResolvedValue({
+      preferences: [],
+      recentActivities: [],
+      openTasks: [],
+      segments: [],
+    });
+    const user = userEvent.setup();
+    renderWithProviders(<StaffClinicCrmWorkspacePage />);
+
+    await screen.findByText("Pendientes del rol");
+    await user.selectOptions(screen.getByLabelText("Clínica del equipo"), "clinic-second");
+
+    await waitFor(() => expect(clinicsApi.selectActiveClinicSite).toHaveBeenCalledWith("clinic-second"));
+    await waitFor(() =>
+      expect(clinicsApi.getStaffAgenda).toHaveBeenCalledWith("clinic-second", expect.any(String), expect.any(String)),
+    );
+  });
+
   it("shows authorized role tasks and completes them through the clinic-scoped API", async () => {
     vi.mocked(clinicsApi.getStaffWorkspaces).mockResolvedValueOnce([
       { clinicId: "clinic-1", clinicName: "Clinica Norte", role: "Receptionist" },

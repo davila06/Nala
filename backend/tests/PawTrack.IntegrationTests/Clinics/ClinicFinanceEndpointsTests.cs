@@ -44,6 +44,13 @@ public sealed class ClinicFinanceEndpointsTests(PawTrackWebApplicationFactory fa
             clinicClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt.GenerateAccessToken(owner.Id, owner.Email, owner.Name, owner.Role));
         }
 
+        using (var activeSiteResponse = await clinicClient.GetAsync("/api/clinics/active-site"))
+        {
+            activeSiteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            using var activeSiteJson = System.Text.Json.JsonDocument.Parse(await activeSiteResponse.Content.ReadAsStringAsync());
+            activeSiteJson.RootElement.GetProperty("clinicId").GetGuid().Should().Be(clinicId);
+        }
+
         var grant = await clinicClient.PutAsJsonAsync("/api/clinics/me/finance/members", new { email = staffEmail, role = "Cashier" });
         grant.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         using (var scope = factory.Services.CreateScope())
@@ -79,9 +86,9 @@ public sealed class ClinicFinanceEndpointsTests(PawTrackWebApplicationFactory fa
             receiptNumber = $"REC-{Guid.NewGuid():N}"[..16],
             lines = new[] { new { description = "Consulta", type = "Service", quantity = 1, unitPriceCrc = 1000m } }
         });
-        foreignSale.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        foreignSale.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         var foreignLedger = await staffClient.GetAsync($"/api/clinics/{foreignClinicId}/finance/sales/{sale!.Id}/ledger");
-        foreignLedger.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        foreignLedger.StatusCode.Should().Be(HttpStatusCode.Forbidden);
 
         var payment = await staffClient.PostAsJsonAsync($"/api/clinics/{clinicId}/finance/sales/{sale.Id}/payments", new { amountCrc = 1000m, method = "Cash", reference = "CASH-1" });
         payment.StatusCode.Should().Be(HttpStatusCode.OK);

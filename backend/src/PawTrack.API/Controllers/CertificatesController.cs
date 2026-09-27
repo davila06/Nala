@@ -83,13 +83,7 @@ public sealed class CertificatesController(ISender sender) : ControllerBase
             userId,
             request.Type,
             request.Notes,
-            request.ValidUntil,
-            request.PetName,
-            request.PetSpecies,
-            request.PetBreed,
-            request.ClinicName,
-            request.ClinicLicense,
-            request.VetName), cancellationToken);
+            request.ValidUntil), cancellationToken);
 
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
@@ -187,13 +181,7 @@ public sealed record IssueCertificateRequest(
     Guid VeterinarianId,
     CertificateType Type,
     string? Notes,
-    DateTimeOffset? ValidUntil,
-    string PetName,
-    string PetSpecies,
-    string? PetBreed,
-    string ClinicName,
-    string ClinicLicense,
-    string VetName);
+    DateTimeOffset? ValidUntil);
 
 public sealed record IssueVaccinePassportRequest(
     Guid PetId,

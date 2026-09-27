@@ -25,6 +25,12 @@ public sealed class LoggingBehavior<TRequest, TResponse>(
             logger.LogInformation("Handled {RequestName} in {ElapsedMs}ms", requestName, stopwatch.ElapsedMilliseconds);
             return response;
         }
+        catch (ClinicActiveSiteRequiredException)
+        {
+            stopwatch.Stop();
+            logger.LogInformation("Denied {RequestName} outside active clinic site", requestName);
+            throw;
+        }
         catch (Exception ex)
         {
             stopwatch.Stop();

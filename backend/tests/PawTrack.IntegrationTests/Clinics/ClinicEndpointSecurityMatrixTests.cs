@@ -356,10 +356,10 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
         var date = DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd");
         var cases = new (string Action, Func<Guid, string> Path, HttpStatusCode Denied)[]
         {
-            ("GetStaffAgenda", id => $"/api/clinics/{id}/staff/appointments?from={from}&to={to}", HttpStatusCode.UnprocessableEntity),
+            ("GetStaffAgenda", id => $"/api/clinics/{id}/staff/appointments?from={from}&to={to}", HttpStatusCode.Forbidden),
             ("GetStaffClinicCrmDashboard", id => $"/api/clinics/{id}/staff/crm-dashboard?today={date}", HttpStatusCode.Forbidden),
             ("GetStaffTaskAssignees", id => $"/api/clinics/{id}/staff/task-assignees", HttpStatusCode.Forbidden),
-            ("GetFinanceReport", id => $"/api/clinics/{id}/finance/sales-report?businessDate={date}", HttpStatusCode.UnprocessableEntity),
+            ("GetFinanceReport", id => $"/api/clinics/{id}/finance/sales-report?businessDate={date}", HttpStatusCode.Forbidden),
         };
         foreach (var prefix in new[] { "/api/clinics", "/api/v1/clinics" })
             foreach (var scenario in cases)
@@ -381,16 +381,16 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
         using var saleJson = JsonDocument.Parse(await ownSale.Content.ReadAsStringAsync());
         var saleId = saleJson.RootElement.GetProperty("id").GetGuid();
         var foreignSale = await staffClient.PostAsJsonAsync($"/api/v1/clinics/{foreignClinicId}/finance/sales", salePayload);
-        foreignSale.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        foreignSale.StatusCode.Should().Be(HttpStatusCode.Forbidden);
 
         var ownLedger = await staffClient.GetAsync($"/api/clinics/{primaryClinicId}/finance/sales/{saleId}/ledger");
         ownLedger.StatusCode.Should().Be(HttpStatusCode.OK);
         var foreignLedger = await staffClient.GetAsync($"/api/v1/clinics/{foreignClinicId}/finance/sales/{saleId}/ledger");
-        foreignLedger.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        foreignLedger.StatusCode.Should().Be(HttpStatusCode.Forbidden);
 
         var foreignAppointment = await staffClient.PatchAsJsonAsync(
             $"/api/v1/clinics/{foreignClinicId}/staff/appointments/{appointmentId}/status", new { status = "Confirmed" });
-        foreignAppointment.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        foreignAppointment.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         var ownAppointment = await staffClient.PatchAsJsonAsync(
             $"/api/clinics/{primaryClinicId}/staff/appointments/{appointmentId}/status", new { status = "Confirmed" });
         ownAppointment.StatusCode.Should().Be(HttpStatusCode.NoContent);
@@ -398,7 +398,7 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
         var foreignPayment = await staffClient.PostAsJsonAsync(
             $"/api/v1/clinics/{foreignClinicId}/finance/sales/{saleId}/payments",
             new { amountCrc = 1000m, method = "Cash", reference = "BOLA-CASH" });
-        foreignPayment.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        foreignPayment.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         var ownPayment = await staffClient.PostAsJsonAsync(
             $"/api/clinics/{primaryClinicId}/finance/sales/{saleId}/payments",
             new { amountCrc = 1000m, method = "Cash", reference = "BOLA-CASH" });
@@ -436,18 +436,18 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
             evidenceReference = $"REF-{Guid.NewGuid():N}",
         };
         var foreignRefund = await staffClient.PostAsJsonAsync($"/api/v1/clinics/{foreignClinicId}/finance/sales/{saleId}/refunds", refundPayload);
-        foreignRefund.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        foreignRefund.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         var ownRefund = await staffClient.PostAsJsonAsync($"/api/clinics/{primaryClinicId}/finance/sales/{saleId}/refunds", refundPayload);
         ownRefund.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var foreignVoid = await staffClient.PostAsJsonAsync($"/api/v1/clinics/{foreignClinicId}/finance/sales/{saleId}/void", new { reason = "Servicio cancelado" });
-        foreignVoid.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        foreignVoid.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         var ownVoid = await staffClient.PostAsJsonAsync($"/api/clinics/{primaryClinicId}/finance/sales/{saleId}/void", new { reason = "Servicio cancelado" });
         ownVoid.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var closeDate = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(-6));
         var foreignClose = await staffClient.PostAsJsonAsync($"/api/v1/clinics/{foreignClinicId}/finance/cash-closes", new { businessDate = closeDate });
-        foreignClose.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        foreignClose.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         var ownClose = await staffClient.PostAsJsonAsync($"/api/clinics/{primaryClinicId}/finance/cash-closes", new { businessDate = closeDate });
         ownClose.StatusCode.Should().Be(HttpStatusCode.Created);
 

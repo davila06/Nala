@@ -1,5 +1,6 @@
 using FluentValidation;
 using MediatR;
+using PawTrack.Application.Common.Behaviors;
 using PawTrack.Application.Clinics.Interfaces;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Audit;
@@ -49,6 +50,7 @@ public sealed record ClinicCrmDashboardDto(IReadOnlyList<ClinicCrmPreferenceDto>
 
 public sealed record UpsertClinicCommunicationPreferenceCommand(Guid ClinicId, Guid ClinicUserId, Guid PetId, ClinicCommunicationChannel Channel, ClinicCommunicationPurpose Purpose, bool IsOptedIn, string ConsentSource) : IRequest<Result<bool>>;
 
+[BypassClinicActiveSite]
 public sealed record SetOwnerClinicCommunicationPreferenceCommand(Guid ClinicId, Guid OwnerUserId, Guid PetId, ClinicCommunicationChannel Channel, ClinicCommunicationPurpose Purpose, bool IsOptedIn) : IRequest<Result<bool>>;
 
 public sealed record GetOwnerClinicCommunicationPreferencesQuery(Guid OwnerUserId, Guid PetId) : IRequest<Result<IReadOnlyList<OwnerClinicCommunicationPreferenceReadModel>>>;

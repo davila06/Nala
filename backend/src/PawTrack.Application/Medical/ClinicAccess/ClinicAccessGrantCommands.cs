@@ -1,5 +1,6 @@
 using FluentValidation;
 using MediatR;
+using PawTrack.Application.Common.Behaviors;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Medical;
@@ -30,6 +31,7 @@ public sealed record GeneratedAccessCodeDto(
 
 // ── Owner generates code → clinic enters it ───────────────────────────────────
 
+[BypassClinicActiveSite]
 public sealed record OwnerGenerateAccessCodeCommand(
     Guid PetId, Guid OwnerId, Guid ClinicId)
     : IRequest<Result<GeneratedAccessCodeDto>>;
@@ -233,6 +235,7 @@ public sealed class OwnerAcceptClinicCodeCommandHandler(
 
 // ── Owner revokes grant ────────────────────────────────────────────────────────
 
+[BypassClinicActiveSite]
 public sealed record RevokeClinicAccessGrantCommand(
     Guid PetId, Guid OwnerId, Guid ClinicId)
     : IRequest<Result<bool>>;

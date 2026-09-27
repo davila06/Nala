@@ -135,7 +135,7 @@ public sealed class IssueVaccinePassportCommandHandler(
             null, cert.IssuedAt, cert.ValidUntil,
             OwnerName: owner?.Name,
             MicrochipId: pet.MicrochipId,
-            PetColor: request.PetColor ?? pet.Color,
+            PetColor: pet.Color,
             Vaccines: vaccines,
             ParasiteControl: parasite);
 
@@ -149,7 +149,7 @@ public sealed class IssueVaccinePassportCommandHandler(
                 pet.Species.ToString(),
                 pet.Breed,
                 pet.Sex.ToString(),
-                request.PetColor ?? pet.Color,
+                pet.Color,
                 pet.MicrochipId,
                 owner?.Name),
             new VaccinePassportIssuerSnapshot(

@@ -59,13 +59,10 @@ export function useActiveClinicSite(workspaces: ClinicSiteOption[], isLoadingWor
     setIsSiteReady(false);
     try {
       await clinicsApi.selectActiveClinicSite(clinicId);
-      queryClient.removeQueries({
-        predicate: (query) =>
-          query.queryKey[0] === "clinics" &&
-          query.queryKey[1] !== "public" &&
-          query.queryKey[1] !== "public-profile" &&
-          query.queryKey[1] !== "active-site",
-      });
+      if (selectedClinicId)
+        queryClient.removeQueries({
+          predicate: (query) => query.queryKey[0] === "clinics" && query.queryKey.includes(selectedClinicId),
+        });
       void queryClient.invalidateQueries({ queryKey: ["my-clinic"] });
       setSelectedClinicId(clinicId);
       queryClient.setQueryData(activeSiteQueryKey, { clinicId });

@@ -17,14 +17,7 @@ public sealed record IssueCertificateCommand(
     Guid IssuedByUserId,
     CertificateType Type,
     string? Notes,
-    DateTimeOffset? ValidUntil,
-    // Denormalized display data for the PDF
-    string PetName,
-    string PetSpecies,
-    string? PetBreed,
-    string ClinicName,
-    string ClinicLicense,
-    string VetName) : IRequest<Result<CertificateDto>>;
+    DateTimeOffset? ValidUntil) : IRequest<Result<CertificateDto>>;
 
 public sealed class IssueCertificateCommandValidator : AbstractValidator<IssueCertificateCommand>
 {

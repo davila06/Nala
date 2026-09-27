@@ -312,8 +312,7 @@ operación, inventario, pagos y CRM visibles en un mismo panel.
   grants de mascota, lote de inventario, venta, CRM, sesiones y dispositivos; existe
   catálogo estructural de 110 acciones de `ClinicsController` y 27 acciones relacionadas
   de Medical/Certificates/PetClinicAccess, con verbo HTTP y template de ruta comprobados.
-  Falta ejecutar BOLA dinámico contra cada ID/ruta y cada sede física; el modelo no tiene
-  entidad de ubicación interna de inventario (`LocationName` sigue siendo texto libre y no es un límite de autorización). El scope explícito por sede ya existe; agenda e inventario lo validan, pero no todos los handlers clínicos.
+  El contexto activo por `sid` y el gate MediatR por `ClinicId` ya cubren las familias clínicas principales; falta BOLA dinámico contra cada ID/ruta y la administración MFA/auditable de grants org→sede. El modelo de ubicación interna de inventario no existe (`LocationName` es texto libre y no es un límite de autorización).
 - [x] 16. Colas filtradas por rol, tipo y responsable en SQL; caja, gerencia y asistencia
       usan membresías apropiadas. Las respuestas staff excluyen preferencias, historial de
       comunicación y segmentos de clientes.
@@ -329,7 +328,7 @@ rol derivado, prioridad normal y clave única para tareas históricas e indexa l
 Para staging/producción hacer respaldo antes de aplicar. El downgrade elimina tareas sin mascota/tutor porque
 el esquema anterior no puede representarlas; exportarlas antes de revertir.
 `AddTrustedSessionLifecycle` y `AddClinicOrganizations` también están aplicadas en
-`PawTrackDev`; el backfill local produjo 6 organizaciones, 6 sedes y 0 clínicas huérfanas. También están aplicadas `AddClinicOrganizationSiteAccess` y `FilterActiveClinicOrganizationMemberships`; agenda e inventario validan scope de sede, mientras el resto de handlers sigue en migración.
+`PawTrackDev`; el backfill local produjo 6 organizaciones, 6 sedes y 0 clínicas huérfanas. También están aplicadas `AddClinicOrganizationSiteAccess`, `FilterActiveClinicOrganizationMemberships` y `AddActiveClinicSiteToRefreshTokens`; la selección es por sesión y el gate cubre requests clínicos con `ClinicId`. No se aplicó ninguna migración a una base compartida.
 No se aplicó ninguna migración a una base compartida. El estado de Azure compartido
 no es verificable sin un target/conexión identificados. Ver matriz enterprise antes
 de planificar una ventana y backup.
