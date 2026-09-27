@@ -548,3 +548,37 @@ public sealed class GetWeightHistoryQueryHandlerTests
         result.Value.WeightChangeAlert.Should().NotContain("Consulta con tu veterinario");
     }
 }
+
+public sealed class GetMedicalHistoryPageQueryHandlerTests
+{
+    [Fact]
+    public async Task PlusPreview_UsesConfiguredEntitlementLimit()
+    {
+        var ownerId = Guid.NewGuid();
+        var pet = Pet.Create(ownerId, "Max", PetSpecies.Dog, null, null);
+        var pets = Substitute.For<IPetRepository>();
+        var family = Substitute.For<IFamilyRepository>();
+        var medical = Substitute.For<IMedicalRepository>();
+        var plans = Substitute.For<ISubscriptionService>();
+        var entitlements = Substitute.For<IEntitlementService>();
+        pets.GetByIdAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(pet);
+        plans.GetActiveUserTierAsync(ownerId, Arg.Any<CancellationToken>())
+            .Returns(PawTrack.Domain.Subscriptions.SubscriptionTier.UserPlus);
+        medical.CountCurrentRecordsAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(2);
+        entitlements.AuthorizeAsync(ownerId, "MedicalRecordsPreviewLimit", 1m,
+                Arg.Any<EntitlementContext>(), Arg.Any<CancellationToken>())
+            .Returns(new EntitlementDecision(true, true, 1m, 0m, 1m, null,
+                PawTrack.Domain.Subscriptions.SubscriptionTier.UserPlus));
+        medical.GetCurrentRecordsPageAsync(pet.Id, 0, 1, Arg.Any<CancellationToken>())
+            .Returns(new List<MedicalRecord> { MedicalRecord.Create(pet.Id, ownerId,
+                MedicalRecordType.Checkup, new DateOnly(2026, 9, 27), "Consulta", null, null, null) });
+
+        var handler = new GetMedicalHistoryPageQueryHandler(pets, family, medical, plans, entitlements);
+        var result = await handler.Handle(new GetMedicalHistoryPageQuery(pet.Id, ownerId, 1, 20), default);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.PreviewLimit.Should().Be(1);
+        result.Value.Records.Should().ContainSingle();
+        await medical.Received(1).GetCurrentRecordsPageAsync(pet.Id, 0, 1, Arg.Any<CancellationToken>());
+    }
+}

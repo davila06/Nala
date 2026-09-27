@@ -113,7 +113,7 @@ export function ConsolidatedMedicalTimeline({ petId }: Props) {
                 <FileText className="inline h-4 w-4" aria-hidden="true" /> Documento adjunto
               </a>
             )}
-            {event.source === "Certificate" && event.verificationCode && (
+            {event.source === "Certificate" && event.hasPdf && event.verificationCode && (
               <button
                 type="button"
                 disabled={download.isPending}

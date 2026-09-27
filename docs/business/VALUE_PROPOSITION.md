@@ -1,0 +1,5 @@
+# Valor presentable sin exagerar alcance
+
+**Identificación y coordinación:** las [rutas de mascota/QR](../../backend/src/PawTrack.API/Controllers/PetsController.cs), [reporte de pérdida](../../backend/src/PawTrack.API/Controllers/LostPetsController.cs) y [avistamiento](../../backend/src/PawTrack.API/Controllers/SightingsController.cs) apoyan localizar y coordinar; no prueban porcentajes de reunificación ni cobertura territorial. Estado por operación: [matriz](../auditoria/FEATURE_TRACEABILITY_MATRIX.md).
+
+**Seguimiento y red:** las [rutas de salud](../../backend/src/PawTrack.API/Controllers/MedicalController.cs) y [reservas](../../backend/src/PawTrack.API/Controllers/ProviderBookingsController.cs) organizan información y contactos; no equivalen a diagnóstico médico ni cobro automático ([gateway manual](../../backend/src/PawTrack.Application/ServiceProviders/Payments/ManualProviderPaymentGateway.cs)). Indicadores **sugeridos**, no medidos: tasa de QR usado, tiempo hasta primer avistamiento y ratio reserva completada; el [funnel técnico](../../backend/src/PawTrack.API/Controllers/ProductAnalyticsController.cs) no acredita estos valores reales.

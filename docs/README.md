@@ -8,6 +8,12 @@ el 2026-09-26. Los manuales por rol viven en
 [Manuales/](Manuales/); los documentos historicos se conservan para
 trazabilidad, pero no son contratos vigentes.
 
+## Corte documental 2026-09-27
+
+La [auditoría de alcance](PRODUCT_SCOPE.md) distingue capacidades técnicas, servicios externos sin verificar y propuestas. Véanse [plan](auditoria/DOCUMENTATION_UPDATE_PLAN.md), [matriz con evidencia](auditoria/FEATURE_TRACEABILITY_MATRIX.md), [brechas](auditoria/DOCUMENTATION_GAP_REPORT.md), [changelog](auditoria/DOCUMENTATION_CHANGELOG.md) y [pruebas actuales](TESTING.md). Las cifras del corte anterior en [STATUS](STATUS.md) son históricas; el frontend tuvo un test fallido en este corte ([TESTING](TESTING.md)).
+
+Guías contrastadas: [arquitectura](ARCHITECTURE.md), [API](API.md), [seguridad](SECURITY.md), [configuración](CONFIGURATION.md), [datos](DATA_MODEL.md), [integraciones](INTEGRATIONS.md), [limitaciones](KNOWN_LIMITATIONS.md), [planes](commercial/PLANS.md), [dominios](domains/MARKETPLACE.md), [edición institucional](editions/MUNICIPAL.md), [crecimiento](growth/GROWTH_ENGINE.md), [preparación IA](ai/AI_READINESS.md) y [negocio](business/BUSINESS_CAPABILITIES.md). Los nuevos documentos no sustituyen los históricos ni acreditan operación en producción.
+
 ## Como leer la documentacion
 
 Cada documento tiene una responsabilidad. Si dos documentos contradicen el

@@ -5,6 +5,8 @@ namespace PawTrack.Application.Common.Interfaces;
 public interface IMedicalRepository
 {
     Task<IReadOnlyList<MedicalRecord>> GetByPetIdAsync(Guid petId, CancellationToken ct = default);
+    Task<int> CountCurrentRecordsAsync(Guid petId, CancellationToken ct = default);
+    Task<IReadOnlyList<MedicalRecord>> GetCurrentRecordsPageAsync(Guid petId, int skip, int take, CancellationToken ct = default);
     Task<MedicalRecord?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task AddAsync(MedicalRecord record, CancellationToken ct = default);
     void Update(MedicalRecord record);

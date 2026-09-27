@@ -13,6 +13,15 @@ public sealed class MedicalRepository(PawTrackDbContext db) : IMedicalRepository
             .OrderByDescending(r => r.Date)
             .ToListAsync(ct);
 
+    public Task<int> CountCurrentRecordsAsync(Guid petId, CancellationToken ct = default) =>
+        db.MedicalRecords.AsNoTracking().CountAsync(record => record.PetId == petId && !record.IsSuperseded, ct);
+
+    public async Task<IReadOnlyList<MedicalRecord>> GetCurrentRecordsPageAsync(Guid petId, int skip, int take, CancellationToken ct = default) =>
+        await db.MedicalRecords.AsNoTracking()
+            .Where(record => record.PetId == petId && !record.IsSuperseded)
+            .OrderByDescending(record => record.Date).ThenByDescending(record => record.Id)
+            .Skip(skip).Take(take).ToListAsync(ct);
+
     public Task<MedicalRecord?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         db.MedicalRecords.AsTracking().FirstOrDefaultAsync(r => r.Id == id, ct);
 

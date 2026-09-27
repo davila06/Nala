@@ -1,0 +1,5 @@
+# Límites observados, no oferta publicada
+
+El [servicio de entitlements](../../backend/src/PawTrack.Infrastructure/Subscriptions/EntitlementService.cs) define Free: `MaxPets=1`, `MaxActiveProducts=10`, `MaxActiveServices=3`, `MaxOrdersPerCycle=0`, `MaxLocations=1` y otras claves, y resuelve fallback legacy por nivel. El [handler de pérdida](../../backend/src/PawTrack.Application/LostPets/Commands/ReportLostPet/ReportLostPetCommandHandler.cs) consulta `MaxActiveLostCases` y número de casos activos. Estos valores describen implementación leída, no aprobación de precios ni pruebas exhaustivas de cuotas.
+
+La [migración de flags](../../backend/src/PawTrack.Infrastructure/Persistence/Migrations/20260922001221_AddPlanRestrictedResourceFlags.cs) no demuestra aplicación de cada restricción; verificar en handlers y pruebas antes de prometer límites o downgrade. [FEATURES](../FEATURES.md) es contrato objetivo; [PRICING_AND_PLANS](../PRICING_AND_PLANS.md) distingue capacidad técnica de oferta comercial aprobada.

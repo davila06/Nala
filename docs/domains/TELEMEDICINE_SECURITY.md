@@ -1,0 +1,3 @@
+# Seguridad de una consulta remota futura
+
+La [autorización API actual](../../backend/src/PawTrack.API/Program.cs) y los [grants de historia clínica](../../backend/src/PawTrack.API/Controllers/ClinicsController.cs) protegen operaciones existentes; no hay evidencia de consentimiento para grabación, emisión/expiración de token de sala, cifrado de video o retención audiovisual. Estado de estos controles de video: `NO_VERIFICADO` porque la consulta remota no está implementada. Antes de ofrecerla: diseñar identidad profesional, consentimiento, territorialidad, acceso, auditoría y respuesta ante emergencia sin exponer datos clínicos.

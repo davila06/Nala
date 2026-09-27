@@ -4,6 +4,11 @@
 >
 > Regla: autenticación y rol no sustituyen ownership. Cada endpoint debe validar
 > que el actor puede acceder al recurso concreto y que la respuesta minimiza PII.
+>
+> Corrección auditada 2026-09-27: el contacto de reportes activos **sí** expone
+> nombre/teléfono a cualquier cuenta autenticada, por diseño del
+> [handler](../backend/src/PawTrack.Application/LostPets/Queries/GetLostPetContact/GetLostPetContactQuery.cs).
+> Revisar consentimiento y recolección de PII: [hallazgo](security/SECURITY_FINDINGS.md).
 
 ## Leyenda
 
@@ -20,7 +25,7 @@
 | Superficie                              | Lectura pública           | Lectura autenticada                  | Mutación           | PII/riesgo               | Prueba requerida                                                   |
 | --------------------------------------- | ------------------------- | ------------------------------------ | ------------------ | ------------------------ | ------------------------------------------------------------------ |
 | Perfil QR `/api/public/pets/{id}`       | Public, DTO mínimo        | Igual                                | Ninguna            | No dueño/teléfono exacto | ID enumerable, minimización                                        |
-| Contacto de pérdida                     | Relay anónimo             | Owner recibe aviso interno           | Finder envía msg   | Sin teléfono expuesto    | Rate limit + active event + PII minimization                       |
+| Contacto de pérdida                     | No; JWT                   | Cuenta autenticada; activo           | No aplica          | Nombre y teléfono        | Rate limit; revisar consentimiento                                 |
 | Mascotas `/api/pets` y `/api/pets/{id}` | No                        | Owner                                | Owner              | Perfil, microchip, fotos | Roles no Owner reciben 403; IDOR read/write                        |
 | Reporte pérdida                         | No                        | Owner                                | Owner              | Contacto y coordenadas   | Pet ownership                                                      |
 | Avistamientos                           | DTO público mínimo        | Owner/ally autorizado según caso     | Actor validado     | GPS/foto                 | Caso cruzado                                                       |

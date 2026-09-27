@@ -1,0 +1,5 @@
+# Planes: alcance técnico y comercial
+
+El [endpoint público de catálogo](../../backend/src/PawTrack.API/Controllers/PublicSubscriptionPlansController.cs) consulta planes activos; el [endpoint de cuenta](../../backend/src/PawTrack.API/Controllers/SubscriptionsController.cs) expone suscripción y snapshot de entitlements. El [servicio](../../backend/src/PawTrack.Infrastructure/Subscriptions/EntitlementService.cs) resuelve plan, add-ons, ciclo, decisiones y consumo idempotente. Estado del mecanismo: `IMPLEMENTADO_SIN_PRUEBAS` para flujo completo en este corte; la [matriz comercial objetivo](../FEATURES.md) **no** prueba disponibilidad de cada beneficio.
+
+Los precios de [PRICING_AND_PLANS](../PRICING_AND_PLANS.md) requieren aprobación comercial y legal según ese documento. Su vigencia, importe cobrado y publicación real son `NO_VERIFICADO`; no repetir montos como precios de venta. El [controller de pagos](../../backend/src/PawTrack.API/Controllers/PaymentsController.cs) y [registro CyberSource/SINPE](../../backend/src/PawTrack.Infrastructure/InfrastructureServiceCollectionExtensions.cs) acreditan código, no transacciones de proveedor verificadas.

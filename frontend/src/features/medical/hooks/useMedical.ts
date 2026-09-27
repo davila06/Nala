@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   clinicMedicalApi,
   medicalApi,
@@ -9,9 +9,11 @@ import {
 } from "../api/medicalApi";
 
 export function useMedicalHistory(petId: string) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ["medical", petId],
-    queryFn: () => medicalApi.getHistory(petId),
+    queryFn: ({ pageParam }) => medicalApi.getHistoryPage(petId, pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, pages) => (lastPage.hasMore ? pages.length + 1 : undefined),
     staleTime: 30_000,
     enabled: !!petId,
     retry: false,
@@ -24,9 +26,7 @@ export function useWeightHistory(petId: string) {
     queryFn: () => medicalApi.getWeightHistory(petId),
     staleTime: 5 * 60_000,
     enabled: !!petId,
-    retry: (count, err: unknown) =>
-      (err as { response?: { status?: number } })?.response?.status !== 403 &&
-      count < 2,
+    retry: (count, err: unknown) => (err as { response?: { status?: number } })?.response?.status !== 403 && count < 2,
   });
 }
 
@@ -45,9 +45,7 @@ export function useHealthScore(petId: string) {
     queryFn: () => medicalApi.getHealthScore(petId),
     staleTime: 10 * 60_000,
     enabled: !!petId,
-    retry: (count, err: unknown) =>
-      (err as { response?: { status?: number } })?.response?.status !== 403 &&
-      count < 2,
+    retry: (count, err: unknown) => (err as { response?: { status?: number } })?.response?.status !== 403 && count < 2,
   });
 }
 
@@ -63,8 +61,7 @@ export function usePetSanitaryIdentity(petId: string) {
 export function useUpdatePetSanitaryIdentity(petId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: UpdatePetSanitaryIdentityPayload) =>
-      medicalApi.updateSanitaryIdentity(petId, payload),
+    mutationFn: (payload: UpdatePetSanitaryIdentityPayload) => medicalApi.updateSanitaryIdentity(petId, payload),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["pet-sanitary-identity", petId] });
       void qc.invalidateQueries({ queryKey: ["pets"] });
@@ -85,11 +82,7 @@ export function useVerifyClinicPetMicrochip(petId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: { observedChipId: string; notes?: string }) =>
-      clinicMedicalApi.verifyMicrochip(
-        petId,
-        payload.observedChipId,
-        payload.notes,
-      ),
+      clinicMedicalApi.verifyMicrochip(petId, payload.observedChipId, payload.notes),
     onSuccess: () => {
       void qc.invalidateQueries({
         queryKey: ["clinic-pet-sanitary-identity", petId],
@@ -130,8 +123,7 @@ export function useClinicAccessLog(petId: string, limit = 50) {
 export function useAddMedicalRecord(petId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: AddMedicalRecordPayload) =>
-      medicalApi.addRecord(petId, payload),
+    mutationFn: (payload: AddMedicalRecordPayload) => medicalApi.addRecord(petId, payload),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["medical", petId] });
       void qc.invalidateQueries({ queryKey: ["medical-reminders", petId] });
@@ -143,23 +135,16 @@ export function useDeleteMedicalRecord(petId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (recordId: string) => medicalApi.deleteRecord(petId, recordId),
-    onSuccess: () =>
-      void qc.invalidateQueries({ queryKey: ["medical", petId] }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["medical", petId] }),
   });
 }
 
 export function useUpdateMedicalRecord(petId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      recordId,
-      payload,
-    }: {
-      recordId: string;
-      payload: UpdateMedicalRecordPayload;
-    }) => medicalApi.updateRecord(petId, recordId, payload),
-    onSuccess: () =>
-      void qc.invalidateQueries({ queryKey: ["medical", petId] }),
+    mutationFn: ({ recordId, payload }: { recordId: string; payload: UpdateMedicalRecordPayload }) =>
+      medicalApi.updateRecord(petId, recordId, payload),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["medical", petId] }),
   });
 }
 
@@ -175,30 +160,24 @@ export function useVetReminders(petId: string) {
 export function useCompleteReminder(petId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (reminderId: string) =>
-      medicalApi.completeReminder(petId, reminderId),
-    onSuccess: () =>
-      void qc.invalidateQueries({ queryKey: ["medical-reminders", petId] }),
+    mutationFn: (reminderId: string) => medicalApi.completeReminder(petId, reminderId),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["medical-reminders", petId] }),
   });
 }
 
 export function useCreateVetReminder(petId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: CreateVetReminderPayload) =>
-      medicalApi.createReminder(petId, payload),
-    onSuccess: () =>
-      void qc.invalidateQueries({ queryKey: ["medical-reminders", petId] }),
+    mutationFn: (payload: CreateVetReminderPayload) => medicalApi.createReminder(petId, payload),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["medical-reminders", petId] }),
   });
 }
 
 export function useDeleteVetReminder(petId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (reminderId: string) =>
-      medicalApi.deleteReminder(petId, reminderId),
-    onSuccess: () =>
-      void qc.invalidateQueries({ queryKey: ["medical-reminders", petId] }),
+    mutationFn: (reminderId: string) => medicalApi.deleteReminder(petId, reminderId),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["medical-reminders", petId] }),
   });
 }
 

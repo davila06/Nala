@@ -1,0 +1,3 @@
+# Eventos de producto
+
+`POST /api/product-events` permite ingestión anónima con tamaño y rate limit; `GET /api/product-events/funnel` exige rol Admin y rango de hasta 366 días, según [ProductAnalyticsController](../../backend/src/PawTrack.API/Controllers/ProductAnalyticsController.cs). El [repositorio de eventos está registrado](../../backend/src/PawTrack.Infrastructure/InfrastructureServiceCollectionExtensions.cs); el [modelo](../../backend/src/PawTrack.Infrastructure/Persistence/PawTrackDbContext.cs) soporta almacenamiento. Estado del API: `IMPLEMENTADO_SIN_PRUEBAS` de integración ejecutada aquí; datos históricos, consentimiento, supresión y dashboards productivos no se deducen del controller.

@@ -1,0 +1,5 @@
+# Registros y permisos clínicos
+
+El propietario lee y agrega registros en [MedicalController](../../backend/src/PawTrack.API/Controllers/MedicalController.cs); lectura por clínica y operaciones clínicas aparecen en [ClinicsController](../../backend/src/PawTrack.API/Controllers/ClinicsController.cs). [MedicalRecord, grants, exports y access logs](../../backend/src/PawTrack.Infrastructure/Persistence/PawTrackDbContext.cs) sustentan almacenamiento. MFA se exige para mutaciones en [MedicalController](../../backend/src/PawTrack.API/Controllers/MedicalController.cs), pero no basta para demostrar aislamiento multi-sede: validar las [pruebas de integración](../../backend/tests/PawTrack.IntegrationTests/Medical/MedicalEndpointsTests.cs) en un entorno controlado.
+
+Timeline consolidado y PDF están en [MedicalController](../../backend/src/PawTrack.API/Controllers/MedicalController.cs); el gate Familia y ownership se aplican en la consulta, no se infieren de la pantalla. La ejecución del reporte y su lectura por tercero no se verificaron en este corte.

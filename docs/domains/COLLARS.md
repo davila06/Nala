@@ -1,0 +1,5 @@
+# Collares: capacidades observadas
+
+Las [rutas](../../backend/src/PawTrack.API/Controllers/CollarsController.cs) permiten registro, generación de clave, heartbeat/posición, historial, entrega, modo pérdida y zonas seguras. El [DbContext](../../backend/src/PawTrack.Infrastructure/Persistence/PawTrackDbContext.cs) persiste collares, credenciales, entradas de auditoría y posiciones. El registro del handler pasó en la tanda de [pruebas unitarias](../../backend/tests/PawTrack.UnitTests/Collars/RegisterCollarCommandHandlerTests.cs): `IMPLEMENTADO_Y_VERIFICADO` **solo para ese handler**, no para una vinculación física completa. Consulta el [estado anterior](../COLLAR_CURRENT_STATE.md) como antecedente sujeto a revalidación.
+
+La verificación del número de serie, ownership a través de todas las rutas y datos de batería requiere pruebas de integración y dispositivo; no se declara hardware propio listo para venta ([rutas](../../backend/src/PawTrack.API/Controllers/CollarsController.cs), [proveedor](../../backend/src/PawTrack.Infrastructure/Collars/TrackSolidService.cs)).

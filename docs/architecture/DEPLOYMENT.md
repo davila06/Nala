@@ -1,0 +1,5 @@
+# Despliegue declarado frente a verificado
+
+La [plantilla Bicep](../../infra/main.bicep) declara parámetros para entornos, red privada y flags de reportes/NALA, así como recursos Azure. Su presencia no acredita que estén aprovisionados. El [pipeline API](../../backend/src/PawTrack.API/Program.cs) decide migraciones con `MigrationExecutionPolicy`, evita ejecutarlas en Testing y expone OpenAPI solo en Development/Local; los health checks están sujetos a autorización. Los [workflows CI](../../.github/workflows/) describen gates, no resultados históricos de su ejecución.
+
+**Estado del despliegue real:** `NO_VERIFICADO`; faltan evidencias autorizadas de entorno, revisión de configuración, despliegue y ejecución de health checks. No ejecutes migraciones ni despliegue como parte de la auditoría documental. La [configuración de infraestructura](../../backend/src/PawTrack.Infrastructure/InfrastructureServiceCollectionExtensions.cs) admite Redis opcional; no afirmar que está habilitado en un entorno particular sin verificarlo.

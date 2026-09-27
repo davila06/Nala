@@ -6,9 +6,10 @@
 
 ## Fuentes
 
-La especificacion ejecutable se publica en `/openapi/v1.json` cuando la API esta
-encendida. Este documento organiza la superficie por modulo; no sustituye el
-contrato generado.
+La especificacion ejecutable se publica en `/openapi/v1.json` solo en
+Development/Local, segun [Program.cs](../backend/src/PawTrack.API/Program.cs).
+Este documento organiza la superficie por modulo; no sustituye un contrato
+generado en tiempo de ejecucion y contrastado con la revision actual.
 
 ## Reglas comunes
 

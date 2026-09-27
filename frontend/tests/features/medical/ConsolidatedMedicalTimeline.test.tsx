@@ -19,6 +19,29 @@ describe("ConsolidatedMedicalTimeline", () => {
 
     expect(await screen.findByRole("button", { name: /descargar reporte integral/i })).toBeInTheDocument();
   });
+
+  it("does not offer an unavailable certificate PDF", async () => {
+    vi.mocked(medicalApi.getTimeline).mockResolvedValueOnce({
+      items: [
+        {
+          id: "cert-no-pdf",
+          source: "Certificate",
+          date: "2026-09-19",
+          label: "HealthClearance",
+          kind: "Certificate",
+          documentUrl: null,
+          verificationCode: "SAFE-2",
+          isRevoked: false,
+          hasPdf: false,
+        },
+      ],
+      hasMore: false,
+    });
+    renderWithProviders(<ConsolidatedMedicalTimeline petId="cert-pet" />);
+
+    expect(await screen.findByText("Certificado de Salud")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^pdf$/i })).not.toBeInTheDocument();
+  });
   it("labels radiographs only when the attachment kind was explicitly declared", async () => {
     vi.mocked(medicalApi.getTimeline).mockResolvedValueOnce({
       items: [

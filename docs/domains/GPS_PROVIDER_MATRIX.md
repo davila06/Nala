@@ -1,0 +1,9 @@
+# Proveedores y tipos de evidencia
+
+| Proveedor o modalidad             | Evidencia                                                                                                                                                                                                        | Estado                                                                 |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| TrackSolid Pro / Jimi IoT         | [Servicio HTTP condicional](../../backend/src/PawTrack.Infrastructure/Collars/TrackSolidService.cs), [poller registrado](../../backend/src/PawTrack.Infrastructure/InfrastructureServiceCollectionExtensions.cs) | Integración codificada, uso de proveedor real `NO_VERIFICADO`.         |
+| Ingestión por API propia          | [CollarsController](../../backend/src/PawTrack.API/Controllers/CollarsController.cs), [middleware de device key](../../backend/src/PawTrack.API/Program.cs)                                                      | Superficie técnica, tráfico real `NO_VERIFICADO`.                      |
+| Otros proveedores/hardware propio | [estado histórico de collares](../COLLAR_CURRENT_STATE.md) es secundario; no se confirmó adaptador activo específico                                                                                             | `NO_VERIFICADO`; no presentar evaluación o prototipo como integración. |
+
+No publiques credenciales, IMEI ni coordenadas reales. La configuración se describe solo por nombre de clave en [TrackSolidService](../../backend/src/PawTrack.Infrastructure/Collars/TrackSolidService.cs).

@@ -21,6 +21,20 @@ public sealed class MedicalRecordAppendOnlyTests
     }
 
     [Fact]
+    public void Record_RevisionPreservesAttachmentAndDeclaredKind()
+    {
+        var record = MedicalRecord.Create(Guid.NewGuid(), Guid.NewGuid(), MedicalRecordType.Other,
+            new DateOnly(2026, 9, 9), "Radiografía", null, null, null);
+        record.SetDocumentUrl("https://example.invalid/radiograph.pdf", MedicalDocumentKind.Radiograph);
+
+        var revision = MedicalRecord.CreateRevision(record, Guid.NewGuid(), MedicalRecordType.Other,
+            record.Date, "Radiografía corregida", null, null, null);
+
+        revision.DocumentUrl.Should().Be(record.DocumentUrl);
+        revision.DocumentKind.Should().Be(MedicalDocumentKind.Radiograph);
+    }
+
+    [Fact]
     public void Record_CapturesImmutableVersionOneSnapshot()
     {
         var record = MedicalRecord.Create(

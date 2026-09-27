@@ -1,0 +1,5 @@
+# Salud de mascotas: alcance observado
+
+El [controller médico](../../backend/src/PawTrack.API/Controllers/MedicalController.cs) expone historial, timeline, peso, alertas, score, recordatorios y exportación con JWT; mutaciones requieren MFA step-up. El [registro DI](../../backend/src/PawTrack.Infrastructure/InfrastructureServiceCollectionExtensions.cs) resuelve repositorios y jobs de recordatorios/alertas; el [contexto](../../backend/src/PawTrack.Infrastructure/Persistence/PawTrackDbContext.cs) contiene registros, grants y logs. Estado de flujos clínicos completos en este corte: `IMPLEMENTADO_SIN_PRUEBAS` de integración ejecutada. El historial no equivale a diagnóstico automático.
+
+Actor: responsable; clínica con permiso según [ClinicsController](../../backend/src/PawTrack.API/Controllers/ClinicsController.cs). Valor: organizar eventos y seguimiento. Límites y privacidad en [registros](HEALTH_RECORDS.md), [recordatorios](HEALTH_REMINDERS.md) y [frontera asistiva](HEALTH_SAFETY_BOUNDARIES.md). [Expediente anterior](../expediente.md) sigue como antecedente sujeto a contraste.

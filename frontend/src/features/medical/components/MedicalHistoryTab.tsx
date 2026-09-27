@@ -960,7 +960,15 @@ function ClinicAccessLogSection({ petId }: { petId: string }) {
 }
 
 export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petName?: string }) {
-  const { data: historyResult, isLoading: loadingRecords } = useMedicalHistory(petId);
+  const {
+    data: historyPages,
+    isLoading: loadingRecords,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    isError: historyError,
+  } = useMedicalHistory(petId);
+  const historyResult = historyPages?.pages[0];
   const { data: count } = useMedicalCount(petId);
   const { data: reminders, isLoading: loadingReminders } = useVetReminders(petId);
   const exportPdf = useExportMedicalPdf(petId);
@@ -971,7 +979,7 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
   const [typeFilter, setTypeFilter] = useState<string>("Todos");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const records = historyResult?.records ?? [];
+  const records = historyPages?.pages.flatMap((page) => page.records) ?? [];
   const historyIsLimited = historyResult?.isLimited ?? false;
   const accessTier = historyResult?.accessTier ?? "explorador";
   const totalCount = historyResult?.totalCount ?? count?.totalRecords ?? 0;
@@ -1077,7 +1085,7 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
             type="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar por descripción, veterinario o clínica…"
+            placeholder="Buscar entre los registros cargados…"
             className="w-full rounded-xl border border-sand-200 bg-white py-2 pl-8 pr-4 text-sm text-sand-800 placeholder:text-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
           />
         </div>
@@ -1173,6 +1181,21 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
                 : `No hay registros de tipo "${typeFilter}".`}
             </p>
           </Card>
+        )}
+        {historyError && (
+          <p role="alert" className="mt-2 text-xs text-danger-600">
+            No se pudieron cargar más registros. Inténtalo de nuevo.
+          </p>
+        )}
+        {accessTier === "familia" && hasNextPage && (
+          <button
+            type="button"
+            onClick={() => void fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="mt-3 text-xs font-medium text-brand-600 hover:underline disabled:opacity-50"
+          >
+            {isFetchingNextPage ? "Cargando…" : "Cargar más registros"}
+          </button>
         )}
       </div>
 

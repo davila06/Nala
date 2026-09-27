@@ -251,7 +251,7 @@ probados contra SQL Server; tiempos medidos con volumen representativo.
       estados sin depender de color, tamanos tactiles, screen reader, mes sin
       saltos de layout; validar movil y escritorio.
 - [ ] Separar visualmente `recomendado`, `registrado por tutor`, `verificado por
-  clinica` y `vencido`; copiar claramente que una pauta generica no sustituye
+clinica` y `vencido`; copiar claramente que una pauta generica no sustituye
       indicacion veterinaria.
 - [ ] Añadir vista clinica solo donde hay permiso/grant activo; revocacion de
       acceso invalida datos en cache y enlaces del calendario inmediatamente.
@@ -474,9 +474,15 @@ antibioticos", "tiene dermatitis" o "debe recibir este medicamento".
       gestion de reservas; prueba UI del dia incluida
       ([ReminderCalendar.tsx](../frontend/src/features/medical/components/ReminderCalendar.tsx),
       [ReminderCalendar.test.tsx](../frontend/tests/features/medical/ReminderCalendar.test.tsx)).
-- [ ] Probar consulta SQL Server real y plan de ejecucion con indice por
-      cliente/mascota/fecha; prueba de volumen y pagina >1. La UI avisa si
-      alcanza 100 resultados, pero aun no pagina dentro del mes.
+- [x] Benchmark reproducible en SQL Server LocalDB con 100 000 reservas
+      sinteticas, sin datos persistentes: 1 076 lecturas logicas con el indice
+      previo y 128 con cliente+mascota+fecha. Indice aditivo generado en
+      `AddHealthTimelineReadIndexes`
+      ([benchmark-health-calendar.sql](../backend/scripts/benchmark-health-calendar.sql),
+      [ServiceProviderConfiguration.cs](../backend/src/PawTrack.Infrastructure/Persistence/Configurations/ServiceProviderConfiguration.cs)).
+- [ ] Ejecutar plan real y medir p95 sobre staging con volumen representativo;
+      probar pagina >1. La UI avisa si alcanza 100 resultados, pero aun no
+      pagina reservas dentro del mes.
 - [ ] Probar reprogramacion, zona horaria, transiciones de reserva y revocacion
       de propiedad en cliente+servidor; agregar resumen familiar autorizado si
       se aprueba comercialmente.
@@ -495,15 +501,43 @@ antibioticos", "tiene dermatitis" o "debe recibir este medicamento".
 - [x] Prueba UI verifica orden de consulta, certificado y adjunto, y no
       infiere tipo de radiografia desde un documento
       ([ConsolidatedMedicalTimeline.test.tsx](../frontend/tests/features/medical/ConsolidatedMedicalTimeline.test.tsx)).
-- [ ] Diseñar metadatos estructurados de examen/radiografia y ligarlos al
-      registro/consulta de origen. No inferir contenido de PDF, URL o imagen.
-- [ ] Construir proyeccion backend paginada y reporte consolidado descargable
-      desde fuentes autorizadas; hoy la cronologia muestra maximo 100 entradas
-      de respuestas existentes y **no** es un reporte PDF integral.
+- [x] `MedicalDocumentKind` nullable distingue laboratorio, radiografia,
+      ultrasonido y otro; se declara al subir adjunto en formulario de tutor
+      o clinica. Documentos anteriores quedan sin clasificar, una revision
+      preserva su adjunto/tipo y se rechaza un tipo sin archivo o desconocido.
+      Migracion aditiva `AddMedicalDocumentKind` generada, no aplicada a base
+      compartida ([MedicalRecord.cs](../backend/src/PawTrack.Domain/Medical/MedicalRecord.cs),
+      [MedicalRecordAppendOnlyTests.cs](../backend/tests/PawTrack.UnitTests/Medical/MedicalRecordAppendOnlyTests.cs)).
+- [x] `GET /api/pets/{petId}/medical/timeline` pagina cronologia autorizada
+      de registros+certificados con limite por pagina y orden estable por
+      fecha/emision/ID. La lista editable usa `GET .../medical/page`; ambas
+      interfaces cargan mas paginas bajo demanda sin truncar silenciosamente
+      a 100 eventos ([MedicalEndpointsTests.cs](../backend/tests/PawTrack.IntegrationTests/Medical/MedicalEndpointsTests.cs),
+      [MedicalHistoryPagination.test.tsx](../frontend/tests/features/medical/MedicalHistoryPagination.test.tsx)).
+- [x] `GET .../medical/consolidated-report` genera PDF de todas las paginas
+      autorizadas hasta 5 000 eventos con registros, certificados/estado y
+      referencia a adjuntos clasificados. No incrusta el contenido binario
+      de exámenes, ni incluye URLs de almacenamiento. Rechaza explicitamente
+      un reporte mayor en vez de entregar uno incompleto; probado como PDF
+      real y con 403 para tutor ajeno
+      ([GenerateConsolidatedHealthReportQuery.cs](../backend/src/PawTrack.Application/Medical/GenerateConsolidatedHealthReportQuery.cs),
+      [QuestPdfConsolidatedHealthReportGenerator.cs](../backend/src/PawTrack.Infrastructure/Medical/QuestPdfConsolidatedHealthReportGenerator.cs)).
+- [x] En LocalDB, con 100 000 registros y 100 000 certificados sinteticos
+      en tablas temporales, la consulta de registros paso de 1 008 a 4
+      lecturas logicas y la de certificados de 1 007 a 3. Es evidencia de
+      indice y motor, **no** un SLO de aplicacion ni prueba sobre staging.
+- [ ] Para declarar cerrado enterprise+: medir EF SQL generado y plan real
+      en staging, tiempos p50/p95/p99 con concurrencia, comprobar el costo de
+      paginas profundas y no comprometer disponibilidad de escrituras.
+- [ ] Extender tipo estructurado a adjuntos de `ClinicalConsultation` que no
+      esten vinculados a `MedicalRecord`, con permisos y migracion propia.
+- [ ] Diseñar exportacion asíncrona segura para >5 000 eventos y documentar
+      como obtener copia integral sin la restriccion del endpoint sincrono.
 - [ ] Revisar enlaces de adjuntos contra expiracion, revocacion, descarga
       autenticada, borrado y acceso multiusuario; no difundir URL permanente.
 - [ ] Probar consulta/exportacion con plan Plus/Explorador, grants revocados y
-      documentos eliminados; versionar el informe y registrar quien lo genero.
+      documentos eliminados; versionar el informe y registrar quien lo genero
+      (actor, mascota, version, instante y resultado), sin PII en logs.
 
 **Gate de esta ampliacion:** las tres areas tienen un primer incremento
 funcional, pero los pendientes marcados `[ ]` impiden declarar finalizado el

@@ -83,6 +83,18 @@ public sealed class MedicalController(ISender sender) : ControllerBase
         return BadRequest(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 400 });
     }
 
+    [HttpGet("page")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetHistoryPage(Guid petId, [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20, CancellationToken ct = default)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetMedicalHistoryPageQuery(petId, userId, page, pageSize), ct);
+        if (result.IsSuccess) return Ok(result.Value);
+        if (result.Errors.Contains("Acceso denegado.")) return Forbid();
+        return BadRequest(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 400 });
+    }
+
     [HttpGet("consolidated-report")]
     [EnableRateLimiting("data-export")]
     [Produces("application/pdf")]

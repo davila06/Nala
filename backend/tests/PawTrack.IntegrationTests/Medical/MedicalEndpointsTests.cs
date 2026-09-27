@@ -66,6 +66,16 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
         second!.Items.Select(item => item.Label).Should().Equal("Consulta 1");
         second.HasMore.Should().BeFalse();
 
+        var recordPage = await ownerClient.GetAsync($"/api/pets/{petId}/medical/page?page=1&pageSize=2");
+        recordPage.StatusCode.Should().Be(HttpStatusCode.OK);
+        var recordResult = await recordPage.Content.ReadFromJsonAsync<PagedMedicalRecordsResponse>();
+        recordResult!.Records.Select(record => record.Description).Should().Equal("Consulta 3", "Consulta 2");
+        recordResult.HasMore.Should().BeTrue();
+        var nextRecordPage = await ownerClient.GetFromJsonAsync<PagedMedicalRecordsResponse>(
+            $"/api/pets/{petId}/medical/page?page=2&pageSize=2");
+        nextRecordPage!.Records.Select(record => record.Description).Should().Equal("Consulta 1");
+        nextRecordPage.HasMore.Should().BeFalse();
+
         (await otherClient.GetAsync($"/api/pets/{petId}/medical/timeline?page=1&pageSize=2"))
             .StatusCode.Should().Be(HttpStatusCode.Forbidden);
 
@@ -79,6 +89,8 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
 
     private sealed record TimelineItem(string Label);
     private sealed record TimelineResponse(List<TimelineItem> Items, bool HasMore);
+    private sealed record PagedMedicalRecord(string Description);
+    private sealed record PagedMedicalRecordsResponse(List<PagedMedicalRecord> Records, bool HasMore);
 
     [Fact]
     public async Task Timeline_CertificatesIssuedTheSameDay_KeepIssuanceOrderAcrossPages()
@@ -128,6 +140,40 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
 
     private sealed record TimelineIdItem(Guid Id);
     private sealed record TimelineIdsResponse(List<TimelineIdItem> Items, bool HasMore);
+
+    [Fact]
+    public async Task MedicalPage_PlusPreviewMasksAttachmentAndDeniesTimelineAndReport()
+    {
+        var email = $"timeline-plus-{Guid.NewGuid():N}@pawtrack.cr";
+        using var client = await AuthHelper.CreateAuthenticatedClientAsync(factory, email);
+        Guid petId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var owner = await db.Users.SingleAsync(user => user.Email == email);
+            var pet = Pet.Create(owner.Id, "Toby", PetSpecies.Dog, null, null);
+            var plan = Subscription.CreateForUser(owner.Id, SubscriptionTier.UserPlus, $"M{Guid.NewGuid():N}"[..8], 1990m);
+            plan.Activate();
+            var record = MedicalRecord.Create(pet.Id, owner.Id, MedicalRecordType.Other,
+                new DateOnly(2026, 9, 20), "Examen", null, null, null);
+            record.SetDocumentUrl("https://example.invalid/private.pdf", MedicalDocumentKind.Radiograph);
+            db.Pets.Add(pet);
+            db.Subscriptions.Add(plan);
+            db.MedicalRecords.Add(record);
+            await db.SaveChangesAsync();
+            petId = pet.Id;
+        }
+
+        var response = await client.GetAsync($"/api/pets/{petId}/medical/page?page=1&pageSize=20");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        var root = document.RootElement;
+        root.GetProperty("accessTier").GetString().Should().Be("plus_preview");
+        root.GetProperty("records")[0].GetProperty("documentUrl").ValueKind.Should().Be(JsonValueKind.Null);
+        root.GetProperty("records")[0].GetProperty("documentKind").ValueKind.Should().Be(JsonValueKind.Null);
+        (await client.GetAsync($"/api/pets/{petId}/medical/timeline")).StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        (await client.GetAsync($"/api/pets/{petId}/medical/consolidated-report")).StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
 
     [Fact]
     public async Task AddRecord_Unauthenticated_Returns401()

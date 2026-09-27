@@ -1,0 +1,5 @@
+# Alta de proveedores
+
+El actor solicita registro mediante [POST /api/service-providers/register](../../backend/src/PawTrack.API/Controllers/ServiceProvidersController.cs), ruta anónima limitada que valida categoría y despacha `RegisterServiceProviderCommand`; el mismo controller reserva perfil/servicios al rol ServiceProvider. El dominio tiene [ServiceProvider, ProviderVerification y ProviderService en DbContext](../../backend/src/PawTrack.Infrastructure/Persistence/PawTrackDbContext.cs), y [workers de expiración/verificación](../../backend/src/PawTrack.Infrastructure/InfrastructureServiceCollectionExtensions.cs). Estado del flujo de alta por lectura: `IMPLEMENTADO_SIN_PRUEBAS` en este corte; aprobación de proveedor y funcionamiento de correo externo no verificados.
+
+Datos ingresados: contacto, dirección y coordenadas en la [solicitud](../../backend/src/PawTrack.API/Controllers/ServiceProvidersController.cs). No incluir datos personales reales en ejemplos. Plan y nivel comercial se comprueban por separado en [PLANS](../commercial/PLANS.md).

@@ -1,0 +1,3 @@
+# Arquitectura clínica y propuesta remota
+
+**Actual:** [ClinicsController](../../backend/src/PawTrack.API/Controllers/ClinicsController.cs) registra agenda y consultas; [PawTrackDbContext](../../backend/src/PawTrack.Infrastructure/Persistence/PawTrackDbContext.cs) persiste `ClinicalConsultation` y citas. **No acreditado:** emisión de tokens de sala, servidor de video/audio, grabación, proveedor Azure Communication Services u otro proveedor de consultas remotas; la [composición DI](../../backend/src/PawTrack.Infrastructure/InfrastructureServiceCollectionExtensions.cs) no registra un gateway de sala. La arquitectura de video es `PROPUESTO`, no diagrama del sistema actual.

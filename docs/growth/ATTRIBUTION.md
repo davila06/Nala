@@ -1,0 +1,3 @@
+# Atribución y límites
+
+El [controller de producto](../../backend/src/PawTrack.API/Controllers/ProductAnalyticsController.cs) ingiere eventos con identidad anónima, fuente, correlation ID y tenant; el [contexto](../../backend/src/PawTrack.Infrastructure/Persistence/PawTrackDbContext.cs) persiste eventos. El [funnel Admin](../../backend/src/PawTrack.API/Controllers/ProductAnalyticsController.cs) agrega por período y admite exportación, pero no demuestra atribución causal, conversiones pagadas ni vínculo de influencer a venta. Esos resultados permanecen `NO_VERIFICADO`; las fechas y tamaños deben validarse contra datos reales y consentimiento.

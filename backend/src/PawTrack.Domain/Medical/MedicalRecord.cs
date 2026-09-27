@@ -136,6 +136,8 @@ public sealed class MedicalRecord
             VetName = vetName?.Trim(),
             ClinicName = clinicName?.Trim(),
             NextDueDate = nextDueDate,
+            DocumentUrl = source.DocumentUrl,
+            DocumentKind = source.DocumentKind,
             CreatedAt = DateTimeOffset.UtcNow,
             WeightKg = weightKg,
             DosageDescription = dosageDescription?.Trim(),

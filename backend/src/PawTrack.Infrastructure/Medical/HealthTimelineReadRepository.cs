@@ -38,7 +38,8 @@ public sealed class HealthTimelineReadRepository(PawTrackDbContext db) : IHealth
             .Concat(certificates.Select(certificate => (
                 Item: new HealthTimelineItemDto(certificate.Id, "Certificate",
                     DateOnly.FromDateTime(certificate.IssuedAt.UtcDateTime), certificate.Type.ToString(),
-                    "Certificate", null, certificate.VerificationCode, certificate.IsRevoked),
+                    "Certificate", null, certificate.VerificationCode, certificate.IsRevoked,
+                    HasPdf: certificate.PdfUrl is not null),
                 certificate.IssuedAt)))
             .OrderByDescending(row => row.Item.Date).ThenBy(row => row.Item.Source)
             .ThenByDescending(row => row.IssuedAt).ThenByDescending(row => row.Item.Id)

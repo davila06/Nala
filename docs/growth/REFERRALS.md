@@ -1,0 +1,3 @@
+# Referidos y afiliados
+
+La [API de promociones](../../backend/src/PawTrack.API/Controllers/PromotionsController.cs) valida y canjea códigos; [PromotionCodeRedemption](../../backend/src/PawTrack.Infrastructure/Persistence/PawTrackDbContext.cs) registra canjes. Un código promocional no prueba un programa de referidos con tracking de padrino, pagos de afiliados o prevención de autofraude: estado de esos flujos `NO_VERIFICADO`. Los [eventos de producto](../../backend/src/PawTrack.API/Controllers/ProductAnalyticsController.cs) tampoco identifican por sí solos una comisión atribuida. Verifica contratos y payout antes de ofrecerlos.

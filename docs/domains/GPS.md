@@ -1,0 +1,5 @@
+# Posición y alertas GPS
+
+La [API de collares](../../backend/src/PawTrack.API/Controllers/CollarsController.cs) ofrece ubicación, historial, modo pérdida y zonas seguras con JWT; el [contexto](../../backend/src/PawTrack.Infrastructure/Persistence/PawTrackDbContext.cs) incluye `CollarLocation` y `CollarSafeZone`. Estas superficies no prueban posiciones recibidas desde hardware. [TrackSolidService](../../backend/src/PawTrack.Infrastructure/Collars/TrackSolidService.cs) requiere credenciales y devuelve resultados vacíos sin ellas; el [polling está registrado](../../backend/src/PawTrack.Infrastructure/InfrastructureServiceCollectionExtensions.cs). Estado de integración real: `NO_VERIFICADO`; sin proveedor ni telemetría en este corte.
+
+Ubicación precisa requiere protección de propiedad y retención: [CollarsController](../../backend/src/PawTrack.API/Controllers/CollarsController.cs), [job de purga registrado](../../backend/src/PawTrack.Infrastructure/InfrastructureServiceCollectionExtensions.cs). No inferir ejecución, batería real ni alertas entregadas a partir de rutas.

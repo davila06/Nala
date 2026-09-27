@@ -819,4 +819,10 @@ Una característica de plan se considera terminada cuando:
 
 ---
 
+## Auditoría de implementación (2026-09-27)
+
+Las tablas anteriores son un **contrato objetivo**, no un inventario de funciones disponibles. En particular, los pendientes de la sección 24 sobre crear `IEntitlementService`, los modelos de entitlements y el endpoint de snapshot han quedado desactualizados: existen [registro del servicio](../backend/src/PawTrack.Infrastructure/InfrastructureServiceCollectionExtensions.cs), [implementación](../backend/src/PawTrack.Infrastructure/Subscriptions/EntitlementService.cs), [entidades en el contexto](../backend/src/PawTrack.Infrastructure/Persistence/PawTrackDbContext.cs) y [endpoint de consulta](../backend/src/PawTrack.API/Controllers/SubscriptionsController.cs). Esto **no** verifica que todas las cuotas de la matriz estén aplicadas ni que sus precios estén aprobados.
+
+El inventario de capacidades comprobadas y sus estados se mantiene en la [matriz de trazabilidad](auditoria/FEATURE_TRACEABILITY_MATRIX.md). Un endpoint, una pantalla o un `DbSet` aislado no acredita un proceso completo. Los estados `IMPLEMENTADO_Y_VERIFICADO` se reservan a la operación específica probada durante este corte; las integraciones externas y disponibilidad en producción permanecen sin verificación hasta obtener pruebas operativas.
+
 **Fin de FEATURES.md**

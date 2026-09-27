@@ -2,6 +2,12 @@
 
 > Corte: 2026-09-23. Este documento es el estado operativo actual, no una
 > promesa comercial.
+>
+> Actualización parcial 2026-09-27: los conteos de pruebas debajo son del corte
+> 2026-09-23 y **no** describen el resultado actual. Ver [TESTING](TESTING.md):
+> backend 1621/1621 unitarias y frontend 142/143 (un fallo). El pedido de tienda
+> ya acepta `LocationId` opcional en [StoreOrdersController](../backend/src/PawTrack.API/Controllers/StoreOrdersController.cs),
+> pero ello no prueba stock ni autorización por sede. Ver [brechas](auditoria/DOCUMENTATION_GAP_REPORT.md).
 
 La documentacion operativa por rol fue contrastada con el router frontend,
 `UserRole` y los controllers actuales. La entrada oficial es

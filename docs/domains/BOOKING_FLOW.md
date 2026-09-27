@@ -1,0 +1,5 @@
+# Reservas de servicios
+
+El cliente consulta disponibilidad sin autenticación y crea reserva con JWT; el proveedor usa rol `ServiceProvider` para ver reservas entrantes; participantes pueden cambiar estado o reprogramar según [ProviderBookingsController](../../backend/src/PawTrack.API/Controllers/ProviderBookingsController.cs). Se almacenan [ProviderBookings y ProviderPayments](../../backend/src/PawTrack.Infrastructure/Persistence/PawTrackDbContext.cs), pero el registro de tablas no demuestra un cobro efectivo.
+
+**Límite:** [ManualProviderPaymentGateway](../../backend/src/PawTrack.Application/ServiceProviders/Payments/ManualProviderPaymentGateway.cs) crea un intento `Pending`, sin `ExternalIntentId`. Estado: reserva por API `IMPLEMENTADO_SIN_PRUEBAS` end-to-end; pago integrado `PARCIALMENTE_IMPLEMENTADO`. Pruebas unitarias del pago existen en [ProviderPaymentGatewayTests](../../backend/tests/PawTrack.UnitTests/ServiceProviders/ProviderPaymentGatewayTests.cs) pero no se ejecutaron en este corte. Confirmación de disponibilidad concurrente y notificación de reserva: `NO_VERIFICADO` en esta auditoría.

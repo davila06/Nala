@@ -38,6 +38,10 @@ export interface MedicalHistoryResultDto {
   previewLimit: number | null;
 }
 
+export interface MedicalHistoryPageDto extends MedicalHistoryResultDto {
+  hasMore: boolean;
+}
+
 export interface HealthTimelineItemDto {
   id: string;
   source: "MedicalRecord" | "Certificate";
@@ -48,6 +52,7 @@ export interface HealthTimelineItemDto {
   verificationCode: string | null;
   isRevoked: boolean;
   documentKind?: MedicalDocumentKind | null;
+  hasPdf?: boolean;
 }
 
 export interface HealthTimelinePageDto {
@@ -212,6 +217,13 @@ export interface MedicalRecordCountDto {
 }
 
 export const medicalApi = {
+  getHistoryPage: (petId: string, page: number): Promise<MedicalHistoryPageDto> =>
+    apiClient
+      .get<MedicalHistoryPageDto>(`/pets/${petId}/medical/page`, {
+        params: { page, pageSize: 20 },
+      })
+      .then((response) => response.data),
+
   downloadConsolidatedReport: (petId: string): Promise<Blob> =>
     apiClient
       .get(`/pets/${petId}/medical/consolidated-report`, { responseType: "blob" })
