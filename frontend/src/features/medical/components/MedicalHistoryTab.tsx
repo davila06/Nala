@@ -26,6 +26,7 @@ import { CERTIFICATE_TYPE_LABELS } from "@/features/clinics/api/certificateApi";
 import { useMyProfile, useGrantHealthDataConsent } from "@/features/auth/hooks/useProfile";
 import type {
   MedicalRecordType,
+  MedicalDocumentKind,
   MedicalRecordDto,
   VetReminderDto,
   PetSex,
@@ -619,6 +620,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
   const [clinicName, setClinicName] = useState("");
   const [nextDueDate, setNextDueDate] = useState("");
   const [document, setDocument] = useState<File | null>(null);
+  const [documentKind, setDocumentKind] = useState<MedicalDocumentKind | "">("");
 
   const handleSubmit = () => {
     if (!description.trim()) {
@@ -634,6 +636,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
         clinicName: clinicName.trim() || undefined,
         nextDueDate: nextDueDate || undefined,
         document: document ?? undefined,
+        documentKind: document ? documentKind || undefined : undefined,
       },
       {
         onSuccess: () => {
@@ -775,6 +778,22 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
               className="block w-full text-xs text-sand-600 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-brand-700 hover:file:bg-brand-200"
             />
           </div>
+          {document && (
+            <div>
+              <label htmlFor="medical-document-kind" className="mb-1 block text-xs font-medium text-sand-600">
+                Tipo de documento (declarado)
+              </label>
+              <select id="medical-document-kind" value={documentKind}
+                onChange={(event) => setDocumentKind(event.target.value as MedicalDocumentKind | "")}
+                className="w-full rounded-lg border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800">
+                <option value="">Sin clasificar</option>
+                <option value="LaboratoryResult">Resultado de laboratorio</option>
+                <option value="Radiograph">Radiografía</option>
+                <option value="Ultrasound">Ultrasonido</option>
+                <option value="Other">Otro documento</option>
+              </select>
+            </div>
+          )}
 
           <div className="flex gap-2 pt-1">
             <Button onClick={handleSubmit} loading={add.isPending} disabled={!description.trim()} className="flex-1">

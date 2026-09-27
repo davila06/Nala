@@ -370,6 +370,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddHostedService<VerificationRenewalReminderHostedService>();
         services.AddScoped<ICertificateService, QuestPdfCertificateService>();
         services.AddScoped<IMedicalPdfExporter, QuestPdfMedicalExporter>();
+        services.AddScoped<IConsolidatedHealthPdfGenerator, QuestPdfConsolidatedHealthReportGenerator>();
         services.AddScoped<IAnnualReportPdfGenerator, QuestPdfAnnualReportGenerator>();
         services.AddScoped<IPetIdCardService, QuestPdfIdCardService>();
 

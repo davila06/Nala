@@ -83,6 +83,19 @@ public sealed class MedicalController(ISender sender) : ControllerBase
         return BadRequest(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 400 });
     }
 
+    [HttpGet("consolidated-report")]
+    [EnableRateLimiting("data-export")]
+    [Produces("application/pdf")]
+    public async Task<IActionResult> DownloadConsolidatedReport(Guid petId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GenerateConsolidatedHealthReportQuery(petId, userId), ct);
+        if (result.IsSuccess) return File(result.Value!, "application/pdf", $"historial-consolidado-{petId}.pdf");
+        if (result.Errors.Contains("Acceso denegado.") || result.Errors.Contains("El reporte consolidado requiere el plan Familia."))
+            return Forbid();
+        return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
     // ── GET /api/pets/{petId}/medical/weight-history ──────────────────────────
     [HttpGet("weight-history")]
     [EnableRateLimiting("public-api")]

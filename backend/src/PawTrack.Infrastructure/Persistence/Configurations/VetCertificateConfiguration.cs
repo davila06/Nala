@@ -30,6 +30,7 @@ public sealed class VetCertificateConfiguration : IEntityTypeConfiguration<VetCe
 
         builder.HasIndex(x => x.VerificationCode).IsUnique();
         builder.HasIndex(x => x.PetId);
+        builder.HasIndex(x => new { x.PetId, x.IssuedAt, x.Id });
         builder.HasIndex(x => new { x.ClinicId, x.IssuedAt });
     }
 }

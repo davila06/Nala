@@ -67,6 +67,13 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
 
         (await otherClient.GetAsync($"/api/pets/{petId}/medical/timeline?page=1&pageSize=2"))
             .StatusCode.Should().Be(HttpStatusCode.Forbidden);
+
+        var report = await ownerClient.GetAsync($"/api/pets/{petId}/medical/consolidated-report");
+        report.StatusCode.Should().Be(HttpStatusCode.OK);
+        report.Content.Headers.ContentType?.MediaType.Should().Be("application/pdf");
+        (await report.Content.ReadAsByteArrayAsync()).Take(4).Should().Equal(0x25, 0x50, 0x44, 0x46);
+        (await otherClient.GetAsync($"/api/pets/{petId}/medical/consolidated-report"))
+            .StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     private sealed record TimelineItem(string Label);

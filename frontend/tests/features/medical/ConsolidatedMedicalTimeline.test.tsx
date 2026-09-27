@@ -1,5 +1,5 @@
 import { fireEvent, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ConsolidatedMedicalTimeline } from "@/features/medical/components/ConsolidatedMedicalTimeline";
 import { renderWithProviders } from "../../utils/renderWithProviders";
 import { medicalApi } from "@/features/medical/api/medicalApi";
@@ -11,6 +11,30 @@ vi.mock("@/features/clinics/hooks/useCertificates", () => ({
 }));
 
 describe("ConsolidatedMedicalTimeline", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("offers the consolidated PDF report to authorized timeline users", async () => {
+    vi.mocked(medicalApi.getTimeline).mockResolvedValueOnce({ items: [], hasMore: false });
+    renderWithProviders(<ConsolidatedMedicalTimeline petId="report-pet" />);
+
+    expect(await screen.findByRole("button", { name: /descargar reporte integral/i })).toBeInTheDocument();
+  });
+  it("labels radiographs only when the attachment kind was explicitly declared", async () => {
+    vi.mocked(medicalApi.getTimeline).mockResolvedValueOnce({ items: [
+      { id: "declared", source: "MedicalRecord", date: "2026-09-20", label: "Documento uno",
+        kind: "Other", documentUrl: "https://example.invalid/one.pdf", verificationCode: null,
+        isRevoked: false, documentKind: "Radiograph" },
+      { id: "legacy", source: "MedicalRecord", date: "2026-09-19", label: "Documento dos",
+        kind: "Other", documentUrl: "https://example.invalid/two.pdf", verificationCode: null,
+        isRevoked: false, documentKind: null },
+    ], hasMore: false });
+
+    renderWithProviders(<ConsolidatedMedicalTimeline petId="documents-pet" />);
+
+    expect(await screen.findByText(/Radiografía \(declarada\)/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Registro médico/)).toHaveLength(1);
+  });
+
   it("loads all timeline pages on demand instead of truncating at 100 entries", async () => {
     vi.mocked(medicalApi.getTimeline)
       .mockResolvedValueOnce({ items: [

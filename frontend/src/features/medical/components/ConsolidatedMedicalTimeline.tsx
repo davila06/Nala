@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { FileText } from "lucide-react";
 import { medicalApi } from "../api/medicalApi";
 import { useDownloadCertificatePdf } from "@/features/clinics/hooks/useCertificates";
@@ -18,6 +18,17 @@ export function ConsolidatedMedicalTimeline({ petId }: Props) {
     retry: false,
   });
   const download = useDownloadCertificatePdf();
+  const report = useMutation({
+    mutationFn: () => medicalApi.downloadConsolidatedReport(petId),
+    onSuccess: (blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `historial-consolidado-${petId}.pdf`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    },
+  });
   const [downloadError, setDownloadError] = useState(false);
   const events = data?.pages.flatMap((page) => page.items) ?? [];
 
@@ -39,6 +50,11 @@ export function ConsolidatedMedicalTimeline({ petId }: Props) {
   return (
     <details className="border-y border-sand-200 py-3">
       <summary className="cursor-pointer text-sm font-semibold text-sand-800">Historial consolidado</summary>
+      <button type="button" disabled={report.isPending} onClick={() => report.mutate()}
+        className="mt-2 text-xs font-medium text-brand-600 hover:underline disabled:opacity-50">
+        {report.isPending ? "Preparando PDF…" : "Descargar reporte integral"}
+      </button>
+      {report.isError && <p role="alert" className="mt-2 text-xs text-danger-600">No se pudo generar el reporte. Inténtalo de nuevo.</p>}
       {isLoading && <p className="mt-3 text-xs text-sand-500">Cargando historial…</p>}
       {isError && (
         <p role="alert" className="mt-3 text-xs text-danger-600">
@@ -63,7 +79,11 @@ export function ConsolidatedMedicalTimeline({ petId }: Props) {
                   : event.label}
               </p>
               <p className="text-xs text-sand-500">
-                {event.date} · {event.source === "Certificate" ? "Certificado" : event.kind === "Checkup" ? "Consulta" : "Registro médico"}
+                {event.date} · {event.source === "Certificate" ? "Certificado"
+                  : event.documentKind === "Radiograph" ? "Radiografía (declarada)"
+                  : event.documentKind === "LaboratoryResult" ? "Examen de laboratorio (declarado)"
+                  : event.documentKind === "Ultrasound" ? "Ultrasonido (declarado)"
+                  : event.kind === "Checkup" ? "Consulta" : "Registro médico"}
                 {event.isRevoked ? " · Revocado" : ""}
               </p>
             </div>

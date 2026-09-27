@@ -87,6 +87,7 @@ public sealed class ProviderBookingConfiguration : IEntityTypeConfiguration<Prov
 
         builder.HasIndex(x => new { x.ProviderServiceId, x.StartsAt, x.Status });
         builder.HasIndex(x => new { x.CustomerUserId, x.CreatedAt });
+        builder.HasIndex(x => new { x.CustomerUserId, x.PetId, x.StartsAt });
         builder.HasIndex(x => new { x.ServiceProviderId, x.StartsAt });
     }
 }

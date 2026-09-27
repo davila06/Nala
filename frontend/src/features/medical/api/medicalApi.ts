@@ -21,6 +21,7 @@ export interface MedicalRecordDto {
   clinicName: string | null;
   nextDueDate: string | null;
   documentUrl: string | null;
+  documentKind?: MedicalDocumentKind | null;
   createdAt: string;
   clinicId: string | null;
   source: "Owner" | "Clinic";
@@ -32,6 +33,8 @@ export interface MedicalRecordDto {
   durationDays: number | null;
   medicationEndDate: string | null;
 }
+
+export type MedicalDocumentKind = "LaboratoryResult" | "Radiograph" | "Ultrasound" | "Other";
 
 export interface MedicalHistoryResultDto {
   records: MedicalRecordDto[];
@@ -51,6 +54,7 @@ export interface HealthTimelineItemDto {
   documentUrl: string | null;
   verificationCode: string | null;
   isRevoked: boolean;
+  documentKind?: MedicalDocumentKind | null;
 }
 
 export interface HealthTimelinePageDto {
@@ -101,6 +105,7 @@ export interface AddMedicalRecordPayload {
   clinicName?: string;
   nextDueDate?: string;
   document?: File;
+  documentKind?: MedicalDocumentKind;
   weightKg?: number;
   dosageDescription?: string;
   frequency?: string;
@@ -219,6 +224,10 @@ export interface MedicalRecordCountDto {
 }
 
 export const medicalApi = {
+  downloadConsolidatedReport: (petId: string): Promise<Blob> =>
+    apiClient.get(`/pets/${petId}/medical/consolidated-report`, { responseType: "blob" })
+      .then((response) => response.data as Blob),
+
   getTimeline: (petId: string, page: number): Promise<HealthTimelinePageDto> =>
     apiClient.get<HealthTimelinePageDto>(`/pets/${petId}/medical/timeline`, {
       params: { page, pageSize: 20 },
@@ -277,6 +286,7 @@ export const medicalApi = {
     if (payload.clinicName) form.append("clinicName", payload.clinicName);
     if (payload.nextDueDate) form.append("nextDueDate", payload.nextDueDate);
     if (payload.document) form.append("document", payload.document);
+    if (payload.document && payload.documentKind) form.append("documentKind", payload.documentKind);
     if (payload.weightKg != null)
       form.append("weightKg", String(payload.weightKg));
     if (payload.dosageDescription)
