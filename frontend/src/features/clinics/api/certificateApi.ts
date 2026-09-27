@@ -104,13 +104,7 @@ export interface ClinicVeterinarianDto {
   clinicId: string;
   fullName: string;
   licenseNumber: string;
-  status:
-    | "PendingReview"
-    | "Authorized"
-    | "Rejected"
-    | "Suspended"
-    | "Revoked"
-    | "Expired";
+  status: "PendingReview" | "Authorized" | "Rejected" | "Suspended" | "Revoked" | "Expired";
   canIssueCertificates: boolean;
   isActive: boolean;
   hasDocument: boolean;
@@ -144,51 +138,34 @@ export const CERTIFICATE_TYPE_LABELS: Record<CertificateType, string> = {
 
 export const certificateApi = {
   getForPetPage: (petId: string, page: number): Promise<CertificatePageDto> =>
-    apiClient.get<CertificatePageDto>(`/certificates/pet/${petId}/page`, {
-      params: { page, pageSize: 20 },
-    }).then((response) => response.data),
-
-  getForPet: (petId: string) =>
     apiClient
-      .get<CertificateDto[]>(`/certificates/pet/${petId}`)
-      .then((r) => r.data),
+      .get<CertificatePageDto>(`/certificates/pet/${petId}/page`, {
+        params: { page, pageSize: 20 },
+      })
+      .then((response) => response.data),
+
+  getForPet: (petId: string) => apiClient.get<CertificateDto[]>(`/certificates/pet/${petId}`).then((r) => r.data),
 
   verify: (code: string) =>
-    apiClient
-      .get<CertificateVerificationDto | null>(`/certificates/verify/${code}`)
-      .then((r) => r.data),
+    apiClient.get<CertificateVerificationDto | null>(`/certificates/verify/${code}`).then((r) => r.data),
 
   issue: (request: IssueCertificateRequest) =>
-    apiClient
-      .post<CertificateDto>("/certificates", request)
-      .then((r) => r.data),
+    apiClient.post<CertificateDto>("/certificates", request).then((r) => r.data),
 
   getForClinic: (clinicId: string, page = 1) =>
     apiClient
-      .get<
-        CertificateDto[]
-      >(`/certificates/clinic/${clinicId}`, { params: { page, pageSize: 10 } })
+      .get<CertificateDto[]>(`/certificates/clinic/${clinicId}`, { params: { page, pageSize: 10 } })
       .then((r) => r.data),
 
   issuePassport: (request: IssueVaccinePassportRequest) =>
-    apiClient
-      .post<CertificateDto>("/certificates/passport", request)
-      .then((r) => r.data),
+    apiClient.post<CertificateDto>("/certificates/passport", request).then((r) => r.data),
 
   getCertificateIssuers: () =>
-    apiClient
-      .get<ClinicCertificateIssuersDto>("/clinics/me/certificate-issuers")
-      .then((r) => r.data),
+    apiClient.get<ClinicCertificateIssuersDto>("/clinics/me/certificate-issuers").then((r) => r.data),
 
-  getMyVerification: () =>
-    apiClient
-      .get<ClinicVerificationDto | null>("/clinics/me/verification")
-      .then((r) => r.data),
+  getMyVerification: () => apiClient.get<ClinicVerificationDto | null>("/clinics/me/verification").then((r) => r.data),
 
-  submitVerification: () =>
-    apiClient
-      .post<ClinicVerificationDto>("/clinics/me/verification", {})
-      .then((r) => r.data),
+  submitVerification: () => apiClient.post<ClinicVerificationDto>("/clinics/me/verification", {}).then((r) => r.data),
 
   uploadVerificationDocument: (file: File) => {
     const form = new FormData();
@@ -200,10 +177,7 @@ export const certificateApi = {
       .then((r) => r.data);
   },
 
-  getMyVeterinarians: () =>
-    apiClient
-      .get<ClinicVeterinarianDto[]>("/clinics/me/veterinarians")
-      .then((r) => r.data),
+  getMyVeterinarians: () => apiClient.get<ClinicVeterinarianDto[]>("/clinics/me/veterinarians").then((r) => r.data),
 
   createVeterinarian: (fullName: string, licenseNumber: string) =>
     apiClient
@@ -217,13 +191,9 @@ export const certificateApi = {
     const form = new FormData();
     form.append("file", file);
     return apiClient
-      .post<ClinicVeterinarianDto>(
-        `/clinics/me/veterinarians/${veterinarianId}/document`,
-        form,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        },
-      )
+      .post<ClinicVeterinarianDto>(`/clinics/me/veterinarians/${veterinarianId}/document`, form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
       .then((r) => r.data);
   },
 
@@ -231,22 +201,15 @@ export const certificateApi = {
     const form = new FormData();
     form.append("file", file);
     return apiClient
-      .post<ClinicVeterinarianDto>(
-        `/clinics/me/veterinarians/${veterinarianId}/signature`,
-        form,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        },
-      )
+      .post<ClinicVeterinarianDto>(`/clinics/me/veterinarians/${veterinarianId}/signature`, form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
       .then((r) => r.data);
   },
 
   revokeVeterinarian: (veterinarianId: string, reason: string) =>
     apiClient
-      .post<ClinicVeterinarianDto>(
-        `/clinics/me/veterinarians/${veterinarianId}/revoke`,
-        { reason },
-      )
+      .post<ClinicVeterinarianDto>(`/clinics/me/veterinarians/${veterinarianId}/revoke`, { reason })
       .then((r) => r.data),
 
   setVeterinarianPermissions: (veterinarianId: string, permissions: string[]) =>
@@ -256,10 +219,7 @@ export const certificateApi = {
       })
       .then(() => undefined),
 
-  scheduleAppointment: (
-    veterinarianId: string,
-    request: VeterinarianAppointmentRequest,
-  ) =>
+  scheduleAppointment: (veterinarianId: string, request: VeterinarianAppointmentRequest) =>
     apiClient
       .post<{
         appointmentId: string;
@@ -267,12 +227,9 @@ export const certificateApi = {
       .then((r) => r.data),
 
   downloadPdf: async (certificateId: string) => {
-    const response = await apiClient.get<Blob>(
-      `/certificates/${certificateId}/download`,
-      {
-        responseType: "blob",
-      },
-    );
+    const response = await apiClient.get<Blob>(`/certificates/${certificateId}/download`, {
+      responseType: "blob",
+    });
     return response.data;
   },
 };

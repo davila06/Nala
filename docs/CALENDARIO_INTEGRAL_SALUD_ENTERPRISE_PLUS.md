@@ -534,10 +534,12 @@ antibioticos", "tiene dermatitis" o "debe recibir este medicamento".
 - [ ] Para declarar cerrado enterprise+: medir EF SQL generado y plan real
       en staging, tiempos p50/p95/p99 con concurrencia, comprobar el costo de
       paginas profundas y no comprometer disponibilidad de escrituras.
-- [ ] Paginar el panel independiente de certificados y su endpoint actual
-      `GET /api/certificates/pet/{petId}` sin cambiar silenciosamente el
-      contrato de consumidores existentes; aun carga todos los certificados
-      aunque la cronologia nueva ya los consulte por paginas.
+- [x] El panel independiente de certificados usa ahora
+      `GET /api/certificates/pet/{petId}/page` con boton para mas paginas;
+      el endpoint legado mantiene su contrato. Prueba HTTP de 2 paginas y
+      cuenta ajena, mas prueba de hook UI de carga bajo demanda
+      ([CertificatesEndpointsTests.cs](../backend/tests/PawTrack.IntegrationTests/Certificates/CertificatesEndpointsTests.cs),
+      [CertificatePagination.test.tsx](../frontend/tests/features/medical/CertificatePagination.test.tsx)).
 - [ ] Extender tipo estructurado a adjuntos de `ClinicalConsultation` que no
       esten vinculados a `MedicalRecord`, con permisos y migracion propia.
 - [ ] Diseñar exportacion asíncrona segura para >5 000 eventos y documentar

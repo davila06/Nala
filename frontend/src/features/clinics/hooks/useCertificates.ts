@@ -1,16 +1,12 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  certificateApi,
-  type IssueCertificateRequest,
-  type IssueVaccinePassportRequest,
-} from "../api/certificateApi";
+import { certificateApi, type IssueCertificateRequest, type IssueVaccinePassportRequest } from "../api/certificateApi";
 
 export function useCertificatesForPet(petId: string) {
   return useInfiniteQuery({
     queryKey: ["certificates", petId],
     queryFn: ({ pageParam }) => certificateApi.getForPetPage(petId, pageParam),
     initialPageParam: 1,
-    getNextPageParam: (lastPage, pages) => lastPage.hasMore ? pages.length + 1 : undefined,
+    getNextPageParam: (lastPage, pages) => (lastPage.hasMore ? pages.length + 1 : undefined),
     enabled: !!petId,
   });
 }
@@ -27,8 +23,7 @@ export function useCertificatesForClinic(clinicId: string, page = 1) {
 export function useIssueCertificate() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (request: IssueCertificateRequest) =>
-      certificateApi.issue(request),
+    mutationFn: (request: IssueCertificateRequest) => certificateApi.issue(request),
     onSuccess: (_data, req) => {
       void queryClient.invalidateQueries({
         queryKey: ["certificates", req.petId],
@@ -40,8 +35,7 @@ export function useIssueCertificate() {
 export function useIssueVaccinePassport() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (request: IssueVaccinePassportRequest) =>
-      certificateApi.issuePassport(request),
+    mutationFn: (request: IssueVaccinePassportRequest) => certificateApi.issuePassport(request),
     onSuccess: (_data, req) => {
       void queryClient.invalidateQueries({
         queryKey: ["certificates", req.petId],
@@ -103,10 +97,7 @@ export function useCreateVeterinarian() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (request: { fullName: string; licenseNumber: string }) =>
-      certificateApi.createVeterinarian(
-        request.fullName,
-        request.licenseNumber,
-      ),
+      certificateApi.createVeterinarian(request.fullName, request.licenseNumber),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["certificate-issuers"] });
       void queryClient.invalidateQueries({
@@ -119,13 +110,8 @@ export function useCreateVeterinarian() {
 export function useUploadVeterinarianDocument() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      veterinarianId,
-      file,
-    }: {
-      veterinarianId: string;
-      file: File;
-    }) => certificateApi.uploadVeterinarianDocument(veterinarianId, file),
+    mutationFn: ({ veterinarianId, file }: { veterinarianId: string; file: File }) =>
+      certificateApi.uploadVeterinarianDocument(veterinarianId, file),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["clinic-veterinarians"],
@@ -138,13 +124,8 @@ export function useUploadVeterinarianDocument() {
 export function useUploadVeterinarianSignature() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      veterinarianId,
-      file,
-    }: {
-      veterinarianId: string;
-      file: File;
-    }) => certificateApi.uploadVeterinarianSignature(veterinarianId, file),
+    mutationFn: ({ veterinarianId, file }: { veterinarianId: string; file: File }) =>
+      certificateApi.uploadVeterinarianSignature(veterinarianId, file),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["clinic-veterinarians"],
@@ -157,13 +138,8 @@ export function useUploadVeterinarianSignature() {
 export function useRevokeVeterinarian() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      veterinarianId,
-      reason,
-    }: {
-      veterinarianId: string;
-      reason: string;
-    }) => certificateApi.revokeVeterinarian(veterinarianId, reason),
+    mutationFn: ({ veterinarianId, reason }: { veterinarianId: string; reason: string }) =>
+      certificateApi.revokeVeterinarian(veterinarianId, reason),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["clinic-veterinarians"],
@@ -175,7 +151,6 @@ export function useRevokeVeterinarian() {
 
 export function useDownloadCertificatePdf() {
   return useMutation({
-    mutationFn: (certificateId: string) =>
-      certificateApi.downloadPdf(certificateId),
+    mutationFn: (certificateId: string) => certificateApi.downloadPdf(certificateId),
   });
 }

@@ -211,7 +211,11 @@ function PetCertificatesPanel({ petId }: { petId: string }) {
 
       {isLoading && <p className="mt-3 text-xs text-sand-500">Cargando documentos…</p>}
 
-      {isError && <p role="alert" className="mt-3 text-xs text-danger-600">No se pudieron cargar los certificados.</p>}
+      {isError && (
+        <p role="alert" className="mt-3 text-xs text-danger-600">
+          No se pudieron cargar los certificados.
+        </p>
+      )}
 
       {!isLoading && !isError && certificates.length === 0 && (
         <p className="mt-3 text-xs text-sand-500">Aún no hay certificados emitidos para esta mascota.</p>
@@ -254,8 +258,12 @@ function PetCertificatesPanel({ petId }: { petId: string }) {
         </ul>
       )}
       {hasNextPage && (
-        <button type="button" disabled={isFetchingNextPage} onClick={() => void fetchNextPage()}
-          className="mt-3 text-xs font-medium text-brand-600 hover:underline disabled:opacity-50">
+        <button
+          type="button"
+          disabled={isFetchingNextPage}
+          onClick={() => void fetchNextPage()}
+          className="mt-3 text-xs font-medium text-brand-600 hover:underline disabled:opacity-50"
+        >
           {isFetchingNextPage ? "Cargando…" : "Cargar más certificados"}
         </button>
       )}
