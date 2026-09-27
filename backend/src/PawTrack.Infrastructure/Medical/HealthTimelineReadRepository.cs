@@ -30,15 +30,19 @@ public sealed class HealthTimelineReadRepository(PawTrackDbContext db) : IHealth
             })
             .ToListAsync(ct);
 
-        var items = records.Select(record => new HealthTimelineItemDto(
-                record.Id, "MedicalRecord", record.Date, record.Description, record.Type.ToString(),
-                record.DocumentUrl, null, false, record.DocumentKind?.ToString()))
-            .Concat(certificates.Select(certificate => new HealthTimelineItemDto(
-                certificate.Id, "Certificate", DateOnly.FromDateTime(certificate.IssuedAt.UtcDateTime),
-                certificate.Type.ToString(), "Certificate", null, certificate.VerificationCode, certificate.IsRevoked)))
-            .OrderByDescending(item => item.Date).ThenBy(item => item.Source)
-            .ThenByDescending(item => item.Id)
-            .Skip(offset).Take(pageSize + 1).ToList();
+        var items = records.Select(record => (
+                Item: new HealthTimelineItemDto(record.Id, "MedicalRecord", record.Date,
+                    record.Description, record.Type.ToString(), record.DocumentUrl, null, false,
+                    record.DocumentKind?.ToString()),
+                IssuedAt: DateTimeOffset.MinValue))
+            .Concat(certificates.Select(certificate => (
+                Item: new HealthTimelineItemDto(certificate.Id, "Certificate",
+                    DateOnly.FromDateTime(certificate.IssuedAt.UtcDateTime), certificate.Type.ToString(),
+                    "Certificate", null, certificate.VerificationCode, certificate.IsRevoked),
+                certificate.IssuedAt)))
+            .OrderByDescending(row => row.Item.Date).ThenBy(row => row.Item.Source)
+            .ThenByDescending(row => row.IssuedAt).ThenByDescending(row => row.Item.Id)
+            .Skip(offset).Take(pageSize + 1).Select(row => row.Item).ToList();
 
         return new HealthTimelinePageDto(items.Take(pageSize).ToList(), items.Count > pageSize);
     }

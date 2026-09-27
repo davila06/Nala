@@ -783,9 +783,12 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
               <label htmlFor="medical-document-kind" className="mb-1 block text-xs font-medium text-sand-600">
                 Tipo de documento (declarado)
               </label>
-              <select id="medical-document-kind" value={documentKind}
+              <select
+                id="medical-document-kind"
+                value={documentKind}
                 onChange={(event) => setDocumentKind(event.target.value as MedicalDocumentKind | "")}
-                className="w-full rounded-lg border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800">
+                className="w-full rounded-lg border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800"
+              >
                 <option value="">Sin clasificar</option>
                 <option value="LaboratoryResult">Resultado de laboratorio</option>
                 <option value="Radiograph">Radiografía</option>

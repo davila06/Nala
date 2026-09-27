@@ -2,14 +2,7 @@ import { apiClient } from "@/shared/lib/apiClient";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type MedicalRecordType =
-  | "Vaccine"
-  | "Deworming"
-  | "Checkup"
-  | "Surgery"
-  | "Other"
-  | "Medication"
-  | "Allergy";
+export type MedicalRecordType = "Vaccine" | "Deworming" | "Checkup" | "Surgery" | "Other" | "Medication" | "Allergy";
 
 export interface MedicalRecordDto {
   id: string;
@@ -184,12 +177,7 @@ export interface HealthScoreDto {
 
 export type PetSex = "Unknown" | "Male" | "Female" | "NotApplicable";
 export type SterilizedStatus = "Unknown" | "Yes" | "No" | "NotApplicable";
-export type MicrochipVerificationStatus =
-  | "NotProvided"
-  | "Declared"
-  | "Verified"
-  | "Conflict"
-  | "Revoked";
+export type MicrochipVerificationStatus = "NotProvided" | "Declared" | "Verified" | "Conflict" | "Revoked";
 
 export interface PetSanitaryIdentityDto {
   petId: string;
@@ -225,46 +213,34 @@ export interface MedicalRecordCountDto {
 
 export const medicalApi = {
   downloadConsolidatedReport: (petId: string): Promise<Blob> =>
-    apiClient.get(`/pets/${petId}/medical/consolidated-report`, { responseType: "blob" })
+    apiClient
+      .get(`/pets/${petId}/medical/consolidated-report`, { responseType: "blob" })
       .then((response) => response.data as Blob),
 
   getTimeline: (petId: string, page: number): Promise<HealthTimelinePageDto> =>
-    apiClient.get<HealthTimelinePageDto>(`/pets/${petId}/medical/timeline`, {
-      params: { page, pageSize: 20 },
-    }).then((response) => response.data),
+    apiClient
+      .get<HealthTimelinePageDto>(`/pets/${petId}/medical/timeline`, {
+        params: { page, pageSize: 20 },
+      })
+      .then((response) => response.data),
 
   getHistory: (petId: string): Promise<MedicalHistoryResultDto> =>
-    apiClient
-      .get<MedicalHistoryResultDto>(`/pets/${petId}/medical`)
-      .then((r) => r.data),
+    apiClient.get<MedicalHistoryResultDto>(`/pets/${petId}/medical`).then((r) => r.data),
 
   getWeightHistory: (petId: string): Promise<WeightHistoryDto> =>
-    apiClient
-      .get<WeightHistoryDto>(`/pets/${petId}/medical/weight-history`)
-      .then((r) => r.data),
+    apiClient.get<WeightHistoryDto>(`/pets/${petId}/medical/weight-history`).then((r) => r.data),
 
   getHealthAlerts: (petId: string): Promise<HealthAlertDto[]> =>
-    apiClient
-      .get<HealthAlertDto[]>(`/pets/${petId}/medical/health-alerts`)
-      .then((r) => r.data),
+    apiClient.get<HealthAlertDto[]>(`/pets/${petId}/medical/health-alerts`).then((r) => r.data),
 
   getHealthScore: (petId: string): Promise<HealthScoreDto> =>
-    apiClient
-      .get<HealthScoreDto>(`/pets/${petId}/medical/health-score`)
-      .then((r) => r.data),
+    apiClient.get<HealthScoreDto>(`/pets/${petId}/medical/health-score`).then((r) => r.data),
 
   getSanitaryIdentity: (petId: string): Promise<PetSanitaryIdentityDto> =>
-    apiClient
-      .get<PetSanitaryIdentityDto>(`/pets/${petId}/sanitary-identity`)
-      .then((r) => r.data),
+    apiClient.get<PetSanitaryIdentityDto>(`/pets/${petId}/sanitary-identity`).then((r) => r.data),
 
-  updateSanitaryIdentity: (
-    petId: string,
-    payload: UpdatePetSanitaryIdentityPayload,
-  ): Promise<PetSanitaryIdentityDto> =>
-    apiClient
-      .put<PetSanitaryIdentityDto>(`/pets/${petId}/sanitary-identity`, payload)
-      .then((r) => r.data),
+  updateSanitaryIdentity: (petId: string, payload: UpdatePetSanitaryIdentityPayload): Promise<PetSanitaryIdentityDto> =>
+    apiClient.put<PetSanitaryIdentityDto>(`/pets/${petId}/sanitary-identity`, payload).then((r) => r.data),
 
   downloadAnnualReport: (petId: string, year: number): Promise<Blob> =>
     apiClient
@@ -274,10 +250,7 @@ export const medicalApi = {
       })
       .then((r) => r.data as Blob),
 
-  addRecord: (
-    petId: string,
-    payload: AddMedicalRecordPayload,
-  ): Promise<MedicalRecordDto> => {
+  addRecord: (petId: string, payload: AddMedicalRecordPayload): Promise<MedicalRecordDto> => {
     const form = new FormData();
     form.append("type", payload.type);
     form.append("date", payload.date);
@@ -287,15 +260,11 @@ export const medicalApi = {
     if (payload.nextDueDate) form.append("nextDueDate", payload.nextDueDate);
     if (payload.document) form.append("document", payload.document);
     if (payload.document && payload.documentKind) form.append("documentKind", payload.documentKind);
-    if (payload.weightKg != null)
-      form.append("weightKg", String(payload.weightKg));
-    if (payload.dosageDescription)
-      form.append("dosageDescription", payload.dosageDescription);
+    if (payload.weightKg != null) form.append("weightKg", String(payload.weightKg));
+    if (payload.dosageDescription) form.append("dosageDescription", payload.dosageDescription);
     if (payload.frequency) form.append("frequency", payload.frequency);
-    if (payload.durationDays != null)
-      form.append("durationDays", String(payload.durationDays));
-    if (payload.medicationEndDate)
-      form.append("medicationEndDate", payload.medicationEndDate);
+    if (payload.durationDays != null) form.append("durationDays", String(payload.durationDays));
+    if (payload.medicationEndDate) form.append("medicationEndDate", payload.medicationEndDate);
 
     return apiClient
       .post<MedicalRecordDto>(`/pets/${petId}/medical`, form, {
@@ -305,66 +274,36 @@ export const medicalApi = {
   },
 
   getCount: (petId: string): Promise<MedicalRecordCountDto> =>
-    apiClient
-      .get<MedicalRecordCountDto>(`/pets/${petId}/medical/count`)
-      .then((r) => r.data),
+    apiClient.get<MedicalRecordCountDto>(`/pets/${petId}/medical/count`).then((r) => r.data),
 
   getMyReminders: (daysAhead = 30): Promise<PetReminderDto[]> =>
-    apiClient
-      .get<PetReminderDto[]>(`/me/medical/reminders`, { params: { daysAhead } })
-      .then((r) => r.data),
+    apiClient.get<PetReminderDto[]>(`/me/medical/reminders`, { params: { daysAhead } }).then((r) => r.data),
 
-  getAccessLog: (
-    petId: string,
-    limit = 50,
-  ): Promise<ClinicAccessLogEntryDto[]> =>
+  getAccessLog: (petId: string, limit = 50): Promise<ClinicAccessLogEntryDto[]> =>
     apiClient
-      .get<
-        ClinicAccessLogEntryDto[]
-      >(`/pets/${petId}/medical/access-log`, { params: { limit } })
+      .get<ClinicAccessLogEntryDto[]>(`/pets/${petId}/medical/access-log`, { params: { limit } })
       .then((r) => r.data),
 
   getReminders: (petId: string): Promise<VetReminderDto[]> =>
-    apiClient
-      .get<VetReminderDto[]>(`/pets/${petId}/medical/reminders`)
-      .then((r) => r.data),
+    apiClient.get<VetReminderDto[]>(`/pets/${petId}/medical/reminders`).then((r) => r.data),
 
   completeReminder: (petId: string, reminderId: string): Promise<void> =>
-    apiClient
-      .put(`/pets/${petId}/medical/reminders/${reminderId}/complete`)
-      .then(() => undefined),
+    apiClient.put(`/pets/${petId}/medical/reminders/${reminderId}/complete`).then(() => undefined),
 
   deleteRecord: (petId: string, recordId: string): Promise<void> =>
-    apiClient
-      .delete(`/pets/${petId}/medical/${recordId}`)
-      .then(() => undefined),
+    apiClient.delete(`/pets/${petId}/medical/${recordId}`).then(() => undefined),
 
-  updateRecord: (
-    petId: string,
-    recordId: string,
-    payload: UpdateMedicalRecordPayload,
-  ): Promise<MedicalRecordDto> =>
-    apiClient
-      .put<MedicalRecordDto>(`/pets/${petId}/medical/${recordId}`, payload)
-      .then((r) => r.data),
+  updateRecord: (petId: string, recordId: string, payload: UpdateMedicalRecordPayload): Promise<MedicalRecordDto> =>
+    apiClient.put<MedicalRecordDto>(`/pets/${petId}/medical/${recordId}`, payload).then((r) => r.data),
 
-  createReminder: (
-    petId: string,
-    payload: CreateVetReminderPayload,
-  ): Promise<VetReminderDto> =>
-    apiClient
-      .post<VetReminderDto>(`/pets/${petId}/medical/reminders`, payload)
-      .then((r) => r.data),
+  createReminder: (petId: string, payload: CreateVetReminderPayload): Promise<VetReminderDto> =>
+    apiClient.post<VetReminderDto>(`/pets/${petId}/medical/reminders`, payload).then((r) => r.data),
 
   deleteReminder: (petId: string, reminderId: string): Promise<void> =>
-    apiClient
-      .delete(`/pets/${petId}/medical/reminders/${reminderId}`)
-      .then(() => undefined),
+    apiClient.delete(`/pets/${petId}/medical/reminders/${reminderId}`).then(() => undefined),
 
   exportPdf: (petId: string): Promise<Blob> =>
-    apiClient
-      .get(`/pets/${petId}/medical/export`, { responseType: "blob" })
-      .then((r) => r.data as Blob),
+    apiClient.get(`/pets/${petId}/medical/export`, { responseType: "blob" }).then((r) => r.data as Blob),
 };
 
 // ── Clinic patient history ─────────────────────────────────────────────────────
@@ -393,41 +332,23 @@ export interface AddClinicMedicalRecordPayload {
 
 export const clinicMedicalApi = {
   getPatientHistory: (petId: string): Promise<ClinicPatientHistoryDto> =>
+    apiClient.get<ClinicPatientHistoryDto>(`/clinics/patients/${petId}/medical`).then((r) => r.data),
+
+  getPatientSanitaryIdentity: (petId: string): Promise<PetSanitaryIdentityDto> =>
+    apiClient.get<PetSanitaryIdentityDto>(`/clinics/patients/${petId}/sanitary-identity`).then((r) => r.data),
+
+  verifyMicrochip: (petId: string, observedChipId: string, notes?: string): Promise<PetSanitaryIdentityDto> =>
     apiClient
-      .get<ClinicPatientHistoryDto>(`/clinics/patients/${petId}/medical`)
+      .post<PetSanitaryIdentityDto>(`/clinics/patients/${petId}/microchip/verify`, {
+        observedChipId,
+        notes,
+      })
       .then((r) => r.data),
 
-  getPatientSanitaryIdentity: (
-    petId: string,
-  ): Promise<PetSanitaryIdentityDto> =>
-    apiClient
-      .get<PetSanitaryIdentityDto>(
-        `/clinics/patients/${petId}/sanitary-identity`,
-      )
-      .then((r) => r.data),
-
-  verifyMicrochip: (
-    petId: string,
-    observedChipId: string,
-    notes?: string,
-  ): Promise<PetSanitaryIdentityDto> =>
-    apiClient
-      .post<PetSanitaryIdentityDto>(
-        `/clinics/patients/${petId}/microchip/verify`,
-        {
-          observedChipId,
-          notes,
-        },
-      )
-      .then((r) => r.data),
-
-  addRecord: (
-    payload: AddClinicMedicalRecordPayload,
-  ): Promise<MedicalRecordDto> => {
+  addRecord: (payload: AddClinicMedicalRecordPayload): Promise<MedicalRecordDto> => {
     const form = new FormData();
     if (payload.petId) form.append("petId", payload.petId);
-    if (payload.qrOrChipInput)
-      form.append("qrOrChipInput", payload.qrOrChipInput);
+    if (payload.qrOrChipInput) form.append("qrOrChipInput", payload.qrOrChipInput);
     if (payload.inputType) form.append("inputType", payload.inputType);
     form.append("recordType", payload.recordType);
     form.append("date", payload.date);

@@ -13,6 +13,7 @@ using PawTrack.Domain.Pets;
 using PawTrack.Domain.Medical;
 using PawTrack.Domain.Clinics;
 using PawTrack.Domain.Subscriptions;
+using PawTrack.Domain.Certificates;
 using PawTrack.IntegrationTests.Infrastructure;
 
 namespace PawTrack.IntegrationTests.Medical;
@@ -78,6 +79,55 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
 
     private sealed record TimelineItem(string Label);
     private sealed record TimelineResponse(List<TimelineItem> Items, bool HasMore);
+
+    [Fact]
+    public async Task Timeline_CertificatesIssuedTheSameDay_KeepIssuanceOrderAcrossPages()
+    {
+        var email = $"timeline-cert-{Guid.NewGuid():N}@pawtrack.cr";
+        using var client = await AuthHelper.CreateAuthenticatedClientAsync(factory, email);
+        Guid petId;
+        Guid[] expectedIds;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var owner = await db.Users.SingleAsync(user => user.Email == email);
+            var pet = Pet.Create(owner.Id, "Luna", PetSpecies.Cat, null, null);
+            var plan = Subscription.CreateForUser(owner.Id, SubscriptionTier.UserFamilia, $"M{Guid.NewGuid():N}"[..8], 4990m);
+            plan.Activate();
+            db.Pets.Add(pet);
+            db.Subscriptions.Add(plan);
+            var certificates = Enumerable.Range(0, 3)
+                .Select(index => VetCertificate.Issue(pet.Id, Guid.NewGuid(), owner.Id,
+                    CertificateType.GeneralExam, $"A{index:0000000}"))
+                .ToArray();
+            var reversedIds = new[]
+            {
+                Guid.Parse("ffffffff-ffff-4fff-8fff-fffffffffff1"),
+                Guid.Parse("88888888-8888-4888-8888-888888888882"),
+                Guid.Parse("00000000-0000-4000-8000-000000000003"),
+            };
+            for (var index = 0; index < certificates.Length; index++)
+            {
+                db.Entry(certificates[index]).Property(item => item.Id).CurrentValue = reversedIds[index];
+                db.Entry(certificates[index]).Property(item => item.IssuedAt).CurrentValue =
+                    new DateTimeOffset(2026, 9, 27, 12, index, 0, TimeSpan.Zero);
+            }
+            db.VetCertificates.AddRange(certificates);
+            await db.SaveChangesAsync();
+            petId = pet.Id;
+            expectedIds = certificates.OrderByDescending(item => item.IssuedAt).Select(item => item.Id).ToArray();
+        }
+
+        var first = await client.GetFromJsonAsync<TimelineIdsResponse>($"/api/pets/{petId}/medical/timeline?page=1&pageSize=2");
+        var second = await client.GetFromJsonAsync<TimelineIdsResponse>($"/api/pets/{petId}/medical/timeline?page=2&pageSize=2");
+
+        first!.Items.Concat(second!.Items).Select(item => item.Id).Should().Equal(expectedIds);
+        first.HasMore.Should().BeTrue();
+        second.HasMore.Should().BeFalse();
+    }
+
+    private sealed record TimelineIdItem(Guid Id);
+    private sealed record TimelineIdsResponse(List<TimelineIdItem> Items, bool HasMore);
 
     [Fact]
     public async Task AddRecord_Unauthenticated_Returns401()

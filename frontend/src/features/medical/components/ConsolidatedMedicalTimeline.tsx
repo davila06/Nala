@@ -14,7 +14,7 @@ export function ConsolidatedMedicalTimeline({ petId }: Props) {
     queryKey: ["medical-timeline", petId],
     queryFn: ({ pageParam }) => medicalApi.getTimeline(petId, pageParam),
     initialPageParam: 1,
-    getNextPageParam: (lastPage, pages) => lastPage.hasMore ? pages.length + 1 : undefined,
+    getNextPageParam: (lastPage, pages) => (lastPage.hasMore ? pages.length + 1 : undefined),
     retry: false,
   });
   const download = useDownloadCertificatePdf();
@@ -50,11 +50,19 @@ export function ConsolidatedMedicalTimeline({ petId }: Props) {
   return (
     <details className="border-y border-sand-200 py-3">
       <summary className="cursor-pointer text-sm font-semibold text-sand-800">Historial consolidado</summary>
-      <button type="button" disabled={report.isPending} onClick={() => report.mutate()}
-        className="mt-2 text-xs font-medium text-brand-600 hover:underline disabled:opacity-50">
+      <button
+        type="button"
+        disabled={report.isPending}
+        onClick={() => report.mutate()}
+        className="mt-2 text-xs font-medium text-brand-600 hover:underline disabled:opacity-50"
+      >
         {report.isPending ? "Preparando PDF…" : "Descargar reporte integral"}
       </button>
-      {report.isError && <p role="alert" className="mt-2 text-xs text-danger-600">No se pudo generar el reporte. Inténtalo de nuevo.</p>}
+      {report.isError && (
+        <p role="alert" className="mt-2 text-xs text-danger-600">
+          No se pudo generar el reporte. Inténtalo de nuevo.
+        </p>
+      )}
       {isLoading && <p className="mt-3 text-xs text-sand-500">Cargando historial…</p>}
       {isError && (
         <p role="alert" className="mt-3 text-xs text-danger-600">
@@ -75,15 +83,22 @@ export function ConsolidatedMedicalTimeline({ petId }: Props) {
             <div className="min-w-0">
               <p className="wrap-break-word font-medium text-sand-800">
                 {event.source === "Certificate"
-                  ? CERTIFICATE_TYPE_LABELS[event.label as CertificateType] ?? event.label
+                  ? (CERTIFICATE_TYPE_LABELS[event.label as CertificateType] ?? event.label)
                   : event.label}
               </p>
               <p className="text-xs text-sand-500">
-                {event.date} · {event.source === "Certificate" ? "Certificado"
-                  : event.documentKind === "Radiograph" ? "Radiografía (declarada)"
-                  : event.documentKind === "LaboratoryResult" ? "Examen de laboratorio (declarado)"
-                  : event.documentKind === "Ultrasound" ? "Ultrasonido (declarado)"
-                  : event.kind === "Checkup" ? "Consulta" : "Registro médico"}
+                {event.date} ·{" "}
+                {event.source === "Certificate"
+                  ? "Certificado"
+                  : event.documentKind === "Radiograph"
+                    ? "Radiografía (declarada)"
+                    : event.documentKind === "LaboratoryResult"
+                      ? "Examen de laboratorio (declarado)"
+                      : event.documentKind === "Ultrasound"
+                        ? "Ultrasonido (declarado)"
+                        : event.kind === "Checkup"
+                          ? "Consulta"
+                          : "Registro médico"}
                 {event.isRevoked ? " · Revocado" : ""}
               </p>
             </div>
@@ -112,8 +127,12 @@ export function ConsolidatedMedicalTimeline({ petId }: Props) {
         ))}
       </ol>
       {hasNextPage && (
-        <button type="button" disabled={isFetchingNextPage} onClick={() => void fetchNextPage()}
-          className="mt-3 text-xs font-medium text-brand-600 hover:underline disabled:opacity-50">
+        <button
+          type="button"
+          disabled={isFetchingNextPage}
+          onClick={() => void fetchNextPage()}
+          className="mt-3 text-xs font-medium text-brand-600 hover:underline disabled:opacity-50"
+        >
           {isFetchingNextPage ? "Cargando…" : "Cargar más"}
         </button>
       )}

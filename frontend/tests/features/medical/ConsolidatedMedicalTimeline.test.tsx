@@ -20,14 +20,33 @@ describe("ConsolidatedMedicalTimeline", () => {
     expect(await screen.findByRole("button", { name: /descargar reporte integral/i })).toBeInTheDocument();
   });
   it("labels radiographs only when the attachment kind was explicitly declared", async () => {
-    vi.mocked(medicalApi.getTimeline).mockResolvedValueOnce({ items: [
-      { id: "declared", source: "MedicalRecord", date: "2026-09-20", label: "Documento uno",
-        kind: "Other", documentUrl: "https://example.invalid/one.pdf", verificationCode: null,
-        isRevoked: false, documentKind: "Radiograph" },
-      { id: "legacy", source: "MedicalRecord", date: "2026-09-19", label: "Documento dos",
-        kind: "Other", documentUrl: "https://example.invalid/two.pdf", verificationCode: null,
-        isRevoked: false, documentKind: null },
-    ], hasMore: false });
+    vi.mocked(medicalApi.getTimeline).mockResolvedValueOnce({
+      items: [
+        {
+          id: "declared",
+          source: "MedicalRecord",
+          date: "2026-09-20",
+          label: "Documento uno",
+          kind: "Other",
+          documentUrl: "https://example.invalid/one.pdf",
+          verificationCode: null,
+          isRevoked: false,
+          documentKind: "Radiograph",
+        },
+        {
+          id: "legacy",
+          source: "MedicalRecord",
+          date: "2026-09-19",
+          label: "Documento dos",
+          kind: "Other",
+          documentUrl: "https://example.invalid/two.pdf",
+          verificationCode: null,
+          isRevoked: false,
+          documentKind: null,
+        },
+      ],
+      hasMore: false,
+    });
 
     renderWithProviders(<ConsolidatedMedicalTimeline petId="documents-pet" />);
 
@@ -37,14 +56,36 @@ describe("ConsolidatedMedicalTimeline", () => {
 
   it("loads all timeline pages on demand instead of truncating at 100 entries", async () => {
     vi.mocked(medicalApi.getTimeline)
-      .mockResolvedValueOnce({ items: [
-        { id: "visit-1", source: "MedicalRecord", date: "2026-09-19", label: "Control clínico",
-          kind: "Checkup", documentUrl: null, verificationCode: null, isRevoked: false },
-      ], hasMore: true })
-      .mockResolvedValueOnce({ items: [
-        { id: "cert-1", source: "Certificate", date: "2026-09-18", label: "HealthClearance",
-          kind: "Certificate", documentUrl: null, verificationCode: "SAFE-1", isRevoked: false },
-      ], hasMore: false });
+      .mockResolvedValueOnce({
+        items: [
+          {
+            id: "visit-1",
+            source: "MedicalRecord",
+            date: "2026-09-19",
+            label: "Control clínico",
+            kind: "Checkup",
+            documentUrl: null,
+            verificationCode: null,
+            isRevoked: false,
+          },
+        ],
+        hasMore: true,
+      })
+      .mockResolvedValueOnce({
+        items: [
+          {
+            id: "cert-1",
+            source: "Certificate",
+            date: "2026-09-18",
+            label: "HealthClearance",
+            kind: "Certificate",
+            documentUrl: null,
+            verificationCode: "SAFE-1",
+            isRevoked: false,
+          },
+        ],
+        hasMore: false,
+      });
 
     renderWithProviders(<ConsolidatedMedicalTimeline petId="paged-pet" />);
 
@@ -56,14 +97,41 @@ describe("ConsolidatedMedicalTimeline", () => {
   });
 
   it("orders consultations, attached exams and certificates without inferring a diagnosis", async () => {
-    vi.mocked(medicalApi.getTimeline).mockResolvedValueOnce({ items: [
-      { id: "visit-1", source: "MedicalRecord", date: "2026-09-19", label: "Control clínico",
-        kind: "Checkup", documentUrl: null, verificationCode: null, isRevoked: false },
-      { id: "cert-1", source: "Certificate", date: "2026-09-18", label: "HealthClearance",
-        kind: "Certificate", documentUrl: null, verificationCode: "SAFE-1", isRevoked: false },
-      { id: "exam-1", source: "MedicalRecord", date: "2026-09-17", label: "Examen adjunto",
-        kind: "Other", documentUrl: "https://example.invalid/exam.pdf", verificationCode: null, isRevoked: false },
-    ], hasMore: false });
+    vi.mocked(medicalApi.getTimeline).mockResolvedValueOnce({
+      items: [
+        {
+          id: "visit-1",
+          source: "MedicalRecord",
+          date: "2026-09-19",
+          label: "Control clínico",
+          kind: "Checkup",
+          documentUrl: null,
+          verificationCode: null,
+          isRevoked: false,
+        },
+        {
+          id: "cert-1",
+          source: "Certificate",
+          date: "2026-09-18",
+          label: "HealthClearance",
+          kind: "Certificate",
+          documentUrl: null,
+          verificationCode: "SAFE-1",
+          isRevoked: false,
+        },
+        {
+          id: "exam-1",
+          source: "MedicalRecord",
+          date: "2026-09-17",
+          label: "Examen adjunto",
+          kind: "Other",
+          documentUrl: "https://example.invalid/exam.pdf",
+          verificationCode: null,
+          isRevoked: false,
+        },
+      ],
+      hasMore: false,
+    });
 
     renderWithProviders(<ConsolidatedMedicalTimeline petId="pet-1" />);
     await screen.findByText("Control clínico");
