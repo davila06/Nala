@@ -11,6 +11,8 @@ using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Certificates;
 using PawTrack.Domain.Clinics;
 using PawTrack.Domain.Pets;
+using PawTrack.Domain.Medical;
+using PawTrack.Domain.Subscriptions;
 using PawTrack.IntegrationTests.Infrastructure;
 
 namespace PawTrack.IntegrationTests.Certificates;
@@ -52,6 +54,7 @@ public sealed class CertificatesEndpointsTests(PawTrackWebApplicationFactory fac
             petSpecies = "Perro",
             clinicName = "Clínica San José",
             clinicLicense = "VET-001",
+            veterinarianId = Guid.NewGuid(),
             vetName = "Dr. Pérez",
         });
 
@@ -59,6 +62,97 @@ public sealed class CertificatesEndpointsTests(PawTrackWebApplicationFactory fac
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
         var body = await response.Content.ReadAsStringAsync();
         body.Should().Contain("Partner");
+    }
+
+    [Fact]
+    public async Task PartnerCertificateIssueRequiresOwnClinicAndActivePetGrant()
+    {
+        var clinicEmail = $"issue-clinic-{Guid.NewGuid():N}@pawtrack.cr";
+        var foreignEmail = $"issue-foreign-{Guid.NewGuid():N}@pawtrack.cr";
+        var ownerEmail = $"issue-owner-{Guid.NewGuid():N}@pawtrack.cr";
+        var clinicClient = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, clinicEmail);
+        var foreignClient = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, foreignEmail);
+        _ = await AuthHelper.CreateAuthenticatedClientAsync(factory, ownerEmail);
+        Guid clinicId;
+        Guid veterinarianId;
+        Guid authorizedPetId;
+        Guid unauthorizedPetId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var jwt = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
+            var clinicUser = await db.Users.SingleAsync(user => user.Email == clinicEmail);
+            var foreignUser = await db.Users.SingleAsync(user => user.Email == foreignEmail);
+            var owner = await db.Users.SingleAsync(user => user.Email == ownerEmail);
+            clinicUser.AssignClinicRole();
+            foreignUser.AssignClinicRole();
+            var clinic = Clinic.Create(clinicUser.Id, "Partner emisor", $"VET-{Guid.NewGuid():N}"[..12],
+                "San Jose", 9.93m, -84.08m, clinicEmail);
+            var foreignClinic = Clinic.Create(foreignUser.Id, "Partner ajeno", $"VET-{Guid.NewGuid():N}"[..12],
+                "Cartago", 9.86m, -83.92m, foreignEmail);
+            clinic.Activate();
+            foreignClinic.Activate();
+            var veterinarian = ClinicVeterinarian.Create(clinic.Id, "Dra. Registrada", "VET-DR-100");
+            var authorizedPet = Pet.Create(owner.Id, "Paciente autorizado", PetSpecies.Dog, null, null);
+            var unauthorizedPet = Pet.Create(owner.Id, "Sin permiso", PetSpecies.Dog, null, null);
+            var (grant, code) = ClinicMedicalAccessGrant.Generate(authorizedPet.Id, clinic.Id, owner.Id, "Owner");
+            grant.TryAccept(code).Should().BeTrue();
+            var plan = Subscription.CreateForClinic(clinic.Id, clinicUser.Id, SubscriptionTier.ClinicPartner,
+                $"I{Guid.NewGuid():N}"[..8], 35000m);
+            plan.Activate();
+            var organization = ClinicOrganization.Create("Red emisora", clinicUser.Id, clinic.Id);
+            organization.AddSite(foreignClinic.Id);
+            organization.AddMember(foreignUser.Id, ClinicOrganizationRole.Member);
+            organization.GrantSiteAccess(foreignUser.Id, clinic.Id, clinicUser.Id);
+            db.Clinics.AddRange(clinic, foreignClinic);
+            db.ClinicVeterinarians.Add(veterinarian);
+            db.Pets.AddRange(authorizedPet, unauthorizedPet);
+            db.ClinicMedicalAccessGrants.Add(grant);
+            db.Subscriptions.Add(plan);
+            db.ClinicOrganizations.Add(organization);
+            db.ClinicOrganizationMemberships.AddRange(organization.Memberships);
+            db.ClinicOrganizationSites.AddRange(organization.Sites);
+            db.ClinicOrganizationSiteAccess.AddRange(organization.SiteAccess);
+            await db.SaveChangesAsync();
+            clinicId = clinic.Id;
+            veterinarianId = veterinarian.Id;
+            authorizedPetId = authorizedPet.Id;
+            unauthorizedPetId = unauthorizedPet.Id;
+            var clinicSessionId = await db.RefreshTokens.Where(token => token.UserId == clinicUser.Id && !token.IsRevoked)
+                .OrderByDescending(token => token.CreatedAt).Select(token => token.SessionId).FirstAsync();
+            var foreignSessionId = await db.RefreshTokens.Where(token => token.UserId == foreignUser.Id && !token.IsRevoked)
+                .OrderByDescending(token => token.CreatedAt).Select(token => token.SessionId).FirstAsync();
+            clinicClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
+                jwt.GenerateAccessToken(clinicUser.Id, clinicUser.Email, clinicUser.Name, clinicUser.Role,
+                    mfaVerified: true, sessionId: clinicSessionId));
+            foreignClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
+                jwt.GenerateAccessToken(foreignUser.Id, foreignUser.Email, foreignUser.Name, foreignUser.Role,
+                    mfaVerified: true, sessionId: foreignSessionId));
+        }
+
+        (await clinicClient.PutAsJsonAsync("/api/clinics/active-site", new { clinicId })).StatusCode.Should().Be(HttpStatusCode.OK);
+        (await foreignClient.PutAsJsonAsync("/api/v1/clinics/active-site", new { clinicId })).StatusCode.Should().Be(HttpStatusCode.OK);
+
+        object IssuePayload(Guid petId, Guid? selectedVeterinarianId = null) => new
+        {
+            veterinarianId = selectedVeterinarianId ?? veterinarianId,
+            petId, clinicId, type = "Vaccination", petName = "Paciente autorizado", petSpecies = "Dog",
+            clinicName = "Partner emisor", clinicLicense = "VET-001", vetName = "Dra. Mora",
+        };
+        var otherClinic = await foreignClient.PostAsJsonAsync("/api/v1/certificates", IssuePayload(authorizedPetId));
+        otherClinic.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var noGrant = await clinicClient.PostAsJsonAsync("/api/certificates", IssuePayload(unauthorizedPetId));
+        noGrant.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var unregisteredVeterinarian = await clinicClient.PostAsJsonAsync("/api/certificates",
+            IssuePayload(authorizedPetId, Guid.NewGuid()));
+        unregisteredVeterinarian.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var own = await clinicClient.PostAsJsonAsync("/api/certificates", IssuePayload(authorizedPetId));
+        own.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        using var verifyScope = factory.Services.CreateScope();
+        var verifyDb = verifyScope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+        (await verifyDb.VetCertificates.CountAsync(cert => cert.ClinicId == clinicId)).Should().Be(1);
+        (await verifyDb.VetCertificates.SingleAsync(cert => cert.ClinicId == clinicId)).PetId.Should().Be(authorizedPetId);
     }
 
     [Fact]

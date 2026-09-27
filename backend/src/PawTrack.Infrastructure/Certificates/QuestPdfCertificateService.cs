@@ -134,7 +134,9 @@ public sealed class QuestPdfCertificateService(
                             row.RelativeItem().Text($"Clínica: {data.ClinicName}");
                             row.RelativeItem().Text($"Licencia SENASA: {data.ClinicLicense}");
                         });
-                        section.Item().PaddingTop(4).Text($"Médico Veterinario: {data.VetName}");
+                        section.Item().PaddingTop(4).Text(data.VeterinarianLicense is null
+                            ? $"Médico Veterinario: {data.VetName}"
+                            : $"Médico Veterinario: {data.VetName} · Licencia: {data.VeterinarianLicense}");
                     });
 
                     // Dates

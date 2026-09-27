@@ -28,7 +28,8 @@ public sealed record CertificatePdfData(
     string? MicrochipId = null,
     string? PetColor = null,
     IReadOnlyList<PassportVaccineEntry>? Vaccines = null,
-    PassportParasiteEntry? ParasiteControl = null);
+    PassportParasiteEntry? ParasiteControl = null,
+    string? VeterinarianLicense = null);
 
 public sealed record PassportVaccineEntry(
     string VaccineName,

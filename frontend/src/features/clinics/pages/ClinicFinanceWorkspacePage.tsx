@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { clinicsApi, type ClinicPaymentMethod } from "../api/clinicsApi";
+import { useActiveClinicSite } from "../hooks/useActiveClinicSite";
 import { Button, Input } from "@/shared/ui";
 import { toast } from "@/shared/lib/toast";
 
@@ -14,7 +15,6 @@ const paymentMethods: Array<{ value: ClinicPaymentMethod; label: string }> = [
 
 export default function ClinicFinanceWorkspacePage() {
   const queryClient = useQueryClient();
-  const [clinicId, setClinicId] = useState("");
   const [businessDate, setBusinessDate] = useState(() =>
     new Intl.DateTimeFormat("en-CA", {
       timeZone: "America/Costa_Rica",
@@ -38,20 +38,20 @@ export default function ClinicFinanceWorkspacePage() {
     queryKey: ["clinics", "finance-workspaces"],
     queryFn: clinicsApi.getFinanceWorkspaces,
   });
-  const selected = workspaces.find((workspace) => workspace.clinicId === clinicId) ?? workspaces[0];
-  const activeClinicId = selected?.clinicId ?? "";
+  const { activeClinicId, isSiteReady, selectClinic } = useActiveClinicSite(workspaces, isLoading);
+  const selected = workspaces.find((workspace) => workspace.clinicId === activeClinicId);
   const isAdministrator = selected?.role === "Administrator";
   const reportKey = ["clinics", "finance", activeClinicId, businessDate];
   const ledgerKey = ["clinics", "finance-ledger", activeClinicId, saleId];
   const { data: report } = useQuery({
     queryKey: reportKey,
     queryFn: () => clinicsApi.getStaffSalesReport(activeClinicId, businessDate),
-    enabled: Boolean(activeClinicId && businessDate),
+    enabled: Boolean(isSiteReady && activeClinicId && businessDate),
   });
   const { data: ledger } = useQuery({
     queryKey: ledgerKey,
     queryFn: () => clinicsApi.getStaffSaleLedger(activeClinicId, saleId),
-    enabled: Boolean(activeClinicId && saleId),
+    enabled: Boolean(isSiteReady && activeClinicId && saleId),
   });
   const refresh = () => {
     void queryClient.invalidateQueries({ queryKey: reportKey });
@@ -123,8 +123,9 @@ export default function ClinicFinanceWorkspacePage() {
             className="field-input max-w-xs"
             aria-label="Clínica de caja"
             value={activeClinicId}
+            disabled={!isSiteReady}
             onChange={(event) => {
-              setClinicId(event.target.value);
+              void selectClinic(event.target.value);
               setSaleId("");
             }}
           >
@@ -146,7 +147,9 @@ export default function ClinicFinanceWorkspacePage() {
           )}
         </div>
       </header>
-      {!isLoading && !selected && <p className="text-sm text-sand-700">No tienes acceso a una caja clínica.</p>}
+      {isSiteReady && !isLoading && !selected && (
+        <p className="text-sm text-sand-700">No tienes acceso a una caja clínica.</p>
+      )}
       {selected && (
         <>
           <section className="grid gap-4 border-b border-sand-200 pb-5 sm:grid-cols-3">

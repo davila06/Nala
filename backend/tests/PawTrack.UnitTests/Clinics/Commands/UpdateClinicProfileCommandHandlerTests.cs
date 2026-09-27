@@ -18,9 +18,12 @@ public sealed class UpdateClinicProfileCommandHandlerTests
         var clinics = Substitute.For<IClinicRepository>();
         var audits = Substitute.For<IAuditLogRepository>();
         var unitOfWork = Substitute.For<IUnitOfWork>();
-        clinics.GetByUserIdAsync(ownerId, Arg.Any<CancellationToken>()).Returns(clinic);
+        clinics.GetByIdAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(clinic);
+        var siteContext = Substitute.For<IActiveClinicSiteContext>();
+        siteContext.UserId.Returns(ownerId);
+        siteContext.ClinicId.Returns(clinic.Id);
 
-        var handler = new UpdateClinicProfileCommandHandler(clinics, audits, unitOfWork);
+        var handler = new UpdateClinicProfileCommandHandler(clinics, audits, unitOfWork, siteContext);
 
         var result = await handler.Handle(new UpdateClinicProfileCommand(
             ownerId,
@@ -54,9 +57,10 @@ public sealed class UpdateClinicProfileCommandHandlerTests
         var clinics = Substitute.For<IClinicRepository>();
         var audits = Substitute.For<IAuditLogRepository>();
         var unitOfWork = Substitute.For<IUnitOfWork>();
-        clinics.GetByUserIdAsync(strangerId, Arg.Any<CancellationToken>()).Returns((Clinic?)null);
+        var siteContext = Substitute.For<IActiveClinicSiteContext>();
+        siteContext.UserId.Returns(strangerId);
 
-        var handler = new UpdateClinicProfileCommandHandler(clinics, audits, unitOfWork);
+        var handler = new UpdateClinicProfileCommandHandler(clinics, audits, unitOfWork, siteContext);
 
         var result = await handler.Handle(new UpdateClinicProfileCommand(
             strangerId, "Intruso", "Otra dirección", null, null, null, null), CancellationToken.None);

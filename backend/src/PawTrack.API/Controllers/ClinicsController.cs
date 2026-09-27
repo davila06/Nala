@@ -7,6 +7,7 @@ using PawTrack.Application.Clinics.Commands.AddClinicMedicalRecord;
 using PawTrack.Application.Clinics.Commands.ManageApiKey;
 using PawTrack.Application.Clinics.Commands.PerformClinicScan;
 using PawTrack.Application.Clinics.Commands.RegisterClinic;
+using PawTrack.Application.Clinics.Commands.SelectActiveClinicSite;
 using PawTrack.Application.Clinics.Commands.ReviewClinic;
 using PawTrack.Application.Clinics.Commands.TrackClinicView;
 using PawTrack.Application.Clinics.Commands.UpdateClinicProfile;
@@ -60,6 +61,8 @@ namespace PawTrack.API.Controllers;
 [ApiVersion("1.0")]
 public sealed class ClinicsController(ISender sender, IBlobStorageService blobStorage) : ControllerBase
 {
+    public sealed record ActiveClinicSiteRequest(Guid ClinicId);
+
     // ── Register ──────────────────────────────────────────────────────────────
 
     /// <summary>
@@ -1110,6 +1113,29 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
         if (!TryGetUserId(out var userId)) return Unauthorized();
         var result = await sender.Send(new GetAccessibleClinicSitesQuery(userId), ct);
         return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
+    }
+
+    [HttpGet("active-site")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public IActionResult GetActiveClinicSite([FromServices] IActiveClinicSiteContext siteContext)
+    {
+        if (!TryGetUserId(out _)) return Unauthorized();
+        return Ok(new { clinicId = siteContext.ClinicId });
+    }
+
+    [HttpPut("active-site")]
+    [Authorize]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> SelectActiveClinicSite(
+        [FromBody] ActiveClinicSiteRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        if (!Guid.TryParse(User.FindFirstValue("sid"), out var sessionId)) return Forbid();
+
+        var result = await sender.Send(new SelectActiveClinicSiteCommand(userId, sessionId, request.ClinicId), ct);
+        return result.IsSuccess ? Ok(new { clinicId = request.ClinicId }) : Forbid();
     }
 
     [HttpGet("me/staff/members")]

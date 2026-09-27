@@ -1,4 +1,5 @@
 using MediatR;
+using PawTrack.Application.Common.Behaviors;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.Clinics;
 using PawTrack.Domain.Common;
@@ -61,6 +62,7 @@ public sealed record PublicClinicProfileDto(
         clinic.EmergencyPhone, clinic.IsWhatsAppContactEnabled ? clinic.WhatsAppNumber : null);
 }
 
+[BypassClinicActiveSite]
 public sealed record GetPublicClinicProfileQuery(Guid ClinicId)
     : IRequest<Result<PublicClinicProfileDto?>>;
 

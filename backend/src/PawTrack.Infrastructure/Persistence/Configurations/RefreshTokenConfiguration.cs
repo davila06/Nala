@@ -18,8 +18,15 @@ public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refresh
             .HasMaxLength(64); // SHA-256 hex = 64 chars
 
         builder.Property(rt => rt.SessionId).IsRequired();
+        builder.Property(rt => rt.ActiveClinicId).IsRequired(false);
         builder.HasIndex(rt => new { rt.UserId, rt.SessionId })
             .HasDatabaseName("IX_RefreshTokens_UserId_SessionId");
+        builder.HasIndex(rt => rt.ActiveClinicId)
+            .HasDatabaseName("IX_RefreshTokens_ActiveClinicId");
+        builder.HasOne<PawTrack.Domain.Clinics.Clinic>()
+            .WithMany()
+            .HasForeignKey(rt => rt.ActiveClinicId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(rt => rt.TokenHash).IsUnique();
 

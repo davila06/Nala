@@ -1,19 +1,12 @@
 ﻿import { useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-  clinicsApi,
-  type ClinicScanResultDto,
-  type ScanInputType,
-} from "../api/clinicsApi";
+import { clinicsApi, type ClinicScanResultDto, type ScanInputType } from "../api/clinicsApi";
 import { ScanInput } from "../components/ScanInput";
 import { MatchResultCard } from "../components/MatchResultCard";
 import { ClinicTiersModal } from "../components/ClinicTiersModal";
 import { CertificateIssueModal } from "../components/CertificateIssueModal";
 import { ClinicVerificationPanel } from "../components/ClinicVerificationPanel";
-import {
-  useCertificatesForClinic,
-  useDownloadCertificatePdf,
-} from "../hooks/useCertificates";
+import { useCertificatesForClinic, useDownloadCertificatePdf } from "../hooks/useCertificates";
 import {
   useClinicScanStats,
   useUploadClinicLogo,
@@ -30,28 +23,27 @@ import { ClinicAccessPanel } from "../components/ClinicAccessPanel";
 import { ClinicOperationsPanel } from "../components/ClinicOperationsPanel";
 import { toast } from "@/shared/lib/toast";
 import { useMySubscription } from "@/features/pets/hooks/useSubscription";
+import { useActiveClinicSite } from "../hooks/useActiveClinicSite";
 
 export default function ClinicDashboardPage() {
-  const [scanResult, setScanResult] = useState<ClinicScanResultDto | null>(
-    null,
-  );
+  const [scanResult, setScanResult] = useState<ClinicScanResultDto | null>(null);
   const [showTiers, setShowTiers] = useState(false);
   const [showCertificate, setShowCertificate] = useState(false);
   const [activeSection, setActiveSection] = useState<
-    | "scan"
-    | "stats"
-    | "api"
-    | "alerts"
-    | "expediente"
-    | "visibilidad"
-    | "perfil"
-    | "operacion"
+    "scan" | "stats" | "api" | "alerts" | "expediente" | "visibilidad" | "perfil" | "operacion"
   >("scan");
   const logoInputRef = useRef<HTMLInputElement>(null);
 
+  const { data: accessibleSites = [], isLoading: isLoadingSites } = useQuery({
+    queryKey: ["clinics", "accessible-sites"],
+    queryFn: clinicsApi.getAccessibleClinicSites,
+  });
+  const { activeClinicId, isSiteReady, selectClinic } = useActiveClinicSite(accessibleSites, isLoadingSites);
+
   const { data: clinic, isLoading: clinicLoading } = useQuery({
-    queryKey: ["my-clinic"],
+    queryKey: ["my-clinic", activeClinicId],
     queryFn: () => clinicsApi.getMyClinic(),
+    enabled: Boolean(isSiteReady && activeClinicId),
   });
 
   const { data: sub } = useMySubscription(clinic?.id);
@@ -61,18 +53,12 @@ export default function ClinicDashboardPage() {
     isPending: scanning,
     error: scanError,
   } = useMutation({
-    mutationFn: ({
-      input,
-      inputType,
-    }: {
-      input: string;
-      inputType: ScanInputType;
-    }) => clinicsApi.scan(input, inputType),
+    mutationFn: ({ input, inputType }: { input: string; inputType: ScanInputType }) =>
+      clinicsApi.scan(input, inputType),
     onSuccess: (data) => setScanResult(data),
   });
 
-  const { mutateAsync: uploadLogo, isPending: uploadingLogo } =
-    useUploadClinicLogo();
+  const { mutateAsync: uploadLogo, isPending: uploadingLogo } = useUploadClinicLogo();
 
   function handleScan(value: string, type: "Qr" | "RfidChip") {
     setScanResult(null);
@@ -98,7 +84,7 @@ export default function ClinicDashboardPage() {
     }
   }
 
-  if (clinicLoading) {
+  if (isLoadingSites || !isSiteReady || clinicLoading) {
     return (
       <div className="min-h-screen bg-surface-warm">
         <div className="border-b border-sand-200 field-input px-4 py-4">
@@ -128,9 +114,7 @@ export default function ClinicDashboardPage() {
       <div className="flex min-h-screen flex-col items-center justify-center bg-surface-warm px-4">
         <p className="text-4xl">🔒</p>
         <h1 className="mt-3 text-lg font-extrabold text-sand-900">
-          {clinic.status === "Pending"
-            ? "Cuenta pendiente de activación"
-            : "Cuenta suspendida"}
+          {clinic.status === "Pending" ? "Cuenta pendiente de activación" : "Cuenta suspendida"}
         </h1>
         <p className="mt-2 max-w-xs text-center text-sm text-sand-500">
           {clinic.status === "Pending"
@@ -157,11 +141,7 @@ export default function ClinicDashboardPage() {
                 className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border-2 border-sand-200 bg-sand-100 flex items-center justify-center text-xl hover:opacity-80 transition-opacity"
               >
                 {clinic?.logoUrl ? (
-                  <img
-                    src={clinic.logoUrl}
-                    alt="Logo"
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={clinic.logoUrl} alt="Logo" className="h-full w-full object-cover" />
                 ) : (
                   <span aria-hidden="true">🏥</span>
                 )}
@@ -179,16 +159,24 @@ export default function ClinicDashboardPage() {
                 onChange={(e) => void handleLogoChange(e)}
               />
               <div>
-                <h1 className="text-lg font-extrabold text-sand-900">
-                  {clinic?.name ?? "Portal veterinaria"}
-                </h1>
-                {clinic && (
-                  <p className="text-xs text-sand-400">
-                    Licencia SENASA: {clinic.licenseNumber}
-                  </p>
-                )}
+                <h1 className="text-lg font-extrabold text-sand-900">{clinic?.name ?? "Portal veterinaria"}</h1>
+                {clinic && <p className="text-xs text-sand-400">Licencia SENASA: {clinic.licenseNumber}</p>}
               </div>
             </div>
+            {accessibleSites.length > 1 && (
+              <select
+                aria-label="Sede activa"
+                className="field-input max-w-40 text-xs"
+                value={activeClinicId}
+                onChange={(event) => void selectClinic(event.target.value)}
+              >
+                {accessibleSites.map((site) => (
+                  <option key={site.clinicId} value={site.clinicId}>
+                    {site.clinicName}
+                  </option>
+                ))}
+              </select>
+            )}
             <span className="rounded-full bg-rescue-100 px-2.5 py-0.5 text-xs font-semibold text-rescue-700">
               Activa
             </span>
@@ -200,46 +188,35 @@ export default function ClinicDashboardPage() {
       <main className="mx-auto max-w-lg animate-fade-in-up px-4 py-6 space-y-6">
         {/* ── Section tabs ─────────────────────────────────────────── */}
         <div className="flex gap-1 rounded-2xl bg-surface-warm p-1.5 overflow-x-auto no-scrollbar">
-          {(
-            [
-              "scan",
-              "stats",
-              "api",
-              "alerts",
-              "expediente",
-              "visibilidad",
-              "perfil",
-              "operacion",
-            ] as const
-          ).map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setActiveSection(s)}
-              className={[
-                "shrink-0 rounded-xl px-3 py-2 text-xs font-bold transition-colors",
-                activeSection === s
-                  ? "bg-surface text-sand-900 shadow-sm"
-                  : "text-sand-500 hover:text-sand-700",
-              ].join(" ")}
-            >
-              {s === "scan"
-                ? "🔍 Escanear"
-                : s === "stats"
-                  ? "📊 Stats"
-                  : s === "api"
-                    ? "🔑 API"
-                    : s === "alerts"
-                      ? "🚨 Alertas"
-                      : s === "expediente"
-                        ? "📋 Expediente"
-                        : s === "visibilidad"
-                          ? "📈 Visibilidad"
-                          : s === "perfil"
-                            ? "⚙️ Perfil"
-                            : "🩺 Operación"}
-            </button>
-          ))}
+          {(["scan", "stats", "api", "alerts", "expediente", "visibilidad", "perfil", "operacion"] as const).map(
+            (s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setActiveSection(s)}
+                className={[
+                  "shrink-0 rounded-xl px-3 py-2 text-xs font-bold transition-colors",
+                  activeSection === s ? "bg-surface text-sand-900 shadow-sm" : "text-sand-500 hover:text-sand-700",
+                ].join(" ")}
+              >
+                {s === "scan"
+                  ? "🔍 Escanear"
+                  : s === "stats"
+                    ? "📊 Stats"
+                    : s === "api"
+                      ? "🔑 API"
+                      : s === "alerts"
+                        ? "🚨 Alertas"
+                        : s === "expediente"
+                          ? "📋 Expediente"
+                          : s === "visibilidad"
+                            ? "📈 Visibilidad"
+                            : s === "perfil"
+                              ? "⚙️ Perfil"
+                              : "🩺 Operación"}
+              </button>
+            ),
+          )}
         </div>
         {activeSection === "scan" && (
           <>
@@ -269,8 +246,7 @@ export default function ClinicDashboardPage() {
                     </p>
                     {sub?.expiresAt && (
                       <p className="text-xs text-trust-500 mt-0.5">
-                        Vence:{" "}
-                        {new Date(sub.expiresAt).toLocaleDateString("es-CR")}
+                        Vence: {new Date(sub.expiresAt).toLocaleDateString("es-CR")}
                       </p>
                     )}
                   </div>
@@ -283,13 +259,7 @@ export default function ClinicDashboardPage() {
 
             {showTiers && (
               <ClinicTiersModal
-                currentTier={
-                  sub?.tier === "ClinicPartner"
-                    ? "partner"
-                    : sub?.tier === "ClinicPlus"
-                      ? "plus"
-                      : "basic"
-                }
+                currentTier={sub?.tier === "ClinicPartner" ? "partner" : sub?.tier === "ClinicPlus" ? "plus" : "basic"}
                 onClose={() => setShowTiers(false)}
               />
             )}
@@ -307,24 +277,16 @@ export default function ClinicDashboardPage() {
                 📄
               </span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-brand-900">
-                  Emitir certificado veterinario
-                </p>
+                <p className="text-sm font-semibold text-brand-900">Emitir certificado veterinario</p>
                 <p className="text-xs text-brand-600 mt-0.5">
-                  PDF con firma digital y código QR de verificación. Tier
-                  Partner.
+                  PDF con firma digital y código QR de verificación. Tier Partner.
                 </p>
               </div>
-              <span className="shrink-0 rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white">
-                Nuevo →
-              </span>
+              <span className="shrink-0 rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white">Nuevo →</span>
             </button>
 
             {showCertificate && clinic && (
-              <CertificateIssueModal
-                clinicId={clinic.id}
-                onClose={() => setShowCertificate(false)}
-              />
+              <CertificateIssueModal clinicId={clinic.id} onClose={() => setShowCertificate(false)} />
             )}
 
             {/* ── Certificate history (Partner tier) ───────────────────── */}
@@ -346,12 +308,9 @@ export default function ClinicDashboardPage() {
             ) : (
               <>
                 <div>
-                  <h2 className="text-base font-bold text-sand-800">
-                    Escanear mascota
-                  </h2>
+                  <h2 className="text-base font-bold text-sand-800">Escanear mascota</h2>
                   <p className="text-sm text-sand-500">
-                    Escanea el código QR del collar o ingresa el número de
-                    microchip RFID.
+                    Escanea el código QR del collar o ingresa el número de microchip RFID.
                   </p>
                 </div>
 
@@ -359,9 +318,7 @@ export default function ClinicDashboardPage() {
 
                 {scanError && (
                   <p className="rounded-xl bg-danger-50 px-4 py-3 text-sm text-danger-600">
-                    {scanError instanceof Error
-                      ? scanError.message
-                      : "Error al procesar el escaneo. Intenta de nuevo."}
+                    {scanError instanceof Error ? scanError.message : "Error al procesar el escaneo. Intenta de nuevo."}
                   </p>
                 )}
               </>
@@ -377,37 +334,28 @@ export default function ClinicDashboardPage() {
 
         {activeSection === "visibilidad" && <ClinicVisibilidadSection />}
 
-        {activeSection === "perfil" && clinic && (
-          <ClinicProfileSection clinic={clinic} />
-        )}
+        {activeSection === "perfil" && clinic && <ClinicProfileSection clinic={clinic} />}
 
         {activeSection === "operacion" && <ClinicOperationsPanel />}
 
         {activeSection === "expediente" && (
           <div className="space-y-4">
-            <h2 className="font-display text-base font-semibold text-sand-800">
-              📋 Expediente digital
-            </h2>
+            <h2 className="font-display text-base font-semibold text-sand-800">📋 Expediente digital</h2>
             {scanResult?.matched && scanResult.petId ? (
               <ClinicExpedienteTab
                 petId={scanResult.petId}
                 onSwitchToPet={(petId, petName) => {
-                  setScanResult((prev) =>
-                    prev ? { ...prev, petId, petName } : null,
-                  );
+                  setScanResult((prev) => (prev ? { ...prev, petId, petName } : null));
                 }}
               />
             ) : (
               <div className="space-y-4">
                 <div className="rounded-2xl border border-sand-200 bg-sand-50 p-5 text-center space-y-2">
                   <p className="text-2xl">🔍</p>
-                  <p className="text-sm font-semibold text-sand-700">
-                    Escanea primero la mascota
-                  </p>
+                  <p className="text-sm font-semibold text-sand-700">Escanea primero la mascota</p>
                   <p className="text-xs text-sand-500">
-                    Ve a la pestaña <strong>Escanear</strong>, escanea el QR o
-                    chip de la mascota y luego regresa aquí para ver su
-                    expediente.
+                    Ve a la pestaña <strong>Escanear</strong>, escanea el QR o chip de la mascota y luego regresa aquí
+                    para ver su expediente.
                   </p>
                   <button
                     type="button"
@@ -441,29 +389,19 @@ export default function ClinicDashboardPage() {
   );
 }
 
-function ClinicProfileSection({
-  clinic,
-}: {
-  clinic: NonNullable<Awaited<ReturnType<typeof clinicsApi.getMyClinic>>>;
-}) {
+function ClinicProfileSection({ clinic }: { clinic: NonNullable<Awaited<ReturnType<typeof clinicsApi.getMyClinic>>> }) {
   const { mutateAsync: updateProfile, isPending } = useUpdateClinicProfile();
   const [name, setName] = useState(clinic.name);
   const [address, setAddress] = useState(clinic.address);
   const [phoneNumber, setPhoneNumber] = useState(clinic.phoneNumber ?? "");
   const [website, setWebsite] = useState(clinic.website ?? "");
   const [isEmergency24h, setIsEmergency24h] = useState(clinic.isEmergency24h);
-  const [emergencyPhone, setEmergencyPhone] = useState(
-    clinic.emergencyPhone ?? "",
-  );
+  const [emergencyPhone, setEmergencyPhone] = useState(clinic.emergencyPhone ?? "");
   const [description, setDescription] = useState(clinic.description ?? "");
   const [services, setServices] = useState(clinic.services ?? "");
   const [openingHours, setOpeningHours] = useState(clinic.openingHours ?? "");
-  const [whatsAppNumber, setWhatsAppNumber] = useState(
-    clinic.whatsAppNumber ?? "",
-  );
-  const [isWhatsAppContactEnabled, setIsWhatsAppContactEnabled] = useState(
-    clinic.isWhatsAppContactEnabled,
-  );
+  const [whatsAppNumber, setWhatsAppNumber] = useState(clinic.whatsAppNumber ?? "");
+  const [isWhatsAppContactEnabled, setIsWhatsAppContactEnabled] = useState(clinic.isWhatsAppContactEnabled);
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -492,8 +430,7 @@ function ClinicProfileSection({
       <div>
         <h2 className="text-base font-bold text-sand-800">Perfil de clínica</h2>
         <p className="mt-1 text-xs text-sand-500">
-          La licencia SENASA y la identidad regulatoria solo pueden ser
-          modificadas por administración.
+          La licencia SENASA y la identidad regulatoria solo pueden ser modificadas por administración.
         </p>
       </div>
       <div className="space-y-3 rounded-2xl border border-sand-200 bg-surface p-4">
@@ -540,9 +477,7 @@ function ClinicProfileSection({
           <input
             type="checkbox"
             checked={isWhatsAppContactEnabled}
-            onChange={(event) =>
-              setIsWhatsAppContactEnabled(event.target.checked)
-            }
+            onChange={(event) => setIsWhatsAppContactEnabled(event.target.checked)}
           />
           Permitir contacto por WhatsApp desde el mapa
         </label>
@@ -624,14 +559,12 @@ function ClinicProfileSection({
 function ClinicNearbyAlertsSection() {
   const { data: alerts, isLoading, isError } = useClinicNearbyAlerts(15);
 
-  if (isLoading)
-    return <div className="h-40 animate-pulse rounded-2xl bg-sand-100" />;
+  if (isLoading) return <div className="h-40 animate-pulse rounded-2xl bg-sand-100" />;
 
   if (isError)
     return (
       <p className="rounded-xl bg-warn-50 border border-warn-200 px-4 py-3 text-sm text-warn-700">
-        Las alertas activas cercanas requieren el plan{" "}
-        <strong>Clínica Partner</strong>.
+        Las alertas activas cercanas requieren el plan <strong>Clínica Partner</strong>.
       </p>
     );
 
@@ -641,28 +574,20 @@ function ClinicNearbyAlertsSection() {
         <span className="mb-2 text-3xl" aria-hidden="true">
           ✅
         </span>
-        <p className="text-sm font-semibold text-sand-700">
-          Sin alertas activas
-        </p>
-        <p className="mt-1 text-xs text-sand-400">
-          No hay mascotas perdidas reportadas en un radio de 15 km.
-        </p>
+        <p className="text-sm font-semibold text-sand-700">Sin alertas activas</p>
+        <p className="mt-1 text-xs text-sand-400">No hay mascotas perdidas reportadas en un radio de 15 km.</p>
       </div>
     );
 
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-bold text-sand-800">
-          Alertas cercanas activas
-        </h2>
+        <h2 className="text-base font-bold text-sand-800">Alertas cercanas activas</h2>
         <span className="rounded-full bg-danger-100 px-2.5 py-0.5 text-xs font-bold text-danger-700">
           {alerts.length} activa{alerts.length !== 1 ? "s" : ""}
         </span>
       </div>
-      <p className="text-xs text-sand-500">
-        Mascotas perdidas reportadas en un radio de 15 km de tu clínica.
-      </p>
+      <p className="text-xs text-sand-500">Mascotas perdidas reportadas en un radio de 15 km de tu clínica.</p>
       <ul className="space-y-2">
         {alerts.map((alert) => (
           <li
@@ -712,26 +637,17 @@ function ClinicNearbyAlertsSection() {
 // ── Visibilidad section (Plus/Partner) ───────────────────────────────────────
 
 function ClinicVisibilidadSection() {
-  const {
-    data: stats,
-    isLoading,
-    isError,
-    error,
-  } = useClinicVisibilityStats(30);
+  const { data: stats, isLoading, isError, error } = useClinicVisibilityStats(30);
   const forbidden = error?.response?.status === 402;
 
-  if (isLoading)
-    return <div className="animate-pulse h-40 rounded-2xl bg-sand-100" />;
+  if (isLoading) return <div className="animate-pulse h-40 rounded-2xl bg-sand-100" />;
 
   if (forbidden || isError) {
     return (
       <div className="rounded-2xl border border-warn-200 bg-warn-50 p-5 text-center space-y-2">
-        <p className="text-sm font-semibold text-warn-800">
-          📈 Métricas de visibilidad requieren Clínica Plus
-        </p>
+        <p className="text-sm font-semibold text-warn-800">📈 Métricas de visibilidad requieren Clínica Plus</p>
         <p className="text-xs text-warn-700">
-          Actualiza tu plan para ver cuántas veces aparece tu clínica en el
-          mapa, directorio y alertas.
+          Actualiza tu plan para ver cuántas veces aparece tu clínica en el mapa, directorio y alertas.
         </p>
       </div>
     );
@@ -760,23 +676,16 @@ function ClinicVisibilidadSection() {
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-display text-base font-semibold text-sand-800">
-          📈 Visibilidad
-        </h3>
+        <h3 className="font-display text-base font-semibold text-sand-800">📈 Visibilidad</h3>
         <span className="text-xs text-sand-500">
           Últimos {stats.periodDays} días · {total} impresiones
         </span>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {metrics.map((m) => (
-          <div
-            key={m.label}
-            className="rounded-xl border border-sand-100 bg-surface-warm p-3 text-center"
-          >
+          <div key={m.label} className="rounded-xl border border-sand-100 bg-surface-warm p-3 text-center">
             <p className="text-xl">{m.icon}</p>
-            <p className="text-2xl font-black tabular-nums text-sand-900">
-              {m.value}
-            </p>
+            <p className="text-2xl font-black tabular-nums text-sand-900">{m.value}</p>
             <p className="text-xs text-sand-500">{m.label}</p>
           </div>
         ))}
@@ -808,14 +717,12 @@ function ClinicStatsSection() {
     "Diciembre",
   ];
 
-  if (isLoading)
-    return <div className="h-40 animate-pulse rounded-2xl bg-sand-100" />;
+  if (isLoading) return <div className="h-40 animate-pulse rounded-2xl bg-sand-100" />;
 
   if (isError)
     return (
       <p className="rounded-xl bg-warn-50 border border-warn-200 px-4 py-3 text-sm text-warn-700">
-        Las estadísticas de escaneos requieren el plan{" "}
-        <strong>Clínica Plus</strong>.{" "}
+        Las estadísticas de escaneos requieren el plan <strong>Clínica Plus</strong>.{" "}
         <span className="underline cursor-pointer">Actualizar →</span>
       </p>
     );
@@ -867,13 +774,8 @@ function ClinicStatsSection() {
             color: "text-sand-700",
           },
         ].map(({ label, value, color }) => (
-          <div
-            key={label}
-            className="rounded-2xl border border-sand-200 bg-surface p-3 text-center"
-          >
-            <p className={`text-2xl font-black tabular-nums ${color}`}>
-              {value}
-            </p>
+          <div key={label} className="rounded-2xl border border-sand-200 bg-surface p-3 text-center">
+            <p className={`text-2xl font-black tabular-nums ${color}`}>{value}</p>
             <p className="mt-0.5 text-xs text-sand-500">{label}</p>
           </div>
         ))}
@@ -882,9 +784,7 @@ function ClinicStatsSection() {
       {/* Daily bar chart */}
       {stats && stats.byDay.length > 0 && (
         <div className="rounded-2xl border border-sand-200 bg-surface p-4">
-          <p className="mb-3 text-xs font-bold text-sand-500">
-            Escaneos por día
-          </p>
+          <p className="mb-3 text-xs font-bold text-sand-500">Escaneos por día</p>
           <div className="flex items-end gap-0.5 h-20">
             {stats.byDay.map((d) => (
               <div
@@ -927,12 +827,10 @@ function ClinicApiKeysSection() {
   ]);
   const [justCreated, setJustCreated] = useState<string | null>(null);
   const { data: keys, isLoading, isError } = useClinicApiKeys();
-  const { mutateAsync: createKey, isPending: creating } =
-    useCreateClinicApiKey();
+  const { mutateAsync: createKey, isPending: creating } = useCreateClinicApiKey();
   const { mutateAsync: revokeKey } = useRevokeClinicApiKey();
 
-  if (isLoading)
-    return <div className="h-32 animate-pulse rounded-2xl bg-sand-100" />;
+  if (isLoading) return <div className="h-32 animate-pulse rounded-2xl bg-sand-100" />;
 
   if (isError)
     return (
@@ -960,17 +858,12 @@ function ClinicApiKeysSection() {
       <div>
         <h2 className="text-base font-bold text-sand-800">API Keys</h2>
         <p className="text-xs text-sand-500 mt-0.5">
-          Usa el header{" "}
-          <code className="rounded bg-sand-100 px-1 text-[11px]">
-            X-PawTrack-Key
-          </code>{" "}
-          para integrar tu sistema.
+          Usa el header <code className="rounded bg-sand-100 px-1 text-[11px]">X-PawTrack-Key</code> para integrar tu
+          sistema.
         </p>
       </div>
       <div className="rounded-2xl border border-sand-200 bg-surface p-4">
-        <p className="text-xs font-bold text-sand-700">
-          Permisos de la nueva clave
-        </p>
+        <p className="text-xs font-bold text-sand-700">Permisos de la nueva clave</p>
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           {[
             ["scan", "Escaneos QR/RFID"],
@@ -980,18 +873,13 @@ function ClinicApiKeysSection() {
             ["certificates", "Certificados"],
             ["analytics", "Analítica"],
           ].map(([scope, label]) => (
-            <label
-              key={scope}
-              className="flex items-center gap-2 text-xs text-sand-600"
-            >
+            <label key={scope} className="flex items-center gap-2 text-xs text-sand-600">
               <input
                 type="checkbox"
                 checked={newScopes.includes(scope)}
                 onChange={(event) =>
                   setNewScopes((current) =>
-                    event.target.checked
-                      ? [...current, scope]
-                      : current.filter((item) => item !== scope),
+                    event.target.checked ? [...current, scope] : current.filter((item) => item !== scope),
                   )
                 }
               />
@@ -1003,24 +891,19 @@ function ClinicApiKeysSection() {
 
       {/* Widget snippet */}
       <div className="rounded-2xl border border-trust-200 bg-trust-50 p-4 space-y-2">
-        <p className="text-xs font-bold text-trust-800">
-          Embed en tu sitio web
-        </p>
+        <p className="text-xs font-bold text-trust-800">Embed en tu sitio web</p>
         <pre className="overflow-x-auto rounded-lg bg-trust-900 p-3 text-[10px] text-green-300 whitespace-pre-wrap">
           {`<div id="pawtrack-widget"></div>
 <script src="https://pawtrack.cr/widget.js"></script>`}
         </pre>
         <p className="text-[11px] text-trust-600">
-          Agrega un buscador de mascotas PawTrack en tu sitio. Plan Partner
-          requerido.
+          Agrega un buscador de mascotas PawTrack en tu sitio. Plan Partner requerido.
         </p>
       </div>
 
       {justCreated && (
         <div className="rounded-2xl border border-rescue-300 bg-rescue-50 p-4 space-y-2">
-          <p className="text-xs font-bold text-rescue-800">
-            ⚠️ Copia tu clave — solo se muestra una vez
-          </p>
+          <p className="text-xs font-bold text-rescue-800">⚠️ Copia tu clave — solo se muestra una vez</p>
           <div className="flex items-center gap-2">
             <code className="flex-1 overflow-x-auto rounded-lg bg-rescue-900 px-3 py-2 text-[11px] text-green-300 break-all">
               {justCreated}
@@ -1036,11 +919,7 @@ function ClinicApiKeysSection() {
               Copiar
             </button>
           </div>
-          <button
-            type="button"
-            onClick={() => setJustCreated(null)}
-            className="text-xs text-rescue-600 underline"
-          >
+          <button type="button" onClick={() => setJustCreated(null)} className="text-xs text-rescue-600 underline">
             Ya copié la clave
           </button>
         </div>
@@ -1075,27 +954,18 @@ function ClinicApiKeysSection() {
               className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 ${key.isRevoked ? "border-sand-100 bg-sand-50 opacity-60" : "border-sand-200 bg-surface"}`}
             >
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-sand-900">
-                  {key.label}
-                </p>
+                <p className="text-sm font-semibold text-sand-900">{key.label}</p>
                 <p className="text-[11px] text-sand-400">
                   Creada {new Date(key.createdAt).toLocaleDateString("es-CR")}
-                  {key.lastUsedAt &&
-                    ` · Último uso ${new Date(key.lastUsedAt).toLocaleDateString("es-CR")}`}
+                  {key.lastUsedAt && ` · Último uso ${new Date(key.lastUsedAt).toLocaleDateString("es-CR")}`}
                 </p>
               </div>
               {key.isRevoked ? (
-                <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] text-sand-500">
-                  Revocada
-                </span>
+                <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] text-sand-500">Revocada</span>
               ) : (
                 <button
                   type="button"
-                  onClick={() =>
-                    void revokeKey(key.id).then(() =>
-                      toast.success("Clave revocada."),
-                    )
-                  }
+                  onClick={() => void revokeKey(key.id).then(() => toast.success("Clave revocada."))}
                   className="shrink-0 rounded-lg bg-danger-100 px-3 py-1 text-xs font-bold text-danger-700 hover:bg-danger-200"
                 >
                   Revocar
@@ -1113,8 +983,7 @@ function ClinicApiKeysSection() {
 
 function ClinicCertificateHistory({ clinicId }: { clinicId: string }) {
   const { data: certs, isLoading } = useCertificatesForClinic(clinicId);
-  const { mutateAsync: downloadPdf, isPending: downloading } =
-    useDownloadCertificatePdf();
+  const { mutateAsync: downloadPdf, isPending: downloading } = useDownloadCertificatePdf();
 
   const handleDownload = async (certificateId: string, code: string) => {
     const blob = await downloadPdf(certificateId);
@@ -1139,9 +1008,7 @@ function ClinicCertificateHistory({ clinicId }: { clinicId: string }) {
             className="flex items-center justify-between gap-3 rounded-2xl border border-sand-100 bg-surface px-4 py-3"
           >
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-sand-900">
-                {CERTIFICATE_TYPE_LABELS[cert.type] ?? cert.type}
-              </p>
+              <p className="text-sm font-semibold text-sand-900">{CERTIFICATE_TYPE_LABELS[cert.type] ?? cert.type}</p>
               <p className="text-[11px] text-sand-400">
                 {new Date(cert.issuedAt).toLocaleDateString("es-CR")} ·{" "}
                 <span className="font-mono">{cert.verificationCode}</span>
@@ -1157,18 +1024,12 @@ function ClinicCertificateHistory({ clinicId }: { clinicId: string }) {
                       : "bg-warn-100 text-warn-700"
                 }`}
               >
-                {cert.isRevoked
-                  ? "Revocado"
-                  : cert.isValid
-                    ? "Vigente"
-                    : "Vencido"}
+                {cert.isRevoked ? "Revocado" : cert.isValid ? "Vigente" : "Vencido"}
               </span>
               {cert.pdfUrl && (
                 <button
                   type="button"
-                  onClick={() =>
-                    void handleDownload(cert.id, cert.verificationCode)
-                  }
+                  onClick={() => void handleDownload(cert.id, cert.verificationCode)}
                   disabled={downloading}
                   className="text-[10px] font-semibold text-trust-600 hover:underline"
                 >

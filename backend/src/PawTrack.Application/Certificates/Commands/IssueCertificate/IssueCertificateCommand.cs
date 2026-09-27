@@ -13,6 +13,7 @@ namespace PawTrack.Application.Certificates.Commands.IssueCertificate;
 public sealed record IssueCertificateCommand(
     Guid PetId,
     Guid ClinicId,
+    Guid VeterinarianId,
     Guid IssuedByUserId,
     CertificateType Type,
     string? Notes,
@@ -31,6 +32,7 @@ public sealed class IssueCertificateCommandValidator : AbstractValidator<IssueCe
     {
         RuleFor(x => x.PetId).NotEmpty();
         RuleFor(x => x.ClinicId).NotEmpty();
+        RuleFor(x => x.VeterinarianId).NotEmpty();
         RuleFor(x => x.Notes).MaximumLength(500);
         RuleFor(x => x.ValidUntil)
             .Must(v => v is null || v > DateTimeOffset.UtcNow)
@@ -42,6 +44,10 @@ public sealed class IssueCertificateCommandHandler(
     ICertificateRepository certificateRepository,
     ICertificateService certificateService,
     ISubscriptionRepository subscriptionRepository,
+    IClinicRepository clinicRepository,
+    IPetRepository petRepository,
+    IClinicMedicalAccessGrantRepository grantRepository,
+    IClinicVeterinarianRepository veterinarianRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<IssueCertificateCommand, Result<CertificateDto>>
 {
@@ -49,6 +55,20 @@ public sealed class IssueCertificateCommandHandler(
         IssueCertificateCommand request,
         CancellationToken cancellationToken)
     {
+        var clinic = await clinicRepository.GetByIdAsync(request.ClinicId, cancellationToken);
+        if (clinic is null || clinic.UserId != request.IssuedByUserId
+            || clinic.Status != Domain.Clinics.ClinicStatus.Active)
+            return Result.Failure<CertificateDto>("Acceso denegado.");
+
+        var pet = await petRepository.GetByIdAsync(request.PetId, cancellationToken);
+        if (pet is null || !await grantRepository.HasActiveGrantAsync(request.ClinicId, request.PetId, cancellationToken))
+            return Result.Failure<CertificateDto>("La clínica no tiene acceso activo a esta mascota.");
+
+        var veterinarian = await veterinarianRepository.GetByIdAsync(request.VeterinarianId, cancellationToken);
+        if (veterinarian is null || veterinarian.ClinicId != request.ClinicId
+            || !veterinarian.HasPermission(ClinicVeterinarianPermission.IssueCertificates))
+            return Result.Failure<CertificateDto>("Debe seleccionarse un veterinario autorizado de esta clínica.");
+
         // PDF certificates are a ClinicPartner-tier feature
         var subscription = await subscriptionRepository.GetActiveForClinicAsync(request.ClinicId, cancellationToken);
         if (subscription is null || subscription.Tier != Domain.Subscriptions.SubscriptionTier.ClinicPartner)
@@ -75,16 +95,17 @@ public sealed class IssueCertificateCommandHandler(
             new CertificatePdfData(
                 certificate.Id.ToString(),
                 code,
-                request.PetName,
-                request.PetSpecies,
-                request.PetBreed,
-                request.ClinicName,
-                request.ClinicLicense,
-                request.VetName,
+                pet.Name,
+                pet.Species.ToString(),
+                pet.Breed,
+                clinic.Name,
+                clinic.LicenseNumber,
+                veterinarian.FullName,
                 request.Type.ToString(),
                 request.Notes,
                 certificate.IssuedAt,
-                request.ValidUntil),
+                request.ValidUntil,
+                VeterinarianLicense: veterinarian.LicenseNumber),
             cancellationToken);
 
         certificate.SetPdfUrl(artifact.PdfUrl);

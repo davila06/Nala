@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, Input } from "@/shared/ui";
@@ -12,6 +12,7 @@ import {
   type ClinicStaffWorkspaceDto,
   type VeterinarianAppointmentStatus,
 } from "../api/clinicsApi";
+import { useActiveClinicSite } from "../hooks/useActiveClinicSite";
 import {
   daysFromClinicToday,
   formatCostaRicaDate,
@@ -149,7 +150,6 @@ const APPOINTMENT_STATUS_LABELS: Record<VeterinarianAppointmentStatus, string> =
 
 export default function StaffClinicCrmWorkspacePage() {
   const queryClient = useQueryClient();
-  const [clinicId, setClinicId] = useState("");
   const [petId, setPetId] = useState("");
   const [taskType, setTaskType] = useState<ClinicCrmTaskType>("CallClient");
   const [dueDate, setDueDate] = useState(getClinicDateInputValue);
@@ -167,10 +167,13 @@ export default function StaffClinicCrmWorkspacePage() {
     queryKey: ["clinics", "finance-workspaces"],
     queryFn: clinicsApi.getFinanceWorkspaces,
   });
-  const workspaces = buildTaskWorkspaces(staffWorkspaces, financeWorkspaces);
+  const workspaces = useMemo(
+    () => buildTaskWorkspaces(staffWorkspaces, financeWorkspaces),
+    [staffWorkspaces, financeWorkspaces],
+  );
   const isLoadingWorkspaces = isLoadingStaffWorkspaces || isLoadingFinanceWorkspaces;
-  const selectedWorkspace = workspaces.find((workspace) => workspace.clinicId === clinicId) ?? workspaces[0];
-  const activeClinicId = selectedWorkspace?.clinicId ?? "";
+  const { activeClinicId, isSiteReady, selectClinic } = useActiveClinicSite(workspaces, isLoadingWorkspaces);
+  const selectedWorkspace = workspaces.find((workspace) => workspace.clinicId === activeClinicId);
   const allowedTaskTypes = selectedWorkspace
     ? [...new Set(selectedWorkspace.roles.flatMap((role) => TASK_TYPES_BY_ROLE[role]))]
     : [];
@@ -182,26 +185,26 @@ export default function StaffClinicCrmWorkspacePage() {
   const { data: dashboard, isLoading: isLoadingDashboard } = useQuery({
     queryKey: dashboardKey,
     queryFn: () => clinicsApi.getStaffCrmDashboard(activeClinicId, businessDate),
-    enabled: Boolean(activeClinicId && canUseCrm),
+    enabled: Boolean(isSiteReady && activeClinicId && canUseCrm),
   });
   const agendaKey = ["clinics", "staff-agenda", activeClinicId, dayRange.from, dayRange.to];
   const { data: agenda = [], isLoading: isLoadingAgenda } = useQuery({
     queryKey: agendaKey,
     queryFn: () => clinicsApi.getStaffAgenda(activeClinicId, dayRange.from, dayRange.to),
-    enabled: Boolean(activeClinicId),
+    enabled: Boolean(isSiteReady && activeClinicId),
   });
   const hasFinanceWorkspace =
     selectedWorkspace?.roles.some((role) => role === "Cashier" || role === "Manager") ?? false;
   const { data: salesReport, isLoading: isLoadingSales } = useQuery({
     queryKey: ["clinics", "staff-sales-report", activeClinicId, businessDate],
     queryFn: () => clinicsApi.getStaffSalesReport(activeClinicId, businessDate),
-    enabled: Boolean(activeClinicId && hasFinanceWorkspace),
+    enabled: Boolean(isSiteReady && activeClinicId && hasFinanceWorkspace),
   });
   const canAssignIndividuals = selectedWorkspace?.roles.includes("Manager") ?? false;
   const { data: assignees = [] } = useQuery({
     queryKey: ["clinics", "staff-task-assignees", activeClinicId],
     queryFn: () => clinicsApi.getStaffTaskAssignees(activeClinicId),
-    enabled: Boolean(activeClinicId && canAssignIndividuals),
+    enabled: Boolean(isSiteReady && activeClinicId && canAssignIndividuals),
   });
   const taskAssignees = assignees.filter((assignee) => assignee.role === activeTaskRole);
   const createTask = useMutation({
@@ -269,7 +272,8 @@ export default function StaffClinicCrmWorkspacePage() {
               aria-label="Clínica del equipo"
               className="field-input min-w-[200px]"
               value={activeClinicId}
-              onChange={(event) => setClinicId(event.target.value)}
+              disabled={!isSiteReady}
+              onChange={(event) => void selectClinic(event.target.value)}
             >
               {workspaces.map((workspace) => (
                 <option key={workspace.clinicId} value={workspace.clinicId}>
@@ -282,8 +286,8 @@ export default function StaffClinicCrmWorkspacePage() {
         {selectedWorkspace && <p className="mt-2 text-sm text-sand-600">{staffRoleLabel(selectedWorkspace.roles)}</p>}
       </header>
 
-      {isLoadingWorkspaces && <div className="h-24 animate-pulse rounded-xl bg-sand-100" />}
-      {!isLoadingWorkspaces && !selectedWorkspace && (
+      {(isLoadingWorkspaces || !isSiteReady) && <div className="h-24 animate-pulse rounded-xl bg-sand-100" />}
+      {!isLoadingWorkspaces && isSiteReady && !selectedWorkspace && (
         <p className="border-l-2 border-sand-300 py-2 pl-3 text-sm text-sand-600">
           No tienes una membresía activa de equipo clínico.
         </p>

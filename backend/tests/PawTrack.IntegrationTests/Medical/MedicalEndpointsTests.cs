@@ -11,6 +11,7 @@ using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Pets.Commands.CreatePet;
 using PawTrack.Domain.Pets;
 using PawTrack.Domain.Medical;
+using PawTrack.Domain.Clinics;
 using PawTrack.Domain.Subscriptions;
 using PawTrack.IntegrationTests.Infrastructure;
 
@@ -219,18 +220,30 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
     {
         var ownerEmail = $"medical-grant-owner-{Guid.NewGuid():N}@pawtrack.cr";
         var outsiderEmail = $"medical-grant-outsider-{Guid.NewGuid():N}@pawtrack.cr";
-        var ownerClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, ownerEmail);
+        var ownerClient = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, ownerEmail);
         var outsiderClient = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, outsiderEmail);
         Guid petId;
+        Guid clinicId;
+        Guid grantId;
+        string rawCode;
 
         using (var scope = factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
             var owner = await db.Users.SingleAsync(user => user.Email == ownerEmail);
             var pet = Pet.Create(owner.Id, "Owner-only pet", PetSpecies.Dog, null, null);
+            var clinic = Clinic.Create(Guid.NewGuid(), "Centro aliado", $"VET-{Guid.NewGuid():N}"[..12],
+                "San Jose", 9.93m, -84.08m, $"clinic-{Guid.NewGuid():N}@pawtrack.cr");
+            clinic.Activate();
+            var generated = ClinicMedicalAccessGrant.Generate(pet.Id, clinic.Id, owner.Id, "Clinic");
             await db.Pets.AddAsync(pet);
+            await db.Clinics.AddAsync(clinic);
+            await db.ClinicMedicalAccessGrants.AddAsync(generated.Grant);
             await db.SaveChangesAsync();
             petId = pet.Id;
+            clinicId = clinic.Id;
+            grantId = generated.Grant.Id;
+            rawCode = generated.RawCode;
         }
 
         var ownerRead = await ownerClient.GetAsync($"/api/pets/{petId}/clinic-access");
@@ -238,8 +251,22 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
 
         var outsiderRead = await outsiderClient.GetAsync($"/api/pets/{petId}/clinic-access");
         outsiderRead.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-        var outsiderRevoke = await outsiderClient.DeleteAsync($"/api/pets/{petId}/clinic-access/{Guid.NewGuid()}");
+        var outsiderAccept = await outsiderClient.PostAsJsonAsync($"/api/pets/{petId}/clinic-access/accept", new { code = rawCode });
+        outsiderAccept.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var ownerAccept = await ownerClient.PostAsJsonAsync($"/api/pets/{petId}/clinic-access/accept", new { code = rawCode });
+        ownerAccept.StatusCode.Should().Be(HttpStatusCode.OK);
+        var outsiderRevoke = await outsiderClient.DeleteAsync($"/api/pets/{petId}/clinic-access/{clinicId}");
         outsiderRevoke.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            (await db.ClinicMedicalAccessGrants.SingleAsync(grant => grant.Id == grantId)).IsActive.Should().BeTrue();
+        }
+        var ownerRevoke = await ownerClient.DeleteAsync($"/api/pets/{petId}/clinic-access/{clinicId}");
+        ownerRevoke.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        using var verifyScope = factory.Services.CreateScope();
+        var verifyDb = verifyScope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+        (await verifyDb.ClinicMedicalAccessGrants.SingleAsync(grant => grant.Id == grantId)).IsActive.Should().BeFalse();
     }
 
     [Fact]

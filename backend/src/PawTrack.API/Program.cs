@@ -17,6 +17,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.RateLimiting;
 using PawTrack.Application;
+using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Sightings.VisualMatch;
 using PawTrack.Infrastructure;
 using PawTrack.Infrastructure.Regulatory;
@@ -77,6 +78,7 @@ builder.Services.AddApplicationInsightsTelemetry();
 
 // ── Application + Infrastructure ─────────────────────────────────────────────
 builder.Services.AddApplicationServices();
+builder.Services.AddScoped<IActiveClinicSiteContext, ActiveClinicSiteContext>();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddDataProtection();
 builder.Services.AddScoped<PawTrack.Application.Common.Interfaces.IChatNotifier,
@@ -654,6 +656,7 @@ app.Use(async (ctx, next) =>
 app.UseAuthentication();
 app.UseMiddleware<ClinicApiKeyMiddleware>();
 app.UseMiddleware<CollarDeviceKeyMiddleware>();
+app.UseMiddleware<ActiveClinicSiteMiddleware>();
 app.UseAuthorization();
 app.UseResponseCaching();
 app.MapControllers();

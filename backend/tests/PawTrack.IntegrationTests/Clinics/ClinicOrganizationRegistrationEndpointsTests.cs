@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
+using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Clinics.Commands.RegisterClinic;
 using PawTrack.Application.Clinics.Commands.UpdateClinicProfile;
 using PawTrack.Domain.Auth;
@@ -99,7 +101,10 @@ public sealed class ClinicOrganizationRegistrationEndpointsTests(PawTrackWebAppl
             var clinic = await db.Clinics.AsNoTracking().SingleAsync(site => site.ContactEmail == email);
             var organization = await db.ClinicOrganizations.SingleAsync();
             var owner = await db.Users.AsNoTracking().SingleAsync(user => user.Id == clinic.UserId);
-            var update = new UpdateClinicProfileCommandHandler(clinicRepository, new AuditLogRepository(db), db);
+            var siteContext = Substitute.For<IActiveClinicSiteContext>();
+            siteContext.UserId.Returns(owner.Id);
+            siteContext.ClinicId.Returns(clinic.Id);
+            var update = new UpdateClinicProfileCommandHandler(clinicRepository, new AuditLogRepository(db), db, siteContext);
             var updated = await update.Handle(new UpdateClinicProfileCommand(
                 owner.Id, "Unisede Renombrada", "Nueva direccion", null, null, null, null), CancellationToken.None);
             updated.IsSuccess.Should().BeTrue();

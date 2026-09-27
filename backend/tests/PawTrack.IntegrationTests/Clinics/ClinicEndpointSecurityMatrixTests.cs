@@ -40,7 +40,7 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
         "DeleteVeterinarianScheduleBlock", "DownloadClinicalConsultationPrescription",
         "DownloadClinicVerificationDocument", "DownloadMyVerificationDocument", "DownloadPatientMedicalExport",
         "DownloadVeterinarianDocument", "DownloadVeterinarianDocumentForAdmin", "ExportPatientMedical",
-        "GenerateAccessCode", "GetAccessibleClinicSites", "GetApiKeys", "GetAuthorizedPets", "GetCertificateIssuers", "GetClinicAgendaAudit",
+        "GenerateAccessCode", "GetAccessibleClinicSites", "GetActiveClinicSite", "GetApiKeys", "GetAuthorizedPets", "GetCertificateIssuers", "GetClinicAgendaAudit",
         "GetClinicalConsultationTemplates", "GetClinicCommunicationTemplates", "GetClinicCrmDashboard",
         "GetClinicInventory", "GetClinicInventoryValuation", "GetClinicSalesReport", "GetClinicStaffMembers",
         "GetClinicVerificationsForAdmin", "GetFinanceMembers", "GetFinanceReport", "GetFinanceSaleLedger",
@@ -54,7 +54,7 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
         "RegisterClinicSalePayment", "RegisterFinancePayment", "RescheduleVeterinarianAppointment",
         "ReviewClinic", "ReviewClinicVerification", "ReviewProfileChange", "ReviewVeterinarian",
         "RevokeApiKey", "RevokeClinicStaffMember", "RevokeFinanceMember", "RevokeMyVeterinarian", "RotateApiKey",
-        "Scan", "ScheduleVeterinarianAppointment", "SearchForAccess", "SendClinicCommunicationTemplate",
+        "Scan", "ScheduleVeterinarianAppointment", "SearchForAccess", "SelectActiveClinicSite", "SendClinicCommunicationTemplate",
         "SetOwnerClinicCommunicationPreference", "SetVeterinarianPermissions", "SubmitFinanceFiscalSale",
         "SubmitMyFiscalSale", "SubmitMyVerification", "SubmitProfileChange", "SuspendVeterinarian", "TrackView",
         "UpdateMyProfile", "UpdateStaffAppointmentStatus", "UpdateVeterinarianAppointmentStatus",
@@ -103,6 +103,7 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
             ["CreateFinanceSale"] = "Routine cashier point-of-sale operation; refund/void remain step-up protected.",
             ["RegisterFinancePayment"] = "Routine cashier collection; privileged reversals remain step-up protected.",
             ["SetOwnerClinicCommunicationPreference"] = "Tutor-controlled consent; the clinic cannot grant opt-in on the tutor's behalf.",
+            ["SelectActiveClinicSite"] = "Session-scoped context selection; requires an existing, unrevoked site grant and grants no new permissions.",
         };
 
     private static readonly HashSet<string> MfaPolicies = new(StringComparer.Ordinal)
@@ -585,6 +586,107 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
         var verifyDb = verifyScope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
         (await verifyDb.ClinicApiKeys.CountAsync(key => key.ClinicId == clinicAId)).Should().Be(2);
         (await verifyDb.ClinicApiKeys.CountAsync(key => key.ClinicId == clinicAId && key.IsRevoked)).Should().Be(2);
+    }
+
+    [Fact]
+    public async Task ClinicAdminReviewRequiresRoleAndFreshMfaForRealPendingClinic()
+    {
+        var owner = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory,
+            $"clinic-admin-outsider-{Guid.NewGuid():N}@pawtrack.cr");
+        var adminEmail = $"clinic-admin-review-{Guid.NewGuid():N}@pawtrack.cr";
+        var admin = await AuthHelper.CreateAdminClientAsync(factory, adminEmail);
+        Guid clinicId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var clinic = Clinic.Create(Guid.NewGuid(), "Pendiente real", $"VET-{Guid.NewGuid():N}"[..12],
+                "San Jose", 9.93m, -84.08m, $"pending-{Guid.NewGuid():N}@pawtrack.cr");
+            db.Clinics.Add(clinic);
+            await db.SaveChangesAsync();
+            clinicId = clinic.Id;
+        }
+
+        (await owner.GetAsync("/api/clinics/admin/pending")).StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        (await admin.GetAsync("/api/v1/clinics/admin/pending")).StatusCode.Should().Be(HttpStatusCode.OK);
+        (await owner.PutAsJsonAsync($"/api/v1/clinics/admin/{clinicId}/review", new { approve = true }))
+            .StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        (await admin.PutAsJsonAsync($"/api/clinics/admin/{clinicId}/review", new { approve = true }))
+            .StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            (await db.Clinics.SingleAsync(clinic => clinic.Id == clinicId)).Status.Should().Be(ClinicStatus.Pending);
+            var jwt = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
+            var adminUser = await db.Users.SingleAsync(user => user.Email == adminEmail);
+            admin.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
+                jwt.GenerateAccessToken(adminUser.Id, adminUser.Email, adminUser.Name, adminUser.Role, mfaVerified: true));
+        }
+
+        (await admin.PutAsJsonAsync($"/api/clinics/admin/{clinicId}/review", new { approve = true }))
+            .StatusCode.Should().Be(HttpStatusCode.NoContent);
+        using var verifyScope = factory.Services.CreateScope();
+        var verifyDb = verifyScope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+        (await verifyDb.Clinics.SingleAsync(clinic => clinic.Id == clinicId)).Status.Should().Be(ClinicStatus.Active);
+    }
+
+    [Fact]
+    public async Task ActiveSiteSelectionScopesFinanceAndCrmEvenWhenOwnerHasBothSites()
+    {
+        var ownerEmail = $"active-site-finance-{Guid.NewGuid():N}@pawtrack.cr";
+        var client = await AuthHelper.CreateAuthenticatedClientAsync(factory, ownerEmail);
+        Guid primaryClinicId;
+        Guid secondaryClinicId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var owner = await db.Users.SingleAsync(user => user.Email == ownerEmail);
+            var primary = Clinic.Create(owner.Id, "Sede A", $"VET-{Guid.NewGuid():N}"[..12], "San Jose", 9.93m, -84.08m, ownerEmail);
+            var secondary = Clinic.Create(owner.Id, "Sede B", $"VET-{Guid.NewGuid():N}"[..12], "Cartago", 9.86m, -83.92m, ownerEmail);
+            primary.Activate();
+            secondary.Activate();
+            var organization = ClinicOrganization.Create("Red caja", owner.Id, primary.Id);
+            organization.AddSite(secondary.Id);
+            organization.GrantSiteAccess(owner.Id, secondary.Id, owner.Id);
+            db.Clinics.AddRange(primary, secondary);
+            db.ClinicOrganizations.Add(organization);
+            db.ClinicOrganizationMemberships.AddRange(organization.Memberships);
+            db.ClinicOrganizationSites.AddRange(organization.Sites);
+            db.ClinicOrganizationSiteAccess.AddRange(organization.SiteAccess);
+            await db.SaveChangesAsync();
+            primaryClinicId = primary.Id;
+            secondaryClinicId = secondary.Id;
+        }
+
+        (await client.PutAsJsonAsync("/api/clinics/active-site", new { clinicId = primaryClinicId }))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+        var businessDate = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(-6));
+        var ownReport = await client.GetAsync($"/api/clinics/{primaryClinicId}/finance/sales-report?businessDate={businessDate:yyyy-MM-dd}");
+        ownReport.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await client.GetAsync($"/api/v1/clinics/{secondaryClinicId}/finance/sales-report?businessDate={businessDate:yyyy-MM-dd}"))
+            .StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        (await client.GetAsync($"/api/clinics/{primaryClinicId}/staff/crm-dashboard"))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+        (await client.GetAsync($"/api/v1/clinics/{secondaryClinicId}/staff/crm-dashboard"))
+            .StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var sale = new
+        {
+            receiptNumber = $"SEC-{Guid.NewGuid():N}"[..16],
+            lines = new[] { new { description = "Consulta", type = "Service", quantity = 1, unitPriceCrc = 1000m } },
+        };
+        (await client.PostAsJsonAsync($"/api/v1/clinics/{secondaryClinicId}/finance/sales", sale))
+            .StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        (await client.PostAsJsonAsync($"/api/clinics/{primaryClinicId}/finance/sales", sale))
+            .StatusCode.Should().Be(HttpStatusCode.Created);
+
+        (await client.PutAsJsonAsync("/api/v1/clinics/active-site", new { clinicId = secondaryClinicId }))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+        (await client.GetAsync($"/api/v1/clinics/{secondaryClinicId}/finance/sales-report?businessDate={businessDate:yyyy-MM-dd}"))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+        (await client.GetAsync($"/api/clinics/{secondaryClinicId}/staff/crm-dashboard"))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+        using var verifyScope = factory.Services.CreateScope();
+        var verifyDb = verifyScope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+        (await verifyDb.ClinicSales.CountAsync(item => item.ClinicId == secondaryClinicId)).Should().Be(0);
     }
 
     [Fact]

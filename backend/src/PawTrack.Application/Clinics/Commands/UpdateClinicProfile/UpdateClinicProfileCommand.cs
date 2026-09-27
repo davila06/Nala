@@ -42,15 +42,21 @@ public sealed class UpdateClinicProfileCommandValidator
 public sealed class UpdateClinicProfileCommandHandler(
     IClinicRepository clinicRepository,
     IAuditLogRepository auditLogRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IActiveClinicSiteContext siteContext)
     : IRequestHandler<UpdateClinicProfileCommand, Result<ClinicDto>>
 {
     public async Task<Result<ClinicDto>> Handle(
         UpdateClinicProfileCommand request,
         CancellationToken cancellationToken)
     {
-        var clinic = await clinicRepository.GetByUserIdAsync(request.UserId, cancellationToken);
-        if (clinic is null)
+        if (siteContext.UserId.HasValue && siteContext.UserId != request.UserId)
+            return Result.Failure<ClinicDto>("Clínica no encontrada o acceso denegado.");
+
+        var clinic = siteContext.ClinicId.HasValue
+            ? await clinicRepository.GetByIdAsync(siteContext.ClinicId.Value, cancellationToken)
+            : null;
+        if (clinic is null || clinic.UserId != request.UserId)
             return Result.Failure<ClinicDto>("Clínica no encontrada o acceso denegado.");
 
         clinic.UpdateProfile(

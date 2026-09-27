@@ -79,6 +79,7 @@ public sealed class CertificatesController(ISender sender) : ControllerBase
         var result = await sender.Send(new IssueCertificateCommand(
             request.PetId,
             request.ClinicId,
+            request.VeterinarianId,
             userId,
             request.Type,
             request.Notes,
@@ -183,6 +184,7 @@ public sealed class CertificatesController(ISender sender) : ControllerBase
 public sealed record IssueCertificateRequest(
     Guid PetId,
     Guid ClinicId,
+    Guid VeterinarianId,
     CertificateType Type,
     string? Notes,
     DateTimeOffset? ValidUntil,

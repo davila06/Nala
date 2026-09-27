@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using PawTrack.Application.Common.Behaviors;
 using PawTrack.Application.Subscriptions.Services;
 
 namespace PawTrack.API.Middleware;
@@ -25,6 +26,11 @@ public sealed class ExceptionHandlingMiddleware(
         {
             logger.LogInformation("Entitlement limit reached: {Entitlement}", ex.Entitlement);
             await WriteEntitlementProblemAsync(context, ex);
+        }
+        catch (ClinicActiveSiteRequiredException)
+        {
+            await WriteProblemAsync(context, StatusCodes.Status403Forbidden,
+                "La sede activa no está autorizada para esta operación.");
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("imagen", StringComparison.OrdinalIgnoreCase)
                                                  || ex.Message.Contains("image", StringComparison.OrdinalIgnoreCase))

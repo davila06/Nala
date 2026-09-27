@@ -8,33 +8,69 @@ public sealed class ClinicSiteAccessRepository(PawTrackDbContext db) : IClinicSi
 {
     public async Task<bool> HasAccessAsync(Guid userId, Guid clinicId, CancellationToken cancellationToken = default)
     {
-        if (await db.ClinicOrganizationSiteAccess.AsNoTracking().AnyAsync(access =>
-                access.UserId == userId && access.ClinicId == clinicId && !access.IsRevoked,
-                cancellationToken))
-            return true;
+        if (userId == Guid.Empty || clinicId == Guid.Empty) return false;
 
-        if (await db.ClinicStaffMemberships.AsNoTracking().AnyAsync(member =>
-                member.UserId == userId && member.ClinicId == clinicId && !member.IsRevoked,
-                cancellationToken))
-            return true;
-
-        return await db.ClinicFinanceMemberships.AsNoTracking().AnyAsync(member =>
-            member.UserId == userId && member.ClinicId == clinicId && !member.IsRevoked,
+        return await db.Clinics.AsNoTracking().AnyAsync(clinic =>
+            clinic.Id == clinicId &&
+            (db.ClinicOrganizationSiteAccess.Any(access =>
+                 access.UserId == userId && access.ClinicId == clinicId && !access.IsRevoked)
+             || db.ClinicStaffMemberships.Any(member =>
+                 member.UserId == userId && member.ClinicId == clinicId && !member.IsRevoked)
+             || db.ClinicFinanceMemberships.Any(member =>
+                 member.UserId == userId && member.ClinicId == clinicId && !member.IsRevoked)),
             cancellationToken);
+    }
+
+    public async Task<Guid?> GetActiveClinicIdAsync(
+        Guid userId,
+        Guid sessionId,
+        CancellationToken cancellationToken = default)
+    {
+        var clinicId = await db.RefreshTokens.AsNoTracking()
+            .Where(token => token.UserId == userId && token.SessionId == sessionId
+                && !token.IsRevoked && token.ExpiresAt > DateTimeOffset.UtcNow)
+            .OrderByDescending(token => token.CreatedAt)
+            .Select(token => token.ActiveClinicId)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return clinicId.HasValue && await HasAccessAsync(userId, clinicId.Value, cancellationToken)
+            ? clinicId
+            : null;
+    }
+
+    public async Task<bool> SetActiveClinicIdAsync(
+        Guid userId,
+        Guid sessionId,
+        Guid clinicId,
+        CancellationToken cancellationToken = default)
+    {
+        if (!await HasAccessAsync(userId, clinicId, cancellationToken)) return false;
+
+        var tokens = await db.RefreshTokens
+            .Where(token => token.UserId == userId && token.SessionId == sessionId
+                && !token.IsRevoked && token.ExpiresAt > DateTimeOffset.UtcNow)
+            .ToListAsync(cancellationToken);
+        if (tokens.Count == 0) return false;
+
+        foreach (var token in tokens)
+            token.SelectActiveClinic(clinicId);
+        return true;
     }
 
     public async Task<IReadOnlyList<AccessibleClinicSiteReadModel>> ListAccessibleSitesAsync(
         Guid userId,
         CancellationToken cancellationToken = default) =>
-        await (from access in db.ClinicOrganizationSiteAccess.AsNoTracking()
-               join site in db.ClinicOrganizationSites.AsNoTracking()
-                   on new { access.OrganizationId, access.ClinicId }
-                   equals new { site.OrganizationId, site.ClinicId }
+        await (from site in db.ClinicOrganizationSites.AsNoTracking()
                join organization in db.ClinicOrganizations.AsNoTracking()
-                   on access.OrganizationId equals organization.Id
+                   on site.OrganizationId equals organization.Id
                join clinic in db.Clinics.AsNoTracking()
-                   on access.ClinicId equals clinic.Id
-               where access.UserId == userId && !access.IsRevoked
+                   on site.ClinicId equals clinic.Id
+               where db.ClinicOrganizationSiteAccess.Any(access =>
+                         access.UserId == userId && access.ClinicId == site.ClinicId && !access.IsRevoked)
+                     || db.ClinicStaffMemberships.Any(member =>
+                         member.UserId == userId && member.ClinicId == site.ClinicId && !member.IsRevoked)
+                     || db.ClinicFinanceMemberships.Any(member =>
+                         member.UserId == userId && member.ClinicId == site.ClinicId && !member.IsRevoked)
                orderby organization.Name, site.IsPrimary descending, clinic.Name
                select new AccessibleClinicSiteReadModel(
                    organization.Id,

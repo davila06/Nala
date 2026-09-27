@@ -7,6 +7,8 @@ import { renderWithProviders } from "../../utils/renderWithProviders";
 
 vi.mock("@/features/clinics/api/clinicsApi", () => ({
   clinicsApi: {
+    getActiveClinicSite: vi.fn(),
+    selectActiveClinicSite: vi.fn(),
     getStaffWorkspaces: vi.fn(),
     getFinanceWorkspaces: vi.fn().mockResolvedValue([]),
     getStaffCrmDashboard: vi.fn(),
@@ -22,6 +24,8 @@ vi.mock("@/features/clinics/api/clinicsApi", () => ({
 describe("StaffClinicCrmWorkspacePage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(clinicsApi.getActiveClinicSite).mockResolvedValue({ clinicId: null });
+    vi.mocked(clinicsApi.selectActiveClinicSite).mockResolvedValue({ clinicId: "clinic-selected" });
     vi.mocked(clinicsApi.getFinanceWorkspaces).mockResolvedValue([]);
     vi.mocked(clinicsApi.getStaffAgenda).mockResolvedValue([]);
     vi.mocked(clinicsApi.getStaffSalesReport).mockResolvedValue({
@@ -34,6 +38,23 @@ describe("StaffClinicCrmWorkspacePage", () => {
     });
     vi.mocked(clinicsApi.getStaffTaskAssignees).mockResolvedValue([]);
     vi.mocked(clinicsApi.updateStaffAppointmentStatus).mockResolvedValue(undefined);
+  });
+
+  it("selects the backend site before loading its clinic workspace", async () => {
+    vi.mocked(clinicsApi.getStaffWorkspaces).mockResolvedValueOnce([
+      { clinicId: "clinic-active", clinicName: "Clinica Activa", role: "Receptionist" },
+    ]);
+    vi.mocked(clinicsApi.getStaffCrmDashboard).mockResolvedValueOnce({
+      preferences: [],
+      recentActivities: [],
+      openTasks: [],
+      segments: [],
+    });
+    renderWithProviders(<StaffClinicCrmWorkspacePage />);
+
+    expect(await screen.findByText("Pendientes del rol")).toBeInTheDocument();
+    expect(clinicsApi.selectActiveClinicSite).toHaveBeenCalledWith("clinic-active");
+    expect(clinicsApi.getStaffAgenda).toHaveBeenCalledWith("clinic-active", expect.any(String), expect.any(String));
   });
 
   it("shows authorized role tasks and completes them through the clinic-scoped API", async () => {

@@ -28,6 +28,18 @@ export interface ClinicDto {
   registeredAt: string;
 }
 
+export interface ActiveClinicSiteDto {
+  clinicId: string | null;
+}
+
+export interface AccessibleClinicSiteDto {
+  organizationId: string;
+  organizationName: string;
+  clinicId: string;
+  clinicName: string;
+  isPrimary: boolean;
+}
+
 export interface ClinicAccessSearchResultDto {
   id: string;
   name: string;
@@ -722,6 +734,15 @@ export const clinicsApi = {
 
   getStaffWorkspaces: (): Promise<ClinicStaffWorkspaceDto[]> =>
     apiClient.get<ClinicStaffWorkspaceDto[]>("/clinics/staff-workspaces").then((response) => response.data),
+
+  getActiveClinicSite: (): Promise<ActiveClinicSiteDto> =>
+    apiClient.get<ActiveClinicSiteDto>("/clinics/active-site").then((response) => response.data),
+
+  selectActiveClinicSite: (clinicId: string): Promise<ActiveClinicSiteDto> =>
+    apiClient.put<ActiveClinicSiteDto>("/clinics/active-site", { clinicId }).then((response) => response.data),
+
+  getAccessibleClinicSites: (): Promise<AccessibleClinicSiteDto[]> =>
+    apiClient.get<AccessibleClinicSiteDto[]>("/clinics/accessible-sites").then((response) => response.data),
 
   getStaffCrmDashboard: (clinicId: string, today: string): Promise<ClinicCrmDashboardDto> =>
     apiClient
