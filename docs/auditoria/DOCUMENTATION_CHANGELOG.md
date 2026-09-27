@@ -10,3 +10,11 @@
 - Archivados: ninguno; [README](../README.md) preserva la clasificación histórica de documentos previos. Fuentes anteriores no se reemplazaron de manera silenciosa.
 
 Cada afirmación nueva usa evidencia de código enlazada en su documento. Pruebas de integración, despliegue y proveedores siguen pendientes ([TESTING](../TESTING.md)); este changelog no los acredita.
+
+## 2026-09-27 — AI Knowledge Hub
+
+- Creado `/ai/` como hub Evidence First con contexto, inventario técnico, producto/historia, arquitectura, dominios, integraciones, seguridad, releases, siete prompts reutilizables, scorecard y gobernanza de agentes.
+- Creados `docs/adrs/` con siete ADR en estado `DRAFT`; son transcripciones rastreables de la sección ADR del manual técnico, no decisiones formalmente aprobadas.
+- Creados `docs/business/ONTOLOGY.md`, `docs/business/CAPABILITIES.md`, `docs/strategy/` y `docs/compliance/` como síntesis/propuestas con evidencia y límites explícitos.
+- Actualizado el índice [docs/README.md](../README.md) para descubrir el hub. No se modificó código productivo ni se ejecutaron pruebas de producto, migraciones o despliegues.
+- Validación documental final: 67 archivos revisados, 0 enlaces locales rotos, 0 problemas de formato básico y 30 capacidades asignadas una vez cada una. Diagnóstico del editor sin errores en los documentos comprobados; `git diff --check` limpio. Scorecard cualitativo 63/100; no certifica readiness de producción.

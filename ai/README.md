@@ -27,6 +27,20 @@ La estructura detallada de este hub se organiza en `00_context.md`, `01_product/
 
 Fuentes canónicas actuales: [alcance del producto](../docs/PRODUCT_SCOPE.md), [trazabilidad de capacidades](../docs/auditoria/FEATURE_TRACEABILITY_MATRIX.md), [brechas documentales](../docs/auditoria/DOCUMENTATION_GAP_REPORT.md), [arquitectura](../docs/ARCHITECTURE.md), [API](../docs/API.md), [seguridad](../docs/SECURITY.md), [integraciones](../docs/INTEGRATIONS.md), [preparación IA](../docs/ai/AI_READINESS.md), [gobernanza IA](../docs/ai/AI_GOVERNANCE.md), [capacidades de negocio](../docs/business/BUSINESS_CAPABILITIES.md) y [plan de auditoría](../docs/auditoria/DOCUMENTATION_UPDATE_PLAN.md).
 
+## Navegación del hub
+
+- Contexto: [inventario técnico](02_architecture/repository-inventory.md) y [contexto breve](00_context.md).
+- Producto: [visión](01_product/vision.md), [misión propuesta](01_product/mission.md), [alcance](01_product/scope.md), [roadmap](01_product/roadmap.md), [historia](01_product/history.md).
+- Arquitectura: [arquitectura](02_architecture/architecture.md), [dominios](02_architecture/domains.md), [integraciones](02_architecture/integrations.md), [seguridad](02_architecture/security.md), [despliegue](02_architecture/deployment.md).
+- Dominios: [mascotas](03_domains/pets.md), [identidad](03_domains/identity.md), [QR](03_domains/qr.md), [NFC](03_domains/nfc.md), [GPS](03_domains/gps.md), [salud](03_domains/health.md), [telemedicina](03_domains/telemedicine.md), [marketplace](03_domains/marketplace.md), [comunidad](03_domains/community.md), [municipal](03_domains/municipal.md), [proveedores](03_domains/providers.md), [suscripciones](03_domains/subscriptions.md).
+- Decisiones: [registro ADR](04_decisions/README.md) y [índice ADR](../docs/adrs/ADR-INDEX.md).
+- Integraciones/seguridad/releases: [catálogo de integraciones](05_integrations/INTEGRATION_CATALOG.md), [baseline de seguridad AI](06_security/SECURITY_BASELINE.md), [evidencia de releases](07_releases/RELEASE_EVIDENCE.md).
+- Prompts: [arquitectura](08_prompts/architecture-review.prompt.md), [feature](08_prompts/feature-review.prompt.md), [seguridad](08_prompts/security-review.prompt.md), [GPS](08_prompts/gps-review.prompt.md), [telemedicina](08_prompts/telemedicine-review.prompt.md), [municipal](08_prompts/municipal-review.prompt.md), [release](08_prompts/release-review.prompt.md).
+- Métricas: [AI readiness](09_metrics/AI_READINESS.md).
+- Agentes: [catálogo](10_agents/AGENT_CATALOG.md), [matriz de interacción](10_agents/AGENT_INTERACTION_MATRIX.md) y [Documentation Guardian](10_agents/documentation-guardian.md).
+
+Otros documentos derivados de este hub: [ontología](../docs/business/ONTOLOGY.md), [capacidades](../docs/business/CAPABILITIES.md), [estrategia](../docs/strategy/VISION.md), [posicionamiento](../docs/strategy/POSITIONING.md), [ventajas hipotéticas](../docs/strategy/COMPETITIVE_ADVANTAGES.md), [supuestos de mercado](../docs/strategy/MARKET_ASSUMPTIONS.md), [modelo de ingresos](../docs/strategy/REVENUE_MODEL.md), [privacidad](../docs/compliance/PRIVACY.md), [gobierno de datos](../docs/compliance/DATA_GOVERNANCE.md) y [registro de riesgos](../docs/compliance/RISK_REGISTER.md).
+
 ## Mantenimiento
 
 Los documentos de este hub son vistas de navegación y síntesis con fecha/corte y enlaces a evidencia. Ante contradicción, registrar la discrepancia en el reporte de brechas y mantener ambas afirmaciones atribuibles hasta resolverla. Registrar los cambios documentales en [changelog](../docs/auditoria/DOCUMENTATION_CHANGELOG.md). No copiar secretos, PII ni expedientes a prompts, memoria o ejemplos.

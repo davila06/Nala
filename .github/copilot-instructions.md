@@ -12,15 +12,22 @@ Core loop: _register pet → generate QR → report lost → log sighting → re
 
 **Current phase:** Product consolidation and enterprise readiness (September 2026).
 
+## AI knowledge and evidence
+
+- For repository/product/architecture questions, start at [`ai/README.md`](../ai/README.md) and follow its links to the canonical document for the requested domain.
+- Apply **NO OPINION WITHOUT EVIDENCE**: cite repository paths and distinguish implemented behavior, tests actually run, configuration, proposal, roadmap, and production operation. Mark insufficient evidence `NO_VERIFICADO`.
+- Preserve user changes and document ownership. Do not infer deployment, provider approval, legal compliance, commercial approval, AI/RAG/agent availability, or veterinary outcomes from a class, skill, UI, plan, package, or infrastructure declaration alone.
+- Keep secrets, personal data, clinical records, and exact GPS coordinates out of prompts, agent memory, examples, and logs. AI must not provide veterinary diagnosis or autonomously perform sensitive actions.
+
 ---
 
 ## Primary stack
 
-| Layer    | Technology                                                                              |
-| -------- | --------------------------------------------------------------------------------------- |
-| Backend  | .NET 9 · Clean Architecture · CQRS via MediatR                                          |
-| Frontend | React PWA · TypeScript                                                                  |
-| Database | Azure SQL · EF Core                                                                     |
+| Layer    | Technology                                                                                 |
+| -------- | ------------------------------------------------------------------------------------------ |
+| Backend  | .NET 9 · Clean Architecture · CQRS via MediatR                                             |
+| Frontend | React PWA · TypeScript                                                                     |
+| Database | Azure SQL · EF Core                                                                        |
 | Cloud    | Azure Container Apps · Blob Storage · Notification Hubs · Key Vault · Application Insights |
 
 ---

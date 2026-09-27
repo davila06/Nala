@@ -2,18 +2,65 @@
 
 Cada fila asigna las capacidades F01-F30 de la [matriz de trazabilidad](../auditoria/FEATURE_TRACEABILITY_MATRIX.md) a una capacidad primaria. La asignación es una taxonomía de negocio, no prueba de disponibilidad. Las denominaciones y estados técnicos de la matriz son autoritativos.
 
-| Capacidad       | Funciones asignadas                                                                                                      | Alcance                                                                    |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
-| Identidad       | F01 Auth; F02 mascota/QR; F25 administración privilegiada; F28 cuenta familiar                                           | Identidad de persona/mascota y control de acceso.                          |
-| Recuperación    | F03 reporte; F04 estado; F05 avistamiento; F14 matching visual; F19 copiloto/agentes; F20 chat/handover/fraude           | F14 no verificado en proveedor; F19 propuesto; no todo el ciclo tiene E2E. |
-| Geolocalización | F06 collar; F13 TrackSolid; F21 mapa/búsqueda coordinada                                                                 | Hardware/proveedor y flujo multiusuario no verificados.                    |
-| Salud           | F07 historial; F08 clínicas; F23 certificados/campañas                                                                   | F07 sin E2E en corte; F08 parcial; certificados/campañas no probados E2E.  |
-| Comunidad       | F16 WhatsApp/directorio; F22 bienestar/aliados/hogares temporales                                                        | Integraciones externas y flujos completos no verificados.                  |
-| Marketplace     | F09 adopciones; F10 pedidos de tienda; F11 servicios/reservas; F24 recompensas/bundles/facturación; F30 widgets clínicos | Transacciones/pagos integrales y widgets de terceros no acreditados.       |
-| Municipal       | F15 capturas/reportes institucionales                                                                                    | Parcial; envío oficial no implementado.                                    |
-| Telemedicina    | F18 consulta remota de audio/video                                                                                       | Declarado no implementado.                                                 |
-| Growth          | F12 suscripciones/entitlements; F17 promociones; F27 notificaciones/difusión                                             | Gate comercial, atribución y entregas externas tienen límites propios.     |
-| Analytics       | F26 importaciones; F29 NALA/estadísticas públicas                                                                        | No se infiere tracción ni exactitud de producción desde endpoints.         |
+## Identidad
+
+- `F01`: autenticación y MFA.
+- `F02`: mascota y QR.
+- `F25`: soporte y administración privilegiada.
+- `F28`: cuenta familiar.
+
+## Recuperación
+
+- `F03`: crear reporte de pérdida.
+- `F04`: cambiar estado de pérdida.
+- `F05`: registrar avistamiento.
+- `F14`: matching visual; proveedor externo no verificado.
+- `F19`: copiloto/RAG/agentes; propuesto.
+- `F20`: chat, handover y fraude; flujo no verificado E2E.
+
+## Geolocalización
+
+- `F06`: registrar collar; prueba a nivel handler, hardware no verificado.
+- `F13`: sincronización TrackSolid; proveedor/dispositivo no verificado.
+- `F21`: mapa y búsqueda coordinada; flujo multiusuario no verificado.
+
+## Salud
+
+- `F07`: historial médico; sin E2E en el corte.
+- `F08`: clínicas, agenda y finanzas; parcial.
+- `F23`: certificados y campañas; flujo no probado E2E.
+
+## Comunidad
+
+- `F16`: WhatsApp/directorio; proveedor externo no verificado.
+- `F22`: bienestar, aliados y hogares temporales; flujo no verificado.
+
+## Marketplace
+
+- `F09`: adopciones.
+- `F10`: pedidos de tienda, sin pago verificado.
+- `F11`: servicios y reservas; pago integral parcial.
+- `F24`: recompensas, bundles y facturación; no verificado.
+- `F30`: widgets clínicos; integración de terceros no verificada.
+
+## Municipal
+
+- `F15`: capturas/reportes institucionales; parcial, envío oficial no implementado.
+
+## Telemedicina
+
+- `F18`: consulta remota de audio/video; declarada no implementada.
+
+## Growth
+
+- `F12`: suscripciones/entitlements; límites comerciales no verificados íntegramente.
+- `F17`: promociones; no prueba atribución.
+- `F27`: notificaciones/difusión; entregas externas no verificadas.
+
+## Analytics
+
+- `F26`: importaciones; flujo no verificado.
+- `F29`: NALA/estadísticas públicas; no se infiere tracción de endpoints.
 
 ## Vistas
 

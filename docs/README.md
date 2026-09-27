@@ -14,6 +14,10 @@ La [auditoría de alcance](PRODUCT_SCOPE.md) distingue capacidades técnicas, se
 
 Guías contrastadas: [arquitectura](ARCHITECTURE.md), [API](API.md), [seguridad](SECURITY.md), [configuración](CONFIGURATION.md), [datos](DATA_MODEL.md), [integraciones](INTEGRATIONS.md), [limitaciones](KNOWN_LIMITATIONS.md), [planes](commercial/PLANS.md), [dominios](domains/MARKETPLACE.md), [edición institucional](editions/MUNICIPAL.md), [crecimiento](growth/GROWTH_ENGINE.md), [preparación IA](ai/AI_READINESS.md) y [negocio](business/BUSINESS_CAPABILITIES.md). Los nuevos documentos no sustituyen los históricos ni acreditan operación en producción.
 
+## AI Knowledge Hub
+
+El hub para agentes y memoria organizacional vive en [../ai/README.md](../ai/README.md). Incluye contexto, producto, inventario técnico, dominios, ADRs `DRAFT`, prompts y políticas Evidence First. Sus resúmenes enlazan a las fuentes canónicas de `docs/`; no sustituyen la matriz de capacidades ni verifican operación. Ver [scorecard](../ai/09_metrics/AI_READINESS.md), [catálogo de skills](../ai/10_agents/AGENT_CATALOG.md) y [Documentation Guardian](../ai/10_agents/documentation-guardian.md).
+
 ## Como leer la documentacion
 
 Cada documento tiene una responsabilidad. Si dos documentos contradicen el

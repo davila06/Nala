@@ -1,4 +1,4 @@
-# ADR-006: Result<T> para errores de negocio
+# ADR-006: `Result<T>` para errores de negocio
 
 **Estado:** DRAFT. **Fecha/owner/aprobación:** no verificados. **Fuente inicial:** [MANUAL_TECNICO.md §20](../Manuales/MANUAL_TECNICO.md).
 
