@@ -882,7 +882,9 @@ SEMANA 9  |████| E2E Tests + Load Testing + Documentation
 
 - **Geofencing:** GeoJSON.NET (point-in-polygon), NetTopologySuite (advanced)
 - **Background Jobs:** Hangfire (existing use), or Quartz.NET
-- **Notifications:** Azure Notification Hubs (existing), Azure Communication Services
+- **Notifications:** Azure Notification Hubs and Azure Communication Services
+  are proposed integrations; no corresponding SDK/client was found in the
+  current backend code.
 
 ### Frontend
 

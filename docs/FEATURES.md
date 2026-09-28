@@ -1,14 +1,39 @@
 # FEATURES.md — Matriz definitiva de planes, características y límites
 
 **Producto:** NALA / PawTrack CR  
-**Estado:** Contrato funcional propuesto para implementación  
+**Estado:** Catálogo histórico/comercial; el alcance vigente está en [PRODUCT_SCOPE.md](PRODUCT_SCOPE.md) y en la [matriz de trazabilidad](auditoria/FEATURE_TRACEABILITY_MATRIX.md).
 **Versión:** 1.0  
 **Fecha:** 2026-09-21  
 **Audiencia:** Producto, Backend, Frontend, QA, DevOps, Soporte, Ventas y Operaciones
 
-Actualizacion 2026-09-26: la seccion de tiendas se contrasto con el codigo y
-describe gates tecnicos, no una oferta aprobada ni un POS. Las demas secciones
-conservan su fecha de revision previa.
+Actualizacion 2026-09-28: la sección de alcance real al final de este encabezado
+se contrastó con código, configuración, migraciones y pruebas. Las tablas de
+planes que siguen describen contrato objetivo o límites comerciales y no deben
+leerse como funcionalidades actualmente disponibles sin evidencia en la matriz.
+
+## Estado real de las capacidades solicitadas (2026-09-28)
+
+| Capacidad                    | Estado                                                                        | Evidencia ejecutable                                                    | Exclusión o límite                                            |
+| ---------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Identificación QR            | `IMPLEMENTADO_Y_VERIFICADO`                                                   | `PetsController`, `GetPetQrCodeQuery`, `QrCodeService`, `QrCodeDisplay` | No acredita QR físico ni Blob operativo                       |
+| NFC                          | `PROPUESTO`                                                                   | `ai/03_domains/nfc.md` y estrategia                                     | Sin lectura, hardware, UI o persistencia                      |
+| GPS                          | `IMPLEMENTADO_Y_VERIFICADO` en plataforma; proveedor/hardware `NO_VERIFICADO` | módulo `Collars`, `TrackSolidService`, polling y pruebas                | Sin SLA, cobertura ni dispositivo real                        |
+| Telemedicina                 | `DECLARADO_NO_IMPLEMENTADO` para video/audio                                  | `ClinicalConsultation` solo registra consulta                           | Sin sala remota ni ACS                                        |
+| Expediente veterinario       | `IMPLEMENTADO_Y_VERIFICADO`                                                   | `MedicalController`, timeline, adjuntos, PDF/export y pruebas           | No es EHR externo ni diagnóstico                              |
+| Recordatorios de salud       | `IMPLEMENTADO_Y_VERIFICADO`                                                   | `VetReminder`, `HealthAlertHostedService`, protocolos y pruebas         | No prescribe ni trata automáticamente                         |
+| Suscripciones                | `PARCIALMENTE_IMPLEMENTADO`                                                   | `SubscriptionsController`, `EntitlementService`, migraciones y pruebas  | Entitlements/cuotas y oferta comercial incompletos            |
+| Marketplace                  | `PARCIALMENTE_IMPLEMENTADO`                                                   | tiendas, proveedores, reservas y pedidos con pruebas                    | Pagos liquidado e inventario transaccional no implementados   |
+| IA                           | `PARCIALMENTE_IMPLEMENTADO`                                                   | Azure Vision/matching visual condicionado                               | Sin RAG, copiloto, agente o diagnóstico                       |
+| Municipalidades              | `IMPLEMENTADO_Y_VERIFICADO`                                                   | perfiles, capturas y reportes institucionales                           | Sin interoperabilidad oficial acreditada                      |
+| Refugios                     | `IMPLEMENTADO_Y_VERIFICADO`                                                   | aliados, adopciones y solicitudes                                       | Sin operación/SLA de refugio real                             |
+| Veterinarias                 | `IMPLEMENTADO_Y_VERIFICADO`                                                   | módulo clínico, expedientes, grants, certificados y pruebas             | Sin telemedicina audiovisual ni fiscalidad externa verificada |
+| Integraciones Azure          | `IMPLEMENTADO_SIN_PRUEBAS`                                                    | adaptadores Blob/SQL/Key Vault/App Insights/Maps/Vision/infra           | Configuración e IaC no prueban despliegue                     |
+| Azure Communication Services | `DECLARADO_NO_IMPLEMENTADO`                                                   | No existen SDK, cliente, configuración ni rutas ACS                     | No confundir con actividad CRM `CallClient`                   |
+| Dynamics 365                 | `DECLARADO_NO_IMPLEMENTADO`                                                   | No existen SDK, conector ni configuración                               | CRM interno no es Dynamics 365                                |
+| Power Platform               | `DECLARADO_NO_IMPLEMENTADO`                                                   | No existen Dataverse, Power Automate ni conectores                      | Jobs .NET propios no son Power Platform                       |
+
+Para el detalle de rutas y pruebas, consultar [PRODUCT_SCOPE.md](PRODUCT_SCOPE.md)
+y [FEATURE_TRACEABILITY_MATRIX.md](auditoria/FEATURE_TRACEABILITY_MATRIX.md).
 
 ---
 
@@ -81,7 +106,7 @@ Las cuotas definidas en este documento se consideran contractuales una vez imple
 
 ---
 
-# PARTE I — PLANES B2C
+## PARTE I — PLANES B2C
 
 ## 5. Planes para propietarios
 
@@ -194,7 +219,7 @@ Al agotarse la cuota:
 
 ---
 
-# PARTE II — PLANES B2B Y SOCIALES
+## PARTE II — PLANES B2B Y SOCIALES
 
 ## 6. Planes para tiendas
 
@@ -432,7 +457,7 @@ El programa de aliados es gratuito y no constituye una suscripción comercial.
 
 ---
 
-# PARTE III — REGLAS DE CAMBIO DE PLAN
+## PARTE III — REGLAS DE CAMBIO DE PLAN
 
 ## 12. Upgrades
 
@@ -476,7 +501,7 @@ El programa de aliados es gratuito y no constituye una suscripción comercial.
 
 ---
 
-# PARTE IV — ADD-ONS
+## PARTE IV — ADD-ONS
 
 ## 15. Catálogo de add-ons propuesto
 
@@ -497,7 +522,7 @@ Los add-ons deben tener vigencia, precio, renovación y reglas de prorrateo conf
 
 ---
 
-# PARTE V — MODELO TÉCNICO
+## PARTE V — MODELO TÉCNICO
 
 ## 16. Entitlements requeridos
 
@@ -678,7 +703,7 @@ No incluir información sensible, secretos o datos de otros tenants en la respue
 
 ---
 
-# PARTE VI — FRONTEND Y EXPERIENCIA
+## PARTE VI — FRONTEND Y EXPERIENCIA
 
 ## 20. Reglas de UI
 
@@ -701,7 +726,7 @@ La interfaz debe:
 
 ---
 
-# PARTE VII — QA Y CRITERIOS DE ACEPTACIÓN
+## PARTE VII — QA Y CRITERIOS DE ACEPTACIÓN
 
 ## 21. Pruebas mínimas por entitlement
 
@@ -746,7 +771,7 @@ Para cada capacidad, QA debe cubrir:
 
 ---
 
-# PARTE VIII — DECISIONES DE PRODUCTO CERRADAS
+## PARTE VIII — DECISIONES DE PRODUCTO CERRADAS
 
 ## 23. Decisiones definitivas
 
@@ -769,23 +794,27 @@ Para cada capacidad, QA debe cubrir:
 
 ## 24. Pendientes de implementación
 
-- [ ] Ampliar `SubscriptionPlan` para asociar entitlements configurables.
-- [ ] Crear migraciones para definiciones, add-ons y consumos.
-- [ ] Implementar el servicio central de entitlements.
-- [ ] Reemplazar límites hardcodeados existentes.
-- [ ] Incorporar idempotencia en consumos de cuota.
-- [ ] Crear endpoint para consultar snapshot de capacidades.
-- [ ] Incorporar medidores de cuota en frontend.
-- [ ] Aplicar gates a matching, difusión, GPS, salud y familia.
-- [ ] Aplicar gates a productos, pedidos, sedes y analítica.
-- [ ] Aplicar gates a escaneos, API keys, certificados y pasaportes.
-- [ ] Aplicar gates a capturas, reportes y red regional.
-- [ ] Aplicar gates a servicios, agenda y reservas.
-- [ ] Crear alertas de proximidad al límite.
-- [ ] Actualizar catálogo público y página de precios.
-- [ ] Actualizar manuales de usuario, tiendas, clínicas, refugios, municipalidades y proveedores.
-- [ ] Crear pruebas de upgrade y downgrade.
-- [ ] Validar términos comerciales, privacidad y retención.
+**Estado técnico revalidado:** 2026-09-28. Los checks acreditan código/modelo en el repositorio, no despliegue en producción ni aprobación comercial.
+
+- [ ] **Parcial — asociación configurable:** existe `PlanEntitlement` con `PlanId` y el catálogo inicial se inserta por migración, pero los contratos/UI de administración solo gestionan nombre, descripción y precios de `SubscriptionPlan`; no se encontró CRUD para editar definiciones de entitlement. Evidencia: [entidad](../backend/src/PawTrack.Domain/Subscriptions/PlanEntitlement.cs), [migración y catálogo inicial](../backend/src/PawTrack.Infrastructure/Persistence/Migrations/20260921203255_AddEntitlementCatalogAndConsumption.cs), [CRUD de planes](../backend/src/PawTrack.API/Controllers/SubscriptionPlansController.cs).
+- [x] **Migraciones de esquema y catálogo inicial:** existen migraciones para definiciones/consumos, add-ons y correlación de difusión. La aplicación de migraciones fuera de ambientes locales sigue sin verificarse: [migración base](../backend/src/PawTrack.Infrastructure/Persistence/Migrations/20260921203255_AddEntitlementCatalogAndConsumption.cs), [add-ons](../backend/src/PawTrack.Infrastructure/Persistence/Migrations/20260921210733_AddSubscriptionAddons.cs), [difusión idempotente](../backend/src/PawTrack.Infrastructure/Persistence/Migrations/20260921213803_AddBroadcastRunId.cs).
+- [x] **Servicio central:** `IEntitlementService` expone snapshot, autorización y consumo y está implementado/registrado: [contrato](../backend/src/PawTrack.Application/Subscriptions/Services/IEntitlementService.cs), [implementación](../backend/src/PawTrack.Infrastructure/Subscriptions/EntitlementService.cs), [registro DI](../backend/src/PawTrack.Infrastructure/InfrastructureServiceCollectionExtensions.cs).
+- [ ] **Parcial — retirar límites hardcodeados:** subsiste `FreeEntitlements()`/`GetLegacyEntitlement()` y algunos handlers conservan checks por tier o cuotas locales. El servicio usa fallback cuando falta una definición persistida. Evidencia: [fallbacks](../backend/src/PawTrack.Infrastructure/Subscriptions/EntitlementService.cs), [API keys](../backend/src/PawTrack.Application/Clinics/Commands/ManageApiKey/ManageApiKeyCommands.cs), [certificados](../backend/src/PawTrack.Application/Certificates/Commands/IssueCertificate/IssueCertificateCommand.cs), [pasaportes](../backend/src/PawTrack.Application/Certificates/Commands/IssueVaccinePassportCommand.cs).
+- [x] **Idempotencia de consumos:** consulta por clave, persistencia única `(SubjectId, EntitlementKey, IdempotencyKey)` y manejo de colisión concurrente están implementados; la evidencia de concurrencia SQL queda pendiente. Evidencia: [servicio](../backend/src/PawTrack.Infrastructure/Subscriptions/EntitlementService.cs), [índice](../backend/src/PawTrack.Infrastructure/Persistence/Configurations/EntitlementConsumptionConfiguration.cs), [prueba unitaria](../backend/tests/PawTrack.UnitTests/Subscriptions/EntitlementServiceTests.cs).
+- [x] **Snapshot de capacidades:** existe `GET /api/subscriptions/entitlements` y cliente/hook frontend: [endpoint](../backend/src/PawTrack.API/Controllers/SubscriptionsController.cs), [API frontend](../frontend/src/features/pets/api/subscriptionApi.ts), [hook](../frontend/src/features/pets/hooks/useSubscription.ts).
+- [ ] **Parcial — medidores en frontend:** existe `EntitlementMeter` y el hook de snapshot, pero no se encontró ningún call site que monte el componente en `frontend/src`; no hay medidores visibles acreditados por esta evidencia. Evidencia: [componente aún no integrado](../frontend/src/features/pets/components/EntitlementMeter.tsx).
+- [ ] **Parcial — matching, difusión, GPS, salud y familia:** hay gates/consumos para matching, difusión, registro GPS, miembros familiares, preview/expediente médico y recordatorios; la cobertura depende parcialmente de fallbacks y no demuestra que toda la matriz objetivo esté configurada. Evidencia: [matching por ID](../backend/src/PawTrack.Application/Sightings/VisualMatch/MatchSightingByIdQuery.cs), [difusión](../backend/src/PawTrack.Application/Broadcast/Commands/BroadcastLostPet/BroadcastLostPetCommandHandler.cs), [GPS](../backend/src/PawTrack.Application/Collars/Commands/RegisterCollar/RegisterCollarCommand.cs), [familia](../backend/src/PawTrack.Application/Family/FamilyCommands.cs), [salud](../backend/src/PawTrack.Application/Medical/MedicalCommands.cs).
+- [ ] **Parcial — productos, pedidos, sedes y analítica:** existen gates para productos, pedidos, ubicaciones e informes de analítica de tiendas. No se acredita una cuota común para toda sede física ni enforcement completo por sucursal en todos los dominios. Evidencia: [productos](../backend/src/PawTrack.Application/Stores/StoreProductCommands.cs), [pedidos](../backend/src/PawTrack.Application/Stores/StoreOrderCommands.cs), [ubicaciones](../backend/src/PawTrack.Application/Stores/StoreLocationCommands.cs), [exportación analítica](../backend/src/PawTrack.Application/Stores/StoreAnalyticsExportCommand.cs).
+- [ ] **Parcial — clínicas:** el consumo por escaneo usa entitlements; API keys, certificados y pasaportes mantienen gates por tier y/o cuotas explícitas, no una migración completa a definiciones configurables/add-ons. Evidencia: [escaneos](../backend/src/PawTrack.Application/Clinics/Commands/PerformClinicScan/PerformClinicScanCommand.cs), [API keys](../backend/src/PawTrack.Application/Clinics/Commands/ManageApiKey/ManageApiKeyCommands.cs), [certificados](../backend/src/PawTrack.Application/Certificates/Commands/IssueCertificate/IssueCertificateCommand.cs), [pasaportes](../backend/src/PawTrack.Application/Certificates/Commands/IssueVaccinePassportCommand.cs).
+- [ ] **Parcial — municipalidad y reportes regionales:** capturas, actualización masiva y transferencia inter-cantonal consultan entitlements; no se encontró consumidor para `RegionalDashboardEnabled`, y los gates de reportes institucionales no están totalmente unificados con este servicio. Evidencia: [capturas](../backend/src/PawTrack.Application/Municipalities/Commands/RecordCapture/RecordCaptureCommand.cs), [operaciones masivas](../backend/src/PawTrack.Application/Municipalities/Commands/BulkUpdateStatus/BulkUpdateStatusCommand.cs), [transferencias](../backend/src/PawTrack.Application/Municipalities/Commands/TransferCapture/TransferCaptureCommand.cs), [catálogo de reportes](../backend/src/PawTrack.Infrastructure/Persistence/Migrations/20260921203255_AddEntitlementCatalogAndConsumption.cs).
+- [ ] **Parcial — servicios, agenda y reservas:** hay gates para servicios activos, bloqueos de agenda y reservas; membresías `Free/Verified/Featured` siguen usando fallback legacy y no todas las reglas comerciales están en catálogo persistido. Evidencia: [servicios](../backend/src/PawTrack.Application/ServiceProviders/ServiceProviderCommands.cs), [bloques](../backend/src/PawTrack.Application/ServiceProviders/ServiceProviderCommands.cs), [reservas](../backend/src/PawTrack.Application/ServiceProviders/ProviderBookingCommands.cs).
+- [ ] Crear alertas proactivas al aproximarse a una cuota. El medidor disponible calcula consumo/saldo cuando se monta, pero no se encontró un flujo de notificación por umbral.
+- [ ] **Parcial — catálogo y precios:** existe catálogo API y se consume en superficies de suscripción; el CRUD administra precios base, pero no se verificó una página pública completa alimentada por él ni aprobación comercial de precios/claims. Evidencia: [catálogo API](../backend/src/PawTrack.API/Controllers/PublicSubscriptionPlansController.cs), [planes administrables](../backend/src/PawTrack.API/Controllers/SubscriptionPlansController.cs), [uso frontend](../frontend/src/features/pets/api/subscriptionApi.ts), [registro de revisión legal](LEGAL_REVIEW_REGISTER.md).
+- [ ] Actualizar y comprobar consistencia de los manuales de usuario de propietarios, tiendas, clínicas, refugios, municipalidades y proveedores contra gates y límites reales. [ENTITLEMENTS_IMPLEMENTATION.md](ENTITLEMENTS_IMPLEMENTATION.md) es estado técnico, no sustituye todos los manuales de operación.
+- [ ] **Parcial — pruebas de upgrade/downgrade:** hay pruebas unitarias de downgrade programado y políticas de recursos; falta una matriz integrada de upgrade/downgrade por plan, add-on, ciclo, expiración y estado de recursos. Evidencia: [handler de downgrade](../backend/src/PawTrack.Application/Subscriptions/Commands/ScheduleSubscriptionDowngrade/ScheduleSubscriptionDowngradeCommand.cs), [pruebas unitarias](../backend/tests/PawTrack.UnitTests/Subscriptions/Commands/ScheduleSubscriptionDowngradeCommandHandlerTests.cs), [política de recursos](../backend/tests/PawTrack.UnitTests/Subscriptions/DowngradeResourcePolicyTests.cs).
+- [ ] Validar/aprobar términos comerciales, claims de planes, privacidad y retención con las áreas responsables. El estado actual permanece `draft`/`pending`: [registro de revisión legal](LEGAL_REVIEW_REGISTER.md).
+
+El backend completo pasó **1.803/1.803** pruebas en la revalidación del 2026-09-28 (1.634 unitarias y 169 de integración). Ese resultado no certifica migraciones en producción, aprobación comercial/legal ni la implementación de cada cuota de la matriz objetivo.
 
 ---
 
@@ -825,4 +854,4 @@ Las tablas anteriores son un **contrato objetivo**, no un inventario de funcione
 
 El inventario de capacidades comprobadas y sus estados se mantiene en la [matriz de trazabilidad](auditoria/FEATURE_TRACEABILITY_MATRIX.md). Un endpoint, una pantalla o un `DbSet` aislado no acredita un proceso completo. Los estados `IMPLEMENTADO_Y_VERIFICADO` se reservan a la operación específica probada durante este corte; las integraciones externas y disponibilidad en producción permanecen sin verificación hasta obtener pruebas operativas.
 
-**Fin de FEATURES.md**
+## Fin de FEATURES.md

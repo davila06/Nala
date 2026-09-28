@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Backlog Maestro — PawTrack CR</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+</head>
+<body>
+<aside id="sidebar">
+  <div class="brand"><span>🐾</span><strong>PawTrack CR<br>Documentación</strong></div>
+  <nav><ul>
+    <li><a href="index.html" class="h2">← Inicio</a></li>
+    <li><a href="PLANES_FEATURES.html" class="h2">🧭 Planes interactivos</a></li>
+    <li><a href="STATUS.html" class="h2">✅ Estado Verificado</a></li>
+    <li><a href="EXTERNAL_PROVIDER_VALIDATION.html" class="h2">🔐 Validación de Proveedores</a></li>
+    <li><a href="GO_LIVE_GOVERNANCE.html" class="h2">🛡️ Gobierno de Go-Live</a></li>
+    <li><a href="CHANGELOG.html" class="h2">📝 Changelog</a></li>
+    <li><a href="MASTER_TODO.html" class="h2 active">🗺️ Backlog Maestro</a></li>
+    <li><a href="sponsor.html" class="h2">📑 Brief de Due Diligence</a></li>
+    <li><a href="FEATURES.html" class="h2">🧭 Features por Plan</a></li>
+    <li><a href="PRICING_AND_PLANS.html" class="h2">💳 Planes y Capacidades</a></li>
+    <li><a href="planes.html" class="h2">📋 Catálogo de Planes y Tiers</a></li>
+    <li><a href="precios.html" class="h2">📊 Precios y Modelo Comercial</a></li>
+    <li><a href="publicidad.html" class="h2">🪧 Guía de Publicidad y Vallas</a></li>
+    <li><a href="VALLAS_COMERCIALES.html" class="h2">📣 Vallas Comerciales</a></li>
+    <li><a href="inversionistas.html" class="h2">💼 Pitch para Inversionistas</a></li>
+    <li><a href="influencer.html" class="h2">🤝 Colaboración con Influencers</a></li>
+    <li><a href="API_REFERENCE.html" class="h2">🔌 Referencia API</a></li>
+    <li><a href="B2B_ESTADO_ACTUAL.html" class="h2">🏢 Estado Actual B2B</a></li>
+    <li><a href="CONSOLIDACION_DOCUMENTAL.html" class="h2">🗂️ Consolidación Documental</a></li>
+    <li><a href="COLLAR_CURRENT_STATE.html" class="h2">📡 Estado Actual de Collares</a></li>
+    <li><a href="ADOPTIONS_CURRENT_STATE.html" class="h2">🏡 Estado Actual de Adopciones</a></li>
+    <li><a href="NALA_REPORTING_GUIDE.html" class="h2">📊 NALA y Reportes</a></li>
+    <li><a href="sinpe.html" class="h2">💸 Automatización SINPE Móvil</a></li>
+    <li><a href="NALA.html" class="h2">🐾 Producto PawTrack CR</a></li>
+    <li><a href="MANUAL_USUARIO.html" class="h2">📱 Manual de Usuario</a></li>
+    <li><a href="MANUAL_ADMINISTRADOR.html" class="h2">⚙️ Manual de Administrador</a></li>
+    <li><a href="MANUAL_ALIADOS.html" class="h2">🤝 Manual de Aliados</a></li>
+    <li><a href="MANUAL_CLINICAS.html" class="h2">🏥 Manual de Clínicas Veterinarias</a></li>
+    <li><a href="MANUAL_MUNICIPALIDADES.html" class="h2">🏛️ Manual de Municipalidades</a></li>
+    <li><a href="MANUAL_TIENDAS.html" class="h2">🏪 Manual de Tiendas</a></li>
+    <li><a href="MANUAL_PROVEEDORES.html" class="h2">🧰 Manual de Proveedores</a></li>
+    <li><a href="MANUAL_SOPORTE.html" class="h2">🎧 Manual de Soporte</a></li>
+    <li><a href="MANUAL_TECNICO.html" class="h2">🛠️ Manual Técnico</a></li>
+    <li><a href="GUIA_ONBOARDING_DEV.html" class="h2">🚀 Guía de Onboarding Dev</a></li>
+    <li><a href="GUIA_DEPLOY_PASO_A_PASO.html" class="h2">☁️ Guía de Deploy Paso a Paso</a></li>
+    <li><a href="RUNBOOK_OPERACIONES.html" class="h2">📟 Runbook de Operaciones</a></li>
+    <li><a href="DEPLOY_INFO.html" class="h2">🗂️ Datos de Despliegue Beta</a></li>
+    <li><a href="RUNBOOK_DEPLOYMENT.html" class="h2">🚢 Runbook de Deployment</a></li>
+    <li><a href="RUNBOOK_SEGURIDAD_INCIDENTES.html" class="h2">🛡️ Seguridad e Incidentes</a></li>
+    <li><a href="RUNBOOK_BACKUPS_RECUPERACION.html" class="h2">💾 Backups y Recuperación</a></li>
+    <li><a href="MATRIZ_RETENCION_DATOS.html" class="h2">🧾 Retención de Datos</a></li>
+    <li><a href="GUIA_QA_E2E.html" class="h2">🧪 Guía QA y E2E</a></li>
+    <li><a href="GUIA_INTEGRACIONES_WEBHOOKS.html" class="h2">🔗 Integraciones y Webhooks</a></li>
+    <li><a href="RUNBOOK_JOBS_BACKGROUND.html" class="h2">⏱️ Jobs en Background</a></li>
+    <li><a href="RUNBOOK_MODERACION_Y_BIENESTAR.html" class="h2">🐾 Moderación y Bienestar</a></li>
+    <li><a href="CUMPLIMIENTO_PROTECCION_DATOS.html" class="h2">📜 Cumplimiento Protección de Datos</a></li>
+    <li><a href="POLITICA_DE_PRIVACIDAD.html" class="h2">🔒 Política de Privacidad</a></li>
+    <li><a href="TERMINOS_DE_USO.html" class="h2">📋 Términos de Uso</a></li>
+  </ul></nav>
+</aside>
+<main id="main">
+  <div id="content"><p style="color:#888;padding:2rem">Cargando…</p></div>
+</main>
+<script>
+const md = "# PawTrack CR - Backlog Maestro Enterprise\r\n\r\n> **Fuente única de pendientes activos.** Corte: 2026-09-23.\r\n>\r\n> Este documento reemplaza las listas históricas de TODOs, errores y gates\r\n> P0. El código y `STATUS.md` siguen siendo la autoridad sobre lo que ya está\r\n> implementado; aquí solo se registran trabajo abierto, decisiones bloqueantes\r\n> y evidencia que falta para cerrar una capacidad.\r\n\r\n## Estados y cierre\r\n\r\n- `[ ]` Pendiente.\r\n- `[~]` En progreso o parcialmente implementado.\r\n- `[E]` Bloqueado por proveedor, contrato, operación o aprobación legal.\r\n- `[x]` Cerrado con implementación, prueba, documentación y evidencia.\r\n\r\nUna tarea no se marca como `[x]` solo porque el código exista. Requiere una\r\nprueba apropiada, autorización y seguridad cuando corresponda, documentación\r\nactualizada y evidencia fechada.\r\n\r\n> Estado verificado local 2026-09-23: `dotnet test PawTrack.sln` finalizó con éxito (1536 unitarios + 114 de integración), y `npm test -- --run --reporter=dot` finalizó con éxito (114/114). El error real de concurrencia del collar se corrigió y el backend quedó verde.\r\n\r\n## Prioridad inmediata\r\n\r\nPara `ENT-CLINIC` (2026-09-26): el backfill de `AddClinicOrganizations`\r\nestá aplicado solo en local. La migración filtrada de membresías y las pruebas\r\nde modelo/LocalDB están implementadas, pero faltan staging, matriz dinámica\r\nBOLA por recurso/actor/sede, homologación fiscal, confirmación real de entrega\r\nde mensajes y pilotos de disposición a pagar. Los permisos de staff/finanzas\r\nson por clínica; pertenecer a la organización no da acceso a datos de un sitio.\r\n\r\n| ID         | Área                        | Estado | Criterio de cierre                                                                       |\r\n| ---------- | --------------------------- | ------ | ---------------------------------------------------------------------------------------- |\r\n| ENT-CI     | Gates de CI y release       | `[~]`  | Workflow único verde con artefactos, lockfiles, pruebas, SBOM y política de merge        |\r\n| ENT-API    | Contratos y autorización    | `[~]`  | OpenAPI versionado, matriz completa y suites BOLA/IDOR verdes                            |\r\n| ENT-FND    | Finder sin login            | `[x]`  | Reporte seguro en menos de 30 segundos, antifraude, PII y offline verificados            |\r\n| ENT-E2E    | Ciclo pérdida-reunificación | `[~]`  | E2E limpio con notificaciones, eventos de producto y proveedores controlados             |\r\n| ENT-CLINIC | Uso diario en clínicas      | `[~]`  | Agenda, consulta, inventario, caja, comunicación y analítica enterprise                  |\r\n| ENT-STORE  | Uso diario en tiendas       | `[ ]`  | Roadmap de tienda diaria; inventario, roles/sedes, integridad de pedido y gates fiscales |\r\n| ENT-CLAIM  | Claims y legal              | `[~]`  | Cada claim tiene evidencia, responsable, expiración y aprobación                         |\r\n| COMP-AI    | IA-first operativa          | `[ ]`  | Copiloto/agentes con herramientas, aprobación, evaluación y Responsible AI               |\r\n| COMP-NET   | Liderazgo territorial       | `[ ]`  | 2-3 cantones con densidad, outcomes y partners verificables                              |\r\n| MKT-AZURE  | Azure Marketplace           | `[ ]`  | SaaS offer, fulfillment, tenant mapping, seguridad y private preview                     |\r\n| ENT-PROV   | Proveedores externos        | `[E]`  | Contratos, secretos, smoke tests de staging y rotación aprobados                         |\r\n\r\nEl alcance y criterios de salida para `ENT-STORE` estan en\r\n[ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md). El modulo actual\r\nes catalogo y comunicacion de solicitudes; no es POS, inventario ni procesador\r\nde pagos.\r\n\r\n## 1. Calidad, CI y release\r\n\r\n- [ ] Registrar por release commit, migraciones, resultados, artefactos y aprobadores.\r\n- [ ] Asignar propietario y fecha de expiración a cada gate y evidencia.\r\n- [x] Ejecutar restore reproducible de .NET con `packages.lock.json` y `--locked-mode`; verificado localmente el 2026-09-23.\r\n- [x] Ejecutar build Release con `--no-restore` y warnings tratados como errores; verificado localmente el 2026-09-23.\r\n- [x] Validar la suite backend principal de forma local con `dotnet test PawTrack.sln`; resultado: exit 0, 1536 pruebas correctas en unitarias + 114 en integración.\r\n- [x] Validar la suite frontend principal de forma local con `npm test -- --run --reporter=dot`; resultado: exit 0, 114/114 pruebas correctas.\r\n- [ ] Ejecutar `npm ci` con versión de Node fijada y lockfile validado.\r\n- [ ] Ejecutar typecheck, lint, build, Vitest y Playwright en CI limpio.\r\n- [ ] Publicar TRX, cobertura, OpenAPI, migraciones, SBOM y reportes Playwright.\r\n- [ ] Validar migraciones en base vacía y upgrade incremental.\r\n- [ ] Ejecutar el test de expand/contract de migraciones.\r\n- [ ] Bloquear merge si falla un gate P0.\r\n- [ ] Documentar excepciones de seguridad/dependencias con responsable y expiración.\r\n- [ ] Evitar bloqueos de `obj/` en CI Windows mediante jobs aislados y procesos controlados.\r\n\r\n## 2. API, contratos y autorización\r\n\r\n- [ ] Consumir en frontend tipos generados desde `/openapi/v1.json` donde corresponda.\r\n- [ ] Versionar endpoints públicos y Partner; documentar deprecación y sunset.\r\n- [ ] Completar la matriz endpoint -> rol -> ownership -> tenant -> PII -> rate limit.\r\n- [~] Ampliar suites BOLA/IDOR: existen regresiones para clínica, collares, B2B y ahora owner-to-owner sobre mascotas; siguen pendientes cobertura sistemática de reportes institucionales y Partner.\r\n- [ ] Añadir casos cross-tenant con IDs válidos de otro tenant.\r\n- [ ] Verificar autorización en exportaciones, descargas y websockets.\r\n- [ ] Revisar minimización de campos, coordenadas y PII en endpoints públicos.\r\n- [ ] Añadir regresiones para impedir PII en DTOs públicos.\r\n- [ ] Centralizar códigos de error para que frontend y backend no dependan de strings dispersos.\r\n\r\n## 3. Finder sin login y recuperación\r\n\r\n- [x] Validar tipo, tamaño y firma de fotos opcionales.\r\n- [x] Capturar ubicación aproximada y timestamp con límites razonables.\r\n- [x] Sanitizar notas y mensajes antes de persistir o reenviar.\r\n- [x] Mostrar propósito y retención de datos al reportante.\r\n- [x] Aplicar rate limit por IP, dispositivo y riesgo.\r\n- [x] Añadir CAPTCHA/risk challenge escalonado.\r\n- [x] Detectar duplicados, spam, fotos repetidas y abuso de relay.\r\n- [x] Añadir moderación y cola de revisión.\r\n- [x] Bloquear MIME falsos, payloads grandes, XSS, SSRF y enumeración.\r\n- [x] Verificar que ningún mensaje anónimo revele PII del dueño.\r\n- [x] Añadir fallback validado a WhatsApp, SMS o email.\r\n- [x] Encolar offline con idempotency key, cifrado local, expiración y eliminación manual.\r\n- [x] Reintentar con backoff sin duplicar reportes y mostrar estado pendiente/enviado/fallido.\r\n\r\n> Estado enterprise: flujo finder sin login cerrado según control de privacidad, abuso, validación de payloads y minimización de PII; las operaciones externas y continuidad de proveedores siguen siendo monitoreadas bajo el runbook operativo, pero la capacidad ya queda cerrada como feature autorizada para rollout controlado.\r\n\r\n## 4. E2E, eventos y analítica\r\n\r\n- [ ] Verificar en SignalR que participantes no autorizados no reciben broadcasts.\r\n- [ ] Verificar precisión aproximada, contador, stop-sharing, expiración y auditoría.\r\n- [ ] Verificar reconexión y rejoin sin reactivar consentimiento implícito.\r\n- [ ] Revisar eventos históricos sin `CorrelationId` y marcarlos como legacy.\r\n- [ ] Validar esquema, source, timestamp y deduplicación de eventos en CI.\r\n- [ ] Medir registro -> foto -> contacto -> QR -> activación.\r\n- [ ] Medir QR generado -> activado -> escaneado -> contacto seguro.\r\n- [ ] Medir pérdida -> avistamiento -> respuesta -> reunificación.\r\n- [ ] Calcular p50/p90 por cohorte, cantón, canal y periodo.\r\n- [ ] Medir mascotas activas protegidas a 30/90/180 días.\r\n- [ ] Documentar exclusiones, datos faltantes y censura estadística.\r\n- [~] Completar exportación Partner con identidad M2M, scopes, cuota y auditoría; falta prueba de staging y rotación real de credenciales.\r\n\r\n> Estado real: el flujo de collar y la integración principal están validados localmente, pero el cierre de E2E y analítica operativa sigue pendiente de evidencia de staging y validación de proveedores.\r\n\r\n## 4A. Competitividad e IA-first\r\n\r\n- [ ] Implementar copiloto de recuperación con herramientas limitadas por rol,\r\n      aprobación humana y auditoría.\r\n- [ ] Crear benchmark consentido de matching visual con precision/recall,\r\n      calibración, falsos positivos y métricas por especie/territorio.\r\n- [ ] Añadir explicaciones de matching y de proyección sin presentar una\r\n      predicción como certeza.\r\n- [ ] Crear registro de modelos, datasets, prompts, evaluaciones, drift,\r\n      fairness, rollback y red-team.\r\n- [ ] Construir RAG regional con fuentes legales/operativas versionadas y\r\n      citación.\r\n- [ ] Cerrar escalamiento humano y SLA para casos críticos antes de prometer\r\n      hotline o recuperación 24/7.\r\n- [ ] Activar identidad portable QR/NFC/microchip con exportación verificable y\r\n      API versionada.\r\n\r\n> Matriz competitiva vigente: [COMPETITIVE_INTELLIGENCE_2026-09-23.md](COMPETITIVE_INTELLIGENCE_2026-09-23.md).\r\n\r\n## 4B. Azure Marketplace y canal institucional\r\n\r\n- [ ] Elegir oferta inicial `NALA Recovery & Care Cloud` y unidad de cobro por\r\n      tenant antes de introducir metering por evento.\r\n- [ ] Implementar persistencia de `MarketplaceSubscription` y mapping a tenant,\r\n      plan y entitlements.\r\n- [ ] Implementar SaaS fulfillment idempotente: activate, update, suspend,\r\n      reinstate y cancel.\r\n- [ ] Implementar landing page, onboarding, reconciliación y alertas de\r\n      discrepancia.\r\n- [ ] Preparar SSO/RBAC, soporte, SLA, DR, SBOM, seguridad y privacidad para\r\n      compradores institucionales.\r\n- [ ] Ejecutar private preview con 2-3 organizaciones ancla en Costa Rica.\r\n- [ ] Completar publicación, certificación, private offers, partner/CSP y\r\n      co-sell readiness en Partner Center.\r\n\r\n> Plan de implementación: [AZURE_MARKETPLACE_GO_TO_MARKET.md](AZURE_MARKETPLACE_GO_TO_MARKET.md). Hoy no existe integración Marketplace en el código.\r\n\r\n## 5. Observabilidad y SLO\r\n\r\n- [ ] Definir nombres, unidades y cardinalidad máxima de métricas OpenTelemetry.\r\n- [ ] Instrumentar proveedores externos: latencia, errores y retries.\r\n- [ ] Instrumentar ingestión, jobs, outbox, SignalR y colas offline.\r\n- [x] Añadir métricas de funnel y North Star.\r\n- [ ] Mantener logs estructurados sin PII, tokens ni coordenadas exactas.\r\n- [ ] Clasificar dependencias críticas, degradables y opcionales.\r\n- [ ] Definir fail-fast, timeouts, retries, circuit breakers y fallback por proveedor.\r\n- [~] Definir SLO, burn rate y error budget para API, jobs, webhooks, broadcast, finder y reunificación; la infraestructura Bicep ya declara Application Insights, Action Group y alertas base, falta aprobar objetivos y evidencia operativa.\r\n- [~] Crear queries KQL, alertas como código y dashboard Azure Monitor; alertas base existen en `infra/main.bicep`, faltan queries/dashboard y validación en suscripción.\r\n- [ ] Definir on-call, severidad, escalamiento y runbook por alerta.\r\n- [ ] Ejecutar una prueba controlada de alerta con evidencia.\r\n\r\n## 6. Proveedores, pagos y operación\r\n\r\n- [ ] Añadir smoke test de staging para cada proveedor externo.\r\n- [ ] Verificar contratos de timeout, retry, idempotencia y mapeo de errores.\r\n- [ ] Validar rotación de credenciales sin downtime.\r\n- [E] Aprobar Azure: suscripción, resource group, identidad administrada, DPA, presupuesto y alertas.\r\n- [E] Aprobar WhatsApp: Business Manager, número, templates, webhook firmado y límites.\r\n- [E] Aprobar GPS/OEM: contrato, sandbox, límites, precisión, retención y soporte.\r\n- [E] Aprobar pagos: gateway/SINPE, sandbox de cobro/refund, conciliación y responsable.\r\n- [E] Aprobar email: dominio, SPF/DKIM/DMARC, SendGrid y rebotes.\r\n- [ ] Ejecutar gate con evidencia redactada y programar revisión trimestral.\r\n- [E] Definir procesador SINPE/adquirente y adaptar el payload oficial del webhook.\r\n- [ ] Validar certificados/IPs permitidas del procesador y añadir E2E de activación automática.\r\n- [E] Cargar credenciales Meta, Telegram y Facebook en Key Vault y ejecutar una difusión real controlada.\r\n\r\n## 7. Claims, legal y decisiones de producto\r\n\r\n- [ ] Completar claim -> evidencia técnica -> evidencia operativa -> aprobación legal -> superficie.\r\n- [ ] Asignar responsable y expiración a cada claim.\r\n- [ ] Separar en UI y marketing `implementado`, `beta`, `draft`, `verificado por PawTrack` y aval externo.\r\n- [ ] Confirmar con Legal el tratamiento de salud, ubicación, fotos, embeddings, comunicaciones y menores/familia.\r\n- [ ] Actualizar términos, privacidad y consentimientos antes de activar superficies institucionales.\r\n- [ ] Decidir recursos importables, formatos, duplicados, límites, retención y reintentos.\r\n- [ ] Decidir política común de downgrade para catálogos, clínicas y municipalidades.\r\n- [ ] Decidir métricas y retención analítica de proveedores.\r\n- [ ] Decidir propiedad, cuotas y apilamiento de promociones.\r\n- [ ] Decidir IVA, add-ons, créditos y reembolsos.\r\n- [ ] Aprobar UX de cuota agotada y upgrade.\r\n- [ ] Aprobar retención de auditoría y acceso privilegiado.\r\n- [ ] Aprobar estrategia de validación local/CI y excepciones operativas.\r\n\r\n## 8. Deuda técnica frontend vigente\r\n\r\n- [x] Reemplazar el polling de mensajes de chat cuando SignalR está conectado; mantener fallback de 10 s durante reconexión o caída. Los pedidos siguen pendientes hasta contar con un canal de eventos equivalente.\r\n- [x] Añadir Error Boundary por feature o página crítica mediante `RouteShell` y `FeatureErrorBoundary`.\r\n- [x] Añadir skeletons específicos para dashboard, detalle, formularios, directorios y mapa en `RouteShell`; quedan superficies secundarias para una segunda iteración visual.\r\n- [ ] Completar pruebas visuales responsive en móvil, tablet y escritorio.\r\n- [ ] Ejecutar auditoría manual WCAG con teclado y lector de pantalla.\r\n- [ ] Verificar animaciones 3D y fondos animados en dispositivos de bajo rendimiento.\r\n\r\n## Evidencia y fuentes relacionadas\r\n\r\n- Estado técnico verificado: `dotnet test PawTrack.sln` exit 0 con 1536 pruebas correctas y `npm test -- --run --reporter=dot` exit 0 con 114/114 tests correctos.\r\n- Estado técnico: [STATUS.md](STATUS.md)\r\n- Gobierno de release: [GO_LIVE_GOVERNANCE.md](GO_LIVE_GOVERNANCE.md)\r\n- Autorización: [API_AUTHORIZATION_MATRIX.md](API_AUTHORIZATION_MATRIX.md)\r\n- Proveedores: [EXTERNAL_PROVIDER_VALIDATION.md](EXTERNAL_PROVIDER_VALIDATION.md)\r\n- QA E2E: [GUIA_QA_E2E.md](GUIA_QA_E2E.md)\r\n- Accesibilidad: [GUIA_ACCESIBILIDAD_Y_UX.md](GUIA_ACCESIBILIDAD_Y_UX.md)\r\n- Claims: [CLAIM_EVIDENCE_MATRIX.md](CLAIM_EVIDENCE_MATRIX.md)\r\n- Revisión legal: [LEGAL_REVIEW_REGISTER.md](LEGAL_REVIEW_REGISTER.md)\r\n\r\n## Regla de mantenimiento\r\n\r\nToda nueva tarea pendiente se agrega aquí con prioridad, responsable, criterio\r\nde cierre y evidencia esperada. No crear otra lista paralela. Los documentos\r\nhistóricos eliminados en esta consolidación no deben volver a referenciarse.\r\n";
+const html = DOMPurify.sanitize(marked.parse(md));
+const content = document.getElementById('content');
+content.innerHTML = html;
+
+// Rewrite relative .md links to .html within docs/html
+content.querySelectorAll('a').forEach(a => {
+  const href = a.getAttribute('href');
+  if (href && !href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('#') && !href.startsWith('mailto:')) {
+    const m = href.match(/^(?:(?:\.\.\/)*)?(?:(?:docs|Manuales)\/)*([A-Za-z0-9_-]+)\.md(#.*)?$/i);
+    if (m) {
+      a.setAttribute('href', m[1] + '.html' + (m[2] || ''));
+    }
+  }
+});
+
+// Build sidebar nav from rendered headings
+const headings = content.querySelectorAll('h2, h3');
+const sidebar  = document.querySelector('#sidebar nav ul');
+headings.forEach((h, i) => {
+  if (!h.id) {
+    h.id = 'h-' + i + '-' + h.textContent.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').slice(0, 50);
+  }
+  const li = document.createElement('li');
+  const a  = document.createElement('a');
+  a.href      = '#' + h.id;
+  a.textContent = h.textContent.replace(/^#+\s*/, '');
+  a.className = h.tagName.toLowerCase();
+  li.appendChild(a);
+  sidebar.appendChild(li);
+});
+
+// Highlight active link on scroll
+const links = sidebar.querySelectorAll('a[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const active = sidebar.querySelector('a[href="#' + e.target.id + '"]');
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -75% 0px' });
+content.querySelectorAll('h2, h3').forEach(h => obs.observe(h));
+</script>
+</body>
+</html>

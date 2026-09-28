@@ -1,6 +1,31 @@
-# Alcance real observado de NALA (2026-09-27)
+# Alcance real observado de NALA (2026-09-28)
 
-Esta auditoría contrasta [seis proyectos de la solución](../PawTrack.sln), [HashGen auxiliar](../backend/HashGen/Program.cs), [router frontend](../frontend/src/app/routes.tsx), [contexto SQL](../backend/src/PawTrack.Infrastructure/Persistence/PawTrackDbContext.cs), [DI](../backend/src/PawTrack.Infrastructure/InfrastructureServiceCollectionExtensions.cs), [infra declarada](../infra/main.bicep) y [pruebas ejecutadas](TESTING.md). No se ha inspeccionado un despliegue real ni hecho pruebas de integración con proveedores. La [matriz](auditoria/FEATURE_TRACEABILITY_MATRIX.md) clasifica 30 capacidades acotadas: 3 `IMPLEMENTADO_Y_VERIFICADO` a nivel handler, 8 `IMPLEMENTADO_SIN_PRUEBAS` end-to-end, 3 `PARCIALMENTE_IMPLEMENTADO`, 14 `NO_VERIFICADO`, 1 `DECLARADO_NO_IMPLEMENTADO`, 1 `PROPUESTO`; 0 `DESHABILITADO` y 0 `OBSOLETO`. Estos conteos no significan que todos los controllers estén verificados.
+Esta auditoría contrasta [seis proyectos de la solución](../PawTrack.sln), [HashGen auxiliar](../backend/HashGen/Program.cs), [router frontend](../frontend/src/app/routes.tsx), [contexto SQL](../backend/src/PawTrack.Infrastructure/Persistence/PawTrackDbContext.cs), [DI](../backend/src/PawTrack.Infrastructure/InfrastructureServiceCollectionExtensions.cs), [infra declarada](../infra/main.bicep) y [pruebas ejecutadas](TESTING.md). No se ha inspeccionado un despliegue real ni hecho pruebas de integración con proveedores. La [matriz](auditoria/FEATURE_TRACEABILITY_MATRIX.md) de este corte es la fuente vigente para las 15 capacidades solicitadas; las tablas comerciales y los documentos fechados anteriormente son contexto o propuesta, no evidencia de disponibilidad.
+
+## Fuente vigente: capacidades solicitadas
+
+| Capacidad | Estado real al 2026-09-28 | Qué sí existe | Qué no se puede afirmar |
+| --- | --- | --- | --- |
+| Identificación QR | `IMPLEMENTADO_Y_VERIFICADO` | Generación, perfil/ruta pública, scans y UI QR ([PetsController](../backend/src/PawTrack.API/Controllers/PetsController.cs), [QrCodeService](../backend/src/PawTrack.Infrastructure/Storage/QrCodeService.cs)) | QR físico, impresión o Blob Azure operativo |
+| NFC | `PROPUESTO` | Menciones en estrategia y dominio documental | Lectura, vinculación, hardware o API NFC |
+| GPS | `IMPLEMENTADO_Y_VERIFICADO` en plataforma; proveedor/hardware `NO_VERIFICADO` | Registro de collar, ingestión autenticada, historial, zonas y polling TrackSolid ([CollarsController](../backend/src/PawTrack.API/Controllers/CollarsController.cs), [TrackSolidService](../backend/src/PawTrack.Infrastructure/Collars/TrackSolidService.cs)) | Hardware real, cobertura, SLA y proveedor conectado |
+| Telemedicina | `DECLARADO_NO_IMPLEMENTADO` para video/audio | Consulta clínica y registro administrativo ([ClinicsController](../backend/src/PawTrack.API/Controllers/ClinicsController.cs)) | Sala audiovisual, tokens, grabación o atención remota |
+| Expediente veterinario | `IMPLEMENTADO_Y_VERIFICADO` | Registros, timeline, adjuntos protegidos, PDF y export async ([MedicalController](../backend/src/PawTrack.API/Controllers/MedicalController.cs)) | EHR externo, firma clínica certificada o diagnóstico |
+| Recordatorios de salud | `IMPLEMENTADO_Y_VERIFICADO` | Recordatorios, protocolos y job diario ([VetReminder.cs](../backend/src/PawTrack.Domain/Medical/VetReminder.cs), [HealthAlertHostedService.cs](../backend/src/PawTrack.Infrastructure/Medical/HealthAlertHostedService.cs)) | Diagnóstico, tratamiento autónomo o resultado veterinario |
+| Suscripciones | `PARCIALMENTE_IMPLEMENTADO` | Catálogo, activación, expiración y gates existentes ([SubscriptionsController.cs](../backend/src/PawTrack.API/Controllers/SubscriptionsController.cs), [EntitlementService.cs](../backend/src/PawTrack.Infrastructure/Subscriptions/EntitlementService.cs)) | Todas las cuotas, CRUD completo de entitlements y aprobación comercial |
+| Marketplace | `PARCIALMENTE_IMPLEMENTADO` | Directorios, servicios, reservas y pedidos ([ServiceProvidersController.cs](../backend/src/PawTrack.API/Controllers/ServiceProvidersController.cs), [StoreOrdersController.cs](../backend/src/PawTrack.API/Controllers/StoreOrdersController.cs)) | Pago liquidado, inventario transaccional o comisión operativa |
+| IA | `PARCIALMENTE_IMPLEMENTADO` | Validación/matching visual condicionado por Azure Vision ([AzureVisionEmbeddingService.cs](../backend/src/PawTrack.Infrastructure/AI/AzureVisionEmbeddingService.cs)) | RAG, copiloto, agente autónomo, precisión o diagnóstico |
+| Municipalidades | `IMPLEMENTADO_Y_VERIFICADO` | Perfiles, capturas, estados y reportes institucionales ([MunicipalController.cs](../backend/src/PawTrack.API/Controllers/MunicipalController.cs)) | Integración oficial con autoridades nacionales |
+| Refugios | `IMPLEMENTADO_Y_VERIFICADO` | Perfiles aliados, adopciones y flujos de solicitudes ([AlliesController.cs](../backend/src/PawTrack.API/Controllers/AlliesController.cs), [AdoptionsController.cs](../backend/src/PawTrack.API/Controllers/AdoptionsController.cs)) | Operación de una ONG concreta, SLA o financiación |
+| Veterinarias | `IMPLEMENTADO_Y_VERIFICADO` | Registro clínico, acceso por grant, consultas, certificados y módulos de clínica ([ClinicsController.cs](../backend/src/PawTrack.API/Controllers/ClinicsController.cs)) | Telemedicina audiovisual, aprobación de profesionales externos o fiscalidad real |
+| Integraciones Azure | `IMPLEMENTADO_SIN_PRUEBAS` | Adaptadores/configuración para Blob, SQL, Key Vault, App Insights, Maps, Vision y Container Apps ([InfrastructureServiceCollectionExtensions.cs](../backend/src/PawTrack.Infrastructure/InfrastructureServiceCollectionExtensions.cs), [infra](../infra/main.bicep)) | Despliegue, credenciales, disponibilidad o SLA |
+| Azure Communication Services | `DECLARADO_NO_IMPLEMENTADO` | No hay SDK, cliente, configuración ni endpoint ACS | Video, SMS, chat o tokens ACS |
+| Dynamics 365 | `DECLARADO_NO_IMPLEMENTADO` | CRM interno de NALA; no hay SDK/conector Dynamics | Sincronización con Dataverse/Dynamics |
+| Power Platform | `DECLARADO_NO_IMPLEMENTADO` | Jobs propios de .NET | Flujos Power Automate, Dataverse, Power Apps o conectores |
+
+Los estados anteriores describen el código del repositorio y las pruebas locales
+ejecutadas, no la operación productiva. `CallClient` dentro del módulo CRM es un
+tipo de actividad interna y no una integración con Azure Communication Services.
 
 ## Alcance actual por código
 

@@ -1,6 +1,6 @@
 # PawTrack CR - Mapa oficial de documentacion
 
-> Fuente de navegacion oficial. Actualizado: 2026-09-26.
+> Fuente de navegacion oficial. Actualizado: 2026-09-28.
 
 La auditoria general contra `backend/src` y `frontend/src` tiene corte
 2026-09-22; el dominio de tiendas y sus documentos operativos se revalidaron
@@ -8,9 +8,11 @@ el 2026-09-26. Los manuales por rol viven en
 [Manuales/](Manuales/); los documentos historicos se conservan para
 trazabilidad, pero no son contratos vigentes.
 
-## Corte documental 2026-09-27
+## Corte documental 2026-09-28
 
-La [auditoría de alcance](PRODUCT_SCOPE.md) distingue capacidades técnicas, servicios externos sin verificar y propuestas. Véanse [plan](auditoria/DOCUMENTATION_UPDATE_PLAN.md), [matriz con evidencia](auditoria/FEATURE_TRACEABILITY_MATRIX.md), [brechas](auditoria/DOCUMENTATION_GAP_REPORT.md), [changelog](auditoria/DOCUMENTATION_CHANGELOG.md) y [pruebas actuales](TESTING.md). Las cifras del corte anterior en [STATUS](STATUS.md) son históricas; el frontend tuvo un test fallido en este corte ([TESTING](TESTING.md)).
+La [auditoría de alcance](PRODUCT_SCOPE.md) es la fuente vigente para las capacidades solicitadas y distingue implementación, parcialidad, propuesta, ausencia de código y operación externa no verificada. Véanse [plan](auditoria/DOCUMENTATION_UPDATE_PLAN.md), [matriz con evidencia](auditoria/FEATURE_TRACEABILITY_MATRIX.md), [brechas](auditoria/DOCUMENTATION_GAP_REPORT.md), [changelog](auditoria/DOCUMENTATION_CHANGELOG.md) y [pruebas actuales](TESTING.md). Las cifras del corte anterior en [STATUS](STATUS.md) son históricas.
+
+Informes de la auditoría estratégica 2026-09-28: [estado real del producto](NALA_ACTUAL_PRODUCT_STATE.md), [mapa de capacidades](NALA_CAPABILITY_MAP.md), [brechas competitivas](NALA_COMPETITIVE_GAP_ANALYSIS.md), [estrategia Costa Rica](NALA_CR_MARKET_STRATEGY.md), [expansión LATAM](NALA_LATAM_EXPANSION.md), [visión global](NALA_GLOBAL_VISION.md), [estrategia IA](NALA_AI_STRATEGY.md), [estrategia de monetización](NALA_PRICING_STRATEGY.md), [auditoría documental](DOCUMENTATION_AUDIT.md) y [resumen ejecutivo](NALA_EXECUTIVE_SUMMARY.md). Los informes estratégicos no convierten propuestas ni integraciones no verificadas en funcionalidades disponibles.
 
 Guías contrastadas: [arquitectura](ARCHITECTURE.md), [API](API.md), [seguridad](SECURITY.md), [configuración](CONFIGURATION.md), [datos](DATA_MODEL.md), [integraciones](INTEGRATIONS.md), [limitaciones](KNOWN_LIMITATIONS.md), [planes](commercial/PLANS.md), [dominios](domains/MARKETPLACE.md), [edición institucional](editions/MUNICIPAL.md), [crecimiento](growth/GROWTH_ENGINE.md), [preparación IA](ai/AI_READINESS.md) y [negocio](business/BUSINESS_CAPABILITIES.md). Los nuevos documentos no sustituyen los históricos ni acreditan operación en producción.
 
@@ -21,8 +23,8 @@ El hub para agentes y memoria organizacional vive en [../ai/README.md](../ai/REA
 ## Como leer la documentacion
 
 Cada documento tiene una responsabilidad. Si dos documentos contradicen el
-codigo, el codigo y `docs/STATUS.md` prevalecen hasta que se corrija la
-contradiccion.
+codigo, el codigo y [PRODUCT_SCOPE](PRODUCT_SCOPE.md) prevalecen; `STATUS.md`
+solo prevalece para hechos operativos con evidencia del mismo corte.
 
 Estados documentales:
 
@@ -42,7 +44,7 @@ Estados documentales:
 | [CLINIC_DAILY_USE_ENTERPRISE_TODOLIST.md](CLINIC_DAILY_USE_ENTERPRISE_TODOLIST.md) | Roadmap enterprise para uso diario de clínicas                  |
 | [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md)                     | Roadmap para evolucionar tienda/catalogo hacia operacion diaria |
 | [MASTER_TODO.md](MASTER_TODO.md)                                                   | Backlog único de pendientes enterprise, producto y operación    |
-| [FEATURES.md](FEATURES.md)                                                         | Matriz de capacidades por plan                                  |
+| [FEATURES.md](FEATURES.md)                                                         | Contrato histórico/comercial; enlaza al alcance real vigente    |
 | [consolidado.md](consolidado.md)                                                   | NALA, roles, features por rol y matriz completa de planes       |
 | [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md)                                       | Fuente comercial consolidada                                    |
 | [inversionistas.md](inversionistas.md)                                             | Pitch informativo sujeto a due diligence                        |
