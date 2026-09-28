@@ -827,7 +827,7 @@ export default function AuthenticatedLayout() {
       </AnimatePresence>
 
       {/* ── Mobile bottom navigation ────────────────────────────────── */}
-      <BottomNav />
+      <BottomNav isOwner={user?.role === "Owner"} />
     </div>
   );
 }

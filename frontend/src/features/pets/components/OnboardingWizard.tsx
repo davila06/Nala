@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { markOnboardingDone } from "./onboardingStorage";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import { Modal } from "@/shared/ui/Modal";
 
 const STEPS = [
   {
@@ -44,12 +45,7 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
   const current = STEPS[step];
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="onboarding-title"
-    >
+    <Modal isOpen title={current.title} onClose={dismiss} maxWidth={448}>
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
@@ -84,10 +80,9 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
               ))}
             </div>
 
-            <h2 id="onboarding-title" className="mb-2 text-center font-display text-xl font-bold text-sand-900">
-              {current.title}
-            </h2>
-            <p className="text-center text-sm leading-relaxed text-sand-600">{current.body}</p>
+            <p aria-live="polite" className="text-center text-sm leading-relaxed text-sand-600">
+              {current.body}
+            </p>
 
             <div className="mt-6 flex flex-col gap-2">
               {current.finalAction ? (
@@ -118,6 +113,6 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
           </div>
         </motion.div>
       </AnimatePresence>
-    </div>
+    </Modal>
   );
 }

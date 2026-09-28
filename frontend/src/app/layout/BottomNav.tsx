@@ -1,10 +1,11 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { HeartPulse, MapPin, PawPrint, Users } from "lucide-react";
+import { HeartPulse, MapPin, PawPrint, TriangleAlert, Users } from "lucide-react";
 
 interface NavItem {
   to: string;
   label: string;
+  ariaLabel?: string;
   icon: (active: boolean) => React.ReactNode;
 }
 
@@ -31,9 +32,17 @@ const NAV_ITEMS: NavItem[] = [
   },
 ];
 
+const LOST_PET_NAV_ITEM: NavItem = {
+  to: "/dashboard?action=report-lost",
+  label: "Perdida",
+  ariaLabel: "Reportar mascota perdida",
+  icon: () => <TriangleAlert className="h-5 w-5" aria-hidden="true" />,
+};
+
 /** Mobile-only bottom navigation bar. Hidden on md+ screens. */
-export function BottomNav() {
+export function BottomNav({ isOwner = false }: { isOwner?: boolean }) {
   const location = useLocation();
+  const navItems = isOwner ? [...NAV_ITEMS, LOST_PET_NAV_ITEM] : NAV_ITEMS;
 
   return (
     <nav
@@ -42,14 +51,17 @@ export function BottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="flex h-16 items-center justify-around">
-        {NAV_ITEMS.map((item) => {
-          const isActive = location.pathname === item.to || (item.to !== "/" && location.pathname.startsWith(item.to));
+        {navItems.map((item) => {
+          const isLostPetAction = item === LOST_PET_NAV_ITEM;
+          const isActive = isLostPetAction
+            ? location.pathname === "/dashboard" && location.search.includes("action=report-lost")
+            : location.pathname === item.to || (item.to !== "/" && location.pathname.startsWith(item.to));
 
           return (
             <NavLink
               key={item.to}
               to={item.to}
-              aria-label={item.label}
+              aria-label={item.ariaLabel ?? item.label}
               aria-current={isActive ? "page" : undefined}
               className="relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1"
             >
@@ -82,7 +94,7 @@ export function BottomNav() {
                   isActive ? "text-brand-600" : "text-sand-400",
                 ].join(" ")}
               >
-                {item.label}
+                {isLostPetAction ? "Perdida" : item.label}
               </span>
             </NavLink>
           );

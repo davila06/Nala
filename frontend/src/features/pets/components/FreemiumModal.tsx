@@ -123,9 +123,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
           <div className="grid gap-4 sm:grid-cols-3">
             {TIERS.map((tier, idx) => {
               const planTier = tier.subscriptionTier ?? "Free";
-              const isCurrent = tier.subscriptionTier
-                ? planTier === currentTier
-                : currentTier === "Free" || currentTier === "Explorador";
+              const isCurrent = tier.subscriptionTier ? planTier === currentTier : currentTier === "Explorador";
               const plan = catalog?.find((item) => item.tier === tier.subscriptionTier && item.isActive);
               const hasPurchasePrice = Boolean(plan && plan.monthlyPriceCrc !== null);
               return (

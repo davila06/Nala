@@ -23,12 +23,7 @@ const SPECIES_EMOJI: Record<string, string> = {
  *   Back  → QR code + download action
  * Tap, click, OR horizontal swipe to flip. Haptic on flip.
  */
-export function QRFlipCard({
-  petId,
-  petName,
-  petPhotoUrl,
-  petSpecies = "Other",
-}: QRFlipCardProps) {
+export function QRFlipCard({ petId, petName, petPhotoUrl, petSpecies = "Other" }: QRFlipCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -96,33 +91,25 @@ export function QRFlipCard({
         {isFlipped ? "← Toca para ver la foto" : "Toca para ver el QR →"}
       </p>
 
-      {/* Scene container — click, swipe, or keyboard to flip */}
+      {/* The scene responds to touch swipes; each face has a semantic flip button. */}
       <div
         className="flip-scene mx-auto"
         style={{ width: 200, height: 200 }}
-        onClick={doFlip}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        role="button"
-        aria-label={
-          isFlipped ? "Mostrar foto de la mascota" : "Mostrar código QR"
-        }
-        tabIndex={0}
-        onKeyDown={(e) => e.key === "Enter" && doFlip()}
       >
-        <div
-          className={`flip-card rounded-2xl ${isFlipped ? "is-flipped" : ""}`}
-          style={{ width: 200, height: 200 }}
-        >
+        <div className={`flip-card rounded-2xl ${isFlipped ? "is-flipped" : ""}`} style={{ width: 200, height: 200 }}>
           {/* ── FRONT: Pet photo ─────────────────────────────────────────── */}
-          <div className="flip-card__face flip-card__face--front rounded-2xl border border-sand-200 bg-surface-warm shadow-md cursor-pointer">
+          <button
+            type="button"
+            tabIndex={isFlipped ? -1 : 0}
+            aria-hidden={isFlipped}
+            aria-label={`Mostrar código QR de ${petName}`}
+            onClick={doFlip}
+            className="flip-card__face flip-card__face--front rounded-2xl border border-sand-200 bg-surface-warm p-0 text-left shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-400"
+          >
             {petPhotoUrl ? (
-              <img
-                src={petPhotoUrl}
-                alt={petName}
-                className="h-full w-full object-cover rounded-2xl"
-                loading="lazy"
-              />
+              <img src={petPhotoUrl} alt={petName} className="h-full w-full object-cover rounded-2xl" loading="lazy" />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-7xl rounded-2xl bg-brand-50">
                 {SPECIES_EMOJI[petSpecies] ?? "🐾"}
@@ -131,12 +118,7 @@ export function QRFlipCard({
 
             {/* Flip indicator badge */}
             <div className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold text-sand-600 shadow backdrop-blur-sm">
-              <svg
-                viewBox="0 0 16 16"
-                fill="none"
-                className="h-3 w-3"
-                aria-hidden="true"
-              >
+              <svg viewBox="0 0 16 16" fill="none" className="h-3 w-3" aria-hidden="true">
                 <path
                   d="M2 8h12M10 5l3 3-3 3"
                   stroke="currentColor"
@@ -147,10 +129,13 @@ export function QRFlipCard({
               </svg>
               QR
             </div>
-          </div>
+          </button>
 
           {/* ── BACK: QR code ─────────────────────────────────────────────── */}
-          <div className="flip-card__face flip-card__face--back rounded-2xl border border-sand-200 field-input shadow-md cursor-pointer flex flex-col items-center justify-center gap-3 p-4">
+          <div
+            className="flip-card__face flip-card__face--back rounded-2xl border border-sand-200 field-input shadow-md flex flex-col items-center justify-center gap-3 p-4"
+            aria-hidden={!isFlipped}
+          >
             {loading && (
               <div className="flex flex-col items-center gap-2">
                 <div className="h-5 w-5 rounded-full border-2 border-brand-300 border-t-brand-500 animate-spin" />
@@ -158,37 +143,34 @@ export function QRFlipCard({
               </div>
             )}
 
-            {error && (
-              <p className="text-center text-xs text-danger-500">
-                No se pudo cargar el QR.
-              </p>
-            )}
+            {error && <p className="text-center text-xs text-danger-500">No se pudo cargar el QR.</p>}
 
             {blobUrl && (
               <>
                 <div className="relative">
                   {/* Metallic frame */}
                   <div className="absolute -inset-1.5 rounded-xl bg-gradient-to-br from-sand-300 via-sand-200 to-sand-400 shadow-inner" />
-                  <img
-                    src={blobUrl}
-                    alt={`QR de ${petName}`}
-                    className="relative h-28 w-28 rounded-lg"
-                  />
+                  <img src={blobUrl} alt={`QR de ${petName}`} className="relative h-28 w-28 rounded-lg" />
                 </div>
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDownload();
-                  }}
+                  tabIndex={isFlipped ? 0 : -1}
+                  onClick={handleDownload}
                   className="flex items-center gap-1 rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
                 >
                   ⬇ Descargar
                 </button>
-                <p className="text-center text-[10px] text-sand-400 leading-tight">
-                  Imprime y adjunta al collar
-                </p>
+                <p className="text-center text-[10px] text-sand-400 leading-tight">Imprime y adjunta al collar</p>
               </>
+            )}
+            {isFlipped && (
+              <button
+                type="button"
+                onClick={doFlip}
+                className="rounded-lg px-3 py-1.5 text-xs font-semibold text-sand-700 hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              >
+                Mostrar foto
+              </button>
             )}
           </div>
         </div>

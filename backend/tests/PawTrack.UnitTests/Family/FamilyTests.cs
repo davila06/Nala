@@ -225,6 +225,51 @@ public sealed class GetFamilyMembersQueryTests
     }
 }
 
+public sealed class RemoveFamilyMemberCommandTests
+{
+    [Fact]
+    public async Task Handle_OwnerRemovesMember_DeactivatesMembership()
+    {
+        var ownerId = Guid.NewGuid();
+        var memberId = Guid.NewGuid();
+        var account = FamilyAccount.Create(ownerId, "Test Family");
+        var membership = FamilyMembership.CreateMember(account.Id, memberId);
+        var repository = Substitute.For<IFamilyRepository>();
+        repository.GetByOwnerAsync(ownerId, Arg.Any<CancellationToken>()).Returns(account);
+        repository.GetActiveMembershipsAsync(account.Id, Arg.Any<CancellationToken>())
+            .Returns((IReadOnlyList<FamilyMembership>)[membership]);
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
+        var handler = new RemoveFamilyMemberCommandHandler(repository, unitOfWork);
+
+        var result = await handler.Handle(new RemoveFamilyMemberCommand(ownerId, memberId), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        membership.IsActive.Should().BeFalse();
+        repository.Received(1).UpdateMembership(membership);
+        await unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_NonOwnerCannotRemoveMember()
+    {
+        var ownerId = Guid.NewGuid();
+        var nonOwnerId = Guid.NewGuid();
+        var memberId = Guid.NewGuid();
+        var account = FamilyAccount.Create(ownerId, "Test Family");
+        var repository = Substitute.For<IFamilyRepository>();
+        repository.GetByOwnerAsync(nonOwnerId, Arg.Any<CancellationToken>()).Returns(account);
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var handler = new RemoveFamilyMemberCommandHandler(repository, unitOfWork);
+
+        var result = await handler.Handle(new RemoveFamilyMemberCommand(nonOwnerId, memberId), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        repository.DidNotReceive().UpdateMembership(Arg.Any<FamilyMembership>());
+        await unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+}
+
 // ── InviteFamilyMemberCommandHandler: max pending ─────────────────────────────
 
 public sealed class InviteMemberPendingLimitTests

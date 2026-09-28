@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePetDetail } from "@/features/pets/hooks/usePets";
@@ -44,6 +44,14 @@ export default function ReportLostPage() {
   const [rewardNote, setRewardNote] = useState("");
   const [queuedOffline, setQueuedOffline] = useState(false);
   const [isQueuingOffline, setIsQueuingOffline] = useState(false);
+  const [stepError, setStepError] = useState("");
+  const [manualLocationOpen, setManualLocationOpen] = useState(false);
+  const [manualLat, setManualLat] = useState("");
+  const [manualLng, setManualLng] = useState("");
+  const [manualLocationError, setManualLocationError] = useState("");
+  const lastSeenAtRef = useRef<HTMLInputElement>(null);
+  const manualLatRef = useRef<HTMLInputElement>(null);
+  const manualLngRef = useRef<HTMLInputElement>(null);
 
   // ── Wizard state ──────────────────────────────────────────────────────────
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -157,15 +165,24 @@ export default function ReportLostPage() {
     }
   };
 
-  const heuristicRadius = estimateSearchRadius(
-    pet.species,
-    pet.breed,
-    hoursElapsedSince(new Date(lastSeenAt).toISOString()),
-  );
+  const parsedLastSeenAt = new Date(lastSeenAt);
+  const lastSeenAtForEstimate = Number.isNaN(parsedLastSeenAt.getTime())
+    ? new Date().toISOString()
+    : parsedLastSeenAt.toISOString();
+  const heuristicRadius = estimateSearchRadius(pet.species, pet.breed, hoursElapsedSince(lastSeenAtForEstimate));
 
   const estimatedRadius = resolveSearchRadiusWithLocalStats(heuristicRadius, localRecoveryStats?.p90DistanceMeters);
 
   const goNext = () => {
+    setStepError("");
+    if (step === 1) {
+      const lastSeenDate = new Date(lastSeenAt);
+      if (!lastSeenAt || Number.isNaN(lastSeenDate.getTime()) || lastSeenDate > new Date()) {
+        setStepError("Ingresa una fecha y hora válida, no posterior al momento actual.");
+        lastSeenAtRef.current?.focus();
+        return;
+      }
+    }
     setDirection(1);
     setStep((s) => Math.min(3, s + 1) as 1 | 2 | 3);
   };
@@ -179,6 +196,7 @@ export default function ReportLostPage() {
     { id: 2, label: "Tu mascota", emoji: "🐾" },
     { id: 3, label: "Contacto", emoji: "📞" },
   ];
+  const currentStepLabel = STEPS[step - 1].label;
 
   const slideVariants = {
     enter: (d: number) => ({ x: d > 0 ? 40 : -40, opacity: 0 }),
@@ -224,12 +242,15 @@ export default function ReportLostPage() {
           </div>
 
           {/* ── Step indicators ─────────────────────────────────────── */}
-          <div className="mb-6 flex items-center gap-0">
+          <p role="status" aria-live="polite" className="sr-only">
+            Paso {step} de {STEPS.length}: {currentStepLabel}
+          </p>
+          <ol aria-label="Progreso del reporte" className="mb-6 flex list-none items-center gap-0 p-0">
             {STEPS.map((s, i) => {
               const isActive = s.id === step;
               const isDone = s.id < step;
               return (
-                <div key={s.id} className="flex flex-1 items-center">
+                <li key={s.id} aria-current={isActive ? "step" : undefined} className="flex flex-1 items-center">
                   <div className="flex flex-col items-center flex-1">
                     <motion.div
                       animate={{
@@ -263,14 +284,18 @@ export default function ReportLostPage() {
                       />
                     </div>
                   )}
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ol>
 
-          {error && (
-            <div role="alert" className="mb-4 rounded-xl bg-danger-50 px-4 py-3 text-sm text-danger-600">
-              Ocurrió un error. Intenta de nuevo.
+          {(error || stepError) && (
+            <div
+              id={stepError ? "step-error" : undefined}
+              role="alert"
+              className="mb-4 rounded-xl bg-danger-50 px-4 py-3 text-sm text-danger-700"
+            >
+              {stepError || "Ocurrió un error. Intenta de nuevo."}
             </div>
           )}
 
@@ -300,9 +325,15 @@ export default function ReportLostPage() {
                         </label>
                         <input
                           id="lastSeenAt"
+                          ref={lastSeenAtRef}
                           type="datetime-local"
                           value={lastSeenAt}
-                          onChange={(e) => setLastSeenAt(e.target.value)}
+                          onChange={(e) => {
+                            setLastSeenAt(e.target.value);
+                            setStepError("");
+                          }}
+                          aria-invalid={Boolean(stepError)}
+                          aria-describedby={stepError ? "step-error" : undefined}
                           required
                           max={toLocalDatetime(new Date())}
                           className="w-full rounded-xl border border-sand-300 field-input px-4 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
@@ -351,6 +382,100 @@ export default function ReportLostPage() {
                             ? `Pin en ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`
                             : `Toca el mapa para marcar dónde fue visto ${pet.name}.`}
                         </p>
+                        <button
+                          type="button"
+                          aria-expanded={manualLocationOpen}
+                          onClick={() => {
+                            setManualLocationOpen((open) => !open);
+                            setManualLat(coords?.lat.toString() ?? "");
+                            setManualLng(coords?.lng.toString() ?? "");
+                            setManualLocationError("");
+                          }}
+                          className="mt-2 min-h-11 rounded px-2 text-xs font-semibold text-brand-700 underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                        >
+                          Introducir ubicación manualmente
+                        </button>
+                        {manualLocationOpen && (
+                          <fieldset className="mt-3 grid gap-3 rounded-xl border border-sand-200 bg-surface p-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+                            <legend className="px-1 text-xs font-semibold text-sand-700">
+                              Coordenadas de última ubicación
+                            </legend>
+                            <div>
+                              <label htmlFor="manual-latitude" className="mb-1 block text-xs font-medium text-sand-700">
+                                Latitud
+                              </label>
+                              <input
+                                id="manual-latitude"
+                                ref={manualLatRef}
+                                type="number"
+                                inputMode="decimal"
+                                min={-90}
+                                max={90}
+                                step="any"
+                                value={manualLat}
+                                onChange={(event) => setManualLat(event.target.value)}
+                                className="field-input min-h-11 w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                              />
+                            </div>
+                            <div>
+                              <label
+                                htmlFor="manual-longitude"
+                                className="mb-1 block text-xs font-medium text-sand-700"
+                              >
+                                Longitud
+                              </label>
+                              <input
+                                id="manual-longitude"
+                                ref={manualLngRef}
+                                type="number"
+                                inputMode="decimal"
+                                min={-180}
+                                max={180}
+                                step="any"
+                                value={manualLng}
+                                onChange={(event) => setManualLng(event.target.value)}
+                                className="field-input min-h-11 w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const latitude = Number(manualLat);
+                                const longitude = Number(manualLng);
+                                if (
+                                  !manualLat.trim() ||
+                                  !Number.isFinite(latitude) ||
+                                  latitude < -90 ||
+                                  latitude > 90
+                                ) {
+                                  setManualLocationError("Ingresa una latitud entre -90 y 90.");
+                                  manualLatRef.current?.focus();
+                                  return;
+                                }
+                                if (
+                                  !manualLng.trim() ||
+                                  !Number.isFinite(longitude) ||
+                                  longitude < -180 ||
+                                  longitude > 180
+                                ) {
+                                  setManualLocationError("Ingresa una longitud entre -180 y 180.");
+                                  manualLngRef.current?.focus();
+                                  return;
+                                }
+                                setCoords({ lat: latitude, lng: longitude });
+                                setManualLocationError("");
+                              }}
+                              className="min-h-11 rounded-lg bg-brand-700 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                            >
+                              Usar estas coordenadas
+                            </button>
+                            {manualLocationError && (
+                              <p role="alert" className="text-sm text-danger-700 sm:col-span-3">
+                                {manualLocationError}
+                              </p>
+                            )}
+                          </fieldset>
+                        )}
 
                         {/* Neighbor count hint — only when coords are set */}
                         {coords && neighborCount != null && (
