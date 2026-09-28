@@ -161,7 +161,7 @@ export const PetForm = ({
           className="block text-sm font-medium text-sand-700"
         >
           ID de microchip RFID
-          <span className="ml-1 text-xs font-normal text-sand-400">
+          <span className="ml-1 text-xs font-normal text-copy-muted">
             (ISO 11784 — opcional)
           </span>
         </label>
@@ -175,7 +175,7 @@ export const PetForm = ({
           placeholder="Ej. 0006000123456"
           className="block w-full rounded-xl border border-sand-300 px-3.5 py-2.5 font-mono text-sm uppercase shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
         />
-        <p className="text-xs text-sand-400">
+        <p className="text-xs text-copy-muted">
           Ingresa el código del chip que registró tu veterinario.
         </p>
       </div>

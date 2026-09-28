@@ -42,7 +42,7 @@ function SpecRow({
   return (
     <div className="rounded-xl border border-sand-200 bg-white p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-sand-500 uppercase tracking-wide">
+        <span className="text-xs font-semibold text-copy-secondary uppercase tracking-wide">
           Código {index + 1}
         </span>
         {canRemove && (
@@ -298,7 +298,7 @@ function CodeRow({ code }: { code: PromotionCodeDto }) {
           </div>
         )}
       </td>
-      <td className="py-2 px-3 text-xs text-sand-500">
+      <td className="py-2 px-3 text-xs text-copy-secondary">
         {code.expiresAt
           ? new Date(code.expiresAt).toLocaleDateString("es-CR")
           : "—"}
@@ -308,13 +308,13 @@ function CodeRow({ code }: { code: PromotionCodeDto }) {
           className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
             code.isActive
               ? "bg-green-100 text-green-700"
-              : "bg-sand-100 text-sand-500"
+              : "bg-sand-100 text-copy-secondary"
           }`}
         >
           {code.isActive ? "Activo" : "Inactivo"}
         </span>
       </td>
-      <td className="py-2 px-3 text-xs text-sand-400 max-w-[120px] truncate">
+      <td className="py-2 px-3 text-xs text-copy-muted max-w-[120px] truncate">
         {code.adminNote ?? "—"}
       </td>
       <td className="py-2 px-3">
@@ -424,7 +424,7 @@ export function AdminPromotionManager() {
               + Agregar otro tipo de código
             </button>
             <div className="flex items-center justify-between pt-2 border-t border-sand-100">
-              <span className="text-xs text-sand-500">
+              <span className="text-xs text-copy-secondary">
                 Se generarán <strong>{totalCodes}</strong> código
                 {totalCodes !== 1 ? "s" : ""} únicos
               </span>
@@ -457,7 +457,7 @@ export function AdminPromotionManager() {
               </span>
             ))}
           </div>
-          <p className="mt-2 text-xs text-sand-400">
+          <p className="mt-2 text-xs text-copy-muted">
             Copiá estos códigos ahora — no se muestran de nuevo en esta lista.
           </p>
         </Card>
@@ -486,7 +486,7 @@ export function AdminPromotionManager() {
                 ].map((h) => (
                   <th
                     key={h}
-                    className="py-2 px-3 text-xs font-semibold text-sand-500 uppercase tracking-wide"
+                    className="py-2 px-3 text-xs font-semibold text-copy-secondary uppercase tracking-wide"
                   >
                     {h}
                   </th>
@@ -502,7 +502,7 @@ export function AdminPromotionManager() {
         </div>
       ) : (
         <Card padding="sm">
-          <p className="text-center text-sm text-sand-400">
+          <p className="text-center text-sm text-copy-muted">
             No hay códigos creados aún.
           </p>
         </Card>

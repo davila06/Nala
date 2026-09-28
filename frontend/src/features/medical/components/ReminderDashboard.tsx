@@ -62,11 +62,11 @@ function ReminderRow({ reminder }: { reminder: PetReminderDto }) {
           <span className="text-sm font-semibold text-sand-800 truncate">
             {reminder.title}
           </span>
-          <span className="text-xs text-sand-500 shrink-0">
+          <span className="text-xs text-copy-secondary shrink-0">
             {TYPE_EMOJI[reminder.type]}
           </span>
         </div>
-        <p className="text-xs text-sand-500">
+        <p className="text-xs text-copy-secondary">
           {reminder.petName} · {reminder.dueDate}
         </p>
       </div>
@@ -103,7 +103,7 @@ export function ReminderDashboard({ daysAhead = 30 }: Props) {
         <p className="text-sm font-medium text-sand-600">
           Sin recordatorios pendientes
         </p>
-        <p className="text-xs text-sand-400 mt-1">
+        <p className="text-xs text-copy-muted mt-1">
           en los próximos {daysAhead} días
         </p>
       </div>
@@ -132,7 +132,7 @@ export function ReminderDashboard({ daysAhead = 30 }: Props) {
 
       {BUCKET_ORDER.filter((b) => grouped.has(b)).map((bucket) => (
         <div key={bucket}>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sand-500">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-copy-secondary">
             {bucket}
           </p>
           <div className="space-y-2">

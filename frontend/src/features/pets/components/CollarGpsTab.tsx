@@ -86,7 +86,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
           📡
         </span>
         <h3 className="mt-2 text-sm font-semibold text-sand-700">Sin dispositivo GPS registrado</h3>
-        <p className="mt-1 text-xs text-sand-400">
+        <p className="mt-1 text-xs text-copy-muted">
           Conecta un collar GPS para ver la posición en tiempo real y el historial de trayectoria.
         </p>
         {isOwner && (
@@ -118,13 +118,13 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
           <p className="text-sm font-semibold text-sand-900">
             {PROVIDER_LABELS[collar.provider] ?? collar.provider}
             {collar.provider === "Own" && collar.collarTagSerial && (
-              <span className="ml-2 text-xs font-mono font-normal text-sand-400">{collar.collarTagSerial}</span>
+              <span className="ml-2 text-xs font-mono font-normal text-copy-muted">{collar.collarTagSerial}</span>
             )}
             {collar.externalDeviceId && collar.provider !== "Own" && (
-              <span className="ml-2 text-xs font-normal text-sand-400">{collar.externalDeviceId}</span>
+              <span className="ml-2 text-xs font-normal text-copy-muted">{collar.externalDeviceId}</span>
             )}
           </p>
-          <p className="text-xs text-sand-500">
+          <p className="text-xs text-copy-secondary">
             {collar.lastLocationRecordedAt
               ? `Posición: ${formatRelative(collar.lastLocationRecordedAt)}`
               : "Sin señal reciente"}
@@ -142,7 +142,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
             >
               {collar.batteryPercent}%
             </span>
-            <span className="text-[10px] text-sand-400">Batería</span>
+            <span className="text-[10px] text-copy-muted">Batería</span>
           </div>
         )}
         <span className={`h-2 w-2 rounded-full shrink-0 ${collar.isActive ? "bg-rescue-500" : "bg-sand-300"}`} />
@@ -183,7 +183,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
           <button
             type="button"
             onClick={() => setShowNotificationPrefs((v) => !v)}
-            className="text-xs text-sand-500 underline hover:text-sand-700"
+            className="text-xs text-copy-secondary underline hover:text-sand-700"
           >
             {showNotificationPrefs ? "Ocultar notificaciones" : "⚙️ Configurar notificaciones"}
           </button>
@@ -207,7 +207,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
           <button
             type="button"
             onClick={() => setShowAuditLog((v) => !v)}
-            className="text-xs text-sand-500 underline hover:text-sand-700"
+            className="text-xs text-copy-secondary underline hover:text-sand-700"
           >
             {showAuditLog ? "Ocultar historial" : "📋 Ver historial de eventos"}
           </button>
@@ -280,7 +280,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
             <button
               type="button"
               onClick={() => setShowDeactivateConfirm(true)}
-              className="text-xs text-sand-400 underline hover:text-red-600"
+              className="text-xs text-copy-muted underline hover:text-red-600"
             >
               Desvincular collar
             </button>
@@ -302,7 +302,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
                 <button
                   type="button"
                   onClick={() => setShowDeactivateConfirm(false)}
-                  className="text-xs text-sand-500 underline"
+                  className="text-xs text-copy-secondary underline"
                 >
                   Cancelar
                 </button>
@@ -334,9 +334,9 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
 
       {/* Track stats */}
       {history && history.length > 0 && (
-        <div className="flex gap-3 text-xs text-sand-500">
+        <div className="flex gap-3 text-xs text-copy-secondary">
           <span className="font-semibold text-sand-700">{history.length}</span> puntos registrados
-          {historyFetching && <span className="text-brand-500 animate-pulse">· actualizando…</span>}
+          {historyFetching && <span className="text-brand-600 animate-pulse">· actualizando…</span>}
         </div>
       )}
 
@@ -395,11 +395,11 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
         </div>
       ) : (
         <div className="flex h-40 items-center justify-center rounded-2xl border border-dashed border-sand-200 bg-surface-warm">
-          <p className="text-sm text-sand-400">Esperando primera señal GPS…</p>
+          <p className="text-sm text-copy-muted">Esperando primera señal GPS…</p>
         </div>
       )}
 
-      <p className="text-center text-[10px] text-sand-400">
+      <p className="text-center text-[10px] text-copy-muted">
         Posición en tiempo real · trayectoria de hasta 7 días · actualización automática cada 30 s.
       </p>
     </div>

@@ -1,4 +1,4 @@
-﻿import type { ClinicScanResultDto } from "../api/clinicsApi";
+import type { ClinicScanResultDto } from "../api/clinicsApi";
 
 interface MatchResultCardProps {
   result: ClinicScanResultDto;
@@ -13,7 +13,7 @@ export function MatchResultCard({ result, onReset }: MatchResultCardProps) {
         <p className="mt-3 text-base font-semibold text-sand-800">
           Mascota no encontrada
         </p>
-        <p className="mt-1 text-sm text-sand-500">
+        <p className="mt-1 text-sm text-copy-secondary">
           No hay ninguna mascota registrada con ese QR o microchip en PawTrack.
         </p>
         <button
@@ -55,7 +55,7 @@ export function MatchResultCard({ result, onReset }: MatchResultCardProps) {
               {result.petName}
             </p>
             {result.petSpecies && (
-              <p className="text-sm text-sand-500 capitalize">
+              <p className="text-sm text-copy-secondary capitalize">
                 {{
                   Dog: "Perro",
                   Cat: "Gato",
@@ -70,7 +70,7 @@ export function MatchResultCard({ result, onReset }: MatchResultCardProps) {
 
         {/* Owner info */}
         <div className="mt-4 rounded-xl field-input p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-sand-400">
+          <p className="text-xs font-semibold uppercase tracking-wide text-copy-muted">
             Datos del dueño
           </p>
           <p className="mt-1 text-base font-bold text-sand-900">
@@ -84,7 +84,7 @@ export function MatchResultCard({ result, onReset }: MatchResultCardProps) {
           </a>
         </div>
 
-        <p className="mt-3 text-xs text-sand-500">
+        <p className="mt-3 text-xs text-copy-secondary">
           Se ha notificado al dueño que su mascota fue vista aquí.
         </p>
       </div>

@@ -1,4 +1,4 @@
-﻿import { toast } from 'sonner'
+import { toast } from 'sonner'
 
 interface PetToastOptions {
   petName: string
@@ -43,7 +43,7 @@ export function usePetToast() {
             🔵 Avistamiento — {petName}
           </p>
           {zone && (
-            <p className="text-xs text-sand-500 truncate">📍 {zone}</p>
+            <p className="text-xs text-copy-secondary truncate">📍 {zone}</p>
           )}
         </div>
       </div>

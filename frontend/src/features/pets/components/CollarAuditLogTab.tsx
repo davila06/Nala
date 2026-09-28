@@ -24,7 +24,7 @@ export function CollarAuditLogTab({ collarId }: CollarAuditLogTabProps) {
 
   if (!entries || entries.length === 0) {
     return (
-      <p className="text-xs text-sand-400">Sin eventos registrados todavía.</p>
+      <p className="text-xs text-copy-muted">Sin eventos registrados todavía.</p>
     );
   }
 
@@ -39,12 +39,12 @@ export function CollarAuditLogTab({ collarId }: CollarAuditLogTabProps) {
             <span className="text-xs font-semibold text-sand-800">
               {EVENT_LABELS[entry.event] ?? entry.event}
             </span>
-            <span className="text-[10px] text-sand-400">
+            <span className="text-[10px] text-copy-muted">
               {new Date(entry.createdAt).toLocaleString("es-CR")}
             </span>
           </div>
           {entry.details && (
-            <p className="mt-0.5 text-[11px] text-sand-500">{entry.details}</p>
+            <p className="mt-0.5 text-[11px] text-copy-secondary">{entry.details}</p>
           )}
         </li>
       ))}

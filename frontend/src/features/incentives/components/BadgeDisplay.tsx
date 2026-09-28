@@ -7,7 +7,7 @@ interface BadgeDisplayProps {
 }
 
 const BADGE_CONFIG: Record<ContributorBadge, { label: string; icon: string; classes: string }> = {
-  None:     { label: 'Sin insignia', icon: '·',  classes: 'bg-sand-100 text-sand-500' },
+  None:     { label: 'Sin insignia', icon: '·',  classes: 'bg-sand-100 text-copy-secondary' },
   Helper:   { label: 'Ayudante',    icon: '🌱', classes: 'bg-rescue-100 text-rescue-700' },
   Rescuer:  { label: 'Rescatista',  icon: '⭐', classes: 'bg-trust-100 text-trust-700' },
   Guardian: { label: 'Guardián',    icon: '💎', classes: 'bg-trust-100 text-trust-800' },

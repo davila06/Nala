@@ -100,7 +100,7 @@ export function CollarSafeZonesPanel({
                   className={`rounded-lg px-2 py-1 text-[10px] font-bold ${
                     zone.enabled
                       ? "bg-green-100 text-green-700"
-                      : "bg-sand-100 text-sand-500"
+                      : "bg-sand-100 text-copy-secondary"
                   }`}
                 >
                   {zone.enabled ? "Activa" : "Inactiva"}
@@ -128,7 +128,7 @@ export function CollarSafeZonesPanel({
         </button>
       ) : (
         <div className="space-y-2">
-          <p className="text-xs text-sand-500">
+          <p className="text-xs text-copy-secondary">
             Toca el mapa para agregar puntos (mínimo 3) y dibujar el perímetro.
           </p>
           <div
@@ -186,7 +186,7 @@ export function CollarSafeZonesPanel({
                 setDrawPoints([]);
                 setZoneName("");
               }}
-              className="text-xs text-sand-500 underline"
+              className="text-xs text-copy-secondary underline"
             >
               Cancelar
             </button>
@@ -194,7 +194,7 @@ export function CollarSafeZonesPanel({
               <button
                 type="button"
                 onClick={() => setDrawPoints((prev) => prev.slice(0, -1))}
-                className="text-xs text-sand-500 underline"
+                className="text-xs text-copy-secondary underline"
               >
                 Deshacer punto
               </button>

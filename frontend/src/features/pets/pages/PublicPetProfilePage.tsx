@@ -1,4 +1,4 @@
-﻿import {
+import {
   useState,
   useRef,
   useEffect,
@@ -222,7 +222,7 @@ export default function PublicPetProfilePage() {
         <h1 className="text-2xl font-bold text-sand-900">
           Perfil no encontrado
         </h1>
-        <p className="text-sm text-sand-500">
+        <p className="text-sm text-copy-secondary">
           Este código QR puede ya no estar activo o la mascota fue eliminada.
         </p>
         <Link
@@ -280,7 +280,7 @@ export default function PublicPetProfilePage() {
             </h1>
             <PetStatusBadge status={pet.status} />
           </div>
-          <p className="text-sm text-sand-500">
+          <p className="text-sm text-copy-secondary">
             {SPECIES_LABEL[pet.species] ?? pet.species}
             {pet.breed ? ` · ${pet.breed}` : ""}
           </p>
@@ -469,7 +469,7 @@ export default function PublicPetProfilePage() {
           />
           <Link
             to="/"
-            className="rounded text-xs font-bold tracking-wider text-sand-400 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            className="rounded text-xs font-bold tracking-wider text-copy-muted hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
           >
             Powered by PawTrack CR
           </Link>

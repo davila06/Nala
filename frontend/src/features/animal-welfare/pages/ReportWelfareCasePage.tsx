@@ -191,7 +191,7 @@ export default function ReportWelfareCasePage() {
               Utilizar ubicacion
             </label>
             {locating && (
-              <p className="text-sm text-sand-500">
+              <p className="text-sm text-copy-secondary">
                 Obteniendo tu ubicacion...
               </p>
             )}

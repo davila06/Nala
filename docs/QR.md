@@ -208,8 +208,11 @@ El mismo `PerformClinicScanCommand` — sin diferencia de lógica.
 
 ### Acceso al expediente
 
-El escaneo identifica la mascota y puede registrar contacto, pero **no autoriza
-leer ni escribir en el expediente médico**. La clínica necesita un
+El endpoint independiente de escaneo puede registrar el contacto con la
+mascota. En cambio, el QR o RFID enviado directamente a una consulta de
+historial o de registro médico solo identifica la mascota y **no autoriza
+leer ni escribir en el expediente**; si falta el grant, esa consulta se deniega
+sin persistir el escaneo inline. La clínica necesita un
 `ClinicMedicalAccessGrant` activo con el permiso requerido, aprobado por el
 tutor:
 

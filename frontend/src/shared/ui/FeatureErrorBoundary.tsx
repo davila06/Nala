@@ -42,7 +42,7 @@ export class FeatureErrorBoundary extends Component<Props, State> {
           Algo salió mal
           {this.props.featureName ? ` en ${this.props.featureName}` : ""}
         </p>
-        <p className="text-sm text-sand-500">
+        <p className="text-sm text-copy-secondary">
           Intenta recargar la página. Si el problema persiste, contacta soporte.
         </p>
         <button

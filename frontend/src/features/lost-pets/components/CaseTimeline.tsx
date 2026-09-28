@@ -1,4 +1,4 @@
-﻿import type { LostPetEvent } from '../api/lostPetsApi'
+import type { LostPetEvent } from '../api/lostPetsApi'
 import type { NearbyAlertSummary } from '../api/caseRoomApi'
 import type { SightingDetail } from '@/features/sightings/api/sightingsApi'
 
@@ -98,7 +98,7 @@ export function CaseTimeline({ event, sightings, nearbyAlerts }: CaseTimelinePro
 
   if (entries.length === 0) {
     return (
-      <div className="py-8 px-4 text-center text-sm text-sand-400">
+      <div className="py-8 px-4 text-center text-sm text-copy-muted">
         No hay eventos en el historial aún.
       </div>
     )
@@ -158,7 +158,7 @@ export function CaseTimeline({ event, sightings, nearbyAlerts }: CaseTimelinePro
 
             {entry.subtitle && (
               <p
-                className="mt-0.5 text-xs text-sand-500 truncate"
+                className="mt-0.5 text-xs text-copy-secondary truncate"
                 title={entry.subtitle}
               >
                 {entry.subtitle}
@@ -167,7 +167,7 @@ export function CaseTimeline({ event, sightings, nearbyAlerts }: CaseTimelinePro
 
             <time
               dateTime={entry.at.toISOString()}
-              className="block mt-0.5 text-[0.72rem] text-sand-400"
+              className="block mt-0.5 text-[0.72rem] text-copy-muted"
             >
               {formatDate(entry.at)} · {formatTime(entry.at)}
             </time>

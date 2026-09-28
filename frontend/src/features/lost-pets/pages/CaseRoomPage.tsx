@@ -1,4 +1,4 @@
-﻿import { useState, lazy, Suspense } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { FraudReportButton } from "@/features/safety/components/FraudReportButton";
@@ -121,7 +121,7 @@ export default function CaseRoomPage() {
   if (isError || !data) {
     return (
       <div className="mx-auto max-w-[680px] px-4 py-12 text-center">
-        <p className="mb-4 text-sm text-sand-500">
+        <p className="mb-4 text-sm text-copy-secondary">
           No se pudo cargar el centro de comando. El reporte puede haber sido
           cerrado o no tienes acceso.
         </p>
@@ -150,7 +150,7 @@ export default function CaseRoomPage() {
       {/* ── Back nav ──────────────────────────────────────────────── */}
       <Link
         to={`/pets/${event.petId}`}
-        className="mb-4 flex items-center gap-1 text-xs font-medium text-sand-500 hover:text-sand-800 transition-base"
+        className="mb-4 flex items-center gap-1 text-xs font-medium text-copy-secondary hover:text-sand-800 transition-base"
       >
         ← Perfil de mascota
       </Link>
@@ -191,7 +191,7 @@ export default function CaseRoomPage() {
           <p className="mt-0.5 truncate text-base font-extrabold text-sand-900">
             Caso activo
           </p>
-          <p className="mt-0.5 text-xs text-sand-500">
+          <p className="mt-0.5 text-xs text-copy-secondary">
             <ElapsedTime from={event.reportedAt} />
           </p>
         </div>
@@ -230,7 +230,7 @@ export default function CaseRoomPage() {
               "inline-flex items-center justify-center gap-1.5 rounded-xl border-0 px-2 py-3 text-sm font-bold transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 sm:text-[0.82rem]",
               activeTab === tab.id
                 ? "bg-surface text-sand-900 shadow-sm"
-                : "bg-transparent text-sand-500 hover:bg-surface/70 hover:text-sand-800",
+                : "bg-transparent text-copy-secondary hover:bg-surface/70 hover:text-sand-800",
             ].join(" ")}
           >
             <span aria-hidden="true">{tab.icon}</span>
@@ -366,7 +366,7 @@ export default function CaseRoomPage() {
             hidden={activeTab !== "alerts"}
           >
             {nearbyAlerts.length === 0 ? (
-              <p className="py-8 text-center text-sm text-sand-400">
+              <p className="py-8 text-center text-sm text-copy-muted">
                 Aún no se han enviado alertas a usuarios cercanos.
               </p>
             ) : (
@@ -381,7 +381,7 @@ export default function CaseRoomPage() {
                     </p>
                     <time
                       dateTime={alert.sentAt}
-                      className="mt-0.5 block text-[0.72rem] text-sand-500"
+                      className="mt-0.5 block text-[0.72rem] text-copy-secondary"
                     >
                       {new Date(alert.sentAt).toLocaleString("es-CR")}
                     </time>
@@ -389,7 +389,7 @@ export default function CaseRoomPage() {
                 ))}
               </ul>
             )}
-            <p className="mt-3 text-center text-[0.72rem] text-sand-400">
+            <p className="mt-3 text-center text-[0.72rem] text-copy-muted">
               {totalNearbyAlertsDispatched} alerta(s) enviadas en total
             </p>
           </div>

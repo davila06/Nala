@@ -59,7 +59,7 @@ function AnimalAdminRow({ animal }: { animal: AdoptablePetDto }) {
   };
 
   const photo = animal.photoUrls[0];
-  const st = STATUS_COLORS[animal.status] ?? "bg-sand-100 text-sand-500";
+  const st = STATUS_COLORS[animal.status] ?? "bg-sand-100 text-copy-secondary";
 
   return (
     <motion.li
@@ -88,17 +88,17 @@ function AnimalAdminRow({ animal }: { animal: AdoptablePetDto }) {
             </Link>
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${st}`}>{animal.status}</span>
           </div>
-          <p className="text-xs text-sand-500">
+          <p className="text-xs text-copy-secondary">
             {SPECIES_LABELS[animal.species]}
             {animal.breed && ` · ${animal.breed}`}
             {" · "}
             {AGE_LABELS[animal.ageCategory]}
           </p>
-          <p className="text-xs text-sand-400">
+          <p className="text-xs text-copy-muted">
             🏠 {animal.organizationName}
             {animal.refLabel && ` · 📍 ${animal.refLabel}`}
           </p>
-          <p className="text-xs text-sand-400">Publicado {new Date(animal.publishedAt).toLocaleDateString("es-CR")}</p>
+          <p className="text-xs text-copy-muted">Publicado {new Date(animal.publishedAt).toLocaleDateString("es-CR")}</p>
         </div>
       </div>
 
@@ -200,7 +200,7 @@ export function AdminAdoptionsTab() {
             </option>
           ))}
         </select>
-        <span className="text-xs text-sand-500">{animalsPage?.totalCount ?? 0} animales</span>
+        <span className="text-xs text-copy-secondary">{animalsPage?.totalCount ?? 0} animales</span>
         <Link to="/adopciones" className="ml-auto text-xs text-brand-600 hover:underline">
           Ver directorio público →
         </Link>
@@ -214,7 +214,7 @@ export function AdminAdoptionsTab() {
           ))}
         </div>
       ) : !animalsPage?.items.length ? (
-        <div className="py-12 text-center text-sand-400">
+        <div className="py-12 text-center text-copy-muted">
           <p className="text-3xl mb-2">🐾</p>
           <p className="text-sm">No hay animales con este filtro</p>
         </div>
@@ -238,7 +238,7 @@ export function AdminAdoptionsTab() {
           >
             ← Anterior
           </button>
-          <span className="text-xs text-sand-400">
+          <span className="text-xs text-copy-muted">
             {page} / {animalsPage?.totalPages}
           </span>
           <button

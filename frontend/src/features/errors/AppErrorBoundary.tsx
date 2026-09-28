@@ -1,4 +1,4 @@
-﻿import { Component, type ErrorInfo, type ReactNode } from "react";
+import { Component, type ErrorInfo, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { trackException } from "@/shared/lib/telemetry";
 
@@ -91,7 +91,7 @@ export default class AppErrorBoundary extends Component<Props, State> {
             <h1 className="mt-2 font-display text-3xl font-bold text-sand-900">
               Algo salió mal
             </h1>
-            <p className="mt-3 text-sm text-sand-500 leading-relaxed">
+            <p className="mt-3 text-sm text-copy-secondary leading-relaxed">
               Ocurrió un error al cargar esta pantalla. No te preocupes — tus
               mascotas están seguras. Puedes reintentar o volver al inicio.
             </p>

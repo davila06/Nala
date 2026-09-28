@@ -55,7 +55,7 @@ export function UpgradeBanner({ requires, compact }: UpgradeBannerProps) {
     <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4 text-center">
       <p className="text-sm font-semibold text-brand-700">
         🔒 Esta función requiere el plan <span className="font-bold">{name}</span>{" "}
-        <span className="font-normal text-brand-500">({price})</span>
+        <span className="font-normal text-brand-600">({price})</span>
       </p>
       <button
         type="button"

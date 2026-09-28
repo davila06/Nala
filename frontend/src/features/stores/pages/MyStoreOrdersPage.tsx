@@ -30,7 +30,7 @@ function OrderRow({ order }: { order: StoreOrderDto }) {
           <p className="font-semibold text-ink-900 text-sm line-clamp-1">
             {order.storeName}
           </p>
-          <p className="text-xs text-sand-500">
+          <p className="text-xs text-copy-secondary">
             {new Date(order.placedAt).toLocaleDateString("es-CR", {
               day: "2-digit",
               month: "long",
@@ -61,7 +61,7 @@ function OrderRow({ order }: { order: StoreOrderDto }) {
 
       {/* Footer */}
       <div className="flex items-center justify-between pt-1 border-t border-sand-100">
-        <span className="text-xs text-sand-500">
+        <span className="text-xs text-copy-secondary">
           {order.fulfillmentType === "Delivery"
             ? "🚚 Entrega"
             : "🏪 Retiro en tienda"}
@@ -121,7 +121,7 @@ function ProgressBar({
         {steps.map((s, i) => (
           <span
             key={s}
-            className={`text-[9px] leading-none ${i <= current ? "text-brand-600 font-semibold" : "text-sand-400"}`}
+            className={`text-[9px] leading-none ${i <= current ? "text-brand-600 font-semibold" : "text-copy-muted"}`}
           >
             {ICON[s]}
           </span>
@@ -158,7 +158,7 @@ export default function MyStoreOrdersPage() {
         )}
 
         {!isLoading && orders.length === 0 && (
-          <div className="text-center py-16 text-sand-400 space-y-2">
+          <div className="text-center py-16 text-copy-muted space-y-2">
             <p className="text-4xl">🛒</p>
             <p className="font-semibold text-sand-600">
               Aún no has hecho pedidos
@@ -206,7 +206,7 @@ export default function MyStoreOrdersPage() {
             >
               ← Anterior
             </button>
-            <span className="text-xs text-sand-500">Página {page}</span>
+            <span className="text-xs text-copy-secondary">Página {page}</span>
             <button
               type="button"
               onClick={() => setPage((p) => p + 1)}

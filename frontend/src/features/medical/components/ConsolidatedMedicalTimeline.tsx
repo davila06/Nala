@@ -143,7 +143,7 @@ export function ConsolidatedMedicalTimeline({ petId }: Props) {
           No se pudo descargar el adjunto o el permiso fue revocado.
         </p>
       )}
-      {isLoading && <p className="mt-3 text-xs text-sand-500">Cargando historial…</p>}
+      {isLoading && <p className="mt-3 text-xs text-copy-secondary">Cargando historial…</p>}
       {isError && (
         <p role="alert" className="mt-3 text-xs text-danger-600">
           No se pudo cargar el historial. Inténtalo de nuevo.
@@ -160,7 +160,7 @@ export function ConsolidatedMedicalTimeline({ petId }: Props) {
         </p>
       )}
       {!isLoading && !isError && events.length === 0 && (
-        <p className="mt-3 text-xs text-sand-500">Aún no hay registros ni certificados.</p>
+        <p className="mt-3 text-xs text-copy-secondary">Aún no hay registros ni certificados.</p>
       )}
       <ol className="mt-3 space-y-0 divide-y divide-sand-100">
         {events.map((event) => (
@@ -171,7 +171,7 @@ export function ConsolidatedMedicalTimeline({ petId }: Props) {
                   ? (CERTIFICATE_TYPE_LABELS[event.label as CertificateType] ?? event.label)
                   : event.label}
               </p>
-              <p className="text-xs text-sand-500">
+              <p className="text-xs text-copy-secondary">
                 {event.date} ·{" "}
                 {event.source === "Certificate"
                   ? "Certificado"

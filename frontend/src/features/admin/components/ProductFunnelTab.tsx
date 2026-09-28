@@ -38,7 +38,7 @@ export function ProductFunnelTab() {
   const max = Math.max(...entries.map(([, count]) => count), 1);
 
   if (isLoading)
-    return <p className="p-6 text-sm text-sand-500">Cargando funnel...</p>;
+    return <p className="p-6 text-sm text-copy-secondary">Cargando funnel...</p>;
   if (isError)
     return (
       <p role="alert" className="p-6 text-sm text-danger-600">
@@ -52,12 +52,12 @@ export function ProductFunnelTab() {
         <h2 className="text-lg font-bold text-sand-900">
           Funnel de activación
         </h2>
-        <p className="text-sm text-sand-500">
+        <p className="text-sm text-copy-secondary">
           Eventos agregados de los últimos 30 días. Sin PII.
         </p>
       </div>
       {entries.length === 0 ? (
-        <p className="text-sm text-sand-500">Aún no hay eventos de producto.</p>
+        <p className="text-sm text-copy-secondary">Aún no hay eventos de producto.</p>
       ) : (
         <ul className="space-y-4">
           {entries.map(([name, count]) => (

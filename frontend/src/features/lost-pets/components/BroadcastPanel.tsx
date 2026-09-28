@@ -60,11 +60,11 @@ function StatusChip({ attempt }: { attempt: BroadcastAttemptDto }) {
   if (attempt.status === "Skipped") {
     return (
       <div className="flex items-center justify-between rounded-xl border border-sand-200 bg-surface-warm px-3 py-2">
-        <span className="flex items-center gap-2 text-sm font-medium text-sand-500">
+        <span className="flex items-center gap-2 text-sm font-medium text-copy-secondary">
           <span aria-hidden="true">{icon}</span>
           {label}
         </span>
-        <span className="text-xs text-sand-400">⏭ Omitido</span>
+        <span className="text-xs text-copy-muted">⏭ Omitido</span>
       </div>
     );
   }
@@ -131,20 +131,20 @@ export function BroadcastPanel({
             <p className="text-lg font-bold text-rescue-700">
               {status.sentCount}
             </p>
-            <p className="text-xs text-sand-500">Enviados</p>
+            <p className="text-xs text-copy-secondary">Enviados</p>
           </div>
           <div className="flex-1 rounded-xl bg-white/70 py-2">
             <p className="text-lg font-bold text-sand-600">
               {status.skippedCount}
             </p>
-            <p className="text-xs text-sand-500">Omitidos</p>
+            <p className="text-xs text-copy-secondary">Omitidos</p>
           </div>
           {status.failedCount > 0 && (
             <div className="flex-1 rounded-xl bg-white/70 py-2">
               <p className="text-lg font-bold text-danger-600">
                 {status.failedCount}
               </p>
-              <p className="text-xs text-sand-500">Errores</p>
+              <p className="text-xs text-copy-secondary">Errores</p>
             </div>
           )}
           {status.totalClicks > 0 && (
@@ -152,7 +152,7 @@ export function BroadcastPanel({
               <p className="text-lg font-bold text-trust-700">
                 {status.totalClicks}
               </p>
-              <p className="text-xs text-sand-500">Clics</p>
+              <p className="text-xs text-copy-secondary">Clics</p>
             </div>
           )}
         </div>

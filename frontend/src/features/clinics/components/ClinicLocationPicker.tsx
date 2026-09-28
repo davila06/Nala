@@ -45,7 +45,7 @@ function KeepMapCentered({ lat, lng }: { lat: number; lng: number }) {
 export function ClinicLocationPicker({ lat, lng, onChange }: ClinicLocationPickerProps) {
   return (
     <div className="space-y-2">
-      <p className="text-xs font-semibold uppercase tracking-widest text-sand-400">
+      <p className="text-xs font-semibold uppercase tracking-widest text-copy-muted">
         Ubicacion de la clinica
       </p>
       <p className="text-sm text-sand-600">Selecciona la ubicacion en el mapa (clic o arrastra el pin).</p>

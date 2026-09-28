@@ -52,7 +52,7 @@ export default function NalaDashboardPage() {
           <h1 className="mt-1 text-3xl font-black text-sand-900">
             Resumen operativo
           </h1>
-          <p className="mt-1 text-sm text-sand-500">
+          <p className="mt-1 text-sm text-copy-secondary">
             Indicadores agregados para coordinación institucional.
           </p>
         </div>
@@ -123,7 +123,7 @@ export default function NalaDashboardPage() {
                 <p className="text-3xl font-black tabular-nums text-sand-900">
                   {overview.data[key]}
                 </p>
-                <p className="mt-1 text-sm text-sand-500">{label}</p>
+                <p className="mt-1 text-sm text-copy-secondary">{label}</p>
               </article>
             ))}
           </section>
@@ -136,12 +136,12 @@ export default function NalaDashboardPage() {
                 <h2 className="text-lg font-black text-sand-900">
                   Capas operativas agregadas
                 </h2>
-                <p className="mt-1 text-xs text-sand-500">
+                <p className="mt-1 text-xs text-copy-secondary">
                   Celdas generalizadas de pérdidas, bienestar y clínicas. No se
                   muestran domicilios ni identificadores.
                 </p>
               </div>
-              <span className="text-xs font-semibold text-sand-500">
+              <span className="text-xs font-semibold text-copy-secondary">
                 {mapLayers.data?.length ?? 0} celdas
               </span>
             </div>
@@ -168,7 +168,7 @@ export default function NalaDashboardPage() {
                         {cell.isSuppressed ? "Suprimido" : cell.count}
                       </span>
                     </div>
-                    <p className="mt-1 text-[11px] text-sand-500">
+                    <p className="mt-1 text-[11px] text-copy-secondary">
                       {cell.canton} · celda generalizada
                     </p>
                   </div>
@@ -188,7 +188,7 @@ export default function NalaDashboardPage() {
                 <caption className="sr-only">
                   Tendencias diarias agregadas
                 </caption>
-                <thead className="border-b border-sand-200 text-sand-500">
+                <thead className="border-b border-sand-200 text-copy-secondary">
                   <tr>
                     <th className="px-2 py-2">Fecha</th>
                     <th className="px-2 py-2">Pérdidas</th>

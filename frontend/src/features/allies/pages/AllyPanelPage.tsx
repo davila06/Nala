@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import type { AllyType } from "../api/alliesApi";
@@ -34,7 +34,7 @@ function KPICard({
       <p className="mt-2 text-2xl font-black tabular-nums text-sand-900">
         {value}
       </p>
-      <p className="text-xs text-sand-500 mt-0.5">{label}</p>
+      <p className="text-xs text-copy-secondary mt-0.5">{label}</p>
     </motion.div>
   );
 }
@@ -141,7 +141,7 @@ export default function AllyPanelPage() {
         <section className="mb-8 rounded-3xl border border-sand-200 field-input p-6 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-sand-500">
+              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-copy-secondary">
                 Estado actual
               </p>
               <h2 className="mt-2 text-xl font-bold text-sand-900">
@@ -290,7 +290,7 @@ export default function AllyPanelPage() {
               <h2 className="text-xl font-bold text-sand-900">
                 Bandeja operativa
               </h2>
-              <p className="mt-1 text-sm text-sand-500">
+              <p className="mt-1 text-sm text-copy-secondary">
                 Alertas activas dentro de la cobertura de tu organización.
               </p>
             </div>
@@ -311,7 +311,7 @@ export default function AllyPanelPage() {
           )}
 
           {!isAlertsLoading && (!alerts || alerts.length === 0) && (
-            <div className="rounded-2xl border border-dashed border-sand-300 px-6 py-10 text-center text-sm text-sand-500">
+            <div className="rounded-2xl border border-dashed border-sand-300 px-6 py-10 text-center text-sm text-copy-secondary">
               No hay alertas operativas en este momento.
             </div>
           )}
@@ -329,7 +329,7 @@ export default function AllyPanelPage() {
                         {alert.title}
                       </h3>
                       <p className="mt-2 text-sm text-sand-600">{alert.body}</p>
-                      <p className="mt-3 text-xs font-medium uppercase tracking-[0.2em] text-sand-400">
+                      <p className="mt-3 text-xs font-medium uppercase tracking-[0.2em] text-copy-muted">
                         {new Date(alert.createdAt).toLocaleString("es-CR")}
                       </p>
                     </div>

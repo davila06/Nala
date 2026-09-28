@@ -143,12 +143,12 @@ function VeterinarianRow({ veterinarian }: { veterinarian: ClinicVeterinarianDto
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="font-bold text-sand-900">{veterinarian.fullName}</p>
-          <p className="text-xs text-sand-500">
+          <p className="text-xs text-copy-secondary">
             {veterinarian.licenseNumber} · {veterinarian.status}
           </p>
         </div>
         <span
-          className={`rounded-full px-2 py-1 text-[11px] font-bold ${veterinarian.isActive ? "bg-rescue-100 text-rescue-700" : "bg-sand-100 text-sand-500"}`}
+          className={`rounded-full px-2 py-1 text-[11px] font-bold ${veterinarian.isActive ? "bg-rescue-100 text-rescue-700" : "bg-sand-100 text-copy-secondary"}`}
         >
           {veterinarian.isActive ? "Activo" : "No activo"}
         </span>
@@ -310,7 +310,7 @@ export function ClinicOperationsPanel() {
     <section className="space-y-5">
       <header>
         <h2 className="text-lg font-black text-sand-900">Operación clínica</h2>
-        <p className="mt-1 text-sm text-sand-500">
+        <p className="mt-1 text-sm text-copy-secondary">
           Administra permisos por veterinario y agenda consultas con protección contra solapamientos.
         </p>
       </header>
@@ -318,7 +318,7 @@ export function ClinicOperationsPanel() {
       <div className="rounded-2xl border border-sand-200 bg-surface p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sand-500">Dashboard del día</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-copy-secondary">Dashboard del día</p>
             <h3 className="mt-1 text-base font-black text-sand-900">{todayFocus}</h3>
           </div>
           <span className="rounded-full border border-brand-200 bg-brand-50 px-2.5 py-1 text-[11px] font-bold text-brand-700">
@@ -328,19 +328,19 @@ export function ClinicOperationsPanel() {
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-xl border border-sand-200 bg-sand-50 p-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sand-500">Citas</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-copy-secondary">Citas</p>
             <p className="mt-2 text-2xl font-black text-sand-900">{dailySummary.scheduled}</p>
           </div>
           <div className="rounded-xl border border-sand-200 bg-sand-50 p-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sand-500">En consulta</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-copy-secondary">En consulta</p>
             <p className="mt-2 text-2xl font-black text-sand-900">{dailySummary.inProgress}</p>
           </div>
           <div className="rounded-xl border border-sand-200 bg-sand-50 p-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sand-500">Inventario</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-copy-secondary">Inventario</p>
             <p className="mt-2 text-2xl font-black text-sand-900">{dailySummary.stockAlerts}</p>
           </div>
           <div className="rounded-xl border border-sand-200 bg-sand-50 p-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sand-500">Tareas</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-copy-secondary">Tareas</p>
             <p className="mt-2 text-2xl font-black text-sand-900">{dailySummary.openTasks}</p>
           </div>
           <div className="rounded-xl border border-brand-200 bg-brand-50 p-3">
@@ -355,7 +355,7 @@ export function ClinicOperationsPanel() {
             <p className="text-[11px] text-warn-800">{dailySummary.pendingSales} ventas</p>
           </div>
           <div className="rounded-xl border border-sand-200 bg-sand-50 p-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sand-500">Alertas activas</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-copy-secondary">Alertas activas</p>
             <p className="mt-2 text-2xl font-black text-sand-900">{dailySummary.alertCount}</p>
           </div>
         </div>
@@ -374,7 +374,7 @@ export function ClinicOperationsPanel() {
       <div className="rounded-2xl border border-sand-200 bg-surface p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sand-500">Tareas internas</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-copy-secondary">Tareas internas</p>
             <h3 className="mt-1 text-sm font-black text-sand-900">Tareas internas por rol</h3>
           </div>
           <label className="flex items-center gap-2 text-xs font-semibold text-sand-700">
@@ -405,7 +405,7 @@ export function ClinicOperationsPanel() {
                 </span>
               </div>
               {tasks.length === 0 ? (
-                <p className="text-xs text-sand-500">Sin tareas para este rol.</p>
+                <p className="text-xs text-copy-secondary">Sin tareas para este rol.</p>
               ) : (
                 <div className="space-y-2">
                   {tasks.map((task) => (
@@ -415,9 +415,9 @@ export function ClinicOperationsPanel() {
                     >
                       <div>
                         <p className="text-sm font-bold text-sand-900">{task.title}</p>
-                        <p className="mt-1 text-xs text-sand-500">{task.type}</p>
+                        <p className="mt-1 text-xs text-copy-secondary">{task.type}</p>
                         {(task.petName || task.ownerName) && (
-                          <p className="mt-1 text-xs text-sand-500">
+                          <p className="mt-1 text-xs text-copy-secondary">
                             {task.petName ?? "Operación"}
                             {task.ownerName ? ` · ${task.ownerName}` : ""}
                           </p>
@@ -427,7 +427,7 @@ export function ClinicOperationsPanel() {
                         <span className="inline-flex rounded-full bg-brand-100 px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-brand-700">
                           {INTERNAL_TASK_PRIORITY_LABELS[task.priority]}
                         </span>
-                        <p className="mt-1 text-[10px] text-sand-500">{task.assignedToName ?? "Cola del rol"}</p>
+                        <p className="mt-1 text-[10px] text-copy-secondary">{task.assignedToName ?? "Cola del rol"}</p>
                         <p className="mt-1 text-[11px] font-semibold text-sand-600">
                           {formatCostaRicaDate(task.dueDate)}
                         </p>
@@ -450,7 +450,7 @@ export function ClinicOperationsPanel() {
         </div>
         <div className="mt-3 space-y-2">
           {nextTasks.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-sand-300 p-3 text-sm text-sand-500">
+            <p className="rounded-xl border border-dashed border-sand-300 p-3 text-sm text-copy-secondary">
               No hay tareas pendientes para el día.
             </p>
           ) : (
@@ -461,12 +461,12 @@ export function ClinicOperationsPanel() {
               >
                 <div>
                   <p className="text-sm font-bold text-sand-900">{task.title}</p>
-                  <p className="mt-1 text-xs text-sand-500">
+                  <p className="mt-1 text-xs text-copy-secondary">
                     {task.petName ?? "Operación"}
                     {task.ownerName ? ` · ${task.ownerName}` : ""}
                   </p>
                 </div>
-                <div className="text-right text-[11px] text-sand-500">
+                <div className="text-right text-[11px] text-copy-secondary">
                   <div>{task.status}</div>
                   <div className="mt-1">{formatCostaRicaDate(task.dueDate)}</div>
                 </div>
@@ -575,7 +575,7 @@ export function ClinicOperationsPanel() {
       <div className="space-y-3">
         <h3 className="text-sm font-bold text-sand-800">Veterinarios y permisos</h3>
         {veterinarians.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-sand-300 p-4 text-sm text-sand-500">
+          <p className="rounded-xl border border-dashed border-sand-300 p-4 text-sm text-copy-secondary">
             No hay veterinarios registrados.
           </p>
         ) : (
@@ -1728,7 +1728,7 @@ function ClinicAgendaAuditSection({
       <div className="flex items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-bold text-sand-900">Auditoría de agenda</h3>
-          <p className="text-xs text-sand-500">Cambios recientes exportables para control interno.</p>
+          <p className="text-xs text-copy-secondary">Cambios recientes exportables para control interno.</p>
         </div>
         <Button variant="secondary" disabled={isDownloading} onClick={onExport}>
           {isDownloading ? "Exportando..." : "CSV"}
@@ -1737,7 +1737,7 @@ function ClinicAgendaAuditSection({
       {isLoading ? (
         <div className="h-14 animate-pulse rounded-xl bg-sand-100" />
       ) : entries.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-sand-300 p-3 text-xs text-sand-500">
+        <p className="rounded-xl border border-dashed border-sand-300 p-3 text-xs text-copy-secondary">
           No hay movimientos de agenda en este rango.
         </p>
       ) : (
@@ -1914,7 +1914,7 @@ function ClinicAgendaSection({
       <div className="flex items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-bold text-sand-900">Agenda {mode === "day" ? "del día" : "semanal"}</h3>
-          <p className="text-xs text-sand-500">Controla recepción, sala de espera y consultas activas.</p>
+          <p className="text-xs text-copy-secondary">Controla recepción, sala de espera y consultas activas.</p>
         </div>
         <div className="flex items-center gap-2">
           <select
@@ -1938,7 +1938,7 @@ function ClinicAgendaSection({
       {isLoading ? (
         <div className="h-24 animate-pulse rounded-xl bg-sand-100" />
       ) : agenda.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-sand-300 p-4 text-center text-sm text-sand-500">
+        <p className="rounded-xl border border-dashed border-sand-300 p-4 text-center text-sm text-copy-secondary">
           No hay citas para este día.
         </p>
       ) : (
@@ -1953,7 +1953,7 @@ function ClinicAgendaSection({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-bold text-sand-900">{appointment.petName}</p>
-                    <p className="text-xs text-sand-500">
+                    <p className="text-xs text-copy-secondary">
                       {mode === "week" && `${formatCostaRicaDate(appointment.startsAt)} · `}
                       {appointment.veterinarianName} · {formatCostaRicaTime(appointment.startsAt)}-
                       {formatCostaRicaTime(appointment.endsAt)}

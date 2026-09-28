@@ -164,12 +164,12 @@ function MiPlanCard({
 
         <div className="flex items-end gap-2">
           <span className="text-2xl font-black text-sand-900">{TIER_LABEL[tier] ?? tier}</span>
-          <span className="mb-0.5 text-sm text-sand-500">{priceLabel}</span>
+          <span className="mb-0.5 text-sm text-copy-secondary">{priceLabel}</span>
         </div>
 
         {/* Expiry */}
         {sub?.expiresAt && (
-          <p className="text-xs text-sand-500">
+          <p className="text-xs text-copy-secondary">
             {isActive ? "Vence el" : "Venció el"} <strong>{formatDate(sub.expiresAt)}</strong>
           </p>
         )}
@@ -556,11 +556,11 @@ export default function ProfilePage() {
               </div>
             )}
 
-            <p className="mt-0.5 truncate text-sm text-sand-500">{serverProfile?.email ?? user?.email}</p>
+            <p className="mt-0.5 truncate text-sm text-copy-secondary">{serverProfile?.email ?? user?.email}</p>
             <div className="mt-1 flex items-center gap-2 flex-wrap">
               <Badge variant="neutral">{ROLE_LABEL[user?.role ?? ""] ?? user?.role}</Badge>
               {serverProfile?.createdAt && (
-                <span className="text-xs text-sand-400">Miembro desde {formatDate(serverProfile.createdAt)}</span>
+                <span className="text-xs text-copy-muted">Miembro desde {formatDate(serverProfile.createdAt)}</span>
               )}
             </div>
           </div>
@@ -571,7 +571,7 @@ export default function ProfilePage() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h2 className="text-base font-semibold text-sand-800">Passkeys</h2>
-            <p className="mt-0.5 text-sm text-sand-500">
+            <p className="mt-0.5 text-sm text-copy-secondary">
               Añade una credencial del dispositivo para iniciar sesión sin contraseña.
             </p>
           </div>
@@ -586,7 +586,7 @@ export default function ProfilePage() {
       {/* ── Foster section ────────────────────────────────────────────── */}
       <Card>
         <h2 className="text-base font-semibold text-sand-800">Voluntariado</h2>
-        <p className="mt-1 text-sm text-sand-500">
+        <p className="mt-1 text-sm text-copy-secondary">
           Activa esta opción para ofrecer custodia temporal a mascotas encontradas.
         </p>
 
@@ -612,7 +612,7 @@ export default function ProfilePage() {
 
         {/* Resumen guardado cuando colapsado */}
         {!isVolunteer && fosterProfile?.isAvailable && (
-          <p className="mt-2 text-xs text-sand-400">
+          <p className="mt-2 text-xs text-copy-muted">
             Perfil anterior: {fosterProfile.acceptedSpecies.map((s) => SPECIES_LABEL[s]).join(", ")} · máx.{" "}
             {fosterProfile.maxDays} días
           </p>
@@ -638,7 +638,7 @@ export default function ProfilePage() {
                   📍 Centrar en mi ubicación actual
                 </Button>
                 {homeLat !== 0 && (
-                  <p className="text-xs text-sand-500">
+                  <p className="text-xs text-copy-secondary">
                     {homeLat.toFixed(5)}, {homeLng.toFixed(5)}
                   </p>
                 )}
@@ -715,7 +715,7 @@ export default function ProfilePage() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-semibold text-sand-800">Contraseña</h2>
-            <p className="mt-0.5 text-sm text-sand-500">Actualiza tu contraseña de acceso.</p>
+            <p className="mt-0.5 text-sm text-copy-secondary">Actualiza tu contraseña de acceso.</p>
           </div>
           <Button variant="secondary" size="sm" onClick={() => setShowChangePwd((v) => !v)}>
             {showChangePwd ? "Cancelar" : "Cambiar"}
@@ -761,7 +761,7 @@ export default function ProfilePage() {
                     ))}
                   </div>
                   {pwdStrength.label && (
-                    <p className="text-[0.7rem] text-sand-500">{pwdStrength.label} · Mínimo 8 caracteres</p>
+                    <p className="text-[0.7rem] text-copy-secondary">{pwdStrength.label} · Mínimo 8 caracteres</p>
                   )}
                 </div>
               )}
@@ -801,7 +801,7 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <h2 className="text-base font-semibold text-sand-800">Notificaciones push</h2>
-              <p className="mt-0.5 text-sm text-sand-500">
+              <p className="mt-0.5 text-sm text-copy-secondary">
                 {pushStatus === "subscribed"
                   ? "Recibirás alertas aunque tengas la app cerrada."
                   : pushStatus === "denied"
@@ -835,7 +835,7 @@ export default function ProfilePage() {
       {/* ── Guardia Vecinal section ─────────────────────────────── */}
       <Card>
         <h2 className="text-base font-semibold text-sand-800">Guardia Vecinal</h2>
-        <p className="mt-1 mb-4 text-sm text-sand-500">
+        <p className="mt-1 mb-4 text-sm text-copy-secondary">
           Recibe alertas ultra-locales cuando una mascota se pierde en tu cuadra.
         </p>
         <NeighborStatusCard />
@@ -844,7 +844,7 @@ export default function ProfilePage() {
       {/* ── Privacidad y tus datos ───────────────────────────────────────── */}
       <Card>
         <h2 className="text-base font-semibold text-sand-800">Privacidad y tus datos</h2>
-        <p className="mt-1 mb-4 text-sm text-sand-500">
+        <p className="mt-1 mb-4 text-sm text-copy-secondary">
           Descarga una copia de todos tus datos personales (perfil, mascotas, reportes de pérdida, historial médico,
           mensajes y notificaciones) en formato JSON.
         </p>

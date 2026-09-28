@@ -14,7 +14,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   UnderReview: { label: "En revisión", color: "bg-blue-50 text-blue-700" },
   Approved: { label: "Aprobada ✓", color: "bg-green-50 text-green-700" },
   Rejected: { label: "No aprobada", color: "bg-red-50 text-red-600" },
-  Withdrawn: { label: "Retirada", color: "bg-sand-100 text-sand-400" },
+  Withdrawn: { label: "Retirada", color: "bg-sand-100 text-copy-muted" },
 };
 
 export default function MyAdoptionApplicationsPage() {
@@ -57,7 +57,7 @@ export default function MyAdoptionApplicationsPage() {
             ))}
           </div>
         ) : apps.length === 0 ? (
-          <div className="py-16 text-center text-sand-400">
+          <div className="py-16 text-center text-copy-muted">
             <p className="text-4xl mb-3">🐾</p>
             <p className="text-sm font-medium">No tienes solicitudes activas</p>
             <Link
@@ -87,7 +87,7 @@ export default function MyAdoptionApplicationsPage() {
                       >
                         Ver animal →
                       </Link>
-                      <p className="text-xs text-sand-400 mt-0.5">
+                      <p className="text-xs text-copy-muted mt-0.5">
                         Enviada{" "}
                         {new Date(app.appliedAt).toLocaleDateString("es-CR")}
                       </p>
@@ -99,7 +99,7 @@ export default function MyAdoptionApplicationsPage() {
                     </span>
                   </div>
 
-                  <p className="text-xs text-sand-500 line-clamp-2">
+                  <p className="text-xs text-copy-secondary line-clamp-2">
                     {app.applicantNote}
                   </p>
 
@@ -114,7 +114,7 @@ export default function MyAdoptionApplicationsPage() {
                     <button
                       onClick={() => handleWithdraw(app.id)}
                       disabled={withdraw.isPending}
-                      className="text-xs text-sand-400 hover:text-red-500 underline transition-colors"
+                      className="text-xs text-copy-muted hover:text-red-500 underline transition-colors"
                     >
                       Retirar solicitud
                     </button>
@@ -134,7 +134,7 @@ export default function MyAdoptionApplicationsPage() {
             >
               ← Anterior
             </button>
-            <span className="text-sm text-sand-400">
+            <span className="text-sm text-copy-muted">
               Página {page} de {data?.totalPages}
             </span>
             <button

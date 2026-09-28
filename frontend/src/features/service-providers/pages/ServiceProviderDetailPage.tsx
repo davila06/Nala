@@ -104,9 +104,9 @@ export default function ServiceProviderDetailPage() {
         <p className="mt-4 leading-relaxed text-sand-600">
           {provider.description}
         </p>
-        <p className="mt-5 text-sm text-sand-500">{provider.address}</p>
+        <p className="mt-5 text-sm text-copy-secondary">{provider.address}</p>
         {provider.phoneNumber ? (
-          <p className="mt-1 text-sm text-sand-500">{provider.phoneNumber}</p>
+          <p className="mt-1 text-sm text-copy-secondary">{provider.phoneNumber}</p>
         ) : null}
         {provider.website ? (
           <a
@@ -132,7 +132,7 @@ export default function ServiceProviderDetailPage() {
           </p>
         </div>
         {services.length === 0 ? (
-          <p className="text-sm text-sand-500">
+          <p className="text-sm text-copy-secondary">
             Este proveedor aun no ha publicado servicios.
           </p>
         ) : (
@@ -195,7 +195,7 @@ export default function ServiceProviderDetailPage() {
                   </div>
                 )}
                 {!slotsLoading && slots.length === 0 ? (
-                  <p className="text-sm text-sand-500">
+                  <p className="text-sm text-copy-secondary">
                     No hay horarios disponibles en esta fecha.
                   </p>
                 ) : null}

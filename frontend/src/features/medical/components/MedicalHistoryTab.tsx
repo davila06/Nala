@@ -93,7 +93,7 @@ function PetSanitaryIdentityPanel({ petId }: { petId: string }) {
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-bold text-sand-800">Identidad sanitaria</h3>
-          <p className="text-xs text-sand-500">Datos privados para certificados y atención clínica.</p>
+          <p className="text-xs text-copy-secondary">Datos privados para certificados y atención clínica.</p>
         </div>
         <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] font-bold text-sand-700">
           {data?.microchipVerificationStatus ?? "Sin cargar"}
@@ -101,7 +101,7 @@ function PetSanitaryIdentityPanel({ petId }: { petId: string }) {
       </div>
 
       {isLoading ? (
-        <p className="text-xs text-sand-500">Cargando identidad sanitaria…</p>
+        <p className="text-xs text-copy-secondary">Cargando identidad sanitaria…</p>
       ) : (
         <div className="space-y-3">
           <div className="grid gap-2 sm:grid-cols-2">
@@ -165,7 +165,7 @@ function PetSanitaryIdentityPanel({ petId }: { petId: string }) {
           {data?.microchipVerificationNotes && (
             <p className="text-xs text-warn-700">{data.microchipVerificationNotes}</p>
           )}
-          <p className="text-xs text-sand-400">
+          <p className="text-xs text-copy-muted">
             Usa cantón aproximado, no dirección exacta. Un microchip verificado solo puede cambiarse por revisión.
           </p>
           <div className="flex gap-2">
@@ -202,7 +202,7 @@ function PetCertificatesPanel({ petId }: { petId: string }) {
       <div className="flex items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-bold text-sand-800">Certificados y pasaportes</h3>
-          <p className="text-xs text-sand-500">
+          <p className="text-xs text-copy-secondary">
             Documentos veterinarios verificables emitidos por clínicas autorizadas.
           </p>
         </div>
@@ -211,7 +211,7 @@ function PetCertificatesPanel({ petId }: { petId: string }) {
         </span>
       </div>
 
-      {isLoading && <p className="mt-3 text-xs text-sand-500">Cargando documentos…</p>}
+      {isLoading && <p className="mt-3 text-xs text-copy-secondary">Cargando documentos…</p>}
 
       {isError && (
         <p role="alert" className="mt-3 text-xs text-danger-600">
@@ -220,7 +220,7 @@ function PetCertificatesPanel({ petId }: { petId: string }) {
       )}
 
       {!isLoading && !isError && certificates.length === 0 && (
-        <p className="mt-3 text-xs text-sand-500">Aún no hay certificados emitidos para esta mascota.</p>
+        <p className="mt-3 text-xs text-copy-secondary">Aún no hay certificados emitidos para esta mascota.</p>
       )}
 
       {certificates.length > 0 && (
@@ -232,7 +232,7 @@ function PetCertificatesPanel({ petId }: { petId: string }) {
                   <p className="text-xs font-semibold text-sand-900">
                     {CERTIFICATE_TYPE_LABELS[certificate.type] ?? certificate.type}
                   </p>
-                  <p className="text-[11px] text-sand-400">
+                  <p className="text-[11px] text-copy-muted">
                     {new Date(certificate.issuedAt).toLocaleDateString("es-CR")} ·{" "}
                     <span className="font-mono">{certificate.verificationCode}</span>
                   </p>
@@ -407,7 +407,7 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
               rows={3}
               aria-describedby={editDescError ? `edit-desc-err-${record.id}` : undefined}
               aria-invalid={!!editDescError}
-              className={`w-full rounded-xl border px-3 py-2 text-sm text-sand-800 placeholder:text-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-400 ${
+              className={`w-full rounded-xl border px-3 py-2 text-sm text-sand-800 placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-brand-400 ${
                 editDescError ? "border-danger-400 bg-danger-50" : "border-sand-200 bg-white"
               }`}
               placeholder="Ej. Vacuna anti-rábica administrada sin reacciones"
@@ -475,7 +475,7 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
             )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            <span className="text-xs text-sand-500">{record.date}</span>
+            <span className="text-xs text-copy-secondary">{record.date}</span>
             {!isClinic && (
               <button
                 type="button"
@@ -501,7 +501,7 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
                 <button
                   type="button"
                   onClick={() => setConfirmDelete(false)}
-                  className="text-xs text-sand-400 hover:text-sand-600"
+                  className="text-xs text-copy-muted hover:text-sand-600"
                 >
                   No
                 </button>
@@ -533,7 +533,7 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
             {record.durationDays ? ` (${record.durationDays} días)` : ""}
           </p>
         )}
-        {record.vetName && <p className="text-xs text-sand-500">Dr/a. {record.vetName}</p>}
+        {record.vetName && <p className="text-xs text-copy-secondary">Dr/a. {record.vetName}</p>}
         {record.nextDueDate && (
           <p className="text-xs font-medium text-warn-700">
             <span aria-hidden="true">⏰</span> Próxima cita: {record.nextDueDate}
@@ -581,13 +581,13 @@ function ReminderCard({ reminder, petId }: { reminder: VetReminderDto; petId: st
       <div className="flex items-start justify-between gap-2">
         <p
           className={`text-sm font-semibold ${
-            reminder.isCompleted ? "line-through text-sand-400" : isOverdue ? "text-danger-700" : "text-trust-800"
+            reminder.isCompleted ? "line-through text-copy-muted" : isOverdue ? "text-danger-700" : "text-trust-800"
           }`}
         >
           {reminder.title}
         </p>
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs text-sand-500">{reminder.dueDate}</span>
+          <span className="text-xs text-copy-secondary">{reminder.dueDate}</span>
           {confirmDelete ? (
             <div className="flex items-center gap-1">
               <button
@@ -606,7 +606,7 @@ function ReminderCard({ reminder, petId }: { reminder: VetReminderDto; petId: st
               >
                 {deleteReminder.isPending ? "…" : "Sí, eliminar"}
               </button>
-              <button type="button" onClick={() => setConfirmDelete(false)} className="text-xs text-sand-400">
+              <button type="button" onClick={() => setConfirmDelete(false)} className="text-xs text-copy-muted">
                 No
               </button>
             </div>
@@ -755,7 +755,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
-              className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 placeholder:text-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-brand-400"
               placeholder="Ej. Vacuna anti-rábica anual administrada sin reacciones"
             />
           </div>
@@ -960,7 +960,7 @@ function ClinicAccessLogSection({ petId }: { petId: string }) {
 
   return (
     <details className="text-sm">
-      <summary className="cursor-pointer text-xs font-semibold text-sand-400 hover:text-sand-600">
+      <summary className="cursor-pointer text-xs font-semibold text-copy-muted hover:text-sand-600">
         🔐 Historial de acceso veterinario ({logs.length} acceso
         {logs.length !== 1 ? "s" : ""})
       </summary>
@@ -973,7 +973,7 @@ function ClinicAccessLogSection({ petId }: { petId: string }) {
                 {l.outcome === "allowed" ? "Permitido" : "Denegado"}
               </span>
             </span>
-            <span className="text-right text-xs text-sand-400">
+            <span className="text-right text-xs text-copy-muted">
               <span className="block">
                 {new Date(l.accessedAt).toLocaleDateString("es-CR", {
                   year: "numeric",
@@ -983,7 +983,7 @@ function ClinicAccessLogSection({ petId }: { petId: string }) {
                   minute: "2-digit",
                 })}
               </span>
-              <span className="block text-[10px] text-sand-500">
+              <span className="block text-[10px] text-copy-secondary">
                 {l.accessMethod.replaceAll("_", " ")} · {l.permission}
               </span>
             </span>
@@ -1095,7 +1095,7 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
       {/* Pending reminders */}
       {pendingReminders.length > 0 && (
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sand-500">Recordatorios pendientes</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-copy-secondary">Recordatorios pendientes</p>
           <ul className="space-y-2">
             {pendingReminders.map((r) => (
               <ReminderCard key={r.id} reminder={r} petId={petId} />
@@ -1113,7 +1113,7 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
 
         {/* Search input */}
         <div className="relative mb-3 mt-4">
-          <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sand-400 text-sm">
+          <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-copy-muted text-sm">
             🔍
           </span>
           <input
@@ -1121,7 +1121,7 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar entre los registros cargados…"
-            className="w-full rounded-xl border border-sand-200 bg-white py-2 pl-8 pr-4 text-sm text-sand-800 placeholder:text-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 bg-white py-2 pl-8 pr-4 text-sm text-sand-800 placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-brand-400"
           />
         </div>
         {/* Type filter — horizontal scroll on mobile */}
@@ -1157,7 +1157,7 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
           </div>
         ) : accessTier === "explorador" && totalCount === 0 && !loadingRecords ? (
           <Card padding="sm">
-            <p className="text-center text-sm text-sand-400">No hay registros médicos aún. Agrega el primero.</p>
+            <p className="text-center text-sm text-copy-muted">No hay registros médicos aún. Agrega el primero.</p>
           </Card>
         ) : accessTier === "explorador" && totalCount > 0 ? (
           // Explorador with clinic records: show count teaser
@@ -1210,7 +1210,7 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
           </>
         ) : (
           <Card padding="sm">
-            <p className="text-center text-sm text-sand-400">
+            <p className="text-center text-sm text-copy-muted">
               {typeFilter === "Todos"
                 ? "No hay registros médicos aún. Agrega el primero."
                 : `No hay registros de tipo "${typeFilter}".`}
@@ -1237,7 +1237,7 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
       {/* Completed reminders */}
       {completedReminders.length > 0 && (
         <details className="text-sm">
-          <summary className="cursor-pointer text-xs font-semibold text-sand-400 hover:text-sand-600">
+          <summary className="cursor-pointer text-xs font-semibold text-copy-muted hover:text-sand-600">
             {completedReminders.length} recordatorio
             {completedReminders.length !== 1 ? "s" : ""} completado
             {completedReminders.length !== 1 ? "s" : ""}

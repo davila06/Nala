@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useChatMessages, useChatThreads, useOpenChatThread } from "../hooks/useChatThread";
 import { useChatSignalR } from "../hooks/useChatSignalR";
@@ -62,7 +62,7 @@ export default function ChatPage() {
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
         <p className="text-4xl">💬</p>
         <h1 className="text-xl font-bold text-sand-900">Chat seguro</h1>
-        <p className="text-sm text-sand-500">Debes iniciar sesión para usar el chat.</p>
+        <p className="text-sm text-copy-secondary">Debes iniciar sesión para usar el chat.</p>
         <Button onClick={() => void navigate("/login")}>Iniciar sesión</Button>
       </div>
     );
@@ -72,7 +72,7 @@ export default function ChatPage() {
     <div className="flex h-dvh flex-col field-input pb-[env(safe-area-inset-bottom,0px)]">
       {/* Topbar */}
       <div className="flex items-center gap-3 border-b border-sand-200 field-input px-4 py-3">
-        <button type="button" onClick={() => void navigate(-1)} className="text-sm text-sand-500 hover:text-sand-800">
+        <button type="button" onClick={() => void navigate(-1)} className="text-sm text-copy-secondary hover:text-sand-800">
           ← Volver
         </button>
         <h1 className="text-sm font-bold text-sand-900">Chat seguro · PawTrack</h1>
@@ -82,7 +82,7 @@ export default function ChatPage() {
         {/* Sidebar: thread list (owner view) */}
         {isOwner && (
           <aside className="w-64 shrink-0 overflow-y-auto border-r border-sand-100 bg-surface-warm">
-            <p className="px-4 py-3 text-xs font-semibold uppercase tracking-widest text-sand-500">Conversaciones</p>
+            <p className="px-4 py-3 text-xs font-semibold uppercase tracking-widest text-copy-secondary">Conversaciones</p>
             {threadsLoading && (
               <div className="space-y-2 px-4">
                 {[0, 1, 2].map((i) => (
@@ -91,7 +91,7 @@ export default function ChatPage() {
               </div>
             )}
             {!threadsLoading && threads.length === 0 && (
-              <p className="px-4 py-2 text-xs text-sand-400">Sin mensajes aún.</p>
+              <p className="px-4 py-2 text-xs text-copy-muted">Sin mensajes aún.</p>
             )}
             {threads.map((t) => (
               <button
@@ -110,7 +110,7 @@ export default function ChatPage() {
                     </span>
                   )}
                 </div>
-                <span className="text-xs text-sand-400">{new Date(t.lastMessageAt).toLocaleDateString("es-CR")}</span>
+                <span className="text-xs text-copy-muted">{new Date(t.lastMessageAt).toLocaleDateString("es-CR")}</span>
               </button>
             ))}
           </aside>
@@ -129,7 +129,7 @@ export default function ChatPage() {
             <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
               <p className="text-4xl">💬</p>
               <h2 className="text-lg font-bold text-sand-900">Chat con el dueño</h2>
-              <p className="max-w-xs text-sm text-sand-500">
+              <p className="max-w-xs text-sm text-copy-secondary">
                 Tu número de teléfono y correo nunca se comparten. La conversación es completamente anónima para ambas
                 partes.
               </p>

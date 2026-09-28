@@ -120,7 +120,7 @@ export default function StoreRegistrationPage() {
             <h1 className="font-display text-3xl font-semibold text-sand-900">
               Registra tu tienda
             </h1>
-            <p className="mt-1 text-sm text-sand-500">
+            <p className="mt-1 text-sm text-copy-secondary">
               Aprobación en menos de 48 h.
             </p>
           </div>
@@ -168,7 +168,7 @@ export default function StoreRegistrationPage() {
                 required
                 rows={3}
                 placeholder="¿Qué ofreces? ¿Para qué mascotas?"
-                className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm placeholder:text-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-brand-400"
               />
             </div>
             <div>
@@ -188,7 +188,7 @@ export default function StoreRegistrationPage() {
             <div>
               <span className="mb-1.5 block text-xs font-medium text-sand-600">
                 Ubicación en el mapa *
-                <span className="ml-1 text-sand-400 font-normal">
+                <span className="ml-1 text-copy-muted font-normal">
                   (toca para marcar)
                 </span>
               </span>
@@ -254,7 +254,7 @@ export default function StoreRegistrationPage() {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-xs text-sand-500">
+          <p className="mt-6 text-center text-xs text-copy-secondary">
             ¿Ya tienes cuenta?{" "}
             <Link
               to="/login"

@@ -101,16 +101,16 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
           {/* Header */}
           <div className="mb-6 flex items-start justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-500">PawTrack Plus</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-600">PawTrack Plus</p>
               <h2 className="mt-1 font-display text-2xl font-black text-sand-900">Más protección para tus mascotas</h2>
-              <p className="mt-1 text-sm text-sand-500">
+              <p className="mt-1 text-sm text-copy-secondary">
                 Compara precios y límites del catálogo vigente. La recuperación básica permanece disponible sin pago.
               </p>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl p-2 text-sand-400 hover:bg-sand-100 hover:text-sand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="rounded-xl p-2 text-copy-muted hover:bg-sand-100 hover:text-sand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               aria-label="Cerrar"
             >
               <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
@@ -156,7 +156,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                           : "Precio no disponible"
                         : tier.freePrice}
                     </p>
-                    <p className="text-xs text-sand-400">{tier.period}</p>
+                    <p className="text-xs text-copy-muted">{tier.period}</p>
                   </div>
 
                   <ul className="mb-5 flex-1 space-y-1.5">
@@ -170,7 +170,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                           >
                             {f.included ? "✓" : "✗"}
                           </span>
-                          <span className={f.included ? "" : "text-sand-400 line-through"}>{f.label}</span>
+                          <span className={f.included ? "" : "text-copy-muted line-through"}>{f.label}</span>
                         </li>
                       ))}
                   </ul>
@@ -178,7 +178,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                   {isCurrent ? (
                     <span
                       aria-label="Plan actual"
-                      className="flex items-center justify-center gap-1.5 rounded-xl border-2 border-sand-200 bg-sand-50 py-2.5 text-xs font-semibold text-sand-500"
+                      className="flex items-center justify-center gap-1.5 rounded-xl border-2 border-sand-200 bg-sand-50 py-2.5 text-xs font-semibold text-copy-secondary"
                     >
                       <svg
                         viewBox="0 0 16 16"
@@ -207,7 +207,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                       {tier.cta}
                     </button>
                   ) : (
-                    <span className="flex items-center justify-center rounded-xl border-2 border-sand-200 bg-sand-50 py-2.5 text-xs font-semibold text-sand-500">
+                    <span className="flex items-center justify-center rounded-xl border-2 border-sand-200 bg-sand-50 py-2.5 text-xs font-semibold text-copy-secondary">
                       Plan gratuito
                     </span>
                   )}
@@ -216,7 +216,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
             })}
           </div>
 
-          <p className="mt-5 text-center text-xs text-sand-400">
+          <p className="mt-5 text-center text-xs text-copy-muted">
             Pagos seguros vía SINPE Móvil · Sin contrato · Cancela cuando quieras ·{" "}
             <a href="mailto:soporte@pawtrack.cr" className="text-brand-600 hover:underline">
               soporte@pawtrack.cr

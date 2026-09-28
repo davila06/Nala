@@ -133,7 +133,7 @@ function OrderCard({ order }: { order: BundleOrderDto }) {
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="font-semibold text-sand-900">{order.productTypeLabel ?? order.collarModelLabel}</p>
-          <p className="text-xs text-sand-500">
+          <p className="text-xs text-copy-secondary">
             Pedido #{order.id.slice(-8).toUpperCase()} · {new Date(order.createdAt).toLocaleDateString("es-CR")}
           </p>
         </div>
@@ -152,7 +152,7 @@ function OrderCard({ order }: { order: BundleOrderDto }) {
                   idx <= activeIdx ? "bg-brand-500" : "bg-sand-200"
                 }`}
               />
-              <span className="text-[10px] text-sand-400 hidden sm:block">{step.label}</span>
+              <span className="text-[10px] text-copy-muted hidden sm:block">{step.label}</span>
             </div>
           ))}
         </div>
@@ -254,7 +254,7 @@ function OrderCard({ order }: { order: BundleOrderDto }) {
       )}
 
       {/* Shipping summary */}
-      <div className="text-xs text-sand-500 space-y-0.5">
+      <div className="text-xs text-copy-secondary space-y-0.5">
         <p>
           📍 {order.shippingAddress}, {order.shippingCanton}
         </p>
@@ -363,7 +363,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
     <div className="space-y-4">
       {/* Product type selector */}
       <div>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sand-500">Elige tu producto</p>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-copy-secondary">Elige tu producto</p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {(Object.keys(PRODUCT_TYPE_CONFIG) as BundleProductType[]).map((pt) => {
             const cfg = PRODUCT_TYPE_CONFIG[pt];
@@ -385,7 +385,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
                   <p className={`text-xs font-semibold ${isSelected ? "text-brand-800" : "text-sand-800"}`}>
                     {cfg.label}
                   </p>
-                  <p className="text-xs text-sand-500 mt-0.5">{cfg.description}</p>
+                  <p className="text-xs text-copy-secondary mt-0.5">{cfg.description}</p>
                   <p className={`mt-1 text-sm font-bold ${isSelected ? "text-brand-700" : "text-sand-700"}`}>
                     ₡{cfg.priceCrc.toLocaleString("es-CR")}
                   </p>
@@ -394,7 +394,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
                   <svg
                     viewBox="0 0 16 16"
                     fill="currentColor"
-                    className="h-4 w-4 text-brand-500 shrink-0 ml-auto"
+                    className="h-4 w-4 text-brand-600 shrink-0 ml-auto"
                     aria-hidden="true"
                   >
                     <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
@@ -429,7 +429,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
 
       {/* Shipping */}
       <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-sand-500">Datos de envío</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-copy-secondary">Datos de envío</p>
         <div>
           <label htmlFor="bundle-full-name" className="mb-1 block text-xs font-medium text-sand-600">
             Nombre completo *
@@ -492,7 +492,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
-            className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm placeholder:text-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-brand-400"
             placeholder="Horario preferido, referencias del lugar, etc."
           />
         </div>
@@ -517,7 +517,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
           />
           <div>
             <span className="font-bold text-sand-900 block">Deseo Factura Electrónica (+13% IVA)</span>
-            <span className="text-sand-500 text-[11px] block mt-0.5">
+            <span className="text-copy-secondary text-[11px] block mt-0.5">
               Los montos mostrados son base sin IVA. Si requieres factura con crédito fiscal para deducción ante
               Hacienda, se adiciona el 13% de IVA al valor del producto.
             </span>
@@ -571,7 +571,7 @@ export function BundleOrderModal() {
           <button
             type="button"
             onClick={() => setShowForm(false)}
-            className="text-sm text-sand-500 hover:text-sand-700"
+            className="text-sm text-copy-secondary hover:text-sand-700"
           >
             ← Volver
           </button>
@@ -601,7 +601,7 @@ export function BundleOrderModal() {
         <div className="rounded-2xl border border-dashed border-sand-200 bg-surface-warm p-6 text-center space-y-2">
           <p className="text-2xl">📡</p>
           <p className="text-sm font-semibold text-sand-700">Collar GPS + 12 meses Plus — ₡49,900</p>
-          <p className="text-xs text-sand-500">
+          <p className="text-xs text-copy-secondary">
             Collar GPS Inteligente PawTrack (perros o gatos) entregado a tu puerta. Pago único, sin contrato.
           </p>
           <Button onClick={() => setShowForm(true)} className="mt-2">
@@ -612,7 +612,7 @@ export function BundleOrderModal() {
 
       {pastOrders.length > 0 && (
         <details>
-          <summary className="cursor-pointer text-xs font-semibold text-sand-400 hover:text-sand-600">
+          <summary className="cursor-pointer text-xs font-semibold text-copy-muted hover:text-sand-600">
             {pastOrders.length} pedido{pastOrders.length !== 1 ? "s" : ""} completado
             {pastOrders.length !== 1 ? "s" : ""}/cancelado
             {pastOrders.length !== 1 ? "s" : ""}

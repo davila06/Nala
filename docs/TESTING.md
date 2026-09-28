@@ -1,5 +1,13 @@
 # Verificación reproducida (2026-09-28)
 
+## Revalidación P0 Familia/Clínicas/Billing (2026-09-28)
+
+- `dotnet test PawTrack.sln --no-restore --verbosity quiet`: **1.814/1.814 aprobadas** (1.645 unitarias + 169 integración), exit code 0.
+- `npm --prefix frontend test -- --run --reporter=dot --pool=forks --maxWorkers=1`: **168/168 pruebas aprobadas**, 58/58 archivos, exit code 0.
+- `npm --prefix frontend run typecheck`: **exit code 2**, 12 errores TS6133 por variables sin uso en `frontend/src/features/lost-pets/pages/ReportLostPage.tsx`; archivo no modificado en este P0.
+
+Las filas de baseline inmediatamente debajo son el corte anterior y no sustituyen la revalidación P0 de esta sección. Las pruebas no acreditan despliegue, proveedor, hardware o cobros reales. Los tests usan el lock no-op y no validan `sp_getapplock` contra SQL Server.
+
 | Comprobación                                                                                                                                                                                                                                                                                                                                                 | Resultado y alcance                                                                                                                                                                                                                             |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `dotnet build PawTrack.sln --no-restore --verbosity quiet`                                                                                                                                                                                                                                                                                                   | Salida 0. Solución de [seis proyectos](../PawTrack.sln); no cubre [HashGen](../backend/HashGen/HashGen.csproj).                                                                                                                                 |

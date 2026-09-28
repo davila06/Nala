@@ -271,7 +271,7 @@ function VerifyEmailModal({ email, onClose }: VerifyEmailModalProps) {
           <h2 id="verify-modal-title" className="font-display text-2xl font-semibold text-sand-900 text-center">
             Confirma tu correo
           </h2>
-          <p className="mt-3 text-sm text-sand-500 text-center leading-relaxed">
+          <p className="mt-3 text-sm text-copy-secondary text-center leading-relaxed">
             La cuenta <strong className="font-semibold text-sand-700 break-all">{email}</strong> aún no ha sido
             verificada. Revisa tu bandeja de entrada o la carpeta de spam para el enlace que te enviamos al registrarte.
           </p>
@@ -282,7 +282,7 @@ function VerifyEmailModal({ email, onClose }: VerifyEmailModalProps) {
             </Button>
             <Link
               to="/register"
-              className="block w-full rounded-xl py-2 text-center text-sm text-sand-400 hover:text-sand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="block w-full rounded-xl py-2 text-center text-sm text-copy-muted hover:text-sand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               onClick={onClose}
             >
               Crear una cuenta nueva en su lugar
@@ -317,7 +317,7 @@ function InlineForgotForm({ initialEmail, onBack }: InlineForgotFormProps) {
         type="button"
         onClick={onBack}
         aria-label="Volver al formulario de inicio de sesión"
-        className="mb-6 inline-flex items-center gap-1.5 rounded-lg text-sm text-sand-500 hover:text-sand-800 transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+        className="mb-6 inline-flex items-center gap-1.5 rounded-lg text-sm text-copy-secondary hover:text-sand-800 transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
       >
         ← Volver a ingresar
       </button>
@@ -354,7 +354,7 @@ function InlineForgotForm({ initialEmail, onBack }: InlineForgotFormProps) {
             </motion.div>
             <div>
               <h2 className="font-display text-2xl font-bold text-sand-900">¡Revisa tu correo!</h2>
-              <p className="mt-2 text-sm text-sand-500 leading-relaxed">
+              <p className="mt-2 text-sm text-copy-secondary leading-relaxed">
                 Si el correo está registrado recibirás un enlace en unos minutos. Revisa también tu carpeta de spam.
               </p>
             </div>
@@ -371,7 +371,7 @@ function InlineForgotForm({ initialEmail, onBack }: InlineForgotFormProps) {
           >
             <div className="mb-8">
               <h2 className="font-display text-3xl font-semibold text-sand-900">Recuperar contraseña</h2>
-              <p className="mt-2 text-sm text-sand-500">Te enviaremos un enlace seguro a tu correo registrado.</p>
+              <p className="mt-2 text-sm text-copy-secondary">Te enviaremos un enlace seguro a tu correo registrado.</p>
             </div>
             <form onSubmit={handleSubmit} noValidate className="space-y-5">
               <Input
@@ -472,7 +472,7 @@ export default function LoginPage() {
             </span>
             <span className="font-display text-xl font-semibold text-sand-900">PawTrack CR</span>
           </div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-sand-400">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-copy-muted">
             NALA · Núcleo de Ayuda y Localización Animal
           </p>
         </div>
@@ -504,7 +504,7 @@ export default function LoginPage() {
                     <h1 className="font-display text-3xl font-semibold text-sand-900 text-balance">
                       Bienvenido de vuelta
                     </h1>
-                    <p className="mt-2 text-sm text-sand-500">Ingresa para acceder al panel de tu mascota.</p>
+                    <p className="mt-2 text-sm text-copy-secondary">Ingresa para acceder al panel de tu mascota.</p>
                   </div>
 
                   {justRegistered && (
@@ -564,7 +564,7 @@ export default function LoginPage() {
                           value={form.password}
                           onChange={(e) => setForm({ ...form, password: e.target.value })}
                           aria-describedby={error && !verifyError ? "login-error" : undefined}
-                          className="block w-full rounded-xl border border-sand-300 bg-surface py-2.5 pl-3.5 pr-10 text-sm text-sand-900 shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200 placeholder:text-sand-400"
+                          className="block w-full rounded-xl border border-sand-300 bg-surface py-2.5 pl-3.5 pr-10 text-sm text-sand-900 shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200 placeholder:text-copy-muted"
                         />
                         <button
                           type="button"
@@ -572,7 +572,7 @@ export default function LoginPage() {
                           tabIndex={-1}
                           aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                           aria-pressed={showPassword}
-                          className="absolute inset-y-0 right-0 flex items-center px-3 text-sand-400 hover:text-sand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-inset rounded-r-xl"
+                          className="absolute inset-y-0 right-0 flex items-center px-3 text-copy-muted hover:text-sand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-inset rounded-r-xl"
                         >
                           <EyeIcon open={showPassword} />
                         </button>
@@ -631,7 +631,7 @@ export default function LoginPage() {
                     )}
                   </form>
 
-                  <p className="mt-8 text-center text-sm text-sand-500">
+                  <p className="mt-8 text-center text-sm text-copy-secondary">
                     ¿No tienes cuenta?{" "}
                     <Link
                       to="/register"
@@ -644,7 +644,7 @@ export default function LoginPage() {
                   <p className="mt-2 text-center">
                     <a
                       href="/precios.html"
-                      className="text-xs text-sand-400 hover:text-brand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
+                      className="text-xs text-copy-muted hover:text-brand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
                     >
                       Ver planes y precios →
                     </a>
@@ -653,7 +653,7 @@ export default function LoginPage() {
                   <p className="mt-2 text-center">
                     <Link
                       to="/map"
-                      className="text-xs text-sand-400 hover:text-sand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
+                      className="text-xs text-copy-muted hover:text-sand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
                     >
                       Explorar el mapa público sin cuenta
                     </Link>
@@ -661,7 +661,7 @@ export default function LoginPage() {
                   <p className="mt-2 text-center">
                     <Link
                       to="/adopciones"
-                      className="text-xs text-sand-400 hover:text-sand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
+                      className="text-xs text-copy-muted hover:text-sand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
                     >
                       Explorar adopciones sin cuenta
                     </Link>

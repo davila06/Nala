@@ -263,7 +263,7 @@ export default function StaffClinicCrmWorkspacePage() {
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
       <header className="border-b border-sand-200 pb-4">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-sand-500">Equipo clínico</p>
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-copy-secondary">Equipo clínico</p>
         <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
           <h1 className="font-display text-2xl font-semibold text-sand-900">Tareas de operación</h1>
           <label className="flex items-center gap-2 text-xs font-semibold text-sand-700">
@@ -305,7 +305,7 @@ export default function StaffClinicCrmWorkspacePage() {
                 <h2 id="staff-daily-heading" className="text-base font-semibold text-sand-900">
                   Agenda de hoy
                 </h2>
-                <p className="mt-1 text-xs text-sand-500">Horario local de Costa Rica</p>
+                <p className="mt-1 text-xs text-copy-secondary">Horario local de Costa Rica</p>
               </div>
               <input
                 aria-label="Fecha del resumen operativo"
@@ -317,28 +317,28 @@ export default function StaffClinicCrmWorkspacePage() {
             </div>
             <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
               <div className="border-l-2 border-brand-500 pl-3">
-                <p className="text-xs text-sand-500">Citas por atender</p>
+                <p className="text-xs text-copy-secondary">Citas por atender</p>
                 <p className="text-lg font-semibold text-sand-900">{todayMetrics.appointments}</p>
               </div>
               <div className="border-l-2 border-warn-400 pl-3">
-                <p className="text-xs text-sand-500">En sala / consulta</p>
+                <p className="text-xs text-copy-secondary">En sala / consulta</p>
                 <p className="text-lg font-semibold text-sand-900">{todayMetrics.inProgress}</p>
               </div>
               <div className="border-l-2 border-rescue-500 pl-3">
-                <p className="text-xs text-sand-500">Completadas</p>
+                <p className="text-xs text-copy-secondary">Completadas</p>
                 <p className="text-lg font-semibold text-sand-900">{todayMetrics.completed}</p>
               </div>
               <div className="border-l-2 border-sand-400 pl-3">
-                <p className="text-xs text-sand-500">Tareas abiertas</p>
+                <p className="text-xs text-copy-secondary">Tareas abiertas</p>
                 <p className="text-lg font-semibold text-sand-900">{todayMetrics.openTasks}</p>
               </div>
               {hasFinanceWorkspace && (
                 <div className="border-l-2 border-warn-500 pl-3">
-                  <p className="text-xs text-sand-500">Saldo pendiente</p>
+                  <p className="text-xs text-copy-secondary">Saldo pendiente</p>
                   <p className="text-lg font-semibold text-sand-900">
                     ₡{(salesReport?.pendingBalanceCrc ?? 0).toLocaleString("es-CR")}
                   </p>
-                  <p className="text-[11px] text-sand-500">{salesReport?.pendingSaleCount ?? 0} ventas</p>
+                  <p className="text-[11px] text-copy-secondary">{salesReport?.pendingSaleCount ?? 0} ventas</p>
                 </div>
               )}
             </div>
@@ -385,7 +385,7 @@ export default function StaffClinicCrmWorkspacePage() {
                 })}
               </ul>
             )}
-            <p className="text-xs text-sand-500">
+            <p className="text-xs text-copy-secondary">
               El cambio de estado clínico requiere la membresía veterinaria asignada y MFA vigente.
             </p>
           </section>
@@ -394,7 +394,7 @@ export default function StaffClinicCrmWorkspacePage() {
             <div className="flex items-end justify-between gap-3">
               <div>
                 <h2 className="text-base font-semibold text-sand-900">Crear tarea</h2>
-                <p className="mt-1 text-xs text-sand-500">La tarea solo se mostrará a roles autorizados.</p>
+                <p className="mt-1 text-xs text-copy-secondary">La tarea solo se mostrará a roles autorizados.</p>
               </div>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
@@ -473,7 +473,7 @@ export default function StaffClinicCrmWorkspacePage() {
           <section className="space-y-3">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-base font-semibold text-sand-900">Pendientes del rol</h2>
-              <span className="text-xs font-semibold text-sand-500">{dashboard?.openTasks.length ?? 0} abiertas</span>
+              <span className="text-xs font-semibold text-copy-secondary">{dashboard?.openTasks.length ?? 0} abiertas</span>
             </div>
             {isLoadingDashboard ? (
               <div className="h-24 animate-pulse rounded-xl bg-sand-100" />
@@ -489,7 +489,7 @@ export default function StaffClinicCrmWorkspacePage() {
                         <span className="rounded-full bg-brand-100 px-2 py-1 text-[10px] font-bold text-brand-700">
                           {taskPriorityLabel(task.dueDate, task.priority)}
                         </span>
-                        <span className="text-[10px] font-semibold text-sand-500">
+                        <span className="text-[10px] font-semibold text-copy-secondary">
                           {INTERNAL_ROLE_LABELS[task.assignedRole]}
                         </span>
                       </div>
@@ -500,8 +500,8 @@ export default function StaffClinicCrmWorkspacePage() {
                           {task.ownerName ? ` · ${task.ownerName}` : ""}
                         </p>
                       )}
-                      <p className="mt-1 text-xs text-sand-500">Responsable: {task.assignedToName ?? "cola del rol"}</p>
-                      <p className="mt-1 text-xs text-sand-500">Vence {formatCostaRicaDate(task.dueDate)}</p>
+                      <p className="mt-1 text-xs text-copy-secondary">Responsable: {task.assignedToName ?? "cola del rol"}</p>
+                      <p className="mt-1 text-xs text-copy-secondary">Vence {formatCostaRicaDate(task.dueDate)}</p>
                       {task.notes && <p className="mt-1 text-xs text-sand-600">{task.notes}</p>}
                     </div>
                     <div className="flex flex-wrap items-center gap-3">

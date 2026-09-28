@@ -87,7 +87,7 @@ export function QRFlipCard({ petId, petName, petPhotoUrl, petSpecies = "Other" }
   return (
     <div className="w-full">
       {/* Flip hint */}
-      <p className="mb-2 text-center text-xs text-sand-400">
+      <p className="mb-2 text-center text-xs text-copy-muted">
         {isFlipped ? "← Toca para ver la foto" : "Toca para ver el QR →"}
       </p>
 
@@ -139,7 +139,7 @@ export function QRFlipCard({ petId, petName, petPhotoUrl, petSpecies = "Other" }
             {loading && (
               <div className="flex flex-col items-center gap-2">
                 <div className="h-5 w-5 rounded-full border-2 border-brand-300 border-t-brand-500 animate-spin" />
-                <p className="text-xs text-sand-400">Generando QR…</p>
+                <p className="text-xs text-copy-muted">Generando QR…</p>
               </div>
             )}
 
@@ -160,12 +160,13 @@ export function QRFlipCard({ petId, petName, petPhotoUrl, petSpecies = "Other" }
                 >
                   ⬇ Descargar
                 </button>
-                <p className="text-center text-[10px] text-sand-400 leading-tight">Imprime y adjunta al collar</p>
+                <p className="text-center text-[10px] text-copy-muted leading-tight">Imprime y adjunta al collar</p>
               </>
             )}
             {isFlipped && (
               <button
                 type="button"
+                tabIndex={isFlipped ? 0 : -1}
                 onClick={doFlip}
                 className="rounded-lg px-3 py-1.5 text-xs font-semibold text-sand-700 hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               >

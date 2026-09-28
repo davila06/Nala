@@ -32,7 +32,7 @@ export function NeighborStatusCard() {
             <p className="text-sm font-semibold text-sand-900">
               Activar Guardia Vecinal
             </p>
-            <p className="text-xs text-sand-500 mt-0.5">
+            <p className="text-xs text-copy-secondary mt-0.5">
               Recibe alertas cuando una mascota se pierde en tu cuadra
             </p>
           </div>

@@ -89,7 +89,7 @@ export function BillingDetailsCard() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-bold text-sand-900">Datos de Facturación Electrónica (DGT Costa Rica)</h2>
-            <p className="text-xs text-sand-500">
+            <p className="text-xs text-copy-secondary">
               Información tributaria para emisión de facturas y tiquetes oficiales según resolución DGT v4.3
             </p>
           </div>
@@ -108,7 +108,7 @@ export function BillingDetailsCard() {
         </div>
 
         {isLoading ? (
-          <div className="py-4 text-center text-xs text-sand-400">Cargando perfil fiscal…</div>
+          <div className="py-4 text-center text-xs text-copy-muted">Cargando perfil fiscal…</div>
         ) : !isEditing && profile ? (
           <div className="space-y-3">
             <div className="rounded-2xl border border-sand-200 bg-surface-warm p-4 space-y-2">
@@ -124,7 +124,7 @@ export function BillingDetailsCard() {
                 </span>
               </div>
 
-              <div className="text-xs text-sand-500 pt-1 space-y-0.5">
+              <div className="text-xs text-copy-secondary pt-1 space-y-0.5">
                 <p>📧 Correo de recepción: {profile.billingEmail}</p>
                 {profile.phoneNumber && <p>📞 Teléfono: {profile.phoneNumber}</p>}
                 {profile.addressDetails && <p>📍 Dirección: {profile.addressDetails}</p>}
@@ -145,7 +145,7 @@ export function BillingDetailsCard() {
         ) : !isEditing && !profile ? (
           <div className="rounded-2xl border border-dashed border-sand-300 p-5 text-center space-y-3">
             <p className="text-xs font-semibold text-sand-700">No has configurado tus datos de facturación</p>
-            <p className="text-[11px] text-sand-500 max-w-sm mx-auto">
+            <p className="text-[11px] text-copy-secondary max-w-sm mx-auto">
               Si requieres factura electrónica con crédito fiscal para deducción de gastos, registra tu cédula física o
               jurídica.
             </p>
@@ -298,9 +298,9 @@ export function BillingDetailsCard() {
           <p className="text-xs font-bold text-sand-800 mb-2">Mis comprobantes electrónicos emitidos</p>
 
           {loadingInvoices ? (
-            <div className="py-2 text-center text-xs text-sand-400">Cargando comprobantes…</div>
+            <div className="py-2 text-center text-xs text-copy-muted">Cargando comprobantes…</div>
           ) : invoices.length === 0 ? (
-            <p className="text-[11px] text-sand-400">Aún no tienes comprobantes electrónicos generados.</p>
+            <p className="text-[11px] text-copy-muted">Aún no tienes comprobantes electrónicos generados.</p>
           ) : (
             <div className="space-y-2">
               {invoices.map((inv) => {
@@ -320,7 +320,7 @@ export function BillingDetailsCard() {
                           ₡{inv.totalAmountCrc.toLocaleString("es-CR")}
                         </span>
                       </div>
-                      <p className="text-[10px] text-sand-500 font-mono mt-0.5">
+                      <p className="text-[10px] text-copy-secondary font-mono mt-0.5">
                         {new Date(inv.issuedAt).toLocaleDateString("es-CR")} · {inv.serviceDescription}
                       </p>
                     </div>

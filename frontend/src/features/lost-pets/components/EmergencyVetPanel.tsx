@@ -75,7 +75,7 @@ export function EmergencyVetPanel({
                 <p className="text-xs font-semibold text-danger-800">
                   {POISON_CONTROL.name}
                 </p>
-                <p className="text-xs text-sand-500">
+                <p className="text-xs text-copy-secondary">
                   {POISON_CONTROL.address}
                 </p>
               </div>
@@ -103,7 +103,7 @@ export function EmergencyVetPanel({
 
           {/* Nearby emergency vets */}
           {vets.length === 0 && (
-            <li className="py-3 text-center text-xs text-sand-400">
+            <li className="py-3 text-center text-xs text-copy-muted">
               No hay veterinarias de emergencia registradas en tu área todavía.
             </li>
           )}
@@ -130,7 +130,7 @@ export function EmergencyVetPanel({
                     <p className="text-xs font-semibold text-sand-900">
                       {vet.name}
                     </p>
-                    <p className="text-xs text-sand-500 truncate">
+                    <p className="text-xs text-copy-secondary truncate">
                       {vet.address}
                     </p>
                     {vet.distanceKm != null && (

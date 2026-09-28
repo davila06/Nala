@@ -52,7 +52,7 @@ function WelfareCaseCard({ welfareCase }: { welfareCase: AnimalWelfareCaseSummar
               {welfareCase.status}
             </span>
           </div>
-          <p className="mt-1 text-xs text-sand-500">
+          <p className="mt-1 text-xs text-copy-secondary">
             {welfareCase.type} · {welfareCase.canton} · {new Date(welfareCase.createdAt).toLocaleDateString("es-CR")}
           </p>
         </div>
@@ -159,7 +159,7 @@ export function AdminWelfareCasesTab() {
 
   if (!data?.items.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-sand-200 py-12 text-center text-sm text-sand-500">
+      <div className="rounded-2xl border border-dashed border-sand-200 py-12 text-center text-sm text-copy-secondary">
         No hay casos de bienestar pendientes.
       </div>
     );
@@ -169,7 +169,7 @@ export function AdminWelfareCasesTab() {
     <section className="space-y-4">
       <div className="rounded-2xl border border-sand-200 bg-sand-50 p-4">
         <p className="text-sm font-black text-sand-900">Gestión de bienestar animal</p>
-        <p className="mt-1 text-xs text-sand-500">
+        <p className="mt-1 text-xs text-copy-secondary">
           Cola interna para triage, severidad, asignación operativa y cierre documentado sin exponer datos sensibles.
         </p>
       </div>

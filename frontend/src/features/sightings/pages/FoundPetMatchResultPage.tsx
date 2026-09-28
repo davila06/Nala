@@ -65,7 +65,7 @@ export default function FoundPetMatchResultPage() {
         <h1 className="mt-4 text-lg font-bold text-sand-900">
           Sin resultados disponibles
         </h1>
-        <p className="mt-2 text-sm text-sand-500">
+        <p className="mt-2 text-sm text-copy-secondary">
           Vuelve al inicio para hacer un nuevo reporte.
         </p>
         <Link
@@ -96,7 +96,7 @@ export default function FoundPetMatchResultPage() {
         <h1 className="mt-3 text-xl font-bold text-sand-900">
           {candidates.length > 0 ? "Posibles coincidencias" : "Reporte enviado"}
         </h1>
-        <p className="mt-1 text-sm text-sand-500">
+        <p className="mt-1 text-sm text-copy-secondary">
           {candidates.length > 0
             ? "Encontramos mascotas perdidas que podrían coincidir con la que encontraste."
             : "Tu reporte fue registrado. Notificaremos a los dueños si hay una coincidencia."}
@@ -148,7 +148,7 @@ export default function FoundPetMatchResultPage() {
       </AnimatePresence>
 
       {/* Report ID footer */}
-      <p className="mt-6 text-center text-[10px] text-sand-400">
+      <p className="mt-6 text-center text-[10px] text-copy-muted">
         ID de reporte: {reportId}
       </p>
 

@@ -1,4 +1,4 @@
-﻿import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import type { PetSummary } from "../api/petsApi";
 import { PetStatusBadge } from "./PetStatusBadge";
 
@@ -61,7 +61,7 @@ export const PetCard = ({ pet }: PetCardProps) => (
         <p className="flex-1 truncate font-semibold text-sand-900">{pet.name}</p>
         <PetStatusBadge status={pet.status} />
       </div>
-      <p className="text-sm text-sand-500">
+      <p className="text-sm text-copy-secondary">
         {SPECIES_LABEL[pet.species] ?? pet.species}
         {pet.breed ? ` · ${pet.breed}` : ""}
       </p>

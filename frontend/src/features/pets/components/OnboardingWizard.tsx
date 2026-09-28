@@ -105,7 +105,7 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
               <button
                 type="button"
                 onClick={dismiss}
-                className="rounded-2xl py-2.5 text-xs font-semibold text-sand-400 hover:text-sand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-300"
+                className="rounded-2xl py-2.5 text-xs font-semibold text-copy-muted hover:text-sand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-300"
               >
                 Saltar por ahora
               </button>

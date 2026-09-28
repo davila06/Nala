@@ -70,12 +70,12 @@ export default function PasswordStrengthIndicator({ password }: PasswordStrength
               <span
                 aria-hidden="true"
                 className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition-colors duration-200 ${
-                  ok ? 'bg-rescue-500 text-white' : 'bg-sand-200 text-sand-400'
+                  ok ? 'bg-rescue-500 text-white' : 'bg-sand-200 text-copy-muted'
                 }`}
               >
                 {ok ? '✓' : '·'}
               </span>
-              <span className={`text-xs transition-colors duration-200 ${ok ? 'text-rescue-600 line-through decoration-rescue-400' : 'text-sand-500'}`}>
+              <span className={`text-xs transition-colors duration-200 ${ok ? 'text-rescue-600 line-through decoration-rescue-400' : 'text-copy-secondary'}`}>
                 {label}
               </span>
             </li>

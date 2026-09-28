@@ -54,13 +54,13 @@ export default function CastrationOperationsPage() {
         <Stethoscope className="h-7 w-7 text-rescue-700" aria-hidden="true" />
         <div>
           <h1 className="font-display text-2xl font-bold text-sand-900">Agenda clínica</h1>
-          <p className="text-sm text-sand-500">Check-in y seguimiento de procedimientos</p>
+          <p className="text-sm text-copy-secondary">Check-in y seguimiento de procedimientos</p>
         </div>
       </header>
       {isLoading ? (
-        <p className="text-sm text-sand-500">Cargando agenda…</p>
+        <p className="text-sm text-copy-secondary">Cargando agenda…</p>
       ) : data?.items.length === 0 ? (
-        <p className="py-10 text-center text-sand-500">No hay citas registradas.</p>
+        <p className="py-10 text-center text-copy-secondary">No hay citas registradas.</p>
       ) : (
         <div className="space-y-3">
           {data?.items.map((item) => (
@@ -68,7 +68,7 @@ export default function CastrationOperationsPage() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="font-semibold text-sand-900">Mascota {item.petId.slice(0, 8)}</p>
-                  <p className="text-xs text-sand-500">{new Date(item.scheduledAt).toLocaleString("es-CR")}</p>
+                  <p className="text-xs text-copy-secondary">{new Date(item.scheduledAt).toLocaleString("es-CR")}</p>
                 </div>
                 <span className="rounded-full bg-sand-100 px-2.5 py-1 text-xs font-bold text-sand-700">
                   {item.status}

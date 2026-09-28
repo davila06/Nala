@@ -110,7 +110,7 @@ export default function MunicipalityPortalPage() {
                 {s.icon}
               </p>
               <p className="mt-1 text-2xl font-black tabular-nums text-sand-900">{s.value}</p>
-              <p className="text-xs text-sand-500">{s.label}</p>
+              <p className="text-xs text-copy-secondary">{s.label}</p>
             </motion.div>
           ))}
         </div>
@@ -120,7 +120,7 @@ export default function MunicipalityPortalPage() {
       <section className="bg-surface-warm px-4 py-12">
         <div className="mx-auto max-w-4xl">
           <h2 className="mb-2 text-center text-2xl font-black text-sand-900">Planes institucionales</h2>
-          <p className="mb-8 text-center text-sm text-sand-500">
+          <p className="mb-8 text-center text-sm text-copy-secondary">
             Facturación anual · Incluye acceso sin límite de usuarios · Contrato adaptado a requerimientos de Hacienda
           </p>
           <div className="grid gap-5 sm:grid-cols-3">
@@ -146,7 +146,7 @@ export default function MunicipalityPortalPage() {
                     {pkg.name}
                   </span>
                   <p className="mt-2 text-2xl font-extrabold text-sand-900">{pkg.price}</p>
-                  <p className="text-xs text-sand-400">{pkg.period}</p>
+                  <p className="text-xs text-copy-muted">{pkg.period}</p>
                 </div>
                 <ul className="mb-5 flex-1 space-y-2">
                   {pkg.features.map((f) => (
@@ -207,7 +207,7 @@ export default function MunicipalityPortalPage() {
                   {b.icon}
                 </p>
                 <p className="mt-2 text-sm font-bold text-sand-900">{b.title}</p>
-                <p className="mt-1 text-xs text-sand-500">{b.body}</p>
+                <p className="mt-1 text-xs text-copy-secondary">{b.body}</p>
               </div>
             ))}
           </div>
@@ -263,7 +263,7 @@ function CapturePortal() {
     Received: "bg-warn-100 text-warn-700",
     OwnerFound: "bg-rescue-100 text-rescue-800",
     Transferred: "bg-trust-100 text-trust-700",
-    Released: "bg-sand-100 text-sand-500",
+    Released: "bg-sand-100 text-copy-secondary",
     Adopted: "bg-brand-100 text-brand-700",
   };
 
@@ -316,7 +316,7 @@ function CapturePortal() {
           </div>
         ) : !data?.items.length ? (
           <div className="flex flex-col items-center rounded-2xl border border-dashed border-sand-200 py-10 text-center">
-            <p className="text-sm text-sand-400">No hay registros que coincidan.</p>
+            <p className="text-sm text-copy-muted">No hay registros que coincidan.</p>
           </div>
         ) : (
           <AnimatePresence>
@@ -334,11 +334,11 @@ function CapturePortal() {
                         {animal.species}
                         {animal.breed ? ` — ${animal.breed}` : ""} · {animal.color}
                       </p>
-                      <p className="text-xs text-sand-500">
+                      <p className="text-xs text-copy-secondary">
                         📍 {animal.canton} · {new Date(animal.capturedAt).toLocaleDateString("es-CR")}
                         {animal.collarChipNumber && ` · Chip: ${animal.collarChipNumber}`}
                       </p>
-                      {animal.notes && <p className="mt-1 text-xs text-sand-400">{animal.notes}</p>}
+                      {animal.notes && <p className="mt-1 text-xs text-copy-muted">{animal.notes}</p>}
                     </div>
                     <div className="flex items-center gap-2">
                       <span

@@ -1,4 +1,4 @@
-﻿import { useMemo, useState, lazy, Suspense } from "react";
+import { useMemo, useState, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/shared/ui";
@@ -98,7 +98,7 @@ export default function RecoveryStatsPage() {
         <h1 className="mt-2 font-display text-3xl font-semibold leading-tight text-sand-900">
           Estadísticas de Recuperación en Costa Rica
         </h1>
-        <p className="mt-1 text-sm text-sand-500">
+        <p className="mt-1 text-sm text-copy-secondary">
           Datos anonimizados para mejorar la búsqueda de mascotas perdidas por
           cantón, especie y raza.
         </p>
@@ -170,7 +170,7 @@ export default function RecoveryStatsPage() {
       </section>
 
       {isLoading && (
-        <p className="text-sm text-sand-500">Cargando estadísticas…</p>
+        <p className="text-sm text-copy-secondary">Cargando estadísticas…</p>
       )}
 
       <AnimatePresence mode="wait">
@@ -210,7 +210,7 @@ export default function RecoveryStatsPage() {
                     transition={{ delay: i * 0.05, duration: 0.18 }}
                     className="rounded-2xl border border-sand-200 bg-surface p-4"
                   >
-                    <p className="text-[0.75rem] text-sand-500">{label}</p>
+                    <p className="text-[0.75rem] text-copy-secondary">{label}</p>
                     <p className="mt-1 text-2xl font-bold text-sand-900">
                       {value}
                     </p>
@@ -229,7 +229,7 @@ export default function RecoveryStatsPage() {
                     : "Todavía no hay suficientes reportes para calcular métricas locales con confianza."}
                 </p>
                 {isFetching && (
-                  <p className="mt-2 text-xs text-sand-400">
+                  <p className="mt-2 text-xs text-copy-muted">
                     Actualizando datos…
                   </p>
                 )}
@@ -248,7 +248,7 @@ export default function RecoveryStatsPage() {
                 <h2 className="mb-1 text-base font-semibold text-sand-900">
                   Mapa de calor por cantón
                 </h2>
-                <p className="mb-4 text-sm text-sand-500">
+                <p className="mb-4 text-sm text-copy-secondary">
                   Intensidad proporcional a la tasa de recuperación local. Pase
                   el cursor sobre un cantón para ver detalles.
                 </p>
@@ -300,7 +300,7 @@ export default function RecoveryStatsPage() {
             <h2 className="mb-1 text-base font-semibold text-sand-900">
               Tiempo de recuperación por especie
             </h2>
-            <p className="mb-4 text-sm text-sand-500">
+            <p className="mb-4 text-sm text-copy-secondary">
               Gráfico de barras sobre la mediana de horas para cada especie.
             </p>
             <div className="flex flex-col gap-3">
@@ -314,7 +314,7 @@ export default function RecoveryStatsPage() {
                       <span className="text-sm font-semibold text-sand-800">
                         {item.species}
                       </span>
-                      <span className="text-sm text-sand-500">
+                      <span className="text-sm text-copy-secondary">
                         {formatHours(item.medianRecoveryHours)}
                       </span>
                     </div>

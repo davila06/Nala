@@ -73,7 +73,7 @@ export const STATUS_COLORS: Record<BundleOrderStatus, string> = {
   Sourcing: "bg-brand-100 text-brand-700",
   Shipped: "bg-rescue-100 text-rescue-700",
   Delivered: "bg-green-100 text-green-700",
-  Cancelled: "bg-sand-100 text-sand-500",
+  Cancelled: "bg-sand-100 text-copy-secondary",
 };
 
 export const BUNDLE_AMOUNT_CRC = 49_900;

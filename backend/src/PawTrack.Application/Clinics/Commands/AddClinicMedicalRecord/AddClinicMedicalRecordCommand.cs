@@ -92,7 +92,7 @@ public sealed class AddClinicMedicalRecordCommandHandler(
         var grant = await grantRepository.GetActiveGrantAsync(request.ClinicId, pet.Id, ct);
         if (grant is null || !grant.HasPermission(ClinicMedicalAccessPermission.Write))
             return Result.Failure<MedicalRecordDto>(
-                "La clínica requiere consentimiento activo del dueño con permiso de escritura.");
+                "La clínica no tiene acceso de escritura al expediente; requiere consentimiento activo del dueño.");
 
         // ── Create medical record ─────────────────────────────────────────────
         var record = MedicalRecord.Create(

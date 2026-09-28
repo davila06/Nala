@@ -27,7 +27,7 @@ export default function VisualMatchPage() {
         <div className="flex items-center justify-between px-4 py-3 max-w-2xl mx-auto">
           <Link
             to="/map"
-            className="inline-flex items-center gap-1 text-sm text-sand-500 hover:text-sand-900 transition-colors"
+            className="inline-flex items-center gap-1 text-sm text-copy-secondary hover:text-sand-900 transition-colors"
           >
             ← Volver al mapa
           </Link>

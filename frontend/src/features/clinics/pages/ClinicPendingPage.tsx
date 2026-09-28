@@ -11,7 +11,7 @@ export default function ClinicPendingPage() {
           El equipo de PawTrack revisará tu solicitud y activará tu cuenta en
           1-2 días hábiles.
         </p>
-        <p className="mt-4 text-xs text-sand-400">
+        <p className="mt-4 text-xs text-copy-muted">
           Recibirás un correo electrónico cuando tu cuenta esté activa.
         </p>
       </div>

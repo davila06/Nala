@@ -12,7 +12,7 @@ export function CollarBatteryGauge({
   thresholdPercent,
 }: CollarBatteryGaugeProps) {
   if (batteryPercent === null) {
-    return <div className="text-xs text-sand-400">Sin datos de batería</div>;
+    return <div className="text-xs text-copy-muted">Sin datos de batería</div>;
   }
 
   const isLow = batteryPercent <= thresholdPercent;

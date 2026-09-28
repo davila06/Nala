@@ -99,14 +99,14 @@ export function ClinicTiersModal({ currentTier = "basic", onClose }: ClinicTiers
           <div className="mb-6 flex items-start justify-between">
             <div>
               <h2 className="font-display text-xl font-bold text-sand-900">Planes PawTrack para Clínicas</h2>
-              <p className="mt-1 text-sm text-sand-500">
+              <p className="mt-1 text-sm text-copy-secondary">
                 Precios técnicos de referencia, sujetos a aprobación comercial, legal y de SLA.
               </p>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl p-2 text-sand-400 hover:bg-sand-100 hover:text-sand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="rounded-xl p-2 text-copy-muted hover:bg-sand-100 hover:text-sand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               aria-label="Cerrar"
             >
               <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
@@ -145,7 +145,7 @@ export function ClinicTiersModal({ currentTier = "basic", onClose }: ClinicTiers
                         return plan?.monthlyPriceCrc ? `₡${plan.monthlyPriceCrc.toLocaleString("es-CR")}` : tier.price;
                       })()}
                     </p>
-                    <p className="text-xs text-sand-400">{tier.period}</p>
+                    <p className="text-xs text-copy-muted">{tier.period}</p>
                   </div>
 
                   <ul className="mb-5 flex-1 space-y-2">
@@ -157,13 +157,13 @@ export function ClinicTiersModal({ currentTier = "basic", onClose }: ClinicTiers
                         >
                           {f.included ? "✓" : "✗"}
                         </span>
-                        <span className={f.included ? "" : "text-sand-400 line-through"}>{f.label}</span>
+                        <span className={f.included ? "" : "text-copy-muted line-through"}>{f.label}</span>
                       </li>
                     ))}
                   </ul>
 
                   {isCurrent ? (
-                    <span className="block rounded-xl border border-sand-200 py-2.5 text-center text-xs font-semibold text-sand-400">
+                    <span className="block rounded-xl border border-sand-200 py-2.5 text-center text-xs font-semibold text-copy-muted">
                       Plan actual
                     </span>
                   ) : (
@@ -176,7 +176,7 @@ export function ClinicTiersModal({ currentTier = "basic", onClose }: ClinicTiers
             })}
           </div>
 
-          <p className="mt-5 text-center text-xs text-sand-400">
+          <p className="mt-5 text-center text-xs text-copy-muted">
             ¿Preguntas? Escríbenos a{" "}
             <a href="mailto:alianzas@pawtrack.cr" className="text-brand-600 hover:underline">
               alianzas@pawtrack.cr

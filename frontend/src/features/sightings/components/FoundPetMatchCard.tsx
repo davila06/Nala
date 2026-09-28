@@ -7,7 +7,7 @@ function scoreLabel(score: number): { text: string; color: string; bg: string } 
     return { text: 'Alta coincidencia', color: 'text-rescue-700', bg: 'bg-rescue-50' }
   if (score >= 50)
     return { text: 'Posible coincidencia', color: 'text-brand-700', bg: 'bg-brand-50' }
-  return { text: 'Coincidencia parcial', color: 'text-sand-500', bg: 'bg-sand-50' }
+  return { text: 'Coincidencia parcial', color: 'text-copy-secondary', bg: 'bg-sand-50' }
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -45,13 +45,13 @@ export function FoundPetMatchCard({ candidate }: Props) {
         </p>
 
         {candidate.lastSeenLat && candidate.lastSeenLng && (
-          <p className="text-xs text-sand-500">
+          <p className="text-xs text-copy-secondary">
             Última vez visto cerca de ({candidate.lastSeenLat.toFixed(4)},{' '}
             {candidate.lastSeenLng.toFixed(4)})
           </p>
         )}
 
-        <p className="text-xs text-sand-400">
+        <p className="text-xs text-copy-muted">
           Reporte:{' '}
           {new Date(candidate.lastSeenAt).toLocaleDateString('es-CR', {
             day: 'numeric',
@@ -66,7 +66,7 @@ export function FoundPetMatchCard({ candidate }: Props) {
         className={`flex size-12 shrink-0 flex-col items-center justify-center rounded-full border-2 ${
           candidate.scorePercent >= 70
             ? 'border-rescue-500 text-rescue-700'
-            : 'border-sand-300 text-sand-500'
+            : 'border-sand-300 text-copy-secondary'
         }`}
       >
         <span className="text-sm font-bold leading-none">{candidate.scorePercent}</span>

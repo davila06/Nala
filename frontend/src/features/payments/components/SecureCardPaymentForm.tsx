@@ -143,7 +143,7 @@ export function SecureCardPaymentForm({ amountCrc, isProcessing, onPay, buttonLa
                       <p className="text-xs font-bold text-sand-900">
                         {p.cardBrand} •••• {p.lastFourDigits}
                       </p>
-                      <p className="text-[10px] text-sand-500">
+                      <p className="text-[10px] text-copy-secondary">
                         {p.cardholderName || "Titular"} · Vence {p.expirationMonth?.toString().padStart(2, "0")}/
                         {p.expirationYear}
                       </p>
@@ -288,7 +288,7 @@ export function SecureCardPaymentForm({ amountCrc, isProcessing, onPay, buttonLa
       </button>
 
       {/* Certificaciones y cumplimiento PCI */}
-      <div className="pt-1 border-t border-sand-200/60 flex items-center justify-between text-[10px] text-sand-400">
+      <div className="pt-1 border-t border-sand-200/60 flex items-center justify-between text-[10px] text-copy-muted">
         <span className="flex items-center gap-1">
           🔒 <span>Cifrado TLS 256-bit</span>
         </span>

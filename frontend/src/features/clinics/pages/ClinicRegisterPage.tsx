@@ -143,7 +143,7 @@ export default function ClinicRegisterPage() {
             <h1 className="font-display text-3xl font-semibold text-sand-900">
               Registrar clínica
             </h1>
-            <p className="mt-2 text-sm text-sand-500">
+            <p className="mt-2 text-sm text-copy-secondary">
               Afilia tu veterinaria a la red PawTrack CR.
             </p>
           </div>
@@ -156,7 +156,7 @@ export default function ClinicRegisterPage() {
 
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
             {/* ── Datos de la clínica ── */}
-            <p className="text-xs font-semibold uppercase tracking-widest text-sand-400">
+            <p className="text-xs font-semibold uppercase tracking-widest text-copy-muted">
               Datos de la clínica
             </p>
 
@@ -231,7 +231,7 @@ export default function ClinicRegisterPage() {
             </div>
 
             {/* ── Credenciales de acceso ── */}
-            <p className="pt-2 text-xs font-semibold uppercase tracking-widest text-sand-400">
+            <p className="pt-2 text-xs font-semibold uppercase tracking-widest text-copy-muted">
               Credenciales de acceso
             </p>
 
@@ -265,7 +265,7 @@ export default function ClinicRegisterPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="rounded px-1 py-2 text-xs text-sand-500 hover:text-sand-700 transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="rounded px-1 py-2 text-xs text-copy-secondary hover:text-sand-700 transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               >
                 {showPassword ? "Ocultar" : "Mostrar"} contraseña
               </button>
@@ -289,7 +289,7 @@ export default function ClinicRegisterPage() {
             </div>
           </form>
 
-          <p className="mt-8 text-center text-sm text-sand-500">
+          <p className="mt-8 text-center text-sm text-copy-secondary">
             ¿Ya tienes cuenta?{" "}
             <Link
               to="/login"
@@ -299,7 +299,7 @@ export default function ClinicRegisterPage() {
             </Link>
           </p>
 
-          <p className="mt-4 text-center text-xs text-sand-400">
+          <p className="mt-4 text-center text-xs text-copy-muted">
             El equipo PawTrack revisará y activará tu cuenta en 1-2 días
             hábiles.
           </p>

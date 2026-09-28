@@ -42,7 +42,7 @@ export default function SuperAdminPage() {
         </span>
         <div>
           <h1 className="font-display text-2xl font-bold text-sand-900">Acceso privilegiado</h1>
-          <p className="text-sm text-sand-500">Elevaciones excepcionales con MFA y auditoría inmutable.</p>
+          <p className="text-sm text-copy-secondary">Elevaciones excepcionales con MFA y auditoría inmutable.</p>
         </div>
       </header>
       <form

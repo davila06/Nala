@@ -46,7 +46,7 @@ export const QRCodeDisplay = ({ petId, petName }: QRCodeDisplayProps) => {
     });
   };
 
-  if (loading) return <div className="flex h-40 items-center justify-center text-sm text-sand-400">Generando QR…</div>;
+  if (loading) return <div className="flex h-40 items-center justify-center text-sm text-copy-muted">Generando QR…</div>;
 
   if (error)
     return (
@@ -72,7 +72,7 @@ export const QRCodeDisplay = ({ petId, petName }: QRCodeDisplayProps) => {
       >
         ⬇ Descargar QR
       </button>
-      <p className="text-center text-xs text-sand-400">Imprime este QR y adjúntalo al collar de {petName}.</p>
+      <p className="text-center text-xs text-copy-muted">Imprime este QR y adjúntalo al collar de {petName}.</p>
     </div>
   );
 };

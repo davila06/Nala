@@ -139,7 +139,7 @@ export const BreedCombobox = ({ species, defaultValue = '', disabled, id }: Bree
               ? `Buscar entre ${allBreeds.length} razas…`
               : 'Ej. Mestizo'
           }
-          className="block w-full rounded-xl border border-sand-300 px-3.5 py-2.5 pr-9 text-sm shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200 disabled:bg-sand-50 disabled:text-sand-400"
+          className="block w-full rounded-xl border border-sand-300 px-3.5 py-2.5 pr-9 text-sm shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200 disabled:bg-sand-50 disabled:text-copy-muted"
         />
 
         {/* Chevron / clear button */}
@@ -148,7 +148,7 @@ export const BreedCombobox = ({ species, defaultValue = '', disabled, id }: Bree
             type="button"
             aria-label="Limpiar raza"
             onClick={() => { setQuery(''); setIsOpen(true) }}
-            className="absolute inset-y-0 right-2.5 flex items-center rounded-full px-1 text-sand-400 hover:text-sand-600 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            className="absolute inset-y-0 right-2.5 flex items-center rounded-full px-1 text-copy-muted hover:text-sand-600 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
           >
             <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
@@ -157,7 +157,7 @@ export const BreedCombobox = ({ species, defaultValue = '', disabled, id }: Bree
         ) : (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sand-400"
+            className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-copy-muted"
           >
             <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path
@@ -184,7 +184,7 @@ export const BreedCombobox = ({ species, defaultValue = '', disabled, id }: Bree
               role="option"
               aria-selected="false"
               aria-disabled="true"
-              className="px-3.5 py-2.5 text-sand-400 italic select-none"
+              className="px-3.5 py-2.5 text-copy-muted italic select-none"
             >
               Sin resultados — se guardará &ldquo;{query}&rdquo;
             </li>

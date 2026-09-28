@@ -17,7 +17,7 @@ export function CollarStatusBadge({
 }: CollarStatusBadgeProps) {
   if (!isActive) {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-sand-100 px-2.5 py-1 text-xs font-semibold text-sand-500">
+      <span className="inline-flex items-center gap-1 rounded-full bg-sand-100 px-2.5 py-1 text-xs font-semibold text-copy-secondary">
         <span
           className="h-1.5 w-1.5 rounded-full bg-sand-400"
           aria-hidden="true"

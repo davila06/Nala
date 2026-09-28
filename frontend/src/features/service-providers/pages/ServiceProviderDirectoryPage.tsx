@@ -58,8 +58,8 @@ function ProviderCard({ provider }: { provider: PublicServiceProviderDto }) {
         {provider.isVerified ? (
           <p className="text-xs font-semibold text-rescue-700">Verificado por PawTrack CR</p>
         ) : null}
-        <p className="line-clamp-2 text-xs text-sand-500">{provider.description}</p>
-        <p className="line-clamp-1 text-xs text-sand-400">{provider.address}</p>
+        <p className="line-clamp-2 text-xs text-copy-secondary">{provider.description}</p>
+        <p className="line-clamp-1 text-xs text-copy-muted">{provider.address}</p>
       </div>
     </Link>
   );
@@ -125,7 +125,7 @@ export default function ServiceProviderDirectoryPage() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Buscar por nombre, servicio o zona"
-            className="w-full rounded-lg border border-sand-200 bg-surface px-3 py-2.5 text-sm text-ink-900 placeholder:text-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-lg border border-sand-200 bg-surface px-3 py-2.5 text-sm text-ink-900 placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-brand-400"
           />
           <div className="flex gap-2 overflow-x-auto pb-1">
             {categories.map((item) => (
@@ -248,7 +248,7 @@ export default function ServiceProviderDirectoryPage() {
             Registrar mi servicio
           </Link>
         </section>
-        <p className="text-center text-xs text-sand-400">
+        <p className="text-center text-xs text-copy-muted">
           ¿Tienes otro tipo de negocio?{" "}
           <Link to="/registro-negocio" className="font-semibold text-brand-600 hover:underline">
             Ver todos los perfiles →

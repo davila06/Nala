@@ -37,11 +37,11 @@ export function AdminSubscriptionAddonsTab() {
             </option>
           ))}
         </select>
-        {selected && <span className="text-xs text-sand-500">{selected.status}</span>}
+        {selected && <span className="text-xs text-copy-secondary">{selected.status}</span>}
       </div>
       <div className="overflow-hidden rounded-2xl border border-sand-200 bg-surface">
         <table className="w-full text-left text-sm">
-          <thead className="bg-surface-warm text-xs uppercase text-sand-500">
+          <thead className="bg-surface-warm text-xs uppercase text-copy-secondary">
             <tr>
               <th className="px-4 py-3">Entitlement</th>
               <th className="px-4 py-3">Unidades</th>
@@ -54,7 +54,7 @@ export function AdminSubscriptionAddonsTab() {
               <tr key={addon.id} className="border-t border-sand-100">
                 <td className="px-4 py-3 font-medium">{addon.entitlementKey}</td>
                 <td className="px-4 py-3">+{addon.units}</td>
-                <td className="px-4 py-3 text-xs text-sand-500">
+                <td className="px-4 py-3 text-xs text-copy-secondary">
                   {new Date(addon.startsAt).toLocaleDateString()} - {new Date(addon.expiresAt).toLocaleDateString()}
                 </td>
                 <td className="px-4 py-3 text-right">
@@ -72,7 +72,7 @@ export function AdminSubscriptionAddonsTab() {
             ))}
             {addons.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-sm text-sand-500">
+                <td colSpan={4} className="px-4 py-8 text-center text-sm text-copy-secondary">
                   No hay add-ons para esta suscripción.
                 </td>
               </tr>

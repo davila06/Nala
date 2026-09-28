@@ -120,7 +120,7 @@ export function AdoptionFiltersBar({
               type="checkbox"
               checked={!!filters[key]}
               onChange={(e) => set({ [key]: e.target.checked || undefined })}
-              className="rounded border-sand-300 text-brand-500 focus:ring-brand-400"
+              className="rounded border-sand-300 text-brand-600 focus:ring-brand-400"
             />
             {label}
           </label>
@@ -151,7 +151,7 @@ export function AdoptionFiltersBar({
         {hasFilters && (
           <button
             onClick={clear}
-            className="text-xs text-sand-400 hover:text-brand-500 underline transition-colors"
+            className="text-xs text-copy-muted hover:text-brand-600 underline transition-colors"
           >
             Limpiar
           </button>

@@ -15,7 +15,7 @@ export default function StorePendingPage() {
           <h1 className="font-display text-2xl font-bold text-sand-900">
             ¡Solicitud enviada!
           </h1>
-          <p className="mt-2 text-sand-500 leading-relaxed">
+          <p className="mt-2 text-copy-secondary leading-relaxed">
             Verificaremos tu tienda en menos de 48 horas. Recibirás un correo de
             confirmación cuando sea aprobada.
           </p>

@@ -50,7 +50,7 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
                 type="button"
                 onClick={onClose}
                 aria-label="Cerrar carrito"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-sand-400 hover:bg-sand-100"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-copy-muted hover:bg-sand-100"
               >
                 <svg
                   viewBox="0 0 20 20"
@@ -65,7 +65,7 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
 
             <div className="px-5 py-4 space-y-4">
               {items.length === 0 ? (
-                <p className="py-10 text-center text-sm text-sand-400">
+                <p className="py-10 text-center text-sm text-copy-muted">
                   El carrito está vacío.
                 </p>
               ) : (
@@ -77,7 +77,7 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
                           <p className="text-sm font-semibold text-sand-900 truncate">
                             {product.name}
                           </p>
-                          <p className="text-xs text-sand-500">
+                          <p className="text-xs text-copy-secondary">
                             ₡{product.priceCrc.toLocaleString("es-CR")} c/u
                           </p>
                         </div>
@@ -128,7 +128,7 @@ export function CartDrawer({ isOpen, onClose, onCheckout }: CartDrawerProps) {
                       clear();
                       onClose();
                     }}
-                    className="w-full text-xs text-sand-400 hover:text-danger-500 py-1"
+                    className="w-full text-xs text-copy-muted hover:text-danger-500 py-1"
                   >
                     Vaciar carrito
                   </button>

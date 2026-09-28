@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { authApi } from '../api/authApi'
@@ -58,7 +58,7 @@ export default function VerifyEmailPage() {
           {status === 'verifying' && (
             <motion.div key="verifying" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex flex-col items-center gap-4">
               <Spinner size="lg" label="Verificando tu cuenta…" />
-              <p className="text-sm text-sand-500">Verificando tu correo, un momento…</p>
+              <p className="text-sm text-copy-secondary">Verificando tu correo, un momento…</p>
             </motion.div>
           )}
 
@@ -75,7 +75,7 @@ export default function VerifyEmailPage() {
               </motion.div>
               <div>
                 <h1 className="font-display text-2xl font-bold text-sand-900">¡Correo verificado!</h1>
-                <p className="mt-2 text-sm text-sand-500 leading-relaxed">
+                <p className="mt-2 text-sm text-copy-secondary leading-relaxed">
                   Tu cuenta está activa. Ya puedes registrar a tu primera mascota y generar su placa QR.
                 </p>
               </div>
@@ -83,7 +83,7 @@ export default function VerifyEmailPage() {
                 <Link to="/login" className="w-full rounded-xl bg-brand-500 py-3 text-center text-sm font-bold text-white hover:bg-brand-600 transition-all hover:-translate-y-0.5 shadow-md shadow-brand-200">
                   Ingresar ahora →
                 </Link>
-                <p className="text-xs text-sand-400">Empieza registrando a tu primera mascota</p>
+                <p className="text-xs text-copy-muted">Empieza registrando a tu primera mascota</p>
               </div>
             </motion.div>
           )}
@@ -96,7 +96,7 @@ export default function VerifyEmailPage() {
                 <h1 className="font-display text-2xl font-bold text-sand-900">
                   {status === 'missing' ? 'Enlace inválido' : 'No se pudo verificar'}
                 </h1>
-                <p className="mt-2 text-sm text-sand-500">
+                <p className="mt-2 text-sm text-copy-secondary">
                   {status === 'missing'
                     ? 'El enlace de verificación está incompleto.'
                     : 'El enlace puede haber expirado. Solicita uno nuevo desde tu perfil.'}

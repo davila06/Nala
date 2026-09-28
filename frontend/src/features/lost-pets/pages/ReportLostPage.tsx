@@ -95,7 +95,7 @@ export default function ReportLostPage() {
   if (!pet) {
     return (
       <div className="mx-auto max-w-lg px-4 py-10 text-center">
-        <p className="text-sand-500">Mascota no encontrada.</p>
+        <p className="text-copy-secondary">Mascota no encontrada.</p>
         <Link to="/dashboard" className="mt-4 inline-block text-sm text-brand-600 hover:underline">
           ← Volver
         </Link>
@@ -208,7 +208,7 @@ export default function ReportLostPage() {
     <div className="mx-auto max-w-lg px-4 py-8">
       <Link
         to={`/pets/${pet.id}`}
-        className="mb-5 flex items-center gap-1.5 rounded-lg text-sm text-sand-500 hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+        className="mb-5 flex items-center gap-1.5 rounded-lg text-sm text-copy-secondary hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
       >
         ← Volver a {pet.name}
       </Link>
@@ -269,7 +269,7 @@ export default function ReportLostPage() {
                     <span
                       className={[
                         "mt-1 text-[10px] font-semibold",
-                        isActive ? "text-brand-600" : isDone ? "text-rescue-600" : "text-sand-400",
+                        isActive ? "text-brand-600" : isDone ? "text-rescue-600" : "text-copy-muted",
                       ].join(" ")}
                     >
                       {s.label}
@@ -347,12 +347,12 @@ export default function ReportLostPage() {
                             <button
                               type="button"
                               onClick={() => setCoords(null)}
-                              className="text-xs text-sand-400 underline hover:text-sand-600"
+                              className="text-xs text-copy-muted underline hover:text-sand-600"
                             >
                               Quitar pin
                             </button>
                           ) : (
-                            <span className="text-xs text-sand-400">Opcional</span>
+                            <span className="text-xs text-copy-muted">Opcional</span>
                           )}
                         </div>
 
@@ -377,7 +377,7 @@ export default function ReportLostPage() {
                           estimatedRadius={estimatedRadius}
                           className="h-64 w-full overflow-hidden rounded-2xl border border-sand-200 shadow-sm"
                         />
-                        <p className="mt-1.5 text-xs text-sand-400">
+                        <p className="mt-1.5 text-xs text-copy-muted">
                           {coords
                             ? `Pin en ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`
                             : `Toca el mapa para marcar dónde fue visto ${pet.name}.`}
@@ -483,7 +483,7 @@ export default function ReportLostPage() {
                             className={`mt-2 flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium ${
                               neighborCount.count > 0
                                 ? "bg-trust-50 text-trust-800 border border-trust-200"
-                                : "bg-sand-50 text-sand-500 border border-sand-100"
+                                : "bg-sand-50 text-copy-secondary border border-sand-100"
                             }`}
                           >
                             <span aria-hidden="true">🏘️</span>
@@ -501,7 +501,7 @@ export default function ReportLostPage() {
                     <div className="space-y-5">
                       <div>
                         <p className="mb-1.5 text-sm font-semibold text-sand-700">📷 Foto reciente (opcional)</p>
-                        <p className="mb-2 text-xs text-sand-500">Se usará en el flyer de búsqueda y perfil público.</p>
+                        <p className="mb-2 text-xs text-copy-secondary">Se usará en el flyer de búsqueda y perfil público.</p>
                         <PhotoUpload value={recentPhoto} onChange={setRecentPhoto} disabled={isPending} />
                       </div>
 
@@ -518,7 +518,7 @@ export default function ReportLostPage() {
                           placeholder="Collar, señas particulares, zona específica…"
                           className="w-full resize-none rounded-xl border border-sand-300 field-input px-4 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
                         />
-                        <p className="mt-1 text-right text-xs text-sand-400">{description.length}/1000</p>
+                        <p className="mt-1 text-right text-xs text-copy-muted">{description.length}/1000</p>
                       </div>
 
                       <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4">
@@ -582,7 +582,7 @@ export default function ReportLostPage() {
                     <div className="space-y-5">
                       <div className="rounded-2xl border border-sand-200 bg-surface-warm p-5">
                         <p className="mb-1 text-sm font-semibold text-sand-700">📞 Contacto de emergencia</p>
-                        <p className="mb-4 text-xs text-sand-500">
+                        <p className="mb-4 text-xs text-copy-secondary">
                           Quien encuentre a {pet.name} verá tu nombre. El teléfono solo se muestra a usuarios
                           registrados.
                         </p>
@@ -621,15 +621,15 @@ export default function ReportLostPage() {
 
                       {/* Summary card */}
                       <div className="rounded-2xl border border-danger-200 bg-danger-50/30 p-4 space-y-2">
-                        <p className="text-xs font-bold uppercase tracking-wider text-sand-500">Resumen del reporte</p>
+                        <p className="text-xs font-bold uppercase tracking-wider text-copy-secondary">Resumen del reporte</p>
                         <div className="grid grid-cols-2 gap-2 text-xs text-sand-700">
                           <div>
-                            <span className="text-sand-400">Mascota</span>
+                            <span className="text-copy-muted">Mascota</span>
                             <br />
                             <strong>{pet.name}</strong>
                           </div>
                           <div>
-                            <span className="text-sand-400">Última vez visto</span>
+                            <span className="text-copy-muted">Última vez visto</span>
                             <br />
                             <strong>
                               {new Date(lastSeenAt).toLocaleString("es-CR", {
@@ -639,14 +639,14 @@ export default function ReportLostPage() {
                             </strong>
                           </div>
                           <div>
-                            <span className="text-sand-400">Ubicación</span>
+                            <span className="text-copy-muted">Ubicación</span>
                             <br />
                             <strong>
                               {coords ? `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` : "No indicada"}
                             </strong>
                           </div>
                           <div>
-                            <span className="text-sand-400">Foto reciente</span>
+                            <span className="text-copy-muted">Foto reciente</span>
                             <br />
                             <strong>{recentPhoto ? "✓ Adjuntada" : "No adjuntada"}</strong>
                           </div>

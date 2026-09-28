@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useForgotPassword } from '../hooks/useAuth'
@@ -19,7 +19,7 @@ export default function ForgotPasswordPage() {
     <div className="flex min-h-dvh flex-col items-center justify-center px-6 py-16" style={{ background: 'linear-gradient(135deg, #f9f5ef 0%, #fff8f4 100%)' }}>
       <div className="w-full max-w-sm">
         {/* Back */}
-        <Link to="/login" className="mb-8 inline-flex items-center gap-1.5 rounded-lg text-sm text-sand-500 hover:text-sand-800 transition-base">
+        <Link to="/login" className="mb-8 inline-flex items-center gap-1.5 rounded-lg text-sm text-copy-secondary hover:text-sand-800 transition-base">
           ← Volver a ingresar
         </Link>
 
@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
               </motion.div>
               <div>
                 <h1 className="font-display text-2xl font-bold text-sand-900">¡Revisa tu correo!</h1>
-                <p className="mt-2 text-sm text-sand-500 leading-relaxed">
+                <p className="mt-2 text-sm text-copy-secondary leading-relaxed">
                   Si el correo está registrado, recibirás un enlace en unos minutos.
                   Revisa también tu carpeta de spam.
                 </p>
@@ -61,7 +61,7 @@ export default function ForgotPasswordPage() {
             <motion.div key="form" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <div className="mb-8">
                 <h1 className="font-display text-3xl font-semibold text-sand-900">Recuperar contraseña</h1>
-                <p className="mt-2 text-sm text-sand-500">
+                <p className="mt-2 text-sm text-copy-secondary">
                   Te enviaremos un enlace seguro a tu correo registrado.
                 </p>
               </div>

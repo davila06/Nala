@@ -48,19 +48,19 @@ function tabCls(
       active:
         "rounded-xl bg-[var(--color-surface)] px-4 py-2.5 text-sand-900 shadow-sm",
       inactive:
-        "rounded-xl px-4 py-2.5 text-sand-500 hover:bg-[var(--color-surface)]/60 hover:text-sand-800",
+        "rounded-xl px-4 py-2.5 text-copy-secondary hover:bg-[var(--color-surface)]/60 hover:text-sand-800",
     },
     underline: {
       active:
         "px-4 pb-3 pt-2 text-brand-600 border-b-2 border-brand-500 -mb-px",
       inactive:
-        "px-4 pb-3 pt-2 text-sand-500 hover:text-sand-800 border-b-2 border-transparent -mb-px",
+        "px-4 pb-3 pt-2 text-copy-secondary hover:text-sand-800 border-b-2 border-transparent -mb-px",
     },
     boxed: {
       active:
         "px-3 py-3 text-sand-900 bg-[var(--color-surface)] border-b-2 border-brand-500",
       inactive:
-        "px-3 py-3 text-sand-500 hover:bg-[var(--color-surface)]/60 hover:text-sand-800 border-b-2 border-transparent",
+        "px-3 py-3 text-copy-secondary hover:bg-[var(--color-surface)]/60 hover:text-sand-800 border-b-2 border-transparent",
     },
   };
 

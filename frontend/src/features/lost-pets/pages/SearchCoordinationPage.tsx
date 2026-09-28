@@ -1,4 +1,4 @@
-﻿import "leaflet/dist/leaflet.css";
+import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -201,7 +201,7 @@ export default function SearchCoordinationPage() {
       <div className="relative flex-1">
         {isLoading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface/80">
-            <p className="text-sm text-sand-500">Cargando zonas…</p>
+            <p className="text-sm text-copy-secondary">Cargando zonas…</p>
           </div>
         )}
 
@@ -246,7 +246,7 @@ export default function SearchCoordinationPage() {
         <div className="absolute inset-x-0 bottom-24 mx-auto max-w-sm rounded-2xl field-input p-5 shadow-lg text-center">
           <p className="text-3xl">🗺️</p>
           <p className="mt-2 text-sm font-semibold text-sand-700">Aún no hay zonas de búsqueda</p>
-          <p className="mt-1 text-xs text-sand-500">
+          <p className="mt-1 text-xs text-copy-secondary">
             El dueño de la mascota puede activar el modo coordinación para dividir el área en zonas.
           </p>
         </div>

@@ -15,11 +15,11 @@
   --color-brand-200: #ffd0b4;
   --color-brand-300: #ffb088;
   --color-brand-400: #f98050;
-  --color-brand-500: #e8521e; /* primaryemotional */
-  --color-brand-600: #c43f10;
-  --color-brand-700: #9e300c;
-  --color-brand-800: #7a240a;
-  --color-brand-900: #581908;
+  --color-brand-500: #c43f10;
+  --color-brand-600: #9e300c;
+  --color-brand-700: #7a240a;
+  --color-brand-800: #581908;
+  --color-brand-900: #3b1006;
 
   /* === Verde rescate === */
   --color-rescue-50: #f0fdf6;
@@ -99,7 +99,9 @@
   --color-surface-warm: var(--color-sand-50);
   --color-ink: var(--color-sand-900);
   --color-ink-secondary: var(--color-sand-700);
-  --color-ink-tertiary: var(--color-sand-500);
+  --color-ink-tertiary: var(--color-copy-muted);
+  --color-copy-muted: #7a6654;
+  --color-copy-secondary: #6e5244;
   --color-border: var(--color-sand-200);
   --color-border-strong: var(--color-sand-300);
 
@@ -222,7 +224,9 @@ select option {
     --color-surface-warm: #222228;
     --color-ink: #f4f4f5;
     --color-ink-secondary: #d1d1d6;
-    --color-ink-tertiary: #a0a0ab;
+    --color-ink-tertiary: var(--color-copy-muted);
+    --color-copy-muted: #9494a0;
+    --color-copy-secondary: #a0a0ab;
     --color-border: #3f3f49;
     --color-border-strong: #52525e;
     --color-sand-50: #222228;
@@ -696,7 +700,9 @@ select option {
     --color-surface-warm: #1f1b18;
     --color-ink: #f0ece6;
     --color-ink-secondary: #c8b9a8;
-    --color-ink-tertiary: #8e7059;
+    --color-ink-tertiary: var(--color-copy-muted);
+    --color-copy-muted: #c8b9a8;
+    --color-copy-secondary: #d1c3b2;
     --color-border: #3a3028;
     --color-border-strong: #4a3f35;
 

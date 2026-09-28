@@ -1,4 +1,4 @@
-﻿import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useVisualMatch } from "../hooks/useVisualMatch";
 import type { VisualMatchResult } from "../api/matchingApi";
@@ -11,7 +11,7 @@ function similarityLabel(score: number): { text: string; color: string } {
     return { text: "Alta similitud", color: "text-rescue-600" };
   if (score >= 0.75)
     return { text: "Posible coincidencia", color: "text-brand-600" };
-  return { text: "Coincidencia leve", color: "text-sand-500" };
+  return { text: "Coincidencia leve", color: "text-copy-secondary" };
 }
 
 function formatDistance(km: number): string {
@@ -52,14 +52,14 @@ function MatchCard({ match }: { match: VisualMatchResult }) {
           <p className="truncate font-semibold text-sand-900">
             {match.petName}
           </p>
-          <p className="text-xs text-sand-500">{match.species}</p>
+          <p className="text-xs text-copy-secondary">{match.species}</p>
           <p className={`mt-0.5 text-xs font-medium ${label.color}`}>
             {label.text}
           </p>
         </div>
         <div className="flex items-center justify-between">
           {match.distanceKm != null && (
-            <span className="text-xs text-sand-400">
+            <span className="text-xs text-copy-muted">
               📍 {formatDistance(match.distanceKm)} del último avistamiento
             </span>
           )}
@@ -186,7 +186,7 @@ export function VisualMatchPanel() {
         <h1 className="text-2xl font-bold text-sand-900">
           ¿Encontraste una mascota?
         </h1>
-        <p className="mt-1 text-sm text-sand-500">
+        <p className="mt-1 text-sm text-copy-secondary">
           Sube una foto y busca si está reportada como perdida.
         </p>
       </div>
@@ -229,7 +229,7 @@ export function VisualMatchPanel() {
               <p className="mt-2 text-sm font-medium text-sand-600">
                 Arrastra o haz clic para seleccionar
               </p>
-              <p className="text-xs text-sand-400">
+              <p className="text-xs text-copy-muted">
                 JPEG, PNG, WebP — máx. 5 MB
               </p>
             </>
@@ -313,7 +313,7 @@ export function VisualMatchPanel() {
               <p className="mt-2 font-semibold text-sand-700">
                 Sin coincidencias por ahora
               </p>
-              <p className="mt-1 text-sm text-sand-500">
+              <p className="mt-1 text-sm text-copy-secondary">
                 No encontramos mascotas perdidas que se parezcan a la foto. Si
                 reconoces al animal, puedes reportar el avistamiento desde el
                 perfil de la mascota.

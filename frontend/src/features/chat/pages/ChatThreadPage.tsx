@@ -37,7 +37,7 @@ export default function ChatThreadPage() {
         <span className="text-4xl" aria-hidden="true">
           💬
         </span>
-        <p className="text-sm text-sand-500">
+        <p className="text-sm text-copy-secondary">
           No se encontró esta conversación.
         </p>
         <button
@@ -58,7 +58,7 @@ export default function ChatThreadPage() {
         <button
           type="button"
           onClick={() => void navigate(-1)}
-          className="text-sm text-sand-500 hover:text-sand-800"
+          className="text-sm text-copy-secondary hover:text-sand-800"
         >
           ← Volver
         </button>

@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useChatMessages, useSendChatMessage, useOtherPartyTyping, useNotifyTyping } from "../hooks/useChatThread";
 import type { ChatMessage } from "../api/chatApi";
@@ -55,7 +55,7 @@ function MessageBubble({ msg, isLatest }: { msg: ChatMessage; isLatest: boolean 
 
         {/* Meta — time + read receipt */}
         <div className={`mt-1 flex items-center gap-1 ${mine ? "flex-row-reverse" : ""}`}>
-          <span className="text-[10px] text-sand-400">{relativeTime(msg.sentAt)}</span>
+          <span className="text-[10px] text-copy-muted">{relativeTime(msg.sentAt)}</span>
           {mine && (
             <span className={`text-[10px] ${msg.isReadByRecipient ? "text-brand-400" : "text-sand-300"}`}>
               {msg.isReadByRecipient ? "✓✓" : "✓"}
@@ -162,7 +162,7 @@ export function ChatPanel({ threadId, lostPetEventId, otherPartyName, connection
         </div>
         <div>
           <p className="text-sm font-semibold text-sand-900">{otherPartyName}</p>
-          <p className="text-[10px] text-sand-400">
+          <p className="text-[10px] text-copy-muted">
             Chat cifrado · sin compartir datos personales
             {isFetching && " · actualizando…"}
             {connectionState === "reconnecting" && <span className="ml-1 text-warn-600">· reconectando…</span>}
@@ -177,7 +177,7 @@ export function ChatPanel({ threadId, lostPetEventId, otherPartyName, connection
             <div className="text-4xl" aria-hidden="true">
               💬
             </div>
-            <p className="text-sm text-sand-500 max-w-xs leading-relaxed">
+            <p className="text-sm text-copy-secondary max-w-xs leading-relaxed">
               Esta conversación es cifrada y anónima. Coordina la entrega de forma segura.
             </p>
           </div>

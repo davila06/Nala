@@ -120,7 +120,7 @@ export default function AdoptionDirectoryPage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-ink-900">🐾 Adopciones</h1>
-            <p className="text-sand-500 text-sm mt-1">
+            <p className="text-copy-secondary text-sm mt-1">
               Animales buscando hogar en Costa Rica
               {data && ` · ${data.totalCount} disponibles`}
             </p>
@@ -223,7 +223,7 @@ export default function AdoptionDirectoryPage() {
                 >
                   ← Anterior
                 </button>
-                <span className="text-sm text-sand-400">
+                <span className="text-sm text-copy-muted">
                   Página {page} de {totalPages}
                 </span>
                 <button

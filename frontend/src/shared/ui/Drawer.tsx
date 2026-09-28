@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { AnimatePresence, motion, type TargetAndTransition } from 'framer-motion'
 import { createPortal } from 'react-dom'
 
@@ -134,14 +134,14 @@ export function Drawer({
                     <h2 className="font-display text-lg font-semibold text-sand-900">{title}</h2>
                   )}
                   {description && (
-                    <p className="mt-0.5 text-sm text-sand-500">{description}</p>
+                    <p className="mt-0.5 text-sm text-copy-secondary">{description}</p>
                   )}
                 </div>
                 <button
                   type="button"
                   onClick={onClose}
                   aria-label="Cerrar"
-                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sand-400 hover:bg-sand-100 hover:text-sand-600 transition-base focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
+                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-copy-muted hover:bg-sand-100 hover:text-sand-600 transition-base focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
                 >
                   <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4" aria-hidden="true">
                     <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -222,14 +222,14 @@ export function Modal({ isOpen, onClose, title, description, children, maxWidth 
                     <h2 className="font-display text-xl font-semibold text-sand-900">{title}</h2>
                   )}
                   {description && (
-                    <p className="mt-1 text-sm text-sand-500">{description}</p>
+                    <p className="mt-1 text-sm text-copy-secondary">{description}</p>
                   )}
                 </div>
                 <button
                   type="button"
                   onClick={onClose}
                   aria-label="Cerrar"
-                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sand-400 hover:bg-sand-100 hover:text-sand-600 transition-base focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
+                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-copy-muted hover:bg-sand-100 hover:text-sand-600 transition-base focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
                 >
                   <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4" aria-hidden="true">
                     <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />

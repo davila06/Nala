@@ -39,7 +39,7 @@ export function QuietHoursForm({
     "w-[110px] rounded-xl border px-2.5 py-1.5 text-xs transition-base outline-none",
     "focus:ring-2 focus:ring-brand-400 focus:border-brand-400",
     disabled
-      ? "border-sand-200 bg-sand-100 text-sand-400 cursor-not-allowed"
+      ? "border-sand-200 bg-sand-100 text-copy-muted cursor-not-allowed"
       : "border-sand-300 bg-white text-sand-900 cursor-auto",
   ].join(" ");
 
@@ -51,7 +51,7 @@ export function QuietHoursForm({
           <p className="text-[0.8rem] font-semibold text-sand-900">
             🌙 Horario de silencio
           </p>
-          <p className="mt-0.5 text-[0.72rem] text-sand-500">
+          <p className="mt-0.5 text-[0.72rem] text-copy-secondary">
             No recibirás alertas durante este rango horario (hora de Costa
             Rica).
           </p>
@@ -84,7 +84,7 @@ export function QuietHoursForm({
       {/* Time inputs — only shown when enabled */}
       {enabled && value && (
         <div className="mt-2.5 flex flex-wrap items-center gap-2">
-          <span className="whitespace-nowrap text-xs text-sand-500">Desde</span>
+          <span className="whitespace-nowrap text-xs text-copy-secondary">Desde</span>
           <input
             type="time"
             value={value.start}
@@ -93,7 +93,7 @@ export function QuietHoursForm({
             className={timeInputCls}
             aria-label="Inicio del horario de silencio"
           />
-          <span className="whitespace-nowrap text-xs text-sand-500">hasta</span>
+          <span className="whitespace-nowrap text-xs text-copy-secondary">hasta</span>
           <input
             type="time"
             value={value.end}

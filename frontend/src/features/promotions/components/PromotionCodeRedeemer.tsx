@@ -114,7 +114,7 @@ export function PromotionCodeRedeemer() {
                 ))}
               </select>
               {selectablePlans.length === 0 && (
-                <p className="mt-1 text-xs text-sand-500" role="status">
+                <p className="mt-1 text-xs text-copy-secondary" role="status">
                   No hay planes activos con precio mensual disponible.
                 </p>
               )}
@@ -122,7 +122,7 @@ export function PromotionCodeRedeemer() {
           )}
 
           {validation.targetTier && (
-            <p className="text-xs text-sand-500">
+            <p className="text-xs text-copy-secondary">
               Plan: <strong>{TIER_LABELS[validation.targetTier] ?? validation.targetTier}</strong>
               {!validation.requiresPayment && " — sin costo, activación inmediata"}
             </p>

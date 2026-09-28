@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Outlet, Navigate, NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useScrollToTop } from "@/shared/hooks/useScrollToTop";
@@ -501,7 +501,7 @@ export default function AuthenticatedLayout() {
                       </span>
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-sand-900 truncate">{user?.name}</p>
-                        <p className="text-xs text-sand-400 truncate">{user?.email}</p>
+                        <p className="text-xs text-copy-muted truncate">{user?.email}</p>
                         {user?.role && ROLE_BADGE[user.role] && (
                           <span
                             className={`mt-0.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${ROLE_BADGE[user.role].cls}`}
@@ -521,7 +521,7 @@ export default function AuthenticatedLayout() {
                         className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-sand-700 hover:bg-sand-50 hover:text-sand-900 transition-base"
                       >
                         <svg
-                          className="h-4 w-4 shrink-0 text-sand-400"
+                          className="h-4 w-4 shrink-0 text-copy-muted"
                           viewBox="0 0 20 20"
                           fill="currentColor"
                           aria-hidden="true"
@@ -537,7 +537,7 @@ export default function AuthenticatedLayout() {
                         className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-sand-700 hover:bg-sand-50 hover:text-sand-900 transition-base"
                       >
                         <svg
-                          className="h-4 w-4 shrink-0 text-sand-400"
+                          className="h-4 w-4 shrink-0 text-copy-muted"
                           viewBox="0 0 20 20"
                           fill="currentColor"
                           aria-hidden="true"
@@ -550,7 +550,7 @@ export default function AuthenticatedLayout() {
 
                     {/* Sobre la app */}
                     <div className="border-t border-sand-100 py-1">
-                      <p className="px-4 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-sand-400">
+                      <p className="px-4 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-copy-muted">
                         Sobre la app
                       </p>
                       <a
@@ -562,7 +562,7 @@ export default function AuthenticatedLayout() {
                         className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-sand-700 hover:bg-sand-50 hover:text-sand-900 transition-base"
                       >
                         <svg
-                          className="h-4 w-4 shrink-0 text-sand-400"
+                          className="h-4 w-4 shrink-0 text-copy-muted"
                           viewBox="0 0 20 20"
                           fill="currentColor"
                           aria-hidden="true"
@@ -584,7 +584,7 @@ export default function AuthenticatedLayout() {
                         className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-sand-700 hover:bg-sand-50 hover:text-sand-900 transition-base"
                       >
                         <svg
-                          className="h-4 w-4 shrink-0 text-sand-400"
+                          className="h-4 w-4 shrink-0 text-copy-muted"
                           viewBox="0 0 20 20"
                           fill="currentColor"
                           aria-hidden="true"
@@ -667,7 +667,7 @@ export default function AuthenticatedLayout() {
               </span>
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-sand-900 truncate">{user?.name}</p>
-                <p className="text-xs text-sand-400 truncate">{user?.email}</p>
+                <p className="text-xs text-copy-muted truncate">{user?.email}</p>
               </div>
               {user?.role && ROLE_BADGE[user.role] && (
                 <span
@@ -732,7 +732,7 @@ export default function AuthenticatedLayout() {
               className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-sand-700 hover:bg-sand-50 hover:text-sand-900 transition-base"
             >
               <svg
-                className="h-4 w-4 shrink-0 text-sand-400"
+                className="h-4 w-4 shrink-0 text-copy-muted"
                 viewBox="0 0 20 20"
                 fill="currentColor"
                 aria-hidden="true"
@@ -744,7 +744,7 @@ export default function AuthenticatedLayout() {
 
             {/* Sobre la app — móvil */}
             <hr className="my-1 border-sand-200" />
-            <p className="px-3 pt-1 pb-0.5 text-[10px] font-semibold uppercase tracking-wider text-sand-400">
+            <p className="px-3 pt-1 pb-0.5 text-[10px] font-semibold uppercase tracking-wider text-copy-muted">
               Sobre la app
             </p>
             <a
@@ -790,7 +790,7 @@ export default function AuthenticatedLayout() {
                   void navigate(-1);
                 }}
                 aria-label="Volver atrás"
-                className="mr-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-sand-500 hover:bg-sand-100 hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-base"
+                className="mr-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-copy-secondary hover:bg-sand-100 hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-base"
               >
                 <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                   <path

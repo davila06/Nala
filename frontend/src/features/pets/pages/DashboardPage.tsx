@@ -89,13 +89,13 @@ export default function DashboardPage() {
               className={`h-5 w-5 rounded-full border-2 border-brand-300 border-t-brand-500 ${isRefreshing ? "animate-spin" : ""}`}
               style={{ transform: `rotate(${pullProgress * 360}deg)` }}
             />
-            <span className="text-xs text-sand-400">{isRefreshing ? "Actualizando…" : "Suelta para actualizar"}</span>
+            <span className="text-xs text-copy-muted">{isRefreshing ? "Actualizando…" : "Suelta para actualizar"}</span>
           </div>
         )}
         {/* Header */}
         <div className="mb-8 flex items-center justify-between gap-4">
           <div>
-            <p className="text-xs font-medium text-sand-400 uppercase tracking-wide">
+            <p className="text-xs font-medium text-copy-muted uppercase tracking-wide">
               {new Date().toLocaleDateString("es-CR", {
                 weekday: "long",
                 day: "numeric",
@@ -106,7 +106,7 @@ export default function DashboardPage() {
               {user?.name ? `Hola, ${user.name.split(" ")[0]}` : "Mis mascotas"}
             </h1>
             <div className="mt-1 flex items-center gap-2">
-              <p className="text-sm text-sand-500">
+              <p className="text-sm text-copy-secondary">
                 {pets?.length ?? 0} mascota{pets?.length !== 1 ? "s" : ""} registrada{pets?.length !== 1 ? "s" : ""}
               </p>
               {lostCount > 0 && (
@@ -118,7 +118,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex flex-col items-end gap-1.5">
             {user?.role === "Owner" && petCount > 0 && (
-              <p className="text-xs text-sand-500">
+              <p className="text-xs text-copy-secondary">
                 {petLimit === null
                   ? entitlementsLoading
                     ? "Verificando límite del plan…"
@@ -333,7 +333,7 @@ export default function DashboardPage() {
             <div className="mb-5 flex flex-col gap-3">
               <div className="relative">
                 <span
-                  className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sand-400"
+                  className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-copy-muted"
                   aria-hidden="true"
                 >
                   🔍
@@ -343,7 +343,7 @@ export default function DashboardPage() {
                   placeholder="Buscar mascota…"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full rounded-xl border border-sand-200 py-2.5 pl-9 pr-4 text-sm field-input placeholder:text-sand-400 outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400"
+                  className="w-full rounded-xl border border-sand-200 py-2.5 pl-9 pr-4 text-sm field-input placeholder:text-copy-muted outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400"
                 />
               </div>
               <div
@@ -420,7 +420,7 @@ export default function DashboardPage() {
             </div>
 
             {filteredPets.length === 0 ? (
-              <p className="py-8 text-center text-sm text-sand-400">No hay mascotas que coincidan con la búsqueda.</p>
+              <p className="py-8 text-center text-sm text-copy-muted">No hay mascotas que coincidan con la búsqueda.</p>
             ) : (
               <div className="stagger-grid grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                 {filteredPets.map((pet, i) => (
@@ -434,7 +434,7 @@ export default function DashboardPage() {
         {/* Alert preferences */}
         {!isLoading && (
           <div className="mt-10">
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-sand-400">
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-copy-muted">
               Configuración de alertas
             </h2>
             <AlertPreferencesToggle />

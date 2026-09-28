@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { jsPDF } from "jspdf";
 import { formatDate, formatDateTime } from "@/shared/lib/formatDate";
@@ -154,7 +154,7 @@ export default function PetDetailPage() {
       {/* Back */}
       <Link
         to="/dashboard"
-        className="mb-5 flex items-center gap-1.5 rounded-lg text-sm text-sand-500 hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+        className="mb-5 flex items-center gap-1.5 rounded-lg text-sm text-copy-secondary hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
       >
         ← Mis mascotas
       </Link>
@@ -192,7 +192,7 @@ export default function PetDetailPage() {
         <div className="space-y-5">
           <dl className="grid grid-cols-2 gap-3 rounded-2xl border border-sand-100 bg-surface-warm p-4 text-sm">
             <div>
-              <dt className="text-sand-400">Especie</dt>
+              <dt className="text-copy-muted">Especie</dt>
               <dd className="font-medium text-sand-800">
                 {{
                   Dog: "Perro",
@@ -205,24 +205,24 @@ export default function PetDetailPage() {
             </div>
             {pet.breed && (
               <div>
-                <dt className="text-sand-400">Raza</dt>
+                <dt className="text-copy-muted">Raza</dt>
                 <dd className="font-medium text-sand-800">{pet.breed}</dd>
               </div>
             )}
             {pet.birthDate && (
               <div>
-                <dt className="text-sand-400">Nacimiento</dt>
+                <dt className="text-copy-muted">Nacimiento</dt>
                 <dd className="font-medium text-sand-800">{pet.birthDate}</dd>
               </div>
             )}
             {pet.microchipId && (
               <div>
-                <dt className="text-sand-400">Microchip</dt>
+                <dt className="text-copy-muted">Microchip</dt>
                 <dd className="font-mono font-medium text-sand-800">{pet.microchipId}</dd>
               </div>
             )}
             <div>
-              <dt className="text-sand-400">Registrada</dt>
+              <dt className="text-copy-muted">Registrada</dt>
               <dd className="font-medium text-sand-800">{formatDate(pet.createdAt)}</dd>
             </div>
           </dl>
@@ -352,7 +352,7 @@ export default function PetDetailPage() {
             </Link>
           )}
           {!activeReport && pet.status !== "Active" && (
-            <p className="py-4 text-center text-sm text-sand-400">No hay reportes activos para {pet.name}.</p>
+            <p className="py-4 text-center text-sm text-copy-muted">No hay reportes activos para {pet.name}.</p>
           )}
         </div>
       )}
@@ -380,11 +380,11 @@ export default function PetDetailPage() {
               </span>
               <div className="min-w-0">
                 <p className="font-semibold text-sand-800">Pedir collar físico con QR</p>
-                <p className="text-xs font-normal text-sand-500">
+                <p className="text-xs font-normal text-copy-secondary">
                   Placa grabada, tag de silicona o combo NFC — desde ₡4,500
                 </p>
               </div>
-              <span className="ml-auto shrink-0 text-sand-400" aria-hidden="true">
+              <span className="ml-auto shrink-0 text-copy-muted" aria-hidden="true">
                 →
               </span>
             </a>
@@ -405,7 +405,7 @@ export default function PetDetailPage() {
                         className="rounded-xl border border-sand-100 bg-surface-warm p-3"
                       >
                         <p className="text-sm font-medium text-sand-800">📍 {location}</p>
-                        <p className="text-xs text-sand-500">
+                        <p className="text-xs text-copy-secondary">
                           {formatDateTime(event.scannedAt)} · {event.deviceSummary}
                         </p>
                       </li>
@@ -421,7 +421,7 @@ export default function PetDetailPage() {
                 </button>
               </>
             ) : (
-              <p className="text-xs text-sand-500">Todavía no hay escaneos registrados para este QR.</p>
+              <p className="text-xs text-copy-secondary">Todavía no hay escaneos registrados para este QR.</p>
             )}
           </Card>
           <BillboardBanner placement="ScanHistory" />

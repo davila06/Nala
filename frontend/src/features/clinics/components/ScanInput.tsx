@@ -139,7 +139,7 @@ export function ScanInput({ onScan, isLoading = false }: ScanInputProps) {
       )}
 
       {/* ── Divider ── */}
-      <div className="flex items-center gap-3 text-xs text-sand-400">
+      <div className="flex items-center gap-3 text-xs text-copy-muted">
         <div className="h-px flex-1 bg-sand-200" />
         <span>o ingresa manualmente</span>
         <div className="h-px flex-1 bg-sand-200" />

@@ -118,7 +118,7 @@ export function AccountSecuritySection({ hasMfa }: { hasMfa: boolean }) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-base font-semibold text-sand-800">Seguridad de la cuenta</h2>
-          <p className="mt-1 text-sm text-sand-500">MFA, sesiones y dispositivos autorizados.</p>
+          <p className="mt-1 text-sm text-copy-secondary">MFA, sesiones y dispositivos autorizados.</p>
         </div>
         <Badge variant={hasMfa ? "trust" : "neutral"}>{hasMfa ? "MFA activa" : "MFA inactiva"}</Badge>
       </div>
@@ -196,14 +196,14 @@ export function AccountSecuritySection({ hasMfa }: { hasMfa: boolean }) {
       <div className="mt-6 border-t border-sand-200 pt-4">
         <h3 className="text-sm font-semibold text-sand-800">Sesiones activas</h3>
         {sessions.isLoading ? (
-          <p className="mt-2 text-sm text-sand-500">Cargando sesiones…</p>
+          <p className="mt-2 text-sm text-copy-secondary">Cargando sesiones…</p>
         ) : (
           <ul className="mt-2 divide-y divide-sand-100">
             {(sessions.data ?? []).map((session) => (
               <li key={session.sessionId} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <div>
                   <p className="text-sm font-medium text-sand-800">{session.isCurrent ? "Sesión actual" : "Sesión"}</p>
-                  <p className="text-xs text-sand-500">Última actividad: {formatTimestamp(session.lastActivityAt)}</p>
+                  <p className="text-xs text-copy-secondary">Última actividad: {formatTimestamp(session.lastActivityAt)}</p>
                 </div>
                 <Button
                   variant="ghost"
@@ -240,14 +240,14 @@ export function AccountSecuritySection({ hasMfa }: { hasMfa: boolean }) {
             </Button>
           </div>
           {devices.isLoading ? (
-            <p className="mt-2 text-sm text-sand-500">Cargando dispositivos…</p>
+            <p className="mt-2 text-sm text-copy-secondary">Cargando dispositivos…</p>
           ) : (
             <ul className="mt-2 divide-y divide-sand-100">
               {(devices.data ?? []).map((device) => (
                 <li key={device.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                   <div>
                     <p className="text-sm font-medium text-sand-800">{device.deviceName}</p>
-                    <p className="text-xs text-sand-500">Vence: {formatTimestamp(device.expiresAt)}</p>
+                    <p className="text-xs text-copy-secondary">Vence: {formatTimestamp(device.expiresAt)}</p>
                   </div>
                   <Button
                     variant="ghost"

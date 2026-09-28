@@ -71,7 +71,7 @@ export function AdminClinicWidgetDomainsTab() {
             key={item.id}
             className="flex items-center justify-between rounded-xl border border-sand-200 bg-surface px-4 py-3 text-sm"
           >
-            <span className={item.isActive ? "text-sand-800" : "text-sand-400 line-through"}>{item.domain}</span>
+            <span className={item.isActive ? "text-sand-800" : "text-copy-muted line-through"}>{item.domain}</span>
             {item.isActive && (
               <button
                 type="button"

@@ -97,7 +97,7 @@ function StepUpload({
             <p className="text-sm font-semibold text-sand-700">
               Toca para tomar o subir una foto
             </p>
-            <p className="text-xs text-sand-400">
+            <p className="text-xs text-copy-muted">
               JPEG · PNG · WebP · máx. 5 MB
             </p>
           </>
@@ -120,7 +120,7 @@ function StepUpload({
         </Button>
       )}
 
-      <p className="text-center text-xs text-sand-400">
+      <p className="text-center text-xs text-copy-muted">
         La foto no se guarda — solo se usa para comparar con los reportes
         activos.
       </p>
@@ -147,7 +147,7 @@ function StepResults({
           <h2 className="font-display text-lg font-bold text-sand-900">
             Sin coincidencias encontradas
           </h2>
-          <p className="mt-1 text-sm text-sand-500">
+          <p className="mt-1 text-sm text-copy-secondary">
             No encontramos una mascota perdida que coincida con la foto. Puedes
             reportar tu avistamiento igualmente para que el dueño lo vea.
           </p>
@@ -174,7 +174,7 @@ function StepResults({
             ? "1 posible coincidencia"
             : `${matches.length} posibles coincidencias`}
         </h2>
-        <p className="text-sm text-sand-500 mt-0.5">
+        <p className="text-sm text-copy-secondary mt-0.5">
           ¿Reconoces a alguna de estas mascotas?
         </p>
       </div>
@@ -214,7 +214,7 @@ function StepResults({
                   <p className="font-semibold text-sand-900 truncate">
                     {m.petName}
                   </p>
-                  <p className="text-xs text-sand-500">
+                  <p className="text-xs text-copy-secondary">
                     {SPECIES_LABEL[m.species] ?? m.species}
                   </p>
                   <span
@@ -248,7 +248,7 @@ function StepResults({
       </ul>
 
       <div className="pt-2 border-t border-sand-100 space-y-2">
-        <p className="text-xs text-sand-500 text-center">
+        <p className="text-xs text-copy-secondary text-center">
           ¿No es ninguna de estas?
         </p>
         <Button fullWidth variant="secondary" onClick={onReportAnyway}>
@@ -450,7 +450,7 @@ export default function QuickFoundPetPage() {
                     <div
                       className={`h-2 rounded-full w-full transition-colors ${isDone ? "bg-rescue-500" : isActive ? "bg-brand-500" : "bg-sand-200"}`}
                     />
-                    <span className="mt-1 text-[10px] text-sand-400">
+                    <span className="mt-1 text-[10px] text-copy-muted">
                       {s === "upload"
                         ? "Foto"
                         : s === "results"

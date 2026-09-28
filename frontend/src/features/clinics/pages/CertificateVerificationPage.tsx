@@ -63,7 +63,7 @@ function VerificationBadge({
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-sand-100 py-2.5 last:border-0">
-      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-sand-400 shrink-0">
+      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-copy-muted shrink-0">
         {label}
       </p>
       <p className="text-sm font-semibold text-sand-900 text-right">{value}</p>
@@ -97,7 +97,7 @@ export default function CertificateVerificationPage() {
               CR
             </span>
           </Link>
-          <p className="text-xs text-sand-400">Verificación de certificados</p>
+          <p className="text-xs text-copy-muted">Verificación de certificados</p>
         </div>
       </header>
 
@@ -142,7 +142,7 @@ export default function CertificateVerificationPage() {
           >
             {/* Hero */}
             <div className="text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.4em] text-sand-400">
+              <p className="text-xs font-semibold uppercase tracking-[0.4em] text-copy-muted">
                 Código de verificación
               </p>
               <p className="mt-1 font-mono text-3xl font-black tracking-[0.25em] text-sand-900">
@@ -161,7 +161,7 @@ export default function CertificateVerificationPage() {
               <h2 className="mb-1 text-base font-bold text-sand-900">
                 {CERTIFICATE_TYPE_LABELS[cert.type] ?? cert.type}
               </h2>
-              <p className="mb-4 text-xs text-sand-400">
+              <p className="mb-4 text-xs text-copy-muted">
                 Detalles del certificado
               </p>
 
@@ -213,7 +213,7 @@ export default function CertificateVerificationPage() {
 
             {/* Trust footer */}
             <div className="rounded-2xl border border-sand-100 bg-surface px-4 py-3 text-center">
-              <p className="text-[10px] text-sand-400">
+              <p className="text-[10px] text-copy-muted">
                 Verificación pública minimizada. El PDF completo solo está
                 disponible para usuarios autorizados. Emitido digitalmente por
                 una clínica verificada en{" "}

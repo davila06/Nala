@@ -25,7 +25,7 @@ export function FormField({ label, htmlFor, error, hint, required, children, cla
       <label htmlFor={htmlFor} className="text-sm font-medium text-sand-800">
         {label}
         {required && (
-          <span className="ml-0.5 text-brand-500" aria-hidden="true">
+          <span className="ml-0.5 text-brand-600" aria-hidden="true">
             *
           </span>
         )}
@@ -39,7 +39,7 @@ export function FormField({ label, htmlFor, error, hint, required, children, cla
           {error}
         </p>
       )}
-      {hint && !error && <p className="text-xs text-sand-500">{hint}</p>}
+      {hint && !error && <p className="text-xs text-copy-secondary">{hint}</p>}
     </div>
   );
 }
@@ -53,7 +53,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const inputBase =
-  "w-full rounded-xl border px-3.5 py-2.5 text-sm field-input placeholder:text-sand-400 " +
+  "w-full rounded-xl border px-3.5 py-2.5 text-sm field-input placeholder:text-copy-muted " +
   "transition-base outline-none " +
   "focus:ring-2 focus:ring-brand-400 focus:border-brand-400 " +
   "disabled:opacity-60 disabled:cursor-not-allowed";

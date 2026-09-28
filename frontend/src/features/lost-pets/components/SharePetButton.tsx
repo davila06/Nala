@@ -227,7 +227,7 @@ export function SharePetButton({
 
   return (
     <div className={className}>
-      <p className="mb-1.5 text-xs font-semibold text-sand-500 uppercase tracking-wide">
+      <p className="mb-1.5 text-xs font-semibold text-copy-secondary uppercase tracking-wide">
         Compartir perfil de {petName}
       </p>
       <FallbackBar

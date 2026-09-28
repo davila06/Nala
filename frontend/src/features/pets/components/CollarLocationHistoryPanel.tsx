@@ -131,7 +131,7 @@ export function CollarLocationHistoryPanel({
           </MapContainer>
         </div>
       )}
-      <p className="text-[10px] text-sand-400">
+      <p className="text-[10px] text-copy-muted">
         {points?.length ?? 0} puntos registrados en los últimos {days} días.
       </p>
     </div>

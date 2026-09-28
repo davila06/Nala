@@ -54,12 +54,12 @@ export function AnimalCard({ animal }: AnimalCardProps) {
           <p className="font-semibold text-ink-900 text-sm leading-tight line-clamp-1 group-hover:text-brand-600 transition-colors">
             {animal.name}
           </p>
-          <span className="text-xs text-sand-400 shrink-0">
+          <span className="text-xs text-copy-muted shrink-0">
             {SIZE_ORDER.indexOf(animal.size) <= 1 ? "pequeño" : animal.size === "Medium" ? "mediano" : "grande"}
           </span>
         </div>
 
-        <p className="text-xs text-sand-500 line-clamp-1">
+        <p className="text-xs text-copy-secondary line-clamp-1">
           {SPECIES_LABELS[animal.species]}
           {animal.breed && ` · ${animal.breed}`}
           {" · "}
@@ -85,13 +85,13 @@ export function AnimalCard({ animal }: AnimalCardProps) {
           )}
         </div>
 
-        <p className="text-[11px] text-sand-400 line-clamp-1">📍 {animal.refLabel ?? "Costa Rica"}</p>
+        <p className="text-[11px] text-copy-muted line-clamp-1">📍 {animal.refLabel ?? "Costa Rica"}</p>
 
-        <p className="text-xs text-sand-500 line-clamp-1">
+        <p className="text-xs text-copy-secondary line-clamp-1">
           <span>Publicado por</span> <strong className="font-semibold text-sand-700">{animal.organizationName}</strong>
         </p>
 
-        <p className="text-xs text-sand-500 line-clamp-2 leading-relaxed">{animal.story}</p>
+        <p className="text-xs text-copy-secondary line-clamp-2 leading-relaxed">{animal.story}</p>
       </div>
     </Link>
   );

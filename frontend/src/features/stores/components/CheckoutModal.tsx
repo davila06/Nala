@@ -87,7 +87,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                 type="button"
                 onClick={handleClose}
                 aria-label="Cerrar"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-sand-400 hover:bg-sand-100"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-copy-muted hover:bg-sand-100"
               >
                 <svg
                   viewBox="0 0 16 16"
@@ -202,7 +202,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                   <h3 className="font-display text-xl font-bold text-sand-900">
                     ¡Solicitud enviada!
                   </h3>
-                  <p className="text-sm text-sand-500">
+                  <p className="text-sm text-copy-secondary">
                     La tienda revisará la disponibilidad y confirmará el pedido.
                     PawTrack no procesa pagos ni garantiza la existencia del
                     producto.

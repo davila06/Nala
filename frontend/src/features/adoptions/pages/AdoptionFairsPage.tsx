@@ -44,7 +44,7 @@ export default function AdoptionFairsPage() {
             <h1 className="text-xl font-bold text-ink-900">
               🎉 Ferias de adopción
             </h1>
-            <p className="text-sm text-sand-500 mt-1">
+            <p className="text-sm text-copy-secondary mt-1">
               Eventos presenciales donde puedes conocer a los animales
             </p>
           </div>
@@ -76,7 +76,7 @@ export default function AdoptionFairsPage() {
             ))}
           </div>
         ) : fairs.length === 0 ? (
-          <div className="py-16 text-center text-sand-400">
+          <div className="py-16 text-center text-copy-muted">
             <p className="text-4xl mb-3">🎪</p>
             <p className="text-sm font-medium">No hay ferias próximas</p>
             <p className="text-sm mt-1">

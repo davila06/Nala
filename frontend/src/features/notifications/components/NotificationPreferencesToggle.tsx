@@ -1,4 +1,4 @@
-﻿import {
+import {
   useNotificationPreferences,
   useUpdateNotificationPreferences,
 } from "../hooks/useNotificationPreferences";
@@ -22,7 +22,7 @@ export function NotificationPreferencesToggle() {
           <p className="text-sm font-semibold text-sand-900">
             Alertas preventivas de riesgo
           </p>
-          <p className="mt-0.5 truncate text-xs text-sand-500">
+          <p className="mt-0.5 truncate text-xs text-copy-secondary">
             Tope, Año Nuevo, temporada lluviosa…
           </p>
         </div>

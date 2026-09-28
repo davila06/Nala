@@ -49,7 +49,7 @@ export default function InstitutionalReportsPage() {
       <header>
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-600">Reportes regulatorios</p>
         <h1 className="mt-1 text-3xl font-black text-sand-900">Reportes institucionales</h1>
-        <p className="mt-1 text-sm text-sand-500">Exports agregados, auditables y sin envío oficial externo.</p>
+        <p className="mt-1 text-sm text-copy-secondary">Exports agregados, auditables y sin envío oficial externo.</p>
       </header>
       <form
         className="grid gap-3 rounded-2xl border border-sand-200 bg-surface p-5 md:grid-cols-5"
@@ -133,7 +133,7 @@ export default function InstitutionalReportsPage() {
               <p className="font-bold text-sand-900">
                 {item.exportCode} · {item.reportType}
               </p>
-              <p className="text-xs text-sand-500">
+              <p className="text-xs text-copy-secondary">
                 {item.format} · {item.status} · {item.periodStart} a {item.periodEnd}
               </p>
             </div>
@@ -162,7 +162,7 @@ export default function InstitutionalReportsPage() {
           </article>
         ))}
         {!exports.isLoading && !exports.data?.items.length && (
-          <p className="text-sm text-sand-500">No hay exports solicitados.</p>
+          <p className="text-sm text-copy-secondary">No hay exports solicitados.</p>
         )}
       </section>
     </main>

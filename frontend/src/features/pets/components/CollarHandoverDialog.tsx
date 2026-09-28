@@ -53,7 +53,7 @@ export function CollarHandoverDialog({
 
       {!pin && (
         <>
-          <p className="text-xs text-sand-500">
+          <p className="text-xs text-copy-secondary">
             Se generará un PIN de 6 dígitos válido por 7 días. Compártelo solo
             con la persona a la que le entregarás el collar físicamente.
           </p>
@@ -76,7 +76,7 @@ export function CollarHandoverDialog({
             <button
               type="button"
               onClick={onClose}
-              className="text-xs text-sand-400 underline"
+              className="text-xs text-copy-muted underline"
             >
               Cancelar
             </button>
@@ -112,7 +112,7 @@ export function CollarHandoverDialog({
             type="button"
             disabled={cancel.isPending}
             onClick={handleCancel}
-            className="text-xs text-sand-500 underline hover:text-red-600 disabled:opacity-40"
+            className="text-xs text-copy-secondary underline hover:text-red-600 disabled:opacity-40"
           >
             {cancel.isPending ? "Cancelando…" : "Cancelar transferencia"}
           </button>

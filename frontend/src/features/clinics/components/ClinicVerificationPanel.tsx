@@ -78,7 +78,7 @@ export function ClinicVerificationPanel() {
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-sm font-bold text-sand-900">Verificación veterinaria</h2>
-          <p className="mt-0.5 text-xs text-sand-500">
+          <p className="mt-0.5 text-xs text-copy-secondary">
             Documentos privados, revisión admin y veterinarios autorizados.
           </p>
         </div>
@@ -88,7 +88,7 @@ export function ClinicVerificationPanel() {
       </div>
 
       {loadingVerification ? (
-        <p className="text-xs text-sand-500">Cargando verificación…</p>
+        <p className="text-xs text-copy-secondary">Cargando verificación…</p>
       ) : (
         <div className="rounded-xl border border-sand-100 bg-surface-warm px-3 py-3 text-xs text-sand-600">
           <p>
@@ -126,7 +126,7 @@ export function ClinicVerificationPanel() {
       </div>
 
       <div className="border-t border-sand-100 pt-4">
-        <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-sand-400">Veterinarios</h3>
+        <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-copy-muted">Veterinarios</h3>
         <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_0.8fr_auto]">
           <input
             value={newVet.fullName}
@@ -150,9 +150,9 @@ export function ClinicVerificationPanel() {
           </button>
         </div>
 
-        {loadingVeterinarians && <p className="mt-3 text-xs text-sand-500">Cargando veterinarios…</p>}
+        {loadingVeterinarians && <p className="mt-3 text-xs text-copy-secondary">Cargando veterinarios…</p>}
         {veterinarians && veterinarians.length === 0 && (
-          <p className="mt-3 text-xs text-sand-500">Aún no hay veterinarios registrados.</p>
+          <p className="mt-3 text-xs text-copy-secondary">Aún no hay veterinarios registrados.</p>
         )}
         {veterinarians && veterinarians.length > 0 && (
           <ul className="mt-3 space-y-2">
@@ -161,7 +161,7 @@ export function ClinicVerificationPanel() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <p className="text-sm font-semibold text-sand-900">{vet.fullName}</p>
-                    <p className="text-[11px] text-sand-500">
+                    <p className="text-[11px] text-copy-secondary">
                       {vet.licenseNumber} · Documento {vet.hasDocument ? "cargado" : "pendiente"} · Firma{" "}
                       {vet.hasSignature ? "cargada" : "opcional"}
                     </p>

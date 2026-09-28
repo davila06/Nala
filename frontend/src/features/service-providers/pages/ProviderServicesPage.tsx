@@ -656,7 +656,7 @@ export default function ProviderServicesPage() {
           ))}
         </ul>
       ) : (
-        <p className="py-10 text-center text-sm text-sand-500">Aun no has publicado servicios.</p>
+        <p className="py-10 text-center text-sm text-copy-secondary">Aun no has publicado servicios.</p>
       )}
     </main>
   );

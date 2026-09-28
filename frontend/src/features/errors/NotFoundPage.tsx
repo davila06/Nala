@@ -1,4 +1,4 @@
-﻿import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 // Floating paw prints scattered around
 const PAW_POSITIONS = [
@@ -115,13 +115,13 @@ export default function NotFoundPage() {
 
       {/* Copy */}
       <div className="relative z-10">
-        <p className="text-xs font-bold uppercase tracking-[0.3em] text-sand-400">
+        <p className="text-xs font-bold uppercase tracking-[0.3em] text-copy-muted">
           Error 404
         </p>
         <h1 className="mt-2 font-display text-3xl font-bold text-sand-900">
           Esta página también se perdió
         </h1>
-        <p className="mt-3 max-w-xs text-sm text-sand-500 leading-relaxed">
+        <p className="mt-3 max-w-xs text-sm text-copy-secondary leading-relaxed">
           No encontramos lo que buscas. Tal vez la URL cambió,{" "}
           <br className="hidden sm:block" />o nunca existió.
         </p>

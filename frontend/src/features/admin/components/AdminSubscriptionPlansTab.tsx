@@ -102,7 +102,7 @@ export function AdminSubscriptionPlansTab() {
     }
   };
 
-  if (isLoading) return <p className="text-sm text-sand-500">Cargando planes...</p>;
+  if (isLoading) return <p className="text-sm text-copy-secondary">Cargando planes...</p>;
   if (isError) return <p className="text-sm text-danger-700">No se pudieron cargar los planes.</p>;
 
   return (
@@ -111,7 +111,7 @@ export function AdminSubscriptionPlansTab() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-sand-900">Planes y precios</h2>
-            <p className="text-xs text-sand-500">
+            <p className="text-xs text-copy-secondary">
               Catálogo administrado con control de versión. Precios base netos (se adiciona el 13% de IVA si el cliente
               requiere factura electrónica).
             </p>
@@ -119,7 +119,7 @@ export function AdminSubscriptionPlansTab() {
         </div>
         <div className="overflow-x-auto rounded-2xl border border-sand-200 bg-surface">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-sand-200 text-xs text-sand-500">
+            <thead className="border-b border-sand-200 text-xs text-copy-secondary">
               <tr>
                 <th className="px-4 py-3">Plan</th>
                 <th className="px-4 py-3">Mensual</th>
@@ -133,7 +133,7 @@ export function AdminSubscriptionPlansTab() {
                 <tr key={plan.id} className="border-b border-sand-100 last:border-0">
                   <td className="px-4 py-3">
                     <strong className="block text-sand-900">{plan.displayName}</strong>
-                    <span className="text-xs text-sand-500">{plan.tier}</span>
+                    <span className="text-xs text-copy-secondary">{plan.tier}</span>
                   </td>
                   <td className="px-4 py-3">
                     {plan.monthlyPriceCrc ? `₡${plan.monthlyPriceCrc.toLocaleString("es-CR")}` : "-"}
@@ -174,7 +174,7 @@ export function AdminSubscriptionPlansTab() {
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-sand-900">{editing ? "Editar plan" : "Nuevo plan"}</h3>
           {editing && (
-            <button type="button" className="text-xs text-sand-500" onClick={reset}>
+            <button type="button" className="text-xs text-copy-secondary" onClick={reset}>
               Cancelar
             </button>
           )}

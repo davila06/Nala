@@ -1,4 +1,4 @@
-﻿import { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { clinicsApi, type ClinicScanResultDto, type ScanInputType } from "../api/clinicsApi";
 import { ScanInput } from "../components/ScanInput";
@@ -116,7 +116,7 @@ export default function ClinicDashboardPage() {
         <h1 className="mt-3 text-lg font-extrabold text-sand-900">
           {clinic.status === "Pending" ? "Cuenta pendiente de activación" : "Cuenta suspendida"}
         </h1>
-        <p className="mt-2 max-w-xs text-center text-sm text-sand-500">
+        <p className="mt-2 max-w-xs text-center text-sm text-copy-secondary">
           {clinic.status === "Pending"
             ? "Tu clínica está en revisión. PawTrack activará tu cuenta en 1-2 días hábiles."
             : "Tu cuenta ha sido suspendida. Contacta al equipo de PawTrack para más información."}
@@ -160,7 +160,7 @@ export default function ClinicDashboardPage() {
               />
               <div>
                 <h1 className="text-lg font-extrabold text-sand-900">{clinic?.name ?? "Portal veterinaria"}</h1>
-                {clinic && <p className="text-xs text-sand-400">Licencia SENASA: {clinic.licenseNumber}</p>}
+                {clinic && <p className="text-xs text-copy-muted">Licencia SENASA: {clinic.licenseNumber}</p>}
               </div>
             </div>
             {accessibleSites.length > 1 && (
@@ -196,7 +196,7 @@ export default function ClinicDashboardPage() {
                 onClick={() => setActiveSection(s)}
                 className={[
                   "shrink-0 rounded-xl px-3 py-2 text-xs font-bold transition-colors",
-                  activeSection === s ? "bg-surface text-sand-900 shadow-sm" : "text-sand-500 hover:text-sand-700",
+                  activeSection === s ? "bg-surface text-sand-900 shadow-sm" : "text-copy-secondary hover:text-sand-700",
                 ].join(" ")}
               >
                 {s === "scan"
@@ -309,7 +309,7 @@ export default function ClinicDashboardPage() {
               <>
                 <div>
                   <h2 className="text-base font-bold text-sand-800">Escanear mascota</h2>
-                  <p className="text-sm text-sand-500">
+                  <p className="text-sm text-copy-secondary">
                     Escanea el código QR del collar o ingresa el número de microchip RFID.
                   </p>
                 </div>
@@ -353,7 +353,7 @@ export default function ClinicDashboardPage() {
                 <div className="rounded-2xl border border-sand-200 bg-sand-50 p-5 text-center space-y-2">
                   <p className="text-2xl">🔍</p>
                   <p className="text-sm font-semibold text-sand-700">Escanea primero la mascota</p>
-                  <p className="text-xs text-sand-500">
+                  <p className="text-xs text-copy-secondary">
                     Ve a la pestaña <strong>Escanear</strong>, escanea el QR o chip de la mascota y luego regresa aquí
                     para ver su expediente.
                   </p>
@@ -429,7 +429,7 @@ function ClinicProfileSection({ clinic }: { clinic: NonNullable<Awaited<ReturnTy
     <form className="space-y-4" onSubmit={(event) => void submit(event)}>
       <div>
         <h2 className="text-base font-bold text-sand-800">Perfil de clínica</h2>
-        <p className="mt-1 text-xs text-sand-500">
+        <p className="mt-1 text-xs text-copy-secondary">
           La licencia SENASA y la identidad regulatoria solo pueden ser modificadas por administración.
         </p>
       </div>
@@ -575,7 +575,7 @@ function ClinicNearbyAlertsSection() {
           ✅
         </span>
         <p className="text-sm font-semibold text-sand-700">Sin alertas activas</p>
-        <p className="mt-1 text-xs text-sand-400">No hay mascotas perdidas reportadas en un radio de 15 km.</p>
+        <p className="mt-1 text-xs text-copy-muted">No hay mascotas perdidas reportadas en un radio de 15 km.</p>
       </div>
     );
 
@@ -587,7 +587,7 @@ function ClinicNearbyAlertsSection() {
           {alerts.length} activa{alerts.length !== 1 ? "s" : ""}
         </span>
       </div>
-      <p className="text-xs text-sand-500">Mascotas perdidas reportadas en un radio de 15 km de tu clínica.</p>
+      <p className="text-xs text-copy-secondary">Mascotas perdidas reportadas en un radio de 15 km de tu clínica.</p>
       <ul className="space-y-2">
         {alerts.map((alert) => (
           <li
@@ -610,7 +610,7 @@ function ClinicNearbyAlertsSection() {
             )}
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold text-sand-900">{alert.petName}</p>
-              <p className="text-[11px] text-sand-500">
+              <p className="text-[11px] text-copy-secondary">
                 {alert.petSpecies}
                 {" · "}
                 {new Date(alert.reportedAt).toLocaleDateString("es-CR", {
@@ -677,7 +677,7 @@ function ClinicVisibilidadSection() {
     <section className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-display text-base font-semibold text-sand-800">📈 Visibilidad</h3>
-        <span className="text-xs text-sand-500">
+        <span className="text-xs text-copy-secondary">
           Últimos {stats.periodDays} días · {total} impresiones
         </span>
       </div>
@@ -686,7 +686,7 @@ function ClinicVisibilidadSection() {
           <div key={m.label} className="rounded-xl border border-sand-100 bg-surface-warm p-3 text-center">
             <p className="text-xl">{m.icon}</p>
             <p className="text-2xl font-black tabular-nums text-sand-900">{m.value}</p>
-            <p className="text-xs text-sand-500">{m.label}</p>
+            <p className="text-xs text-copy-secondary">{m.label}</p>
           </div>
         ))}
       </div>
@@ -776,7 +776,7 @@ function ClinicStatsSection() {
         ].map(({ label, value, color }) => (
           <div key={label} className="rounded-2xl border border-sand-200 bg-surface p-3 text-center">
             <p className={`text-2xl font-black tabular-nums ${color}`}>{value}</p>
-            <p className="mt-0.5 text-xs text-sand-500">{label}</p>
+            <p className="mt-0.5 text-xs text-copy-secondary">{label}</p>
           </div>
         ))}
       </div>
@@ -784,7 +784,7 @@ function ClinicStatsSection() {
       {/* Daily bar chart */}
       {stats && stats.byDay.length > 0 && (
         <div className="rounded-2xl border border-sand-200 bg-surface p-4">
-          <p className="mb-3 text-xs font-bold text-sand-500">Escaneos por día</p>
+          <p className="mb-3 text-xs font-bold text-copy-secondary">Escaneos por día</p>
           <div className="flex items-end gap-0.5 h-20">
             {stats.byDay.map((d) => (
               <div
@@ -797,7 +797,7 @@ function ClinicStatsSection() {
               />
             ))}
           </div>
-          <div className="mt-1 flex justify-between text-[10px] text-sand-400">
+          <div className="mt-1 flex justify-between text-[10px] text-copy-muted">
             <span>{stats.byDay[0]?.day.slice(8)}</span>
             <span>{stats.byDay[stats.byDay.length - 1]?.day.slice(8)}</span>
           </div>
@@ -805,7 +805,7 @@ function ClinicStatsSection() {
       )}
 
       {stats && stats.byDay.length === 0 && (
-        <p className="rounded-xl bg-sand-50 border border-sand-200 px-4 py-6 text-sm text-sand-500 text-center">
+        <p className="rounded-xl bg-sand-50 border border-sand-200 px-4 py-6 text-sm text-copy-secondary text-center">
           Sin escaneos registrados en {MONTHS[month - 1]} {year}.
         </p>
       )}
@@ -857,7 +857,7 @@ function ClinicApiKeysSection() {
     <section className="space-y-4">
       <div>
         <h2 className="text-base font-bold text-sand-800">API Keys</h2>
-        <p className="text-xs text-sand-500 mt-0.5">
+        <p className="text-xs text-copy-secondary mt-0.5">
           Usa el header <code className="rounded bg-sand-100 px-1 text-[11px]">X-PawTrack-Key</code> para integrar tu
           sistema.
         </p>
@@ -955,13 +955,13 @@ function ClinicApiKeysSection() {
             >
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-sand-900">{key.label}</p>
-                <p className="text-[11px] text-sand-400">
+                <p className="text-[11px] text-copy-muted">
                   Creada {new Date(key.createdAt).toLocaleDateString("es-CR")}
                   {key.lastUsedAt && ` · Último uso ${new Date(key.lastUsedAt).toLocaleDateString("es-CR")}`}
                 </p>
               </div>
               {key.isRevoked ? (
-                <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] text-sand-500">Revocada</span>
+                <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] text-copy-secondary">Revocada</span>
               ) : (
                 <button
                   type="button"
@@ -1009,7 +1009,7 @@ function ClinicCertificateHistory({ clinicId }: { clinicId: string }) {
           >
             <div className="min-w-0">
               <p className="text-sm font-semibold text-sand-900">{CERTIFICATE_TYPE_LABELS[cert.type] ?? cert.type}</p>
-              <p className="text-[11px] text-sand-400">
+              <p className="text-[11px] text-copy-muted">
                 {new Date(cert.issuedAt).toLocaleDateString("es-CR")} ·{" "}
                 <span className="font-mono">{cert.verificationCode}</span>
               </p>

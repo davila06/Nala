@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useGenerateHandoverCode, useVerifyHandoverCode } from "../hooks/useSafety";
 import { Alert } from "@/shared/ui/Alert";
 import { Card } from "@/shared/ui";
@@ -28,7 +28,7 @@ export function OwnerHandoverPanel({ lostPetEventId }: OwnerHandoverPanelProps) 
 
   return (
     <Card shadow>
-      <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-sand-500">Entrega segura</p>
+      <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-copy-secondary">Entrega segura</p>
       <h3 className="mb-3 text-base font-bold text-sand-900">Código de verificación</h3>
       <p className="mb-4 text-sm text-sand-600">
         Genera un código de 4 dígitos y compártelo verbalmente con el rescatista cuando se encuentren. El rescatista lo
@@ -47,14 +47,14 @@ export function OwnerHandoverPanel({ lostPetEventId }: OwnerHandoverPanelProps) 
               </span>
             ))}
           </div>
-          <p className="text-xs text-sand-400">Válido por {data.expiresInHours} horas · de un solo uso</p>
+          <p className="text-xs text-copy-muted">Válido por {data.expiresInHours} horas · de un solo uso</p>
           <button
             type="button"
             onClick={() => {
               reset();
               setGenError(null);
             }}
-            className="text-xs text-sand-500 underline hover:text-sand-800"
+            className="text-xs text-copy-secondary underline hover:text-sand-800"
           >
             Generar nuevo código
           </button>
@@ -145,7 +145,7 @@ export function RescuerHandoverPanel({ lostPetEventId }: RescuerHandoverPanelPro
 
   return (
     <Card shadow>
-      <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-sand-500">Confirmación de entrega</p>
+      <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-copy-secondary">Confirmación de entrega</p>
       <h3 className="mb-3 text-base font-bold text-sand-900">Ingresa el código del dueño</h3>
       <p className="mb-4 text-sm text-sand-600">
         El dueño te comunicará verbalmente un código de 4 dígitos al encontrarse. Ingrésalo aquí para confirmar la

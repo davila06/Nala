@@ -50,7 +50,7 @@ export function PaymentMethodsCard() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-bold text-sand-900">Métodos de pago guardados</h2>
-            <p className="text-xs text-sand-500">Tarjetas registradas para cobros recurrentes y compras rápidas</p>
+            <p className="text-xs text-copy-secondary">Tarjetas registradas para cobros recurrentes y compras rápidas</p>
           </div>
           <span className="text-xl" aria-hidden="true">
             💳
@@ -58,11 +58,11 @@ export function PaymentMethodsCard() {
         </div>
 
         {isLoading ? (
-          <div className="py-4 text-center text-xs text-sand-400">Cargando métodos de pago…</div>
+          <div className="py-4 text-center text-xs text-copy-muted">Cargando métodos de pago…</div>
         ) : profiles.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-sand-300 p-4 text-center space-y-1">
             <p className="text-xs font-semibold text-sand-700">No tienes tarjetas guardadas</p>
-            <p className="text-[11px] text-sand-400">
+            <p className="text-[11px] text-copy-muted">
               Agrega una tarjeta para renovar tu suscripción sin interrupciones.
             </p>
           </div>
@@ -94,7 +94,7 @@ export function PaymentMethodsCard() {
                           </span>
                         )}
                       </div>
-                      <p className="text-[10px] text-sand-500">
+                      <p className="text-[10px] text-copy-secondary">
                         {p.cardholderName || "Titular"} · Vence {p.expirationMonth?.toString().padStart(2, "0")}/
                         {p.expirationYear}
                       </p>
@@ -106,7 +106,7 @@ export function PaymentMethodsCard() {
                     disabled={isDeleting || deleteProfile.isPending}
                     onClick={() => void handleDelete(p.id)}
                     aria-label={`Eliminar tarjeta terminada en ${p.lastFourDigits}`}
-                    className="rounded-xl p-2 text-sand-400 hover:bg-danger-50 hover:text-danger-600 transition-colors disabled:opacity-50"
+                    className="rounded-xl p-2 text-copy-muted hover:bg-danger-50 hover:text-danger-600 transition-colors disabled:opacity-50"
                   >
                     {isDeleting ? (
                       <span className="h-4 w-4 block rounded-full border-2 border-danger-400 border-t-transparent animate-spin" />
@@ -134,7 +134,7 @@ export function PaymentMethodsCard() {
               <button
                 type="button"
                 onClick={() => setShowAddForm(false)}
-                className="text-xs font-semibold text-sand-500 hover:text-sand-700"
+                className="text-xs font-semibold text-copy-secondary hover:text-sand-700"
               >
                 Cancelar
               </button>

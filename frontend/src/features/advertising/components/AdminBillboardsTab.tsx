@@ -119,21 +119,21 @@ function BillboardRow({ b }: { b: BillboardDto }) {
             >
               {b.status}
             </span>
-            <span className="text-[10px] text-sand-500">
+            <span className="text-[10px] text-copy-secondary">
               {PLACEMENT_LABELS[b.placement] ?? b.placement}
             </span>
           </div>
           {b.body && (
-            <p className="text-xs text-sand-500 line-clamp-2">{b.body}</p>
+            <p className="text-xs text-copy-secondary line-clamp-2">{b.body}</p>
           )}
-          <p className="text-[10px] text-sand-400">
+          <p className="text-[10px] text-copy-muted">
             {new Date(b.startsAt).toLocaleDateString("es-CR")} →{" "}
             {new Date(b.endsAt).toLocaleDateString("es-CR")}
           </p>
-          <p className="text-[10px] font-medium text-sand-500">
+          <p className="text-[10px] font-medium text-copy-secondary">
             {b.advertiserName} · {b.category} · {b.campaignStatus}
           </p>
-          <p className="text-[10px] text-sand-500">
+          <p className="text-[10px] text-copy-secondary">
             {b.targetCanton ?? "Cobertura nacional"} · {b.frequencyCapPerDay}{" "}
             por día · ₡{b.budgetCrc.toLocaleString("es-CR")}
             {b.isCategoryExclusive ? " · Exclusiva" : ""}
@@ -150,7 +150,7 @@ function BillboardRow({ b }: { b: BillboardDto }) {
             </p>
           )}
           {metrics && (
-            <p className="text-[10px] text-sand-500">
+            <p className="text-[10px] text-copy-secondary">
               {metrics.impressions} impresiones · {metrics.clicks} clics · CTR{" "}
               {metrics.clickThroughRate}% · {metrics.conversions} conversiones
             </p>
@@ -774,7 +774,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         </p>
         <div className="max-w-xs overflow-hidden rounded-xl border border-sand-200 bg-surface shadow-sm">
           <div className="px-4 py-3 space-y-1.5">
-            <span className="text-[9px] font-bold uppercase tracking-widest text-sand-400">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-copy-muted">
               Publicidad
             </span>
             <p className="text-sm font-semibold text-ink-900">
@@ -831,7 +831,7 @@ export function AdminBillboardsTab() {
       )}
 
       {!isLoading && (data?.items ?? []).length === 0 && (
-        <p className="text-center py-10 text-sm text-sand-400">
+        <p className="text-center py-10 text-sm text-copy-muted">
           No hay vallas. Crea la primera para monetizar ubicaciones del mapa.
         </p>
       )}
@@ -853,7 +853,7 @@ export function AdminBillboardsTab() {
           >
             ← Anterior
           </button>
-          <span className="text-xs text-sand-500">
+          <span className="text-xs text-copy-secondary">
             {page} / {data?.totalPages ?? 1}
           </span>
           <button

@@ -79,7 +79,7 @@ export default function ActivateCollarTagPage() {
           />
           <div className="flex items-center gap-2">
             <hr className="flex-1 border-sand-200" />
-            <span className="text-[10px] text-sand-400">
+            <span className="text-[10px] text-copy-muted">
               o escribe el serial
             </span>
             <hr className="flex-1 border-sand-200" />
@@ -107,7 +107,7 @@ export default function ActivateCollarTagPage() {
       {step === "pet" && (
         <div className="space-y-4">
           {checkSerial.isLoading && (
-            <p className="text-sm text-sand-500">Verificando serial…</p>
+            <p className="text-sm text-copy-secondary">Verificando serial…</p>
           )}
           {checkSerial.isError && (
             <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -157,7 +157,7 @@ export default function ActivateCollarTagPage() {
           <button
             type="button"
             onClick={() => setStep("serial")}
-            className="text-sm text-sand-400 underline"
+            className="text-sm text-copy-muted underline"
           >
             ← Cambiar serial
           </button>
@@ -188,7 +188,7 @@ export default function ActivateCollarTagPage() {
           <button
             type="button"
             onClick={() => setStep("pet")}
-            className="text-sm text-sand-400 underline"
+            className="text-sm text-copy-muted underline"
           >
             ← Cambiar mascota
           </button>

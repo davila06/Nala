@@ -34,8 +34,8 @@ function ChartTooltip(props: TooltipProps<number, string>) {
   return (
     <div className="rounded-xl border border-sand-200 bg-surface px-3 py-2 shadow-lg text-xs">
       <p className="font-semibold text-sand-900">{d.weightKg.toFixed(1)} kg</p>
-      <p className="text-sand-500">{d.date}</p>
-      <p className="text-sand-400">{d.source === "Clinic" ? `🏥 ${d.clinicName ?? "Clínica"}` : "📝 Dueño"}</p>
+      <p className="text-copy-secondary">{d.date}</p>
+      <p className="text-copy-muted">{d.source === "Clinic" ? `🏥 ${d.clinicName ?? "Clínica"}` : "📝 Dueño"}</p>
     </div>
   );
 }
@@ -50,7 +50,7 @@ function WeightChartInner({ petId, petName }: WeightTrendChartProps) {
   if (is403 || !data) return null;
   if (data.entries.length < 2)
     return (
-      <p className="rounded-xl border border-sand-100 bg-sand-50 px-4 py-3 text-xs text-sand-400">
+      <p className="rounded-xl border border-sand-100 bg-sand-50 px-4 py-3 text-xs text-copy-muted">
         Registra el peso de {petName} en cada visita para ver la tendencia aquí.
       </p>
     );
@@ -159,7 +159,7 @@ function WeightChartInner({ petId, petName }: WeightTrendChartProps) {
         </ResponsiveContainer>
       </div>
 
-      <div className="flex items-center gap-4 text-[10px] text-sand-500">
+      <div className="flex items-center gap-4 text-[10px] text-copy-secondary">
         <span className="flex items-center gap-1">
           <span className="inline-block h-2 w-2 rounded-full bg-brand-500" />
           Registrado por dueño
@@ -183,7 +183,7 @@ export function WeightTrendChart({ petId, petName }: WeightTrendChartProps) {
   return (
     <PlanGate requires="Familia">
       <div className="rounded-2xl border border-sand-100 bg-surface p-4">
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-sand-500">Tendencia de peso</h3>
+        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-copy-secondary">Tendencia de peso</h3>
         <WeightChartInner petId={petId} petName={petName} />
       </div>
     </PlanGate>

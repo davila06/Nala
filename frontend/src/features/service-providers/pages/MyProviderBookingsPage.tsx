@@ -44,7 +44,7 @@ export default function MyProviderBookingsPage() {
         </p>
       </header>
       {bookings.length === 0 ? (
-        <p className="py-12 text-center text-sm text-sand-500">
+        <p className="py-12 text-center text-sm text-copy-secondary">
           Aun no tienes reservas.
         </p>
       ) : (

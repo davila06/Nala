@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/features/auth/store/authStore";
@@ -102,7 +102,7 @@ function StatCard({ icon, label, value, urgent }: { icon: string; label: string;
         <p className={`text-2xl font-black tabular-nums ${urgent && value > 0 ? "text-warn-700" : "text-sand-900"}`}>
           {value}
         </p>
-        <p className="text-xs text-sand-500">{label}</p>
+        <p className="text-xs text-copy-secondary">{label}</p>
       </div>
     </motion.div>
   );
@@ -184,7 +184,7 @@ function EmptyState({ msg }: { msg: string }) {
         ✅
       </span>
       <p className="text-sm font-semibold text-sand-700">Todo al día</p>
-      <p className="mt-1 text-xs text-sand-400">{msg}</p>
+      <p className="mt-1 text-xs text-copy-muted">{msg}</p>
     </div>
   );
 }
@@ -242,7 +242,7 @@ function AlliesTab() {
                 {(ally.coverageRadiusMetres / 1000).toFixed(1)} km radio
               </span>
             </div>
-            <p className="mt-1.5 text-[11px] text-sand-400">
+            <p className="mt-1.5 text-[11px] text-copy-muted">
               Aplicó el{" "}
               {new Date(ally.appliedAt).toLocaleDateString("es-CR", {
                 day: "numeric",
@@ -299,8 +299,8 @@ function ClinicsTab() {
                 📍 {clinic.address}
               </span>
             </div>
-            <p className="mt-1 text-[11px] text-sand-400">{clinic.contactEmail}</p>
-            <p className="mt-0.5 text-[11px] text-sand-400">
+            <p className="mt-1 text-[11px] text-copy-muted">{clinic.contactEmail}</p>
+            <p className="mt-0.5 text-[11px] text-copy-muted">
               Registro:{" "}
               {new Date(clinic.registeredAt).toLocaleDateString("es-CR", {
                 day: "numeric",
@@ -411,10 +411,10 @@ function VerificationTab() {
             loading={reviewingClinic}
           >
             <p className="font-semibold text-sand-900">Licencia {verification.licenseNumberSnapshot}</p>
-            <p className="mt-1 text-xs text-sand-500">
+            <p className="mt-1 text-xs text-copy-secondary">
               Documento: {verification.hasDocument ? "cargado" : "pendiente"} · Estado: {verification.status}
             </p>
-            <p className="mt-0.5 text-[11px] text-sand-400">
+            <p className="mt-0.5 text-[11px] text-copy-muted">
               Enviado: {new Date(verification.submittedAt).toLocaleDateString("es-CR")}
             </p>
           </ReviewCard>
@@ -433,11 +433,11 @@ function VerificationTab() {
             loading={reviewingVet}
           >
             <p className="font-semibold text-sand-900">{veterinarian.fullName}</p>
-            <p className="mt-1 text-xs text-sand-500">
+            <p className="mt-1 text-xs text-copy-secondary">
               {veterinarian.licenseNumber} · Documento {veterinarian.hasDocument ? "cargado" : "pendiente"} · Firma{" "}
               {veterinarian.hasSignature ? "cargada" : "opcional"}
             </p>
-            <p className="mt-0.5 text-[11px] text-sand-400">Estado: {veterinarian.status}</p>
+            <p className="mt-0.5 text-[11px] text-copy-muted">Estado: {veterinarian.status}</p>
           </ReviewCard>
         ))}
       </section>
@@ -519,7 +519,7 @@ const SUB_STATUS_COLOR: Record<string, string> = {
   Active: "bg-rescue-100 text-rescue-700",
   PendingPayment: "bg-warn-100 text-warn-700",
   Expired: "bg-danger-100 text-danger-700",
-  Cancelled: "bg-sand-100 text-sand-500",
+  Cancelled: "bg-sand-100 text-copy-secondary",
 };
 
 function SubscriptionsTab() {
@@ -566,7 +566,7 @@ function SubscriptionsTab() {
             onClick={() => setPendingOnly(val)}
             className={[
               "flex-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
-              pendingOnly === val ? "bg-surface shadow-sm text-sand-900" : "text-sand-500 hover:text-sand-700",
+              pendingOnly === val ? "bg-surface shadow-sm text-sand-900" : "text-copy-secondary hover:text-sand-700",
             ].join(" ")}
           >
             {val ? "Solo pendientes" : "Todos"}
@@ -579,7 +579,7 @@ function SubscriptionsTab() {
           const isProcessing = processingId === sub.id;
           const isPending = sub.status === "PendingPayment";
           const isActive = sub.status === "Active";
-          const statusColor = SUB_STATUS_COLOR[sub.status] ?? "bg-sand-100 text-sand-500";
+          const statusColor = SUB_STATUS_COLOR[sub.status] ?? "bg-sand-100 text-copy-secondary";
 
           return (
             <motion.div
@@ -606,10 +606,10 @@ function SubscriptionsTab() {
 
                   <p className="font-mono text-sm text-sand-700">
                     Ref: <strong>{sub.paymentReference}</strong>{" "}
-                    <span className="text-sand-400 text-xs">— ₡{sub.amountCrc.toLocaleString("es-CR")}</span>
+                    <span className="text-copy-muted text-xs">— ₡{sub.amountCrc.toLocaleString("es-CR")}</span>
                   </p>
 
-                  <p className="text-[11px] text-sand-400">
+                  <p className="text-[11px] text-copy-muted">
                     Solicitado:{" "}
                     {new Date(sub.createdAt).toLocaleString("es-CR", {
                       dateStyle: "medium",
@@ -728,13 +728,13 @@ function BundlesTab() {
             </option>
           ))}
         </select>
-        <span className="text-xs text-sand-500">{data?.total ?? 0} pedidos</span>
+        <span className="text-xs text-copy-secondary">{data?.total ?? 0} pedidos</span>
       </div>
 
       {isLoading && <div className="animate-pulse h-24 rounded-2xl bg-sand-100" />}
 
       {data?.items.length === 0 && (
-        <p className="text-center text-sm text-sand-400 py-6">No hay pedidos con este filtro.</p>
+        <p className="text-center text-sm text-copy-muted py-6">No hay pedidos con este filtro.</p>
       )}
 
       <ul className="space-y-3">
@@ -743,7 +743,7 @@ function BundlesTab() {
             <div className="flex items-start justify-between gap-2 flex-wrap">
               <div>
                 <p className="font-semibold text-sand-900">{order.collarModelLabel}</p>
-                <p className="text-xs text-sand-500">
+                <p className="text-xs text-copy-secondary">
                   #{order.id.slice(-8).toUpperCase()} · {new Date(order.createdAt).toLocaleDateString("es-CR")}
                   {order.paymentReportedByUser && order.status === "PendingPayment" && (
                     <span className="ml-2 rounded-full bg-warn-100 px-2 py-0.5 text-warn-700 font-semibold">
@@ -751,11 +751,11 @@ function BundlesTab() {
                     </span>
                   )}
                 </p>
-                <p className="text-xs text-sand-500">
+                <p className="text-xs text-copy-secondary">
                   Ref: <span className="font-mono font-bold">{order.paymentReference}</span>
                   {" · "}₡{order.amountCrc.toLocaleString("es-CR")}
                 </p>
-                <p className="text-xs text-sand-500 mt-0.5">
+                <p className="text-xs text-copy-secondary mt-0.5">
                   📍 {order.shippingAddress}, {order.shippingCanton} · {order.shippingFullName} · {order.shippingPhone}
                 </p>
               </div>
@@ -873,7 +873,7 @@ function BundlesTab() {
             {order.trackingNumber && (
               <p className="text-xs font-mono text-sand-600">🔍 Tracking: {order.trackingNumber}</p>
             )}
-            {order.adminNotes && <p className="text-xs text-sand-500 italic">Notas: {order.adminNotes}</p>}
+            {order.adminNotes && <p className="text-xs text-copy-secondary italic">Notas: {order.adminNotes}</p>}
           </li>
         ))}
       </ul>
@@ -905,9 +905,9 @@ export default function AdminPage() {
     <div className="mx-auto max-w-3xl px-4 py-8 animate-fade-in-up">
       {/* ── Header ── */}
       <div className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-sand-400">PawTrack CR</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-copy-muted">PawTrack CR</p>
         <h1 className="mt-1 text-2xl font-black tracking-tight text-sand-900">Panel de administración</h1>
-        <p className="mt-1 text-sm text-sand-500">Revisa, aprueba o rechaza solicitudes de aliados y clínicas.</p>
+        <p className="mt-1 text-sm text-copy-secondary">Revisa, aprueba o rechaza solicitudes de aliados y clínicas.</p>
       </div>
 
       {/* ── Stats row ── */}
@@ -1004,7 +1004,7 @@ export default function AdminPage() {
               onClick={() => setActiveTab(tab)}
               className={[
                 "flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
-                activeTab === tab ? "bg-surface text-sand-900 shadow-sm" : "text-sand-500 hover:text-sand-700",
+                activeTab === tab ? "bg-surface text-sand-900 shadow-sm" : "text-copy-secondary hover:text-sand-700",
               ].join(" ")}
             >
               {label}

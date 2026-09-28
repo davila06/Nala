@@ -356,7 +356,7 @@ function CapturesTab({
                         {a.species}
                       </span>
                       {a.breed && (
-                        <span className="text-xs text-sand-500">{a.breed}</span>
+                        <span className="text-xs text-copy-secondary">{a.breed}</span>
                       )}
                       <span className="rounded-full bg-sand-100 px-2 py-0.5 text-xs font-medium text-sand-600">
                         {a.color}
@@ -373,7 +373,7 @@ function CapturesTab({
                         {STATUS_LABELS[a.status]}
                       </span>
                     </div>
-                    <p className="text-xs text-sand-500">
+                    <p className="text-xs text-copy-secondary">
                       {a.canton} ·{" "}
                       {new Date(a.capturedAt).toLocaleDateString("es-CR")}
                       {a.collarChipNumber && ` · Chip: ${a.collarChipNumber}`}
@@ -406,7 +406,7 @@ function CapturesTab({
               </li>
             ))}
           </ul>
-          <div className="flex items-center justify-between text-xs text-sand-500">
+          <div className="flex items-center justify-between text-xs text-copy-secondary">
             <span>{data.total} registros</span>
             <div className="flex gap-2">
               <button
@@ -430,7 +430,7 @@ function CapturesTab({
         </>
       ) : (
         <Card padding="sm">
-          <p className="text-center text-sm text-sand-400">
+          <p className="text-center text-sm text-copy-muted">
             No hay registros con los filtros actuales.
           </p>
         </Card>
@@ -501,12 +501,12 @@ function StatsTab({ tier }: { tier: MunicipalTier }) {
             <p className={`text-2xl font-black tabular-nums ${c.color}`}>
               {c.value}
             </p>
-            <p className="text-xs text-sand-500">{c.label}</p>
+            <p className="text-xs text-copy-secondary">{c.label}</p>
           </div>
         ))}
       </div>
       <div>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sand-500">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-copy-secondary">
           Últimos 30 días
         </p>
         {stats.last30Days.length > 0 ? (
@@ -528,7 +528,7 @@ function StatsTab({ tier }: { tier: MunicipalTier }) {
             ))}
           </div>
         ) : (
-          <p className="text-xs text-sand-400">
+          <p className="text-xs text-copy-muted">
             Sin actividad en los últimos 30 días.
           </p>
         )}
@@ -573,17 +573,17 @@ function RegionalTab({ tier }: { tier: MunicipalTier }) {
           <p className="text-2xl font-black text-sand-900">
             {dashboard.regionalTotal}
           </p>
-          <p className="text-xs text-sand-500">Total regional</p>
+          <p className="text-xs text-copy-secondary">Total regional</p>
         </div>
         <div className="rounded-xl border border-sand-100 bg-surface-warm p-3 text-center">
           <p className="text-2xl font-black text-brand-700">
             {dashboard.regionalRecoveryRate}%
           </p>
-          <p className="text-xs text-sand-500">Tasa recuperación</p>
+          <p className="text-xs text-copy-secondary">Tasa recuperación</p>
         </div>
       </div>
       <div>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sand-500">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-copy-secondary">
           Por cantón
         </p>
         <ul className="space-y-2">
@@ -595,7 +595,7 @@ function RegionalTab({ tier }: { tier: MunicipalTier }) {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-semibold text-sand-900">{s.canton}</p>
-                  <p className="text-xs text-sand-500">
+                  <p className="text-xs text-copy-secondary">
                     {s.total} total · {s.active} en custodia · {s.ownerFound}{" "}
                     localizados
                   </p>
@@ -636,7 +636,7 @@ export default function MunicipalDashboardPage() {
         <p className="text-lg font-semibold text-sand-800">
           Perfil municipal no configurado
         </p>
-        <p className="text-sm text-sand-500">
+        <p className="text-sm text-copy-secondary">
           Tu cuenta tiene rol Municipalidad pero aún no tiene un perfil
           asignado. Contacta al equipo de PawTrack CR para activar tu acceso.
         </p>
@@ -668,7 +668,7 @@ export default function MunicipalDashboardPage() {
           <h1 className="font-display text-xl font-bold text-sand-900">
             {profile.orgName}
           </h1>
-          <p className="text-sm text-sand-500">
+          <p className="text-sm text-copy-secondary">
             {profile.canton}
             {profile.allCantons.length > 1 &&
               ` + ${profile.allCantons.length - 1} cantones más`}
@@ -698,7 +698,7 @@ export default function MunicipalDashboardPage() {
                 ? "bg-surface text-sand-900 shadow-sm"
                 : t.disabled
                   ? "text-sand-300 cursor-not-allowed"
-                  : "text-sand-500 hover:text-sand-700",
+                  : "text-copy-secondary hover:text-sand-700",
             ].join(" ")}
           >
             {t.label}

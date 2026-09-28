@@ -43,7 +43,7 @@ export default function StoreDashboardPage() {
   if (!store)
     return (
       <div className="mx-auto max-w-lg px-4 py-10 text-center">
-        <p className="text-sand-500">No tienes una tienda registrada.</p>
+        <p className="text-copy-secondary">No tienes una tienda registrada.</p>
         <Link
           to="/tienda/registro"
           className="mt-4 inline-block text-brand-600 underline"
@@ -112,11 +112,11 @@ export default function StoreDashboardPage() {
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-sand-900">{tierLabel}</p>
           {sub?.expiresAt && (
-            <p className="text-xs text-sand-500 mt-0.5">
+            <p className="text-xs text-copy-secondary mt-0.5">
               Vence: {new Date(sub.expiresAt).toLocaleDateString("es-CR")}
             </p>
           )}
-          {nextMsg && <p className="text-xs text-sand-500 mt-0.5">{nextMsg}</p>}
+          {nextMsg && <p className="text-xs text-copy-secondary mt-0.5">{nextMsg}</p>}
         </div>
         {nextMsg && (
           <Link
@@ -164,7 +164,7 @@ export default function StoreDashboardPage() {
               {s.icon}
             </p>
             <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
-            <p className="text-xs text-sand-500 mt-0.5">{s.label}</p>
+            <p className="text-xs text-copy-secondary mt-0.5">{s.label}</p>
           </Link>
         ))}
       </div>
@@ -181,7 +181,7 @@ export default function StoreDashboardPage() {
           </Link>
         </div>
         {orders.length === 0 ? (
-          <p className="py-6 text-center text-sm text-sand-400">
+          <p className="py-6 text-center text-sm text-copy-muted">
             Aún no hay pedidos.
           </p>
         ) : (
@@ -195,7 +195,7 @@ export default function StoreDashboardPage() {
                   <p className="text-sm font-semibold text-sand-900 truncate">
                     Pedido #{order.id.slice(-6).toUpperCase()}
                   </p>
-                  <p className="text-xs text-sand-500">
+                  <p className="text-xs text-copy-secondary">
                     ₡{order.totalCrc.toLocaleString("es-CR")} ·{" "}
                     {order.fulfillmentType === "Pickup" ? "Retiro" : "Entrega"}
                   </p>

@@ -11,7 +11,7 @@ import { toast } from "@/shared/lib/toast";
 const STATUS_COLORS: Record<string, string> = {
   Available: "bg-green-50 text-green-700",
   InProcess: "bg-warn-100 text-warn-700",
-  Adopted: "bg-sand-100 text-sand-500",
+  Adopted: "bg-sand-100 text-copy-secondary",
   Paused: "bg-orange-50 text-orange-600",
   Removed: "bg-red-50 text-red-500",
 };
@@ -55,7 +55,7 @@ function AnimalRow({ animal }: { animal: AdoptablePetDto }) {
             {STATUS_LABELS[animal.status] ?? animal.status}
           </span>
         </div>
-        <p className="text-xs text-sand-400 mt-0.5">
+        <p className="text-xs text-copy-muted mt-0.5">
           {SPECIES_LABELS[animal.species]} · {AGE_LABELS[animal.ageCategory]}
           {animal.refLabel && ` · ${animal.refLabel}`}
         </p>
@@ -118,7 +118,7 @@ export default function ShelterDashboardPage() {
             <h1 className="text-xl font-bold text-ink-900">
               Panel del Shelter
             </h1>
-            <p className="text-sm text-sand-500">
+            <p className="text-sm text-copy-secondary">
               {data?.totalCount ?? 0} animales publicados en total
             </p>
           </div>
@@ -135,7 +135,7 @@ export default function ShelterDashboardPage() {
             ))}
           </div>
         ) : animals.length === 0 ? (
-          <div className="py-16 text-center text-sand-400">
+          <div className="py-16 text-center text-copy-muted">
             <p className="text-4xl mb-3">🐾</p>
             <p className="text-sm font-medium">
               No has publicado animales todavía
@@ -164,7 +164,7 @@ export default function ShelterDashboardPage() {
             >
               ← Anterior
             </button>
-            <span className="text-sm text-sand-400">
+            <span className="text-sm text-copy-muted">
               Página {page} de {data?.totalPages}
             </span>
             <button

@@ -197,11 +197,11 @@ export function LastSeenMap({
               <Popup>
                 <span className="text-sm font-semibold">Última ubicación de {petName}</span>
                 <br />
-                <span className="text-xs text-sand-500">
+                <span className="text-xs text-copy-secondary">
                   {value.lat.toFixed(5)}, {value.lng.toFixed(5)}
                 </span>
                 <br />
-                <span className="text-xs text-sand-400">Arrastra para ajustar</span>
+                <span className="text-xs text-copy-muted">Arrastra para ajustar</span>
               </Popup>
             </Marker>
 

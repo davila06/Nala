@@ -17,7 +17,7 @@ function formatDateTime(iso: string) {
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   Upcoming: { label: "Próxima", color: "bg-blue-50 text-blue-700" },
   Active: { label: "En curso ✓", color: "bg-green-50 text-green-700" },
-  Finished: { label: "Finalizada", color: "bg-sand-100 text-sand-500" },
+  Finished: { label: "Finalizada", color: "bg-sand-100 text-copy-secondary" },
   Cancelled: { label: "Cancelada", color: "bg-red-50 text-red-500" },
 };
 
@@ -33,7 +33,7 @@ export function FairCard({ fair }: FairCardProps) {
             {fair.title}
           </h3>
           {fair.description && (
-            <p className="text-xs text-sand-500 mt-0.5 line-clamp-2">
+            <p className="text-xs text-copy-secondary mt-0.5 line-clamp-2">
               {fair.description}
             </p>
           )}
@@ -46,7 +46,7 @@ export function FairCard({ fair }: FairCardProps) {
       </div>
 
       {/* Details */}
-      <div className="space-y-1 text-xs text-sand-500">
+      <div className="space-y-1 text-xs text-copy-secondary">
         <p>
           📅 {formatDateTime(fair.startsAt)} → {formatDateTime(fair.endsAt)}
         </p>

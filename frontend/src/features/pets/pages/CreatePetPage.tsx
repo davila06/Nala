@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { PhotoUpload } from "../components/PhotoUpload";
@@ -155,7 +155,7 @@ export default function CreatePetPage() {
         onClick={() => {
           void navigate(-1);
         }}
-        className="mb-5 flex items-center gap-1.5 rounded-lg text-sm text-sand-500 hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+        className="mb-5 flex items-center gap-1.5 rounded-lg text-sm text-copy-secondary hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
       >
         ← Volver
       </button>
@@ -167,7 +167,7 @@ export default function CreatePetPage() {
             ? `Editar a ${existing?.name ?? "mascota"}`
             : "🐾 Registrar mascota"}
         </h1>
-        <p className="mt-0.5 text-sm text-sand-500">
+        <p className="mt-0.5 text-sm text-copy-secondary">
           {isEditMode
             ? "Actualiza la información."
             : `Paso ${step} de 3 — ${STEPS[step - 1].label}`}
@@ -203,7 +203,7 @@ export default function CreatePetPage() {
                       ? "text-brand-600"
                       : isDone
                         ? "text-rescue-600"
-                        : "text-sand-400",
+                        : "text-copy-muted",
                   ].join(" ")}
                 >
                   {s.label}
@@ -283,7 +283,7 @@ export default function CreatePetPage() {
                           "flex flex-col items-center gap-1 rounded-xl border py-3 text-xs font-semibold transition-all",
                           species === opt.value
                             ? "border-brand-400 bg-brand-50 text-brand-700 shadow-sm scale-105"
-                            : "border-sand-200 bg-white text-sand-500 hover:border-sand-300 hover:bg-sand-50",
+                            : "border-sand-200 bg-white text-copy-secondary hover:border-sand-300 hover:bg-sand-50",
                         ].join(" ")}
                       >
                         <span className="text-xl">{opt.emoji}</span>
@@ -302,7 +302,7 @@ export default function CreatePetPage() {
                   <p className="mb-1.5 text-sm font-semibold text-sand-700">
                     📷 Foto (opcional)
                   </p>
-                  <p className="mb-2 text-xs text-sand-500">
+                  <p className="mb-2 text-xs text-copy-secondary">
                     Se usará en el perfil público y la placa QR.
                   </p>
                   <PhotoUpload
@@ -349,7 +349,7 @@ export default function CreatePetPage() {
                     className="mb-1 block text-sm font-semibold text-sand-700"
                   >
                     Microchip RFID
-                    <span className="ml-1 text-xs font-normal text-sand-400">
+                    <span className="ml-1 text-xs font-normal text-copy-muted">
                       (ISO 11784 — opcional)
                     </span>
                   </label>
@@ -366,7 +366,7 @@ export default function CreatePetPage() {
                     placeholder="Ej. 0006000123456"
                     className="block w-full rounded-xl border border-sand-300 px-3.5 py-2.5 font-mono text-sm uppercase outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
                   />
-                  <p className="mt-1 text-xs text-sand-400">
+                  <p className="mt-1 text-xs text-copy-muted">
                     El código de 15 dígitos del chip de tu veterinario.
                   </p>
                 </div>
@@ -404,7 +404,7 @@ export default function CreatePetPage() {
                     <h2 className="font-display text-xl font-bold text-sand-900">
                       {name || "—"}
                     </h2>
-                    <p className="mt-0.5 text-sm text-sand-500">
+                    <p className="mt-0.5 text-sm text-copy-secondary">
                       {SPECIES_OPTIONS.find((s) => s.value === species)?.label}
                       {breed ? ` · ${breed}` : ""}
                       {birthDate
@@ -414,7 +414,7 @@ export default function CreatePetPage() {
                   </div>
                 </Card>
 
-                <p className="text-xs text-sand-400 text-center">
+                <p className="text-xs text-copy-muted text-center">
                   Se generará un código QR único para {name || "tu mascota"} al
                   guardar.
                 </p>

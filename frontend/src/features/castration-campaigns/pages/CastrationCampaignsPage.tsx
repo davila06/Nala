@@ -32,7 +32,7 @@ export default function CastrationCampaignsPage() {
         </header>
 
         <label className="relative block max-w-md">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-sand-400" aria-hidden="true" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-copy-muted" aria-hidden="true" />
           <span className="sr-only">Filtrar por cantón</span>
           <input
             value={canton}
@@ -53,7 +53,7 @@ export default function CastrationCampaignsPage() {
             No fue posible cargar las campañas.
           </p>
         ) : data?.items.length === 0 ? (
-          <p className="border-y border-sand-200 py-12 text-center text-sm text-sand-500">
+          <p className="border-y border-sand-200 py-12 text-center text-sm text-copy-secondary">
             No hay campañas con cupos disponibles para este cantón.
           </p>
         ) : (
@@ -77,9 +77,9 @@ export default function CastrationCampaignsPage() {
                   </p>
                 </div>
                 <div className="mt-5 border-t border-sand-200 pt-4">
-                  <p className="text-xs text-sand-500">Costo base</p>
+                  <p className="text-xs text-copy-secondary">Costo base</p>
                   <p className="text-lg font-black text-brand-700">₡{campaign.basePriceCrc.toLocaleString("es-CR")}</p>
-                  <p className="text-xs text-sand-500">Se agrega 13% IVA cuando se solicita Factura Electrónica.</p>
+                  <p className="text-xs text-copy-secondary">Se agrega 13% IVA cuando se solicita Factura Electrónica.</p>
                 </div>
                 <CastrationReservationPanel campaign={campaign} />
               </article>

@@ -28,7 +28,7 @@ function MemberRow({
             <span className="ml-2 rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">Tú</span>
           )}
         </p>
-        <p className="truncate text-xs text-sand-500">{member.email}</p>
+        <p className="truncate text-xs text-copy-secondary">{member.email}</p>
       </div>
       <div className="flex shrink-0 items-center gap-2">
         <span
@@ -95,13 +95,13 @@ function ExistingFamily({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-display text-base font-semibold text-sand-800">👨‍👩‍👧 {family.name}</h3>
-        <span className="text-xs text-sand-500">
+        <span className="text-xs text-copy-secondary">
           {maxMembers === null ? "Límite no disponible" : `${occupiedSeats}/${maxMembers} miembros`}
         </span>
       </div>
 
       {family.pendingInvitations > 0 && (
-        <p className="text-xs text-sand-500" role="status">
+        <p className="text-xs text-copy-secondary" role="status">
           {family.pendingInvitations} invitaciones pendientes ocupan espacio.
         </p>
       )}

@@ -233,7 +233,7 @@ export function CollarTagInventorySection() {
         <p className="text-sm font-semibold text-sand-800">
           Import masivo (CSV)
         </p>
-        <p className="text-xs text-sand-500">
+        <p className="text-xs text-copy-secondary">
           Formato: <code>serial,firmwareVersion</code> — una fila por línea, sin
           encabezado.
         </p>
@@ -325,7 +325,7 @@ export function CollarTagInventorySection() {
             <button
               type="button"
               onClick={() => setSelected(new Set())}
-              className="text-[10px] text-sand-500 underline"
+              className="text-[10px] text-copy-secondary underline"
             >
               Limpiar
             </button>
@@ -411,10 +411,10 @@ export function CollarTagInventorySection() {
                         {tag.status}
                       </span>
                     </td>
-                    <td className="px-4 py-2 text-sand-500">
+                    <td className="px-4 py-2 text-copy-secondary">
                       {tag.firmwareVersion}
                     </td>
-                    <td className="px-4 py-2 text-sand-500">
+                    <td className="px-4 py-2 text-copy-secondary">
                       {tag.lastPingAt
                         ? new Date(tag.lastPingAt).toLocaleString("es-CR")
                         : "—"}
@@ -460,7 +460,7 @@ export function CollarTagInventorySection() {
             >
               ← Anterior
             </button>
-            <span className="text-xs text-sand-500">
+            <span className="text-xs text-copy-secondary">
               {skip + 1}–{Math.min(skip + TAKE, data.total)} de {data.total}
             </span>
             <button
@@ -496,7 +496,7 @@ function MetricCard({
       >
         {value}
       </p>
-      <p className="text-[10px] text-sand-500">{label}</p>
+      <p className="text-[10px] text-copy-secondary">{label}</p>
     </div>
   );
 }

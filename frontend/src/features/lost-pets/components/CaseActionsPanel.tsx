@@ -22,7 +22,7 @@ function StatBadge({ value, label, color }: { value: number; label: string; colo
   return (
     <div className="flex-1 rounded-xl bg-sand-100 py-3 px-2 text-center">
       <p className="m-0 text-2xl font-extrabold" style={{ color }}>{value}</p>
-      <p className="mt-0.5 text-[10px] leading-snug text-sand-500">{label}</p>
+      <p className="mt-0.5 text-[10px] leading-snug text-copy-secondary">{label}</p>
     </div>
   )
 }

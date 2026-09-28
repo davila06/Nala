@@ -54,7 +54,7 @@ export default function ShelterApplicationsPage() {
             ))}
           </div>
         ) : !apps || apps.length === 0 ? (
-          <div className="py-16 text-center text-sand-400">
+          <div className="py-16 text-center text-copy-muted">
             <p className="text-4xl mb-3">📭</p>
             <p className="text-sm font-medium">Sin solicitudes todavía</p>
           </div>
@@ -66,7 +66,7 @@ export default function ShelterApplicationsPage() {
                 className="rounded-xl border border-sand-100 bg-surface p-4 space-y-3"
               >
                 <div className="flex items-start justify-between">
-                  <p className="text-xs text-sand-400">
+                  <p className="text-xs text-copy-muted">
                     Solicitud recibida el{" "}
                     {new Date(app.appliedAt).toLocaleDateString("es-CR")}
                   </p>
@@ -123,7 +123,7 @@ function StatusBadge({ status }: { status: string }) {
     UnderReview: "bg-blue-50 text-blue-700",
     Approved: "bg-green-50 text-green-700",
     Rejected: "bg-red-50 text-red-600",
-    Withdrawn: "bg-sand-100 text-sand-400",
+    Withdrawn: "bg-sand-100 text-copy-muted",
   };
   const labels: Record<string, string> = {
     Pending: "Pendiente",

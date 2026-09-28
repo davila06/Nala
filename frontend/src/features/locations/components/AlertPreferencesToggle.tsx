@@ -1,4 +1,4 @@
-﻿import { useAlertPreference } from "../hooks/useAlertPreference";
+import { useAlertPreference } from "../hooks/useAlertPreference";
 import { QuietHoursForm } from "./QuietHoursForm";
 import { Card } from "@/shared/ui";
 
@@ -17,7 +17,7 @@ export function AlertPreferencesToggle() {
           <p className="text-sm font-semibold text-sand-800">
             🐾 Alertas de mascotas perdidas cerca de mí
           </p>
-          <p className="mt-0.5 text-xs text-sand-500">
+          <p className="mt-0.5 text-xs text-copy-secondary">
             Recibirás una notificación cuando una mascota sea reportada como
             perdida en un radio de 1&thinsp;km de tu última ubicación
             registrada. Tu ubicación nunca es compartida públicamente.

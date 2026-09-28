@@ -1,4 +1,4 @@
-﻿import { motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useLeaderboard } from "../hooks/useIncentives";
 import { BadgeDisplay } from "./BadgeDisplay";
 import { Alert } from "@/shared/ui/Alert";
@@ -51,7 +51,7 @@ export function LeaderboardWidget() {
         )}
 
         {!isLoading && !isError && entries?.length === 0 && (
-          <p className="px-5 py-6 text-sm text-sand-400 text-center">
+          <p className="px-5 py-6 text-sm text-copy-muted text-center">
             Aún no hay rescatistas registrados. ¡Sé el primero!
           </p>
         )}
@@ -85,7 +85,7 @@ export function LeaderboardWidget() {
                   {MEDALS[idx]}
                 </motion.span>
               ) : (
-                <span className="text-sm font-semibold text-sand-400">
+                <span className="text-sm font-semibold text-copy-muted">
                   {idx + 1}
                 </span>
               )}
@@ -104,7 +104,7 @@ export function LeaderboardWidget() {
               <p className="text-sm font-bold text-rescue-700">
                 {entry.reunificationCount}
               </p>
-              <p className="text-xs text-sand-400">reuniones</p>
+              <p className="text-xs text-copy-muted">reuniones</p>
             </div>
           </motion.div>
         ))}

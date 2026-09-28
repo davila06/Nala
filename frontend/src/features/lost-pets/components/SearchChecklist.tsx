@@ -166,7 +166,7 @@ function PhaseSection({
         {/* Progress count */}
         <span
           className={`shrink-0 text-xs font-medium tabular-nums ${
-            done ? "text-rescue-700" : "text-sand-500"
+            done ? "text-rescue-700" : "text-copy-secondary"
           }`}
           aria-hidden="true"
         >
@@ -175,7 +175,7 @@ function PhaseSection({
 
         {/* Caret */}
         <span
-          className={`shrink-0 text-sand-400 transition-transform duration-200 ${
+          className={`shrink-0 text-copy-muted transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
           }`}
           aria-hidden="true"
@@ -212,7 +212,7 @@ function PhaseSection({
                   <span
                     className={`text-sm leading-snug ${
                       checked
-                        ? "line-through text-sand-400"
+                        ? "line-through text-copy-muted"
                         : done
                           ? "text-rescue-800"
                           : "text-sand-800"
@@ -298,7 +298,7 @@ export function SearchChecklist({
       {/* Header */}
       <div className="mb-3">
         <h2 className="text-sm font-bold text-sand-900">📋 Qué hacer ahora</h2>
-        <p className="mt-0.5 text-xs text-sand-500">
+        <p className="mt-0.5 text-xs text-copy-secondary">
           Pasos basados en estudios de recuperación de mascotas.{" "}
           <span className="font-medium tabular-nums text-sand-700">
             {totalProgress.completed}/{totalProgress.total} completados

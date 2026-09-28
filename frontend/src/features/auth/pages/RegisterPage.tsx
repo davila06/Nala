@@ -119,7 +119,7 @@ export default function RegisterPage() {
               </Link>
             </nav>
             <h1 className="font-display text-3xl font-semibold text-sand-900">Crear cuenta</h1>
-            <p className="mt-2 text-sm text-sand-500">Es gratis. Sin tarjeta de crédito.</p>
+            <p className="mt-2 text-sm text-copy-secondary">Es gratis. Sin tarjeta de crédito.</p>
           </div>
 
           {(validationError || error) && (
@@ -168,7 +168,7 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="rounded px-1 py-2 text-xs text-sand-500 hover:text-sand-700 transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="rounded px-1 py-2 text-xs text-copy-secondary hover:text-sand-700 transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               >
                 {showPassword ? "Ocultar" : "Mostrar"} contraseña
               </button>
@@ -206,7 +206,7 @@ export default function RegisterPage() {
             </div>
           </form>
 
-          <p className="mt-8 text-center text-sm text-sand-500">
+          <p className="mt-8 text-center text-sm text-copy-secondary">
             ¿Ya tienes cuenta?{" "}
             <Link
               to="/login"
@@ -219,13 +219,13 @@ export default function RegisterPage() {
           <p className="mt-2 text-center">
             <a
               href="/precios.html"
-              className="text-xs text-sand-400 hover:text-brand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
+              className="text-xs text-copy-muted hover:text-brand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
             >
               Ver planes y precios →
             </a>
           </p>
 
-          <p className="mt-2 text-center text-sm text-sand-500">
+          <p className="mt-2 text-center text-sm text-copy-secondary">
             ¿Tienes un negocio para mascotas?{" "}
             <Link
               to="/registro-negocio"
@@ -235,7 +235,7 @@ export default function RegisterPage() {
             </Link>
           </p>
 
-          <p className="mt-4 text-center text-xs text-sand-400">
+          <p className="mt-4 text-center text-xs text-copy-muted">
             Al registrarte aceptas los{" "}
             <a
               href="/legal/terminos-de-uso.html"

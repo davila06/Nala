@@ -1,4 +1,4 @@
-﻿import { useRef, useCallback, useEffect } from "react";
+import { useRef, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import type { PetSummary } from "../api/petsApi";
 import { PetStatusBadge } from "./PetStatusBadge";
@@ -223,7 +223,7 @@ export function HolographicPetCard({
           </p>
           <PetStatusBadge status={pet.status} />
         </div>
-        <p className="text-sm font-medium text-sand-500">
+        <p className="text-sm font-medium text-copy-secondary">
           {SPECIES_LABEL[pet.species] ?? pet.species}
           {pet.breed ? ` · ${pet.breed}` : ""}
         </p>

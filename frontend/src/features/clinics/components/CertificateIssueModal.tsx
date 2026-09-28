@@ -120,7 +120,7 @@ export function CertificateIssueModal({ clinicId, onClose }: CertificateIssueMod
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-trust-600">Tier Partner</p>
               <h2 className="mt-1 text-xl font-black text-sand-900">Emitir certificado veterinario</h2>
-              <p className="mt-1 text-xs text-sand-500">
+              <p className="mt-1 text-xs text-copy-secondary">
                 Certificado verificable dentro de PawTrack; sin integración oficial directa.
               </p>
             </div>
@@ -128,7 +128,7 @@ export function CertificateIssueModal({ clinicId, onClose }: CertificateIssueMod
               type="button"
               onClick={onClose}
               aria-label="Cerrar"
-              className="rounded-xl p-2 text-sand-400 hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="rounded-xl p-2 text-copy-muted hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
             >
               <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                 <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z" />
@@ -143,7 +143,7 @@ export function CertificateIssueModal({ clinicId, onClose }: CertificateIssueMod
                   La clínica debe estar verificada por administración para emitir pasaportes.
                 </div>
               )}
-              {issuersLoading && <p className="text-xs text-sand-500">Cargando autorización de emisión…</p>}
+              {issuersLoading && <p className="text-xs text-copy-secondary">Cargando autorización de emisión…</p>}
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="block text-xs font-semibold text-sand-700">
                   ID de mascota (PawTrack)
@@ -299,9 +299,9 @@ export function CertificateIssueModal({ clinicId, onClose }: CertificateIssueMod
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-rescue-100 text-3xl">✅</div>
               <h3 className="text-lg font-black text-sand-900">Pasaporte emitido</h3>
               <div className="w-full rounded-2xl bg-surface-warm p-4">
-                <p className="text-xs text-sand-500 mb-1">Código de verificación</p>
+                <p className="text-xs text-copy-secondary mb-1">Código de verificación</p>
                 <p className="font-mono text-2xl font-black tracking-[0.2em] text-sand-900">{verificationCode}</p>
-                <p className="mt-1 text-[10px] text-sand-400">pawtrack.cr/verificar/{verificationCode}</p>
+                <p className="mt-1 text-[10px] text-copy-muted">pawtrack.cr/verificar/{verificationCode}</p>
               </div>
               {certificateId && (
                 <button

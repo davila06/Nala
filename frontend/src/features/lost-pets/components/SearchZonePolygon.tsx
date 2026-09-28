@@ -1,4 +1,4 @@
-﻿import { Polygon, Popup } from 'react-leaflet'
+import { Polygon, Popup } from 'react-leaflet'
 import type { SearchZone, SearchZoneStatus } from '../api/searchCoordinationApi'
 
 interface SearchZonePolygonProps {
@@ -104,11 +104,11 @@ export function SearchZonePolygon({
           )}
 
           {zone.status === 'Taken' && !isMyZone && (
-            <p className="text-xs text-sand-500">Zona en revisión por otro voluntario.</p>
+            <p className="text-xs text-copy-secondary">Zona en revisión por otro voluntario.</p>
           )}
 
           {zone.status === 'Clear' && (
-            <p className="text-xs text-sand-500">Esta zona ya fue revisada.</p>
+            <p className="text-xs text-copy-secondary">Esta zona ya fue revisada.</p>
           )}
         </div>
       </Popup>

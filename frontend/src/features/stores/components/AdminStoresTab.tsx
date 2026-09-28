@@ -38,7 +38,7 @@ export function AdminStoresTab() {
         <p className="text-2xl mb-2" aria-hidden="true">
           🛒
         </p>
-        <p className="text-sm text-sand-500">
+        <p className="text-sm text-copy-secondary">
           No hay tiendas pendientes de revisión.
         </p>
       </div>
@@ -63,8 +63,8 @@ export function AdminStoresTab() {
               )}
               <div>
                 <p className="font-semibold text-sand-900">{store.name}</p>
-                <p className="text-xs text-sand-500 mt-0.5">{store.address}</p>
-                <p className="text-xs text-sand-400 mt-0.5 line-clamp-2">
+                <p className="text-xs text-copy-secondary mt-0.5">{store.address}</p>
+                <p className="text-xs text-copy-muted mt-0.5 line-clamp-2">
                   {store.description}
                 </p>
               </div>

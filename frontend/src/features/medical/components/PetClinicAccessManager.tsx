@@ -49,7 +49,7 @@ function GeneratedCodeDisplay({
             Copiar
           </button>
         </div>
-        <p className="text-xs text-sand-500">
+        <p className="text-xs text-copy-secondary">
           Válido por ~{hoursLeft}h · vence el {expires.toLocaleString("es-CR")}
         </p>
       </div>
@@ -101,7 +101,7 @@ function GrantRow({
     ? { label: "Activo", cls: "bg-rescue-100 text-rescue-700" }
     : grant.isPending
       ? { label: "Pendiente", cls: "bg-warn-100 text-warn-700" }
-      : { label: "Expirado", cls: "bg-sand-100 text-sand-500" };
+      : { label: "Expirado", cls: "bg-sand-100 text-copy-secondary" };
 
   return (
     <li className="flex items-center justify-between gap-3 rounded-xl border border-sand-100 bg-surface-warm px-4 py-3">
@@ -109,7 +109,7 @@ function GrantRow({
         <p className="truncate text-sm font-semibold text-sand-900">
           {grant.clinicName}
         </p>
-        <p className="text-xs text-sand-500">
+        <p className="text-xs text-copy-secondary">
           {grant.isActive && grant.acceptedAt
             ? `Acceso desde ${new Date(grant.acceptedAt).toLocaleDateString("es-CR")}`
             : grant.isPending
@@ -117,7 +117,7 @@ function GrantRow({
               : "Código expirado sin activar"}
         </p>
         {grant.isActive && (
-          <p className="mt-1 text-[11px] text-sand-500">
+          <p className="mt-1 text-[11px] text-copy-secondary">
             Permisos:{" "}
             {grant.permissions.length > 0
               ? grant.permissions.join(", ")
@@ -193,7 +193,7 @@ function ClinicSearchPicker({
           <p className="truncate text-sm font-semibold text-sand-900">
             {selected.name}
           </p>
-          <p className="text-xs text-sand-500">
+          <p className="text-xs text-copy-secondary">
             Licencia: {selected.licenseNumber}
           </p>
         </div>
@@ -223,10 +223,10 @@ function ClinicSearchPicker({
       {showResults && (
         <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-y-auto rounded-xl border border-sand-200 bg-white shadow-lg">
           {isFetching && (
-            <li className="px-3 py-2 text-xs text-sand-500">Buscando…</li>
+            <li className="px-3 py-2 text-xs text-copy-secondary">Buscando…</li>
           )}
           {!isFetching && results.length === 0 && (
-            <li className="px-3 py-2 text-xs text-sand-500">
+            <li className="px-3 py-2 text-xs text-copy-secondary">
               Sin resultados. Verifica el nombre o número de licencia.
             </li>
           )}
@@ -240,7 +240,7 @@ function ClinicSearchPicker({
                 <span className="font-semibold text-sand-900">
                   {clinic.name}
                 </span>
-                <span className="ml-2 text-xs text-sand-500">
+                <span className="ml-2 text-xs text-copy-secondary">
                   {clinic.licenseNumber}
                 </span>
               </button>
@@ -397,7 +397,7 @@ export function PetClinicAccessManager({ petId }: { petId: string }) {
         </ul>
       ) : (
         <Card padding="sm">
-          <p className="text-center text-xs text-sand-400">
+          <p className="text-center text-xs text-copy-muted">
             Ninguna veterinaria tiene acceso permanente aún.
           </p>
         </Card>
@@ -406,7 +406,7 @@ export function PetClinicAccessManager({ petId }: { petId: string }) {
       {/* Pending grants (code generated but not yet accepted) */}
       {pendingGrants.length > 0 && (
         <details>
-          <summary className="cursor-pointer text-xs font-semibold text-sand-400 hover:text-sand-600">
+          <summary className="cursor-pointer text-xs font-semibold text-copy-muted hover:text-sand-600">
             {pendingGrants.length} código{pendingGrants.length !== 1 ? "s" : ""}{" "}
             pendiente
             {pendingGrants.length !== 1 ? "s" : ""}

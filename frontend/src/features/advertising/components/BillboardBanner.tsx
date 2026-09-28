@@ -115,7 +115,7 @@ function BillboardCard({
         className={`px-4 py-3 space-y-1.5 ${!hasAllowedImageSource(bill.imageUrl) ? "pt-4" : ""}`}
       >
         <div className="flex items-center gap-2">
-          <span className="text-[9px] font-bold uppercase tracking-widest text-sand-400">
+          <span className="text-[9px] font-bold uppercase tracking-widest text-copy-muted">
             Publicidad
           </span>
         </div>

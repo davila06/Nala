@@ -119,7 +119,7 @@ function QuickLogForm({
           className="w-full accent-brand-500"
           aria-label={`Duración: ${duration} minutos`}
         />
-        <div className="flex justify-between text-[10px] text-sand-400 mt-0.5">
+        <div className="flex justify-between text-[10px] text-copy-muted mt-0.5">
           <span>5 min</span>
           <span>60 min</span>
           <span>120 min</span>
@@ -266,7 +266,7 @@ export function ActivityTab({ petId, petName }: ActivityTabProps) {
           🏃
         </p>
         <p className="font-semibold text-sand-900">Registro de actividad</p>
-        <p className="text-sm text-sand-500">
+        <p className="text-sm text-copy-secondary">
           Disponible en el plan Plus. Lleva el historial de ejercicio de{" "}
           {petName} y conecta con tu collar Tractive.
         </p>
@@ -313,7 +313,7 @@ export function ActivityTab({ petId, petName }: ActivityTabProps) {
               {data?.streakDays ?? 0} día{data?.streakDays !== 1 ? "s" : ""}{" "}
               consecutivos
             </p>
-            <p className="text-xs text-sand-500">Racha actual de {petName}</p>
+            <p className="text-xs text-copy-secondary">Racha actual de {petName}</p>
           </div>
         </div>
         <Button
@@ -376,7 +376,7 @@ export function ActivityTab({ petId, petName }: ActivityTabProps) {
         role="img"
         aria-label={`Actividad de ${petName} en los últimos 7 días`}
       >
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sand-500">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-copy-secondary">
           Últimos 7 días (min)
         </p>
         <WeeklyChart data={chartData} />
@@ -384,7 +384,7 @@ export function ActivityTab({ petId, petName }: ActivityTabProps) {
 
       {/* Activity log list */}
       {(data?.logs.length ?? 0) === 0 ? (
-        <p className="py-6 text-center text-sm text-sand-400">
+        <p className="py-6 text-center text-sm text-copy-muted">
           Sin actividad registrada en los últimos 28 días. ¡Empieza hoy!
         </p>
       ) : (
@@ -409,7 +409,7 @@ export function ActivityTab({ petId, petName }: ActivityTabProps) {
                     </span>
                   )}
                 </p>
-                <p className="text-xs text-sand-500">
+                <p className="text-xs text-copy-secondary">
                   {log.date} · {log.durationMinutes} min
                   {log.distanceMeters != null
                     ? ` · ${(log.distanceMeters / 1000).toFixed(1)} km`

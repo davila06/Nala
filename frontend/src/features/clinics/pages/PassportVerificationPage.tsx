@@ -63,7 +63,7 @@ export default function PassportVerificationPage() {
             <h1 className="font-display text-xl font-bold text-sand-900">
               Verificación de Pasaporte
             </h1>
-            <p className="text-sm text-sand-500">
+            <p className="text-sm text-copy-secondary">
               Código:{" "}
               <span className="font-mono font-semibold text-sand-800">
                 {code.toUpperCase()}
@@ -131,27 +131,27 @@ export default function PassportVerificationPage() {
                 </span>
                 <div>
                   <p className="font-semibold text-sand-900">{data.petName}</p>
-                  <p className="text-xs text-sand-500">{data.petSpecies}</p>
+                  <p className="text-xs text-copy-secondary">{data.petSpecies}</p>
                 </div>
               </div>
 
               {/* Details */}
               <dl className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <dt className="text-sand-500">Clínica emisora</dt>
+                  <dt className="text-copy-secondary">Clínica emisora</dt>
                   <dd className="font-medium text-sand-900 text-right">
                     {data.clinicName}
                   </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-sand-500">Emitido el</dt>
+                  <dt className="text-copy-secondary">Emitido el</dt>
                   <dd className="font-medium text-sand-900">
                     {new Date(data.issuedAt).toLocaleDateString("es-CR")}
                   </dd>
                 </div>
                 {data.validUntil && (
                   <div className="flex justify-between">
-                    <dt className="text-sand-500">Válido hasta</dt>
+                    <dt className="text-copy-secondary">Válido hasta</dt>
                     <dd
                       className={`font-medium ${data.isValid ? "text-rescue-700" : "text-danger-700"}`}
                     >
@@ -161,7 +161,7 @@ export default function PassportVerificationPage() {
                 )}
               </dl>
 
-              <p className="text-center text-xs text-sand-400 pt-2">
+              <p className="text-center text-xs text-copy-muted pt-2">
                 Verificado mediante PawTrack CR · pawtrack.cr
               </p>
             </div>

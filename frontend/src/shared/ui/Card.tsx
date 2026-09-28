@@ -114,7 +114,7 @@ export function EmptyState({
           {title}
         </p>
         {description && (
-          <p className="mt-1 max-w-xs text-sm text-sand-500 leading-relaxed">
+          <p className="mt-1 max-w-xs text-sm text-copy-secondary leading-relaxed">
             {description}
           </p>
         )}
@@ -138,7 +138,7 @@ export function Divider({ label, className = "" }: DividerProps) {
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       <hr className="flex-1 border-sand-200" />
-      <span className="text-xs font-medium text-sand-400 uppercase tracking-wider">
+      <span className="text-xs font-medium text-copy-muted uppercase tracking-wider">
         {label}
       </span>
       <hr className="flex-1 border-sand-200" />

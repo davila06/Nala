@@ -34,8 +34,8 @@ export function BountyWidget({ lostEventId, isOwner }: BountyWidgetProps) {
     Active: "bg-rescue-100 text-rescue-800",
     Claimed: "bg-trust-100 text-trust-700",
     Released: "bg-sand-100 text-sand-600",
-    Refunded: "bg-sand-100 text-sand-500",
-    Expired: "bg-sand-100 text-sand-400",
+    Refunded: "bg-sand-100 text-copy-secondary",
+    Expired: "bg-sand-100 text-copy-muted",
   };
 
   const statusLabel: Record<string, string> = {
@@ -97,7 +97,7 @@ export function BountyWidget({ lostEventId, isOwner }: BountyWidgetProps) {
               <button
                 type="button"
                 onClick={() => setShowCreate(false)}
-                className="text-xs text-sand-500 hover:text-sand-700"
+                className="text-xs text-copy-secondary hover:text-sand-700"
               >
                 Cancelar
               </button>
@@ -139,13 +139,13 @@ export function BountyWidget({ lostEventId, isOwner }: BountyWidgetProps) {
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-warn-700">Recompensa</p>
             <p className="mt-0.5 text-xl font-black text-sand-900">₡{bounty.amount.toLocaleString("es-CR")}</p>
             {bounty.netPayoutAmount < bounty.amount && (
-              <p className="text-[10px] text-sand-400">
+              <p className="text-[10px] text-copy-muted">
                 Pago neto: ₡{bounty.netPayoutAmount.toLocaleString("es-CR")} (10% fee)
               </p>
             )}
           </div>
           <span
-            className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${statusColor[bounty.status] ?? "bg-sand-100 text-sand-500"}`}
+            className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${statusColor[bounty.status] ?? "bg-sand-100 text-copy-secondary"}`}
           >
             {statusLabel[bounty.status] ?? bounty.status}
           </span>

@@ -26,7 +26,7 @@ export default function NetworkHubPage() {
             <Icon className="h-6 w-6 text-brand-600" aria-hidden="true" />
             <div>
               <p className="font-semibold text-brand-700">{label}</p>
-              <p className="text-sm text-sand-500">{detail}</p>
+              <p className="text-sm text-copy-secondary">{detail}</p>
             </div>
           </Link>
         ))}

@@ -46,10 +46,10 @@ const BUTTON_STEP_CLASS: Record<EmergencyStepStatus, string> = {
 
 /** Inside the success card — colour-coded by outcome. */
 const CARD_STEP_CLASS: Record<EmergencyStepStatus, string> = {
-  pending:  'text-sand-400',
+  pending:  'text-copy-muted',
   running:  'text-brand-700 font-semibold',
   done:     'text-rescue-700',
-  skipped:  'text-sand-400',
+  skipped:  'text-copy-muted',
   error:    'text-red-500',
 }
 

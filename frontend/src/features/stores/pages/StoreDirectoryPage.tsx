@@ -32,8 +32,8 @@ function StoreCard({ store }: { store: PublicStoreDto }) {
         <p className="font-semibold text-ink-900 text-sm leading-tight line-clamp-1 group-hover:text-brand-600 transition-colors">
           {store.name}
         </p>
-        {store.description && <p className="text-xs text-sand-500 line-clamp-2">{store.description}</p>}
-        <p className="text-xs text-sand-400 line-clamp-1">📍 {store.address}</p>
+        {store.description && <p className="text-xs text-copy-secondary line-clamp-2">{store.description}</p>}
+        <p className="text-xs text-copy-muted line-clamp-1">📍 {store.address}</p>
       </div>
     </Link>
   );
@@ -71,7 +71,7 @@ export default function StoreDirectoryPage() {
         {/* Header */}
         <div className="space-y-1">
           <h1 className="text-2xl font-bold text-ink-900">🛒 Tiendas de mascotas</h1>
-          <p className="text-sm text-sand-500">
+          <p className="text-sm text-copy-secondary">
             Descubre tiendas locales y haz tus pedidos directamente desde PawTrack CR.
           </p>
         </div>
@@ -79,13 +79,13 @@ export default function StoreDirectoryPage() {
         <BillboardBanner placement="Directory" />
         {/* Search */}
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sand-400 pointer-events-none">🔍</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-copy-muted pointer-events-none">🔍</span>
           <input
             type="search"
             placeholder="Buscar por nombre, descripción o dirección…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full rounded-xl border border-sand-200 bg-surface py-2.5 pl-9 pr-4 text-sm text-ink-900 placeholder:text-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 bg-surface py-2.5 pl-9 pr-4 text-sm text-ink-900 placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-brand-400"
           />
         </div>
 
@@ -158,7 +158,7 @@ export default function StoreDirectoryPage() {
             Registrar mi tienda →
           </Link>
         </div>
-        <p className="text-center text-xs text-sand-400">
+        <p className="text-center text-xs text-copy-muted">
           ¿Tienes otro tipo de negocio?{" "}
           <Link to="/registro-negocio" className="font-semibold text-brand-600 hover:underline">
             Ver todos los perfiles →

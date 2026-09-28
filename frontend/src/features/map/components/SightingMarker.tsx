@@ -33,7 +33,7 @@ export function SightingMarker({ event }: SightingMarkerProps) {
             />
           )}
           <p className="font-bold text-brand-600">🐾 Avistamiento reportado</p>
-          <p className="text-xs text-sand-500">
+          <p className="text-xs text-copy-secondary">
             {formatDate(event.occurredAt)}
           </p>
           <Link

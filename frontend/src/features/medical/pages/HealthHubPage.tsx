@@ -34,7 +34,7 @@ export default function HealthHubPage() {
 
       {!isLoading && pets?.length === 0 && (
         <div className="border-y border-sand-200 py-12 text-center">
-          <HeartPulse className="mx-auto mb-3 h-8 w-8 text-brand-500" />
+          <HeartPulse className="mx-auto mb-3 h-8 w-8 text-brand-600" />
           <p className="font-semibold text-sand-900">Registra una mascota para crear su expediente.</p>
         </div>
       )}
@@ -50,12 +50,12 @@ export default function HealthHubPage() {
               <img src={pet.photoUrl} alt="" className="h-16 w-16 rounded-lg object-cover" />
             ) : (
               <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-sand-100">
-                <HeartPulse className="h-6 w-6 text-sand-500" />
+                <HeartPulse className="h-6 w-6 text-copy-secondary" />
               </div>
             )}
             <div className="min-w-0 flex-1">
               <p className="break-words text-base font-semibold leading-tight text-brand-600">{pet.name}</p>
-              <p className="mt-1 text-sm text-sand-500">Expediente, vacunas y recordatorios</p>
+              <p className="mt-1 text-sm text-copy-secondary">Expediente, vacunas y recordatorios</p>
             </div>
             <ShieldCheck className="h-5 w-5 shrink-0 text-trust-600" aria-hidden="true" />
           </Link>

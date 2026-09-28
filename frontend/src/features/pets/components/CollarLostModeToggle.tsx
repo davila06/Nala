@@ -75,7 +75,7 @@ export function CollarLostModeToggle({
               <button
                 type="button"
                 onClick={() => setShowConfirm(false)}
-                className="text-xs text-sand-500 underline"
+                className="text-xs text-copy-secondary underline"
               >
                 Cancelar
               </button>

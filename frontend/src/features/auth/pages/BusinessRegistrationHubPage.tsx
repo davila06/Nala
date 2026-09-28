@@ -130,7 +130,7 @@ export default function BusinessRegistrationHubPage() {
                 <p className="mt-1.5 text-sm text-sand-600">
                   {option.description}
                 </p>
-                <ul className="mt-3 space-y-1 text-xs text-sand-500">
+                <ul className="mt-3 space-y-1 text-xs text-copy-secondary">
                   {option.bullets.map((bullet) => (
                     <li key={bullet} className="flex items-start gap-1.5">
                       <span
@@ -152,7 +152,7 @@ export default function BusinessRegistrationHubPage() {
           })}
         </div>
 
-        <div className="mt-10 space-y-1 text-center text-sm text-sand-500">
+        <div className="mt-10 space-y-1 text-center text-sm text-copy-secondary">
           <p>
             ¿Eres dueño de mascota?{" "}
             <Link

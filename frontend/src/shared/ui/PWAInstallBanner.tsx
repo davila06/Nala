@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "./Card";
 
@@ -83,7 +83,7 @@ export function PWAInstallBanner() {
               <p className="font-display text-sm font-semibold text-sand-900">
                 Instala PawTrack CR
               </p>
-              <p className="mt-0.5 text-xs text-sand-500 leading-snug">
+              <p className="mt-0.5 text-xs text-copy-secondary leading-snug">
                 Acceso rápido, notificaciones y funciona sin conexión.
               </p>
 
@@ -99,7 +99,7 @@ export function PWAInstallBanner() {
                 <button
                   type="button"
                   onClick={handleDismiss}
-                  className="rounded-lg border border-sand-200 px-3 py-1.5 text-xs font-semibold text-sand-500 hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-colors"
+                  className="rounded-lg border border-sand-200 px-3 py-1.5 text-xs font-semibold text-copy-secondary hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-colors"
                 >
                   Ahora no
                 </button>
@@ -111,7 +111,7 @@ export function PWAInstallBanner() {
               type="button"
               onClick={handleDismiss}
               aria-label="Cerrar"
-              className="shrink-0 text-sand-400 hover:text-sand-600 transition-colors mt-0.5"
+              className="shrink-0 text-copy-muted hover:text-sand-600 transition-colors mt-0.5"
             >
               <svg
                 viewBox="0 0 16 16"

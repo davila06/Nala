@@ -42,7 +42,7 @@ export function SightingList({ petId }: SightingListProps) {
 
   if (!sightings || sightings.length === 0) {
     return (
-      <p className="rounded-xl bg-surface-warm px-4 py-6 text-center text-sm text-sand-400">
+      <p className="rounded-xl bg-surface-warm px-4 py-6 text-center text-sm text-copy-muted">
         Sin avistamientos reportados aún.
       </p>
     );
@@ -72,14 +72,14 @@ export function SightingList({ petId }: SightingListProps) {
                 >
                   {PRIORITY_STYLES[s.priorityBadge].label}
                 </span>
-                <span className="text-xs font-semibold text-sand-500">{s.priorityScore}/100</span>
+                <span className="text-xs font-semibold text-copy-secondary">{s.priorityScore}/100</span>
               </div>
               <p className="mt-2 text-xs font-semibold text-sand-700">
                 <span aria-hidden="true">📍</span> {s.lat.toFixed(4)}, {s.lng.toFixed(4)}
               </p>
-              {s.note && <p className="mt-0.5 line-clamp-2 text-xs text-sand-500">{s.note}</p>}
+              {s.note && <p className="mt-0.5 line-clamp-2 text-xs text-copy-secondary">{s.note}</p>}
               <p className="mt-2 text-xs text-sand-600">{s.recommendedAction}</p>
-              <p className="mt-1 text-xs text-sand-400">{formatDateTime(s.sightedAt)}</p>
+              <p className="mt-1 text-xs text-copy-muted">{formatDateTime(s.sightedAt)}</p>
             </div>
           </div>
         </li>

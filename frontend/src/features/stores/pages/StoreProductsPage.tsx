@@ -125,7 +125,7 @@ function ProductForm({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={2}
-            className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm placeholder:text-sand-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-brand-400"
           />
         </div>
         {initial && (
@@ -242,7 +242,7 @@ export default function StoreProductsPage() {
       )}
 
       {(products ?? []).length === 0 && !showForm ? (
-        <p className="py-10 text-center text-sm text-sand-400">
+        <p className="py-10 text-center text-sm text-copy-muted">
           No tienes productos aún. Agrega el primero.
         </p>
       ) : (
@@ -336,7 +336,7 @@ export default function StoreProductsPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-sand-500">
+                    <p className="text-xs text-copy-secondary">
                       {CATEGORY_LABELS[product.category]}
                     </p>
                     <p className="text-sm font-bold text-rescue-700 mt-0.5">
@@ -347,7 +347,7 @@ export default function StoreProductsPage() {
                     <button
                       type="button"
                       onClick={() => setEditId(product.id)}
-                      className="rounded-lg p-2 text-sand-400 hover:bg-sand-100 hover:text-brand-600"
+                      className="rounded-lg p-2 text-copy-muted hover:bg-sand-100 hover:text-brand-600"
                     >
                       <svg
                         viewBox="0 0 16 16"

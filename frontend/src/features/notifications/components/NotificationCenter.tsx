@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -198,7 +198,7 @@ export function NotificationCenter() {
         <div className="space-y-6">
           {groups.map(([label, items], gIdx) => (
             <div key={label}>
-              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-sand-400 px-1">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-copy-muted px-1">
                 {label}
               </p>
               <ul className="list-none divide-y divide-sand-100 rounded-2xl border border-sand-200 bg-surface overflow-hidden p-0 m-0">
@@ -258,7 +258,7 @@ export function NotificationCenter() {
               <button
                 type="button"
                 onClick={closeResolveSheet}
-                className="mt-1 text-xs font-semibold text-sand-500 hover:text-sand-800"
+                className="mt-1 text-xs font-semibold text-copy-secondary hover:text-sand-800"
               >
                 Cerrar
               </button>

@@ -210,7 +210,7 @@ export default function LostReportConfirmationPage() {
   if (!routeState) {
     return (
       <div className="mx-auto max-w-lg px-4 py-12 text-center">
-        <p className="text-sand-500">Página no disponible directamente.</p>
+        <p className="text-copy-secondary">Página no disponible directamente.</p>
         <Link
           to="/dashboard"
           className="mt-4 inline-block rounded text-sm text-brand-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
@@ -396,7 +396,7 @@ export default function LostReportConfirmationPage() {
         )}
         <div>
           <p className="font-bold text-sand-900">{pet.name}</p>
-          <p className="text-sm text-sand-500">
+          <p className="text-sm text-copy-secondary">
             {{
               Dog: "Perro",
               Cat: "Gato",
@@ -430,7 +430,7 @@ export default function LostReportConfirmationPage() {
         <h2 className="mb-1 text-sm font-bold text-sand-800">
           📄 Flyer de búsqueda
         </h2>
-        <p className="mb-4 text-xs text-sand-500">
+        <p className="mb-4 text-xs text-copy-secondary">
           Descarga un flyer listo para imprimir o enviar por WhatsApp con todos
           los datos de {pet.name}.
         </p>

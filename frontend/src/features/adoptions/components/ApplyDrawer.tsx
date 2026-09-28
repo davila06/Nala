@@ -40,7 +40,7 @@ export function ApplyDrawer({
       title={`Adoptar a ${animalName}`}
     >
       <div className="space-y-4 p-4">
-        <p className="text-sm text-sand-500">
+        <p className="text-sm text-copy-secondary">
           Cuéntale a la organización un poco sobre ti y por qué quieres adoptar
           a {animalName}.
         </p>
@@ -53,7 +53,7 @@ export function ApplyDrawer({
           rows={5}
           className="w-full rounded-xl border border-sand-200 bg-surface px-4 py-3 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-brand-400 resize-none"
         />
-        <p className="text-right text-xs text-sand-400">{note.length}/500</p>
+        <p className="text-right text-xs text-copy-muted">{note.length}/500</p>
 
         <Button
           onClick={handleSubmit}

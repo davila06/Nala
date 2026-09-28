@@ -39,7 +39,7 @@ export default function AdoptionDetailPage() {
     return (
       <div className="mx-auto max-w-lg px-4 py-20 text-center">
         <p className="text-4xl mb-3">🐾</p>
-        <p className="text-sand-500">Este animal no está disponible.</p>
+        <p className="text-copy-secondary">Este animal no está disponible.</p>
         <Link to="/adopciones" className="mt-4 inline-block text-brand-600 underline text-sm">
           Ver todos los animales
         </Link>
@@ -59,8 +59,8 @@ export default function AdoptionDetailPage() {
 
       <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
         {/* Breadcrumb */}
-        <nav className="text-xs text-sand-400">
-          <Link to="/adopciones" className="hover:text-brand-500">
+        <nav className="text-xs text-copy-muted">
+          <Link to="/adopciones" className="hover:text-brand-600">
             Volver a adopciones
           </Link>
           {" / "}
@@ -101,7 +101,7 @@ export default function AdoptionDetailPage() {
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-bold text-ink-900">{animal.name}</h1>
-            <p className="text-sm text-sand-500 mt-0.5">
+            <p className="text-sm text-copy-secondary mt-0.5">
               {SPECIES_LABELS[animal.species]}
               {animal.breed && ` · ${animal.breed}`}
               {" · "}
@@ -120,11 +120,11 @@ export default function AdoptionDetailPage() {
                 En proceso
               </span>
             ) : (
-              <span className="inline-block bg-sand-100 text-sand-500 text-xs font-bold px-3 py-1 rounded-full">
+              <span className="inline-block bg-sand-100 text-copy-secondary text-xs font-bold px-3 py-1 rounded-full">
                 Adoptado ✓
               </span>
             )}
-            {animal.refLabel && <p className="text-xs text-sand-400 mt-1">📍 {animal.refLabel}</p>}
+            {animal.refLabel && <p className="text-xs text-copy-muted mt-1">📍 {animal.refLabel}</p>}
           </div>
         </div>
 
@@ -163,7 +163,7 @@ export default function AdoptionDetailPage() {
 
         {/* Organization */}
         <section className="rounded-lg border border-sand-200 bg-surface-warm p-4">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-sand-500">Publicado por</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-copy-secondary">Publicado por</h2>
           <p className="mt-1 text-base font-bold text-sand-900">{animal.organizationName}</p>
         </section>
 

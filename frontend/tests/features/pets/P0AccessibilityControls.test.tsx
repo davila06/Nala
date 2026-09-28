@@ -22,14 +22,18 @@ beforeEach(() => {
 });
 
 describe("P0 keyboard and accessible naming", () => {
-  it("flips the QR card with both Enter and Space", async () => {
+  it("flips the QR card with Enter and Space", async () => {
     const user = userEvent.setup();
     render(<QRFlipCard petId="pet-1" petName="Luna" />);
 
     const flip = screen.getByRole("button", { name: "Mostrar código QR de Luna" });
     flip.focus();
-    await user.keyboard(" ");
+    await user.keyboard("{Enter}");
+    expect(await screen.findByRole("img", { name: "QR de Luna" })).toBeInTheDocument();
 
+    await user.click(screen.getByRole("button", { name: "Mostrar foto" }));
+    screen.getByRole("button", { name: "Mostrar código QR de Luna" }).focus();
+    await user.keyboard(" ");
     expect(await screen.findByRole("img", { name: "QR de Luna" })).toBeInTheDocument();
   });
 

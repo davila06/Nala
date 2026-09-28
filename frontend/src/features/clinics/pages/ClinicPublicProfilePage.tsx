@@ -18,7 +18,7 @@ export default function ClinicPublicProfilePage() {
   if (isError || !clinic) {
     return (
       <main className="mx-auto max-w-3xl px-4 py-12 text-center">
-        <p className="text-sand-500">No encontramos esta clínica.</p>
+        <p className="text-copy-secondary">No encontramos esta clínica.</p>
         <Link
           to="/clinicas"
           className="mt-4 inline-block text-sm font-bold text-brand-600"
@@ -66,7 +66,7 @@ export default function ClinicPublicProfilePage() {
                   </span>
                 )}
               </div>
-              <p className="mt-1 text-sm text-sand-500">{clinic.address}</p>
+              <p className="mt-1 text-sm text-copy-secondary">{clinic.address}</p>
               {clinic.isEmergency24h && (
                 <p className="mt-2 text-xs font-bold text-danger-600">
                   Emergencias 24/7

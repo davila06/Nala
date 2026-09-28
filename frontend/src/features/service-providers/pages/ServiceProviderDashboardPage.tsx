@@ -97,10 +97,10 @@ export default function ServiceProviderDashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2">
         {isFreeTier ? (
           <div className="rounded-xl border border-dashed border-sand-200 bg-sand-50 p-5 opacity-70">
-            <p className="text-3xl font-semibold text-sand-400">
+            <p className="text-3xl font-semibold text-copy-muted">
               {services.length}
             </p>
-            <p className="mt-1 text-sm text-sand-500">
+            <p className="mt-1 text-sm text-copy-secondary">
               Servicios publicados (requiere membresia Verificada)
             </p>
           </div>
@@ -126,10 +126,10 @@ export default function ServiceProviderDashboardPage() {
         </Link>
         {isFreeTier ? (
           <div className="rounded-xl border border-dashed border-sand-200 bg-sand-50 p-5 opacity-70">
-            <p className="text-sm font-semibold text-sand-400">
+            <p className="text-sm font-semibold text-copy-muted">
               Reservas entrantes (requiere membresia Verificada)
             </p>
-            <p className="mt-1 text-sm text-sand-500">
+            <p className="mt-1 text-sm text-copy-secondary">
               Activa tu membresia para recibir y gestionar reservas.
             </p>
           </div>

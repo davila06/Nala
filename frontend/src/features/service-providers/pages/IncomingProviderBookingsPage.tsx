@@ -42,7 +42,7 @@ export default function IncomingProviderBookingsPage() {
         </p>
       </header>
       {bookings.length === 0 ? (
-        <p className="py-12 text-center text-sm text-sand-500">
+        <p className="py-12 text-center text-sm text-copy-secondary">
           Aun no hay reservas.
         </p>
       ) : (
@@ -65,7 +65,7 @@ export default function IncomingProviderBookingsPage() {
                         timeStyle: "short",
                       })}
                     </p>
-                    <p className="text-xs text-sand-500">
+                    <p className="text-xs text-copy-secondary">
                       Capacidad solicitada: {booking.quantity}
                     </p>
                   </div>

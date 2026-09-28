@@ -131,7 +131,7 @@ export default function StoreAnalyticsPage() {
                   {s.icon}
                 </p>
                 <p className={`text-xl font-black ${s.color}`}>{s.value}</p>
-                <p className="text-xs text-sand-500 mt-0.5">{s.label}</p>
+                <p className="text-xs text-copy-secondary mt-0.5">{s.label}</p>
               </div>
             ))}
           </div>
@@ -153,7 +153,7 @@ export default function StoreAnalyticsPage() {
                       key={d.day}
                       className="flex items-center gap-3 text-sm"
                     >
-                      <span className="w-24 shrink-0 text-sand-500">
+                      <span className="w-24 shrink-0 text-copy-secondary">
                         {d.day.slice(5)}
                       </span>
                       <div className="flex-1 rounded-full bg-sand-100 h-2">
@@ -165,7 +165,7 @@ export default function StoreAnalyticsPage() {
                       <span className="w-24 shrink-0 text-right font-semibold text-sand-800">
                         {fmt(d.revenueCrc)}
                       </span>
-                      <span className="w-10 shrink-0 text-right text-sand-400">
+                      <span className="w-10 shrink-0 text-right text-copy-muted">
                         {d.orderCount}p
                       </span>
                     </div>
@@ -194,7 +194,7 @@ export default function StoreAnalyticsPage() {
                       <p className="truncate font-semibold text-sand-900">
                         {p.productName}
                       </p>
-                      <p className="text-xs text-sand-500">
+                      <p className="text-xs text-copy-secondary">
                         {p.quantitySold} unidades
                       </p>
                     </div>
@@ -214,7 +214,7 @@ export default function StoreAnalyticsPage() {
                 📈 Desglose diario y top productos disponibles con Tienda
                 Partner
               </p>
-              <p className="mt-1 text-xs text-sand-500">
+              <p className="mt-1 text-xs text-copy-secondary">
                 Actualiza tu plan para ver el análisis completo.
               </p>
             </div>

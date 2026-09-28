@@ -60,7 +60,7 @@ function OrderCard({ order }: { order: StoreOrderDto }) {
           <p className="font-semibold text-sand-900">
             Pedido #{order.id.slice(-6).toUpperCase()}
           </p>
-          <p className="text-xs text-sand-500">
+          <p className="text-xs text-copy-secondary">
             {new Date(order.placedAt).toLocaleString("es-CR")} ·{" "}
             {order.fulfillmentType === "Pickup" ? "🏪 Retiro" : "🚚 Entrega"}
           </p>
@@ -243,7 +243,7 @@ export default function StoreOrdersPage() {
       {isLoading && <Skeleton className="h-48 rounded-2xl" />}
 
       {!isLoading && displayed.length === 0 && (
-        <p className="py-10 text-center text-sm text-sand-400">
+        <p className="py-10 text-center text-sm text-copy-muted">
           {filter === "active"
             ? "No hay pedidos activos."
             : "No hay pedidos aún."}

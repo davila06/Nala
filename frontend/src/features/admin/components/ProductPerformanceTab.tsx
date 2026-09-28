@@ -54,7 +54,7 @@ function minutes(value: number | null): string {
 export function ProductPerformanceTab() {
   const { data, isLoading, isError } = useProductPerformance();
 
-  if (isLoading) return <p className="p-6 text-sm text-sand-500">Cargando desempeño...</p>;
+  if (isLoading) return <p className="p-6 text-sm text-copy-secondary">Cargando desempeño...</p>;
   if (isError) {
     return (
       <p role="alert" className="p-6 text-sm text-danger-600">
@@ -68,7 +68,7 @@ export function ProductPerformanceTab() {
     <section className="rounded-2xl border border-sand-200 bg-surface p-5 shadow-sm">
       <div className="mb-5">
         <h2 className="text-lg font-bold text-sand-900">Desempeño de recuperación</h2>
-        <p className="text-sm text-sand-500">
+        <p className="text-sm text-copy-secondary">
           p50 y p90 calculados por incidente de pérdida, no mezclados por mascota.
         </p>
       </div>
@@ -80,7 +80,7 @@ export function ProductPerformanceTab() {
             ["180 días", data.activeProtectedPets180Days],
           ].map(([window, count]) => (
             <div key={window} className="rounded-xl border border-sand-200 bg-sand-50 px-4 py-3">
-              <p className="text-xs uppercase tracking-wide text-sand-500">Activas protegidas · {window}</p>
+              <p className="text-xs uppercase tracking-wide text-copy-secondary">Activas protegidas · {window}</p>
               <p className="mt-1 text-2xl font-bold tabular-nums text-sand-900">
                 {Number(count).toLocaleString("es-CR")}
               </p>
@@ -89,11 +89,11 @@ export function ProductPerformanceTab() {
         </div>
       )}
       {rows.length === 0 ? (
-        <p className="text-sm text-sand-500">Aún no hay incidentes en el periodo.</p>
+        <p className="text-sm text-copy-secondary">Aún no hay incidentes en el periodo.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-245 text-left text-sm">
-            <thead className="border-b border-sand-200 text-xs uppercase tracking-wide text-sand-500">
+            <thead className="border-b border-sand-200 text-xs uppercase tracking-wide text-copy-secondary">
               <tr>
                 <th className="px-3 py-2">Cohorte</th>
                 <th className="px-3 py-2">Cantón</th>

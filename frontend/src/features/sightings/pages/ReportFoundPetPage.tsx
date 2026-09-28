@@ -143,12 +143,12 @@ export default function ReportFoundPetPage() {
           🐾
         </p>
         <h1 className="mt-2 text-xl font-bold text-sand-900">Encontré una mascota</h1>
-        <p className="mt-1 text-sm text-sand-500">Ayúdanos a reunirla con su familia</p>
+        <p className="mt-1 text-sm text-copy-secondary">Ayúdanos a reunirla con su familia</p>
       </div>
 
       <StepIndicator current={step} total={4} />
 
-      <h2 className="mb-4 mt-5 text-center text-sm font-semibold uppercase tracking-wide text-sand-400">
+      <h2 className="mb-4 mt-5 text-center text-sm font-semibold uppercase tracking-wide text-copy-muted">
         Paso {step} — {stepTitles[step]}
       </h2>
 
@@ -170,7 +170,7 @@ export default function ReportFoundPetPage() {
                 <span className="text-4xl" aria-hidden="true">
                   📷
                 </span>
-                <p className="mt-2 text-sm text-sand-500">Toca para agregar una foto</p>
+                <p className="mt-2 text-sm text-copy-secondary">Toca para agregar una foto</p>
               </>
             )}
           </div>
@@ -181,7 +181,7 @@ export default function ReportFoundPetPage() {
             className="hidden"
             onChange={handlePhotoChange}
           />
-          <p className="text-center text-xs text-sand-400">La foto es opcional pero ayuda mucho</p>
+          <p className="text-center text-xs text-copy-muted">La foto es opcional pero ayuda mucho</p>
           <button
             type="button"
             onClick={() => setStep(2)}
@@ -321,7 +321,7 @@ export default function ReportFoundPetPage() {
           />
 
           <div className="flex items-center justify-between">
-            <p className="text-xs text-sand-500">
+            <p className="text-xs text-copy-secondary">
               {foundLat !== null
                 ? `📍 ${foundLat.toFixed(5)}, ${foundLng?.toFixed(5)}`
                 : geo.status === "requesting"
@@ -363,7 +363,7 @@ export default function ReportFoundPetPage() {
       {/* ── Step 4: Contact info ── */}
       {step === 4 && (
         <div className="space-y-4">
-          <p className="text-sm text-sand-500">
+          <p className="text-sm text-copy-secondary">
             Tus datos solo se compartirán con el dueño si encontramos una coincidencia.
           </p>
 

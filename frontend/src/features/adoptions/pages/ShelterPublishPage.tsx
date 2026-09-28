@@ -149,7 +149,7 @@ export default function ShelterPublishPage() {
         <section className="space-y-3">
           <h2 className="text-sm font-semibold text-ink-700 border-b border-sand-100 pb-2">Historia y personalidad</h2>
           <div>
-            <label htmlFor="adoption-story" className="block text-xs text-sand-500 mb-1">
+            <label htmlFor="adoption-story" className="block text-xs text-copy-secondary mb-1">
               Historia *
             </label>
             <textarea
@@ -161,10 +161,10 @@ export default function ShelterPublishPage() {
               placeholder="Cuéntanos cómo llegó, cómo es su personalidad, qué necesidades especiales tiene…"
               className="w-full rounded-xl border border-sand-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 resize-none"
             />
-            <p className="text-right text-xs text-sand-400 mt-1">{form.story.length}/2000</p>
+            <p className="text-right text-xs text-copy-muted mt-1">{form.story.length}/2000</p>
           </div>
           <div>
-            <label htmlFor="adoption-requirements" className="block text-xs text-sand-500 mb-1">
+            <label htmlFor="adoption-requirements" className="block text-xs text-copy-secondary mb-1">
               Requisitos para el adoptante
             </label>
             <textarea
@@ -178,7 +178,7 @@ export default function ShelterPublishPage() {
             />
           </div>
           <div>
-            <label htmlFor="adoption-medical-notes" className="block text-xs text-sand-500 mb-1">
+            <label htmlFor="adoption-medical-notes" className="block text-xs text-copy-secondary mb-1">
               Notas médicas
             </label>
             <textarea
@@ -213,7 +213,7 @@ export default function ShelterPublishPage() {
                   type="checkbox"
                   checked={!!form[key]}
                   onChange={(e) => set({ [key]: e.target.checked })}
-                  className="rounded border-sand-300 text-brand-500 focus:ring-brand-400"
+                  className="rounded border-sand-300 text-brand-600 focus:ring-brand-400"
                 />
                 {label}
               </label>
@@ -224,7 +224,7 @@ export default function ShelterPublishPage() {
         {/* Location reference */}
         <section className="space-y-3">
           <h2 className="text-sm font-semibold text-ink-700 border-b border-sand-100 pb-2">Zona de referencia</h2>
-          <p className="text-xs text-sand-400">
+          <p className="text-xs text-copy-muted">
             La ubicación exacta no se muestra públicamente — solo la zona de referencia.
           </p>
           <Input
@@ -247,7 +247,7 @@ export default function ShelterPublishPage() {
           /* Step 2: inline photo upload after successful publish */
           <section className="space-y-4 rounded-2xl border-2 border-dashed border-brand-200 bg-brand-50 p-5">
             <h2 className="text-sm font-semibold text-brand-700">📸 Paso 2 — Fotos (hasta 5)</h2>
-            <p className="text-xs text-sand-500">Añade fotos para que los adoptantes conozcan mejor al animal.</p>
+            <p className="text-xs text-copy-secondary">Añade fotos para que los adoptantes conozcan mejor al animal.</p>
 
             <input
               ref={fileInputRef}
@@ -263,7 +263,7 @@ export default function ShelterPublishPage() {
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-full rounded-xl border-2 border-dashed border-sand-300 py-6 text-sm text-sand-500 hover:border-brand-400 hover:text-brand-600 transition-colors"
+              className="w-full rounded-xl border-2 border-dashed border-sand-300 py-6 text-sm text-copy-secondary hover:border-brand-400 hover:text-brand-600 transition-colors"
             >
               {photoFiles.length > 0 ? `${photoFiles.length} foto(s) seleccionada(s)` : "Toca para seleccionar fotos"}
             </button>

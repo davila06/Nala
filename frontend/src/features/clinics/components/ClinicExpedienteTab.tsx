@@ -53,13 +53,13 @@ function RecordCard({ record }: { record: MedicalRecordDto }) {
               🏥 {record.clinicName ?? "Clínica"}
             </span>
           ) : (
-            <span className="rounded-full bg-sand-100 px-2 py-0.5 text-xs font-medium text-sand-500">👤 Dueño</span>
+            <span className="rounded-full bg-sand-100 px-2 py-0.5 text-xs font-medium text-copy-secondary">👤 Dueño</span>
           )}
         </div>
-        <span className="shrink-0 text-xs text-sand-500">{record.date}</span>
+        <span className="shrink-0 text-xs text-copy-secondary">{record.date}</span>
       </div>
       <p className="text-sm text-sand-700">{record.description}</p>
-      {record.vetName && <p className="text-xs text-sand-500">Dr/a. {record.vetName}</p>}
+      {record.vetName && <p className="text-xs text-copy-secondary">Dr/a. {record.vetName}</p>}
       {record.nextDueDate && <p className="text-xs font-medium text-warn-700">⏰ Próxima: {record.nextDueDate}</p>}
       {record.hasDocument && (
         <button
@@ -168,7 +168,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={2}
-          className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm placeholder:text-sand-400 focus:outline-none focus:ring-2 focus:ring-trust-400"
+          className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-trust-400"
           placeholder="Diagnóstico, tratamiento aplicado, observaciones…"
         />
       </div>
@@ -287,7 +287,7 @@ export function ClinicExpedienteTab({
           )}
           <div>
             <p className="font-semibold text-sand-900">{data.petName}</p>
-            <p className="text-xs text-sand-500">
+            <p className="text-xs text-copy-secondary">
               {data.species}
               {data.breed ? ` · ${data.breed}` : ""}
               {data.lastSeenAt && <> · última visita {new Date(data.lastSeenAt).toLocaleDateString("es-CR")}</>}
@@ -304,7 +304,7 @@ export function ClinicExpedienteTab({
       <section className="rounded-2xl border border-sand-100 bg-surface-warm p-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-sand-500">Identidad sanitaria</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-copy-secondary">Identidad sanitaria</p>
             <p className="text-sm text-sand-800">
               Microchip: <span className="font-mono">{sanitary?.microchipId ?? "No registrado"}</span> ·{" "}
               {sanitary?.microchipVerificationStatus ?? "Sin cargar"}
@@ -344,7 +344,7 @@ export function ClinicExpedienteTab({
 
       {/* Clinic records */}
       <div>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sand-500">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-copy-secondary">
           Registros de esta clínica ({clinicRecords.length})
         </p>
         {clinicRecords.length > 0 ? (
@@ -355,7 +355,7 @@ export function ClinicExpedienteTab({
           </ul>
         ) : (
           <Card padding="sm">
-            <p className="text-center text-sm text-sand-400">
+            <p className="text-center text-sm text-copy-muted">
               Esta clínica aún no tiene registros para {data.petName}.
             </p>
           </Card>
@@ -365,7 +365,7 @@ export function ClinicExpedienteTab({
       {/* Owner records (read-only) */}
       {ownerRecords.length > 0 && (
         <details>
-          <summary className="cursor-pointer text-xs font-semibold text-sand-400 hover:text-sand-600">
+          <summary className="cursor-pointer text-xs font-semibold text-copy-muted hover:text-sand-600">
             {ownerRecords.length} registro{ownerRecords.length !== 1 ? "s" : ""} del dueño (solo lectura)
           </summary>
           <ul className="mt-2 space-y-2">

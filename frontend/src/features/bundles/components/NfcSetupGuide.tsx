@@ -40,7 +40,7 @@ const STEPS = [
         <div className="mt-2 rounded-xl border border-sand-100 bg-sand-50 px-3 py-2 font-mono text-xs text-sand-700 break-all select-all">
           https://pawtrack.cr/p/[id-de-tu-mascota]
         </div>
-        <p className="mt-2 text-xs text-sand-500">
+        <p className="mt-2 text-xs text-copy-secondary">
           Puedes copiar el enlace desde el perfil de tu mascota en PawTrack.
         </p>
       </>
@@ -54,7 +54,7 @@ const STEPS = [
         Toca <strong>Escribir</strong> en NFC Tools y acerca el chip NFC al
         lector de tu teléfono. En la mayoría de dispositivos Android el lector
         está en la parte trasera, cerca del centro.
-        <p className="mt-2 text-xs text-sand-500">
+        <p className="mt-2 text-xs text-copy-secondary">
           La escritura tarda menos de 1 segundo. Verás una confirmación en
           pantalla.
         </p>
@@ -72,7 +72,7 @@ const STEPS = [
           ¡Listo! Cualquier teléfono Android puede tocar el collar y ver el
           perfil de tu mascota.
         </p>
-        <p className="mt-1 text-xs text-sand-500">
+        <p className="mt-1 text-xs text-copy-secondary">
           Los iPhone con iOS 14+ también pueden leer el chip desde la cámara
           nativa.
         </p>

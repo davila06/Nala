@@ -42,7 +42,7 @@ function ClinicCard({ clinic }: { clinic: PublicClinicDto }) {
         <p className="font-semibold text-ink-900 text-sm leading-tight line-clamp-1 group-hover:text-brand-600 transition-colors">
           {clinic.name}
         </p>
-        <p className="text-xs text-sand-400 line-clamp-1">
+        <p className="text-xs text-copy-muted line-clamp-1">
           📍 {clinic.address}
         </p>
 
@@ -144,7 +144,7 @@ export default function ClinicDirectoryPage() {
           <h1 className="text-2xl font-bold text-ink-900">
             🏥 Clínicas veterinarias
           </h1>
-          <p className="text-sand-500 text-sm mt-1">
+          <p className="text-copy-secondary text-sm mt-1">
             Clínicas afiliadas a PawTrack CR · Escaneo de QR y microchip ·
             Expediente digital
             {clinics.length > 0 && ` · ${clinics.length} registradas`}
@@ -162,7 +162,7 @@ export default function ClinicDirectoryPage() {
               onChange={(e) => setQuery(e.target.value)}
               className="w-full rounded-xl border border-sand-200 bg-surface px-4 py-2.5 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-brand-400 pl-9"
             />
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sand-400 text-sm">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-copy-muted text-sm">
               🔍
             </span>
           </div>
@@ -188,7 +188,7 @@ export default function ClinicDirectoryPage() {
           {coords && (
             <button
               onClick={() => setCoords(null)}
-              className="text-xs text-sand-400 hover:text-brand-500 underline transition-colors"
+              className="text-xs text-copy-muted hover:text-brand-600 underline transition-colors"
             >
               Limpiar zona
             </button>
@@ -197,7 +197,7 @@ export default function ClinicDirectoryPage() {
 
         {/* Results count */}
         {!isLoading && (
-          <p className="text-xs text-sand-400">
+          <p className="text-xs text-copy-muted">
             {sorted.length} clínica{sorted.length !== 1 ? "s" : ""}
             {showEmergencyOnly && " · solo emergencias"}
             {coords && " · cerca de ti"}
@@ -213,7 +213,7 @@ export default function ClinicDirectoryPage() {
             ))}
           </div>
         ) : sorted.length === 0 ? (
-          <div className="py-20 text-center text-sand-400">
+          <div className="py-20 text-center text-copy-muted">
             <p className="text-4xl mb-3">🔍</p>
             <p className="text-base font-medium">
               No encontramos clínicas con esos filtros
@@ -248,7 +248,7 @@ export default function ClinicDirectoryPage() {
             Registrarse
           </a>
         </div>
-        <p className="text-center text-xs text-sand-400">
+        <p className="text-center text-xs text-copy-muted">
           ¿Tienes otro tipo de negocio?{" "}
           <a
             href="/registro-negocio"

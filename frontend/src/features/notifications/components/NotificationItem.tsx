@@ -1,4 +1,4 @@
-﻿import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import type { NotificationItem } from "../api/notificationsApi";
 import { useMarkNotificationRead, useRespondResolveCheck } from "../hooks/useNotifications";
 
@@ -48,8 +48,8 @@ export function NotificationItemCard({ notification }: NotificationItemProps) {
           </span>
           <div className="flex-1 overflow-hidden">
             <p className="truncate text-sm font-bold text-sand-900">{notification.title}</p>
-            <p className="mt-0.5 text-xs text-sand-500">{notification.body}</p>
-            <p className="mt-1 text-xs text-sand-400">
+            <p className="mt-0.5 text-xs text-copy-secondary">{notification.body}</p>
+            <p className="mt-1 text-xs text-copy-muted">
               {new Date(notification.createdAt).toLocaleString("es-CR", {
                 month: "short",
                 day: "numeric",
@@ -105,8 +105,8 @@ export function NotificationItemCard({ notification }: NotificationItemProps) {
               <span className="h-2 w-2 shrink-0 rounded-full bg-brand-500" aria-label="No leída" />
             )}
           </div>
-          <p className="mt-0.5 line-clamp-2 text-xs text-sand-500">{notification.body}</p>
-          <p className="mt-1 text-xs text-sand-400">
+          <p className="mt-0.5 line-clamp-2 text-xs text-copy-secondary">{notification.body}</p>
+          <p className="mt-1 text-xs text-copy-muted">
             {new Date(notification.createdAt).toLocaleString("es-CR", {
               month: "short",
               day: "numeric",

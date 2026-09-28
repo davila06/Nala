@@ -54,7 +54,7 @@ export function AdminProviderIncidentsTab() {
         </p>
       </header>
       {incidents.length === 0 ? (
-        <p className="py-10 text-center text-sm text-sand-500">
+        <p className="py-10 text-center text-sm text-copy-secondary">
           No hay incidentes.
         </p>
       ) : (

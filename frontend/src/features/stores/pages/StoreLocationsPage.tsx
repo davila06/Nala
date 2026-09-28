@@ -237,7 +237,7 @@ export default function StoreLocationsPage() {
       )}
 
       {locations && locations.length === 0 && !showForm && (
-        <p className="py-8 text-center text-sm text-sand-400">
+        <p className="py-8 text-center text-sm text-copy-muted">
           No hay sedes registradas. Agrega la primera.
         </p>
       )}
@@ -259,14 +259,14 @@ export default function StoreLocationsPage() {
                       </span>
                     )}
                     {!loc.isActive && (
-                      <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] font-bold text-sand-500">
+                      <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] font-bold text-copy-secondary">
                         Inactiva
                       </span>
                     )}
                   </div>
-                  <p className="mt-0.5 text-sm text-sand-500">{loc.address}</p>
+                  <p className="mt-0.5 text-sm text-copy-secondary">{loc.address}</p>
                   {loc.phoneNumber && (
-                    <p className="text-xs text-sand-400">{loc.phoneNumber}</p>
+                    <p className="text-xs text-copy-muted">{loc.phoneNumber}</p>
                   )}
                 </div>
                 <div className="flex gap-2 shrink-0">

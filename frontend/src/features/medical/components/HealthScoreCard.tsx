@@ -91,7 +91,7 @@ function HealthScoreInner({ petId, petName }: HealthScoreCardProps) {
       <ScoreCircle score={data.score} />
 
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-semibold uppercase tracking-wide text-sand-500 mb-2">
+        <p className="text-xs font-semibold uppercase tracking-wide text-copy-secondary mb-2">
           Score de salud preventiva
         </p>
         <ul className="space-y-1.5">
@@ -110,7 +110,7 @@ function HealthScoreInner({ petId, petName }: HealthScoreCardProps) {
                 {item.protocolName}
               </span>
               {item.lastDate ? (
-                <span className="text-sand-400 shrink-0">
+                <span className="text-copy-muted shrink-0">
                   {item.isCompliant ? "✓" : "⚠"} {item.lastDate}
                 </span>
               ) : (

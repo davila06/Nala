@@ -97,7 +97,7 @@ export function AdminProviderVerificationsTab() {
         </label>
       </div>
       {verifications.length === 0 ? (
-        <p className="py-10 text-center text-sm text-sand-500">
+        <p className="py-10 text-center text-sm text-copy-secondary">
           No hay verificaciones de proveedores pendientes.
         </p>
       ) : (

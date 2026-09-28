@@ -54,9 +54,9 @@ export function LostPetMarker({ event }: LostPetMarkerProps) {
             )}
           </p>
           {event.species && (
-            <p className="text-xs capitalize text-sand-500">{event.species}</p>
+            <p className="text-xs capitalize text-copy-secondary">{event.species}</p>
           )}
-          <p className="text-xs text-sand-500">
+          <p className="text-xs text-copy-secondary">
             {formatDate(event.occurredAt)}
           </p>
           <Link

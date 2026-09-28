@@ -83,7 +83,7 @@ export function BottomNav({ isOwner = false }: { isOwner?: boolean }) {
               <motion.span
                 animate={{ scale: isActive ? 1.15 : 1 }}
                 transition={{ type: "spring", stiffness: 400, damping: 28 }}
-                className={isActive ? "text-brand-600" : "text-sand-500"}
+                className={isActive ? "text-brand-600" : "text-copy-secondary"}
               >
                 {item.icon(isActive)}
               </motion.span>
@@ -91,7 +91,7 @@ export function BottomNav({ isOwner = false }: { isOwner?: boolean }) {
               <span
                 className={[
                   "text-[10px] font-semibold leading-none transition-colors",
-                  isActive ? "text-brand-600" : "text-sand-400",
+                  isActive ? "text-brand-600" : "text-copy-muted",
                 ].join(" ")}
               >
                 {isLostPetAction ? "Perdida" : item.label}

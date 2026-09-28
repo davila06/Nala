@@ -36,7 +36,7 @@ function ClinicGeneratedCodeDisplay({
           Copiar
         </button>
       </div>
-      <p className="text-center text-xs text-sand-500">
+      <p className="text-center text-xs text-copy-secondary">
         Válido hasta {expires.toLocaleString("es-CR")}
       </p>
       <p className="rounded-xl bg-trust-100 px-3 py-2 text-xs text-trust-800">
@@ -74,7 +74,7 @@ function AuthorizedPatientsList({
   if (!pets?.length)
     return (
       <Card padding="sm">
-        <p className="text-center text-xs text-sand-400">
+        <p className="text-center text-xs text-copy-muted">
           Ningún propietario ha autorizado acceso permanente todavía.
         </p>
       </Card>
@@ -100,7 +100,7 @@ function AuthorizedPatientsList({
               <p className="text-sm font-semibold text-sand-900 truncate">
                 {p.petName}
               </p>
-              <p className="text-xs text-sand-500">
+              <p className="text-xs text-copy-secondary">
                 {p.species} · acceso desde{" "}
                 {new Date(p.grantedAt).toLocaleDateString("es-CR")}
               </p>
@@ -175,7 +175,7 @@ export function ClinicAccessPanel({
               "flex-1 rounded-lg py-1.5 text-xs font-bold transition-colors",
               tab === t
                 ? "bg-surface text-sand-900 shadow-sm"
-                : "text-sand-500 hover:text-sand-700",
+                : "text-copy-secondary hover:text-sand-700",
             ].join(" ")}
           >
             {t === "list"

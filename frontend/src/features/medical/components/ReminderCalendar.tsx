@@ -108,13 +108,13 @@ export function ReminderCalendar({ reminders, petId }: Props) {
           No se pudieron cargar las reservas de servicios.
         </p>
       )}
-      {loadingBookings && <p className="text-xs text-sand-500">Cargando reservas…</p>}
+      {loadingBookings && <p className="text-xs text-copy-secondary">Cargando reservas…</p>}
       {/* Header */}
       <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={prevMonth}
-          className="rounded-lg p-1.5 text-sand-500 hover:bg-sand-100 hover:text-sand-800"
+          className="rounded-lg p-1.5 text-copy-secondary hover:bg-sand-100 hover:text-sand-800"
         >
           ◀
         </button>
@@ -124,7 +124,7 @@ export function ReminderCalendar({ reminders, petId }: Props) {
         <button
           type="button"
           onClick={nextMonth}
-          className="rounded-lg p-1.5 text-sand-500 hover:bg-sand-100 hover:text-sand-800"
+          className="rounded-lg p-1.5 text-copy-secondary hover:bg-sand-100 hover:text-sand-800"
         >
           ▶
         </button>
@@ -133,7 +133,7 @@ export function ReminderCalendar({ reminders, petId }: Props) {
       {/* Day headers */}
       <div className="grid grid-cols-7 gap-px">
         {DAY_NAMES.map((d) => (
-          <div key={d} className="py-1 text-center text-xs font-semibold text-sand-400">
+          <div key={d} className="py-1 text-center text-xs font-semibold text-copy-muted">
             {d}
           </div>
         ))}
@@ -185,7 +185,7 @@ export function ReminderCalendar({ reminders, petId }: Props) {
       {/* Selected day detail */}
       {selectedDay !== null && (selectedReminders.length > 0 || selectedBookings.length > 0) && (
         <div className="border-t border-sand-100 pt-3 space-y-2">
-          <p className="text-xs font-semibold text-sand-500">
+          <p className="text-xs font-semibold text-copy-secondary">
             {selectedDay} de {MONTH_NAMES[viewMonth]}
           </p>
           {selectedReminders.map((r) => (
@@ -193,11 +193,11 @@ export function ReminderCalendar({ reminders, petId }: Props) {
               <span className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${TYPE_COLOR[r.type] ?? "bg-sand-400"}`} />
               <div className="min-w-0">
                 <p
-                  className={`text-xs font-semibold ${r.isCompleted ? "line-through text-sand-400" : "text-sand-800"}`}
+                  className={`text-xs font-semibold ${r.isCompleted ? "line-through text-copy-muted" : "text-sand-800"}`}
                 >
                   {r.title}
                 </p>
-                {r.notes && <p className="text-xs text-sand-500 truncate">{r.notes}</p>}
+                {r.notes && <p className="text-xs text-copy-secondary truncate">{r.notes}</p>}
               </div>
               {r.isCompleted && <span className="ml-auto text-xs text-green-600 shrink-0">✓</span>}
             </div>
@@ -228,7 +228,7 @@ export function ReminderCalendar({ reminders, petId }: Props) {
       )}
       {selectedDay !== null && selectedReminders.length === 0 && selectedBookings.length === 0 && (
         <div className="border-t border-sand-100 pt-3">
-          <p className="text-center text-xs text-sand-400">Sin recordatorios este día</p>
+          <p className="text-center text-xs text-copy-muted">Sin recordatorios este día</p>
         </div>
       )}
     </div>

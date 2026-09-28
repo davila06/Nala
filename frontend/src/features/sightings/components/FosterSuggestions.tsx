@@ -1,4 +1,4 @@
-﻿import { Skeleton } from "@/shared/ui/Spinner";
+import { Skeleton } from "@/shared/ui/Spinner";
 import { useFosterSuggestions } from "../hooks/useFosters";
 
 export function FosterSuggestions({
@@ -20,7 +20,7 @@ export function FosterSuggestions({
 
   if (!data || data.length === 0) {
     return (
-      <div className="mt-6 rounded-2xl border border-sand-200 bg-surface-warm p-4 text-sm text-sand-500">
+      <div className="mt-6 rounded-2xl border border-sand-200 bg-surface-warm p-4 text-sm text-copy-secondary">
         No hay custodios disponibles en este momento.
       </div>
     );
@@ -44,10 +44,10 @@ export function FosterSuggestions({
             <p className="text-sm font-semibold text-sand-800">
               {item.volunteerName}
             </p>
-            <p className="text-xs text-sand-500">
+            <p className="text-xs text-copy-secondary">
               Distancia: {item.distanceLabel} · Cupo: {item.maxDays} días
             </p>
-            <p className="text-xs text-sand-500">
+            <p className="text-xs text-copy-secondary">
               Tamaño: {item.sizePreference ?? "Sin preferencia"} · Coincidencia
               especie: {item.speciesMatch ? "Sí" : "No"}
             </p>

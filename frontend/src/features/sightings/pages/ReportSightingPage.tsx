@@ -1,4 +1,4 @@
-﻿import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Alert } from "@/shared/ui/Alert";
 import { useReportSighting } from "../hooks/useSightings";
@@ -26,7 +26,7 @@ function SightingAutoMatchPanel({
 
   if (isLoading) {
     return (
-      <div className="mt-6 flex items-center justify-center gap-2 text-sm text-sand-500">
+      <div className="mt-6 flex items-center justify-center gap-2 text-sm text-copy-secondary">
         <span className="h-4 w-4 animate-spin rounded-full border-2 border-sand-400 border-t-transparent" />
         Buscando mascotas perdidas similares…
       </div>
@@ -40,7 +40,7 @@ function SightingAutoMatchPanel({
       <h2 className="mb-3 text-base font-bold text-sand-900">
         🔍 ¿Podría ser alguna de estas?
       </h2>
-      <p className="mb-4 text-xs text-sand-500">
+      <p className="mb-4 text-xs text-copy-secondary">
         Encontramos mascotas reportadas como perdidas que se parecen a la foto
         que subiste.
       </p>
@@ -75,9 +75,9 @@ function SightingAutoMatchPanel({
                 <p className="truncate text-sm font-semibold text-sand-900">
                   {m.petName}
                 </p>
-                <p className="text-xs text-sand-400">{m.species}</p>
+                <p className="text-xs text-copy-muted">{m.species}</p>
                 {m.distanceKm != null && (
-                  <p className="text-xs text-sand-400">
+                  <p className="text-xs text-copy-muted">
                     📍{" "}
                     {m.distanceKm < 1
                       ? `${Math.round(m.distanceKm * 1000)} m`
@@ -201,7 +201,7 @@ export default function ReportSightingPage() {
         <h1 className="mt-4 text-2xl font-extrabold text-sand-900">
           ¡Gracias por ayudar!
         </h1>
-        <p className="mt-2 max-w-xs text-center text-sm text-sand-500">
+        <p className="mt-2 max-w-xs text-center text-sm text-copy-secondary">
           Tu avistamiento fue registrado. El dueño recibirá una notificación.
         </p>
 
@@ -232,14 +232,14 @@ export default function ReportSightingPage() {
       <div className="border-b border-sand-100 px-5 py-4">
         <Link
           to={petId ? `/p/${petId}` : "/"}
-          className="text-sm text-sand-500 hover:text-sand-800 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          className="text-sm text-copy-secondary hover:text-sand-800 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
         >
           ← Volver al perfil
         </Link>
         <h1 className="mt-1 text-xl font-extrabold text-sand-900">
           Reportar avistamiento
         </h1>
-        <p className="mt-0.5 text-xs text-sand-400">
+        <p className="mt-0.5 text-xs text-copy-muted">
           Tus datos de contacto nunca se almacenan.
         </p>
       </div>
@@ -306,7 +306,7 @@ export default function ReportSightingPage() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-sand-200 py-8 text-sm font-medium text-sand-400 hover:border-brand-400 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-sand-200 py-8 text-sm font-medium text-copy-muted hover:border-brand-400 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
             >
               📸 Tomar / elegir foto
             </button>
@@ -336,12 +336,12 @@ export default function ReportSightingPage() {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Describe dónde viste a la mascota, qué estaba haciendo…"
-            className="w-full rounded-xl border border-sand-200 bg-sand-50 px-3 py-2.5 text-sm text-sand-800 placeholder:text-sand-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            className="w-full rounded-xl border border-sand-200 bg-sand-50 px-3 py-2.5 text-sm text-sand-800 placeholder:text-copy-muted focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
-          <p className="mt-0.5 text-right text-xs text-sand-400">
+          <p className="mt-0.5 text-right text-xs text-copy-muted">
             {note.length}/2000
           </p>
-          <p className="text-xs text-sand-400">
+          <p className="text-xs text-copy-muted">
             No incluyas tu teléfono, correo ni datos personales en la nota.
           </p>
         </div>

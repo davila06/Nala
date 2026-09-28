@@ -224,7 +224,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
           {/* Header */}
           <div className="mb-4 flex items-start justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-500">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-600">
                 {paymentMethod === "sinpe" ? "SINPE Móvil" : "Tarjeta Débito / Crédito"}
               </p>
               <h2 className="mt-1 text-xl font-black text-sand-900">Activar {label}</h2>
@@ -234,7 +234,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                 type="button"
                 onClick={onClose}
                 aria-label="Cerrar"
-                className="rounded-xl p-2 text-sand-400 hover:bg-sand-100 hover:text-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="rounded-xl p-2 text-copy-muted hover:bg-sand-100 hover:text-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               >
                 <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                   <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z" />
@@ -386,7 +386,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                   className={`rounded-lg py-1.5 text-xs font-bold transition-colors ${
                     paymentView === "instructions"
                       ? "bg-surface text-sand-900 shadow-sm"
-                      : "text-sand-500 hover:text-sand-700"
+                      : "text-copy-secondary hover:text-sand-700"
                   }`}
                 >
                   📝 Datos de transferencia
@@ -395,7 +395,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                   type="button"
                   onClick={() => setPaymentView("qr")}
                   className={`rounded-lg py-1.5 text-xs font-bold transition-colors ${
-                    paymentView === "qr" ? "bg-surface text-sand-900 shadow-sm" : "text-sand-500 hover:text-sand-700"
+                    paymentView === "qr" ? "bg-surface text-sand-900 shadow-sm" : "text-copy-secondary hover:text-sand-700"
                   }`}
                 >
                   📲 Escanear QR
@@ -406,7 +406,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                 <>
                   {/* Reference & Amount Card */}
                   <div className="rounded-2xl bg-surface-warm p-4 text-center space-y-2 border border-sand-200">
-                    <p className="text-xs text-sand-500 font-medium">Código de referencia único</p>
+                    <p className="text-xs text-copy-secondary font-medium">Código de referencia único</p>
                     <div className="flex items-center justify-center gap-2">
                       <span className="font-mono text-2xl font-black tracking-[0.2em] text-sand-900">{reference}</span>
                       <button
@@ -421,7 +421,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
 
                     <div className="grid grid-cols-2 gap-2 pt-2 border-t border-sand-200/80 text-left">
                       <div className="rounded-xl bg-surface p-2.5 border border-sand-100">
-                        <span className="block text-[10px] uppercase font-bold text-sand-400">Monto a transferir</span>
+                        <span className="block text-[10px] uppercase font-bold text-copy-muted">Monto a transferir</span>
                         <div className="flex items-center justify-between mt-0.5">
                           <span className="text-sm font-black text-sand-900">₡{price.toLocaleString("es-CR")}</span>
                           <button
@@ -436,7 +436,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                       </div>
 
                       <div className="rounded-xl bg-surface p-2.5 border border-sand-100">
-                        <span className="block text-[10px] uppercase font-bold text-sand-400">Teléfono SINPE</span>
+                        <span className="block text-[10px] uppercase font-bold text-copy-muted">Teléfono SINPE</span>
                         <div className="flex items-center justify-between mt-0.5">
                           <span className="text-sm font-black text-sand-900">{SINPE_NUMBER}</span>
                           <button
@@ -519,13 +519,13 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                         className="h-48 w-48 rounded-2xl bg-white p-2 border border-sand-200 shadow-sm"
                       />
                     ) : (
-                      <div className="flex h-48 w-48 flex-col items-center justify-center rounded-2xl bg-surface border border-dashed border-sand-300 p-4 text-sand-400">
+                      <div className="flex h-48 w-48 flex-col items-center justify-center rounded-2xl bg-surface border border-dashed border-sand-300 p-4 text-copy-muted">
                         <span className="text-2xl mb-1">📲</span>
                         <p className="text-[11px]">Código QR disponible para escanear</p>
                       </div>
                     )}
                   </div>
-                  <p className="text-[11px] text-sand-500">
+                  <p className="text-[11px] text-copy-secondary">
                     Escanea este código con tu teléfono para abrir la plantilla con monto y referencia.
                   </p>
                 </div>
@@ -545,7 +545,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                   maxLength={64}
                   className="w-full rounded-xl border border-sand-200 bg-surface-warm px-3 py-2 text-xs text-sand-900 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors"
                 />
-                <p className="text-[10px] text-sand-400">Ayuda a nuestro equipo a validar tu pago en pocos minutos.</p>
+                <p className="text-[10px] text-copy-muted">Ayuda a nuestro equipo a validar tu pago en pocos minutos.</p>
               </div>
 
               {error && <p className="text-xs text-danger-600">{error}</p>}
@@ -557,7 +557,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
               >
                 {isReporting ? "Registrando…" : "✓ Ya realicé el pago SINPE"}
               </button>
-              <p className="text-center text-[11px] text-sand-400">
+              <p className="text-center text-[11px] text-copy-muted">
                 Activación manual verificada por administración en horario hábil.
               </p>
             </div>
@@ -581,7 +581,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                 {receiptNumber ? ` (comprobante #${receiptNumber})` : ""}. Activaremos tu plan <strong>{label}</strong>{" "}
                 en cuanto sea verificado por administración.
               </p>
-              <p className="text-xs text-sand-400">
+              <p className="text-xs text-copy-muted">
                 Te notificaremos automáticamente por correo y en la app cuando esté activo.
               </p>
               <button
@@ -611,7 +611,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                 </div>
               )}
 
-              <p className="text-xs text-sand-400">
+              <p className="text-xs text-copy-muted">
                 Enviamos tu comprobante de pago electrónico a tu correo registrado.
               </p>
 

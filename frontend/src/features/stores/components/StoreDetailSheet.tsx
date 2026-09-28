@@ -75,14 +75,14 @@ export function StoreDetailSheet({
           {data && (
             <>
               {/* Store info */}
-              <div className="text-sm text-sand-500 space-y-0.5">
+              <div className="text-sm text-copy-secondary space-y-0.5">
                 <p>📍 {data.store.address}</p>
                 {data.store.phoneNumber && <p>📞 {data.store.phoneNumber}</p>}
               </div>
 
               {/* Products grouped by category */}
               {data.products.length === 0 ? (
-                <p className="py-8 text-center text-sm text-sand-400">
+                <p className="py-8 text-center text-sm text-copy-muted">
                   Esta tienda no tiene productos disponibles aún.
                 </p>
               ) : (
@@ -95,7 +95,7 @@ export function StoreDetailSheet({
                   }, {});
                   return Object.entries(grouped).map(([cat, prods]) => (
                     <div key={cat}>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-sand-400 mb-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-copy-muted mb-2">
                         {CATEGORY_LABELS[cat as keyof typeof CATEGORY_LABELS] ??
                           cat}
                       </p>
@@ -117,7 +117,7 @@ export function StoreDetailSheet({
                                 {product.name}
                               </p>
                               {product.description && (
-                                <p className="text-xs text-sand-500 truncate">
+                                <p className="text-xs text-copy-secondary truncate">
                                   {product.description}
                                 </p>
                               )}

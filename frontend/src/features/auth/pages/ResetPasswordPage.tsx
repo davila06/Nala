@@ -62,7 +62,7 @@ export default function ResetPasswordPage() {
               <h1 className="font-display text-3xl font-semibold text-sand-900">
                 Nueva contraseña
               </h1>
-              <p className="mt-2 text-sm text-sand-500">
+              <p className="mt-2 text-sm text-copy-secondary">
                 Elige una contraseña segura de al menos 8 caracteres.
               </p>
             </div>
@@ -116,7 +116,7 @@ export default function ResetPasswordPage() {
               </Button>
             </form>
 
-            <p className="mt-6 text-center text-sm text-sand-500">
+            <p className="mt-6 text-center text-sm text-copy-secondary">
               <Link
                 to="/login"
                 className="font-semibold text-brand-600 hover:underline"
