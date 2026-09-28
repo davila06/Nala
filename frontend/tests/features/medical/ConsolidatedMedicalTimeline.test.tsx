@@ -1,10 +1,19 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ConsolidatedMedicalTimeline } from "@/features/medical/components/ConsolidatedMedicalTimeline";
 import { renderWithProviders } from "../../utils/renderWithProviders";
 import { medicalApi } from "@/features/medical/api/medicalApi";
 
-vi.mock("@/features/medical/api/medicalApi", () => ({ medicalApi: { getTimeline: vi.fn() } }));
+vi.mock("@/features/medical/api/medicalApi", () => ({
+  medicalApi: {
+    getTimeline: vi.fn(),
+    downloadMedicalDocument: vi.fn(),
+    downloadConsolidatedReport: vi.fn(),
+    requestHealthReportExport: vi.fn(),
+    getHealthReportExport: vi.fn(),
+    downloadHealthReportExport: vi.fn(),
+  },
+}));
 
 vi.mock("@/features/clinics/hooks/useCertificates", () => ({
   useDownloadCertificatePdf: () => ({ mutateAsync: vi.fn(), isPending: false }),
@@ -18,6 +27,40 @@ describe("ConsolidatedMedicalTimeline", () => {
     renderWithProviders(<ConsolidatedMedicalTimeline petId="report-pet" />);
 
     expect(await screen.findByRole("button", { name: /descargar reporte integral/i })).toBeInTheDocument();
+  });
+
+  it("requests, polls and exposes download for a long-running report", async () => {
+    vi.mocked(medicalApi.getTimeline).mockResolvedValueOnce({ items: [], hasMore: false });
+    vi.mocked(medicalApi.requestHealthReportExport).mockResolvedValueOnce({
+      id: "export-1",
+      petId: "report-pet",
+      status: "Queued",
+      requestedAt: "2026-09-28T12:00:00Z",
+      completedAt: null,
+      expiresAt: "2026-09-29T12:00:00Z",
+      itemCount: null,
+      errorCode: null,
+    });
+    vi.mocked(medicalApi.getHealthReportExport).mockResolvedValue({
+      id: "export-1",
+      petId: "report-pet",
+      status: "Completed",
+      requestedAt: "2026-09-28T12:00:00Z",
+      completedAt: "2026-09-28T12:00:10Z",
+      expiresAt: "2026-09-29T12:00:00Z",
+      itemCount: 6001,
+      errorCode: null,
+    });
+    vi.mocked(medicalApi.downloadHealthReportExport).mockResolvedValueOnce(new Blob(["pdf"]));
+    Object.defineProperty(URL, "createObjectURL", { configurable: true, value: vi.fn(() => "blob:report") });
+    Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: vi.fn() });
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
+    renderWithProviders(<ConsolidatedMedicalTimeline petId="report-pet" />);
+
+    fireEvent.click(await screen.findByRole("button", { name: /solicitar reporte en segundo plano/i }));
+    expect(await screen.findByText(/Reporte listo · 6001 eventos/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /descargar reporte listo/i }));
+    await waitFor(() => expect(medicalApi.downloadHealthReportExport).toHaveBeenCalledWith("report-pet", "export-1"));
   });
 
   it("does not offer an unavailable certificate PDF", async () => {
@@ -51,7 +94,8 @@ describe("ConsolidatedMedicalTimeline", () => {
           date: "2026-09-20",
           label: "Documento uno",
           kind: "Other",
-          documentUrl: "https://example.invalid/one.pdf",
+          documentUrl: null,
+          hasDocument: true,
           verificationCode: null,
           isRevoked: false,
           documentKind: "Radiograph",
@@ -62,7 +106,8 @@ describe("ConsolidatedMedicalTimeline", () => {
           date: "2026-09-19",
           label: "Documento dos",
           kind: "Other",
-          documentUrl: "https://example.invalid/two.pdf",
+          documentUrl: null,
+          hasDocument: true,
           verificationCode: null,
           isRevoked: false,
           documentKind: null,
@@ -148,7 +193,8 @@ describe("ConsolidatedMedicalTimeline", () => {
           date: "2026-09-17",
           label: "Examen adjunto",
           kind: "Other",
-          documentUrl: "https://example.invalid/exam.pdf",
+          documentUrl: null,
+          hasDocument: true,
           verificationCode: null,
           isRevoked: false,
         },
@@ -162,10 +208,8 @@ describe("ConsolidatedMedicalTimeline", () => {
     expect(items[0]).toHaveTextContent("Control clínico");
     expect(items[1]).toHaveTextContent("Certificado de Salud");
     expect(items[2]).toHaveTextContent("Examen adjunto");
-    expect(screen.getByRole("link", { name: /documento adjunto/i })).toHaveAttribute(
-      "href",
-      "https://example.invalid/exam.pdf",
-    );
+    expect(screen.getByRole("button", { name: /descargar documento: examen adjunto/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /documento adjunto/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/radiografía|obesidad|diagnóstico automático/i)).not.toBeInTheDocument();
   });
 });

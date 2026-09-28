@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { FileText } from "lucide-react";
 import { medicalApi } from "../api/medicalApi";
 import { useDownloadCertificatePdf } from "@/features/clinics/hooks/useCertificates";
@@ -29,7 +29,41 @@ export function ConsolidatedMedicalTimeline({ petId }: Props) {
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
     },
   });
+  const attachmentDownload = useMutation({
+    mutationFn: (recordId: string) => medicalApi.downloadMedicalDocument(petId, recordId),
+    onSuccess: (blob, recordId) => {
+      const url = URL.createObjectURL(blob);
+      const link = globalThis.document.createElement("a");
+      link.href = url;
+      link.download = `medical-document-${recordId}`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    },
+  });
   const [downloadError, setDownloadError] = useState(false);
+  const [exportJobId, setExportJobId] = useState<string | null>(null);
+  const asyncExport = useQuery({
+    queryKey: ["medical-report-export", petId, exportJobId],
+    queryFn: () => medicalApi.getHealthReportExport(petId, exportJobId!),
+    enabled: !!exportJobId,
+    refetchInterval: (query) =>
+      query.state.data?.status === "Queued" || query.state.data?.status === "Processing" ? 2000 : false,
+  });
+  const requestAsyncExport = useMutation({
+    mutationFn: () => medicalApi.requestHealthReportExport(petId),
+    onSuccess: (exportJob) => setExportJobId(exportJob.id),
+  });
+  const downloadAsyncExport = useMutation({
+    mutationFn: () => medicalApi.downloadHealthReportExport(petId, exportJobId!),
+    onSuccess: (blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = globalThis.document.createElement("a");
+      link.href = url;
+      link.download = `historial-consolidado-${petId}.pdf`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    },
+  });
   const events = data?.pages.flatMap((page) => page.items) ?? [];
 
   const handleDownload = async (id: string, verificationCode: string) => {
@@ -58,9 +92,55 @@ export function ConsolidatedMedicalTimeline({ petId }: Props) {
       >
         {report.isPending ? "Preparando PDF…" : "Descargar reporte integral"}
       </button>
+      <button
+        type="button"
+        disabled={requestAsyncExport.isPending}
+        onClick={() => requestAsyncExport.mutate()}
+        className="ml-3 mt-2 text-xs font-medium text-trust-700 hover:underline disabled:opacity-50"
+      >
+        {requestAsyncExport.isPending ? "Solicitando…" : "Solicitar reporte en segundo plano"}
+      </button>
+      {requestAsyncExport.isError && (
+        <p role="alert" className="mt-2 text-xs text-danger-600">
+          No se pudo solicitar el reporte.
+        </p>
+      )}
+      {asyncExport.data && (
+        <p role="status" className="mt-2 text-xs text-sand-600">
+          {asyncExport.data.status === "Queued"
+            ? "Reporte en cola"
+            : asyncExport.data.status === "Processing"
+              ? "Preparando reporte"
+              : asyncExport.data.status === "Completed"
+                ? `Reporte listo · ${asyncExport.data.itemCount ?? 0} eventos`
+                : asyncExport.data.status === "Expired"
+                  ? "El reporte venció"
+                  : "No se pudo generar el reporte"}
+        </p>
+      )}
+      {asyncExport.data?.status === "Completed" && (
+        <button
+          type="button"
+          disabled={downloadAsyncExport.isPending}
+          onClick={() => downloadAsyncExport.mutate()}
+          className="ml-3 mt-2 text-xs font-medium text-brand-600 hover:underline disabled:opacity-50"
+        >
+          {downloadAsyncExport.isPending ? "Descargando…" : "Descargar reporte listo"}
+        </button>
+      )}
+      {downloadAsyncExport.isError && (
+        <p role="alert" className="mt-2 text-xs text-danger-600">
+          No se pudo descargar el reporte.
+        </p>
+      )}
       {report.isError && (
         <p role="alert" className="mt-2 text-xs text-danger-600">
           No se pudo generar el reporte. Inténtalo de nuevo.
+        </p>
+      )}
+      {attachmentDownload.isError && (
+        <p role="alert" className="mt-2 text-xs text-danger-600">
+          No se pudo descargar el adjunto o el permiso fue revocado.
         </p>
       )}
       {isLoading && <p className="mt-3 text-xs text-sand-500">Cargando historial…</p>}
@@ -102,16 +182,16 @@ export function ConsolidatedMedicalTimeline({ petId }: Props) {
                 {event.isRevoked ? " · Revocado" : ""}
               </p>
             </div>
-            {event.documentUrl && (
-              <a
-                href={event.documentUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="shrink-0 text-xs text-brand-600 hover:underline"
-                aria-label={`Documento adjunto: ${event.label}`}
+            {event.source === "MedicalRecord" && event.hasDocument && (
+              <button
+                type="button"
+                disabled={attachmentDownload.isPending}
+                onClick={() => attachmentDownload.mutate(event.id)}
+                className="shrink-0 text-xs text-brand-600 hover:underline disabled:opacity-50"
+                aria-label={`Descargar documento: ${event.label}`}
               >
                 <FileText className="inline h-4 w-4" aria-hidden="true" /> Documento adjunto
-              </a>
+              </button>
             )}
             {event.source === "Certificate" && event.hasPdf && event.verificationCode && (
               <button

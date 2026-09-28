@@ -87,9 +87,9 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
             .StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
-    private sealed record TimelineItem(string Label);
+    private sealed record TimelineItem(string Label, string? DocumentUrl = null, bool HasDocument = false);
     private sealed record TimelineResponse(List<TimelineItem> Items, bool HasMore);
-    private sealed record PagedMedicalRecord(string Description);
+    private sealed record PagedMedicalRecord(string Description, string? DocumentUrl = null, bool HasDocument = false);
     private sealed record PagedMedicalRecordsResponse(List<PagedMedicalRecord> Records, bool HasMore);
 
     [Fact]
@@ -171,8 +171,54 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
         root.GetProperty("accessTier").GetString().Should().Be("plus_preview");
         root.GetProperty("records")[0].GetProperty("documentUrl").ValueKind.Should().Be(JsonValueKind.Null);
         root.GetProperty("records")[0].GetProperty("documentKind").ValueKind.Should().Be(JsonValueKind.Null);
+        root.GetProperty("records")[0].GetProperty("hasDocument").GetBoolean().Should().BeFalse();
         (await client.GetAsync($"/api/pets/{petId}/medical/timeline")).StatusCode.Should().Be(HttpStatusCode.Forbidden);
         (await client.GetAsync($"/api/pets/{petId}/medical/consolidated-report")).StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task MedicalDocumentDownload_IsAuthenticatedAndDoesNotExposeBlobUrl()
+    {
+        var ownerEmail = $"medical-document-owner-{Guid.NewGuid():N}@pawtrack.cr";
+        using var ownerClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, ownerEmail);
+        using var outsiderClient = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        Guid petId;
+        Guid recordId;
+        const string blobUrl = "https://private-storage.invalid/medical-docs/pet/scan.pdf";
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var owner = await db.Users.SingleAsync(user => user.Email == ownerEmail);
+            var pet = Pet.Create(owner.Id, "Milo", PetSpecies.Dog, null, null);
+            var plan = Subscription.CreateForUser(owner.Id, SubscriptionTier.UserFamilia,
+                $"M{Guid.NewGuid():N}"[..8], 4990m);
+            plan.Activate();
+            var record = MedicalRecord.Create(pet.Id, owner.Id, MedicalRecordType.Other,
+                new DateOnly(2026, 9, 28), "Adjunto de prueba", null, null, null);
+            record.SetDocumentUrl(blobUrl, MedicalDocumentKind.Radiograph, "application/pdf");
+            db.Pets.Add(pet);
+            db.Subscriptions.Add(plan);
+            db.MedicalRecords.Add(record);
+            await db.SaveChangesAsync();
+            petId = pet.Id;
+            recordId = record.Id;
+            scope.ServiceProvider.GetRequiredService<StubBlobStorageService>().Seed(blobUrl, [0x25, 0x50, 0x44, 0x46]);
+        }
+
+        var timeline = await ownerClient.GetFromJsonAsync<TimelineResponse>(
+            $"/api/pets/{petId}/medical/timeline?page=1&pageSize=20");
+        timeline!.Items[0].DocumentUrl.Should().BeNull();
+        timeline.Items[0].HasDocument.Should().BeTrue();
+        var history = await ownerClient.GetFromJsonAsync<PagedMedicalRecordsResponse>(
+            $"/api/pets/{petId}/medical/page?page=1&pageSize=20");
+        history!.Records[0].DocumentUrl.Should().BeNull();
+        history.Records[0].HasDocument.Should().BeTrue();
+
+        var download = await ownerClient.GetAsync($"/api/pets/{petId}/medical/{recordId}/document");
+        download.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await download.Content.ReadAsByteArrayAsync()).Should().Equal(0x25, 0x50, 0x44, 0x46);
+        (await outsiderClient.GetAsync($"/api/pets/{petId}/medical/{recordId}/document"))
+            .StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]

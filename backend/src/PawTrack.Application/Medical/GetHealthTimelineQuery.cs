@@ -8,7 +8,7 @@ namespace PawTrack.Application.Medical;
 public sealed record HealthTimelineItemDto(
     Guid Id, string Source, DateOnly Date, string Label, string Kind,
     string? DocumentUrl, string? VerificationCode, bool IsRevoked,
-    string? DocumentKind = null, bool HasPdf = false);
+    string? DocumentKind = null, bool HasPdf = false, bool HasDocument = false);
 
 public sealed record HealthTimelinePageDto(IReadOnlyList<HealthTimelineItemDto> Items, bool HasMore);
 

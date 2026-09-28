@@ -103,6 +103,12 @@ public enum AuditAction
     RegulatoryExportDownloaded,
     RegulatoryExportExpired,
     RegulatorySubmissionPrepared,
+    MedicalDocumentDownloaded,
+    MedicalHealthReportRequested,
+    MedicalHealthReportDownloaded,
+    MedicalHealthReportCompleted,
+    MedicalHealthReportFailed,
+    MedicalHealthReportExpired,
 
     // Responsible search coordination
     SearchLocationSharingStarted,

@@ -14,6 +14,7 @@ export interface MedicalRecordDto {
   clinicName: string | null;
   nextDueDate: string | null;
   documentUrl: string | null;
+  hasDocument?: boolean;
   documentKind?: MedicalDocumentKind | null;
   createdAt: string;
   clinicId: string | null;
@@ -53,11 +54,23 @@ export interface HealthTimelineItemDto {
   isRevoked: boolean;
   documentKind?: MedicalDocumentKind | null;
   hasPdf?: boolean;
+  hasDocument?: boolean;
 }
 
 export interface HealthTimelinePageDto {
   items: HealthTimelineItemDto[];
   hasMore: boolean;
+}
+
+export interface HealthReportExportDto {
+  id: string;
+  petId: string;
+  status: "Queued" | "Processing" | "Completed" | "Failed" | "Expired";
+  requestedAt: string;
+  completedAt: string | null;
+  expiresAt: string;
+  itemCount: number | null;
+  errorCode: string | null;
 }
 
 export interface PetReminderDto {
@@ -229,6 +242,26 @@ export const medicalApi = {
       .get(`/pets/${petId}/medical/consolidated-report`, { responseType: "blob" })
       .then((response) => response.data as Blob),
 
+  requestHealthReportExport: (petId: string): Promise<HealthReportExportDto> =>
+    apiClient
+      .post<HealthReportExportDto>(`/pets/${petId}/medical/consolidated-report/exports`)
+      .then((response) => response.data),
+
+  getHealthReportExport: (petId: string, exportId: string): Promise<HealthReportExportDto> =>
+    apiClient
+      .get<HealthReportExportDto>(`/pets/${petId}/medical/consolidated-report/exports/${exportId}`)
+      .then((response) => response.data),
+
+  downloadHealthReportExport: (petId: string, exportId: string): Promise<Blob> =>
+    apiClient
+      .get(`/pets/${petId}/medical/consolidated-report/exports/${exportId}/download`, { responseType: "blob" })
+      .then((response) => response.data as Blob),
+
+  downloadMedicalDocument: (petId: string, recordId: string): Promise<Blob> =>
+    apiClient
+      .get(`/pets/${petId}/medical/${recordId}/document`, { responseType: "blob" })
+      .then((response) => response.data as Blob),
+
   getTimeline: (petId: string, page: number): Promise<HealthTimelinePageDto> =>
     apiClient
       .get<HealthTimelinePageDto>(`/pets/${petId}/medical/timeline`, {
@@ -345,6 +378,11 @@ export interface AddClinicMedicalRecordPayload {
 export const clinicMedicalApi = {
   getPatientHistory: (petId: string): Promise<ClinicPatientHistoryDto> =>
     apiClient.get<ClinicPatientHistoryDto>(`/clinics/patients/${petId}/medical`).then((r) => r.data),
+
+  downloadPatientMedicalDocument: (petId: string, recordId: string): Promise<Blob> =>
+    apiClient
+      .get(`/clinics/patients/${petId}/medical/${recordId}/document`, { responseType: "blob" })
+      .then((response) => response.data as Blob),
 
   getPatientSanitaryIdentity: (petId: string): Promise<PetSanitaryIdentityDto> =>
     apiClient.get<PetSanitaryIdentityDto>(`/clinics/patients/${petId}/sanitary-identity`).then((r) => r.data),

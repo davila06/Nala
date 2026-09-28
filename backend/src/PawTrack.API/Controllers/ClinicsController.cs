@@ -46,6 +46,7 @@ using PawTrack.Application.Clinics.Queries.DownloadClinicalConsultationPrescript
 using PawTrack.Application.Clinics.Queries.GetClinicalConsultationTemplates;
 using PawTrack.Application.Clinics.Commands.ExportClinicMedical;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Medical;
 using PawTrack.Application.Medical.ClinicAccess;
 using PawTrack.Application.Pets.SanitaryIdentity;
 using PawTrack.Domain.Auth;
@@ -746,6 +747,22 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
             return StatusCode(403, new ProblemDetails { Detail = result.Errors.FirstOrDefault(), Status = 403 });
 
         return Ok(result.Value);
+    }
+
+    [HttpGet("patients/{petId:guid}/medical/{recordId:guid}/document")]
+    [Authorize(Roles = "Clinic")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> DownloadPatientMedicalDocument(Guid petId, Guid recordId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var clinicResult = await sender.Send(new GetMyClinicQuery(userId), ct);
+        if (clinicResult.IsFailure || clinicResult.Value is null) return Forbid();
+        var result = await sender.Send(new DownloadMedicalDocumentQuery(
+            petId, recordId, userId, clinicResult.Value.Id), ct);
+        if (result.IsSuccess)
+            return File(result.Value!.Bytes, result.Value.ContentType, result.Value.FileName);
+        if (result.Errors.Contains("Acceso denegado.")) return Forbid();
+        return NotFound();
     }
 
     [HttpGet("patients/{petId:guid}/sanitary-identity")]

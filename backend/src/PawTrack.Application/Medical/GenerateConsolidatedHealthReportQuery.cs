@@ -1,6 +1,7 @@
 using MediatR;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Subscriptions.Services;
+using PawTrack.Domain.Audit;
 using PawTrack.Domain.Common;
 
 namespace PawTrack.Application.Medical;
@@ -21,7 +22,9 @@ public sealed class GenerateConsolidatedHealthReportQueryHandler(
     IFamilyRepository familyRepository,
     ISubscriptionService subscriptionService,
     IHealthTimelineReadRepository timelineRepository,
-    IConsolidatedHealthPdfGenerator pdfGenerator)
+    IConsolidatedHealthPdfGenerator pdfGenerator,
+    IAuditLogRepository auditLogRepository,
+    IUnitOfWork unitOfWork)
     : IRequestHandler<GenerateConsolidatedHealthReportQuery, Result<byte[]>>
 {
     public async Task<Result<byte[]>> Handle(GenerateConsolidatedHealthReportQuery request, CancellationToken ct)
@@ -33,6 +36,11 @@ public sealed class GenerateConsolidatedHealthReportQueryHandler(
         if (pet is null || pet.OwnerId != request.RequestingUserId &&
             !(await familyRepository.GetActiveMemberIdsAsync(pet.OwnerId, ct)).Contains(request.RequestingUserId))
             return Result.Failure<byte[]>("Acceso denegado.");
+
+        await auditLogRepository.AddAsync(AuditLogEntry.Create(
+            request.RequestingUserId, AuditAction.MedicalHealthReportRequested,
+            "PetMedicalHistory", pet.Id.ToString()), ct);
+        await unitOfWork.SaveChangesAsync(ct);
 
         const int pageSize = 100;
         const int maxItems = 5_000;
@@ -48,7 +56,12 @@ public sealed class GenerateConsolidatedHealthReportQueryHandler(
                 return Result.Failure<byte[]>("El reporte supera 5000 eventos; solicite una exportación asistida.");
         }
 
-        return Result.Success(await pdfGenerator.GenerateAsync(
-            new ConsolidatedHealthReportData(pet.Name, DateTimeOffset.UtcNow, items), ct));
+        var bytes = await pdfGenerator.GenerateAsync(
+            new ConsolidatedHealthReportData(pet.Name, DateTimeOffset.UtcNow, items), ct);
+        await auditLogRepository.AddAsync(AuditLogEntry.Create(
+            request.RequestingUserId, AuditAction.MedicalHealthReportDownloaded,
+            "PetMedicalHistory", pet.Id.ToString(), $"items={items.Count}"), ct);
+        await unitOfWork.SaveChangesAsync(ct);
+        return Result.Success(bytes);
     }
 }

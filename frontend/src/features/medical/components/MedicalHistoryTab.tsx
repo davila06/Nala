@@ -274,6 +274,17 @@ function PetCertificatesPanel({ petId }: { petId: string }) {
 // ── Record card ───────────────────────────────────────────────────────────────
 
 function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string }) {
+  const attachmentDownload = useMutation({
+    mutationFn: () => medicalApi.downloadMedicalDocument(petId, record.id),
+    onSuccess: (blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = globalThis.document.createElement("a");
+      link.href = url;
+      link.download = `medical-document-${record.id}`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    },
+  });
   const isClinic = record.source === "Clinic";
   const deleteMutation = useDeleteMedicalRecord(petId);
   const updateMutation = useUpdateMedicalRecord(petId);
@@ -526,15 +537,11 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
             <span aria-hidden="true">⏰</span> Próxima cita: {record.nextDueDate}
           </p>
         )}
-        {record.documentUrl && (
-          <a
-            href={record.documentUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs font-medium text-brand-600 hover:underline"
-          >
-            <span aria-hidden="true">📄</span> Ver documento adjunto
-          </a>
+        {record.hasDocument && (
+          <button type="button" disabled={attachmentDownload.isPending} onClick={() => attachmentDownload.mutate()}
+            className="text-xs font-medium text-brand-600 hover:underline disabled:opacity-50">
+            <span aria-hidden="true">📄</span> Descargar documento adjunto
+          </button>
         )}
       </li>
     </>

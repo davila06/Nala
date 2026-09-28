@@ -39,6 +39,17 @@ const RECORD_TYPES: MedicalRecordType[] = [
 
 function RecordCard({ record }: { record: MedicalRecordDto }) {
   const isClinicRecord = record.source === "Clinic";
+  const documentDownload = useMutation({
+    mutationFn: () => clinicMedicalApi.downloadPatientMedicalDocument(record.petId, record.id),
+    onSuccess: (blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = globalThis.document.createElement("a");
+      link.href = url;
+      link.download = `medical-document-${record.id}`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    },
+  });
   return (
     <li className="rounded-xl border border-sand-100 bg-surface-warm p-3 space-y-1">
       <div className="flex items-start justify-between gap-2">
@@ -67,15 +78,11 @@ function RecordCard({ record }: { record: MedicalRecordDto }) {
           ⏰ Próxima: {record.nextDueDate}
         </p>
       )}
-      {record.documentUrl && (
-        <a
-          href={record.documentUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs font-medium text-brand-600 hover:underline"
-        >
-          📄 Ver documento
-        </a>
+      {record.hasDocument && (
+        <button type="button" disabled={documentDownload.isPending} onClick={() => documentDownload.mutate()}
+          className="text-xs font-medium text-brand-600 hover:underline disabled:opacity-50">
+          📄 Descargar documento
+        </button>
       )}
     </li>
   );

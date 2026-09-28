@@ -140,6 +140,7 @@ public sealed class PawTrackDbContext(
     public DbSet<FamilyMembership> FamilyMemberships => Set<FamilyMembership>();
     public DbSet<FamilyInvitation> FamilyInvitations => Set<FamilyInvitation>();
     public DbSet<MedicalRecord> MedicalRecords => Set<MedicalRecord>();
+    public DbSet<HealthReportExport> HealthReportExports => Set<HealthReportExport>();
     public DbSet<VetReminder> VetReminders => Set<VetReminder>();
     public DbSet<HealthProtocol> HealthProtocols => Set<HealthProtocol>();
     public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();

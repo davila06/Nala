@@ -118,7 +118,7 @@ public sealed class AddClinicMedicalRecordCommandHandler(
             var blobName = $"{pet.Id}/{record.Id}.{ext}";
             using var stream = new MemoryStream(request.DocumentBytes);
             var url = await blobStorage.UploadAsync(MedicalDocsContainer, blobName, stream, request.DocumentContentType, ct);
-            record.SetDocumentUrl(url, request.DocumentKind);
+            record.SetDocumentUrl(url, request.DocumentKind, request.DocumentContentType);
         }
 
         await medicalRepository.AddAsync(record, ct);

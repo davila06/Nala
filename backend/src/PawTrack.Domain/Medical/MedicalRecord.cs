@@ -43,6 +43,7 @@ public sealed class MedicalRecord
     public DateOnly? NextDueDate { get; private set; }
     public string? DocumentUrl { get; private set; }
     public MedicalDocumentKind? DocumentKind { get; private set; }
+    public string? DocumentContentType { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
 
     // ── Per-visit health metrics ────────────────────────────────────────────
@@ -90,12 +91,15 @@ public sealed class MedicalRecord
             MedicationEndDate = medicationEndDate,
         };
 
-    public void SetDocumentUrl(string url, MedicalDocumentKind? documentKind = null)
+    public void SetDocumentUrl(string url, MedicalDocumentKind? documentKind = null, string? contentType = null)
     {
         if (documentKind.HasValue && !Enum.IsDefined(documentKind.Value))
             throw new ArgumentOutOfRangeException(nameof(documentKind));
+        if (contentType is not null && contentType is not ("application/pdf" or "image/jpeg" or "image/png"))
+            throw new ArgumentOutOfRangeException(nameof(contentType));
         DocumentUrl = url;
         DocumentKind = documentKind;
+        DocumentContentType = contentType;
     }
 
     public void Supersede(Guid supersededByUserId, string reason)
@@ -138,6 +142,7 @@ public sealed class MedicalRecord
             NextDueDate = nextDueDate,
             DocumentUrl = source.DocumentUrl,
             DocumentKind = source.DocumentKind,
+            DocumentContentType = source.DocumentContentType,
             CreatedAt = DateTimeOffset.UtcNow,
             WeightKg = weightKg,
             DosageDescription = dosageDescription?.Trim(),

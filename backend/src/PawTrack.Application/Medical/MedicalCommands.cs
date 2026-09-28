@@ -42,16 +42,17 @@ public sealed record MedicalRecordDto(
     string? Frequency,
     int? DurationDays,
     DateOnly? MedicationEndDate,
-    string? DocumentKind = null)
+    string? DocumentKind = null,
+    bool HasDocument = false)
 {
     public static MedicalRecordDto FromDomain(MedicalRecord r) => new(
         r.Id, r.PetId, r.Type.ToString(), r.Date,
         r.Description, r.VetName, r.ClinicName,
-        r.NextDueDate, r.DocumentUrl, r.CreatedAt,
+        r.NextDueDate, null, r.CreatedAt,
         r.ClinicId,
         r.ClinicId.HasValue ? "Clinic" : "Owner",
         r.WeightKg, r.DosageDescription, r.Frequency, r.DurationDays, r.MedicationEndDate,
-        r.DocumentKind?.ToString());
+        r.DocumentKind?.ToString(), !string.IsNullOrWhiteSpace(r.DocumentUrl));
 }
 
 public sealed record VetReminderDto(
@@ -144,7 +145,7 @@ public sealed class AddMedicalRecordCommandHandler(
             using var stream = new MemoryStream(request.DocumentBytes);
             var url = await blobStorage.UploadAsync(
                 MedicalDocsContainer, blobName, stream, request.DocumentContentType!, ct);
-            record.SetDocumentUrl(url, request.DocumentKind);
+            record.SetDocumentUrl(url, request.DocumentKind, request.DocumentContentType);
         }
 
         await medicalRepository.AddAsync(record, ct);
@@ -254,6 +255,8 @@ public sealed class GetMedicalHistoryQueryHandler(
                 {
                     DocumentUrl = null,       // documents are Familia-only
                     WeightKg = null,          // health metrics are Familia-only
+                    HasDocument = false,
+                    DocumentKind = null,
                     DosageDescription = null,
                     Frequency = null,
                     DurationDays = null,

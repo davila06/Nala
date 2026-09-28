@@ -19,6 +19,8 @@ public sealed class ConsolidatedHealthReportQueryTests
         var plans = Substitute.For<ISubscriptionService>();
         var timeline = Substitute.For<IHealthTimelineReadRepository>();
         var renderer = Substitute.For<IConsolidatedHealthPdfGenerator>();
+        var audit = Substitute.For<IAuditLogRepository>();
+        var unitOfWork = Substitute.For<IUnitOfWork>();
         pets.GetByIdAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(pet);
         plans.IsFamiliaAsync(ownerId, Arg.Any<CancellationToken>()).Returns(true);
         timeline.GetPageAsync(pet.Id, 0, 100, Arg.Any<CancellationToken>()).Returns(
@@ -30,7 +32,7 @@ public sealed class ConsolidatedHealthReportQueryTests
         renderer.GenerateAsync(Arg.Any<ConsolidatedHealthReportData>(), Arg.Any<CancellationToken>())
             .Returns([0x25, 0x50, 0x44, 0x46]);
 
-        var handler = new GenerateConsolidatedHealthReportQueryHandler(pets, family, plans, timeline, renderer);
+        var handler = new GenerateConsolidatedHealthReportQueryHandler(pets, family, plans, timeline, renderer, audit, unitOfWork);
         var result = await handler.Handle(new GenerateConsolidatedHealthReportQuery(pet.Id, ownerId), default);
 
         result.IsSuccess.Should().BeTrue();
@@ -38,5 +40,8 @@ public sealed class ConsolidatedHealthReportQueryTests
             Arg.Is<ConsolidatedHealthReportData>(data => data.Items.Count == 2 &&
                 data.Items[0].DocumentKind == "Radiograph" && data.Items[1].VerificationCode == "SAFE-1"),
             Arg.Any<CancellationToken>());
+        await audit.Received(1).AddAsync(Arg.Is<PawTrack.Domain.Audit.AuditLogEntry>(entry =>
+            entry.Action == PawTrack.Domain.Audit.AuditAction.MedicalHealthReportDownloaded), Arg.Any<CancellationToken>());
+        await unitOfWork.Received(2).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 }

@@ -32,8 +32,8 @@ public sealed class HealthTimelineReadRepository(PawTrackDbContext db) : IHealth
 
         var items = records.Select(record => (
                 Item: new HealthTimelineItemDto(record.Id, "MedicalRecord", record.Date,
-                    record.Description, record.Type.ToString(), record.DocumentUrl, null, false,
-                    record.DocumentKind?.ToString()),
+                    record.Description, record.Type.ToString(), null, null, false,
+                    record.DocumentKind?.ToString(), HasDocument: !string.IsNullOrWhiteSpace(record.DocumentUrl)),
                 IssuedAt: DateTimeOffset.MinValue))
             .Concat(certificates.Select(certificate => (
                 Item: new HealthTimelineItemDto(certificate.Id, "Certificate",

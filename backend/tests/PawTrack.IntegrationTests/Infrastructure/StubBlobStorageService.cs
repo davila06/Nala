@@ -4,6 +4,10 @@ namespace PawTrack.IntegrationTests.Infrastructure;
 
 public sealed class StubBlobStorageService : IBlobStorageService
 {
+    private readonly Dictionary<string, byte[]> _files = new(StringComparer.Ordinal);
+
+    public void Seed(string blobUrl, byte[] bytes) => _files[blobUrl] = bytes;
+
     public Task<string> UploadAsync(string containerName, string blobName, System.IO.Stream stream,
         string contentType, CancellationToken cancellationToken = default) =>
         Task.FromResult($"https://test-storage/{containerName}/{blobName}");
@@ -12,5 +16,5 @@ public sealed class StubBlobStorageService : IBlobStorageService
         Task.CompletedTask;
 
     public Task<byte[]?> DownloadAsync(string blobUrl, CancellationToken cancellationToken = default) =>
-        Task.FromResult<byte[]?>(null);
+        Task.FromResult(_files.TryGetValue(blobUrl, out var bytes) ? bytes : null);
 }

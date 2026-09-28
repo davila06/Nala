@@ -3,8 +3,11 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -232,6 +235,77 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
             .ToArray();
 
         missingRouteMetadata.Should().BeEmpty("all inventoried actions must map to a concrete HTTP method and route template");
+    }
+
+    [Fact]
+    public async Task EveryClinicalActionAndRouteAliasIsProbedAtTheHttpAuthenticationBoundary()
+    {
+        using var anonymousClient = factory.CreateClient();
+        var actions = GetClinicActions().Concat(GetAdditionalClinicalActions())
+            .DistinctBy(action => (action.ControllerTypeInfo.AsType(), action.ActionName,
+                action.AttributeRouteInfo?.Template, string.Join(',', GetAttributes<HttpMethodAttribute>(action)
+                    .SelectMany(attribute => attribute.HttpMethods))))
+            .ToArray();
+        var probes = 0;
+
+        foreach (var action in actions)
+        {
+            var template = action.AttributeRouteInfo?.Template;
+            template.Should().NotBeNullOrWhiteSpace($"{action.ControllerTypeInfo.Name}.{action.ActionName} must have an HTTP route");
+            var path = Regex.Replace(template!, @"\{(?<name>[^}:?]+)(?::(?<constraint>[^}?]+))?\??\}", match =>
+            {
+                var constraint = match.Groups["constraint"].Value;
+                var name = match.Groups["name"].Value;
+                if (constraint.Equals("guid", StringComparison.OrdinalIgnoreCase)
+                    || name.EndsWith("Id", StringComparison.OrdinalIgnoreCase))
+                    return Guid.NewGuid().ToString();
+                if (constraint.Equals("int", StringComparison.OrdinalIgnoreCase)) return "1";
+                return "SEC01-PROBE";
+            }).TrimStart('/');
+
+            foreach (var method in GetAttributes<HttpMethodAttribute>(action)
+                         .SelectMany(attribute => attribute.HttpMethods).Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                using var request = new HttpRequestMessage(new HttpMethod(method), $"/{path}");
+                if (method is not ("GET" or "HEAD" or "OPTIONS"))
+                {
+                    var mediaType = GetAttributes<ConsumesAttribute>(action)
+                        .SelectMany(attribute => attribute.ContentTypes).FirstOrDefault();
+                    var expectsFile = action.MethodInfo.GetParameters()
+                        .Any(parameter => parameter.ParameterType == typeof(IFormFile));
+                    if (expectsFile || mediaType?.StartsWith("multipart/form-data", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        var form = new MultipartFormDataContent();
+                        var file = new ByteArrayContent([1]);
+                        file.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
+                        form.Add(file, "file", "probe.bin");
+                        request.Content = form;
+                    }
+                    else if (mediaType?.Equals("application/x-www-form-urlencoded", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        request.Content = new FormUrlEncodedContent(new Dictionary<string, string>());
+                    }
+                    else
+                    {
+                        request.Content = JsonContent.Create(new { });
+                        if (mediaType is not null)
+                            request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(mediaType);
+                    }
+                }
+
+                using var response = await anonymousClient.SendAsync(request);
+                probes++;
+                if (HasAttribute<AllowAnonymousAttribute>(action))
+                    ((int)response.StatusCode).Should().BeLessThan(500,
+                        $"anonymous {method} /{path} ({action.ActionName}) must not fail with a server error");
+                else
+                    new[] { HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden }.Should().Contain(response.StatusCode,
+                        $"anonymous {method} /{path} ({action.ActionName}) must be rejected by authentication");
+            }
+        }
+
+        probes.Should().BeGreaterThanOrEqualTo(141,
+            "the runtime catalog currently contains 141 clinical actions, with route aliases probed separately");
     }
 
     [Fact]

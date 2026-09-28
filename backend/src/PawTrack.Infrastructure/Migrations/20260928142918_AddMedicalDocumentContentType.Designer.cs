@@ -3,18 +3,21 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using PawTrack.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace PawTrack.Infrastructure.Persistence.Migrations
+namespace PawTrack.Infrastructure.Migrations
 {
     [DbContext(typeof(PawTrackDbContext))]
-    partial class PawTrackDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260928142918_AddMedicalDocumentContentType")]
+    partial class AddMedicalDocumentContentType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4474,57 +4477,6 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                             RecordType = 2,
                             Species = "Other"
                         });
-                });
-
-            modelBuilder.Entity("PawTrack.Domain.Medical.HealthReportExport", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("AttemptCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("BlobUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<DateTimeOffset?>("CompletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ErrorCode")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTimeOffset>("ExpiresAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int?>("ItemCount")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("PetId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("RequestedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("RequestedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("StartedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Status", "RequestedAt");
-
-                    b.HasIndex("Status", "StartedAt");
-
-                    b.HasIndex("RequestedByUserId", "PetId", "RequestedAt");
-
-                    b.ToTable("HealthReportExports", (string)null);
                 });
 
             modelBuilder.Entity("PawTrack.Domain.Medical.MedicalRecord", b =>

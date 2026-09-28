@@ -44,7 +44,7 @@ public sealed class QuestPdfConsolidatedHealthReportGenerator : IConsolidatedHea
                             ? $"{item.Label} · código {item.VerificationCode ?? "sin código"} · " +
                               (item.IsRevoked ? "Revocado" : "Emitido (verificar vigencia)")
                             : item.Label;
-                        if (item.DocumentUrl is not null)
+                        if (item.HasDocument)
                             detail += $" · Adjunto: {item.DocumentKind ?? "sin clasificar"} (consulta autenticada en NALA)";
                         table.Cell().Padding(4).Text(item.Date.ToString("dd/MM/yyyy"));
                         table.Cell().Padding(4).Text(item.Source == "Certificate" ? "Certificado" : "Expediente");

@@ -467,6 +467,120 @@ public sealed class CertificatesEndpointsTests(PawTrackWebApplicationFactory fac
     }
 
     [Fact]
+    public async Task VeterinarianDocumentsAndRevocationRejectForeignNestedIdsBeforeBlobOrMutation()
+    {
+        var firstEmail = $"vet-assets-a-{Guid.NewGuid():N}@pawtrack.cr";
+        var secondEmail = $"vet-assets-b-{Guid.NewGuid():N}@pawtrack.cr";
+        var firstAuthenticated = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, firstEmail);
+        var secondAuthenticated = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, secondEmail);
+        var blobStorage = Substitute.For<IBlobStorageService>();
+        blobStorage.UploadAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns("https://test-storage/veterinarian-file.pdf");
+        blobStorage.DownloadAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<byte[]?>([1, 2, 3]));
+        Guid firstClinicId;
+        Guid secondClinicId;
+        Guid firstVeterinarianId;
+        Guid secondVeterinarianId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var jwt = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
+            var firstUser = await db.Users.SingleAsync(user => user.Email == firstEmail);
+            var secondUser = await db.Users.SingleAsync(user => user.Email == secondEmail);
+            firstUser.AssignClinicRole();
+            secondUser.AssignClinicRole();
+            var firstClinic = Clinic.Create(firstUser.Id, "Assets A", $"VET-{Guid.NewGuid():N}"[..12],
+                "San Jose", 9.93m, -84.08m, firstEmail);
+            var secondClinic = Clinic.Create(secondUser.Id, "Assets B", $"VET-{Guid.NewGuid():N}"[..12],
+                "Cartago", 9.86m, -83.92m, secondEmail);
+            firstClinic.Activate();
+            secondClinic.Activate();
+            var firstVeterinarian = ClinicVeterinarian.Create(firstClinic.Id, "Dra. Assets A", "VET-ASSET-A");
+            var secondVeterinarian = ClinicVeterinarian.Create(secondClinic.Id, "Dr. Assets B", "VET-ASSET-B");
+            secondVeterinarian.AttachDocument("https://test-storage/foreign-document.pdf");
+            var firstOrganization = ClinicOrganization.Create("Assets Org A", firstUser.Id, firstClinic.Id);
+            var secondOrganization = ClinicOrganization.Create("Assets Org B", secondUser.Id, secondClinic.Id);
+            db.Clinics.AddRange(firstClinic, secondClinic);
+            db.ClinicVeterinarians.AddRange(firstVeterinarian, secondVeterinarian);
+            db.ClinicOrganizations.AddRange(firstOrganization, secondOrganization);
+            db.ClinicOrganizationMemberships.AddRange(firstOrganization.Memberships);
+            db.ClinicOrganizationSites.AddRange(firstOrganization.Sites);
+            db.ClinicOrganizationMemberships.AddRange(secondOrganization.Memberships);
+            db.ClinicOrganizationSites.AddRange(secondOrganization.Sites);
+            await db.SaveChangesAsync();
+            firstClinicId = firstClinic.Id;
+            secondClinicId = secondClinic.Id;
+            firstVeterinarianId = firstVeterinarian.Id;
+            secondVeterinarianId = secondVeterinarian.Id;
+            var firstSessionId = await db.RefreshTokens.Where(token => token.UserId == firstUser.Id && !token.IsRevoked)
+                .OrderByDescending(token => token.CreatedAt).Select(token => token.SessionId).FirstAsync();
+            var secondSessionId = await db.RefreshTokens.Where(token => token.UserId == secondUser.Id && !token.IsRevoked)
+                .OrderByDescending(token => token.CreatedAt).Select(token => token.SessionId).FirstAsync();
+            firstAuthenticated.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
+                jwt.GenerateAccessToken(firstUser.Id, firstUser.Email, firstUser.Name, firstUser.Role,
+                    mfaVerified: true, sessionId: firstSessionId));
+            secondAuthenticated.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
+                jwt.GenerateAccessToken(secondUser.Id, secondUser.Email, secondUser.Name, secondUser.Role,
+                    mfaVerified: true, sessionId: secondSessionId));
+        }
+
+        using var app = factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
+        {
+            services.RemoveAll<IBlobStorageService>();
+            services.AddSingleton(blobStorage);
+        }));
+        using var firstClient = app.CreateClient();
+        firstClient.DefaultRequestHeaders.Authorization = firstAuthenticated.DefaultRequestHeaders.Authorization;
+        using var secondClient = app.CreateClient();
+        secondClient.DefaultRequestHeaders.Authorization = secondAuthenticated.DefaultRequestHeaders.Authorization;
+        (await firstClient.PutAsJsonAsync("/api/clinics/active-site", new { clinicId = firstClinicId }))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+        (await secondClient.PutAsJsonAsync("/api/v1/clinics/active-site", new { clinicId = secondClinicId }))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var foreignDownload = await firstClient.GetAsync($"/api/clinics/me/veterinarians/{secondVeterinarianId}/document");
+        foreignDownload.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        await blobStorage.DidNotReceive().DownloadAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
+
+        async Task<HttpResponseMessage> UploadAsync(HttpClient client, Guid veterinarianId, string fileName, string contentType)
+        {
+            using var form = new MultipartFormDataContent();
+            var file = new ByteArrayContent([1, 2, 3]);
+            file.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+            form.Add(file, "file", fileName);
+            return await client.PostAsync($"/api/clinics/me/veterinarians/{veterinarianId}/{(contentType == "application/pdf" ? "document" : "signature")}", form);
+        }
+
+        (await UploadAsync(firstClient, secondVeterinarianId, "foreign.pdf", "application/pdf"))
+            .StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        (await UploadAsync(firstClient, secondVeterinarianId, "foreign.png", "image/png"))
+            .StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        await blobStorage.DidNotReceive().UploadAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<Stream>(),
+            Arg.Any<string>(), Arg.Any<CancellationToken>());
+        var foreignRevoke = await firstClient.PostAsJsonAsync(
+            $"/api/v1/clinics/me/veterinarians/{secondVeterinarianId}/revoke", new { reason = "foreign attempt" });
+        foreignRevoke.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+
+        (await UploadAsync(firstClient, firstVeterinarianId, "own.pdf", "application/pdf"))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+        (await UploadAsync(firstClient, firstVeterinarianId, "own.png", "image/png"))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+        (await firstClient.GetAsync($"/api/clinics/me/veterinarians/{firstVeterinarianId}/document"))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+        await blobStorage.Received(2).UploadAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<Stream>(),
+            Arg.Any<string>(), Arg.Any<CancellationToken>());
+        await blobStorage.Received(1).DownloadAsync("https://test-storage/veterinarian-file.pdf", Arg.Any<CancellationToken>());
+        (await firstClient.PostAsJsonAsync($"/api/clinics/me/veterinarians/{firstVeterinarianId}/revoke",
+            new { reason = "Fin de relación laboral" })).StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using var verifyScope = factory.Services.CreateScope();
+        var verifyDb = verifyScope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+        (await verifyDb.ClinicVeterinarians.SingleAsync(item => item.Id == secondVeterinarianId)).IsActive.Should().BeTrue();
+        (await verifyDb.ClinicVeterinarians.SingleAsync(item => item.Id == firstVeterinarianId)).IsActive.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task GetForPet_Unauthenticated_Returns401()
     {
         var response = await _client.GetAsync($"/api/certificates/pet/{Guid.NewGuid()}");

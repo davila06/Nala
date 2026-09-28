@@ -108,6 +108,57 @@ public sealed class MedicalController(ISender sender) : ControllerBase
         return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
     }
 
+    [HttpPost("consolidated-report/exports")]
+    [EnableRateLimiting("data-export")]
+    public async Task<IActionResult> RequestConsolidatedReportExport(Guid petId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new RequestHealthReportExportCommand(petId, userId), ct);
+        if (result.IsSuccess)
+            return AcceptedAtAction(nameof(GetConsolidatedReportExport), new { petId, exportId = result.Value!.Id }, result.Value);
+        if (result.Errors.Contains("Acceso denegado.") || result.Errors.Contains("El reporte consolidado requiere el plan Familia."))
+            return Forbid();
+        return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
+    [HttpGet("consolidated-report/exports/{exportId:guid}")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> GetConsolidatedReportExport(Guid petId, Guid exportId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new GetHealthReportExportQuery(exportId, userId), ct);
+        if (result.IsFailure || result.Value!.PetId != petId) return NotFound();
+        return result.Value!.Status switch
+        {
+            nameof(HealthReportExportStatus.Completed) when result.Value.ExpiresAt > DateTimeOffset.UtcNow => Ok(result.Value),
+            nameof(HealthReportExportStatus.Failed) => UnprocessableEntity(result.Value),
+            _ => Accepted(result.Value),
+        };
+    }
+
+    [HttpGet("consolidated-report/exports/{exportId:guid}/download")]
+    [EnableRateLimiting("data-export")]
+    [Produces("application/pdf")]
+    public async Task<IActionResult> DownloadConsolidatedReportExport(Guid petId, Guid exportId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new DownloadHealthReportExportQuery(exportId, userId), ct);
+        if (result.IsSuccess) return File(result.Value!.Bytes, result.Value.ContentType, result.Value.FileName);
+        return NotFound();
+    }
+
+    [HttpGet("{recordId:guid}/document")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> DownloadMedicalDocument(Guid petId, Guid recordId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new DownloadMedicalDocumentQuery(petId, recordId, userId), ct);
+        if (result.IsSuccess)
+            return File(result.Value!.Bytes, result.Value.ContentType, result.Value.FileName);
+        if (result.Errors.Contains("Acceso denegado.")) return Forbid();
+        return NotFound();
+    }
+
     // ── GET /api/pets/{petId}/medical/weight-history ──────────────────────────
     [HttpGet("weight-history")]
     [EnableRateLimiting("public-api")]

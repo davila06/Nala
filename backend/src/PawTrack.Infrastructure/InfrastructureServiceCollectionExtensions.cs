@@ -380,6 +380,9 @@ public static class InfrastructureServiceCollectionExtensions
         // Medical records + vet reminders
         services.AddScoped<IMedicalRepository, MedicalRepository>();
         services.AddScoped<IHealthTimelineReadRepository, HealthTimelineReadRepository>();
+        services.AddScoped<IHealthReportExportRepository, HealthReportExportRepository>();
+        services.AddScoped<HealthReportExportJob>();
+        services.AddHostedService<HealthReportExportHostedService>();
         services.AddScoped<IBreedReferenceRepository, BreedReferenceRepository>();
         services.AddHostedService<BreedReferenceSeedHostedService>();
         services.AddScoped<IActivityLogRepository, ActivityLogRepository>();
