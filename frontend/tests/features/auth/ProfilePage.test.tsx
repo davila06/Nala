@@ -197,4 +197,55 @@ describe("ProfilePage — identity section", () => {
     await waitFor(() => expect(trustedDeviceName).toBe("Este dispositivo"));
     expect(useAuthStore.getState().accessToken).toBe("elevated-token");
   });
+
+  it("shows the accepted subscription amount instead of repricing an active user from the catalog", async () => {
+    server.use(
+      http.get(`${API}/auth/me`, () =>
+        HttpResponse.json({
+          id: "user-1",
+          name: "Denis Ávila",
+          email: "denis@test.cr",
+          isAdmin: false,
+        }),
+      ),
+      http.get(`${API}/fosters/me`, () => new HttpResponse(null, { status: 404 })),
+      http.get(`${API}/subscriptions/me`, () =>
+        HttpResponse.json({
+          id: "sub-1",
+          tier: "UserPlus",
+          status: "Active",
+          billingMonths: 1,
+          paymentReference: "REF12345",
+          amountCrc: 3175,
+          createdAt: "2026-09-01T00:00:00Z",
+          activatedAt: "2026-09-01T00:00:00Z",
+          startsAt: "2026-09-01T00:00:00Z",
+          expiresAt: "2026-10-01T00:00:00Z",
+          paymentReportedAt: null,
+          cancellationRequestedAt: null,
+          isActive: true,
+        }),
+      ),
+      http.get(`${API}/catalog/subscription-plans`, () =>
+        HttpResponse.json([
+          {
+            id: "plan-plus",
+            tier: "UserPlus",
+            displayName: "Plus",
+            description: "",
+            monthlyPriceCrc: 3990,
+            annualPriceCrc: null,
+            isActive: true,
+            version: "v2",
+          },
+        ]),
+      ),
+    );
+
+    seedAuthStore();
+    renderWithProviders(<ProfilePage />);
+
+    expect(await screen.findByText(/Importe contratado: ₡3\s*175/)).toBeInTheDocument();
+    expect(screen.queryByText(/₡3\.990\/mes/)).not.toBeInTheDocument();
+  });
 });

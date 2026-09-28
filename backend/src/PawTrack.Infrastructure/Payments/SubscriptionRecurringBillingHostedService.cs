@@ -70,6 +70,16 @@ public sealed class SubscriptionRecurringBillingHostedService(
             if (sub.UserId is null || sub.Status != SubscriptionStatus.Active)
                 continue;
 
+            // The subscription amount is the price the user accepted when purchasing this term.
+            // A zero-price promotion has no consented renewal charge and must not be auto-billed.
+            if (sub.AmountCrc <= 0m)
+            {
+                logger.LogWarning(
+                    "Skipping recurring billing for subscription {SubscriptionId}: no accepted renewal amount is stored.",
+                    sub.Id);
+                continue;
+            }
+
             // Check if user has a default saved payment card
             var paymentProfile = await profileRepo.GetDefaultByUserIdAsync(sub.UserId.Value, cancellationToken);
             if (paymentProfile is null)
@@ -81,25 +91,10 @@ public sealed class SubscriptionRecurringBillingHostedService(
             var user = await userRepo.GetByIdAsync(sub.UserId.Value, cancellationToken);
             if (user is null) continue;
 
-            // Check if user has tax billing profile with RequiresInvoice to compute 13% IVA
-            var billingProfileRepo = scope.ServiceProvider.GetService<IUserBillingProfileRepository>();
-            var billingProfile = billingProfileRepo is not null
-                ? await billingProfileRepo.GetByUserIdAsync(sub.UserId.Value, cancellationToken)
-                : null;
-
-            // Compute renewal amount using catalog single-source-of-truth
+            // Renew at the amount agreed for this subscription term. Catalog price changes
+            // apply to new purchases; an existing renewal requires a new accepted amount.
             var billingMonths = sub.BillingMonths > 0 ? sub.BillingMonths : 1;
-            decimal renewalPrice;
-            if (SubscriptionPricing.TryGetMonthlyPriceCrc(sub.Tier, out var monthlyPrice))
-            {
-                var basePrice = SubscriptionPricing.CalculateTermPriceCrc(monthlyPrice, billingMonths);
-                var requiresInvoice = billingProfile?.RequiresInvoice ?? (sub.AmountCrc > basePrice);
-                renewalPrice = SubscriptionPricing.GetEffectivePriceCrc(basePrice, requiresInvoice);
-            }
-            else
-            {
-                renewalPrice = sub.AmountCrc;
-            }
+            var renewalPrice = sub.AmountCrc;
 
             var activeAddons = addonRepository is null
                 ? []

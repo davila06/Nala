@@ -10,6 +10,38 @@ namespace PawTrack.UnitTests.Clinics.Queries;
 public sealed class GetPetMedicalHistoryForClinicQueryHandlerTests
 {
     [Fact]
+    public async Task Handle_QrScanWithoutReadGrant_DeniesMedicalHistoryDisclosure()
+    {
+        var clinicUserId = Guid.NewGuid();
+        var clinic = Clinic.Create(
+            clinicUserId, "Vet Salud", "SENASA-123", "San Jose", 9.93m, -84.08m, "vet@example.com");
+        clinic.Activate();
+        var pet = Pet.Create(Guid.NewGuid(), "Max", PetSpecies.Dog, null, null);
+        var clinics = Substitute.For<IClinicRepository>();
+        var pets = Substitute.For<IPetRepository>();
+        var medical = Substitute.For<IMedicalRepository>();
+        clinics.GetByIdAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(clinic);
+        pets.GetByIdAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(pet);
+
+        var handler = new GetPetMedicalHistoryForClinicQueryHandler(
+            clinics,
+            Substitute.For<IClinicScanRepository>(),
+            Substitute.For<IClinicMedicalAccessGrantRepository>(),
+            pets,
+            medical,
+            Substitute.For<IClinicMedicalAccessLogRepository>(),
+            Substitute.For<IUnitOfWork>());
+
+        var result = await handler.Handle(
+            new GetPetMedicalHistoryForClinicQuery(
+                clinic.Id, null, $"https://pawtrack.cr/p/{pet.Id}", ScanInputType.Qr, clinicUserId),
+            CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        await medical.DidNotReceive().GetByPetIdAsync(pet.Id, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task Handle_RecordsTheAuthenticatedClinicUserAsAuditActor()
     {
         var clinicUserId = Guid.NewGuid();
@@ -28,7 +60,10 @@ public sealed class GetPetMedicalHistoryForClinicQueryHandlerTests
 
         clinics.GetByIdAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(clinic);
         pets.GetByIdAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(pet);
-        scans.HasRecentScanAsync(clinic.Id, pet.Id, 90, Arg.Any<CancellationToken>()).Returns(true);
+        var (grant, code) = PawTrack.Domain.Medical.ClinicMedicalAccessGrant.Generate(
+            pet.Id, clinic.Id, pet.OwnerId, "Owner", permissions: [PawTrack.Domain.Medical.ClinicMedicalAccessPermission.Read]);
+        grant.TryAccept(code).Should().BeTrue();
+        grants.GetActiveGrantAsync(clinic.Id, pet.Id, Arg.Any<CancellationToken>()).Returns(grant);
         scans.GetLastScanDateAsync(clinic.Id, pet.Id, Arg.Any<CancellationToken>()).Returns(DateTimeOffset.UtcNow);
         medical.GetByPetIdAsync(pet.Id, Arg.Any<CancellationToken>())
             .Returns(Array.Empty<PawTrack.Domain.Medical.MedicalRecord>());
@@ -52,7 +87,7 @@ public sealed class GetPetMedicalHistoryForClinicQueryHandlerTests
         capturedLog.AccessedByUserId.Should().Be(clinicUserId);
         capturedLog.Operation.Should().Be("read_medical_history");
         capturedLog.Permission.Should().Be("read");
-        capturedLog.AccessMethod.Should().Be("recent_scan");
+        capturedLog.AccessMethod.Should().Be("active_grant");
         capturedLog.Outcome.Should().Be("allowed");
         capturedLog.Reason.Should().NotBeNullOrWhiteSpace();
     }
@@ -77,6 +112,10 @@ public sealed class GetPetMedicalHistoryForClinicQueryHandlerTests
         clinics.GetByIdAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(clinic);
         pets.GetByIdAsync(qrPet.Id, Arg.Any<CancellationToken>()).Returns(qrPet);
         pets.GetByIdAsync(forgedPet.Id, Arg.Any<CancellationToken>()).Returns(forgedPet);
+        var (grant, code) = PawTrack.Domain.Medical.ClinicMedicalAccessGrant.Generate(
+            qrPet.Id, clinic.Id, qrPet.OwnerId, "Owner", permissions: [PawTrack.Domain.Medical.ClinicMedicalAccessPermission.Read]);
+        grant.TryAccept(code).Should().BeTrue();
+        grants.GetActiveGrantAsync(clinic.Id, qrPet.Id, Arg.Any<CancellationToken>()).Returns(grant);
         medical.GetByPetIdAsync(qrPet.Id, Arg.Any<CancellationToken>()).Returns(Array.Empty<PawTrack.Domain.Medical.MedicalRecord>());
         logs.AddAsync(Arg.Any<PawTrack.Domain.Medical.ClinicMedicalAccessLog>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 

@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import type { SubscriptionTier } from "../api/subscriptionApi";
 import { useMyTier } from "../hooks/useMyTier";
+import { useSubscriptionCatalog } from "../hooks/useSubscription";
 
 type RequiredPlan = "Plus" | "Familia";
 
@@ -19,11 +21,7 @@ export function PlanGate({ requires, children, fallback }: PlanGateProps) {
   const allowed = requires === "Plus" ? isPlus : isFamilia;
   if (allowed) return <>{children}</>;
 
-  return fallback !== undefined ? (
-    <>{fallback}</>
-  ) : (
-    <UpgradeBanner requires={requires} />
-  );
+  return fallback !== undefined ? <>{fallback}</> : <UpgradeBanner requires={requires} />;
 }
 
 // ── Upgrade banner ────────────────────────────────────────────────────────────
@@ -33,13 +31,17 @@ interface UpgradeBannerProps {
   compact?: boolean;
 }
 
-const PLAN_LABELS: Record<RequiredPlan, { name: string; price: string }> = {
-  Plus: { name: "Plus", price: "₡2,990/mes" },
-  Familia: { name: "Familia", price: "₡4,990/mes" },
+const PLAN_LABELS: Record<RequiredPlan, { name: string; tier: SubscriptionTier }> = {
+  Plus: { name: "Plus", tier: "UserPlus" },
+  Familia: { name: "Familia", tier: "UserFamilia" },
 };
 
 export function UpgradeBanner({ requires, compact }: UpgradeBannerProps) {
-  const { name, price } = PLAN_LABELS[requires];
+  const { name, tier } = PLAN_LABELS[requires];
+  const { data: catalog } = useSubscriptionCatalog();
+  const plan = catalog?.find((item) => item.tier === tier && item.isActive);
+  const price =
+    plan?.monthlyPriceCrc == null ? "Precio no disponible" : `₡${plan.monthlyPriceCrc.toLocaleString("es-CR")}/mes`;
 
   if (compact) {
     return (
@@ -52,8 +54,7 @@ export function UpgradeBanner({ requires, compact }: UpgradeBannerProps) {
   return (
     <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4 text-center">
       <p className="text-sm font-semibold text-brand-700">
-        🔒 Esta función requiere el plan{" "}
-        <span className="font-bold">{name}</span>{" "}
+        🔒 Esta función requiere el plan <span className="font-bold">{name}</span>{" "}
         <span className="font-normal text-brand-500">({price})</span>
       </p>
       <button

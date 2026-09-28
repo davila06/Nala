@@ -10,6 +10,33 @@ namespace PawTrack.UnitTests.Subscriptions;
 public sealed class EntitlementServiceTests
 {
     [Fact]
+    public async Task Authorize_FreeFamilyAccount_AllowsOnlyTheOwnerSeat()
+    {
+        var subjectId = Guid.NewGuid();
+        var subscriptions = Substitute.For<ISubscriptionRepository>();
+        var entitlements = Substitute.For<IEntitlementRepository>();
+        subscriptions.GetActiveForSubjectAsync(subjectId, Arg.Any<CancellationToken>())
+            .Returns((Subscription?)null);
+        entitlements.GetConsumedAsync(
+                subjectId, "MaxFamilyMembers", Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(),
+                "family-member", Arg.Any<Guid?>(), Arg.Any<CancellationToken>())
+            .Returns(0m);
+
+        var service = new EntitlementService(
+            subscriptions,
+            Substitute.For<ISubscriptionPlanRepository>(),
+            entitlements,
+            Substitute.For<PawTrack.Application.Common.Interfaces.IUnitOfWork>());
+
+        var decision = await service.AuthorizeAsync(
+            subjectId, "MaxFamilyMembers", 1m,
+            new EntitlementContext("family-member", Guid.NewGuid()));
+
+        decision.Limit.Should().Be(1m);
+        decision.Remaining.Should().Be(1m);
+    }
+
+    [Fact]
     public async Task Consume_is_idempotent_for_the_same_key()
     {
         var subjectId = Guid.NewGuid();

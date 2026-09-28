@@ -722,10 +722,9 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     // ── Expediente digital ─────────────────────────────────────────────────────
 
     /// <summary>
-    /// Returns a pet's full medical history to an authenticated clinic.
-    /// Access: Option A — clinic has a ClinicScan for this pet in the last 90 days.
-    ///         Option B — caller supplies petId from the current consult's QR/chip result.
-    /// Supply either petId (A) or qrOrChipInput+inputType (B).
+    /// Returns a pet's full medical history to an authenticated clinic with an
+    /// active owner-approved grant containing the Read permission. A scan identifies
+    /// the pet but does not grant access to medical records.
     /// </summary>
     [HttpGet("patients/{petId:guid}/medical")]
     [Authorize(Roles = "Clinic")]

@@ -2,12 +2,8 @@ import { useState } from "react";
 import { toast } from "@/shared/lib/toast";
 import { Button, Input, Card } from "@/shared/ui";
 import { PlanGate } from "@/features/pets/components/PlanGate";
-import {
-  useMyFamily,
-  useCreateFamilyAccount,
-  useInviteFamilyMember,
-  useRemoveFamilyMember,
-} from "../hooks/useFamily";
+import { useMyEntitlements } from "@/features/pets/hooks/useSubscription";
+import { useMyFamily, useCreateFamilyAccount, useInviteFamilyMember, useRemoveFamilyMember } from "../hooks/useFamily";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import type { FamilyMemberDto } from "../api/familyApi";
 
@@ -29,9 +25,7 @@ function MemberRow({
         <p className="truncate text-sm font-semibold text-sand-900">
           {member.name}
           {isSelf && (
-            <span className="ml-2 rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
-              Tú
-            </span>
+            <span className="ml-2 rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">Tú</span>
           )}
         </p>
         <p className="truncate text-xs text-sand-500">{member.email}</p>
@@ -39,9 +33,7 @@ function MemberRow({
       <div className="flex shrink-0 items-center gap-2">
         <span
           className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-            member.role === "Owner"
-              ? "bg-trust-100 text-trust-700"
-              : "bg-sand-100 text-sand-600"
+            member.role === "Owner" ? "bg-trust-100 text-trust-700" : "bg-sand-100 text-sand-600"
           }`}
         >
           {member.role === "Owner" ? "Titular" : "Miembro"}
@@ -66,8 +58,13 @@ function MemberRow({
   );
 }
 
-function ExistingFamily() {
-  const { data: family, isLoading } = useMyFamily();
+function ExistingFamily({
+  family,
+  maxMembers,
+}: {
+  family: NonNullable<ReturnType<typeof useMyFamily>["data"]>;
+  maxMembers: number | null;
+}) {
   const invite = useInviteFamilyMember();
   const currentUserId = useAuthStore((s) => s.user?.id);
   const [inviteEmail, setInviteEmail] = useState("");
@@ -76,19 +73,10 @@ function ExistingFamily() {
     email: string;
   } | null>(null);
 
-  if (isLoading) {
-    return (
-      <div className="animate-pulse space-y-2">
-        <div className="h-12 rounded-xl bg-sand-100" />
-        <div className="h-12 rounded-xl bg-sand-100" />
-      </div>
-    );
-  }
-
-  if (!family) return null;
-
-  const isOwner =
-    family.members.find((m) => m.userId === currentUserId)?.role === "Owner";
+  const isOwner = family.members.find((m) => m.userId === currentUserId)?.role === "Owner";
+  const occupiedSeats = family.members.length + family.pendingInvitations;
+  const hasAvailableSeat = maxMembers !== null && occupiedSeats < maxMembers;
+  const canInvite = isOwner && hasAvailableSeat && family.pendingInvitations < family.pendingInvitationLimit;
 
   const handleInvite = () => {
     if (!inviteEmail.trim()) return;
@@ -106,26 +94,25 @@ function ExistingFamily() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-display text-base font-semibold text-sand-800">
-          👨‍👩‍👧 {family.name}
-        </h3>
+        <h3 className="font-display text-base font-semibold text-sand-800">👨‍👩‍👧 {family.name}</h3>
         <span className="text-xs text-sand-500">
-          {family.members.length}/5 miembros
+          {maxMembers === null ? "Límite no disponible" : `${occupiedSeats}/${maxMembers} miembros`}
         </span>
       </div>
 
+      {family.pendingInvitations > 0 && (
+        <p className="text-xs text-sand-500" role="status">
+          {family.pendingInvitations} invitaciones pendientes ocupan espacio.
+        </p>
+      )}
+
       <ul className="space-y-2">
         {family.members.map((m) => (
-          <MemberRow
-            key={m.userId}
-            member={m}
-            currentUserId={currentUserId}
-            isOwner={isOwner ?? false}
-          />
+          <MemberRow key={m.userId} member={m} currentUserId={currentUserId} isOwner={isOwner ?? false} />
         ))}
       </ul>
 
-      {isOwner && family.members.length < 5 && (
+      {canInvite && (
         <div className="space-y-2 rounded-2xl border border-sand-200 bg-sand-50 p-4">
           <p className="text-sm font-semibold text-sand-700">Invitar miembro</p>
           <div className="flex gap-2">
@@ -140,21 +127,14 @@ function ExistingFamily() {
               aria-label="Correo del nuevo miembro"
               className="flex-1"
             />
-            <Button
-              size="sm"
-              onClick={handleInvite}
-              loading={invite.isPending}
-              disabled={!inviteEmail.trim()}
-            >
+            <Button size="sm" onClick={handleInvite} loading={invite.isPending} disabled={!inviteEmail.trim()}>
               Invitar
             </Button>
           </div>
 
           {inviteResult && (
             <div className="rounded-xl border border-trust-200 bg-trust-50 p-3">
-              <p className="mb-1 text-xs font-semibold text-trust-700">
-                ✅ Envía este enlace a {inviteResult.email}:
-              </p>
+              <p className="mb-1 text-xs font-semibold text-trust-700">✅ Envía este enlace a {inviteResult.email}:</p>
               <div className="flex items-center gap-2">
                 <code className="min-w-0 flex-1 truncate rounded bg-trust-100 px-2 py-1 text-xs text-trust-900">
                   {inviteResult.link}
@@ -174,11 +154,26 @@ function ExistingFamily() {
           )}
         </div>
       )}
+
+      {isOwner && maxMembers !== null && !hasAvailableSeat && (
+        <p className="text-xs text-sand-600" role="status">
+          No hay espacios disponibles. Quita un miembro o revisa tu plan para invitar a otra persona.
+        </p>
+      )}
+
+      {isOwner &&
+        maxMembers !== null &&
+        hasAvailableSeat &&
+        family.pendingInvitations >= family.pendingInvitationLimit && (
+          <p className="text-xs text-sand-600" role="status">
+            Espera a que se acepten o expiren las invitaciones pendientes antes de enviar otra.
+          </p>
+        )}
     </div>
   );
 }
 
-function CreateFamilyForm() {
+function CreateFamilyForm({ maxMembers }: { maxMembers: number | null }) {
   const create = useCreateFamilyAccount();
   const [name, setName] = useState("");
 
@@ -188,8 +183,8 @@ function CreateFamilyForm() {
       onSuccess: () => toast.success("¡Cuenta familiar creada!"),
       onError: (err: unknown) =>
         toast.error(
-          (err as { response?: { data?: { detail?: string } } })?.response?.data
-            ?.detail ?? "No se pudo crear la cuenta",
+          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
+            "No se pudo crear la cuenta",
         ),
     });
   };
@@ -197,8 +192,9 @@ function CreateFamilyForm() {
   return (
     <div className="rounded-2xl border border-sand-200 bg-sand-50 p-4 space-y-3">
       <p className="text-sm text-sand-600">
-        Con el plan Familia puedes agregar hasta 4 miembros adicionales. Todos
-        compartirán acceso al historial médico de tus mascotas.
+        {maxMembers === null
+          ? "No se pudo consultar el límite de miembros. El servidor verificará el cupo al crear la cuenta."
+          : `Con el plan Familia puedes agregar hasta ${Math.max(0, maxMembers - 1)} miembros adicionales, incluido el titular. Los miembros comparten acceso al historial médico según los permisos actuales.`}
       </p>
       <div className="flex gap-2">
         <Input
@@ -211,12 +207,7 @@ function CreateFamilyForm() {
           aria-label="Nombre de la cuenta familiar"
           className="flex-1"
         />
-        <Button
-          size="sm"
-          onClick={handleCreate}
-          loading={create.isPending}
-          disabled={!name.trim()}
-        >
+        <Button size="sm" onClick={handleCreate} loading={create.isPending} disabled={!name.trim()}>
           Crear
         </Button>
       </div>
@@ -226,13 +217,20 @@ function CreateFamilyForm() {
 
 export function FamilyManagementSection() {
   const { data: family, isLoading, isError } = useMyFamily();
+  const {
+    data: entitlementSnapshot,
+    isLoading: isLoadingEntitlements,
+    isError: isEntitlementsError,
+  } = useMyEntitlements();
+  const maxMembers =
+    isLoadingEntitlements || isEntitlementsError
+      ? null
+      : (entitlementSnapshot?.entitlements.MaxFamilyMembers?.numericValue ?? null);
 
   return (
     <PlanGate requires="Familia">
       <Card padding="md" className="space-y-4">
-        <h2 className="font-display text-lg font-semibold text-sand-900">
-          Cuenta familiar
-        </h2>
+        <h2 className="font-display text-lg font-semibold text-sand-900">Cuenta familiar</h2>
 
         {isLoading && (
           <div className="animate-pulse space-y-2">
@@ -241,9 +239,9 @@ export function FamilyManagementSection() {
           </div>
         )}
 
-        {!isLoading && (isError || !family) && <CreateFamilyForm />}
+        {!isLoading && (isError || !family) && <CreateFamilyForm maxMembers={maxMembers} />}
 
-        {!isLoading && family && <ExistingFamily />}
+        {!isLoading && family && <ExistingFamily family={family} maxMembers={maxMembers} />}
       </Card>
     </PlanGate>
   );

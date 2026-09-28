@@ -10,7 +10,15 @@ namespace PawTrack.Application.Family;
 // ── DTOs ─────────────────────────────────────────────────────────────────────
 
 public sealed record FamilyMemberDto(Guid UserId, string Name, string Email, string Role, DateTimeOffset JoinedAt);
-public sealed record FamilyAccountDto(Guid Id, string Name, IReadOnlyList<FamilyMemberDto> Members);
+public sealed record FamilyAccountDto(
+    Guid Id,
+    string Name,
+    IReadOnlyList<FamilyMemberDto> Members,
+    int PendingInvitations,
+    int PendingInvitationLimit)
+{
+    public const int MaxPendingInvitationLimit = 3;
+}
 public sealed record FamilyInvitationDto(Guid Token, string InvitedEmail, DateTimeOffset ExpiresAt);
 
 // ── Create account ────────────────────────────────────────────────────────────
@@ -41,7 +49,8 @@ public sealed class CreateFamilyAccountCommandHandler(
         await familyRepository.AddMembershipAsync(ownerMembership, ct);
         await unitOfWork.SaveChangesAsync(ct);
 
-        return Result.Success(new FamilyAccountDto(account.Id, account.Name, []));
+        return Result.Success(new FamilyAccountDto(
+            account.Id, account.Name, [], 0, FamilyAccountDto.MaxPendingInvitationLimit));
     }
 }
 
@@ -54,7 +63,7 @@ public sealed class InviteFamilyMemberCommandHandler(
     IEmailSender emailSender,
     IUnitOfWork unitOfWork,
     ILogger<InviteFamilyMemberCommandHandler> logger,
-    IEntitlementService? entitlementService = null)
+    IEntitlementService entitlementService)
     : IRequestHandler<InviteFamilyMemberCommand, Result<FamilyInvitationDto>>
 {
     public async Task<Result<FamilyInvitationDto>> Handle(
@@ -68,27 +77,23 @@ public sealed class InviteFamilyMemberCommandHandler(
             return Result.Failure<FamilyInvitationDto>("Solo el dueño puede invitar miembros.");
 
         var count = await familyRepository.CountActiveMembersAsync(account.Id, ct);
-        var maxMembers = 5m;
-        if (entitlementService is not null)
-        {
-            var decision = await entitlementService.AuthorizeAsync(
-                request.OwnerId,
-                "MaxFamilyMembers",
-                1m,
-                new EntitlementContext("family-member", account.Id),
-                ct);
-            if (decision.Limit.HasValue) maxMembers = decision.Limit.Value;
-            if (!decision.Allowed || count >= maxMembers)
-                return Result.Failure<FamilyInvitationDto>($"La cuenta familiar ya tiene el máximo de {maxMembers:0} miembros.");
-        }
-        else if (count >= maxMembers)
-            return Result.Failure<FamilyInvitationDto>($"La cuenta familiar ya tiene el máximo de {maxMembers:0} miembros.");
+        var decision = await entitlementService.AuthorizeAsync(
+            request.OwnerId,
+            "MaxFamilyMembers",
+            1m,
+            new EntitlementContext("family-member", account.Id),
+            ct);
+        if (!decision.Included || !decision.Limit.HasValue)
+            return Result.Failure<FamilyInvitationDto>("El plan no permite agregar miembros familiares.");
+        var maxMembers = decision.Limit.Value;
 
-        // Limit open invitations to prevent spam
-        const int MaxPendingInvitations = 3;
         var pending = await familyRepository.CountPendingInvitationsAsync(account.Id, ct);
-        if (pending >= MaxPendingInvitations)
-            return Result.Failure<FamilyInvitationDto>($"Ya tienes {MaxPendingInvitations} invitaciones pendientes. Espera a que sean aceptadas o expiren.");
+        // Reserve a seat for each pending invitation so invitations cannot oversubscribe the account.
+        var maxPendingInvitations = FamilyAccountDto.MaxPendingInvitationLimit;
+        if (pending >= maxPendingInvitations)
+            return Result.Failure<FamilyInvitationDto>($"Ya tienes {maxPendingInvitations} invitaciones pendientes. Espera a que sean aceptadas o expiren.");
+        if (count + pending >= maxMembers)
+            return Result.Failure<FamilyInvitationDto>($"La cuenta familiar ya tiene el máximo de {maxMembers:0} miembros o invitaciones pendientes.");
 
         var invitation = FamilyInvitation.Create(account.Id, request.InvitedEmail);
         await familyRepository.AddInvitationAsync(invitation, ct);
@@ -115,7 +120,8 @@ public sealed record AcceptFamilyInvitationCommand(Guid AcceptingUserId, Guid To
 public sealed class AcceptFamilyInvitationCommandHandler(
     IFamilyRepository familyRepository,
     IUserRepository userRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IEntitlementService entitlementService)
     : IRequestHandler<AcceptFamilyInvitationCommand, Result<bool>>
 {
     public async Task<Result<bool>> Handle(
@@ -132,6 +138,26 @@ public sealed class AcceptFamilyInvitationCommandHandler(
 
         if (!string.Equals(user.Email, invitation.InvitedEmail, StringComparison.OrdinalIgnoreCase))
             return Result.Failure<bool>("Esta invitación fue enviada a otra dirección de correo.");
+
+        var account = await familyRepository.GetByIdAsync(invitation.FamilyAccountId, ct);
+        if (account is null)
+            return Result.Failure<bool>("La cuenta familiar ya no está disponible.");
+
+        if (await familyRepository.GetByMemberAsync(user.Id, ct) is not null)
+            return Result.Failure<bool>("El usuario ya pertenece a una cuenta familiar.");
+
+        var decision = await entitlementService.AuthorizeAsync(
+            account.OwnerId,
+            "MaxFamilyMembers",
+            1m,
+            new EntitlementContext("family-member", account.Id),
+            ct);
+        if (!decision.Included || !decision.Limit.HasValue)
+            return Result.Failure<bool>("El plan del titular no permite agregar miembros familiares.");
+
+        var activeMembers = await familyRepository.CountActiveMembersAsync(account.Id, ct);
+        if (!decision.Allowed || activeMembers >= decision.Limit.Value)
+            return Result.Failure<bool>($"La cuenta familiar ya tiene el máximo de {decision.Limit.Value:0} miembros.");
 
         invitation.Accept();
         familyRepository.UpdateInvitation(invitation);
@@ -208,6 +234,12 @@ public sealed class GetFamilyMembersQueryHandler(
                 m.JoinedAt))
             .ToList();
 
-        return Result.Success<FamilyAccountDto?>(new FamilyAccountDto(account.Id, account.Name, memberDtos));
+        var pendingInvitations = await familyRepository.CountPendingInvitationsAsync(account.Id, ct);
+        return Result.Success<FamilyAccountDto?>(new FamilyAccountDto(
+            account.Id,
+            account.Name,
+            memberDtos,
+            pendingInvitations,
+            FamilyAccountDto.MaxPendingInvitationLimit));
     }
 }

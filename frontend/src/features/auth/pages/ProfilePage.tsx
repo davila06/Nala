@@ -96,20 +96,6 @@ const TIER_LABEL: Record<string, string> = {
   MuniRedRegional: "Red Regional",
 };
 
-const TIER_PRICE: Record<string, string> = {
-  Free: "Gratis",
-  UserPlus: "₡2.990/mes",
-  UserFamilia: "₡4.990/mes",
-  StorePlus: "₡12.000/mes",
-  StorePartner: "₡25.000/mes",
-  ShelterPlus: "₡8.000/mes",
-  ClinicPlus: "₡15.000/mes",
-  ClinicPartner: "₡35.000/mes",
-  MuniBasica: "₡150.000/año",
-  MuniFull: "₡300.000/año",
-  MuniRedRegional: "₡500.000/año",
-};
-
 const STATUS_BADGE: Record<string, { label: string; color: string }> = {
   Active: { label: "Activo", color: "bg-rescue-100 text-rescue-700" },
   PendingPayment: {
@@ -155,10 +141,18 @@ function MiPlanCard({
   const isActive = status === "Active";
   const cancellationScheduled = Boolean(sub?.cancellationRequestedAt);
   const catalogPlan = catalog?.find((plan) => plan.tier === tier);
-  const catalogPrice = catalogPlan?.annualPriceCrc ?? catalogPlan?.monthlyPriceCrc;
-  const catalogPriceLabel = catalogPrice
-    ? `₡${catalogPrice.toLocaleString("es-CR")}/${catalogPlan?.annualPriceCrc ? "año" : "mes"}`
-    : undefined;
+  const catalogPrice = catalogPlan?.isActive ? (catalogPlan.annualPriceCrc ?? catalogPlan.monthlyPriceCrc) : null;
+  const catalogPriceLabel =
+    catalogPrice !== null && catalogPrice !== undefined
+      ? `₡${catalogPrice.toLocaleString("es-CR")}/${catalogPlan?.annualPriceCrc ? "año" : "mes"}`
+      : undefined;
+  const acceptedPriceLabel =
+    sub && (sub.isActive || isPending)
+      ? sub.amountCrc > 0
+        ? `Importe contratado: ₡${sub.amountCrc.toLocaleString("es-CR")} por ${sub.billingMonths} ${sub.billingMonths === 1 ? "mes" : "meses"}`
+        : "Sin cobro (promoción)"
+      : undefined;
+  const priceLabel = isFree ? "Gratis" : (acceptedPriceLabel ?? catalogPriceLabel ?? "Precio no disponible");
 
   return (
     <Card>
@@ -170,7 +164,7 @@ function MiPlanCard({
 
         <div className="flex items-end gap-2">
           <span className="text-2xl font-black text-sand-900">{TIER_LABEL[tier] ?? tier}</span>
-          <span className="mb-0.5 text-sm text-sand-500">{catalogPriceLabel ?? TIER_PRICE[tier] ?? ""}</span>
+          <span className="mb-0.5 text-sm text-sand-500">{priceLabel}</span>
         </div>
 
         {/* Expiry */}

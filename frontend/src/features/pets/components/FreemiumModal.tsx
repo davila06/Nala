@@ -9,7 +9,7 @@ interface Tier {
   id: "free" | "plus" | "familia";
   subscriptionTier?: SubscriptionTier;
   name: string;
-  price: string;
+  freePrice?: string;
   period: string;
   color: string;
   badge: string;
@@ -23,21 +23,15 @@ const TIERS: Tier[] = [
   {
     id: "free",
     name: "Explorador",
-    price: "Gratis",
+    freePrice: "Gratis",
     period: "siempre",
     color: "border-sand-200",
     badge: "bg-sand-100 text-sand-600",
     features: [
       { label: "1 mascota registrada", included: true },
-      { label: "Placa QR de identidad", included: true },
-      { label: "Historial: últimos 5 escaneos", included: true },
+      { label: "Perfil digital y QR", included: true },
       { label: "Reporte de mascota perdida", included: true },
-      { label: "Búsqueda IA por foto (3/mes)", included: true },
-      { label: "Alertas en radio de 3 km", included: false },
-      { label: "SMS/WhatsApp de alerta instantánea", included: false },
-      { label: "Predicción de movimiento IA", included: false },
-      { label: "Historial completo ilimitado", included: false },
-      { label: "Hasta 3 mascotas", included: false },
+      { label: "Reportar un avistamiento", included: true },
     ],
     cta: "Plan actual",
     current: true,
@@ -45,7 +39,6 @@ const TIERS: Tier[] = [
   {
     id: "plus",
     name: "Plus",
-    price: "₡2,990",
     period: "por mes",
     color: "border-brand-400",
     badge: "bg-brand-100 text-brand-700",
@@ -53,14 +46,7 @@ const TIERS: Tier[] = [
     features: [
       { label: "Todo lo del plan Explorador", included: true },
       { label: "Hasta 3 mascotas", included: true },
-      { label: "Historial completo ilimitado", included: true },
-      { label: "Alertas en radio de 10 km", included: true },
-      { label: "SMS/WhatsApp de alerta instantánea", included: true },
-      { label: "Búsqueda IA por foto ilimitada", included: true },
-      { label: "Predicción de movimiento IA", included: true },
-      { label: "Sala de coordinación activa", included: true },
-      { label: "Mascotas ilimitadas", included: false },
-      { label: "Multi-usuario (familia)", included: false },
+      { label: "Hasta 10 búsquedas visuales por ciclo (experimental)", included: true },
     ],
     cta: "Activar Plus",
     subscriptionTier: "UserPlus",
@@ -68,21 +54,16 @@ const TIERS: Tier[] = [
   {
     id: "familia",
     name: "Familia",
-    price: "₡4,990",
     period: "por mes",
     color: "border-rescue-400",
     badge: "bg-rescue-100 text-rescue-700",
     features: [
       { label: "Todo lo del plan Plus", included: true },
-      { label: "Mascotas ilimitadas", included: true },
-      { label: "Multi-usuario (hasta 5 miembros)", included: true },
-      { label: "Registros médicos y vacunas", included: true },
-      { label: "Recordatorios veterinarios", included: true },
-      { label: "Radio de alertas sin límite", included: true },
-      { label: "Exportar historial en PDF", included: true },
-      { label: "Soporte prioritario", included: true },
-      { label: "", included: true },
-      { label: "", included: true },
+      { label: "Hasta 25 mascotas activas", included: true },
+      { label: "Hasta 5 miembros totales", included: true },
+      { label: "Expediente y recordatorios médicos", included: true },
+      { label: "Hasta 30 búsquedas visuales por ciclo (experimental)", included: true },
+      { label: "Exportación médica según permisos", included: true },
     ],
     cta: "Activar Familia",
     subscriptionTier: "UserFamilia",
@@ -125,8 +106,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-500">PawTrack Plus</p>
               <h2 className="mt-1 font-display text-2xl font-black text-sand-900">Más protección para tus mascotas</h2>
               <p className="mt-1 text-sm text-sand-500">
-                Activa alertas instantáneas, IA de búsqueda sin límite y más desde ₡2,990/mes (+13% IVA si requiere
-                factura).
+                Compara precios y límites del catálogo vigente. La recuperación básica permanece disponible sin pago.
               </p>
             </div>
             <button
@@ -167,12 +147,14 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                     {tier.name}
                   </span>
                   <p className="mt-2 text-2xl font-extrabold text-sand-900">
-                    {(() => {
-                      const plan = tier.subscriptionTier
-                        ? catalog?.find((item) => item.tier === tier.subscriptionTier)
-                        : undefined;
-                      return plan?.monthlyPriceCrc ? `₡${plan.monthlyPriceCrc.toLocaleString("es-CR")}` : tier.price;
-                    })()}
+                    {tier.subscriptionTier
+                      ? (() => {
+                          const plan = catalog?.find((item) => item.tier === tier.subscriptionTier);
+                          return plan?.isActive && plan.monthlyPriceCrc !== null
+                            ? `₡${plan.monthlyPriceCrc.toLocaleString("es-CR")}`
+                            : "Precio no disponible";
+                        })()
+                      : tier.freePrice}
                   </p>
                   <p className="text-xs text-sand-400">{tier.period}</p>
                 </div>
@@ -211,7 +193,22 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => tier.subscriptionTier && setPendingTier(tier.subscriptionTier)}
+                    disabled={
+                      Boolean(tier.subscriptionTier) &&
+                      !catalog?.some(
+                        (plan) => plan.tier === tier.subscriptionTier && plan.isActive && plan.monthlyPriceCrc !== null,
+                      )
+                    }
+                    onClick={() => {
+                      if (
+                        tier.subscriptionTier &&
+                        catalog?.some(
+                          (plan) =>
+                            plan.tier === tier.subscriptionTier && plan.isActive && plan.monthlyPriceCrc !== null,
+                        )
+                      )
+                        setPendingTier(tier.subscriptionTier);
+                    }}
                     className={[
                       "block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
                       tier.id === "plus"
@@ -234,7 +231,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
           </p>
 
           {/* Bundle GPS CTA */}
-          <div className="mt-5 rounded-2xl border border-brand-200 bg-gradient-to-r from-brand-50 to-rescue-50 p-4 flex items-center gap-4">
+          <div className="mt-5 rounded-2xl border border-brand-200 bg-linear-to-r from-brand-50 to-rescue-50 p-4 flex items-center gap-4">
             <span className="text-3xl shrink-0" aria-hidden="true">
               📡
             </span>

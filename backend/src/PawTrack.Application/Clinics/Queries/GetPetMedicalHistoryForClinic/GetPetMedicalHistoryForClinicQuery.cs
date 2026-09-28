@@ -10,9 +10,9 @@ namespace PawTrack.Application.Clinics.Queries.GetPetMedicalHistoryForClinic;
 // ── Query ─────────────────────────────────────────────────────────────────────
 
 /// <summary>
-/// Returns a pet's full medical history to an authenticated clinic.
-/// Access gate (A+B): clinic must have a recent scan for the pet (Option A)
-/// or provide the QR/chip from the current consult (Option B).
+/// Returns a pet's full medical history only with an active owner-approved
+/// grant that includes the Read permission. A QR/chip scan identifies the pet
+/// and is recorded as contact history, but is not consent to disclose records.
 /// </summary>
 public sealed record GetPetMedicalHistoryForClinicQuery(
     Guid ClinicId,
@@ -43,7 +43,6 @@ public sealed class GetPetMedicalHistoryForClinicQueryHandler(
     IUnitOfWork unitOfWork)
     : IRequestHandler<GetPetMedicalHistoryForClinicQuery, Result<ClinicPatientHistoryDto>>
 {
-    private const int RecentScanWindowDays = 90;
     private static readonly Regex PetIdFromQrPattern =
         new(@"\/p\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -60,35 +59,20 @@ public sealed class GetPetMedicalHistoryForClinicQueryHandler(
             return Result.Failure<ClinicPatientHistoryDto>(
                 "No se pudo identificar la mascota. Verifique el QR o chip.");
 
-        // Access gate: resolve the first concrete authorization path so the audit
-        // record explains why the medical history was disclosed.
-        var accessMethod = "unknown";
-        var accessReason = "No valid clinic access path was found.";
-        var hasAccess = inlineScan is not null;
-        if (hasAccess)
-        {
-            accessMethod = "inline_scan";
-            accessReason = "Current consultation QR/chip scan.";
-        }
-        else if (await clinicScanRepository.HasRecentScanAsync(request.ClinicId, pet.Id, RecentScanWindowDays, ct))
-        {
-            hasAccess = true;
-            accessMethod = "recent_scan";
-            accessReason = $"Clinic scan within {RecentScanWindowDays} days.";
-        }
-        else if (await grantRepository.GetActiveGrantAsync(request.ClinicId, pet.Id, ct)
-            is { } grant && grant.HasPermission(ClinicMedicalAccessPermission.Read))
-        {
-            hasAccess = true;
-            accessMethod = "active_grant";
-            accessReason = "Active owner consent grant with read permission.";
-        }
+        var grant = await grantRepository.GetActiveGrantAsync(request.ClinicId, pet.Id, ct);
+        var hasAccess = grant is not null && grant.HasPermission(ClinicMedicalAccessPermission.Read);
+        var accessMethod = hasAccess
+            ? "active_grant"
+            : inlineScan is not null ? "inline_scan_without_read_grant" : "no_active_read_grant";
+        var accessReason = hasAccess
+            ? "Active owner consent grant with read permission."
+            : "An active owner-approved read grant is required; a scan alone does not disclose medical history.";
 
         if (!hasAccess)
         {
             await RecordAccessAsync(pet.Id, request, accessMethod, "denied", accessReason, ct);
             return Result.Failure<ClinicPatientHistoryDto>(
-                "La clínica no tiene acceso a esta mascota. Escanee el QR o solicite acceso permanente al dueño.");
+                "La clínica requiere un permiso de lectura activo, aprobado por el dueño. Escanear el QR no concede acceso al expediente.");
         }
 
         var records = await medicalRepository.GetByPetIdAsync(pet.Id, ct);

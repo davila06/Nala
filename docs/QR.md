@@ -208,10 +208,18 @@ El mismo `PerformClinicScanCommand` — sin diferencia de lógica.
 
 ### Acceso al expediente
 
-Después de un escaneo, la clínica puede acceder al historial médico de esa mascota. Dos modos:
+El escaneo identifica la mascota y puede registrar contacto, pero **no autoriza
+leer ni escribir en el expediente médico**. La clínica necesita un
+`ClinicMedicalAccessGrant` activo con el permiso requerido, aprobado por el
+tutor:
 
-- **Opción A:** `petId` de un escaneo previo → `GetPetMedicalHistoryForClinicQuery`
-- **Opción B:** QR escaneado en el mismo momento de la consulta (inline) → `AddClinicMedicalRecordCommand`
+- **Lectura:** grant activo con permiso `read` para
+  `GetPetMedicalHistoryForClinicQuery`.
+- **Escritura:** grant activo con permiso `write` para
+  `AddClinicMedicalRecordCommand`.
+- **Consentimiento:** el tutor inicia un código para la clínica o acepta el
+  código solicitado por ella. Puede revocar el grant desde el endpoint de
+  acceso clínico. Los códigos vencen; un escaneo reciente no sustituye el grant.
 
 ---
 

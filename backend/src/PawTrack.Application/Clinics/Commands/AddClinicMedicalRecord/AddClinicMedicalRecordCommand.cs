@@ -13,10 +13,8 @@ namespace PawTrack.Application.Clinics.Commands.AddClinicMedicalRecord;
 
 /// <summary>
 /// Allows an authenticated clinic to add a medical record to a pet's expediente.
-/// Access gate (A+B):
-///   Option A — clinic already has a ClinicScan for this pet within the last 90 days.
-///   Option B — caller supplies the QR URL or RFID chip; the scan is created inline.
-/// Both paths are evaluated; either one is sufficient.
+/// A QR/RFID scan identifies the pet but does not grant access to its medical record.
+/// The clinic must have an active owner-approved grant with the Write permission.
 /// </summary>
 public sealed record AddClinicMedicalRecordCommand(
     Guid ClinicId,
@@ -70,7 +68,6 @@ public sealed class AddClinicMedicalRecordCommandHandler(
     : IRequestHandler<AddClinicMedicalRecordCommand, Result<MedicalRecordDto>>
 {
     private const string MedicalDocsContainer = "medical-docs";
-    private const int RecentScanWindowDays = 90;
     private static readonly Regex PetIdFromQrPattern =
         new(@"\/p\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -91,18 +88,11 @@ public sealed class AddClinicMedicalRecordCommandHandler(
             return Result.Failure<MedicalRecordDto>(
                 "No se pudo identificar la mascota. Verifique el QR o chip.");
 
-        // ── Option A gate: recent scan history; Option C: active grant ─────────
-        if (inlineScan is null)
-        {
-            var hasAccess =
-                await clinicScanRepository.HasRecentScanAsync(request.ClinicId, pet.Id, RecentScanWindowDays, ct)
-                || (await grantRepository.GetActiveGrantAsync(request.ClinicId, pet.Id, ct))
-                    is { } grant && grant.HasPermission(ClinicMedicalAccessPermission.Write);
-            if (!hasAccess)
-                return Result.Failure<MedicalRecordDto>(
-                    $"La clínica no tiene acceso a esta mascota. " +
-                    $"Escanee el QR durante la consulta (Opción B) o solicite acceso permanente al dueño.");
-        }
+        // A scan identifies the patient; only explicit owner consent authorizes a write.
+        var grant = await grantRepository.GetActiveGrantAsync(request.ClinicId, pet.Id, ct);
+        if (grant is null || !grant.HasPermission(ClinicMedicalAccessPermission.Write))
+            return Result.Failure<MedicalRecordDto>(
+                "La clínica requiere consentimiento activo del dueño con permiso de escritura.");
 
         // ── Create medical record ─────────────────────────────────────────────
         var record = MedicalRecord.Create(

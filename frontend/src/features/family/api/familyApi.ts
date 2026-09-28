@@ -14,6 +14,8 @@ export interface FamilyAccountDto {
   id: string;
   name: string;
   members: FamilyMemberDto[];
+  pendingInvitations: number;
+  pendingInvitationLimit: number;
 }
 
 export interface FamilyInvitationDto {
@@ -25,16 +27,13 @@ export interface FamilyInvitationDto {
 // ── API ───────────────────────────────────────────────────────────────────────
 
 export const familyApi = {
-  getMyFamily: (): Promise<FamilyAccountDto> =>
-    apiClient.get<FamilyAccountDto>("/family").then((r) => r.data),
+  getMyFamily: (): Promise<FamilyAccountDto> => apiClient.get<FamilyAccountDto>("/family").then((r) => r.data),
 
   createAccount: (name: string): Promise<FamilyAccountDto> =>
     apiClient.post<FamilyAccountDto>("/family", { name }).then((r) => r.data),
 
   invite: (email: string): Promise<FamilyInvitationDto> =>
-    apiClient
-      .post<FamilyInvitationDto>("/family/invite", { email })
-      .then((r) => r.data),
+    apiClient.post<FamilyInvitationDto>("/family/invite", { email }).then((r) => r.data),
 
   acceptInvitation: (token: string): Promise<void> =>
     apiClient.post(`/family/invitations/${token}/accept`).then(() => undefined),

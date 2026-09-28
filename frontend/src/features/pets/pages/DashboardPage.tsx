@@ -6,6 +6,7 @@ import { shouldShowOnboarding } from "../components/onboardingStorage";
 import { FreemiumModal } from "../components/FreemiumModal";
 import { usePets } from "../hooks/usePets";
 import { useMyTier } from "../hooks/useMyTier";
+import { useMyEntitlements } from "../hooks/useSubscription";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { AlertPreferencesToggle } from "@/features/locations/components/AlertPreferencesToggle";
 import { LeaderboardWidget } from "@/features/incentives/components/LeaderboardWidget";
@@ -20,12 +21,13 @@ export default function DashboardPage() {
   const [searchParams] = useSearchParams();
   const user = useAuthStore((s) => s.user);
   const { isPlus, isFamilia } = useMyTier();
+  const { data: entitlements } = useMyEntitlements();
   const lostCount = useMemo(() => (pets ?? []).filter((p) => p.status === "Lost").length, [pets]);
-  const petLimit = isFamilia ? -1 : isPlus ? 3 : 1;
+  const petLimit = entitlements?.entitlements.MaxPets?.numericValue ?? null;
   const petCount = pets?.length ?? 0;
   const isChoosingLostPet = searchParams.get("action") === "report-lost";
   const activePets = useMemo(() => (pets ?? []).filter((pet) => pet.status === "Active"), [pets]);
-  const atPetLimit = petLimit !== -1 && petCount >= petLimit;
+  const atPetLimit = petLimit !== null && petCount >= petLimit;
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "Lost" | "Active">("all");
   const [filterSpecies, setFilterSpecies] = useState<string>("all");
@@ -109,28 +111,34 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex flex-col items-end gap-1.5">
-            {user?.role === "Owner" && !isFamilia && petCount > 0 && (
+            {user?.role === "Owner" && petCount > 0 && (
               <p className="text-xs text-sand-500">
-                {petLimit === -1 ? "" : `${petCount} / ${petLimit} mascotas`}
-                {atPetLimit && !isPlus && (
+                {petLimit === null ? "Límite del plan no disponible" : `${petCount} / ${petLimit} mascotas`}
+                {atPetLimit && !isFamilia && (
                   <button
                     type="button"
                     onClick={() => setShowFreemium(true)}
                     className="ml-1.5 font-semibold text-brand-600 underline"
                   >
-                    Agrega hasta 3 con Plus →
+                    Ver planes →
                   </button>
                 )}
               </p>
             )}
             {user?.role !== "Owner" ? null : atPetLimit ? (
-              <button
-                type="button"
-                onClick={() => setShowFreemium(true)}
-                className="inline-flex items-center gap-2 rounded-xl border border-brand-300 bg-brand-50 px-4 py-2.5 text-sm font-semibold text-brand-700 transition-base hover:bg-brand-100"
-              >
-                🔒 Actualizar plan
-              </button>
+              isFamilia ? (
+                <p className="text-xs text-sand-600" role="status">
+                  Alcanzaste el límite técnico de mascotas de tu plan.
+                </p>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowFreemium(true)}
+                  className="inline-flex items-center gap-2 rounded-xl border border-brand-300 bg-brand-50 px-4 py-2.5 text-sm font-semibold text-brand-700 transition-base hover:bg-brand-100"
+                >
+                  🔒 Ver planes
+                </button>
+              )
             ) : (
               <Link
                 to="/pets/new"
@@ -242,7 +250,7 @@ export default function DashboardPage() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-brand-900">Activa Plus y protege más a tus mascotas</p>
               <p className="text-xs text-brand-600 mt-0.5">
-                Alertas instantáneas, IA sin límite y hasta 3 mascotas desde <strong>₡2,990/mes</strong>.
+                Compara los precios y límites del catálogo vigente. La recuperación básica sigue disponible sin pago.
               </p>
             </div>
             <span className="shrink-0 rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white">

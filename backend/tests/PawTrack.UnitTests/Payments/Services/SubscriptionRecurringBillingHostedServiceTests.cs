@@ -75,6 +75,48 @@ public sealed class SubscriptionRecurringBillingHostedServiceTests
     }
 
     [Fact]
+    public async Task RunCycleAsync_UsesTheAcceptedSubscriptionAmountSnapshot()
+    {
+        var (user, _) = User.Create("owner@pawtrack.cr", "hash", "Owner");
+        _userRepo.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
+        var sub = Subscription.CreateForUser(user.Id, SubscriptionTier.UserPlus, "REF12345", 4500m, billingMonths: 1);
+        sub.Activate(1);
+        _subscriptionRepo.GetExpiringWithinAsync(2, Arg.Any<CancellationToken>()).Returns([sub]);
+        _profileRepo.GetDefaultByUserIdAsync(user.Id, Arg.Any<CancellationToken>())
+            .Returns(UserPaymentProfile.CreateCard(user.Id, "tok_card_saved_1", "Visa", "1234", 11, 2030, isDefault: true));
+        _gatewayService.ChargeAsync(Arg.Any<ChargePaymentRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new ChargePaymentResult(true, "CS-REC-1", "AUTH-999000", null, null));
+
+        var sut = new SubscriptionRecurringBillingHostedService(
+            _scopeFactory, _jobLock, NullLogger<SubscriptionRecurringBillingHostedService>.Instance);
+        await sut.RunCycleAsync(CancellationToken.None);
+
+        await _gatewayService.Received(1).ChargeAsync(
+            Arg.Is<ChargePaymentRequest>(request => request.AmountCrc == 4500m),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task RunCycleAsync_WhenAcceptedAmountIsZero_DoesNotChargeWithoutConsent()
+    {
+        var (user, _) = User.Create("owner@pawtrack.cr", "hash", "Owner");
+        _userRepo.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
+        var sub = Subscription.CreateFromPromotion(user.Id, SubscriptionTier.UserPlus, 1, Guid.NewGuid());
+        _subscriptionRepo.GetExpiringWithinAsync(2, Arg.Any<CancellationToken>()).Returns([sub]);
+        _profileRepo.GetDefaultByUserIdAsync(user.Id, Arg.Any<CancellationToken>())
+            .Returns(UserPaymentProfile.CreateCard(user.Id, "tok_card_saved_1", "Visa", "1234", 11, 2030, isDefault: true));
+
+        var sut = new SubscriptionRecurringBillingHostedService(
+            _scopeFactory, _jobLock, NullLogger<SubscriptionRecurringBillingHostedService>.Instance);
+        await sut.RunCycleAsync(CancellationToken.None);
+
+        await _gatewayService.DidNotReceive().ChargeAsync(
+            Arg.Any<ChargePaymentRequest>(), Arg.Any<CancellationToken>());
+        await _transactionRepo.DidNotReceive().AddAsync(
+            Arg.Any<PaymentTransaction>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task RunCycleAsync_WhenChargeFails_RecordsFailureAndSendsAlert()
     {
         var (user, _) = User.Create("denis@pawtrack.cr", "hash", "Denis");

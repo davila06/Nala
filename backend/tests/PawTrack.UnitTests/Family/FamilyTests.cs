@@ -5,6 +5,7 @@ using PawTrack.Application.Family;
 using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Auth;
 using PawTrack.Domain.Family;
+using PawTrack.Domain.Subscriptions;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace PawTrack.UnitTests.Family;
@@ -67,23 +68,53 @@ public sealed class AcceptFamilyInvitationTests
     private readonly IFamilyRepository _familyRepo = Substitute.For<IFamilyRepository>();
     private readonly IUserRepository _userRepo = Substitute.For<IUserRepository>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
+    private readonly IEntitlementService _entitlements = Substitute.For<IEntitlementService>();
     private readonly AcceptFamilyInvitationCommandHandler _sut;
 
     public AcceptFamilyInvitationTests()
     {
         _uow.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
-        _sut = new AcceptFamilyInvitationCommandHandler(_familyRepo, _userRepo, _uow);
+        _entitlements.AuthorizeAsync(
+                Arg.Any<Guid>(), "MaxFamilyMembers", 1m, Arg.Any<EntitlementContext>(), Arg.Any<CancellationToken>())
+            .Returns(new EntitlementDecision(true, true, 5m, 0m, 5m, null, SubscriptionTier.UserFamilia));
+        _sut = new AcceptFamilyInvitationCommandHandler(_familyRepo, _userRepo, _uow, _entitlements);
+    }
+
+    [Fact]
+    public async Task Handle_AtMemberLimit_RejectsInvitationWithoutAddingMembership()
+    {
+        var ownerId = Guid.NewGuid();
+        var account = FamilyAccount.Create(ownerId, "Test Family");
+        var invitation = FamilyInvitation.Create(account.Id, "new-member@test.com");
+        var (user, verificationToken) = User.Create("new-member@test.com", "hash", "New Member");
+        user.VerifyEmail(verificationToken);
+
+        _familyRepo.GetInvitationByTokenAsync(invitation.Token, Arg.Any<CancellationToken>()).Returns(invitation);
+        _familyRepo.GetByIdAsync(account.Id, Arg.Any<CancellationToken>()).Returns(account);
+        _familyRepo.CountActiveMembersAsync(account.Id, Arg.Any<CancellationToken>()).Returns(5);
+        _userRepo.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
+
+        var result = await _sut.Handle(
+            new AcceptFamilyInvitationCommand(user.Id, invitation.Token), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        invitation.IsAccepted.Should().BeFalse();
+        await _familyRepo.DidNotReceive().AddMembershipAsync(
+            Arg.Any<FamilyMembership>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task Handle_CorrectEmailAndValidToken_AcceptsAndCreatesMembership()
     {
-        var invitation = FamilyInvitation.Create(Guid.NewGuid(), "bob@test.com");
+        var account = FamilyAccount.Create(Guid.NewGuid(), "Test Family");
+        var invitation = FamilyInvitation.Create(account.Id, "bob@test.com");
         var (user, token) = User.Create("bob@test.com", "hash", "Bob");
         user.VerifyEmail(token);
 
         _familyRepo.GetInvitationByTokenAsync(invitation.Token, Arg.Any<CancellationToken>())
                    .Returns(invitation);
+        _familyRepo.GetByIdAsync(account.Id, Arg.Any<CancellationToken>()).Returns(account);
+        _familyRepo.CountActiveMembersAsync(account.Id, Arg.Any<CancellationToken>()).Returns(1);
         _userRepo.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
 
         var result = await _sut.Handle(
@@ -143,6 +174,34 @@ public sealed class AcceptFamilyInvitationTests
     }
 }
 
+public sealed class GetFamilyMembersQueryTests
+{
+    [Fact]
+    public async Task Handle_ReturnsPendingInvitationCountAlongsideActiveMembers()
+    {
+        var ownerId = Guid.NewGuid();
+        var account = FamilyAccount.Create(ownerId, "Test Family");
+        var ownerMembership = FamilyMembership.CreateOwner(account.Id, ownerId);
+        var (owner, verificationToken) = User.Create("owner@test.com", "hash", "Owner");
+        owner.VerifyEmail(verificationToken);
+        var familyRepository = Substitute.For<IFamilyRepository>();
+        familyRepository.GetByOwnerAsync(ownerId, Arg.Any<CancellationToken>()).Returns(account);
+        familyRepository.GetActiveMembershipsAsync(account.Id, Arg.Any<CancellationToken>())
+            .Returns((IReadOnlyList<FamilyMembership>)[ownerMembership]);
+        familyRepository.CountPendingInvitationsAsync(account.Id, Arg.Any<CancellationToken>()).Returns(2);
+        var userRepository = Substitute.For<IUserRepository>();
+        userRepository.GetByIdsAsync(Arg.Any<IReadOnlyCollection<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns((IReadOnlyList<User>)[owner]);
+        var handler = new GetFamilyMembersQueryHandler(familyRepository, userRepository);
+
+        var result = await handler.Handle(new GetFamilyMembersQuery(ownerId), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.PendingInvitations.Should().Be(2);
+        result.Value.PendingInvitationLimit.Should().Be(3);
+    }
+}
+
 // ── InviteFamilyMemberCommandHandler: max pending ─────────────────────────────
 
 public sealed class InviteMemberPendingLimitTests
@@ -150,6 +209,14 @@ public sealed class InviteMemberPendingLimitTests
     private readonly IFamilyRepository _repo = Substitute.For<IFamilyRepository>();
     private readonly IEmailSender _email = Substitute.For<IEmailSender>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
+    private readonly IEntitlementService _entitlements = Substitute.For<IEntitlementService>();
+
+    public InviteMemberPendingLimitTests()
+    {
+        _entitlements.AuthorizeAsync(
+                Arg.Any<Guid>(), "MaxFamilyMembers", 1m, Arg.Any<EntitlementContext>(), Arg.Any<CancellationToken>())
+            .Returns(new EntitlementDecision(true, true, 5m, 0m, 5m, null, SubscriptionTier.UserFamilia));
+    }
 
     private FamilyAccount MakeAccount(Guid ownerId)
     {
@@ -172,7 +239,7 @@ public sealed class InviteMemberPendingLimitTests
         _uow.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
 
         var sut = new InviteFamilyMemberCommandHandler(_repo, _email, _uow,
-            Microsoft.Extensions.Logging.Abstractions.NullLogger<InviteFamilyMemberCommandHandler>.Instance);
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<InviteFamilyMemberCommandHandler>.Instance, _entitlements);
         var result = await sut.Handle(
             new InviteFamilyMemberCommand(ownerId, "bob@test.com"), CancellationToken.None);
 
@@ -189,12 +256,30 @@ public sealed class InviteMemberPendingLimitTests
         _repo.CountPendingInvitationsAsync(account.Id, Arg.Any<CancellationToken>()).Returns(3); // at limit
 
         var sut = new InviteFamilyMemberCommandHandler(_repo, _email, _uow,
-            Microsoft.Extensions.Logging.Abstractions.NullLogger<InviteFamilyMemberCommandHandler>.Instance);
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<InviteFamilyMemberCommandHandler>.Instance, _entitlements);
         var result = await sut.Handle(
             new InviteFamilyMemberCommand(ownerId, "charlie@test.com"), CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
         result.Errors.Should().Contain(e => e.Contains("pendientes"));
+        await _repo.DidNotReceive().AddInvitationAsync(Arg.Any<FamilyInvitation>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_PendingInvitationsReserveRemainingFamilySeats()
+    {
+        var ownerId = Guid.NewGuid();
+        var account = MakeAccount(ownerId);
+        _repo.GetByOwnerAsync(ownerId, Arg.Any<CancellationToken>()).Returns(account);
+        _repo.CountActiveMembersAsync(account.Id, Arg.Any<CancellationToken>()).Returns(4);
+        _repo.CountPendingInvitationsAsync(account.Id, Arg.Any<CancellationToken>()).Returns(1);
+
+        var sut = new InviteFamilyMemberCommandHandler(_repo, _email, _uow,
+            NullLogger<InviteFamilyMemberCommandHandler>.Instance, _entitlements);
+        var result = await sut.Handle(
+            new InviteFamilyMemberCommand(ownerId, "fifth-member@test.com"), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
         await _repo.DidNotReceive().AddInvitationAsync(Arg.Any<FamilyInvitation>(), Arg.Any<CancellationToken>());
     }
 }

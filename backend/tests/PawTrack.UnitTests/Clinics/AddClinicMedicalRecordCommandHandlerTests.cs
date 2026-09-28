@@ -12,6 +12,37 @@ namespace PawTrack.UnitTests.Clinics;
 public sealed class AddClinicMedicalRecordCommandHandlerTests
 {
     [Fact]
+    public async Task Handle_QrScanWithoutWriteGrant_DeniesMedicalRecordCreation()
+    {
+        var clinicUserId = Guid.NewGuid();
+        var clinic = Clinic.Create(clinicUserId, "Vet Salud", "SENASA-123", "San Jose", 9.93m, -84.08m, "vet@example.com");
+        clinic.Activate();
+        var pet = Pet.Create(Guid.NewGuid(), "QR Pet", PetSpecies.Dog, null, null);
+        var clinics = Substitute.For<IClinicRepository>();
+        var scans = Substitute.For<IClinicScanRepository>();
+        var grants = Substitute.For<IClinicMedicalAccessGrantRepository>();
+        var pets = Substitute.For<IPetRepository>();
+        var records = Substitute.For<IMedicalRepository>();
+        var qr = $"https://pawtrack.cr/p/{pet.Id}";
+
+        clinics.GetByIdAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(clinic);
+        pets.GetByIdAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(pet);
+
+        var handler = new AddClinicMedicalRecordCommandHandler(
+            clinics, scans, grants, pets, Substitute.For<IUserRepository>(), records,
+            Substitute.For<INotificationDispatcher>(), Substitute.For<IBlobStorageService>(), Substitute.For<IUnitOfWork>());
+
+        var result = await handler.Handle(new AddClinicMedicalRecordCommand(
+            clinic.Id, clinicUserId, null, qr, ScanInputType.Qr,
+            MedicalRecordType.Checkup, DateOnly.FromDateTime(DateTime.UtcNow), "Consulta", null, null, null, null),
+            CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain(error => error.Contains("consentimiento", StringComparison.OrdinalIgnoreCase));
+        await records.DidNotReceive().AddAsync(Arg.Any<MedicalRecord>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task Handle_QrInputTakesPrecedenceOverForgedPetId()
     {
         var clinicUserId = Guid.NewGuid();
@@ -30,6 +61,10 @@ public sealed class AddClinicMedicalRecordCommandHandlerTests
         pets.GetByIdAsync(qrPet.Id, Arg.Any<CancellationToken>()).Returns(qrPet);
         pets.GetByIdAsync(forgedPet.Id, Arg.Any<CancellationToken>()).Returns(forgedPet);
         scans.HasRecentScanAsync(clinic.Id, forgedPet.Id, 90, Arg.Any<CancellationToken>()).Returns(true);
+        var (writeGrant, rawCode) = ClinicMedicalAccessGrant.Generate(
+            qrPet.Id, clinic.Id, qrPet.OwnerId, "Owner", permissions: [ClinicMedicalAccessPermission.Write]);
+        writeGrant.TryAccept(rawCode).Should().BeTrue();
+        grants.GetActiveGrantAsync(clinic.Id, qrPet.Id, Arg.Any<CancellationToken>()).Returns(writeGrant);
         records.AddAsync(Arg.Any<MedicalRecord>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
         var handler = new AddClinicMedicalRecordCommandHandler(
