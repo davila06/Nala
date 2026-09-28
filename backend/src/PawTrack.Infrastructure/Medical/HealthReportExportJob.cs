@@ -36,6 +36,7 @@ public sealed class HealthReportExportJob(
         if (!export.Start(DateTimeOffset.UtcNow)) return;
         exportRepository.Update(export);
         await unitOfWork.SaveChangesAsync(ct);
+        string? uploadedBlobUrl = null;
         try
         {
             var pet = await petRepository.GetByIdAsync(export.PetId, ct);
@@ -58,10 +59,11 @@ public sealed class HealthReportExportJob(
                 new ConsolidatedHealthReportData(pet.Name, DateTimeOffset.UtcNow, page.Items), ct);
             var blobName = $"{export.RequestedByUserId:N}/{export.PetId:N}/{export.Id:N}.pdf";
             await using var stream = new MemoryStream(pdf);
-            var blobUrl = await blobStorage.UploadAsync("medical-health-exports", blobName, stream, "application/pdf", ct);
-            if (!export.Complete(blobUrl, page.Items.Count, DateTimeOffset.UtcNow))
+            uploadedBlobUrl = await blobStorage.UploadAsync("medical-health-exports", blobName, stream, "application/pdf", ct);
+            if (!export.Complete(uploadedBlobUrl, page.Items.Count, DateTimeOffset.UtcNow))
             {
-                await blobStorage.DeleteAsync(blobUrl, ct);
+                await blobStorage.DeleteAsync(uploadedBlobUrl, ct);
+                uploadedBlobUrl = null;
                 await FailAsync(export, "invalid_export_state", ct);
                 return;
             }
@@ -71,6 +73,7 @@ public sealed class HealthReportExportJob(
                 export.RequestedByUserId, AuditAction.MedicalHealthReportCompleted,
                 "HealthReportExport", export.Id.ToString(), $"items={page.Items.Count}"), ct);
             await unitOfWork.SaveChangesAsync(ct);
+            uploadedBlobUrl = null;
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
@@ -79,6 +82,17 @@ public sealed class HealthReportExportJob(
         catch (Exception exception)
         {
             logger.LogError(exception, "Medical health report export {ExportId} failed", export.Id);
+            if (!string.IsNullOrWhiteSpace(uploadedBlobUrl))
+            {
+                try
+                {
+                    await blobStorage.DeleteAsync(uploadedBlobUrl, CancellationToken.None);
+                }
+                catch (Exception cleanupException)
+                {
+                    logger.LogWarning(cleanupException, "Failed to remove orphaned health report blob {ExportId}", export.Id);
+                }
+            }
             await FailAsync(export, "report_generation_failed", ct);
         }
     }

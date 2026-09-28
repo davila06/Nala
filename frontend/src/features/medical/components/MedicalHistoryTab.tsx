@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "@/shared/lib/toast";
 import { Button, Input, Card, Drawer } from "@/shared/ui";
 import {
@@ -24,6 +25,7 @@ import { HealthScoreCard } from "./HealthScoreCard";
 import { useCertificatesForPet, useDownloadCertificatePdf } from "@/features/clinics/hooks/useCertificates";
 import { CERTIFICATE_TYPE_LABELS } from "@/features/clinics/api/certificateApi";
 import { useMyProfile, useGrantHealthDataConsent } from "@/features/auth/hooks/useProfile";
+import { medicalApi } from "@/features/medical/api/medicalApi";
 import type {
   MedicalRecordType,
   MedicalDocumentKind,
@@ -538,10 +540,19 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
           </p>
         )}
         {record.hasDocument && (
-          <button type="button" disabled={attachmentDownload.isPending} onClick={() => attachmentDownload.mutate()}
-            className="text-xs font-medium text-brand-600 hover:underline disabled:opacity-50">
+          <button
+            type="button"
+            disabled={attachmentDownload.isPending}
+            onClick={() => attachmentDownload.mutate()}
+            className="text-xs font-medium text-brand-600 hover:underline disabled:opacity-50"
+          >
             <span aria-hidden="true">📄</span> Descargar documento adjunto
           </button>
+        )}
+        {attachmentDownload.isError && (
+          <p role="alert" className="text-xs text-danger-600">
+            No se pudo descargar. Verifica el MFA y el acceso vigente.
+          </p>
         )}
       </li>
     </>

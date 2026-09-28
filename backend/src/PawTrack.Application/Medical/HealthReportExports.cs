@@ -47,7 +47,17 @@ public sealed class RequestHealthReportExportCommandHandler(
         await auditLogRepository.AddAsync(AuditLogEntry.Create(
             request.RequestingUserId, AuditAction.MedicalHealthReportRequested,
             "HealthReportExport", export.Id.ToString()), ct);
-        await unitOfWork.SaveChangesAsync(ct);
+        try
+        {
+            await unitOfWork.SaveChangesAsync(ct);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            var winningExport = await exportRepository.GetReusableAsync(
+                request.RequestingUserId, pet.Id, DateTimeOffset.UtcNow, ct);
+            if (winningExport is not null) return Result.Success(HealthReportExportDto.FromDomain(winningExport));
+            throw;
+        }
         return Result.Success(HealthReportExportDto.FromDomain(export));
     }
 }
@@ -55,15 +65,28 @@ public sealed class RequestHealthReportExportCommandHandler(
 public sealed record GetHealthReportExportQuery(Guid ExportId, Guid RequestingUserId)
     : IRequest<Result<HealthReportExportDto>>;
 
-public sealed class GetHealthReportExportQueryHandler(IHealthReportExportRepository repository)
+public sealed class GetHealthReportExportQueryHandler(
+    IHealthReportExportRepository repository,
+    IPetRepository petRepository,
+    IFamilyRepository familyRepository,
+    ISubscriptionService subscriptionService)
     : IRequestHandler<GetHealthReportExportQuery, Result<HealthReportExportDto>>
 {
     public async Task<Result<HealthReportExportDto>> Handle(GetHealthReportExportQuery request, CancellationToken ct)
     {
         var export = await repository.GetByIdAsync(request.ExportId, ct);
-        return export is null || export.RequestedByUserId != request.RequestingUserId
-            ? Result.Failure<HealthReportExportDto>("Export no encontrado.")
-            : Result.Success(HealthReportExportDto.FromDomain(export));
+        if (export is null || export.RequestedByUserId != request.RequestingUserId ||
+            !await IsStillAuthorizedAsync(export, request.RequestingUserId, ct))
+            return Result.Failure<HealthReportExportDto>("Export no encontrado.");
+        return Result.Success(HealthReportExportDto.FromDomain(export));
+    }
+
+    private async Task<bool> IsStillAuthorizedAsync(HealthReportExport export, Guid userId, CancellationToken ct)
+    {
+        if (!await subscriptionService.IsFamiliaAsync(userId, ct)) return false;
+        var pet = await petRepository.GetByIdAsync(export.PetId, ct);
+        return pet is not null && (pet.OwnerId == userId ||
+            (await familyRepository.GetActiveMemberIdsAsync(pet.OwnerId, ct)).Contains(userId));
     }
 }
 
@@ -72,6 +95,9 @@ public sealed record DownloadHealthReportExportQuery(Guid ExportId, Guid Request
 
 public sealed class DownloadHealthReportExportQueryHandler(
     IHealthReportExportRepository repository,
+    IPetRepository petRepository,
+    IFamilyRepository familyRepository,
+    ISubscriptionService subscriptionService,
     IBlobStorageService blobStorage,
     IAuditLogRepository auditLogRepository,
     IUnitOfWork unitOfWork)
@@ -80,7 +106,8 @@ public sealed class DownloadHealthReportExportQueryHandler(
     public async Task<Result<MedicalDocumentDownloadDto>> Handle(DownloadHealthReportExportQuery request, CancellationToken ct)
     {
         var export = await repository.GetByIdAsync(request.ExportId, ct);
-        if (export is null || export.RequestedByUserId != request.RequestingUserId || !export.IsDownloadable ||
+        if (export is null || export.RequestedByUserId != request.RequestingUserId ||
+            !await IsStillAuthorizedAsync(export, request.RequestingUserId, ct) || !export.IsDownloadable ||
             string.IsNullOrWhiteSpace(export.BlobUrl) || !IsHealthExportBlob(export.BlobUrl))
             return Result.Failure<MedicalDocumentDownloadDto>("Export no encontrado.");
 
@@ -91,6 +118,14 @@ public sealed class DownloadHealthReportExportQueryHandler(
             "HealthReportExport", export.Id.ToString(), $"items={export.ItemCount ?? 0}"), ct);
         await unitOfWork.SaveChangesAsync(ct);
         return Result.Success(new MedicalDocumentDownloadDto(bytes, "application/pdf", $"historial-consolidado-{export.PetId:N}.pdf"));
+    }
+
+    private async Task<bool> IsStillAuthorizedAsync(HealthReportExport export, Guid userId, CancellationToken ct)
+    {
+        if (!await subscriptionService.IsFamiliaAsync(userId, ct)) return false;
+        var pet = await petRepository.GetByIdAsync(export.PetId, ct);
+        return pet is not null && (pet.OwnerId == userId ||
+            (await familyRepository.GetActiveMemberIdsAsync(pet.OwnerId, ct)).Contains(userId));
     }
 
     private static bool IsHealthExportBlob(string blobUrl)

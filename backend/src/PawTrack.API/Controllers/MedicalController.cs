@@ -96,6 +96,7 @@ public sealed class MedicalController(ISender sender) : ControllerBase
     }
 
     [HttpGet("consolidated-report")]
+    [Authorize(Policy = "MfaStepUp")]
     [EnableRateLimiting("data-export")]
     [Produces("application/pdf")]
     public async Task<IActionResult> DownloadConsolidatedReport(Guid petId, CancellationToken ct)
@@ -109,6 +110,7 @@ public sealed class MedicalController(ISender sender) : ControllerBase
     }
 
     [HttpPost("consolidated-report/exports")]
+    [Authorize(Policy = "MfaStepUp")]
     [EnableRateLimiting("data-export")]
     public async Task<IActionResult> RequestConsolidatedReportExport(Guid petId, CancellationToken ct)
     {
@@ -137,6 +139,7 @@ public sealed class MedicalController(ISender sender) : ControllerBase
     }
 
     [HttpGet("consolidated-report/exports/{exportId:guid}/download")]
+    [Authorize(Policy = "MfaStepUp")]
     [EnableRateLimiting("data-export")]
     [Produces("application/pdf")]
     public async Task<IActionResult> DownloadConsolidatedReportExport(Guid petId, Guid exportId, CancellationToken ct)
@@ -148,6 +151,7 @@ public sealed class MedicalController(ISender sender) : ControllerBase
     }
 
     [HttpGet("{recordId:guid}/document")]
+    [Authorize(Policy = "MfaStepUp")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> DownloadMedicalDocument(Guid petId, Guid recordId, CancellationToken ct)
     {

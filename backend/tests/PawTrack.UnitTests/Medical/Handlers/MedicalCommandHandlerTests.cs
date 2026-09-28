@@ -569,9 +569,11 @@ public sealed class GetMedicalHistoryPageQueryHandlerTests
                 Arg.Any<EntitlementContext>(), Arg.Any<CancellationToken>())
             .Returns(new EntitlementDecision(true, true, 1m, 0m, 1m, null,
                 PawTrack.Domain.Subscriptions.SubscriptionTier.UserPlus));
+        var record = MedicalRecord.Create(pet.Id, ownerId,
+            MedicalRecordType.Checkup, new DateOnly(2026, 9, 27), "Consulta", null, null, null);
+        record.SetDocumentUrl("https://storage.example/medical-docs/private.pdf", MedicalDocumentKind.Radiograph);
         medical.GetCurrentRecordsPageAsync(pet.Id, 0, 1, Arg.Any<CancellationToken>())
-            .Returns(new List<MedicalRecord> { MedicalRecord.Create(pet.Id, ownerId,
-                MedicalRecordType.Checkup, new DateOnly(2026, 9, 27), "Consulta", null, null, null) });
+            .Returns(new List<MedicalRecord> { record });
 
         var handler = new GetMedicalHistoryPageQueryHandler(pets, family, medical, plans, entitlements);
         var result = await handler.Handle(new GetMedicalHistoryPageQuery(pet.Id, ownerId, 1, 20), default);
@@ -579,6 +581,9 @@ public sealed class GetMedicalHistoryPageQueryHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.Value!.PreviewLimit.Should().Be(1);
         result.Value.Records.Should().ContainSingle();
+        result.Value.Records[0].HasDocument.Should().BeFalse();
+        result.Value.Records[0].DocumentUrl.Should().BeNull();
+        result.Value.Records[0].DocumentKind.Should().BeNull();
         await medical.Received(1).GetCurrentRecordsPageAsync(pet.Id, 0, 1, Arg.Any<CancellationToken>());
     }
 }

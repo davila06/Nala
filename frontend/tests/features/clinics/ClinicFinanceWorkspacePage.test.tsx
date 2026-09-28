@@ -7,6 +7,8 @@ import { renderWithProviders } from "../../utils/renderWithProviders";
 vi.mock("@/features/clinics/api/clinicsApi", () => ({
   clinicsApi: {
     getFinanceWorkspaces: vi.fn(),
+    getActiveClinicSite: vi.fn().mockResolvedValue(null),
+    selectActiveClinicSite: vi.fn().mockResolvedValue({ clinicId: "clinic-1" }),
     getStaffSalesReport: vi
       .fn()
       .mockResolvedValue({ totalPaidCrc: 1000, byPaymentMethod: {}, byService: {}, byVeterinarian: {} }),

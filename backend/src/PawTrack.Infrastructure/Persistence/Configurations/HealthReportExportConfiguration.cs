@@ -23,5 +23,8 @@ public sealed class HealthReportExportConfiguration : IEntityTypeConfiguration<H
         builder.HasIndex(export => new { export.Status, export.RequestedAt });
         builder.HasIndex(export => new { export.Status, export.StartedAt });
         builder.HasIndex(export => new { export.RequestedByUserId, export.PetId, export.RequestedAt });
+        builder.HasIndex(export => new { export.RequestedByUserId, export.PetId })
+            .IsUnique()
+            .HasFilter("[Status] IN (0, 1)");
     }
 }

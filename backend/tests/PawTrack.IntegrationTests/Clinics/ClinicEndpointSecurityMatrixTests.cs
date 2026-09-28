@@ -41,7 +41,7 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
         "CreateClinicCrmTask", "CreateClinicSale", "CreateFinanceSale", "CreateStaffClinicCrmTask",
         "CreateStaffConsultation", "CreateVeterinarian", "CreateVeterinarianScheduleBlock",
         "DeleteVeterinarianScheduleBlock", "DownloadClinicalConsultationPrescription",
-        "DownloadClinicVerificationDocument", "DownloadMyVerificationDocument", "DownloadPatientMedicalExport",
+        "DownloadClinicVerificationDocument", "DownloadMyVerificationDocument", "DownloadPatientMedicalDocument", "DownloadPatientMedicalExport",
         "DownloadVeterinarianDocument", "DownloadVeterinarianDocumentForAdmin", "ExportPatientMedical",
         "GenerateAccessCode", "GetAccessibleClinicSites", "GetActiveClinicSite", "GetApiKeys", "GetAuthorizedPets", "GetCertificateIssuers", "GetClinicAgendaAudit",
         "GetClinicalConsultationTemplates", "GetClinicCommunicationTemplates", "GetClinicCrmDashboard",
@@ -128,6 +128,7 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
         "MedicalController.UpdateRecord",
         "MedicalController.CreateReminder",
         "MedicalController.DeleteReminder",
+        "MedicalController.RequestConsolidatedReportExport",
         "PetClinicAccessController.GenerateCode",
         "PetClinicAccessController.AcceptClinicCode",
         "PetClinicAccessController.RevokeAccess",
@@ -140,12 +141,16 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
     {
         "MedicalController.GetMyReminders", "MedicalController.GetAccessLog", "MedicalController.GetCount",
         "MedicalController.GetHistory", "MedicalController.GetWeightHistory", "MedicalController.GetHealthAlerts",
+        "MedicalController.GetTimeline", "MedicalController.GetHistoryPage",
+        "MedicalController.DownloadConsolidatedReport", "MedicalController.RequestConsolidatedReportExport",
+        "MedicalController.GetConsolidatedReportExport", "MedicalController.DownloadConsolidatedReportExport",
+        "MedicalController.DownloadMedicalDocument",
         "MedicalController.GetHealthScore", "MedicalController.AddRecord", "MedicalController.GetReminders",
         "MedicalController.CompleteReminder", "MedicalController.ExportPdf", "MedicalController.GetAnnualReport",
         "MedicalController.DeleteRecord", "MedicalController.UpdateRecord", "MedicalController.CreateReminder",
         "MedicalController.DeleteReminder", "PetClinicAccessController.GetGrants", "PetClinicAccessController.GenerateCode",
         "PetClinicAccessController.AcceptClinicCode", "PetClinicAccessController.RevokeAccess",
-        "CertificatesController.GetForClinic", "CertificatesController.GetForPet", "CertificatesController.Verify",
+        "CertificatesController.GetForClinic", "CertificatesController.GetForPet", "CertificatesController.GetForPetPage", "CertificatesController.Verify",
         "CertificatesController.Issue", "CertificatesController.IssuePassport", "CertificatesController.Download",
         "CertificatesController.Revoke",
     };
@@ -182,9 +187,11 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
     public void EveryClinicEndpointDeclaresAuthenticationOrAnonymousAccess()
     {
         var actions = GetClinicActions();
-        actions.Select(action => action.ActionName).Distinct(StringComparer.Ordinal)
-            .Should().BeEquivalentTo(ClinicEndpointActions,
-                "every route action must be present in the reviewed endpoint catalog");
+        var runtimeActions = actions.Select(action => action.ActionName).Distinct(StringComparer.Ordinal).ToHashSet(StringComparer.Ordinal);
+        runtimeActions.Except(ClinicEndpointActions, StringComparer.Ordinal).OrderBy(name => name)
+            .Should().BeEmpty("new route actions must be classified in the reviewed endpoint catalog");
+        ClinicEndpointActions.Except(runtimeActions, StringComparer.Ordinal).OrderBy(name => name)
+            .Should().BeEmpty("removed or renamed route actions must be reviewed and removed from the catalog");
         actions.Where(HasAttribute<AllowAnonymousAttribute>)
             .Select(action => action.ActionName).Distinct(StringComparer.Ordinal)
             .Should().BeEquivalentTo(AnonymousEndpointActions,
@@ -206,9 +213,11 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
         var actions = GetAdditionalClinicalActions();
         var identities = actions.Select(action => $"{action.ControllerTypeInfo.Name}.{action.ActionName}")
             .Distinct(StringComparer.Ordinal)
-            .ToArray();
-        identities.Should().BeEquivalentTo(AdditionalClinicalEndpointActions,
-            "every additional medical/certificate/grant action must be inventoried");
+            .ToHashSet(StringComparer.Ordinal);
+        identities.Except(AdditionalClinicalEndpointActions, StringComparer.Ordinal).OrderBy(identity => identity)
+            .Should().BeEmpty("new medical/certificate/grant routes must be added to the reviewed endpoint catalog");
+        AdditionalClinicalEndpointActions.Except(identities, StringComparer.Ordinal).OrderBy(identity => identity)
+            .Should().BeEmpty("removed or renamed clinical routes must be reviewed and removed from the catalog");
 
         actions.Where(HasAttribute<AllowAnonymousAttribute>)
             .Select(action => $"{action.ControllerTypeInfo.Name}.{action.ActionName}")
@@ -246,6 +255,10 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
                 action.AttributeRouteInfo?.Template, string.Join(',', GetAttributes<HttpMethodAttribute>(action)
                     .SelectMany(attribute => attribute.HttpMethods))))
             .ToArray();
+        var expectedActionCount = ClinicEndpointActions.Count + AdditionalClinicalEndpointActions.Count;
+        actions.Select(action => $"{action.ControllerTypeInfo.Name}.{action.ActionName}")
+            .Distinct(StringComparer.Ordinal).Should().HaveCount(expectedActionCount,
+                "the reviewed endpoint catalogs define the expected number of unique clinical actions");
         var probes = 0;
 
         foreach (var action in actions)
@@ -304,8 +317,8 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
             }
         }
 
-        probes.Should().BeGreaterThanOrEqualTo(141,
-            "the runtime catalog currently contains 141 clinical actions, with route aliases probed separately");
+        probes.Should().BeGreaterThanOrEqualTo(actions.Length,
+            "every discovered route descriptor and each declared HTTP method must receive a request");
     }
 
     [Fact]
@@ -597,7 +610,7 @@ public sealed class ClinicEndpointSecurityMatrixTests(PawTrackWebApplicationFact
 
         var denied = await staffClient.PostAsync(
             $"/api/v1/clinics/{foreignClinicId}/finance/sales/{saleId}/fiscal-submission", null);
-        denied.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        denied.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         var accepted = await staffClient.PostAsync(
             $"/api/clinics/{ownClinicId}/finance/sales/{saleId}/fiscal-submission", null);
         accepted.StatusCode.Should().Be(HttpStatusCode.Accepted);

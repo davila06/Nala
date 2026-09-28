@@ -48,6 +48,8 @@ public sealed class PawTrackWebApplicationFactory : WebApplicationFactory<Progra
                 ["RateLimiting:Register:PermitLimit"] = "1000",
                 ["RateLimiting:Refresh:PermitLimit"] = "1000",
                 ["RateLimiting:PublicApi:PermitLimit"] = "1000",
+                ["RateLimiting:DataExport:PermitLimit"] = "1000",
+                ["RateLimiting:DataExport:WindowSeconds"] = "3600",
                 ["RateLimiting:Sightings:PermitLimit"] = "1000",
                 ["RateLimiting:QuickMatchPublic:PermitLimit"] = "1000",
             });

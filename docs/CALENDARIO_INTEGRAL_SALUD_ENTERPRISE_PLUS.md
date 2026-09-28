@@ -542,14 +542,61 @@ antibioticos", "tiene dermatitis" o "debe recibir este medicamento".
       [CertificatePagination.test.tsx](../frontend/tests/features/medical/CertificatePagination.test.tsx)).
 - [ ] Extender tipo estructurado a adjuntos de `ClinicalConsultation` que no
       esten vinculados a `MedicalRecord`, con permisos y migracion propia.
-- [ ] Diseñar exportacion asíncrona segura para >5 000 eventos y documentar
-      como obtener copia integral sin la restriccion del endpoint sincrono.
-- [ ] Revisar enlaces de adjuntos contra expiracion, revocacion, descarga
-      autenticada, borrado y acceso multiusuario; no difundir URL permanente.
-- [ ] Probar consulta/exportacion con plan Plus/Explorador, grants revocados y
-      documentos eliminados; versionar el informe y registrar quien lo genero
-      (actor, mascota, version, instante y resultado), sin PII en logs.
+- [x] DTOs de historial no exponen `DocumentUrl`; solo `HasDocument`. Owner/familia
+      descargan por endpoint con MFA step-up, plan/ownership revalidados; la
+      clínica requiere cuenta activa y scan reciente o grant `read`. Cada acceso
+      se registra en auditoría general y en el log clinic-scoped. El handler
+      limita el blob al container privado `medical-docs`; UI ya no abre URLs
+      directas ([DownloadMedicalDocumentQuery.cs](../backend/src/PawTrack.Application/Medical/DownloadMedicalDocumentQuery.cs),
+      [MedicalEndpointsTests.cs](../backend/tests/PawTrack.IntegrationTests/Medical/MedicalEndpointsTests.cs)).
+- [x] Solicitud de export extenso persistente con status, deduplicación de job
+      activo por owner+mascota, polling y descarga privada solo al solicitante.
+      Enqueue requiere MFA step-up; índice SQL filtrado impide dos jobs activos
+      concurrentes para owner+mascota. Worker con lock distribuido, revalidación de ownership/plan, retry de
+      worker interrumpido hasta 3 veces, auditoría de request/complete/fail/
+      download/expire y borrado del blob a las 24 h. Cubre hasta 50 000 items;
+      más que eso falla con código explícito y no genera PDF truncado
+      ([HealthReportExportJob.cs](../backend/src/PawTrack.Infrastructure/Medical/HealthReportExportJob.cs),
+      [HealthReportExports.cs](../backend/src/PawTrack.Application/Medical/HealthReportExports.cs),
+      [HealthReportExportJobTests.cs](../backend/tests/PawTrack.UnitTests/Medical/HealthReportExportJobTests.cs),
+      [AddUniqueActiveHealthReportExport.cs](../backend/src/PawTrack.Infrastructure/Migrations/20260928151839_AddUniqueActiveHealthReportExport.cs)).
+- [x] Migración aditiva `AddMedicalDocumentContentTypeAndHealthReportExports`
+      registrada y `has-pending-model-changes` limpio; no aplicada a PawTrackDev,
+      staging ni producción desde este trabajo.
+      La migración `AddUniqueActiveHealthReportExport` agrega el índice filtrado
+      único para jobs activos; ambas migraciones requieren despliegue coordinado.
+- [x] UI permite encolar, consultar estado y descargar cuando el job termina
+      ([ConsolidatedMedicalTimeline.tsx](../frontend/src/features/medical/components/ConsolidatedMedicalTimeline.tsx)).
+- [ ] Definir streaming/particionado y SLO para >50 000 eventos; el hard cap
+      actual evita agotamiento de memoria y falla explícitamente.
+- [ ] Ejecutar threat model y probar revocación durante una descarga ya
+      iniciada; permisos se validan al comienzo y el blob se bufferiza antes de
+      responder.
+- [x] HTTP confirma que Plus no obtiene URL/tipo del adjunto y no puede leer la
+      cronología ni descargar el reporte integral; HTTP confirma que el estado
+      del job es privado al solicitante. Unit test cubre lectura clínica por
+      grant y log clinic-scoped; test HTTP comprueba descarga del dueño y evento
+      de auditoría ([MedicalEndpointsTests.cs](../backend/tests/PawTrack.IntegrationTests/Medical/MedicalEndpointsTests.cs),
+      [DownloadMedicalDocumentQueryTests.cs](../backend/tests/PawTrack.UnitTests/Medical/DownloadMedicalDocumentQueryTests.cs)).
+- [ ] Falta ejecutar revocación concurrente durante stream activo, acceso de
+      clínica tras expirar una grant y análisis formal del threat model antes
+      de release.
 
 **Gate de esta ampliacion:** las tres areas tienen un primer incremento
 funcional, pero los pendientes marcados `[ ]` impiden declarar finalizado el
 nivel enterprise+ o habilitar un asistente generativo sobre el expediente.
+
+**Estado del gate (2026-09-28):** implementación y pruebas de código cerradas
+para paginación, metadatos de adjuntos, descarga autenticada/auditada y reportes
+async hasta 50 000 items. El cierre operacional sigue **bloqueado** por medición
+p50/p95/p99 en staging con carga/concurrencia representativa, análisis de
+revocación durante streaming, plan para >50 000 eventos y revisión formal de
+Seguridad/Privacidad. No se encontró un perfil/target de staging SQL en el
+entorno usado; LocalDB y sus tablas temporales no prueban rendimiento de Azure
+SQL ni despliegue de migraciones.
+
+**Verificación local (2026-09-28):** build API, typecheck frontend, ESLint de
+los componentes tocados, y `has-pending-model-changes` pasaron. Pasaron 12
+pruebas unitarias, 4 HTTP de integración y 8 pruebas UI dirigidas; `git diff
+--check` no reportó errores. Estas pruebas no sustituyen las pruebas de carga,
+la aprobación formal ni la aplicación de migraciones en ambientes destino.

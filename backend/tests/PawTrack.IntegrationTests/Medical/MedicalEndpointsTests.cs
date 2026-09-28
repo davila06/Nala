@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using FluentAssertions;
@@ -9,6 +10,7 @@ using PawTrack.Application.Auth.Commands.Register;
 using PawTrack.Application.Auth.Commands.VerifyEmail;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Pets.Commands.CreatePet;
+using PawTrack.Application.Medical;
 using PawTrack.Domain.Pets;
 using PawTrack.Domain.Medical;
 using PawTrack.Domain.Clinics;
@@ -36,8 +38,9 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
     public async Task Timeline_PaginatesRecordsAndRejectsAnotherOwner()
     {
         var email = $"timeline-owner-{Guid.NewGuid():N}@pawtrack.cr";
-        using var ownerClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, email);
+        using var ownerClient = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, email);
         using var otherClient = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        using var noMfaClient = factory.CreateClient();
         Guid petId;
         using (var scope = factory.Services.CreateScope())
         {
@@ -53,6 +56,12 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
                     new DateOnly(2026, 9, day), $"Consulta {day}", null, null, null));
             await db.SaveChangesAsync();
             petId = pet.Id;
+            var jwt = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
+            var sessionId = await db.RefreshTokens.Where(token => token.UserId == owner.Id && !token.IsRevoked)
+                .OrderByDescending(token => token.CreatedAt).Select(token => token.SessionId).FirstAsync();
+            noMfaClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
+                jwt.GenerateAccessToken(owner.Id, owner.Email, owner.Name, owner.Role,
+                    mfaVerified: false, sessionId: sessionId));
         }
 
         var firstResponse = await ownerClient.GetAsync($"/api/pets/{petId}/medical/timeline?page=1&pageSize=2");
@@ -79,6 +88,8 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
         (await otherClient.GetAsync($"/api/pets/{petId}/medical/timeline?page=1&pageSize=2"))
             .StatusCode.Should().Be(HttpStatusCode.Forbidden);
 
+        (await noMfaClient.GetAsync($"/api/pets/{petId}/medical/consolidated-report"))
+            .StatusCode.Should().Be(HttpStatusCode.Forbidden);
         var report = await ownerClient.GetAsync($"/api/pets/{petId}/medical/consolidated-report");
         report.StatusCode.Should().Be(HttpStatusCode.OK);
         report.Content.Headers.ContentType?.MediaType.Should().Be("application/pdf");
@@ -180,8 +191,9 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
     public async Task MedicalDocumentDownload_IsAuthenticatedAndDoesNotExposeBlobUrl()
     {
         var ownerEmail = $"medical-document-owner-{Guid.NewGuid():N}@pawtrack.cr";
-        using var ownerClient = await AuthHelper.CreateAuthenticatedClientAsync(factory, ownerEmail);
-        using var outsiderClient = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        using var ownerClient = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, ownerEmail);
+        using var outsiderClient = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, $"medical-document-outsider-{Guid.NewGuid():N}@pawtrack.cr");
+        using var noMfaClient = await AuthHelper.CreateAuthenticatedClientAsync(factory);
         Guid petId;
         Guid recordId;
         const string blobUrl = "https://private-storage.invalid/medical-docs/pet/scan.pdf";
@@ -202,13 +214,19 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
             await db.SaveChangesAsync();
             petId = pet.Id;
             recordId = record.Id;
-            scope.ServiceProvider.GetRequiredService<StubBlobStorageService>().Seed(blobUrl, [0x25, 0x50, 0x44, 0x46]);
+            var blobStorage = scope.ServiceProvider.GetRequiredService<IBlobStorageService>() as StubBlobStorageService;
+            blobStorage.Should().NotBeNull();
+            blobStorage!.Seed(blobUrl, [0x25, 0x50, 0x44, 0x46]);
         }
 
         var timeline = await ownerClient.GetFromJsonAsync<TimelineResponse>(
             $"/api/pets/{petId}/medical/timeline?page=1&pageSize=20");
         timeline!.Items[0].DocumentUrl.Should().BeNull();
         timeline.Items[0].HasDocument.Should().BeTrue();
+        var legacyHistory = await ownerClient.GetFromJsonAsync<MedicalHistoryResultDto>(
+            $"/api/pets/{petId}/medical");
+        legacyHistory!.Records[0].DocumentUrl.Should().BeNull();
+        legacyHistory.Records[0].HasDocument.Should().BeTrue();
         var history = await ownerClient.GetFromJsonAsync<PagedMedicalRecordsResponse>(
             $"/api/pets/{petId}/medical/page?page=1&pageSize=20");
         history!.Records[0].DocumentUrl.Should().BeNull();
@@ -217,9 +235,57 @@ public sealed class MedicalEndpointsTests(PawTrackWebApplicationFactory factory)
         var download = await ownerClient.GetAsync($"/api/pets/{petId}/medical/{recordId}/document");
         download.StatusCode.Should().Be(HttpStatusCode.OK);
         (await download.Content.ReadAsByteArrayAsync()).Should().Equal(0x25, 0x50, 0x44, 0x46);
+        (await noMfaClient.GetAsync($"/api/pets/{petId}/medical/{recordId}/document"))
+            .StatusCode.Should().Be(HttpStatusCode.Forbidden);
         (await outsiderClient.GetAsync($"/api/pets/{petId}/medical/{recordId}/document"))
             .StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        using var auditScope = factory.Services.CreateScope();
+        var auditDb = auditScope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+        (await auditDb.AuditLog.CountAsync(entry => entry.Action == PawTrack.Domain.Audit.AuditAction.MedicalDocumentDownloaded &&
+            entry.EntityId == recordId.ToString())).Should().Be(1);
     }
+
+    [Fact]
+    public async Task AsyncHealthReportExport_IsIdempotentAndStatusIsPrivateToRequester()
+    {
+        var email = $"medical-export-owner-{Guid.NewGuid():N}@pawtrack.cr";
+        using var ownerClient = await AuthHelper.CreateMfaAuthenticatedClientAsync(factory, email);
+        using var outsiderClient = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        using var noMfaClient = await AuthHelper.CreateAuthenticatedClientAsync(factory);
+        Guid petId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<PawTrack.Infrastructure.Persistence.PawTrackDbContext>();
+            var owner = await db.Users.SingleAsync(user => user.Email == email);
+            var pet = Pet.Create(owner.Id, "Kira", PetSpecies.Dog, null, null);
+            var plan = Subscription.CreateForUser(owner.Id, SubscriptionTier.UserFamilia,
+                $"M{Guid.NewGuid():N}"[..8], 4990m);
+            plan.Activate();
+            db.Pets.Add(pet);
+            db.Subscriptions.Add(plan);
+            await db.SaveChangesAsync();
+            petId = pet.Id;
+        }
+
+        (await noMfaClient.PostAsync($"/api/pets/{petId}/medical/consolidated-report/exports", null))
+            .StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var firstResponse = await ownerClient.PostAsync($"/api/pets/{petId}/medical/consolidated-report/exports", null);
+        firstResponse.StatusCode.Should().Be(HttpStatusCode.Accepted);
+        var first = await firstResponse.Content.ReadFromJsonAsync<HealthReportExportResponse>();
+        first.Should().NotBeNull();
+        first!.PetId.Should().Be(petId);
+
+        var repeatedResponse = await ownerClient.PostAsync($"/api/pets/{petId}/medical/consolidated-report/exports", null);
+        var repeated = await repeatedResponse.Content.ReadFromJsonAsync<HealthReportExportResponse>();
+        repeated!.Id.Should().Be(first.Id);
+
+        var ownerStatus = await ownerClient.GetAsync($"/api/pets/{petId}/medical/consolidated-report/exports/{first.Id}");
+        ownerStatus.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.Accepted);
+        var outsiderStatus = await outsiderClient.GetAsync($"/api/pets/{petId}/medical/consolidated-report/exports/{first.Id}");
+        outsiderStatus.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    private sealed record HealthReportExportResponse(Guid Id, Guid PetId, string Status);
 
     [Fact]
     public async Task AddRecord_Unauthenticated_Returns401()

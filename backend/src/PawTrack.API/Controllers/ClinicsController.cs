@@ -750,7 +750,7 @@ public sealed class ClinicsController(ISender sender, IBlobStorageService blobSt
     }
 
     [HttpGet("patients/{petId:guid}/medical/{recordId:guid}/document")]
-    [Authorize(Roles = "Clinic")]
+    [Authorize(Roles = "Clinic", Policy = "ClinicOperationsMfa")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> DownloadPatientMedicalDocument(Guid petId, Guid recordId, CancellationToken ct)
     {
@@ -2216,8 +2216,8 @@ public sealed record CreateClinicCrmTaskRequest(
     string Type,
     DateOnly DueDate,
     string Title,
+    Guid IdempotencyKey,
     string? Notes = null,
-    Guid IdempotencyKey = default,
     string Priority = "Normal",
     string? AssignedRole = null,
     Guid? AssignedToUserId = null);

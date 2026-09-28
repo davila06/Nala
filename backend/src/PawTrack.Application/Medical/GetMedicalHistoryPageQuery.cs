@@ -53,6 +53,7 @@ public sealed class GetMedicalHistoryPageQueryHandler(
             {
                 DocumentUrl = null,
                 DocumentKind = null,
+                HasDocument = false,
                 WeightKg = null,
                 DosageDescription = null,
                 Frequency = null,

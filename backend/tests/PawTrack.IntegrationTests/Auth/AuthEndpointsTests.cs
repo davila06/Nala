@@ -1,7 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json.Schema;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using PawTrack.IntegrationTests.Infrastructure;
 
 namespace PawTrack.IntegrationTests.Auth;
@@ -104,6 +110,33 @@ public sealed class AuthEndpointsTests(PawTrackWebApplicationFactory factory)
         var response = await devClient.GetAsync("/openapi/v1.json");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public void OpenApiRequestBodySchemasCanBeExportedIndividually()
+    {
+        var descriptions = factory.Services.GetRequiredService<IApiDescriptionGroupCollectionProvider>()
+            .ApiDescriptionGroups.Items.SelectMany(group => group.Items);
+        var serializerOptions = factory.Services.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
+        var failures = new List<string>();
+
+        foreach (var description in descriptions)
+        {
+            var bodyType = description.ParameterDescriptions
+                .FirstOrDefault(parameter => parameter.Source == BindingSource.Body)?.Type;
+            if (bodyType is null) continue;
+
+            try
+            {
+                _ = JsonSchemaExporter.GetJsonSchemaAsNode(serializerOptions, bodyType);
+            }
+            catch (Exception exception)
+            {
+                failures.Add($"{description.HttpMethod} {description.RelativePath} ({bodyType.FullName}): {exception.Message}");
+            }
+        }
+
+        failures.Should().BeEmpty(string.Join(Environment.NewLine, failures));
     }
 
     [Fact]

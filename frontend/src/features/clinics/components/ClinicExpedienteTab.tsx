@@ -2,15 +2,8 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/shared/lib/toast";
 import { Button, Input, Card } from "@/shared/ui";
-import {
-  clinicMedicalApi,
-  type MedicalRecordDto,
-  type MedicalRecordType,
-} from "@/features/medical/api/medicalApi";
-import {
-  useClinicPetSanitaryIdentity,
-  useVerifyClinicPetMicrochip,
-} from "@/features/medical/hooks/useMedical";
+import { clinicMedicalApi, type MedicalRecordDto, type MedicalRecordType } from "@/features/medical/api/medicalApi";
+import { useClinicPetSanitaryIdentity, useVerifyClinicPetMicrochip } from "@/features/medical/hooks/useMedical";
 import { ClinicAccessPanel } from "./ClinicAccessPanel";
 
 // ── Locale helpers ────────────────────────────────────────────────────────────
@@ -54,35 +47,34 @@ function RecordCard({ record }: { record: MedicalRecordDto }) {
     <li className="rounded-xl border border-sand-100 bg-surface-warm p-3 space-y-1">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-sand-800">
-            {TYPE_LABEL[record.type] ?? record.type}
-          </span>
+          <span className="text-sm font-semibold text-sand-800">{TYPE_LABEL[record.type] ?? record.type}</span>
           {isClinicRecord ? (
             <span className="rounded-full bg-trust-100 px-2 py-0.5 text-xs font-medium text-trust-700">
               🏥 {record.clinicName ?? "Clínica"}
             </span>
           ) : (
-            <span className="rounded-full bg-sand-100 px-2 py-0.5 text-xs font-medium text-sand-500">
-              👤 Dueño
-            </span>
+            <span className="rounded-full bg-sand-100 px-2 py-0.5 text-xs font-medium text-sand-500">👤 Dueño</span>
           )}
         </div>
         <span className="shrink-0 text-xs text-sand-500">{record.date}</span>
       </div>
       <p className="text-sm text-sand-700">{record.description}</p>
-      {record.vetName && (
-        <p className="text-xs text-sand-500">Dr/a. {record.vetName}</p>
-      )}
-      {record.nextDueDate && (
-        <p className="text-xs font-medium text-warn-700">
-          ⏰ Próxima: {record.nextDueDate}
-        </p>
-      )}
+      {record.vetName && <p className="text-xs text-sand-500">Dr/a. {record.vetName}</p>}
+      {record.nextDueDate && <p className="text-xs font-medium text-warn-700">⏰ Próxima: {record.nextDueDate}</p>}
       {record.hasDocument && (
-        <button type="button" disabled={documentDownload.isPending} onClick={() => documentDownload.mutate()}
-          className="text-xs font-medium text-brand-600 hover:underline disabled:opacity-50">
+        <button
+          type="button"
+          disabled={documentDownload.isPending}
+          onClick={() => documentDownload.mutate()}
+          className="text-xs font-medium text-brand-600 hover:underline disabled:opacity-50"
+        >
           📄 Descargar documento
         </button>
+      )}
+      {documentDownload.isError && (
+        <p role="alert" className="text-xs text-danger-600">
+          No se pudo descargar. Verifica MFA y el permiso clínico vigente.
+        </p>
       )}
     </li>
   );
@@ -90,13 +82,7 @@ function RecordCard({ record }: { record: MedicalRecordDto }) {
 
 // ── Add record form ───────────────────────────────────────────────────────────
 
-function AddRecordForm({
-  petId,
-  onClose,
-}: {
-  petId: string;
-  onClose: () => void;
-}) {
+function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void }) {
   const qc = useQueryClient();
   const add = useMutation({
     mutationFn: clinicMedicalApi.addRecord,
@@ -111,8 +97,7 @@ function AddRecordForm({
       const apiErr = err as {
         response?: { data?: { detail?: string }; status?: number };
       };
-      if (apiErr?.response?.status === 403)
-        toast.error("Sin acceso: escanee el QR o chip de la mascota primero.");
+      if (apiErr?.response?.status === 403) toast.error("Sin acceso: escanee el QR o chip de la mascota primero.");
       else toast.error(apiErr?.response?.data?.detail ?? "No se pudo guardar");
     },
   });
@@ -127,15 +112,10 @@ function AddRecordForm({
 
   return (
     <div className="rounded-2xl border border-trust-200 bg-trust-50 p-4 space-y-3">
-      <h3 className="text-sm font-semibold text-trust-800">
-        Agregar registro al expediente
-      </h3>
+      <h3 className="text-sm font-semibold text-trust-800">Agregar registro al expediente</h3>
 
       <div>
-        <label
-          htmlFor="clinic-record-type"
-          className="mb-1 block text-xs font-medium text-sand-600"
-        >
+        <label htmlFor="clinic-record-type" className="mb-1 block text-xs font-medium text-sand-600">
           Tipo
         </label>
         <select
@@ -154,10 +134,7 @@ function AddRecordForm({
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label
-            htmlFor="clinic-record-date"
-            className="mb-1 block text-xs font-medium text-sand-600"
-          >
+          <label htmlFor="clinic-record-date" className="mb-1 block text-xs font-medium text-sand-600">
             Fecha
           </label>
           <Input
@@ -169,10 +146,7 @@ function AddRecordForm({
           />
         </div>
         <div>
-          <label
-            htmlFor="clinic-record-next-due"
-            className="mb-1 block text-xs font-medium text-sand-600"
-          >
+          <label htmlFor="clinic-record-next-due" className="mb-1 block text-xs font-medium text-sand-600">
             Próxima cita
           </label>
           <Input
@@ -186,10 +160,7 @@ function AddRecordForm({
       </div>
 
       <div>
-        <label
-          htmlFor="clinic-record-description"
-          className="mb-1 block text-xs font-medium text-sand-600"
-        >
+        <label htmlFor="clinic-record-description" className="mb-1 block text-xs font-medium text-sand-600">
           Descripción *
         </label>
         <textarea
@@ -203,10 +174,7 @@ function AddRecordForm({
       </div>
 
       <div>
-        <label
-          htmlFor="clinic-record-vet"
-          className="mb-1 block text-xs font-medium text-sand-600"
-        >
+        <label htmlFor="clinic-record-vet" className="mb-1 block text-xs font-medium text-sand-600">
           Veterinario
         </label>
         <Input
@@ -218,9 +186,7 @@ function AddRecordForm({
       </div>
 
       <div>
-        <span className="mb-1 block text-xs font-medium text-sand-600">
-          Documento (PDF/foto, máx. 5 MB)
-        </span>
+        <span className="mb-1 block text-xs font-medium text-sand-600">Documento (PDF/foto, máx. 5 MB)</span>
         <input
           type="file"
           accept=".pdf,image/jpeg,image/png"
@@ -269,17 +235,14 @@ export function ClinicExpedienteTab({
     queryKey: ["clinic-patient-history", petId],
     queryFn: () => clinicMedicalApi.getPatientHistory(petId),
     staleTime: 30_000,
-    retry: (count, err: { response?: { status?: number } }) =>
-      err?.response?.status !== 403 && count < 2,
+    retry: (count, err: { response?: { status?: number } }) => err?.response?.status !== 403 && count < 2,
   });
 
   const [showAddForm, setShowAddForm] = useState(false);
   const { data: sanitary } = useClinicPetSanitaryIdentity(petId);
   const verifyMicrochip = useVerifyClinicPetMicrochip(petId);
   const [observedChipId, setObservedChipId] = useState("");
-  const forbidden =
-    (error)?.response?.status ===
-    403;
+  const forbidden = error?.response?.status === 403;
 
   if (isLoading) {
     return (
@@ -294,17 +257,13 @@ export function ClinicExpedienteTab({
     return (
       <div className="space-y-4">
         <div className="rounded-2xl border border-warn-200 bg-warn-50 p-4 text-center space-y-2">
-          <p className="text-sm font-semibold text-warn-800">
-            📋 Sin acceso al expediente
-          </p>
+          <p className="text-sm font-semibold text-warn-800">📋 Sin acceso al expediente</p>
           <p className="text-xs text-warn-700">
-            Escanea el QR o chip de la mascota para acceso temporal (90 días), o
-            pide al dueño un código de acceso permanente.
+            Escanea el QR o chip de la mascota para acceso temporal (90 días), o pide al dueño un código de acceso
+            permanente.
           </p>
         </div>
-        {onSwitchToPet && (
-          <ClinicAccessPanel currentPetId={petId} onSelectPet={onSwitchToPet} />
-        )}
+        {onSwitchToPet && <ClinicAccessPanel currentPetId={petId} onSelectPet={onSwitchToPet} />}
       </div>
     );
   }
@@ -331,13 +290,7 @@ export function ClinicExpedienteTab({
             <p className="text-xs text-sand-500">
               {data.species}
               {data.breed ? ` · ${data.breed}` : ""}
-              {data.lastSeenAt && (
-                <>
-                  {" "}
-                  · última visita{" "}
-                  {new Date(data.lastSeenAt).toLocaleDateString("es-CR")}
-                </>
-              )}
+              {data.lastSeenAt && <> · última visita {new Date(data.lastSeenAt).toLocaleDateString("es-CR")}</>}
             </p>
           </div>
         </div>
@@ -346,22 +299,15 @@ export function ClinicExpedienteTab({
         </Button>
       </div>
 
-      {showAddForm && (
-        <AddRecordForm petId={petId} onClose={() => setShowAddForm(false)} />
-      )}
+      {showAddForm && <AddRecordForm petId={petId} onClose={() => setShowAddForm(false)} />}
 
       <section className="rounded-2xl border border-sand-100 bg-surface-warm p-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-sand-500">
-              Identidad sanitaria
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-sand-500">Identidad sanitaria</p>
             <p className="text-sm text-sand-800">
-              Microchip:{" "}
-              <span className="font-mono">
-                {sanitary?.microchipId ?? "No registrado"}
-              </span>{" "}
-              · {sanitary?.microchipVerificationStatus ?? "Sin cargar"}
+              Microchip: <span className="font-mono">{sanitary?.microchipId ?? "No registrado"}</span> ·{" "}
+              {sanitary?.microchipVerificationStatus ?? "Sin cargar"}
             </p>
           </div>
         </div>
@@ -392,9 +338,7 @@ export function ClinicExpedienteTab({
           </Button>
         </div>
         {sanitary?.microchipVerificationNotes && (
-          <p className="mt-2 text-xs text-warn-700">
-            {sanitary.microchipVerificationNotes}
-          </p>
+          <p className="mt-2 text-xs text-warn-700">{sanitary.microchipVerificationNotes}</p>
         )}
       </section>
 
@@ -422,8 +366,7 @@ export function ClinicExpedienteTab({
       {ownerRecords.length > 0 && (
         <details>
           <summary className="cursor-pointer text-xs font-semibold text-sand-400 hover:text-sand-600">
-            {ownerRecords.length} registro{ownerRecords.length !== 1 ? "s" : ""}{" "}
-            del dueño (solo lectura)
+            {ownerRecords.length} registro{ownerRecords.length !== 1 ? "s" : ""} del dueño (solo lectura)
           </summary>
           <ul className="mt-2 space-y-2">
             {ownerRecords.map((r) => (

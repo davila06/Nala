@@ -29,4 +29,22 @@ public sealed class HealthReportExportTests
         export.Complete("https://storage.invalid/report.pdf", 3, DateTimeOffset.UtcNow).Should().BeFalse();
         export.Status.Should().Be(HealthReportExportStatus.Queued);
     }
+
+    [Fact]
+    public void Export_InterruptedProcessingRetriesThenFailsClosed()
+    {
+        var export = HealthReportExport.Queue(Guid.NewGuid(), Guid.NewGuid(), TimeSpan.FromHours(24));
+        var now = DateTimeOffset.UtcNow;
+
+        export.Start(now.AddHours(-4)).Should().BeTrue();
+        export.RecoverInterrupted(now.AddHours(-2)).Should().BeTrue();
+        export.Status.Should().Be(HealthReportExportStatus.Queued);
+        export.Start(now.AddHours(-3)).Should().BeTrue();
+        export.RecoverInterrupted(now.AddHours(-2)).Should().BeTrue();
+        export.Status.Should().Be(HealthReportExportStatus.Queued);
+        export.Start(now.AddHours(-3)).Should().BeTrue();
+        export.RecoverInterrupted(now.AddHours(-2)).Should().BeTrue();
+        export.Status.Should().Be(HealthReportExportStatus.Failed);
+        export.ErrorCode.Should().Be("worker_interrupted");
+    }
 }

@@ -5,6 +5,7 @@ using PawTrack.Application.Medical;
 using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Medical;
 using PawTrack.Domain.Pets;
+using PawTrack.Domain.Clinics;
 
 namespace PawTrack.UnitTests.Medical;
 
@@ -69,5 +70,44 @@ public sealed class DownloadMedicalDocumentQueryTests
 
         result.IsFailure.Should().BeTrue();
         await blob.DidNotReceive().DownloadAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task ClinicDownloadRequiresReadGrantAndWritesAccessLog()
+    {
+        var ownerId = Guid.NewGuid();
+        var clinicUserId = Guid.NewGuid();
+        var pet = Pet.Create(ownerId, "Luna", PetSpecies.Cat, null, null);
+        var clinic = Clinic.Create(clinicUserId, "Clínica", "VET-100", "San José", 10m, -84m,
+            "clinic@example.cr");
+        clinic.Activate();
+        var (grant, code) = ClinicMedicalAccessGrant.Generate(pet.Id, clinic.Id, ownerId, "Owner");
+        grant.TryAccept(code).Should().BeTrue();
+        var record = MedicalRecord.Create(pet.Id, clinicUserId, MedicalRecordType.Other,
+            new DateOnly(2026, 9, 28), "Radiografía", null, "Clínica", null, clinicId: clinic.Id);
+        record.SetDocumentUrl("https://storage.invalid/medical-docs/pet/radiograph.png",
+            MedicalDocumentKind.Radiograph, "image/png");
+        var medical = Substitute.For<IMedicalRepository>();
+        var pets = Substitute.For<IPetRepository>();
+        var clinics = Substitute.For<IClinicRepository>();
+        var grants = Substitute.For<IClinicMedicalAccessGrantRepository>();
+        var accessLog = Substitute.For<IClinicMedicalAccessLogRepository>();
+        var blob = Substitute.For<IBlobStorageService>();
+        medical.GetByIdAsync(record.Id, Arg.Any<CancellationToken>()).Returns(record);
+        pets.GetByIdAsync(pet.Id, Arg.Any<CancellationToken>()).Returns(pet);
+        clinics.GetByIdAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(clinic);
+        grants.GetActiveGrantAsync(clinic.Id, pet.Id, Arg.Any<CancellationToken>()).Returns(grant);
+        blob.DownloadAsync(record.DocumentUrl!, Arg.Any<CancellationToken>()).Returns([0x89, 0x50, 0x4e, 0x47]);
+        var handler = new DownloadMedicalDocumentQueryHandler(medical, pets, Substitute.For<IFamilyRepository>(),
+            Substitute.For<ISubscriptionService>(), clinics, Substitute.For<IClinicScanRepository>(), grants,
+            accessLog, blob, Substitute.For<IAuditLogRepository>(), Substitute.For<IUnitOfWork>());
+
+        var result = await handler.Handle(new DownloadMedicalDocumentQuery(pet.Id, record.Id, clinicUserId, clinic.Id), default);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.ContentType.Should().Be("image/png");
+        await accessLog.Received(1).AddAsync(Arg.Is<ClinicMedicalAccessLog>(log =>
+            log.Operation == "download_medical_document" && log.Permission == ClinicMedicalAccessPermission.Read &&
+            log.AccessMethod == "active_grant"), Arg.Any<CancellationToken>());
     }
 }

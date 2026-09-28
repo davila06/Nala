@@ -154,6 +154,11 @@ export function ConsolidatedMedicalTimeline({ petId }: Props) {
           No se pudo descargar el certificado.
         </p>
       )}
+      {attachmentDownload.isError && (
+        <p role="alert" className="mt-2 text-xs text-danger-600">
+          No se pudo descargar el adjunto. Verifica el MFA y el acceso vigente.
+        </p>
+      )}
       {!isLoading && !isError && events.length === 0 && (
         <p className="mt-3 text-xs text-sand-500">Aún no hay registros ni certificados.</p>
       )}

@@ -4,24 +4,25 @@
 
 ## Resumen de control
 
-| Control                          | Estado                         | Evidencia / límite                                                                        |
-| -------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------- |
-| Catálogo de endpoints clínicos   | Verificado estructuralmente    | 141 acciones: 114 de `ClinicsController` + 27 de Medical, Certificates y PetClinicAccess. |
-| Acceso anónimo                   | Verificado                     | Allowlist de 5 acciones; el resto declara autorización.                                   |
-| MFA de mutaciones clínicas       | Verificado por metadata y HTTP | Las 141 acciones tienen policy MFA o excepción justificada; grant/revoke de sede MFA.     |
-| BOLA/IDOR                        | Parcial                        | Hay pruebas HTTP por familias críticas, no una petición por cada ruta/recurso.            |
-| Sedes físicas                    | Parcial                        | Grant Owner/Admin MFA/audit y gate listos; BOLA HTTP/rollout pendientes.                  |
-| Migración operativa CP6          | Aplicada en `PawTrackDev`      | Cadena local hasta ActiveClinicId; sin deploy.                                            |
-| Base compartida/Azure            | No verificable                 | No hay target SQL compartido visible en este entorno.                                     |
-| Sesiones/dispositivos confiables | Implementado localmente        | SessionId, listado/revocación, proof rotado, MFA y revocación de JWT por sesión.          |
-| UI de autenticación/seguridad    | Implementado                   | Login MFA y Perfil con setup, recovery codes, step-up y gestión de sesiones/dispositivos. |
+| Control                          | Estado                         | Evidencia / límite                                                                                       |
+| -------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| Catálogo de endpoints clínicos   | Verificado estructuralmente    | 152 acciones: 117 de `ClinicsController` + 35 de Medical, Certificates y PetClinicAccess.                |
+| Acceso anónimo                   | Verificado                     | Allowlist de 5 acciones; el resto declara autorización.                                                  |
+| MFA de mutaciones clínicas       | Verificado por metadata y HTTP | Las 152 acciones tienen policy MFA o excepción justificada; grant/revoke de sede MFA.                    |
+| BOLA/IDOR                        | Parcial                        | Hay pruebas HTTP por familias críticas, no una petición por cada ruta/recurso.                           |
+| Probe HTTP individual            | Verificado                     | Cada una de las 152 acciones lógicas y sus aliases recibe request; mide auth/ruteo, no BOLA autenticado. |
+| Sedes físicas                    | Parcial                        | Grant Owner/Admin MFA/audit y gate listos; BOLA HTTP/rollout pendientes.                                 |
+| Migración operativa CP6          | Aplicada en `PawTrackDev`      | Cadena local hasta ActiveClinicId; sin deploy.                                                           |
+| Base compartida/Azure            | No verificable                 | No hay target SQL compartido visible en este entorno.                                                    |
+| Sesiones/dispositivos confiables | Implementado localmente        | SessionId, listado/revocación, proof rotado, MFA y revocación de JWT por sesión.                         |
+| UI de autenticación/seguridad    | Implementado                   | Login MFA y Perfil con setup, recovery codes, step-up y gestión de sesiones/dispositivos.                |
 
 La re-invitación organizacional se validó con una migración aditiva de índice
 filtrado y una base LocalDB temporal; staging y producción siguen pendientes.
 
 ## Matriz ejecutable de endpoints
 
-La fuente de verdad de la matriz es [ClinicEndpointSecurityMatrixTests.cs](../backend/tests/PawTrack.IntegrationTests/Clinics/ClinicEndpointSecurityMatrixTests.cs). El test contiene los catálogos explícitos de 114 acciones de `ClinicsController` y 27 acciones médicas/certificados/grants, y comprueba:
+La fuente de verdad de la matriz es [ClinicEndpointSecurityMatrixTests.cs](../backend/tests/PawTrack.IntegrationTests/Clinics/ClinicEndpointSecurityMatrixTests.cs). El test contiene los catálogos explícitos de 117 acciones de `ClinicsController` y 35 acciones médicas/certificados/grants, y comprueba:
 
 1. Que el inventario runtime de `ClinicsController` coincide exactamente con el catálogo revisado.
 2. Que cada acción inventariada tenga verbo HTTP y template de ruta, incluidos aliases versionados.
@@ -42,9 +43,9 @@ Policies disponibles:
 | `ClinicStaffMfa`      | Escrituras operativas por personal con membresía activa de clínica.                                                                         |
 | `ClinicFinanceMfa`    | Reversiones, cierres, fiscal y administración de membresías financieras.                                                                    |
 | `ClinicAdminMfa`      | Decisiones administrativas de aprobación/verificación clínica; exige rol `Admin` además del claim MFA.                                      |
-| `MfaStepUp`           | Medical records/reminders del tutor, consentimiento/grants, revocar sesiones/dispositivos, confiar un dispositivo y desactivar MFA.         |
+| `MfaStepUp`           | Escrituras médicas, exportes agregados, consentimientos/grants, sesiones, dispositivos y cambios MFA.                                       |
 
-También requieren step-up el escaneo QR/RFID, verificación de microchip, alta de expediente médico, generación/aceptación de grants, inicio de exportación médica, envío de documentos de verificación, altas/revocaciones/rotación de API keys y las escrituras clínicas existentes de agenda/consulta/inventario.
+También requieren step-up el escaneo QR/RFID, verificación de microchip, alta de expediente médico, generación/aceptación de grants, generación/solicitud/descarga de exportes médicos, envío de documentos de verificación, altas/revocaciones/rotación de API keys y las escrituras clínicas existentes de agenda/consulta/inventario.
 
 Excepciones explícitas verificadas por test: registro público de clínica, actualización básica del perfil del titular, envío de cambios de perfil para revisión, telemetría anónima del directorio, carga de logo público, crear venta/cobro rutinario y opt-in de comunicación iniciado por el tutor autenticado. Las acciones de devolución/anulación/cierre/fiscal siguen protegidas con MFA.
 
@@ -66,7 +67,7 @@ Excepciones explícitas verificadas por test: registro público de clínica, act
 | Sesiones              | Otro usuario lista o revoca un `SessionId` que no le pertenece.                    | No aparece en su lista; revocación devuelve `404`.                | [TrustedSessionEndpointsTests.cs](../backend/tests/PawTrack.IntegrationTests/Auth/TrustedSessionEndpointsTests.cs)                |
 | Dispositivos          | Otro usuario intenta revocar un trusted device ajeno.                              | `404`; el device legítimo sigue activo.                           | [TrustedSessionEndpointsTests.cs](../backend/tests/PawTrack.IntegrationTests/Auth/TrustedSessionEndpointsTests.cs)                |
 
-La matriz prueba aislamiento real en familias con mayor impacto, pero **no es una ejecución HTTP por cada parámetro/actor de las 141 acciones**. Además, `ClinicActiveSiteBehaviorTests` descubre cada request MediatR de las familias clínicas con propiedad `ClinicId`/`ClinicId?` y verifica que una sede no activa rechaza antes de invocar el handler; guards específicos cubren IDs anidados de pasaporte/certificado, veterinario, tarea CRM, venta y registros/reminders médicos. La brecha de casos HTTP individuales permanece rastreada abajo.
+La matriz prueba aislamiento real en familias con mayor impacto, pero **no es una ejecución HTTP por cada parámetro/actor de las 152 acciones**. Además, `ClinicActiveSiteBehaviorTests` descubre cada request MediatR de las familias clínicas con propiedad `ClinicId`/`ClinicId?` y verifica que una sede no activa rechaza antes de invocar el handler; guards específicos cubren IDs anidados de pasaporte/certificado, veterinario, tarea CRM, venta y registros/reminders médicos. La brecha de casos HTTP individuales permanece rastreada abajo.
 
 ### Avance dinámico verificable (2026-09-27)
 
@@ -76,9 +77,10 @@ La matriz prueba aislamiento real en familias con mayor impacto, pero **no es un
 - Las consultas de conteo, historial, peso, alertas, score, recordatorios, access-log y preferencias se prueban con una mascota real de otro tutor. Ambos actores reciben el mismo plan `UserFamilia`, para que una denegación no se atribuya al tier.
 - Se corrigió un BOLA de **IDs inconsistentes en la ruta**: editar/borrar registro y completar/borrar recordatorio ignoraban `petId` y operaban por `recordId`/`reminderId`. Los cuatro comandos cotejan ahora el `PetId` persistido con el de la URL antes de mutar. La regresión usa una mascota ajena real en la ruta y confirma tanto rechazo sin cambios como éxito con la mascota correcta.
 - Certificados y pasaportes: listados de clínica/mascota, descarga PDF, revocación, emisión de certificado y emisión de pasaporte usan recursos persistidos. Se rechazan clínica/veterinario ajenos y mascotas sin grant; los snapshots de pasaporte y PDF ignoran nombre, licencia y color falsos enviados por el cliente. Un Blob simulado comprueba que otra clínica y otro tutor no descargan ni llegan a almacenamiento; emisora y tutor sí.
-- Recursos anidados y administración: `me/veterinarians/{veterinarianId}/permissions` rechaza IDs de otra clínica sin mutación; revisión administrativa de veterinarios exige rol Admin y MFA fresco antes de cambiar un registro pendiente.
+- Recursos anidados y administración: `me/veterinarians/{veterinarianId}/permissions`, carga/descarga de documento, carga de firma y revocación rechazan IDs de otra clínica sin tocar Blob ni mutar estado; revisión administrativa de veterinarios exige rol Admin y MFA fresco antes de cambiar un registro pendiente.
+- `EveryClinicalActionAndRouteAliasIsProbedAtTheHttpAuthenticationBoundary` envía un request por descriptor de ruta y método para las 152 acciones, respetando multipart/`IFormFile`; las rutas protegidas rechazan anónimos con `401/403` y las públicas no dan 5xx. Es evidencia individual de auth/ruteo, no un intento BOLA autenticado.
 - `accessible-sites` lista grants sólo cuando el usuario conserva membership organizacional activa, además de memberships locales staff/finance; la revocación se prueba en [ClinicSiteSelectionEndpointsTests.cs](../backend/tests/PawTrack.IntegrationTests/Clinics/ClinicSiteSelectionEndpointsTests.cs).
-- La API `site-access` cubre Owner/Admin, MFA, organización, target activo, revocación, última sede Owner y auditoría. El gate reflexivo cubre requests MediatR con `ClinicId`/`ClinicId?` en las familias declaradas; guards específicos cubren IDs anidados. SEC-01 sigue abierto para completar casos HTTP de cada ruta/actor y minimización pública/admin por rol.
+- La API `site-access` cubre Owner/Admin, MFA, organización, target activo, revocación, última sede Owner y auditoría. El gate reflexivo cubre requests MediatR con `ClinicId`/`ClinicId?` en las familias declaradas; guards específicos cubren IDs anidados. El probe recorre todas las rutas, pero no prueba BOLA autenticado en todas: SEC-01 sigue abierto hasta aportar para cada acción el actor autorizado, recurso propio/ajeno y aserción de estado, además de minimización pública y alcance/auditoría administrativa.
 
 ## Sesiones y dispositivos confiables
 
@@ -147,10 +149,10 @@ Comprobación ejecutada con `ASPNETCORE_ENVIRONMENT=Development`:
 
 | ID     | Pendiente                                    | Responsable             | Criterio de salida                                                                    | Estado                                |
 | ------ | -------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------- | ------------------------------------- |
-| SEC-01 | BOLA HTTP por ruta/ID/actor de 141 acciones. | Backend/Security        | Tabla endpoint × actor × recurso propio/ajeno × status.                               | Gate ID; HTTP parcial.                |
+| SEC-01 | BOLA HTTP por ruta/ID/actor de 152 acciones. | Backend/Security        | Tabla endpoint × actor × recurso propio/ajeno × status.                               | Gate ID; HTTP parcial.                |
 | SEC-02 | Rollout y validación de grants por sede.     | Arquitectura + Clínicas | Staging/DBA, matriz inter-sede y ubicaciones internas.                                | Grants MFA/audit; sin deploy.         |
 | SEC-03 | Aplicar migraciones en staging/compartida.   | Release/DBA             | Target, backup, `__EFMigrationsHistory` y smoke tests.                                | Local aplicado; externo no ejecutado. |
-| SEC-04 | MFA estructural para acciones nuevas.        | Backend                 | Mantener catálogo 111+27 y mutaciones MFA verdes.                                     | Implementado localmente.              |
+| SEC-04 | MFA estructural para acciones nuevas.        | Backend                 | Mantener catálogo 117+35 y mutaciones MFA verdes.                                     | Implementado localmente.              |
 | SEC-05 | Trusted sessions y dispositivos.             | Auth/Security           | Listado, revocación, rotación, JWT hermano, refresh sin MFA y no bypass privilegiado. | Implementado; 6 casos de integración. |
 | SEC-06 | Revisión de excepciones MFA.                 | Product/Security        | Cada excepción requiere owner, razón y test.                                          | Revisión continua.                    |
 
