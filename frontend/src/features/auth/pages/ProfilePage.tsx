@@ -103,7 +103,7 @@ const STATUS_BADGE: Record<string, { label: string; color: string }> = {
     color: "bg-warn-100 text-warn-700",
   },
   Expired: { label: "Expirado", color: "bg-danger-100 text-danger-700" },
-  Cancelled: { label: "Cancelado", color: "bg-sand-100 text-sand-600" },
+  Cancelled: { label: "Cancelado", color: "bg-sand-100 text-copy-secondary" },
 };
 
 interface MiPlanCardProps {
@@ -598,7 +598,7 @@ export default function ProfilePage() {
           className={`mt-4 flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-400 ${
             isVolunteer
               ? "border-rescue-500 bg-rescue-50 text-rescue-700"
-              : "border-sand-300 bg-white text-sand-600 hover:bg-sand-50"
+              : "border-sand-300 bg-white text-copy-secondary hover:bg-sand-50"
           }`}
         >
           <span
@@ -656,7 +656,7 @@ export default function ProfilePage() {
                     className={`rounded-full px-3 py-1 text-xs font-semibold transition-base ${
                       acceptedSpecies.includes(species)
                         ? "bg-rescue-100 text-rescue-800"
-                        : "bg-sand-100 text-sand-600 hover:bg-sand-200"
+                        : "bg-sand-100 text-copy-secondary hover:bg-sand-200"
                     }`}
                   >
                     {SPECIES_LABEL[species]}
@@ -725,7 +725,7 @@ export default function ProfilePage() {
         {showChangePwd && (
           <div className="mt-4 space-y-3">
             <div>
-              <label htmlFor="current-password" className="mb-1 block text-xs font-medium text-sand-600">
+              <label htmlFor="current-password" className="mb-1 block text-xs font-medium text-copy-secondary">
                 Contraseña actual
               </label>
               <Input
@@ -737,7 +737,7 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label htmlFor="new-password" className="mb-1 block text-xs font-medium text-sand-600">
+              <label htmlFor="new-password" className="mb-1 block text-xs font-medium text-copy-secondary">
                 Nueva contraseña
               </label>
               <Input
@@ -767,7 +767,7 @@ export default function ProfilePage() {
               )}
             </div>
             <div>
-              <label htmlFor="confirm-new-password" className="mb-1 block text-xs font-medium text-sand-600">
+              <label htmlFor="confirm-new-password" className="mb-1 block text-xs font-medium text-copy-secondary">
                 Confirmar nueva contraseña
               </label>
               <Input
@@ -865,7 +865,7 @@ export default function ProfilePage() {
       {/* ── Delete account ────────────────────────────────────────────── */}
       <Card variant="danger">
         <h2 className="text-base font-semibold text-danger-700">Zona de peligro</h2>
-        <p className="mt-1 text-sm text-sand-600">
+        <p className="mt-1 text-sm text-copy-secondary">
           Eliminar tu cuenta borrará todos tus datos y mascotas registradas. Esta acción es irreversible.
         </p>
 

@@ -142,7 +142,7 @@ function LocationForm({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg border border-sand-200 px-4 py-2 text-sm text-sand-600 hover:bg-sand-50"
+          className="rounded-lg border border-sand-200 px-4 py-2 text-sm text-copy-secondary hover:bg-sand-50"
         >
           Cancelar
         </button>
@@ -272,7 +272,7 @@ export default function StoreLocationsPage() {
                 <div className="flex gap-2 shrink-0">
                   <button
                     onClick={() => setEditing(loc)}
-                    className="rounded-lg border border-sand-200 px-3 py-1.5 text-xs font-semibold text-sand-600 hover:bg-sand-50"
+                    className="rounded-lg border border-sand-200 px-3 py-1.5 text-xs font-semibold text-copy-secondary hover:bg-sand-50"
                   >
                     Editar
                   </button>

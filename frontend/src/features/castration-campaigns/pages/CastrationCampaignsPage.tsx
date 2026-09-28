@@ -24,7 +24,7 @@ export default function CastrationCampaignsPage() {
             </span>
             <div>
               <h1 className="font-display text-2xl font-bold text-sand-900">Campañas de castración</h1>
-              <p className="text-sm text-sand-600">
+              <p className="text-sm text-copy-secondary">
                 Jornadas verificadas con cupos, clínica responsable y consentimiento informado.
               </p>
             </div>
@@ -66,7 +66,7 @@ export default function CastrationCampaignsPage() {
                     {campaign.availableCapacity} cupos
                   </span>
                 </div>
-                <div className="mt-4 space-y-2 text-sm text-sand-600">
+                <div className="mt-4 space-y-2 text-sm text-copy-secondary">
                   <p className="flex gap-2">
                     <MapPin className="h-4 w-4 shrink-0" aria-hidden="true" />
                     {campaign.venueLabel}, {campaign.canton}

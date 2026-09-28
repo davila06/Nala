@@ -102,6 +102,7 @@
   --color-ink-tertiary: var(--color-copy-muted);
   --color-copy-muted: #7a6654;
   --color-copy-secondary: #6e5244;
+  --color-copy-brand: #9e300c;
   --color-border: var(--color-sand-200);
   --color-border-strong: var(--color-sand-300);
 
@@ -227,6 +228,7 @@ select option {
     --color-ink-tertiary: var(--color-copy-muted);
     --color-copy-muted: #9494a0;
     --color-copy-secondary: #a0a0ab;
+    --color-copy-brand: #ff9875;
     --color-border: #3f3f49;
     --color-border-strong: #52525e;
     --color-sand-50: #222228;
@@ -703,6 +705,7 @@ select option {
     --color-ink-tertiary: var(--color-copy-muted);
     --color-copy-muted: #c8b9a8;
     --color-copy-secondary: #d1c3b2;
+    --color-copy-brand: #ff9875;
     --color-border: #3a3028;
     --color-border-strong: #4a3f35;
 

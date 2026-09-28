@@ -107,13 +107,13 @@ export default function RegisterPage() {
             <nav className="mb-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
               <Link
                 to="/login"
-                className="text-brand-600 transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="text-copy-brand transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               >
                 Volver
               </Link>
               <Link
                 to={isAuthenticated ? "/dashboard" : "/login"}
-                className="text-sand-600 transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="text-copy-secondary transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               >
                 Ir al inicio
               </Link>
@@ -185,7 +185,7 @@ export default function RegisterPage() {
               onChange={(e) => setForm({ ...form, confirm: e.target.value })}
             />
 
-            <label className="flex items-start gap-2 text-sm text-sand-600">
+            <label className="flex items-start gap-2 text-sm text-copy-secondary">
               <input
                 type="checkbox"
                 id="isAdultConfirmed"
@@ -210,7 +210,7 @@ export default function RegisterPage() {
             ¿Ya tienes cuenta?{" "}
             <Link
               to="/login"
-              className="rounded font-semibold text-brand-600 hover:text-brand-700 hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="rounded font-semibold text-copy-brand hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
             >
               Iniciar sesión
             </Link>
@@ -229,7 +229,7 @@ export default function RegisterPage() {
             ¿Tienes un negocio para mascotas?{" "}
             <Link
               to="/registro-negocio"
-              className="rounded font-semibold text-brand-600 hover:text-brand-700 hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="rounded font-semibold text-copy-brand hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
             >
               Regístralo aquí
             </Link>
@@ -241,7 +241,7 @@ export default function RegisterPage() {
               href="/legal/terminos-de-uso.html"
               target="_blank"
               rel="noopener noreferrer"
-              className="underline hover:text-sand-600"
+              className="underline hover:text-copy-secondary"
             >
               Términos de uso
             </a>{" "}
@@ -250,7 +250,7 @@ export default function RegisterPage() {
               href="/legal/politica-de-privacidad.html"
               target="_blank"
               rel="noopener noreferrer"
-              className="underline hover:text-sand-600"
+              className="underline hover:text-copy-secondary"
             >
               Política de privacidad
             </a>

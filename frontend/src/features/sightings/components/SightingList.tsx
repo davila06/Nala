@@ -78,7 +78,7 @@ export function SightingList({ petId }: SightingListProps) {
                 <span aria-hidden="true">📍</span> {s.lat.toFixed(4)}, {s.lng.toFixed(4)}
               </p>
               {s.note && <p className="mt-0.5 line-clamp-2 text-xs text-copy-secondary">{s.note}</p>}
-              <p className="mt-2 text-xs text-sand-600">{s.recommendedAction}</p>
+              <p className="mt-2 text-xs text-copy-secondary">{s.recommendedAction}</p>
               <p className="mt-1 text-xs text-copy-muted">{formatDateTime(s.sightedAt)}</p>
             </div>
           </div>

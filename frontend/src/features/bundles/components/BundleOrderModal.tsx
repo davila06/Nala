@@ -409,7 +409,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
       {/* Collar model (only for GPS bundle) */}
       {requiresCollar && (
         <div>
-          <label htmlFor="bundle-collar-model" className="mb-1 block text-xs font-medium text-sand-600">
+          <label htmlFor="bundle-collar-model" className="mb-1 block text-xs font-medium text-copy-secondary">
             Modelo de collar *
           </label>
           <select
@@ -431,7 +431,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-copy-secondary">Datos de envío</p>
         <div>
-          <label htmlFor="bundle-full-name" className="mb-1 block text-xs font-medium text-sand-600">
+          <label htmlFor="bundle-full-name" className="mb-1 block text-xs font-medium text-copy-secondary">
             Nombre completo *
           </label>
           <Input
@@ -442,7 +442,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
           />
         </div>
         <div>
-          <label htmlFor="bundle-address" className="mb-1 block text-xs font-medium text-sand-600">
+          <label htmlFor="bundle-address" className="mb-1 block text-xs font-medium text-copy-secondary">
             Dirección completa *
           </label>
           <Input
@@ -454,7 +454,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label htmlFor="bundle-canton" className="mb-1 block text-xs font-medium text-sand-600">
+            <label htmlFor="bundle-canton" className="mb-1 block text-xs font-medium text-copy-secondary">
               Cantón *
             </label>
             <select
@@ -471,7 +471,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
             </select>
           </div>
           <div>
-            <label htmlFor="bundle-phone" className="mb-1 block text-xs font-medium text-sand-600">
+            <label htmlFor="bundle-phone" className="mb-1 block text-xs font-medium text-copy-secondary">
               Teléfono *
             </label>
             <Input
@@ -484,7 +484,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
           </div>
         </div>
         <div>
-          <label htmlFor="bundle-notes" className="mb-1 block text-xs font-medium text-sand-600">
+          <label htmlFor="bundle-notes" className="mb-1 block text-xs font-medium text-copy-secondary">
             Notas de entrega
           </label>
           <textarea
@@ -498,7 +498,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
         </div>
       </div>
 
-      <div className="rounded-xl border border-sand-200 bg-sand-50 p-3 text-xs text-sand-600 space-y-1">
+      <div className="rounded-xl border border-sand-200 bg-sand-50 p-3 text-xs text-copy-secondary space-y-1">
         <p className="font-semibold">¿Cómo funciona el pago?</p>
         <p>1. Recibirás una referencia SINPE Móvil en este pedido y por correo.</p>
         <p>2. Realiza la transferencia y marca el pago como hecho.</p>
@@ -525,7 +525,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
         </label>
 
         <div className="border-t border-sand-200 pt-2 space-y-1 text-xs">
-          <div className="flex justify-between text-sand-600">
+          <div className="flex justify-between text-copy-secondary">
             <span>Costo base del producto:</span>
             <span>₡{basePrice.toLocaleString("es-CR")}</span>
           </div>
@@ -612,7 +612,7 @@ export function BundleOrderModal() {
 
       {pastOrders.length > 0 && (
         <details>
-          <summary className="cursor-pointer text-xs font-semibold text-copy-muted hover:text-sand-600">
+          <summary className="cursor-pointer text-xs font-semibold text-copy-muted hover:text-copy-secondary">
             {pastOrders.length} pedido{pastOrders.length !== 1 ? "s" : ""} completado
             {pastOrders.length !== 1 ? "s" : ""}/cancelado
             {pastOrders.length !== 1 ? "s" : ""}

@@ -132,7 +132,7 @@ export function AccountSecuritySection({ hasMfa }: { hasMfa: boolean }) {
           ) : (
             <>
               <div className="rounded-lg border border-sand-200 bg-sand-50 p-3">
-                <p className="text-xs font-medium text-sand-600">Secreto de configuración</p>
+                <p className="text-xs font-medium text-copy-secondary">Secreto de configuración</p>
                 <code className="mt-1 block break-all font-mono text-sm text-sand-900">{setupSecret}</code>
                 <a className="mt-2 inline-block text-xs font-semibold text-brand-700 underline" href={setupUri}>
                   Abrir en app de autenticación

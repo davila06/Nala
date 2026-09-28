@@ -257,7 +257,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                   className={`rounded-xl py-2 text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                     paymentMethod === "sinpe"
                       ? "bg-surface text-brand-900 shadow-sm border border-sand-200"
-                      : "text-sand-600 hover:text-sand-900"
+                      : "text-copy-secondary hover:text-sand-900"
                   }`}
                 >
                   <span>📲</span> SINPE Móvil
@@ -271,7 +271,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                   className={`rounded-xl py-2 text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                     paymentMethod === "card"
                       ? "bg-surface text-brand-900 shadow-sm border border-sand-200"
-                      : "text-sand-600 hover:text-sand-900"
+                      : "text-copy-secondary hover:text-sand-900"
                   }`}
                 >
                   <span>💳</span> Tarjeta (Inmediato)
@@ -326,7 +326,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                   />
                   <div className="flex-1">
                     <span className="font-bold text-sand-900 block">Deseo Factura Electrónica (+13% IVA)</span>
-                    <span className="text-sand-600 text-[11px] block mt-0.5 leading-relaxed">
+                    <span className="text-copy-secondary text-[11px] block mt-0.5 leading-relaxed">
                       Los precios de los servicios son base y no reflejan el 13% de IVA. Si requieres factura con
                       crédito fiscal para deducción tributaria ante Hacienda, se adiciona el 13% de IVA al valor del
                       servicio.
@@ -337,7 +337,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
 
               {/* Desglose de Precios */}
               <div className="rounded-2xl border border-sand-200 bg-surface p-3.5 space-y-1.5 text-xs">
-                <div className="flex justify-between text-sand-600">
+                <div className="flex justify-between text-copy-secondary">
                   <span>Costo base del servicio:</span>
                   <span className="font-medium">₡{basePrice.toLocaleString("es-CR")}</span>
                 </div>
@@ -576,7 +576,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
             <div className="flex flex-col items-center gap-4 py-4 text-center">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-trust-100 text-3xl">🕐</div>
               <h3 className="text-lg font-black text-sand-900">¡Aviso recibido con éxito!</h3>
-              <p className="text-sm text-sand-600">
+              <p className="text-sm text-copy-secondary">
                 Registramos que realizaste el pago SINPE
                 {receiptNumber ? ` (comprobante #${receiptNumber})` : ""}. Activaremos tu plan <strong>{label}</strong>{" "}
                 en cuanto sea verificado por administración.
@@ -600,13 +600,13 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-rescue-100 text-4xl">🎉</div>
               <div>
                 <h3 className="text-xl font-black text-sand-900">¡Plan Activado Inmediatamente!</h3>
-                <p className="mt-1 text-sm text-sand-600">
+                <p className="mt-1 text-sm text-copy-secondary">
                   Tu pago con tarjeta fue aprobado y tu suscripción <strong>{label}</strong> ya se encuentra activa.
                 </p>
               </div>
 
               {cardAuthCode && (
-                <div className="w-full rounded-2xl bg-surface-warm p-3 border border-sand-200 text-xs text-sand-600 font-mono">
+                <div className="w-full rounded-2xl bg-surface-warm p-3 border border-sand-200 text-xs text-copy-secondary font-mono">
                   Autorización bancaria: <strong className="text-sand-900">{cardAuthCode}</strong>
                 </div>
               )}

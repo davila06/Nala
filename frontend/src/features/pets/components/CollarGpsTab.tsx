@@ -314,7 +314,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
 
       {/* Time range selector */}
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-semibold text-sand-600">Trayectoria</p>
+        <p className="text-xs font-semibold text-copy-secondary">Trayectoria</p>
         <div className="flex gap-1 flex-wrap justify-end">
           {HOURS_OPTIONS.map((opt) => (
             <button
@@ -323,7 +323,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
               onClick={() => setHours(opt.value)}
               className={[
                 "rounded-xl px-2.5 py-1 text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
-                hours === opt.value ? "bg-brand-600 text-white" : "bg-sand-100 text-sand-600 hover:bg-sand-200",
+                hours === opt.value ? "bg-brand-600 text-white" : "bg-sand-100 text-copy-secondary hover:bg-sand-200",
               ].join(" ")}
             >
               {opt.label}

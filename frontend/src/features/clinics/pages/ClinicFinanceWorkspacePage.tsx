@@ -143,7 +143,7 @@ export default function ClinicFinanceWorkspacePage() {
             onChange={(event) => setBusinessDate(event.target.value)}
           />
           {selected && (
-            <span className="text-xs font-semibold text-sand-600">{isAdministrator ? "Administración" : "Caja"}</span>
+            <span className="text-xs font-semibold text-copy-secondary">{isAdministrator ? "Administración" : "Caja"}</span>
           )}
         </div>
       </header>
@@ -154,13 +154,13 @@ export default function ClinicFinanceWorkspacePage() {
         <>
           <section className="grid gap-4 border-b border-sand-200 pb-5 sm:grid-cols-3">
             <div>
-              <h2 className="text-xs font-semibold text-sand-600">Neto del día</h2>
+              <h2 className="text-xs font-semibold text-copy-secondary">Neto del día</h2>
               <p className="text-xl font-semibold text-sand-900">
                 ₡{(report?.totalPaidCrc ?? 0).toLocaleString("es-CR")}
               </p>
             </div>
             <div>
-              <h2 className="text-xs font-semibold text-sand-600">Métodos de pago</h2>
+              <h2 className="text-xs font-semibold text-copy-secondary">Métodos de pago</h2>
               {Object.entries(report?.byPaymentMethod ?? {}).map(([method, amount]) => (
                 <p key={method} className="text-sm">
                   {method}: ₡{amount.toLocaleString("es-CR")}
@@ -168,7 +168,7 @@ export default function ClinicFinanceWorkspacePage() {
               ))}
             </div>
             <div>
-              <h2 className="text-xs font-semibold text-sand-600">Por veterinario</h2>
+              <h2 className="text-xs font-semibold text-copy-secondary">Por veterinario</h2>
               {Object.entries(report?.byVeterinarian ?? {}).map(([name, amount]) => (
                 <p key={name} className="text-sm">
                   {name}: ₡{amount.toLocaleString("es-CR")}
@@ -266,7 +266,7 @@ export default function ClinicFinanceWorkspacePage() {
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-sand-600">Saldo devolvible: ₡{refundable.toLocaleString("es-CR")}</p>
+              <p className="text-xs text-copy-secondary">Saldo devolvible: ₡{refundable.toLocaleString("es-CR")}</p>
               <div className="grid gap-2 sm:grid-cols-3">
                 <input
                   className="field-input"

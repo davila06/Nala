@@ -78,14 +78,14 @@ export function AdminCampaignCreationPanel() {
         <button
           type="button"
           onClick={() => setMode("adoption")}
-          className={`rounded-md px-3 py-1.5 text-sm ${mode === "adoption" ? "bg-brand-600 text-white" : "text-sand-600"}`}
+          className={`rounded-md px-3 py-1.5 text-sm ${mode === "adoption" ? "bg-brand-600 text-white" : "text-copy-secondary"}`}
         >
           Adopción
         </button>
         <button
           type="button"
           onClick={() => setMode("castration")}
-          className={`rounded-md px-3 py-1.5 text-sm ${mode === "castration" ? "bg-brand-600 text-white" : "text-sand-600"}`}
+          className={`rounded-md px-3 py-1.5 text-sm ${mode === "castration" ? "bg-brand-600 text-white" : "text-copy-secondary"}`}
         >
           Castración
         </button>
@@ -147,7 +147,7 @@ export function AdminCampaignCreationPanel() {
           placeholder="Longitud"
           className={inputClass}
         />
-        <label className="text-xs text-sand-600">
+        <label className="text-xs text-copy-secondary">
           Inicio
           <input
             required
@@ -157,7 +157,7 @@ export function AdminCampaignCreationPanel() {
             className={inputClass}
           />
         </label>
-        <label className="text-xs text-sand-600">
+        <label className="text-xs text-copy-secondary">
           Fin
           <input
             required
@@ -169,7 +169,7 @@ export function AdminCampaignCreationPanel() {
         </label>
         {mode === "castration" ? (
           <>
-            <label className="text-xs text-sand-600">
+            <label className="text-xs text-copy-secondary">
               Apertura reservas
               <input
                 required
@@ -179,7 +179,7 @@ export function AdminCampaignCreationPanel() {
                 className={inputClass}
               />
             </label>
-            <label className="text-xs text-sand-600">
+            <label className="text-xs text-copy-secondary">
               Cierre reservas
               <input
                 required

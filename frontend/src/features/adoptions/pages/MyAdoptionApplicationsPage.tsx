@@ -10,7 +10,7 @@ import type { AdoptionApplicationDto } from "../api/adoptionsApi";
 import { toast } from "@/shared/lib/toast";
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  Pending: { label: "Pendiente", color: "bg-sand-100 text-sand-600" },
+  Pending: { label: "Pendiente", color: "bg-sand-100 text-copy-secondary" },
   UnderReview: { label: "En revisión", color: "bg-blue-50 text-blue-700" },
   Approved: { label: "Aprobada ✓", color: "bg-green-50 text-green-700" },
   Rejected: { label: "No aprobada", color: "bg-red-50 text-red-600" },

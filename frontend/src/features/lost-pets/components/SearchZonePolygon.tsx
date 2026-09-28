@@ -71,7 +71,7 @@ export function SearchZonePolygon({
       <Popup>
         <div className="min-w-[160px] space-y-2 text-sm">
           <p className="font-bold text-sand-900">{zone.label}</p>
-          <p className="text-sand-600">{STATUS_LABEL[zone.status]}</p>
+          <p className="text-copy-secondary">{STATUS_LABEL[zone.status]}</p>
 
           {/* Actions */}
           {zone.status === 'Free' && (

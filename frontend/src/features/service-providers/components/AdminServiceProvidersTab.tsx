@@ -61,7 +61,7 @@ export function AdminServiceProvidersTab() {
         <h2 className="font-display text-xl font-semibold text-ink-900">
           Operaciones de proveedores
         </h2>
-        <p className="text-sm text-sand-600">
+        <p className="text-sm text-copy-secondary">
           Suspende perfiles por incidentes y reactivalos cuando corresponda.
         </p>
       </header>
@@ -88,7 +88,7 @@ export function AdminServiceProvidersTab() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="font-semibold text-ink-900">{provider.name}</p>
-                  <p className="text-sm text-sand-600">
+                  <p className="text-sm text-copy-secondary">
                     {provider.category} · {provider.address}
                   </p>
                   {provider.suspensionReason ? (

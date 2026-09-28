@@ -112,7 +112,7 @@ export default function StoreRegistrationPage() {
               </Link>
               <Link
                 to={isAuthenticated ? "/dashboard" : "/login"}
-                className="text-sand-600 transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="text-copy-secondary transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               >
                 Ir al inicio
               </Link>
@@ -144,7 +144,7 @@ export default function StoreRegistrationPage() {
             <div>
               <label
                 htmlFor="store-register-name"
-                className="mb-1 block text-xs font-medium text-sand-600"
+                className="mb-1 block text-xs font-medium text-copy-secondary"
               >
                 Nombre de la tienda *
               </label>
@@ -158,7 +158,7 @@ export default function StoreRegistrationPage() {
             <div>
               <label
                 htmlFor="store-register-description"
-                className="mb-1 block text-xs font-medium text-sand-600"
+                className="mb-1 block text-xs font-medium text-copy-secondary"
               >
                 Descripción *
               </label>
@@ -174,7 +174,7 @@ export default function StoreRegistrationPage() {
             <div>
               <label
                 htmlFor="store-register-address"
-                className="mb-1 block text-xs font-medium text-sand-600"
+                className="mb-1 block text-xs font-medium text-copy-secondary"
               >
                 Dirección *
               </label>
@@ -186,7 +186,7 @@ export default function StoreRegistrationPage() {
               />
             </div>
             <div>
-              <span className="mb-1.5 block text-xs font-medium text-sand-600">
+              <span className="mb-1.5 block text-xs font-medium text-copy-secondary">
                 Ubicación en el mapa *
                 <span className="ml-1 text-copy-muted font-normal">
                   (toca para marcar)
@@ -206,7 +206,7 @@ export default function StoreRegistrationPage() {
             <div>
               <label
                 htmlFor="store-register-email"
-                className="mb-1 block text-xs font-medium text-sand-600"
+                className="mb-1 block text-xs font-medium text-copy-secondary"
               >
                 Correo electrónico *
               </label>
@@ -221,7 +221,7 @@ export default function StoreRegistrationPage() {
             <div>
               <label
                 htmlFor="store-register-password"
-                className="mb-1 block text-xs font-medium text-sand-600"
+                className="mb-1 block text-xs font-medium text-copy-secondary"
               >
                 Contraseña *
               </label>
@@ -236,7 +236,7 @@ export default function StoreRegistrationPage() {
             <div>
               <label
                 htmlFor="store-register-confirm-password"
-                className="mb-1 block text-xs font-medium text-sand-600"
+                className="mb-1 block text-xs font-medium text-copy-secondary"
               >
                 Confirmar contraseña *
               </label>

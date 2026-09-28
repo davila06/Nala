@@ -58,7 +58,7 @@ export default function InstitutionalReportsPage() {
           request.mutate();
         }}
       >
-        <label className="text-xs font-semibold text-sand-600">
+        <label className="text-xs font-semibold text-copy-secondary">
           Reporte
           <select
             value={reportType}
@@ -72,7 +72,7 @@ export default function InstitutionalReportsPage() {
             ))}
           </select>
         </label>
-        <label className="text-xs font-semibold text-sand-600">
+        <label className="text-xs font-semibold text-copy-secondary">
           Formato
           <select
             value={format}
@@ -84,7 +84,7 @@ export default function InstitutionalReportsPage() {
             <option value="Json">JSON</option>
           </select>
         </label>
-        <label className="text-xs font-semibold text-sand-600">
+        <label className="text-xs font-semibold text-copy-secondary">
           Desde
           <input
             type="date"
@@ -93,7 +93,7 @@ export default function InstitutionalReportsPage() {
             className="mt-1 block w-full rounded-xl border border-sand-200 px-3 py-2 text-sm"
           />
         </label>
-        <label className="text-xs font-semibold text-sand-600">
+        <label className="text-xs font-semibold text-copy-secondary">
           Hasta
           <input
             type="date"
@@ -102,7 +102,7 @@ export default function InstitutionalReportsPage() {
             className="mt-1 block w-full rounded-xl border border-sand-200 px-3 py-2 text-sm"
           />
         </label>
-        <label className="text-xs font-semibold text-sand-600">
+        <label className="text-xs font-semibold text-copy-secondary">
           Cantón
           <input
             value={canton}

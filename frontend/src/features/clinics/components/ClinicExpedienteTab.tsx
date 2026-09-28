@@ -115,7 +115,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
       <h3 className="text-sm font-semibold text-trust-800">Agregar registro al expediente</h3>
 
       <div>
-        <label htmlFor="clinic-record-type" className="mb-1 block text-xs font-medium text-sand-600">
+        <label htmlFor="clinic-record-type" className="mb-1 block text-xs font-medium text-copy-secondary">
           Tipo
         </label>
         <select
@@ -134,7 +134,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label htmlFor="clinic-record-date" className="mb-1 block text-xs font-medium text-sand-600">
+          <label htmlFor="clinic-record-date" className="mb-1 block text-xs font-medium text-copy-secondary">
             Fecha
           </label>
           <Input
@@ -146,7 +146,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
           />
         </div>
         <div>
-          <label htmlFor="clinic-record-next-due" className="mb-1 block text-xs font-medium text-sand-600">
+          <label htmlFor="clinic-record-next-due" className="mb-1 block text-xs font-medium text-copy-secondary">
             Próxima cita
           </label>
           <Input
@@ -160,7 +160,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
       </div>
 
       <div>
-        <label htmlFor="clinic-record-description" className="mb-1 block text-xs font-medium text-sand-600">
+        <label htmlFor="clinic-record-description" className="mb-1 block text-xs font-medium text-copy-secondary">
           Descripción *
         </label>
         <textarea
@@ -174,7 +174,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
       </div>
 
       <div>
-        <label htmlFor="clinic-record-vet" className="mb-1 block text-xs font-medium text-sand-600">
+        <label htmlFor="clinic-record-vet" className="mb-1 block text-xs font-medium text-copy-secondary">
           Veterinario
         </label>
         <Input
@@ -186,12 +186,12 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
       </div>
 
       <div>
-        <span className="mb-1 block text-xs font-medium text-sand-600">Documento (PDF/foto, máx. 5 MB)</span>
+        <span className="mb-1 block text-xs font-medium text-copy-secondary">Documento (PDF/foto, máx. 5 MB)</span>
         <input
           type="file"
           accept=".pdf,image/jpeg,image/png"
           onChange={(e) => setDocument(e.target.files?.[0] ?? null)}
-          className="block w-full text-xs text-sand-600 file:mr-3 file:rounded-lg file:border-0 file:bg-trust-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-trust-700 hover:file:bg-trust-200"
+          className="block w-full text-xs text-copy-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-trust-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-trust-700 hover:file:bg-trust-200"
         />
       </div>
 
@@ -365,7 +365,7 @@ export function ClinicExpedienteTab({
       {/* Owner records (read-only) */}
       {ownerRecords.length > 0 && (
         <details>
-          <summary className="cursor-pointer text-xs font-semibold text-copy-muted hover:text-sand-600">
+          <summary className="cursor-pointer text-xs font-semibold text-copy-muted hover:text-copy-secondary">
             {ownerRecords.length} registro{ownerRecords.length !== 1 ? "s" : ""} del dueño (solo lectura)
           </summary>
           <ul className="mt-2 space-y-2">

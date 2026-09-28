@@ -78,7 +78,7 @@ export const PhotoUpload = ({ value, previewUrl, onChange, disabled }: PhotoUplo
             <span className="text-3xl" aria-hidden="true">
               📷
             </span>
-            <p className="text-sm font-medium text-sand-600">
+            <p className="text-sm font-medium text-copy-secondary">
               Arrastra o <span className="text-brand-600 underline underline-offset-2">selecciona un archivo</span>
             </p>
             <p className="text-xs text-copy-muted">JPEG, PNG o WebP · máx {MAX_MB} MB</p>

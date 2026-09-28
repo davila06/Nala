@@ -56,7 +56,7 @@ export function CollarNotificationPreferencesPanel({
         />
       </label>
       {offlineEnabled && (
-        <label className="block text-xs text-sand-600">
+        <label className="block text-xs text-copy-secondary">
           Umbral de desconexión (minutos)
           <input
             type="number"
@@ -79,7 +79,7 @@ export function CollarNotificationPreferencesPanel({
         />
       </label>
       {batteryEnabled && (
-        <label className="block text-xs text-sand-600">
+        <label className="block text-xs text-copy-secondary">
           Umbral de batería (%)
           <input
             type="number"

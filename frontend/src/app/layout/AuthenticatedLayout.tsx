@@ -170,7 +170,7 @@ const NAV_EXTRA_ADMIN_STATS = {
 const NAV_SUPER_ADMIN = { to: "/super-admin", label: "Acceso privilegiado", icon: null };
 
 const ROLE_BADGE: Record<string, { label: string; cls: string }> = {
-  Owner: { label: "Propietario", cls: "bg-sand-100 text-sand-600" },
+  Owner: { label: "Propietario", cls: "bg-sand-100 text-copy-secondary" },
   Ally: { label: "Aliado", cls: "bg-brand-50 text-brand-700" },
   Clinic: { label: "Clínica", cls: "bg-blue-50 text-blue-700" },
   Municipality: { label: "Municipalidad", cls: "bg-trust-50 text-trust-700" },
@@ -191,7 +191,7 @@ function avatarColor(name = ""): string {
 }
 
 const activeCls = "text-brand-600 bg-brand-50 font-semibold";
-const inactiveCls = "text-sand-600 hover:bg-sand-50 hover:text-sand-900";
+const inactiveCls = "text-copy-secondary hover:bg-sand-50 hover:text-sand-900";
 
 const navLinkCls = ({ isActive }: { isActive: boolean }) =>
   ["flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-base", isActive ? activeCls : inactiveCls].join(
@@ -360,7 +360,7 @@ export default function AuthenticatedLayout() {
                     setMoreMenuOpen((isOpen) => !isOpen);
                     setDropdownOpen(false);
                   }}
-                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-sand-600 transition-base hover:bg-sand-50 hover:text-sand-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-copy-secondary transition-base hover:bg-sand-50 hover:text-sand-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
                 >
                   Más
                   <svg
@@ -752,7 +752,7 @@ export default function AuthenticatedLayout() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setMenuOpen(false)}
-              className="rounded-lg px-3 py-2 text-sm text-sand-600 hover:bg-sand-200 hover:text-sand-900 transition-base"
+              className="rounded-lg px-3 py-2 text-sm text-copy-secondary hover:bg-sand-200 hover:text-sand-900 transition-base"
             >
               Términos de uso
             </a>
@@ -761,7 +761,7 @@ export default function AuthenticatedLayout() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setMenuOpen(false)}
-              className="rounded-lg px-3 py-2 text-sm text-sand-600 hover:bg-sand-200 hover:text-sand-900 transition-base"
+              className="rounded-lg px-3 py-2 text-sm text-copy-secondary hover:bg-sand-200 hover:text-sand-900 transition-base"
             >
               Política de privacidad
             </a>

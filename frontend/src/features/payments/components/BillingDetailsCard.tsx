@@ -115,7 +115,7 @@ export function BillingDetailsCard() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-bold text-sand-900">{profile.legalName}</p>
-                  <p className="text-xs text-sand-600 font-mono">
+                  <p className="text-xs text-copy-secondary font-mono">
                     {profile.identificationType}: {profile.identificationNumber}
                   </p>
                 </div>

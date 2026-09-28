@@ -11,7 +11,7 @@ const PACKAGES = [
     price: "₡150,000",
     period: "/año",
     color: "border-sand-200",
-    badge: "bg-sand-100 text-sand-600",
+    badge: "bg-sand-100 text-copy-secondary",
     features: [
       "Portal control animal municipal",
       "Mapa de mascotas perdidas por cantón",
@@ -75,7 +75,7 @@ export default function MunicipalityPortalPage() {
         <h1 className="mt-3 font-display text-3xl font-black tracking-tight text-sand-950 sm:text-4xl">
           PawTrack para Municipalidades
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-base text-sand-600">
+        <p className="mx-auto mt-4 max-w-xl text-base text-copy-secondary">
           Herramienta oficial de control animal para cantones costarricenses. Gestión de animales capturados, reportes
           al SENASA y coordinación con dueños de mascotas en tiempo real.
         </p>
@@ -445,7 +445,7 @@ function CapturePortal() {
                     <button
                       type="button"
                       onClick={() => setShowForm(false)}
-                      className="rounded-xl border border-sand-200 px-4 text-sm text-sand-600 hover:bg-sand-50"
+                      className="rounded-xl border border-sand-200 px-4 text-sm text-copy-secondary hover:bg-sand-50"
                     >
                       Cancelar
                     </button>

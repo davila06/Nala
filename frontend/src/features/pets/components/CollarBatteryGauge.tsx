@@ -24,7 +24,7 @@ export function CollarBatteryGauge({
 
   return (
     <div className="space-y-1">
-      <div className="flex items-center justify-between text-xs text-sand-600">
+      <div className="flex items-center justify-between text-xs text-copy-secondary">
         <span>Batería</span>
         <span
           className={

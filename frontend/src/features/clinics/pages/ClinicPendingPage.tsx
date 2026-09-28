@@ -6,7 +6,7 @@ export default function ClinicPendingPage() {
         <h1 className="mt-4 text-xl font-extrabold text-sand-900">
           Solicitud recibida
         </h1>
-        <p className="mt-2 text-sm text-sand-600">
+        <p className="mt-2 text-sm text-copy-secondary">
           Tu clínica ha sido registrada con estado <strong>Pendiente</strong>.
           El equipo de PawTrack revisará tu solicitud y activará tu cuenta en
           1-2 días hábiles.

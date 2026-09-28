@@ -179,7 +179,7 @@ export function AdminSubscriptionPlansTab() {
             </button>
           )}
         </div>
-        <label className="block text-xs font-semibold text-sand-600">
+        <label className="block text-xs font-semibold text-copy-secondary">
           Tier
           <select
             disabled={Boolean(editing)}
@@ -194,7 +194,7 @@ export function AdminSubscriptionPlansTab() {
             ))}
           </select>
         </label>
-        <label className="block text-xs font-semibold text-sand-600">
+        <label className="block text-xs font-semibold text-copy-secondary">
           Nombre visible
           <input
             required
@@ -204,7 +204,7 @@ export function AdminSubscriptionPlansTab() {
             className="mt-1 w-full rounded-lg border border-sand-300 px-3 py-2 text-sm"
           />
         </label>
-        <label className="block text-xs font-semibold text-sand-600">
+        <label className="block text-xs font-semibold text-copy-secondary">
           Descripción
           <textarea
             required
@@ -215,7 +215,7 @@ export function AdminSubscriptionPlansTab() {
           />
         </label>
         <div className="grid grid-cols-2 gap-3">
-          <label className="block text-xs font-semibold text-sand-600">
+          <label className="block text-xs font-semibold text-copy-secondary">
             Mensual (CRC)
             <input
               type="number"
@@ -225,7 +225,7 @@ export function AdminSubscriptionPlansTab() {
               className="mt-1 w-full rounded-lg border border-sand-300 px-3 py-2 text-sm"
             />
           </label>
-          <label className="block text-xs font-semibold text-sand-600">
+          <label className="block text-xs font-semibold text-copy-secondary">
             Anual (CRC)
             <input
               type="number"

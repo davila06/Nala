@@ -361,7 +361,7 @@ export function ClinicOperationsPanel() {
         </div>
         <ul
           aria-label="Alertas operativas del día"
-          className="mt-3 flex flex-wrap gap-x-5 gap-y-1 border-t border-sand-200 pt-3 text-xs text-sand-600"
+          className="mt-3 flex flex-wrap gap-x-5 gap-y-1 border-t border-sand-200 pt-3 text-xs text-copy-secondary"
         >
           {dailyAlerts.length === 0 ? (
             <li>Sin alertas operativas.</li>
@@ -428,7 +428,7 @@ export function ClinicOperationsPanel() {
                           {INTERNAL_TASK_PRIORITY_LABELS[task.priority]}
                         </span>
                         <p className="mt-1 text-[10px] text-copy-secondary">{task.assignedToName ?? "Cola del rol"}</p>
-                        <p className="mt-1 text-[11px] font-semibold text-sand-600">
+                        <p className="mt-1 text-[11px] font-semibold text-copy-secondary">
                           {formatCostaRicaDate(task.dueDate)}
                         </p>
                       </div>
@@ -444,7 +444,7 @@ export function ClinicOperationsPanel() {
       <div className="rounded-2xl border border-sand-200 bg-surface p-4">
         <div className="flex items-center justify-between gap-3">
           <h3 className="text-sm font-black text-sand-900">Tareas del día</h3>
-          <span className="rounded-full bg-sand-100 px-2 py-1 text-[11px] font-semibold text-sand-600">
+          <span className="rounded-full bg-sand-100 px-2 py-1 text-[11px] font-semibold text-copy-secondary">
             {dailySummary.openTasks} abiertas
           </span>
         </div>
@@ -610,7 +610,7 @@ export function ClinicOperationsPanel() {
           onChange={(event) => setStartsAt(event.target.value)}
           aria-label="Inicio de la consulta"
         />
-        <label className="block text-xs font-semibold text-sand-600">
+        <label className="block text-xs font-semibold text-copy-secondary">
           Duración (minutos)
           <input
             type="number"
@@ -1347,7 +1347,7 @@ function ClinicFinanceSection({
       </div>
       <div className="border-t border-brand-200 pt-3">
         <h4 className="text-sm font-semibold text-brand-900">Dashboard por veterinario</h4>
-        <p className="text-xs text-sand-600">Cobros vinculados a citas, agrupados por veterinario</p>
+        <p className="text-xs text-copy-secondary">Cobros vinculados a citas, agrupados por veterinario</p>
         <dl className="mt-2 divide-y divide-brand-100 text-sm">
           {Object.entries(report?.byVeterinarian ?? {}).map(([veterinarian, value]) => (
             <div key={veterinarian} className="flex justify-between gap-3 py-2">
@@ -1743,7 +1743,7 @@ function ClinicAgendaAuditSection({
       ) : (
         <ul className="space-y-2">
           {entries.slice(0, 8).map((entry) => (
-            <li key={entry.id} className="rounded-xl border border-sand-100 bg-surface-warm p-3 text-xs text-sand-600">
+            <li key={entry.id} className="rounded-xl border border-sand-100 bg-surface-warm p-3 text-xs text-copy-secondary">
               <p className="font-bold text-sand-900">{entry.action}</p>
               <p>
                 {formatCostaRicaDate(entry.performedAt)} {formatCostaRicaTime(entry.performedAt)}
@@ -2254,7 +2254,7 @@ function ClinicalConsultationInlineForm({
         type="file"
         accept="application/pdf,image/jpeg,image/png"
         onChange={(event) => setAttachment(event.target.files?.[0] ?? null)}
-        className="block w-full text-xs text-sand-600"
+        className="block w-full text-xs text-copy-secondary"
         aria-label="Adjunto de consulta"
       />
       <Input

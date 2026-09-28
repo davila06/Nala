@@ -30,7 +30,7 @@ export function OwnerHandoverPanel({ lostPetEventId }: OwnerHandoverPanelProps) 
     <Card shadow>
       <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-copy-secondary">Entrega segura</p>
       <h3 className="mb-3 text-base font-bold text-sand-900">Código de verificación</h3>
-      <p className="mb-4 text-sm text-sand-600">
+      <p className="mb-4 text-sm text-copy-secondary">
         Genera un código de 4 dígitos y compártelo verbalmente con el rescatista cuando se encuentren. El rescatista lo
         ingresará en la app para confirmar la entrega segura.
       </p>
@@ -147,7 +147,7 @@ export function RescuerHandoverPanel({ lostPetEventId }: RescuerHandoverPanelPro
     <Card shadow>
       <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-copy-secondary">Confirmación de entrega</p>
       <h3 className="mb-3 text-base font-bold text-sand-900">Ingresa el código del dueño</h3>
-      <p className="mb-4 text-sm text-sand-600">
+      <p className="mb-4 text-sm text-copy-secondary">
         El dueño te comunicará verbalmente un código de 4 dígitos al encontrarse. Ingrésalo aquí para confirmar la
         entrega segura.
       </p>

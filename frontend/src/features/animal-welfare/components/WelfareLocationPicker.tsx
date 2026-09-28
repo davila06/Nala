@@ -45,7 +45,7 @@ function KeepMapCentered({ lat, lng }: { lat: number; lng: number }) {
 export function WelfareLocationPicker({ lat, lng, onChange }: WelfareLocationPickerProps) {
   return (
     <div className="space-y-2">
-      <p className="text-sm text-sand-600">
+      <p className="text-sm text-copy-secondary">
         Ajusta el punto exacto donde ocurrio el hecho (clic o arrastra el pin).
       </p>
       <div

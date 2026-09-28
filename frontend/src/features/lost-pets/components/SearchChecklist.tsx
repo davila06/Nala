@@ -59,7 +59,7 @@ const PHASE_META: Readonly<Record<ChecklistPhase, PhaseMeta>> = {
     borderClass: "border-sand-200",
     bgClass: "bg-sand-50",
     headingClass: "text-sand-800",
-    badgeClass: "bg-sand-200 text-sand-600",
+    badgeClass: "bg-sand-200 text-copy-secondary",
   },
 };
 

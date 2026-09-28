@@ -109,7 +109,7 @@ export function CoverageMapPicker({ lat, lng, radiusMetres, onChange }: Coverage
         </div>
 
         {/* Coordinate readout */}
-        <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-sand-50 px-4 py-3 text-xs text-sand-600 font-mono">
+        <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-sand-50 px-4 py-3 text-xs text-copy-secondary font-mono">
           <div>
             <span className="block text-[10px] font-sans font-semibold uppercase tracking-[0.15em] text-copy-muted mb-0.5">Lat</span>
             {lat.toFixed(6)}

@@ -119,7 +119,7 @@ export default function ShelterApplicationsPage() {
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    Pending: "bg-sand-100 text-sand-600",
+    Pending: "bg-sand-100 text-copy-secondary",
     UnderReview: "bg-blue-50 text-blue-700",
     Approved: "bg-green-50 text-green-700",
     Rejected: "bg-red-50 text-red-600",

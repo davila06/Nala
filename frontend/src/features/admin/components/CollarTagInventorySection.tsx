@@ -333,7 +333,7 @@ export function CollarTagInventorySection() {
         </div>
       )}
       {bulkResult && (
-        <p className="text-xs text-sand-600">
+        <p className="text-xs text-copy-secondary">
           ✅ {bulkResult.succeeded} exitosos, {bulkResult.failed} fallidos
           {bulkResult.errors.length > 0 && ` — ${bulkResult.errors.join("; ")}`}
         </p>
@@ -371,19 +371,19 @@ export function CollarTagInventorySection() {
                       }}
                     />
                   </th>
-                  <th className="px-4 py-2 font-semibold text-sand-600">
+                  <th className="px-4 py-2 font-semibold text-copy-secondary">
                     Serial
                   </th>
-                  <th className="px-4 py-2 font-semibold text-sand-600">
+                  <th className="px-4 py-2 font-semibold text-copy-secondary">
                     Estado
                   </th>
-                  <th className="px-4 py-2 font-semibold text-sand-600">
+                  <th className="px-4 py-2 font-semibold text-copy-secondary">
                     Firmware
                   </th>
-                  <th className="px-4 py-2 font-semibold text-sand-600">
+                  <th className="px-4 py-2 font-semibold text-copy-secondary">
                     Último ping
                   </th>
-                  <th className="px-4 py-2 font-semibold text-sand-600">
+                  <th className="px-4 py-2 font-semibold text-copy-secondary">
                     Acciones
                   </th>
                 </tr>
@@ -406,7 +406,7 @@ export function CollarTagInventorySection() {
                     </td>
                     <td className="px-4 py-2">
                       <span
-                        className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_COLORS[tag.status] ?? "bg-sand-100 text-sand-600"}`}
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_COLORS[tag.status] ?? "bg-sand-100 text-copy-secondary"}`}
                       >
                         {tag.status}
                       </span>

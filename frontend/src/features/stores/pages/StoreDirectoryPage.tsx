@@ -124,7 +124,7 @@ export default function StoreDirectoryPage() {
         {/* Featured */}
         {featured.length > 0 && (
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold text-sand-600 uppercase tracking-wide">Tiendas destacadas</h2>
+            <h2 className="text-sm font-semibold text-copy-secondary uppercase tracking-wide">Tiendas destacadas</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {featured.map((s) => (
                 <StoreCard key={s.id} store={s} />
@@ -137,7 +137,7 @@ export default function StoreDirectoryPage() {
         {rest.length > 0 && (
           <section className="space-y-3">
             {featured.length > 0 && (
-              <h2 className="text-sm font-semibold text-sand-600 uppercase tracking-wide">Todas las tiendas</h2>
+              <h2 className="text-sm font-semibold text-copy-secondary uppercase tracking-wide">Todas las tiendas</h2>
             )}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {rest.map((s) => (
@@ -150,7 +150,7 @@ export default function StoreDirectoryPage() {
         {/* CTA */}
         <div className="rounded-2xl bg-brand-50 border border-brand-100 p-5 text-center space-y-2">
           <p className="font-semibold text-ink-900 text-sm">¿Tienes una tienda de mascotas?</p>
-          <p className="text-xs text-sand-600">Regístrala gratis y empieza a recibir pedidos en minutos.</p>
+          <p className="text-xs text-copy-secondary">Regístrala gratis y empieza a recibir pedidos en minutos.</p>
           <Link
             to="/tienda/registro"
             className="inline-block mt-1 rounded-xl bg-brand-500 px-5 py-2 text-sm font-semibold text-white hover:bg-brand-600 transition-colors"

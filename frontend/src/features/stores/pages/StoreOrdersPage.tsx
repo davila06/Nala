@@ -99,15 +99,15 @@ function OrderCard({ order }: { order: StoreOrderDto }) {
       )}
 
       {order.deliveryAddress && (
-        <p className="text-xs text-sand-600">📍 {order.deliveryAddress}</p>
+        <p className="text-xs text-copy-secondary">📍 {order.deliveryAddress}</p>
       )}
       {order.customerNote && (
-        <p className="text-xs text-sand-600">💬 "{order.customerNote}"</p>
+        <p className="text-xs text-copy-secondary">💬 "{order.customerNote}"</p>
       )}
 
       {(REQUEST_STATUSES.includes(order.status) ||
         CANCELLABLE.includes(order.status)) && (
-        <label className="block text-xs font-medium text-sand-600">
+        <label className="block text-xs font-medium text-copy-secondary">
           Motivo o nota para el cliente *
           <input
             value={reason}
@@ -232,7 +232,7 @@ export default function StoreOrdersPage() {
               key={f}
               type="button"
               onClick={() => setFilter(f)}
-              className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors ${filter === f ? "bg-brand-500 text-white" : "bg-sand-100 text-sand-600 hover:bg-sand-200"}`}
+              className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors ${filter === f ? "bg-brand-500 text-white" : "bg-sand-100 text-copy-secondary hover:bg-sand-200"}`}
             >
               {f === "active" ? "Activos" : "Todos"}
             </button>

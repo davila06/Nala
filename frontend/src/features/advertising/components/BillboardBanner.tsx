@@ -123,7 +123,7 @@ function BillboardCard({
           {bill.title}
         </p>
         {bill.body && (
-          <p className="text-xs text-sand-600 leading-relaxed">{bill.body}</p>
+          <p className="text-xs text-copy-secondary leading-relaxed">{bill.body}</p>
         )}
         {bill.ctaLabel && bill.ctaUrl && (
           <button

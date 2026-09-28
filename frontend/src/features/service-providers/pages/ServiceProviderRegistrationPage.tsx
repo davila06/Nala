@@ -81,7 +81,7 @@ export default function ServiceProviderRegistrationPage() {
             </Link>
             <Link
               to={isAuthenticated ? "/dashboard" : "/login"}
-              className="text-sand-600 transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="text-copy-secondary transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
             >
               Ir al inicio
             </Link>
@@ -92,7 +92,7 @@ export default function ServiceProviderRegistrationPage() {
           <h1 className="mt-2 font-display text-3xl font-semibold text-ink-900">
             Haz visible tu servicio.
           </h1>
-          <p className="mt-3 text-sm leading-relaxed text-sand-600">
+          <p className="mt-3 text-sm leading-relaxed text-copy-secondary">
             Las solicitudes se revisan antes de mostrarse en el directorio
             publico.
           </p>
@@ -203,7 +203,7 @@ export default function ServiceProviderRegistrationPage() {
               Enviar solicitud
             </Button>
           </form>
-          <p className="mt-5 text-center text-sm text-sand-600">
+          <p className="mt-5 text-center text-sm text-copy-secondary">
             Ya tienes cuenta?{" "}
             <Link
               to="/login"

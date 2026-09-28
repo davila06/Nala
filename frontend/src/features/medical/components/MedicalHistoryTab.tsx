@@ -360,7 +360,7 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
       <Drawer isOpen={editOpen} onClose={closeEdit} title="Editar registro médico" side="bottom">
         <div className="space-y-4 pb-safe">
           <div>
-            <label htmlFor={`edit-type-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">
+            <label htmlFor={`edit-type-${record.id}`} className="mb-1 block text-xs font-medium text-copy-secondary">
               Tipo
             </label>
             <select
@@ -378,7 +378,7 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
           </div>
 
           <div>
-            <label htmlFor={`edit-date-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">
+            <label htmlFor={`edit-date-${record.id}`} className="mb-1 block text-xs font-medium text-copy-secondary">
               Fecha
             </label>
             <Input
@@ -391,7 +391,7 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
           </div>
 
           <div>
-            <label htmlFor={`edit-desc-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">
+            <label htmlFor={`edit-desc-${record.id}`} className="mb-1 block text-xs font-medium text-copy-secondary">
               Descripción{" "}
               <span aria-hidden="true" className="text-danger-500">
                 *
@@ -421,7 +421,7 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor={`edit-vet-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">
+              <label htmlFor={`edit-vet-${record.id}`} className="mb-1 block text-xs font-medium text-copy-secondary">
                 Veterinario
               </label>
               <Input
@@ -432,7 +432,7 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
               />
             </div>
             <div>
-              <label htmlFor={`edit-clinic-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">
+              <label htmlFor={`edit-clinic-${record.id}`} className="mb-1 block text-xs font-medium text-copy-secondary">
                 Clínica
               </label>
               <Input
@@ -445,7 +445,7 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
           </div>
 
           <div>
-            <label htmlFor={`edit-next-${record.id}`} className="mb-1 block text-xs font-medium text-sand-600">
+            <label htmlFor={`edit-next-${record.id}`} className="mb-1 block text-xs font-medium text-copy-secondary">
               Próxima cita (opcional)
             </label>
             <Input
@@ -501,7 +501,7 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
                 <button
                   type="button"
                   onClick={() => setConfirmDelete(false)}
-                  className="text-xs text-copy-muted hover:text-sand-600"
+                  className="text-xs text-copy-muted hover:text-copy-secondary"
                 >
                   No
                 </button>
@@ -522,12 +522,12 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
         </div>
         <p className="text-sm text-sand-700">{record.description}</p>
         {record.weightKg != null && (
-          <p className="text-xs font-medium text-sand-600">
+          <p className="text-xs font-medium text-copy-secondary">
             <span aria-hidden="true">⚖️</span> Peso: {record.weightKg} kg
           </p>
         )}
         {record.type === "Medication" && record.dosageDescription && (
-          <p className="text-xs text-sand-600">
+          <p className="text-xs text-copy-secondary">
             <span aria-hidden="true">💊</span> {record.dosageDescription}
             {record.frequency ? ` — ${record.frequency}` : ""}
             {record.durationDays ? ` (${record.durationDays} días)` : ""}
@@ -621,7 +621,7 @@ function ReminderCard({ reminder, petId }: { reminder: VetReminderDto; petId: st
           )}
         </div>
       </div>
-      {reminder.notes && <p className="text-xs text-sand-600">{reminder.notes}</p>}
+      {reminder.notes && <p className="text-xs text-copy-secondary">{reminder.notes}</p>}
       {!reminder.isCompleted && (
         <button
           type="button"
@@ -714,7 +714,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
       ) : (
         <>
           <div>
-            <label htmlFor="medical-record-type" className="mb-1 block text-xs font-medium text-sand-600">
+            <label htmlFor="medical-record-type" className="mb-1 block text-xs font-medium text-copy-secondary">
               Tipo
             </label>
             <select
@@ -733,7 +733,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
 
           {/* Date */}
           <div>
-            <label htmlFor="medical-record-date" className="mb-1 block text-xs font-medium text-sand-600">
+            <label htmlFor="medical-record-date" className="mb-1 block text-xs font-medium text-copy-secondary">
               Fecha
             </label>
             <Input
@@ -747,7 +747,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
 
           {/* Description */}
           <div>
-            <label htmlFor="medical-record-description" className="mb-1 block text-xs font-medium text-sand-600">
+            <label htmlFor="medical-record-description" className="mb-1 block text-xs font-medium text-copy-secondary">
               Descripción *
             </label>
             <textarea
@@ -763,7 +763,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
           {/* Vet / Clinic */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label htmlFor="medical-record-vet" className="mb-1 block text-xs font-medium text-sand-600">
+              <label htmlFor="medical-record-vet" className="mb-1 block text-xs font-medium text-copy-secondary">
                 Veterinario
               </label>
               <Input
@@ -774,7 +774,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
               />
             </div>
             <div>
-              <label htmlFor="medical-record-clinic" className="mb-1 block text-xs font-medium text-sand-600">
+              <label htmlFor="medical-record-clinic" className="mb-1 block text-xs font-medium text-copy-secondary">
                 Clínica
               </label>
               <Input
@@ -788,7 +788,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
 
           {/* Next due */}
           <div>
-            <label htmlFor="medical-record-next-due" className="mb-1 block text-xs font-medium text-sand-600">
+            <label htmlFor="medical-record-next-due" className="mb-1 block text-xs font-medium text-copy-secondary">
               Próxima cita (opcional)
             </label>
             <Input
@@ -802,7 +802,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
 
           {/* Document */}
           <div>
-            <label htmlFor="medical-record-document" className="mb-1 block text-xs font-medium text-sand-600">
+            <label htmlFor="medical-record-document" className="mb-1 block text-xs font-medium text-copy-secondary">
               Documento (PDF / foto, máx. 5MB)
             </label>
             <input
@@ -810,12 +810,12 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
               type="file"
               accept=".pdf,image/jpeg,image/png"
               onChange={(e) => setDocument(e.target.files?.[0] ?? null)}
-              className="block w-full text-xs text-sand-600 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-brand-700 hover:file:bg-brand-200"
+              className="block w-full text-xs text-copy-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-brand-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-brand-700 hover:file:bg-brand-200"
             />
           </div>
           {document && (
             <div>
-              <label htmlFor="medical-document-kind" className="mb-1 block text-xs font-medium text-sand-600">
+              <label htmlFor="medical-document-kind" className="mb-1 block text-xs font-medium text-copy-secondary">
                 Tipo de documento (declarado)
               </label>
               <select
@@ -890,7 +890,7 @@ function AddReminderForm({ petId, onClose }: { petId: string; onClose: () => voi
         ))}
       </select>
       <div>
-        <label htmlFor="medical-reminder-title" className="mb-1 block text-xs font-medium text-sand-600">
+        <label htmlFor="medical-reminder-title" className="mb-1 block text-xs font-medium text-copy-secondary">
           Título *
         </label>
         <Input
@@ -901,7 +901,7 @@ function AddReminderForm({ petId, onClose }: { petId: string; onClose: () => voi
         />
       </div>
       <div>
-        <label htmlFor="medical-reminder-date" className="mb-1 block text-xs font-medium text-sand-600">
+        <label htmlFor="medical-reminder-date" className="mb-1 block text-xs font-medium text-copy-secondary">
           Fecha *
         </label>
         <Input
@@ -913,7 +913,7 @@ function AddReminderForm({ petId, onClose }: { petId: string; onClose: () => voi
         />
       </div>
       <div>
-        <label htmlFor="medical-reminder-notes" className="mb-1 block text-xs font-medium text-sand-600">
+        <label htmlFor="medical-reminder-notes" className="mb-1 block text-xs font-medium text-copy-secondary">
           Notas
         </label>
         <textarea
@@ -960,7 +960,7 @@ function ClinicAccessLogSection({ petId }: { petId: string }) {
 
   return (
     <details className="text-sm">
-      <summary className="cursor-pointer text-xs font-semibold text-copy-muted hover:text-sand-600">
+      <summary className="cursor-pointer text-xs font-semibold text-copy-muted hover:text-copy-secondary">
         🔐 Historial de acceso veterinario ({logs.length} acceso
         {logs.length !== 1 ? "s" : ""})
       </summary>
@@ -1141,7 +1141,7 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
                 onClick={() => setTypeFilter(opt)}
                 aria-pressed={typeFilter === opt}
                 className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                  typeFilter === opt ? "bg-brand-600 text-white" : "bg-sand-100 text-sand-600 hover:bg-sand-200"
+                  typeFilter === opt ? "bg-brand-600 text-white" : "bg-sand-100 text-copy-secondary hover:bg-sand-200"
                 }`}
               >
                 {opt !== "Todos" && emoji && <span aria-hidden="true">{emoji} </span>}
@@ -1237,7 +1237,7 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
       {/* Completed reminders */}
       {completedReminders.length > 0 && (
         <details className="text-sm">
-          <summary className="cursor-pointer text-xs font-semibold text-copy-muted hover:text-sand-600">
+          <summary className="cursor-pointer text-xs font-semibold text-copy-muted hover:text-copy-secondary">
             {completedReminders.length} recordatorio
             {completedReminders.length !== 1 ? "s" : ""} completado
             {completedReminders.length !== 1 ? "s" : ""}

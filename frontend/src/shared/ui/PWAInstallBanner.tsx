@@ -111,7 +111,7 @@ export function PWAInstallBanner() {
               type="button"
               onClick={handleDismiss}
               aria-label="Cerrar"
-              className="shrink-0 text-copy-muted hover:text-sand-600 transition-colors mt-0.5"
+              className="shrink-0 text-copy-muted hover:text-copy-secondary transition-colors mt-0.5"
             >
               <svg
                 viewBox="0 0 16 16"

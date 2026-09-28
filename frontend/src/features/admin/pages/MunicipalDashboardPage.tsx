@@ -21,7 +21,7 @@ import { toast } from "@/shared/lib/toast";
 
 function TierBadge({ tier }: { tier: MunicipalTier }) {
   const cls: Record<MunicipalTier, string> = {
-    Basica: "bg-sand-100 text-sand-600",
+    Basica: "bg-sand-100 text-copy-secondary",
     Full: "bg-trust-100 text-trust-700",
     RedRegional: "bg-rescue-100 text-rescue-700",
   };
@@ -189,7 +189,7 @@ function CapturesTab({
               <div>
                 <label
                   htmlFor="capture-canton"
-                  className="mb-1 block text-xs font-medium text-sand-600"
+                  className="mb-1 block text-xs font-medium text-copy-secondary"
                 >
                   Cantón
                 </label>
@@ -206,7 +206,7 @@ function CapturesTab({
             <div>
               <label
                 htmlFor="capture-species"
-                className="mb-1 block text-xs font-medium text-sand-600"
+                className="mb-1 block text-xs font-medium text-copy-secondary"
               >
                 Especie *
               </label>
@@ -222,7 +222,7 @@ function CapturesTab({
             <div>
               <label
                 htmlFor="capture-color"
-                className="mb-1 block text-xs font-medium text-sand-600"
+                className="mb-1 block text-xs font-medium text-copy-secondary"
               >
                 Color *
               </label>
@@ -238,7 +238,7 @@ function CapturesTab({
             <div>
               <label
                 htmlFor="capture-breed"
-                className="mb-1 block text-xs font-medium text-sand-600"
+                className="mb-1 block text-xs font-medium text-copy-secondary"
               >
                 Raza
               </label>
@@ -254,7 +254,7 @@ function CapturesTab({
             <div>
               <label
                 htmlFor="capture-age"
-                className="mb-1 block text-xs font-medium text-sand-600"
+                className="mb-1 block text-xs font-medium text-copy-secondary"
               >
                 Edad estimada
               </label>
@@ -270,7 +270,7 @@ function CapturesTab({
             <div>
               <label
                 htmlFor="capture-collar"
-                className="mb-1 block text-xs font-medium text-sand-600"
+                className="mb-1 block text-xs font-medium text-copy-secondary"
               >
                 N° chip/collar
               </label>
@@ -286,7 +286,7 @@ function CapturesTab({
           <div>
             <label
               htmlFor="capture-notes"
-              className="mb-1 block text-xs font-medium text-sand-600"
+              className="mb-1 block text-xs font-medium text-copy-secondary"
             >
               Notas
             </label>
@@ -358,7 +358,7 @@ function CapturesTab({
                       {a.breed && (
                         <span className="text-xs text-copy-secondary">{a.breed}</span>
                       )}
-                      <span className="rounded-full bg-sand-100 px-2 py-0.5 text-xs font-medium text-sand-600">
+                      <span className="rounded-full bg-sand-100 px-2 py-0.5 text-xs font-medium text-copy-secondary">
                         {a.color}
                       </span>
                       <span
@@ -367,7 +367,7 @@ function CapturesTab({
                             ? "bg-warn-100 text-warn-700"
                             : a.status === "OwnerFound"
                               ? "bg-rescue-100 text-rescue-700"
-                              : "bg-sand-100 text-sand-600"
+                              : "bg-sand-100 text-copy-secondary"
                         }`}
                       >
                         {STATUS_LABELS[a.status]}
@@ -379,7 +379,7 @@ function CapturesTab({
                       {a.collarChipNumber && ` · Chip: ${a.collarChipNumber}`}
                     </p>
                     {a.notes && (
-                      <p className="mt-1 text-xs text-sand-600 truncate">
+                      <p className="mt-1 text-xs text-copy-secondary truncate">
                         {a.notes}
                       </p>
                     )}

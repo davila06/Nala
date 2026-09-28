@@ -21,7 +21,7 @@ const TIERS: Tier[] = [
     price: "Gratis",
     period: "siempre",
     color: "border-sand-200",
-    badge: "bg-sand-100 text-sand-600",
+    badge: "bg-sand-100 text-copy-secondary",
     features: [
       { label: "Aparece en directorio de clínicas", included: true },
       { label: "Escanear QR y microchip RFID", included: true },
@@ -167,7 +167,7 @@ export function ClinicTiersModal({ currentTier = "basic", onClose }: ClinicTiers
                       Plan actual
                     </span>
                   ) : (
-                    <span className="block rounded-xl border border-sand-200 py-2.5 text-center text-xs font-semibold text-sand-600">
+                    <span className="block rounded-xl border border-sand-200 py-2.5 text-center text-xs font-semibold text-copy-secondary">
                       Pendiente de aprobación comercial
                     </span>
                   )}

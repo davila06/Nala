@@ -217,14 +217,14 @@ export default function ReportFoundPetPage() {
                     }`}
                   >
                     <span className="text-xl">{opt.emoji}</span>
-                    <span className="mt-1 text-[10px] text-sand-600">{opt.label}</span>
+                    <span className="mt-1 text-[10px] text-copy-secondary">{opt.label}</span>
                   </button>
                 ))}
               </div>
             </fieldset>
           </div>
 
-          <label className="flex items-start gap-2 rounded-lg bg-sand-50 p-3 text-xs text-sand-600">
+          <label className="flex items-start gap-2 rounded-lg bg-sand-50 p-3 text-xs text-copy-secondary">
             <input
               type="checkbox"
               checked={privacyConsent}
@@ -287,7 +287,7 @@ export default function ReportFoundPetPage() {
           <div className="flex gap-3">
             <button
               onClick={() => setStep(1)}
-              className="flex-1 rounded-xl border border-sand-300 py-3 text-sm font-medium text-sand-600 transition hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="flex-1 rounded-xl border border-sand-300 py-3 text-sm font-medium text-copy-secondary transition hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
             >
               Atrás
             </button>
@@ -345,7 +345,7 @@ export default function ReportFoundPetPage() {
           <div className="flex gap-3">
             <button
               onClick={() => setStep(2)}
-              className="flex-1 rounded-xl border border-sand-300 py-3 text-sm font-medium text-sand-600 transition hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="flex-1 rounded-xl border border-sand-300 py-3 text-sm font-medium text-copy-secondary transition hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
             >
               Atrás
             </button>
@@ -404,7 +404,7 @@ export default function ReportFoundPetPage() {
           <div className="flex gap-3">
             <button
               onClick={() => setStep(3)}
-              className="flex-1 rounded-xl border border-sand-300 py-3 text-sm font-medium text-sand-600 transition hover:bg-sand-50"
+              className="flex-1 rounded-xl border border-sand-300 py-3 text-sm font-medium text-copy-secondary transition hover:bg-sand-50"
             >
               Atrás
             </button>

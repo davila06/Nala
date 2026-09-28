@@ -80,7 +80,7 @@ export default function ClinicPublicProfilePage() {
                 <h2 className="text-sm font-bold text-sand-800">
                   Sobre la clínica
                 </h2>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-sand-600">
+                <p className="mt-1 whitespace-pre-wrap text-sm text-copy-secondary">
                   {clinic.description ||
                     "Perfil profesional afiliado a PawTrack CR."}
                 </p>
@@ -88,7 +88,7 @@ export default function ClinicPublicProfilePage() {
               {clinic.services && (
                 <div>
                   <h2 className="text-sm font-bold text-sand-800">Servicios</h2>
-                  <p className="mt-1 whitespace-pre-wrap text-sm text-sand-600">
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-copy-secondary">
                     {clinic.services}
                   </p>
                 </div>
@@ -96,13 +96,13 @@ export default function ClinicPublicProfilePage() {
               {clinic.openingHours && (
                 <div>
                   <h2 className="text-sm font-bold text-sand-800">Horario</h2>
-                  <p className="mt-1 whitespace-pre-wrap text-sm text-sand-600">
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-copy-secondary">
                     {clinic.openingHours}
                   </p>
                 </div>
               )}
             </div>
-            <div className="space-y-3 text-sm text-sand-600">
+            <div className="space-y-3 text-sm text-copy-secondary">
               {clinic.phoneNumber && (
                 <a
                   className="block font-semibold text-brand-600"

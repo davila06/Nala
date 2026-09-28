@@ -139,7 +139,7 @@ export default function FoundPetMatchResultPage() {
             <p className="text-2xl" aria-hidden="true">
               🐾
             </p>
-            <p className="mt-2 text-sm text-sand-600">
+            <p className="mt-2 text-sm text-copy-secondary">
               No encontramos reportes activos cerca. Tu reporte está guardado y
               lo cruzaremos contra nuevos reportes automáticamente.
             </p>
@@ -158,7 +158,7 @@ export default function FoundPetMatchResultPage() {
       <div className="mt-6 flex flex-col gap-3">
         <Link
           to="/encontre-mascota"
-          className="rounded-xl border border-sand-300 py-3 text-center text-sm font-medium text-sand-600 transition hover:bg-sand-50"
+          className="rounded-xl border border-sand-300 py-3 text-center text-sm font-medium text-copy-secondary transition hover:bg-sand-50"
         >
           Hacer otro reporte
         </Link>

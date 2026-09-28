@@ -33,7 +33,7 @@ function MemberRow({
       <div className="flex shrink-0 items-center gap-2">
         <span
           className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-            member.role === "Owner" ? "bg-trust-100 text-trust-700" : "bg-sand-100 text-sand-600"
+            member.role === "Owner" ? "bg-trust-100 text-trust-700" : "bg-sand-100 text-copy-secondary"
           }`}
         >
           {member.role === "Owner" ? "Titular" : "Miembro"}
@@ -156,7 +156,7 @@ function ExistingFamily({
       )}
 
       {isOwner && maxMembers !== null && !hasAvailableSeat && (
-        <p className="text-xs text-sand-600" role="status">
+        <p className="text-xs text-copy-secondary" role="status">
           No hay espacios disponibles. Quita un miembro o revisa tu plan para invitar a otra persona.
         </p>
       )}
@@ -165,7 +165,7 @@ function ExistingFamily({
         maxMembers !== null &&
         hasAvailableSeat &&
         family.pendingInvitations >= family.pendingInvitationLimit && (
-          <p className="text-xs text-sand-600" role="status">
+          <p className="text-xs text-copy-secondary" role="status">
             Espera a que se acepten o expiren las invitaciones pendientes antes de enviar otra.
           </p>
         )}
@@ -191,7 +191,7 @@ function CreateFamilyForm({ maxMembers }: { maxMembers: number | null }) {
 
   return (
     <div className="rounded-2xl border border-sand-200 bg-sand-50 p-4 space-y-3">
-      <p className="text-sm text-sand-600">
+      <p className="text-sm text-copy-secondary">
         {maxMembers === null
           ? "No se pudo consultar el límite de miembros. El servidor verificará el cupo al crear la cuenta."
           : `Con el plan Familia puedes agregar hasta ${Math.max(0, maxMembers - 1)} miembros adicionales, incluido el titular. Los miembros comparten acceso al historial médico según los permisos actuales.`}

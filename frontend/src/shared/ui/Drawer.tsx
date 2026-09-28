@@ -141,7 +141,7 @@ export function Drawer({
                   type="button"
                   onClick={onClose}
                   aria-label="Cerrar"
-                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-copy-muted hover:bg-sand-100 hover:text-sand-600 transition-base focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
+                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-copy-muted hover:bg-sand-100 hover:text-copy-secondary transition-base focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
                 >
                   <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4" aria-hidden="true">
                     <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -229,7 +229,7 @@ export function Modal({ isOpen, onClose, title, description, children, maxWidth 
                   type="button"
                   onClick={onClose}
                   aria-label="Cerrar"
-                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-copy-muted hover:bg-sand-100 hover:text-sand-600 transition-base focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
+                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-copy-muted hover:bg-sand-100 hover:text-copy-secondary transition-base focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
                 >
                   <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4" aria-hidden="true">
                     <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />

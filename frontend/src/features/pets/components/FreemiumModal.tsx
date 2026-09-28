@@ -25,7 +25,7 @@ const TIERS: Tier[] = [
     freePrice: "Gratis",
     period: "siempre",
     color: "border-sand-200",
-    badge: "bg-sand-100 text-sand-600",
+    badge: "bg-sand-100 text-copy-secondary",
     features: [
       { label: "1 mascota registrada", included: true },
       { label: "Perfil digital y QR", included: true },

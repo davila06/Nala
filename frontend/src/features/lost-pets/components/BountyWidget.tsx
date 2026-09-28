@@ -33,7 +33,7 @@ export function BountyWidget({ lostEventId, isOwner }: BountyWidgetProps) {
     PendingDeposit: "bg-warn-100 text-warn-700",
     Active: "bg-rescue-100 text-rescue-800",
     Claimed: "bg-trust-100 text-trust-700",
-    Released: "bg-sand-100 text-sand-600",
+    Released: "bg-sand-100 text-copy-secondary",
     Refunded: "bg-sand-100 text-copy-secondary",
     Expired: "bg-sand-100 text-copy-muted",
   };

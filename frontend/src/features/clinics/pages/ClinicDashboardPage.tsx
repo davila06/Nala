@@ -434,7 +434,7 @@ function ClinicProfileSection({ clinic }: { clinic: NonNullable<Awaited<ReturnTy
         </p>
       </div>
       <div className="space-y-3 rounded-2xl border border-sand-200 bg-surface p-4">
-        <label className="block text-xs font-semibold text-sand-600">
+        <label className="block text-xs font-semibold text-copy-secondary">
           Nombre comercial
           <input
             value={name}
@@ -444,7 +444,7 @@ function ClinicProfileSection({ clinic }: { clinic: NonNullable<Awaited<ReturnTy
             className="field-input mt-1 w-full"
           />
         </label>
-        <label className="block text-xs font-semibold text-sand-600">
+        <label className="block text-xs font-semibold text-copy-secondary">
           Dirección
           <input
             value={address}
@@ -454,7 +454,7 @@ function ClinicProfileSection({ clinic }: { clinic: NonNullable<Awaited<ReturnTy
             className="field-input mt-1 w-full"
           />
         </label>
-        <label className="block text-xs font-semibold text-sand-600">
+        <label className="block text-xs font-semibold text-copy-secondary">
           Teléfono
           <input
             value={phoneNumber}
@@ -463,7 +463,7 @@ function ClinicProfileSection({ clinic }: { clinic: NonNullable<Awaited<ReturnTy
             className="field-input mt-1 w-full"
           />
         </label>
-        <label className="block text-xs font-semibold text-sand-600">
+        <label className="block text-xs font-semibold text-copy-secondary">
           WhatsApp de atención
           <input
             value={whatsAppNumber}
@@ -481,7 +481,7 @@ function ClinicProfileSection({ clinic }: { clinic: NonNullable<Awaited<ReturnTy
           />
           Permitir contacto por WhatsApp desde el mapa
         </label>
-        <label className="block text-xs font-semibold text-sand-600">
+        <label className="block text-xs font-semibold text-copy-secondary">
           Sitio web
           <input
             type="url"
@@ -500,7 +500,7 @@ function ClinicProfileSection({ clinic }: { clinic: NonNullable<Awaited<ReturnTy
           Atención de emergencias 24/7
         </label>
         {isEmergency24h && (
-          <label className="block text-xs font-semibold text-sand-600">
+          <label className="block text-xs font-semibold text-copy-secondary">
             Teléfono de emergencias
             <input
               value={emergencyPhone}
@@ -510,7 +510,7 @@ function ClinicProfileSection({ clinic }: { clinic: NonNullable<Awaited<ReturnTy
             />
           </label>
         )}
-        <label className="block text-xs font-semibold text-sand-600">
+        <label className="block text-xs font-semibold text-copy-secondary">
           Descripción pública
           <textarea
             value={description}
@@ -520,7 +520,7 @@ function ClinicProfileSection({ clinic }: { clinic: NonNullable<Awaited<ReturnTy
             className="field-input mt-1 w-full"
           />
         </label>
-        <label className="block text-xs font-semibold text-sand-600">
+        <label className="block text-xs font-semibold text-copy-secondary">
           Servicios
           <textarea
             value={services}
@@ -531,7 +531,7 @@ function ClinicProfileSection({ clinic }: { clinic: NonNullable<Awaited<ReturnTy
             className="field-input mt-1 w-full"
           />
         </label>
-        <label className="block text-xs font-semibold text-sand-600">
+        <label className="block text-xs font-semibold text-copy-secondary">
           Horario
           <textarea
             value={openingHours}
@@ -873,7 +873,7 @@ function ClinicApiKeysSection() {
             ["certificates", "Certificados"],
             ["analytics", "Analítica"],
           ].map(([scope, label]) => (
-            <label key={scope} className="flex items-center gap-2 text-xs text-sand-600">
+            <label key={scope} className="flex items-center gap-2 text-xs text-copy-secondary">
               <input
                 type="checkbox"
                 checked={newScopes.includes(scope)}

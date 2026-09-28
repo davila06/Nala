@@ -235,10 +235,10 @@ function AlliesTab() {
               <span className="rounded-full bg-trust-100 px-2 py-0.5 text-[10px] font-semibold text-trust-700">
                 {ALLY_TYPE_LABELS[ally.allyType] ?? ally.allyType}
               </span>
-              <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] text-sand-600">
+              <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] text-copy-secondary">
                 📍 {ally.coverageLabel}
               </span>
-              <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] text-sand-600">
+              <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] text-copy-secondary">
                 {(ally.coverageRadiusMetres / 1000).toFixed(1)} km radio
               </span>
             </div>
@@ -295,7 +295,7 @@ function ClinicsTab() {
               <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-semibold text-brand-700">
                 🏥 SENASA {clinic.licenseNumber}
               </span>
-              <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] text-sand-600">
+              <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] text-copy-secondary">
                 📍 {clinic.address}
               </span>
             </div>
@@ -871,7 +871,7 @@ function BundlesTab() {
             </div>
 
             {order.trackingNumber && (
-              <p className="text-xs font-mono text-sand-600">🔍 Tracking: {order.trackingNumber}</p>
+              <p className="text-xs font-mono text-copy-secondary">🔍 Tracking: {order.trackingNumber}</p>
             )}
             {order.adminNotes && <p className="text-xs text-copy-secondary italic">Notas: {order.adminNotes}</p>}
           </li>
@@ -1010,7 +1010,7 @@ export default function AdminPage() {
               {label}
               {count > 0 && (
                 <span
-                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${activeTab === tab ? "bg-warn-100 text-warn-700" : "bg-sand-200 text-sand-600"}`}
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${activeTab === tab ? "bg-warn-100 text-warn-700" : "bg-sand-200 text-copy-secondary"}`}
                 >
                   {count}
                 </span>

@@ -136,7 +136,7 @@ export default function DashboardPage() {
               </p>
             )}
             {user?.role !== "Owner" ? null : entitlementsLoading ? (
-              <p className="text-xs text-sand-600" role="status">
+              <p className="text-xs text-copy-secondary" role="status">
                 Verificando el límite de mascotas…
               </p>
             ) : capacityUnavailable ? (
@@ -149,7 +149,7 @@ export default function DashboardPage() {
               </button>
             ) : atPetLimit ? (
               isFamilia ? (
-                <p className="text-xs text-sand-600" role="status">
+                <p className="text-xs text-copy-secondary" role="status">
                   Alcanzaste el límite técnico de mascotas de tu plan.
                 </p>
               ) : (
@@ -363,7 +363,7 @@ export default function DashboardPage() {
                         ? s === "Lost"
                           ? "bg-danger-500 text-white shadow-sm"
                           : "bg-brand-500 text-white shadow-sm"
-                        : "bg-sand-100 text-sand-600 hover:bg-sand-200",
+                        : "bg-sand-100 text-copy-secondary hover:bg-sand-200",
                     ].join(" ")}
                   >
                     {s === "all" ? (
@@ -389,7 +389,7 @@ export default function DashboardPage() {
                       "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
                       filterSpecies === sp
                         ? "bg-trust-500 text-white shadow-sm"
-                        : "bg-sand-100 text-sand-600 hover:bg-sand-200",
+                        : "bg-sand-100 text-copy-secondary hover:bg-sand-200",
                     ].join(" ")}
                   >
                     {sp === "Dog" ? (

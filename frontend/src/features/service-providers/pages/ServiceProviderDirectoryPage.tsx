@@ -113,7 +113,7 @@ export default function ServiceProviderDirectoryPage() {
           <div className="max-w-2xl space-y-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">Directorio local</p>
             <h1 className="font-display text-3xl font-semibold text-ink-900">Servicios para tu mascota</h1>
-            <p className="text-sm text-sand-600">
+            <p className="text-sm text-copy-secondary">
               Encuentra apoyo confiable para el cuidado, entrenamiento y bienestar de tu companero.
             </p>
           </div>
@@ -239,7 +239,7 @@ export default function ServiceProviderDirectoryPage() {
         <section className="flex flex-col items-start justify-between gap-3 rounded-xl border border-brand-100 bg-brand-50 p-5 sm:flex-row sm:items-center">
           <div>
             <p className="font-semibold text-ink-900">Ofreces servicios para mascotas?</p>
-            <p className="text-sm text-sand-600">Crea tu perfil para aparecer en el directorio.</p>
+            <p className="text-sm text-copy-secondary">Crea tu perfil para aparecer en el directorio.</p>
           </div>
           <Link
             to="/servicio/registro"

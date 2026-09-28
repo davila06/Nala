@@ -23,7 +23,7 @@ function scoreLabel(s: number): { text: string; color: string; bg: string } {
     };
   return {
     text: "Coincidencia leve",
-    color: "text-sand-600",
+    color: "text-copy-secondary",
     bg: "bg-sand-100",
   };
 }

@@ -72,7 +72,7 @@ export function AdminProviderVerificationsTab() {
         <h2 className="font-display text-xl font-semibold text-ink-900">
           Verificaciones de proveedores
         </h2>
-        <p className="text-sm text-sand-600">
+        <p className="text-sm text-copy-secondary">
           Revisa documentos privados y registra una decision auditable.
         </p>
       </header>
@@ -110,7 +110,7 @@ export function AdminProviderVerificationsTab() {
               <p className="font-semibold text-ink-900">
                 Verificacion {verification.id.slice(-8).toUpperCase()}
               </p>
-              <p className="mt-1 text-sm text-sand-600">
+              <p className="mt-1 text-sm text-copy-secondary">
                 Enviada:{" "}
                 {new Date(verification.submittedAt).toLocaleDateString("es-CR")}
               </p>

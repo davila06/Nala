@@ -119,7 +119,7 @@ export default function CertificateVerificationPage() {
             <h1 className="text-lg font-black text-sand-900">
               Certificado no encontrado
             </h1>
-            <p className="text-sm text-sand-600">
+            <p className="text-sm text-copy-secondary">
               El código <strong className="font-mono">{code}</strong> no
               corresponde a ningún certificado emitido en PawTrack CR, o el
               código es incorrecto.

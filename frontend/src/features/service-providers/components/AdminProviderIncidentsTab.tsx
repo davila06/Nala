@@ -49,7 +49,7 @@ export function AdminProviderIncidentsTab() {
         <h2 className="font-display text-xl font-semibold text-ink-900">
           Incidentes de proveedores
         </h2>
-        <p className="text-sm text-sand-600">
+        <p className="text-sm text-copy-secondary">
           Triage, resolución y cierre con auditoría.
         </p>
       </header>
@@ -67,7 +67,7 @@ export function AdminProviderIncidentsTab() {
               <div className="flex flex-wrap justify-between gap-3">
                 <div>
                   <p className="font-semibold text-ink-900">{incident.type}</p>
-                  <p className="text-sm text-sand-600">
+                  <p className="text-sm text-copy-secondary">
                     {incident.description}
                   </p>
                 </div>

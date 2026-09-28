@@ -164,7 +164,7 @@ export function SecureCardPaymentForm({ amountCrc, isProcessing, onPay, buttonLa
               className={`w-full p-2.5 rounded-2xl border text-center text-xs font-bold transition-colors ${
                 useNewCard
                   ? "border-brand-600 bg-brand-50/60 text-brand-900"
-                  : "border-dashed border-sand-300 text-sand-600 hover:bg-sand-50"
+                  : "border-dashed border-sand-300 text-copy-secondary hover:bg-sand-50"
               }`}
             >
               + Usar una tarjeta de crédito o débito distinta
@@ -262,7 +262,7 @@ export function SecureCardPaymentForm({ amountCrc, isProcessing, onPay, buttonLa
               disabled={isProcessing}
               className="h-4 w-4 rounded text-brand-600 focus:ring-brand-500 border-sand-300"
             />
-            <span className="text-[11px] text-sand-600 font-medium">
+            <span className="text-[11px] text-copy-secondary font-medium">
               Guardar de forma segura para renovaciones automáticas
             </span>
           </label>

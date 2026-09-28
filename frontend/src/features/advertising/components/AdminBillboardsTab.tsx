@@ -523,7 +523,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         <div className="col-span-2">
           <label
             htmlFor="billboard-advertiser"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Anunciante *
           </label>
@@ -537,7 +537,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         <div>
           <label
             htmlFor="billboard-category"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Categoría *
           </label>
@@ -560,7 +560,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         <div>
           <label
             htmlFor="billboard-canton"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Cantón objetivo
           </label>
@@ -574,7 +574,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         <div className="col-span-2">
           <label
             htmlFor="billboard-title"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Título *
           </label>
@@ -588,7 +588,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         <div className="col-span-2">
           <label
             htmlFor="billboard-body"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Descripción
           </label>
@@ -602,7 +602,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         <div>
           <label
             htmlFor="billboard-placement"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Ubicación *
           </label>
@@ -621,7 +621,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         <div>
           <label
             htmlFor="billboard-priority"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Prioridad (0-100)
           </label>
@@ -637,7 +637,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         <div>
           <label
             htmlFor="billboard-budget"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Presupuesto CRC
           </label>
@@ -652,7 +652,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         <div>
           <label
             htmlFor="billboard-frequency"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Máx. por día
           </label>
@@ -668,7 +668,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         <div className="col-span-2">
           <label
             htmlFor="billboard-contract"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Contrato / orden de compra
           </label>
@@ -711,7 +711,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         <div>
           <label
             htmlFor="billboard-start"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Inicio
           </label>
@@ -725,7 +725,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         <div>
           <label
             htmlFor="billboard-end"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Fin
           </label>
@@ -739,7 +739,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         <div>
           <label
             htmlFor="billboard-cta-label"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             CTA texto
           </label>
@@ -753,7 +753,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         <div>
           <label
             htmlFor="billboard-cta-url"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             CTA URL
           </label>
@@ -769,7 +769,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
         className="border-t border-sand-200 pt-3"
         aria-label="Vista previa de la valla"
       >
-        <p className="mb-2 text-xs font-semibold text-sand-600">
+        <p className="mb-2 text-xs font-semibold text-copy-secondary">
           Vista previa móvil
         </p>
         <div className="max-w-xs overflow-hidden rounded-xl border border-sand-200 bg-surface shadow-sm">
@@ -780,7 +780,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
             <p className="text-sm font-semibold text-ink-900">
               {form.title || "Título de campaña"}
             </p>
-            {form.body && <p className="text-xs text-sand-600">{form.body}</p>}
+            {form.body && <p className="text-xs text-copy-secondary">{form.body}</p>}
             {form.ctaLabel && (
               <span className="inline-block rounded-xl bg-brand-500 px-4 py-1.5 text-xs font-semibold text-white">
                 {form.ctaLabel}

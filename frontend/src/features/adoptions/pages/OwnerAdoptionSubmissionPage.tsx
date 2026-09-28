@@ -58,7 +58,7 @@ export default function OwnerAdoptionSubmissionPage() {
       </Link>
       <header>
         <h1 className="font-display text-2xl font-semibold text-ink-900">Dar una mascota en adopción</h1>
-        <p className="mt-2 text-sm text-sand-600">
+        <p className="mt-2 text-sm text-copy-secondary">
           Revisaremos tu solicitud antes de publicarla. Tu dirección y datos de contacto no se mostrarán públicamente.
         </p>
       </header>

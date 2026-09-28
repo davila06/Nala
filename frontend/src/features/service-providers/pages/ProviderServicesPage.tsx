@@ -183,7 +183,7 @@ export default function ProviderServicesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-semibold text-ink-900">Mis servicios</h1>
-          <p className="text-sm text-sand-600">Configura lo que los clientes veran en tu perfil.</p>
+          <p className="text-sm text-copy-secondary">Configura lo que los clientes veran en tu perfil.</p>
         </div>
         {!showForm ? (
           <Button size="sm" onClick={() => setShowForm(true)}>
@@ -260,7 +260,7 @@ export default function ProviderServicesPage() {
         <form onSubmit={submitAvailability} className="space-y-3 rounded-xl border border-trust-200 bg-trust-50 p-4">
           <div>
             <h2 className="font-semibold text-ink-900">Disponibilidad semanal</h2>
-            <p className="text-sm text-sand-600">
+            <p className="text-sm text-copy-secondary">
               Los clientes solo podran solicitar horarios dentro de estas franjas.
             </p>
           </div>
@@ -367,7 +367,7 @@ export default function ProviderServicesPage() {
         <form onSubmit={submitBlock} className="space-y-3 rounded-xl border border-warn-200 bg-warn-50 p-4">
           <div>
             <h2 className="font-semibold text-ink-900">Cierres excepcionales</h2>
-            <p className="text-sm text-sand-600">Bloquea fechas u horas puntuales sin cambiar tu horario semanal.</p>
+            <p className="text-sm text-copy-secondary">Bloquea fechas u horas puntuales sin cambiar tu horario semanal.</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-4">
             <label className="text-sm font-medium text-sand-700">
@@ -589,7 +589,7 @@ export default function ProviderServicesPage() {
                     </div>
                     <p className="font-semibold text-rescue-700">CRC {service.priceCrc.toLocaleString("es-CR")}</p>
                   </div>
-                  <p className="mt-2 text-sm text-sand-600">{service.description}</p>
+                  <p className="mt-2 text-sm text-copy-secondary">{service.description}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {service.status !== "Archived" ? (
                       <Button size="sm" variant="secondary" onClick={() => startEditing(service)}>

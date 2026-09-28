@@ -91,7 +91,7 @@ export function CollarLocationHistoryPanel({
               "rounded-xl px-2.5 py-1 text-[10px] font-semibold transition-colors",
               days === opt.value
                 ? "bg-brand-600 text-white"
-                : "bg-sand-100 text-sand-600 hover:bg-sand-200",
+                : "bg-sand-100 text-copy-secondary hover:bg-sand-200",
             ].join(" ")}
           >
             {opt.label}

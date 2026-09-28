@@ -55,7 +55,7 @@ export default function CollarHandoverRedeemPage() {
         Recibir collar transferido
       </h1>
       <div className="space-y-4">
-        <p className="text-sm text-sand-600">
+        <p className="text-sm text-copy-secondary">
           Ingresa el código de transferencia y el PIN de 6 dígitos que te
           compartió el propietario anterior.
         </p>

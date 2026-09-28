@@ -15,7 +15,7 @@ export default function ServiceProviderPendingPage() {
           <h1 className="font-display text-3xl font-semibold text-ink-900">
             Solicitud enviada
           </h1>
-          <p className="mt-2 text-sm leading-relaxed text-sand-600">
+          <p className="mt-2 text-sm leading-relaxed text-copy-secondary">
             Verificaremos tu perfil antes de publicarlo. Revisa tu correo para
             confirmar la cuenta.
           </p>

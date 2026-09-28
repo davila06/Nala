@@ -81,7 +81,7 @@ function QuickLogForm({
 
       {/* Type selector */}
       <div>
-        <p className="mb-2 text-xs font-medium text-sand-600">Tipo</p>
+        <p className="mb-2 text-xs font-medium text-copy-secondary">Tipo</p>
         <div className="flex flex-wrap gap-2">
           {(Object.keys(TYPE_CONFIG) as ActivityType[]).map((t) => (
             <button
@@ -105,7 +105,7 @@ function QuickLogForm({
 
       {/* Duration */}
       <div>
-        <label className="mb-1 block text-xs font-medium text-sand-600">
+        <label className="mb-1 block text-xs font-medium text-copy-secondary">
           Duración:{" "}
           <span className="font-bold text-sand-900">{duration} min</span>
         </label>
@@ -131,7 +131,7 @@ function QuickLogForm({
         <div>
           <label
             htmlFor="act-distance"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Distancia km (opcional)
           </label>
@@ -149,7 +149,7 @@ function QuickLogForm({
         <div>
           <label
             htmlFor="act-date"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Fecha
           </label>

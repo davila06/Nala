@@ -39,7 +39,7 @@ export default function MyProviderBookingsPage() {
         <h1 className="font-display text-2xl font-semibold text-ink-900">
           Mis reservas
         </h1>
-        <p className="text-sm text-sand-600">
+        <p className="text-sm text-copy-secondary">
           Consulta y administra tus solicitudes de servicios.
         </p>
       </header>
@@ -59,7 +59,7 @@ export default function MyProviderBookingsPage() {
                   <p className="font-semibold text-ink-900">
                     {booking.serviceName}
                   </p>
-                  <p className="text-sm text-sand-600">
+                  <p className="text-sm text-copy-secondary">
                     {new Date(booking.startsAt).toLocaleString("es-CR", {
                       dateStyle: "medium",
                       timeStyle: "short",

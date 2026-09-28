@@ -73,7 +73,7 @@ export default function ServiceProviderDetailPage() {
     );
   if (isError || !provider)
     return (
-      <main className="mx-auto max-w-3xl p-8 text-center text-sand-600">
+      <main className="mx-auto max-w-3xl p-8 text-center text-copy-secondary">
         Proveedor no encontrado.{" "}
         <Link to="/servicios" className="text-brand-600 underline">
           Volver al directorio
@@ -101,7 +101,7 @@ export default function ServiceProviderDetailPage() {
         <h1 className="mt-2 font-display text-3xl font-semibold text-ink-900">
           {provider.name}
         </h1>
-        <p className="mt-4 leading-relaxed text-sand-600">
+        <p className="mt-4 leading-relaxed text-copy-secondary">
           {provider.description}
         </p>
         <p className="mt-5 text-sm text-copy-secondary">{provider.address}</p>
@@ -127,7 +127,7 @@ export default function ServiceProviderDetailPage() {
           <h2 className="font-display text-2xl font-semibold text-ink-900">
             Servicios y disponibilidad
           </h2>
-          <p className="mt-1 text-sm text-sand-600">
+          <p className="mt-1 text-sm text-copy-secondary">
             Elige un servicio y un horario disponible.
           </p>
         </div>
@@ -149,7 +149,7 @@ export default function ServiceProviderDetailPage() {
                   className={`rounded-lg border p-4 text-left ${selectedServiceId === service.id ? "border-brand-600 bg-brand-50" : "border-sand-200 hover:border-brand-300"}`}
                 >
                   <p className="font-semibold text-ink-900">{service.name}</p>
-                  <p className="mt-1 text-sm text-sand-600">
+                  <p className="mt-1 text-sm text-copy-secondary">
                     {SERVICE_MODALITY_LABELS[service.modality]} ·{" "}
                     {service.durationMinutes} min
                   </p>

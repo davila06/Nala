@@ -37,7 +37,7 @@ export default function IncomingProviderBookingsPage() {
         <h1 className="font-display text-2xl font-semibold text-ink-900">
           Reservas entrantes
         </h1>
-        <p className="text-sm text-sand-600">
+        <p className="text-sm text-copy-secondary">
           Confirma y registra el progreso de cada servicio.
         </p>
       </header>
@@ -59,7 +59,7 @@ export default function IncomingProviderBookingsPage() {
                     <p className="font-semibold text-ink-900">
                       {booking.serviceName}
                     </p>
-                    <p className="text-sm text-sand-600">
+                    <p className="text-sm text-copy-secondary">
                       {new Date(booking.startsAt).toLocaleString("es-CR", {
                         dateStyle: "medium",
                         timeStyle: "short",

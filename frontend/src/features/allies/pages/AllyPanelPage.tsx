@@ -82,7 +82,7 @@ export default function AllyPanelPage() {
           <h1 className="mt-2 text-3xl font-black tracking-tight text-sand-950">
             Red de aliados verificados
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-sand-600">
+          <p className="mt-2 max-w-2xl text-sm text-copy-secondary">
             Postula tu organización y, una vez verificada, recibe alertas
             operativas por zona para apoyar casos activos.
           </p>
@@ -147,7 +147,7 @@ export default function AllyPanelPage() {
               <h2 className="mt-2 text-xl font-bold text-sand-900">
                 {profile.organizationName}
               </h2>
-              <p className="mt-1 text-sm text-sand-600">
+              <p className="mt-1 text-sm text-copy-secondary">
                 {profile.coverageLabel} · Radio declarado de{" "}
                 {profile.coverageRadiusMetres} m
               </p>
@@ -181,7 +181,7 @@ export default function AllyPanelPage() {
               <h2 className="text-xl font-bold text-sand-900">
                 Solicitud de verificación
               </h2>
-              <p className="mt-2 text-sm text-sand-600">
+              <p className="mt-2 text-sm text-copy-secondary">
                 Declara la organización, el tipo de aliado y la cobertura
                 geográfica que tu equipo puede atender.
               </p>
@@ -328,7 +328,7 @@ export default function AllyPanelPage() {
                       <h3 className="text-base font-bold text-sand-900">
                         {alert.title}
                       </h3>
-                      <p className="mt-2 text-sm text-sand-600">{alert.body}</p>
+                      <p className="mt-2 text-sm text-copy-secondary">{alert.body}</p>
                       <p className="mt-3 text-xs font-medium uppercase tracking-[0.2em] text-copy-muted">
                         {new Date(alert.createdAt).toLocaleString("es-CR")}
                       </p>

@@ -27,6 +27,9 @@ describe("semantic text and action color tokens", () => {
     ["copy-secondary", "#27272f", 1],
     ["copy-muted", "#231e1a", 2],
     ["copy-secondary", "#231e1a", 2],
+    ["copy-brand", "#ffffff", 0],
+    ["copy-brand", "#27272f", 1],
+    ["copy-brand", "#231e1a", 2],
   ])("%s meets WCAG AA on its %s surface", (token, background, modeIndex) => {
     const values = tokenValues(token);
     expect(values.length).toBeGreaterThan(modeIndex);

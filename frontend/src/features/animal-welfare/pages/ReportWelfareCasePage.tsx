@@ -107,7 +107,7 @@ export default function ReportWelfareCasePage() {
           <h1 className="mt-2 font-display text-3xl font-semibold text-ink-900">
             Reportar maltrato o un animal en riesgo
           </h1>
-          <p className="mt-2 text-sm text-sand-600">
+          <p className="mt-2 text-sm text-copy-secondary">
             Describe hechos observables. No te expongas ni confrontes a la
             persona involucrada; si hay peligro inmediato, contacta primero a
             las autoridades locales.

@@ -202,7 +202,7 @@ export function ClinicAccessPanel({
             />
           ) : (
             <div className="space-y-3">
-              <p className="text-sm text-sand-600">
+              <p className="text-sm text-copy-secondary">
                 Genera un código para que el propietario de{" "}
                 <strong>la mascota actualmente escaneada</strong> lo ingrese en
                 su app y te dé acceso permanente al expediente.
@@ -227,7 +227,7 @@ export function ClinicAccessPanel({
 
       {tab === "accept" && (
         <div className="space-y-3">
-          <p className="text-sm text-sand-600">
+          <p className="text-sm text-copy-secondary">
             Ingresa el código que el propietario te mostró para activar acceso
             permanente al expediente de su mascota.
           </p>

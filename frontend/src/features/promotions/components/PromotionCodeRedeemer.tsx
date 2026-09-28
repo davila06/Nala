@@ -97,7 +97,7 @@ export function PromotionCodeRedeemer() {
           {/* Tier selector only needed when discount has no fixed tier */}
           {validation.type === "PercentageDiscount" && !validation.targetTier && (
             <div>
-              <label htmlFor="promotion-target-tier" className="mb-1 block text-xs font-medium text-sand-600">
+              <label htmlFor="promotion-target-tier" className="mb-1 block text-xs font-medium text-copy-secondary">
                 Seleccioná el plan al que aplicar el descuento
               </label>
               <select

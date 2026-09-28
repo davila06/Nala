@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { petsApi } from "../api/petsApi";
 import { useHaptic } from "@/shared/hooks/useHaptic";
 
@@ -117,7 +117,7 @@ export function QRFlipCard({ petId, petName, petPhotoUrl, petSpecies = "Other" }
             )}
 
             {/* Flip indicator badge */}
-            <div className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold text-sand-600 shadow backdrop-blur-sm">
+            <div className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold text-copy-secondary shadow backdrop-blur-sm">
               <svg viewBox="0 0 16 16" fill="none" className="h-3 w-3" aria-hidden="true">
                 <path
                   d="M2 8h12M10 5l3 3-3 3"

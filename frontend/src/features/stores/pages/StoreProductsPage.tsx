@@ -66,7 +66,7 @@ function ProductForm({
         <div className="col-span-2">
           <label
             htmlFor="store-product-name"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Nombre *
           </label>
@@ -80,7 +80,7 @@ function ProductForm({
         <div>
           <label
             htmlFor="store-product-category"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Categoría *
           </label>
@@ -100,7 +100,7 @@ function ProductForm({
         <div>
           <label
             htmlFor="store-product-price"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Precio ₡ *
           </label>
@@ -116,7 +116,7 @@ function ProductForm({
         <div className="col-span-2">
           <label
             htmlFor="store-product-description"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Descripción
           </label>
@@ -331,7 +331,7 @@ export default function StoreProductsPage() {
                         {product.name}
                       </p>
                       {!product.isAvailable && (
-                        <span className="rounded-full bg-sand-200 px-2 py-0.5 text-[10px] font-semibold text-sand-600">
+                        <span className="rounded-full bg-sand-200 px-2 py-0.5 text-[10px] font-semibold text-copy-secondary">
                           No disponible
                         </span>
                       )}

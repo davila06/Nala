@@ -283,12 +283,12 @@ export default function StaffClinicCrmWorkspacePage() {
             </select>
           </label>
         </div>
-        {selectedWorkspace && <p className="mt-2 text-sm text-sand-600">{staffRoleLabel(selectedWorkspace.roles)}</p>}
+        {selectedWorkspace && <p className="mt-2 text-sm text-copy-secondary">{staffRoleLabel(selectedWorkspace.roles)}</p>}
       </header>
 
       {(isLoadingWorkspaces || !isSiteReady) && <div className="h-24 animate-pulse rounded-xl bg-sand-100" />}
       {!isLoadingWorkspaces && isSiteReady && !selectedWorkspace && (
-        <p className="border-l-2 border-sand-300 py-2 pl-3 text-sm text-sand-600">
+        <p className="border-l-2 border-sand-300 py-2 pl-3 text-sm text-copy-secondary">
           No tienes una membresía activa de equipo clínico.
         </p>
       )}
@@ -345,7 +345,7 @@ export default function StaffClinicCrmWorkspacePage() {
             {isLoadingAgenda || (hasFinanceWorkspace && isLoadingSales) ? (
               <div className="h-16 animate-pulse rounded-lg bg-sand-100" />
             ) : agenda.length === 0 ? (
-              <p className="border-l-2 border-sand-300 py-2 pl-3 text-sm text-sand-600">No hay citas en esta fecha.</p>
+              <p className="border-l-2 border-sand-300 py-2 pl-3 text-sm text-copy-secondary">No hay citas en esta fecha.</p>
             ) : (
               <ul className="divide-y divide-sand-200">
                 {agenda.map((appointment) => {
@@ -357,12 +357,12 @@ export default function StaffClinicCrmWorkspacePage() {
                     >
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-sand-900">{appointment.petName}</p>
-                        <p className="mt-1 text-xs text-sand-600">
+                        <p className="mt-1 text-xs text-copy-secondary">
                           {formatCostaRicaTime(appointment.startsAt)} · {appointment.veterinarianName}
                         </p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-xs font-semibold text-sand-600">
+                        <span className="text-xs font-semibold text-copy-secondary">
                           {APPOINTMENT_STATUS_LABELS[appointment.status]}
                         </span>
                         {nextStatus && (
@@ -478,7 +478,7 @@ export default function StaffClinicCrmWorkspacePage() {
             {isLoadingDashboard ? (
               <div className="h-24 animate-pulse rounded-xl bg-sand-100" />
             ) : (dashboard?.openTasks.length ?? 0) === 0 ? (
-              <p className="border-l-2 border-sand-300 py-2 pl-3 text-sm text-sand-600">No hay tareas abiertas.</p>
+              <p className="border-l-2 border-sand-300 py-2 pl-3 text-sm text-copy-secondary">No hay tareas abiertas.</p>
             ) : (
               <ul className="divide-y divide-sand-200">
                 {dashboard?.openTasks.map((task) => (
@@ -493,16 +493,16 @@ export default function StaffClinicCrmWorkspacePage() {
                           {INTERNAL_ROLE_LABELS[task.assignedRole]}
                         </span>
                       </div>
-                      <p className="mt-1 text-xs text-sand-600">{TASK_TYPE_LABELS[task.type]}</p>
+                      <p className="mt-1 text-xs text-copy-secondary">{TASK_TYPE_LABELS[task.type]}</p>
                       {task.petName && (
-                        <p className="mt-1 text-xs text-sand-600">
+                        <p className="mt-1 text-xs text-copy-secondary">
                           {task.petName}
                           {task.ownerName ? ` · ${task.ownerName}` : ""}
                         </p>
                       )}
                       <p className="mt-1 text-xs text-copy-secondary">Responsable: {task.assignedToName ?? "cola del rol"}</p>
                       <p className="mt-1 text-xs text-copy-secondary">Vence {formatCostaRicaDate(task.dueDate)}</p>
-                      {task.notes && <p className="mt-1 text-xs text-sand-600">{task.notes}</p>}
+                      {task.notes && <p className="mt-1 text-xs text-copy-secondary">{task.notes}</p>}
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
                       <Button

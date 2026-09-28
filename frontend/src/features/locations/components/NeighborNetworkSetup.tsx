@@ -98,7 +98,7 @@ export function NeighborNetworkSetup({
         <div>
           <label
             htmlFor="neighbor-phone"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Tu número de teléfono CR
           </label>
@@ -130,7 +130,7 @@ export function NeighborNetworkSetup({
 
         {/* Radius selector */}
         <div>
-          <p className="mb-2 text-xs font-medium text-sand-600">
+          <p className="mb-2 text-xs font-medium text-copy-secondary">
             Radio de alerta
           </p>
           <div className="grid grid-cols-1 gap-2">

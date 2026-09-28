@@ -135,7 +135,7 @@ export default function ClinicRegisterPage() {
               </Link>
               <Link
                 to={isAuthenticated ? "/dashboard" : "/login"}
-                className="text-sand-600 transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="text-copy-secondary transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               >
                 Ir al inicio
               </Link>

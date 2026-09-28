@@ -20,7 +20,7 @@ const variants: Record<BadgeVariant, string> = {
   danger:   'bg-danger-100 text-danger-700',
   warn:     'bg-warn-100 text-warn-700',
   trust:    'bg-trust-100 text-trust-700',
-  neutral:  'bg-sand-100 text-sand-600',
+  neutral:  'bg-sand-100 text-copy-secondary',
 }
 
 const sizes: Record<BadgeSize, string> = {

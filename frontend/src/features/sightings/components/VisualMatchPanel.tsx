@@ -226,7 +226,7 @@ export function VisualMatchPanel() {
               <span className="text-4xl" aria-hidden="true">
                 📷
               </span>
-              <p className="mt-2 text-sm font-medium text-sand-600">
+              <p className="mt-2 text-sm font-medium text-copy-secondary">
                 Arrastra o haz clic para seleccionar
               </p>
               <p className="text-xs text-copy-muted">

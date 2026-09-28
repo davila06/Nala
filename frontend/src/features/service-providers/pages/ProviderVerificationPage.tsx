@@ -69,7 +69,7 @@ export default function ProviderVerificationPage() {
         <h1 className="font-display text-2xl font-semibold text-ink-900">
           Verificacion del proveedor
         </h1>
-        <p className="mt-1 text-sm text-sand-600">
+        <p className="mt-1 text-sm text-copy-secondary">
           Tu documento se guarda de forma privada y solo lo revisa el equipo
           autorizado.
         </p>
@@ -81,7 +81,7 @@ export default function ProviderVerificationPage() {
               Estado: {statusText}
             </p>
             {verification?.expiresAt ? (
-              <p className="mt-1 text-sm text-sand-600">
+              <p className="mt-1 text-sm text-copy-secondary">
                 Vence el{" "}
                 {new Date(verification.expiresAt).toLocaleDateString("es-CR")}
               </p>

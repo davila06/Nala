@@ -134,7 +134,7 @@ export function BroadcastPanel({
             <p className="text-xs text-copy-secondary">Enviados</p>
           </div>
           <div className="flex-1 rounded-xl bg-white/70 py-2">
-            <p className="text-lg font-bold text-sand-600">
+            <p className="text-lg font-bold text-copy-secondary">
               {status.skippedCount}
             </p>
             <p className="text-xs text-copy-secondary">Omitidos</p>

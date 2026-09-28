@@ -19,7 +19,7 @@ export default function ServiceProviderDashboardPage() {
     );
   if (!provider)
     return (
-      <main className="mx-auto max-w-lg p-8 text-center text-sand-600">
+      <main className="mx-auto max-w-lg p-8 text-center text-copy-secondary">
         No tienes un servicio registrado.
       </main>
     );
@@ -88,7 +88,7 @@ export default function ServiceProviderDashboardPage() {
                 ? "Perfil suspendido"
                 : "Perfil en revision"}
         </p>
-        <p className="mt-1 text-sm text-sand-600">
+        <p className="mt-1 text-sm text-copy-secondary">
           {isActive
             ? "Tu perfil aparece en el directorio. Mantiene tu oferta actualizada para recibir futuras reservas."
             : "Tu perfil no aparece en el directorio hasta completar la revision administrativa."}
@@ -112,7 +112,7 @@ export default function ServiceProviderDashboardPage() {
             <p className="text-3xl font-semibold text-brand-700">
               {services.length}
             </p>
-            <p className="mt-1 text-sm text-sand-600">Servicios publicados</p>
+            <p className="mt-1 text-sm text-copy-secondary">Servicios publicados</p>
           </Link>
         )}
         <Link
@@ -120,7 +120,7 @@ export default function ServiceProviderDashboardPage() {
           className="rounded-xl border border-sand-100 bg-surface p-5 transition hover:border-brand-200 hover:bg-brand-50"
         >
           <p className="text-sm font-semibold text-ink-900">Perfil comercial</p>
-          <p className="mt-1 text-sm text-sand-600">
+          <p className="mt-1 text-sm text-copy-secondary">
             Actualiza descripcion, categoria y ubicacion.
           </p>
         </Link>
@@ -141,7 +141,7 @@ export default function ServiceProviderDashboardPage() {
             <p className="text-sm font-semibold text-ink-900">
               Reservas entrantes
             </p>
-            <p className="mt-1 text-sm text-sand-600">
+            <p className="mt-1 text-sm text-copy-secondary">
               Confirma, inicia y completa los servicios solicitados.
             </p>
           </Link>
@@ -151,7 +151,7 @@ export default function ServiceProviderDashboardPage() {
           className="rounded-xl border border-sand-100 bg-surface p-5 transition hover:border-brand-200 hover:bg-brand-50"
         >
           <p className="text-sm font-semibold text-ink-900">Verificacion</p>
-          <p className="mt-1 text-sm text-sand-600">
+          <p className="mt-1 text-sm text-copy-secondary">
             Carga y consulta tu evidencia privada.
           </p>
         </Link>

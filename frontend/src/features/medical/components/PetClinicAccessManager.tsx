@@ -155,7 +155,7 @@ function GrantRow({
             <button
               type="button"
               onClick={() => setConfirmRevoke(false)}
-              className="rounded-lg border border-sand-300 px-2 py-1 text-xs font-semibold text-sand-600"
+              className="rounded-lg border border-sand-300 px-2 py-1 text-xs font-semibold text-copy-secondary"
             >
               No
             </button>
@@ -204,7 +204,7 @@ function ClinicSearchPicker({
             setInput("");
             setDebounced("");
           }}
-          className="shrink-0 rounded-lg border border-sand-300 px-2 py-1 text-xs font-semibold text-sand-600 hover:bg-sand-100"
+          className="shrink-0 rounded-lg border border-sand-300 px-2 py-1 text-xs font-semibold text-copy-secondary hover:bg-sand-100"
         >
           Cambiar
         </button>
@@ -406,7 +406,7 @@ export function PetClinicAccessManager({ petId }: { petId: string }) {
       {/* Pending grants (code generated but not yet accepted) */}
       {pendingGrants.length > 0 && (
         <details>
-          <summary className="cursor-pointer text-xs font-semibold text-copy-muted hover:text-sand-600">
+          <summary className="cursor-pointer text-xs font-semibold text-copy-muted hover:text-copy-secondary">
             {pendingGrants.length} código{pendingGrants.length !== 1 ? "s" : ""}{" "}
             pendiente
             {pendingGrants.length !== 1 ? "s" : ""}

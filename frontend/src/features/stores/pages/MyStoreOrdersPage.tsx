@@ -160,7 +160,7 @@ export default function MyStoreOrdersPage() {
         {!isLoading && orders.length === 0 && (
           <div className="text-center py-16 text-copy-muted space-y-2">
             <p className="text-4xl">🛒</p>
-            <p className="font-semibold text-sand-600">
+            <p className="font-semibold text-copy-secondary">
               Aún no has hecho pedidos
             </p>
             <p className="text-sm">
@@ -171,7 +171,7 @@ export default function MyStoreOrdersPage() {
 
         {active.length > 0 && (
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold text-sand-600 uppercase tracking-wide">
+            <h2 className="text-sm font-semibold text-copy-secondary uppercase tracking-wide">
               En curso
             </h2>
             <ul className="space-y-3">
@@ -184,7 +184,7 @@ export default function MyStoreOrdersPage() {
 
         {past.length > 0 && (
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold text-sand-600 uppercase tracking-wide">
+            <h2 className="text-sm font-semibold text-copy-secondary uppercase tracking-wide">
               Historial
             </h2>
             <ul className="space-y-3">

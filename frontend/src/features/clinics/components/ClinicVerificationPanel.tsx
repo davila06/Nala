@@ -90,7 +90,7 @@ export function ClinicVerificationPanel() {
       {loadingVerification ? (
         <p className="text-xs text-copy-secondary">Cargando verificación…</p>
       ) : (
-        <div className="rounded-xl border border-sand-100 bg-surface-warm px-3 py-3 text-xs text-sand-600">
+        <div className="rounded-xl border border-sand-100 bg-surface-warm px-3 py-3 text-xs text-copy-secondary">
           <p>
             Documento: <strong>{verification?.hasDocument ? "Cargado" : "Pendiente"}</strong>
           </p>

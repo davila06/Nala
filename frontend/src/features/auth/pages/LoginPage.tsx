@@ -282,7 +282,7 @@ function VerifyEmailModal({ email, onClose }: VerifyEmailModalProps) {
             </Button>
             <Link
               to="/register"
-              className="block w-full rounded-xl py-2 text-center text-sm text-copy-muted hover:text-sand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="block w-full rounded-xl py-2 text-center text-sm text-copy-muted hover:text-copy-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               onClick={onClose}
             >
               Crear una cuenta nueva en su lugar
@@ -599,7 +599,7 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => setShowForgot(true)}
-                        className="rounded text-xs text-brand-600 hover:text-brand-700 hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                        className="rounded text-xs text-copy-brand hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
                       >
                         ¿Olvidaste tu contraseña?
                       </button>
@@ -635,7 +635,7 @@ export default function LoginPage() {
                     ¿No tienes cuenta?{" "}
                     <Link
                       to="/register"
-                      className="rounded font-semibold text-brand-600 hover:text-brand-700 hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                      className="rounded font-semibold text-copy-brand hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
                     >
                       Regístrate gratis
                     </Link>
@@ -653,7 +653,7 @@ export default function LoginPage() {
                   <p className="mt-2 text-center">
                     <Link
                       to="/map"
-                      className="text-xs text-copy-muted hover:text-sand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
+                      className="text-xs text-copy-muted hover:text-copy-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
                     >
                       Explorar el mapa público sin cuenta
                     </Link>
@@ -661,7 +661,7 @@ export default function LoginPage() {
                   <p className="mt-2 text-center">
                     <Link
                       to="/adopciones"
-                      className="text-xs text-copy-muted hover:text-sand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
+                      className="text-xs text-copy-muted hover:text-copy-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
                     >
                       Explorar adopciones sin cuenta
                     </Link>

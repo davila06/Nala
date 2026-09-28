@@ -347,7 +347,7 @@ export default function ReportLostPage() {
                             <button
                               type="button"
                               onClick={() => setCoords(null)}
-                              className="text-xs text-copy-muted underline hover:text-sand-600"
+                              className="text-xs text-copy-muted underline hover:text-copy-secondary"
                             >
                               Quitar pin
                             </button>
@@ -588,7 +588,7 @@ export default function ReportLostPage() {
                         </p>
                         <div className="space-y-3">
                           <div>
-                            <label htmlFor="contactName" className="mb-1 block text-xs font-medium text-sand-600">
+                            <label htmlFor="contactName" className="mb-1 block text-xs font-medium text-copy-secondary">
                               Nombre de contacto
                             </label>
                             <input
@@ -602,7 +602,7 @@ export default function ReportLostPage() {
                             />
                           </div>
                           <div>
-                            <label htmlFor="contactPhone" className="mb-1 block text-xs font-medium text-sand-600">
+                            <label htmlFor="contactPhone" className="mb-1 block text-xs font-medium text-copy-secondary">
                               Número de teléfono
                             </label>
                             <input

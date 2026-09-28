@@ -132,7 +132,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
 
                   {/* Fulfillment type */}
                   <div>
-                    <p className="mb-2 text-xs font-medium text-sand-600">
+                    <p className="mb-2 text-xs font-medium text-copy-secondary">
                       Tipo de entrega
                     </p>
                     <div className="grid grid-cols-2 gap-2">
@@ -155,7 +155,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                     <div>
                       <label
                         htmlFor="checkout-delivery-address"
-                        className="mb-1 block text-xs font-medium text-sand-600"
+                        className="mb-1 block text-xs font-medium text-copy-secondary"
                       >
                         Dirección de entrega *
                       </label>
@@ -171,7 +171,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                   <div>
                     <label
                       htmlFor="checkout-store-note"
-                      className="mb-1 block text-xs font-medium text-sand-600"
+                      className="mb-1 block text-xs font-medium text-copy-secondary"
                     >
                       Nota para la tienda (opcional)
                     </label>

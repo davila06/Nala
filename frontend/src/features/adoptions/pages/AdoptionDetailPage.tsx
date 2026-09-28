@@ -235,7 +235,7 @@ function Chip({ children, color }: { children: React.ReactNode; color: string })
   };
   return (
     <span
-      className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full ${colorMap[color] ?? "bg-sand-100 text-sand-600"}`}
+      className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full ${colorMap[color] ?? "bg-sand-100 text-copy-secondary"}`}
     >
       {children}
     </span>

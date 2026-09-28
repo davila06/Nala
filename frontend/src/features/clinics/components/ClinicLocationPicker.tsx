@@ -48,7 +48,7 @@ export function ClinicLocationPicker({ lat, lng, onChange }: ClinicLocationPicke
       <p className="text-xs font-semibold uppercase tracking-widest text-copy-muted">
         Ubicacion de la clinica
       </p>
-      <p className="text-sm text-sand-600">Selecciona la ubicacion en el mapa (clic o arrastra el pin).</p>
+      <p className="text-sm text-copy-secondary">Selecciona la ubicacion en el mapa (clic o arrastra el pin).</p>
 
       <div className="overflow-hidden rounded-2xl border border-sand-200 shadow-sm" data-testid="clinic-location-map">
         <MapContainer

@@ -274,7 +274,7 @@ export function CertificateIssueModal({ clinicId, onClose }: CertificateIssueMod
                   {...field("parasiteNextDue")}
                 />
               </div>
-              <p className="rounded-2xl border border-sand-100 bg-sand-50 px-4 py-3 text-xs text-sand-600">
+              <p className="rounded-2xl border border-sand-100 bg-sand-50 px-4 py-3 text-xs text-copy-secondary">
                 Documento preparado para trazabilidad sanitaria. No sustituye trámites o certificaciones oficiales de la
                 autoridad competente.
               </p>

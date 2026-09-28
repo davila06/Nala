@@ -144,7 +144,7 @@ export default function AdoptionDirectoryPage() {
               className={`border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${
                 view === "list"
                   ? "border-brand-500 text-brand-700"
-                  : "border-transparent text-sand-600 hover:text-sand-900"
+                  : "border-transparent text-copy-secondary hover:text-sand-900"
               }`}
             >
               Lista
@@ -157,7 +157,7 @@ export default function AdoptionDirectoryPage() {
               className={`border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${
                 view === "map"
                   ? "border-brand-500 text-brand-700"
-                  : "border-transparent text-sand-600 hover:text-sand-900"
+                  : "border-transparent text-copy-secondary hover:text-sand-900"
               }`}
             >
               Mapa
@@ -180,7 +180,7 @@ export default function AdoptionDirectoryPage() {
           <>
             <AdoptionFiltersBar filters={filters} onChange={updateFilters} />
             {isError ? (
-              <div className="py-16 text-center text-sand-600">
+              <div className="py-16 text-center text-copy-secondary">
                 <p className="text-base font-semibold text-ink-900">No pudimos cargar las adopciones</p>
                 <button
                   type="button"

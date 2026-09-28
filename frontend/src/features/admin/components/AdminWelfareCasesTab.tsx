@@ -48,7 +48,7 @@ function WelfareCaseCard({ welfareCase }: { welfareCase: AnimalWelfareCaseSummar
             >
               {SEVERITY_LABELS[welfareCase.severity]}
             </span>
-            <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] font-semibold text-sand-600">
+            <span className="rounded-full bg-sand-100 px-2 py-0.5 text-[10px] font-semibold text-copy-secondary">
               {welfareCase.status}
             </span>
           </div>

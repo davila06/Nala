@@ -61,7 +61,7 @@ function SpecRow({
         <div>
           <label
             htmlFor="promotion-type"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Tipo de beneficio
           </label>
@@ -99,7 +99,7 @@ function SpecRow({
           <div>
             <label
               htmlFor="promotion-discount"
-              className="mb-1 block text-xs font-medium text-sand-600"
+              className="mb-1 block text-xs font-medium text-copy-secondary"
             >
               Porcentaje de descuento
             </label>
@@ -121,7 +121,7 @@ function SpecRow({
           <div>
             <label
               htmlFor="promotion-free-tier"
-              className="mb-1 block text-xs font-medium text-sand-600"
+              className="mb-1 block text-xs font-medium text-copy-secondary"
             >
               Plan gratuito
             </label>
@@ -142,7 +142,7 @@ function SpecRow({
             <div>
               <label
                 htmlFor="promotion-duration"
-                className="mb-1 block text-xs font-medium text-sand-600"
+                className="mb-1 block text-xs font-medium text-copy-secondary"
               >
                 Duración
               </label>
@@ -160,7 +160,7 @@ function SpecRow({
             <div>
               <label
                 htmlFor="promotion-duration-tier"
-                className="mb-1 block text-xs font-medium text-sand-600"
+                className="mb-1 block text-xs font-medium text-copy-secondary"
               >
                 Plan
               </label>
@@ -183,7 +183,7 @@ function SpecRow({
         <div>
           <label
             htmlFor="promotion-max-redemptions"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Usos máx. (-1 = ∞)
           </label>
@@ -200,7 +200,7 @@ function SpecRow({
         <div>
           <label
             htmlFor="promotion-quantity"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Cantidad de códigos
           </label>
@@ -218,7 +218,7 @@ function SpecRow({
         <div>
           <label
             htmlFor="promotion-expiry"
-            className="mb-1 block text-xs font-medium text-sand-600"
+            className="mb-1 block text-xs font-medium text-copy-secondary"
           >
             Vence (opcional)
           </label>
@@ -241,7 +241,7 @@ function SpecRow({
       <div>
         <label
           htmlFor="promotion-admin-note"
-          className="mb-1 block text-xs font-medium text-sand-600"
+          className="mb-1 block text-xs font-medium text-copy-secondary"
         >
           Nota interna
         </label>
@@ -254,7 +254,7 @@ function SpecRow({
       </div>
 
       {/* Code preview */}
-      <div className="rounded-lg bg-sand-100 px-3 py-2 text-xs font-mono text-sand-600">
+      <div className="rounded-lg bg-sand-100 px-3 py-2 text-xs font-mono text-copy-secondary">
         Formato: {buildCodePreview(spec)}
         {spec.quantity > 1 && ` × ${spec.quantity} códigos únicos`}
       </div>
@@ -285,8 +285,8 @@ function CodeRow({ code }: { code: PromotionCodeDto }) {
       <td className="py-2 px-3 font-mono text-sm font-semibold text-sand-800">
         {code.code}
       </td>
-      <td className="py-2 px-3 text-xs text-sand-600">{typeLabel(code)}</td>
-      <td className="py-2 px-3 text-xs text-sand-600">
+      <td className="py-2 px-3 text-xs text-copy-secondary">{typeLabel(code)}</td>
+      <td className="py-2 px-3 text-xs text-copy-secondary">
         {code.redeemedCount}/
         {code.maxRedemptions === -1 ? "∞" : code.maxRedemptions}
         {pct !== null && (

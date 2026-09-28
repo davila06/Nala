@@ -148,7 +148,7 @@ export const BreedCombobox = ({ species, defaultValue = '', disabled, id }: Bree
             type="button"
             aria-label="Limpiar raza"
             onClick={() => { setQuery(''); setIsOpen(true) }}
-            className="absolute inset-y-0 right-2.5 flex items-center rounded-full px-1 text-copy-muted hover:text-sand-600 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            className="absolute inset-y-0 right-2.5 flex items-center rounded-full px-1 text-copy-muted hover:text-copy-secondary transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
           >
             <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />

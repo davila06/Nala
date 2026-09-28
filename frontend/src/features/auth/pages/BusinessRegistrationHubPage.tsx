@@ -89,7 +89,7 @@ export default function BusinessRegistrationHubPage() {
           </Link>
           <Link
             to={isAuthenticated ? "/dashboard" : "/login"}
-            className="text-sand-600 transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            className="text-copy-secondary transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
           >
             Ir al inicio
           </Link>
@@ -101,7 +101,7 @@ export default function BusinessRegistrationHubPage() {
           <h1 className="mt-2 font-display text-3xl font-semibold text-ink-900 sm:text-4xl">
             ¿Tienes un negocio para mascotas?
           </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-sand-600">
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-copy-secondary">
             Elige el perfil que mejor describe tu negocio u organización. Todos
             los registros son gratis para empezar; algunas funciones avanzadas
             requieren un plan pago.
@@ -127,7 +127,7 @@ export default function BusinessRegistrationHubPage() {
                 <h2 className="mt-3 font-display text-lg font-semibold text-ink-900">
                   {option.title}
                 </h2>
-                <p className="mt-1.5 text-sm text-sand-600">
+                <p className="mt-1.5 text-sm text-copy-secondary">
                   {option.description}
                 </p>
                 <ul className="mt-3 space-y-1 text-xs text-copy-secondary">

@@ -54,7 +54,7 @@ export default function StoreAnalyticsPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={prevMonth}
-            className="rounded-lg border border-sand-200 px-2 py-1 text-sm text-sand-600 hover:bg-sand-50"
+            className="rounded-lg border border-sand-200 px-2 py-1 text-sm text-copy-secondary hover:bg-sand-50"
           >
             ←
           </button>
@@ -63,7 +63,7 @@ export default function StoreAnalyticsPage() {
           </span>
           <button
             onClick={nextMonth}
-            className="rounded-lg border border-sand-200 px-2 py-1 text-sm text-sand-600 hover:bg-sand-50"
+            className="rounded-lg border border-sand-200 px-2 py-1 text-sm text-copy-secondary hover:bg-sand-50"
           >
             →
           </button>

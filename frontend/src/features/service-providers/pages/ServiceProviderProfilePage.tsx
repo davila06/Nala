@@ -79,7 +79,7 @@ export default function ServiceProviderProfilePage() {
     );
   if (!provider)
     return (
-      <main className="mx-auto max-w-2xl p-8 text-center text-sand-600">
+      <main className="mx-auto max-w-2xl p-8 text-center text-copy-secondary">
         No tienes un perfil registrado.
       </main>
     );
@@ -92,7 +92,7 @@ export default function ServiceProviderProfilePage() {
         <h1 className="font-display text-2xl font-semibold text-ink-900">
           Perfil comercial
         </h1>
-        <p className="text-sm text-sand-600">
+        <p className="text-sm text-copy-secondary">
           La ubicacion y datos de contacto se muestran segun el estado de tu
           perfil.
         </p>

@@ -69,7 +69,7 @@ export default function ActivateCollarTagPage() {
       {/* Step 1 — Serial via QR scan or manual input */}
       {step === "serial" && (
         <div className="space-y-4">
-          <p className="text-sm text-sand-600">
+          <p className="text-sm text-copy-secondary">
             Escanea el QR del collar o ingresa el serial manualmente (ej.
             PT-A3F9-0001234).
           </p>

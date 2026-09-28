@@ -75,7 +75,7 @@ export default function AcceptFamilyInvitationPage() {
             <p className="text-base font-semibold text-danger-700">
               No pudimos procesar la invitación
             </p>
-            <p className="text-sm text-sand-600">{errorMsg}</p>
+            <p className="text-sm text-copy-secondary">{errorMsg}</p>
             <Link
               to="/perfil"
               className="inline-block rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"

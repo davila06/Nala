@@ -106,7 +106,7 @@ export function ConsolidatedMedicalTimeline({ petId }: Props) {
         </p>
       )}
       {asyncExport.data && (
-        <p role="status" className="mt-2 text-xs text-sand-600">
+        <p role="status" className="mt-2 text-xs text-copy-secondary">
           {asyncExport.data.status === "Queued"
             ? "Reporte en cola"
             : asyncExport.data.status === "Processing"

@@ -101,7 +101,7 @@ function SightingAutoMatchPanel({
           onClick={() =>
             setVisibleCount((prev) => Math.min(prev + 10, matches.length))
           }
-          className="mt-3 w-full rounded-xl border border-sand-200 field-input py-2 text-sm font-medium text-sand-600 hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          className="mt-3 w-full rounded-xl border border-sand-200 field-input py-2 text-sm font-medium text-copy-secondary hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
         >
           Mostrar más ({matches.length - visibleCount} restantes)
         </button>
@@ -297,7 +297,7 @@ export default function ReportSightingPage() {
                   setPhoto(null);
                   setPhotoPreview(null);
                 }}
-                className="absolute right-2 top-2 rounded-full bg-white/80 px-2 py-0.5 text-xs font-bold text-sand-600 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="absolute right-2 top-2 rounded-full bg-white/80 px-2 py-0.5 text-xs font-bold text-copy-secondary hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               >
                 <span aria-hidden="true">✕</span>
               </button>

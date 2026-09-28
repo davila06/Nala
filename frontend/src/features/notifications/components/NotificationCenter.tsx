@@ -166,7 +166,7 @@ export function NotificationCenter() {
               "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
               activeTab === tab.key
                 ? "bg-brand-500 text-white shadow-sm"
-                : "bg-sand-100 text-sand-600 hover:bg-sand-200",
+                : "bg-sand-100 text-copy-secondary hover:bg-sand-200",
             ].join(" ")}
           >
             {tab.label}
@@ -235,7 +235,7 @@ export function NotificationCenter() {
             >
               ¿Encontraste a tu mascota?
             </h2>
-            <p className="mt-2 text-sm text-sand-600">
+            <p className="mt-2 text-sm text-copy-secondary">
               Detectamos actividad reciente compatible con recuperación.
             </p>
             <div className="mt-4 flex flex-col gap-2">

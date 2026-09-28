@@ -100,7 +100,7 @@ export function ReminderDashboard({ daysAhead = 30 }: Props) {
     return (
       <div className="rounded-2xl border border-sand-100 bg-sand-50 p-8 text-center">
         <p className="text-2xl mb-2">🎉</p>
-        <p className="text-sm font-medium text-sand-600">
+        <p className="text-sm font-medium text-copy-secondary">
           Sin recordatorios pendientes
         </p>
         <p className="text-xs text-copy-muted mt-1">
