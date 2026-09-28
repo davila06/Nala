@@ -130,6 +130,97 @@ externos, Azure Communication Services, Dynamics 365 ni Power Platform.
 proveedores, hardware o despliegues en operación verificada; esos límites están
 descritos por separado en la matriz.
 
+## Ampliación: estrategia de planes, precios y unit economics (2026-09-28)
+
+Esta sección cubre la solicitud de inventariar qué puede vender NALA y qué
+debería vender. No reabre ni reemplaza las secciones previas. Los nuevos
+documentos solicitados no existían al iniciar esta ampliación. El último commit
+contiene informes estratégicos de nombre parecido, pero éstos no sustituyen los
+entregables específicos enumerados abajo.
+
+### Inventario y cobertura
+
+| Proyecto/superficie             | Cobertura comprobada                                                                                                                                                             | Límite                                                                                                                                                   |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Solución .NET                   | 6 proyectos en `PawTrack.sln`: API, Application, Domain, Infrastructure, UnitTests, IntegrationTests                                                                             | `backend/HashGen` existe fuera de la solución y no se considera una función de producto                                                                  |
+| API/backend                     | 68 archivos controller, 23 hosted services, módulos de Application y Domain; suscripciones, pagos, IA visual, adopciones, salud, GPS, clínicas, proveedores, tiendas y municipal | Inventario funcional amplio por módulos; no se verificará cada handler, permiso y ruta con prueba individual                                             |
+| Persistencia                    | DbContext, repositorios, migraciones y seeds inspeccionados en rutas relevantes                                                                                                  | La base local/producción y el catálogo activo de entitlements no se consultaron; una migración/seed no prueba contenido desplegado                       |
+| Frontend                        | React 19/TypeScript PWA; rutas/features de mascotas, familia, salud, clínicas, tiendas, refugios, municipal, pagos y administración inspeccionadas por búsqueda                  | La UI no acredita enforcement backend ni uso real; `EntitlementMeter` existe, pero no se encontró call site en búsqueda actual                           |
+| Infraestructura e integraciones | `infra/main.bicep`, Docker Compose y workbook de observabilidad; despliegue de SQL, Storage, Key Vault, Container Apps, Front Door y App Insights declarado                      | No se inspeccionaron recursos desplegados ni facturas; no hay proyecto `host.json`/Azure Functions encontrado                                            |
+| Pruebas                         | 406 archivos de pruebas C# contabilizados; solución cubre UnitTests e IntegrationTests                                                                                           | Los conteos de pruebas de documentos anteriores son históricos hasta ejecutar tareas actuales                                                            |
+| Documentación                   | 204 archivos Markdown en `docs/`; leídos documentos de estado real, capacidades, precios, límites, plan, auditoría y competencia relevantes                                      | Para el inventario documental, el estado se asignará por afirmación/evidencia; no se afirmará revisión semántica línea por línea de los 204 si no ocurre |
+
+### Contradicciones y fuentes de corte
+
+- Los tiers codificados en `SubscriptionTier.cs` son `Free`, `UserPlus`,
+  `UserFamilia`, `ClinicBasic/Plus/Partner`, `StoreBasic/Plus/Partner`,
+  `ShelterBasic/Plus`, `MuniBasica`, `MuniFull` y `MuniRedRegional`; no existe
+  una familia actual `Essential/Premium/Family/Veterinary/Enterprise` completa.
+- `SubscriptionPricing.cs` contiene precios CRC de referencia, plazos 1/3/6/12
+  meses y descuento anual del 20%; `PRICING_AND_PLANS.md` declara que venta y
+  aprobación comercial/legal siguen condicionadas. El código no acredita precio
+  cobrado, conversión ni disposición a pagar.
+- `EntitlementService.cs` combina entitlements libres, definiciones persistidas
+  y fallbacks legacy. Migración `20260921203255_AddEntitlementCatalogAndConsumption`
+  y fallbacks coinciden en `UserFamilia.MaxPets=25`; el término “ilimitado” de
+  algunos documentos es incorrecto como límite técnico.
+- El catálogo/fallback no prueba cobertura de cada gate por plan, ni se observó
+  un CRUD completo de definiciones. Cada fila distinguirá plan actual de
+  recomendación y señalará `NO_VERIFICADO` donde no haya enforcement trazable.
+- Los datos comerciales de conversión, churn, CAC, costo de soporte, GMV,
+  consumo Azure y volumen de media/SMS/email no están disponibles en el código o
+  documentos de corte. Las proyecciones serán escenarios con supuestos visibles,
+  no resultados ni pronósticos observados.
+- Azure Retail Pricing devolvió respuesta correcta sin filas para el SKU
+  `GP_S_Gen5_1` en `eastus`; no hay región de despliegue confirmada. Costos Azure
+  se documentarán como fórmula/escenario a validar, no como factura cotizada.
+- La lectura pública a 2026-09-28 recuperó datos de páginas oficiales de
+  Tractive, Pawfit, PetHub, Vetster, PetDesk, Digitail, Rover, Wag, Pumpkin y
+  Figo. Fi/Whistle redirigen, mientras que Dutch, Airvet, PetPage, Banfield y
+  Chewy no dieron contenido útil en esta captura; sus capacidades no se
+  inferirán.
+
+### Documentos a crear
+
+1. `docs/NALA_FEATURE_INVENTORY.md`
+2. `docs/NALA_PLAN_MAPPING.md`
+3. `docs/NALA_PLAN_VALUE_ANALYSIS.md`
+4. `docs/NALA_COMPETITIVE_PLAN_ANALYSIS.md`
+5. `docs/NALA_CR_PRICING.md`
+6. `docs/NALA_LATAM_PRICING.md`
+7. `docs/NALA_ROADMAP_MONETIZATION.md`
+8. `docs/NALA_UNIT_ECONOMICS.md`
+9. `docs/NALA_DOCUMENTATION_AUDIT.md`
+10. `docs/NALA_PRICING_EXECUTIVE_SUMMARY.md`
+11. `docs/NALA_FEATURE_PLAN_UPSELL_MATRIX.md`
+
+### Orden, riesgos y validación
+
+1. Cerrar el inventario técnico y la matriz de tiers actuales, citando rutas de
+   código, migraciones, UI, tests y configuración. No usar la propuesta de
+   `FEATURES.md` como implementación.
+2. Puntuar el valor como juicio heurístico, comparar competidores solo con
+   fuentes públicas recuperadas y marcar inaccesibles como `NO_VERIFICADO`.
+3. Formular precios CR/LATAM y upsells como hipótesis para pruebas de precio,
+   incluyendo moneda, impuestos, alcance y dependencias locales; no como
+   aprobación comercial.
+4. Modelar escenarios de ingresos solo a partir de volúmenes asumidos y precios
+   explícitos; separar coste fijo, variable, margen, CAC, LTV y break-even que
+   no se pueden estimar sin telemetría, facturas y cohortes.
+5. Auditar los 204 Markdown por inventario y priorizar los documentos de planes,
+   pricing, negocio y capacidades; señalar los que requieren lectura/validación
+   de propietario sin etiquetarlos obsoletos por antigüedad solamente.
+6. Validar formato, enlaces internos, referencias reales al código, coherencia de
+   nombres/tiers, etiquetas de disponibilidad, claims y `git diff --check`.
+   Ejecutar pruebas backend/frontend seguras y registrar salida exacta.
+
+Riesgos: amplitud del inventario; entitlements variables por datos de DB;
+precios fiscales y disponibilidad comercial pendientes; páginas de competidores
+no accesibles; región Azure y volúmenes desconocidos; ausencia de CAC/LTV,
+retención y costos reales. Un precio recomendado será una hipótesis de
+experimentación, no el “precio óptimo” probado. No se borrarán ni reemplazarán
+documentos existentes en esta ampliación.
+
 ## Entregables estratégicos completados (2026-09-28)
 
 Se crearon los informes solicitados de estado real, mapa de capacidades,
@@ -142,3 +233,36 @@ vigente por país, plan y fecha antes de convertirse en claim comercial.
 La cobertura no certifica cada endpoint con pruebas autenticadas BOLA, ningún
 despliegue ni proveedor externo. No se eliminaron archivos históricos y no se
 modificó código productivo.
+
+## Entregables solicitados: planes, pricing y upsell (2026-09-28)
+
+Se crearon los 11 entregables específicos pedidos: `NALA_FEATURE_INVENTORY.md`,
+`NALA_PLAN_MAPPING.md`, `NALA_PLAN_VALUE_ANALYSIS.md`,
+`NALA_COMPETITIVE_PLAN_ANALYSIS.md`, `NALA_CR_PRICING.md`,
+`NALA_LATAM_PRICING.md`, `NALA_ROADMAP_MONETIZATION.md`,
+`NALA_UNIT_ECONOMICS.md`, `NALA_DOCUMENTATION_AUDIT.md`,
+`NALA_PRICING_EXECUTIVE_SUMMARY.md` y
+`NALA_FEATURE_PLAN_UPSELL_MATRIX.md`. Se actualizaron `README.md`,
+`PRICING_AND_PLANS.md` (corrección de “ilimitadas” a 25 mascotas) y este plan;
+se registran cambios en `auditoria/DOCUMENTATION_CHANGELOG.md`.
+
+La matriz maestra es el punto de entrada de pricing/upsell, no autoridad sobre
+gates. La auditoría del corpus inventarió 204 Markdown pero clasifica como
+`SIN EVIDENCIA` los documentos fuera de la lectura de pricing/producto de esta
+ampliación; no declara auditoría semántica línea por línea de los 204. No se
+borraron ni archivaron documentos existentes. La comparación de competidores y
+las bandas de precios son propuestas apoyadas por páginas públicas recuperadas y
+un indicador WB PPA; no son estudio local de disposición a pagar.
+
+La tarea VS Code `test-backend` terminó con código de salida 0; no quedó
+recuperable el resumen de conteos, por lo que no se registran cantidades por
+proyecto ni cobertura por feature. Azure Retail Pricing para `GP_S_Gen5_1` en
+East US respondió sin filas; costos, CAC, retención, LTV, margen y break-even
+efectivos continúan `NO_VERIFICADO`.
+
+Revalidación: `Test-GoLiveGovernance.ps1` se ejecuta en el workflow de
+despliegue productivo antes de crear/publicar artefactos. No se encontró una
+comprobación de esas variables en endpoints de compra, catálogo público o UI;
+el estado de las variables productivas no se consultó. El trial Verified se
+confirmó en `ServiceProvider.Activate()`: 30 días en la primera aprobación, sin
+reinicio al reactivar.

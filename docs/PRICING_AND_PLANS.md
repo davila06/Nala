@@ -6,31 +6,34 @@
 > La autoridad tecnica son `SubscriptionTier`, `SubscriptionPricing` y los
 > gates del backend. Este documento no convierte una capacidad tecnica en una
 > promesa comercial automaticamente.
-
 > La activación B2B/B2G y los planes B2C se procesan actualmente mediante
 > solicitud y verificación manual de SINPE o pasarela de tarjetas. No existe checkout recurrente
 > universal, renovación automática universal ni autoservicio municipal.
 
-## Estado comercial vinculante
+## Política comercial documentada y gate de despliegue
 
 La existencia de un enum, endpoint o feature gate significa **capacidad
-tecnica**, no autorización de venta. La publicación o venta en producción se
-habilita únicamente cuando el GitHub Environment `production` contiene:
+tecnica**, no autorización de venta. El workflow de despliegue productivo
+ejecuta un gate de aprobaciones antes de publicar artefactos. Ese control bloquea
+el despliegue, pero no implementa por sí mismo un bloqueo de runtime en el
+catálogo público, la interfaz o los endpoints de compra. El estado actual de los
+valores del GitHub Environment debe comprobarse en el propio entorno. El gate
+exige:
 
 - `PRICING_APPROVED=true`;
 - `B2B_CONTRACTS_APPROVED=true` para ofertas empresariales;
 - `SLA_APPROVED=true` para servicios con compromiso operativo;
 - `LEGAL_APPROVAL_REFERENCE` con el identificador de la evidencia aprobada.
 
-| Oferta                     | Capacidad tecnica   | Venta publica                                        |
-| -------------------------- | ------------------- | ---------------------------------------------------- |
-| Free                       | Activa              | Permitida                                            |
-| UserPlus / UserFamilia     | Activa              | Bloqueada hasta aprobación de precio y términos      |
-| ClinicPlus / ClinicPartner | Activa              | Bloqueada hasta contrato, SLA y precio aprobados     |
-| StorePlus / StorePartner   | Parcial             | No publicar como transacción gestionada por PawTrack |
-| ShelterPlus                | Activa              | Bloqueada hasta contrato y precio aprobados          |
-| Municipalidades            | Parcial             | No vender; contratación y renovación incompletas     |
-| Proveedores                | Activa técnicamente | Sin comisión ni membresía pagada aprobada            |
+| Oferta                     | Capacidad tecnica   | Politica comercial documentada                  |
+| -------------------------- | ------------------- | ----------------------------------------------- |
+| Free                       | Activa              | Gratis; entorno productivo no consultado        |
+| UserPlus / UserFamilia     | Activa              | Pendiente de aprobacion comercial               |
+| ClinicPlus / ClinicPartner | Activa              | Pendiente de contrato, SLA y precio             |
+| StorePlus / StorePartner   | Parcial             | No anunciar como compra gestionada por PawTrack |
+| ShelterPlus                | Activa              | Pendiente de contrato y precio                  |
+| Municipalidades            | Parcial             | No vender: contratacion/renovacion incompletas  |
+| Proveedores                | Activa tecnicamente | Sin precio/membresia pagada aprobados           |
 
 El gate automatizado y sus responsables están definidos en
 [GO_LIVE_GOVERNANCE.md](GO_LIVE_GOVERNANCE.md).
@@ -53,11 +56,11 @@ no procesa pagos, escrow ni custodia financiera. Ver
 
 ## B2C
 
-| Plan        | Estado tecnico | Capacidad principal                                |
-| ----------- | -------------- | -------------------------------------------------- |
-| Free        | Activo         | 1 mascota, limites basicos de QR/IA                |
-| UserPlus    | Activo         | Hasta 3 mascotas, funciones ampliadas, GPS         |
-| UserFamilia | Activo         | Mascotas ilimitadas, familia y expediente completo |
+| Plan        | Estado tecnico | Capacidad principal                                      |
+| ----------- | -------------- | -------------------------------------------------------- |
+| Free        | Activo         | 1 mascota; QR e IA sujetos a los gates de cada endpoint. |
+| UserPlus    | Activo         | Hasta 3 mascotas; extras sujetos a gates técnicos.       |
+| UserFamilia | Activo         | Hasta 25 mascotas activas; familia y expediente.         |
 
 Los precios B2C deben mantenerse sincronizados con `SubscriptionPricing` y
 aprobarse antes de publicarse.
