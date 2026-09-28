@@ -62,6 +62,7 @@ describe("FreemiumModal catalog and claims", () => {
   it("uses the active catalog and avoids unlimited or unimplemented promises", () => {
     renderWithProviders(<FreemiumModal onClose={vi.fn()} />);
 
+    expect(screen.getByLabelText("Plan actual")).toBeInTheDocument();
     expect(screen.getByText(/₡3.?990/)).toBeInTheDocument();
     expect(screen.getByText(/₡5.?990/)).toBeInTheDocument();
     expect(screen.getByText(/hasta 25 mascotas activas/i)).toBeInTheDocument();
@@ -70,6 +71,8 @@ describe("FreemiumModal catalog and claims", () => {
     expect(screen.queryByText(/ilimitad[oa]/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/predicción de movimiento/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/soporte prioritario/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("Bundle Collar GPS + 12 meses Plus")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Pedir collar →" })).not.toBeInTheDocument();
   });
 
   it("does not fall back to stale hardcoded prices or allow purchase without catalog approval", () => {

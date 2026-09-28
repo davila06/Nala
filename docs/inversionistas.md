@@ -176,11 +176,11 @@ La oportunidad combina tres activos:
 
 ### B2C
 
-| Plan          | Precio tecnico actual | Valor                                         |
-| ------------- | --------------------: | --------------------------------------------- |
-| `Free`        |                    ₡0 | 1 mascota, QR y funciones base                |
-| `UserPlus`    |            ₡2,990/mes | hasta 3 mascotas, GPS, IA y coordinacion      |
-| `UserFamilia` |            ₡4,990/mes | mascotas ilimitadas, familia y salud completa |
+| Plan          | Precio tecnico actual | Valor                                      |
+| ------------- | --------------------: | ------------------------------------------ |
+| `Free`        |                    ₡0 | 1 mascota, QR y funciones base             |
+| `UserPlus`    |            ₡2,990/mes | hasta 3 mascotas, GPS, IA y coordinacion   |
+| `UserFamilia` |            ₡4,990/mes | 25 mascotas máx., familia y salud completa |
 
 `UserPlus` y `UserFamilia` aceptan plazos de 1, 3, 6 o 12 meses; solo el plazo
 anual aplica 20% de descuento. La contratación se solicita y se activa
@@ -406,3 +406,4 @@ cuidado y recuperación animal.
 
 _Documento informativo. Requiere revision legal y financiera antes de
 compartirse como oferta formal de participacion._
+

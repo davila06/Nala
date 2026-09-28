@@ -52,4 +52,18 @@ describe("DashboardPage pet capacity", () => {
     expect(screen.getByText("3 / 25 mascotas")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /registrar mascota/i })).toBeInTheDocument();
   });
+
+  it("does not advertise an available pet slot when the entitlement snapshot failed", () => {
+    dashboardMocks.useMyEntitlements.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+      refetch: vi.fn(),
+    });
+
+    renderWithProviders(<DashboardPage />);
+
+    expect(screen.getByText(/no se pudo verificar el límite/i)).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /registrar mascota/i })).not.toBeInTheDocument();
+  });
 });

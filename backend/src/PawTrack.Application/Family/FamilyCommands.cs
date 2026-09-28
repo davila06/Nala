@@ -63,7 +63,8 @@ public sealed class InviteFamilyMemberCommandHandler(
     IEmailSender emailSender,
     IUnitOfWork unitOfWork,
     ILogger<InviteFamilyMemberCommandHandler> logger,
-    IEntitlementService entitlementService)
+    IEntitlementService entitlementService,
+    IDistributedJobLock distributedJobLock)
     : IRequestHandler<InviteFamilyMemberCommand, Result<FamilyInvitationDto>>
 {
     public async Task<Result<FamilyInvitationDto>> Handle(
@@ -75,6 +76,11 @@ public sealed class InviteFamilyMemberCommandHandler(
 
         if (account.OwnerId != request.OwnerId)
             return Result.Failure<FamilyInvitationDto>("Solo el dueño puede invitar miembros.");
+
+        await using var capacityLease = await distributedJobLock.TryAcquireAsync(
+            $"FamilyCapacity:{account.Id:N}", TimeSpan.FromSeconds(30), ct);
+        if (capacityLease is null)
+            return Result.Failure<FamilyInvitationDto>("La cuenta familiar se está actualizando. Intenta de nuevo.");
 
         var count = await familyRepository.CountActiveMembersAsync(account.Id, ct);
         var decision = await entitlementService.AuthorizeAsync(
@@ -121,7 +127,8 @@ public sealed class AcceptFamilyInvitationCommandHandler(
     IFamilyRepository familyRepository,
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
-    IEntitlementService entitlementService)
+    IEntitlementService entitlementService,
+    IDistributedJobLock distributedJobLock)
     : IRequestHandler<AcceptFamilyInvitationCommand, Result<bool>>
 {
     public async Task<Result<bool>> Handle(
@@ -131,7 +138,6 @@ public sealed class AcceptFamilyInvitationCommandHandler(
         if (invitation is null || invitation.IsExpired || invitation.IsAccepted)
             return Result.Failure<bool>("La invitación no es válida o ya fue usada.");
 
-        // Verify that the accepting user's email matches the invited email
         var user = await userRepository.GetByIdAsync(request.AcceptingUserId, ct);
         if (user is null)
             return Result.Failure<bool>("Usuario no encontrado.");
@@ -142,6 +148,21 @@ public sealed class AcceptFamilyInvitationCommandHandler(
         var account = await familyRepository.GetByIdAsync(invitation.FamilyAccountId, ct);
         if (account is null)
             return Result.Failure<bool>("La cuenta familiar ya no está disponible.");
+
+        await using var capacityLease = await distributedJobLock.TryAcquireAsync(
+            $"FamilyCapacity:{account.Id:N}", TimeSpan.FromSeconds(30), ct);
+        if (capacityLease is null)
+            return Result.Failure<bool>("La cuenta familiar se está actualizando. Intenta de nuevo.");
+
+        await using var userLease = await distributedJobLock.TryAcquireAsync(
+            $"FamilyMembership:{request.AcceptingUserId:N}", TimeSpan.FromSeconds(30), ct);
+        if (userLease is null)
+            return Result.Failure<bool>("La membresía del usuario se está actualizando. Intenta de nuevo.");
+
+        // Reload after taking the lock so concurrent acceptance of the same token cannot reuse stale state.
+        invitation = await familyRepository.GetInvitationByTokenAsync(request.Token, ct);
+        if (invitation is null || invitation.IsExpired || invitation.IsAccepted)
+            return Result.Failure<bool>("La invitación no es válida o ya fue usada.");
 
         if (await familyRepository.GetByMemberAsync(user.Id, ct) is not null)
             return Result.Failure<bool>("El usuario ya pertenece a una cuenta familiar.");

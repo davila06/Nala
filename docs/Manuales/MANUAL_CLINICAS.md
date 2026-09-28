@@ -30,6 +30,12 @@ El dueño debe crear el perfil de la mascota; la clínica puede identificarla po
 QR o microchip y trabajar con su expediente únicamente mediante el grant de
 acceso correspondiente.
 
+El escaneo **no otorga acceso al expediente**. Para consultar, la clínica debe
+tener un grant activo con permiso `read`; para registrar una atención, requiere
+permiso `write`. El tutor concede el acceso mediante un código y puede revocarlo
+desde su perfil. Si no existe grant vigente, el escaneo sólo identifica y
+registra contacto; solicita consentimiento al tutor.
+
 ---
 
 ## 2. Registro de la clínica

@@ -32,6 +32,14 @@ La migración [AddEntitlementCatalogAndConsumption](../backend/src/PawTrack.Infr
 
 > **Precisión:** `FreeEntitlements()` fija algunas claves globalmente; `GetLegacyEntitlement()` sólo contiene un subconjunto para tiers pagados. La tabla no afirma que toda clave se aplique en cada ruta. `StoreBasic`/`ShelterBasic` no deben interpretarse como subscripciones mensuales.
 
+### Correcciones P0 implementadas en código
+
+- Free tiene `MaxFamilyMembers=1` (sólo titular); UserFamilia configura 5 integrantes totales.
+- Cada invitación pendiente reserva una plaza; el máximo de invitaciones pendientes es 3. API y UI muestran conteo pendiente/cupo y el servidor serializa invitaciones y aceptaciones con locks distribuidos por cuenta y usuario.
+- Escanear QR/RFID identifica y registra contacto, pero no concede lectura del historial ni escritura clínica. Lectura requiere grant activo `read`; escritura requiere grant activo `write`; ambos son aprobados por el dueño y revocables.
+- La compra nueva usa el precio del plan activo del catálogo. La renovación usa `Subscription.AmountCrc` aceptado para ese término; un importe promocional cero no inicia cobro automático sin una nueva aceptación.
+- El frontend ya no presenta tarifas locales como fallback, ni afirma IA/movimiento/hardware ilimitados o un bundle GPS no verificado.
+
 ## Diferencias entre familia estratégica y tiers actuales
 
 | Rótulo solicitado | Correspondencia real posible                                                      | Estado de correspondencia                                         |

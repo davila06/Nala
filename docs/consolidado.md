@@ -119,9 +119,9 @@ permisos por sucursal. Ver [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md) y
 
 | Feature                       | `Free`       | `UserPlus`                       | `UserFamilia`               |
 | ----------------------------- | ------------ | -------------------------------- | --------------------------- |
-| Mascotas                      | 1            | Hasta 3                          | Ilimitadas                  |
+| Mascotas                      | 1            | Hasta 3                          | 25 máx.                     |
 | Historial QR                  | Últimos 5    | Ilimitado                        | Ilimitado                   |
-| Búsqueda visual IA            | 3/mes        | Ilimitada                        | Ilimitada                   |
+| Búsqueda visual IA            | Condicionada | 10/ciclo (experimental)          | 30/ciclo (experimental)     |
 | Alertas geográficas           | Radio base   | Multiplicador 3.33, aprox. 10 km | Sin límite efectivo         |
 | Difusión multicanal           | No premium   | Sí                               | Sí                          |
 | Case Room/coordinación        | Base         | Completa                         | Completa                    |
@@ -493,3 +493,4 @@ Actualizar mensualmente: MRR, ARR, ARPU, CAC, LTV, churn, conversión Free a
 pagado, MAU, costo por caso, costo de soporte, ingreso por B2B, ocupación de
 proveedores y margen por segmento. Estas cifras son planificación, no utilidad
 neta ni garantía para inversionistas.
+

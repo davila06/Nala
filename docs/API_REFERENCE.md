@@ -78,6 +78,9 @@ Suscripciones de usuario:
 - `GET/PUT /clinics/me/*`
 - `POST /clinics/scan`
 - `POST /clinics/access-grants/*`
+- `GET /clinics/patients/{petId}/medical` requiere un grant activo del dueño con permiso `read`; escanear el QR sólo identifica a la mascota.
+- `POST /clinics/patients/medical` requiere grant activo con permiso `write`; el QR/chip no sustituye el consentimiento.
+- `POST /pets/{petId}/clinic-access/code` inicia un grant del dueño; `POST /pets/{petId}/clinic-access/accept` acepta el código de la clínica; `DELETE /pets/{petId}/clinic-access/{clinicId}` revoca el acceso.
 - `GET/POST /medical/*`
 - `POST /certificates/*`
 - `GET /public/certificates/{code}`
@@ -89,6 +92,15 @@ Suscripciones de usuario:
 - `GET/POST /municipalities/captures/*`
 - `GET/POST /allies/*`
 - `GET/POST /adoptions/*`
+
+### Familia
+
+- `GET /family` devuelve los miembros activos, `pendingInvitations` y el máximo de invitaciones pendientes.
+- `POST /family` requiere plan Familia activo.
+- `POST /family/invite` requiere titular, cupo de `MaxFamilyMembers` y un máximo de 3 invitaciones pendientes; las invitaciones pendientes reservan asiento.
+- `POST /family/invitations/{token}/accept` vuelve a comprobar identidad de correo, cuenta, plan y capacidad al aceptar.
+- `DELETE /family/members/{memberId}` permite al titular retirar miembros; el dueño no puede borrarse a sí mismo.
+- `GET /subscriptions/entitlements` informa el límite `MaxFamilyMembers`; el cliente no debe usar un límite fijo local.
 
 ### Tiendas: alcance actual
 

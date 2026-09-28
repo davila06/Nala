@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SinpePaymentModal } from "./SinpePaymentModal";
-import { BundleOrderModal } from "@/features/bundles/components/BundleOrderModal";
 import type { SubscriptionTier } from "../api/subscriptionApi";
 import { useSubscriptionCatalog } from "../hooks/useSubscription";
+import { useMyTier } from "../hooks/useMyTier";
 
 interface Tier {
   id: "free" | "plus" | "familia";
@@ -16,7 +16,6 @@ interface Tier {
   glow?: string;
   features: { label: string; included: boolean }[];
   cta: string;
-  current?: boolean;
 }
 
 const TIERS: Tier[] = [
@@ -34,7 +33,6 @@ const TIERS: Tier[] = [
       { label: "Reportar un avistamiento", included: true },
     ],
     cta: "Plan actual",
-    current: true,
   },
   {
     id: "plus",
@@ -76,8 +74,8 @@ interface FreemiumModalProps {
 
 export function FreemiumModal({ onClose }: FreemiumModalProps) {
   const [pendingTier, setPendingTier] = useState<SubscriptionTier | null>(null);
-  const [showBundle, setShowBundle] = useState(false);
   const { data: catalog } = useSubscriptionCatalog();
+  const { tier: currentTier } = useMyTier();
 
   if (pendingTier) {
     return <SinpePaymentModal tier={pendingTier} onClose={() => setPendingTier(null)} onSuccess={onClose} />;
@@ -123,104 +121,101 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
 
           {/* Tier cards */}
           <div className="grid gap-4 sm:grid-cols-3">
-            {TIERS.map((tier, idx) => (
-              <motion.div
-                key={tier.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.06 }}
-                aria-current={tier.current ? "true" : undefined}
-                className={[
-                  "relative flex flex-col rounded-2xl border-2 p-5",
-                  tier.color,
-                  tier.glow ? `shadow-lg shadow-brand-100` : "",
-                ].join(" ")}
-              >
-                {tier.id === "plus" && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-600 px-3 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white">
-                    Recomendado
-                  </span>
-                )}
+            {TIERS.map((tier, idx) => {
+              const planTier = tier.subscriptionTier ?? "Free";
+              const isCurrent = tier.subscriptionTier
+                ? planTier === currentTier
+                : currentTier === "Free" || currentTier === "Explorador";
+              const plan = catalog?.find((item) => item.tier === tier.subscriptionTier && item.isActive);
+              const hasPurchasePrice = Boolean(plan && plan.monthlyPriceCrc !== null);
+              return (
+                <motion.div
+                  key={tier.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.06 }}
+                  aria-current={isCurrent ? "true" : undefined}
+                  className={[
+                    "relative flex flex-col rounded-2xl border-2 p-5",
+                    tier.color,
+                    tier.glow ? `shadow-lg shadow-brand-100` : "",
+                  ].join(" ")}
+                >
+                  {tier.id === "plus" && (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-600 px-3 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white">
+                      Recomendado
+                    </span>
+                  )}
 
-                <div className="mb-4">
-                  <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${tier.badge}`}>
-                    {tier.name}
-                  </span>
-                  <p className="mt-2 text-2xl font-extrabold text-sand-900">
-                    {tier.subscriptionTier
-                      ? (() => {
-                          const plan = catalog?.find((item) => item.tier === tier.subscriptionTier);
-                          return plan?.isActive && plan.monthlyPriceCrc !== null
-                            ? `₡${plan.monthlyPriceCrc.toLocaleString("es-CR")}`
-                            : "Precio no disponible";
-                        })()
-                      : tier.freePrice}
-                  </p>
-                  <p className="text-xs text-sand-400">{tier.period}</p>
-                </div>
+                  <div className="mb-4">
+                    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${tier.badge}`}>
+                      {tier.name}
+                    </span>
+                    <p className="mt-2 text-2xl font-extrabold text-sand-900">
+                      {tier.subscriptionTier
+                        ? hasPurchasePrice
+                          ? `₡${plan!.monthlyPriceCrc!.toLocaleString("es-CR")}`
+                          : "Precio no disponible"
+                        : tier.freePrice}
+                    </p>
+                    <p className="text-xs text-sand-400">{tier.period}</p>
+                  </div>
 
-                <ul className="mb-5 flex-1 space-y-1.5">
-                  {tier.features
-                    .filter((f) => f.label)
-                    .map((f) => (
-                      <li key={f.label} className="flex items-start gap-2 text-xs text-sand-700">
-                        <span
-                          className={`mt-0.5 shrink-0 text-sm leading-none ${f.included ? "text-rescue-600" : "text-sand-300"}`}
-                          aria-hidden="true"
-                        >
-                          {f.included ? "✓" : "✗"}
-                        </span>
-                        <span className={f.included ? "" : "text-sand-400 line-through"}>{f.label}</span>
-                      </li>
-                    ))}
-                </ul>
+                  <ul className="mb-5 flex-1 space-y-1.5">
+                    {tier.features
+                      .filter((f) => f.label)
+                      .map((f) => (
+                        <li key={f.label} className="flex items-start gap-2 text-xs text-sand-700">
+                          <span
+                            className={`mt-0.5 shrink-0 text-sm leading-none ${f.included ? "text-rescue-600" : "text-sand-300"}`}
+                            aria-hidden="true"
+                          >
+                            {f.included ? "✓" : "✗"}
+                          </span>
+                          <span className={f.included ? "" : "text-sand-400 line-through"}>{f.label}</span>
+                        </li>
+                      ))}
+                  </ul>
 
-                {tier.current ? (
-                  <span
-                    aria-label="Plan actual"
-                    className="flex items-center justify-center gap-1.5 rounded-xl border-2 border-sand-200 bg-sand-50 py-2.5 text-xs font-semibold text-sand-500"
-                  >
-                    <svg
-                      viewBox="0 0 16 16"
-                      fill="currentColor"
-                      className="h-3.5 w-3.5 text-rescue-500"
-                      aria-hidden="true"
+                  {isCurrent ? (
+                    <span
+                      aria-label="Plan actual"
+                      className="flex items-center justify-center gap-1.5 rounded-xl border-2 border-sand-200 bg-sand-50 py-2.5 text-xs font-semibold text-sand-500"
                     >
-                      <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
-                    </svg>
-                    Plan actual
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    disabled={
-                      Boolean(tier.subscriptionTier) &&
-                      !catalog?.some(
-                        (plan) => plan.tier === tier.subscriptionTier && plan.isActive && plan.monthlyPriceCrc !== null,
-                      )
-                    }
-                    onClick={() => {
-                      if (
-                        tier.subscriptionTier &&
-                        catalog?.some(
-                          (plan) =>
-                            plan.tier === tier.subscriptionTier && plan.isActive && plan.monthlyPriceCrc !== null,
-                        )
-                      )
-                        setPendingTier(tier.subscriptionTier);
-                    }}
-                    className={[
-                      "block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
-                      tier.id === "plus"
-                        ? "bg-brand-600 text-white hover:bg-brand-700"
-                        : "bg-rescue-600 text-white hover:bg-rescue-700",
-                    ].join(" ")}
-                  >
-                    {tier.cta}
-                  </button>
-                )}
-              </motion.div>
-            ))}
+                      <svg
+                        viewBox="0 0 16 16"
+                        fill="currentColor"
+                        className="h-3.5 w-3.5 text-rescue-500"
+                        aria-hidden="true"
+                      >
+                        <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Plan actual
+                    </span>
+                  ) : tier.subscriptionTier ? (
+                    <button
+                      type="button"
+                      disabled={!hasPurchasePrice}
+                      onClick={() => {
+                        if (hasPurchasePrice) setPendingTier(tier.subscriptionTier!);
+                      }}
+                      className={[
+                        "block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
+                        tier.id === "plus"
+                          ? "bg-brand-600 text-white hover:bg-brand-700"
+                          : "bg-rescue-600 text-white hover:bg-rescue-700",
+                      ].join(" ")}
+                    >
+                      {tier.cta}
+                    </button>
+                  ) : (
+                    <span className="flex items-center justify-center rounded-xl border-2 border-sand-200 bg-sand-50 py-2.5 text-xs font-semibold text-sand-500">
+                      Plan gratuito
+                    </span>
+                  )}
+                </motion.div>
+              );
+            })}
           </div>
 
           <p className="mt-5 text-center text-xs text-sand-400">
@@ -229,36 +224,6 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
               soporte@pawtrack.cr
             </a>
           </p>
-
-          {/* Bundle GPS CTA */}
-          <div className="mt-5 rounded-2xl border border-brand-200 bg-linear-to-r from-brand-50 to-rescue-50 p-4 flex items-center gap-4">
-            <span className="text-3xl shrink-0" aria-hidden="true">
-              📡
-            </span>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-brand-800">Bundle Collar GPS + 12 meses Plus</p>
-              <p className="text-xs text-brand-600 opacity-80">
-                Collar GPS PawTrack + PawTrack Plus todo incluido · Envío a CR
-              </p>
-            </div>
-            <div className="text-right shrink-0">
-              <p className="text-sm font-black text-brand-900">₡49,900</p>
-              <button
-                type="button"
-                onClick={() => setShowBundle(true)}
-                className="mt-1 rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
-              >
-                Pedir collar →
-              </button>
-            </div>
-          </div>
-
-          {/* Bundle modal (shown inline) */}
-          {showBundle && (
-            <div className="mt-4 rounded-2xl border border-sand-200 bg-surface p-4">
-              <BundleOrderModal />
-            </div>
-          )}
         </motion.div>
       </motion.div>
     </AnimatePresence>

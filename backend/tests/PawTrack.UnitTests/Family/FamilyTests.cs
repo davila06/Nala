@@ -69,6 +69,7 @@ public sealed class AcceptFamilyInvitationTests
     private readonly IUserRepository _userRepo = Substitute.For<IUserRepository>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
     private readonly IEntitlementService _entitlements = Substitute.For<IEntitlementService>();
+    private readonly IDistributedJobLock _jobLock = Substitute.For<IDistributedJobLock>();
     private readonly AcceptFamilyInvitationCommandHandler _sut;
 
     public AcceptFamilyInvitationTests()
@@ -77,7 +78,9 @@ public sealed class AcceptFamilyInvitationTests
         _entitlements.AuthorizeAsync(
                 Arg.Any<Guid>(), "MaxFamilyMembers", 1m, Arg.Any<EntitlementContext>(), Arg.Any<CancellationToken>())
             .Returns(new EntitlementDecision(true, true, 5m, 0m, 5m, null, SubscriptionTier.UserFamilia));
-        _sut = new AcceptFamilyInvitationCommandHandler(_familyRepo, _userRepo, _uow, _entitlements);
+        _jobLock.TryAcquireAsync(Arg.Any<string>(), Arg.Any<TimeSpan>(), Arg.Any<CancellationToken>())
+            .Returns(Substitute.For<IAsyncDisposable>());
+        _sut = new AcceptFamilyInvitationCommandHandler(_familyRepo, _userRepo, _uow, _entitlements, _jobLock);
     }
 
     [Fact]
@@ -96,6 +99,26 @@ public sealed class AcceptFamilyInvitationTests
 
         var result = await _sut.Handle(
             new AcceptFamilyInvitationCommand(user.Id, invitation.Token), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        invitation.IsAccepted.Should().BeFalse();
+        await _familyRepo.DidNotReceive().AddMembershipAsync(
+            Arg.Any<FamilyMembership>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_WhenFamilyCapacityLockIsUnavailable_DoesNotAcceptInvitation()
+    {
+        var ownerId = Guid.NewGuid();
+        var account = FamilyAccount.Create(ownerId, "Test Family");
+        var invitation = FamilyInvitation.Create(account.Id, "new-member@test.com");
+        _familyRepo.GetInvitationByTokenAsync(invitation.Token, Arg.Any<CancellationToken>()).Returns(invitation);
+        _familyRepo.GetByIdAsync(account.Id, Arg.Any<CancellationToken>()).Returns(account);
+        _jobLock.TryAcquireAsync($"FamilyCapacity:{account.Id:N}", Arg.Any<TimeSpan>(), Arg.Any<CancellationToken>())
+            .Returns((IAsyncDisposable?)null);
+
+        var result = await _sut.Handle(
+            new AcceptFamilyInvitationCommand(Guid.NewGuid(), invitation.Token), CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
         invitation.IsAccepted.Should().BeFalse();
@@ -210,12 +233,15 @@ public sealed class InviteMemberPendingLimitTests
     private readonly IEmailSender _email = Substitute.For<IEmailSender>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
     private readonly IEntitlementService _entitlements = Substitute.For<IEntitlementService>();
+    private readonly IDistributedJobLock _jobLock = Substitute.For<IDistributedJobLock>();
 
     public InviteMemberPendingLimitTests()
     {
         _entitlements.AuthorizeAsync(
                 Arg.Any<Guid>(), "MaxFamilyMembers", 1m, Arg.Any<EntitlementContext>(), Arg.Any<CancellationToken>())
             .Returns(new EntitlementDecision(true, true, 5m, 0m, 5m, null, SubscriptionTier.UserFamilia));
+        _jobLock.TryAcquireAsync(Arg.Any<string>(), Arg.Any<TimeSpan>(), Arg.Any<CancellationToken>())
+            .Returns(Substitute.For<IAsyncDisposable>());
     }
 
     private FamilyAccount MakeAccount(Guid ownerId)
@@ -239,7 +265,7 @@ public sealed class InviteMemberPendingLimitTests
         _uow.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
 
         var sut = new InviteFamilyMemberCommandHandler(_repo, _email, _uow,
-            Microsoft.Extensions.Logging.Abstractions.NullLogger<InviteFamilyMemberCommandHandler>.Instance, _entitlements);
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<InviteFamilyMemberCommandHandler>.Instance, _entitlements, _jobLock);
         var result = await sut.Handle(
             new InviteFamilyMemberCommand(ownerId, "bob@test.com"), CancellationToken.None);
 
@@ -256,7 +282,7 @@ public sealed class InviteMemberPendingLimitTests
         _repo.CountPendingInvitationsAsync(account.Id, Arg.Any<CancellationToken>()).Returns(3); // at limit
 
         var sut = new InviteFamilyMemberCommandHandler(_repo, _email, _uow,
-            Microsoft.Extensions.Logging.Abstractions.NullLogger<InviteFamilyMemberCommandHandler>.Instance, _entitlements);
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<InviteFamilyMemberCommandHandler>.Instance, _entitlements, _jobLock);
         var result = await sut.Handle(
             new InviteFamilyMemberCommand(ownerId, "charlie@test.com"), CancellationToken.None);
 
@@ -275,7 +301,7 @@ public sealed class InviteMemberPendingLimitTests
         _repo.CountPendingInvitationsAsync(account.Id, Arg.Any<CancellationToken>()).Returns(1);
 
         var sut = new InviteFamilyMemberCommandHandler(_repo, _email, _uow,
-            NullLogger<InviteFamilyMemberCommandHandler>.Instance, _entitlements);
+            NullLogger<InviteFamilyMemberCommandHandler>.Instance, _entitlements, _jobLock);
         var result = await sut.Handle(
             new InviteFamilyMemberCommand(ownerId, "fifth-member@test.com"), CancellationToken.None);
 

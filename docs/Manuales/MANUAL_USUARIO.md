@@ -89,9 +89,10 @@ Puedes registrar consultas, vacunas, peso, medicacion y recordatorios según tu
 tier. Un grant permite que una clinica consulte o escriba solo los permisos
 concedidos; el historial de accesos queda visible.
 
-El plan `UserFamilia` permite invitar hasta cuatro miembros adicionales y
-compartir el cuidado de las mascotas. Revoca invitaciones o accesos que ya no
-correspondan.
+El plan `UserFamilia` admite hasta 25 mascotas activas y 5 miembros totales
+(incluido el titular). Las invitaciones pendientes reservan una plaza; puedes
+tener hasta 3 pendientes a la vez. Solo el titular invita o retira miembros.
+Revoca accesos que ya no correspondan.
 
 ## 9. Collar GPS
 
@@ -108,11 +109,11 @@ nuevo responsable y verifica que el collar quede asociado a la mascota correcta.
 
 ## 10. Planes del dueño
 
-| Plan tecnico  |   Mascotas | Caracteristicas principales           |
-| ------------- | ---------: | ------------------------------------- |
-| `Free`        |          1 | funciones base, limites de QR e IA    |
-| `UserPlus`    |          3 | funciones ampliadas, GPS y difusion   |
-| `UserFamilia` | ilimitadas | familia, salud completa y exportacion |
+| Plan tecnico  | Mascotas | Caracteristicas principales           |
+| ------------- | -------: | ------------------------------------- |
+| `Free`        |        1 | funciones base, limites de QR e IA    |
+| `UserPlus`    |        3 | funciones ampliadas, GPS y difusion   |
+| `UserFamilia` |       25 | familia, salud completa y exportacion |
 
 Los precios y gates vigentes se mantienen en
 [PRICING_AND_PLANS.md](../PRICING_AND_PLANS.md) y

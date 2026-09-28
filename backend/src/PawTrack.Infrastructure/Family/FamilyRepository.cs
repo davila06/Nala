@@ -39,7 +39,7 @@ public sealed class FamilyRepository(PawTrackDbContext db) : IFamilyRepository
         db.FamilyMemberships.CountAsync(m => m.FamilyAccountId == familyAccountId && m.IsActive, ct);
 
     public Task<FamilyInvitation?> GetInvitationByTokenAsync(Guid token, CancellationToken ct = default) =>
-        db.FamilyInvitations.AsTracking().FirstOrDefaultAsync(i => i.Token == token, ct);
+        db.FamilyInvitations.AsNoTracking().FirstOrDefaultAsync(i => i.Token == token, ct);
 
     public async Task AddAccountAsync(FamilyAccount account, CancellationToken ct = default) =>
         await db.FamilyAccounts.AddAsync(account, ct);

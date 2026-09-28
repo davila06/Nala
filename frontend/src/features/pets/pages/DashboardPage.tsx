@@ -21,9 +21,15 @@ export default function DashboardPage() {
   const [searchParams] = useSearchParams();
   const user = useAuthStore((s) => s.user);
   const { isPlus, isFamilia } = useMyTier();
-  const { data: entitlements } = useMyEntitlements();
+  const {
+    data: entitlements,
+    isLoading: entitlementsLoading,
+    isError: entitlementsError,
+    refetch: refetchEntitlements,
+  } = useMyEntitlements();
   const lostCount = useMemo(() => (pets ?? []).filter((p) => p.status === "Lost").length, [pets]);
   const petLimit = entitlements?.entitlements.MaxPets?.numericValue ?? null;
+  const capacityUnavailable = !entitlementsLoading && (entitlementsError || petLimit === null);
   const petCount = pets?.length ?? 0;
   const isChoosingLostPet = searchParams.get("action") === "report-lost";
   const activePets = useMemo(() => (pets ?? []).filter((pet) => pet.status === "Active"), [pets]);
@@ -113,7 +119,11 @@ export default function DashboardPage() {
           <div className="flex flex-col items-end gap-1.5">
             {user?.role === "Owner" && petCount > 0 && (
               <p className="text-xs text-sand-500">
-                {petLimit === null ? "Límite del plan no disponible" : `${petCount} / ${petLimit} mascotas`}
+                {petLimit === null
+                  ? entitlementsLoading
+                    ? "Verificando límite del plan…"
+                    : "No se pudo verificar el límite"
+                  : `${petCount} / ${petLimit} mascotas`}
                 {atPetLimit && !isFamilia && (
                   <button
                     type="button"
@@ -125,7 +135,19 @@ export default function DashboardPage() {
                 )}
               </p>
             )}
-            {user?.role !== "Owner" ? null : atPetLimit ? (
+            {user?.role !== "Owner" ? null : entitlementsLoading ? (
+              <p className="text-xs text-sand-600" role="status">
+                Verificando el límite de mascotas…
+              </p>
+            ) : capacityUnavailable ? (
+              <button
+                type="button"
+                onClick={() => void refetchEntitlements()}
+                className="inline-flex items-center gap-2 rounded-xl border border-warn-300 bg-warn-50 px-4 py-2.5 text-sm font-semibold text-warn-800 transition-base hover:bg-warn-100"
+              >
+                Reintentar verificación
+              </button>
+            ) : atPetLimit ? (
               isFamilia ? (
                 <p className="text-xs text-sand-600" role="status">
                   Alcanzaste el límite técnico de mascotas de tu plan.

@@ -88,6 +88,8 @@ no aplica a clinicas, tiendas, refugios ni municipalidades.
 - El nuevo plan queda pendiente de verificacion SINPE y solo se activa cuando
   Admin confirma el pago y llega la fecha efectiva.
 - No hay prorrateo ni reembolso automatico implementado.
+- La renovación automática usa `Subscription.AmountCrc`, el importe almacenado al contratar; los cambios de catálogo no elevan silenciosamente el precio de una suscripción activa.
+- Una suscripción con `AmountCrc <= 0` (p. ej., alta gratuita por promoción) se omite en renovación automática; requiere una nueva compra/consentimiento para pasar a cobro.
 
 ## Clinicas
 

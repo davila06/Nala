@@ -39,15 +39,17 @@ Los estados de esta ficha siguen la taxonomía solicitada y no sustituyen la cla
 
 ## Familia y cuidadores
 
-| Funcionalidad                                    | Estado        | Evidencia de código                                                                                              | Límite                                                                                           |
-| ------------------------------------------------ | ------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Gestión de grupo familiar                        | IMPLEMENTADA  | [FamilyManagementSection](../frontend/src/features/family/components/FamilyManagementSection.tsx), módulo Family | Límite del fallback/migración UserFamilia: 5 miembros; no equivale a cinco asientos adicionales. |
-| Permisos/roles de familia                        | PARCIAL       | módulo Family y autorizaciones                                                                                   | No se validaron todos los permisos por actor contra pruebas de extremo a extremo.                |
-| Compartir expediente con clínica                 | IMPLEMENTADA  | Medical grants y API clínica                                                                                     | Requiere consentimiento; no garantiza que clínica externa opere el expediente.                   |
-| Cuidadores, actividad familiar y acceso temporal | PARCIAL       | Family y grants relacionados                                                                                     | No hay evidencia suficiente para afirmar historial completo de cada cuidador.                    |
-| Transferencia de propiedad de mascota            | NO VERIFICADA | No quedó trazado un flujo completo en esta auditoría                                                             | No prometer autoservicio de transferencia.                                                       |
+| Funcionalidad                                    | Estado        | Evidencia de código                                                                                              | Límite                                                                            |
+| ------------------------------------------------ | ------------- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Gestión de grupo familiar                        | IMPLEMENTADA  | [FamilyManagementSection](../frontend/src/features/family/components/FamilyManagementSection.tsx), módulo Family | UserFamilia: 5 miembros; hasta 3 invitaciones pendientes reservan plazas.         |
+| Permisos/roles de familia                        | PARCIAL       | módulo Family y autorizaciones                                                                                   | No se validaron todos los permisos por actor contra pruebas de extremo a extremo. |
+| Compartir expediente con clínica                 | IMPLEMENTADA  | Medical grants y API clínica                                                                                     | Requiere consentimiento; no garantiza que clínica externa opere el expediente.    |
+| Cuidadores, actividad familiar y acceso temporal | PARCIAL       | Family y grants relacionados                                                                                     | No hay evidencia suficiente para afirmar historial completo de cada cuidador.     |
+| Transferencia de propiedad de mascota            | NO VERIFICADA | No quedó trazado un flujo completo en esta auditoría                                                             | No prometer autoservicio de transferencia.                                        |
 
 ## Clínicas, profesionales, refugios, comercios y municipalidades
+
+En el código actual Free permite sólo la plaza del titular (`MaxFamilyMembers=1`); UserFamilia configura 5 integrantes totales. Las invitaciones pendientes reservan plazas y el servidor serializa invitaciones/aceptaciones por cuenta y usuario con el lock distribuido SQL. La UI lee el entitlement y los conteos pendientes; si no puede leer el límite, no muestra el alta como disponible.
 
 | Funcionalidad                                    | Estado          | Evidencia de código                                                                                                                                                    | Límite                                                                                  |
 | ------------------------------------------------ | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
@@ -66,6 +68,8 @@ Los estados de esta ficha siguen la taxonomía solicitada y no sustituyen la cla
 | Integraciones institucionales/SENASA             | NO VERIFICADA   | No se localizó conector/acuerdo operativo verificable                                                                                                                  | Certificado interno no significa conexión oficial.                                      |
 
 ## IA, hardware e integraciones
+
+El escaneo QR/RFID identifica una mascota, pero no autoriza lectura/escritura clínica. El historial exige un grant activo con permiso `read`; crear registros clínicos exige `write`. Un grant se acepta por código y puede revocarse por el dueño.
 
 | Funcionalidad                                | Estado          | Evidencia de código                                                                                                          | Límite                                                                                                                   |
 | -------------------------------------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
@@ -94,3 +98,4 @@ Los estados de esta ficha siguen la taxonomía solicitada y no sustituyen la cla
 - Integración oficial SENASA/Dynamics/ACS, operación productiva Azure o precio publicado aprobado.
 
 Ver [mapeo de planes](NALA_PLAN_MAPPING.md), [valor de planes](NALA_PLAN_VALUE_ANALYSIS.md) y [matriz maestra](NALA_FEATURE_PLAN_UPSELL_MATRIX.md).
+
