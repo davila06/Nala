@@ -32,6 +32,7 @@ export default function DashboardPage() {
   const capacityUnavailable = !entitlementsLoading && (entitlementsError || petLimit === null);
   const petCount = pets?.length ?? 0;
   const isChoosingLostPet = searchParams.get("action") === "report-lost";
+  const canShowCommercial = !isChoosingLostPet && lostCount === 0;
   const activePets = useMemo(() => (pets ?? []).filter((pet) => pet.status === "Active"), [pets]);
   const atPetLimit = petLimit !== null && petCount >= petLimit;
   const [search, setSearch] = useState("");
@@ -42,10 +43,16 @@ export default function DashboardPage() {
 
   // useState(fn) ignores the cleanup return — must use useEffect for side effects
   useEffect(() => {
-    const handler = () => setShowFreemium(true);
+    const handler = () => {
+      if (canShowCommercial) setShowFreemium(true);
+    };
     window.addEventListener("pawtrack:open-upgrade-modal", handler);
     return () => window.removeEventListener("pawtrack:open-upgrade-modal", handler);
-  }, []);
+  }, [canShowCommercial]);
+
+  useEffect(() => {
+    if (!canShowCommercial) setShowFreemium(false);
+  }, [canShowCommercial]);
 
   const filteredPets = useMemo(() => {
     if (!pets) return [];
@@ -71,9 +78,12 @@ export default function DashboardPage() {
   return (
     <>
       {/* Onboarding wizard — only for users with no pets who haven't dismissed it */}
-      {!isLoading && !isError && pets?.length === 0 && !onboardingDismissed && shouldShowOnboarding() && (
-        <OnboardingWizard onDismiss={() => setOnboardingDismissed(true)} />
-      )}
+      {!isChoosingLostPet &&
+        !isLoading &&
+        !isError &&
+        pets?.length === 0 &&
+        !onboardingDismissed &&
+        shouldShowOnboarding() && <OnboardingWizard onDismiss={() => setOnboardingDismissed(true)} />}
 
       <div ref={containerRef} className="mx-auto max-w-5xl px-4 py-8 animate-fade-in-up overflow-auto">
         {/* Pull-to-refresh indicator */}
@@ -124,7 +134,7 @@ export default function DashboardPage() {
                     ? "Verificando límite del plan…"
                     : "No se pudo verificar el límite"
                   : `${petCount} / ${petLimit} mascotas`}
-                {atPetLimit && !isFamilia && (
+                {canShowCommercial && atPetLimit && !isFamilia && (
                   <button
                     type="button"
                     onClick={() => setShowFreemium(true)}
@@ -257,31 +267,36 @@ export default function DashboardPage() {
         </div>
 
         {/* Billboard — visible near the dashboard entry actions */}
-        {!isLoading && <BillboardBanner placement="Dashboard" className="mb-8" />}
+        {!isLoading && canShowCommercial && <BillboardBanner placement="Dashboard" className="mb-8" />}
 
         {/* Freemium upsell — only for non-admin, non-paying users with at least 1 pet */}
-        {!isLoading && user?.role !== "Admin" && user?.role !== "SuperAdmin" && !isPlus && (pets?.length ?? 0) >= 1 && (
-          <button
-            type="button"
-            onClick={() => setShowFreemium(true)}
-            className="mb-8 w-full rounded-2xl border border-brand-200 bg-linear-to-r from-brand-50 to-rescue-50 px-4 py-3 flex items-center gap-3 text-left transition-colors hover:from-brand-100 hover:to-rescue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
-          >
-            <span className="text-2xl shrink-0" aria-hidden="true">
-              ⚡
-            </span>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-brand-900">Activa Plus y protege más a tus mascotas</p>
-              <p className="text-xs text-brand-600 mt-0.5">
-                Compara los precios y límites del catálogo vigente. La recuperación básica sigue disponible sin pago.
-              </p>
-            </div>
-            <span className="shrink-0 rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white">
-              Ver planes →
-            </span>
-          </button>
-        )}
+        {!isLoading &&
+          canShowCommercial &&
+          user?.role !== "Admin" &&
+          user?.role !== "SuperAdmin" &&
+          !isPlus &&
+          (pets?.length ?? 0) >= 1 && (
+            <button
+              type="button"
+              onClick={() => setShowFreemium(true)}
+              className="mb-8 w-full rounded-2xl border border-brand-200 bg-linear-to-r from-brand-50 to-rescue-50 px-4 py-3 flex items-center gap-3 text-left transition-colors hover:from-brand-100 hover:to-rescue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+            >
+              <span className="text-2xl shrink-0" aria-hidden="true">
+                ⚡
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-brand-900">Activa Plus y protege más a tus mascotas</p>
+                <p className="text-xs text-brand-600 mt-0.5">
+                  Compara los precios y límites del catálogo vigente. La recuperación básica sigue disponible sin pago.
+                </p>
+              </div>
+              <span className="shrink-0 rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white">
+                Ver planes →
+              </span>
+            </button>
+          )}
 
-        {showFreemium && <FreemiumModal onClose={() => setShowFreemium(false)} />}
+        {canShowCommercial && showFreemium && <FreemiumModal onClose={() => setShowFreemium(false)} />}
 
         {/* Loading skeleton */}
         {isLoading && (

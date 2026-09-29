@@ -10,6 +10,9 @@ vi.mock("@/features/pets/hooks/usePets", () => ({
   usePetScanHistory: vi.fn(),
   usePets: vi.fn(),
 }));
+vi.mock("@/features/advertising/components/BillboardBanner", () => ({
+  BillboardBanner: () => <div data-testid="public-profile-ad" />,
+}));
 
 import { usePublicPetProfile } from "@/features/pets/hooks/usePets";
 const mockProfile = vi.mocked(usePublicPetProfile);
@@ -48,9 +51,9 @@ describe("PublicPetProfilePage", () => {
     render("/p/pet-1");
 
     expect(screen.getByRole("heading", { name: /luna/i })).toBeInTheDocument();
-    expect(
-      screen.getByText(/mascota perdida — necesita ayuda/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/mascota perdida — necesita ayuda/i)).toBeInTheDocument();
+    expect(screen.queryByTestId("public-profile-ad")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Comparar fotos de avistamientos" })).toHaveAttribute("href", "/encontre");
   });
 
   it("shows report sighting link when status is Lost", () => {
@@ -78,6 +81,7 @@ describe("PublicPetProfilePage", () => {
 
     expect(screen.getByRole("heading", { name: /michi/i })).toBeInTheDocument();
     expect(screen.queryByText(/mascota perdida/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("public-profile-ad")).toBeInTheDocument();
   });
 
   it("renders the lost-pet public CTA and status messaging in the current layout", () => {
@@ -89,9 +93,7 @@ describe("PublicPetProfilePage", () => {
     render("/p/pet-1");
 
     expect(screen.getByRole("heading", { name: /luna/i })).toBeInTheDocument();
-    expect(
-      screen.getByText(/mascota perdida — necesita ayuda/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/mascota perdida — necesita ayuda/i)).toBeInTheDocument();
     expect(
       screen.getByRole("link", {
         name: /vi a esta mascota — reportar avistamiento/i,

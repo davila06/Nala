@@ -64,3 +64,8 @@ Cada afirmación nueva usa evidencia de código enlazada en su documento. Prueba
 - Catálogo/UI: Freemium, PlanGate, Dashboard, perfil y selector de promociones usan precios del catálogo activo o el importe contratado; sin catálogo no se inventa tarifa. Se quitaron promesas de IA/movimiento/mascotas ilimitadas y bundle GPS no verificado.
 - Validación final backend: **1.814/1.814** (1.645 unitarias + 169 integración). Frontend: **168/168 pruebas, 58/58 archivos**. Typecheck: exit code 2 por 12 TS6133 en `frontend/src/features/lost-pets/pages/ReportLostPage.tsx`, archivo fuera del P0. Los tests no validan `sp_getapplock` contra SQL Server. Pruebas P0 focales de familia, clínica, pricing y dashboard pasan.
 - Limitaciones: no se añadieron roles clínicos/Family Viewer nuevos ni se ejecutó piloto externo, cotización/proveedor de hardware o carga en producción. El contenido de este changelog no certifica rollout.
+
+## 2026-09-28 — Revisión P2 de eventos de crecimiento
+
+- Actualizado [GROWTH_EVENTS](../growth/GROWTH_EVENTS.md) con destinos actuales de eventos, identificadores, fanout, retención configurable y controles de consentimiento/emergencia respaldados por código y pruebas frontend.
+- Los nuevos eventos de activación, correlación de funnel y variantes de upsell siguen `PROPUESTO`/`REQUIRES_HUMAN_APPROVAL`: privacidad y producto deben aprobar campos, supresión en todos los destinos, retención y criterios de experimento antes de activarlos. No se afirma despliegue ni resultados comerciales.

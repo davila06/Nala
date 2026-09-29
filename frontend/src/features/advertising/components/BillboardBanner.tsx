@@ -1,12 +1,9 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useBillboards } from "../hooks/useBillboards";
-import {
-  billboardsApi,
-  type BillboardDto,
-  type BillboardPlacement,
-} from "../api/billboardsApi";
+import { billboardsApi, type BillboardDto, type BillboardPlacement } from "../api/billboardsApi";
 import { trackProductEvent } from "@/shared/lib/telemetry";
+import { getCookieConsent } from "@/shared/ui/cookieConsent";
 
 interface BillboardBannerProps {
   placement: BillboardPlacement;
@@ -23,19 +20,11 @@ function deliveryKey(billboardId: string, eventType: string): string {
   return `${visitorId}:${billboardId}:${eventType}:${new Date().toISOString().slice(0, 10)}`;
 }
 
-function trackDelivery(
-  billboardId: string,
-  eventType: "Impression" | "Click" | "Conversion",
-) {
-  try {
-    void billboardsApi.trackDelivery(
-      billboardId,
-      eventType,
-      deliveryKey(billboardId, eventType),
-    );
-  } catch {
+function trackDelivery(billboardId: string, eventType: "Impression" | "Click" | "Conversion") {
+  if (getCookieConsent() !== "accepted") return;
+  void billboardsApi.trackDelivery(billboardId, eventType, deliveryKey(billboardId, eventType)).catch(() => {
     // Commercial telemetry must never block the customer journey.
-  }
+  });
 }
 
 function hasAllowedImageSource(imageUrl: string | null): imageUrl is string {
@@ -64,11 +53,13 @@ function BillboardCard({
 }) {
   const handleCta = () => {
     if (!bill.ctaUrl) return;
-    trackProductEvent("BillboardClicked", {
-      source: "billboard",
-      billboardId: bill.id,
-      placement,
-    });
+    if (getCookieConsent() === "accepted") {
+      trackProductEvent("BillboardClicked", {
+        source: "billboard",
+        billboardId: bill.id,
+        placement,
+      });
+    }
     trackDelivery(bill.id, "Click");
     // Only open same-origin or https links
     try {
@@ -102,29 +93,16 @@ function BillboardCard({
 
       {/* Image */}
       {hasAllowedImageSource(bill.imageUrl) && (
-        <img
-          src={bill.imageUrl}
-          alt={bill.title}
-          className="h-28 w-full object-cover"
-          loading="lazy"
-        />
+        <img src={bill.imageUrl} alt={bill.title} className="h-28 w-full object-cover" loading="lazy" />
       )}
 
       {/* Content */}
-      <div
-        className={`px-4 py-3 space-y-1.5 ${!hasAllowedImageSource(bill.imageUrl) ? "pt-4" : ""}`}
-      >
+      <div className={`px-4 py-3 space-y-1.5 ${!hasAllowedImageSource(bill.imageUrl) ? "pt-4" : ""}`}>
         <div className="flex items-center gap-2">
-          <span className="text-[9px] font-bold uppercase tracking-widest text-copy-muted">
-            Publicidad
-          </span>
+          <span className="text-[9px] font-bold uppercase tracking-widest text-copy-muted">Publicidad</span>
         </div>
-        <p className="font-semibold text-ink-900 text-sm leading-snug">
-          {bill.title}
-        </p>
-        {bill.body && (
-          <p className="text-xs text-copy-secondary leading-relaxed">{bill.body}</p>
-        )}
+        <p className="font-semibold text-ink-900 text-sm leading-snug">{bill.title}</p>
+        {bill.body && <p className="text-xs text-copy-secondary leading-relaxed">{bill.body}</p>}
         {bill.ctaLabel && bill.ctaUrl && (
           <button
             type="button"
@@ -144,31 +122,24 @@ function BillboardCard({
  * Dismissals only affect the current mounted view. Returning to the page or
  * reloading it makes active billboards eligible to appear again.
  */
-export function BillboardBanner({
-  placement,
-  className = "",
-}: BillboardBannerProps) {
+export function BillboardBanner({ placement, className = "" }: BillboardBannerProps) {
   const { data: billboards = [] } = useBillboards(placement);
   const [dismissed, setDismissedState] = useState<Set<string>>(new Set());
   const [rotationOffset, setRotationOffset] = useState(0);
 
   const visible = billboards.filter((b) => !dismissed.has(b.id));
-  const current =
-    visible.length > 0 ? visible[rotationOffset % visible.length] : null;
+  const current = visible.length > 0 ? visible[rotationOffset % visible.length] : null;
 
   useEffect(() => {
-    if (billboards.length < 2) return;
+    if (billboards.length < 2 || getCookieConsent() !== "accepted") return;
     const cursorKey = `pawtrack:billboard:cursor:${placement}`;
     const next = Number(localStorage.getItem(cursorKey) ?? "0");
     setRotationOffset(Number.isFinite(next) ? next : 0);
-    localStorage.setItem(
-      cursorKey,
-      String((Number.isFinite(next) ? next : 0) + 1),
-    );
+    localStorage.setItem(cursorKey, String((Number.isFinite(next) ? next : 0) + 1));
   }, [billboards, placement]);
 
   useEffect(() => {
-    if (!current) return;
+    if (!current || getCookieConsent() !== "accepted") return;
     trackProductEvent("BillboardImpression", {
       source: "billboard",
       billboardId: current.id,
@@ -178,11 +149,13 @@ export function BillboardBanner({
   }, [current, placement]);
 
   const dismiss = (id: string) => {
-    trackProductEvent("BillboardDismissed", {
-      source: "billboard",
-      billboardId: id,
-      placement,
-    });
+    if (getCookieConsent() === "accepted") {
+      trackProductEvent("BillboardDismissed", {
+        source: "billboard",
+        billboardId: id,
+        placement,
+      });
+    }
     setDismissedState((prev) => new Set([...prev, id]));
   };
 
@@ -191,12 +164,7 @@ export function BillboardBanner({
   return (
     <div className={className} data-billboard-placement={placement}>
       <AnimatePresence mode="wait">
-        <BillboardCard
-          key={current.id}
-          bill={current}
-          placement={placement}
-          onDismiss={() => dismiss(current.id)}
-        />
+        <BillboardCard key={current.id} bill={current} placement={placement} onDismiss={() => dismiss(current.id)} />
       </AnimatePresence>
     </div>
   );

@@ -2,10 +2,7 @@ import { useState, lazy, Suspense } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { FraudReportButton } from "@/features/safety/components/FraudReportButton";
-import {
-  OwnerHandoverPanel,
-  RescuerHandoverPanel,
-} from "@/features/safety/components/HandoverCodePanel";
+import { OwnerHandoverPanel, RescuerHandoverPanel } from "@/features/safety/components/HandoverCodePanel";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { CaseActionsPanel } from "../components/CaseActionsPanel";
 import { CaseTimeline } from "../components/CaseTimeline";
@@ -80,9 +77,7 @@ function SponsoredClinicBanner({ clinic }: { clinic: SponsoredClinicDto }) {
       )}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <p className="text-xs font-extrabold text-trust-900 truncate">
-            {clinic.name}
-          </p>
+          <p className="text-xs font-extrabold text-trust-900 truncate">{clinic.name}</p>
           <span className="shrink-0 rounded-full bg-trust-100 px-1.5 py-0.5 text-[9px] font-bold text-trust-700">
             ✓ Verificada
           </span>
@@ -101,8 +96,7 @@ export default function CaseRoomPage() {
   const { id } = useParams<{ id: string }>();
   const lostEventId = id ?? "";
 
-  const { data, isLoading, isError, isFetching, refetch } =
-    useCaseRoom(lostEventId);
+  const { data, isLoading, isError, isFetching, refetch } = useCaseRoom(lostEventId);
   const [activeTab, setActiveTab] = useState<Tab>("timeline");
   const currentUserId = useAuthStore((s) => s.user?.id);
 
@@ -122,26 +116,16 @@ export default function CaseRoomPage() {
     return (
       <div className="mx-auto max-w-[680px] px-4 py-12 text-center">
         <p className="mb-4 text-sm text-copy-secondary">
-          No se pudo cargar el centro de comando. El reporte puede haber sido
-          cerrado o no tienes acceso.
+          No se pudo cargar el centro de comando. El reporte puede haber sido cerrado o no tienes acceso.
         </p>
-        <Link
-          to="/dashboard"
-          className="text-sm font-semibold text-trust-600 underline hover:text-trust-700"
-        >
+        <Link to="/dashboard" className="text-sm font-semibold text-trust-600 underline hover:text-trust-700">
           ← Volver al tablero
         </Link>
       </div>
     );
   }
 
-  const {
-    event,
-    sightings,
-    nearbyAlerts,
-    totalNearbyAlertsDispatched,
-    sponsoredClinic,
-  } = data;
+  const { event, sightings, nearbyAlerts, totalNearbyAlertsDispatched, sponsoredClinic } = data;
 
   return (
     <div className="mx-auto max-w-[680px] px-4 pb-16 pt-6 animate-fade-in-up">
@@ -156,15 +140,12 @@ export default function CaseRoomPage() {
       </Link>
 
       {/* ── Sponsored clinic banner ──────────────────────────────────────────── */}
-      {sponsoredClinic && <SponsoredClinicBanner clinic={sponsoredClinic} />}
-      <BillboardBanner placement="CaseRoom" className="mb-4" />
+      {event.status !== "Active" && sponsoredClinic && <SponsoredClinicBanner clinic={sponsoredClinic} />}
+      {event.status !== "Active" && <BillboardBanner placement="CaseRoom" className="mb-4" />}
 
       {/* ── Emergency vet panel ─────────────────────────────────────────────── */}
       <div className="mb-4">
-        <EmergencyVetPanel
-          lat={event.lastSeenLat ?? undefined}
-          lng={event.lastSeenLng ?? undefined}
-        />
+        <EmergencyVetPanel lat={event.lastSeenLat ?? undefined} lng={event.lastSeenLng ?? undefined} />
       </div>
 
       {/* ── Header card ─────────────────────────────────────────────────────── */}
@@ -185,12 +166,8 @@ export default function CaseRoomPage() {
         )}
 
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-bold uppercase tracking-[0.05em] text-danger-600">
-            🚨 Centro de Comando
-          </p>
-          <p className="mt-0.5 truncate text-base font-extrabold text-sand-900">
-            Caso activo
-          </p>
+          <p className="text-xs font-bold uppercase tracking-[0.05em] text-danger-600">🚨 Centro de Comando</p>
+          <p className="mt-0.5 truncate text-base font-extrabold text-sand-900">Caso activo</p>
           <p className="mt-0.5 text-xs text-copy-secondary">
             <ElapsedTime from={event.reportedAt} />
           </p>
@@ -202,22 +179,14 @@ export default function CaseRoomPage() {
           aria-label="Actualizar datos"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-sand-200 field-input text-base hover:bg-sand-50 active:scale-95 transition-base"
         >
-          <span
-            aria-hidden="true"
-            className={
-              isFetching ? "animate-spin inline-block" : "inline-block"
-            }
-          >
+          <span aria-hidden="true" className={isFetching ? "animate-spin inline-block" : "inline-block"}>
             🔄
           </span>
         </button>
       </div>
 
       {/* ── Tab bar ─────────────────────────────────────────────────────────── */}
-      <div
-        role="tablist"
-        className="mb-4 grid grid-cols-4 gap-1 rounded-2xl bg-sand-100 p-1.5 sm:grid-cols-4"
-      >
+      <div role="tablist" className="mb-4 grid grid-cols-4 gap-1 rounded-2xl bg-sand-100 p-1.5 sm:grid-cols-4">
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -248,16 +217,8 @@ export default function CaseRoomPage() {
           exit={{ opacity: 0, x: -10 }}
           transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
         >
-          <div
-            id={`panel-timeline`}
-            role="tabpanel"
-            hidden={activeTab !== "timeline"}
-          >
-            <CaseTimeline
-              event={event}
-              sightings={sightings}
-              nearbyAlerts={nearbyAlerts}
-            />
+          <div id={`panel-timeline`} role="tabpanel" hidden={activeTab !== "timeline"}>
+            <CaseTimeline event={event} sightings={sightings} nearbyAlerts={nearbyAlerts} />
           </div>
 
           <div id={`panel-map`} role="tabpanel" hidden={activeTab !== "map"}>
@@ -276,9 +237,7 @@ export default function CaseRoomPage() {
                   </div>
                   <Suspense
                     fallback={
-                      <div className="flex h-64 items-center justify-center text-zinc-600 text-xs">
-                        Cargando radar…
-                      </div>
+                      <div className="flex h-64 items-center justify-center text-zinc-600 text-xs">Cargando radar…</div>
                     }
                   >
                     <SearchRadar3D
@@ -294,9 +253,7 @@ export default function CaseRoomPage() {
                 <SightingHeatMap
                   sightings={sightings}
                   defaultCenter={
-                    event.lastSeenLat && event.lastSeenLng
-                      ? [event.lastSeenLat, event.lastSeenLng]
-                      : undefined
+                    event.lastSeenLat && event.lastSeenLng ? [event.lastSeenLat, event.lastSeenLng] : undefined
                   }
                 />
               </>
@@ -315,11 +272,7 @@ export default function CaseRoomPage() {
             )}
           </div>
 
-          <div
-            id={`panel-actions`}
-            role="tabpanel"
-            hidden={activeTab !== "actions"}
-          >
+          <div id={`panel-actions`} role="tabpanel" hidden={activeTab !== "actions"}>
             <CaseActionsPanel
               event={event}
               sightings={sightings}
@@ -343,28 +296,17 @@ export default function CaseRoomPage() {
             {/* Fraud report — visible to everyone except the pet owner */}
             {currentUserId !== event.ownerId && (
               <div className="mt-6">
-                <FraudReportButton
-                  context="PublicProfile"
-                  relatedEntityId={lostEventId}
-                  targetUserId={event.ownerId}
-                />
+                <FraudReportButton context="PublicProfile" relatedEntityId={lostEventId} targetUserId={event.ownerId} />
               </div>
             )}
 
             {/* Bounty widget — owner can create; all can see */}
             <div className="mt-6">
-              <BountyWidget
-                lostEventId={lostEventId}
-                isOwner={currentUserId === event.ownerId}
-              />
+              <BountyWidget lostEventId={lostEventId} isOwner={currentUserId === event.ownerId} />
             </div>
           </div>
 
-          <div
-            id={`panel-alerts`}
-            role="tabpanel"
-            hidden={activeTab !== "alerts"}
-          >
+          <div id={`panel-alerts`} role="tabpanel" hidden={activeTab !== "alerts"}>
             {nearbyAlerts.length === 0 ? (
               <p className="py-8 text-center text-sm text-copy-muted">
                 Aún no se han enviado alertas a usuarios cercanos.
@@ -372,17 +314,9 @@ export default function CaseRoomPage() {
             ) : (
               <ul className="flex flex-col gap-2.5 p-0">
                 {nearbyAlerts.map((alert) => (
-                  <li
-                    key={alert.notificationId}
-                    className="rounded-2xl border border-trust-200 bg-trust-50 p-3"
-                  >
-                    <p className="text-[0.82rem] font-semibold text-trust-900">
-                      🔔 {alert.title}
-                    </p>
-                    <time
-                      dateTime={alert.sentAt}
-                      className="mt-0.5 block text-[0.72rem] text-copy-secondary"
-                    >
+                  <li key={alert.notificationId} className="rounded-2xl border border-trust-200 bg-trust-50 p-3">
+                    <p className="text-[0.82rem] font-semibold text-trust-900">🔔 {alert.title}</p>
+                    <time dateTime={alert.sentAt} className="mt-0.5 block text-[0.72rem] text-copy-secondary">
                       {new Date(alert.sentAt).toLocaleString("es-CR")}
                     </time>
                   </li>

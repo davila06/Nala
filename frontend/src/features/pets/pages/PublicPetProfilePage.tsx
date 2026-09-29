@@ -1,11 +1,4 @@
-import {
-  useState,
-  useRef,
-  useEffect,
-  useCallback,
-  lazy,
-  Suspense,
-} from "react";
+import { useState, useRef, useEffect, useCallback, lazy, Suspense } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { SharePetButton } from "@/features/lost-pets/components/SharePetButton";
@@ -19,9 +12,7 @@ import { petsApi } from "../api/petsApi";
 import { BillboardBanner } from "@/features/advertising/components/BillboardBanner";
 
 // Lazy-load the 3D tag (Three.js is heavy — only load when needed)
-const PetTag3D = lazy(() =>
-  import("../components/PetTag3D").then((m) => ({ default: m.PetTag3D })),
-);
+const PetTag3D = lazy(() => import("../components/PetTag3D").then((m) => ({ default: m.PetTag3D })));
 
 const SPECIES_EMOJI: Record<string, string> = {
   Dog: "🐶",
@@ -62,8 +53,7 @@ function ParallaxHero({
     if (scrolled < 0) return;
     const rate = scrolled * 0.35;
     if (imgRef.current) {
-      (imgRef.current as HTMLElement).style.transform =
-        `translateY(${rate}px) scale(1.15)`;
+      (imgRef.current as HTMLElement).style.transform = `translateY(${rate}px) scale(1.15)`;
     }
   }, []);
 
@@ -73,11 +63,7 @@ function ParallaxHero({
   }, [handleScroll]);
 
   return (
-    <div
-      ref={heroRef}
-      className="relative h-80 overflow-hidden"
-      style={{ isolation: "isolate" }}
-    >
+    <div ref={heroRef} className="relative h-80 overflow-hidden" style={{ isolation: "isolate" }}>
       {/* Background layer (blurred duplicate) */}
       {photoUrl && (
         <div
@@ -219,9 +205,7 @@ export default function PublicPetProfilePage() {
         <span className="text-6xl" aria-hidden="true">
           🔍
         </span>
-        <h1 className="text-2xl font-bold text-sand-900">
-          Perfil no encontrado
-        </h1>
+        <h1 className="text-2xl font-bold text-sand-900">Perfil no encontrado</h1>
         <p className="text-sm text-copy-secondary">
           Este código QR puede ya no estar activo o la mascota fue eliminada.
         </p>
@@ -256,12 +240,7 @@ export default function PublicPetProfilePage() {
         <meta property="og:type" content="profile" />
       </Helmet>
       {/* Cinematic parallax hero */}
-      <ParallaxHero
-        photoUrl={pet.photoUrl}
-        petName={pet.name}
-        species={pet.species}
-        isLost={isLost}
-      />
+      <ParallaxHero photoUrl={pet.photoUrl} petName={pet.name} species={pet.species} isLost={isLost} />
 
       {/* Content floats over the hero gradient */}
       <div className="relative -mt-12 px-5 pb-12">
@@ -269,15 +248,11 @@ export default function PublicPetProfilePage() {
         <div
           className={[
             "mb-5 rounded-2xl border p-4 shadow-lg backdrop-blur-sm",
-            isLost
-              ? "border-danger-200 bg-surface/95"
-              : "border-sand-200 bg-surface/95",
+            isLost ? "border-danger-200 bg-surface/95" : "border-sand-200 bg-surface/95",
           ].join(" ")}
         >
           <div className="mb-1 flex items-center gap-2.5">
-            <h1 className="font-display text-3xl font-semibold text-sand-900">
-              {pet.name}
-            </h1>
+            <h1 className="font-display text-3xl font-semibold text-sand-900">{pet.name}</h1>
             <PetStatusBadge status={pet.status} />
           </div>
           <p className="text-sm text-copy-secondary">
@@ -297,17 +272,10 @@ export default function PublicPetProfilePage() {
         <div className="mb-5">
           <Suspense
             fallback={
-              <div className="flex h-60 items-center justify-center text-sand-300 text-xs">
-                Cargando placa 3D…
-              </div>
+              <div className="flex h-60 items-center justify-center text-sand-300 text-xs">Cargando placa 3D…</div>
             }
           >
-            <PetTag3D
-              petName={pet.name}
-              isLost={isLost}
-              species={pet.species}
-              height={220}
-            />
+            <PetTag3D petName={pet.name} isLost={isLost} species={pet.species} height={220} />
           </Suspense>
         </div>
 
@@ -325,9 +293,7 @@ export default function PublicPetProfilePage() {
             <span aria-hidden="true" className="text-xl">
               🐾
             </span>
-            {isLost
-              ? "Vi a esta mascota — Reportar avistamiento"
-              : "Reportar avistamiento"}
+            {isLost ? "Vi a esta mascota — Reportar avistamiento" : "Reportar avistamiento"}
           </Link>
         )}
 
@@ -338,7 +304,7 @@ export default function PublicPetProfilePage() {
             className="mb-3 flex w-full items-center justify-center gap-2.5 rounded-2xl border border-trust-300 bg-trust-50 py-3 text-sm font-semibold text-trust-700 transition-all hover:bg-trust-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trust-400"
           >
             <span aria-hidden="true">🔍</span>
-            Buscar por foto con IA
+            Comparar fotos de avistamientos
           </Link>
         )}
 
@@ -353,13 +319,8 @@ export default function PublicPetProfilePage() {
         )}
 
         {/* Share */}
-        <SharePetButton
-          petId={pet.id}
-          petName={pet.name}
-          variant="outline"
-          className="mb-4"
-        />
-        <BillboardBanner placement="PublicPetProfile" className="mb-4" />
+        <SharePetButton petId={pet.id} petName={pet.name} variant="outline" className="mb-4" />
+        {!isLost && <BillboardBanner placement="PublicPetProfile" className="mb-4" />}
 
         {/* Safe chat CTA (hidden for the pet's owner — no self-chat) */}
         {!isOwner && isLost && pet.activeLostEventId && pet.ownerId && (
@@ -377,14 +338,10 @@ export default function PublicPetProfilePage() {
               Contacto seguro sin revelar tu identidad
             </p>
             <p className="mb-3 text-sm text-sand-700">
-              Envía un mensaje al dueño. PawTrack no mostrará su teléfono ni tu
-              información de contacto.
+              Envía un mensaje al dueño. PawTrack no mostrará su teléfono ni tu información de contacto.
             </p>
             {contactSent ? (
-              <p
-                className="text-sm font-semibold text-rescue-700"
-                role="status"
-              >
+              <p className="text-sm font-semibold text-rescue-700" role="status">
                 Mensaje enviado al propietario.
               </p>
             ) : (
@@ -423,42 +380,35 @@ export default function PublicPetProfilePage() {
         )}
 
         {/* Contact card (hidden for owner) */}
-        {!isOwner &&
-          isLost &&
-          pet.activeLostEventId &&
-          (pet.contactName ?? contact?.contactName) && (
-            <div className="mb-4 rounded-2xl border border-brand-200 bg-linear-to-br from-brand-50 to-surface p-4 shadow-sm">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-brand-700">
-                Contacto del dueño
-              </p>
-              <p className="mb-3 text-sm font-semibold text-sand-800">
-                {pet.contactName ?? contact?.contactName}
-              </p>
-              {contact?.contactPhone ? (
-                <a
-                  href={`tel:${contact.contactPhone}`}
-                  className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-1"
-                >
-                  <span aria-hidden="true">📞</span> {contact.contactPhone}
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleRevealPhone}
-                  disabled={contactLoading}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-400 field-input px-4 py-2.5 text-sm font-semibold text-brand-700 hover:bg-brand-50 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
-                >
-                  {contactLoading ? (
-                    <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-brand-400 border-t-transparent" />
-                  ) : (
-                    <>
-                      <span aria-hidden="true">📞</span> Ver número de teléfono
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-          )}
+        {!isOwner && isLost && pet.activeLostEventId && (pet.contactName ?? contact?.contactName) && (
+          <div className="mb-4 rounded-2xl border border-brand-200 bg-linear-to-br from-brand-50 to-surface p-4 shadow-sm">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-brand-700">Contacto del dueño</p>
+            <p className="mb-3 text-sm font-semibold text-sand-800">{pet.contactName ?? contact?.contactName}</p>
+            {contact?.contactPhone ? (
+              <a
+                href={`tel:${contact.contactPhone}`}
+                className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-1"
+              >
+                <span aria-hidden="true">📞</span> {contact.contactPhone}
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={handleRevealPhone}
+                disabled={contactLoading}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-400 field-input px-4 py-2.5 text-sm font-semibold text-brand-700 hover:bg-brand-50 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+              >
+                {contactLoading ? (
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-brand-400 border-t-transparent" />
+                ) : (
+                  <>
+                    <span aria-hidden="true">📞</span> Ver número de teléfono
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        )}
 
         {/* PawTrack attribution */}
         <div className="mt-8 flex flex-col items-center gap-3">

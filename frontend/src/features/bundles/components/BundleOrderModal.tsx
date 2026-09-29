@@ -636,8 +636,8 @@ export function BundleOrderModal() {
             📲
           </span>
           <div>
-            <p className="text-sm font-semibold text-trust-800">Configurar chip NFC</p>
-            <p className="text-xs text-trust-600">Tutorial paso a paso para activar el collar NFC</p>
+            <p className="text-sm font-semibold text-trust-800">Escribir enlace en chip NFC</p>
+            <p className="text-xs text-trust-600">Guía para escribir la URL en un chip NFC compatible</p>
           </div>
         </button>
       )}
