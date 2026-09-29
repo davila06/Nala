@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { usePaymentProfiles } from "../hooks/usePaymentProfiles";
+import { useEffect, useRef, useState } from "react";
+import { useCaptureContext, usePaymentProfiles } from "../hooks/usePaymentProfiles";
 import { useHaptic } from "@/shared/hooks/useHaptic";
 
 export interface CardPaymentData {
@@ -16,19 +16,6 @@ interface SecureCardPaymentFormProps {
   buttonLabel?: string;
 }
 
-function getCardBrand(num: string): string {
-  const clean = num.replace(/\D/g, "");
-  if (/^4/.test(clean)) return "Visa";
-  if (/^(5[1-5]|2[2-7])/.test(clean)) return "Mastercard";
-  if (/^3[47]/.test(clean)) return "Amex";
-  return "Card";
-}
-
-function formatCardNumber(val: string): string {
-  const clean = val.replace(/\D/g, "").slice(0, 16);
-  return clean.replace(/(\d{4})(?=\d)/g, "$1 ");
-}
-
 function formatExpiry(val: string): string {
   const clean = val.replace(/\D/g, "").slice(0, 4);
   if (clean.length > 2) {
@@ -37,24 +24,107 @@ function formatExpiry(val: string): string {
   return clean;
 }
 
+type HostedField = {
+  load: (element: HTMLElement) => void;
+};
+
+type Microform = {
+  createField: (name: "number" | "securityCode", options?: Record<string, string>) => HostedField;
+  createToken: (
+    options: { cardExpirationMonth: string; cardExpirationYear: string },
+    callback: (error: Error | null, token?: string) => void,
+  ) => void;
+};
+
+type Flex = new (captureContextJwt: string) => {
+  microform: (options?: { styles?: Record<string, Record<string, string>> }) => Microform;
+};
+
+declare global {
+  interface Window {
+    Flex?: Flex;
+  }
+}
+
+async function loadCyberSourceScript(url: string): Promise<void> {
+  if (window.Flex) return;
+
+  const existing = document.querySelector<HTMLScriptElement>('script[data-cybersource-flex="true"]');
+  if (existing) {
+    await new Promise<void>((resolve, reject) => {
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener("error", () => reject(new Error("No fue posible cargar CyberSource Flex.")), {
+        once: true,
+      });
+    });
+    return;
+  }
+
+  await new Promise<void>((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = url;
+    script.async = true;
+    script.dataset.cybersourceFlex = "true";
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("No fue posible cargar CyberSource Flex."));
+    document.head.appendChild(script);
+  });
+}
+
 export function SecureCardPaymentForm({ amountCrc, isProcessing, onPay, buttonLabel }: SecureCardPaymentFormProps) {
   const { data: savedProfiles = [], isLoading: loadingProfiles } = usePaymentProfiles();
+  const { data: captureContext, isLoading: loadingCaptureContext } = useCaptureContext();
   const { tap, warning } = useHaptic();
 
   const [useNewCard, setUseNewCard] = useState(false);
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
 
   const [cardholderName, setCardholderName] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
-  const [cvv, setCvv] = useState("");
   const [saveProfile, setSaveProfile] = useState(true);
   const [formError, setFormError] = useState<string | null>(null);
+  const [microform, setMicroform] = useState<Microform | null>(null);
+  const cardNumberFieldRef = useRef<HTMLDivElement>(null);
+  const securityCodeFieldRef = useRef<HTMLDivElement>(null);
 
   const hasSavedCards = savedProfiles.length > 0;
   const activeUseNewCard = useNewCard || !hasSavedCards;
 
-  const brand = getCardBrand(cardNumber);
+  useEffect(() => {
+    if (!captureContext?.isConfigured || !captureContext.captureContextJwt || !captureContext.clientLibraryUrl) return;
+
+    let cancelled = false;
+    const initializeMicroform = async () => {
+      try {
+        await loadCyberSourceScript(captureContext.clientLibraryUrl);
+        if (cancelled || !window.Flex) return;
+
+        const flex = new window.Flex(captureContext.captureContextJwt);
+        setMicroform(
+          flex.microform({
+            styles: {
+              input: { "font-family": "inherit", "font-size": "14px", color: "#292524" },
+              "input.invalid": { color: "#b91c1c" },
+            },
+          }),
+        );
+      } catch {
+        if (!cancelled) setFormError("El pago seguro no está disponible en este momento.");
+      }
+    };
+
+    void initializeMicroform();
+    return () => {
+      cancelled = true;
+    };
+  }, [captureContext]);
+
+  useEffect(() => {
+    if (!microform || !cardNumberFieldRef.current || !securityCodeFieldRef.current) return;
+
+    microform.createField("number", { placeholder: "Número de tarjeta" }).load(cardNumberFieldRef.current);
+    microform.createField("securityCode", { placeholder: "Código de seguridad" }).load(securityCodeFieldRef.current);
+  }, [microform]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,13 +142,6 @@ export function SecureCardPaymentForm({ amountCrc, isProcessing, onPay, buttonLa
       return;
     }
 
-    const cleanNum = cardNumber.replace(/\D/g, "");
-    if (cleanNum.length < 15 || cleanNum.length > 16) {
-      setFormError("Número de tarjeta incompleto.");
-      warning();
-      return;
-    }
-
     const [mm, yy] = expiry.split("/");
     const month = parseInt(mm ?? "0", 10);
     const year = parseInt(yy ?? "0", 10);
@@ -88,8 +151,8 @@ export function SecureCardPaymentForm({ amountCrc, isProcessing, onPay, buttonLa
       return;
     }
 
-    if (cvv.trim().length < 3) {
-      setFormError("Código de seguridad CVV incompleto.");
+    if (!microform) {
+      setFormError("El pago seguro no está disponible en este momento.");
       warning();
       return;
     }
@@ -101,15 +164,25 @@ export function SecureCardPaymentForm({ amountCrc, isProcessing, onPay, buttonLa
     }
 
     tap();
+    microform.createToken(
+      {
+        cardExpirationMonth: month.toString().padStart(2, "0"),
+        cardExpirationYear: yy.length === 2 ? `20${yy}` : yy,
+      },
+      (error, transientToken) => {
+        if (error || !transientToken) {
+          setFormError("CyberSource no pudo validar la tarjeta.");
+          warning();
+          return;
+        }
 
-    // Client-side transient token generation (PCI-DSS SAQ A: raw details never reach PawTrack database)
-    const simulatedTransientToken = `tok_flex_${brand.toLowerCase()}_${cleanNum.slice(-4)}_${Date.now()}`;
-
-    void onPay({
-      transientToken: simulatedTransientToken,
-      cardholderName: cardholderName.trim(),
-      saveProfile,
-    });
+        void onPay({
+          transientToken,
+          cardholderName: cardholderName.trim(),
+          saveProfile,
+        });
+      },
+    );
   };
 
   return (
@@ -181,7 +254,7 @@ export function SecureCardPaymentForm({ amountCrc, isProcessing, onPay, buttonLa
               <span>💳</span> Datos de la tarjeta
             </span>
             <span className="text-[10px] font-bold text-brand-700 bg-brand-100/70 px-2 py-0.5 rounded-md">
-              {brand !== "Card" ? brand : "Visa / Mastercard / Amex"}
+              CyberSource Flex
             </span>
           </div>
 
@@ -202,19 +275,12 @@ export function SecureCardPaymentForm({ amountCrc, isProcessing, onPay, buttonLa
           </div>
 
           <div>
-            <label htmlFor="card-number" className="block text-[11px] font-semibold text-sand-700 mb-1">
-              Número de tarjeta
-            </label>
-            <input
-              id="card-number"
-              type="text"
-              value={cardNumber}
-              onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-              placeholder="0000 0000 0000 0000"
-              autoComplete="cc-number"
-              inputMode="numeric"
-              disabled={isProcessing}
-              className="w-full font-mono rounded-xl border border-sand-200 bg-surface px-3 py-2 text-xs text-sand-900 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 tracking-wider"
+            <span className="block text-[11px] font-semibold text-sand-700 mb-1">Campo seguro de tarjeta</span>
+            <div
+              ref={cardNumberFieldRef}
+              data-testid="cybersource-card-number"
+              className="min-h-9 rounded-xl border border-sand-200 bg-surface px-3 py-2 text-xs text-copy-muted"
+              aria-label="Campo seguro de número de tarjeta"
             />
           </div>
 
@@ -237,19 +303,12 @@ export function SecureCardPaymentForm({ amountCrc, isProcessing, onPay, buttonLa
             </div>
 
             <div>
-              <label htmlFor="card-cvv" className="block text-[11px] font-semibold text-sand-700 mb-1">
-                Código CVV
-              </label>
-              <input
-                id="card-cvv"
-                type="password"
-                value={cvv}
-                onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                placeholder="123"
-                autoComplete="cc-csc"
-                inputMode="numeric"
-                disabled={isProcessing}
-                className="w-full font-mono rounded-xl border border-sand-200 bg-surface px-3 py-2 text-xs text-sand-900 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-center tracking-widest"
+              <span className="block text-[11px] font-semibold text-sand-700 mb-1">Código seguro</span>
+              <div
+                ref={securityCodeFieldRef}
+                data-testid="cybersource-security-code"
+                className="min-h-9 rounded-xl border border-sand-200 bg-surface px-3 py-2 text-xs text-copy-muted"
+                aria-label="Campo seguro de código de tarjeta"
               />
             </div>
           </div>
@@ -274,7 +333,7 @@ export function SecureCardPaymentForm({ amountCrc, isProcessing, onPay, buttonLa
       {/* Botón de pago */}
       <button
         type="submit"
-        disabled={isProcessing || loadingProfiles}
+        disabled={isProcessing || loadingProfiles || loadingCaptureContext}
         className="w-full rounded-2xl bg-brand-600 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring shadow-sm"
       >
         {isProcessing ? (

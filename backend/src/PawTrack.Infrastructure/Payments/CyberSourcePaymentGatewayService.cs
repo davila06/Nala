@@ -13,7 +13,7 @@ namespace PawTrack.Infrastructure.Payments;
 /// Gateway adapter for CyberSource REST API (BAC Credomatic / Visa).
 /// Provides Microform capture context, transient token conversion, and recurring card charge.
 /// Configuration: CyberSource:MerchantId, CyberSource:KeyId, CyberSource:SecretKey, CyberSource:RunEnvironment.
-/// Fallback: If credentials are not configured, provides simulated responses in dev/test to allow seamless UI testing.
+/// Fails closed when credentials are not configured or the provider cannot confirm the operation.
 /// </summary>
 public sealed class CyberSourcePaymentGatewayService(
     IHttpClientFactory httpClientFactory,
@@ -35,12 +35,10 @@ public sealed class CyberSourcePaymentGatewayService(
     {
         if (!IsConfigured)
         {
-            logger.LogInformation("CyberSource credentials not configured. Returning simulated capture context for development.");
-            var simulatedJwt = GenerateSimulatedJwt();
             return new CaptureContextResult(
                 ClientLibraryUrl: "https://flex.cybersource.com/cybersource/assets/microform/0.11/flex-microform.min.js",
-                CaptureContextJwt: simulatedJwt,
-                KeyId: "simulated-flex-key-pawtrack",
+                CaptureContextJwt: string.Empty,
+                KeyId: string.Empty,
                 IsConfigured: false);
         }
 
@@ -85,8 +83,8 @@ public sealed class CyberSourcePaymentGatewayService(
 
         return new CaptureContextResult(
             ClientLibraryUrl: "https://flex.cybersource.com/cybersource/assets/microform/0.11/flex-microform.min.js",
-            CaptureContextJwt: GenerateSimulatedJwt(),
-            KeyId: KeyId ?? "fallback-key",
+            CaptureContextJwt: string.Empty,
+            KeyId: string.Empty,
             IsConfigured: false);
     }
 
@@ -99,17 +97,15 @@ public sealed class CyberSourcePaymentGatewayService(
 
         if (!IsConfigured)
         {
-            logger.LogInformation("CyberSource credentials not configured. Simulating card tokenization.");
-            var randLast4 = RandomNumberGenerator.GetInt32(1000, 9999).ToString();
             return new TokenizePaymentResult(
-                Success: true,
-                CustomerProfileId: $"cust_{Guid.NewGuid():N}"[..20],
-                PaymentInstrumentId: $"tok_{Guid.NewGuid():N}",
-                CardBrand: "Visa",
-                LastFourDigits: randLast4,
-                ExpirationMonth: 12,
-                ExpirationYear: 2028,
-                ErrorMessage: null);
+                Success: false,
+                CustomerProfileId: null,
+                PaymentInstrumentId: null,
+                CardBrand: null,
+                LastFourDigits: null,
+                ExpirationMonth: null,
+                ExpirationYear: null,
+                ErrorMessage: "La pasarela de pagos no está configurada.");
         }
 
         try
@@ -187,15 +183,12 @@ public sealed class CyberSourcePaymentGatewayService(
 
         if (!IsConfigured)
         {
-            logger.LogInformation("CyberSource credentials not configured. Simulating card charge of ₡{Amount} for {Purpose}.", request.AmountCrc, request.Purpose);
-            var simulatedTxId = $"CS-{Guid.NewGuid():N}"[..18].ToUpperInvariant();
-            var simulatedAuth = $"AUTH-{RandomNumberGenerator.GetInt32(100000, 999999)}";
             return new ChargePaymentResult(
-                Success: true,
-                GatewayTransactionId: simulatedTxId,
-                AuthorizationCode: simulatedAuth,
-                ErrorCode: null,
-                ErrorMessage: null);
+                Success: false,
+                GatewayTransactionId: null,
+                AuthorizationCode: null,
+                ErrorCode: "PROVIDER_NOT_CONFIGURED",
+                ErrorMessage: "La pasarela de pagos no está configurada.");
         }
 
         try
@@ -256,19 +249,106 @@ public sealed class CyberSourcePaymentGatewayService(
                 if (string.Equals(status, "AUTHORIZED", StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(status, "SETTLED", StringComparison.OrdinalIgnoreCase))
                 {
-                    return new ChargePaymentResult(true, txId, authCode ?? "AUTH-OK", null, null);
+                    return new ChargePaymentResult(true, txId, authCode, null, null);
                 }
 
                 return new ChargePaymentResult(false, txId, null, status, $"Transacción declinada: {status}");
             }
 
-            logger.LogWarning("CyberSource charge failed: {Status} - {Body}", response.StatusCode, responseBody);
+            logger.LogWarning("CyberSource charge failed: {Status}", response.StatusCode);
             return new ChargePaymentResult(false, null, null, "DECLINED", "La tarjeta fue declinada por el banco emisor.");
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             logger.LogError(ex, "Exception during CyberSource charge.");
             return new ChargePaymentResult(false, null, null, "NETWORK_ERROR", "Error de conexión con el banco emisor.");
+        }
+    }
+
+    public Task<PaymentOperationResult> CaptureAsync(
+        PaymentOperationRequest request,
+        CancellationToken cancellationToken = default) =>
+        ExecuteFinancialOperationAsync(request, "captures", cancellationToken);
+
+    public Task<PaymentOperationResult> VoidAsync(
+        PaymentOperationRequest request,
+        CancellationToken cancellationToken = default) =>
+        ExecuteFinancialOperationAsync(request, "voids", cancellationToken);
+
+    public Task<PaymentOperationResult> RefundAsync(
+        PaymentOperationRequest request,
+        CancellationToken cancellationToken = default) =>
+        ExecuteFinancialOperationAsync(request, "refunds", cancellationToken);
+
+    private async Task<PaymentOperationResult> ExecuteFinancialOperationAsync(
+        PaymentOperationRequest request,
+        string operation,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.GatewayTransactionId) ||
+            string.IsNullOrWhiteSpace(request.MerchantReference))
+            return new PaymentOperationResult(false, null, "INVALID_REQUEST", "La operación de pago no tiene referencia válida.");
+
+        if (!IsConfigured)
+            return new PaymentOperationResult(false, null, "PROVIDER_NOT_CONFIGURED", "La pasarela de pagos no está configurada.");
+
+        if (operation is not "voids" && request.AmountCrc <= 0)
+            return new PaymentOperationResult(false, null, "INVALID_AMOUNT", "El monto debe ser superior a 0.");
+
+        try
+        {
+            var path = $"/pts/v2/payments/{Uri.EscapeDataString(request.GatewayTransactionId)}/{operation}";
+            object payload;
+            if (operation == "voids")
+            {
+                payload = new
+                {
+                    clientReferenceInformation = new { code = request.MerchantReference },
+                };
+            }
+            else
+            {
+                payload = new
+                {
+                    clientReferenceInformation = new { code = request.MerchantReference },
+                    orderInformation = new
+                    {
+                        amountDetails = new
+                        {
+                            totalAmount = request.AmountCrc.ToString("F2", System.Globalization.CultureInfo.InvariantCulture),
+                            currency = request.Currency,
+                        },
+                    },
+                };
+            }
+
+            var jsonContent = JsonSerializer.Serialize(payload);
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, $"https://{Host}{path}")
+            {
+                Content = new StringContent(jsonContent, Encoding.UTF8, "application/json"),
+            };
+            ApplySignatureHeaders(httpRequest, jsonContent, path);
+
+            var response = await httpClientFactory.CreateClient("CyberSource")
+                .SendAsync(httpRequest, cancellationToken);
+            var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                logger.LogWarning("CyberSource {Operation} failed: {Status}", operation, response.StatusCode);
+                return new PaymentOperationResult(false, null, "PROVIDER_ERROR", "La pasarela rechazó la operación.");
+            }
+
+            using var document = JsonDocument.Parse(responseBody);
+            var providerOperationId = document.RootElement.TryGetProperty("id", out var id)
+                ? id.GetString()
+                : null;
+            return new PaymentOperationResult(true, providerOperationId, null, null);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogError(ex, "Exception during CyberSource {Operation}.", operation);
+            return new PaymentOperationResult(false, null, "NETWORK_ERROR", "Error de conexión con la pasarela.");
         }
     }
 
@@ -290,6 +370,4 @@ public sealed class CyberSourcePaymentGatewayService(
         request.Headers.Add("Signature", signatureHeader);
     }
 
-    private static string GenerateSimulatedJwt() =>
-        $"simulated_capture_context_{Guid.NewGuid():N}.{Convert.ToBase64String(Encoding.UTF8.GetBytes("{\"iss\":\"PawTrackDev\"}"))}";
 }

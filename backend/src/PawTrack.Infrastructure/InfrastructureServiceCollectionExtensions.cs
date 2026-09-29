@@ -401,6 +401,7 @@ public static class InfrastructureServiceCollectionExtensions
         // Payment Gateway & Electronic Billing (CyberSource / Facturación Electrónica DGT v4.3)
         services.AddScoped<IUserPaymentProfileRepository, UserPaymentProfileRepository>();
         services.AddScoped<IPaymentTransactionRepository, PaymentTransactionRepository>();
+        services.AddScoped<IPaymentIntentRepository, PaymentIntentRepository>();
         services.AddScoped<IUserBillingProfileRepository, UserBillingProfileRepository>();
         services.AddScoped<IElectronicInvoiceRepository, ElectronicInvoiceRepository>();
         services.AddScoped<IElectronicBillingService, ElectronicBillingService>();

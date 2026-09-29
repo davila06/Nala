@@ -42,4 +42,6 @@ public sealed record ChargeCardResultDto(
     string? ErrorMessage,
     Guid? ActivatedSubscriptionId = null,
     Guid? ConfirmedBundleOrderId = null,
-    Guid? ConfirmedBountyId = null);
+    Guid? ConfirmedBountyId = null,
+    Guid? PaymentIntentId = null,
+    PaymentIntentStatus Status = PaymentIntentStatus.Unknown);

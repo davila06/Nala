@@ -55,3 +55,32 @@ public sealed class PaymentTransactionConfiguration : IEntityTypeConfiguration<P
         builder.HasIndex(x => new { x.Purpose, x.TargetEntityId });
     }
 }
+
+public sealed class PaymentIntentConfiguration : IEntityTypeConfiguration<PaymentIntent>
+{
+    public void Configure(EntityTypeBuilder<PaymentIntent> builder)
+    {
+        builder.ToTable("PaymentIntents");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).ValueGeneratedNever();
+
+        builder.Property(x => x.UserId).IsRequired();
+        builder.Property(x => x.AmountCrc).HasColumnType("decimal(12,2)").IsRequired();
+        builder.Property(x => x.Currency).IsRequired().HasMaxLength(10);
+        builder.Property(x => x.MerchantReference).IsRequired().HasMaxLength(100);
+        builder.Property(x => x.IdempotencyKey).IsRequired().HasMaxLength(200);
+        builder.Property(x => x.Purpose).IsRequired().HasMaxLength(50);
+        builder.Property(x => x.Status).IsRequired().HasConversion<int>();
+        builder.Property(x => x.GatewayTransactionId).HasMaxLength(150);
+        builder.Property(x => x.AuthorizationCode).HasMaxLength(100);
+        builder.Property(x => x.FailureReason).HasMaxLength(500);
+        builder.Property(x => x.CapturedAmountCrc).HasColumnType("decimal(12,2)").IsRequired();
+        builder.Property(x => x.RefundedAmountCrc).HasColumnType("decimal(12,2)").IsRequired();
+        builder.Property(x => x.CreatedAt).IsRequired();
+        builder.Property(x => x.UpdatedAt).IsRequired();
+
+        builder.HasIndex(x => new { x.UserId, x.IdempotencyKey }).IsUnique();
+        builder.HasIndex(x => x.MerchantReference).IsUnique();
+        builder.HasIndex(x => new { x.Status, x.UpdatedAt });
+    }
+}

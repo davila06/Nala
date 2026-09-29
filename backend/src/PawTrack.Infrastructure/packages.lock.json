@@ -1128,7 +1128,10 @@
         }
       },
       "pawtrack.domain": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "MediatR": "[12.4.1, )"
+        }
       }
     }
   }

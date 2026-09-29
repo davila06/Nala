@@ -29,6 +29,7 @@ export interface ChargeCardRequest {
   transientToken?: string;
   cardholderName?: string;
   saveProfile?: boolean;
+  idempotencyKey?: string;
 }
 
 export interface ChargeCardResultDto {
@@ -51,6 +52,12 @@ export const paymentApi = {
 
   deleteProfile: (id: string) => apiClient.delete<void>(`/payments/profiles/${id}`).then((r) => r.data),
 
-  chargeCard: (data: ChargeCardRequest) =>
-    apiClient.post<ChargeCardResultDto>("/payments/charge", data).then((r) => r.data),
+  chargeCard: (data: ChargeCardRequest) => {
+    const { idempotencyKey, ...body } = data;
+    return apiClient
+      .post<ChargeCardResultDto>("/payments/charge", body, {
+        headers: { "Idempotency-Key": idempotencyKey ?? crypto.randomUUID() },
+      })
+      .then((r) => r.data);
+  },
 };

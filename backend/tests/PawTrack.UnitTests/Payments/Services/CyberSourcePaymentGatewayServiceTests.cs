@@ -10,7 +10,7 @@ namespace PawTrack.UnitTests.Payments.Services;
 public sealed class CyberSourcePaymentGatewayServiceTests
 {
     [Fact]
-    public async Task GenerateCaptureContextAsync_WhenNotConfigured_ReturnsSimulatedContext()
+    public async Task GenerateCaptureContextAsync_WhenNotConfigured_ReturnsUnavailableContext()
     {
         var config = new ConfigurationBuilder().Build();
         var httpFactory = Substitute.For<IHttpClientFactory>();
@@ -20,11 +20,12 @@ public sealed class CyberSourcePaymentGatewayServiceTests
 
         result.IsConfigured.Should().BeFalse();
         result.ClientLibraryUrl.Should().Contain("flex-microform");
-        result.CaptureContextJwt.Should().NotBeNullOrWhiteSpace();
+        result.CaptureContextJwt.Should().BeEmpty();
+        result.KeyId.Should().BeEmpty();
     }
 
     [Fact]
-    public async Task TokenizeTransientTokenAsync_WhenNotConfigured_SimulatesTokenization()
+    public async Task TokenizeTransientTokenAsync_WhenNotConfigured_FailsClosed()
     {
         var config = new ConfigurationBuilder().Build();
         var httpFactory = Substitute.For<IHttpClientFactory>();
@@ -32,14 +33,12 @@ public sealed class CyberSourcePaymentGatewayServiceTests
 
         var result = await sut.TokenizeTransientTokenAsync(new TokenizePaymentRequest("temp-token-xyz", "CARLOS ROJAS"));
 
-        result.Success.Should().BeTrue();
-        result.CardBrand.Should().Be("Visa");
-        result.LastFourDigits.Should().HaveLength(4);
-        result.PaymentInstrumentId.Should().StartWith("tok_");
+        result.Success.Should().BeFalse();
+        result.ErrorMessage.Should().Be("La pasarela de pagos no está configurada.");
     }
 
     [Fact]
-    public async Task ChargeAsync_WhenValidAmount_ReturnsSuccessfulAuthorization()
+    public async Task ChargeAsync_WhenNotConfigured_FailsClosed()
     {
         var config = new ConfigurationBuilder().Build();
         var httpFactory = Substitute.For<IHttpClientFactory>();
@@ -51,9 +50,9 @@ public sealed class CyberSourcePaymentGatewayServiceTests
             OrderReference: "ORDER-101",
             Purpose: "Subscription"));
 
-        result.Success.Should().BeTrue();
-        result.AuthorizationCode.Should().StartWith("AUTH-");
-        result.GatewayTransactionId.Should().StartWith("CS-");
+        result.Success.Should().BeFalse();
+        result.ErrorCode.Should().Be("PROVIDER_NOT_CONFIGURED");
+        result.ErrorMessage.Should().Be("La pasarela de pagos no está configurada.");
     }
 
     [Fact]
@@ -71,5 +70,27 @@ public sealed class CyberSourcePaymentGatewayServiceTests
 
         result.Success.Should().BeFalse();
         result.ErrorCode.Should().Be("INVALID_AMOUNT");
+    }
+
+    [Theory]
+    [InlineData("CaptureAsync")]
+    [InlineData("VoidAsync")]
+    [InlineData("RefundAsync")]
+    public async Task Financial_operations_WhenNotConfigured_FailClosed(string operation)
+    {
+        var config = new ConfigurationBuilder().Build();
+        var httpFactory = Substitute.For<IHttpClientFactory>();
+        var sut = new CyberSourcePaymentGatewayService(httpFactory, config, NullLogger<CyberSourcePaymentGatewayService>.Instance);
+        var request = new PaymentOperationRequest("cs-txn-1", 4990m, "PT-ORDER-1");
+
+        var result = operation switch
+        {
+            "CaptureAsync" => await sut.CaptureAsync(request),
+            "VoidAsync" => await sut.VoidAsync(request),
+            _ => await sut.RefundAsync(request),
+        };
+
+        result.Success.Should().BeFalse();
+        result.ErrorCode.Should().Be("PROVIDER_NOT_CONFIGURED");
     }
 }

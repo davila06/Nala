@@ -17,6 +17,7 @@ using PawTrack.Domain.Bundles;
 using PawTrack.Domain.Payments;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Security.Claims;
 
@@ -34,7 +35,9 @@ public sealed class WebhooksController(
     ISender sender,
     IBundleOrderRepository bundleRepository,
     IPaymentTransactionRepository transactionRepository,
+    IPaymentIntentRepository paymentIntentRepository,
     IElectronicBillingService billingService,
+    IUnitOfWork unitOfWork,
     IConfiguration configuration,
     ILogger<WebhooksController> logger) : ControllerBase
 {
@@ -168,13 +171,26 @@ public sealed class WebhooksController(
     [EnableRateLimiting("public-api")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> CyberSourceWebhook(
-        [FromBody] CyberSourceWebhookPayload payload,
+        [FromBody] JsonElement body,
         CancellationToken cancellationToken)
     {
-        if (payload.Data is null || string.IsNullOrWhiteSpace(payload.Data.ClientReferenceCode))
+        if (!ValidateCyberSourceSignature(body.GetRawText()))
+            return Unauthorized(new ProblemDetails { Detail = "Invalid CyberSource webhook signature." });
+
+        var payload = body.Deserialize<CyberSourceWebhookPayload>();
+        if (payload?.Data is null || string.IsNullOrWhiteSpace(payload.Data.ClientReferenceCode))
             return Ok(new { message = "Ignored: missing reference code." });
 
         var orderRef = payload.Data.ClientReferenceCode;
+        var intent = await paymentIntentRepository.GetByMerchantReferenceAsync(orderRef, cancellationToken);
+        if (intent is not null)
+        {
+            ApplyCyberSourceStatus(intent, payload.Data.Status, payload.Data.Id);
+            paymentIntentRepository.Update(intent);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            return Ok(new { received = true, orderRef, paymentIntentId = intent.Id, status = intent.Status.ToString() });
+        }
+
         var existingTx = await transactionRepository.GetByReferenceAsync(orderRef, cancellationToken);
 
         if (existingTx is not null)
@@ -194,6 +210,53 @@ public sealed class WebhooksController(
         }
 
         return Ok(new { received = true, orderRef });
+    }
+
+    private static void ApplyCyberSourceStatus(
+        PaymentIntent intent,
+        string? providerStatus,
+        string? gatewayTransactionId)
+    {
+        if (intent.Status is PaymentIntentStatus.Settled or
+            PaymentIntentStatus.Refunded or
+            PaymentIntentStatus.PartiallyRefunded or
+            PaymentIntentStatus.Disputed or
+            PaymentIntentStatus.Declined or
+            PaymentIntentStatus.Failed or
+            PaymentIntentStatus.Cancelled)
+            return;
+
+        if (string.Equals(providerStatus, "AUTHORIZED", StringComparison.OrdinalIgnoreCase))
+        {
+            if (intent.Status == PaymentIntentStatus.PendingCustomerAction && !string.IsNullOrWhiteSpace(gatewayTransactionId))
+                intent.MarkAuthorized(gatewayTransactionId, null);
+            return;
+        }
+
+        if (string.Equals(providerStatus, "SETTLED", StringComparison.OrdinalIgnoreCase))
+        {
+            if (intent.Status == PaymentIntentStatus.PendingCustomerAction && !string.IsNullOrWhiteSpace(gatewayTransactionId))
+                intent.MarkAuthorized(gatewayTransactionId, null);
+            if (intent.Status == PaymentIntentStatus.Authorized)
+                intent.MarkCaptured();
+            if (intent.Status == PaymentIntentStatus.Captured)
+                intent.MarkSettled();
+            return;
+        }
+
+        if (string.Equals(providerStatus, "DECLINED", StringComparison.OrdinalIgnoreCase))
+        {
+            intent.MarkDeclined("CyberSource declinó la transacción.");
+            return;
+        }
+
+        if (string.Equals(providerStatus, "FAILED", StringComparison.OrdinalIgnoreCase))
+        {
+            intent.MarkFailed("CyberSource reportó un fallo en la transacción.");
+            return;
+        }
+
+        intent.MarkUnknown(providerStatus ?? "CyberSource reportó un estado desconocido.");
     }
 
     // ── POST /api/webhooks/bac — BAC Credomatic CompraClick webhook ────────────
@@ -296,6 +359,18 @@ public sealed class WebhooksController(
         var keyBytes = Encoding.UTF8.GetBytes(key);
         var dataBytes = Encoding.UTF8.GetBytes(data);
         return Convert.ToHexString(HMACSHA256.HashData(keyBytes, dataBytes)).ToLowerInvariant();
+    }
+
+    private bool ValidateCyberSourceSignature(string rawBody)
+    {
+        var secret = configuration["Webhooks:CyberSourceSecret"];
+        if (string.IsNullOrWhiteSpace(secret)) return false;
+        if (!Request.Headers.TryGetValue("X-CyberSource-Signature", out var receivedSignature)) return false;
+
+        var expected = ComputeHmac(secret, rawBody);
+        return CryptographicOperations.FixedTimeEquals(
+            Encoding.UTF8.GetBytes(receivedSignature.ToString()),
+            Encoding.UTF8.GetBytes(expected));
     }
 }
 

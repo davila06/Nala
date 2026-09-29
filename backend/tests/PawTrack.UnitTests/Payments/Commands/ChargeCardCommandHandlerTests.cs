@@ -17,6 +17,7 @@ public sealed class ChargeCardCommandHandlerTests
 {
     private readonly IUserPaymentProfileRepository _profileRepo = Substitute.For<IUserPaymentProfileRepository>();
     private readonly IPaymentTransactionRepository _transactionRepo = Substitute.For<IPaymentTransactionRepository>();
+    private readonly IPaymentIntentRepository _paymentIntentRepo = Substitute.For<IPaymentIntentRepository>();
     private readonly IPaymentGatewayService _gatewayService = Substitute.For<IPaymentGatewayService>();
     private readonly ISubscriptionRepository _subscriptionRepo = Substitute.For<ISubscriptionRepository>();
     private readonly IBountyRepository _bountyRepo = Substitute.For<IBountyRepository>();
@@ -26,7 +27,56 @@ public sealed class ChargeCardCommandHandlerTests
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
 
     private ChargeCardCommandHandler CreateSut() =>
-        new(_profileRepo, _transactionRepo, _gatewayService, _subscriptionRepo, _bountyRepo, _userRepo, _billingService, _sender, _unitOfWork);
+        new(_profileRepo, _paymentIntentRepo, _gatewayService, _userRepo, _unitOfWork);
+
+    [Fact]
+    public async Task Handle_WhenIdempotencyKeyAlreadyExists_DoesNotCallGatewayAgain()
+    {
+        var (user, _) = User.Create("owner@pawtrack.cr", "hash", "Test User");
+        _userRepo.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
+
+        var existing = PaymentIntent.Create(
+            user.Id,
+            2990m,
+            "CRC",
+            "PT-ORDER-REPLAY",
+            "idem-replay",
+            "Subscription");
+        existing.MarkPendingCustomerAction();
+        existing.MarkAuthorized("cs-txn-1", "auth-1");
+        _paymentIntentRepo.GetByIdempotencyKeyAsync(user.Id, "idem-replay", Arg.Any<CancellationToken>())
+            .Returns(existing);
+
+        var result = await CreateSut().Handle(
+            new ChargeCardCommand(user.Id, 2990m, "Subscription", IdempotencyKey: "idem-replay"),
+            CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.PaymentIntentId.Should().Be(existing.Id);
+        result.Value.Status.Should().Be(PaymentIntentStatus.Authorized);
+        await _gatewayService.DidNotReceiveWithAnyArgs().ChargeAsync(default!);
+    }
+
+    [Fact]
+    public async Task Handle_WhenTokenizationFails_Persists_failed_intent()
+    {
+        var (user, _) = User.Create("owner@pawtrack.cr", "hash", "Test User");
+        _userRepo.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
+        PaymentIntent? capturedIntent = null;
+        _paymentIntentRepo.AddAsync(Arg.Do<PaymentIntent>(intent => capturedIntent = intent), Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
+        _gatewayService.TokenizeTransientTokenAsync(Arg.Any<TokenizePaymentRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new TokenizePaymentResult(false, null, null, null, null, null, null, "Token inválido"));
+
+        var result = await CreateSut().Handle(
+            new ChargeCardCommand(user.Id, 2990m, "Subscription", TransientToken: "bad-token", IdempotencyKey: "idem-token-failure"),
+            CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        capturedIntent.Should().NotBeNull();
+        capturedIntent!.Status.Should().Be(PaymentIntentStatus.Failed);
+        await _unitOfWork.Received(2).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
 
     [Fact]
     public async Task Handle_WhenUserNotFound_ReturnsFailure()
@@ -35,7 +85,7 @@ public sealed class ChargeCardCommandHandlerTests
 
         var sut = CreateSut();
         var result = await sut.Handle(
-            new ChargeCardCommand(Guid.NewGuid(), 2990m, "Subscription", TransientToken: "tok_1"),
+            new ChargeCardCommand(Guid.NewGuid(), 2990m, "Subscription", TransientToken: "tok_1", IdempotencyKey: "idem-not-found"),
             CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
@@ -43,7 +93,7 @@ public sealed class ChargeCardCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WhenValidTransientToken_ChargesAndActivatesSubscription()
+    public async Task Handle_WhenValidTransientToken_AuthorizesWithoutActivatingSubscription()
     {
         var (user, _) = User.Create("owner@pawtrack.cr", "hash", "Test User");
         _userRepo.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
@@ -66,16 +116,18 @@ public sealed class ChargeCardCommandHandlerTests
                 TargetEntityId: sub.Id,
                 TransientToken: "transient_jwt_123",
                 CardholderName: "Test User",
-                SaveProfile: true),
+                SaveProfile: true,
+                IdempotencyKey: "idem-subscription"),
             CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         result.Value!.Success.Should().BeTrue();
         result.Value.AuthorizationCode.Should().Be("AUTH-123456");
-        result.Value.ActivatedSubscriptionId.Should().Be(sub.Id);
+        result.Value.Status.Should().Be(PaymentIntentStatus.Authorized);
+        result.Value.PaymentIntentId.Should().NotBeNull();
 
-        sub.Status.Should().Be(SubscriptionStatus.Active);
-        await _transactionRepo.Received(1).AddAsync(Arg.Any<PaymentTransaction>(), Arg.Any<CancellationToken>());
+        sub.Status.Should().Be(SubscriptionStatus.PendingPayment);
+        await _transactionRepo.DidNotReceiveWithAnyArgs().AddAsync(default!, default);
         await _profileRepo.Received(1).AddAsync(Arg.Any<UserPaymentProfile>(), Arg.Any<CancellationToken>());
     }
 
@@ -101,7 +153,8 @@ public sealed class ChargeCardCommandHandlerTests
                 AmountCrc: 2990m,
                 Purpose: "Subscription",
                 TargetEntityId: sub.Id,
-                TransientToken: "transient_jwt_123"),
+                TransientToken: "transient_jwt_123",
+                IdempotencyKey: "idem-declined"),
             CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
@@ -132,13 +185,15 @@ public sealed class ChargeCardCommandHandlerTests
                 AmountCrc: 25000m,
                 Purpose: "Bounty",
                 TargetEntityId: bounty.Id,
-                TransientToken: "transient_jwt_123"),
+                TransientToken: "transient_jwt_123",
+                IdempotencyKey: "idem-bounty"),
             CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         result.Value!.Success.Should().BeTrue();
-        result.Value.ConfirmedBountyId.Should().Be(bounty.Id);
-        bounty.Status.Should().Be(BountyStatus.Active);
-        _bountyRepo.Received(1).Update(bounty);
+        result.Value.Status.Should().Be(PaymentIntentStatus.Authorized);
+        result.Value.ConfirmedBountyId.Should().BeNull();
+        bounty.Status.Should().Be(BountyStatus.PendingDeposit);
+        _bountyRepo.DidNotReceiveWithAnyArgs().Update(default!);
     }
 }

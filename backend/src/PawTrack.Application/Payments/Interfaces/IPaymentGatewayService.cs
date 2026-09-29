@@ -35,6 +35,18 @@ public sealed record ChargePaymentResult(
     string? ErrorCode,
     string? ErrorMessage);
 
+public sealed record PaymentOperationRequest(
+    string GatewayTransactionId,
+    decimal AmountCrc,
+    string MerchantReference,
+    string Currency = "CRC");
+
+public sealed record PaymentOperationResult(
+    bool Success,
+    string? ProviderOperationId,
+    string? ErrorCode,
+    string? ErrorMessage);
+
 public interface IPaymentGatewayService
 {
     bool IsConfigured { get; }
@@ -48,5 +60,17 @@ public interface IPaymentGatewayService
 
     Task<ChargePaymentResult> ChargeAsync(
         ChargePaymentRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task<PaymentOperationResult> CaptureAsync(
+        PaymentOperationRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task<PaymentOperationResult> VoidAsync(
+        PaymentOperationRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task<PaymentOperationResult> RefundAsync(
+        PaymentOperationRequest request,
         CancellationToken cancellationToken = default);
 }

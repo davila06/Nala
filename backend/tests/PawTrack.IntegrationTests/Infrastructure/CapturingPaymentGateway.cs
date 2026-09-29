@@ -24,4 +24,13 @@ public sealed class CapturingPaymentGateway : IPaymentGatewayService
         Charges.Add(request);
         return Task.FromResult(new ChargePaymentResult(true, "gateway-test", "auth-test", null, null));
     }
+
+    public Task<PaymentOperationResult> CaptureAsync(PaymentOperationRequest request, CancellationToken cancellationToken = default) =>
+        Task.FromResult(new PaymentOperationResult(true, "capture-test", null, null));
+
+    public Task<PaymentOperationResult> VoidAsync(PaymentOperationRequest request, CancellationToken cancellationToken = default) =>
+        Task.FromResult(new PaymentOperationResult(true, "void-test", null, null));
+
+    public Task<PaymentOperationResult> RefundAsync(PaymentOperationRequest request, CancellationToken cancellationToken = default) =>
+        Task.FromResult(new PaymentOperationResult(true, "refund-test", null, null));
 }

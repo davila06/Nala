@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using PawTrack.Application.Payments.Commands.ChargeCard;
+using PawTrack.Application.Payments.Commands;
 using PawTrack.Application.Payments.Commands.DeletePaymentProfile;
 using PawTrack.Application.Payments.Commands.SavePaymentProfile;
 using PawTrack.Application.Payments.DTOs;
@@ -98,13 +99,62 @@ public sealed class PaymentsController(ISender sender) : ControllerBase
                 PaymentProfileId: request.PaymentProfileId,
                 TransientToken: request.TransientToken,
                 CardholderName: request.CardholderName,
-                SaveProfile: request.SaveProfile),
+                SaveProfile: request.SaveProfile,
+                IdempotencyKey: Request.Headers["Idempotency-Key"].FirstOrDefault()),
             cancellationToken);
 
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
 
         return Ok(result.Value);
+    }
+
+    [HttpPost("{paymentIntentId:guid}/capture")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> Capture(Guid paymentIntentId, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
+        var result = await sender.Send(
+            new CapturePaymentCommand(userId, paymentIntentId),
+            cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
+    }
+
+    [HttpPost("{paymentIntentId:guid}/void")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> Void(Guid paymentIntentId, CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
+        var result = await sender.Send(
+            new VoidPaymentCommand(userId, paymentIntentId),
+            cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
+    }
+
+    [HttpPost("{paymentIntentId:guid}/refund")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> Refund(
+        Guid paymentIntentId,
+        [FromBody] RefundPaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
+        var result = await sender.Send(
+            new RefundPaymentCommand(userId, paymentIntentId, request.AmountCrc),
+            cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join(", ", result.Errors) });
     }
 
     private bool TryGetUserId(out Guid userId)
@@ -127,3 +177,5 @@ public sealed record ChargeCardRequest(
     string? TransientToken = null,
     string? CardholderName = null,
     bool SaveProfile = false);
+
+public sealed record RefundPaymentRequest(decimal AmountCrc);
