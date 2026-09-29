@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+﻿import { useState, useRef, useEffect } from "react";
 import { Outlet, Navigate, NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useScrollToTop } from "@/shared/hooks/useScrollToTop";
@@ -156,6 +156,11 @@ const NAV_EXTRA_STORE = {
   label: "Portal Tienda",
   icon: null,
 };
+const NAV_EXTRA_PROVIDER = {
+  to: "/servicio/portal",
+  label: "Portal de servicios",
+  icon: null,
+};
 const NAV_EXTRA_MUNICIPALITY = {
   to: "/municipalidad/portal",
   label: "Portal Municipal",
@@ -293,11 +298,13 @@ export default function AuthenticatedLayout() {
         ? NAV_EXTRA_CLINIC
         : user?.role === "Store"
           ? NAV_EXTRA_STORE
-          : user?.role === "Municipality"
-            ? NAV_EXTRA_MUNICIPALITY
-            : user?.role === "Admin" || user?.role === "SuperAdmin"
-              ? NAV_EXTRA_ADMIN
-              : null;
+          : user?.role === "ServiceProvider"
+            ? NAV_EXTRA_PROVIDER
+            : user?.role === "Municipality"
+              ? NAV_EXTRA_MUNICIPALITY
+              : user?.role === "Admin" || user?.role === "SuperAdmin"
+                ? NAV_EXTRA_ADMIN
+                : null;
 
   const adminStatsNav = user?.role === "Admin" || user?.role === "SuperAdmin" ? NAV_EXTRA_ADMIN_STATS : null;
   const superAdminNav = user?.role === "SuperAdmin" ? NAV_SUPER_ADMIN : null;

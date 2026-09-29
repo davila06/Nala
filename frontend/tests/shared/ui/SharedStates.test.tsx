@@ -25,16 +25,24 @@ describe("shared status announcements", () => {
     vi.useFakeTimers();
     const clearTimer = vi.spyOn(window, "clearTimeout");
     render(<OfflineIndicator />);
-    act(() => window.dispatchEvent(new Event("offline")));
+    act(() => {
+      window.dispatchEvent(new Event("offline"));
+    });
     expect(screen.getByRole("status")).toHaveTextContent("Sin conexión");
 
-    act(() => window.dispatchEvent(new Event("online")));
+    act(() => {
+      window.dispatchEvent(new Event("online"));
+    });
     expect(screen.getByRole("status")).toHaveTextContent("Conexión restaurada");
     const reconnectTimer = vi.getTimerCount();
-    act(() => window.dispatchEvent(new Event("offline")));
+    act(() => {
+      window.dispatchEvent(new Event("offline"));
+    });
     expect(clearTimer).toHaveBeenCalled();
     expect(vi.getTimerCount()).toBeLessThan(reconnectTimer);
-    act(() => vi.advanceTimersByTime(3000));
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
     expect(screen.getByRole("status")).toHaveTextContent("Sin conexión");
   });
 });

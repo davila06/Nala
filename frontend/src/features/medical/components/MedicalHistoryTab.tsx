@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "@/shared/lib/toast";
 import { Button, Input, Card, Drawer } from "@/shared/ui";
+import { Modal } from "@/shared/ui/Modal";
 import {
   useMedicalHistory,
   useMedicalCount,
@@ -293,6 +294,7 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [confirmDiscardEdit, setConfirmDiscardEdit] = useState(false);
 
   // Edit form state — kept in RecordCard so it resets cleanly
   const [editType, setEditType] = useState<MedicalRecordType>(record.type);
@@ -354,10 +356,22 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
     setEditNextDue(record.nextDueDate ?? "");
   };
 
+  const requestCloseEdit = () => {
+    const changed =
+      editType !== record.type ||
+      editDate !== record.date ||
+      editDesc !== record.description ||
+      editVet !== (record.vetName ?? "") ||
+      editClinic !== (record.clinicName ?? "") ||
+      editNextDue !== (record.nextDueDate ?? "");
+    if (changed) setConfirmDiscardEdit(true);
+    else closeEdit();
+  };
+
   return (
     <>
       {/* ── Edit record drawer ─────────────────────────────────────────── */}
-      <Drawer isOpen={editOpen} onClose={closeEdit} title="Editar registro médico" side="bottom">
+      <Drawer isOpen={editOpen} onClose={requestCloseEdit} title="Editar registro médico" side="bottom">
         <div className="space-y-4 pb-safe">
           <div>
             <label htmlFor={`edit-type-${record.id}`} className="mb-1 block text-xs font-medium text-copy-secondary">
@@ -432,7 +446,10 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
               />
             </div>
             <div>
-              <label htmlFor={`edit-clinic-${record.id}`} className="mb-1 block text-xs font-medium text-copy-secondary">
+              <label
+                htmlFor={`edit-clinic-${record.id}`}
+                className="mb-1 block text-xs font-medium text-copy-secondary"
+              >
                 Clínica
               </label>
               <Input
@@ -462,6 +479,27 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
           </Button>
         </div>
       </Drawer>
+      <Modal
+        isOpen={confirmDiscardEdit}
+        onClose={() => setConfirmDiscardEdit(false)}
+        title="Descartar cambios del expediente"
+      >
+        <p className="text-sm text-copy-secondary">Los cambios sin guardar de este registro se perderán.</p>
+        <div className="mt-5 flex justify-end gap-2">
+          <Button variant="secondary" onClick={() => setConfirmDiscardEdit(false)}>
+            Seguir editando
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => {
+              setConfirmDiscardEdit(false);
+              closeEdit();
+            }}
+          >
+            Descartar cambios
+          </Button>
+        </div>
+      </Modal>
 
       {/* ── Record card ────────────────────────────────────────────────── */}
       <li className="rounded-xl border border-sand-100 bg-surface-warm p-4 space-y-1">
@@ -643,7 +681,17 @@ function ReminderCard({ reminder, petId }: { reminder: VetReminderDto; petId: st
 
 // ── Add record form ───────────────────────────────────────────────────────────
 
-function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void }) {
+function AddRecordForm({
+  petId,
+  onClose,
+  onSaved,
+  onDirtyChange,
+}: {
+  petId: string;
+  onClose: () => void;
+  onSaved: () => void;
+  onDirtyChange: (dirty: boolean) => void;
+}) {
   const add = useAddMedicalRecord(petId);
   const { data: profile } = useMyProfile();
   const grantConsent = useGrantHealthDataConsent();
@@ -656,6 +704,18 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
   const [nextDueDate, setNextDueDate] = useState("");
   const [document, setDocument] = useState<File | null>(null);
   const [documentKind, setDocumentKind] = useState<MedicalDocumentKind | "">("");
+  const isDirty =
+    description !== "" ||
+    vetName !== "" ||
+    clinicName !== "" ||
+    nextDueDate !== "" ||
+    document !== null ||
+    type !== "Checkup" ||
+    date !== today;
+
+  useEffect(() => {
+    onDirtyChange(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   const handleSubmit = () => {
     if (!description.trim()) {
@@ -676,7 +736,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
       {
         onSuccess: () => {
           toast.success("Registro agregado");
-          onClose();
+          onSaved();
         },
         onError: () => toast.error("No se pudo guardar"),
       },
@@ -1009,10 +1069,17 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
   const exportPdf = useExportMedicalPdf(petId);
 
   const [showAddForm, setShowAddForm] = useState(false);
+  const [recordDirty, setRecordDirty] = useState(false);
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [showReminderForm, setShowReminderForm] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [typeFilter, setTypeFilter] = useState<string>("Todos");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const closeRecordForm = () => {
+    if (recordDirty) setConfirmDiscard(true);
+    else setShowAddForm(false);
+  };
 
   const records = historyPages?.pages.flatMap((page) => page.records) ?? [];
   const historyIsLimited = historyResult?.isLimited ?? false;
@@ -1065,8 +1132,11 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
             size="sm"
             variant="secondary"
             onClick={() => {
+              if (showAddForm) {
+                closeRecordForm();
+                return;
+              }
               setShowReminderForm((v) => !v);
-              setShowAddForm(false);
             }}
           >
             {showReminderForm ? "Cerrar" : "⏰ Recordatorio"}
@@ -1074,8 +1144,11 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
           <Button
             size="sm"
             onClick={() => {
-              setShowAddForm((v) => !v);
-              setShowReminderForm(false);
+              if (showAddForm) closeRecordForm();
+              else {
+                setShowAddForm(true);
+                setShowReminderForm(false);
+              }
             }}
           >
             {showAddForm ? "Cerrar" : "+ Registro"}
@@ -1084,8 +1157,36 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
       </div>
 
       {/* Forms */}
-      {showAddForm && <AddRecordForm petId={petId} onClose={() => setShowAddForm(false)} />}
+      {showAddForm && (
+        <AddRecordForm
+          petId={petId}
+          onClose={closeRecordForm}
+          onSaved={() => {
+            setRecordDirty(false);
+            setShowAddForm(false);
+          }}
+          onDirtyChange={setRecordDirty}
+        />
+      )}
       {showReminderForm && <AddReminderForm petId={petId} onClose={() => setShowReminderForm(false)} />}
+      <Modal isOpen={confirmDiscard} onClose={() => setConfirmDiscard(false)} title="Descartar cambios del expediente">
+        <p className="text-sm text-copy-secondary">Los cambios sin guardar de este registro se perderán.</p>
+        <div className="mt-5 flex justify-end gap-2">
+          <Button variant="secondary" onClick={() => setConfirmDiscard(false)}>
+            Seguir editando
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => {
+              setConfirmDiscard(false);
+              setRecordDirty(false);
+              setShowAddForm(false);
+            }}
+          >
+            Descartar cambios
+          </Button>
+        </div>
+      </Modal>
 
       {/* Calendar view */}
       {showCalendar && reminders && (
@@ -1095,7 +1196,9 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
       {/* Pending reminders */}
       {pendingReminders.length > 0 && (
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-copy-secondary">Recordatorios pendientes</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-copy-secondary">
+            Recordatorios pendientes
+          </p>
           <ul className="space-y-2">
             {pendingReminders.map((r) => (
               <ReminderCard key={r.id} reminder={r} petId={petId} />

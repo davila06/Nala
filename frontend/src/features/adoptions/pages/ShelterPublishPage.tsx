@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/shared/ui/Button";
@@ -7,6 +7,9 @@ import { usePublishAnimal, useUploadAdoptionPhoto } from "../hooks/useAdoptions"
 import type { PetSpecies, PetSize, AgeCategory, PublishAnimalPayload } from "../api/adoptionsApi";
 import { SPECIES_LABELS, SIZE_LABELS, AGE_LABELS } from "../api/adoptionsApi";
 import { toast } from "@/shared/lib/toast";
+import { Modal } from "@/shared/ui/Modal";
+import { Alert } from "@/shared/ui/Alert";
+import { useAuthStore } from "@/features/auth/store/authStore";
 
 const INITIAL: PublishAnimalPayload = {
   name: "",
@@ -30,15 +33,76 @@ const INITIAL: PublishAnimalPayload = {
   refLabel: "San José, Costa Rica",
 };
 
+const DRAFT_FIELDS = [
+  "name",
+  "species",
+  "size",
+  "ageCategory",
+  "ageMonthsApprox",
+  "story",
+  "requirements",
+  "breed",
+  "isVaccinated",
+  "isSterilized",
+  "isMicrochipped",
+  "okWithKids",
+  "okWithDogs",
+  "okWithCats",
+  "needsYard",
+  "refLabel",
+] as const;
+
+function draftFields(value: Partial<PublishAnimalPayload>): Partial<PublishAnimalPayload> {
+  const draft: Partial<PublishAnimalPayload> = {};
+  for (const field of DRAFT_FIELDS) {
+    const candidate = value[field];
+    if (
+      candidate === null ||
+      typeof candidate === "string" ||
+      typeof candidate === "number" ||
+      typeof candidate === "boolean"
+    ) {
+      Object.assign(draft, { [field]: candidate });
+    }
+  }
+  return draft;
+}
+
 export default function ShelterPublishPage() {
   const navigate = useNavigate();
+  const userId = useAuthStore((state) => state.user?.id);
+  const draftKey = userId ? `pawtrack:adoption-draft:${userId}` : null;
   const publish = usePublishAnimal();
   const uploadPhoto = useUploadAdoptionPhoto();
-  const [form, setForm] = useState<PublishAnimalPayload>(INITIAL);
+  const [form, setForm] = useState<PublishAnimalPayload>(() => {
+    if (!draftKey) return INITIAL;
+    try {
+      const saved = sessionStorage.getItem(draftKey);
+      if (!saved) return INITIAL;
+      const draft: unknown = JSON.parse(saved);
+      if (!draft || typeof draft !== "object" || Array.isArray(draft)) return INITIAL;
+      return { ...INITIAL, ...draftFields(draft) };
+    } catch {
+      return INITIAL;
+    }
+  });
   const [publishedId, setPublishedId] = useState<string | null>(null);
+  const [confirmPublish, setConfirmPublish] = useState(false);
+  const [publishError, setPublishError] = useState(false);
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!draftKey || publishedId) return;
+    try {
+      if (JSON.stringify(draftFields(form)) === JSON.stringify(draftFields(INITIAL)))
+        sessionStorage.removeItem(draftKey);
+      else sessionStorage.setItem(draftKey, JSON.stringify(draftFields(form)));
+    } catch {
+      toast.error("No se pudo guardar el borrador en este navegador");
+    }
+  }, [form, draftKey, publishedId]);
 
   const set = (partial: Partial<PublishAnimalPayload>) => setForm((f) => ({ ...f, ...partial }));
 
@@ -47,11 +111,19 @@ export default function ShelterPublishPage() {
       toast.error("El nombre y la historia son requeridos");
       return;
     }
+    setPublishError(false);
+    setConfirmPublish(true);
+  };
+
+  const confirmPublication = () => {
     publish.mutate(form, {
       onSuccess: (animal) => {
+        if (draftKey) sessionStorage.removeItem(draftKey);
+        setConfirmPublish(false);
         toast.success(`¡${animal.name} publicado! Ahora sube hasta 5 fotos.`);
         setPublishedId(animal.id);
       },
+      onError: () => setPublishError(true),
     });
   };
 
@@ -80,6 +152,16 @@ export default function ShelterPublishPage() {
           Volver al panel del shelter
         </Link>
         <h1 className="text-xl font-bold text-ink-900">Publicar animal en adopción</h1>
+        <div className="flex items-center justify-between gap-3 text-xs text-copy-secondary">
+          <span>Borrador de esta sesión; no incluye notas médicas ni fotos.</span>
+          <button
+            type="button"
+            onClick={() => setForm(INITIAL)}
+            className="shrink-0 font-semibold text-brand-700 underline focus-visible:outline-2 focus-visible:outline-focus-ring"
+          >
+            Descartar borrador
+          </button>
+        </div>
 
         {/* Basic info */}
         <section className="space-y-4">
@@ -292,6 +374,25 @@ export default function ShelterPublishPage() {
           </section>
         )}
       </div>
+      <Modal isOpen={confirmPublish} onClose={() => setConfirmPublish(false)} title="Confirmar publicación">
+        <p className="text-sm text-copy-secondary">
+          La ficha de {form.name.trim()} quedará visible para adopción. Revisa la historia, los requisitos y las notas
+          médicas antes de publicar.
+        </p>
+        {publishError && (
+          <Alert variant="error" className="mt-4">
+            No se pudo publicar. Revisa tus datos y vuelve a intentarlo.
+          </Alert>
+        )}
+        <div className="mt-5 flex justify-end gap-2">
+          <Button variant="secondary" onClick={() => setConfirmPublish(false)}>
+            Volver a editar
+          </Button>
+          <Button loading={publish.isPending} onClick={confirmPublication}>
+            Confirmar publicación
+          </Button>
+        </div>
+      </Modal>
     </>
   );
 }

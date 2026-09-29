@@ -9,19 +9,19 @@ const STEPS = [
   {
     emoji: "🐾",
     title: "¡Bienvenido a PawTrack CR!",
-    body: "Tu plataforma para proteger a tus mascotas y reunirte con ellas si alguna vez se pierden. Solo necesitas 3 pasos para estar listo.",
+    body: "Registra a tu mascota y prepara su perfil público para facilitar la búsqueda si se pierde. Estas herramientas ayudan, pero no garantizan encontrarla.",
     cta: "Comenzar",
   },
   {
     emoji: "📋",
     title: "Registra a tu mascota",
-    body: "Añade foto, nombre, especie y raza. Con esta información, la IA puede reconocerla visualmente en el mapa de avistamientos.",
+    body: "Añade foto, nombre, especie y raza. Si la búsqueda por imagen está disponible para tu cuenta, puede ayudar a comparar avistamientos; no garantiza identificar a tu mascota. Revisa cada coincidencia.",
     cta: "Siguiente",
   },
   {
     emoji: "📲",
     title: "Genera su placa QR",
-    body: "Una vez registrada, genera la placa QR de identidad. Imprímela en un collar o en una etiqueta: cualquier persona que la encuentre puede escanearlo para contactarte.",
+    body: "El QR abre el perfil público de tu mascota. Puedes ponerlo en una placa o etiqueta para facilitar su consulta; no garantiza el contacto ni la recuperación.",
     cta: "Registrar mi primera mascota",
     finalAction: true,
   },

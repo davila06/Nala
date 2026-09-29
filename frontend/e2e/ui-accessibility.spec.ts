@@ -116,4 +116,28 @@ test.describe("UI accessibility foundations", () => {
       "/dashboard?action=report-lost",
     );
   });
+
+  for (const { account, label, route } of [
+    { account: TEST_USERS.owner, label: "Elegir mascota perdida", route: "/dashboard?action=report-lost" },
+    { account: TEST_USERS.clinic, label: "Panel Clínica", route: "/clinica/portal" },
+    { account: TEST_USERS.store, label: "Portal Tienda", route: "/tienda/portal" },
+    { account: TEST_USERS.provider, label: "Portal de servicios", route: "/servicio/portal" },
+  ]) {
+    test(`mobile menu reaches ${label} by keyboard without axe violations`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await loginViaUi(page, account.email, account.password);
+      const onboarding = page.getByRole("dialog", { name: /bienvenido/i });
+      if (await onboarding.isVisible()) {
+        await onboarding.getByRole("button", { name: "Saltar por ahora" }).click();
+      }
+      const trigger = page.getByRole("button", { name: "Menú de usuario" });
+      await trigger.focus();
+      await page.keyboard.press("Enter");
+      const menu = page.getByRole("navigation", { name: "Navegación móvil" });
+      await expect(menu.getByRole("link", { name: label })).toHaveAttribute("href", route);
+      await page.keyboard.press("Tab");
+      await expect(menu.getByRole("link", { name: "Mascota" })).toBeFocused();
+      await expectAxeClean(page, "nav[aria-label='Navegación móvil']");
+    });
+  }
 });

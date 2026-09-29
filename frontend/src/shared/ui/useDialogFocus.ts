@@ -1,22 +1,32 @@
-import { useEffect, type RefObject } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 
 const FOCUSABLE =
   "button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])";
 
 export function useDialogFocus(isOpen: boolean, onClose: () => void, dialogRef: RefObject<HTMLDivElement | null>) {
+  const onCloseRef = useRef(onClose);
   useEffect(() => {
-    if (!isOpen) return;
+    onCloseRef.current = onClose;
+  }, [onClose]);
+  useEffect(() => {
+    if (!isOpen) {
+      dialogRef.current?.setAttribute("aria-hidden", "true");
+      dialogRef.current?.setAttribute("inert", "");
+      return;
+    }
 
     const previousFocus = document.activeElement as HTMLElement | null;
     const previousOverflow = document.body.style.overflow;
     const dialog = dialogRef.current;
+    dialog?.removeAttribute("aria-hidden");
+    dialog?.removeAttribute("inert");
     document.body.style.overflow = "hidden";
     (dialog?.querySelector<HTMLElement>(FOCUSABLE) ?? dialog)?.focus();
 
     const handleKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
       }
       if (event.key !== "Tab" || !dialog) return;
       const elements = Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE));
@@ -38,5 +48,5 @@ export function useDialogFocus(isOpen: boolean, onClose: () => void, dialogRef: 
       document.body.style.overflow = previousOverflow;
       previousFocus?.focus();
     };
-  }, [isOpen, onClose, dialogRef]);
+  }, [isOpen, dialogRef]);
 }

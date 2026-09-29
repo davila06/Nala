@@ -87,7 +87,8 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
         </span>
         <h3 className="mt-2 text-sm font-semibold text-sand-700">Sin dispositivo GPS registrado</h3>
         <p className="mt-1 text-xs text-copy-muted">
-          Conecta un collar GPS para ver la posición en tiempo real y el historial de trayectoria.
+          Con un dispositivo GPS compatible y con señal podrás consultar la última posición reportada y su historial
+          disponible.
         </p>
         {isOwner && (
           <div className="mt-4 flex flex-col gap-2 items-center">
@@ -380,7 +381,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
             {/* Current position marker */}
             <Marker position={[collar.lastLat, collar.lastLng]}>
               <Popup>
-                <strong>Posición actual</strong>
+                <strong>Última posición reportada</strong>
                 <br />
                 {collar.lastLocationRecordedAt ? formatRelative(collar.lastLocationRecordedAt) : "Sin señal reciente"}
                 {collar.lastPositionOnline === false && (
@@ -400,7 +401,8 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
       )}
 
       <p className="text-center text-[10px] text-copy-muted">
-        Posición en tiempo real · trayectoria de hasta 7 días · actualización automática cada 30 s.
+        La vista consulta el estado aproximadamente cada 30 s; la frecuencia de las posiciones depende del dispositivo,
+        proveedor y señal.
       </p>
     </div>
   );

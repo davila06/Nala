@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
+import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { PhotoUpload } from "@/features/pets/components/PhotoUpload";
@@ -76,5 +77,18 @@ describe("P0 keyboard and accessible naming", () => {
     expect(onDismiss).toHaveBeenCalledOnce();
     expect(trigger).toHaveFocus();
     trigger.remove();
+  });
+
+  it("describes visual search and QR as conditional aids, not guaranteed outcomes", async () => {
+    const user = userEvent.setup();
+    render(<MemoryRouter><OnboardingWizard /></MemoryRouter>);
+
+    await user.click(screen.getByRole("button", { name: "Comenzar" }));
+    expect(await screen.findByText(/si la búsqueda por imagen está disponible/i)).toBeInTheDocument();
+    expect(screen.getByText(/no garantiza identificar/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Siguiente" }));
+    expect(await screen.findByText(/perfil público/i)).toBeInTheDocument();
+    expect(screen.getByText(/no garantiza el contacto/i)).toBeInTheDocument();
   });
 });

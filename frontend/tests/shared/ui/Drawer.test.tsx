@@ -22,6 +22,18 @@ describe("Drawer", () => {
     expect(closeButton).toHaveFocus();
 
     actionButton.focus();
+    rerender(
+      <Drawer
+        isOpen
+        onClose={() => {
+          onClose();
+        }}
+        title="Filtros"
+      >
+        <button type="button">Aplicar</button>
+      </Drawer>,
+    );
+    expect(actionButton).toHaveFocus();
     fireEvent.keyDown(actionButton, { key: "Tab" });
     expect(closeButton).toHaveFocus();
     fireEvent.keyDown(closeButton, { key: "Tab", shiftKey: true });
@@ -51,5 +63,18 @@ describe("Drawer", () => {
     unmount();
     expect(document.body.style.overflow).toBe("auto");
     document.body.style.overflow = "";
+  });
+
+  it("names and provides a close control for a bottom drawer without a title", () => {
+    const onClose = vi.fn();
+    render(
+      <Drawer isOpen onClose={onClose}>
+        <button type="button">Guardar</button>
+      </Drawer>,
+    );
+
+    expect(screen.getByRole("dialog", { name: "Panel" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Cerrar" }));
+    expect(onClose).toHaveBeenCalledOnce();
   });
 });

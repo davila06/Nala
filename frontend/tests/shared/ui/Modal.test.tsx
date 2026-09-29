@@ -1,8 +1,21 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { Modal } from "@/shared/ui/Modal";
+import { Modal as PortalModal } from "@/shared/ui/Drawer";
 
 describe("Modal", () => {
+  it.each([Modal, PortalModal])("names an untitled dialog and provides a close control", (Component) => {
+    const onClose = vi.fn();
+    render(
+      <Component isOpen onClose={onClose}>
+        <p>Contenido</p>
+      </Component>,
+    );
+    expect(screen.getByRole("dialog", { name: "Diálogo" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Cerrar" }));
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
   it("moves focus into the dialog, labels it, and restores focus on close", () => {
     const trigger = document.createElement("button");
     trigger.textContent = "Abrir";
@@ -30,6 +43,7 @@ describe("Modal", () => {
     );
 
     expect(trigger).toHaveFocus();
+    expect(screen.queryByRole("dialog", { name: "Confirmar acción" })).not.toBeInTheDocument();
     trigger.remove();
   });
 

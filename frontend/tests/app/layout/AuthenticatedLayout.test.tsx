@@ -1,4 +1,4 @@
-import { act, fireEvent, screen } from "@testing-library/react";
+import { act, fireEvent, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import AuthenticatedLayout from "@/app/layout/AuthenticatedLayout";
 import { useAuthStore } from "@/features/auth/store/authStore";
@@ -17,6 +17,60 @@ vi.mock("@/shared/hooks/useScrollToTop", () => ({
 }));
 
 describe("AuthenticatedLayout", () => {
+  it.each([
+    ["Owner", "Elegir mascota perdida", "/dashboard?action=report-lost"],
+    ["Clinic", "Panel Clínica", "/clinica/portal"],
+    ["Ally", "Panel Aliado", "/allies/panel"],
+    ["Store", "Portal Tienda", "/tienda/portal"],
+    ["ServiceProvider", "Portal de servicios", "/servicio/portal"],
+    ["Municipality", "Portal Municipal", "/municipalidad/portal"],
+  ] as const)("exposes the primary mobile task for %s", (role, label, path) => {
+    act(() => {
+      useAuthStore
+        .getState()
+        .setAuth(
+          { id: `test-${role}`, name: "Cuenta de prueba", email: "example@example.test", role, isAdmin: false },
+          "test-token",
+        );
+    });
+    renderWithProviders(<AuthenticatedLayout />, { initialEntries: ["/dashboard"] });
+    const mobileMenu = screen
+      .getAllByRole("button", { name: "Menú de usuario" })
+      .find((button) => button.classList.contains("md:hidden"));
+    expect(mobileMenu).toBeDefined();
+    fireEvent.click(mobileMenu!);
+    expect(
+      within(screen.getByRole("navigation", { name: "Navegación móvil" })).getByRole("link", { name: label }),
+    ).toHaveAttribute("href", path);
+  });
+
+  it("links a service provider to their portal from the mobile menu", () => {
+    act(() => {
+      useAuthStore.getState().setAuth(
+        {
+          id: "provider-1",
+          name: "Proveedor",
+          email: "provider@example.test",
+          role: "ServiceProvider",
+          isAdmin: false,
+        },
+        "provider-token",
+      );
+    });
+
+    renderWithProviders(<AuthenticatedLayout />, { initialEntries: ["/dashboard"] });
+    const mobileMenu = screen
+      .getAllByRole("button", { name: "Menú de usuario" })
+      .find((button) => button.classList.contains("md:hidden"));
+    expect(mobileMenu).toBeDefined();
+    fireEvent.click(mobileMenu!);
+    expect(
+      within(screen.getByRole("navigation", { name: "Navegación móvil" })).getByRole("link", {
+        name: "Portal de servicios",
+      }),
+    ).toHaveAttribute("href", "/servicio/portal");
+  });
+
   it("shows four primary modes and role-specific actions in the more menu", () => {
     act(() => {
       useAuthStore.getState().setAuth(

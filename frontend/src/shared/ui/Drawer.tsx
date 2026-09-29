@@ -87,6 +87,7 @@ export function Drawer({
             role="dialog"
             aria-modal="true"
             aria-labelledby={title ? titleId : undefined}
+            aria-label={title ? undefined : "Panel"}
             aria-describedby={description ? descriptionId : undefined}
             tabIndex={-1}
             className={variant.className}
@@ -102,7 +103,7 @@ export function Drawer({
             )}
 
             {/* Header */}
-            {(title || side !== "bottom") && (
+            <>
               <div className="flex items-start justify-between gap-4 px-5 py-4 border-b border-sand-100">
                 <div>
                   {title && (
@@ -127,7 +128,7 @@ export function Drawer({
                   </svg>
                 </button>
               </div>
-            )}
+            </>
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4">{children}</div>
@@ -168,6 +169,7 @@ export function Modal({ isOpen, onClose, title, description, children, maxWidth 
               role="dialog"
               aria-modal="true"
               aria-labelledby={title ? titleId : undefined}
+              aria-label={title ? undefined : "Diálogo"}
               aria-describedby={description ? descriptionId : undefined}
               tabIndex={-1}
               className="w-full rounded-3xl field-input shadow-2xl flex flex-col max-h-[90dvh] overflow-hidden"

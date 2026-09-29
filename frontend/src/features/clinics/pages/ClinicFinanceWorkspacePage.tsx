@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { clinicsApi, type ClinicPaymentMethod } from "../api/clinicsApi";
 import { useActiveClinicSite } from "../hooks/useActiveClinicSite";
 import { Button, Input } from "@/shared/ui";
+import { Modal } from "@/shared/ui/Modal";
 import { toast } from "@/shared/lib/toast";
 
 const paymentMethods: Array<{ value: ClinicPaymentMethod; label: string }> = [
@@ -34,6 +35,7 @@ export default function ClinicFinanceWorkspacePage() {
   const [refundReason, setRefundReason] = useState("");
   const [refundEvidence, setRefundEvidence] = useState("");
   const [voidReason, setVoidReason] = useState("");
+  const [confirmCloseCash, setConfirmCloseCash] = useState(false);
   const { data: workspaces = [], isLoading } = useQuery({
     queryKey: ["clinics", "finance-workspaces"],
     queryFn: clinicsApi.getFinanceWorkspaces,
@@ -98,7 +100,10 @@ export default function ClinicFinanceWorkspacePage() {
   });
   const closeCash = useMutation({
     mutationFn: () => clinicsApi.closeStaffCash(activeClinicId, businessDate),
-    onSuccess: () => toast.success("Cierre registrado."),
+    onSuccess: () => {
+      setConfirmCloseCash(false);
+      toast.success("Cierre registrado.");
+    },
     onError: () => toast.error("No se pudo cerrar caja."),
   });
   const fiscal = useMutation({
@@ -143,7 +148,9 @@ export default function ClinicFinanceWorkspacePage() {
             onChange={(event) => setBusinessDate(event.target.value)}
           />
           {selected && (
-            <span className="text-xs font-semibold text-copy-secondary">{isAdministrator ? "Administración" : "Caja"}</span>
+            <span className="text-xs font-semibold text-copy-secondary">
+              {isAdministrator ? "Administración" : "Caja"}
+            </span>
           )}
         </div>
       </header>
@@ -320,7 +327,11 @@ export default function ClinicFinanceWorkspacePage() {
                 <Button variant="secondary" disabled={!saleId || fiscal.isPending} onClick={() => fiscal.mutate()}>
                   Presentar a proveedor fiscal
                 </Button>
-                <Button variant="secondary" disabled={closeCash.isPending} onClick={() => closeCash.mutate()}>
+                <Button
+                  variant="secondary"
+                  disabled={!isSiteReady || !activeClinicId || closeCash.isPending}
+                  onClick={() => setConfirmCloseCash(true)}
+                >
                   Cerrar caja
                 </Button>
               </div>
@@ -328,6 +339,20 @@ export default function ClinicFinanceWorkspacePage() {
           )}
         </>
       )}
+      <Modal isOpen={confirmCloseCash} onClose={() => setConfirmCloseCash(false)} title="Confirmar cierre de caja">
+        <p className="text-sm text-copy-secondary">
+          Vas a cerrar la caja de {selected?.clinicName} para el día {businessDate}. Revisa la conciliación antes de
+          continuar.
+        </p>
+        <div className="mt-5 flex justify-end gap-2">
+          <Button variant="secondary" onClick={() => setConfirmCloseCash(false)}>
+            Cancelar
+          </Button>
+          <Button loading={closeCash.isPending} onClick={() => closeCash.mutate()}>
+            Confirmar cierre
+          </Button>
+        </div>
+      </Modal>
     </main>
   );
 }

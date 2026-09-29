@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useId, useRef } from "react";
+import { X } from "lucide-react";
 import { useDialogFocus } from "./useDialogFocus";
 
 interface ModalProps {
@@ -41,13 +42,22 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 420 }: Moda
             role="dialog"
             aria-modal="true"
             aria-labelledby={title ? titleId : undefined}
+            aria-label={title ? undefined : "Diálogo"}
           >
             {title && (
-              <h2 id={titleId} className="mb-4 text-base font-semibold text-ink-900">
+              <h2 id={titleId} className="mb-4 pr-9 text-base font-semibold text-ink-900">
                 {title}
               </h2>
             )}
             {children}
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Cerrar"
+              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-md text-copy-secondary hover:bg-sand-100 focus-visible:outline-2 focus-visible:outline-focus-ring"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
           </motion.div>
         </div>
       )}
