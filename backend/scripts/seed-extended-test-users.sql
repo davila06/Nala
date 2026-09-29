@@ -22,6 +22,16 @@
 -- Server: (localdb)\MSSQLLocalDB | DB: PawTrackDev
 -- ============================================================
 
+DECLARE @SeedServer nvarchar(128) = UPPER(CONVERT(nvarchar(128), SERVERPROPERTY('ServerName')));
+IF DB_NAME() NOT IN ('PawTrackDev', 'PawTrackLocal', 'PawTrackTest', 'PawTrack_AuthorizationTests', 'PawTrack_E2ETests')
+   OR (@SeedServer NOT LIKE '%LOCALDB%'
+       AND @SeedServer NOT LIKE '%SQLEXPRESS%'
+       AND @SeedServer NOT LIKE '%LOCALHOST%'
+       AND @SeedServer NOT LIKE '%127.0.0.1%')
+BEGIN
+    THROW 51000, 'Seed blocked: only approved local PawTrack databases and local SQL Server instances are allowed.', 1;
+END;
+
 SET QUOTED_IDENTIFIER ON;
 SET ANSI_NULLS ON;
 GO
@@ -58,6 +68,10 @@ DELETE FROM [dbo].[Stores]
 WHERE [ContactEmail] = 'tienda_activa@test.cr'
    OR [Id] = 'BB000011-0000-0000-0000-000000000011';
 
+DELETE FROM [dbo].[ClinicOrganizationSiteAccess]
+WHERE [ClinicId] IN ('CC100000-0000-0000-0000-000000000006', 'CC100000-0000-0000-0000-000000000007');
+DELETE FROM [dbo].[ClinicOrganizationSites]
+WHERE [ClinicId] IN ('CC100000-0000-0000-0000-000000000006', 'CC100000-0000-0000-0000-000000000007');
 DELETE FROM [dbo].[ClinicMedicalAccessGrants]
 WHERE [ClinicId] IN ('CC100000-0000-0000-0000-000000000006', 'CC100000-0000-0000-0000-000000000007', '27EB5291-3F51-4C0F-945F-48FFD8E47BB2')
    OR [Id] = 'CC103000-0000-0000-0000-000000000007';

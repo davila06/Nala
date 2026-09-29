@@ -10,6 +10,16 @@
 -- NEVER run in staging or production.
 -- ============================================================
 
+DECLARE @SeedServer nvarchar(128) = UPPER(CONVERT(nvarchar(128), SERVERPROPERTY('ServerName')));
+IF DB_NAME() NOT IN ('PawTrackDev', 'PawTrackLocal', 'PawTrackTest', 'PawTrack_AuthorizationTests', 'PawTrack_E2ETests')
+   OR (@SeedServer NOT LIKE '%LOCALDB%'
+       AND @SeedServer NOT LIKE '%SQLEXPRESS%'
+       AND @SeedServer NOT LIKE '%LOCALHOST%'
+       AND @SeedServer NOT LIKE '%127.0.0.1%')
+BEGIN
+    THROW 51000, 'Seed blocked: only approved local PawTrack databases and local SQL Server instances are allowed.', 1;
+END;
+
 SET QUOTED_IDENTIFIER ON;
 SET ANSI_NULLS ON;
 
