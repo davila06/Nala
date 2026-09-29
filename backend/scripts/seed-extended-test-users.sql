@@ -68,6 +68,34 @@ DELETE FROM [dbo].[Stores]
 WHERE [ContactEmail] = 'tienda_activa@test.cr'
    OR [Id] = 'BB000011-0000-0000-0000-000000000011';
 
+DELETE FROM [dbo].[StoreProducts]
+WHERE [StoreId] IN (
+     SELECT [Id] FROM [dbo].[Stores]
+     WHERE [ContactEmail] LIKE 'tienda[_]0[2-9]@test.cr'
+         OR [ContactEmail] = 'tienda_10@test.cr');
+DELETE FROM [dbo].[Stores]
+WHERE [ContactEmail] LIKE 'tienda[_]0[2-9]@test.cr'
+    OR [ContactEmail] = 'tienda_10@test.cr';
+
+DELETE FROM [dbo].[ServiceAvailabilityRules]
+WHERE [ProviderServiceId] IN (
+     SELECT [Id] FROM [dbo].[ProviderServices]
+     WHERE [ServiceProviderId] IN (
+          SELECT [Id] FROM [dbo].[ServiceProviders]
+          WHERE [ContactEmail] LIKE 'provider[_]0[2-9]@test.cr'
+              OR [ContactEmail] LIKE 'provider[_]1[0-9]@test.cr'
+              OR [ContactEmail] IN ('provider_20@test.cr', 'provider_21@test.cr')));
+DELETE FROM [dbo].[ProviderServices]
+WHERE [ServiceProviderId] IN (
+     SELECT [Id] FROM [dbo].[ServiceProviders]
+     WHERE [ContactEmail] LIKE 'provider[_]0[2-9]@test.cr'
+         OR [ContactEmail] LIKE 'provider[_]1[0-9]@test.cr'
+         OR [ContactEmail] IN ('provider_20@test.cr', 'provider_21@test.cr'));
+DELETE FROM [dbo].[ServiceProviders]
+WHERE [ContactEmail] LIKE 'provider[_]0[2-9]@test.cr'
+    OR [ContactEmail] LIKE 'provider[_]1[0-9]@test.cr'
+    OR [ContactEmail] IN ('provider_20@test.cr', 'provider_21@test.cr');
+
 DELETE FROM [dbo].[ClinicOrganizationSiteAccess]
 WHERE [ClinicId] IN ('CC100000-0000-0000-0000-000000000006', 'CC100000-0000-0000-0000-000000000007');
 DELETE FROM [dbo].[ClinicOrganizationSites]
@@ -139,7 +167,12 @@ WHERE [Email] IN (
     'admin@pawtrack.cr','owner_free@test.cr','owner_plus@test.cr','owner_familia@test.cr',
     'ally@test.cr','clinica_basica@test.cr','clinica_partner@test.cr',
     'municipal_basica@test.cr','municipal_full@test.cr','municipal_regional@test.cr',
-    'tienda_activa@test.cr','soporte_bienestar@test.cr');
+    'tienda_activa@test.cr','soporte_bienestar@test.cr')
+   OR [Email] LIKE 'tienda[_]0[2-9]@test.cr'
+   OR [Email] = 'tienda_10@test.cr'
+   OR [Email] LIKE 'provider[_]0[2-9]@test.cr'
+   OR [Email] LIKE 'provider[_]1[0-9]@test.cr'
+   OR [Email] IN ('provider_20@test.cr', 'provider_21@test.cr');
 GO
 
 -- ── 2. BCrypt Hash de 'Test123!' (cost factor 12) ─────────────────────────
@@ -193,6 +226,34 @@ VALUES ('AA000011-0000-0000-0000-000000000011','tienda_activa@test.cr',@hash,'Pe
 -- 12. Support — Especialista de Bienestar Animal
 INSERT INTO [dbo].[Users] ([Id],[Email],[PasswordHash],[Name],[Role],[IsEmailVerified],[FailedLoginAttempts],[CreatedAt],[IsAdultConfirmed])
 VALUES ('AA000012-0000-0000-0000-000000000012','soporte_bienestar@test.cr',@hash,'Soporte Bienestar Animal','Support',1,0,GETUTCDATE(),1);
+
+-- 13-21. Store accounts used by the ten-store local catalog
+DECLARE @storeNumber int = 2;
+WHILE @storeNumber <= 10
+BEGIN
+    INSERT INTO [dbo].[Users] ([Id],[Email],[PasswordHash],[Name],[Role],[IsEmailVerified],[FailedLoginAttempts],[CreatedAt],[IsAdultConfirmed])
+    VALUES (
+        CONVERT(uniqueidentifier, CONCAT('AA0000', RIGHT('00' + CONVERT(varchar(2), @storeNumber + 11), 2), '-0000-0000-0000-000000000000')),
+        CONCAT('tienda_', RIGHT('0' + CONVERT(varchar(2), @storeNumber), 2), '@test.cr'),
+        @hash,
+        CONCAT('PetShop Demo ', @storeNumber),
+        'Store', 1, 0, GETUTCDATE(), 1);
+    SET @storeNumber += 1;
+END;
+
+-- 14-33. Provider accounts: two extra Groomers plus three per other category.
+DECLARE @providerNumber int = 2;
+WHILE @providerNumber <= 21
+BEGIN
+    INSERT INTO [dbo].[Users] ([Id],[Email],[PasswordHash],[Name],[Role],[IsEmailVerified],[FailedLoginAttempts],[CreatedAt],[IsAdultConfirmed])
+    VALUES (
+        CONVERT(uniqueidentifier, CONCAT('AA0000', RIGHT('00' + CONVERT(varchar(2), @providerNumber + 99), 2), '-0000-0000-0000-000000000000')),
+        CONCAT('provider_', RIGHT('0' + CONVERT(varchar(2), @providerNumber), 2), '@test.cr'),
+        @hash,
+        CONCAT('Provider Demo ', @providerNumber),
+        'ServiceProvider', 1, 0, GETUTCDATE(), 1);
+    SET @providerNumber += 1;
+END;
 GO
 
 -- ── 4. Clínicas con IDs deterministas ──────────────────────────────────────
@@ -205,6 +266,53 @@ GO
 -- ── 5. Tienda con ID determinista ─────────────────────────────────────────
 INSERT INTO [dbo].[Stores] ([Id],[UserId],[Name],[Description],[Address],[Lat],[Lng],[ContactEmail],[IsFeatured],[Status],[RegisteredAt])
 VALUES ('BB000011-0000-0000-0000-000000000011','AA000011-0000-0000-0000-000000000011','PetShop CR Test','Tienda de prueba con catalogo y ordenes funcionales','Heredia, Costa Rica',9.998000,-84.117000,'tienda_activa@test.cr',0,1,GETUTCDATE());
+
+DECLARE @additionalStoreNumber int = 2;
+WHILE @additionalStoreNumber <= 10
+BEGIN
+    INSERT INTO [dbo].[Stores] ([Id],[UserId],[Name],[Description],[Address],[Lat],[Lng],[ContactEmail],[IsFeatured],[Status],[RegisteredAt])
+    VALUES (
+        CONVERT(uniqueidentifier, CONCAT('BB0000', RIGHT('00' + CONVERT(varchar(2), @additionalStoreNumber + 11), 2), '-0000-0000-0000-000000000000')),
+        CONVERT(uniqueidentifier, CONCAT('AA0000', RIGHT('00' + CONVERT(varchar(2), @additionalStoreNumber + 11), 2), '-0000-0000-0000-000000000000')),
+        CONCAT('PetShop Demo ', @additionalStoreNumber),
+        'Tienda sintetica para pruebas locales de marketplace',
+        CONCAT('Canton Demo ', @additionalStoreNumber, ', Costa Rica'),
+        9.90 + (@additionalStoreNumber * 0.01),
+        -84.10 - (@additionalStoreNumber * 0.01),
+        CONCAT('tienda_', RIGHT('0' + CONVERT(varchar(2), @additionalStoreNumber), 2), '@test.cr'),
+        0, 1, GETUTCDATE());
+    SET @additionalStoreNumber += 1;
+END;
+GO
+
+-- ── 6b. Three active providers per service category ──────────────────────
+DECLARE @providerSeedNumber int = 2;
+WHILE @providerSeedNumber <= 21
+BEGIN
+    INSERT INTO [dbo].[ServiceProviders] (
+        [Id],[UserId],[Name],[Description],[Category],[Address],[Lat],[Lng],
+        [ContactEmail],[IsFeatured],[Status],[RegisteredAt],[MembershipTier],[IsMembershipManual])
+    VALUES (
+        CONVERT(uniqueidentifier, CONCAT('DD0000', RIGHT('00' + CONVERT(varchar(2), @providerSeedNumber + 99), 2), '-0000-0000-0000-000000000000')),
+        CONVERT(uniqueidentifier, CONCAT('AA0000', RIGHT('00' + CONVERT(varchar(2), @providerSeedNumber + 99), 2), '-0000-0000-0000-000000000000')),
+        CONCAT('Provider Demo ', @providerSeedNumber),
+        'Proveedor sintetico para pruebas locales por categoria',
+        CASE
+            WHEN @providerSeedNumber IN (2, 3) THEN 1
+            WHEN @providerSeedNumber BETWEEN 4 AND 6 THEN 0
+            WHEN @providerSeedNumber BETWEEN 7 AND 9 THEN 2
+            WHEN @providerSeedNumber BETWEEN 10 AND 12 THEN 3
+            WHEN @providerSeedNumber BETWEEN 13 AND 15 THEN 4
+            WHEN @providerSeedNumber BETWEEN 16 AND 18 THEN 5
+            ELSE 6
+        END,
+        CONCAT('Canton Demo ', @providerSeedNumber, ', Costa Rica'),
+        9.80 + (@providerSeedNumber * 0.01),
+        -84.00 - (@providerSeedNumber * 0.01),
+        CONCAT('provider_', RIGHT('0' + CONVERT(varchar(2), @providerSeedNumber), 2), '@test.cr'),
+        0, 1, GETUTCDATE(), 1, 1);
+    SET @providerSeedNumber += 1;
+END;
 GO
 
 -- ── 6. Suscripciones activas ──────────────────────────────────────────────
