@@ -58,7 +58,7 @@ export function CookieConsentBanner() {
           <button
             type="button"
             onClick={handleAccept}
-            className="flex-1 rounded-xl bg-brand-500 px-3 py-2.5 text-sm font-bold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            className="flex-1 rounded-xl bg-brand-500 px-3 py-2.5 text-sm font-bold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             Aceptar todo
           </button>

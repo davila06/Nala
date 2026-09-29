@@ -34,7 +34,7 @@ export function AnnualReportButton({
         value={year}
         onChange={(e) => setYear(Number(e.target.value))}
         aria-label="Año del informe"
-        className="rounded-xl border border-sand-200 bg-white px-3 py-1.5 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
+        className="rounded-xl border border-sand-200 bg-white px-3 py-1.5 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-focus-ring"
       >
         {years.map((y) => (
           <option key={y} value={y}>

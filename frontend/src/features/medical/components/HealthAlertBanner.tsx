@@ -101,7 +101,7 @@ export function HealthAlertBanner({
                   <button
                     type="button"
                     onClick={() => onSchedule(alert)}
-                    className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-brand-400 ${cls.btnCls}`}
+                    className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-focus-ring ${cls.btnCls}`}
                     aria-label={`Programar cita para ${alert.protocolName}`}
                   >
                     Programar

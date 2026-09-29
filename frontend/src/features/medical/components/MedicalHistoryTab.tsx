@@ -367,7 +367,7 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
               id={`edit-type-${record.id}`}
               value={editType}
               onChange={(e) => setEditType(e.target.value as MedicalRecordType)}
-              className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2.5 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2.5 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-focus-ring"
             >
               {ALL_TYPES.map((t) => (
                 <option key={t} value={t}>
@@ -407,7 +407,7 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
               rows={3}
               aria-describedby={editDescError ? `edit-desc-err-${record.id}` : undefined}
               aria-invalid={!!editDescError}
-              className={`w-full rounded-xl border px-3 py-2 text-sm text-sand-800 placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-brand-400 ${
+              className={`w-full rounded-xl border px-3 py-2 text-sm text-sand-800 placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-focus-ring ${
                 editDescError ? "border-danger-400 bg-danger-50" : "border-sand-200 bg-white"
               }`}
               placeholder="Ej. Vacuna anti-rábica administrada sin reacciones"
@@ -481,7 +481,7 @@ function RecordCard({ record, petId }: { record: MedicalRecordDto; petId: string
                 type="button"
                 onClick={() => setEditOpen(true)}
                 aria-label={`Editar: ${record.description}`}
-                className="flex h-7 w-7 items-center justify-center rounded-lg text-brand-400 hover:bg-brand-50 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-brand-400 hover:bg-brand-50 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 <svg viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5" aria-hidden="true">
                   <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61Zm.176 4.823L9.75 4.81l-6.286 6.287a.253.253 0 0 0-.064.108l-.558 1.953 1.953-.558a.253.253 0 0 0 .108-.064Zm1.238-3.763a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354Z" />
@@ -721,7 +721,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
               id="medical-record-type"
               value={type}
               onChange={(e) => setType(e.target.value as MedicalRecordType)}
-              className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-focus-ring"
             >
               {ALL_TYPES.map((t) => (
                 <option key={t} value={t}>
@@ -755,7 +755,7 @@ function AddRecordForm({ petId, onClose }: { petId: string; onClose: () => void 
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
-              className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-focus-ring"
               placeholder="Ej. Vacuna anti-rábica anual administrada sin reacciones"
             />
           </div>
@@ -1121,7 +1121,7 @@ export function MedicalHistoryTab({ petId, petName = "" }: { petId: string; petN
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar entre los registros cargados…"
-            className="w-full rounded-xl border border-sand-200 bg-white py-2 pl-8 pr-4 text-sm text-sand-800 placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 bg-white py-2 pl-8 pr-4 text-sm text-sand-800 placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-focus-ring"
           />
         </div>
         {/* Type filter — horizontal scroll on mobile */}

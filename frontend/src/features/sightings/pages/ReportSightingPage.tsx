@@ -101,7 +101,7 @@ function SightingAutoMatchPanel({
           onClick={() =>
             setVisibleCount((prev) => Math.min(prev + 10, matches.length))
           }
-          className="mt-3 w-full rounded-xl border border-sand-200 field-input py-2 text-sm font-medium text-copy-secondary hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          className="mt-3 w-full rounded-xl border border-sand-200 field-input py-2 text-sm font-medium text-copy-secondary hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
         >
           Mostrar más ({matches.length - visibleCount} restantes)
         </button>
@@ -218,7 +218,7 @@ export default function ReportSightingPage() {
 
         <Link
           to={`/p/${petId}`}
-          className="mt-8 rounded-xl bg-brand-500 px-6 py-3 text-sm font-bold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1"
+          className="mt-8 rounded-xl bg-brand-500 px-6 py-3 text-sm font-bold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-1"
         >
           ← Ver perfil de mascota
         </Link>
@@ -232,7 +232,7 @@ export default function ReportSightingPage() {
       <div className="border-b border-sand-100 px-5 py-4">
         <Link
           to={petId ? `/p/${petId}` : "/"}
-          className="text-sm text-copy-secondary hover:text-sand-800 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          className="text-sm text-copy-secondary hover:text-sand-800 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
         >
           ← Volver al perfil
         </Link>
@@ -269,7 +269,7 @@ export default function ReportSightingPage() {
               type="button"
               onClick={handleGetLocation}
               disabled={locationStatus === "loading"}
-              className="w-full rounded-xl bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1"
+              className="w-full rounded-xl bg-brand-500 py-3 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-1"
             >
               {locationStatus === "loading"
                 ? "Obteniendo ubicación…"
@@ -297,7 +297,7 @@ export default function ReportSightingPage() {
                   setPhoto(null);
                   setPhotoPreview(null);
                 }}
-                className="absolute right-2 top-2 rounded-full bg-white/80 px-2 py-0.5 text-xs font-bold text-copy-secondary hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="absolute right-2 top-2 rounded-full bg-white/80 px-2 py-0.5 text-xs font-bold text-copy-secondary hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 <span aria-hidden="true">✕</span>
               </button>
@@ -306,7 +306,7 @@ export default function ReportSightingPage() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-sand-200 py-8 text-sm font-medium text-copy-muted hover:border-brand-400 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-sand-200 py-8 text-sm font-medium text-copy-muted hover:border-brand-400 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               📸 Tomar / elegir foto
             </button>
@@ -336,7 +336,7 @@ export default function ReportSightingPage() {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Describe dónde viste a la mascota, qué estaba haciendo…"
-            className="w-full rounded-xl border border-sand-200 bg-sand-50 px-3 py-2.5 text-sm text-sand-800 placeholder:text-copy-muted focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            className="w-full rounded-xl border border-sand-200 bg-sand-50 px-3 py-2.5 text-sm text-sand-800 placeholder:text-copy-muted focus:border-focus-ring focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
           <p className="mt-0.5 text-right text-xs text-copy-muted">
             {note.length}/2000

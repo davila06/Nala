@@ -416,7 +416,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
             id="bundle-collar-model"
             value={collarModel}
             onChange={(e) => setCollarModel(e.target.value as CollarModel)}
-            className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
           >
             {(Object.keys(COLLAR_MODEL_LABELS) as CollarModel[]).map((m) => (
               <option key={m} value={m}>
@@ -461,7 +461,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
               id="bundle-canton"
               value={canton}
               onChange={(e) => setCanton(e.target.value)}
-              className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
             >
               {CANTONS.map((c) => (
                 <option key={c} value={c}>
@@ -492,7 +492,7 @@ function CreateOrderForm({ onSuccess }: { onSuccess: () => void }) {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
-            className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-focus-ring"
             placeholder="Horario preferido, referencias del lugar, etc."
           />
         </div>

@@ -104,7 +104,7 @@ export function PromotionCodeRedeemer() {
                 id="promotion-target-tier"
                 value={selectedTier}
                 onChange={(e) => setSelectedTier(e.target.value)}
-                className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-focus-ring"
               >
                 <option value="">— Elegir plan —</option>
                 {selectablePlans.map((plan) => (

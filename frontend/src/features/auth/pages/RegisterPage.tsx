@@ -107,13 +107,13 @@ export default function RegisterPage() {
             <nav className="mb-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
               <Link
                 to="/login"
-                className="text-copy-brand transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="text-copy-brand transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 Volver
               </Link>
               <Link
                 to={isAuthenticated ? "/dashboard" : "/login"}
-                className="text-copy-secondary transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="text-copy-secondary transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 Ir al inicio
               </Link>
@@ -168,7 +168,7 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="rounded px-1 py-2 text-xs text-copy-secondary hover:text-sand-700 transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="rounded px-1 py-2 text-xs text-copy-secondary hover:text-sand-700 transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 {showPassword ? "Ocultar" : "Mostrar"} contraseña
               </button>
@@ -192,7 +192,7 @@ export default function RegisterPage() {
                 required
                 checked={isAdultConfirmed}
                 onChange={(e) => setIsAdultConfirmed(e.target.checked)}
-                className="mt-0.5 h-4 w-4 shrink-0 rounded border-sand-300 text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-sand-300 text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               />
               <span>
                 Confirmo que soy mayor de edad o que cuento con la autorización de mi tutor legal para usar PawTrack CR.
@@ -210,7 +210,7 @@ export default function RegisterPage() {
             ¿Ya tienes cuenta?{" "}
             <Link
               to="/login"
-              className="rounded font-semibold text-copy-brand hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="rounded font-semibold text-copy-brand hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               Iniciar sesión
             </Link>
@@ -219,7 +219,7 @@ export default function RegisterPage() {
           <p className="mt-2 text-center">
             <a
               href="/precios.html"
-              className="text-xs text-copy-muted hover:text-brand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
+              className="text-xs text-copy-muted hover:text-brand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring rounded"
             >
               Ver planes y precios →
             </a>
@@ -229,7 +229,7 @@ export default function RegisterPage() {
             ¿Tienes un negocio para mascotas?{" "}
             <Link
               to="/registro-negocio"
-              className="rounded font-semibold text-copy-brand hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="rounded font-semibold text-copy-brand hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               Regístralo aquí
             </Link>

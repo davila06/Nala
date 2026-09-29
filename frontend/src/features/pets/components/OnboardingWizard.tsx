@@ -56,7 +56,7 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
           className="w-full max-w-sm rounded-3xl bg-surface shadow-2xl overflow-hidden"
         >
           {/* Top gradient band */}
-          <div className="bg-gradient-to-br from-brand-500 to-brand-700 p-8 text-center">
+          <div className="bg-linear-to-br from-brand-500 to-brand-700 p-8 text-center">
             <motion.span
               initial={{ scale: 0.6 }}
               animate={{ scale: 1 }}
@@ -89,7 +89,7 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
                 <Link
                   to="/pets/new"
                   onClick={dismiss}
-                  className="flex items-center justify-center gap-2 rounded-2xl bg-brand-500 py-3.5 text-sm font-bold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-brand-500 py-3.5 text-sm font-bold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   <span aria-hidden="true">＋</span> {current.cta}
                 </Link>
@@ -97,7 +97,7 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
                 <button
                   type="button"
                   onClick={() => setStep((s) => s + 1)}
-                  className="rounded-2xl bg-brand-500 py-3.5 text-sm font-bold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                  className="rounded-2xl bg-brand-500 py-3.5 text-sm font-bold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   {current.cta}
                 </button>

@@ -20,7 +20,7 @@ export function NeighborStatusCard() {
         <button
           type="button"
           onClick={() => setSetupOpen(true)}
-          className="flex w-full items-start gap-3 rounded-2xl border border-sand-200 bg-surface p-4 text-left transition-colors hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          className="flex w-full items-start gap-3 rounded-2xl border border-sand-200 bg-surface p-4 text-left transition-colors hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
         >
           <span
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-trust-100 text-xl"

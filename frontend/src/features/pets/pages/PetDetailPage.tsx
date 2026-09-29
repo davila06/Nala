@@ -154,7 +154,7 @@ export default function PetDetailPage() {
       {/* Back */}
       <Link
         to="/dashboard"
-        className="mb-5 flex items-center gap-1.5 rounded-lg text-sm text-copy-secondary hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+        className="mb-5 flex items-center gap-1.5 rounded-lg text-sm text-copy-secondary hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
       >
         ← Mis mascotas
       </Link>
@@ -234,13 +234,13 @@ export default function PetDetailPage() {
             <button
               type="button"
               onClick={() => setActiveTab("salud")}
-              className="flex-1 rounded-xl border border-brand-200 bg-brand-50 py-3 text-sm font-semibold text-brand-700 hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="flex-1 rounded-xl border border-brand-200 bg-brand-50 py-3 text-sm font-semibold text-brand-700 hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               🏥 Ver registro médico
             </button>
             <Link
               to={`/pets/${pet.id}/edit`}
-              className="flex-1 rounded-xl border border-sand-300 py-3 text-center text-sm font-semibold text-sand-700 hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="flex-1 rounded-xl border border-sand-300 py-3 text-center text-sm font-semibold text-sand-700 hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               ✏ Editar
             </Link>
@@ -259,7 +259,7 @@ export default function PetDetailPage() {
                   type="button"
                   onClick={() => setConfirmDelete(false)}
                   disabled={deleting}
-                  className="rounded-lg border border-sand-300 px-3 py-1.5 text-xs font-semibold text-sand-700 hover:bg-sand-100 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                  className="rounded-lg border border-sand-300 px-3 py-1.5 text-xs font-semibold text-sand-700 hover:bg-sand-100 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   Cancelar
                 </button>
@@ -373,7 +373,7 @@ export default function PetDetailPage() {
               href={`https://wa.me/${import.meta.env.VITE_COLLAR_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hola, quiero pedir un collar con placa QR para mi mascota ${pet.name} (ID: ${pet.id}). ¿Cuáles opciones tienen disponibles?`)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 rounded-2xl border border-sand-200 bg-surface-warm px-4 py-3.5 text-sm font-semibold text-sand-700 transition-base hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="flex items-center gap-3 rounded-2xl border border-sand-200 bg-surface-warm px-4 py-3.5 text-sm font-semibold text-sand-700 transition-base hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               <span className="text-xl" aria-hidden="true">
                 🏷️

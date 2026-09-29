@@ -88,7 +88,7 @@ function ProductForm({
             id="store-product-category"
             value={category}
             onChange={(e) => setCategory(e.target.value as ProductCategory)}
-            className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
           >
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -125,7 +125,7 @@ function ProductForm({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={2}
-            className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-focus-ring"
           />
         </div>
         {initial && (

@@ -55,7 +55,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 const inputBase =
   "w-full rounded-xl border px-3.5 py-2.5 text-sm field-input placeholder:text-copy-muted " +
   "transition-base outline-none " +
-  "focus:ring-2 focus:ring-brand-400 focus:border-brand-400 " +
+  "focus:ring-2 focus:ring-focus-ring focus:border-focus-ring " +
   "disabled:opacity-60 disabled:cursor-not-allowed";
 
 const inputNormal = "border-sand-300 hover:border-sand-400";

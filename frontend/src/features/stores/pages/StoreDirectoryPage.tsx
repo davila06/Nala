@@ -85,7 +85,7 @@ export default function StoreDirectoryPage() {
             placeholder="Buscar por nombre, descripción o dirección…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full rounded-xl border border-sand-200 bg-surface py-2.5 pl-9 pr-4 text-sm text-ink-900 placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 bg-surface py-2.5 pl-9 pr-4 text-sm text-ink-900 placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-focus-ring"
           />
         </div>
 

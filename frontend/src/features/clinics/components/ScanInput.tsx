@@ -153,7 +153,7 @@ export function ScanInput({ onScan, isLoading = false }: ScanInputProps) {
           onChange={(e) => setManualInput(e.target.value)}
           placeholder="URL del QR o código de microchip"
           disabled={isLoading}
-          className="flex-1 rounded-xl border border-sand-300 px-4 py-3 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 disabled:opacity-50"
+          className="flex-1 rounded-xl border border-sand-300 px-4 py-3 text-sm outline-none focus:border-focus-ring focus:ring-2 focus:ring-brand-100 disabled:opacity-50"
         />
         <button
           type="submit"

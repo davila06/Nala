@@ -86,7 +86,7 @@ function SpecRow({
               }
               update(patch);
             }}
-            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
           >
             <option value="PercentageDiscount">% Descuento (DES__)</option>
             <option value="FreeTier">Cuenta gratis (FREE__)</option>
@@ -109,7 +109,7 @@ function SpecRow({
               onChange={(e) =>
                 update({ discountPercent: Number(e.target.value) })
               }
-              className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
             >
               <option value={10}>10% — código DES10XXX</option>
               <option value={15}>15% — código DES15XXX</option>
@@ -129,7 +129,7 @@ function SpecRow({
               id="promotion-free-tier"
               value={spec.targetTier ?? "UserPlus"}
               onChange={(e) => update({ targetTier: e.target.value })}
-              className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
             >
               <option value="UserPlus">Plus — código FREEPLXX</option>
               <option value="UserFamilia">Familia — código FREEFAXX</option>
@@ -150,7 +150,7 @@ function SpecRow({
                 id="promotion-duration"
                 value={spec.freeMonths ?? 1}
                 onChange={(e) => update({ freeMonths: Number(e.target.value) })}
-                className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
               >
                 <option value={1}>1 mes — código MES01XXX</option>
                 <option value={3}>3 meses — código MES03XXX</option>
@@ -168,7 +168,7 @@ function SpecRow({
                 id="promotion-duration-tier"
                 value={spec.targetTier ?? "UserPlus"}
                 onChange={(e) => update({ targetTier: e.target.value })}
-                className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
               >
                 <option value="UserPlus">Plus</option>
                 <option value="UserFamilia">Familia</option>

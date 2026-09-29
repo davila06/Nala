@@ -63,7 +63,7 @@ export function UpgradeBanner({ requires, compact }: UpgradeBannerProps) {
           // Open FreemiumModal — dispatched via a global event so no prop-drilling needed
           window.dispatchEvent(new CustomEvent("pawtrack:open-upgrade-modal"));
         }}
-        className="mt-2.5 rounded-xl bg-brand-500 px-4 py-2 text-xs font-bold text-white transition hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+        className="mt-2.5 rounded-xl bg-brand-500 px-4 py-2 text-xs font-bold text-white transition hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
       >
         Conocer plan {name} →
       </button>

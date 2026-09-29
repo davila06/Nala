@@ -142,7 +142,7 @@ export function NotificationCenter() {
             type="button"
             onClick={() => markAll()}
             disabled={markingAll}
-            className="-mx-2 -my-2 rounded px-2 py-2.5 text-xs font-semibold text-brand-600 hover:underline disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            className="-mx-2 -my-2 rounded px-2 py-2.5 text-xs font-semibold text-brand-600 hover:underline disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             Marcar todo leído
           </button>
@@ -163,7 +163,7 @@ export function NotificationCenter() {
             aria-selected={activeTab === tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={[
-              "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
+              "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
               activeTab === tab.key
                 ? "bg-brand-500 text-white shadow-sm"
                 : "bg-sand-100 text-copy-secondary hover:bg-sand-200",

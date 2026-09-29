@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect, useCallback, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 /**
  * OfflineIndicator — slim banner at the very top of the screen.
@@ -7,31 +7,45 @@ import { motion, AnimatePresence } from 'framer-motion'
  * Render once in App.tsx or AuthenticatedLayout.
  */
 export function OfflineIndicator() {
-  const [isOnline, setIsOnline] = useState(() => navigator.onLine)
-  const [showReconnected, setShowReconnected] = useState(false)
-  const [visible, setVisible] = useState(false)
+  const [isOnline, setIsOnline] = useState(() => navigator.onLine);
+  const [showReconnected, setShowReconnected] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelReconnectTimer = useCallback(() => {
+    if (reconnectTimer.current !== null) {
+      clearTimeout(reconnectTimer.current);
+      reconnectTimer.current = null;
+    }
+  }, []);
 
   const handleOnline = useCallback(() => {
-    setIsOnline(true)
-    setShowReconnected(true)
-    setVisible(true)
-    setTimeout(() => setVisible(false), 3000)
-  }, [])
+    cancelReconnectTimer();
+    setIsOnline(true);
+    setShowReconnected(true);
+    setVisible(true);
+    reconnectTimer.current = setTimeout(() => {
+      reconnectTimer.current = null;
+      setVisible(false);
+    }, 3000);
+  }, [cancelReconnectTimer]);
 
   const handleOffline = useCallback(() => {
-    setIsOnline(false)
-    setShowReconnected(false)
-    setVisible(true)
-  }, [])
+    cancelReconnectTimer();
+    setIsOnline(false);
+    setShowReconnected(false);
+    setVisible(true);
+  }, [cancelReconnectTimer]);
 
   useEffect(() => {
-    window.addEventListener('online',  handleOnline)
-    window.addEventListener('offline', handleOffline)
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
     return () => {
-      window.removeEventListener('online',  handleOnline)
-      window.removeEventListener('offline', handleOffline)
-    }
-  }, [handleOnline, handleOffline])
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+      cancelReconnectTimer();
+    };
+  }, [handleOnline, handleOffline, cancelReconnectTimer]);
 
   return (
     <AnimatePresence>
@@ -41,15 +55,13 @@ export function OfflineIndicator() {
           aria-live="polite"
           aria-atomic="true"
           initial={{ y: -40, opacity: 0 }}
-          animate={{ y: 0,   opacity: 1 }}
-          exit={{    y: -40, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -40, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 400, damping: 35 }}
           className={[
-            'fixed inset-x-0 top-0 z-[9999] flex items-center justify-center gap-2 py-2 text-xs font-semibold text-white shadow-md',
-            isOnline && showReconnected
-              ? 'bg-rescue-600'
-              : 'bg-zinc-900',
-          ].join(' ')}
+            "fixed inset-x-0 top-0 z-[9999] flex items-center justify-center gap-2 py-2 text-xs font-semibold text-white shadow-md",
+            isOnline && showReconnected ? "bg-rescue-600" : "bg-zinc-900",
+          ].join(" ")}
         >
           {isOnline && showReconnected ? (
             <>
@@ -62,7 +74,12 @@ export function OfflineIndicator() {
           ) : (
             <>
               <svg viewBox="0 0 16 16" fill="none" className="h-3.5 w-3.5" aria-hidden="true">
-                <path d="M2 2l12 12M6.5 6.5A4 4 0 0 0 4 10m7.5-3.5A4 4 0 0 1 12 10M8 13h.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <path
+                  d="M2 2l12 12M6.5 6.5A4 4 0 0 0 4 10m7.5-3.5A4 4 0 0 1 12 10M8 13h.01"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
               </svg>
               Sin conexión — algunos datos pueden estar desactualizados
             </>
@@ -70,5 +87,5 @@ export function OfflineIndicator() {
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }

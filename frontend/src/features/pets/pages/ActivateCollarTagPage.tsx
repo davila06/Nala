@@ -89,7 +89,7 @@ export default function ActivateCollarTagPage() {
             value={serialInput}
             onChange={(e) => setSerialInput(e.target.value.toUpperCase())}
             placeholder="PT-XXXX-0000000"
-            className="w-full rounded-xl border border-sand-200 bg-surface px-4 py-3 font-mono text-sm uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 bg-surface px-4 py-3 font-mono text-sm uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-focus-ring"
             maxLength={15}
           />
           <button

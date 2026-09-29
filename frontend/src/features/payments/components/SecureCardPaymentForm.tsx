@@ -275,7 +275,7 @@ export function SecureCardPaymentForm({ amountCrc, isProcessing, onPay, buttonLa
       <button
         type="submit"
         disabled={isProcessing || loadingProfiles}
-        className="w-full rounded-2xl bg-brand-600 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 shadow-sm"
+        className="w-full rounded-2xl bg-brand-600 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring shadow-sm"
       >
         {isProcessing ? (
           <span className="inline-flex items-center gap-2">

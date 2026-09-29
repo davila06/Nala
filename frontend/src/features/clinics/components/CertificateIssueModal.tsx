@@ -128,7 +128,7 @@ export function CertificateIssueModal({ clinicId, onClose }: CertificateIssueMod
               type="button"
               onClick={onClose}
               aria-label="Cerrar"
-              className="rounded-xl p-2 text-copy-muted hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="rounded-xl p-2 text-copy-muted hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                 <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z" />
@@ -151,7 +151,7 @@ export function CertificateIssueModal({ clinicId, onClose }: CertificateIssueMod
                     required
                     pattern="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
                     title="Debe ser un UUID válido (ej. 550e8400-e29b-41d4-a716-446655440000)"
-                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
+                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring field-input mt-1"
                     placeholder="550e8400-e29b-41d4-a716-446655440000"
                     {...field("petId")}
                   />
@@ -160,7 +160,7 @@ export function CertificateIssueModal({ clinicId, onClose }: CertificateIssueMod
                   Color / señas visibles
                   <input
                     required
-                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
+                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring field-input mt-1"
                     placeholder="Dorado con pecho blanco"
                     {...field("petColor")}
                   />
@@ -169,7 +169,7 @@ export function CertificateIssueModal({ clinicId, onClose }: CertificateIssueMod
                   Veterinario autorizado
                   <select
                     required
-                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
+                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring field-input mt-1"
                     {...field("veterinarianId")}
                   >
                     <option value="">Seleccionar veterinario</option>
@@ -189,7 +189,7 @@ export function CertificateIssueModal({ clinicId, onClose }: CertificateIssueMod
                     value={newVet.fullName}
                     onChange={(e) => setNewVet((v) => ({ ...v, fullName: e.target.value }))}
                     placeholder="Nombre completo"
-                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
+                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring field-input mt-1"
                   />
                   <input
                     value={newVet.licenseNumber}
@@ -200,7 +200,7 @@ export function CertificateIssueModal({ clinicId, onClose }: CertificateIssueMod
                       }))
                     }
                     placeholder="Licencia veterinaria"
-                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
+                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring field-input mt-1"
                   />
                 </div>
                 <button
@@ -218,21 +218,21 @@ export function CertificateIssueModal({ clinicId, onClose }: CertificateIssueMod
                   Vacuna
                   <input
                     required
-                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
+                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring field-input mt-1"
                     {...field("vaccineName")}
                   />
                 </label>
                 <label className="block text-xs font-semibold text-sand-700">
                   Marca
                   <input
-                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
+                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring field-input mt-1"
                     {...field("vaccineBrand")}
                   />
                 </label>
                 <label className="block text-xs font-semibold text-sand-700">
                   Lote
                   <input
-                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
+                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring field-input mt-1"
                     {...field("vaccineLot")}
                   />
                 </label>
@@ -241,7 +241,7 @@ export function CertificateIssueModal({ clinicId, onClose }: CertificateIssueMod
                   <input
                     required
                     type="date"
-                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
+                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring field-input mt-1"
                     {...field("vaccineDate")}
                   />
                 </label>
@@ -249,7 +249,7 @@ export function CertificateIssueModal({ clinicId, onClose }: CertificateIssueMod
                   Vigencia de la vacuna
                   <input
                     type="date"
-                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input mt-1"
+                    className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring field-input mt-1"
                     {...field("vaccineValidUntil")}
                   />
                 </label>
@@ -260,17 +260,17 @@ export function CertificateIssueModal({ clinicId, onClose }: CertificateIssueMod
                 </span>
                 <input
                   placeholder="Producto"
-                  className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input"
+                  className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring field-input"
                   {...field("parasiteProduct")}
                 />
                 <input
                   type="date"
-                  className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input"
+                  className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring field-input"
                   {...field("parasiteDate")}
                 />
                 <input
                   type="date"
-                  className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400 field-input"
+                  className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring field-input"
                   {...field("parasiteNextDue")}
                 />
               </div>

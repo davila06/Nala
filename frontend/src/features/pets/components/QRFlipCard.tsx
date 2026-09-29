@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+﻿import { useEffect, useState, useRef, useCallback } from "react";
 import { petsApi } from "../api/petsApi";
 import { useHaptic } from "@/shared/hooks/useHaptic";
 
@@ -106,7 +106,7 @@ export function QRFlipCard({ petId, petName, petPhotoUrl, petSpecies = "Other" }
             aria-hidden={isFlipped}
             aria-label={`Mostrar código QR de ${petName}`}
             onClick={doFlip}
-            className="flip-card__face flip-card__face--front rounded-2xl border border-sand-200 bg-surface-warm p-0 text-left shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-400"
+            className="flip-card__face flip-card__face--front rounded-2xl border border-sand-200 bg-surface-warm p-0 text-left shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-focus-ring"
           >
             {petPhotoUrl ? (
               <img src={petPhotoUrl} alt={petName} className="h-full w-full object-cover rounded-2xl" loading="lazy" />
@@ -149,14 +149,14 @@ export function QRFlipCard({ petId, petName, petPhotoUrl, petSpecies = "Other" }
               <>
                 <div className="relative">
                   {/* Metallic frame */}
-                  <div className="absolute -inset-1.5 rounded-xl bg-gradient-to-br from-sand-300 via-sand-200 to-sand-400 shadow-inner" />
+                  <div className="absolute -inset-1.5 rounded-xl bg-linear-to-br from-sand-300 via-sand-200 to-sand-400 shadow-inner" />
                   <img src={blobUrl} alt={`QR de ${petName}`} className="relative h-28 w-28 rounded-lg" />
                 </div>
                 <button
                   type="button"
                   tabIndex={isFlipped ? 0 : -1}
                   onClick={handleDownload}
-                  className="flex items-center gap-1 rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                  className="flex items-center gap-1 rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   ⬇ Descargar
                 </button>
@@ -168,7 +168,7 @@ export function QRFlipCard({ petId, petName, petPhotoUrl, petSpecies = "Other" }
                 type="button"
                 tabIndex={isFlipped ? 0 : -1}
                 onClick={doFlip}
-                className="rounded-lg px-3 py-1.5 text-xs font-semibold text-sand-700 hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="rounded-lg px-3 py-1.5 text-xs font-semibold text-sand-700 hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 Mostrar foto
               </button>

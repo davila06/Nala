@@ -531,7 +531,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
             id="billboard-advertiser"
             {...field("advertiserName")}
             placeholder="Nombre comercial del anunciante"
-            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
           />
         </div>
         <div>
@@ -582,7 +582,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
             id="billboard-title"
             {...field("title")}
             placeholder="Cuida a tu mascota con..."
-            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
           />
         </div>
         <div className="col-span-2">
@@ -596,7 +596,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
             id="billboard-body"
             {...field("body")}
             rows={2}
-            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
           />
         </div>
         <div>
@@ -609,7 +609,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
           <select
             id="billboard-placement"
             {...field("placement")}
-            className="w-full rounded-xl border border-sand-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
           >
             {PLACEMENTS.map((p) => (
               <option key={p} value={p}>
@@ -631,7 +631,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
             max="100"
             id="billboard-priority"
             {...field("priority")}
-            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
           />
         </div>
         <div>
@@ -747,7 +747,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
             id="billboard-cta-label"
             {...field("ctaLabel")}
             placeholder="Ver más →"
-            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
           />
         </div>
         <div>
@@ -761,7 +761,7 @@ function CreateBillboardForm({ onClose }: { onClose: () => void }) {
             id="billboard-cta-url"
             {...field("ctaUrl")}
             placeholder="https://..."
-            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
           />
         </div>
       </div>

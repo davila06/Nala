@@ -155,7 +155,7 @@ export default function CreatePetPage() {
         onClick={() => {
           void navigate(-1);
         }}
-        className="mb-5 flex items-center gap-1.5 rounded-lg text-sm text-copy-secondary hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+        className="mb-5 flex items-center gap-1.5 rounded-lg text-sm text-copy-secondary hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
       >
         ← Volver
       </button>
@@ -423,7 +423,7 @@ export default function CreatePetPage() {
                   type="button"
                   onClick={() => void handleSubmit()}
                   disabled={isLoading || !name.trim()}
-                  className="group relative w-full overflow-hidden rounded-2xl bg-brand-500 py-4 text-sm font-bold text-white shadow-md shadow-brand-200 hover:bg-brand-600 disabled:opacity-50 transition-all hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                  className="group relative w-full overflow-hidden rounded-2xl bg-brand-500 py-4 text-sm font-bold text-white shadow-md shadow-brand-200 hover:bg-brand-600 disabled:opacity-50 transition-all hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   <span
                     className="pointer-events-none absolute inset-0 translate-x-[-120%] skew-x-[-20deg] bg-white/20 group-hover:translate-x-[220%] transition-transform duration-700"
@@ -447,7 +447,7 @@ export default function CreatePetPage() {
           <button
             type="button"
             onClick={goBack}
-            className="flex-1 rounded-xl border border-sand-300 py-3 text-sm font-semibold text-sand-700 hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            className="flex-1 rounded-xl border border-sand-300 py-3 text-sm font-semibold text-sand-700 hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             ← Anterior
           </button>
@@ -457,7 +457,7 @@ export default function CreatePetPage() {
             type="button"
             onClick={goNext}
             disabled={step === 1 && !name.trim()}
-            className="flex-1 rounded-xl bg-brand-500 py-3 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            className="flex-1 rounded-xl bg-brand-500 py-3 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             Siguiente →
           </button>

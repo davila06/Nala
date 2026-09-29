@@ -37,7 +37,7 @@ export function QuietHoursForm({
 
   const timeInputCls = [
     "w-[110px] rounded-xl border px-2.5 py-1.5 text-xs transition-base outline-none",
-    "focus:ring-2 focus:ring-brand-400 focus:border-brand-400",
+    "focus:ring-2 focus:ring-focus-ring focus:border-focus-ring",
     disabled
       ? "border-sand-200 bg-sand-100 text-copy-muted cursor-not-allowed"
       : "border-sand-300 bg-white text-sand-900 cursor-auto",

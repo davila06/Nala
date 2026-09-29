@@ -360,7 +360,7 @@ export default function AuthenticatedLayout() {
                     setMoreMenuOpen((isOpen) => !isOpen);
                     setDropdownOpen(false);
                   }}
-                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-copy-secondary transition-base hover:bg-sand-50 hover:text-sand-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-copy-secondary transition-base hover:bg-sand-50 hover:text-sand-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   Más
                   <svg
@@ -395,7 +395,7 @@ export default function AuthenticatedLayout() {
                           role="menuitem"
                           onClick={() => setMoreMenuOpen(false)}
                           className={(args) =>
-                            `${navLinkPlainCls(args)} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400`
+                            `${navLinkPlainCls(args)} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring`
                           }
                         >
                           {extraNav.label}
@@ -407,7 +407,7 @@ export default function AuthenticatedLayout() {
                           role="menuitem"
                           onClick={() => setMoreMenuOpen(false)}
                           className={(args) =>
-                            `${navLinkPlainCls(args)} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400`
+                            `${navLinkPlainCls(args)} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring`
                           }
                         >
                           {adminStatsNav.label}
@@ -419,7 +419,7 @@ export default function AuthenticatedLayout() {
                           role="menuitem"
                           onClick={() => setMoreMenuOpen(false)}
                           className={(args) =>
-                            `${navLinkPlainCls(args)} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400`
+                            `${navLinkPlainCls(args)} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring`
                           }
                         >
                           {superAdminNav.label}
@@ -472,7 +472,7 @@ export default function AuthenticatedLayout() {
                 onKeyDown={(event) =>
                   handleMenuKeyDown(event, dropdownRef, () => setDropdownOpen(false), userTriggerRef)
                 }
-                className={`hidden md:flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white transition-base focus-visible:ring-2 focus-visible:ring-brand-400 ${avatarColor(user?.name)}`}
+                className={`hidden md:flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white transition-base focus-visible:ring-2 focus-visible:ring-focus-ring ${avatarColor(user?.name)}`}
               >
                 {getInitials(user?.name)}
               </button>
@@ -645,7 +645,7 @@ export default function AuthenticatedLayout() {
                   mobileUserTriggerRef.current?.focus();
                 }
               }}
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white transition-base focus-visible:ring-2 focus-visible:ring-brand-400 md:hidden ${avatarColor(user?.name)}`}
+              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white transition-base focus-visible:ring-2 focus-visible:ring-focus-ring md:hidden ${avatarColor(user?.name)}`}
             >
               {getInitials(user?.name)}
             </button>
@@ -790,7 +790,7 @@ export default function AuthenticatedLayout() {
                   void navigate(-1);
                 }}
                 aria-label="Volver atrás"
-                className="mr-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-copy-secondary hover:bg-sand-100 hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-base"
+                className="mr-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-copy-secondary hover:bg-sand-100 hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring transition-base"
               >
                 <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                   <path

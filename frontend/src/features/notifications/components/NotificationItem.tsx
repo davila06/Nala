@@ -88,7 +88,7 @@ export function NotificationItemCard({ notification }: NotificationItemProps) {
     <button
       type="button"
       onClick={handleClick}
-      className={`w-full rounded-xl px-4 py-3 text-left transition-colors hover:bg-surface-warm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-inset ${
+      className={`w-full rounded-xl px-4 py-3 text-left transition-colors hover:bg-surface-warm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-inset ${
         notification.isRead ? "opacity-60" : "bg-brand-50"
       }`}
     >

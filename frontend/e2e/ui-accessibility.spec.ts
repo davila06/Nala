@@ -8,14 +8,14 @@ async function expectAxeClean(page: import("@playwright/test").Page, include?: s
   let builder = new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]);
   if (include) builder = builder.include(include);
   const results = await builder.analyze();
-  expect(
-    results.violations.map(({ id, impact, help, nodes }) => ({
-      id,
-      impact,
-      help,
-      targets: nodes.map((node) => node.target),
-    })),
-  ).toEqual([]);
+    expect(
+      results.violations.map(({ id, impact, help, nodes }) => ({
+        id,
+        impact,
+        help,
+        nodes: nodes.map((node) => ({ target: node.target, html: node.html, failureSummary: node.failureSummary })),
+      })),
+    ).toEqual([]);
 }
 
 test.describe("UI accessibility foundations", () => {
@@ -87,6 +87,9 @@ test.describe("UI accessibility foundations", () => {
     await page.goto("/map");
     await page.waitForLoadState("networkidle");
     await expectAxeClean(page);
+    await page.getByRole("button", { name: "Lista" }).click();
+    await expect(page.getByRole("main", { name: "Eventos visibles en el mapa" })).toBeVisible();
+    await expectAxeClean(page);
   });
 
   test("authenticated shell exposes skip navigation and a focusable main landmark", async ({ page }) => {
@@ -102,6 +105,12 @@ test.describe("UI accessibility foundations", () => {
   test("lost-pet CTA deep-links to active-pet selection", async ({ page }) => {
     await loginViaUi(page, TEST_USERS.owner.email, TEST_USERS.owner.password);
 
+    await page.setViewportSize({ width: 390, height: 844 });
+    const mobileCta = page.getByRole("link", { name: "Reportar mascota perdida" });
+    await expect(mobileCta).toBeVisible();
+    await expect(mobileCta).toHaveAttribute("href", "/dashboard?action=report-lost");
+
+    await page.setViewportSize({ width: 1280, height: 900 });
     await expect(page.getByRole("link", { name: "Elegir mascota perdida" }).first()).toHaveAttribute(
       "href",
       "/dashboard?action=report-lost",

@@ -16,7 +16,7 @@ export function NotificationBell() {
     <Link
       to="/notifications"
       aria-label={`Notificaciones${unreadCount > 0 ? ` — ${unreadCount} sin leer` : ''}`}
-      className="relative flex h-11 w-11 items-center justify-center rounded-xl text-copy-secondary hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+      className="relative flex h-11 w-11 items-center justify-center rounded-xl text-copy-secondary hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
     >
       {/* Bell icon — shakes when new notification arrives */}
       <motion.svg

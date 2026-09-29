@@ -160,7 +160,7 @@ export default function ClinicDirectoryPage() {
               placeholder="Buscar por nombre o zona…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full rounded-xl border border-sand-200 bg-surface px-4 py-2.5 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-brand-400 pl-9"
+              className="w-full rounded-xl border border-sand-200 bg-surface px-4 py-2.5 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-focus-ring pl-9"
             />
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-copy-muted text-sm">
               🔍

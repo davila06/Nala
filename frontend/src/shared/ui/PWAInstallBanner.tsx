@@ -92,14 +92,14 @@ export function PWAInstallBanner() {
                 <button
                   type="button"
                   onClick={() => void handleInstall()}
-                  className="rounded-lg bg-brand-500 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-colors"
+                  className="rounded-lg bg-brand-500 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors"
                 >
                   Instalar
                 </button>
                 <button
                   type="button"
                   onClick={handleDismiss}
-                  className="rounded-lg border border-sand-200 px-3 py-1.5 text-xs font-semibold text-copy-secondary hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-colors"
+                  className="rounded-lg border border-sand-200 px-3 py-1.5 text-xs font-semibold text-copy-secondary hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring transition-colors"
                 >
                   Ahora no
                 </button>

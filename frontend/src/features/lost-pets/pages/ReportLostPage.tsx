@@ -208,7 +208,7 @@ export default function ReportLostPage() {
     <div className="mx-auto max-w-lg px-4 py-8">
       <Link
         to={`/pets/${pet.id}`}
-        className="mb-5 flex items-center gap-1.5 rounded-lg text-sm text-copy-secondary hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+        className="mb-5 flex items-center gap-1.5 rounded-lg text-sm text-copy-secondary hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
       >
         ← Volver a {pet.name}
       </Link>
@@ -391,7 +391,7 @@ export default function ReportLostPage() {
                             setManualLng(coords?.lng.toString() ?? "");
                             setManualLocationError("");
                           }}
-                          className="mt-2 min-h-11 rounded px-2 text-xs font-semibold text-brand-700 underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                          className="mt-2 min-h-11 rounded px-2 text-xs font-semibold text-brand-700 underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                         >
                           Introducir ubicación manualmente
                         </button>
@@ -414,7 +414,7 @@ export default function ReportLostPage() {
                                 step="any"
                                 value={manualLat}
                                 onChange={(event) => setManualLat(event.target.value)}
-                                className="field-input min-h-11 w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                                className="field-input min-h-11 w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                               />
                             </div>
                             <div>
@@ -434,7 +434,7 @@ export default function ReportLostPage() {
                                 step="any"
                                 value={manualLng}
                                 onChange={(event) => setManualLng(event.target.value)}
-                                className="field-input min-h-11 w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                                className="field-input min-h-11 w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                               />
                             </div>
                             <button
@@ -680,7 +680,7 @@ export default function ReportLostPage() {
                 <button
                   type="button"
                   onClick={goBack}
-                  className="flex-1 rounded-xl border border-sand-300 py-3 text-sm font-semibold text-sand-700 hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                  className="flex-1 rounded-xl border border-sand-300 py-3 text-sm font-semibold text-sand-700 hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   ← Anterior
                 </button>
@@ -689,7 +689,7 @@ export default function ReportLostPage() {
                 <button
                   type="button"
                   onClick={goNext}
-                  className="flex-1 rounded-xl bg-brand-500 py-3 text-sm font-semibold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                  className="flex-1 rounded-xl bg-brand-500 py-3 text-sm font-semibold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   Siguiente →
                 </button>

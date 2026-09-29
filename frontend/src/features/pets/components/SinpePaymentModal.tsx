@@ -234,7 +234,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                 type="button"
                 onClick={onClose}
                 aria-label="Cerrar"
-                className="rounded-xl p-2 text-copy-muted hover:bg-sand-100 hover:text-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="rounded-xl p-2 text-copy-muted hover:bg-sand-100 hover:text-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                   <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z" />
@@ -360,7 +360,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                   type="button"
                   onClick={() => void handleStartPayment()}
                   disabled={isCreating}
-                  className="w-full rounded-2xl bg-brand-600 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                  className="w-full rounded-2xl bg-brand-600 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   {isCreating ? "Generando código…" : `Continuar con SINPE (₡${totalPrice.toLocaleString("es-CR")}) →`}
                 </button>
@@ -587,7 +587,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
               <button
                 type="button"
                 onClick={onClose}
-                className="mt-2 w-full rounded-2xl bg-brand-600 py-3 text-sm font-bold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="mt-2 w-full rounded-2xl bg-brand-600 py-3 text-sm font-bold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 Entendido
               </button>
@@ -618,7 +618,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
               <button
                 type="button"
                 onClick={onClose}
-                className="mt-2 w-full rounded-2xl bg-brand-600 py-3 text-sm font-bold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 shadow-sm"
+                className="mt-2 w-full rounded-2xl bg-brand-600 py-3 text-sm font-bold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring shadow-sm"
               >
                 Comenzar a disfrutar de {label} →
               </button>

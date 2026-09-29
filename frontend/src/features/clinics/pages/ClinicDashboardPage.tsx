@@ -271,7 +271,7 @@ export default function ClinicDashboardPage() {
             <button
               type="button"
               onClick={() => setShowCertificate(true)}
-              className="w-full rounded-2xl border border-brand-200 bg-linear-to-r from-brand-50 to-trust-50 px-4 py-3 flex items-center gap-3 text-left hover:from-brand-100 hover:to-trust-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="w-full rounded-2xl border border-brand-200 bg-linear-to-r from-brand-50 to-trust-50 px-4 py-3 flex items-center gap-3 text-left hover:from-brand-100 hover:to-trust-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               <span className="text-2xl shrink-0" aria-hidden="true">
                 📄
@@ -734,7 +734,7 @@ function ClinicStatsSection() {
       {/* Month picker */}
       <div className="flex items-center gap-2">
         <select
-          className="rounded-xl border border-sand-200 bg-surface px-3 py-1.5 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
+          className="rounded-xl border border-sand-200 bg-surface px-3 py-1.5 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-focus-ring"
           value={month}
           onChange={(e) => setMonth(Number(e.target.value))}
         >
@@ -750,7 +750,7 @@ function ClinicStatsSection() {
           max={now.getFullYear()}
           value={year}
           onChange={(e) => setYear(Number(e.target.value))}
-          className="w-20 rounded-xl border border-sand-200 bg-surface px-3 py-1.5 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
+          className="w-20 rounded-xl border border-sand-200 bg-surface px-3 py-1.5 text-sm text-sand-800 focus:outline-none focus:ring-2 focus:ring-focus-ring"
         />
       </div>
 
@@ -933,7 +933,7 @@ function ClinicApiKeysSection() {
           onChange={(e) => setNewLabel(e.target.value)}
           placeholder="Nombre de la clave (ej. SistemaVet)"
           maxLength={100}
-          className="flex-1 rounded-xl border border-sand-200 bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+          className="flex-1 rounded-xl border border-sand-200 bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
         />
         <button
           type="button"

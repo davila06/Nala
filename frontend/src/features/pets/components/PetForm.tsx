@@ -196,7 +196,7 @@ export const PetForm = ({
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full rounded-xl bg-brand-500 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600 disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
+        className="w-full rounded-xl bg-brand-500 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600 disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
       >
         {isLoading ? "Guardando…" : submitLabel}
       </button>

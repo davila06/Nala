@@ -156,7 +156,7 @@ export function NfcSetupGuide({
                 onClick={() => {
                   void navigator.clipboard.writeText(petProfileUrl);
                 }}
-                className="shrink-0 rounded-lg bg-brand-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="shrink-0 rounded-lg bg-brand-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 Copiar
               </button>

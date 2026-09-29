@@ -147,7 +147,7 @@ function CapturesTab({
             setFilterStatus(e.target.value as CapturedAnimalStatus | "");
             setPage(1);
           }}
-          className="rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+          className="rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
         >
           <option value="">Todos los estados</option>
           {(Object.keys(STATUS_LABELS) as CapturedAnimalStatus[]).map((s) => (

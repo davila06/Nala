@@ -75,13 +75,13 @@ export default function ServiceProviderRegistrationPage() {
           <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
             <Link
               to="/servicios"
-              className="text-brand-600 transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="text-brand-600 transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               Volver
             </Link>
             <Link
               to={isAuthenticated ? "/dashboard" : "/login"}
-              className="text-copy-secondary transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="text-copy-secondary transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               Ir al inicio
             </Link>

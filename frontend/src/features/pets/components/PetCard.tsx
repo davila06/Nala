@@ -28,7 +28,7 @@ export const PetCard = ({ pet }: PetCardProps) => (
     aria-label={`Ver detalles de ${pet.name}${pet.status === "Lost" ? " — perdido/a" : ""}`}
     className={[
       "group relative flex flex-col overflow-hidden rounded-2xl border shadow-sm transition-[transform,box-shadow] duration-200",
-      "hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none",
+      "hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none",
       pet.status === "Lost"
         ? "border-danger-300 animate-[pulse-border_2s_ease-in-out_infinite]"
         : "border-sand-200 field-input",

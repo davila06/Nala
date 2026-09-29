@@ -105,7 +105,7 @@ export default function ServiceProviderDirectoryPage() {
         <header className="space-y-4">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-brand-600 transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-brand-600 transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             <span aria-hidden="true">←</span>
             Ir a inicio
@@ -125,7 +125,7 @@ export default function ServiceProviderDirectoryPage() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Buscar por nombre, servicio o zona"
-            className="w-full rounded-lg border border-sand-200 bg-surface px-3 py-2.5 text-sm text-ink-900 placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-lg border border-sand-200 bg-surface px-3 py-2.5 text-sm text-ink-900 placeholder:text-copy-muted focus:outline-none focus:ring-2 focus:ring-focus-ring"
           />
           <div className="flex gap-2 overflow-x-auto pb-1">
             {categories.map((item) => (

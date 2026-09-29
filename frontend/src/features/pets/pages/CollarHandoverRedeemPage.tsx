@@ -64,7 +64,7 @@ export default function CollarHandoverRedeemPage() {
           value={handoverCodeId}
           onChange={(e) => setHandoverCodeId(e.target.value.trim())}
           placeholder="ID del código de transferencia"
-          className="w-full rounded-xl border border-sand-200 bg-surface px-4 py-3 text-sm outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400"
+          className="w-full rounded-xl border border-sand-200 bg-surface px-4 py-3 text-sm outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring"
         />
         <input
           type="text"
@@ -74,7 +74,7 @@ export default function CollarHandoverRedeemPage() {
           }
           placeholder="PIN de 6 dígitos"
           maxLength={6}
-          className="w-full rounded-xl border border-sand-200 bg-surface px-4 py-3 text-center font-mono text-lg tracking-widest outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400"
+          className="w-full rounded-xl border border-sand-200 bg-surface px-4 py-3 text-center font-mono text-lg tracking-widest outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring"
         />
         {redeem.isError && (
           <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">

@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useId, useRef } from "react";
+import { useId, useRef } from "react";
+import { useDialogFocus } from "./useDialogFocus";
 
 interface ModalProps {
   isOpen: boolean;
@@ -12,56 +13,7 @@ interface ModalProps {
 export function Modal({ isOpen, onClose, title, children, maxWidth = 420 }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
-
-  // Close on Escape
-  useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [isOpen, onClose]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const previousFocus = document.activeElement as HTMLElement | null;
-    const dialog = dialogRef.current;
-    const focusable = dialog?.querySelector<HTMLElement>(
-      "button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])",
-    );
-    focusable?.focus();
-
-    const handleTab = (event: KeyboardEvent) => {
-      if (event.key !== "Tab" || !dialog) return;
-      const elements = Array.from(
-        dialog.querySelectorAll<HTMLElement>(
-          "button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])",
-        ),
-      );
-      if (elements.length === 0) {
-        event.preventDefault();
-        dialog.focus();
-        return;
-      }
-      const first = elements[0];
-      const last = elements[elements.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    dialog?.addEventListener("keydown", handleTab);
-    return () => {
-      dialog?.removeEventListener("keydown", handleTab);
-      previousFocus?.focus();
-    };
-  }, [isOpen]);
+  useDialogFocus(isOpen, onClose, dialogRef);
 
   return (
     <AnimatePresence>

@@ -51,7 +51,7 @@ export function ApplyDrawer({
           placeholder="Ej: Tengo patio, experiencia con perros y mucho amor para dar…"
           maxLength={500}
           rows={5}
-          className="w-full rounded-xl border border-sand-200 bg-surface px-4 py-3 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-brand-400 resize-none"
+          className="w-full rounded-xl border border-sand-200 bg-surface px-4 py-3 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-focus-ring resize-none"
         />
         <p className="text-right text-xs text-copy-muted">{note.length}/500</p>
 

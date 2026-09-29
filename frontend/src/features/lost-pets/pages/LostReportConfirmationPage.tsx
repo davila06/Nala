@@ -213,7 +213,7 @@ export default function LostReportConfirmationPage() {
         <p className="text-copy-secondary">Página no disponible directamente.</p>
         <Link
           to="/dashboard"
-          className="mt-4 inline-block rounded text-sm text-brand-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          className="mt-4 inline-block rounded text-sm text-brand-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
         >
           ← Volver al inicio
         </Link>

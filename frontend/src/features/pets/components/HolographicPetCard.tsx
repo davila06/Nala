@@ -151,7 +151,7 @@ export function HolographicPetCard({
       }}
       className={[
         "holo-card group relative flex flex-col overflow-hidden rounded-2xl border",
-        "focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none",
+        "focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none",
         "stagger-in",
         isLost
           ? "border-danger-400 shadow-danger-200 shadow-lg ring-2 ring-danger-400/50"

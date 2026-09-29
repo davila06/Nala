@@ -227,7 +227,7 @@ export default function CaseRoomPage() {
             aria-controls={`panel-${tab.id}`}
             onClick={() => setActiveTab(tab.id)}
             className={[
-              "inline-flex items-center justify-center gap-1.5 rounded-xl border-0 px-2 py-3 text-sm font-bold transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 sm:text-[0.82rem]",
+              "inline-flex items-center justify-center gap-1.5 rounded-xl border-0 px-2 py-3 text-sm font-bold transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring sm:text-[0.82rem]",
               activeTab === tab.id
                 ? "bg-surface text-sand-900 shadow-sm"
                 : "bg-transparent text-copy-secondary hover:bg-surface/70 hover:text-sand-800",

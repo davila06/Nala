@@ -39,7 +39,7 @@ function PendingBanner({
         <button
           type="button"
           onClick={onRetry}
-          className="shrink-0 rounded-lg border border-brand-400 px-2.5 py-2 text-xs font-semibold text-brand-800 hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1"
+          className="shrink-0 rounded-lg border border-brand-400 px-2.5 py-2 text-xs font-semibold text-brand-800 hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-1"
         >
           Reintentar
         </button>

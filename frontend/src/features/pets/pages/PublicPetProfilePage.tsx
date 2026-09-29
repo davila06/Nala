@@ -319,7 +319,7 @@ export default function PublicPetProfilePage() {
               "mb-3 flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-base font-bold text-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
               isLost
                 ? "bg-danger-500 hover:bg-danger-600 focus-visible:ring-danger-400 shadow-danger-200"
-                : "bg-brand-500 hover:bg-brand-600 focus-visible:ring-brand-400",
+                : "bg-brand-500 hover:bg-brand-600 focus-visible:ring-focus-ring",
             ].join(" ")}
           >
             <span aria-hidden="true" className="text-xl">
@@ -346,7 +346,7 @@ export default function PublicPetProfilePage() {
         {isOwner && (
           <Link
             to={`/pets/${pet.id}`}
-            className="mb-3 flex w-full items-center justify-center gap-2.5 rounded-2xl border-2 border-brand-400 bg-brand-50 py-3.5 text-base font-bold text-brand-700 shadow-sm transition-all hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            className="mb-3 flex w-full items-center justify-center gap-2.5 rounded-2xl border-2 border-brand-400 bg-brand-50 py-3.5 text-base font-bold text-brand-700 shadow-sm transition-all hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             <span aria-hidden="true">⚙️</span> Administrar esta mascota
           </Link>
@@ -365,7 +365,7 @@ export default function PublicPetProfilePage() {
         {!isOwner && isLost && pet.activeLostEventId && pet.ownerId && (
           <Link
             to={`/chat/${pet.activeLostEventId}/${pet.ownerId}`}
-            className="mb-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-sand-200 field-input py-3.5 text-sm font-semibold text-sand-700 shadow-sm hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1"
+            className="mb-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-sand-200 field-input py-3.5 text-sm font-semibold text-sand-700 shadow-sm hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-1"
           >
             <span aria-hidden="true">💬</span> Contactar al dueño (chat seguro)
           </Link>
@@ -437,7 +437,7 @@ export default function PublicPetProfilePage() {
               {contact?.contactPhone ? (
                 <a
                   href={`tel:${contact.contactPhone}`}
-                  className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1"
+                  className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-1"
                 >
                   <span aria-hidden="true">📞</span> {contact.contactPhone}
                 </a>
@@ -446,7 +446,7 @@ export default function PublicPetProfilePage() {
                   type="button"
                   onClick={handleRevealPhone}
                   disabled={contactLoading}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-400 field-input px-4 py-2.5 text-sm font-semibold text-brand-700 hover:bg-brand-50 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-400 field-input px-4 py-2.5 text-sm font-semibold text-brand-700 hover:bg-brand-50 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   {contactLoading ? (
                     <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-brand-400 border-t-transparent" />
@@ -469,7 +469,7 @@ export default function PublicPetProfilePage() {
           />
           <Link
             to="/"
-            className="rounded text-xs font-bold tracking-wider text-copy-muted hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            className="rounded text-xs font-bold tracking-wider text-copy-muted hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             Powered by PawTrack CR
           </Link>

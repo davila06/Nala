@@ -52,7 +52,7 @@ export function CollarNotificationPreferencesPanel({
           type="checkbox"
           checked={offlineEnabled}
           onChange={(e) => setOfflineEnabled(e.target.checked)}
-          className="h-4 w-4 rounded border-sand-300 text-brand-600 focus:ring-brand-400"
+          className="h-4 w-4 rounded border-sand-300 text-brand-600 focus:ring-focus-ring"
         />
       </label>
       {offlineEnabled && (
@@ -64,7 +64,7 @@ export function CollarNotificationPreferencesPanel({
             max={1440}
             value={offlineMinutes}
             onChange={(e) => setOfflineMinutes(Number(e.target.value))}
-            className="mt-1 w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400"
+            className="mt-1 w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring"
           />
         </label>
       )}
@@ -75,7 +75,7 @@ export function CollarNotificationPreferencesPanel({
           type="checkbox"
           checked={batteryEnabled}
           onChange={(e) => setBatteryEnabled(e.target.checked)}
-          className="h-4 w-4 rounded border-sand-300 text-brand-600 focus:ring-brand-400"
+          className="h-4 w-4 rounded border-sand-300 text-brand-600 focus:ring-focus-ring"
         />
       </label>
       {batteryEnabled && (
@@ -87,7 +87,7 @@ export function CollarNotificationPreferencesPanel({
             max={50}
             value={batteryThreshold}
             onChange={(e) => setBatteryThreshold(Number(e.target.value))}
-            className="mt-1 w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-400"
+            className="mt-1 w-full rounded-xl border border-sand-200 px-3 py-2 text-sm text-sand-900 outline-none focus:border-focus-ring focus:ring-1 focus:ring-focus-ring"
           />
         </label>
       )}

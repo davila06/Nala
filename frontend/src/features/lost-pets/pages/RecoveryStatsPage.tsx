@@ -118,7 +118,7 @@ export default function RecoveryStatsPage() {
               setSpecies(e.target.value as PetSpecies | "");
               setBreed("");
             }}
-            className="rounded-xl border border-sand-300 field-input px-3 py-2 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            className="rounded-xl border border-sand-300 field-input px-3 py-2 text-sm focus:border-focus-ring focus:outline-none focus:ring-2 focus:ring-brand-100"
           >
             {speciesOptions.map((option) => (
               <option key={option.label} value={option.value}>
@@ -135,7 +135,7 @@ export default function RecoveryStatsPage() {
             onChange={(e) => setCanton(e.target.value)}
             placeholder="Ej: Montes de Oca"
             list="cantones-sugeridos"
-            className="rounded-xl border border-sand-300 field-input px-3 py-2 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            className="rounded-xl border border-sand-300 field-input px-3 py-2 text-sm focus:border-focus-ring focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
           <datalist id="cantones-sugeridos">
             {cantonPresets.map((item) => (
@@ -154,7 +154,7 @@ export default function RecoveryStatsPage() {
             value={breed}
             onChange={(e) => setBreed(e.target.value)}
             disabled={!species}
-            className={`rounded-xl border border-sand-300 field-input px-3 py-2 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100 disabled:cursor-not-allowed disabled:opacity-60`}
+            className={`rounded-xl border border-sand-300 field-input px-3 py-2 text-sm focus:border-focus-ring focus:outline-none focus:ring-2 focus:ring-brand-100 disabled:cursor-not-allowed disabled:opacity-60`}
           >
             <option value="">
               {species ? "Todas las razas" : "Selecciona una especie primero"}

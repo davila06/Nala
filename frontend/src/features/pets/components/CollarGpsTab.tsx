@@ -93,7 +93,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
           <div className="mt-4 flex flex-col gap-2 items-center">
             <Link
               to={`/collars/activate?petId=${petId}`}
-              className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-xs font-bold text-white hover:bg-brand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-xs font-bold text-white hover:bg-brand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               🏷️ Activar CollarTag PawTrack →
             </Link>
@@ -322,7 +322,7 @@ export function CollarGpsTab({ petId, isOwner }: CollarGpsTabProps) {
               type="button"
               onClick={() => setHours(opt.value)}
               className={[
-                "rounded-xl px-2.5 py-1 text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
+                "rounded-xl px-2.5 py-1 text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
                 hours === opt.value ? "bg-brand-600 text-white" : "bg-sand-100 text-copy-secondary hover:bg-sand-200",
               ].join(" ")}
             >

@@ -42,6 +42,13 @@ describe("semantic text and action color tokens", () => {
     expect(contrastRatio(brandAction, "#ffffff")).toBeGreaterThanOrEqual(4.5);
   });
 
+  it.each(["#ffffff", "#27272f", "#231e1a"])("focus-ring has 3:1 non-text contrast on %s", (background) => {
+    const values = tokenValues("focus-ring");
+    const matchingMode = background === "#ffffff" ? 0 : background === "#27272f" ? 1 : 2;
+    expect(values.length).toBeGreaterThan(matchingMode);
+    expect(contrastRatio(values[matchingMode], background)).toBeGreaterThanOrEqual(3);
+  });
+
   it("maps native input placeholder text to the accessible muted token", () => {
     expect(styles).toMatch(/--color-ink-tertiary:\s*var\(--color-copy-muted\)/);
   });

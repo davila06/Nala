@@ -76,7 +76,7 @@ function StepUpload({
         onDragOver={(e) => e.preventDefault()}
         aria-label="Subir foto de la mascota"
         className={[
-          "relative flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
+          "relative flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
           preview
             ? "border-brand-300 bg-brand-50"
             : "border-sand-300 bg-sand-50 hover:border-brand-300 hover:bg-brand-50",
@@ -188,7 +188,7 @@ function StepResults({
               <button
                 type="button"
                 onClick={() => onSelect(m)}
-                className="w-full flex items-center gap-3 rounded-xl border border-sand-200 bg-surface p-3 text-left transition-all hover:border-brand-300 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="w-full flex items-center gap-3 rounded-xl border border-sand-200 bg-surface p-3 text-left transition-all hover:border-brand-300 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-sand-100">
                   {m.photoUrl ? (
@@ -317,7 +317,7 @@ function StepConfirm({ match }: { match: VisualMatchResult }) {
         <button
           type="button"
           onClick={() => void navigate("/encontre-mascota")}
-          className="flex w-full items-center justify-between rounded-xl border border-sand-200 bg-surface px-4 py-3.5 text-sm font-semibold text-sand-700 hover:bg-sand-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          className="flex w-full items-center justify-between rounded-xl border border-sand-200 bg-surface px-4 py-3.5 text-sm font-semibold text-sand-700 hover:bg-sand-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
         >
           <span>Registrar avistamiento con ubicación y foto</span>
           <svg

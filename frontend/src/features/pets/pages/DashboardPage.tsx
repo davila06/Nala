@@ -164,7 +164,7 @@ export default function DashboardPage() {
             ) : (
               <Link
                 to="/pets/new"
-                className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-base hover:bg-brand-600 focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
+                className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-base hover:bg-brand-600 focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:outline-none"
               >
                 <span aria-hidden="true">＋</span> Registrar mascota
               </Link>
@@ -225,7 +225,7 @@ export default function DashboardPage() {
           </Link>
           <Link
             to="/notifications"
-            className="flex items-center gap-3 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm font-semibold text-brand-700 transition-base hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1"
+            className="flex items-center gap-3 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm font-semibold text-brand-700 transition-base hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-1"
           >
             <span aria-hidden="true" className="text-lg">
               💬
@@ -264,7 +264,7 @@ export default function DashboardPage() {
           <button
             type="button"
             onClick={() => setShowFreemium(true)}
-            className="mb-8 w-full rounded-2xl border border-brand-200 bg-linear-to-r from-brand-50 to-rescue-50 px-4 py-3 flex items-center gap-3 text-left transition-colors hover:from-brand-100 hover:to-rescue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            className="mb-8 w-full rounded-2xl border border-brand-200 bg-linear-to-r from-brand-50 to-rescue-50 px-4 py-3 flex items-center gap-3 text-left transition-colors hover:from-brand-100 hover:to-rescue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             <span className="text-2xl shrink-0" aria-hidden="true">
               ⚡
@@ -318,7 +318,7 @@ export default function DashboardPage() {
               user?.role === "Owner" ? (
                 <Link
                   to="/pets/new"
-                  className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-base hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                  className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-base hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   Registrar mi primera mascota
                 </Link>
@@ -343,7 +343,7 @@ export default function DashboardPage() {
                   placeholder="Buscar mascota…"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full rounded-xl border border-sand-200 py-2.5 pl-9 pr-4 text-sm field-input placeholder:text-copy-muted outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400"
+                  className="w-full rounded-xl border border-sand-200 py-2.5 pl-9 pr-4 text-sm field-input placeholder:text-copy-muted outline-none focus:ring-2 focus:ring-focus-ring focus:border-focus-ring"
                 />
               </div>
               <div

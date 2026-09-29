@@ -55,7 +55,7 @@ export function AdoptionFiltersBar({
           onChange={(e) =>
             set({ species: (e.target.value as PetSpecies) || undefined })
           }
-          className="rounded-xl border border-sand-200 bg-surface px-3 py-1.5 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
+          className="rounded-xl border border-sand-200 bg-surface px-3 py-1.5 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-focus-ring"
         >
           <option value="">Especie</option>
           {(Object.entries(SPECIES_LABELS) as [PetSpecies, string][]).map(
@@ -72,7 +72,7 @@ export function AdoptionFiltersBar({
           onChange={(e) =>
             set({ size: (e.target.value as PetSize) || undefined })
           }
-          className="rounded-xl border border-sand-200 bg-surface px-3 py-1.5 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
+          className="rounded-xl border border-sand-200 bg-surface px-3 py-1.5 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-focus-ring"
         >
           <option value="">Tamaño</option>
           {(Object.entries(SIZE_LABELS) as [PetSize, string][]).map(
@@ -89,7 +89,7 @@ export function AdoptionFiltersBar({
           onChange={(e) =>
             set({ ageCategory: (e.target.value as AgeCategory) || undefined })
           }
-          className="rounded-xl border border-sand-200 bg-surface px-3 py-1.5 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
+          className="rounded-xl border border-sand-200 bg-surface px-3 py-1.5 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-focus-ring"
         >
           <option value="">Edad</option>
           {(Object.entries(AGE_LABELS) as [AgeCategory, string][]).map(
@@ -120,7 +120,7 @@ export function AdoptionFiltersBar({
               type="checkbox"
               checked={!!filters[key]}
               onChange={(e) => set({ [key]: e.target.checked || undefined })}
-              className="rounded border-sand-300 text-brand-600 focus:ring-brand-400"
+              className="rounded border-sand-300 text-brand-600 focus:ring-focus-ring"
             />
             {label}
           </label>
@@ -138,7 +138,7 @@ export function AdoptionFiltersBar({
           <select
             value={filters.radiusKm ?? 50}
             onChange={(e) => set({ radiusKm: Number(e.target.value) })}
-            className="rounded-xl border border-sand-200 bg-surface px-3 py-1.5 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="rounded-xl border border-sand-200 bg-surface px-3 py-1.5 text-sm text-ink-800 focus:outline-none focus:ring-2 focus:ring-focus-ring"
           >
             {[10, 25, 50, 100].map((r) => (
               <option key={r} value={r}>

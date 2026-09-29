@@ -110,7 +110,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl p-2 text-copy-muted hover:bg-sand-100 hover:text-sand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="rounded-xl p-2 text-copy-muted hover:bg-sand-100 hover:text-sand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               aria-label="Cerrar"
             >
               <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
@@ -198,7 +198,7 @@ export function FreemiumModal({ onClose }: FreemiumModalProps) {
                         if (hasPurchasePrice) setPendingTier(tier.subscriptionTier!);
                       }}
                       className={[
-                        "block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
+                        "block w-full rounded-xl py-2.5 text-center text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
                         tier.id === "plus"
                           ? "bg-brand-600 text-white hover:bg-brand-700"
                           : "bg-rescue-600 text-white hover:bg-rescue-700",

@@ -282,7 +282,7 @@ function VerifyEmailModal({ email, onClose }: VerifyEmailModalProps) {
             </Button>
             <Link
               to="/register"
-              className="block w-full rounded-xl py-2 text-center text-sm text-copy-muted hover:text-copy-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="block w-full rounded-xl py-2 text-center text-sm text-copy-muted hover:text-copy-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               onClick={onClose}
             >
               Crear una cuenta nueva en su lugar
@@ -317,7 +317,7 @@ function InlineForgotForm({ initialEmail, onBack }: InlineForgotFormProps) {
         type="button"
         onClick={onBack}
         aria-label="Volver al formulario de inicio de sesión"
-        className="mb-6 inline-flex items-center gap-1.5 rounded-lg text-sm text-copy-secondary hover:text-sand-800 transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+        className="mb-6 inline-flex items-center gap-1.5 rounded-lg text-sm text-copy-secondary hover:text-sand-800 transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
       >
         ← Volver a ingresar
       </button>
@@ -572,7 +572,7 @@ export default function LoginPage() {
                           tabIndex={-1}
                           aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                           aria-pressed={showPassword}
-                          className="absolute inset-y-0 right-0 flex items-center px-3 text-copy-muted hover:text-sand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-inset rounded-r-xl"
+                          className="absolute inset-y-0 right-0 flex items-center px-3 text-copy-muted hover:text-sand-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-inset rounded-r-xl"
                         >
                           <EyeIcon open={showPassword} />
                         </button>
@@ -599,7 +599,7 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => setShowForgot(true)}
-                        className="rounded text-xs text-copy-brand hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                        className="rounded text-xs text-copy-brand hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                       >
                         ¿Olvidaste tu contraseña?
                       </button>
@@ -635,7 +635,7 @@ export default function LoginPage() {
                     ¿No tienes cuenta?{" "}
                     <Link
                       to="/register"
-                      className="rounded font-semibold text-copy-brand hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                      className="rounded font-semibold text-copy-brand hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                     >
                       Regístrate gratis
                     </Link>
@@ -644,7 +644,7 @@ export default function LoginPage() {
                   <p className="mt-2 text-center">
                     <a
                       href="/precios.html"
-                      className="text-xs text-copy-muted hover:text-brand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
+                      className="text-xs text-copy-muted hover:text-brand-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring rounded"
                     >
                       Ver planes y precios →
                     </a>
@@ -653,7 +653,7 @@ export default function LoginPage() {
                   <p className="mt-2 text-center">
                     <Link
                       to="/map"
-                      className="text-xs text-copy-muted hover:text-copy-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
+                      className="text-xs text-copy-muted hover:text-copy-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring rounded"
                     >
                       Explorar el mapa público sin cuenta
                     </Link>
@@ -661,7 +661,7 @@ export default function LoginPage() {
                   <p className="mt-2 text-center">
                     <Link
                       to="/adopciones"
-                      className="text-xs text-copy-muted hover:text-copy-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
+                      className="text-xs text-copy-muted hover:text-copy-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring rounded"
                     >
                       Explorar adopciones sin cuenta
                     </Link>

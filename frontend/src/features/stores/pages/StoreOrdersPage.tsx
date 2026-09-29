@@ -112,7 +112,7 @@ function OrderCard({ order }: { order: StoreOrderDto }) {
           <input
             value={reason}
             onChange={(event) => setReason(event.target.value)}
-            className="mt-1 w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm font-normal text-sand-800 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-200"
+            className="mt-1 w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-sm font-normal text-sand-800 outline-none focus:border-focus-ring focus:ring-2 focus:ring-brand-200"
             placeholder="Ej. producto no disponible o instrucciones de retiro"
             maxLength={500}
           />

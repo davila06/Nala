@@ -671,7 +671,7 @@ export default function ProfilePage() {
                 <select
                   value={sizePreference}
                   onChange={(e) => setSizePreference(e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-sand-300 px-3 py-2 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                  className="mt-1 w-full rounded-xl border border-sand-300 px-3 py-2 text-sm focus:border-focus-ring focus:outline-none focus:ring-2 focus:ring-brand-100"
                 >
                   <option value="">Sin preferencia</option>
                   <option value="Small">Pequeño</option>
@@ -689,7 +689,7 @@ export default function ProfilePage() {
                   inputMode="numeric"
                   value={maxDays}
                   onChange={(e) => setMaxDays(Number(e.target.value))}
-                  className="mt-1 w-full rounded-xl border border-sand-300 px-3 py-2 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                  className="mt-1 w-full rounded-xl border border-sand-300 px-3 py-2 text-sm focus:border-focus-ring focus:outline-none focus:ring-2 focus:ring-brand-100"
                 />
               </label>
             </div>
@@ -815,7 +815,7 @@ export default function ProfilePage() {
               aria-checked={pushStatus === "subscribed"}
               disabled={pushStatus === "loading" || pushStatus === "denied"}
               onClick={() => (pushStatus === "subscribed" ? void pushUnsubscribe() : void pushSubscribe())}
-              className={`relative h-6 w-11 shrink-0 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 disabled:cursor-not-allowed disabled:opacity-50 ${
+              className={`relative h-6 w-11 shrink-0 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring disabled:cursor-not-allowed disabled:opacity-50 ${
                 pushStatus === "subscribed" ? "bg-rescue-500" : "bg-sand-300"
               }`}
             >

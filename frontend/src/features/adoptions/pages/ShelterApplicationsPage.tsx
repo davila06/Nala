@@ -88,7 +88,7 @@ export default function ShelterApplicationsPage() {
                       placeholder="Nota de respuesta (opcional, se enviará al solicitante)"
                       maxLength={300}
                       rows={2}
-                      className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 resize-none"
+                      className="w-full rounded-xl border border-sand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring resize-none"
                     />
                     <div className="flex gap-2">
                       <button

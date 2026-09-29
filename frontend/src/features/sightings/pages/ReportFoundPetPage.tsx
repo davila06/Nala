@@ -287,7 +287,7 @@ export default function ReportFoundPetPage() {
           <div className="flex gap-3">
             <button
               onClick={() => setStep(1)}
-              className="flex-1 rounded-xl border border-sand-300 py-3 text-sm font-medium text-copy-secondary transition hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="flex-1 rounded-xl border border-sand-300 py-3 text-sm font-medium text-copy-secondary transition hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               Atrás
             </button>
@@ -345,7 +345,7 @@ export default function ReportFoundPetPage() {
           <div className="flex gap-3">
             <button
               onClick={() => setStep(2)}
-              className="flex-1 rounded-xl border border-sand-300 py-3 text-sm font-medium text-copy-secondary transition hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="flex-1 rounded-xl border border-sand-300 py-3 text-sm font-medium text-copy-secondary transition hover:bg-sand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               Atrás
             </button>
@@ -378,7 +378,7 @@ export default function ReportFoundPetPage() {
               maxLength={100}
               autoComplete="name"
               placeholder="Ej: María González"
-              className="w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
             />
           </div>
 
@@ -395,7 +395,7 @@ export default function ReportFoundPetPage() {
               inputMode="tel"
               autoComplete="tel"
               placeholder="Ej: 8888-8888"
-              className="w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring"
             />
           </div>
 

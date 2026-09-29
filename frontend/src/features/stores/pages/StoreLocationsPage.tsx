@@ -45,7 +45,7 @@ function LocationForm({
   };
 
   const field =
-    "rounded-lg border border-sand-200 bg-white px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-brand-400";
+    "rounded-lg border border-sand-200 bg-white px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-focus-ring";
 
   return (
     <form

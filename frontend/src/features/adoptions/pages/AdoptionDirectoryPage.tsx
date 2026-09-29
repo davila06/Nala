@@ -127,7 +127,7 @@ export default function AdoptionDirectoryPage() {
           </div>
           <Link
             to="/adopciones/ferias"
-            className="rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-sm font-semibold text-brand-700 transition-colors hover:border-brand-300 hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            className="rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-sm font-semibold text-brand-700 transition-colors hover:border-brand-300 hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             Ver ferias
           </Link>
@@ -185,7 +185,7 @@ export default function AdoptionDirectoryPage() {
                 <button
                   type="button"
                   onClick={() => void refetch()}
-                  className="mt-3 text-sm font-semibold text-brand-600 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                  className="mt-3 text-sm font-semibold text-brand-600 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   Reintentar
                 </button>

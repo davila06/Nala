@@ -129,13 +129,13 @@ export default function ClinicRegisterPage() {
             <nav className="mb-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
               <Link
                 to="/registro-negocio"
-                className="text-brand-600 transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="text-brand-600 transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 Volver
               </Link>
               <Link
                 to={isAuthenticated ? "/dashboard" : "/login"}
-                className="text-copy-secondary transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="text-copy-secondary transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 Ir al inicio
               </Link>
@@ -265,7 +265,7 @@ export default function ClinicRegisterPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="rounded px-1 py-2 text-xs text-copy-secondary hover:text-sand-700 transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="rounded px-1 py-2 text-xs text-copy-secondary hover:text-sand-700 transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 {showPassword ? "Ocultar" : "Mostrar"} contraseña
               </button>
@@ -293,7 +293,7 @@ export default function ClinicRegisterPage() {
             ¿Ya tienes cuenta?{" "}
             <Link
               to="/login"
-              className="rounded font-semibold text-brand-600 hover:text-brand-700 hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              className="rounded font-semibold text-brand-600 hover:text-brand-700 hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               Iniciar sesión
             </Link>

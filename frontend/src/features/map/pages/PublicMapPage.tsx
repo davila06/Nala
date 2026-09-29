@@ -22,6 +22,7 @@ export default function PublicMapPage() {
   const [locateTrigger, setLocateTrigger] = useState(0);
   const [locating, setLocating] = useState(false);
   const [legendOpen, setLegendOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"map" | "list">("map");
   const [searchQuery, setSearchQuery] = useState("");
   const [flyTarget, setFlyTarget] = useState<{
     lat: number;
@@ -33,9 +34,7 @@ export default function PublicMapPage() {
   const [showStores, setShowStores] = useState(false);
   const [showAdoptions, setShowAdoptions] = useState(false);
   const [showServiceProviders, setShowServiceProviders] = useState(false);
-  const [activeStoreId, setActiveStoreId] = useState<string | null>(() =>
-    searchParams.get("storeId"),
-  );
+  const [activeStoreId, setActiveStoreId] = useState<string | null>(() => searchParams.get("storeId"));
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
@@ -44,24 +43,12 @@ export default function PublicMapPage() {
     if (searchParams.get("storeId")) setShowStores(true);
   }, [searchParams]);
 
-  const { data: publicClinics = [] } = usePublicClinics(
-    undefined,
-    undefined,
-    showClinics,
-  );
+  const { data: publicClinics = [] } = usePublicClinics(undefined, undefined, showClinics);
   const { data: publicStores = [] } = usePublicStores(showStores, 500);
-  const { data: adoptableAnimals = [] } = useAdoptableAnimalsForMap(
-    {},
-    showAdoptions,
-  );
-  const { data: serviceProviders = [] } = usePublicServiceProviders(
-    {},
-    showServiceProviders,
-  );
+  const { data: adoptableAnimals = [] } = useAdoptableAnimalsForMap({}, showAdoptions);
+  const { data: serviceProviders = [] } = usePublicServiceProviders({}, showServiceProviders);
 
-  const displayedClinics = showEmergencyOnly
-    ? publicClinics.filter((c) => c.isEmergency24h)
-    : publicClinics;
+  const displayedClinics = showEmergencyOnly ? publicClinics.filter((c) => c.isEmergency24h) : publicClinics;
 
   const { debounce } = useDebouncedBBox(150);
   const { data: events = [], isFetching, isError } = usePublicMapEvents(bbox);
@@ -80,29 +67,19 @@ export default function PublicMapPage() {
       setFlyTarget(null);
       return;
     }
-    const matches = events.filter((e) =>
-      e.petName?.toLowerCase().includes(trimmed),
-    );
-    if (
-      matches.length === 1 &&
-      matches[0].lat != null &&
-      matches[0].lng != null
-    ) {
+    const matches = events.filter((e) => e.petName?.toLowerCase().includes(trimmed));
+    if (matches.length === 1 && matches[0].lat != null && matches[0].lng != null) {
       setFlyTarget({ lat: matches[0].lat, lng: matches[0].lng, zoom: 14 });
     }
   };
 
   const lostPetEventIds = useMemo(
-    () =>
-      filteredEvents.filter((e) => e.eventType === "LostPet").map((e) => e.id),
+    () => filteredEvents.filter((e) => e.eventType === "LostPet").map((e) => e.id),
     [filteredEvents],
   );
   const predictions = useMovementPredictions(lostPetEventIds);
 
-  const handleBBoxChange = useCallback(
-    (newBBox: MapBBox) => debounce(setBbox, newBBox),
-    [debounce],
-  );
+  const handleBBoxChange = useCallback((newBBox: MapBBox) => debounce(setBbox, newBBox), [debounce]);
   // Stable reference — an inline arrow here would re-run LocateUser's effect
   // (and re-fly to the GPS position) on every unrelated re-render, fighting
   // any manual zoom/pan the user does.
@@ -117,10 +94,7 @@ export default function PublicMapPage() {
           content="Mapa en tiempo real de mascotas perdidas y avistamientos en Costa Rica. Ayuda a reunir mascotas con sus familias."
         />
         <meta property="og:title" content="Mapa en vivo — PawTrack CR" />
-        <meta
-          property="og:description"
-          content="Mascotas perdidas y avistamientos en tiempo real en Costa Rica."
-        />
+        <meta property="og:description" content="Mascotas perdidas y avistamientos en tiempo real en Costa Rica." />
         <meta property="og:type" content="website" />
       </Helmet>
       {/* Glassmorphism header strip */}
@@ -131,21 +105,13 @@ export default function PublicMapPage() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rescue-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-rescue-400" />
             </span>
-            <span className="text-sm font-bold text-white tracking-tight">
-              PawTrack — Mapa en vivo
-            </span>
+            <span className="text-sm font-bold text-white tracking-tight">PawTrack — Mapa en vivo</span>
           </div>
-          <span className="text-xs text-zinc-300">
-            <span className="font-semibold text-white">
-              {searchQuery ? filteredEvents.length : events.length}
-            </span>{" "}
+          <span className="text-xs text-white">
+            <span className="font-semibold text-white">{searchQuery ? filteredEvents.length : events.length}</span>{" "}
             eventos
-            {isFetching && (
-              <span className="ml-1.5 text-brand-400">• actualizando…</span>
-            )}
-            {isError && (
-              <span className="ml-1.5 text-danger-400">• error al cargar</span>
-            )}
+            {isFetching && <span className="ml-1.5 font-semibold text-white">• actualizando…</span>}
+            {isError && <span className="ml-1.5 font-semibold text-white">• error al cargar</span>}
           </span>
         </div>
         {/* Search bar */}
@@ -161,7 +127,7 @@ export default function PublicMapPage() {
             placeholder="Buscar mascota por nombre…"
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full rounded-xl border border-white/10 bg-white/10 py-2 pl-9 pr-4 text-sm text-white placeholder:text-zinc-400 outline-none focus:border-brand-400 focus:bg-white/15 transition"
+            className="w-full rounded-xl border border-white/10 bg-white/10 py-2 pl-9 pr-4 text-sm text-white placeholder:text-zinc-400 outline-none focus:border-focus-ring focus:bg-white/15 transition"
             aria-label="Filtrar mascotas en el mapa por nombre"
           />
           {searchQuery && (
@@ -178,207 +144,309 @@ export default function PublicMapPage() {
             </button>
           )}
         </div>
-      </div>
-
-      {/* Legend — collapsible on mobile, always visible on sm+ */}
-      <div className="pointer-events-auto absolute bottom-6 left-3 z-[1000] rounded-2xl border border-white/10 bg-zinc-900/70 shadow-xl backdrop-blur-md">
-        {/* Toggle button visible only on mobile */}
-        <button
-          type="button"
-          onClick={() => setLegendOpen((o) => !o)}
-          className="flex w-full items-center justify-between gap-2 px-3.5 py-3 text-xs font-bold uppercase tracking-widest text-zinc-400 sm:cursor-default sm:pointer-events-none"
-          aria-expanded={legendOpen}
-          aria-controls="map-legend-items"
-        >
-          Leyenda
-          <span className="sm:hidden">{legendOpen ? "▲" : "▼"}</span>
-        </button>
-        <div
-          id="map-legend-items"
-          className={`px-3.5 pb-3 text-xs ${legendOpen ? "block" : "hidden"} sm:block`}
-        >
-          {[
-            { color: "bg-danger-500", label: "Mascota perdida", pulse: true },
-            { color: "bg-brand-500", label: "Avistamiento", pulse: false },
-            {
-              color: "border-2 border-dashed border-trust-400 bg-transparent",
-              label: "Trayectoria",
-              pulse: false,
-            },
-            {
-              color: "border-2 border-rescue-400 bg-rescue-200/40",
-              label: "Zona proyectada",
-              pulse: false,
-            },
-            { color: "bg-trust-500", label: "Clínica", pulse: false },
-            {
-              color: "bg-brand-500",
-              label: "Servicios para mascotas",
-              pulse: false,
-            },
-            {
-              color: "bg-brand-300 border-2 border-brand-500",
-              label: "Clínica Plus",
-              pulse: false,
-            },
-          ].map(({ color, label, pulse }) => (
-            <div
-              key={label}
-              className="mb-1.5 flex items-center gap-2 last:mb-0"
-            >
-              <span
-                className={`relative inline-flex h-3 w-3 flex-shrink-0 rounded-full ${color}`}
-              >
-                {pulse && (
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-danger-400 opacity-60" />
-                )}
-              </span>
-              <span className="text-zinc-200">{label}</span>
-            </div>
-          ))}
+        <div role="group" aria-label="Vista de eventos" className="pointer-events-auto flex gap-2 pb-2.5">
+          <button
+            type="button"
+            aria-pressed={viewMode === "map"}
+            onClick={() => setViewMode("map")}
+            className="min-h-11 rounded-lg border border-white/20 px-3 text-sm font-semibold text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+          >
+            Mapa
+          </button>
+          <button
+            type="button"
+            aria-pressed={viewMode === "list"}
+            onClick={() => setViewMode("list")}
+            className="min-h-11 rounded-lg border border-white/20 px-3 text-sm font-semibold text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+          >
+            Lista
+          </button>
         </div>
       </div>
 
-      {/* Controls panel */}
-      <div className="pointer-events-none absolute bottom-6 right-3 z-[1000] flex flex-col gap-2">
-        {isAuthenticated && (
-          <Link
-            to="/dashboard"
-            className="pointer-events-auto flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/70 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-colors hover:bg-zinc-800/80"
-          >
-            ← Dashboard
-          </Link>
-        )}
-        <Link
-          to="/estadisticas"
-          className="pointer-events-auto flex items-center gap-2.5 rounded-2xl border border-white/80 bg-white/95 px-4 py-3 text-sm font-semibold text-sand-800 shadow-[0_8px_24px_rgba(15,23,42,0.18)] transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_28px_rgba(15,23,42,0.24)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-        >
-          <span
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-100 text-base text-brand-700"
-            aria-hidden="true"
-          >
-            ↗
-          </span>
-          <span>Ver estadísticas</span>
-        </Link>
-        <Link
-          to="/adopciones"
-          className="pointer-events-auto flex items-center gap-2 rounded-xl border border-brand-300 bg-brand-50 px-4 py-2.5 text-sm font-semibold text-brand-800 shadow-lg transition-colors hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
-        >
-          <span aria-hidden="true">🐾</span>
-          Ver adopciones
-        </Link>
-        <Link
-          to="/map/match"
-          className="pointer-events-auto flex min-w-0 items-center gap-3 rounded-2xl border border-rescue-300/80 bg-rescue-600 px-4 py-3 text-white shadow-[0_10px_28px_rgba(220,78,63,0.34)] transition duration-200 hover:-translate-y-0.5 hover:bg-rescue-700 hover:shadow-[0_14px_32px_rgba(220,78,63,0.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-        >
-          <span
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/20 text-xl leading-none ring-1 ring-white/30"
-            aria-hidden="true"
-          >
-            ♡
-          </span>
-          <span className="min-w-0">
-            <span className="block text-sm font-extrabold leading-tight">
-              ¿Encontraste una mascota?
-            </span>
-            <span className="mt-0.5 block text-[11px] font-medium leading-tight text-white/80">
-              Ayuda a encontrar a su familia
-            </span>
-          </span>
-        </Link>
-        <Link
-          to="/bienestar/reportar"
-          className="pointer-events-auto flex items-center gap-2 rounded-xl border border-danger-300 bg-danger-50 px-4 py-2.5 text-sm font-bold text-danger-800 shadow-lg transition-colors hover:bg-danger-100"
-        >
-          ⚠️ Reportar maltrato
-        </Link>
-        <button
-          type="button"
-          onClick={() => {
-            setLocating(true);
-            setLocateTrigger((t) => t + 1);
-            // Reset spinner after 8 s (matches GPS timeout in LocateUser)
-            setTimeout(() => setLocating(false), 8_000);
-          }}
-          disabled={locating}
-          className="pointer-events-auto flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/70 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-colors hover:bg-zinc-800/80 disabled:opacity-60"
-          aria-label="Centrar mapa en mi ubicación"
-        >
-          {locating ? (
-            <>
-              <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              Buscando…
-            </>
-          ) : (
-            <>📍 Mi ubicación</>
-          )}
-        </button>
-        <button
-          type="button"
-          onClick={() => setShowServiceProviders((v) => !v)}
-          aria-pressed={showServiceProviders}
-          className={`pointer-events-auto flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showServiceProviders ? "border-brand-400 bg-brand-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
-        >
-          ✂️ Servicios {showServiceProviders ? "✓" : ""}
-        </button>
-        {/* Clinics toggle */}
-        <button
-          type="button"
-          onClick={() => setShowClinics((v) => !v)}
-          className={`pointer-events-auto flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showClinics ? "border-trust-400 bg-trust-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
-        >
-          🏥 Clínicas {showClinics ? "✓" : ""}
-        </button>
-        {/* Emergency-only filter (visible when clinics layer is on) */}
-        {showClinics && (
+      {/* Legend — collapsible on mobile, always visible on sm+ */}
+      {viewMode === "map" && (
+        <div className="pointer-events-auto absolute bottom-6 left-3 z-[1000] rounded-2xl border border-white/10 bg-zinc-900/70 shadow-xl backdrop-blur-md">
+          {/* Toggle button visible only on mobile */}
           <button
             type="button"
-            onClick={() => setShowEmergencyOnly((v) => !v)}
-            aria-pressed={showEmergencyOnly}
-            className={`pointer-events-auto flex items-center gap-1.5 rounded-xl border px-3 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showEmergencyOnly ? "border-danger-400 bg-danger-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
+            onClick={() => setLegendOpen((o) => !o)}
+            className="flex w-full items-center justify-between gap-2 px-3.5 py-3 text-xs font-bold uppercase tracking-widest text-zinc-400 sm:cursor-default sm:pointer-events-none"
+            aria-expanded={legendOpen}
+            aria-controls="map-legend-items"
           >
-            🚨 Solo emergencias
+            Leyenda
+            <span className="sm:hidden">{legendOpen ? "▲" : "▼"}</span>
           </button>
-        )}
-        {/* Pet stores toggle */}
-        <button
-          type="button"
-          onClick={() => setShowStores((v) => !v)}
-          aria-pressed={showStores}
-          className={`pointer-events-auto flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showStores ? "border-rescue-400 bg-rescue-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
-        >
-          🛒 Tiendas {showStores ? "✓" : ""}
-        </button>
-        {/* Adoptions toggle */}
-        <button
-          type="button"
-          onClick={() => setShowAdoptions((v) => !v)}
-          aria-pressed={showAdoptions}
-          className={`pointer-events-auto flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showAdoptions ? "border-purple-400 bg-purple-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
-        >
-          🐾 Adopciones {showAdoptions ? "✓" : ""}
-        </button>
-      </div>
+          <div id="map-legend-items" className={`px-3.5 pb-3 text-xs ${legendOpen ? "block" : "hidden"} sm:block`}>
+            {[
+              { color: "bg-danger-500", label: "Mascota perdida", pulse: true },
+              { color: "bg-brand-500", label: "Avistamiento", pulse: false },
+              {
+                color: "border-2 border-dashed border-trust-400 bg-transparent",
+                label: "Trayectoria",
+                pulse: false,
+              },
+              {
+                color: "border-2 border-rescue-400 bg-rescue-200/40",
+                label: "Zona proyectada",
+                pulse: false,
+              },
+              { color: "bg-trust-500", label: "Clínica", pulse: false },
+              {
+                color: "bg-brand-500",
+                label: "Servicios para mascotas",
+                pulse: false,
+              },
+              {
+                color: "bg-brand-300 border-2 border-brand-500",
+                label: "Clínica Plus",
+                pulse: false,
+              },
+            ].map(({ color, label, pulse }) => (
+              <div key={label} className="mb-1.5 flex items-center gap-2 last:mb-0">
+                <span className={`relative inline-flex h-3 w-3 flex-shrink-0 rounded-full ${color}`}>
+                  {pulse && (
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-danger-400 opacity-60" />
+                  )}
+                </span>
+                <span className="text-zinc-200">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-      <MapContainer
-        events={filteredEvents}
-        predictions={predictions}
-        clinics={showClinics ? displayedClinics : undefined}
-        stores={showStores ? publicStores : undefined}
-        onStoreClick={(id) => {
-          setActiveStoreId(id);
-          setShowStores(true);
-        }}
-        adoptions={showAdoptions ? adoptableAnimals : undefined}
-        serviceProviders={showServiceProviders ? serviceProviders : undefined}
-        isAuthenticated={isAuthenticated}
-        locateTrigger={locateTrigger}
-        flyTarget={flyTarget}
-        onLocated={handleLocated}
-        onBBoxChange={handleBBoxChange}
-        className="public-map-leaflet h-full w-full"
-      />
+      {/* Controls panel */}
+      {viewMode === "map" && (
+        <div className="pointer-events-none absolute bottom-6 right-3 z-[1000] flex flex-col gap-2">
+          {isAuthenticated && (
+            <Link
+              to="/dashboard"
+              className="pointer-events-auto flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/70 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-colors hover:bg-zinc-800/80"
+            >
+              ← Dashboard
+            </Link>
+          )}
+          <Link
+            to="/estadisticas"
+            className="pointer-events-auto flex items-center gap-2.5 rounded-2xl border border-white/80 bg-white/95 px-4 py-3 text-sm font-semibold text-sand-800 shadow-[0_8px_24px_rgba(15,23,42,0.18)] transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_28px_rgba(15,23,42,0.24)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+          >
+            <span
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-100 text-base text-brand-700"
+              aria-hidden="true"
+            >
+              ↗
+            </span>
+            <span>Ver estadísticas</span>
+          </Link>
+          <Link
+            to="/adopciones"
+            className="pointer-events-auto flex items-center gap-2 rounded-xl border border-brand-300 bg-brand-50 px-4 py-2.5 text-sm font-semibold text-brand-800 shadow-lg transition-colors hover:bg-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+          >
+            <span aria-hidden="true">🐾</span>
+            Ver adopciones
+          </Link>
+          <Link
+            to="/map/match"
+            className="pointer-events-auto flex min-w-0 items-center gap-3 rounded-2xl border border-rescue-300/80 bg-rescue-600 px-4 py-3 text-white shadow-[0_10px_28px_rgba(220,78,63,0.34)] transition duration-200 hover:-translate-y-0.5 hover:bg-rescue-700 hover:shadow-[0_14px_32px_rgba(220,78,63,0.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rescue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+          >
+            <span
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/20 text-xl leading-none ring-1 ring-white/30"
+              aria-hidden="true"
+            >
+              ♡
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-extrabold leading-tight">¿Encontraste una mascota?</span>
+              <span className="mt-0.5 block text-[11px] font-medium leading-tight text-white/80">
+                Ayuda a encontrar a su familia
+              </span>
+            </span>
+          </Link>
+          <Link
+            to="/bienestar/reportar"
+            className="pointer-events-auto flex items-center gap-2 rounded-xl border border-danger-300 bg-danger-50 px-4 py-2.5 text-sm font-bold text-danger-800 shadow-lg transition-colors hover:bg-danger-100"
+          >
+            ⚠️ Reportar maltrato
+          </Link>
+          <button
+            type="button"
+            onClick={() => {
+              setLocating(true);
+              setLocateTrigger((t) => t + 1);
+              // Reset spinner after 8 s (matches GPS timeout in LocateUser)
+              setTimeout(() => setLocating(false), 8_000);
+            }}
+            disabled={locating}
+            className="pointer-events-auto flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/70 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-colors hover:bg-zinc-800/80 disabled:opacity-60"
+            aria-label="Centrar mapa en mi ubicación"
+          >
+            {locating ? (
+              <>
+                <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                Buscando…
+              </>
+            ) : (
+              <>📍 Mi ubicación</>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowServiceProviders((v) => !v)}
+            aria-pressed={showServiceProviders}
+            className={`pointer-events-auto flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showServiceProviders ? "border-brand-400 bg-brand-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
+          >
+            ✂️ Servicios {showServiceProviders ? "✓" : ""}
+          </button>
+          {/* Clinics toggle */}
+          <button
+            type="button"
+            onClick={() => setShowClinics((v) => !v)}
+            className={`pointer-events-auto flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showClinics ? "border-trust-400 bg-trust-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
+          >
+            🏥 Clínicas {showClinics ? "✓" : ""}
+          </button>
+          {/* Emergency-only filter (visible when clinics layer is on) */}
+          {showClinics && (
+            <button
+              type="button"
+              onClick={() => setShowEmergencyOnly((v) => !v)}
+              aria-pressed={showEmergencyOnly}
+              className={`pointer-events-auto flex items-center gap-1.5 rounded-xl border px-3 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showEmergencyOnly ? "border-danger-400 bg-danger-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
+            >
+              🚨 Solo emergencias
+            </button>
+          )}
+          {/* Pet stores toggle */}
+          <button
+            type="button"
+            onClick={() => setShowStores((v) => !v)}
+            aria-pressed={showStores}
+            className={`pointer-events-auto flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showStores ? "border-rescue-400 bg-rescue-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
+          >
+            🛒 Tiendas {showStores ? "✓" : ""}
+          </button>
+          {/* Adoptions toggle */}
+          <button
+            type="button"
+            onClick={() => setShowAdoptions((v) => !v)}
+            aria-pressed={showAdoptions}
+            className={`pointer-events-auto flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors ${showAdoptions ? "border-purple-400 bg-purple-700/90 text-white" : "border-white/10 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800/80"}`}
+          >
+            🐾 Adopciones {showAdoptions ? "✓" : ""}
+          </button>
+        </div>
+      )}
+
+      {viewMode === "map" ? (
+        <MapContainer
+          events={filteredEvents}
+          predictions={predictions}
+          clinics={showClinics ? displayedClinics : undefined}
+          stores={showStores ? publicStores : undefined}
+          onStoreClick={(id) => {
+            setActiveStoreId(id);
+            setShowStores(true);
+          }}
+          adoptions={showAdoptions ? adoptableAnimals : undefined}
+          serviceProviders={showServiceProviders ? serviceProviders : undefined}
+          isAuthenticated={isAuthenticated}
+          locateTrigger={locateTrigger}
+          flyTarget={flyTarget}
+          onLocated={handleLocated}
+          onBBoxChange={handleBBoxChange}
+          className="public-map-leaflet h-full w-full"
+        />
+      ) : (
+        <main
+          aria-label="Eventos visibles en el mapa"
+          aria-busy={isFetching}
+          className="absolute inset-x-0 bottom-0 top-[164px] z-10 overflow-y-auto bg-sand-50 px-4 py-5 pb-8 sm:top-[152px]"
+        >
+          <div className="mx-auto max-w-3xl space-y-4">
+            <header>
+              <h1 className="font-display text-xl font-semibold text-sand-900">Eventos del área del mapa</h1>
+              <p className="mt-1 text-sm text-copy-secondary">
+                Resultados de pérdida y avistamientos del área cargada. Para explorar otra zona, vuelve a Mapa.
+              </p>
+            </header>
+            {isFetching && (
+              <p role="status" className="text-sm text-copy-secondary">
+                Actualizando eventos…
+              </p>
+            )}
+            {isError && (
+              <p role="alert" className="rounded-lg bg-danger-50 p-3 text-sm text-danger-800">
+                No se pudieron cargar los eventos. Vuelve a Mapa e inténtalo de nuevo.
+              </p>
+            )}
+            {!bbox && !isFetching && !isError && (
+              <p role="status" className="rounded-lg border border-sand-200 bg-surface p-4 text-sm text-copy-secondary">
+                Abre la vista Mapa para cargar eventos de una zona.
+              </p>
+            )}
+            {bbox && !isFetching && !isError && filteredEvents.length === 0 && (
+              <p role="status" className="rounded-lg border border-sand-200 bg-surface p-4 text-sm text-copy-secondary">
+                No hay eventos en esta área con los filtros actuales.
+              </p>
+            )}
+            {filteredEvents.length > 0 && (
+              <ul aria-label="Pérdidas y avistamientos" className="space-y-3">
+                {filteredEvents.map((event) => (
+                  <li key={event.id}>
+                    <Link
+                      to={`/p/${event.petId}`}
+                      className="flex min-h-20 items-center gap-3 rounded-xl border border-sand-200 bg-surface p-3 hover:border-brand-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+                    >
+                      {event.photoUrl ? (
+                        <img src={event.photoUrl} alt="" className="h-14 w-14 shrink-0 rounded-lg object-cover" />
+                      ) : (
+                        <span
+                          aria-hidden="true"
+                          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-sand-100 text-2xl"
+                        >
+                          🐾
+                        </span>
+                      )}
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-semibold text-sand-900">{event.petName ?? "Mascota"}</span>
+                        <span className="mt-0.5 block text-sm text-copy-secondary">
+                          {event.eventType === "LostPet" ? "Mascota perdida" : "Avistamiento"}
+                          {event.species ? ` · ${event.species}` : ""}
+                        </span>
+                        <span className="mt-0.5 block text-xs text-copy-muted">
+                          {new Intl.DateTimeFormat("es-CR", { dateStyle: "medium", timeStyle: "short" }).format(
+                            new Date(event.occurredAt),
+                          )}
+                        </span>
+                      </span>
+                      <span className="shrink-0 text-sm font-semibold text-copy-brand">Ver perfil</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <nav
+              aria-label="Directorios relacionados"
+              className="flex flex-wrap gap-3 border-t border-sand-200 pt-4 text-sm font-semibold"
+            >
+              <Link to="/clinicas" className="text-copy-brand underline">
+                Clínicas
+              </Link>
+              <Link to="/tiendas" className="text-copy-brand underline">
+                Tiendas
+              </Link>
+              <Link to="/servicios" className="text-copy-brand underline">
+                Servicios
+              </Link>
+              <Link to="/adopciones" className="text-copy-brand underline">
+                Adopciones
+              </Link>
+            </nav>
+          </div>
+        </main>
+      )}
 
       {/* Store detail sheet */}
       {activeStoreId && (
@@ -400,22 +468,13 @@ export default function PublicMapPage() {
           setCheckoutOpen(true);
         }}
       />
-      <CheckoutModal
-        isOpen={checkoutOpen}
-        onClose={() => setCheckoutOpen(false)}
-      />
+      <CheckoutModal isOpen={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
 
       {/* Public map inventory sits below the header, separate from the legend. */}
       <div className="pointer-events-none absolute left-3 right-3 top-[124px] z-[999] flex max-w-72 flex-col gap-2 sm:top-28">
-        <BillboardBanner
-          placement="Map"
-          className="pointer-events-auto w-72 max-w-full"
-        />
+        <BillboardBanner placement="Map" className="pointer-events-auto w-72 max-w-full" />
         {filteredEvents.some((event) => event.eventType === "LostPet") && (
-          <BillboardBanner
-            placement="Feed"
-            className="pointer-events-auto w-72 max-w-full"
-          />
+          <BillboardBanner placement="Feed" className="pointer-events-auto w-72 max-w-full" />
         )}
       </div>
 
@@ -424,8 +483,7 @@ export default function PublicMapPage() {
         <div className="absolute bottom-28 right-3 z-[1000] flex flex-col items-end gap-1.5">
           {showClinics && (
             <div className="rounded-full bg-trust-700 px-3 py-1 text-xs font-bold text-white shadow-lg">
-              {showEmergencyOnly ? "🚨" : "🏥"} {displayedClinics.length}{" "}
-              clínica
+              {showEmergencyOnly ? "🚨" : "🏥"} {displayedClinics.length} clínica
               {displayedClinics.length !== 1 ? "s" : ""}
               {showEmergencyOnly && " · 24h"}
               {!showEmergencyOnly &&

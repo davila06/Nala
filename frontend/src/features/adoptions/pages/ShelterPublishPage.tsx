@@ -159,7 +159,7 @@ export default function ShelterPublishPage() {
               maxLength={2000}
               rows={5}
               placeholder="Cuéntanos cómo llegó, cómo es su personalidad, qué necesidades especiales tiene…"
-              className="w-full rounded-xl border border-sand-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 resize-none"
+              className="w-full rounded-xl border border-sand-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring resize-none"
             />
             <p className="text-right text-xs text-copy-muted mt-1">{form.story.length}/2000</p>
           </div>
@@ -174,7 +174,7 @@ export default function ShelterPublishPage() {
               maxLength={500}
               rows={3}
               placeholder="Ej: Necesita patio, no apto para niños menores de 5 años…"
-              className="w-full rounded-xl border border-sand-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 resize-none"
+              className="w-full rounded-xl border border-sand-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring resize-none"
             />
           </div>
           <div>
@@ -188,7 +188,7 @@ export default function ShelterPublishPage() {
               maxLength={500}
               rows={2}
               placeholder="Vacunas, tratamientos pendientes, condiciones especiales…"
-              className="w-full rounded-xl border border-sand-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 resize-none"
+              className="w-full rounded-xl border border-sand-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-focus-ring resize-none"
             />
           </div>
         </section>
@@ -213,7 +213,7 @@ export default function ShelterPublishPage() {
                   type="checkbox"
                   checked={!!form[key]}
                   onChange={(e) => set({ [key]: e.target.checked })}
-                  className="rounded border-sand-300 text-brand-600 focus:ring-brand-400"
+                  className="rounded border-sand-300 text-brand-600 focus:ring-focus-ring"
                 />
                 {label}
               </label>
