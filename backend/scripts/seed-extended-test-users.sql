@@ -247,7 +247,7 @@ WHILE @providerNumber <= 21
 BEGIN
     INSERT INTO [dbo].[Users] ([Id],[Email],[PasswordHash],[Name],[Role],[IsEmailVerified],[FailedLoginAttempts],[CreatedAt],[IsAdultConfirmed])
     VALUES (
-        CONVERT(uniqueidentifier, CONCAT('AA0000', RIGHT('00' + CONVERT(varchar(2), @providerNumber + 99), 2), '-0000-0000-0000-000000000000')),
+        CONVERT(uniqueidentifier, CONCAT('AA000', RIGHT('000' + CONVERT(varchar(3), @providerNumber + 99), 3), '-0000-0000-0000-000000000000')),
         CONCAT('provider_', RIGHT('0' + CONVERT(varchar(2), @providerNumber), 2), '@test.cr'),
         @hash,
         CONCAT('Provider Demo ', @providerNumber),
@@ -293,8 +293,8 @@ BEGIN
         [Id],[UserId],[Name],[Description],[Category],[Address],[Lat],[Lng],
         [ContactEmail],[IsFeatured],[Status],[RegisteredAt],[MembershipTier],[IsMembershipManual])
     VALUES (
-        CONVERT(uniqueidentifier, CONCAT('DD0000', RIGHT('00' + CONVERT(varchar(2), @providerSeedNumber + 99), 2), '-0000-0000-0000-000000000000')),
-        CONVERT(uniqueidentifier, CONCAT('AA0000', RIGHT('00' + CONVERT(varchar(2), @providerSeedNumber + 99), 2), '-0000-0000-0000-000000000000')),
+        CONVERT(uniqueidentifier, CONCAT('DD000', RIGHT('000' + CONVERT(varchar(3), @providerSeedNumber + 99), 3), '-0000-0000-0000-000000000000')),
+        CONVERT(uniqueidentifier, CONCAT('AA000', RIGHT('000' + CONVERT(varchar(3), @providerSeedNumber + 99), 3), '-0000-0000-000000000000')),
         CONCAT('Provider Demo ', @providerSeedNumber),
         'Proveedor sintetico para pruebas locales por categoria',
         CASE
