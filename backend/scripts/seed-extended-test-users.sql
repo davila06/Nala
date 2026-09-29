@@ -227,13 +227,12 @@ VALUES ('AA000011-0000-0000-0000-000000000011','tienda_activa@test.cr',@hash,'Pe
 INSERT INTO [dbo].[Users] ([Id],[Email],[PasswordHash],[Name],[Role],[IsEmailVerified],[FailedLoginAttempts],[CreatedAt],[IsAdultConfirmed])
 VALUES ('AA000012-0000-0000-0000-000000000012','soporte_bienestar@test.cr',@hash,'Soporte Bienestar Animal','Support',1,0,GETUTCDATE(),1);
 
--- 13-21. Store accounts used by the ten-store local catalog
 DECLARE @storeNumber int = 2;
 WHILE @storeNumber <= 10
 BEGIN
     INSERT INTO [dbo].[Users] ([Id],[Email],[PasswordHash],[Name],[Role],[IsEmailVerified],[FailedLoginAttempts],[CreatedAt],[IsAdultConfirmed])
     VALUES (
-        CONVERT(uniqueidentifier, CONCAT('AA0000', RIGHT('00' + CONVERT(varchar(2), @storeNumber + 11), 2), '-0000-0000-0000-000000000000')),
+    NEWID(),
         CONCAT('tienda_', RIGHT('0' + CONVERT(varchar(2), @storeNumber), 2), '@test.cr'),
         @hash,
         CONCAT('PetShop Demo ', @storeNumber),
@@ -241,13 +240,12 @@ BEGIN
     SET @storeNumber += 1;
 END;
 
--- 14-33. Provider accounts: two extra Groomers plus three per other category.
 DECLARE @providerNumber int = 2;
 WHILE @providerNumber <= 21
 BEGIN
     INSERT INTO [dbo].[Users] ([Id],[Email],[PasswordHash],[Name],[Role],[IsEmailVerified],[FailedLoginAttempts],[CreatedAt],[IsAdultConfirmed])
     VALUES (
-        CONVERT(uniqueidentifier, CONCAT('AA000', RIGHT('000' + CONVERT(varchar(3), @providerNumber + 99), 3), '-0000-0000-0000-000000000000')),
+    NEWID(),
         CONCAT('provider_', RIGHT('0' + CONVERT(varchar(2), @providerNumber), 2), '@test.cr'),
         @hash,
         CONCAT('Provider Demo ', @providerNumber),
@@ -272,8 +270,8 @@ WHILE @additionalStoreNumber <= 10
 BEGIN
     INSERT INTO [dbo].[Stores] ([Id],[UserId],[Name],[Description],[Address],[Lat],[Lng],[ContactEmail],[IsFeatured],[Status],[RegisteredAt])
     VALUES (
-        CONVERT(uniqueidentifier, CONCAT('BB0000', RIGHT('00' + CONVERT(varchar(2), @additionalStoreNumber + 11), 2), '-0000-0000-0000-000000000000')),
-        CONVERT(uniqueidentifier, CONCAT('AA0000', RIGHT('00' + CONVERT(varchar(2), @additionalStoreNumber + 11), 2), '-0000-0000-0000-000000000000')),
+    NEWID(),
+    (SELECT TOP (1) [Id] FROM [dbo].[Users] WHERE [Email] = CONCAT('tienda_', RIGHT('0' + CONVERT(varchar(2), @additionalStoreNumber), 2), '@test.cr')),
         CONCAT('PetShop Demo ', @additionalStoreNumber),
         'Tienda sintetica para pruebas locales de marketplace',
         CONCAT('Canton Demo ', @additionalStoreNumber, ', Costa Rica'),
@@ -285,7 +283,6 @@ BEGIN
 END;
 GO
 
--- ── 6b. Three active providers per service category ──────────────────────
 DECLARE @providerSeedNumber int = 2;
 WHILE @providerSeedNumber <= 21
 BEGIN
@@ -293,8 +290,8 @@ BEGIN
         [Id],[UserId],[Name],[Description],[Category],[Address],[Lat],[Lng],
         [ContactEmail],[IsFeatured],[Status],[RegisteredAt],[MembershipTier],[IsMembershipManual])
     VALUES (
-        CONVERT(uniqueidentifier, CONCAT('DD000', RIGHT('000' + CONVERT(varchar(3), @providerSeedNumber + 99), 3), '-0000-0000-0000-000000000000')),
-        CONVERT(uniqueidentifier, CONCAT('AA000', RIGHT('000' + CONVERT(varchar(3), @providerSeedNumber + 99), 3), '-0000-0000-000000000000')),
+        NEWID(),
+        (SELECT TOP (1) [Id] FROM [dbo].[Users] WHERE [Email] = CONCAT('provider_', RIGHT('0' + CONVERT(varchar(2), @providerSeedNumber), 2), '@test.cr')),
         CONCAT('Provider Demo ', @providerSeedNumber),
         'Proveedor sintetico para pruebas locales por categoria',
         CASE
