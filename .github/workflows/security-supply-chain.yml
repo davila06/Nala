@@ -33,7 +33,9 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: |
+            frontend/package-lock.json
+            landing/frontend/package-lock.json
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "9.0.x"
@@ -43,5 +45,11 @@ jobs:
       - name: Audit production frontend dependencies
         run: npm audit --omit=dev --audit-level=high
         working-directory: frontend
+      - name: Install landing dependencies
+        run: npm ci
+        working-directory: landing/frontend
+      - name: Audit production landing dependencies
+        run: npm audit --omit=dev --audit-level=high
+        working-directory: landing/frontend
       - name: Audit NuGet dependencies
         run: dotnet list PawTrack.sln package --vulnerable --include-transitive

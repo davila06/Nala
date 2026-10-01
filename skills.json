@@ -4,8 +4,8 @@
     "name": "pawtrack-cr",
     "description": "Skills manifest (propuesto) para estandarizar los Agent Skills usados por el equipo PawTrack CR por sprint.",
     "primaryStack": {
-      "backend": ".NET 8 (Clean Architecture + CQRS)",
-      "frontend": "React PWA (TypeScript)",
+      "backend": ".NET 9 (Clean Architecture + CQRS)",
+      "frontend": "React PWA (TypeScript) plus Next.js static marketing landing (TypeScript)",
       "cloud": "Azure (Container Apps, Azure SQL, Blob Storage, Notification Hubs, Key Vault, Application Insights)"
     }
   },

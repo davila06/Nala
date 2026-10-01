@@ -1,0 +1,63 @@
+name: Landing CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "landing/**"
+      - ".github/workflows/landing.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "landing/**"
+      - ".github/workflows/landing.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: landing-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lint, test and static build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: landing/frontend
+    env:
+      NEXT_PUBLIC_SITE_URL: https://www.example.invalid
+      NEXT_PUBLIC_APP_URL: https://app.example.invalid
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: landing/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Verify static deployment config is included
+        shell: bash
+        run: |
+          test -f out/staticwebapp.config.json
+          test -f out/sitemap.xml
+          test -f out/robots.txt
+          test -f out/404.html
+          node -e 'const c=JSON.parse(require("node:fs").readFileSync("out/staticwebapp.config.json","utf8")); const p=c.globalHeaders["Content-Security-Policy"]; if (!/script-src[^;]*sha256-/.test(p) || /script-src[^;]*unsafe-inline/.test(p)) process.exit(1);'

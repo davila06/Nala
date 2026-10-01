@@ -75,6 +75,12 @@ For the documentation map see [docs/README.md](./docs/README.md).
 - **React Router 6** — file-based routing conventions
 - **Leaflet / React-Leaflet** — interactive maps
 
+### Marketing landing
+
+- **Next.js 16** + **React 19** + **TypeScript 5**
+- Independent static export under `landing/frontend`; product registration and report flows remain in the PWA.
+- Azure Static Web Apps headers are included in the export. CI validates the static build but does not deploy it.
+
 ### Cloud (Azure)
 
 - **Azure Container Apps** (Linux, .NET 9)
@@ -109,6 +115,8 @@ PawTrack.sln
 │       ├── app/           # Router, layout, providers
 │       ├── features/      # Feature slices (auth, pets, lost-pets, …)
 │       └── shared/        # Shared UI components and utilities
+├── landing/
+│   └── frontend/          # Independent Next.js marketing site
 ├── infra/
 │   ├── main.bicep         # Azure infrastructure declaration
 │   └── parameters.prod.bicepparam
@@ -197,6 +205,17 @@ cd frontend
 npm install
 npm run dev
 ```
+
+### Landing (separate terminal)
+
+```powershell
+cd landing/frontend
+Copy-Item .env.example .env.local
+npm ci
+npm run dev
+```
+
+The landing runs at `http://localhost:3000`; its product links target the PWA at `http://localhost:5173`. Before production builds, configure `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_APP_URL` with the approved HTTPS origins.
 
 **URLs:**
 

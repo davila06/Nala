@@ -266,3 +266,47 @@ comprobación de esas variables en endpoints de compra, catálogo público o UI;
 el estado de las variables productivas no se consultó. El trial Verified se
 confirmó en `ServiceProvider.Activate()`: 30 días en la primera aprobación, sin
 reinicio al reactivar.
+
+## Auditoría y actualización de contenido del landing (2026-10-01)
+
+### Alcance y fuentes
+
+El corte es una revisión dirigida al contenido público de `landing/frontend`,
+no una auditoría semántica de todos los Markdown de `docs/`. Se revisaron las
+fuentes canónicas de [alcance](../PRODUCT_SCOPE.md), [trazabilidad](FEATURE_TRACEABILITY_MATRIX.md),
+[brechas](DOCUMENTATION_GAP_REPORT.md), [pruebas](../TESTING.md), [estado real](../NALA_ACTUAL_PRODUCT_STATE.md),
+[mapa de capacidades](../NALA_CAPABILITY_MAP.md), [planes](../PRICING_AND_PLANS.md),
+[registro legal](../LEGAL_REVIEW_REGISTER.md), [claims](../CLAIM_EVIDENCE_MATRIX.md),
+[seguridad](../SECURITY.md), [integraciones](../INTEGRATIONS.md), [estrategia](../PRODUCT_STRATEGY_TOP1.md),
+[UI/UX](../UIUX_EXECUTIVE_SUMMARY.md), [dependencias externas](../discovery/EXTERNAL_DEPENDENCY_GRAPH.md),
+y código de rutas de perfiles, pérdida, hallazgo, contacto y configuración NFC.
+También se inspeccionaron las páginas, contenido editorial, metadata y CTA del
+landing.
+
+### Discrepancias a resolver en la superficie pública
+
+| Prioridad | Discrepancia                                                                                                                                                                                                         | Acción planeada                                                                                                                          | Límite                                                                                                                |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| P0        | El copy promete contacto protegido/mediado, pero `GET /api/lost-pets/{id}/contact` devuelve nombre y teléfono del caso activo a cualquier cuenta autenticada; existe rate limit y prueba que codifica esta decisión. | Quitar promesas de teléfono oculto/relay y documentar revisión de consentimiento/abuso antes de publicar claims de protección.           | No cambiar el backend ni afirmar acceso anónimo; elevar decisión al propietario de seguridad/producto.                |
+| P1        | NFC aparece como función integrada. El código solo guía escritura manual con NFC Tools; un tipo de bundle existe, pero lectura nativa, disponibilidad física y fulfillment no están verificados.                     | Distinguir NFC como etiqueta configurable externa, no GPS ni pairing nativo; señalar disponibilidad no verificada.                       | No afirmar que el bundle se vende/entrega.                                                                            |
+| P1        | El landing enumera Esencial/Plus/Premium/Familiar y productos “activos”. No coincide con tiers técnicos y aprobación comercial/legal pendiente.                                                                      | Retirar paquetes inventados; indicar que no hay precios/planes aprobados para contratar desde la landing.                                | No copiar precios internos ni presentar tiers de código como oferta.                                                  |
+| P1        | Telemedicina, tiendas/marketplace, aliados, community y municipalidad se describen como servicios que podrían interpretarse disponibles o verificados.                                                               | Etiquetar cada superficie como propuesta, parcial o no verificada usando `PRODUCT_SCOPE` y la matriz.                                    | No afirmar cobertura, alianzas, soporte, SLA, pago liquidado ni pilotos activos.                                      |
+| P1        | “Núcleo de Animal de Localización y Asistencia” indicado por el solicitante difiere de la expansión usada en el login; términos y privacidad dejan la relación jurídica de PawTrack CR/NALA pendiente.               | Usar la expansión solicitada solo en el landing y registrar la discrepancia de marca/legal.                                              | Requiere confirmación del responsable de marca y asesoría legal antes de publicar como razón social/marca registrada. |
+| P2        | Blog, privacidad, contacto y accesibilidad contienen avisos obsoletos o acciones que parecen activas.                                                                                                                | Corregir a la existencia real de artículos, controles de exportación/retención, canales no habilitados y ausencia de certificación WCAG. | Implementación de controles no equivale a política aprobada ni cumplimiento legal.                                    |
+
+### Entregables y verificación
+
+1. Crear `docs/landing/LANDING_CONTENT_AUDIT.md` con evidencia por página,
+   estado de claims, textos propuestos, prioridades y decisiones de aprobación.
+2. Actualizar únicamente copy, enlaces y metadatos del landing que puedan
+   respaldarse; no cambiar contratos/API, reglas de negocio, backend,
+   configuración legal ni operación externa.
+3. Enlazar la auditoría desde `docs/README.md` y registrar el corte en
+   `DOCUMENTATION_CHANGELOG.md`.
+4. Ejecutar lint, tests y build de `landing/frontend`; revisar páginas
+   exportadas, sitemap, enlaces internos, claims residuales y `git diff --check`.
+
+No se ha inspeccionado producción, estado real de tiendas/proveedores, contratos,
+aprobaciones de marca, análisis legal, ni ejecución reciente de CI remota. La
+fecha de los documentos técnicos citados varía; el estado técnico se toma del
+corte vigente 2026-09-28 y la auditoría de landing de 2026-10-01.

@@ -26,7 +26,7 @@ Core loop: _register pet → generate QR → report lost → log sighting → re
 | Layer    | Technology                                                                                 |
 | -------- | ------------------------------------------------------------------------------------------ |
 | Backend  | .NET 9 · Clean Architecture · CQRS via MediatR                                             |
-| Frontend | React PWA · TypeScript                                                                     |
+| Frontend | React PWA · TypeScript; marketing landing · Next.js static export                           |
 | Database | Azure SQL · EF Core                                                                        |
 | Cloud    | Azure Container Apps · Blob Storage · Notification Hubs · Key Vault · Application Insights |
 
@@ -49,8 +49,10 @@ Core loop: _register pet → generate QR → report lost → log sighting → re
 
 Each module owns its own EF Core entities, commands, queries, and validators — **never reach across module boundaries directly; use MediatR notifications or domain events for cross-module communication**.
 
-### Frontend structure (React PWA)
+### Frontend structure
 
+- `frontend/` is the React PWA product application.
+- `landing/frontend/` is an independent Next.js marketing site exported as static files; it links to product flows and must not collect product, clinical or location data itself.
 - TypeScript strict mode.
 - Co-locate component, styles, and tests.
 - State: prefer server state (React Query) over client state; use Zustand only for UI state that truly needs to persist across routes.
@@ -72,19 +74,22 @@ Each module owns its own EF Core entities, commands, queries, and validators —
 
 ## Build & test commands
 
-> Commands will be confirmed once the repo is scaffolded (Sprint 1).  
-> Expected pattern:
-
 ```bash
 # Backend (from /backend)
 dotnet restore
 dotnet build
 dotnet test
 
-# Frontend (from /frontend)
-npm install
+# Product PWA (from /frontend)
+npm ci
 npm run dev
 npm test
+
+# Marketing landing (from /landing/frontend)
+npm ci
+npm run lint
+npm test
+npm run build
 ```
 
 ---
