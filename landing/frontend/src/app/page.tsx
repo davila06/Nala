@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { Hero3DScene } from "@/components/hero-3d-scene";
 import { editorialArticles } from "@/lib/blog-content";
 import { getLoginUrl, getProductUrl } from "@/lib/site-config";
 
@@ -322,6 +323,39 @@ export default function Home() {
             <Link className="button button-outline" href="/features">
               Explorar funciones <span aria-hidden="true">↗</span>
             </Link>
+          </div>
+        </section>
+
+        <section aria-labelledby="journey-title" className="journey-3d-section section-shell">
+          <div className="journey-3d-copy">
+            <p className="eyebrow">RECORRIDO DIGITAL</p>
+            <h2 id="journey-title">
+              Una identidad que conecta cada <em>paso.</em>
+            </h2>
+            <p>
+              El tag abstracto representa el recorrido de PawTrack: una identidad organizada, información elegida por el
+              tutor y una ruta clara para coordinar ayuda.
+            </p>
+            <div className="journey-3d-steps" aria-label="Etapas del recorrido de PawTrack">
+              <span>
+                <b>01</b> Identidad
+              </span>
+              <span>
+                <b>02</b> Coordinación
+              </span>
+              <span>
+                <b>03</b> Acción
+              </span>
+            </div>
+            <p className="prototype-note">
+              Visual conceptual: no representa un dispositivo físico, GPS, QR funcional ni una red operativa
+              garantizada.
+            </p>
+          </div>
+          <div className="journey-3d-stage">
+            <Hero3DScene />
+            <span className="journey-orbit journey-orbit-one" aria-hidden="true" />
+            <span className="journey-orbit journey-orbit-two" aria-hidden="true" />
           </div>
         </section>
 

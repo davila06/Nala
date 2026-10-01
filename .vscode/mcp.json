@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "azureAi": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${workspaceFolder}/.mcp/azure-ai/server.mjs"]
+    }
+  }
+}
