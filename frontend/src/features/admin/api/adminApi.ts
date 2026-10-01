@@ -47,6 +47,10 @@ export interface SubscriptionPlanDto {
   monthlyPriceCrc: number | null;
   annualPriceCrc: number | null;
   isActive: boolean;
+  commercialApprovalReference: string | null;
+  commercialApprovedByUserId: string | null;
+  commercialApprovedAt: string | null;
+  isCommerciallyApproved: boolean;
   createdAt: string;
   updatedAt: string;
   version: string;
@@ -302,17 +306,54 @@ export const adminApi = {
       .then((r) => r.data),
 
   createSubscriptionPlan: (
-    payload: Omit<SubscriptionPlanDto, "id" | "isActive" | "createdAt" | "updatedAt" | "version">,
+    payload: Omit<
+      SubscriptionPlanDto,
+      | "id"
+      | "isActive"
+      | "commercialApprovalReference"
+      | "commercialApprovedByUserId"
+      | "commercialApprovedAt"
+      | "isCommerciallyApproved"
+      | "createdAt"
+      | "updatedAt"
+      | "version"
+    >,
   ) => apiClient.post<SubscriptionPlanDto>("/admin/subscription-plans", payload).then((r) => r.data),
 
   updateSubscriptionPlan: (
     id: string,
-    payload: Omit<SubscriptionPlanDto, "id" | "tier" | "isActive" | "createdAt" | "updatedAt">,
+    payload: Omit<
+      SubscriptionPlanDto,
+      | "id"
+      | "tier"
+      | "isActive"
+      | "commercialApprovalReference"
+      | "commercialApprovedByUserId"
+      | "commercialApprovedAt"
+      | "isCommerciallyApproved"
+      | "createdAt"
+      | "updatedAt"
+    >,
   ) => apiClient.put<SubscriptionPlanDto>(`/admin/subscription-plans/${id}`, payload).then((r) => r.data),
 
   deleteSubscriptionPlan: (id: string, version: string) =>
     apiClient
       .delete<SubscriptionPlanDto>(`/admin/subscription-plans/${id}`, {
+        data: { version },
+      })
+      .then((r) => r.data),
+
+  approveSubscriptionPlan: (id: string, version: string, approvalReference: string) =>
+    apiClient
+      .put<SubscriptionPlanDto>(`/admin/subscription-plans/${id}/commercial-approval`, {
+        version,
+        approvalReference,
+      })
+      .then((r) => r.data),
+
+  revokeSubscriptionPlanApproval: (id: string, version: string) =>
+    apiClient
+      .delete<SubscriptionPlanDto>(`/admin/subscription-plans/${id}/commercial-approval`, {
         data: { version },
       })
       .then((r) => r.data),

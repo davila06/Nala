@@ -7388,6 +7388,16 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.Property<decimal?>("AnnualPriceCrc")
                         .HasColumnType("decimal(12,2)");
 
+                    b.Property<string>("CommercialApprovalReference")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTimeOffset?>("CommercialApprovedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CommercialApprovedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -7420,6 +7430,8 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CommercialApprovedByUserId");
 
                     b.HasIndex("IsActive");
 
@@ -7785,6 +7797,14 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.Subscriptions.SubscriptionPlan", b =>
+                {
+                    b.HasOne("PawTrack.Domain.Auth.User", null)
+                        .WithMany()
+                        .HasForeignKey("CommercialApprovedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("PawTrack.Domain.Auth.User", b =>

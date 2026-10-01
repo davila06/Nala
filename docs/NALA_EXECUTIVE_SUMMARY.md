@@ -1,11 +1,11 @@
 # Resumen ejecutivo de NALA
 
-**Corte:** 2026-09-28.  
+**Corte general:** 2026-09-28. **Revalidación focal NFC/contacto:** 2026-10-01.
 **Conclusión:** NALA tiene una base técnica amplia y un núcleo defendible en identidad, recuperación y salud, pero todavía debe cerrar evidencia operativa, monetización completa, telemedicina e IA antes de presentarse como ecosistema global.
 
 ## Estado real
 
-Implementado en código: QR/perfiles, pérdida, avistamientos, chat seguro, salud, clínicas, adopciones, proveedores, tiendas, collares/API GPS, seguridad, notificaciones, reportes, webhooks, importaciones y varias superficies institucionales. Parcial: subscriptions/entitlements, marketplace/pagos de reservas, tiendas/inventario, consultas clínicas remotas, integraciones externas y matching visual condicionado. No implementado: NFC, video/audio ACS, Dynamics 365, Power Platform, RAG, copilotos, agentes y diagnóstico IA.
+Implementado en código: QR/perfiles, pérdida, avistamientos, chat enmascarado, salud, clínicas, adopciones, proveedores, tiendas, collares/API GPS, seguridad, notificaciones, reportes, webhooks, importaciones y varias superficies institucionales. Parcial: NFC mediante guía de configuración manual/app externa, subscriptions/entitlements, marketplace/pagos de reservas, tiendas/inventario, integraciones externas y matching visual condicionado. NFC nativa, telemedicina video/audio ACS, Dynamics 365, Power Platform, RAG, copilotos, agentes y diagnóstico IA no están implementados. El endpoint de contacto de reportes requiere autenticación y rate limit, pero no está restringido al propietario; ver [auditoría del landing](auditoria/LANDING_CONTENT_AUDIT.md).
 
 Ver [NALA_ACTUAL_PRODUCT_STATE.md](NALA_ACTUAL_PRODUCT_STATE.md) y [NALA_CAPABILITY_MAP.md](NALA_CAPABILITY_MAP.md).
 

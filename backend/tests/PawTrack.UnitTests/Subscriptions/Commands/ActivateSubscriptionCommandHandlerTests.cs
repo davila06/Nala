@@ -13,13 +13,14 @@ namespace PawTrack.UnitTests.Subscriptions.Commands;
 public sealed class ActivateSubscriptionCommandHandlerTests
 {
     private readonly ISubscriptionRepository _subscriptions = Substitute.For<ISubscriptionRepository>();
+    private readonly ISubscriptionPlanRepository _plans = Substitute.For<ISubscriptionPlanRepository>();
     private readonly IClinicRepository _clinics = Substitute.For<IClinicRepository>();
     private readonly IStoreRepository _stores = Substitute.For<IStoreRepository>();
     private readonly IMunicipalProfileRepository _municipal = Substitute.For<IMunicipalProfileRepository>();
     private readonly IUnitOfWork _uow = Substitute.For<IUnitOfWork>();
 
     private ActivateSubscriptionCommandHandler BuildHandler() =>
-        new(_subscriptions, _clinics, _stores, _municipal, _uow);
+        new(_subscriptions, _plans, _clinics, _stores, _municipal, _uow);
 
     [Fact]
     public async Task Handle_UnknownReference_ReturnsFailure()
@@ -37,8 +38,11 @@ public sealed class ActivateSubscriptionCommandHandlerTests
     {
         var store = Store.Create(Guid.NewGuid(), "PetShop CR", "desc", "San José", 9.9m, -84.0m, "a@b.com");
         var sub = Subscription.CreateForUser(store.UserId, SubscriptionTier.StorePlus, "ABCD1234", 12000m);
+        var plan = SubscriptionPlan.Create(SubscriptionTier.StorePlus, "Store Plus", "Store", 12000m, null);
+        plan.ApproveForCommercialPublication(Guid.NewGuid(), "TEST-APPROVAL");
 
         _subscriptions.GetByPaymentReferenceAsync("ABCD1234", Arg.Any<CancellationToken>()).Returns(sub);
+        _plans.GetByTierAsync(SubscriptionTier.StorePlus, Arg.Any<CancellationToken>()).Returns(plan);
         _stores.GetByUserIdAsync(store.UserId, Arg.Any<CancellationToken>()).Returns(store);
 
         var result = await BuildHandler().Handle(new ActivateSubscriptionCommand("ABCD1234"), default);
@@ -54,8 +58,11 @@ public sealed class ActivateSubscriptionCommandHandlerTests
     {
         var clinic = Clinic.Create(Guid.NewGuid(), "VetSalud", "SEN-123", "Heredia", 10m, -84.1m, "vet@x.com");
         var sub = Subscription.CreateForClinic(clinic.Id, Guid.NewGuid(), SubscriptionTier.ClinicPartner, "EFGH5678", 35000m);
+        var plan = SubscriptionPlan.Create(SubscriptionTier.ClinicPartner, "Clinic Partner", "Clinic", 35000m, null);
+        plan.ApproveForCommercialPublication(Guid.NewGuid(), "TEST-APPROVAL");
 
         _subscriptions.GetByPaymentReferenceAsync("EFGH5678", Arg.Any<CancellationToken>()).Returns(sub);
+        _plans.GetByTierAsync(SubscriptionTier.ClinicPartner, Arg.Any<CancellationToken>()).Returns(plan);
         _clinics.GetByIdAsync(clinic.Id, Arg.Any<CancellationToken>()).Returns(clinic);
 
         var result = await BuildHandler().Handle(new ActivateSubscriptionCommand("EFGH5678"), default);
@@ -65,5 +72,40 @@ public sealed class ActivateSubscriptionCommandHandlerTests
         _clinics.Received(1).Update(clinic);
         // Clinic subscriptions have no UserId, so store sync must be a no-op
         await _stores.DidNotReceive().GetByUserIdAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_UnapprovedPlan_DoesNotActivatePendingSubscription()
+    {
+        var userId = Guid.NewGuid();
+        var subscription = Subscription.CreateForUser(userId, SubscriptionTier.UserPlus, "UNAPPROVED", 3000m);
+        var plan = SubscriptionPlan.Create(SubscriptionTier.UserPlus, "Plus", "Plus", 3000m, null);
+        _subscriptions.GetByPaymentReferenceAsync("UNAPPROVED", Arg.Any<CancellationToken>()).Returns(subscription);
+        _plans.GetByTierAsync(SubscriptionTier.UserPlus, Arg.Any<CancellationToken>()).Returns(plan);
+
+        var result = await BuildHandler().Handle(new ActivateSubscriptionCommand("UNAPPROVED"), default);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain("Subscription plan is not approved for commercial publication.");
+        subscription.Status.Should().Be(SubscriptionStatus.PendingPayment);
+        _subscriptions.DidNotReceive().Update(subscription);
+    }
+
+    [Fact]
+    public async Task Handle_InactivePlan_DoesNotActivatePendingSubscription()
+    {
+        var userId = Guid.NewGuid();
+        var subscription = Subscription.CreateForUser(userId, SubscriptionTier.UserPlus, "INACTIVE", 3000m);
+        var plan = SubscriptionPlan.Create(SubscriptionTier.UserPlus, "Plus", "Plus", 3000m, null);
+        plan.Deactivate();
+        _subscriptions.GetByPaymentReferenceAsync("INACTIVE", Arg.Any<CancellationToken>()).Returns(subscription);
+        _plans.GetByTierAsync(SubscriptionTier.UserPlus, Arg.Any<CancellationToken>()).Returns(plan);
+
+        var result = await BuildHandler().Handle(new ActivateSubscriptionCommand("INACTIVE"), default);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain("Tier UserPlus is not an active paid plan.");
+        subscription.Status.Should().Be(SubscriptionStatus.PendingPayment);
+        _subscriptions.DidNotReceive().Update(subscription);
     }
 }

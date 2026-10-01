@@ -1,6 +1,6 @@
 # Mapa de capacidades de NALA
 
-**Corte:** 2026-09-28. Clasificación basada en código y pruebas del repositorio. `IMPLEMENTADO_Y_VERIFICADO` significa que existe flujo pertinente y pruebas ejecutadas en el corte; no significa producción.
+**Corte general:** 2026-09-28. **Revalidación focal de NFC y contacto:** 2026-10-01. Clasificación basada en código y pruebas del repositorio. `IMPLEMENTADO_Y_VERIFICADO` significa que existe flujo pertinente y pruebas ejecutadas en el corte; no significa producción.
 
 ## Identificación y recuperación
 

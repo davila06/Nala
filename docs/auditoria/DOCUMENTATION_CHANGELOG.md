@@ -69,3 +69,41 @@ Cada afirmación nueva usa evidencia de código enlazada en su documento. Prueba
 
 - Actualizado [GROWTH_EVENTS](../growth/GROWTH_EVENTS.md) con destinos actuales de eventos, identificadores, fanout, retención configurable y controles de consentimiento/emergencia respaldados por código y pruebas frontend.
 - Los nuevos eventos de activación, correlación de funnel y variantes de upsell siguen `PROPUESTO`/`REQUIRES_HUMAN_APPROVAL`: privacidad y producto deben aprobar campos, supresión en todos los destinos, retención y criterios de experimento antes de activarlos. No se afirma despliegue ni resultados comerciales.
+
+## 2026-10-01 — Auditoría de contenido público del landing
+
+- Creado [LANDING_CONTENT_AUDIT](LANDING_CONTENT_AUDIT.md) con alcance, fuentes, claims, límites, prioridades y aprobaciones pendientes. Revisión dirigida; no cubre semánticamente todos los documentos ni producción.
+- Actualizado `ai/03_domains/nfc.md`, `PRODUCT_SCOPE`, `FEATURES`, `FEATURE_TRACEABILITY_MATRIX`, `NALA_CAPABILITY_MAP` y `DOCUMENTATION_GAP_REPORT`: NFC tiene guía de configuración manual y SKU modelado, sin integración nativa ni operación de hardware verificada.
+- Registrados en la matriz de claims los bloqueadores de contacto de caso activo y NFC, además de la aprobación legal pendiente de PawTrack CR/NALA. Login y landing usan la denominación indicada por el solicitante; documentos legales no se modificaron.
+- El backend `Round23SecurityRegressionTests` pasó 6/6; acredita JWT/rate limit del contacto, no control de ownership ni privacidad por propietario. No se cambió backend ni API.
+- Cambios de marketing se describen en el informe; términos, política y aprobaciones siguen `draft`/pendientes. No se ejecutó despliegue.
+
+## 2026-10-01 — Catálogo de planes y gate de aprobación comercial
+
+- `SubscriptionPricing` ya no mantiene una segunda tabla de importes; conserva reglas de cálculo, IVA y clasificación de tiers. Nuevas suscripciones usan el importe persistido en `SubscriptionPlans`; se añadió prueba con precio divergente de la referencia histórica.
+- Planes ahora registran referencia de aprobación, Admin y fecha; editar/desactivar revoca la aprobación. Se agregó endpoint Admin para aprobar/revocar, DTO público sin evidencia interna y filtro del catálogo por plan activo y aprobado.
+- El gate se aplica a nuevas compras, promociones, downgrades y activaciones SINPE/Admin. La migración `AddSubscriptionPlanCommercialApproval` está generada, no aplicada; planes existentes no se aprobaron ni se sembraron automáticamente.
+- Pruebas: 31 unitarias de pricing/alta; 25 unitarias de dominio/compra/promoción/downgrade/activación; integración focal del catálogo cubre oculto → aprobar → publicar → revocar → ocultar → reaprobación → desactivar.
+- Pendiente de rollout: aplicar migración solo con autorización; revisar referencias legales/comerciales de cada tier, volver a aprobar en Admin los que correspondan, decisión de renovaciones automáticas tras revocación y validación del entorno productivo. No se modificó `PawTrackDev` ni otra base.
+
+## 2026-10-01 — Fuente única de precios y fail-closed comercial
+
+- Retirada la lista de importes por tier de `SubscriptionPricing`; quedan reglas de períodos/descuento, clasificación de tiers e IVA. El precio de suscripción nuevo se consulta de `SubscriptionPlans`; prueba un caso donde la fila vale ₡3.000 aunque la referencia histórica fuera ₡2.990.
+- Añadidos estado y evidencia por plan (referencia identificadora, usuario Admin, timestamp), endpoints Admin de aprobación/revocación, DTO público sin metadata interna y filtros de catálogo.
+- Aprobación requerida en alta, promoción gratuita/descuento, downgrade y activaciones SINPE/Admin. Editar o desactivar revoca el approval; la renovación existente conserva el importe ya aceptado.
+- Agregada migración `AddSubscriptionPlanCommercialApproval`; **generada, no aplicada**. Las filas existentes serán no aprobadas; no se precargaron aprobaciones ni se modificó PawTrackDev.
+- Validación ejecutada: 52 unitarias focales (dominio/pricing/creación/promoción/downgrade/activación); integración de catálogo con publicar/revocar/reaprobar/desactivar (2 tests). Las pruebas usan DbContext InMemory y no prueban aplicar migración SQL.
+- Pendientes: revisar evidencia legal/comercial de cada plan antes de aprobar; acordar renovación futura tras revocación; planificar despliegue de migración, comparar catálogo por entorno y medir estados base/missing-tier. No se afirma aprobación externa ni producción.
+
+## 2026-10-01 — Revalidación de precios y aprobación Admin
+
+- Alineados los análisis de pricing/unit economics con el dato local de UserPlus ₡3.000 y recalculados los escenarios hipotéticos. Las referencias ₡2.990 se mantienen sólo como hipótesis/históricas; no se atribuye aprobación o venta.
+
+## 2026-10-01 — Aplicación local de migraciones
+
+- Aplicadas en `PawTrackDev` las migraciones pendientes hasta `AddSubscriptionPlanCommercialApproval`, incluyendo las migraciones previas de operaciones y ledger de pagos que estaban pendientes en esa base.
+- Verificado que el backend compila y que la integración focal del catálogo comercial pasa 3/3 pruebas. No se aplicó ninguna migración desde el landing ni se modificaron precios o aprobaciones comerciales.
+- Staging y producción siguen sin verificación; las aprobaciones comerciales deben registrarse explícitamente por Admin después de revisar la evidencia correspondiente.
+- `AdminSubscriptionPlansTab` reemplaza `window.prompt` por el `Modal` compartido y bloquea referencias fuera del formato admitido por el dominio.
+- Verificación: integración de catálogo 3/3; pruebas Admin focales 4/4; typecheck frontend y `git diff --check` correctos. La ejecución de toda la solución no produjo un resumen final verificable en la salida disponible y no se declara aprobada.
+- La migración sigue generada/no aplicada; producción no consultada y no se cambiaron datos de base.

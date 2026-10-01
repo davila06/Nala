@@ -12,22 +12,19 @@ export const editorialPillars = [
   {
     id: "identificacion-privacidad",
     title: "Identificación y privacidad",
-    description:
-      "Perfiles útiles, tecnologías y decisiones informadas sobre qué compartir.",
+    description: "Perfiles útiles, tecnologías y decisiones informadas sobre qué compartir.",
     categories: ["IDENTIFICACIÓN", "IDENTIDAD DIGITAL", "PRIVACIDAD"],
   },
   {
     id: "perdida-recuperacion",
     title: "Pérdida, hallazgo y seguridad",
-    description:
-      "Preparación, comunicación segura y pasos cuidadosos para una reunificación.",
+    description: "Preparación, comunicación segura y pasos cuidadosos para una reunificación.",
     categories: ["RECUPERACIÓN", "PREVENCIÓN", "SEGURIDAD"],
   },
   {
     id: "cuidado-vida-diaria",
     title: "Cuidado y vida diaria",
-    description:
-      "Convivencia, viajes, adopción y coordinación alrededor del bienestar animal.",
+    description: "Convivencia, viajes, adopción y coordinación alrededor del bienestar animal.",
     categories: [
       "CUIDADO",
       "CUIDADO COMPARTIDO",
@@ -78,8 +75,7 @@ export const editorialArticles: EditorialArticle[] = [
     slug: "perfil-mascota-privacidad",
     category: "PRIVACIDAD",
     title: "Qué información incluir en el perfil de tu mascota",
-    summary:
-      "Un perfil claro ayuda a reconocerla sin exponer datos personales que no hacen falta para pedir ayuda.",
+    summary: "Un perfil claro ayuda a reconocerla sin exponer datos personales que no hacen falta para pedir ayuda.",
     sections: [
       {
         heading: "Prioriza lo que permite reconocerla",
@@ -205,8 +201,7 @@ export const editorialArticles: EditorialArticle[] = [
     slug: "elegir-placa-qr-nfc",
     category: "IDENTIFICACIÓN",
     title: "Una placa QR o NFC: qué revisar antes de elegir",
-    summary:
-      "Compatibilidad, legibilidad y control sobre el perfil importan más que las promesas de una etiqueta.",
+    summary: "Compatibilidad, legibilidad y control sobre el perfil importan más que las promesas de una etiqueta.",
     sections: [
       {
         heading: "Comprueba cómo se abre el perfil",
@@ -244,7 +239,7 @@ export const editorialArticles: EditorialArticle[] = [
         heading: "Actualiza los datos cuando algo cambie",
         paragraphs: [
           "Revisa la foto, la descripción y los contactos después de un cambio importante. Si una persona deja de ser contacto de confianza, actualiza la información que compartes.",
-          "Puedes programar un recordatorio personal para revisar la ficha periódicamente; esa función aún no está disponible en el prototipo de NALA.",
+          "La app de PawTrack CR incluye recordatorios de salud. Este landing no los configura ni confirma su entrega en producción; consulta la app y a un profesional veterinario.",
         ],
       },
       {
@@ -282,7 +277,7 @@ export const editorialArticles: EditorialArticle[] = [
         heading: "Controla con quién los compartes",
         paragraphs: [
           "Los documentos pueden incluir información sensible. Comparte solo lo pertinente, con personas de confianza y mediante un canal adecuado.",
-          "El historial de cuidado de NALA es una propuesta y no está habilitado para guardar archivos en este prototipo.",
+          "La app incluye registros y documentos de cuidado. Este artículo no es una historia clínica, no interpreta síntomas y no confirma disponibilidad de producción.",
         ],
       },
       {
@@ -319,7 +314,7 @@ export const editorialArticles: EditorialArticle[] = [
       {
         heading: "No dependas de una función que aún no existe",
         paragraphs: [
-          "Los permisos familiares y perfiles compartidos forman parte de la visión de NALA, pero no están activos en este portal. Coordina por canales que ya tengas disponibles.",
+          "La app de PawTrack CR incluye gestión de invitaciones familiares. Revisa los permisos y el estado de las invitaciones en la app; este landing no administra accesos.",
         ],
       },
     ],
@@ -350,7 +345,7 @@ export const editorialArticles: EditorialArticle[] = [
       {
         heading: "Consulta los requisitos de tu localidad",
         paragraphs: [
-          "Los procesos y documentos de adopción varían entre organizaciones y lugares. Confirma los pasos con la organización responsable; NALA todavía no cuenta con organizaciones afiliadas en este prototipo.",
+          "Los procesos y documentos de adopción varían entre organizaciones y lugares. La app contiene flujos de adopción, pero no se ha verificado afiliación ni operación de una organización concreta.",
         ],
       },
     ],
@@ -538,7 +533,7 @@ export const editorialArticles: EditorialArticle[] = [
         heading: "Publica solo lo necesario",
         paragraphs: [
           "Usa una zona aproximada y un medio de contacto que estés dispuesto a revisar. Quita del aviso los datos personales que no ayuden a reconocer a la mascota.",
-          "Los avisos de NALA aún no se publican ni moderan; comparte búsquedas reales mediante canales que estén activos y tengan medidas de seguridad claras.",
+          "La app contiene flujos de reporte de pérdida; este landing no publica avisos. La entrega de notificaciones y difusión por terceros no está verificada en producción.",
         ],
       },
     ],
@@ -577,7 +572,7 @@ export const editorialArticles: EditorialArticle[] = [
         heading: "Evalúa si la adaptación es adecuada",
         paragraphs: [
           "Pregunta si hay una visita previa o una adaptación gradual y qué opciones existen si tu mascota no se siente cómoda. No todas las instalaciones o rutinas sirven para todos los animales.",
-          "NALA no cuenta con un directorio activo ni verifica cuidadores en este prototipo. Haz tus propias comprobaciones antes de contratar.",
+          "El producto contiene directorios y flujos de proveedores, pero no se ha verificado la afiliación ni la vigencia de un cuidador concreto. Comprueba credenciales y condiciones antes de contratar.",
         ],
       },
     ],
@@ -641,7 +636,7 @@ export const editorialArticles: EditorialArticle[] = [
         heading: "Cuida la privacidad y el consentimiento",
         paragraphs: [
           "Pide permiso antes de publicar fotos, historias o datos de personas beneficiarias y voluntarias. Evita mostrar domicilios, documentos o ubicaciones sensibles.",
-          "NALA no tiene refugios ni organizaciones afiliadas en este prototipo; cualquier colaboración futura requerirá verificación y acuerdo formal.",
+          "La app contiene perfiles aliados y flujos de refugios/adopción; no se ha verificado afiliación, convenio ni operación de una organización concreta.",
         ],
       },
       {
@@ -687,7 +682,7 @@ export const editorialArticles: EditorialArticle[] = [
         heading: "Permite una transición gradual",
         paragraphs: [
           "Mantén rutinas previsibles y deja que la mascota explore a su ritmo. Acordar expectativas realistas ayuda a las personas del hogar a responder con paciencia.",
-          "Los perfiles digitales, herramientas de adopción y directorios de NALA aún no están activos. Confirma la información directamente con la organización responsable.",
+          "PawTrack CR contiene perfiles digitales, directorios y flujos de adopción; la disponibilidad y participación de una organización concreta deben confirmarse directamente.",
         ],
       },
     ],

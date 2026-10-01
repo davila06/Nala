@@ -14,36 +14,30 @@ describe("portal actions", () => {
     vi.unstubAllEnvs();
   });
 
-  it("sends pet profile creation to the product registration flow", () => {
+  it("sends pet profile creation to the product login flow", () => {
     render(<ProfileDemoForm />);
 
-    expect(
-      screen
-        .getByRole("link", { name: /crear cuenta en nala/i })
-        .getAttribute("href"),
-    ).toBe("https://app.example.test/register");
+    expect(screen.getByRole("link", { name: /crear cuenta o iniciar sesión en nala/i }).getAttribute("href")).toBe(
+      "https://app.example.test/login",
+    );
     expect(screen.queryByRole("textbox")).toBeNull();
   });
 
   it("sends found-pet reports to the existing public product flow", () => {
     render(<ReportDemoForm mode="found" />);
 
-    expect(
-      screen
-        .getByRole("link", { name: /reportar mascota encontrada en nala/i })
-        .getAttribute("href"),
-    ).toBe("https://app.example.test/encontre-mascota");
+    expect(screen.getByRole("link", { name: /reportar mascota encontrada en nala/i }).getAttribute("href")).toBe(
+      "https://app.example.test/encontre-mascota",
+    );
     expect(screen.queryByRole("textbox")).toBeNull();
   });
 
-  it("sends lost-pet reports to registration without collecting incident details", () => {
+  it("sends lost-pet reports to login without collecting incident details", () => {
     render(<ReportDemoForm mode="lost" />);
 
-    expect(
-      screen
-        .getByRole("link", { name: /crear cuenta o iniciar sesión/i })
-        .getAttribute("href"),
-    ).toBe("https://app.example.test/register");
+    expect(screen.getByRole("link", { name: "Crear cuenta o iniciar sesión" }).getAttribute("href")).toBe(
+      "https://app.example.test/login",
+    );
     expect(screen.queryByRole("textbox")).toBeNull();
   });
 });

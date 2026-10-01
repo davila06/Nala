@@ -57,9 +57,14 @@ public sealed class ScheduleSubscriptionDowngradeCommandHandler(
         }
 
         var plan = await planRepository.GetByTierAsync(request.TargetTier, cancellationToken);
+        if (plan is null || !plan.IsActive)
+            return Result.Failure<SubscriptionDto>("The target plan is not available.");
+        if (!plan.IsCommerciallyApproved)
+            return Result.Failure<SubscriptionDto>("The target plan is not approved for commercial publication.");
+
         var isAnnual = SubscriptionPricing.IsMunicipalTier(request.TargetTier);
         var amount = isAnnual ? plan?.AnnualPriceCrc : plan?.MonthlyPriceCrc;
-        if (plan is null || !plan.IsActive || amount is null)
+        if (amount is null)
             return Result.Failure<SubscriptionDto>("The target plan is not available.");
 
         current.Cancel();

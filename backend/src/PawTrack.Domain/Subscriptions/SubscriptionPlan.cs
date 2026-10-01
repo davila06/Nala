@@ -11,6 +11,12 @@ public sealed class SubscriptionPlan
     public decimal? MonthlyPriceCrc { get; private set; }
     public decimal? AnnualPriceCrc { get; private set; }
     public bool IsActive { get; private set; }
+    public string? CommercialApprovalReference { get; private set; }
+    public Guid? CommercialApprovedByUserId { get; private set; }
+    public DateTimeOffset? CommercialApprovedAt { get; private set; }
+    public bool IsCommerciallyApproved => CommercialApprovalReference is not null
+        && CommercialApprovedByUserId.HasValue
+        && CommercialApprovedAt.HasValue;
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
     public Guid Version { get; private set; }
@@ -50,6 +56,41 @@ public sealed class SubscriptionPlan
         Description = description.Trim();
         MonthlyPriceCrc = monthlyPriceCrc;
         AnnualPriceCrc = annualPriceCrc;
+        RevokeCommercialApproval();
+        UpdatedAt = DateTimeOffset.UtcNow;
+        Version = Guid.NewGuid();
+    }
+
+    public void ApproveForCommercialPublication(Guid approvedByUserId, string approvalReference)
+    {
+        if (approvedByUserId == Guid.Empty)
+            throw new ArgumentException("An approving administrator is required.", nameof(approvedByUserId));
+        var normalizedReference = approvalReference?.Trim();
+        if (normalizedReference is null
+            || normalizedReference.Length is < 3 or > 200
+            || !System.Text.RegularExpressions.Regex.IsMatch(
+                normalizedReference,
+                "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                System.Text.RegularExpressions.RegexOptions.CultureInvariant))
+            throw new ArgumentException(
+                "An approval reference must be a 3-200 character identifier using letters, numbers, '.', '_', ':', '/', or '-'.",
+                nameof(approvalReference));
+        if (!IsActive)
+            throw new InvalidOperationException("An inactive plan cannot be approved for publication.");
+
+        CommercialApprovalReference = normalizedReference;
+        CommercialApprovedByUserId = approvedByUserId;
+        CommercialApprovedAt = DateTimeOffset.UtcNow;
+        UpdatedAt = CommercialApprovedAt.Value;
+        Version = Guid.NewGuid();
+    }
+
+    public void RevokeCommercialPublicationApproval()
+    {
+        if (!IsCommerciallyApproved)
+            throw new InvalidOperationException("Subscription plan has no commercial approval to revoke.");
+
+        RevokeCommercialApproval();
         UpdatedAt = DateTimeOffset.UtcNow;
         Version = Guid.NewGuid();
     }
@@ -57,8 +98,16 @@ public sealed class SubscriptionPlan
     public void Deactivate()
     {
         IsActive = false;
+        RevokeCommercialApproval();
         UpdatedAt = DateTimeOffset.UtcNow;
         Version = Guid.NewGuid();
+    }
+
+    private void RevokeCommercialApproval()
+    {
+        CommercialApprovalReference = null;
+        CommercialApprovedByUserId = null;
+        CommercialApprovedAt = null;
     }
 
     private static void Validate(

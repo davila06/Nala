@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { editorialArticles } from "@/lib/blog-content";
+import { getLoginUrl, getProductUrl } from "@/lib/site-config";
 
 const benefits = [
   {
@@ -10,6 +11,8 @@ const benefits = [
     text: "Un perfil pensado para reunir información útil y que puedas revisar qué compartes.",
     href: "/pet-id",
     action: "Conocer la identidad digital",
+    status: "Implementación documentada",
+    statusTone: "ready",
   },
   {
     number: "02",
@@ -17,6 +20,8 @@ const benefits = [
     text: "Una ruta clara para reportar una pérdida o ayudar cuando encuentras una mascota.",
     href: "/lost-pets",
     action: "Explorar la recuperación",
+    status: "Flujo en la app",
+    statusTone: "ready",
   },
   {
     number: "03",
@@ -24,6 +29,8 @@ const benefits = [
     text: "Vacunas, documentos y recordatorios organizados en una experiencia sencilla.",
     href: "/features",
     action: "Explorar el cuidado conectado",
+    status: "Capacidad parcial",
+    statusTone: "partial",
   },
 ];
 
@@ -63,13 +70,13 @@ export default function Home() {
               y cuidado animal en Costa Rica.
             </p>
             <div className="hero-actions">
-              <Link className="button button-dark" href="/register">
-                Crear perfil <span aria-hidden="true">↗</span>
-              </Link>
-              <Link className="button button-light" href="/lost-pets/report">
+              <a className="button button-dark" href={getProductUrl("/login")}>
+                Crear cuenta o iniciar sesión <span aria-hidden="true">↗</span>
+              </a>
+              <a className="button button-light" href={getLoginUrl("/lost-pets/report")}>
                 <span aria-hidden="true" className="button-dot" />
                 Perdí una mascota
-              </Link>
+              </a>
             </div>
             <Link className="found-link" href="/found-pets/report">
               ¿Encontraste una mascota? Ayuda a que vuelva a casa <span aria-hidden="true">→</span>
@@ -90,6 +97,7 @@ export default function Home() {
                 priority
                 src="https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=1200&q=85"
                 width={820}
+                sizes="(max-width: 700px) 100vw, (max-width: 960px) 46vw, 510px"
               />
               <div className="photo-caption">
                 <span className="caption-paw" aria-hidden="true">
@@ -125,6 +133,42 @@ export default function Home() {
           </div>
         </section>
 
+        <section aria-labelledby="intent-title" className="intent-section section-shell">
+          <div className="intent-heading">
+            <p className="eyebrow">EMPIEZA POR LO QUE NECESITAS HOY</p>
+            <h2 id="intent-title">
+              Una entrada clara para cada <em>situación.</em>
+            </h2>
+            <p>No necesitas entender toda la plataforma para dar el siguiente paso correcto.</p>
+          </div>
+          <div className="intent-grid">
+            <Link className="intent-card intent-card-primary" href="/pet-id">
+              <span className="intent-kicker">SOY TUTOR</span>
+              <strong>Quiero identificar a mi mascota</strong>
+              <span>Perfil digital, QR y datos que tú decides compartir.</span>
+              <span className="intent-action">
+                Abrir el recorrido <span aria-hidden="true">↗</span>
+              </span>
+            </Link>
+            <Link className="intent-card" href="/found-pets">
+              <span className="intent-kicker">ENCONTRÉ UNA MASCOTA</span>
+              <strong>Quiero ayudar a encontrar a su familia</strong>
+              <span>Un flujo de hallazgo que se completa en la app.</span>
+              <span className="intent-action">
+                Ver cómo ayudar <span aria-hidden="true">↗</span>
+              </span>
+            </Link>
+            <Link className="intent-card" href="/business">
+              <span className="intent-kicker">REPRESENTO UNA ORGANIZACIÓN</span>
+              <strong>Quiero conocer las capacidades</strong>
+              <span>Clínicas, refugios y municipalidades, con límites visibles.</span>
+              <span className="intent-action">
+                Explorar alcance <span aria-hidden="true">↗</span>
+              </span>
+            </Link>
+          </div>
+        </section>
+
         <section className="benefits section-shell" id="beneficios">
           <div className="section-heading">
             <p className="eyebrow">MÁS QUE UNA PLACA</p>
@@ -139,6 +183,7 @@ export default function Home() {
             {benefits.map((benefit) => (
               <article className="benefit-item" key={benefit.number}>
                 <span className="benefit-number">{benefit.number}</span>
+                <span className={`capability-status status-${benefit.statusTone}`}>{benefit.status}</span>
                 <h3>{benefit.title}</h3>
                 <p>{benefit.text}</p>
                 <Link href={benefit.href}>
@@ -232,9 +277,9 @@ export default function Home() {
               los datos de contacto antes de iniciar un caso.
             </p>
             <div className="recovery-actions">
-              <Link className="button button-coral" href="/lost-pets/report">
+              <a className="button button-coral" href={getLoginUrl("/lost-pets/report")}>
                 Perdí una mascota <span aria-hidden="true">↗</span>
-              </Link>
+              </a>
               <Link className="text-link" href="/found-pets/report">
                 Encontré una mascota <span aria-hidden="true">→</span>
               </Link>
@@ -312,22 +357,22 @@ export default function Home() {
             <article>
               <span>01</span>
               <div>
-                <h3>Tú decides qué se comparte</h3>
+                <h3>Datos bajo tu decisión</h3>
                 <p>El perfil público debe mostrar solo la información que el tutor elige.</p>
               </div>
             </article>
             <article>
               <span>02</span>
               <div>
-                <h3>QR no es GPS</h3>
-                <p>Explicamos qué puede hacer cada tecnología, sin promesas confusas.</p>
+                <h3>Capacidades con estado</h3>
+                <p>Distinguimos lo implementado, lo parcial y lo que todavía no está disponible.</p>
               </div>
             </article>
             <article>
               <span>03</span>
               <div>
-                <h3>Historias y aliados, verificados</h3>
-                <p>Publicaremos testimonios y organizaciones solo con permiso y evidencia.</p>
+                <h3>Alianzas verificables</h3>
+                <p>No presentamos organizaciones, cobertura ni resultados externos sin evidencia vigente.</p>
               </div>
             </article>
           </div>
@@ -341,9 +386,12 @@ export default function Home() {
               <br />
               depender de un <em>plan.</em>
             </h2>
-            <p>La identidad básica y la posibilidad de pedir ayuda deben estar al alcance de todas las familias.</p>
+            <p>
+              La identidad y la recuperación son el punto de partida; los tiers técnicos no representan una oferta
+              comercial publicada.
+            </p>
             <Link className="text-link" href="/plans">
-              Ver la propuesta de planes <span aria-hidden="true">→</span>
+              Ver el estado de planes <span aria-hidden="true">→</span>
             </Link>
           </div>
           <div className="plan-preview">
@@ -351,17 +399,34 @@ export default function Home() {
               <span>01 / PARA EMPEZAR</span>
               <span className="plan-stamp">N</span>
             </div>
-            <h3>Esencial</h3>
-            <p>Una identidad digital para tener lo importante a mano.</p>
-            <ul>
-              <li>Perfil de mascota</li>
-              <li>Información de contacto elegida</li>
-              <li>Acceso a los reportes básicos</li>
-            </ul>
-            <Link href="/register">
-              Crear un perfil <span aria-hidden="true">↗</span>
+            <h3>Catálogo pendiente de aprobación</h3>
+            <p>
+              El backend contiene tiers para tutores y organizaciones, pero los nombres comerciales, precios, impuestos
+              y condiciones aún no están publicados.
+            </p>
+            <Link href="/plans">
+              Ver estado de planes <span aria-hidden="true">↗</span>
             </Link>
-            <small>La estructura de planes y precios está en definición.</small>
+            <div className="plan-status-grid" aria-label="Estado del catálogo">
+              <div>
+                <span>CAPACIDADES</span>
+                <strong>Tiers técnicos</strong>
+                <small>Documentados en backend</small>
+              </div>
+              <div>
+                <span>OFERTA</span>
+                <strong>No publicada</strong>
+                <small>Requiere aprobación</small>
+              </div>
+              <div>
+                <span>COMPRA</span>
+                <strong>No disponible</strong>
+                <small>Sin checkout aquí</small>
+              </div>
+            </div>
+            <small>
+              La cuenta se gestiona en la app; esta landing no vende suscripciones ni confirma disponibilidad.
+            </small>
           </div>
         </section>
 
@@ -401,9 +466,9 @@ export default function Home() {
           </div>
           <div>
             <p>Un perfil para reconocerla. Una comunidad para acompañarte. Una vida entera por cuidar.</p>
-            <Link className="button button-light" href="/register">
-              Crear perfil <span aria-hidden="true">↗</span>
-            </Link>
+            <a className="button button-light" href={getProductUrl("/login")}>
+              Crear cuenta o iniciar sesión <span aria-hidden="true">↗</span>
+            </a>
           </div>
           <span aria-hidden="true" className="closing-mark">
             N

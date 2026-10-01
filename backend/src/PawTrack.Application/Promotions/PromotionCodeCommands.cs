@@ -310,6 +310,8 @@ public sealed class RedeemPromotionCodeCommandHandler(
         var plan = await planRepository.GetByTierAsync(tier.Value, ct);
         if (plan is null || !plan.IsActive)
             return Result.Failure<SubscriptionDto>("El plan seleccionado no está disponible.");
+        if (!plan.IsCommerciallyApproved)
+            return Result.Failure<SubscriptionDto>("El plan seleccionado no está aprobado para publicación comercial.");
 
         // 6. If fully paid sub active and trying to apply free code → block
         var existing = await subscriptionRepository.GetActiveForUserAsync(request.UserId, ct);

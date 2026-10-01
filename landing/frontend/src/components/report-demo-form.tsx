@@ -6,7 +6,7 @@ type ReportDemoFormProps = {
 
 export function ReportDemoForm({ mode }: ReportDemoFormProps) {
   const reportType = mode === "lost" ? "Mascota perdida" : "Mascota encontrada";
-  const productUrl = getProductUrl(mode === "lost" ? "/register" : "/encontre-mascota");
+  const productUrl = getProductUrl(mode === "lost" ? "/login" : "/encontre-mascota");
 
   return (
     <div className="prototype-form">

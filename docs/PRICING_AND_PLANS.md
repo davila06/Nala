@@ -3,8 +3,9 @@
 > Estado: activo como consolidacion tecnica; precios sujetos a aprobacion
 > comercial y legal. Corte: 2026-09-22.
 >
-> La autoridad tecnica son `SubscriptionTier`, `SubscriptionPricing` y los
-> gates del backend. Este documento no convierte una capacidad tecnica en una
+> La autoridad técnica del precio runtime es la fila activa de
+> `SubscriptionPlans`; `SubscriptionPricing` conserva reglas de ciclo, IVA y
+> clasificación de tiers, no una lista autoritativa de importes. Este documento no convierte una capacidad técnica en una
 > promesa comercial automaticamente.
 > La activación B2B/B2G y los planes B2C se procesan actualmente mediante
 > solicitud y verificación manual de SINPE o pasarela de tarjetas. No existe checkout recurrente
@@ -14,16 +15,38 @@
 
 La existencia de un enum, endpoint o feature gate significa **capacidad
 tecnica**, no autorización de venta. El workflow de despliegue productivo
-ejecuta un gate de aprobaciones antes de publicar artefactos. Ese control bloquea
-el despliegue, pero no implementa por sí mismo un bloqueo de runtime en el
-catálogo público, la interfaz o los endpoints de compra. El estado actual de los
-valores del GitHub Environment debe comprobarse en el propio entorno. El gate
-exige:
+ejecuta un gate general de aprobaciones antes de publicar artefactos. Además,
+está implementado en código un gate de aprobación por plan para catálogo
+público, nuevas compras, promociones, downgrades y activaciones. La evidencia
+queda en la fila del plan (referencia identificadora, Admin, fecha), se registra
+en auditoría y se revoca si se modifica o desactiva el plan. La migración fue
+aplicada en `PawTrackDev` el 2026-10-01; esto no acredita que se haya aplicado
+en staging o producción.
+El estado de los valores del GitHub Environment debe comprobarse en el propio
+entorno. El gate general exige:
 
 - `PRICING_APPROVED=true`;
 - `B2B_CONTRACTS_APPROVED=true` para ofertas empresariales;
 - `SLA_APPROVED=true` para servicios con compromiso operativo;
 - `LEGAL_APPROVAL_REFERENCE` con el identificador de la evidencia aprobada.
+
+`AddSubscriptionPlanCommercialApproval` agrega los campos nullable y fue aplicada
+en `PawTrackDev` sin precargar aprobaciones ni modificar precios. Los planes
+existentes quedaron sin aprobar y dejan de
+salir en el catálogo público y de permitir nuevas compras/activaciones hasta que
+un Admin registre una referencia identificadora válida. La referencia es una
+atestación administrativa, no validación automática del documento legal ni una
+aprobación externa. Esto no cancela automáticamente términos activos; el job de
+renovación conserva el importe aceptado y el tratamiento de renovaciones tras
+revocación requiere decisión comercial/legal antes del rollout.
+
+Una consulta de solo lectura a `PawTrackDev` el 2026-10-01 encontró 10 filas de
+planes activas y 48 definiciones de entitlement activas. `UserPlus` muestra
+₡3.000/mes en esa BD local, frente a la referencia estática histórica de
+₡2.990. El handler de alta y el catálogo público leen `SubscriptionPlans`; este
+hallazgo no acredita configuración de producción ni aprobación comercial. La
+BD consultada ya tiene aplicada la migración de aprobación. El
+detalle se registra en [NALA_PLAN_MAPPING](NALA_PLAN_MAPPING.md).
 
 | Oferta                     | Capacidad tecnica   | Politica comercial documentada                  |
 | -------------------------- | ------------------- | ----------------------------------------------- |
@@ -49,7 +72,7 @@ no procesa pagos, escrow ni custodia financiera. Ver
 > electrónica como para tiquete electrónico; no prometer un precio libre de
 > impuesto únicamente porque el comprador no solicita crédito fiscal.
 
-- **Precios Base del Servicio:** Todos los montos listados en el catálogo técnico (`SubscriptionPricing`, `BundlePrices`, `TIER_PRICE_CRC`) corresponden al costo neto base del servicio y **no reflejan el 13% de IVA**.
+- **Precios Base del Servicio:** Los importes del plan provienen de la fila activa `SubscriptionPlans` del entorno consultado; `BundlePrices` es un catálogo distinto de bundles. Los valores son base neta y **no reflejan el 13% de IVA**. No inferir de una BD local el precio aprobado o desplegado en producción.
 - **Emisión de Factura Electrónica:** Si el cliente (dueño de mascota, clínica, tienda o institución) requiere **Factura Electrónica** formal con crédito fiscal ante la Dirección General de Tributación (DGT v4.3), **se le agrega el 13% de IVA al costo del servicio** al procesar el pago o generar la suscripción/pedido:
   - `Total Con Factura = Costo Base * 1.13` (redondeado a 2 decimales en colones).
 - **Consumidor Final (Tiquete Electrónico):** Si el cliente no requiere factura con crédito fiscal (`RequiresInvoice = false`), abona el costo neto base del servicio.
@@ -62,8 +85,10 @@ no procesa pagos, escrow ni custodia financiera. Ver
 | UserPlus    | Activo         | Hasta 3 mascotas; extras sujetos a gates técnicos.       |
 | UserFamilia | Activo         | Hasta 25 mascotas activas; familia y expediente.         |
 
-Los precios B2C deben mantenerse sincronizados con `SubscriptionPricing` y
-aprobarse antes de publicarse.
+Los precios B2C del catálogo deben mantenerse sincronizados con la fila activa
+`SubscriptionPlans`, probarse en el flujo de compra y aprobarse antes de
+publicarse. `SubscriptionPricing` calcula plazos/descuentos e IVA, pero no
+provee importes canónicos por plan.
 
 ### Plazos de compra B2C
 
@@ -93,9 +118,10 @@ no aplica a clinicas, tiendas, refugios ni municipalidades.
 
 ## Clinicas
 
-Esta es la fuente comercial vigente: `SubscriptionPricing` contiene referencias
-técnicas de ₡15.000/mes para ClinicPlus y ₡35.000/mes para ClinicPartner, **no
-precios publicados ni validados por disposición a pagar**. ClinicPlus se
+El catálogo persistido de `PawTrackDev` mostró ₡15.000/mes para ClinicPlus y
+₡35.000/mes para ClinicPartner al 2026-10-01; son importes observados en esa BD
+local, **no precios publicados ni validados por disposición a pagar**. La BD
+productiva no se consultó. ClinicPlus se
 orienta a visibilidad y métricas; ClinicPartner a certificados verificables e
 integraciones sujetas a grants, scopes y cuotas. Ningún plan ofrece hoy
 multi-sede operativa ni soporte 24/7 contractual. La contratación requiere los

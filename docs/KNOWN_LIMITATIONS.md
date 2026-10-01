@@ -1,9 +1,10 @@
-# Limitaciones verificables y pendientes (corte 2026-09-28)
+# Limitaciones verificables y pendientes (corte 2026-10-01)
 
 ## Alcance que no debe anunciarse como disponible
 
-- NFC sigue siendo `PROPUESTO`: no hay lector, vinculación, API, persistencia
-  ni UI ejecutable.
+- NFC tiene una guía de configuración manual con NFC Tools y un SKU de combo
+  NFC+QR modelado; no hay pairing/lector nativo y hardware, venta, fulfillment,
+  compatibilidad y operación del proveedor son `NO_VERIFICADO`.
 - Telemedicina audiovisual, Azure Communication Services, Dynamics 365 y
   Power Platform son `DECLARADO_NO_IMPLEMENTADO`.
 - IA solo cubre validación/matching visual condicionado; no hay RAG,

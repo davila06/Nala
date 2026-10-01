@@ -26,6 +26,21 @@ public sealed class SubscriptionPlanRepository(PawTrackDbContext dbContext) : IS
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<SubscriptionPlan>> GetCommerciallyApprovedPagedAsync(
+        int skip,
+        int take,
+        CancellationToken cancellationToken = default) =>
+        await dbContext.SubscriptionPlans
+            .Where(x => x.IsActive
+                && x.CommercialApprovalReference != null
+                && x.CommercialApprovedByUserId != null
+                && x.CommercialApprovedAt != null)
+            .OrderBy(x => x.Tier)
+            .Skip(skip)
+            .Take(take)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
     public async Task AddAsync(SubscriptionPlan plan, CancellationToken cancellationToken = default) =>
         await dbContext.SubscriptionPlans.AddAsync(plan, cancellationToken);
 

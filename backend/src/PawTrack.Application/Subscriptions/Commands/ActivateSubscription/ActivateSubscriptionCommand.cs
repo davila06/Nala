@@ -14,6 +14,7 @@ public sealed record ActivateSubscriptionCommand(string PaymentReference) : IReq
 
 public sealed class ActivateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
+    ISubscriptionPlanRepository planRepository,
     IClinicRepository clinicRepository,
     IStoreRepository storeRepository,
     IMunicipalProfileRepository municipalRepo,
@@ -33,6 +34,12 @@ public sealed class ActivateSubscriptionCommandHandler(
 
         if (subscription.Status != SubscriptionStatus.PendingPayment)
             return Result.Failure<SubscriptionDto>("Subscription is not in a pending state.");
+
+        var plan = await planRepository.GetByTierAsync(subscription.Tier, cancellationToken);
+        if (plan is null || !plan.IsActive)
+            return Result.Failure<SubscriptionDto>($"Tier {subscription.Tier} is not an active paid plan.");
+        if (!plan.IsCommerciallyApproved)
+            return Result.Failure<SubscriptionDto>("Subscription plan is not approved for commercial publication.");
 
         subscription.Activate(subscription.BillingMonths);
         subscriptionRepository.Update(subscription);

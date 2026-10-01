@@ -1,6 +1,8 @@
-# Trazabilidad de capacidades (corte vigente 2026-09-28)
+# Trazabilidad de capacidades (corte general 2026-09-28; revalidación focal 2026-10-01)
 
 Esta matriz clasifica **capacidades delimitadas**, no todos los métodos de los 68 controllers existentes. La evidencia es código ejecutable primero; las pruebas se describen en [TESTING](../TESTING.md). `IMPLEMENTADO_Y_VERIFICADO` solo acredita la operación citada, no un flujo de producción ni proveedores externos. Para detalle comercial, [FEATURES](../FEATURES.md) conserva tablas históricas y de contrato objetivo; no prevalece sobre esta sección ni sobre [PRODUCT_SCOPE](../PRODUCT_SCOPE.md).
+
+En 2026-10-01 se revalidaron específicamente NFC y la consulta de contacto de reportes de pérdida; las demás filas mantienen el corte anterior y no se reauditaron en esa fecha.
 
 ## Capacidades solicitadas: estado vigente
 

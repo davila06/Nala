@@ -8,8 +8,8 @@ export function ProfileDemoForm() {
           El registro y los datos de tu mascota se gestionan en la app de PawTrack CR. Este sitio no solicita ni
           almacena información personal.
         </p>
-        <a className="button button-dark form-submit" href={getProductUrl("/register")}>
-          Crear cuenta en NALA <span aria-hidden="true">↗</span>
+        <a className="button button-dark form-submit" href={getProductUrl("/login")}>
+          Crear cuenta o iniciar sesión en NALA <span aria-hidden="true">↗</span>
         </a>
       </div>
       <aside aria-live="polite" className="profile-preview">

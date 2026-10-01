@@ -1,7 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { getProductUrl } from "../lib/site-config";
 
 export function SiteHeader() {
+  const pathname = usePathname();
+  const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`);
+
   return (
     <header className="site-header">
       <div className="header-inner">
@@ -9,16 +15,24 @@ export function SiteHeader() {
           <span aria-hidden="true" className="brand-mark">
             n
           </span>
-          <span>NALA</span>
+          <span>PawTrack CR</span>
         </Link>
         <nav aria-label="Navegación principal" className="desktop-nav">
-          <Link href="/features">Qué puedes hacer</Link>
-          <Link href="/lost-pets">Mascotas perdidas</Link>
-          <Link href="/plans">Planes</Link>
-          <Link href="/business">Organizaciones</Link>
+          <Link aria-current={isActive("/features") ? "page" : undefined} href="/features">
+            Qué puedes hacer
+          </Link>
+          <Link aria-current={isActive("/lost-pets") ? "page" : undefined} href="/lost-pets">
+            Mascotas perdidas
+          </Link>
+          <Link aria-current={isActive("/plans") ? "page" : undefined} href="/plans">
+            Planes
+          </Link>
+          <Link aria-current={isActive("/business") ? "page" : undefined} href="/business">
+            Organizaciones
+          </Link>
         </nav>
-        <a className="button button-small header-cta" href={getProductUrl("/register")}>
-          Crear perfil <span aria-hidden="true">↗</span>
+        <a className="button button-small header-cta" href={getProductUrl("/login")}>
+          Abrir PawTrack <span aria-hidden="true">↗</span>
         </a>
         <details className="mobile-menu">
           <summary aria-label="Abrir menú de navegación">
@@ -26,12 +40,24 @@ export function SiteHeader() {
             <span />
           </summary>
           <nav aria-label="Navegación móvil">
-            <Link href="/features">Qué puedes hacer</Link>
-            <Link href="/lost-pets">Mascotas perdidas</Link>
-            <Link href="/found-pets">Encontré una mascota</Link>
-            <Link href="/plans">Planes</Link>
-            <Link href="/business">Organizaciones</Link>
-            <a href={getProductUrl("/register")}>Crear perfil</a>
+            <Link aria-current={isActive("/features") ? "page" : undefined} href="/features">
+              Qué puedes hacer
+            </Link>
+            <Link aria-current={isActive("/lost-pets") ? "page" : undefined} href="/lost-pets">
+              Mascotas perdidas
+            </Link>
+            <Link aria-current={isActive("/found-pets") ? "page" : undefined} href="/found-pets">
+              Encontré una mascota
+            </Link>
+            <Link aria-current={isActive("/plans") ? "page" : undefined} href="/plans">
+              Planes
+            </Link>
+            <Link aria-current={isActive("/business") ? "page" : undefined} href="/business">
+              Organizaciones
+            </Link>
+            <a href={getProductUrl("/login")}>
+              Abrir PawTrack <span aria-hidden="true">↗</span>
+            </a>
           </nav>
         </details>
       </div>
@@ -48,7 +74,7 @@ export function SiteFooter() {
             <span aria-hidden="true" className="brand-mark">
               n
             </span>
-            <span>NALA</span>
+            <span>PawTrack CR</span>
           </Link>
           <p>PawTrack CR · Núcleo de Animal de Localización y Asistencia (NALA).</p>
         </div>

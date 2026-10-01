@@ -30,6 +30,7 @@ public sealed class CreateSubscriptionCommandHandlerTests
     {
         var userId = Guid.NewGuid();
         var plan = SubscriptionPlan.Create(SubscriptionTier.UserPlus, "Plus", "Plan Plus", 2990m, null);
+        plan.ApproveForCommercialPublication(Guid.NewGuid(), "TEST-APPROVAL");
         _planRepo.GetByTierAsync(SubscriptionTier.UserPlus, Arg.Any<CancellationToken>()).Returns(plan);
         _subscriptionRepo.GetActiveForUserAsync(userId, Arg.Any<CancellationToken>()).Returns((Subscription?)null);
 
@@ -43,10 +44,46 @@ public sealed class CreateSubscriptionCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_UsesMonthlyPriceFromPlanCatalog_WhenItDiffersFromLegacyReference()
+    {
+        var userId = Guid.NewGuid();
+        var plan = SubscriptionPlan.Create(SubscriptionTier.UserPlus, "Plus", "Plan Plus", 3000m, null);
+        plan.ApproveForCommercialPublication(Guid.NewGuid(), "TEST-APPROVAL");
+        _planRepo.GetByTierAsync(SubscriptionTier.UserPlus, Arg.Any<CancellationToken>()).Returns(plan);
+        _subscriptionRepo.GetActiveForUserAsync(userId, Arg.Any<CancellationToken>()).Returns((Subscription?)null);
+
+        var sut = CreateSut();
+        var result = await sut.Handle(
+            new CreateSubscriptionCommand(userId, null, userId, SubscriptionTier.UserPlus, 1, RequiresInvoice: false),
+            CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.AmountCrc.Should().Be(3000m);
+    }
+
+    [Fact]
+    public async Task Handle_WhenPlanIsNotCommerciallyApproved_ReturnsFailure()
+    {
+        var userId = Guid.NewGuid();
+        var plan = SubscriptionPlan.Create(SubscriptionTier.UserPlus, "Plus", "Plan Plus", 3000m, null);
+        _planRepo.GetByTierAsync(SubscriptionTier.UserPlus, Arg.Any<CancellationToken>()).Returns(plan);
+
+        var sut = CreateSut();
+        var result = await sut.Handle(
+            new CreateSubscriptionCommand(userId, null, userId, SubscriptionTier.UserPlus, 1, RequiresInvoice: false),
+            CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain("Subscription plan is not approved for commercial publication.");
+        await _subscriptionRepo.DidNotReceive().AddAsync(Arg.Any<Subscription>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task Handle_WhenRequiresInvoiceIsTrue_AddsThirteenPercentIvaToServiceCost()
     {
         var userId = Guid.NewGuid();
         var plan = SubscriptionPlan.Create(SubscriptionTier.UserPlus, "Plus", "Plan Plus", 2990m, null);
+        plan.ApproveForCommercialPublication(Guid.NewGuid(), "TEST-APPROVAL");
         _planRepo.GetByTierAsync(SubscriptionTier.UserPlus, Arg.Any<CancellationToken>()).Returns(plan);
         _subscriptionRepo.GetActiveForUserAsync(userId, Arg.Any<CancellationToken>()).Returns((Subscription?)null);
 
@@ -65,6 +102,7 @@ public sealed class CreateSubscriptionCommandHandlerTests
     {
         var userId = Guid.NewGuid();
         var plan = SubscriptionPlan.Create(SubscriptionTier.UserPlus, "Plus", "Plan Plus", 2990m, null);
+        plan.ApproveForCommercialPublication(Guid.NewGuid(), "TEST-APPROVAL");
         _planRepo.GetByTierAsync(SubscriptionTier.UserPlus, Arg.Any<CancellationToken>()).Returns(plan);
         _subscriptionRepo.GetActiveForUserAsync(userId, Arg.Any<CancellationToken>()).Returns((Subscription?)null);
 

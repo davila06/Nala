@@ -161,7 +161,7 @@ function BrandPanel() {
           <span className="font-display text-2xl font-semibold tracking-tight">PawTrack CR</span>
         </div>
         <p className="mt-1.5 pl-13 text-[11px] font-semibold uppercase tracking-widest text-brand-300">
-          NALA · Núcleo de Ayuda y Localización Animal
+          PawTrack CR · Núcleo de Animal de Localización y Asistencia (NALA)
         </p>
       </div>
 
@@ -473,7 +473,7 @@ export default function LoginPage() {
             <span className="font-display text-xl font-semibold text-sand-900">PawTrack CR</span>
           </div>
           <p className="text-[10px] font-semibold uppercase tracking-widest text-copy-muted">
-            NALA · Núcleo de Ayuda y Localización Animal
+            PawTrack CR · Núcleo de Animal de Localización y Asistencia (NALA)
           </p>
         </div>
 

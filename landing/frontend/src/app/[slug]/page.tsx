@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { getLoginUrl, getProductUrl } from "@/lib/site-config";
+import { PublicPlansCatalog } from "@/components/public-plans-catalog";
 
 type PageDefinition = {
   eyebrow: string;
@@ -19,33 +21,33 @@ type PageDefinition = {
 const pages: Record<string, PageDefinition> = {
   about: {
     eyebrow: "QUIÉNES SOMOS",
-    title: "Una vida mejor y más segura para cada mascota.",
-    lead: "NALA nace para conectar la identidad, el cuidado y las personas que ayudan a que una mascota vuelva a casa.",
+    title: "PawTrack CR · Núcleo de Animal de Localización y Asistencia (NALA).",
+    lead: "PawTrack CR reúne herramientas de identidad, recuperación y cuidado animal para Costa Rica.",
     detail:
-      "Nuestra visión empieza en Costa Rica y se construye con transparencia, respeto por los datos y colaboración local.",
+      "El nombre NALA de esta página sigue la denominación indicada por el responsable del producto. Otras superficies del repositorio y los documentos legales conservan nombres distintos o pendientes de definición.",
     points: [
-      "La recuperación no debería depender de poder pagar.",
-      "Cada tecnología debe explicar con claridad qué hace y qué no.",
-      "La confianza se gana con evidencia, consentimiento y atención responsable.",
+      "El código contiene perfiles de mascotas, QR, reportes y módulos de salud; no equivale a disponibilidad productiva.",
+      "QR, NFC, GPS, atención clínica remota y servicios externos tienen alcances distintos.",
+      "No publicamos resultados, alianzas ni aprobaciones que no estén verificadas.",
     ],
-    primaryLabel: "Conocer la propuesta",
+    primaryLabel: "Ver capacidades y límites",
     primaryHref: "/features",
-    secondaryLabel: "Contactar a NALA",
+    secondaryLabel: "Estado de contacto",
     secondaryHref: "/contact",
   },
   "lost-pets": {
     eyebrow: "AYUDA PARA VOLVER A CASA",
     title: "Cuando se pierde, cada persona que sabe puede ayudar.",
-    lead: "Una ruta sencilla para preparar un aviso, compartir información útil y mantener el contacto protegido.",
+    lead: "La app incluye un flujo para iniciar y organizar reportes de pérdida; el landing no recibe datos del caso.",
     detail:
-      "La recuperación básica debe estar disponible sin pagar. No prometemos resultados ni mostramos datos personales por defecto.",
+      "El flujo requiere iniciar sesión y elegir una mascota registrada. Revisa qué datos de contacto compartes antes de activar un reporte.",
     points: [
       "Prepara una descripción que ayude a reconocer a tu mascota.",
       "Comparte una zona aproximada, no tu domicilio.",
-      "Usa un canal seguro para recibir información y reportar estafas.",
+      "Consulta quién puede acceder a los datos de contacto; no describimos este flujo como un relay anónimo.",
     ],
     primaryLabel: "Continuar en NALA",
-    primaryHref: "/lost-pets/report",
+    primaryHref: getLoginUrl("/lost-pets/report"),
     secondaryLabel: "Encontré una mascota",
     secondaryHref: "/found-pets",
     note: "El reporte se completa en el portal de NALA; esta landing no recibe datos del caso ni envía alertas.",
@@ -53,7 +55,7 @@ const pages: Record<string, PageDefinition> = {
   "found-pets": {
     eyebrow: "GRACIAS POR AYUDAR",
     title: "Encontraste una mascota. El siguiente paso puede acercarla a casa.",
-    lead: "Comparte información segura para que su familia pueda reconocerla y comunicarse contigo.",
+    lead: "La app tiene un flujo para reportar una mascota encontrada; este landing no recopila la ubicación ni datos del caso.",
     detail:
       "No publiques la ubicación exacta de forma abierta ni compartas códigos, datos bancarios o dinero con desconocidos.",
     points: [
@@ -69,34 +71,33 @@ const pages: Record<string, PageDefinition> = {
   },
   plans: {
     eyebrow: "PLANES NALA",
-    title: "El cuidado esencial debe estar al alcance de todos.",
-    lead: "Estamos diseñando opciones claras para tutores, hogares y organizaciones, sin poner la recuperación detrás de un pago.",
+    title: "Planes y precios todavía no publicados.",
+    lead: "PawTrack CR tiene tiers y gates técnicos en el código, pero la oferta, los precios y las condiciones comerciales aún requieren aprobación.",
     detail:
-      "Los nombres y beneficios siguientes son una propuesta. Precios, límites y disponibilidad se definirán mediante investigación local.",
+      "No se puede contratar un plan desde esta landing. La presencia de un tier o un precio en el código no confirma disponibilidad comercial.",
     points: [
-      "Esencial: perfil digital y acceso a reportes básicos.",
-      "Plus y Premium: organización y coordinación avanzada, sujetas a validación.",
-      "Familiar y Empresa: permisos y herramientas según necesidades reales.",
+      "No hay paquetes Esencial/Premium publicados como oferta aprobada.",
+      "Los tiers técnicos varían entre tutores y organizaciones; límites y gates no equivalen a precio vigente.",
+      "Impuestos, contratación, pagos, soporte y disponibilidad deben aprobarse antes de anunciarse.",
     ],
-    primaryLabel: "Crear perfil",
-    primaryHref: "/register",
-    secondaryLabel: "Consultar sobre planes",
-    secondaryHref: "/contact?topic=planes",
-    note: "Todavía no hay precios ni suscripciones disponibles para comprar.",
+    primaryLabel: "Crear cuenta en la app",
+    primaryHref: getProductUrl("/login"),
+    secondaryLabel: "Ver alcance para organizaciones",
+    secondaryHref: "/business",
+    note: "No hay compra de planes ni precios aprobados en este sitio.",
   },
   features: {
     eyebrow: "UNA IDENTIDAD, MUCHAS FORMAS DE CUIDAR",
     title: "La tecnología importa cuando hace más fácil estar presentes.",
     lead: "NALA está concebida como un punto de encuentro entre identificación, recuperación, cuidado preventivo y comunidad.",
-    detail:
-      "La disponibilidad de cada servicio dependerá de su implementación y de aliados habilitados en cada país.",
+    detail: "La disponibilidad de cada servicio dependerá de su implementación y de aliados habilitados en cada país.",
     points: [
       "Identidad digital y perfil de mascota configurable.",
-      "Identificación mediante QR o NFC, complementaria al microchip.",
-      "Historial, recordatorios y acceso a servicios locales cuando estén disponibles.",
+      "QR ejecutable; guía NFC manual con app externa. Hardware y fulfillment no verificados.",
+      "Módulos de expediente y recordatorios; no son diagnóstico ni telemedicina audiovisual.",
     ],
     primaryLabel: "Crear perfil",
-    primaryHref: "/register",
+    primaryHref: getProductUrl("/login"),
     secondaryLabel: "Ver las placas QR",
     secondaryHref: "/qr",
   },
@@ -104,15 +105,14 @@ const pages: Record<string, PageDefinition> = {
     eyebrow: "IDENTIDAD DIGITAL",
     title: "Que lo importante esté donde puede ayudar.",
     lead: "Un perfil digital de mascota puede reunir rasgos identificables, contactos elegidos e información útil para su cuidado.",
-    detail:
-      "El tutor debe poder revisar qué información ve una persona antes de compartir o activar un identificador.",
+    detail: "El tutor debe poder revisar qué información ve una persona antes de compartir o activar un identificador.",
     points: [
-      "Tú controlas qué datos aparecen públicamente.",
-      "Un perfil QR/NFC se abre al escanear o acercar un teléfono.",
+      "Revisa la información visible antes de compartir o activar un perfil.",
+      "El QR abre un perfil al escanearlo; NFC requiere etiqueta compatible y escritura manual externa.",
       "La identidad digital complementa, no reemplaza, el microchip ni la atención veterinaria.",
     ],
     primaryLabel: "Crear perfil",
-    primaryHref: "/register",
+    primaryHref: getProductUrl("/login"),
     secondaryLabel: "Entender las placas QR",
     secondaryHref: "/qr",
   },
@@ -120,222 +120,217 @@ const pages: Record<string, PageDefinition> = {
     eyebrow: "IDENTIFICACIÓN QR",
     title: "Una lectura puede abrir el camino de regreso.",
     lead: "Una placa QR puede enlazar con un perfil que el tutor mantiene actualizado y configura para compartir de forma segura.",
-    detail:
-      "El QR no transmite ubicación en tiempo real. Se necesita conexión para abrir un perfil en línea.",
+    detail: "El QR no transmite ubicación en tiempo real. Se necesita conexión para abrir un perfil en línea.",
     points: [
       "La persona escanea con la cámara de su teléfono.",
       "El tutor elige qué datos de contacto se muestran.",
-      "La placa, materiales, compra y entrega aún no están disponibles en este prototipo.",
+      "El perfil QR está implementado; disponibilidad de placa física, compra y entrega no está verificada.",
     ],
     primaryLabel: "Crear perfil",
-    primaryHref: "/register",
+    primaryHref: getProductUrl("/login"),
     secondaryLabel: "Comparar QR y NFC",
     secondaryHref: "/nfc",
   },
   nfc: {
     eyebrow: "IDENTIFICACIÓN NFC",
-    title: "Acercar el teléfono. Abrir un perfil seguro.",
-    lead: "NFC permite que un dispositivo compatible abra un enlace al acercarlo a una etiqueta configurada.",
+    title: "Una etiqueta NFC compatible puede abrir una URL configurada.",
+    lead: "La app incluye una guía para escribir manualmente la URL del perfil con NFC Tools, una aplicación externa.",
     detail:
-      "La compatibilidad varía según el teléfono. Un código QR legible puede ser una alternativa útil.",
+      "PawTrack CR no escribe ni valida la etiqueta NFC de forma nativa. La disponibilidad de chips y su entrega no está verificada.",
     points: [
-      "NFC no es GPS ni informa una ubicación sin interacción.",
-      "La configuración debe probarse en los dispositivos objetivo.",
-      "El hardware y la activación todavía no están disponibles para compra.",
+      "La guía requiere una etiqueta compatible y escritura manual mediante una app externa.",
+      "La lectura depende del teléfono y del chip; debe comprobarse en los dispositivos que se usarán.",
+      "NFC no es GPS; el bundle modelado no confirma compra, stock ni fulfillment.",
     ],
-    primaryLabel: "Conocer el perfil digital",
-    primaryHref: "/pet-id",
+    primaryLabel: "Crear cuenta en la app",
+    primaryHref: getProductUrl("/login"),
     secondaryLabel: "Ver identificación QR",
     secondaryHref: "/qr",
   },
   telemedicine: {
     eyebrow: "SALUD Y ORIENTACIÓN",
-    title: "Atención veterinaria conectada, con profesionales reales.",
-    lead: "La telemedicina es parte de la visión de NALA y solo debe ofrecerse donde haya profesionales habilitados y un servicio operativo.",
+    title: "La telemedicina audiovisual no está disponible.",
+    lead: "PawTrack CR incluye consultas clínicas administrativas, pero el repositorio no implementa consultas veterinarias por video o audio.",
     detail:
-      "Una consulta remota no es apropiada para todas las situaciones. Ante una emergencia, busca atención veterinaria presencial inmediata.",
+      "No hay sala audiovisual, emisión de tokens, grabación ni integración Azure Communication Services (ACS). Esta página no agenda una consulta remota.",
     points: [
-      "Verificación profesional según las reglas del país.",
-      "Alcance, precio, horario y privacidad visibles antes de reservar.",
-      "La inteligencia artificial no diagnostica ni reemplaza al veterinario.",
+      "Una consulta registrada en la app no equivale a atención remota.",
+      "No se verificó operación de profesionales o proveedores externos.",
+      "PawTrack CR no ofrece diagnóstico y no reemplaza la atención veterinaria.",
     ],
-    primaryLabel: "Consultar disponibilidad",
-    primaryHref: "/contact?topic=telemedicina",
-    secondaryLabel: "Ver clínicas",
-    secondaryHref: "/clinics",
-    note: "Las consultas veterinarias no están disponibles desde este prototipo.",
+    primaryLabel: "Ver capacidades clínicas",
+    primaryHref: "/clinics",
+    secondaryLabel: "Ver estado para organizaciones",
+    secondaryHref: "/business",
   },
   marketplace: {
     eyebrow: "PRODUCTOS Y SERVICIOS",
-    title: "Un espacio para encontrar lo que acompaña su bienestar.",
-    lead: "La propuesta de marketplace conecta a tutores con proveedores y servicios locales, con información clara para comprar con confianza.",
+    title: "Directorios y reservas parciales; operación comercial pendiente.",
+    lead: "El producto contiene directorios, servicios, reservas y pedidos, pero esta landing no publica un catálogo para compra.",
     detail:
-      "Antes de habilitar transacciones, cada vendedor, método de pago, entrega y política de devolución debe estar verificado.",
+      "Los pagos de reservas son manuales y no se acredita inventario transaccional, payout, comisión aprobada ni entrega comercial activa.",
     points: [
-      "Precios, disponibilidad y costos de envío transparentes.",
-      "Vendedores y servicios con alcance claramente identificado.",
-      "No hay productos ni pagos activos en este prototipo.",
+      "Una solicitud o reserva no prueba que un pago haya sido liquidado.",
+      "Las tiendas administran disponibilidad y entrega; no se garantiza inventario.",
+      "Membresías, comisión, precios y operación de proveedores no son oferta aprobada.",
     ],
-    primaryLabel: "Proponer un proveedor",
-    primaryHref: "/contact?topic=marketplace",
-    secondaryLabel: "Ver identificación QR",
+    primaryLabel: "Ver el alcance para organizaciones",
+    primaryHref: "/business",
+    secondaryLabel: "Conocer identificación QR",
     secondaryHref: "/qr",
   },
   community: {
     eyebrow: "COMUNIDAD",
-    title: "Una red se construye con ayuda que sí llega.",
-    lead: "La comunidad NALA está pensada para conectar tutores, personas que encuentran mascotas y organizaciones locales.",
+    title: "Una red local requiere operación y acuerdos verificables.",
+    lead: "La app contiene reportes y flujos de coordinación; no se ha verificado una comunidad pública con cobertura, moderación o SLA operativos.",
     detail:
-      "La participación necesita moderación, controles contra estafas y privacidad por defecto.",
+      "El landing no publica avisos. Una función en el producto no acredita aliados conectados ni atención activa en cada territorio.",
     points: [
-      "Comparte alertas con información útil y limitada.",
-      "Reporta contenido abusivo o sospechoso.",
-      "Las funciones comunitarias todavía no están activas.",
+      "Los reportes de pérdida, hallazgo y avistamiento existen en la app.",
+      "La cobertura geográfica, moderación y respuesta de terceros no están verificadas.",
+      "No se afirma que un aliado o una alerta externa vaya a responder.",
     ],
     primaryLabel: "Ver flujo de mascotas perdidas",
     primaryHref: "/lost-pets",
-    secondaryLabel: "Contactar a NALA",
+    secondaryLabel: "Estado de contacto",
     secondaryHref: "/contact",
   },
   clinics: {
     eyebrow: "PARA CLÍNICAS VETERINARIAS",
-    title: "Más continuidad entre una consulta y el cuidado diario.",
-    lead: "NALA propone herramientas para conectar clínicas con perfiles, documentos y familias, siempre con autorización del tutor.",
+    title: "Módulos clínicos en el producto; disponibilidad por clínica no verificada.",
+    lead: "El código incluye expediente, permisos de acceso y funciones administrativas clínicas; no acredita una clínica afiliada ni una operación en producción.",
     detail:
       "El directorio y cualquier servicio clínico requieren verificar la información profesional y la disponibilidad por jurisdicción.",
     points: [
-      "Perfiles de clínica con datos vigentes y alcance claro.",
-      "Acceso a documentos solo mediante permiso explícito.",
-      "Pilotos, integraciones y telemedicina todavía no están activos.",
+      "El expediente puede compartir información mediante grants y permisos del producto.",
+      "El contenido clínico no equivale a diagnóstico ni a historia clínica externa integrada.",
+      "Pilotos, contratos, disponibilidad de profesionales e integraciones externas no están verificados.",
     ],
-    primaryLabel: "Conversar sobre un piloto",
-    primaryHref: "/contact?topic=clinicas",
-    secondaryLabel: "Conocer la visión de NALA",
+    primaryLabel: "Ver el estado para organizaciones",
+    primaryHref: "/business",
+    secondaryLabel: "Conocer PawTrack CR · NALA",
     secondaryHref: "/about",
   },
   shelters: {
     eyebrow: "PARA REFUGIOS Y ONGs",
-    title: "Cada animal merece una historia clara y un próximo hogar.",
-    lead: "La visión para organizaciones conecta perfiles, información de cuidado, reportes y procesos de adopción con los permisos adecuados.",
-    detail:
-      "NALA no presenta organizaciones como aliadas hasta verificar y acordar formalmente una relación.",
+    title: "Perfiles aliados y adopciones en el producto; alianzas reales no verificadas.",
+    lead: "El código contiene perfiles de aliados y flujos de adopción, pero el repositorio no acredita convenios u operación de refugios afiliados.",
+    detail: "NALA no presenta organizaciones como aliadas hasta verificar y acordar formalmente una relación.",
     points: [
-      "Herramientas para organizar información de cada animal.",
-      "Publicación y coordinación con autorización institucional.",
-      "Aún no hay refugios u ONGs afiliados en este prototipo.",
+      "Existen superficies de publicación y solicitud de adopción en el producto.",
+      "Las organizaciones reales deben revisar y autorizar los datos que publican.",
+      "No hay operación, cobertura ni SLA de una ONG concreta verificados.",
     ],
-    primaryLabel: "Explorar una colaboración",
-    primaryHref: "/contact?topic=refugios",
+    primaryLabel: "Ver capacidades del producto",
+    primaryHref: "/features",
     secondaryLabel: "Ver mascotas encontradas",
     secondaryHref: "/found-pets",
   },
   municipalities: {
     eyebrow: "PARA MUNICIPALIDADES",
-    title: "Mejores datos para coordinar el bienestar animal local.",
-    lead: "NALA explora flujos para gestión de reportes, adopción y coordinación entre instituciones, con métricas agregadas y protección de datos.",
+    title: "Herramientas institucionales en el producto; convenios no verificados.",
+    lead: "El producto incluye perfiles, capturas y reportes municipales internos. No se ha verificado integración oficial, convenio ni operación con una municipalidad.",
     detail:
       "Cada despliegue requerirá evaluación legal, responsable local, alcance, soporte y acuerdos de manejo de información.",
     points: [
-      "Vistas agregadas, no exposición de domicilios o datos personales.",
-      "Procesos y roles definidos junto al gobierno local.",
-      "No hay convenios municipales activos en este prototipo.",
+      "El acceso depende de roles y alcances configurados en el producto.",
+      "Los reportes internos no equivalen a una integración oficial con autoridades.",
+      "No se afirma convenio, despliegue, cobertura ni SLA municipal activo.",
     ],
-    primaryLabel: "Solicitar conversación",
-    primaryHref: "/contact?topic=municipalidades",
+    primaryLabel: "Ver capacidades del producto",
+    primaryHref: "/features",
     secondaryLabel: "Conocer el enfoque de confianza",
     secondaryHref: "/about",
   },
   blog: {
     eyebrow: "RECURSOS",
     title: "Información práctica para cuidar y ayudar mejor.",
-    lead: "La biblioteca editorial de NALA cubrirá identificación, pérdida y hallazgo, cuidado preventivo y adopción responsable.",
+    lead: "La biblioteca de este sitio incluye guías generales sobre identificación, pérdida y hallazgo, cuidado y adopción.",
     detail:
       "Los contenidos de salud deben ser revisados por profesionales y adaptados a las recomendaciones de cada país.",
     points: [
       "Guías de preparación para una búsqueda de mascota perdida.",
       "Diferencias entre QR, NFC, microchip y GPS.",
-      "La biblioteca de artículos todavía está en preparación.",
+      "El contenido es informativo, puede variar por localidad y no sustituye atención profesional.",
     ],
     primaryLabel: "Ver el flujo de recuperación",
     primaryHref: "/lost-pets",
-    secondaryLabel: "Contactar a NALA",
-    secondaryHref: "/contact",
+    secondaryLabel: "Ver capacidades y límites",
+    secondaryHref: "/features",
   },
   contact: {
-    eyebrow: "HABLEMOS",
-    title: "Construyamos una mejor forma de cuidarles.",
-    lead: "Cuéntanos si eres tutor, clínica, refugio, ONG, municipalidad o proveedor y qué problema necesitas resolver.",
+    eyebrow: "CANALES DE CONTACTO",
+    title: "Este sitio no es un canal oficial de soporte.",
+    lead: "No hay formulario ni canal de contacto habilitado en este sitio. No envíes aquí datos personales, clínicos o de una mascota perdida.",
     detail:
-      "Este portal es un prototipo y todavía no procesa mensajes. No incluyas información personal o datos de salud en formularios de prueba.",
+      "Este landing informa el alcance del producto y no sustituye un soporte oficial, un canal comercial ni una negociación con organizaciones o aliados.",
     points: [
-      "Tutores: comparte necesidades y prioridades.",
-      "Organizaciones: describe brevemente tu contexto y país.",
-      "No uses este contacto para una emergencia veterinaria o una mascota perdida activa.",
+      "Para una pérdida o hallazgo, continúa en la app de PawTrack CR y usa los flujos operativos del producto.",
+      "Ante una urgencia veterinaria, contacta servicios locales de emergencia veterinaria.",
+      "Las conversaciones piloto, solicitudes de aliados, soporte comercial y aprobaciones no se procesan desde este landing.",
     ],
-    primaryLabel: "Explorar soluciones para organizaciones",
+    primaryLabel: "Ver información para organizaciones",
     primaryHref: "/business",
     secondaryLabel: "Volver al inicio",
     secondaryHref: "/",
-    note: "Los canales de soporte se publicarán cuando estén habilitados.",
+    note: "La página es informativa y no recibe ni almacena mensajes ni datos de contacto.",
   },
   business: {
     eyebrow: "NALA PARA ORGANIZACIONES",
-    title: "Conecta a quienes hacen posible el bienestar animal.",
-    lead: "Clínicas, refugios, ONGs, municipalidades y empresas tienen necesidades distintas. NALA debe resolverlas con flujos y acuerdos claros.",
-    detail:
-      "Selecciona un contexto para revisar la propuesta; todavía no se ofrecen demos ni pilotos activos.",
+    title: "PawTrack CR para organizaciones: módulos y límites actuales.",
+    lead: "El repositorio incluye módulos para clínicas, aliados, adopciones, proveedores y municipalidades; no acredita acuerdos o servicios operativos con organizaciones reales.",
+    detail: "No hay un formulario comercial, demo, piloto, contrato ni SLA disponible desde esta página.",
     points: [
-      "Clínicas: continuidad de cuidado y perfiles autorizados.",
-      "Refugios: información y coordinación de adopción.",
-      "Municipalidades y empresas: datos agregados e integraciones responsables.",
+      "Clínicas: expediente y grants de acceso en código; profesionales/centros externos no verificados.",
+      "Refugios: perfiles y adopciones en código; organizaciones afiliadas no verificadas.",
+      "Municipalidades: captura y reportes internos; convenios e integraciones oficiales no verificados.",
     ],
-    primaryLabel: "Ver propuesta para clínicas",
+    primaryLabel: "Ver capacidades clínicas",
     primaryHref: "/clinics",
-    secondaryLabel: "Ver propuesta para refugios",
+    secondaryLabel: "Ver capacidades para refugios",
     secondaryHref: "/shelters",
   },
   privacy: {
     eyebrow: "PRIVACIDAD",
-    title: "Tus datos y los de tu mascota merecen cuidado.",
-    lead: "La privacidad es un requisito de diseño: recopilar lo mínimo, explicar los usos y dar control sobre lo que se comparte.",
+    title: "Privacidad: revisa los avisos antes de usar la app.",
+    lead: "Este landing no solicita ni almacena información personal. La app y sus flujos tienen avisos y controles propios.",
     detail:
-      "Esta página explica principios del prototipo, no es una política legal definitiva. Se publicará una política revisada por jurisdicción antes de recopilar datos.",
+      "Los Términos y la Política de Privacidad del repositorio están marcados como draft y requieren completar datos del responsable y revisión jurídica antes de publicarse como vigentes.",
     points: [
-      "No compartas información personal a través de esta landing.",
-      "Las ubicaciones públicas deben ser aproximadas.",
-      "Consulta los avisos del producto antes de compartir información en sus flujos.",
+      "No envíes información personal, de salud ni ubicación en este sitio; no tiene formulario.",
+      "El backend implementa exportación y jobs configurables de retención; operación y ejecución en producción no están verificadas.",
+      "Esta página no es una política aprobada ni una declaración de cumplimiento legal.",
     ],
     primaryLabel: "Volver al inicio",
     primaryHref: "/",
-    secondaryLabel: "Contactar a NALA",
+    secondaryLabel: "Estado de contacto",
     secondaryHref: "/contact",
   },
   accessibility: {
     eyebrow: "ACCESIBILIDAD",
-    title: "La ayuda debe ser accesible para todas las personas.",
-    lead: "Estamos diseñando la experiencia con navegación por teclado, texto legible, estados explícitos y respeto a las preferencias de movimiento.",
-    detail:
-      "Este prototipo aún necesita auditorías manuales y pruebas con personas usuarias antes de afirmar conformidad WCAG.",
+    title: "La accesibilidad requiere pruebas, no solo intención.",
+    lead: "El landing usa navegación semántica y controles HTML, pero esta revisión no certifica su experiencia con teclado, lector de pantalla o ampliación.",
+    detail: "No se ha realizado una auditoría WCAG 2.2 AA de este sitio ni pruebas moderadas con personas usuarias.",
     points: [
-      "Usa Tab para recorrer navegación y controles.",
-      "Los formularios muestran etiquetas y errores asociados.",
-      "Contáctanos si una barrera te impide completar una tarea.",
+      "La presencia de etiquetas y landmarks no acredita conformidad WCAG.",
+      "Este landing no contiene un formulario de contacto habilitado.",
+      "La revisión manual con teclado, lector de pantalla y móvil sigue pendiente.",
     ],
     primaryLabel: "Volver al inicio",
     primaryHref: "/",
-    secondaryLabel: "Contactar a NALA",
+    secondaryLabel: "Estado de contacto",
     secondaryHref: "/contact",
   },
   security: {
     eyebrow: "SEGURIDAD Y CONFIANZA",
-    title: "La seguridad se explica. No se promete en abstracto.",
-    lead: "Una experiencia de recuperación debe prevenir exposición de datos, suplantación, estafas y abuso de contacto.",
+    title: "Conoce el alcance del contacto en reportes de pérdida.",
+    lead: "El endpoint de contacto de un caso activo requiere autenticación y tiene rate limit; el código actual no lo restringe al propietario del caso.",
     detail:
-      "Los controles de producción, la atención de incidentes y los canales de reporte deben estar operativos antes de aceptar casos reales.",
+      "El controller y su handler devuelven nombre y teléfono del reporte a cualquier cuenta autenticada. La política de privacidad y los términos deben conciliarse con este comportamiento antes de anunciar contacto mediado.",
     points: [
-      "Contactos mediados en lugar de teléfonos expuestos.",
-      "Ubicación aproximada en páginas públicas.",
-      "Este prototipo no recibe reportes reales ni credenciales.",
+      "Una prueba de rate limit confirma frecuencia limitada, no privacidad por propietario.",
+      "No afirmes que el teléfono se oculta o se transmite por relay.",
+      "No se verificó entorno productivo, respuesta a incidentes ni control de abuso operativo.",
     ],
     primaryLabel: "Ver el flujo de recuperación",
     primaryHref: "/lost-pets",
@@ -350,11 +345,7 @@ export function generateStaticParams() {
 
 export const dynamicParams = false;
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const page = pages[slug];
 
@@ -370,15 +361,18 @@ export async function generateMetadata({
   };
 }
 
-export default async function PublicPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function PublicPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const page = pages[slug];
 
   if (!page) notFound();
+
+  const closingAction =
+    slug === "plans"
+      ? { label: "Ver capacidades para organizaciones", href: "/business" }
+      : slug === "contact"
+        ? { label: "Volver al inicio", href: "/" }
+        : { label: "Abrir PawTrack", href: getProductUrl("/login") };
 
   return (
     <>
@@ -422,10 +416,7 @@ export default async function PublicPage({
             </aside>
           </div>
         </div>
-        <section
-          className="inner-points section-shell"
-          aria-label="Puntos importantes"
-        >
+        <section className="inner-points section-shell" aria-label="Puntos importantes">
           <p className="eyebrow">LO ESENCIAL</p>
           <div className="inner-point-grid">
             {page.points.map((point, index) => (
@@ -435,22 +426,7 @@ export default async function PublicPage({
               </article>
             ))}
           </div>
-          {slug === "plans" ? (
-            <div className="tier-grid" aria-label="Planes en evaluación">
-              {[
-                ["Esencial", "Identidad y acceso básico"],
-                ["Plus", "Organización del cuidado"],
-                ["Premium", "Herramientas avanzadas"],
-                ["Familiar", "Coordinación entre tutores"],
-              ].map(([name, description]) => (
-                <article className="tier-item" key={name}>
-                  <span>EN DEFINICIÓN</span>
-                  <h2>{name}</h2>
-                  <p>{description}</p>
-                </article>
-              ))}
-            </div>
-          ) : null}
+          {slug === "plans" ? <PublicPlansCatalog /> : null}
         </section>
         <section className="inner-bottom section-shell">
           <div>
@@ -461,9 +437,15 @@ export default async function PublicPage({
               <em>Después, lo que escala.</em>
             </h2>
           </div>
-          <Link className="button button-coral" href="/contact">
-            Conversemos <span aria-hidden="true">↗</span>
-          </Link>
+          {closingAction.href.startsWith("http") ? (
+            <a className="button button-coral" href={closingAction.href}>
+              {closingAction.label} <span aria-hidden="true">↗</span>
+            </a>
+          ) : (
+            <Link className="button button-coral" href={closingAction.href}>
+              {closingAction.label} <span aria-hidden="true">↗</span>
+            </Link>
+          )}
         </section>
       </main>
       <SiteFooter />

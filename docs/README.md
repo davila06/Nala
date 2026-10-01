@@ -1,6 +1,6 @@
 # PawTrack CR - Mapa oficial de documentacion
 
-> Fuente de navegacion oficial. Actualizado: 2026-09-28.
+> Fuente de navegacion oficial. Actualizado: 2026-10-01.
 
 La auditoria general contra `backend/src` y `frontend/src` tiene corte
 2026-09-22; el dominio de tiendas y sus documentos operativos se revalidaron
@@ -17,6 +17,10 @@ Informes de la auditoría estratégica 2026-09-28: [estado real del producto](NA
 Fuente principal para decisiones de empaquetado y upselling: [matriz maestra de features, planes y upselling](NALA_FEATURE_PLAN_UPSELL_MATRIX.md). Su inventario de estado actual enlaza al [inventario de funcionalidades](NALA_FEATURE_INVENTORY.md) y al [mapeo de tiers y entitlements](NALA_PLAN_MAPPING.md); las valoraciones y precios para [Costa Rica](NALA_CR_PRICING.md) y [LATAM](NALA_LATAM_PRICING.md) son hipótesis de prueba. Consultar también [análisis de valor](NALA_PLAN_VALUE_ANALYSIS.md), [competencia](NALA_COMPETITIVE_PLAN_ANALYSIS.md), [monetización futura](NALA_ROADMAP_MONETIZATION.md), [unit economics](NALA_UNIT_ECONOMICS.md), [auditoría documental de pricing](NALA_DOCUMENTATION_AUDIT.md) y [resumen ejecutivo de pricing](NALA_PRICING_EXECUTIVE_SUMMARY.md). La matriz distingue tier actual y recomendación; no sustituye el código ni las aprobaciones comerciales.
 
 Guías contrastadas: [arquitectura](ARCHITECTURE.md), [API](API.md), [seguridad](SECURITY.md), [configuración](CONFIGURATION.md), [datos](DATA_MODEL.md), [integraciones](INTEGRATIONS.md), [limitaciones](KNOWN_LIMITATIONS.md), [planes](commercial/PLANS.md), [dominios](domains/MARKETPLACE.md), [edición institucional](editions/MUNICIPAL.md), [crecimiento](growth/GROWTH_ENGINE.md), [preparación IA](ai/AI_READINESS.md) y [negocio](business/BUSINESS_CAPABILITIES.md). Los nuevos documentos no sustituyen los históricos ni acreditan operación en producción.
+
+## Auditoría del landing (2026-10-01)
+
+La [auditoría de contenido público](auditoria/LANDING_CONTENT_AUDIT.md) registra claims revisados, discrepancias de marca, privacidad/contacto, NFC, planes y estados de capacidades. El landing es un canal informativo que enlaza a la PWA; no recibe reportes ni establece por sí solo disponibilidad de producción. Aprobación legal, comercial, operativa y de marca sigue pendiente donde se indica en el informe.
 
 ## AI Knowledge Hub
 

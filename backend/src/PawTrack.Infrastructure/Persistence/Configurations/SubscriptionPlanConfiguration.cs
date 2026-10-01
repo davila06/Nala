@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PawTrack.Domain.Auth;
 using PawTrack.Domain.Subscriptions;
 
 namespace PawTrack.Infrastructure.Persistence.Configurations;
@@ -16,6 +17,12 @@ public sealed class SubscriptionPlanConfiguration : IEntityTypeConfiguration<Sub
         builder.Property(x => x.Description).IsRequired().HasMaxLength(2000);
         builder.Property(x => x.MonthlyPriceCrc).HasColumnType("decimal(12,2)");
         builder.Property(x => x.AnnualPriceCrc).HasColumnType("decimal(12,2)");
+        builder.Property(x => x.CommercialApprovalReference).HasMaxLength(200);
+        builder.Ignore(x => x.IsCommerciallyApproved);
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(x => x.CommercialApprovedByUserId)
+            .OnDelete(DeleteBehavior.SetNull);
         builder.Property(x => x.Version).IsConcurrencyToken();
         builder.HasIndex(x => x.Tier).IsUnique();
         builder.HasIndex(x => x.IsActive);

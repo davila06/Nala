@@ -30,6 +30,8 @@ public sealed class CreateSubscriptionCommandHandler(
         var plan = await planRepository.GetByTierAsync(request.Tier, cancellationToken);
         if (plan is null || !plan.IsActive)
             return Result.Failure<SubscriptionDto>($"Tier {request.Tier} is not an active paid plan.");
+        if (!plan.IsCommerciallyApproved)
+            return Result.Failure<SubscriptionDto>("Subscription plan is not approved for commercial publication.");
 
         if (SubscriptionPricing.IsUserTermTier(request.Tier) && plan.MonthlyPriceCrc is null)
             return Result.Failure<SubscriptionDto>("This user plan has no monthly price configured.");

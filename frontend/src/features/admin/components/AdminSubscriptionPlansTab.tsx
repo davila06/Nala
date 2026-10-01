@@ -4,10 +4,13 @@ import type { SubscriptionPlanDto } from "../api/adminApi";
 import {
   useCreateSubscriptionPlan,
   useDeleteSubscriptionPlan,
+  useApproveSubscriptionPlan,
+  useRevokeSubscriptionPlanApproval,
   useSubscriptionPlans,
   useUpdateSubscriptionPlan,
 } from "../hooks/useAdmin";
 import { toast } from "@/shared/lib/toast";
+import { Modal } from "@/shared/ui/Modal";
 
 const PLAN_TIERS: SubscriptionTier[] = [
   "UserPlus",
@@ -38,6 +41,8 @@ const emptyForm: FormState = {
   annualPriceCrc: "",
 };
 
+const APPROVAL_REFERENCE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:\/-]{2,199}$/;
+
 function toPayload(form: FormState) {
   return {
     tier: form.tier,
@@ -53,8 +58,12 @@ export function AdminSubscriptionPlansTab() {
   const createPlan = useCreateSubscriptionPlan();
   const updatePlan = useUpdateSubscriptionPlan();
   const deletePlan = useDeleteSubscriptionPlan();
+  const approvePlan = useApproveSubscriptionPlan();
+  const revokePlanApproval = useRevokeSubscriptionPlanApproval();
   const [form, setForm] = useState<FormState>(emptyForm);
   const [editing, setEditing] = useState<SubscriptionPlanDto | null>(null);
+  const [approvalPlan, setApprovalPlan] = useState<SubscriptionPlanDto | null>(null);
+  const [approvalReference, setApprovalReference] = useState("");
 
   const startEdit = (plan: SubscriptionPlanDto) => {
     setEditing(plan);
@@ -102,6 +111,42 @@ export function AdminSubscriptionPlansTab() {
     }
   };
 
+  const submitCommercialApproval = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!approvalPlan) return;
+    const normalizedReference = approvalReference.trim();
+    if (!APPROVAL_REFERENCE_PATTERN.test(normalizedReference)) return;
+
+    try {
+      await approvePlan.mutateAsync({
+        id: approvalPlan.id,
+        version: approvalPlan.version,
+        approvalReference: normalizedReference,
+      });
+      toast.success("Aprobación comercial registrada");
+      setApprovalPlan(null);
+      setApprovalReference("");
+    } catch {
+      toast.error("No se pudo aprobar el plan; puede haber cambiado o faltar una referencia válida");
+    }
+  };
+
+  const revokeCommercialPublication = async (plan: SubscriptionPlanDto) => {
+    if (
+      !window.confirm(
+        `¿Retirar la aprobación comercial de ${plan.displayName}? Dejará de aparecer en el catálogo público.`,
+      )
+    )
+      return;
+
+    try {
+      await revokePlanApproval.mutateAsync({ id: plan.id, version: plan.version });
+      toast.success("Aprobación comercial retirada");
+    } catch {
+      toast.error("No se pudo retirar la aprobación; el plan puede haber cambiado");
+    }
+  };
+
   if (isLoading) return <p className="text-sm text-copy-secondary">Cargando planes...</p>;
   if (isError) return <p className="text-sm text-danger-700">No se pudieron cargar los planes.</p>;
 
@@ -125,6 +170,7 @@ export function AdminSubscriptionPlansTab() {
                 <th className="px-4 py-3">Mensual</th>
                 <th className="px-4 py-3">Anual</th>
                 <th className="px-4 py-3">Estado</th>
+                <th className="px-4 py-3">Publicación comercial</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -142,6 +188,17 @@ export function AdminSubscriptionPlansTab() {
                     {plan.annualPriceCrc ? `₡${plan.annualPriceCrc.toLocaleString("es-CR")}` : "-"}
                   </td>
                   <td className="px-4 py-3">{plan.isActive ? "Activo" : "Inactivo"}</td>
+                  <td className="px-4 py-3">
+                    {plan.isCommerciallyApproved ? (
+                      <span
+                        title={`Aprobado ${plan.commercialApprovedAt ?? ""} · ${plan.commercialApprovalReference ?? ""}`}
+                      >
+                        Aprobado · {plan.commercialApprovalReference}
+                      </span>
+                    ) : (
+                      "Pendiente de aprobación"
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-right">
                     <button
                       type="button"
@@ -157,6 +214,29 @@ export function AdminSubscriptionPlansTab() {
                         onClick={() => void deactivate(plan)}
                       >
                         Desactivar
+                      </button>
+                    )}
+                    {plan.isActive && !plan.isCommerciallyApproved && (
+                      <button
+                        type="button"
+                        disabled={approvePlan.isPending}
+                        className="mr-3 text-xs font-semibold text-rescue-700 disabled:opacity-60"
+                        onClick={() => {
+                          setApprovalPlan(plan);
+                          setApprovalReference("");
+                        }}
+                      >
+                        Aprobar publicación
+                      </button>
+                    )}
+                    {plan.isCommerciallyApproved && (
+                      <button
+                        type="button"
+                        disabled={revokePlanApproval.isPending}
+                        className="text-xs font-semibold text-danger-700 disabled:opacity-60"
+                        onClick={() => void revokeCommercialPublication(plan)}
+                      >
+                        Retirar aprobación
                       </button>
                     )}
                   </td>
@@ -244,6 +324,48 @@ export function AdminSubscriptionPlansTab() {
           {editing ? "Guardar cambios" : "Crear plan"}
         </button>
       </form>
+      <Modal
+        isOpen={Boolean(approvalPlan)}
+        onClose={() => setApprovalPlan(null)}
+        title={approvalPlan ? `Aprobar publicación: ${approvalPlan.displayName}` : undefined}
+      >
+        <p id="commercial-approval-help" className="text-sm text-copy-secondary">
+          Registra el identificador de la evidencia aprobada. No incluyas datos personales ni el documento legal.
+        </p>
+        <form onSubmit={(event) => void submitCommercialApproval(event)} className="mt-4 space-y-4">
+          <label htmlFor="commercial-approval-reference" className="block text-sm font-semibold text-copy-secondary">
+            Referencia de aprobación
+          </label>
+          <input
+            id="commercial-approval-reference"
+            aria-describedby="commercial-approval-help"
+            autoFocus
+            required
+            minLength={3}
+            maxLength={200}
+            pattern="[A-Za-z0-9][A-Za-z0-9._:/-]{2,199}"
+            value={approvalReference}
+            onChange={(event) => setApprovalReference(event.target.value)}
+            className="w-full rounded-lg border border-sand-300 px-3 py-2 text-sm"
+          />
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              className="rounded-lg border border-sand-300 px-3 py-2 text-sm font-semibold text-copy-secondary"
+              onClick={() => setApprovalPlan(null)}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={approvePlan.isPending || !APPROVAL_REFERENCE_PATTERN.test(approvalReference.trim())}
+              className="rounded-lg bg-rescue-600 px-3 py-2 text-sm font-bold text-white disabled:opacity-60"
+            >
+              Registrar aprobación
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

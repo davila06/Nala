@@ -45,6 +45,8 @@ public enum AuditAction
     SubscriptionRenewed,
     SubscriptionRenewalFailed,
     SubscriptionAddonReplaced,
+    SubscriptionPlanCommerciallyApproved,
+    SubscriptionPlanCommercialApprovalRevoked,
 
     // Privileged access
     SuperAdminAssigned,

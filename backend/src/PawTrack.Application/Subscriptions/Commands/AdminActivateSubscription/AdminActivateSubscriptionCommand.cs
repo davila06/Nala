@@ -16,6 +16,7 @@ public sealed record AdminActivateSubscriptionCommand(Guid SubscriptionId, int B
 
 public sealed class AdminActivateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
+    ISubscriptionPlanRepository planRepository,
     IClinicRepository clinicRepository,
     IStoreRepository storeRepository,
     IMunicipalProfileRepository municipalRepo,
@@ -32,6 +33,12 @@ public sealed class AdminActivateSubscriptionCommandHandler(
 
         if (sub.Status == SubscriptionStatus.Active)
             return Result.Failure<SubscriptionDto>("Subscription is already active.");
+
+        var plan = await planRepository.GetByTierAsync(sub.Tier, cancellationToken);
+        if (plan is null || !plan.IsActive)
+            return Result.Failure<SubscriptionDto>($"Tier {sub.Tier} is not an active paid plan.");
+        if (!plan.IsCommerciallyApproved)
+            return Result.Failure<SubscriptionDto>("Subscription plan is not approved for commercial publication.");
 
         var billingMonths = SubscriptionPricing.IsMunicipalTier(sub.Tier)
             ? 12

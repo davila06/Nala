@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   },
   description:
     "PawTrack CR, NALA: identidad digital, información y flujos de recuperación y cuidado animal para Costa Rica.",
-  applicationName: "NALA",
+  applicationName: "PawTrack CR · NALA",
   category: "Pets and animal welfare",
   openGraph: {
     type: "website",

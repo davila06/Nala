@@ -6,15 +6,15 @@ namespace PawTrack.UnitTests.Subscriptions.Domain;
 public sealed class SubscriptionPricingTests
 {
     [Theory]
-    [InlineData(1, 2990)]
-    [InlineData(3, 8970)]
-    [InlineData(6, 17940)]
-    [InlineData(12, 28704)]
+    [InlineData(1, 1000)]
+    [InlineData(3, 3000)]
+    [InlineData(6, 6000)]
+    [InlineData(12, 9600)]
     public void CalculateTermPriceCrc_AppliesAnnualDiscountOnlyAtTwelveMonths(
         int billingMonths,
         decimal expectedAmount)
     {
-        var amount = SubscriptionPricing.CalculateTermPriceCrc(2990m, billingMonths);
+        var amount = SubscriptionPricing.CalculateTermPriceCrc(1000m, billingMonths);
 
         amount.Should().Be(expectedAmount);
     }
@@ -27,7 +27,7 @@ public sealed class SubscriptionPricingTests
     [InlineData(13)]
     public void CalculateTermPriceCrc_RejectsUnsupportedBillingMonths(int billingMonths)
     {
-        var act = () => SubscriptionPricing.CalculateTermPriceCrc(2990m, billingMonths);
+        var act = () => SubscriptionPricing.CalculateTermPriceCrc(1000m, billingMonths);
 
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
@@ -40,12 +40,11 @@ public sealed class SubscriptionPricingTests
     [InlineData(SubscriptionTier.StorePlus)]
     [InlineData(SubscriptionTier.StorePartner)]
     [InlineData(SubscriptionTier.ShelterPlus)]
-    public void TryGetMonthlyPriceCrc_PaidTier_ReturnsPositiveAmount(SubscriptionTier tier)
+    [InlineData(SubscriptionTier.MuniBasica)]
+    [InlineData(SubscriptionTier.MuniFull)]
+    [InlineData(SubscriptionTier.MuniRedRegional)]
+    public void IsPaidTier_ReturnsTrueForBillableTiers(SubscriptionTier tier)
     {
-        var found = SubscriptionPricing.TryGetMonthlyPriceCrc(tier, out var amount);
-
-        found.Should().BeTrue();
-        amount.Should().BeGreaterThan(0);
         SubscriptionPricing.IsPaidTier(tier).Should().BeTrue();
     }
 
@@ -54,20 +53,17 @@ public sealed class SubscriptionPricingTests
     [InlineData(SubscriptionTier.ClinicBasic)]
     [InlineData(SubscriptionTier.StoreBasic)]
     [InlineData(SubscriptionTier.ShelterBasic)]
-    public void TryGetMonthlyPriceCrc_FreeTier_ReturnsFalse(SubscriptionTier tier)
+    public void IsPaidTier_ReturnsFalseForBaseTiers(SubscriptionTier tier)
     {
-        var found = SubscriptionPricing.TryGetMonthlyPriceCrc(tier, out _);
-
-        found.Should().BeFalse();
         SubscriptionPricing.IsPaidTier(tier).Should().BeFalse();
     }
 
     [Fact]
     public void CalculateIvaAmountCrc_CalculatesThirteenPercentCorrectly()
     {
-        // 2990 * 0.13 = 388.70
-        var iva = SubscriptionPricing.CalculateIvaAmountCrc(2990m);
-        iva.Should().Be(388.70m);
+        // 1000 * 0.13 = 130
+        var iva = SubscriptionPricing.CalculateIvaAmountCrc(1000m);
+        iva.Should().Be(130m);
 
         // 35000 * 0.13 = 4550.00
         var ivaClinic = SubscriptionPricing.CalculateIvaAmountCrc(35000m);
@@ -77,9 +73,9 @@ public sealed class SubscriptionPricingTests
     [Fact]
     public void CalculateTotalWithIvaCrc_AddsThirteenPercentToCostOfService()
     {
-        // 2990 + 388.70 = 3378.70
-        var total = SubscriptionPricing.CalculateTotalWithIvaCrc(2990m);
-        total.Should().Be(3378.70m);
+        // 1000 + 130 = 1130
+        var total = SubscriptionPricing.CalculateTotalWithIvaCrc(1000m);
+        total.Should().Be(1130m);
 
         // 35000 + 4550 = 39550.00
         var totalClinic = SubscriptionPricing.CalculateTotalWithIvaCrc(35000m);
@@ -89,14 +85,14 @@ public sealed class SubscriptionPricingTests
     [Fact]
     public void GetEffectivePriceCrc_WhenRequiresInvoiceIsTrue_AddsThirteenPercentIva()
     {
-        var withInvoice = SubscriptionPricing.GetEffectivePriceCrc(2990m, requiresInvoice: true);
-        withInvoice.Should().Be(3378.70m);
+        var withInvoice = SubscriptionPricing.GetEffectivePriceCrc(1000m, requiresInvoice: true);
+        withInvoice.Should().Be(1130m);
     }
 
     [Fact]
     public void GetEffectivePriceCrc_WhenRequiresInvoiceIsFalse_ReturnsBaseCost()
     {
-        var withoutInvoice = SubscriptionPricing.GetEffectivePriceCrc(2990m, requiresInvoice: false);
-        withoutInvoice.Should().Be(2990m);
+        var withoutInvoice = SubscriptionPricing.GetEffectivePriceCrc(1000m, requiresInvoice: false);
+        withoutInvoice.Should().Be(1000m);
     }
 }

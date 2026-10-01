@@ -23,6 +23,7 @@ public sealed class ScheduleSubscriptionDowngradeCommandHandlerTests
         current.Activate();
         var expiry = current.ExpiresAt!.Value;
         var plan = SubscriptionPlan.Create(SubscriptionTier.ClinicPlus, "Clinic Plus", "Clinic", 15_000m, null);
+        plan.ApproveForCommercialPublication(Guid.NewGuid(), "TEST-APPROVAL");
         payments.GenerateReference().Returns("CLIPLUS1");
         subscriptions.GetByIdAsync(current.Id, Arg.Any<CancellationToken>()).Returns(current);
         plans.GetByTierAsync(SubscriptionTier.ClinicPlus, Arg.Any<CancellationToken>()).Returns(plan);
@@ -45,6 +46,7 @@ public sealed class ScheduleSubscriptionDowngradeCommandHandlerTests
         current.Activate();
         var expiry = current.ExpiresAt!.Value;
         var plan = SubscriptionPlan.Create(SubscriptionTier.StorePlus, "Store Plus", "Store", 12_000m, null);
+        plan.ApproveForCommercialPublication(Guid.NewGuid(), "TEST-APPROVAL");
         payments.GenerateReference().Returns("STRPLUS1");
         subscriptions.GetByIdAsync(current.Id, Arg.Any<CancellationToken>()).Returns(current);
         subscriptions.GetPendingForUserAsync(userId, Arg.Any<CancellationToken>()).Returns((Subscription?)null);
@@ -68,6 +70,7 @@ public sealed class ScheduleSubscriptionDowngradeCommandHandlerTests
         current.Activate();
         var expiry = current.ExpiresAt!.Value;
         var plan = SubscriptionPlan.Create(SubscriptionTier.UserPlus, "Plus", "Plus plan", 2990m, null);
+        plan.ApproveForCommercialPublication(Guid.NewGuid(), "TEST-APPROVAL");
         payments.GenerateReference().Returns("PLUS1234");
         subscriptions.GetByIdAsync(current.Id, Arg.Any<CancellationToken>()).Returns(current);
         subscriptions.GetPendingForUserAsync(userId, Arg.Any<CancellationToken>()).Returns((Subscription?)null);
@@ -101,5 +104,25 @@ public sealed class ScheduleSubscriptionDowngradeCommandHandlerTests
 
         result.IsFailure.Should().BeTrue();
         result.Errors.Should().Contain("Access denied.");
+    }
+
+    [Fact]
+    public async Task Handle_UnapprovedTargetPlan_ReturnsFailure()
+    {
+        var userId = Guid.NewGuid();
+        var current = Subscription.CreateForUser(userId, SubscriptionTier.UserFamilia, "FAM12347", 4990m);
+        current.Activate();
+        var targetPlan = SubscriptionPlan.Create(SubscriptionTier.UserPlus, "Plus", "Plus plan", 3000m, null);
+        subscriptions.GetByIdAsync(current.Id, Arg.Any<CancellationToken>()).Returns(current);
+        subscriptions.GetPendingForUserAsync(userId, Arg.Any<CancellationToken>()).Returns((Subscription?)null);
+        plans.GetByTierAsync(SubscriptionTier.UserPlus, Arg.Any<CancellationToken>()).Returns(targetPlan);
+
+        var result = await new ScheduleSubscriptionDowngradeCommandHandler(
+            subscriptions, plans, payments, unitOfWork).Handle(
+                new ScheduleSubscriptionDowngradeCommand(current.Id, userId, SubscriptionTier.UserPlus), default);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain("The target plan is not approved for commercial publication.");
+        await subscriptions.DidNotReceive().AddAsync(Arg.Any<Subscription>(), Arg.Any<CancellationToken>());
     }
 }

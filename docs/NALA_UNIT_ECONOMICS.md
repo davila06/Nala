@@ -1,6 +1,6 @@
 # Unit economics: modelo inicial y vacíos de evidencia
 
-**Corte:** 2026-09-28. No existe en el repositorio una factura Azure, telemetría de costo/usuario, CAC, ingresos cobrados, churn o GMV. Lo siguiente es un modelo determinista con volúmenes asumidos y precios técnicos codificados; no describe la economía actual de NALA.
+**Corte de modelo:** 2026-09-28. **Revalidación de catálogo local:** 2026-10-01. No existe en el repositorio una factura Azure, telemetría de costo/usuario, CAC, ingresos cobrados, churn o GMV. Los escenarios usan volúmenes hipotéticos; no describen ventas ni economía de producción.
 
 ## Fórmulas necesarias
 
@@ -12,25 +12,25 @@
 
 ## Ingresos brutos en escenarios ilustrativos
 
-Todos los conteos son inputs hipotéticos, no forecast ni ventas observadas. Precio usa `SubscriptionPricing` actual antes de IVA y aprobación. Excluye add-ons, churn, descuentos reales, refunds, impuestos, comisiones de pago, mora, pilotos gratis y costos.
+Todos los conteos son inputs hipotéticos, no forecast ni ventas observadas. Se recalcularon con importes de catálogo observados en PawTrackDev antes de IVA; requieren reemplazo por datos del entorno objetivo. Excluye add-ons, churn, descuentos reales, refunds, impuestos, comisiones de pago, mora, pilotos gratis y costos.
 
 | Escenario de modelado | Dueños activos | Conversión asumida |    Mezcla Plus/Familia | Ingreso dueños/mes | B2B asumido                                                                           | Ingreso total bruto equivalente/mes |
 | --------------------- | -------------: | -----------------: | ---------------------: | -----------------: | ------------------------------------------------------------------------------------- | ----------------------------------: |
-| Conservador           |          1.000 |      1% = 10 pagos |     8 Plus + 2 Familia |            ₡33.820 | 2 ClinicPlus + 1 ClinicPartner + 2 ShelterPlus                                        |                            ₡114.820 |
-| Esperado              |          5.000 |     3% = 150 pagos |  120 Plus + 30 Familia |           ₡508.500 | 8 ClinicPlus + 3 ClinicPartner + 10 ShelterPlus + 1 MuniBasica anual prorrateada      |                            ₡826.000 |
-| Agresivo              |         20.000 |   5% = 1.000 pagos | 800 Plus + 200 Familia |         ₡3.390.000 | 30 ClinicPlus + 10 ClinicPartner + 50 ShelterPlus + 5 MuniBasica anuales prorrateadas |                          ₡4.652.500 |
+| Conservador           |          1.000 |      1% = 10 pagos |     8 Plus + 2 Familia |            ₡33.980 | 2 ClinicPlus + 1 ClinicPartner + 2 ShelterPlus                                        |                            ₡114.980 |
+| Esperado              |          5.000 |     3% = 150 pagos |  120 Plus + 30 Familia |           ₡509.700 | 8 ClinicPlus + 3 ClinicPartner + 10 ShelterPlus + 1 MuniBasica anual prorrateada      |                            ₡827.200 |
+| Agresivo              |         20.000 |   5% = 1.000 pagos | 800 Plus + 200 Familia |         ₡3.398.000 | 30 ClinicPlus + 10 ClinicPartner + 50 ShelterPlus + 5 MuniBasica anuales prorrateadas |                          ₡4.660.500 |
 
-Cálculo reproduce los importes base: Plus ₡2.990, Familia ₡4.990, ClinicPlus ₡15.000, ClinicPartner ₡35.000, ShelterPlus ₡8.000/mes y MuniBasica ₡150.000/año. Estos inputs no reflejan TAM, conversiones, capacidad de soporte, población de Costa Rica, descuentos o aprobación. El escenario agresivo probablemente requiere distribución, personal y operaciones que no se han costeado.
+Cálculo usa importes observados en PawTrackDev: Plus ₡3.000, Familia ₡4.990, ClinicPlus ₡15.000, ClinicPartner ₡35.000, ShelterPlus ₡8.000/mes y MuniBasica ₡150.000/año. No refleja producción, aprobación, TAM, conversiones, capacidad de soporte, población de Costa Rica, descuentos ni costos. El escenario agresivo probablemente requiere distribución, personal y operaciones que no se han costeado.
 
 ## CAC y LTV: techo de prueba, no medición
 
-No hay CAC/LTV real: no se encontró atribución de canal ni churn por cohorte. Esta sensibilidad usa margen bruto hipotético de 40%/70%/85% y churn mensual hipotético de 10%/5%/2%; `CAC payback ceiling` es máximo aritmético para recuperar CAC en seis meses, **no** presupuesto recomendado. Familia/Plus usan precio base anterior a IVA.
+No hay CAC/LTV real: no se encontró atribución de canal ni churn por cohorte. Esta sensibilidad usa margen bruto hipotético de 40%/70%/85% y churn mensual hipotético de 10%/5%/2%; `CAC payback ceiling` es máximo aritmético para recuperar CAC en seis meses, **no** presupuesto recomendado. Plus/Familia toman PawTrackDev (₡3.000/₡4.990) antes de IVA y aprobación.
 
 | Plan           | Escenario margen/churn | LTV bruto teórico | CAC máximo a 6 meses de payback |
 | -------------- | ---------------------- | ----------------: | ------------------------------: |
-| Plus ₡2.990    | 40% / 10%              |           ₡11.960 |                          ₡7.176 |
-| Plus ₡2.990    | 70% / 5%               |           ₡41.860 |                         ₡12.558 |
-| Plus ₡2.990    | 85% / 2%               |          ₡127.075 |                         ₡15.249 |
+| Plus ₡3.000    | 40% / 10%              |           ₡12.000 |                          ₡7.200 |
+| Plus ₡3.000    | 70% / 5%               |           ₡42.000 |                         ₡12.600 |
+| Plus ₡3.000    | 85% / 2%               |          ₡127.500 |                         ₡15.300 |
 | Familia ₡4.990 | 40% / 10%              |           ₡19.960 |                         ₡11.976 |
 | Familia ₡4.990 | 70% / 5%               |           ₡69.860 |                         ₡20.958 |
 | Familia ₡4.990 | 85% / 2%               |          ₡212.075 |                         ₡25.449 |

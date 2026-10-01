@@ -80,6 +80,30 @@ Esta ampliación corrige el estado de los pendientes de entitlements; no reabre 
 
 Resolución: actualizar focalmente §24, este plan, el reporte de brechas y el changelog. Mantener como parcial la gestión de definiciones, la sustitución de fallbacks, los gates de cuotas no migrados, los medidores y las pruebas de cambios de plan; no inferir aprobación comercial/legal ni despliegue.
 
+## Mejoras de planes: fuente de precio y aprobación runtime (2026-10-01)
+
+Se inició la ejecución de las mejoras priorizadas tras una consulta de solo
+lectura a `PawTrackDev` (10 planes activos, 48 entitlements activos; `UserPlus`
+₡3.000/mes). La BD de producción no fue consultada. El monto de una nueva compra
+ya se leía de `SubscriptionPlans`; se retiró la tabla duplicada de importes en
+`SubscriptionPricing` para que conserve solamente reglas de ciclo, IVA y
+clasificación.
+
+Se agregó `AddSubscriptionPlanCommercialApproval` (nullable para fail-closed,
+sin aprobación precargada), referencia de aprobación, actor Admin y timestamp;
+editar/desactivar revoca. Catálogo público usa DTO mínimo y filtra activo +
+aprobado. Nuevas compras, promociones, downgrades, activación SINPE/webhook y
+activación Admin verifican aprobación. Admin puede aprobar/revocar con control
+de versión y evento de auditoría. La referencia es atestación de un Admin, no
+validación automática de una aprobación legal externa.
+
+La migración no se aplicó a PawTrackDev ni a otra base. Al desplegarla, todos
+los planes existentes quedan sin aprobar y el catálogo público queda vacío
+hasta una aprobación deliberada por plan. Renovaciones de términos activos
+conservan su `AmountCrc` aceptado; el tratamiento después de revocar aprobación
+se mantiene como decisión comercial/legal pendiente. No se precargan approvals
+ni se elige un precio comercial.
+
 ## Auditoría de alcance real solicitada (2026-09-28)
 
 Este corte reemplaza la lectura histórica por evidencia actual del repositorio.
@@ -89,24 +113,24 @@ Domain, Infrastructure, migraciones, configuración y pruebas. La auditoría no
 ejecuta despliegues, migraciones ni llamadas a proveedores externos; por tanto,
 un adaptador Azure registrado no acredita operación en Azure.
 
-| Capacidad                    | Estado provisional por evidencia de código                                                                    | Evidencia principal                                                                                               | Límite que debe conservarse                                               |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| Identificación QR            | `IMPLEMENTADO_Y_VERIFICADO`                                                                                   | `PetsController`, `GetPetQrCodeQuery`, `QrCodeService`, `QrCodeDisplay`, pruebas QR                               | No acredita QR físico ni operación de Blob real                           |
-| NFC                          | `PROPUESTO`                                                                                                   | `ai/03_domains/nfc.md`, estrategia; sin controlador, servicio o UI NFC                                            | No hay lectura, vinculación ni persistencia NFC                           |
-| GPS                          | `IMPLEMENTADO_Y_VERIFICADO` para collar/API; `NO_VERIFICADO` para hardware/proveedor                          | módulo `Collars`, `TrackSolidService`, polling, UI de collar, pruebas unitarias/E2E                               | No acredita hardware, SLA, cobertura ni TrackSolid operativo              |
-| Telemedicina                 | `DECLARADO_NO_IMPLEMENTADO` para video/audio; registro clínico presencial parcial                             | `ClinicalConsultation`, `ClinicsController`, limitaciones de telemedicina                                         | No hay sesión audiovisual ni ACS                                          |
-| Expediente veterinario       | `IMPLEMENTADO_Y_VERIFICADO`                                                                                   | módulo Medical, endpoints paginados, adjuntos protegidos, PDF/export, pruebas unitarias/integración/UI ejecutadas | No es EHR externo ni firma clínica certificada                            |
-| Recordatorios de salud       | `IMPLEMENTADO_Y_VERIFICADO` para consulta/mutaciones; job y proveedor externo limitados                       | `VetReminder`, `HealthAlertHostedService`, protocolos, MedicalController, pruebas                                 | No diagnostica ni acredita resultados veterinarios                        |
-| Suscripciones                | `IMPLEMENTADO_Y_VERIFICADO` para catálogo, activación y gates existentes; cuotas aún parciales                | `SubscriptionsController`, `EntitlementService`, persistencia, jobs y pruebas                                     | No acredita oferta comercial ni todos los entitlements                    |
-| Marketplace                  | `IMPLEMENTADO_Y_VERIFICADO` para directorios, servicios y reservas; pagos/inventario parcial                  | `StoresController`, `ServiceProvidersController`, `ProviderBookingsController`, frontend y pruebas                | Pedidos/reservas no prueban pago liquidado ni inventario real             |
-| IA                           | `IMPLEMENTADO_Y_VERIFICADO` para validación/matching visual condicionado; copiloto/RAG/agente no implementado | `AzureVisionEmbeddingService`, visual match, configuración y pruebas                                              | No acredita precisión, autonomía, diagnóstico ni despliegue Azure         |
-| Municipalidades              | `IMPLEMENTADO_Y_VERIFICADO` para perfiles, capturas y reportes internos                                       | `MunicipalController`, Application/Domain Municipalities, pruebas                                                 | No acredita integración oficial con autoridades                           |
-| Refugios                     | `IMPLEMENTADO_Y_VERIFICADO` para aliados/refugios, publicaciones y adopción                                   | `AlliesController`, `AdoptionsController`, perfiles/repositorios, pruebas                                         | No acredita operación de una ONG real ni SLA                              |
-| Veterinarias                 | `IMPLEMENTADO_Y_VERIFICADO` para superficies clínicas registradas y pruebas ejecutadas                        | `ClinicsController`, módulo Clinics, frontend clinic, matrices HTTP                                               | Telemedicina audiovisual y proveedores fiscales externos siguen limitados |
-| Integraciones Azure          | `IMPLEMENTADO_SIN_PRUEBAS` como adaptadores/configuración; operación `NO_VERIFICADO`                          | Blob, SQL, Key Vault, App Insights, Maps, Vision, Container Apps/infra                                            | IaC/SDK/config no demuestra despliegue ni credenciales válidas            |
-| Azure Communication Services | `DECLARADO_NO_IMPLEMENTADO`                                                                                   | ausencia de `Azure.Communication.*`, clientes, configuración y rutas                                              | No confundir `CallClient` de CRM con ACS                                  |
-| Dynamics 365                 | `DECLARADO_NO_IMPLEMENTADO`                                                                                   | ausencia de SDK, endpoints, configuración y conectores                                                            | CRM propio no es Dynamics 365                                             |
-| Power Platform               | `DECLARADO_NO_IMPLEMENTADO`                                                                                   | ausencia de Dataverse, Power Automate, connectors o configuración                                                 | Hosted services propios no son Power Platform                             |
+| Capacidad                    | Estado provisional por evidencia de código                                                                       | Evidencia principal                                                                                               | Límite que debe conservarse                                               |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Identificación QR            | `IMPLEMENTADO_Y_VERIFICADO`                                                                                      | `PetsController`, `GetPetQrCodeQuery`, `QrCodeService`, `QrCodeDisplay`, pruebas QR                               | No acredita QR físico ni operación de Blob real                           |
+| NFC                          | `PARCIALMENTE_IMPLEMENTADO` para guía manual; nativo `DECLARADO_NO_IMPLEMENTADO` (revalidación focal 2026-10-01) | [NfcSetupGuide](../../frontend/src/features/bundles/components/NfcSetupGuide.tsx), `NfcQrCombo`, prueba de precio | Hardware, venta, entrega, compatibilidad y proveedor `NO_VERIFICADO`      |
+| GPS                          | `IMPLEMENTADO_Y_VERIFICADO` para collar/API; `NO_VERIFICADO` para hardware/proveedor                             | módulo `Collars`, `TrackSolidService`, polling, UI de collar, pruebas unitarias/E2E                               | No acredita hardware, SLA, cobertura ni TrackSolid operativo              |
+| Telemedicina                 | `DECLARADO_NO_IMPLEMENTADO` para video/audio; registro clínico presencial parcial                                | `ClinicalConsultation`, `ClinicsController`, limitaciones de telemedicina                                         | No hay sesión audiovisual ni ACS                                          |
+| Expediente veterinario       | `IMPLEMENTADO_Y_VERIFICADO`                                                                                      | módulo Medical, endpoints paginados, adjuntos protegidos, PDF/export, pruebas unitarias/integración/UI ejecutadas | No es EHR externo ni firma clínica certificada                            |
+| Recordatorios de salud       | `IMPLEMENTADO_Y_VERIFICADO` para consulta/mutaciones; job y proveedor externo limitados                          | `VetReminder`, `HealthAlertHostedService`, protocolos, MedicalController, pruebas                                 | No diagnostica ni acredita resultados veterinarios                        |
+| Suscripciones                | `IMPLEMENTADO_Y_VERIFICADO` para catálogo, activación y gates existentes; cuotas aún parciales                   | `SubscriptionsController`, `EntitlementService`, persistencia, jobs y pruebas                                     | No acredita oferta comercial ni todos los entitlements                    |
+| Marketplace                  | `IMPLEMENTADO_Y_VERIFICADO` para directorios, servicios y reservas; pagos/inventario parcial                     | `StoresController`, `ServiceProvidersController`, `ProviderBookingsController`, frontend y pruebas                | Pedidos/reservas no prueban pago liquidado ni inventario real             |
+| IA                           | `IMPLEMENTADO_Y_VERIFICADO` para validación/matching visual condicionado; copiloto/RAG/agente no implementado    | `AzureVisionEmbeddingService`, visual match, configuración y pruebas                                              | No acredita precisión, autonomía, diagnóstico ni despliegue Azure         |
+| Municipalidades              | `IMPLEMENTADO_Y_VERIFICADO` para perfiles, capturas y reportes internos                                          | `MunicipalController`, Application/Domain Municipalities, pruebas                                                 | No acredita integración oficial con autoridades                           |
+| Refugios                     | `IMPLEMENTADO_Y_VERIFICADO` para aliados/refugios, publicaciones y adopción                                      | `AlliesController`, `AdoptionsController`, perfiles/repositorios, pruebas                                         | No acredita operación de una ONG real ni SLA                              |
+| Veterinarias                 | `IMPLEMENTADO_Y_VERIFICADO` para superficies clínicas registradas y pruebas ejecutadas                           | `ClinicsController`, módulo Clinics, frontend clinic, matrices HTTP                                               | Telemedicina audiovisual y proveedores fiscales externos siguen limitados |
+| Integraciones Azure          | `IMPLEMENTADO_SIN_PRUEBAS` como adaptadores/configuración; operación `NO_VERIFICADO`                             | Blob, SQL, Key Vault, App Insights, Maps, Vision, Container Apps/infra                                            | IaC/SDK/config no demuestra despliegue ni credenciales válidas            |
+| Azure Communication Services | `DECLARADO_NO_IMPLEMENTADO`                                                                                      | ausencia de `Azure.Communication.*`, clientes, configuración y rutas                                              | No confundir `CallClient` de CRM con ACS                                  |
+| Dynamics 365                 | `DECLARADO_NO_IMPLEMENTADO`                                                                                      | ausencia de SDK, endpoints, configuración y conectores                                                            | CRM propio no es Dynamics 365                                             |
+| Power Platform               | `DECLARADO_NO_IMPLEMENTADO`                                                                                      | ausencia de Dataverse, Power Automate, connectors o configuración                                                 | Hosted services propios no son Power Platform                             |
 
 ## Entregables y validación de este corte
 
@@ -124,11 +148,20 @@ La validación prevista es `dotnet build`, `dotnet test` de la solución,
 --check`. La ejecución local no certifica staging, producción, proveedores
 externos, Azure Communication Services, Dynamics 365 ni Power Platform.
 
-**Resultado del corte:** 7 capacidades `IMPLEMENTADO_Y_VERIFICADO`, 1
+**Resultado del corte original 2026-09-28:** 7 capacidades `IMPLEMENTADO_Y_VERIFICADO`, 1
 `IMPLEMENTADO_SIN_PRUEBAS` (adaptadores Azure), 3 `PARCIALMENTE_IMPLEMENTADO`,
 1 `PROPUESTO` y 4 `DECLARADO_NO_IMPLEMENTADO`. La cifra de 7 no convierte
 proveedores, hardware o despliegues en operación verificada; esos límites están
 descritos por separado en la matriz.
+
+**Reclasificación focal 2026-10-01:** el SKU `NfcQrCombo` y la guía
+`NfcSetupGuide` elevan NFC de `PROPUESTO` a `PARCIALMENTE_IMPLEMENTADO` para
+configuración asistida externa; no hay pairing/lector nativo y hardware/venta/
+fulfillment no están verificados. Conteo de las 16 filas S01-S16 tras este
+ajuste: 7 `IMPLEMENTADO_Y_VERIFICADO`, 1 `IMPLEMENTADO_SIN_PRUEBAS`, 4
+`PARCIALMENTE_IMPLEMENTADO`, 0 `PROPUESTO` y 4 `DECLARADO_NO_IMPLEMENTADO`.
+Solo se revalidaron NFC y la ruta de contacto; el resto conserva el corte
+anterior y no se afirma una auditoría integral nueva.
 
 ## Ampliación: estrategia de planes, precios y unit economics (2026-09-28)
 
@@ -156,10 +189,12 @@ entregables específicos enumerados abajo.
   `UserFamilia`, `ClinicBasic/Plus/Partner`, `StoreBasic/Plus/Partner`,
   `ShelterBasic/Plus`, `MuniBasica`, `MuniFull` y `MuniRedRegional`; no existe
   una familia actual `Essential/Premium/Family/Veterinary/Enterprise` completa.
-- `SubscriptionPricing.cs` contiene precios CRC de referencia, plazos 1/3/6/12
-  meses y descuento anual del 20%; `PRICING_AND_PLANS.md` declara que venta y
-  aprobación comercial/legal siguen condicionadas. El código no acredita precio
-  cobrado, conversión ni disposición a pagar.
+- En el corte original de esta auditoría, `SubscriptionPricing.cs` se describió
+  como dueño de precios CRC. Esa afirmación quedó obsoleta: al 2026-10-01,
+  `SubscriptionPricing` conserva reglas de ciclos, descuentos, IVA y clasificación,
+  mientras `SubscriptionPlans` provee el importe runtime. PawTrackDev muestra
+  UserPlus ₡3.000/mes, sin verificar producción ni precio aprobado. La aprobación
+  por plan está implementada; la migración generada no se ha aplicado.
 - `EntitlementService.cs` combina entitlements libres, definiciones persistidas
   y fallbacks legacy. Migración `20260921203255_AddEntitlementCatalogAndConsumption`
   y fallbacks coinciden en `UserFamilia.MaxPets=25`; el término “ilimitado” de
@@ -285,18 +320,18 @@ landing.
 
 ### Discrepancias a resolver en la superficie pública
 
-| Prioridad | Discrepancia                                                                                                                                                                                                         | Acción planeada                                                                                                                          | Límite                                                                                                                |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| P0        | El copy promete contacto protegido/mediado, pero `GET /api/lost-pets/{id}/contact` devuelve nombre y teléfono del caso activo a cualquier cuenta autenticada; existe rate limit y prueba que codifica esta decisión. | Quitar promesas de teléfono oculto/relay y documentar revisión de consentimiento/abuso antes de publicar claims de protección.           | No cambiar el backend ni afirmar acceso anónimo; elevar decisión al propietario de seguridad/producto.                |
-| P1        | NFC aparece como función integrada. El código solo guía escritura manual con NFC Tools; un tipo de bundle existe, pero lectura nativa, disponibilidad física y fulfillment no están verificados.                     | Distinguir NFC como etiqueta configurable externa, no GPS ni pairing nativo; señalar disponibilidad no verificada.                       | No afirmar que el bundle se vende/entrega.                                                                            |
-| P1        | El landing enumera Esencial/Plus/Premium/Familiar y productos “activos”. No coincide con tiers técnicos y aprobación comercial/legal pendiente.                                                                      | Retirar paquetes inventados; indicar que no hay precios/planes aprobados para contratar desde la landing.                                | No copiar precios internos ni presentar tiers de código como oferta.                                                  |
-| P1        | Telemedicina, tiendas/marketplace, aliados, community y municipalidad se describen como servicios que podrían interpretarse disponibles o verificados.                                                               | Etiquetar cada superficie como propuesta, parcial o no verificada usando `PRODUCT_SCOPE` y la matriz.                                    | No afirmar cobertura, alianzas, soporte, SLA, pago liquidado ni pilotos activos.                                      |
-| P1        | “Núcleo de Animal de Localización y Asistencia” indicado por el solicitante difiere de la expansión usada en el login; términos y privacidad dejan la relación jurídica de PawTrack CR/NALA pendiente.               | Usar la expansión solicitada solo en el landing y registrar la discrepancia de marca/legal.                                              | Requiere confirmación del responsable de marca y asesoría legal antes de publicar como razón social/marca registrada. |
-| P2        | Blog, privacidad, contacto y accesibilidad contienen avisos obsoletos o acciones que parecen activas.                                                                                                                | Corregir a la existencia real de artículos, controles de exportación/retención, canales no habilitados y ausencia de certificación WCAG. | Implementación de controles no equivale a política aprobada ni cumplimiento legal.                                    |
+| Prioridad | Discrepancia                                                                                                                                                                                                         | Acción planeada                                                                                                                          | Límite                                                                                                           |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| P0        | El copy promete contacto protegido/mediado, pero `GET /api/lost-pets/{id}/contact` devuelve nombre y teléfono del caso activo a cualquier cuenta autenticada; existe rate limit y prueba que codifica esta decisión. | Quitar promesas de teléfono oculto/relay y documentar revisión de consentimiento/abuso antes de publicar claims de protección.           | No cambiar el backend ni afirmar acceso anónimo; elevar decisión al propietario de seguridad/producto.           |
+| P1        | NFC aparece como función integrada. El código solo guía escritura manual con NFC Tools; un tipo de bundle existe, pero lectura nativa, disponibilidad física y fulfillment no están verificados.                     | Distinguir NFC como etiqueta configurable externa, no GPS ni pairing nativo; señalar disponibilidad no verificada.                       | No afirmar que el bundle se vende/entrega.                                                                       |
+| P1        | El landing enumera Esencial/Plus/Premium/Familiar y productos “activos”. No coincide con tiers técnicos y aprobación comercial/legal pendiente.                                                                      | Retirar paquetes inventados; indicar que no hay precios/planes aprobados para contratar desde la landing.                                | No copiar precios internos ni presentar tiers de código como oferta.                                             |
+| P1        | Telemedicina, tiendas/marketplace, aliados, community y municipalidad se describen como servicios que podrían interpretarse disponibles o verificados.                                                               | Etiquetar cada superficie como propuesta, parcial o no verificada usando `PRODUCT_SCOPE` y la matriz.                                    | No afirmar cobertura, alianzas, soporte, SLA, pago liquidado ni pilotos activos.                                 |
+| P1        | “Núcleo de Animal de Localización y Asistencia” difiere de la expansión de documentos históricos; términos y privacidad dejan la relación jurídica de PawTrack CR/NALA pendiente.                                    | Login y landing ya usan la expansión solicitada; registrar la discrepancia histórica y legal.                                            | No presentarlo como razón social ni marca registrada hasta contar con confirmación de marca y revisión jurídica. |
+| P2        | Blog, privacidad, contacto y accesibilidad contienen avisos obsoletos o acciones que parecen activas.                                                                                                                | Corregir a la existencia real de artículos, controles de exportación/retención, canales no habilitados y ausencia de certificación WCAG. | Implementación de controles no equivale a política aprobada ni cumplimiento legal.                               |
 
 ### Entregables y verificación
 
-1. Crear `docs/landing/LANDING_CONTENT_AUDIT.md` con evidencia por página,
+1. Crear `docs/auditoria/LANDING_CONTENT_AUDIT.md` con evidencia por página,
    estado de claims, textos propuestos, prioridades y decisiones de aprobación.
 2. Actualizar únicamente copy, enlaces y metadatos del landing que puedan
    respaldarse; no cambiar contratos/API, reglas de negocio, backend,

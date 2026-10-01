@@ -1,9 +1,9 @@
 namespace PawTrack.Domain.Subscriptions;
 
 /// <summary>
-/// Single source of truth for paid subscription prices (CRC, monthly). Amounts are net base costs
-/// that do NOT reflect the 13% Costa Rica IVA. When a client requires an electronic invoice
-/// (Factura Electrónica con crédito fiscal), 13% IVA is added to the service cost.
+/// Billing rules only. Plan prices are stored in SubscriptionPlans and must be read from the
+/// catalog; this type does not define an authoritative price. Amounts are net base costs and do
+/// not reflect Costa Rica IVA. When an invoice is required, 13% IVA is added to the service cost.
 /// </summary>
 public static class SubscriptionPricing
 {
@@ -15,38 +15,30 @@ public static class SubscriptionPricing
     /// </summary>
     public const decimal StandardIvaRate = 0.13m;
 
-    public static readonly IReadOnlyDictionary<SubscriptionTier, decimal> MonthlyPriceCrc =
-        new Dictionary<SubscriptionTier, decimal>
-        {
-            [SubscriptionTier.UserPlus] = 2_990m,
-            [SubscriptionTier.UserFamilia] = 4_990m,
-            [SubscriptionTier.ClinicPlus] = 15_000m,
-            [SubscriptionTier.ClinicPartner] = 35_000m,
-            [SubscriptionTier.StorePlus] = 12_000m,
-            [SubscriptionTier.StorePartner] = 25_000m,
-            [SubscriptionTier.ShelterPlus] = 8_000m,
-        };
+    private static readonly IReadOnlySet<SubscriptionTier> PaidTiers = new HashSet<SubscriptionTier>
+    {
+        SubscriptionTier.UserPlus,
+        SubscriptionTier.UserFamilia,
+        SubscriptionTier.ClinicPlus,
+        SubscriptionTier.ClinicPartner,
+        SubscriptionTier.StorePlus,
+        SubscriptionTier.StorePartner,
+        SubscriptionTier.ShelterPlus,
+        SubscriptionTier.MuniBasica,
+        SubscriptionTier.MuniFull,
+        SubscriptionTier.MuniRedRegional,
+    };
 
-    // Municipal tiers are billed annually; keep separate to avoid mixing billing cycles.
-    public static readonly IReadOnlyDictionary<SubscriptionTier, decimal> AnnualPriceCrc =
-        new Dictionary<SubscriptionTier, decimal>
-        {
-            [SubscriptionTier.MuniBasica] = 150_000m,
-            [SubscriptionTier.MuniFull] = 300_000m,
-            [SubscriptionTier.MuniRedRegional] = 500_000m,
-        };
+    private static readonly IReadOnlySet<SubscriptionTier> MunicipalTiers = new HashSet<SubscriptionTier>
+    {
+        SubscriptionTier.MuniBasica,
+        SubscriptionTier.MuniFull,
+        SubscriptionTier.MuniRedRegional,
+    };
 
-    public static bool TryGetMonthlyPriceCrc(SubscriptionTier tier, out decimal amountCrc) =>
-        MonthlyPriceCrc.TryGetValue(tier, out amountCrc);
+    public static bool IsPaidTier(SubscriptionTier tier) => PaidTiers.Contains(tier);
 
-    public static bool TryGetAnnualPriceCrc(SubscriptionTier tier, out decimal amountCrc) =>
-        AnnualPriceCrc.TryGetValue(tier, out amountCrc);
-
-    public static bool IsPaidTier(SubscriptionTier tier) =>
-        MonthlyPriceCrc.ContainsKey(tier) || AnnualPriceCrc.ContainsKey(tier);
-
-    public static bool IsMunicipalTier(SubscriptionTier tier) =>
-        AnnualPriceCrc.ContainsKey(tier);
+    public static bool IsMunicipalTier(SubscriptionTier tier) => MunicipalTiers.Contains(tier);
 
     public static bool IsUserTermTier(SubscriptionTier tier) =>
         tier is SubscriptionTier.UserPlus or SubscriptionTier.UserFamilia;

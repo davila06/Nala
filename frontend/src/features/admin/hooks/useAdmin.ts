@@ -322,6 +322,37 @@ export function useDeleteSubscriptionPlan() {
   });
 }
 
+export function useApproveSubscriptionPlan() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      version,
+      approvalReference,
+    }: {
+      id: string;
+      version: string;
+      approvalReference: string;
+    }) => adminApi.approveSubscriptionPlan(id, version, approvalReference),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "subscription-plans"] });
+      void queryClient.invalidateQueries({ queryKey: ["subscription", "catalog"] });
+    },
+  });
+}
+
+export function useRevokeSubscriptionPlanApproval() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, version }: { id: string; version: string }) =>
+      adminApi.revokeSubscriptionPlanApproval(id, version),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "subscription-plans"] });
+      void queryClient.invalidateQueries({ queryKey: ["subscription", "catalog"] });
+    },
+  });
+}
+
 // ── Adoptions admin hooks ──────────────────────────────────────────────────────
 
 export function useAdoptionAdminStats() {
