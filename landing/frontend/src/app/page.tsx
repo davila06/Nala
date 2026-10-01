@@ -97,7 +97,7 @@ export default function Home() {
             </div>
           </div>
           <div className="hero-visual">
-            <div className="hero-photo-frame depth-surface" data-3d-depth="hero" data-depth-strength="2">
+            <div className="hero-photo-frame">
               <Image
                 alt="Perro mirando con curiosidad mientras descansa al aire libre"
                 className="hero-photo"
@@ -109,25 +109,7 @@ export default function Home() {
                 src="https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=1200&q=85"
                 width={820}
               />
-              <div className="photo-caption">
-                <span className="caption-paw" aria-hidden="true">
-                  🐾
-                </span>
-                <span>
-                  <strong>Una identidad.</strong>
-                  <br />
-                  Toda una vida de cuidado.
-                </span>
-              </div>
             </div>
-            <div aria-hidden="true" className="hero-orbit orbit-one" />
-            <div aria-hidden="true" className="hero-orbit orbit-two" />
-            <span aria-hidden="true" className="hero-spark">
-              ✳
-            </span>
-          </div>
-          <div aria-hidden="true" className="hero-index">
-            CR <span>·</span> 01
           </div>
         </section>
 
@@ -362,12 +344,24 @@ export default function Home() {
             </Link>
           </div>
           <div aria-label="Categorías del directorio de servicios" className="service-category-grid">
-            <span>Veterinarias</span>
-            <span>Grooming</span>
-            <span>Entrenamiento</span>
-            <span>Hospedaje</span>
-            <span>Paseos</span>
-            <span>Cuidado temporal</span>
+            <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
+              Veterinarias
+            </span>
+            <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
+              Grooming
+            </span>
+            <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
+              Entrenamiento
+            </span>
+            <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
+              Hospedaje
+            </span>
+            <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
+              Paseos
+            </span>
+            <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
+              Cuidado temporal
+            </span>
           </div>
         </section>
 

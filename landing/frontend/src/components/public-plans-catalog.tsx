@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { planDescriptions, planFeatures } from "../lib/plan-descriptions";
 
 type PublicPlan = {
   id: string;
@@ -29,11 +30,12 @@ function formatPrice(plan: PublicPlan): string {
 }
 
 export function PublicPlansCatalog() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+  const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+  const apiUrl = configuredApiUrl || (process.env.NODE_ENV === "development" ? "http://localhost:5199" : "");
   const [state, setState] = useState<CatalogState>(() =>
     apiUrl
       ? { status: "loading" }
-      : { status: "unavailable", message: "El catálogo público todavía no está conectado." },
+      : { status: "unavailable", message: "El catálogo público no está configurado para este entorno." },
   );
 
   useEffect(() => {
@@ -53,7 +55,7 @@ export function PublicPlansCatalog() {
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === "AbortError") return;
-        setState({ status: "unavailable", message: "No hay planes aprobados disponibles para mostrar." });
+        setState({ status: "unavailable", message: "No fue posible consultar el catálogo público." });
       });
 
     return () => controller.abort();
@@ -91,11 +93,30 @@ export function PublicPlansCatalog() {
           data-3d-depth="catalog"
           data-depth-strength="3"
           key={`${plan.tier ?? plan.displayName}-${plan.id ?? index}`}
+          tabIndex={0}
         >
-          <span>{plan.tier ?? "PLAN"}</span>
-          <h3>{plan.displayName}</h3>
-          <p>{plan.description ?? "Capacidades disponibles en PawTrack CR."}</p>
-          <strong>{formatPrice(plan)}</strong>
+          <div className="catalog-plan-inner">
+            <div className="catalog-plan-face catalog-plan-front">
+              <span>{plan.tier ?? "PLAN"}</span>
+              <h3>{plan.displayName}</h3>
+              <p>{planDescriptions[plan.tier ?? ""] ?? "Capacidades disponibles en PawTrack CR."}</p>
+              <strong>{formatPrice(plan)}</strong>
+              <small>Pasar el cursor o enfocar para ver inclusiones</small>
+            </div>
+            <div className="catalog-plan-face catalog-plan-back" aria-label={`Inclusiones de ${plan.displayName}`}>
+              <span>INCLUYE</span>
+              {plan.tier && planFeatures[plan.tier] ? (
+                <ul>
+                  {planFeatures[plan.tier].map((feature) => (
+                    <li key={feature}>{feature}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Capacidades disponibles en PawTrack CR.</p>
+              )}
+              <small>Los límites dependen del catálogo y del entorno conectado.</small>
+            </div>
+          </div>
         </article>
       ))}
     </div>

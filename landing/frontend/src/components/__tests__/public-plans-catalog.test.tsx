@@ -15,7 +15,7 @@ describe("public plans catalog", () => {
 
     render(<PublicPlansCatalog />);
 
-    expect(screen.getByText(/catálogo público todavía no está conectado/i)).toBeTruthy();
+    expect(screen.getByText(/catálogo público no está configurado/i)).toBeTruthy();
   });
 
   it("renders only plans returned by the public API", async () => {
@@ -40,6 +40,7 @@ describe("public plans catalog", () => {
 
     await waitFor(() => expect(screen.getByText("Plan Plus")).toBeTruthy());
     expect(screen.getByText(/₡3\s?000 \/ mes/i)).toBeTruthy();
+    expect(screen.getByText(/Hasta 3 mascotas, QR e identidad digital/i)).toBeTruthy();
     expect(fetch).toHaveBeenCalledWith(
       "https://api.example.test/api/catalog/subscription-plans",
       expect.objectContaining({ headers: { Accept: "application/json" } }),

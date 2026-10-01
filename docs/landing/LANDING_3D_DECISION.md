@@ -1,15 +1,15 @@
 # Decisión 3D del landing
 
 **Fecha:** 2026-10-01  
-**Decisión:** Implementar profundidad 3D CSS en la página principal; diferir WebGL/Three.js.
+**Decisión:** Implementar profundidad 3D CSS y una escena Three.js ligera en el hero; diferir modelos GLB de hardware.
 
 ## Razón
 
-El núcleo verificable de PawTrack es identidad y recuperación. La profundidad CSS mejora jerarquía, cards, hero e iconos sin sugerir hardware. Un tag 3D WebGL sería decorativo mientras no exista un asset de producto aprobado, y podría hacer parecer disponible un hardware o bundle no verificado.
+El núcleo verificable de PawTrack es identidad y recuperación. La escena representa un tag abstracto de identidad y nodos de coordinación, no hardware vendible ni una integración operativa. La profundidad CSS mejora cards, hero e iconos sin sugerir disponibilidad comercial.
 
-## Condición para WebGL
+## Condición para modelos de hardware 3D
 
-Reabrir la decisión WebGL únicamente cuando exista:
+Reabrir esta parte únicamente cuando exista:
 
 - asset GLB aprobado y con derechos;
 - objetivo UX medible, no solo impacto visual;
@@ -20,7 +20,7 @@ Reabrir la decisión WebGL únicamente cuando exista:
 
 ## Implementación actual
 
-La capa CSS aplica perspectiva, `translateZ`, sombras y elevación a hero, botones, cards, catálogo, paneles e iconos. Se desactiva en móvil y `prefers-reduced-motion`.
+La capa CSS aplica perspectiva, `translateZ`, sombras y elevación a hero, botones, cards, catálogo, paneles e iconos. La escena Three.js crea un tag abstracto, un anillo y nodos, con importación dinámica, DPR limitado, pausa fuera de viewport, cleanup y reduced motion.
 
 ## Fallback
 

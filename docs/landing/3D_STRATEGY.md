@@ -2,7 +2,7 @@
 
 ## Decisión actual
 
-Implementar 3D CSS de baja complejidad: perspectiva, capas, `translateZ`, sombras y profundidad en hero, cards, botones e iconos. No implementar WebGL en esta fase. El producto verificable es identidad y recuperación; un objeto 3D sin asset de hardware aprobado sería decorativo y podría sugerir disponibilidad de IoT.
+Implementar 3D CSS de baja complejidad y una escena Three.js ligera: perspectiva, capas, `translateZ`, sombras y profundidad en hero, cards, botones e iconos; tag abstracto, anillo de conexión y nodos. No representar hardware real ni QR funcional. El producto verificable es identidad y recuperación.
 
 ## Candidata WebGL futura
 

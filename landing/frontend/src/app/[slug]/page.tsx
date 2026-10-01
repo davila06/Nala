@@ -74,7 +74,7 @@ const pages: Record<string, PageDefinition> = {
     title: "Planes y capacidades de PawTrack.",
     lead: "Consulta los planes publicados por PawTrack y sus capacidades en el catálogo aprobado del entorno conectado.",
     detail:
-      "Los nombres e importes se consumen desde el catálogo público; esta landing no hardcodea precios ni procesa contrataciones.",
+      "Los nombres e importes aprobados se muestran desde el catálogo público de PawTrack; la documentación explica sus capacidades y límites.",
     points: [
       "Los planes visibles deben estar activos y aprobados en el catálogo público.",
       "Los tiers varían entre tutores y organizaciones; revisa las capacidades y límites publicados.",
@@ -446,7 +446,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
           <p className="eyebrow">LO ESENCIAL</p>
           <div className="inner-point-grid">
             {page.points.map((point, index) => (
-              <article key={point}>
+              <article className="depth-surface" data-3d-depth="module" data-depth-strength="2" key={point}>
                 <span>{String(index + 1).padStart(2, "0")}</span>
                 <p>{point}</p>
               </article>

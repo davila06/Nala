@@ -18,19 +18,44 @@ export function SiteHeader() {
           <span>PawTrack CR</span>
         </Link>
         <nav aria-label="Navegación principal" className="desktop-nav">
-          <Link aria-current={isActive("/features") ? "page" : undefined} href="/features">
+          <Link
+            data-3d-depth="nav"
+            data-depth-strength="2"
+            aria-current={isActive("/features") ? "page" : undefined}
+            href="/features"
+          >
             Qué puedes hacer
           </Link>
-          <Link aria-current={isActive("/lost-pets") ? "page" : undefined} href="/lost-pets">
+          <Link
+            data-3d-depth="nav"
+            data-depth-strength="2"
+            aria-current={isActive("/lost-pets") ? "page" : undefined}
+            href="/lost-pets"
+          >
             Mascotas perdidas
           </Link>
-          <Link aria-current={isActive("/plans") ? "page" : undefined} href="/plans">
+          <Link
+            data-3d-depth="nav"
+            data-depth-strength="2"
+            aria-current={isActive("/plans") ? "page" : undefined}
+            href="/plans"
+          >
             Planes
           </Link>
-          <Link aria-current={isActive("/services") ? "page" : undefined} href="/services">
+          <Link
+            data-3d-depth="nav"
+            data-depth-strength="2"
+            aria-current={isActive("/services") ? "page" : undefined}
+            href="/services"
+          >
             Servicios
           </Link>
-          <Link aria-current={isActive("/business") ? "page" : undefined} href="/business">
+          <Link
+            data-3d-depth="nav"
+            data-depth-strength="2"
+            aria-current={isActive("/business") ? "page" : undefined}
+            href="/business"
+          >
             Organizaciones
           </Link>
         </nav>
@@ -38,7 +63,12 @@ export function SiteHeader() {
           Abrir PawTrack <span aria-hidden="true">↗</span>
         </a>
         <details className="mobile-menu">
-          <summary aria-controls="mobile-navigation" aria-label="Abrir menú de navegación">
+          <summary
+            aria-controls="mobile-navigation"
+            aria-label="Abrir menú de navegación"
+            data-3d-depth="menu"
+            data-depth-strength="2"
+          >
             <span />
             <span />
           </summary>
