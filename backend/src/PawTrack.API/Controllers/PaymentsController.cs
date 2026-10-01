@@ -116,7 +116,11 @@ public sealed class PaymentsController(ISender sender) : ControllerBase
         if (!TryGetUserId(out var userId)) return Unauthorized();
 
         var result = await sender.Send(
-            new CapturePaymentCommand(userId, paymentIntentId),
+            new CapturePaymentCommand(
+                userId,
+                paymentIntentId,
+                Request.Headers["Idempotency-Key"].FirstOrDefault(),
+                Request.Headers["X-Correlation-Id"].FirstOrDefault()),
             cancellationToken);
 
         return result.IsSuccess
@@ -125,13 +129,18 @@ public sealed class PaymentsController(ISender sender) : ControllerBase
     }
 
     [HttpPost("{paymentIntentId:guid}/void")]
+    [Authorize(Roles = "Admin")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> Void(Guid paymentIntentId, CancellationToken cancellationToken)
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
 
         var result = await sender.Send(
-            new VoidPaymentCommand(userId, paymentIntentId),
+            new VoidPaymentCommand(
+                userId,
+                paymentIntentId,
+                Request.Headers["Idempotency-Key"].FirstOrDefault(),
+                Request.Headers["X-Correlation-Id"].FirstOrDefault()),
             cancellationToken);
 
         return result.IsSuccess
@@ -140,6 +149,7 @@ public sealed class PaymentsController(ISender sender) : ControllerBase
     }
 
     [HttpPost("{paymentIntentId:guid}/refund")]
+    [Authorize(Roles = "Admin")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> Refund(
         Guid paymentIntentId,
@@ -149,7 +159,12 @@ public sealed class PaymentsController(ISender sender) : ControllerBase
         if (!TryGetUserId(out var userId)) return Unauthorized();
 
         var result = await sender.Send(
-            new RefundPaymentCommand(userId, paymentIntentId, request.AmountCrc),
+            new RefundPaymentCommand(
+                userId,
+                paymentIntentId,
+                request.AmountCrc,
+                Request.Headers["Idempotency-Key"].FirstOrDefault(),
+                Request.Headers["X-Correlation-Id"].FirstOrDefault()),
             cancellationToken);
 
         return result.IsSuccess

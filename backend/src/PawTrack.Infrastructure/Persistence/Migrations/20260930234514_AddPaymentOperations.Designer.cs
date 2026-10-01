@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using PawTrack.Infrastructure.Persistence;
@@ -12,9 +13,11 @@ using PawTrack.Infrastructure.Persistence;
 namespace PawTrack.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(PawTrackDbContext))]
-    partial class PawTrackDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260930234514_AddPaymentOperations")]
+    partial class AddPaymentOperations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -5168,51 +5171,6 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("PaymentIntents", (string)null);
-                });
-
-            modelBuilder.Entity("PawTrack.Domain.Payments.PaymentLedgerEntry", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("AmountCrc")
-                        .HasColumnType("decimal(12,2)");
-
-                    b.Property<string>("CorrelationId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<int>("EntryType")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("PaymentIntentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PaymentOperationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Reference")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PaymentOperationId")
-                        .IsUnique();
-
-                    b.HasIndex("PaymentIntentId", "CreatedAt");
-
-                    b.ToTable("PaymentLedgerEntries", (string)null);
                 });
 
             modelBuilder.Entity("PawTrack.Domain.Payments.PaymentOperation", b =>

@@ -20,6 +20,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Security.Claims;
+using System.Diagnostics;
 
 namespace PawTrack.API.Controllers;
 
@@ -36,6 +37,7 @@ public sealed class WebhooksController(
     IBundleOrderRepository bundleRepository,
     IPaymentTransactionRepository transactionRepository,
     IPaymentIntentRepository paymentIntentRepository,
+    IPaymentOperationRepository paymentOperationRepository,
     IElectronicBillingService billingService,
     IUnitOfWork unitOfWork,
     IConfiguration configuration,
@@ -178,15 +180,42 @@ public sealed class WebhooksController(
             return Unauthorized(new ProblemDetails { Detail = "Invalid CyberSource webhook signature." });
 
         var payload = body.Deserialize<CyberSourceWebhookPayload>();
+        var rawBody = body.GetRawText();
+        var eventKey = payload?.Id ?? ComputeSha256(rawBody);
+        var existingOperation = await paymentOperationRepository.GetByIdempotencyKeyAsync(
+            PaymentOperationType.WebhookReceived,
+            eventKey,
+            cancellationToken);
+        if (existingOperation is not null)
+            return Ok(new { received = true, duplicate = true, operationId = existingOperation.Id });
+
+        var operation = PaymentOperation.Create(
+            null,
+            PaymentOperationType.WebhookReceived,
+            eventKey,
+            ComputeSha256(rawBody),
+            Request.Headers["X-Correlation-Id"].FirstOrDefault()
+                ?? Activity.Current?.Id
+                ?? Guid.CreateVersion7().ToString("N"));
+        await paymentOperationRepository.AddAsync(operation, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
         if (payload?.Data is null || string.IsNullOrWhiteSpace(payload.Data.ClientReferenceCode))
-            return Ok(new { message = "Ignored: missing reference code." });
+        {
+            operation.MarkIgnored(NormalizeWebhook(payload));
+            paymentOperationRepository.Update(operation);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            return Ok(new { received = true, ignored = true, operationId = operation.Id });
+        }
 
         var orderRef = payload.Data.ClientReferenceCode;
         var intent = await paymentIntentRepository.GetByMerchantReferenceAsync(orderRef, cancellationToken);
         if (intent is not null)
         {
             ApplyCyberSourceStatus(intent, payload.Data.Status, payload.Data.Id);
+            operation.MarkSucceeded(payload.Data.Id, NormalizeWebhook(payload));
             paymentIntentRepository.Update(intent);
+            paymentOperationRepository.Update(operation);
             await unitOfWork.SaveChangesAsync(cancellationToken);
             return Ok(new { received = true, orderRef, paymentIntentId = intent.Id, status = intent.Status.ToString() });
         }
@@ -208,6 +237,10 @@ public sealed class WebhooksController(
                 transactionRepository.Update(existingTx);
             }
         }
+
+        operation.MarkIgnored(NormalizeWebhook(payload));
+        paymentOperationRepository.Update(operation);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Ok(new { received = true, orderRef });
     }
@@ -372,6 +405,18 @@ public sealed class WebhooksController(
             Encoding.UTF8.GetBytes(receivedSignature.ToString()),
             Encoding.UTF8.GetBytes(expected));
     }
+
+    private static string NormalizeWebhook(CyberSourceWebhookPayload? payload) =>
+        JsonSerializer.Serialize(new
+        {
+            payload?.Id,
+            payload?.EventType,
+            Status = payload?.Data?.Status,
+            ClientReferenceCode = payload?.Data?.ClientReferenceCode,
+        });
+
+    private static string ComputeSha256(string value) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value))).ToLowerInvariant();
 }
 
 public sealed record SinpePaymentNotification(

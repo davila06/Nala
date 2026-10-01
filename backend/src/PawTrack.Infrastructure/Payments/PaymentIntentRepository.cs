@@ -25,6 +25,16 @@ public sealed class PaymentIntentRepository(PawTrackDbContext db) : IPaymentInte
             x => x.MerchantReference == merchantReference,
             cancellationToken);
 
+    public async Task<IReadOnlyList<PaymentIntent>> GetByStatusSinceAsync(
+        PaymentIntentStatus status,
+        DateTimeOffset since,
+        CancellationToken cancellationToken = default) =>
+        await db.PaymentIntents
+            .AsNoTracking()
+            .Where(x => x.Status == status && x.UpdatedAt <= since)
+            .OrderBy(x => x.UpdatedAt)
+            .ToListAsync(cancellationToken);
+
     public Task AddAsync(PaymentIntent intent, CancellationToken cancellationToken = default) =>
         db.PaymentIntents.AddAsync(intent, cancellationToken).AsTask();
 

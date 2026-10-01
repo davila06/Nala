@@ -15,6 +15,7 @@ using PawTrack.Application.Common.Settings;
 using PawTrack.Application.Medical;
 using PawTrack.Application.ServiceProviders;
 using PawTrack.Application.ServiceProviders.Payments;
+using PawTrack.Application.Payments.Reconciliation;
 using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Infrastructure.AI;
 using PawTrack.Infrastructure.Imports;
@@ -402,6 +403,10 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IUserPaymentProfileRepository, UserPaymentProfileRepository>();
         services.AddScoped<IPaymentTransactionRepository, PaymentTransactionRepository>();
         services.AddScoped<IPaymentIntentRepository, PaymentIntentRepository>();
+        services.AddScoped<IPaymentOperationRepository, PaymentOperationRepository>();
+        services.AddScoped<IPaymentLedgerRepository, PaymentLedgerRepository>();
+        services.AddScoped<PaymentReconciliationService>();
+        services.AddHostedService<PaymentReconciliationHostedService>();
         services.AddScoped<IUserBillingProfileRepository, UserBillingProfileRepository>();
         services.AddScoped<IElectronicInvoiceRepository, ElectronicInvoiceRepository>();
         services.AddScoped<IElectronicBillingService, ElectronicBillingService>();

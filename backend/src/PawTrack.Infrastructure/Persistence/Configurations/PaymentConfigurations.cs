@@ -84,3 +84,58 @@ public sealed class PaymentIntentConfiguration : IEntityTypeConfiguration<Paymen
         builder.HasIndex(x => new { x.Status, x.UpdatedAt });
     }
 }
+
+public sealed class PaymentOperationConfiguration : IEntityTypeConfiguration<PaymentOperation>
+{
+    public void Configure(EntityTypeBuilder<PaymentOperation> builder)
+    {
+        builder.ToTable("PaymentOperations");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).ValueGeneratedNever();
+
+        builder.Property(x => x.PaymentIntentId);
+        builder.Property(x => x.OperationType).IsRequired().HasConversion<int>();
+        builder.Property(x => x.IdempotencyKey).IsRequired().HasMaxLength(200);
+        builder.Property(x => x.RequestHash).IsRequired().HasMaxLength(128);
+        builder.Property(x => x.ProviderOperationId).HasMaxLength(200);
+        builder.Property(x => x.Status).IsRequired().HasConversion<int>();
+        builder.Property(x => x.ResponseJson).HasMaxLength(8000);
+        builder.Property(x => x.FailureReason).HasMaxLength(1000);
+        builder.Property(x => x.CorrelationId).IsRequired().HasMaxLength(100);
+        builder.Property(x => x.CreatedAt).IsRequired();
+        builder.Property(x => x.UpdatedAt).IsRequired();
+        builder.Property(x => x.CompletedAt);
+
+        builder.HasOne<PaymentIntent>()
+            .WithMany()
+            .HasForeignKey(x => x.PaymentIntentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(x => new { x.OperationType, x.IdempotencyKey }).IsUnique();
+        builder.HasIndex(x => new { x.OperationType, x.ProviderOperationId })
+            .IsUnique()
+            .HasFilter("[ProviderOperationId] IS NOT NULL");
+        builder.HasIndex(x => new { x.PaymentIntentId, x.OperationType, x.CreatedAt });
+        builder.HasIndex(x => new { x.OperationType, x.Status, x.CreatedAt });
+    }
+}
+
+public sealed class PaymentLedgerEntryConfiguration : IEntityTypeConfiguration<PaymentLedgerEntry>
+{
+    public void Configure(EntityTypeBuilder<PaymentLedgerEntry> builder)
+    {
+        builder.ToTable("PaymentLedgerEntries");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).ValueGeneratedNever();
+        builder.Property(x => x.PaymentIntentId).IsRequired();
+        builder.Property(x => x.PaymentOperationId).IsRequired();
+        builder.Property(x => x.EntryType).IsRequired().HasConversion<int>();
+        builder.Property(x => x.AmountCrc).HasColumnType("decimal(12,2)").IsRequired();
+        builder.Property(x => x.Currency).IsRequired().HasMaxLength(10);
+        builder.Property(x => x.Reference).IsRequired().HasMaxLength(200);
+        builder.Property(x => x.CorrelationId).IsRequired().HasMaxLength(100);
+        builder.Property(x => x.CreatedAt).IsRequired();
+        builder.HasIndex(x => x.PaymentOperationId).IsUnique();
+        builder.HasIndex(x => new { x.PaymentIntentId, x.CreatedAt });
+    }
+}

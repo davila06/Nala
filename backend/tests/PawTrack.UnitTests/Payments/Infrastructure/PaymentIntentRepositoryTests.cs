@@ -26,4 +26,29 @@ public sealed class PaymentIntentRepositoryTests
 
         found.Should().BeSameAs(intent);
     }
+
+    [Fact]
+    public async Task Finds_financial_operation_by_type_and_idempotency_key()
+    {
+        var options = new DbContextOptionsBuilder<PawTrackDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        await using var db = new PawTrackDbContext(options);
+        var repository = new PaymentOperationRepository(db);
+        var operation = PaymentOperation.Create(
+            Guid.NewGuid(),
+            PaymentOperationType.Refund,
+            "idem-refund",
+            "hash-123",
+            "corr-123");
+
+        await repository.AddAsync(operation);
+        await db.SaveChangesAsync();
+
+        var found = await repository.GetByIdempotencyKeyAsync(
+            PaymentOperationType.Refund,
+            "idem-refund");
+
+        found.Should().BeSameAs(operation);
+    }
 }

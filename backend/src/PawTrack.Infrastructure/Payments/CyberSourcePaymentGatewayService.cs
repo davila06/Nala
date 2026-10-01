@@ -73,8 +73,7 @@ public sealed class CyberSourcePaymentGatewayService(
                     IsConfigured: true);
             }
 
-            var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogWarning("Failed to generate CyberSource capture context: {Status} - {Body}", response.StatusCode, errorBody);
+            logger.LogWarning("Failed to generate CyberSource capture context: {Status}", response.StatusCode);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -164,7 +163,7 @@ public sealed class CyberSourcePaymentGatewayService(
                     ErrorMessage: null);
             }
 
-            logger.LogWarning("CyberSource tokenization error: {Status} - {Body}", response.StatusCode, responseBody);
+            logger.LogWarning("CyberSource tokenization error: {Status}", response.StatusCode);
             return new TokenizePaymentResult(false, null, null, null, null, null, null, "La pasarela no pudo tokenizar la tarjeta.");
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
