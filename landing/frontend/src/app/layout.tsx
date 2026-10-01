@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { AnalyticsBridge } from "@/components/analytics-bridge";
+import { DepthInteractions } from "@/components/depth-interactions";
 import Link from "next/link";
 import { getSiteUrl } from "@/lib/site-config";
 import "./globals.css";
@@ -11,6 +13,9 @@ export const metadata: Metadata = {
   },
   description:
     "PawTrack CR, NALA: identidad digital, información y flujos de recuperación y cuidado animal para Costa Rica.",
+  alternates: {
+    canonical: "/",
+  },
   applicationName: "PawTrack CR · NALA",
   category: "Pets and animal welfare",
   openGraph: {
@@ -30,9 +35,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="es-CR">
       <body>
+        <link rel="preconnect" href="https://images.unsplash.com" />
         <Link className="skip-link" href="#main">
           Saltar al contenido principal
         </Link>
+        <AnalyticsBridge />
+        <DepthInteractions />
         {children}
       </body>
     </html>

@@ -22,6 +22,7 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 6rem;
+  color-scheme: light;
 }
 body {
   margin: 0;
@@ -52,6 +53,7 @@ button,
 a,
 summary {
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 a:focus-visible,
 button:focus-visible,
@@ -209,6 +211,10 @@ h3,
 p {
   margin-top: 0;
 }
+h2[id],
+h3[id] {
+  scroll-margin-top: 6rem;
+}
 h1,
 h2 {
   font-family: var(--serif);
@@ -284,6 +290,11 @@ h2 em {
   padding: 12px;
   background: var(--mint);
   transform: rotate(2deg);
+}
+.hero-photo-frame picture {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .hero-photo {
   width: 100%;
@@ -2219,5 +2230,205 @@ h2 em {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Pointer-driven depth: angles are written by DepthInteractions without React re-renders. */
+.depth-surface {
+  --depth-pointer-x: 0deg;
+  --depth-pointer-y: 0deg;
+  will-change: transform;
+}
+
+.hero-photo-frame.depth-surface {
+  transform: rotate(2deg) rotateX(calc(2deg + var(--depth-pointer-y)))
+    rotateY(calc(-3deg + var(--depth-pointer-x))) translateZ(0);
+}
+
+.hero-photo-frame.depth-surface:hover {
+  transform: rotate(1deg) rotateX(var(--depth-pointer-y))
+    rotateY(calc(-1deg + var(--depth-pointer-x))) translateZ(12px);
+}
+
+.intent-card.depth-surface,
+.benefit-item.depth-surface,
+.guide-card.depth-surface,
+.catalog-plan.depth-surface,
+.plan-preview.depth-surface {
+  transform: perspective(900px) rotateX(var(--depth-pointer-y))
+    rotateY(var(--depth-pointer-x)) translateZ(0);
+}
+
+.intent-card.depth-surface:hover,
+.benefit-item.depth-surface:hover,
+.guide-card.depth-surface:hover,
+.catalog-plan.depth-surface:hover,
+.plan-preview.depth-surface:hover {
+  transform: perspective(900px) rotateX(var(--depth-pointer-y))
+    rotateY(var(--depth-pointer-x)) translateY(-5px) translateZ(8px);
+}
+
+@media (max-width: 700px), (prefers-reduced-motion: reduce) {
+  .depth-surface,
+  .depth-surface:hover,
+  .hero-photo-frame.depth-surface,
+  .hero-photo-frame.depth-surface:hover {
+    transform: none !important;
+    will-change: auto;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --line: #839189;
+    --muted: #40514a;
+  }
+
+  .button,
+  .intent-card,
+  .plan-preview,
+  .catalog-empty,
+  .catalog-plan {
+    border-width: 2px;
+  }
+}
+
+/* Enterprise depth layer: CSS-only 3D, no WebGL or runtime render loop. */
+.hero-visual {
+  perspective: 1200px;
+}
+
+.hero-photo-frame {
+  transform: rotate(2deg) rotateX(2deg) rotateY(-3deg) translateZ(0);
+  transform-style: preserve-3d;
+  box-shadow:
+    18px 24px 0 #173c3414,
+    0 28px 50px #173c3426;
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.hero-photo-frame:hover {
+  transform: rotate(1deg) rotateX(0deg) rotateY(-1deg) translateZ(12px);
+  box-shadow:
+    22px 30px 0 #173c341c,
+    0 36px 62px #173c3430;
+}
+
+.photo-caption {
+  transform: rotate(-2deg) translateZ(24px);
+  transform-style: preserve-3d;
+}
+
+.caption-paw,
+.benefit-number {
+  box-shadow: 0 5px 0 #a9c0aa88;
+  transform: translateZ(10px);
+}
+
+.button {
+  transform: perspective(700px) translateZ(0);
+  transform-style: preserve-3d;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.button:hover {
+  transform: perspective(700px) translateY(-2px) translateZ(4px);
+  box-shadow: 0 8px 0 #102c2722;
+}
+
+.intent-card,
+.benefit-item,
+.guide-card,
+.catalog-plan,
+.plan-preview,
+.inner-aside {
+  transform-style: preserve-3d;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.intent-card {
+  transform: perspective(800px) rotateX(0deg) rotateY(0deg) translateZ(0);
+}
+
+.intent-card:hover {
+  transform: perspective(800px) rotateX(2deg) rotateY(-1deg) translateY(-5px)
+    translateZ(8px);
+  box-shadow:
+    10px 12px 0 var(--mint),
+    0 18px 25px #173c3420;
+}
+
+.intent-card-primary:hover {
+  box-shadow:
+    10px 12px 0 var(--sun),
+    0 18px 25px #102c2733;
+}
+
+.benefit-item:hover,
+.guide-card:hover {
+  transform: perspective(900px) translateY(-4px) translateZ(5px);
+  box-shadow: 0 12px 24px #173c3412;
+}
+
+.plan-preview {
+  transform: perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0);
+}
+
+.plan-preview:hover {
+  transform: perspective(900px) rotateX(1deg) rotateY(-1deg) translateY(-4px)
+    translateZ(7px);
+  box-shadow:
+    16px 17px 0 var(--mint),
+    0 18px 28px #173c3420;
+}
+
+.catalog-plan:hover {
+  transform: perspective(800px) rotateX(2deg) translateY(-4px) translateZ(5px);
+  box-shadow: 0 12px 22px #173c3418;
+}
+
+.inner-aside {
+  transform: perspective(900px) rotateY(-2deg) translateZ(0);
+  box-shadow: 12px 14px 0 #a9c0aa66;
+}
+
+@media (max-width: 700px) {
+  .hero-photo-frame,
+  .hero-photo-frame:hover,
+  .intent-card:hover,
+  .benefit-item:hover,
+  .guide-card:hover,
+  .plan-preview:hover,
+  .catalog-plan:hover,
+  .inner-aside {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-photo-frame,
+  .hero-photo-frame:hover,
+  .button,
+  .button:hover,
+  .intent-card,
+  .intent-card:hover,
+  .benefit-item,
+  .benefit-item:hover,
+  .guide-card,
+  .guide-card:hover,
+  .plan-preview,
+  .plan-preview:hover,
+  .catalog-plan,
+  .catalog-plan:hover,
+  .inner-aside {
+    transform: none !important;
+    box-shadow: none !important;
   }
 }

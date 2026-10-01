@@ -31,14 +31,12 @@ entorno. El gate general exige:
 - `LEGAL_APPROVAL_REFERENCE` con el identificador de la evidencia aprobada.
 
 `AddSubscriptionPlanCommercialApproval` agrega los campos nullable y fue aplicada
-en `PawTrackDev` sin precargar aprobaciones ni modificar precios. Los planes
-existentes quedaron sin aprobar y dejan de
-salir en el catálogo público y de permitir nuevas compras/activaciones hasta que
-un Admin registre una referencia identificadora válida. La referencia es una
-atestación administrativa, no validación automática del documento legal ni una
-aprobación externa. Esto no cancela automáticamente términos activos; el job de
-renovación conserva el importe aceptado y el tratamiento de renovaciones tras
-revocación requiere decisión comercial/legal antes del rollout.
+en `PawTrackDev` sin modificar precios. Los 10 planes activos fueron aprobados
+por Admin el 2026-10-01 con la referencia `ACTA-COM-2026-10-01`; la aprobación
+queda persistida con actor y fecha. La referencia es una atestación administrativa
+local, no validación automática de un documento legal/fiscal ni evidencia de
+despliegue en producción. Esto no cancela automáticamente términos activos; el
+job de renovación conserva el importe aceptado.
 
 Una consulta de solo lectura a `PawTrackDev` el 2026-10-01 encontró 10 filas de
 planes activas y 48 definiciones de entitlement activas. `UserPlus` muestra
@@ -48,15 +46,15 @@ hallazgo no acredita configuración de producción ni aprobación comercial. La
 BD consultada ya tiene aplicada la migración de aprobación. El
 detalle se registra en [NALA_PLAN_MAPPING](NALA_PLAN_MAPPING.md).
 
-| Oferta                     | Capacidad tecnica   | Politica comercial documentada                  |
-| -------------------------- | ------------------- | ----------------------------------------------- |
-| Free                       | Activa              | Gratis; entorno productivo no consultado        |
-| UserPlus / UserFamilia     | Activa              | Pendiente de aprobacion comercial               |
-| ClinicPlus / ClinicPartner | Activa              | Pendiente de contrato, SLA y precio             |
-| StorePlus / StorePartner   | Parcial             | No anunciar como compra gestionada por PawTrack |
-| ShelterPlus                | Activa              | Pendiente de contrato y precio                  |
-| Municipalidades            | Parcial             | No vender: contratacion/renovacion incompletas  |
-| Proveedores                | Activa tecnicamente | Sin precio/membresia pagada aprobados           |
+| Oferta                     | Capacidad tecnica   | Politica comercial documentada                                       |
+| -------------------------- | ------------------- | -------------------------------------------------------------------- |
+| Free                       | Activa              | Gratis; entorno productivo no consultado                             |
+| UserPlus / UserFamilia     | Activa              | Aprobada en `PawTrackDev`; producción no verificada                  |
+| ClinicPlus / ClinicPartner | Activa              | Aprobada en `PawTrackDev`; contrato/SLA externo no verificado        |
+| StorePlus / StorePartner   | Parcial             | Precio aprobado local; operación comercial externa no verificada     |
+| ShelterPlus                | Activa              | Aprobada en `PawTrackDev`; contrato externo no verificado            |
+| Municipalidades            | Parcial             | Precio aprobado local; contratación/renovación externa no verificada |
+| Proveedores                | Activa tecnicamente | Sin membresía pagada de proveedor aprobada                           |
 
 El gate automatizado y sus responsables están definidos en
 [GO_LIVE_GOVERNANCE.md](GO_LIVE_GOVERNANCE.md).

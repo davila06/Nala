@@ -70,15 +70,23 @@ export default function Home() {
               y cuidado animal en Costa Rica.
             </p>
             <div className="hero-actions">
-              <a className="button button-dark" href={getProductUrl("/login")}>
+              <a
+                className="button button-dark"
+                data-analytics-event="hero_primary_cta_clicked"
+                href={getProductUrl("/login")}
+              >
                 Crear cuenta o iniciar sesión <span aria-hidden="true">↗</span>
               </a>
-              <a className="button button-light" href={getLoginUrl("/lost-pets/report")}>
+              <a
+                className="button button-light"
+                data-analytics-event="report_lost_pet_clicked"
+                href={getLoginUrl("/lost-pets/report")}
+              >
                 <span aria-hidden="true" className="button-dot" />
                 Perdí una mascota
               </a>
             </div>
-            <Link className="found-link" href="/found-pets/report">
+            <Link className="found-link" data-analytics-event="report_found_pet_clicked" href="/found-pets/report">
               ¿Encontraste una mascota? Ayuda a que vuelva a casa <span aria-hidden="true">→</span>
             </Link>
             <div className="hero-note">
@@ -89,15 +97,17 @@ export default function Home() {
             </div>
           </div>
           <div className="hero-visual">
-            <div className="hero-photo-frame">
+            <div className="hero-photo-frame depth-surface" data-3d-depth="hero" data-depth-strength="2">
               <Image
                 alt="Perro mirando con curiosidad mientras descansa al aire libre"
                 className="hero-photo"
+                fetchPriority="high"
                 height={1000}
                 priority
+                quality={85}
+                sizes="(max-width: 700px) 100vw, (max-width: 960px) 46vw, 510px"
                 src="https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=1200&q=85"
                 width={820}
-                sizes="(max-width: 700px) 100vw, (max-width: 960px) 46vw, 510px"
               />
               <div className="photo-caption">
                 <span className="caption-paw" aria-hidden="true">
@@ -142,7 +152,13 @@ export default function Home() {
             <p>No necesitas entender toda la plataforma para dar el siguiente paso correcto.</p>
           </div>
           <div className="intent-grid">
-            <Link className="intent-card intent-card-primary" href="/pet-id">
+            <Link
+              className="intent-card intent-card-primary depth-surface"
+              data-3d-depth="intent"
+              data-depth-strength="4"
+              data-analytics-event="audience_selected"
+              href="/pet-id"
+            >
               <span className="intent-kicker">SOY TUTOR</span>
               <strong>Quiero identificar a mi mascota</strong>
               <span>Perfil digital, QR y datos que tú decides compartir.</span>
@@ -150,7 +166,13 @@ export default function Home() {
                 Abrir el recorrido <span aria-hidden="true">↗</span>
               </span>
             </Link>
-            <Link className="intent-card" href="/found-pets">
+            <Link
+              className="intent-card depth-surface"
+              data-3d-depth="intent"
+              data-depth-strength="4"
+              data-analytics-event="audience_selected"
+              href="/found-pets"
+            >
               <span className="intent-kicker">ENCONTRÉ UNA MASCOTA</span>
               <strong>Quiero ayudar a encontrar a su familia</strong>
               <span>Un flujo de hallazgo que se completa en la app.</span>
@@ -158,7 +180,13 @@ export default function Home() {
                 Ver cómo ayudar <span aria-hidden="true">↗</span>
               </span>
             </Link>
-            <Link className="intent-card" href="/business">
+            <Link
+              className="intent-card depth-surface"
+              data-3d-depth="intent"
+              data-depth-strength="4"
+              data-analytics-event="audience_selected"
+              href="/business"
+            >
               <span className="intent-kicker">REPRESENTO UNA ORGANIZACIÓN</span>
               <strong>Quiero conocer las capacidades</strong>
               <span>Clínicas, refugios y municipalidades, con límites visibles.</span>
@@ -181,7 +209,12 @@ export default function Home() {
           </div>
           <div className="benefit-grid">
             {benefits.map((benefit) => (
-              <article className="benefit-item" key={benefit.number}>
+              <article
+                className="benefit-item depth-surface"
+                data-3d-depth="benefit"
+                data-depth-strength="2"
+                key={benefit.number}
+              >
                 <span className="benefit-number">{benefit.number}</span>
                 <span className={`capability-status status-${benefit.statusTone}`}>{benefit.status}</span>
                 <h3>{benefit.title}</h3>
@@ -324,7 +357,12 @@ export default function Home() {
           </div>
           <div className="guide-grid">
             {editorialArticles.slice(0, 3).map((article, index) => (
-              <article className="guide-card" key={article.slug}>
+              <article
+                className="guide-card depth-surface"
+                data-3d-depth="guide"
+                data-depth-strength="2"
+                key={article.slug}
+              >
                 <p className="guide-category">
                   {article.category} <span>· {String(index + 1).padStart(2, "0")}</span>
                 </p>
@@ -387,22 +425,21 @@ export default function Home() {
               depender de un <em>plan.</em>
             </h2>
             <p>
-              La identidad y la recuperación son el punto de partida; los tiers técnicos no representan una oferta
-              comercial publicada.
+              La identidad y la recuperación son el punto de partida; los planes publicados se consultan desde el
+              catálogo aprobado.
             </p>
-            <Link className="text-link" href="/plans">
+            <Link className="text-link" data-analytics-event="pricing_viewed" href="/plans">
               Ver el estado de planes <span aria-hidden="true">→</span>
             </Link>
           </div>
-          <div className="plan-preview">
+          <div className="plan-preview depth-surface" data-3d-depth="plan" data-depth-strength="3">
             <div className="plan-preview-top">
               <span>01 / PARA EMPEZAR</span>
               <span className="plan-stamp">N</span>
             </div>
-            <h3>Catálogo pendiente de aprobación</h3>
+            <h3>Catálogo aprobado y consultable</h3>
             <p>
-              El backend contiene tiers para tutores y organizaciones, pero los nombres comerciales, precios, impuestos
-              y condiciones aún no están publicados.
+              Los planes e importes se consumen desde PawTrack; esta landing no mantiene una tabla duplicada de precios.
             </p>
             <Link href="/plans">
               Ver estado de planes <span aria-hidden="true">↗</span>
@@ -424,9 +461,7 @@ export default function Home() {
                 <small>Sin checkout aquí</small>
               </div>
             </div>
-            <small>
-              La cuenta se gestiona en la app; esta landing no vende suscripciones ni confirma disponibilidad.
-            </small>
+            <small>La cuenta y cualquier contratación se gestionan en PawTrack según el entorno conectado.</small>
           </div>
         </section>
 

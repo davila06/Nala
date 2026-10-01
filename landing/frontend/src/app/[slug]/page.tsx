@@ -71,20 +71,20 @@ const pages: Record<string, PageDefinition> = {
   },
   plans: {
     eyebrow: "PLANES NALA",
-    title: "Planes y precios todavía no publicados.",
-    lead: "PawTrack CR tiene tiers y gates técnicos en el código, pero la oferta, los precios y las condiciones comerciales aún requieren aprobación.",
+    title: "Planes y capacidades de PawTrack.",
+    lead: "Consulta los planes publicados por PawTrack y sus capacidades en el catálogo aprobado del entorno conectado.",
     detail:
-      "No se puede contratar un plan desde esta landing. La presencia de un tier o un precio en el código no confirma disponibilidad comercial.",
+      "Los nombres e importes se consumen desde el catálogo público; esta landing no hardcodea precios ni procesa contrataciones.",
     points: [
-      "No hay paquetes Esencial/Premium publicados como oferta aprobada.",
-      "Los tiers técnicos varían entre tutores y organizaciones; límites y gates no equivalen a precio vigente.",
-      "Impuestos, contratación, pagos, soporte y disponibilidad deben aprobarse antes de anunciarse.",
+      "Los planes visibles deben estar activos y aprobados en el catálogo público.",
+      "Los tiers varían entre tutores y organizaciones; revisa las capacidades y límites publicados.",
+      "La disponibilidad, impuestos, contratación y soporte dependen del entorno y sus condiciones vigentes.",
     ],
-    primaryLabel: "Crear cuenta en la app",
+    primaryLabel: "Abrir PawTrack",
     primaryHref: getProductUrl("/login"),
     secondaryLabel: "Ver alcance para organizaciones",
     secondaryHref: "/business",
-    note: "No hay compra de planes ni precios aprobados en este sitio.",
+    note: "La landing muestra el catálogo aprobado; la contratación se realiza en PawTrack según disponibilidad.",
   },
   features: {
     eyebrow: "UNA IDENTIDAD, MUCHAS FORMAS DE CUIDAR",

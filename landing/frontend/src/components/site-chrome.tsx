@@ -35,11 +35,11 @@ export function SiteHeader() {
           Abrir PawTrack <span aria-hidden="true">↗</span>
         </a>
         <details className="mobile-menu">
-          <summary aria-label="Abrir menú de navegación">
+          <summary aria-controls="mobile-navigation" aria-label="Abrir menú de navegación">
             <span />
             <span />
           </summary>
-          <nav aria-label="Navegación móvil">
+          <nav aria-label="Navegación móvil" id="mobile-navigation">
             <Link aria-current={isActive("/features") ? "page" : undefined} href="/features">
               Qué puedes hacer
             </Link>

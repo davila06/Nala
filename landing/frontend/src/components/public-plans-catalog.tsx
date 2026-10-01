@@ -86,7 +86,7 @@ export function PublicPlansCatalog() {
   return (
     <div className="catalog-grid" aria-label="Planes aprobados">
       {state.plans.map((plan) => (
-        <article className="catalog-plan" key={plan.id}>
+        <article className="catalog-plan depth-surface" data-3d-depth="catalog" data-depth-strength="3" key={plan.id}>
           <span>{plan.tier ?? "PLAN"}</span>
           <h3>{plan.displayName}</h3>
           <p>{plan.description ?? "Capacidades disponibles en PawTrack CR."}</p>
