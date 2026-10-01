@@ -593,7 +593,7 @@ select option {
    regardless of specificity, so a rule inside @layer utilities can never
    override Leaflet's own `.leaflet-top { top: 0 }`. */
 .public-map-leaflet .leaflet-top {
-  top: 104px !important;
+  top: 136px !important;
 }
 
 .stagger-grid > *:nth-child(1) {

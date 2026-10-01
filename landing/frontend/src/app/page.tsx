@@ -111,7 +111,7 @@ export default function Home() {
               />
               <div className="photo-caption">
                 <span className="caption-paw" aria-hidden="true">
-                  N
+                  🐾
                 </span>
                 <span>
                   <strong>Una identidad.</strong>
@@ -340,6 +340,34 @@ export default function Home() {
             <Link className="button button-outline" href="/features">
               Explorar funciones <span aria-hidden="true">↗</span>
             </Link>
+          </div>
+        </section>
+
+        <section aria-labelledby="services-title" className="services-section section-shell">
+          <div className="services-copy">
+            <p className="eyebrow">ECOSISTEMA DE SERVICIOS</p>
+            <h2 id="services-title">
+              Encuentra apoyo para cada etapa de su <em>vida.</em>
+            </h2>
+            <p>
+              Explora el directorio público de prestadores de PawTrack: servicios para mascotas, perfiles y detalles
+              disponibles en el entorno conectado.
+            </p>
+            <p className="prototype-note">
+              La presencia en el directorio no confirma afiliación, disponibilidad, precio, calidad ni verificación
+              operativa de cada prestador.
+            </p>
+            <Link className="button button-dark" data-analytics-event="service_directory_clicked" href="/services">
+              Buscar servicios <span aria-hidden="true">↗</span>
+            </Link>
+          </div>
+          <div aria-label="Categorías del directorio de servicios" className="service-category-grid">
+            <span>Veterinarias</span>
+            <span>Grooming</span>
+            <span>Entrenamiento</span>
+            <span>Hospedaje</span>
+            <span>Paseos</span>
+            <span>Cuidado temporal</span>
           </div>
         </section>
 

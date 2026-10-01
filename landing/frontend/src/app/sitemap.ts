@@ -10,6 +10,7 @@ const publicPaths = [
   "/lost-pets",
   "/found-pets",
   "/plans",
+  "/services",
   "/features",
   "/pet-id",
   "/qr",

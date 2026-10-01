@@ -29,7 +29,7 @@ export function getSiteUrl(): URL {
   return parsePublicOrigin(process.env.NEXT_PUBLIC_SITE_URL, "NEXT_PUBLIC_SITE_URL");
 }
 
-export function getProductUrl(path: "/login" | "/encontre-mascota"): string {
+export function getProductUrl(path: "/login" | "/encontre-mascota" | "/map" | "/servicios"): string {
   const appUrl = parsePublicOrigin(process.env.NEXT_PUBLIC_APP_URL, "NEXT_PUBLIC_APP_URL");
   return new URL(path, appUrl).toString();
 }

@@ -65,8 +65,8 @@ const pages: Record<string, PageDefinition> = {
     ],
     primaryLabel: "Continuar en NALA",
     primaryHref: "/found-pets/report",
-    secondaryLabel: "Ver mascotas perdidas",
-    secondaryHref: "/lost-pets",
+    secondaryLabel: "Buscar mascotas perdidas en el mapa",
+    secondaryHref: getProductUrl("/map"),
     note: "El reporte se completa en el portal de NALA; esta landing no recibe ubicación ni datos de contacto.",
   },
   plans: {
@@ -86,17 +86,43 @@ const pages: Record<string, PageDefinition> = {
     secondaryHref: "/business",
     note: "La landing muestra el catálogo aprobado; la contratación se realiza en PawTrack según disponibilidad.",
   },
-  features: {
-    eyebrow: "UNA IDENTIDAD, MUCHAS FORMAS DE CUIDAR",
-    title: "La tecnología importa cuando hace más fácil estar presentes.",
-    lead: "NALA está concebida como un punto de encuentro entre identificación, recuperación, cuidado preventivo y comunidad.",
-    detail: "La disponibilidad de cada servicio dependerá de su implementación y de aliados habilitados en cada país.",
+  services: {
+    eyebrow: "SERVICIOS PARA MASCOTAS",
+    title: "Encuentra apoyo para cada etapa de su vida.",
+    lead: "PawTrack reúne un directorio público de prestadores y servicios para mascotas. Explora las opciones disponibles en el entorno conectado y revisa los detalles antes de contactar.",
+    detail:
+      "El directorio es una superficie pública de descubrimiento. La presencia de un prestador no confirma afiliación, disponibilidad, precio, calidad ni verificación operativa.",
     points: [
-      "Identidad digital y perfil de mascota configurable.",
-      "QR ejecutable; guía NFC manual con app externa. Hardware y fulfillment no verificados.",
-      "Módulos de expediente y recordatorios; no son diagnóstico ni telemedicina audiovisual.",
+      "Veterinarias y cuidado clínico: consulta perfiles y servicios publicados; la disponibilidad profesional depende de cada prestador.",
+      "Grooming, paseos, entrenamiento y hospedaje: descubre categorías del ecosistema sin asumir cobertura o reserva confirmada.",
+      "Cuidado temporal y aliados: las capacidades del producto no acreditan una organización afiliada ni un SLA operativo.",
+      "Reservas y pagos: una solicitud o reserva no prueba liquidación, inventario, payout o comisión aprobada.",
+      "Para publicar como prestador, el registro y la verificación se gestionan dentro de PawTrack.",
     ],
-    primaryLabel: "Crear perfil",
+    primaryLabel: "Abrir buscador de servicios",
+    primaryHref: getProductUrl("/servicios"),
+    secondaryLabel: "Ver capacidades para organizaciones",
+    secondaryHref: "/business",
+    note: "Esta página explica el alcance; el directorio público y cualquier contacto se gestionan en PawTrack.",
+  },
+  features: {
+    eyebrow: "CAPACIDADES PAWTRACK",
+    title: "Una plataforma para identificar, recuperar y cuidar mejor.",
+    lead: "PawTrack CR reúne módulos de identidad, recuperación, salud y coordinación institucional. Cada capacidad conserva su estado real y sus límites.",
+    detail:
+      "El landing muestra el alcance documentado; la disponibilidad operativa depende del entorno, configuración y aliados habilitados.",
+    points: [
+      "Identidad digital: perfil de mascota configurable, datos elegidos por el tutor y QR implementado.",
+      "Recuperación: reportes de pérdida, hallazgos, avistamientos y coordinación del caso dentro de PawTrack.",
+      "QR y NFC: el QR abre un perfil; NFC requiere configuración manual con una aplicación externa.",
+      "Salud: expediente, documentos, timeline y recordatorios; no es diagnóstico ni tratamiento autónomo.",
+      "Clínicas: grants de acceso, consultas administrativas y certificados; profesionales externos no verificados.",
+      "Refugios y adopción: perfiles aliados, publicaciones, solicitudes y ferias; alianzas reales no verificadas.",
+      "Municipalidades: perfiles, capturas y reportes institucionales; convenios oficiales no verificados.",
+      "GPS e IA visual: capacidades condicionadas por proveedor, hardware, configuración y evaluación operativa.",
+      "Marketplace y planes: directorios, reservas y catálogo aprobado; checkout universal y operación externa tienen límites.",
+    ],
+    primaryLabel: "Abrir PawTrack",
     primaryHref: getProductUrl("/login"),
     secondaryLabel: "Ver las placas QR",
     secondaryHref: "/qr",
@@ -430,11 +456,11 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
         </section>
         <section className="inner-bottom section-shell">
           <div>
-            <p className="eyebrow">UNA PLATAFORMA EN CONSTRUCCIÓN</p>
+            <p className="eyebrow">CAPACIDADES PAWTRACK</p>
             <h2>
-              Primero, lo que ayuda.
+              Identidad clara.
               <br />
-              <em>Después, lo que escala.</em>
+              <em>Acción coordinada.</em>
             </h2>
           </div>
           {closingAction.href.startsWith("http") ? (

@@ -2240,6 +2240,55 @@ h2 em {
   will-change: transform;
 }
 
+.services-section {
+  display: grid;
+  grid-template-columns: 1fr 0.9fr;
+  gap: 10%;
+  align-items: center;
+  padding-block: 105px;
+  border-top: 1px solid var(--line);
+}
+
+.services-copy h2 {
+  max-width: 620px;
+  margin-bottom: 20px;
+  font-size: clamp(42px, 4.5vw, 60px);
+  line-height: 1.06;
+}
+
+.services-copy > p:not(.eyebrow):not(.prototype-note) {
+  max-width: 520px;
+  margin-bottom: 18px;
+  color: var(--body);
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.services-copy .button {
+  margin-top: 10px;
+}
+
+.service-category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 14px;
+  background: var(--mint);
+  box-shadow: 14px 16px 0 #a9c0aa66;
+  transform: perspective(900px) rotateY(-3deg);
+}
+
+.service-category-grid span {
+  min-height: 84px;
+  display: flex;
+  align-items: end;
+  padding: 14px;
+  background: var(--white);
+  color: var(--ink);
+  font: 20px/1.1 var(--serif);
+  box-shadow: 0 5px 0 #d8ded5;
+}
+
 .hero-photo-frame.depth-surface {
   transform: rotate(2deg) rotateX(calc(2deg + var(--depth-pointer-y)))
     rotateY(calc(-3deg + var(--depth-pointer-x))) translateZ(0);
@@ -2275,6 +2324,27 @@ h2 em {
   .hero-photo-frame.depth-surface:hover {
     transform: none !important;
     will-change: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .services-section {
+    grid-template-columns: 1fr;
+    gap: 34px;
+    padding-block: 72px 82px;
+  }
+
+  .services-copy h2 {
+    font-size: clamp(39px, 12vw, 52px);
+  }
+
+  .service-category-grid {
+    transform: none;
+  }
+
+  .service-category-grid span {
+    min-height: 70px;
+    font-size: 17px;
   }
 }
 

@@ -27,6 +27,9 @@ export function SiteHeader() {
           <Link aria-current={isActive("/plans") ? "page" : undefined} href="/plans">
             Planes
           </Link>
+          <Link aria-current={isActive("/services") ? "page" : undefined} href="/services">
+            Servicios
+          </Link>
           <Link aria-current={isActive("/business") ? "page" : undefined} href="/business">
             Organizaciones
           </Link>
@@ -51,6 +54,9 @@ export function SiteHeader() {
             </Link>
             <Link aria-current={isActive("/plans") ? "page" : undefined} href="/plans">
               Planes
+            </Link>
+            <Link aria-current={isActive("/services") ? "page" : undefined} href="/services">
+              Servicios
             </Link>
             <Link aria-current={isActive("/business") ? "page" : undefined} href="/business">
               Organizaciones
@@ -83,6 +89,7 @@ export function SiteFooter() {
           <Link href="/pet-id">Identidad digital</Link>
           <Link href="/qr">Placas QR</Link>
           <Link href="/telemedicine">Telemedicina</Link>
+          <Link href="/services">Servicios para mascotas</Link>
         </div>
         <div>
           <h2>Ayuda</h2>

@@ -10,6 +10,7 @@ const allowedEvents = new Set([
   "report_lost_pet_clicked",
   "report_found_pet_clicked",
   "pricing_viewed",
+  "service_directory_clicked",
   "faq_opened",
 ]);
 

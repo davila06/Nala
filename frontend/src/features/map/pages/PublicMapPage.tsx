@@ -98,7 +98,7 @@ export default function PublicMapPage() {
         <meta property="og:type" content="website" />
       </Helmet>
       {/* Glassmorphism header strip */}
-      <div className="pointer-events-none absolute left-0 right-0 top-0 z-[1000] flex flex-col border-b border-white/10 bg-zinc-900/70 px-4 pt-2.5 backdrop-blur-md">
+      <div className="pointer-events-none absolute left-0 right-0 top-0 z-1000 flex flex-col border-b border-white/10 bg-zinc-900/70 px-4 pt-2.5 backdrop-blur-md">
         <div className="pointer-events-auto flex items-center justify-between pb-2.5">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
@@ -166,7 +166,7 @@ export default function PublicMapPage() {
 
       {/* Legend — collapsible on mobile, always visible on sm+ */}
       {viewMode === "map" && (
-        <div className="pointer-events-auto absolute bottom-6 left-3 z-[1000] rounded-2xl border border-white/10 bg-zinc-900/70 shadow-xl backdrop-blur-md">
+        <div className="pointer-events-auto absolute bottom-6 left-3 z-1000 rounded-2xl border border-white/10 bg-zinc-900/70 shadow-xl backdrop-blur-md">
           {/* Toggle button visible only on mobile */}
           <button
             type="button"
@@ -205,7 +205,7 @@ export default function PublicMapPage() {
               },
             ].map(({ color, label, pulse }) => (
               <div key={label} className="mb-1.5 flex items-center gap-2 last:mb-0">
-                <span className={`relative inline-flex h-3 w-3 flex-shrink-0 rounded-full ${color}`}>
+                <span className={`relative inline-flex h-3 w-3 shrink-0 rounded-full ${color}`}>
                   {pulse && (
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-danger-400 opacity-60" />
                   )}
@@ -219,7 +219,7 @@ export default function PublicMapPage() {
 
       {/* Controls panel */}
       {viewMode === "map" && (
-        <div className="pointer-events-none absolute bottom-6 right-3 z-[1000] flex flex-col gap-2">
+        <div className="pointer-events-none absolute bottom-6 right-3 z-1000 flex flex-col gap-2">
           {isAuthenticated && (
             <Link
               to="/dashboard"
@@ -362,7 +362,7 @@ export default function PublicMapPage() {
         <main
           aria-label="Eventos visibles en el mapa"
           aria-busy={isFetching}
-          className="absolute inset-x-0 bottom-0 top-[164px] z-10 overflow-y-auto bg-sand-50 px-4 py-5 pb-8 sm:top-[152px]"
+          className="absolute inset-x-0 bottom-0 top-41 z-10 overflow-y-auto bg-sand-50 px-4 py-5 pb-8 sm:top-38"
         >
           <div className="mx-auto max-w-3xl space-y-4">
             <header>
@@ -471,7 +471,7 @@ export default function PublicMapPage() {
       <CheckoutModal isOpen={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
 
       {/* Public map inventory sits below the header, separate from the legend. */}
-      <div className="pointer-events-none absolute left-3 right-3 top-[124px] z-[999] flex max-w-72 flex-col gap-2 sm:top-28">
+      <div className="pointer-events-none absolute left-16 right-3 top-36.5 z-900 flex max-w-72 flex-col gap-2 sm:left-56 sm:top-35">
         <BillboardBanner placement="Map" className="pointer-events-auto w-72 max-w-full" />
         {filteredEvents.some((event) => event.eventType === "LostPet") && (
           <BillboardBanner placement="Feed" className="pointer-events-auto w-72 max-w-full" />
@@ -480,7 +480,7 @@ export default function PublicMapPage() {
 
       {/* Active layer counts */}
       {(showClinics || showServiceProviders || showStores || showAdoptions) && (
-        <div className="absolute bottom-28 right-3 z-[1000] flex flex-col items-end gap-1.5">
+        <div className="absolute bottom-28 right-3 z-1000 flex flex-col items-end gap-1.5">
           {showClinics && (
             <div className="rounded-full bg-trust-700 px-3 py-1 text-xs font-bold text-white shadow-lg">
               {showEmergencyOnly ? "🚨" : "🏥"} {displayedClinics.length} clínica
