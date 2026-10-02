@@ -11,7 +11,7 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <div className="header-inner">
-        <Link aria-label="PawTrack CR, NALA, inicio" className="brand" href="/">
+        <Link aria-label="PawTrack CR, Núcleo Animal de Localización y Asistencia, inicio" className="brand" href="/">
           <span aria-hidden="true" className="brand-mark">
             n
           </span>
@@ -91,7 +91,7 @@ export function SiteHeader() {
             <Link aria-current={isActive("/business") ? "page" : undefined} href="/business">
               Organizaciones
             </Link>
-            <a href={getProductUrl("/login")}>
+            <a className="mobile-cta" href={getProductUrl("/login")}>
               Abrir PawTrack <span aria-hidden="true">↗</span>
             </a>
           </nav>
@@ -106,13 +106,13 @@ export function SiteFooter() {
     <footer className="site-footer">
       <div className="footer-main">
         <div className="footer-brand-block">
-          <Link aria-label="PawTrack CR, NALA, inicio" className="brand" href="/">
+          <Link aria-label="PawTrack CR, Núcleo Animal de Localización y Asistencia, inicio" className="brand" href="/">
             <span aria-hidden="true" className="brand-mark">
               n
             </span>
             <span>PawTrack CR</span>
           </Link>
-          <p>PawTrack CR · Núcleo de Animal de Localización y Asistencia (NALA).</p>
+          <p>PawTrack CR · Núcleo Animal de Localización y Asistencia (NALA).</p>
         </div>
         <div>
           <h2>Explora</h2>

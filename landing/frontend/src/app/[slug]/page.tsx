@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { LandingPicture } from "@/components/landing-picture";
+import { ServiceCategoryGrid } from "@/components/service-category-grid";
 import { getLoginUrl, getProductUrl } from "@/lib/site-config";
 import { PublicPlansCatalog } from "@/components/public-plans-catalog";
 
@@ -21,7 +23,7 @@ type PageDefinition = {
 const pages: Record<string, PageDefinition> = {
   about: {
     eyebrow: "QUIÉNES SOMOS",
-    title: "PawTrack CR · Núcleo de Animal de Localización y Asistencia (NALA).",
+    title: "PawTrack CR · Núcleo Animal de Localización y Asistencia (NALA).",
     lead: "PawTrack CR reúne herramientas de identidad, recuperación y cuidado animal para Costa Rica.",
     detail:
       "El nombre NALA de esta página sigue la denominación indicada por el responsable del producto. Otras superficies del repositorio y los documentos legales conservan nombres distintos o pendientes de definición.",
@@ -442,10 +444,20 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
             </aside>
           </div>
         </div>
+        {slug === "qr" ? (
+          <div className="identity-feature-image section-shell">
+            <LandingPicture
+              alt="Una persona acerca su teléfono a la placa lisa del collar de su perro"
+              asset="qr"
+              className="identity-feature-photo"
+            />
+          </div>
+        ) : null}
         <section className="inner-points section-shell" aria-label="Puntos importantes">
           <p className="eyebrow">LO ESENCIAL</p>
+          {slug === "services" ? <ServiceCategoryGrid /> : null}
           <div className="inner-point-grid">
-            {page.points.map((point, index) => (
+            {page.points.slice(slug === "services" ? 3 : 0).map((point, index) => (
               <article className="depth-surface" data-3d-depth="module" data-depth-strength="2" key={point}>
                 <span>{String(index + 1).padStart(2, "0")}</span>
                 <p>{point}</p>

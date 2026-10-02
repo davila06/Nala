@@ -1,7 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
-import { Hero3DScene } from "@/components/hero-3d-scene";
+import { LandingPicture } from "@/components/landing-picture";
 import { editorialArticles } from "@/lib/blog-content";
 import { getLoginUrl, getProductUrl } from "@/lib/site-config";
 
@@ -67,8 +66,8 @@ export default function Home() {
               PawTrack CR <em>· NALA</em>
             </h1>
             <p className="hero-intro">
-              NALA significa Núcleo de Animal de Localización y Asistencia: una plataforma para identidad, recuperación
-              y cuidado animal en Costa Rica.
+              NALA significa Núcleo Animal de Localización y Asistencia: una plataforma para identidad, recuperación y
+              cuidado animal en Costa Rica.
             </p>
             <div className="hero-actions">
               <a
@@ -99,16 +98,11 @@ export default function Home() {
           </div>
           <div className="hero-visual">
             <div className="hero-photo-frame">
-              <Image
-                alt="Perro mirando con curiosidad mientras descansa al aire libre"
+              <LandingPicture
+                alt="Familia reunida con su golden retriever en un parque de San José"
+                asset="hero"
                 className="hero-photo"
-                fetchPriority="high"
-                height={1000}
                 priority
-                quality={85}
-                sizes="(max-width: 700px) 100vw, (max-width: 960px) 46vw, 510px"
-                src="https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=1200&q=85"
-                width={820}
               />
             </div>
           </div>
@@ -326,17 +320,17 @@ export default function Home() {
           </div>
         </section>
 
-        <section aria-labelledby="journey-title" className="journey-3d-section section-shell">
-          <div className="journey-3d-copy">
+        <section aria-labelledby="journey-title" className="journey-section section-shell">
+          <div className="journey-copy">
             <p className="eyebrow">RECORRIDO DIGITAL</p>
             <h2 id="journey-title">
               Una identidad que conecta cada <em>paso.</em>
             </h2>
             <p>
-              El tag abstracto representa el recorrido de PawTrack: una identidad organizada, información elegida por el
-              tutor y una ruta clara para coordinar ayuda.
+              El dogtag ilustrativo con QR representa una identidad organizada, información elegida por el tutor y una
+              ruta clara para coordinar ayuda.
             </p>
-            <div className="journey-3d-steps" aria-label="Etapas del recorrido de PawTrack">
+            <div className="journey-steps" aria-label="Etapas del recorrido de PawTrack">
               <span>
                 <b>01</b> Identidad
               </span>
@@ -348,14 +342,16 @@ export default function Home() {
               </span>
             </div>
             <p className="prototype-note">
-              Visual conceptual: no representa un dispositivo físico, GPS, QR funcional ni una red operativa
-              garantizada.
+              El QR de demostración no abre un perfil. La imagen no confirma disponibilidad de placas, GPS ni una red
+              operativa.
             </p>
           </div>
-          <div className="journey-3d-stage">
-            <Hero3DScene />
-            <span className="journey-orbit journey-orbit-one" aria-hidden="true" />
-            <span className="journey-orbit journey-orbit-two" aria-hidden="true" />
+          <div className="journey-visual-stage">
+            <LandingPicture
+              alt="Dogtag con un código QR demostrativo en el collar de un perro"
+              asset="dogtag"
+              className="journey-dogtag-photo"
+            />
           </div>
         </section>
 
@@ -377,25 +373,32 @@ export default function Home() {
               Buscar servicios <span aria-hidden="true">↗</span>
             </Link>
           </div>
-          <div aria-label="Categorías del directorio de servicios" className="service-category-grid">
-            <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
-              Veterinarias
-            </span>
-            <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
-              Grooming
-            </span>
-            <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
-              Entrenamiento
-            </span>
-            <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
-              Hospedaje
-            </span>
-            <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
-              Paseos
-            </span>
-            <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
-              Cuidado temporal
-            </span>
+          <div className="service-category-visual">
+            <LandingPicture
+              alt="Una veterinaria y una tutora acompañan a su perro en un entorno vecinal"
+              asset="services"
+              className="service-directory-photo"
+            />
+            <div aria-label="Categorías del directorio de servicios" className="service-category-grid">
+              <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
+                Veterinarias
+              </span>
+              <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
+                Grooming
+              </span>
+              <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
+                Entrenamiento
+              </span>
+              <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
+                Hospedaje
+              </span>
+              <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
+                Paseos
+              </span>
+              <span className="depth-surface" data-3d-depth="service" data-depth-strength="2">
+                Cuidado temporal
+              </span>
+            </div>
           </div>
         </section>
 
