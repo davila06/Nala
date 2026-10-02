@@ -33,7 +33,8 @@ public sealed class PublicWelfareCasesController(ISender sender) : ControllerBas
             request.LostPetEventId,
             request.SightingId,
             request.CapturedAnimalId,
-            request.AdoptablePetId), cancellationToken);
+            request.AdoptablePetId,
+            request.AutoRoutingRequested), cancellationToken);
 
         return result.IsSuccess ? Ok(result.Value)
             : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
@@ -68,4 +69,5 @@ public sealed record ReportWelfareCaseRequest(
     Guid? LostPetEventId,
     Guid? SightingId,
     Guid? CapturedAnimalId,
-    Guid? AdoptablePetId);
+    Guid? AdoptablePetId,
+    bool AutoRoutingRequested = false);

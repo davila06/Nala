@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { ContactEmailForm } from "@/components/contact-email-form";
 import { LandingPicture } from "@/components/landing-picture";
 import { ServiceCategoryGrid } from "@/components/service-category-grid";
 import { getLoginUrl, getProductUrl } from "@/lib/site-config";
@@ -26,7 +27,7 @@ const pages: Record<string, PageDefinition> = {
     title: "PawTrack CR · Núcleo Animal de Localización y Asistencia (NALA).",
     lead: "PawTrack CR reúne herramientas de identidad, recuperación y cuidado animal para Costa Rica.",
     detail:
-      "El nombre NALA de esta página sigue la denominación indicada por el responsable del producto. Otras superficies del repositorio y los documentos legales conservan nombres distintos o pendientes de definición.",
+      "El código y las pruebas describen capacidades de PawTrack CR. La relación jurídica entre PawTrack CR y NALA, y la titularidad de marca, siguen pendientes de confirmación.",
     points: [
       "El código contiene perfiles de mascotas, QR, reportes y módulos de salud; no equivale a disponibilidad productiva.",
       "QR, NFC, GPS, atención clínica remota y servicios externos tienen alcances distintos.",
@@ -42,7 +43,7 @@ const pages: Record<string, PageDefinition> = {
     title: "Cuando se pierde, cada persona que sabe puede ayudar.",
     lead: "La app incluye un flujo para iniciar y organizar reportes de pérdida; el landing no recibe datos del caso.",
     detail:
-      "El flujo requiere iniciar sesión y elegir una mascota registrada. Revisa qué datos de contacto compartes antes de activar un reporte.",
+      "El reporte se inicia en la app con una cuenta y una mascota registrada. La consulta de contacto de un caso activo puede devolver nombre y teléfono a cualquier cuenta autenticada.",
     points: [
       "Prepara una descripción que ayude a reconocer a tu mascota.",
       "Comparte una zona aproximada, no tu domicilio.",
@@ -59,7 +60,7 @@ const pages: Record<string, PageDefinition> = {
     title: "Encontraste una mascota. El siguiente paso puede acercarla a casa.",
     lead: "La app tiene un flujo para reportar una mascota encontrada; este landing no recopila la ubicación ni datos del caso.",
     detail:
-      "No publiques la ubicación exacta de forma abierta ni compartas códigos, datos bancarios o dinero con desconocidos.",
+      "El reporte de hallazgo se completa en la app, no en esta landing. Si la mascota tiene QR, su perfil público se abre sin iniciar sesión; evita divulgar su ubicación exacta.",
     points: [
       "Describe dónde la viste usando una zona general.",
       "Evita acercarte si el animal está asustado o herido.",
@@ -76,7 +77,7 @@ const pages: Record<string, PageDefinition> = {
     title: "Planes y capacidades de PawTrack.",
     lead: "Consulta los planes publicados por PawTrack y sus capacidades en el catálogo aprobado del entorno conectado.",
     detail:
-      "Los nombres e importes aprobados se muestran desde el catálogo público de PawTrack; la documentación explica sus capacidades y límites.",
+      "Los planes e importes se leen del catálogo del entorno conectado. La aprobación local no confirma contratación, impuestos, soporte ni disponibilidad en producción.",
     points: [
       "Los planes visibles deben estar activos y aprobados en el catálogo público.",
       "Los tiers varían entre tutores y organizaciones; revisa las capacidades y límites publicados.",
@@ -93,7 +94,7 @@ const pages: Record<string, PageDefinition> = {
     title: "Encuentra apoyo para cada etapa de su vida.",
     lead: "PawTrack reúne un directorio público de prestadores y servicios para mascotas. Explora las opciones disponibles en el entorno conectado y revisa los detalles antes de contactar.",
     detail:
-      "El directorio es una superficie pública de descubrimiento. La presencia de un prestador no confirma afiliación, disponibilidad, precio, calidad ni verificación operativa.",
+      "El directorio público permite descubrir perfiles y servicios publicados. La presencia de un prestador no confirma afiliación, disponibilidad, precio, calidad ni verificación operativa.",
     points: [
       "Veterinarias y cuidado clínico: consulta perfiles y servicios publicados; la disponibilidad profesional depende de cada prestador.",
       "Grooming, paseos, entrenamiento y hospedaje: descubre categorías del ecosistema sin asumir cobertura o reserva confirmada.",
@@ -110,7 +111,7 @@ const pages: Record<string, PageDefinition> = {
     title: "Una plataforma para identificar, recuperar y cuidar mejor.",
     lead: "PawTrack CR reúne módulos de identidad, recuperación, salud y coordinación institucional. Cada capacidad conserva su estado real y sus límites.",
     detail:
-      "El landing muestra el alcance documentado; la disponibilidad operativa depende del entorno, configuración y aliados habilitados.",
+      "Esta página resume módulos presentes en el código. No confirma que todas las funciones estén habilitadas, probadas de extremo a extremo o disponibles en producción.",
     points: [
       "Identidad digital: perfil de mascota configurable, datos elegidos por el tutor y QR implementado.",
       "Recuperación: reportes de pérdida, hallazgos, avistamientos y coordinación del caso dentro de PawTrack.",
@@ -131,7 +132,8 @@ const pages: Record<string, PageDefinition> = {
     eyebrow: "IDENTIDAD DIGITAL",
     title: "Que lo importante esté donde puede ayudar.",
     lead: "Un perfil digital de mascota puede reunir rasgos identificables, contactos elegidos e información útil para su cuidado.",
-    detail: "El tutor debe poder revisar qué información ve una persona antes de compartir o activar un identificador.",
+    detail:
+      "El perfil puede mostrar foto, nombre, especie y raza. Si hay una pérdida activa, añade nombre de contacto y mensaje público; no publica el teléfono ni el correo del tutor. Revísalo antes de compartir el QR.",
     points: [
       "Revisa la información visible antes de compartir o activar un perfil.",
       "El QR abre un perfil al escanearlo; NFC requiere etiqueta compatible y escritura manual externa.",
@@ -146,7 +148,8 @@ const pages: Record<string, PageDefinition> = {
     eyebrow: "IDENTIFICACIÓN QR",
     title: "Una lectura puede abrir el camino de regreso.",
     lead: "Una placa QR puede enlazar con un perfil que el tutor mantiene actualizado y configura para compartir de forma segura.",
-    detail: "El QR no transmite ubicación en tiempo real. Se necesita conexión para abrir un perfil en línea.",
+    detail:
+      "El QR abre el perfil público de la mascota en el navegador y requiere conexión a internet; no transmite ubicación. La disponibilidad de placas físicas no está verificada.",
     points: [
       "La persona escanea con la cámara de su teléfono.",
       "El tutor elige qué datos de contacto se muestran.",
@@ -162,7 +165,7 @@ const pages: Record<string, PageDefinition> = {
     title: "Una etiqueta NFC compatible puede abrir una URL configurada.",
     lead: "La app incluye una guía para escribir manualmente la URL del perfil con NFC Tools, una aplicación externa.",
     detail:
-      "PawTrack CR no escribe ni valida la etiqueta NFC de forma nativa. La disponibilidad de chips y su entrega no está verificada.",
+      "La guía permite escribir manualmente la URL del perfil en una etiqueta compatible con una app externa. PawTrack no configura ni valida el chip NFC.",
     points: [
       "La guía requiere una etiqueta compatible y escritura manual mediante una app externa.",
       "La lectura depende del teléfono y del chip; debe comprobarse en los dispositivos que se usarán.",
@@ -178,7 +181,7 @@ const pages: Record<string, PageDefinition> = {
     title: "La telemedicina audiovisual no está disponible.",
     lead: "PawTrack CR incluye consultas clínicas administrativas, pero el repositorio no implementa consultas veterinarias por video o audio.",
     detail:
-      "No hay sala audiovisual, emisión de tokens, grabación ni integración Azure Communication Services (ACS). Esta página no agenda una consulta remota.",
+      "El registro clínico y las consultas administrativas no son telemedicina: no hay sala audiovisual, tokens ACS, grabación ni agenda remota implementados.",
     points: [
       "Una consulta registrada en la app no equivale a atención remota.",
       "No se verificó operación de profesionales o proveedores externos.",
@@ -194,7 +197,7 @@ const pages: Record<string, PageDefinition> = {
     title: "Directorios y reservas parciales; operación comercial pendiente.",
     lead: "El producto contiene directorios, servicios, reservas y pedidos, pero esta landing no publica un catálogo para compra.",
     detail:
-      "Los pagos de reservas son manuales y no se acredita inventario transaccional, payout, comisión aprobada ni entrega comercial activa.",
+      "Hay directorios, servicios, reservas y pedidos parciales. No se acredita inventario transaccional, pago liquidado, payout ni entrega comercial activa.",
     points: [
       "Una solicitud o reserva no prueba que un pago haya sido liquidado.",
       "Las tiendas administran disponibilidad y entrega; no se garantiza inventario.",
@@ -210,7 +213,7 @@ const pages: Record<string, PageDefinition> = {
     title: "Una red local requiere operación y acuerdos verificables.",
     lead: "La app contiene reportes y flujos de coordinación; no se ha verificado una comunidad pública con cobertura, moderación o SLA operativos.",
     detail:
-      "El landing no publica avisos. Una función en el producto no acredita aliados conectados ni atención activa en cada territorio.",
+      "La app contiene reportes y flujos de coordinación; no se verifican cobertura territorial, moderación, respuesta de terceros ni una comunidad operativa.",
     points: [
       "Los reportes de pérdida, hallazgo y avistamiento existen en la app.",
       "La cobertura geográfica, moderación y respuesta de terceros no están verificadas.",
@@ -226,7 +229,7 @@ const pages: Record<string, PageDefinition> = {
     title: "Módulos clínicos en el producto; disponibilidad por clínica no verificada.",
     lead: "El código incluye expediente, permisos de acceso y funciones administrativas clínicas; no acredita una clínica afiliada ni una operación en producción.",
     detail:
-      "El directorio y cualquier servicio clínico requieren verificar la información profesional y la disponibilidad por jurisdicción.",
+      "El código incluye expediente, permisos y herramientas administrativas clínicas. No confirma centros afiliados, profesionales externos aprobados ni operación local.",
     points: [
       "El expediente puede compartir información mediante grants y permisos del producto.",
       "El contenido clínico no equivale a diagnóstico ni a historia clínica externa integrada.",
@@ -241,7 +244,8 @@ const pages: Record<string, PageDefinition> = {
     eyebrow: "PARA REFUGIOS Y ONGs",
     title: "Perfiles aliados y adopciones en el producto; alianzas reales no verificadas.",
     lead: "El código contiene perfiles de aliados y flujos de adopción, pero el repositorio no acredita convenios u operación de refugios afiliados.",
-    detail: "NALA no presenta organizaciones como aliadas hasta verificar y acordar formalmente una relación.",
+    detail:
+      "El producto tiene perfiles y flujos de adopción; no acredita refugios afiliados, convenios, cobertura ni la operación de una ONG concreta.",
     points: [
       "Existen superficies de publicación y solicitud de adopción en el producto.",
       "Las organizaciones reales deben revisar y autorizar los datos que publican.",
@@ -257,7 +261,7 @@ const pages: Record<string, PageDefinition> = {
     title: "Herramientas institucionales en el producto; convenios no verificados.",
     lead: "El producto incluye perfiles, capturas y reportes municipales internos. No se ha verificado integración oficial, convenio ni operación con una municipalidad.",
     detail:
-      "Cada despliegue requerirá evaluación legal, responsable local, alcance, soporte y acuerdos de manejo de información.",
+      "El producto incluye perfiles y reportes institucionales internos. No se verifican integración oficial, convenio ni despliegue municipal.",
     points: [
       "El acceso depende de roles y alcances configurados en el producto.",
       "Los reportes internos no equivalen a una integración oficial con autoridades.",
@@ -273,7 +277,7 @@ const pages: Record<string, PageDefinition> = {
     title: "Información práctica para cuidar y ayudar mejor.",
     lead: "La biblioteca de este sitio incluye guías generales sobre identificación, pérdida y hallazgo, cuidado y adopción.",
     detail:
-      "Los contenidos de salud deben ser revisados por profesionales y adaptados a las recomendaciones de cada país.",
+      "Las guías son informativas y generales; el contenido de salud no sustituye la atención veterinaria y requiere revisión profesional y adaptación local.",
     points: [
       "Guías de preparación para una búsqueda de mascota perdida.",
       "Diferencias entre QR, NFC, microchip y GPS.",
@@ -286,26 +290,27 @@ const pages: Record<string, PageDefinition> = {
   },
   contact: {
     eyebrow: "CANALES DE CONTACTO",
-    title: "Este sitio no es un canal oficial de soporte.",
-    lead: "No hay formulario ni canal de contacto habilitado en este sitio. No envíes aquí datos personales, clínicos o de una mascota perdida.",
+    title: "Prepara un correo para PawTrack.",
+    lead: "Completa el formulario y tu dispositivo abrirá una aplicación de correo con un borrador dirigido a soporte.",
     detail:
-      "Este landing informa el alcance del producto y no sustituye un soporte oficial, un canal comercial ni una negociación con organizaciones o aliados.",
+      "La dirección soporte@pawtrack.cr aparece documentada como contacto de soporte; esta landing no puede confirmar entrega, recepción ni tiempos de respuesta.",
     points: [
-      "Para una pérdida o hallazgo, continúa en la app de PawTrack CR y usa los flujos operativos del producto.",
-      "Ante una urgencia veterinaria, contacta servicios locales de emergencia veterinaria.",
-      "Las conversaciones piloto, solicitudes de aliados, soporte comercial y aprobaciones no se procesan desde este landing.",
+      "Para una pérdida o hallazgo, continúa en la app de PawTrack CR y usa los flujos operativos específicos.",
+      "Para maltrato o un animal en riesgo, usa el reporte de bienestar; ante peligro inmediato contacta a las autoridades locales.",
+      "No incluyas contraseñas, información clínica ni ubicación exacta en el correo.",
     ],
     primaryLabel: "Ver información para organizaciones",
     primaryHref: "/business",
     secondaryLabel: "Volver al inicio",
     secondaryHref: "/",
-    note: "La página es informativa y no recibe ni almacena mensajes ni datos de contacto.",
+    note: "Al continuar se abrirá la aplicación de correo; la landing no recibe ni almacena el contenido.",
   },
   business: {
     eyebrow: "NALA PARA ORGANIZACIONES",
     title: "PawTrack CR para organizaciones: módulos y límites actuales.",
     lead: "El repositorio incluye módulos para clínicas, aliados, adopciones, proveedores y municipalidades; no acredita acuerdos o servicios operativos con organizaciones reales.",
-    detail: "No hay un formulario comercial, demo, piloto, contrato ni SLA disponible desde esta página.",
+    detail:
+      "Esta página informa capacidades técnicas; no ofrece formulario comercial, demo, piloto, contrato ni SLA para organizaciones.",
     points: [
       "Clínicas: expediente y grants de acceso en código; profesionales/centros externos no verificados.",
       "Refugios: perfiles y adopciones en código; organizaciones afiliadas no verificadas.",
@@ -319,11 +324,11 @@ const pages: Record<string, PageDefinition> = {
   privacy: {
     eyebrow: "PRIVACIDAD",
     title: "Privacidad: revisa los avisos antes de usar la app.",
-    lead: "Este landing no solicita ni almacena información personal. La app y sus flujos tienen avisos y controles propios.",
+    lead: "El landing no envía ni almacena mensajes. El formulario de contacto prepara un correo en la aplicación del visitante.",
     detail:
-      "Los Términos y la Política de Privacidad del repositorio están marcados como draft y requieren completar datos del responsable y revisión jurídica antes de publicarse como vigentes.",
+      "Los términos y la política de privacidad del repositorio siguen en borrador. Los controles presentes en código no prueban operación ni aprobación jurídica.",
     points: [
-      "No envíes información personal, de salud ni ubicación en este sitio; no tiene formulario.",
+      "El correo se prepara en tu dispositivo; evita incluir información clínica, contraseñas o ubicación exacta.",
       "El backend implementa exportación y jobs configurables de retención; operación y ejecución en producción no están verificadas.",
       "Esta página no es una política aprobada ni una declaración de cumplimiento legal.",
     ],
@@ -336,10 +341,11 @@ const pages: Record<string, PageDefinition> = {
     eyebrow: "ACCESIBILIDAD",
     title: "La accesibilidad requiere pruebas, no solo intención.",
     lead: "El landing usa navegación semántica y controles HTML, pero esta revisión no certifica su experiencia con teclado, lector de pantalla o ampliación.",
-    detail: "No se ha realizado una auditoría WCAG 2.2 AA de este sitio ni pruebas moderadas con personas usuarias.",
+    detail:
+      "No se ha realizado una auditoría WCAG 2.2 AA ni pruebas completas con teclado, lector de pantalla o ampliación; el sitio no está certificado.",
     points: [
       "La presencia de etiquetas y landmarks no acredita conformidad WCAG.",
-      "Este landing no contiene un formulario de contacto habilitado.",
+      "El formulario de contacto prepara un correo local; no transmite mensajes a un servidor del landing.",
       "La revisión manual con teclado, lector de pantalla y móvil sigue pendiente.",
     ],
     primaryLabel: "Volver al inicio",
@@ -352,7 +358,7 @@ const pages: Record<string, PageDefinition> = {
     title: "Conoce el alcance del contacto en reportes de pérdida.",
     lead: "El endpoint de contacto de un caso activo requiere autenticación y tiene rate limit; el código actual no lo restringe al propietario del caso.",
     detail:
-      "El controller y su handler devuelven nombre y teléfono del reporte a cualquier cuenta autenticada. La política de privacidad y los términos deben conciliarse con este comportamiento antes de anunciar contacto mediado.",
+      "La consulta de contacto de un reporte activo requiere sesión, pero cualquier cuenta autenticada puede obtener nombre y teléfono; este acceso requiere revisión de privacidad.",
     points: [
       "Una prueba de rate limit confirma frecuencia limitada, no privacidad por propietario.",
       "No afirmes que el teléfono se oculta o se transmite por relay.",
@@ -451,6 +457,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
             />
           </div>
         ) : null}
+        {slug === "contact" ? <ContactEmailForm /> : null}
         <section className="inner-points section-shell" aria-label="Puntos importantes">
           <p className="eyebrow">LO ESENCIAL</p>
           {slug === "services" ? <ServiceCategoryGrid /> : null}

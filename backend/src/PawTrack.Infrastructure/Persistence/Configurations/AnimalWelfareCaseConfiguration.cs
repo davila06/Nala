@@ -17,6 +17,8 @@ public sealed class AnimalWelfareCaseConfiguration : IEntityTypeConfiguration<An
         builder.Property(c => c.Severity).IsRequired().HasConversion<string>().HasMaxLength(20);
         builder.Property(c => c.Canton).IsRequired().HasMaxLength(80);
         builder.Property(c => c.DescriptionSanitized).IsRequired().HasMaxLength(2000);
+        builder.Property(c => c.AutoRoutingRequested).IsRequired();
+        builder.Property(c => c.SuggestedRole).HasMaxLength(40);
         builder.Property(c => c.AssignedRole).HasMaxLength(40);
         builder.Property(c => c.ClosureReason).HasMaxLength(1000);
         builder.Ignore(c => c.IsClosed);
@@ -26,6 +28,7 @@ public sealed class AnimalWelfareCaseConfiguration : IEntityTypeConfiguration<An
         builder.HasIndex(c => new { c.Severity, c.Status });
         builder.HasIndex(c => new { c.Canton, c.Status });
         builder.HasIndex(c => new { c.AssignedOrganizationUserId, c.Status });
+        builder.HasIndex(c => new { c.AutoRoutingRequested, c.Status, c.CreatedAt });
         builder.HasIndex(c => c.PetId);
         builder.HasIndex(c => c.CapturedAnimalId);
     }

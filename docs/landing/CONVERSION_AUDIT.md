@@ -14,7 +14,7 @@
 - No entiende si NALA es app, placa, GPS o marketplace.
 - Lee claims largos antes de encontrar una acción.
 - Ve precios sin disponibilidad o sin soporte.
-- Encuentra rutas de contacto sin canal real.
+- El contacto usa un borrador `mailto:` y depende de que el visitante tenga configurada una aplicación de correo; no confirma entrega ni respuesta.
 - Ve mensajes de capacidad técnica sin estado operativo.
 
 ## Por qué convertiría

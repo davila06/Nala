@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   useAdminWelfareCases,
-  useAssignWelfareCase,
   useDismissWelfareCase,
   useResolveWelfareCase,
   useSetWelfareCaseSeverity,
@@ -9,6 +8,7 @@ import {
 } from "../hooks/useAdmin";
 import type { AnimalWelfareCaseSummaryDto, WelfareSeverity } from "../api/adminApi";
 import { Input } from "@/shared/ui";
+import { WelfareRoutingPanel } from "./WelfareRoutingPanel";
 
 const SEVERITY_LABELS: Record<WelfareSeverity, string> = {
   Low: "Baja",
@@ -27,15 +27,12 @@ const SEVERITY_CLASS: Record<WelfareSeverity, string> = {
 function WelfareCaseCard({ welfareCase }: { welfareCase: AnimalWelfareCaseSummaryDto }) {
   const triage = useStartWelfareCaseTriage();
   const severity = useSetWelfareCaseSeverity();
-  const assign = useAssignWelfareCase();
   const resolve = useResolveWelfareCase();
   const dismiss = useDismissWelfareCase();
-  const [organizationUserId, setOrganizationUserId] = useState(welfareCase.assignedOrganizationUserId ?? "");
-  const [role, setRole] = useState(welfareCase.assignedRole ?? "Municipality");
   const [reason, setReason] = useState("Caso revisado por NALA Ops");
 
   const isClosed = ["Resolved", "Dismissed", "ClosedNoAction"].includes(welfareCase.status);
-  const busy = triage.isPending || severity.isPending || assign.isPending || resolve.isPending || dismiss.isPending;
+  const busy = triage.isPending || severity.isPending || resolve.isPending || dismiss.isPending;
 
   return (
     <li className="rounded-2xl border border-sand-200 bg-surface p-4 shadow-sm">
@@ -68,7 +65,7 @@ function WelfareCaseCard({ welfareCase }: { welfareCase: AnimalWelfareCaseSummar
         )}
       </div>
 
-      <div className="mt-4 grid gap-2 md:grid-cols-[1fr_1fr_auto]">
+      <div className="mt-4 grid gap-2 md:grid-cols-[1fr_auto]">
         <select
           value={welfareCase.severity}
           disabled={busy || isClosed}
@@ -86,35 +83,9 @@ function WelfareCaseCard({ welfareCase }: { welfareCase: AnimalWelfareCaseSummar
             </option>
           ))}
         </select>
-        <Input
-          value={organizationUserId}
-          onChange={(event) => setOrganizationUserId(event.target.value)}
-          placeholder="Usuario/organización asignada"
-          disabled={busy || isClosed}
-        />
-        <Input
-          value={role}
-          onChange={(event) => setRole(event.target.value)}
-          placeholder="Rol"
-          disabled={busy || isClosed}
-        />
       </div>
 
       <div className="mt-2 flex flex-wrap gap-2">
-        <button
-          type="button"
-          disabled={busy || isClosed || !organizationUserId.trim() || !role.trim()}
-          onClick={() =>
-            void assign.mutateAsync({
-              caseId: welfareCase.id,
-              organizationUserId,
-              role,
-            })
-          }
-          className="rounded-xl bg-rescue-100 px-3 py-1.5 text-xs font-semibold text-rescue-700 disabled:opacity-50"
-        >
-          Asignar
-        </button>
         <button
           type="button"
           disabled={busy || isClosed || !reason.trim()}
@@ -138,6 +109,14 @@ function WelfareCaseCard({ welfareCase }: { welfareCase: AnimalWelfareCaseSummar
         placeholder="Motivo de cierre o revisión"
         className="mt-3"
       />
+      {!isClosed && !welfareCase.assignedOrganizationUserId && (
+        <WelfareRoutingPanel welfareCase={welfareCase} disabled={busy} />
+      )}
+      {welfareCase.assignedOrganizationUserId && (
+        <p className="mt-3 rounded-lg bg-trust-50 px-3 py-2 text-xs text-trust-800">
+          Asignado a {welfareCase.assignedRole}: {welfareCase.assignedOrganizationUserId}
+        </p>
+      )}
     </li>
   );
 }

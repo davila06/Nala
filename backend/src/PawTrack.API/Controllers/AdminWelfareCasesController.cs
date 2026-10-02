@@ -11,7 +11,7 @@ namespace PawTrack.API.Controllers;
 
 [ApiController]
 [Route("api/admin/welfare-cases")]
-[Authorize(Roles = "Admin,Support")]
+[Authorize(Roles = "Admin,Support,SuperAdmin")]
 public sealed class AdminWelfareCasesController(ISender sender) : ControllerBase
 {
     [HttpGet]
@@ -57,6 +57,7 @@ public sealed class AdminWelfareCasesController(ISender sender) : ControllerBase
     }
 
     [HttpPost("{caseId:guid}/assign")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(1024)]
     public async Task<IActionResult> Assign(Guid caseId, [FromBody] AssignWelfareCaseRequest request, CancellationToken cancellationToken)

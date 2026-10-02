@@ -24,4 +24,4 @@ The build uses `output: "export"` and writes the static site to `out/`. Build-ti
 
 `public/staticwebapp.config.json` carries Azure Static Web Apps response headers and the 404 override into the exported site. `.github/workflows/landing.yml` validates lint, tests, export output and config inclusion; it does not deploy. Azure resource, production domain and deployment credentials remain environment-specific and are not configured in this repository.
 
-The landing never collects pet, location, health or contact data. Account creation and real reports continue in the product PWA.
+The contact form prepares a `mailto:` draft in the visitor's email client; the landing server does not receive or store that message, and delivery is not confirmed. Avoid including passwords, clinical information or exact location. Account creation and operational reports continue in the product PWA.

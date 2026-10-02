@@ -4,10 +4,7 @@ import { Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { welfareApi, type ReportWelfareCasePayload } from "../api/welfareApi";
 import { WelfareLocationPicker } from "../components/WelfareLocationPicker";
-import type {
-  WelfareCaseType,
-  WelfareSeverity,
-} from "@/features/admin/api/adminApi";
+import type { WelfareCaseType, WelfareSeverity } from "@/features/admin/api/adminApi";
 
 const DEFAULT_CENTER: [number, number] = [9.9281, -84.0907]; // San Jose, CR
 
@@ -33,6 +30,7 @@ export default function ReportWelfareCasePage() {
   const [canton, setCanton] = useState("");
   const [description, setDescription] = useState("");
   const [anonymous, setAnonymous] = useState(true);
+  const [autoRoutingRequested, setAutoRoutingRequested] = useState(false);
   const [useLocation, setUseLocation] = useState(false);
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -59,9 +57,7 @@ export default function ReportWelfareCasePage() {
         setLocating(false);
       },
       () => {
-        setLocationError(
-          "No se pudo obtener tu ubicacion. Puedes marcar el punto manualmente en el mapa.",
-        );
+        setLocationError("No se pudo obtener tu ubicacion. Puedes marcar el punto manualmente en el mapa.");
         setPosition(DEFAULT_CENTER);
         setLocating(false);
       },
@@ -78,6 +74,7 @@ export default function ReportWelfareCasePage() {
       canton: canton.trim(),
       description: description.trim(),
       reporterIsAnonymous: anonymous,
+      autoRoutingRequested,
       approxLat: useLocation ? position?.[0] : undefined,
       approxLng: useLocation ? position?.[1] : undefined,
     };
@@ -85,9 +82,7 @@ export default function ReportWelfareCasePage() {
       const result = await mutation.mutateAsync(payload);
       setPublicCode(result.publicCode);
     } catch {
-      setError(
-        "No se pudo enviar el reporte. Revisa los datos e intenta de nuevo.",
-      );
+      setError("No se pudo enviar el reporte. Revisa los datos e intenta de nuevo.");
     }
   }
 
@@ -101,27 +96,20 @@ export default function ReportWelfareCasePage() {
           ← Volver al mapa
         </Link>
         <div className="mt-5 rounded-2xl border border-sand-200 bg-surface p-6 shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-wide text-brand-600">
-            Bienestar animal
-          </p>
+          <p className="text-xs font-bold uppercase tracking-wide text-brand-600">Bienestar animal</p>
           <h1 className="mt-2 font-display text-3xl font-semibold text-ink-900">
             Reportar maltrato o un animal en riesgo
           </h1>
           <p className="mt-2 text-sm text-copy-secondary">
-            Describe hechos observables. No te expongas ni confrontes a la
-            persona involucrada; si hay peligro inmediato, contacta primero a
-            las autoridades locales.
+            Describe hechos observables. No te expongas ni confrontes a la persona involucrada; si hay peligro
+            inmediato, contacta primero a las autoridades locales.
           </p>
           {publicCode && (
             <div className="mt-5 rounded-lg border border-rescue-200 bg-rescue-50 p-4 text-sm text-rescue-900">
-              Reporte recibido. Guarda este codigo para consultar su estado:{" "}
-              <strong>{publicCode}</strong>
+              Reporte recibido. Guarda este codigo para consultar su estado: <strong>{publicCode}</strong>
             </div>
           )}
-          <form
-            onSubmit={(event) => void submit(event)}
-            className="mt-6 space-y-4"
-          >
+          <form onSubmit={(event) => void submit(event)} className="mt-6 space-y-4">
             <label className="block text-sm font-semibold text-ink-900">
               Tipo de caso
               <select
@@ -190,16 +178,23 @@ export default function ReportWelfareCasePage() {
               />
               Utilizar ubicacion
             </label>
-            {locating && (
-              <p className="text-sm text-copy-secondary">
-                Obteniendo tu ubicacion...
+            <div className="rounded-xl border border-trust-200 bg-trust-50/70 p-3">
+              <label className="flex items-start gap-2 text-sm font-semibold text-sand-800">
+                <input
+                  type="checkbox"
+                  checked={autoRoutingRequested}
+                  onChange={(event) => setAutoRoutingRequested(event.target.checked)}
+                  className="mt-1"
+                />
+                <span>Sugerencia automática de destinatario verificado</span>
+              </label>
+              <p className="ml-6 mt-1 text-xs leading-relaxed text-copy-secondary">
+                PawTrack propondrá un aliado cercano o la municipalidad del canton. El caso no se comparte hasta que
+                Admin o Superadmin confirme el destinatario.
               </p>
-            )}
-            {locationError && (
-              <p className="text-sm font-semibold text-danger-700">
-                {locationError}
-              </p>
-            )}
+            </div>
+            {locating && <p className="text-sm text-copy-secondary">Obteniendo tu ubicacion...</p>}
+            {locationError && <p className="text-sm font-semibold text-danger-700">{locationError}</p>}
             {useLocation && position && (
               <WelfareLocationPicker
                 lat={position[0]}

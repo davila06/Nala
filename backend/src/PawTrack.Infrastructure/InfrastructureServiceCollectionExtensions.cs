@@ -8,6 +8,7 @@ using PawTrack.Application.CastrationCampaigns.Interfaces;
 using PawTrack.Application.Clinics.Interfaces;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.AnimalWelfare.Interfaces;
+using PawTrack.Application.AnimalWelfare.Routing;
 using PawTrack.Application.Regulatory.Interfaces;
 using PawTrack.Application.Regulatory.Renderers;
 using PawTrack.Application.Regulatory.Gateways;
@@ -150,6 +151,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ProviderTrialExpirationJob>();
         services.AddHostedService<PawTrack.Infrastructure.ServiceProviders.ProviderTrialExpirationHostedService>();
         services.AddScoped<IAnimalWelfareCaseRepository, AnimalWelfareCaseRepository>();
+        services.AddScoped<WelfareRoutingService>();
         services.AddScoped<IAnimalWelfareEvidenceRepository, AnimalWelfareEvidenceRepository>();
         services.AddScoped<IAnimalWelfareAuditRepository, AnimalWelfareAuditRepository>();
         services.AddScoped<IRegulatoryExportRepository, RegulatoryExportRepository>();

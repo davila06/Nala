@@ -65,7 +65,7 @@ El código contiene superficies para clínicas, refugios, proveedores y municipa
 
 ## Missing / weak / duplicated content
 
-- Falta canal oficial de contacto verificable.
+- Formulario de contacto con handoff `mailto:` a `soporte@pawtrack.cr`; el landing no transmite ni almacena el mensaje y no confirma entrega, recepción o SLA.
 - Falta evidencia pública de operación, partners y métricas.
 - Copy histórico de precios debe permanecer fuera del landing.
 - No duplicar `SubscriptionPlans` en markdown, frontend o tablas comerciales.

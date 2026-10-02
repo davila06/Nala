@@ -16,6 +16,12 @@ public enum WelfareAuditAction
     NoteAdded,
 }
 
+public enum WelfareReferralRecipientType
+{
+    Ally = 1,
+    Municipality = 2,
+}
+
 public sealed class AnimalWelfareCaseNote
 {
     private AnimalWelfareCaseNote() { }
@@ -40,6 +46,8 @@ public sealed class AnimalWelfareReferral
     private AnimalWelfareReferral() { }
     public Guid Id { get; private set; }
     public Guid CaseId { get; private set; }
+    public Guid? RecipientUserId { get; private set; }
+    public WelfareReferralRecipientType? RecipientType { get; private set; }
     public string Destination { get; private set; } = string.Empty;
     public Guid ReferredByUserId { get; private set; }
     public string Reason { get; private set; } = string.Empty;
@@ -54,6 +62,24 @@ public sealed class AnimalWelfareReferral
         Reason = reason.Trim(),
         ReferredAt = DateTimeOffset.UtcNow,
     };
+
+    public static AnimalWelfareReferral CreateConfirmed(
+        Guid caseId,
+        Guid recipientUserId,
+        WelfareReferralRecipientType recipientType,
+        string destination,
+        Guid confirmedByUserId,
+        string reason) => new()
+        {
+            Id = Guid.CreateVersion7(),
+            CaseId = caseId,
+            RecipientUserId = recipientUserId,
+            RecipientType = recipientType,
+            Destination = destination.Trim(),
+            ReferredByUserId = confirmedByUserId,
+            Reason = reason.Trim(),
+            ReferredAt = DateTimeOffset.UtcNow,
+        };
 }
 
 public sealed class AnimalWelfareCaseAuditLog

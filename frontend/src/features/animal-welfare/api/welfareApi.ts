@@ -1,8 +1,5 @@
 import { apiClient } from "@/shared/lib/apiClient";
-import type {
-  WelfareCaseType,
-  WelfareSeverity,
-} from "@/features/admin/api/adminApi";
+import type { WelfareCaseType, WelfareSeverity } from "@/features/admin/api/adminApi";
 
 export interface PublicWelfareCaseStatusDto {
   publicCode: string;
@@ -27,16 +24,13 @@ export interface ReportWelfareCasePayload {
   sightingId?: string | null;
   capturedAnimalId?: string | null;
   adoptablePetId?: string | null;
+  autoRoutingRequested: boolean;
 }
 
 export const welfareApi = {
   report: (payload: ReportWelfareCasePayload) =>
-    apiClient
-      .post<PublicWelfareCaseStatusDto>("/public/welfare-cases", payload)
-      .then((r) => r.data),
+    apiClient.post<PublicWelfareCaseStatusDto>("/public/welfare-cases", payload).then((r) => r.data),
 
   getPublicStatus: (publicCode: string) =>
-    apiClient
-      .get<PublicWelfareCaseStatusDto>(`/public/welfare-cases/${publicCode}`)
-      .then((r) => r.data),
+    apiClient.get<PublicWelfareCaseStatusDto>(`/public/welfare-cases/${publicCode}`).then((r) => r.data),
 };

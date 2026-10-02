@@ -2,10 +2,16 @@ import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { afterEach, describe, expect, it } from "vitest";
+import { useLocation } from "react-router-dom";
 import RegisterPage from "@/features/auth/pages/RegisterPage";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { server } from "../../mocks/server";
 import { renderWithProviders } from "../../utils/renderWithProviders";
+
+function CurrentLocation() {
+  const location = useLocation();
+  return <output data-testid="current-location">{`${location.pathname}${location.search}`}</output>;
+}
 
 afterEach(() => {
   act(() => useAuthStore.getState().clearAuth());
@@ -15,13 +21,35 @@ describe("RegisterPage", () => {
   it("offers anonymous visitors a way back to sign-in", () => {
     renderWithProviders(<RegisterPage />);
 
-    expect(screen.getByRole("link", { name: "Volver" })).toHaveAttribute(
-      "href",
-      "/login",
+    expect(screen.getByRole("link", { name: "Volver" })).toHaveAttribute("href", "/login");
+    expect(screen.getByRole("link", { name: "Ir al inicio" })).toHaveAttribute("href", "/login");
+  });
+
+  it("preserves a safe report destination after account registration", async () => {
+    server.use(
+      http.post("http://localhost:5000/api/auth/register", () => HttpResponse.json({ userId: "uid" }, { status: 201 })),
     );
-    expect(screen.getByRole("link", { name: "Ir al inicio" })).toHaveAttribute(
-      "href",
-      "/login",
+
+    const user = userEvent.setup();
+    renderWithProviders(
+      <>
+        <RegisterPage />
+        <CurrentLocation />
+      </>,
+      { initialEntries: ["/register?return=%2Flost-pets%2Freport"] },
+    );
+
+    await user.type(screen.getByLabelText(/nombre/i), "Ana");
+    await user.type(screen.getByLabelText(/correo/i), "ana@test.cr");
+    await user.type(screen.getByLabelText(/^contraseña/i), "SecurePass1");
+    await user.type(screen.getByLabelText(/confirmar/i), "SecurePass1");
+    await user.click(screen.getByRole("checkbox"));
+    await user.click(screen.getByRole("button", { name: /crear cuenta/i }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId("current-location")).toHaveTextContent(
+        "/login?registered=true&return=%2Flost-pets%2Freport",
+      ),
     );
   });
 
@@ -32,9 +60,7 @@ describe("RegisterPage", () => {
     expect(screen.getByLabelText(/correo/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^contraseña/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/confirmar/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /crear cuenta/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /crear cuenta/i })).toBeInTheDocument();
   });
 
   it("shows error when passwords do not match", async () => {
@@ -47,9 +73,7 @@ describe("RegisterPage", () => {
     await user.type(screen.getByLabelText(/confirmar/i), "different");
     await user.click(screen.getByRole("button", { name: /crear cuenta/i }));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      /contraseñas no coinciden/i,
-    );
+    expect(await screen.findByRole("alert")).toHaveTextContent(/contraseñas no coinciden/i);
   });
 
   it("shows error when password is too short", async () => {
@@ -102,11 +126,7 @@ describe("RegisterPage", () => {
     await user.click(screen.getByRole("checkbox"));
     await user.click(screen.getByRole("button", { name: /crear cuenta/i }));
 
-    await waitFor(() =>
-      expect(screen.getByRole("alert")).toHaveTextContent(
-        /error al registrar/i,
-      ),
-    );
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(/error al registrar/i));
   });
 
   it("shows error when age/guardian confirmation checkbox is unchecked", async () => {
@@ -119,8 +139,6 @@ describe("RegisterPage", () => {
     await user.type(screen.getByLabelText(/confirmar/i), "SecurePass1");
     await user.click(screen.getByRole("button", { name: /crear cuenta/i }));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      /mayor de edad/i,
-    );
+    expect(await screen.findByRole("alert")).toHaveTextContent(/mayor de edad/i);
   });
 });

@@ -160,6 +160,15 @@ export type WelfareCaseStatus =
   | "ClosedNoAction";
 
 export type WelfareSeverity = "Low" | "Medium" | "High" | "Critical";
+export type WelfareReferralRecipientType = "Ally" | "Municipality";
+
+export interface WelfareRoutingCandidateDto {
+  userId: string;
+  recipientType: WelfareReferralRecipientType;
+  organizationName: string;
+  coverageLabel: string;
+  distanceMetres: number | null;
+}
 
 export interface AnimalWelfareCaseSummaryDto {
   id: string;
@@ -168,6 +177,10 @@ export interface AnimalWelfareCaseSummaryDto {
   status: WelfareCaseStatus;
   severity: WelfareSeverity;
   canton: string;
+  autoRoutingRequested: boolean;
+  suggestedOrganizationUserId: string | null;
+  suggestedRole: WelfareReferralRecipientType | null;
+  suggestedDistanceMetres: number | null;
   assignedOrganizationUserId: string | null;
   assignedRole: string | null;
   createdAt: string;
@@ -259,6 +272,16 @@ export const adminApi = {
     page?: number;
     pageSize?: number;
   }) => apiClient.get<PagedAnimalWelfareCasesDto>("/admin/welfare-cases", { params }).then((r) => r.data),
+
+  getWelfareRoutingCandidates: (caseId: string) =>
+    apiClient
+      .get<WelfareRoutingCandidateDto[]>(`/admin/welfare-cases/${caseId}/routing-candidates`)
+      .then((r) => r.data),
+
+  confirmWelfareRouting: (
+    caseId: string,
+    payload: { recipientUserId: string; recipientType: WelfareReferralRecipientType; reason: string },
+  ) => apiClient.post<boolean>(`/admin/welfare-cases/${caseId}/routing/confirm`, payload),
 
   startWelfareCaseTriage: (caseId: string) => apiClient.post<boolean>(`/admin/welfare-cases/${caseId}/triage`),
 

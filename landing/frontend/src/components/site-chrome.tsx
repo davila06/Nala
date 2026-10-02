@@ -58,6 +58,14 @@ export function SiteHeader() {
           <Link
             data-3d-depth="nav"
             data-depth-strength="2"
+            aria-current={isActive("/found-pets") ? "page" : undefined}
+            href="/found-pets"
+          >
+            Encontré una mascota
+          </Link>
+          <Link
+            data-3d-depth="nav"
+            data-depth-strength="2"
             aria-current={isActive("/plans") ? "page" : undefined}
             href="/plans"
           >
@@ -78,6 +86,9 @@ export function SiteHeader() {
             href="/business"
           >
             Organizaciones
+          </Link>
+          <Link aria-current={isActive("/contact") ? "page" : undefined} href="/contact">
+            Contacto
           </Link>
         </nav>
         <a className="button button-small header-cta" href={getProductUrl("/login")}>
@@ -111,6 +122,9 @@ export function SiteHeader() {
             </Link>
             <Link aria-current={isActive("/business") ? "page" : undefined} href="/business">
               Organizaciones
+            </Link>
+            <Link aria-current={isActive("/contact") ? "page" : undefined} href="/contact">
+              Contacto
             </Link>
             <a className="mobile-cta" href={getProductUrl("/login")}>
               Abrir PawTrack <span aria-hidden="true">↗</span>

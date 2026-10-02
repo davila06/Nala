@@ -9,6 +9,7 @@ const allowedEvents = new Set([
   "audience_selected",
   "report_lost_pet_clicked",
   "report_found_pet_clicked",
+  "report_welfare_case_clicked",
   "pricing_viewed",
   "service_directory_clicked",
   "faq_opened",

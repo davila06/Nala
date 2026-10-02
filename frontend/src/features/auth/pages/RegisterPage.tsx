@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { useRegister } from "../hooks/useAuth";
+import { Link, useSearchParams } from "react-router-dom";
+import { getSafeReturnPath, useRegister } from "../hooks/useAuth";
 import PasswordStrengthIndicator from "../components/PasswordStrengthIndicator";
 import { Button } from "@/shared/ui/Button";
 import { Input } from "@/shared/ui/Input";
@@ -10,7 +10,10 @@ import { REGISTER_PAWS } from "@/shared/ui/ambientPawsConfig";
 import { useAuthStore } from "@/features/auth/store/authStore";
 
 export default function RegisterPage() {
-  const { mutate: register, isPending, error } = useRegister();
+  const [searchParams] = useSearchParams();
+  const returnTo = getSafeReturnPath(searchParams.get("return") ?? undefined);
+  const loginHref = returnTo ? `/login?${new URLSearchParams({ return: returnTo }).toString()}` : "/login";
+  const { mutate: register, isPending, error } = useRegister(returnTo);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [form, setForm] = useState({
     name: "",
@@ -106,13 +109,13 @@ export default function RegisterPage() {
           <div className="mb-8">
             <nav className="mb-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
               <Link
-                to="/login"
+                to={loginHref}
                 className="text-copy-brand transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 Volver
               </Link>
               <Link
-                to={isAuthenticated ? "/dashboard" : "/login"}
+                to={isAuthenticated ? "/dashboard" : loginHref}
                 className="text-copy-secondary transition-colors hover:text-sand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 Ir al inicio
@@ -209,7 +212,7 @@ export default function RegisterPage() {
           <p className="mt-8 text-center text-sm text-copy-secondary">
             ¿Ya tienes cuenta?{" "}
             <Link
-              to="/login"
+              to={loginHref}
               className="rounded font-semibold text-copy-brand hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               Iniciar sesión

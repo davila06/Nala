@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { LandingPicture } from "@/components/landing-picture";
+import { ProviderOnboarding } from "@/components/provider-onboarding";
+import { RecoveryQuickActions } from "@/components/recovery-quick-actions";
 import { editorialArticles } from "@/lib/blog-content";
 import { getLoginUrl, getProductUrl } from "@/lib/site-config";
 
@@ -11,7 +13,7 @@ const benefits = [
     text: "Un perfil pensado para reunir información útil y que puedas revisar qué compartes.",
     href: "/pet-id",
     action: "Conocer la identidad digital",
-    status: "Implementación documentada",
+    status: "En el producto",
     statusTone: "ready",
   },
   {
@@ -20,7 +22,7 @@ const benefits = [
     text: "Una ruta clara para reportar una pérdida o ayudar cuando encuentras una mascota.",
     href: "/lost-pets",
     action: "Explorar la recuperación",
-    status: "Flujo en la app",
+    status: "En el producto",
     statusTone: "ready",
   },
   {
@@ -31,6 +33,41 @@ const benefits = [
     action: "Explorar el cuidado conectado",
     status: "Capacidad parcial",
     statusTone: "partial",
+  },
+];
+
+const pathways = [
+  {
+    id: "lost",
+    kicker: "PERDÍ UNA MASCOTA",
+    title: "Quiero reportar una pérdida",
+    detail: "Requiere una cuenta y una mascota registrada.",
+    href: "/lost-pets",
+    action: "Ver los pasos",
+  },
+  {
+    id: "found",
+    kicker: "ENCONTRÉ UNA MASCOTA",
+    title: "Quiero ayudar a encontrar a su familia",
+    detail: "El reporte se completa en PawTrack; evita publicar datos personales.",
+    href: "/found-pets",
+    action: "Ver cómo ayudar",
+  },
+  {
+    id: "identity",
+    kicker: "IDENTIDAD DIGITAL",
+    title: "Quiero identificar a mi mascota",
+    detail: "Crea un perfil y decide qué información compartir.",
+    href: "/pet-id",
+    action: "Explorar identidad",
+  },
+  {
+    id: "provider",
+    kicker: "SOY PRESTADOR",
+    title: "Ofrezco servicios para mascotas",
+    detail: "La solicitud se revisa antes de aparecer en el directorio.",
+    href: "/services#provider-onboarding",
+    action: "Ver registro y revisión",
   },
 ];
 
@@ -57,7 +94,7 @@ export default function Home() {
     <>
       <SiteHeader />
       <main id="main">
-        <section className="hero section-shell">
+        <section className="hero section-shell" id="home-hero">
           <div className="hero-copy">
             <p className="eyebrow">
               <span /> PARA CADA ETAPA DE SU VIDA
@@ -75,7 +112,7 @@ export default function Home() {
                 data-analytics-event="hero_primary_cta_clicked"
                 href={getProductUrl("/login")}
               >
-                Crear cuenta o iniciar sesión <span aria-hidden="true">↗</span>
+                Crear cuenta o iniciar sesión en PawTrack <span aria-hidden="true">↗</span>
               </a>
               <a
                 className="button button-light"
@@ -86,9 +123,13 @@ export default function Home() {
                 Perdí una mascota
               </a>
             </div>
-            <Link className="found-link" data-analytics-event="report_found_pet_clicked" href="/found-pets/report">
-              ¿Encontraste una mascota? Ayuda a que vuelva a casa <span aria-hidden="true">→</span>
-            </Link>
+            <a
+              className="found-link"
+              data-analytics-event="report_found_pet_clicked"
+              href={getProductUrl("/encontre-mascota")}
+            >
+              ¿Encontraste una mascota? Continúa en PawTrack <span aria-hidden="true">↗</span>
+            </a>
             <div className="hero-note">
               <span aria-hidden="true" className="note-check">
                 ✓
@@ -107,13 +148,17 @@ export default function Home() {
             </div>
           </div>
         </section>
+        <RecoveryQuickActions
+          foundHref={getProductUrl("/encontre-mascota")}
+          lostHref={getLoginUrl("/lost-pets/report")}
+        />
 
         <section aria-label="Principios de NALA" className="proof-ribbon">
           <div>
             <span>01</span> Identificación que conecta
           </div>
           <div>
-            <span>02</span> Recuperación sin barreras
+            <span>02</span> Reportes con pasos claros
           </div>
           <div>
             <span>03</span> Cuidado a lo largo de su vida
@@ -129,49 +174,46 @@ export default function Home() {
             <p>No necesitas entender toda la plataforma para dar el siguiente paso correcto.</p>
           </div>
           <div className="intent-grid">
-            <Link
-              className="intent-card intent-card-primary depth-surface"
-              data-3d-depth="intent"
-              data-depth-strength="4"
-              data-analytics-event="audience_selected"
-              href="/pet-id"
-            >
-              <span className="intent-kicker">SOY TUTOR</span>
-              <strong>Quiero identificar a mi mascota</strong>
-              <span>Perfil digital, QR y datos que tú decides compartir.</span>
-              <span className="intent-action">
-                Abrir el recorrido <span aria-hidden="true">↗</span>
-              </span>
-            </Link>
-            <Link
-              className="intent-card depth-surface"
-              data-3d-depth="intent"
-              data-depth-strength="4"
-              data-analytics-event="audience_selected"
-              href="/found-pets"
-            >
-              <span className="intent-kicker">ENCONTRÉ UNA MASCOTA</span>
-              <strong>Quiero ayudar a encontrar a su familia</strong>
-              <span>Un flujo de hallazgo que se completa en la app.</span>
-              <span className="intent-action">
-                Ver cómo ayudar <span aria-hidden="true">↗</span>
-              </span>
-            </Link>
-            <Link
-              className="intent-card depth-surface"
-              data-3d-depth="intent"
-              data-depth-strength="4"
-              data-analytics-event="audience_selected"
-              href="/business"
-            >
-              <span className="intent-kicker">REPRESENTO UNA ORGANIZACIÓN</span>
-              <strong>Quiero conocer las capacidades</strong>
-              <span>Clínicas, refugios y municipalidades, con límites visibles.</span>
-              <span className="intent-action">
-                Explorar alcance <span aria-hidden="true">↗</span>
-              </span>
-            </Link>
+            {pathways.map((pathway) => (
+              <article
+                className={`intent-card depth-surface${pathway.id === "lost" ? " intent-card-primary" : ""}`}
+                data-3d-depth="intent"
+                data-depth-strength="4"
+                data-journey={pathway.id}
+                key={pathway.id}
+              >
+                <span className="intent-kicker">{pathway.kicker}</span>
+                <h3>{pathway.title}</h3>
+                <p>{pathway.detail}</p>
+                <Link className="intent-action" data-analytics-event="audience_selected" href={pathway.href}>
+                  {pathway.action} <span aria-hidden="true">↗</span>
+                </Link>
+                {pathway.id === "lost" ? (
+                  <div className="intent-alternatives">
+                    <a href={`${getProductUrl("/register")}?return=%2Flost-pets%2Freport`}>Crear una cuenta</a>
+                    <a href={getLoginUrl("/pets/new")}>Registra primero a tu mascota</a>
+                  </div>
+                ) : null}
+              </article>
+            ))}
           </div>
+          <div className="intent-secondary-action">
+            <div>
+              <strong>¿Necesitas reportar maltrato o un animal en riesgo?</strong>
+              <p>El formulario de bienestar no es un servicio de emergencia.</p>
+            </div>
+            <a data-analytics-event="report_welfare_case_clicked" href={getProductUrl("/bienestar/reportar")}>
+              Reportar un caso de bienestar <span aria-hidden="true">↗</span>
+            </a>
+            <p className="intent-emergency-note">
+              Si hay peligro inmediato, contacta primero a las autoridades locales.
+            </p>
+          </div>
+          <p className="intent-section-note" role="note">
+            El reporte se registra en PawTrack, pero no es un servicio de emergencia ni sustituye una denuncia ante las
+            autoridades; tampoco garantiza respuesta o derivación. Si hay peligro inmediato, contacta primero a las
+            autoridades locales.
+          </p>
         </section>
 
         <section className="benefits section-shell" id="beneficios">
@@ -182,7 +224,18 @@ export default function Home() {
               <br />
               <em>en un mismo lugar.</em>
             </h2>
-            <p>Menos información dispersa. Más momentos para estar juntos.</p>
+            <p>Funciones en la app, límites y requisitos visibles antes de continuar.</p>
+          </div>
+          <div aria-label="Significado del estado de las capacidades" className="capability-status-legend">
+            <p>
+              <strong>En el producto:</strong> flujo implementado en la app.
+            </p>
+            <p>
+              <strong>Parcial:</strong> cubre una parte del recorrido.
+            </p>
+            <p>
+              <strong>Operación externa:</strong> no verificada.
+            </p>
           </div>
           <div className="benefit-grid">
             {benefits.map((benefit) => (
@@ -201,122 +254,6 @@ export default function Home() {
                 </Link>
               </article>
             ))}
-          </div>
-        </section>
-
-        <section className="how-section">
-          <div className="how-inner section-shell">
-            <div className="how-heading">
-              <p className="eyebrow eyebrow-light">SENCILLO DESDE EL PRIMER DÍA</p>
-              <h2>
-                Una red de cuidado
-                <br />
-                que empieza <em>contigo.</em>
-              </h2>
-              <p>La tecnología ayuda. La confianza y las personas hacen la diferencia.</p>
-              <Link className="text-link text-link-light" href="/features">
-                Conoce la visión de NALA <span aria-hidden="true">→</span>
-              </Link>
-            </div>
-            <div className="steps-list">
-              <article className="step-item">
-                <span className="step-index">01</span>
-                <div>
-                  <h3>Crea su identidad</h3>
-                  <p>Reúne los datos que ayudan a reconocerla y cuidarla.</p>
-                </div>
-                <span aria-hidden="true" className="step-arrow">
-                  ↗
-                </span>
-              </article>
-              <article className="step-item">
-                <span className="step-index">02</span>
-                <div>
-                  <h3>Conecta una placa</h3>
-                  <p>
-                    El QR abre el perfil al escanearlo; una etiqueta NFC compatible requiere escritura manual con una
-                    app externa.
-                  </p>
-                </div>
-                <span aria-hidden="true" className="step-arrow">
-                  ↗
-                </span>
-              </article>
-              <article className="step-item">
-                <span className="step-index">03</span>
-                <div>
-                  <h3>Comparte el cuidado</h3>
-                  <p>Invita a las personas de confianza a estar al tanto.</p>
-                </div>
-                <span aria-hidden="true" className="step-arrow">
-                  ↗
-                </span>
-              </article>
-              <p className="how-footnote">
-                QR y NFC no transmiten ubicación. GPS requiere un dispositivo y servicio compatible; disponibilidad y
-                cobertura de PawTrack CR no están verificadas.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section className="recovery-section section-shell">
-          <div aria-hidden="true" className="recovery-illustration">
-            <span className="map-ring ring-large" />
-            <span className="map-ring ring-medium" />
-            <span className="map-cross cross-one">+</span>
-            <span className="map-cross cross-two">+</span>
-            <div className="map-card">
-              <span className="map-pin">N</span>
-              <span>
-                Una comunidad
-                <br />
-                puede acercarlos.
-              </span>
-            </div>
-          </div>
-          <div className="recovery-copy">
-            <p className="eyebrow">CUANDO CADA MINUTO CUENTA</p>
-            <h2>
-              Perderse no debería
-              <br />
-              significar estar <em>solos.</em>
-            </h2>
-            <p>
-              Un reporte organizado dentro de la app y pasos claros para compartir información. Revisa quién puede ver
-              los datos de contacto antes de iniciar un caso.
-            </p>
-            <div className="recovery-actions">
-              <a className="button button-coral" href={getLoginUrl("/lost-pets/report")}>
-                Perdí una mascota <span aria-hidden="true">↗</span>
-              </a>
-              <Link className="text-link" href="/found-pets/report">
-                Encontré una mascota <span aria-hidden="true">→</span>
-              </Link>
-            </div>
-            <p className="prototype-note">
-              Los reportes se completan en la app; esta landing no recibe datos del caso ni publica alertas.
-            </p>
-          </div>
-        </section>
-
-        <section className="care-band">
-          <div className="care-inner section-shell">
-            <div>
-              <p className="eyebrow">EL CUIDADO TAMBIÉN ES PREVENCIÓN</p>
-              <h2>
-                Un historial claro.
-                <br />
-                <em>Más tranquilidad.</em>
-              </h2>
-            </div>
-            <p>
-              Vacunas, medicamentos y documentos importantes: organizados para que puedas compartirlos con las personas
-              que cuidan de tu mascota.
-            </p>
-            <Link className="button button-outline" href="/features">
-              Explorar funciones <span aria-hidden="true">↗</span>
-            </Link>
           </div>
         </section>
 
@@ -342,9 +279,30 @@ export default function Home() {
               </span>
             </div>
             <p className="prototype-note">
-              El QR de demostración no abre un perfil. La imagen no confirma disponibilidad de placas, GPS ni una red
-              operativa.
+              El QR de la imagen es ilustrativo; el perfil de ejemplo usa datos ficticios y no recibe información.
             </p>
+            <details className="profile-demo-disclosure">
+              <summary>Ver perfil de ejemplo</summary>
+              <div className="profile-demo-card">
+                <p className="profile-demo-label">PERFIL FICTICIO</p>
+                <h3>Luna</h3>
+                <p>Perra · 4 años · ejemplo de demostración</p>
+                <dl>
+                  <div>
+                    <dt>Señas</dt>
+                    <dd>Pecho blanco y collar verde</dd>
+                  </div>
+                  <div>
+                    <dt>Información compartida</dt>
+                    <dd>El tutor elige qué datos mostrar en su perfil real.</dd>
+                  </div>
+                </dl>
+                <p>No se recopilan datos en esta demostración.</p>
+                <a href={getProductUrl("/register")}>
+                  Crear mi perfil en PawTrack <span aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </details>
           </div>
           <div className="journey-visual-stage">
             <LandingPicture
@@ -401,6 +359,7 @@ export default function Home() {
             </div>
           </div>
         </section>
+        <ProviderOnboarding />
 
         <section aria-labelledby="guides-title" className="guides-section section-shell">
           <div className="guides-heading">

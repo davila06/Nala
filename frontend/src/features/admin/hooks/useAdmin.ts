@@ -18,8 +18,7 @@ export function usePendingClinics() {
 export function useReviewAlly() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ userId, approve }: { userId: string; approve: boolean }) =>
-      adminApi.reviewAlly(userId, approve),
+    mutationFn: ({ userId, approve }: { userId: string; approve: boolean }) => adminApi.reviewAlly(userId, approve),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["admin", "allies", "pending"],
@@ -31,13 +30,8 @@ export function useReviewAlly() {
 export function useReviewClinic() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      clinicId,
-      approve,
-    }: {
-      clinicId: string;
-      approve: boolean;
-    }) => adminApi.reviewClinic(clinicId, approve),
+    mutationFn: ({ clinicId, approve }: { clinicId: string; approve: boolean }) =>
+      adminApi.reviewClinic(clinicId, approve),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["admin", "clinics", "pending"],
@@ -132,15 +126,8 @@ export function useRevokeMicrochipVerification() {
 export function useResolveMicrochipConflict() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      petId,
-      confirmedChipId,
-      reason,
-    }: {
-      petId: string;
-      confirmedChipId: string;
-      reason: string;
-    }) => adminApi.resolveMicrochipConflict(petId, confirmedChipId, reason),
+    mutationFn: ({ petId, confirmedChipId, reason }: { petId: string; confirmedChipId: string; reason: string }) =>
+      adminApi.resolveMicrochipConflict(petId, confirmedChipId, reason),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["admin", "microchip-conflicts"],
@@ -154,6 +141,38 @@ export function useAdminWelfareCases() {
     queryKey: ["admin", "welfare-cases"],
     queryFn: () => adminApi.getWelfareCases({ page: 1, pageSize: 50 }),
     staleTime: 30_000,
+  });
+}
+
+export function useWelfareRoutingCandidates(caseId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ["admin", "welfare-cases", caseId, "routing-candidates"],
+    queryFn: () => adminApi.getWelfareRoutingCandidates(caseId),
+    enabled: enabled && !!caseId,
+    staleTime: 15_000,
+  });
+}
+
+export function useConfirmWelfareRouting() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      caseId,
+      recipientUserId,
+      recipientType,
+      reason,
+    }: {
+      caseId: string;
+      recipientUserId: string;
+      recipientType: Parameters<typeof adminApi.confirmWelfareRouting>[1]["recipientType"];
+      reason: string;
+    }) => adminApi.confirmWelfareRouting(caseId, { recipientUserId, recipientType, reason }),
+    onSuccess: (_result, variables) => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "welfare-cases"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin", "welfare-cases", variables.caseId, "routing-candidates"],
+      });
+    },
   });
 }
 
@@ -190,15 +209,8 @@ export function useSetWelfareCaseSeverity() {
 export function useAssignWelfareCase() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      caseId,
-      organizationUserId,
-      role,
-    }: {
-      caseId: string;
-      organizationUserId: string;
-      role: string;
-    }) => adminApi.assignWelfareCase(caseId, organizationUserId, role),
+    mutationFn: ({ caseId, organizationUserId, role }: { caseId: string; organizationUserId: string; role: string }) =>
+      adminApi.assignWelfareCase(caseId, organizationUserId, role),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["admin", "welfare-cases"],
@@ -210,8 +222,7 @@ export function useAssignWelfareCase() {
 export function useResolveWelfareCase() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ caseId, reason }: { caseId: string; reason: string }) =>
-      adminApi.resolveWelfareCase(caseId, reason),
+    mutationFn: ({ caseId, reason }: { caseId: string; reason: string }) => adminApi.resolveWelfareCase(caseId, reason),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["admin", "welfare-cases"],
@@ -223,8 +234,7 @@ export function useResolveWelfareCase() {
 export function useDismissWelfareCase() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ caseId, reason }: { caseId: string; reason: string }) =>
-      adminApi.dismissWelfareCase(caseId, reason),
+    mutationFn: ({ caseId, reason }: { caseId: string; reason: string }) => adminApi.dismissWelfareCase(caseId, reason),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["admin", "welfare-cases"],
@@ -243,13 +253,8 @@ export function useAdminSubscriptions(pendingOnly = false) {
 export function useAdminActivateSubscription() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      id,
-      billingMonths,
-    }: {
-      id: string;
-      billingMonths?: number;
-    }) => adminApi.adminActivateSubscription(id, billingMonths ?? 1),
+    mutationFn: ({ id, billingMonths }: { id: string; billingMonths?: number }) =>
+      adminApi.adminActivateSubscription(id, billingMonths ?? 1),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["admin", "subscriptions"],
@@ -312,8 +317,7 @@ export function useUpdateSubscriptionPlan() {
 export function useDeleteSubscriptionPlan() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, version }: { id: string; version: string }) =>
-      adminApi.deleteSubscriptionPlan(id, version),
+    mutationFn: ({ id, version }: { id: string; version: string }) => adminApi.deleteSubscriptionPlan(id, version),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["admin", "subscription-plans"],
@@ -325,15 +329,8 @@ export function useDeleteSubscriptionPlan() {
 export function useApproveSubscriptionPlan() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      id,
-      version,
-      approvalReference,
-    }: {
-      id: string;
-      version: string;
-      approvalReference: string;
-    }) => adminApi.approveSubscriptionPlan(id, version, approvalReference),
+    mutationFn: ({ id, version, approvalReference }: { id: string; version: string; approvalReference: string }) =>
+      adminApi.approveSubscriptionPlan(id, version, approvalReference),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["admin", "subscription-plans"] });
       void queryClient.invalidateQueries({ queryKey: ["subscription", "catalog"] });
@@ -363,11 +360,7 @@ export function useAdoptionAdminStats() {
   });
 }
 
-export function useAdminAdoptionAnimals(
-  status?: string,
-  page = 1,
-  pageSize = 20,
-) {
+export function useAdminAdoptionAnimals(status?: string, page = 1, pageSize = 20) {
   return useQuery({
     queryKey: ["admin", "adoptions", "animals", status, page],
     queryFn: () => adminApi.getAdminAnimals(status, page, pageSize),
@@ -378,13 +371,8 @@ export function useAdminAdoptionAnimals(
 export function useAdminModerateAnimal() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      id,
-      action,
-    }: {
-      id: string;
-      action: "approve" | "reject" | "remove" | "pause" | "restore";
-    }) => adminApi.moderateAnimal(id, action),
+    mutationFn: ({ id, action }: { id: string; action: "approve" | "reject" | "remove" | "pause" | "restore" }) =>
+      adminApi.moderateAnimal(id, action),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["admin", "adoptions"] });
       void queryClient.invalidateQueries({

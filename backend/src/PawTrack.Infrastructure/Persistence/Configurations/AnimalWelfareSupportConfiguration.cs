@@ -24,8 +24,10 @@ public sealed class AnimalWelfareReferralConfiguration : IEntityTypeConfiguratio
         builder.HasKey(r => r.Id);
         builder.Property(r => r.Id).ValueGeneratedNever();
         builder.Property(r => r.Destination).IsRequired().HasMaxLength(120);
+        builder.Property(r => r.RecipientType).HasConversion<int?>();
         builder.Property(r => r.Reason).IsRequired().HasMaxLength(1000);
         builder.HasIndex(r => new { r.CaseId, r.ReferredAt });
+        builder.HasIndex(r => new { r.RecipientUserId, r.ReferredAt });
     }
 }
 

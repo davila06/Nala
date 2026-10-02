@@ -55,6 +55,10 @@ public sealed class AnimalWelfareCase
     public string DescriptionSanitized { get; private set; } = string.Empty;
     public Guid? ReporterUserId { get; private set; }
     public bool ReporterIsAnonymous { get; private set; }
+    public bool AutoRoutingRequested { get; private set; }
+    public Guid? SuggestedOrganizationUserId { get; private set; }
+    public string? SuggestedRole { get; private set; }
+    public int? SuggestedDistanceMetres { get; private set; }
     public Guid? AssignedOrganizationUserId { get; private set; }
     public string? AssignedRole { get; private set; }
     public string? ClosureReason { get; private set; }
@@ -77,7 +81,8 @@ public sealed class AnimalWelfareCase
         Guid? lostPetEventId = null,
         Guid? sightingId = null,
         Guid? capturedAnimalId = null,
-        Guid? adoptablePetId = null)
+        Guid? adoptablePetId = null,
+        bool autoRoutingRequested = false)
     {
         if (string.IsNullOrWhiteSpace(canton)) throw new ArgumentException("Canton is required.", nameof(canton));
         if (string.IsNullOrWhiteSpace(descriptionSanitized)) throw new ArgumentException("Description is required.", nameof(descriptionSanitized));
@@ -94,6 +99,7 @@ public sealed class AnimalWelfareCase
             DescriptionSanitized = descriptionSanitized.Trim(),
             ReporterUserId = reporterIsAnonymous ? null : reporterUserId,
             ReporterIsAnonymous = reporterIsAnonymous,
+            AutoRoutingRequested = autoRoutingRequested,
             ApproxLat = approxLat,
             ApproxLng = approxLng,
             PetId = petId,
@@ -104,6 +110,22 @@ public sealed class AnimalWelfareCase
             CreatedAt = now,
             UpdatedAt = now,
         };
+    }
+
+    public Result<bool> SetRoutingSuggestion(Guid organizationUserId, string role, int? distanceMetres)
+    {
+        if (IsClosed) return Result.Failure<bool>("No se puede sugerir destinatario para un caso cerrado.");
+        if (!AutoRoutingRequested) return Result.Failure<bool>("El reporte no solicitó autoruteo.");
+        if (AssignedOrganizationUserId.HasValue) return Result.Failure<bool>("El caso ya tiene destinatario confirmado.");
+        if (organizationUserId == Guid.Empty) return Result.Failure<bool>("El destinatario sugerido es requerido.");
+        if (string.IsNullOrWhiteSpace(role)) return Result.Failure<bool>("El tipo de destinatario es requerido.");
+        if (distanceMetres is < 0) return Result.Failure<bool>("La distancia sugerida no puede ser negativa.");
+
+        SuggestedOrganizationUserId = organizationUserId;
+        SuggestedRole = role.Trim();
+        SuggestedDistanceMetres = distanceMetres;
+        Touch();
+        return Result.Success(true);
     }
 
     public Result<bool> StartTriage(Guid actorUserId)
@@ -129,6 +151,9 @@ public sealed class AnimalWelfareCase
         if (string.IsNullOrWhiteSpace(role)) return Result.Failure<bool>("El rol asignado es requerido.");
         AssignedOrganizationUserId = organizationUserId;
         AssignedRole = role.Trim();
+        SuggestedOrganizationUserId = null;
+        SuggestedRole = null;
+        SuggestedDistanceMetres = null;
         Status = WelfareCaseStatus.Assigned;
         Touch();
         return Result.Success(true);

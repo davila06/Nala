@@ -68,6 +68,32 @@ public sealed class AnimalWelfareCaseDomainTests
         evidence.FileSizeBytes.Should().Be(12_345);
     }
 
+    [Fact]
+    public void Auto_routing_only_stores_a_suggestion_until_an_admin_assigns_the_recipient()
+    {
+        var welfareCase = AnimalWelfareCase.Create(
+            WelfareCaseType.SuspectedAbuse,
+            WelfareSeverity.High,
+            "Heredia",
+            "Hechos observables reportados por ciudadano",
+            reporterUserId: null,
+            reporterIsAnonymous: true,
+            approxLat: 9.99,
+            approxLng: -84.12,
+            autoRoutingRequested: true);
+
+        welfareCase.AutoRoutingRequested.Should().BeTrue();
+        welfareCase.AssignedOrganizationUserId.Should().BeNull();
+
+        welfareCase.SetRoutingSuggestion(Guid.NewGuid(), "Ally", 850);
+
+        welfareCase.SuggestedOrganizationUserId.Should().NotBeNull();
+        welfareCase.SuggestedRole.Should().Be("Ally");
+        welfareCase.SuggestedDistanceMetres.Should().Be(850);
+        welfareCase.AssignedOrganizationUserId.Should().BeNull();
+        welfareCase.Status.Should().Be(WelfareCaseStatus.Received);
+    }
+
     private static AnimalWelfareCase MakeCase() =>
         AnimalWelfareCase.Create(
             WelfareCaseType.Neglect,

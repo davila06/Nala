@@ -4,6 +4,13 @@ import { authApi, decodeRoleFromJwt } from "../api/authApi";
 import { authenticateWithPasskey } from "../api/webauthn";
 import { useAuthStore } from "../store/authStore";
 
+export function getSafeReturnPath(returnTo?: string): string | undefined {
+  if (!returnTo || !returnTo.startsWith("/") || returnTo.startsWith("//") || returnTo.startsWith("/login")) {
+    return undefined;
+  }
+  return returnTo.includes("\\") ? undefined : returnTo;
+}
+
 export function useLogin(returnTo?: string) {
   const setAuth = useAuthStore((s) => s.setAuth);
   const navigate = useNavigate();
@@ -23,24 +30,22 @@ export function useLogin(returnTo?: string) {
         data.accessToken,
       );
       // Honour the ?return= param; fall back to role-based default
-      const destination =
-        returnTo && returnTo.startsWith("/") && !returnTo.startsWith("/login")
-          ? returnTo
-          : role === "Ally"
-            ? "/allies/panel"
-            : "/dashboard";
+      const destination = getSafeReturnPath(returnTo) ?? (role === "Ally" ? "/allies/panel" : "/dashboard");
       void navigate(destination, { replace: true });
     },
   });
 }
 
-export function useRegister() {
+export function useRegister(returnTo?: string) {
   const navigate = useNavigate();
+  const safeReturnPath = getSafeReturnPath(returnTo);
 
   return useMutation({
     mutationFn: authApi.register,
     onSuccess: () => {
-      void navigate("/login?registered=true");
+      const query = new URLSearchParams({ registered: "true" });
+      if (safeReturnPath) query.set("return", safeReturnPath);
+      void navigate(`/login?${query.toString()}`);
     },
   });
 }
@@ -63,10 +68,7 @@ export function usePasskeyLogin(returnTo?: string) {
         },
         data.accessToken,
       );
-      const destination =
-        returnTo && returnTo.startsWith("/") && !returnTo.startsWith("/login")
-          ? returnTo
-          : "/dashboard";
+      const destination = getSafeReturnPath(returnTo) ?? "/dashboard";
       void navigate(destination, { replace: true });
     },
   });

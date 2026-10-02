@@ -1,5 +1,6 @@
 using MediatR;
 using PawTrack.Application.AnimalWelfare.Interfaces;
+using PawTrack.Application.AnimalWelfare.Routing;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Domain.AnimalWelfare;
 using PawTrack.Domain.Common;
@@ -64,11 +65,35 @@ public sealed class SetWelfareCaseSeverityCommandHandler(
 public sealed class AssignWelfareCaseCommandHandler(
     IAnimalWelfareCaseRepository caseRepository,
     IAnimalWelfareAuditRepository auditRepository,
+    WelfareRoutingService routingService,
     IUnitOfWork unitOfWork) : IRequestHandler<AssignWelfareCaseCommand, Result<bool>>
 {
-    public Task<Result<bool>> Handle(AssignWelfareCaseCommand request, CancellationToken ct) =>
-        WelfareCaseMutation.MutateAsync(caseRepository, auditRepository, unitOfWork, request.CaseId, request.ActorUserId,
-            c => c.AssignTo(request.OrganizationUserId, request.Role, request.ActorUserId), WelfareAuditAction.Assigned, request.Role, ct);
+    public async Task<Result<bool>> Handle(AssignWelfareCaseCommand request, CancellationToken ct)
+    {
+        if (!Enum.TryParse<WelfareReferralRecipientType>(request.Role, true, out var recipientType))
+            return Result.Failure<bool>("El tipo de destinatario debe ser Ally o Municipality.");
+
+        var welfareCase = await caseRepository.GetByIdAsync(request.CaseId, ct);
+        if (welfareCase is null) return Result.Failure<bool>("Caso de bienestar no encontrado.");
+
+        var candidate = (await routingService.GetCandidatesAsync(welfareCase.Canton, welfareCase.ApproxLat, welfareCase.ApproxLng, ct))
+            .FirstOrDefault(item => item.UserId == request.OrganizationUserId && item.RecipientType == recipientType);
+        if (candidate is null)
+            return Result.Failure<bool>("El destinatario no está verificado, activo o dentro de la cobertura del caso.");
+
+        var assigned = welfareCase.AssignTo(candidate.UserId, candidate.RecipientType.ToString(), request.ActorUserId);
+        if (assigned.IsFailure) return assigned;
+
+        caseRepository.Update(welfareCase);
+        await auditRepository.AddReferralAsync(AnimalWelfareReferral.CreateConfirmed(
+            welfareCase.Id, candidate.UserId, candidate.RecipientType, candidate.OrganizationName,
+            request.ActorUserId, "Asignación confirmada desde la cola administrativa."), ct);
+        await auditRepository.AddAsync(AnimalWelfareCaseAuditLog.Create(
+            welfareCase.Id, WelfareAuditAction.Assigned, request.ActorUserId,
+            $"Confirmed routing to {candidate.RecipientType}:{candidate.UserId}"), ct);
+        await unitOfWork.SaveChangesAsync(ct);
+        return Result.Success(true);
+    }
 }
 
 public sealed class ReferWelfareCaseCommandHandler(
