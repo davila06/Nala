@@ -6,7 +6,7 @@
 
 > **Estado del documento:** Catálogo técnico y operativo actualizado al 2026-09-10.
 > **Fuente canónica en código:** [backend/src/PawTrack.Domain/Subscriptions/SubscriptionTier.cs](backend/src/PawTrack.Domain/Subscriptions/SubscriptionTier.cs), [backend/src/PawTrack.Domain/Subscriptions/SubscriptionPricing.cs](backend/src/PawTrack.Domain/Subscriptions/SubscriptionPricing.cs), [backend/src/PawTrack.Domain/ServiceProviders/ProviderMembershipTier.cs](backend/src/PawTrack.Domain/ServiceProviders/ProviderMembershipTier.cs) y [backend/src/PawTrack.Domain/Auth/UserRole.cs](backend/src/PawTrack.Domain/Auth/UserRole.cs).
-> **Documentos de soporte:** [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md), [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md), [pendientesTiendas.md](pendientesTiendas.md) y [pruebas.md](pruebas.md).
+> **Documentos de soporte:** [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md), [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md), [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md) y [pruebas.md](pruebas.md). Este documento es histórico y no define una oferta vigente.
 
 ---
 

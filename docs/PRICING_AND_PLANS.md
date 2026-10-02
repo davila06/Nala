@@ -140,16 +140,25 @@ La verificacion visible no equivale a licencia estatal ni aval regulatorio.
 | StorePlus    | Activo         | Catalogo, directorio y solicitudes de pedido                                                             |
 | StorePartner | Parcial        | Capacidades avanzadas tecnicas heredadas; multi-sede queda fuera del alcance comercial actual de tiendas |
 
-Decisiones de tiendas vigentes:
+Direccion aprobada de producto para tiendas (2026-10-02); no es aprobacion de
+precio ni oferta comercial:
 
-- PawTrack comunica solicitudes; no vende ni intermedia productos.
-- No cobra comision transaccional.
-- El pago, si existe, se gestiona manualmente entre cliente y tienda.
+- Se inicia con un piloto hibrido de una tienda y una sede; NALA sera autoridad
+  de catalogo/pedidos y de stock solo si cada movimiento queda registrado en NALA.
+- El POS/terminal y proveedor fiscal existente conservan autoridad de cobro,
+  caja y comprobantes. No hay sincronizacion POS comprobada ni doble escritura.
+- PawTrack no vende ni intermedia productos y no cobra comision transaccional.
+- El pago sigue fuera de NALA. El codigo permite reporte del cliente y registro
+  de verificacion manual por la tienda; no es confirmacion bancaria automatica.
 - Una cuenta administra una tienda y una sede en la fase actual.
-- La tienda controla disponibilidad, entrega, aceptacion y estados.
-- PawTrack no maneja inventario ni garantiza existencia.
+- `StockOnHand` y reserva temporal existen en codigo, pero no hay kardex ni
+  sincronizacion de inventario presencial; no anunciar stock disponible en
+  produccion ni garantia de existencia.
 
-Ver [pendientesTiendas.md](pendientesTiendas.md) y [legal.md](legal.md).
+Ver el plan canonico [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md),
+el backlog [MASTER_TODO.md](MASTER_TODO.md) y el borrador de revision
+[legal.md](legal.md). Los tiers tecnicos no significan precio aprobado para
+venta ni disponibilidad de la oferta.
 
 ## Refugios y adopciones
 

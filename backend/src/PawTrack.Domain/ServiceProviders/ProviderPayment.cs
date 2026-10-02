@@ -9,6 +9,7 @@ public sealed class ProviderPayment
     public Guid CustomerUserId { get; private set; }
     public Guid ServiceProviderId { get; private set; }
     public decimal AmountCrc { get; private set; }
+    public decimal RefundedAmountCrc { get; private set; }
     public string Currency { get; private set; } = "CRC";
     public string PaymentReference { get; private set; } = string.Empty;
     public string IdempotencyKey { get; private set; } = string.Empty;
@@ -18,6 +19,7 @@ public sealed class ProviderPayment
     public string? FailureReason { get; private set; }
     public string? DisputeReason { get; private set; }
     public string? RefundReason { get; private set; }
+    public string? RefundReference { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset? ReportedAt { get; private set; }
     public DateTimeOffset? ConfirmedAt { get; private set; }
@@ -121,15 +123,38 @@ public sealed class ProviderPayment
         DisputedAt = DateTimeOffset.UtcNow;
     }
 
-    public void Refund(string reason)
+    public void RecordExternalRefund(decimal cumulativeRefundedAmountCrc, string externalReference, string reason)
     {
-        if (Status is not (ProviderPaymentStatus.Confirmed or ProviderPaymentStatus.Disputed))
+        if (Status is not (ProviderPaymentStatus.Confirmed or ProviderPaymentStatus.Disputed or ProviderPaymentStatus.PartiallyRefunded or ProviderPaymentStatus.Refunded))
             throw new InvalidOperationException("Solo un pago confirmado o disputado puede reembolsarse.");
+        if (cumulativeRefundedAmountCrc <= 0 || cumulativeRefundedAmountCrc < RefundedAmountCrc || cumulativeRefundedAmountCrc > AmountCrc)
+            throw new ArgumentOutOfRangeException(nameof(cumulativeRefundedAmountCrc));
+        if (string.IsNullOrWhiteSpace(externalReference))
+            throw new ArgumentException("La referencia externa del reembolso es requerida.", nameof(externalReference));
         if (string.IsNullOrWhiteSpace(reason))
             throw new ArgumentException("El motivo de reembolso es requerido.", nameof(reason));
-        Status = ProviderPaymentStatus.Refunded;
+
+        if (cumulativeRefundedAmountCrc == RefundedAmountCrc &&
+            string.Equals(RefundReference, externalReference.Trim(), StringComparison.Ordinal))
+            return;
+
+        RefundedAmountCrc = decimal.Round(cumulativeRefundedAmountCrc, 2, MidpointRounding.ToEven);
+        Status = RefundedAmountCrc == AmountCrc ? ProviderPaymentStatus.Refunded : ProviderPaymentStatus.PartiallyRefunded;
+        RefundReference = externalReference.Trim();
         RefundReason = reason.Trim();
         RefundedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void Refund(string reason) => RecordExternalRefund(AmountCrc, "MANUAL-REFUND", reason);
+
+    public void SyncGatewayRefund(Guid paymentIntentId, decimal cumulativeRefundedAmountCrc, string gatewayOperationReference, string reason) =>
+        RecordGatewayRefund(paymentIntentId, cumulativeRefundedAmountCrc, gatewayOperationReference, reason);
+
+    private void RecordGatewayRefund(Guid paymentIntentId, decimal cumulativeRefundedAmountCrc, string gatewayOperationReference, string reason)
+    {
+        if (PaymentIntentId != paymentIntentId)
+            throw new InvalidOperationException("El reembolso pertenece a otro payment intent.");
+        RecordExternalRefund(cumulativeRefundedAmountCrc, gatewayOperationReference, reason);
     }
 
     public void Expire(string reason)

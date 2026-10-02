@@ -1,93 +1,126 @@
-# Roadmap: NALA como software diario para tiendas veterinarias
+# Plan de implementacion: NALA como sistema diario para tiendas
 
-> Estado: propuesta tecnica y operativa, pendiente de decisiones de producto y aprobacion legal/comercial.
-> Corte de analisis: 2026-09-26.
+> Estado: modelo hibrido por etapas aprobado como direccion de producto el 2026-10-02; cada gate legal, fiscal, comercial y de produccion permanece pendiente de evidencia y aprobacion de sus responsables.
+> Corte de evidencia del codigo: 2026-10-02. La migracion nueva no se verifico aplicada.
 > Alcance: tiendas de mascotas y veterinarias que venden productos al detalle. No describe la operacion clinica.
-> Fuente del estado actual: codigo en `backend/src/PawTrack.Domain/Stores`, `backend/src/PawTrack.Application/Stores`, `backend/src/PawTrack.API/Controllers` y `frontend/src/features/stores`.
+> Este archivo es el plan canonico de implementacion; el backlog ejecutable vive en [MASTER_TODO.md](MASTER_TODO.md).
 
-## 1. Decision de producto
+## 1. Modelo hibrido aprobado
 
-El modulo actual es un canal de catalogo y solicitudes de pedido. No es un POS/ERP: no lleva existencias, compras, caja diaria, pagos procesados ni facturacion fiscal de la tienda.
+El objetivo es que NALA se convierta gradualmente en el sistema operativo diario
+de una tienda, no reemplazar de golpe su POS, terminal de pago ni proveedor
+fiscal. La primera salida es un piloto controlado de una tienda y una sede.
 
-Este roadmap asume que NALA evolucionara a un sistema diario para una tienda individual, primero en una sola ubicacion, y que despues soportara sucursales y personal. Durante la transicion, la tienda conserva su terminal de pago y proveedor fiscal. NALA no debe afirmar que procesa SINPE, confirma depositos o garantiza inventario hasta que exista un flujo implementado y homologado.
+Para el piloto, la autoridad se define por dato:
 
-La decision P0 es definir quien tiene autoridad sobre cada dato. Para la primera version diaria propuesta:
+- NALA administra catalogo publicado, solicitudes/pedidos y el stock operativo
+  solo cuando todos los movimientos que cambian existencias quedan registrados
+  en NALA.
+- El POS o terminal existente conserva el cobro y la caja; el proveedor fiscal
+  conserva el comprobante fiscal y la responsabilidad de su emision.
+- No hay doble escritura ni sincronizacion bidireccional implicita de precios o
+  stock. Para tiendas con POS, se registra por dato si la autoridad es NALA o el
+  POS y como se sincroniza.
+- Si no existe una integracion confiable y el comercio no puede registrar en
+  NALA cada venta presencial y ajuste, NALA no presenta su stock como
+  disponibilidad real ni habilita reservas basadas en ese saldo. El piloto puede
+  mantenerse en catalogo/solicitudes con confirmacion manual de disponibilidad.
+- NALA no procesa ni liquida el pago. El codigo actual permite que el cliente
+  reporte un pago externo y que la tienda registre manualmente una verificacion
+  y la referencia de una devolucion ejecutada fuera de NALA. Esto es una
+  declaracion del actor, no una confirmacion bancaria automatica.
 
-- NALA es autoridad de productos, precios publicados, existencias, pedidos y movimientos de inventario que registre en NALA.
-- El proveedor fiscal y el procesador de pago siguen siendo autoridad de sus respectivos comprobantes y transacciones.
-- Si la tienda ya opera un POS, se define una sola fuente de verdad para inventario y precios; no se habilita sincronizacion bidireccional implicita.
+El piloto no constituye reemplazo de POS, certificacion fiscal, contrato,
+aprobacion legal ni disponibilidad de produccion. Producto aprobo la direccion;
+los responsables comerciales, operativos y legales deben aprobar sus propios
+gates antes de cobrar, publicar claims o activar comercios.
 
-## 2. Estado verificado de la aplicacion
+## 2. Estado del codigo en el workspace
 
-### Implementado
+### Flujos implementados en codigo; despliegue no verificado
 
 - Registro y aprobacion administrativa de tiendas, perfil publico, directorio, mapa y catalogo.
-- Productos con nombre, descripcion, categoria, precio CRC, imagen y disponibilidad booleana.
+- Productos con nombre, descripcion, categoria, precio CRC, imagen, disponibilidad booleana y campo `StockOnHand` opcional.
 - Carrito persistente limitado a una tienda y solicitud de pedido para retiro o entrega.
 - Pedido con lineas que guardan nombre y precio unitario al crear la solicitud.
+- Al aceptar, el backend intenta reservar la cantidad en `StockOnHand` en transaccion relacional `Serializable`; reserva con vencimiento de 15 minutos y job para vencer/liberar reservas.
+- Rutas para que el cliente reporte un pago externo, la tienda registre verificacion manual y la tienda registre la referencia de una devolucion externa ya ejecutada.
 - Confirmacion, rechazo y avance de estado por el propietario de la tienda; historial paginado para comprador y tienda.
 - Entidad `StoreLocation`, CRUD bajo gates de StorePartner y `LocationId` opcional en el pedido.
 - Analitica de pedidos entregados/cancelados, filtro tecnico por sede y exportacion StorePartner.
-- Importacion CSV/JSON asincrona basica de productos mediante `ImportJob`, con clave de idempotencia, limite tecnico de 5 MB/10.000 filas y gate de cuota.
-- Tests unitarios de dominio/handlers y un smoke B2B de aislamiento; el runbook marca el escenario enterprise opt-in como dependiente de datos sembrados.
+- Importacion CSV/JSON asincrona basica de productos mediante `ImportJob`, con clave de idempotencia del job, limite tecnico y gate de cuota. La clave del import no hace idempotente `POST /api/store-orders`.
+- Hay pruebas unitarias de dominio/handlers de tienda; no acreditan por si solas el flujo SQL concurrente ni un E2E de venta/caja.
 
-### No implementado o no verificable en este alcance
+La migracion `20261002193005_AddEnterpriseMarketplaceStockAndPaymentLink` y las
+rutas/jobs referidos son evidencia de codigo/esquema en el workspace, no de
+migracion aplicada, despliegue, operacion con una tienda o pago confirmado por
+una entidad bancaria. La verificacion de esos estados es `NO_VERIFICADO`.
 
-- `StoreProduct` no tiene SKU/codigo de barras, costo, impuesto, proveedor, variantes ni stock.
-- No existen movimientos de inventario, compras/recepciones, reservas de unidades, transferencias ni conteos fisicos de tienda.
+### Brechas actuales para uso diario
+
+- El stock actual es una cantidad editable, no un kardex inmutable. No hay movimientos de apertura/recepcion/venta/merma/ajuste/devolucion, compras, conteo fisico, SKU/codigo de barras, costo, proveedor, variantes ni stock por sede.
+- La reserva al aceptar ya existe en codigo, pero requiere pruebas SQL de concurrencia, idempotencia y recuperacion ante fallos antes de usarse como garantia operativa.
 - El checkout no elige sede ni envia `LocationId`; por tanto, la atribucion multi-sede no forma parte del flujo frontend actual.
 - No hay membresias de empleados de tienda ni permisos por sucursal; el agregado `Store` tiene un `UserId` propietario unico.
-- Las solicitudes no son ventas confirmadas ni reservas de producto. Pago, entrega, impuesto y disponibilidad se coordinan fuera de NALA.
-- Hay campos y estados heredados de referencia/SINPE, pero el controlador de pedidos no expone una ruta para reportar pago. No tratar la referencia como transaccion ni `PaymentReported` como confirmacion bancaria.
-- La notificacion de nuevo pedido se dispara fuera de una cola durable; el cambio de estado no envia una notificacion al comprador desde el handler inspeccionado.
-- No aparece una suite especifica de UI/E2E para el ciclo de compra de tienda en los paths de tests Store. La suite B2B existente cubre principalmente aislamiento y exportacion.
-- El importador de productos carga todo el archivo en memoria; su aislamiento de reportes/jobs y UX de progreso/errores siguen siendo gates pendientes.
+- No hay venta presencial/online unificada, caja/cierre, conciliacion automatica ni factura fiscal de tienda en NALA. Reportar/verificar un pago manual o registrar un reembolso externo no procesa esos movimientos.
+- `POST /api/store-orders` no usa idempotency key. El snapshot de nombre/precio existe al crear la solicitud; falta el proceso de reconfirmar el monto/condiciones si cambian antes de aceptar.
+- Las notificaciones actuales no usan entrega durable/outbox para todo el ciclo ni acreditan recepcion por el comprador.
+- El importador no carga SKU ni existencias y requiere UI de vista previa/progreso, errores descargables, lotes/streaming y pruebas de aislamiento y duplicados.
+- No se encontro un E2E de la jornada completa de caja/inventario. El runbook B2B existente no cubre ese flujo.
 
-Fuentes: [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md), [pendientesTiendas.md](pendientesTiendas.md), [API_REFERENCE.md](API_REFERENCE.md), [GUIA_QA_E2E.md](GUIA_QA_E2E.md).
+Fuentes de contraste: [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md),
+[API_REFERENCE.md](API_REFERENCE.md), [GUIA_QA_E2E.md](GUIA_QA_E2E.md),
+[manual de tiendas](Manuales/MANUAL_TIENDAS.md),
+[StoreOrdersController](../backend/src/PawTrack.API/Controllers/StoreOrdersController.cs),
+[StoreOrderRepository](../backend/src/PawTrack.Infrastructure/Stores/StoreOrderRepository.cs),
+[StoreProductImportProcessor](../backend/src/PawTrack.Application/Imports/StoreProductImport.cs).
 
 ## 3. Brechas confirmadas que requieren correccion
 
-1. **Consistencia del pedido:** `POST /api/store-orders` no usa una clave de idempotencia. Reintentos por timeout pueden crear pedidos duplicados. Agregar `Idempotency-Key` con unicidad por cliente/operacion y una respuesta repetible.
-2. **Estados y pago:** aclarar separadamente solicitud, disponibilidad aceptada, pago externo pendiente/verificado, preparacion y entrega. El dominio permite confirmar desde `PendingPayment`; no existe evidencia de pago asociada al pedido. Definir si confirmar significa aceptar disponibilidad o aceptar venta, y cambiar nombres/estados en consecuencia.
-3. **Transiciones de fulfillment:** validar en el dominio que pedidos `Pickup` no puedan pasar a `OutForDelivery` y pedidos `Delivery` no puedan pasar a `ReadyForPickup`. Toda cancelacion debe guardar timestamp, actor, motivo y transicion; no permitir mutaciones desde estados terminales.
-4. **Validacion de catalogo:** incorporar un validador para `UpdateStoreProductCommand` y invariantes de dominio equivalentes a la creacion, incluidos nombre no vacio, precio valido y pertenencia/estado de la tienda.
-5. **Total mostrado:** recalcular precio/disponibilidad en el servidor al confirmar el pedido y mostrar al comprador cualquier cambio antes de aceptar; mantener snapshot inmutable de cantidad, nombre, precio, moneda, impuesto y entrega cuando esos conceptos se habiliten.
-6. **Notificaciones:** reemplazar efectos fire-and-forget por outbox/worker idempotente. Notificar al cliente las transiciones relevantes y registrar aceptacion/fallo del proveedor sin perder el pedido.
-7. **Reportes:** ejecutar agregaciones en SQL; usar explicitamente `America/Costa_Rica` en filtros y agrupaciones. Excluir o clasificar pedidos no entregados, cancelados, devueltos y aun no cobrados.
-8. **Evidencia de pruebas:** agregar pruebas HTTP positivas/negativas, concurrencia, reintentos, flujo frontend, cambio de precio, stock y aislamiento por tienda/sucursal.
+1. **Idempotencia:** `POST /api/store-orders` no usa clave idempotente, aunque la importacion de catalogo si tiene clave de job. Reintentos por timeout pueden duplicar pedidos; agregar unicidad por cliente/operacion y replay de la respuesta.
+2. **Estados y evidencia de pago:** hay estados para disponibilidad, pago reportado, verificacion manual, preparacion y cumplimiento. Documentar que `verify-payment` es una atestacion de la tienda tras revisar su cuenta, no confirmacion bancaria de NALA. Acordar nombre/semantica del estado `Paid` y evitar presentar el pedido como venta liquidada por el sistema.
+3. **Transiciones de fulfillment:** probar en dominio/API que retiro y entrega no crucen estados incompatibles, que estados terminales no se muten y que cada cambio registre actor, fecha, motivo y evento inmutable.
+4. **Validacion de catalogo:** agregar validador para `UpdateStoreProductCommand` e invariantes de dominio equivalentes al alta, incluyendo nombre, precio, stock no negativo y tienda activa.
+5. **Monto acordado:** el pedido ya conserva snapshot de nombre, precio unitario, cantidad y total al crearse. Revalidar disponibilidad y precio al aceptar; si hay cambios, exigir confirmacion del cliente y persistir tambien moneda, impuestos y entrega cuando se definan.
+6. **Notificaciones:** reemplazar efectos fire-and-forget por outbox/worker idempotente. Notificar al cliente las transiciones y persistir estado de entrega/error sin perder el pedido.
+7. **Reportes:** agregar SQL por periodo con `America/Costa_Rica`, distinguir pedido, venta, pago externo reportado/verificado manualmente, devolucion externa y reembolso integrado (si algun dia se implementa).
+8. **Pruebas:** agregar pruebas HTTP, SQL concurrente, reintentos, cambio de precio/stock, flujo de comprador/tienda y aislamiento por cuenta/sede. Las unitarias existentes no cierran estos gates.
 
 ## 4. Roadmap por gates
 
-### Fase 0 - Alcance, ownership y operacion
+### Fase 0 - Acuerdo y preparacion del piloto
 
-**Prioridad P0. No iniciar transacciones de inventario antes de aprobar esto.**
+**Direccion aprobada:** piloto hibrido de una tienda y una sede. Aun no equivale a
+aprobacion legal/fiscal, seleccion de comercio, contrato ni habilitacion de
+produccion.
 
-- Aprobar el modelo operativo: NALA reemplaza POS para una tienda o integra un POS existente.
-- Definir la autoridad por entidad: producto, precio, stock, venta, pago y factura.
-- Aprobar roles iniciales, limites por plan, politicas de cancelacion/devolucion, horarios, entrega/retiro y datos del comprador.
-- Revisar Ley 8968, normativa de consumidor, fiscalidad y obligaciones de productos regulados con asesor local.
-- Definir moneda, impuestos, redondeo y calendario de Costa Rica; separar factura de la tienda de la factura de suscripcion PawTrack.
+- Seleccionar comercio piloto, responsables de tienda/PawTrack, canales y semana de observacion.
+- Aprobar autoridad por dato: NALA para catalogo, pedidos y stock operativo si todas las ventas/ajustes se registran alli; POS/proveedor para pago, caja y factura fiscal.
+- Definir sincronizacion unidireccional por dato. Sin integracion confiable, el piloto registra ventas presenciales en NALA o mantiene el stock como no verificado y pedidos sujetos a confirmacion manual; nunca dos stocks editables.
+- Confirmar quien puede usar el portal en esta fase (propietario), privacidad/datos de entrega, politica de rechazo/cancelacion/devolucion, horario y cumplimiento local con asesoria responsable.
+- Definir lenguaje de estados: cliente reporta; tienda verifica manualmente; NALA no verifica banco, procesa fondos ni emite factura fiscal de tienda.
+- Separar oferta Store tiers y compra de suscripcion de cualquier venta de productos de la tienda.
 
-**Gate:** decisiones registradas, responsable asignado y claims comerciales alineados.
+**Gate:** decision por escrito, autoridad de datos, responsable y limites del piloto; revision legal/fiscal y claims aprobados por sus propietarios. Sin esto no se activa una operacion presentada como POS.
 
-### Fase 1 - Integridad del catalogo y pedidos
+### Fase 1 - Piloto hibrido e integridad minima de pedido
 
-- Corregir validacion de alta/edicion y eliminar estados ambiguos de pago.
-- Implementar idempotencia para crear pedido y cambiar estados, con correlacion y auditoria.
-- Formalizar state machine por fulfillment, actor y motivo; incluir cancelacion solicitada por comprador y respuesta de tienda.
-- Congelar snapshot comercial del pedido y pedir confirmacion del cliente si cambia el precio.
-- Definir expiracion de solicitudes, tratamiento de pedidos no atendidos y notificaciones por transicion.
-- Registrar eventos y efectos externos mediante outbox; no descartar silenciosamente fallos de correo/push.
+- Ejecutar con una ubicacion, catalogo/importacion inicial y flujo de pedido de una tienda.
+- Agregar idempotencia a creacion/transiciones y correlacion auditable antes de exponer el flujo a reintentos reales.
+- Formalizar maquina de estados por retiro/entrega; distinguir solicitud, aceptacion con disponibilidad, pago reportado, verificacion manual, preparacion, entrega y estados terminales.
+- Mantener el snapshot actual de lineas; revalidar precio/disponibilidad en aceptacion y requerir confirmacion del comprador si cambia el monto.
+- Usar el POS externo para cobro/caja/factura. Registrar cualquier cambio presencial de stock en NALA mientras NALA sea autoridad; si el piloto no puede hacerlo, no exponer stock como real.
+- Notificar al comprador y al comercio con entrega observable; no avanzar estado si el pedido no queda persistido.
 
-**Gate:** reintentos no duplican pedidos, no existen transiciones imposibles y el cliente ve el estado/monto aceptado por ambas partes.
+**Gate del piloto:** reintentos no duplican solicitudes; la tienda y el comprador ven mismo monto/estado; cada salida de stock tiene origen; pago queda rotulado como externo/manual; operacion no depende de una promesa de sincronizacion no implementada.
 
 ### Fase 2 - Inventario diario en una sede
 
 - Ampliar el catalogo con SKU, codigo de barras, unidad, costo, precio, estado archivado, proveedor y atributos necesarios por tipo de producto.
 - Modelar stock como movimientos inmutables, no solo un numero editable: apertura, recepcion, venta/consumo, ajuste, merma y devolucion.
 - Incorporar compras y recepcion de mercaderia, conteo/ajuste con motivo y alertas por stock minimo/vencimiento cuando aplique.
-- Reservar stock de forma atomica al aceptar una orden; liberar reserva al cancelar/rechazar/expirar.
-- Usar concurrencia optimista SQL Server (`rowversion`) y restricciones para impedir stock negativo o doble venta.
+- Evolucionar `StockOnHand` y la reserva al aceptar (ya presentes en codigo) a movimientos atomicos auditables; liberar reserva al cancelar/rechazar/expirar y reconciliarla con el ledger.
+- Probar concurrencia SQL Server, restricciones/locking y rollback para impedir stock negativo o doble venta; evaluar `rowversion` o actualizacion condicional segun el diseño final.
 - Mostrar kardex, existencias actuales y alertas en el portal de tienda.
 
 **Gate:** bajo compras concurrentes y pedidos simultaneos, el stock queda consistente y cada unidad puede explicarse desde sus movimientos.
@@ -97,7 +130,7 @@ Fuentes: [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md), [pendientesTiendas.md](pe
 - Registrar ventas presenciales y online con una sola regla de inventario; prevenir doble conteo si el pago se realiza en terminal externa.
 - Separar `Order`, `Sale`, `Payment` y `ElectronicInvoice`; conservar proveedor, identificador externo, monto, moneda, estado, timestamps y claves idempotentes.
 - Elegir proveedor de pagos/fiscal con contrato, sandbox, webhooks autenticados, conciliacion, notas de credito y manejo de 429/5xx/timeouts.
-- Hasta homologar proveedor, ofrecer registro de pago externo como **declarado/pendiente de verificacion**, nunca como verificado por presion del boton.
+- Hasta homologar proveedor, mantener cobro fuera de NALA. El registro existente de verificacion manual solo documenta que la tienda declara haber revisado su cuenta; no es confirmacion bancaria de NALA.
 - Definir devolucion total/parcial, anulacion, nota de credito, diferencias de caja y auditoria con MFA para acciones sensibles.
 
 **Gate:** conciliacion entre venta, pago, caja e invoice comprobada en sandbox y UAT; reconciliacion manual disponible ante caida del proveedor.
@@ -115,7 +148,7 @@ Fuentes: [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md), [pendientesTiendas.md](pe
 ### Fase 5 - Integraciones y adopcion
 
 - Publicar contratos `/api/v1` de catalogo, disponibilidad, stock, pedidos, ventas y eventos; scopes por tienda/sede, rotacion, sandbox y webhooks firmados.
-- Fortalecer el importador CSV/JSON asincrono de productos que ya existe (`ImportJob`): agregar vista previa/UI, tenant isolation del job/reporte, reporte descargable, metricas, streaming/lotes pequenos y pruebas de duplicados. El formato actual no tiene SKU porque el catalogo aun no lo modela. No leer directamente la base de datos de un POS.
+- Fortalecer el importador CSV/JSON asincrono de productos que ya existe (`ImportJob`): agregar vista previa/UI, tenant isolation del job/reporte, reporte descargable, metricas, streaming/lotes pequenos y pruebas de duplicados. El import actual no lleva SKU ni existencias. No leer directamente la base de datos de un POS.
 - Priorizar conectores segun uso real medido en tiendas piloto. Preferir API/webhook; ofrecer exportacion/importacion supervisada para software local sin API.
 - Implementar sincronizacion en una sola direccion por dato cuando la autoridad sea un POS externo; guardar `ExternalId` y cursor por proveedor/sede.
 - Medir fallos de sincronizacion, diferencias de stock, latencia y ultima sincronizacion visible.

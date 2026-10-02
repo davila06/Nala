@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCreateSubscription, useReportPayment, useSubscriptionCatalog } from "../hooks/useSubscription";
 import { subscriptionApi } from "../api/subscriptionApi";
@@ -49,6 +50,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
   const [paymentView, setPaymentView] = useState<"instructions" | "qr">("instructions");
   const [reference, setReference] = useState<string | null>(null);
   const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
+  const [serverAmountCrc, setServerAmountCrc] = useState<number | null>(null);
   const [billingMonths, setBillingMonths] = useState(1);
   const [receiptNumber, setReceiptNumber] = useState("");
   const [copiedField, setCopiedField] = useState<string | null>(null);
@@ -64,6 +66,14 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
   const { mutateAsync: chargeCard, isPending: isCharging } = useChargeCard();
   const { data: catalog } = useSubscriptionCatalog();
   const { data: billingProfile } = useBillingProfile();
+  const { data: settlementSubscription } = useQuery({
+    queryKey: ["subscription-settlement", subscriptionId, clinicId],
+    queryFn: () => subscriptionApi.getMine(clinicId),
+    enabled: step === "card_success" && subscriptionId !== null,
+    refetchInterval: (query) =>
+      query.state.data?.id === subscriptionId && query.state.data.status === "Active" ? false : 2_000,
+    refetchIntervalInBackground: false,
+  });
 
   const [requiresInvoice, setRequiresInvoice] = useState(false);
 
@@ -80,7 +90,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
     ? monthlyPrice * billingMonths * (billingMonths === 12 ? 0.8 : 1)
     : (catalogPlan?.annualPriceCrc ?? monthlyPrice);
   const ivaAmount = Math.round(basePrice * 0.13);
-  const totalPrice = requiresInvoice ? Math.round(basePrice * 1.13) : Math.round(basePrice);
+  const totalPrice = serverAmountCrc ?? (requiresInvoice ? Math.round(basePrice * 1.13) : Math.round(basePrice));
   const price = totalPrice;
 
   const label = catalogPlan?.displayName ?? TIER_LABELS[tier];
@@ -130,6 +140,7 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
       const sub = await createSub({ tier, billingMonths, clinicId, requiresInvoice });
       setReference(sub.paymentReference);
       setSubscriptionId(sub.id);
+      setServerAmountCrc(sub.amountCrc);
       setStep("payment");
       tap();
     } catch {
@@ -141,15 +152,18 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
     setError(null);
     try {
       let subId = subscriptionId;
+      let quotedAmount = serverAmountCrc;
       if (!subId) {
         const sub = await createSub({ tier, billingMonths, clinicId, requiresInvoice });
         subId = sub.id;
+        quotedAmount = sub.amountCrc;
         setSubscriptionId(sub.id);
         setReference(sub.paymentReference);
+        setServerAmountCrc(sub.amountCrc);
       }
 
       const result = await chargeCard({
-        amountCrc: totalPrice,
+        amountCrc: quotedAmount ?? totalPrice,
         purpose: "Subscription",
         targetEntityId: subId,
         paymentProfileId: data.paymentProfileId,
@@ -600,14 +614,22 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
             </div>
           )}
 
-          {/* Step: card_success (Immediate Activation) */}
+          {/* Step: card authorization; the signed settlement event activates the subscription */}
           {step === "card_success" && (
             <div className="flex flex-col items-center gap-4 py-4 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-rescue-100 text-4xl">🎉</div>
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-warn-100 text-4xl">
+                {settlementSubscription?.id === subscriptionId && settlementSubscription.status === "Active" ? "✓" : "⏳"}
+              </div>
               <div>
-                <h3 className="text-xl font-black text-sand-900">¡Plan Activado Inmediatamente!</h3>
+                <h3 className="text-xl font-black text-sand-900">
+                  {settlementSubscription?.id === subscriptionId && settlementSubscription.status === "Active"
+                    ? "¡Plan activado!"
+                    : "Autorización recibida"}
+                </h3>
                 <p className="mt-1 text-sm text-copy-secondary">
-                  Tu pago con tarjeta fue aprobado y tu suscripción <strong>{label}</strong> ya se encuentra activa.
+                  {settlementSubscription?.id === subscriptionId && settlementSubscription.status === "Active"
+                    ? <>Tu suscripción <strong>{label}</strong> está activa.</>
+                    : <>La tarjeta fue autorizada. Activaremos <strong>{label}</strong> cuando la pasarela confirme la liquidación; el estado se actualizará aquí.</>}
                 </p>
               </div>
 
@@ -618,7 +640,9 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
               )}
 
               <p className="text-xs text-copy-muted">
-                Enviamos tu comprobante de pago electrónico a tu correo registrado.
+                {settlementSubscription?.id === subscriptionId && settlementSubscription.status === "Active"
+                  ? "La suscripción quedó activa tras confirmar la liquidación."
+                  : "No vuelvas a enviar el pago mientras verificamos la liquidación."}
               </p>
 
               <button
@@ -626,7 +650,9 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                 onClick={onClose}
                 className="mt-2 w-full rounded-2xl bg-brand-600 py-3 text-sm font-bold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring shadow-sm"
               >
-                Comenzar a disfrutar de {label} →
+                {settlementSubscription?.id === subscriptionId && settlementSubscription.status === "Active"
+                  ? `Comenzar a disfrutar de ${label} →`
+                  : "Cerrar mientras confirmamos"}
               </button>
             </div>
           )}

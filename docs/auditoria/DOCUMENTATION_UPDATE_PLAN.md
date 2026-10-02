@@ -345,3 +345,89 @@ No se ha inspeccionado producción, estado real de tiendas/proveedores, contrato
 aprobaciones de marca, análisis legal, ni ejecución reciente de CI remota. La
 fecha de los documentos técnicos citados varía; el estado técnico se toma del
 corte vigente 2026-09-28 y la auditoría de landing de 2026-10-01.
+
+## Revalidación de tiendas y decisión de piloto híbrido (2026-10-02)
+
+### Decisión y alcance
+
+El usuario aprobó como dirección de producto un modelo híbrido por etapas: comenzar
+con un piloto de una tienda y una sede; NALA será autoridad de catálogo, pedidos
+y, solo cuando la fuente de verdad esté definida, existencias operativas. El POS,
+terminal de pago y proveedor fiscal existentes conservan autoridad sobre cobros,
+caja y comprobantes. No se habilitará doble escritura de precios o stock. Si no
+hay sincronización confiable con un POS, el piloto no debe activar stock NALA como
+si reflejara las ventas presenciales. La dirección está aprobada por producto,
+pero el contrato, la revisión legal/fiscal, el comercio piloto y el despliegue
+siguen `NO_VERIFICADO`.
+
+La implementación se ordena en el documento canónico
+[ROADMAP_TIENDAS_USO_DIARIO.md](../ROADMAP_TIENDAS_USO_DIARIO.md): piloto híbrido;
+integridad de pedidos; inventario con movimientos; ventas/caja/pagos/fiscalidad;
+catálogo e importación; notificaciones/operación; después personal/sucursales,
+integraciones, resiliencia y salida gradual. El backlog ejecutable permanece en
+[MASTER_TODO.md](../MASTER_TODO.md); no se conservará un TODO paralelo de tiendas.
+
+### Inventario de proyectos y cobertura de esta revalidación
+
+`PawTrack.sln` contiene ocho proyectos: API, Application, Domain, Infrastructure,
+UnitTests, AuthorizationTests, E2ETests e IntegrationTests. `HashGen` es un
+noveno proyecto .NET auxiliar fuera de la solución. Se inventariaron por búsqueda
+de archivos; esta revalidación no equivale a una auditoría integral de los nueve
+proyectos.
+
+| Superficie                                       | Evidencia revisada para tiendas                                                                                                                          | Límite de cobertura                                                                    |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| API                                              | `StoreOrdersController` y rutas de pedido, reporte de pago, verificación manual y devolución externa.                                                    | No se generó OpenAPI ni se ejecutó una matriz HTTP completa.                           |
+| Application                                      | Handlers de productos/pedidos, importación de productos y job de vencimiento de reservas.                                                                | No se ejecutó toda la suite de handlers.                                               |
+| Domain                                           | `StoreProduct`, `StoreOrder`, estados y reserva/liberación de stock.                                                                                     | No implica aprobación de reglas comerciales/legal.                                     |
+| Infrastructure                                   | Repositorio de pedidos, configuración y migraciones de stock/pago; hosted service de expiración.                                                         | La migración no fue aplicada ni se verificó staging/producción.                        |
+| UnitTests                                        | Pruebas focales de dominio/handlers de tiendas existentes.                                                                                               | No se ejecutaron en esta actualización documental.                                     |
+| IntegrationTests / AuthorizationTests / E2ETests | Se buscaron pruebas y runbooks relacionados con pedidos, imports y B2B.                                                                                  | No se encontró evidencia de E2E de caja/inventario completo; no se ejecutaron pruebas. |
+| PWA React                                        | Checkout, portal de productos, pedidos entrantes e historial del comprador.                                                                              | UI presente no acredita uso operativo o sincronización con POS.                        |
+| Landing Next.js / Infraestructura                | Inventario de package/config y documentación relacionada.                                                                                                | Fuera del alcance funcional de tiendas; despliegues y proveedores no consultados.      |
+| `docs/`                                          | Inventario de archivos Markdown y búsqueda de referencias a tienda/POS/stock/pago; lectura de fuentes activas y backlinks obsoletos identificados abajo. | No es una lectura semántica línea por línea de los 303 Markdown.                       |
+
+El árbol ya contenía cambios del usuario fuera de `docs/` (ServiceProviders y un
+modal SINPE de Owner, entre otros); se preservan y no se atribuyen a esta
+revalidación. Solo se modificarán documentos bajo `docs/`.
+
+### Discrepancias confirmadas
+
+| Prioridad | Fuentes previas                                                                                                                                              | Evidencia superior y resolución                                                                                                                                                                                                                                                         |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Alta      | Roadmap, estado B2B, manual, API, `STATUS`, `FEATURES`, QA, modelo de datos y documentos comerciales afirmaban que no había stock ni reserva de existencias. | Código actual incorpora `StockOnHand`, reserva al aceptar y expiración/liberación; migración `20261002193005_AddEnterpriseMarketplaceStockAndPaymentLink`. Actualizar a capacidad técnica parcial; no afirmar kardex, ventas presenciales, despliegue de migración ni stock productivo. |
+| Alta      | Referencias B2B/API/legal/manual/runbook afirmaban que no existía reporte o verificación de pago de tienda.                                                  | El controller expone reporte del cliente, verificación manual por la tienda y registro de una devolución externa. No hay proveedor bancario conectado ni procesamiento automático; los documentos deben distinguir atestación manual de confirmación bancaria.                          |
+| Media     | El roadmap describía como ausente el snapshot de precios de línea.                                                                                           | `StoreOrder.Place` conserva nombre/precio unitario y total al crear el pedido. Sigue pendiente reconfirmar discrepancias antes de aceptar, además de impuestos/entrega.                                                                                                                 |
+| Alta      | `pendientesTiendas.md` se declara explícitamente histórico/sustituido, pero sigue enlazado desde docs activos e históricos.                                  | Eliminar el backlog duplicado, enlazar al roadmap/backlog vigentes y dejar constancia de la sustitución en README y changelog. Conservar otros documentos históricos que tengan valor probatorio; no borrarlos por antigüedad.                                                          |
+
+### Documentos a actualizar
+
+Actualizar primero `ROADMAP_TIENDAS_USO_DIARIO.md` como plan de implementación
+aprobado por producto (sin elevar aprobación legal ni disponibilidad); después
+`MASTER_TODO.md`, `README.md`, `B2B_ESTADO_ACTUAL.md`, `STATUS.md`,
+`PRODUCT_SCOPE.md`, `FEATURES.md`, `API_REFERENCE.md`, `API.md`,
+`API_AUTHORIZATION_MATRIX.md`, `Manuales/MANUAL_TIENDAS.md`, `legal.md`,
+`RUNBOOK_PAGOS_SINPE.md`, `GUIA_QA_E2E.md`, `DICCIONARIO_DATOS.md`,
+`domains/MARKETPLACE.md`, `domains/MARKETPLACE_LIMITATIONS.md`,
+`KNOWN_LIMITATIONS.md`, `auditoria/FEATURE_TRACEABILITY_MATRIX.md`,
+`auditoria/DOCUMENTATION_GAP_REPORT.md`, `PRICING_AND_PLANS.md` y
+`auditoria/DOCUMENTATION_CHANGELOG.md`. Actualizar backlinks históricos a la
+fuente canónica sin reescribir sus afirmaciones históricas. Eliminar
+`docs/pendientesTiendas.md` después de retirar sus referencias activas.
+
+### Orden y comprobaciones
+
+1. Actualizar este plan primero; después reescribir el roadmap híbrido con gates,
+   autoridades por dato, piloto inicial y fases 2-7.
+2. Corregir fuentes activas de estado/API/manual/legal/pagos y pruebas, manteniendo
+   explícito que cambios en el working tree no prueban migración aplicada,
+   aprobación legal/comercial ni operación externa.
+3. Sincronizar scope, FEATURES, matriz de trazabilidad, brechas, diccionario e
+   índice; quitar backlinks al TODO eliminado.
+4. Validar enlaces locales tocados, búsqueda de claims obsoletos, coherencia de
+   estados, que todos los cambios queden bajo `docs/` y `git diff --check`.
+
+No se ejecutarán build, migraciones, llamadas a proveedores ni tests de producto
+para este cambio documental. Ningún E2E de operación diaria de tienda, piloto,
+aprobación legal/fiscal, migración aplicada, sincronización POS o despliegue fue
+verificado en este corte.

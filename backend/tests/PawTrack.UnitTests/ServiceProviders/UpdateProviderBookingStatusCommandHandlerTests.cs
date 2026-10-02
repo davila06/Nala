@@ -1,10 +1,14 @@
 using FluentAssertions;
+using MediatR;
 using NSubstitute;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Payments.Commands;
+using PawTrack.Application.Payments.DTOs;
 using PawTrack.Application.ServiceProviders;
 using PawTrack.Domain.Audit;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Notifications;
+using PawTrack.Domain.Payments;
 using PawTrack.Domain.ServiceProviders;
 
 namespace PawTrack.UnitTests.ServiceProviders;
@@ -83,6 +87,81 @@ public sealed class UpdateProviderBookingStatusCommandHandlerTests
         await notifications.Received(1).AddAsync(
             Arg.Is<Notification>(notification => notification.UserId == providerOwnerId && notification.Type == NotificationType.ProviderBookingUpdate),
             Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_CustomerCancelsCardPaidBooking_RefundsExactlyOnceBeforeSavingCancellation()
+    {
+        var providers = Substitute.For<IServiceProviderRepository>();
+        var audit = Substitute.For<IAuditLogRepository>();
+        var notifications = Substitute.For<INotificationRepository>();
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var sender = Substitute.For<ISender>();
+        var providerOwnerId = Guid.NewGuid();
+        var customerId = Guid.NewGuid();
+        var provider = ServiceProvider.Create(providerOwnerId, "Grooming CR", "Cuidado", ServiceProviderCategory.Groomer, "Heredia", 10m, -84m, "provider@example.cr");
+        var booking = ProviderBooking.Request(provider.Id, Guid.NewGuid(), customerId, Guid.NewGuid(), "Bano",
+            DateTimeOffset.UtcNow.AddDays(3), 60, 20_000m, 1, null, taxCrc: 2_600m, platformFeeCrc: 400m,
+            customerRefundPercentage: 50m);
+        booking.MarkAwaitingPayment();
+        booking.Confirm();
+        var intentId = Guid.NewGuid();
+        var payment = ProviderPayment.Create(booking.Id, customerId, provider.Id, booking.TotalCrc, "CARD-BOOK-1", "idem-book-1");
+        payment.BeginCardPayment(intentId);
+        payment.ConfirmCardPayment(intentId, "CS-TXN-1");
+        providers.GetBookingByIdAsync(booking.Id, Arg.Any<CancellationToken>()).Returns(booking);
+        providers.GetByUserIdAsync(customerId, Arg.Any<CancellationToken>()).Returns((ServiceProvider?)null);
+        providers.GetPaymentByBookingAsync(booking.Id, Arg.Any<CancellationToken>()).Returns(payment);
+        sender.Send(Arg.Any<RefundPaymentCommand>(), Arg.Any<CancellationToken>())
+            .Returns(Result.Success(new PaymentOperationDto(
+                intentId, Guid.NewGuid(), PaymentOperationType.Refund, PaymentOperationStatus.Succeeded,
+                PaymentIntentStatus.PartiallyRefunded, payment.AmountCrc, 11_500m, "PT-REFUND", "CS-REFUND-1")));
+
+        var handler = new UpdateProviderBookingStatusCommandHandler(providers, audit, unitOfWork, notifications, sender);
+        var result = await handler.Handle(new UpdateProviderBookingStatusCommand(
+            customerId, booking.Id, ProviderBookingStatus.CancelledByCustomer, "Cambio de planes"), default);
+
+        result.IsSuccess.Should().BeTrue();
+        booking.Status.Should().Be(ProviderBookingStatus.CancelledByCustomer);
+        payment.Status.Should().Be(ProviderPaymentStatus.PartiallyRefunded);
+        payment.RefundedAmountCrc.Should().Be(11_500m);
+        await sender.Received(1).Send(Arg.Is<RefundPaymentCommand>(command =>
+            command.PaymentIntentId == intentId && command.AmountCrc == 11_500m &&
+            command.IdempotencyKey == $"provider-booking-cancel:{booking.Id:N}"), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_UnrelatedUserCannotTriggerCardRefundByRequestingCancellation()
+    {
+        var providers = Substitute.For<IServiceProviderRepository>();
+        var audit = Substitute.For<IAuditLogRepository>();
+        var notifications = Substitute.For<INotificationRepository>();
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var sender = Substitute.For<ISender>();
+        var ownerId = Guid.NewGuid();
+        var attackerId = Guid.NewGuid();
+        var provider = ServiceProvider.Create(Guid.NewGuid(), "Grooming CR", "Cuidado", ServiceProviderCategory.Groomer, "Heredia", 10m, -84m, "provider@example.cr");
+        var booking = ProviderBooking.Request(provider.Id, Guid.NewGuid(), ownerId, Guid.NewGuid(), "Bano",
+            DateTimeOffset.UtcNow.AddDays(3), 60, 20_000m, 1, null);
+        booking.MarkAwaitingPayment();
+        booking.Confirm();
+        var intentId = Guid.NewGuid();
+        var payment = ProviderPayment.Create(booking.Id, ownerId, provider.Id, booking.TotalCrc, "CARD-ATTACK", "idem-attack");
+        payment.BeginCardPayment(intentId);
+        payment.ConfirmCardPayment(intentId, "CS-TXN-ATTACK");
+        providers.GetBookingByIdAsync(booking.Id, Arg.Any<CancellationToken>()).Returns(booking);
+        providers.GetPaymentByBookingAsync(booking.Id, Arg.Any<CancellationToken>()).Returns(payment);
+        providers.GetByUserIdAsync(attackerId, Arg.Any<CancellationToken>()).Returns((ServiceProvider?)null);
+
+        var handler = new UpdateProviderBookingStatusCommandHandler(providers, audit, unitOfWork, notifications, sender);
+        var result = await handler.Handle(new UpdateProviderBookingStatusCommand(
+            attackerId, booking.Id, ProviderBookingStatus.CancelledByCustomer, "forged"), default);
+
+        result.IsFailure.Should().BeTrue();
+        payment.Status.Should().Be(ProviderPaymentStatus.Confirmed);
+        booking.Status.Should().Be(ProviderBookingStatus.Confirmed);
+        await sender.DidNotReceive().Send(Arg.Any<RefundPaymentCommand>(), Arg.Any<CancellationToken>());
+        providers.DidNotReceive().UpdateBooking(Arg.Any<ProviderBooking>());
     }
 
     [Fact]

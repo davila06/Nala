@@ -48,6 +48,17 @@ describe("site navigation", () => {
     expect(foundPetLinks).toHaveLength(2);
   });
 
+  it("keeps a prominent lost-pet report action and PawTrack entry in the header", () => {
+    const { container } = render(<SiteHeader />);
+    const lostPetAction = container.querySelector<HTMLAnchorElement>(".header-lost-cta");
+    const openPawTrack = container.querySelector<HTMLAnchorElement>(".header-cta");
+
+    expect(lostPetAction?.textContent).toMatch(/Perdí una mascota/i);
+    expect(lostPetAction?.href).toBe("http://localhost:5173/login?return=%2Flost-pets%2Freport");
+    expect(openPawTrack?.textContent).toMatch(/Abrir PawTrack/i);
+    expect(openPawTrack?.classList.contains("header-cta-primary")).toBe(true);
+  });
+
   it("groups routes into desktop mega menus and mobile sections", () => {
     const { container } = render(<SiteHeader />);
     const desktopNav = container.querySelector(".desktop-nav");
@@ -64,24 +75,24 @@ describe("site navigation", () => {
     expect(mobileNav?.querySelector('a[href="/contact"]')).toBeTruthy();
   });
 
-  it("closes the previous menu group and dismisses the mobile drawer after navigation", () => {
+  it("groups accordions exclusively and dismisses the mobile drawer after navigation", () => {
     const { container } = render(<SiteHeader />);
-    const desktopGroups = container.querySelectorAll<HTMLDetailsElement>(".desktop-nav-group");
-
-    fireEvent.click(desktopGroups[0].querySelector("summary")!);
-    fireEvent.click(desktopGroups[1].querySelector("summary")!);
-    expect(desktopGroups[0].open).toBe(false);
-    expect(desktopGroups[1].open).toBe(true);
+    const desktopGroups = container.querySelectorAll(".desktop-nav-group");
+    expect(Array.from(desktopGroups).every((group) => group.getAttribute("name") === "desktop-navigation-groups")).toBe(
+      true,
+    );
 
     const mobileMenu = container.querySelector<HTMLDetailsElement>(".mobile-menu")!;
     const mobileGroups = container.querySelectorAll<HTMLDetailsElement>(".mobile-nav-group");
-    fireEvent.click(mobileMenu.querySelector(":scope > summary")!);
-    fireEvent.click(mobileGroups[0].querySelector("summary")!);
-    fireEvent.click(mobileGroups[1].querySelector("summary")!);
-    expect(mobileGroups[0].open).toBe(false);
-    expect(mobileGroups[1].open).toBe(true);
+    expect(Array.from(mobileGroups).every((group) => group.getAttribute("name") === "mobile-navigation-groups")).toBe(
+      true,
+    );
+    mobileMenu.open = true;
+    mobileGroups[1].open = true;
 
-    fireEvent.click(mobileGroups[1].querySelector('a[href="/clinics"]')!);
+    const clinicLink = mobileGroups[1].querySelector('a[href="/clinics"]')!;
+    clinicLink.addEventListener("click", (event) => event.preventDefault(), { once: true });
+    fireEvent.click(clinicLink);
     expect(mobileGroups[1].open).toBe(false);
     expect(mobileMenu.open).toBe(false);
   });

@@ -1,6 +1,6 @@
 # PawTrack CR — Estado B2B/B2G y Marketplace de Servicios
 
-> Corte general: 2026-09-22. Seccion de tiendas revalidada: 2026-09-26.
+> Corte general: 2026-09-22. Tiendas revalidadas focalmente contra el workspace: 2026-10-02.
 > Fuente técnica: `SubscriptionTier`, `SubscriptionPricing`, controllers, handlers y rutas frontend actuales.
 >
 > Este documento distingue capacidades implementadas de propuestas comerciales. Una capacidad no debe venderse como activa si aparece en `📋`.
@@ -115,13 +115,15 @@ recordatorios externos, aceptación fiscal, homologación y rollout en staging
 siguen pendientes. Los precios técnicos y gates comerciales se rigen por
 [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md).
 
-> **Tiendas:** el alcance implementado es catalogo y solicitudes de pedido, no
-> un POS. `StorePlus` y `StorePartner` son gates tecnicos; la venta publica
-> sigue bloqueada por [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md). Los pedidos
-> no reservan existencias ni confirman pagos. El campo `PaymentReference` no es
-> evidencia bancaria y no existe endpoint de reporte de pago de tienda. Aunque
-> el backend acepta `LocationId` opcional, checkout no selecciona sede y no hay
-> inventario ni permisos por sede. Ver
+> **Tiendas:** el alcance sigue sin ser POS/ERP. En el codigo del workspace hay
+> `StockOnHand`, reserva temporal al aceptar, expiracion/liberacion, reporte de
+> pago externo por cliente y registro manual por la tienda de verificacion y
+> devolucion externa. Eso no equivale a kardex, stock por sede, pago procesado,
+> confirmacion bancaria de NALA, caja ni factura fiscal. `StorePlus` y
+> `StorePartner` son gates tecnicos; la venta publica sigue sujeta a
+> [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md). `LocationId` sigue sin seleccion
+> en checkout y no hay permisos por sede. Migracion aplicada, piloto y
+> disponibilidad productiva `NO_VERIFICADO`. Ver
 > [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
 
 | Producto                 | Backend/frontend actual                                                                                        | Gate o tier               | Gaps principales                                                        |
@@ -129,9 +131,9 @@ siguen pendientes. Los precios técnicos y gates comerciales se rigen por
 | Clínica básica           | Registro, revisión, perfil público editable, directorio paginado, mapa y escaneo                               | `ClinicBasic`/estado base | Revalidación documental y UI de gestión de consentimientos              |
 | Clínica Plus             | Destacado, badge, estadísticas y alertas cercanas                                                              | `ClinicPlus`              | SLA y soporte formal                                                    |
 | Clínica Partner          | Certificados PDF firmables, API key con scopes, widget, pasaporte, agenda, export clínico y contrato `/api/v1` | `ClinicPartner`           | UI de agenda, PKI gestionada por Key Vault y atribución operativa       |
-| Tienda básica            | Perfil, catálogo, directorio y mapa                                                                            | `StoreBasic`/estado base  | Inventario y perfil comercial completo                                  |
-| Tienda Plus              | Pedidos in-app, SINPE/referencia y operación                                                                   | `StorePlus`               | Confirmación, reembolso, idempotencia comercial, impuestos y envío      |
-| Tienda Partner           | Analytics, sedes y exportacion CSV con cuota/auditoria                                                         | `StorePartner`            | Inventario por sede y badge/ranking consistente                         |
+| Tienda básica            | Perfil, catálogo, directorio y mapa; stock escalar opcional en codigo                                          | `StoreBasic`/estado base  | Kardex, compras, venta diaria y perfil comercial completo                |
+| Tienda Plus              | Pedidos in-app; reserva temporal y registro manual de pago externo en codigo                                    | `StorePlus`               | Idempotencia, pagos integrados, caja, impuestos y entrega/fiscalidad     |
+| Tienda Partner           | Analytics, sedes tecnicas y exportacion CSV con cuota/auditoria                                                 | `StorePartner`            | Inventario/permisos por sede y checkout con seleccion de ubicacion       |
 | Refugio básico           | Publicación y solicitudes de adopción                                                                          | `ShelterBasic`            | Roles, consentimiento y moderación avanzada                             |
 | Refugio Plus             | Animales ilimitados, ferias y visibilidad                                                                      | `ShelterPlus`             | Billing y operación enterprise                                          |
 | Municipalidad básica     | Capacidades técnicas existentes; módulo diferido                                                               | `MuniBasica` anual        | No implementar compra, renovación ni ampliación durante el diferimiento |
@@ -142,11 +144,13 @@ siguen pendientes. Los precios técnicos y gates comerciales se rigen por
 | API/widget               | API clínica, widget Partner, sandbox, scopes y webhooks salientes                                              | ClinicPartner             | Observabilidad Azure y contratos de Stores pendientes                   |
 | Datos agregados          | No disponible como producto                                                                                    | Futuro                    | Anonimización, consentimiento, contratos y gobierno de datos            |
 
-> **Correccion vinculante de las filas Store de la matriz anterior:** la
-> mencion `SINPE/referencia` describe un campo/estado heredado, no un flujo de
-> pago activo. NALA no verifica depositos, no procesa reembolsos y no reserva
-> stock para pedidos de tienda. `StoreLocation` y `LocationId` son soporte
-> tecnico parcial, no operacion multi-sede con inventario/permisos aislados.
+> **Limite vinculante de las filas Store:** la ruta de pago vigente es manual y
+> externa: cliente reporta; tienda verifica en su canal bancario y registra una
+> referencia. La app no consulta al banco ni procesa el reembolso; solo guarda
+> evidencia declarada por la tienda. Las reservas y expiracion son codigo,
+> pero el ledger y su operacion productiva no estan verificados. `StoreLocation`
+> y `LocationId` son soporte tecnico parcial, no operacion multi-sede con
+> inventario/permisos aislados.
 
 ## Rutas principales
 

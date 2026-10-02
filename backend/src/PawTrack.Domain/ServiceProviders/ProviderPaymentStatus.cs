@@ -9,4 +9,5 @@ public enum ProviderPaymentStatus
     Disputed,
     Refunded,
     CardPending,
+    PartiallyRefunded,
 }

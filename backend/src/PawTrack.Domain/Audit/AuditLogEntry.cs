@@ -69,8 +69,6 @@ public enum AuditAction
     StoreApproved,
     StoreRejected,
     StoreSuspended,
-    StoreOrderPaymentVerified,
-    StoreOrderRefundRecorded,
     StoreAnalyticsExported,
     PartnerAnalyticsExported,
 
@@ -118,6 +116,8 @@ public enum AuditAction
     SearchLocationSharingStarted,
     SearchLocationSharingStopped,
     SearchLocationSharingExpired,
+    StoreOrderPaymentVerified,
+    StoreOrderRefundRecorded,
 }
 
 public sealed class AuditLogEntry

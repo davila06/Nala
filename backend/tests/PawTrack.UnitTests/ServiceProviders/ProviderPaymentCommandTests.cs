@@ -1,8 +1,11 @@
 using FluentAssertions;
 using NSubstitute;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Payments.Interfaces;
 using PawTrack.Application.ServiceProviders;
 using PawTrack.Application.Subscriptions.Interfaces;
+using PawTrack.Domain.Audit;
+using PawTrack.Domain.Payments;
 using PawTrack.Domain.ServiceProviders;
 using PawTrack.Application.ServiceProviders.Payments;
 
@@ -138,5 +141,79 @@ public sealed class ProviderPaymentCommandTests
         result.IsFailure.Should().BeTrue();
         payment.Status.Should().NotBe(ProviderPaymentStatus.Reported);
         repository.DidNotReceive().UpdatePayment(Arg.Any<ProviderPayment>());
+    }
+}
+
+public sealed class RecordManualProviderRefundCommandTests
+{
+    [Fact]
+    public void ValidatorRejectsAmountWithMoreThanTwoDecimalPlaces()
+    {
+        var validator = new RecordManualProviderRefundCommandValidator();
+        var command = new RecordManualProviderRefundCommand(
+            Guid.NewGuid(), Guid.NewGuid(), 0.001m, "BANK-REFUND-1", "Devolución", "refund-key");
+
+        validator.Validate(command).IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task RejectsPaymentLinkedToGatewayIntent()
+    {
+        var repository = Substitute.For<IServiceProviderRepository>();
+        var operationRepository = Substitute.For<IPaymentOperationRepository>();
+        var auditLog = Substitute.For<IAuditLogRepository>();
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var payment = ProviderPayment.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 20_000m, "CARD-REF", "idem-card");
+        var paymentIntentId = Guid.NewGuid();
+        payment.BeginCardPayment(paymentIntentId);
+        payment.ConfirmCardPayment(paymentIntentId, "GATEWAY-TX-1");
+        repository.GetPaymentByIdAsync(payment.Id, Arg.Any<CancellationToken>()).Returns(payment);
+
+        var handler = new RecordManualProviderRefundCommandHandler(repository, operationRepository, auditLog, unitOfWork);
+        var result = await handler.Handle(new RecordManualProviderRefundCommand(
+            Guid.NewGuid(), payment.Id, 5_000m, "BANK-REFUND-1", "Devolución parcial", "card-refund-key"), default);
+
+        result.IsFailure.Should().BeTrue();
+        payment.RefundedAmountCrc.Should().Be(0);
+        await operationRepository.DidNotReceive().AddAsync(Arg.Any<PaymentOperation>(), Arg.Any<CancellationToken>());
+        await auditLog.DidNotReceive().AddAsync(Arg.Any<AuditLogEntry>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task RecordsExternalSinpeRefundIdempotentlyWithAudit()
+    {
+        var repository = Substitute.For<IServiceProviderRepository>();
+        var operationRepository = Substitute.For<IPaymentOperationRepository>();
+        var auditLog = Substitute.For<IAuditLogRepository>();
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var payment = ProviderPayment.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 20_000m, "SINPE-REFUND", "idem-refund");
+        PaymentOperation? recordedOperation = null;
+        payment.ReportPayment();
+        payment.Confirm("BANK-PAYMENT-1");
+        repository.GetPaymentByIdAsync(payment.Id, Arg.Any<CancellationToken>()).Returns(payment);
+        operationRepository.GetByIdempotencyKeyAsync(
+            PaymentOperationType.Refund, "store-refund-key", Arg.Any<CancellationToken>())
+            .Returns(_ => Task.FromResult(recordedOperation));
+        operationRepository.AddAsync(
+            Arg.Do<PaymentOperation>(operation => recordedOperation = operation), Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
+
+        var handler = new RecordManualProviderRefundCommandHandler(repository, operationRepository, auditLog, unitOfWork);
+        var command = new RecordManualProviderRefundCommand(
+            Guid.NewGuid(), payment.Id, 5_000m, "BANK-REFUND-1", "Devolución parcial", "store-refund-key");
+        var result = await handler.Handle(command, default);
+        var retry = await handler.Handle(command, default);
+        var conflictingRetry = await handler.Handle(command with { AmountCrc = 6_000m }, default);
+
+        result.IsSuccess.Should().BeTrue();
+        retry.IsSuccess.Should().BeTrue();
+        conflictingRetry.IsFailure.Should().BeTrue();
+        payment.RefundedAmountCrc.Should().Be(5_000m);
+        payment.Status.Should().Be(ProviderPaymentStatus.PartiallyRefunded);
+        payment.RefundReference.Should().Be("BANK-REFUND-1");
+        await operationRepository.Received(1).AddAsync(Arg.Any<PaymentOperation>(), Arg.Any<CancellationToken>());
+        await auditLog.Received(1).AddAsync(
+            Arg.Is<AuditLogEntry>(entry => entry.Action == AuditAction.ProviderPaymentRefunded),
+            Arg.Any<CancellationToken>());
     }
 }

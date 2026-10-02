@@ -175,15 +175,18 @@ public sealed class ProviderBooking
 
     public void CancelByCustomer(string reason, DateTimeOffset now)
     {
-        if (!new ProviderCancellationPolicy(
-                CancellationPolicySnapshot,
-                FreeCancellationHours,
-                CustomerRefundPercentage,
-                ProviderCancellationRefundPercentage)
-            .IsCustomerCancellationFree(StartsAt, now))
+        if (!IsCustomerCancellationFreeAt(now))
             throw new InvalidOperationException("La cancelación está fuera de la ventana gratuita de la política capturada.");
         Cancel(ProviderBookingStatus.CancelledByCustomer, reason);
     }
+
+    public bool IsCustomerCancellationFreeAt(DateTimeOffset now) =>
+        new ProviderCancellationPolicy(
+            CancellationPolicySnapshot,
+            FreeCancellationHours,
+            CustomerRefundPercentage,
+            ProviderCancellationRefundPercentage)
+        .IsCustomerCancellationFree(StartsAt, now);
     public void CancelByProvider(string reason) => Cancel(ProviderBookingStatus.CancelledByProvider, reason);
 
     private void Cancel(ProviderBookingStatus targetStatus, string reason)

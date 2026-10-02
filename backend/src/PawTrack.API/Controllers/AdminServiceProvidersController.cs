@@ -115,6 +115,22 @@ public sealed class AdminServiceProvidersController(ISender sender) : Controller
             : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
     }
 
+    [HttpPut("payments/{paymentId:guid}/external-refund")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> RecordExternalRefund(
+        Guid paymentId,
+        [FromBody] RecordProviderExternalRefundRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetAdminId(out var adminUserId)) return Unauthorized();
+        var result = await sender.Send(new RecordManualProviderRefundCommand(
+            adminUserId, paymentId, request.AmountCrc, request.ExternalReference,
+            request.Reason, request.IdempotencyKey), ct);
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
     [HttpGet("incidents")]
     [EnableRateLimiting("public-api")]
     public async Task<IActionResult> GetIncidents([FromQuery] int page = 1, [FromQuery] int pageSize = 50, CancellationToken ct = default)
@@ -174,5 +190,7 @@ public sealed record SetServiceProviderOperationalStatusRequest(bool Suspend, st
 public sealed record SetServiceProviderMembershipRequest(ProviderMembershipTier Tier, bool Manual);
 public sealed record ReviewProviderVerificationRequest(bool Approve, DateOnly? ExpiresAt, string? Reason);
 public sealed record ConfirmProviderPaymentRequest(string ExternalReference);
+public sealed record RecordProviderExternalRefundRequest(
+    decimal AmountCrc, string ExternalReference, string Reason, string IdempotencyKey);
 public sealed record AssignProviderIncidentRequest(Guid AssignedToUserId);
 public sealed record ResolveProviderIncidentRequest(string Resolution);

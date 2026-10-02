@@ -3,7 +3,7 @@
 **Version:** 1.0  
 **Rol:** `Store`  
 **Audiencia:** propietarios y operadores de tiendas aprobadas  
-**Ultima actualizacion:** 2026-09-26
+**Ultima actualizacion:** 2026-10-02
 
 ## 1. Alcance y registro
 
@@ -12,11 +12,16 @@ recibir solicitudes de pedido. El registro inicial es publico en
 `/tienda/registro`; mientras se revisa la solicitud, consulta
 `/tienda/pendiente`.
 
-**Alcance actual:** este portal no es un POS/ERP. No controla existencias,
-compras, caja, pagos, reembolsos ni factura fiscal de la tienda. La solicitud
-no aparta producto ni garantiza el precio hasta que la tienda la revise.
-Consulte [ROADMAP_TIENDAS_USO_DIARIO.md](../ROADMAP_TIENDAS_USO_DIARIO.md) para
-el roadmap de esas capacidades.
+**Alcance actual:** el portal no es un POS/ERP. El codigo incluye una cantidad
+`StockOnHand` por producto y reserva temporal cuando la tienda acepta una
+solicitud, pero no kardex, compras, ventas presenciales, caja ni stock por sede.
+El cliente puede reportar un pago externo; la tienda puede registrar que lo
+verifico manualmente y guardar la referencia de una devolucion ejecutada fuera
+de NALA. La app no procesa fondos, consulta al banco ni emite factura fiscal.
+La migracion, el piloto y la disponibilidad de estas rutas en cada entorno no
+estan verificados; usalas solo cuando el responsable del piloto confirme que el
+entorno esta habilitado. El alcance futuro esta en
+[ROADMAP_TIENDAS_USO_DIARIO.md](../ROADMAP_TIENDAS_USO_DIARIO.md).
 
 El administrador aprueba o suspende la tienda. Una cuenta de tienda solo puede
 administrar sus propios productos, pedidos, perfil y, cuando corresponda, sus
@@ -28,8 +33,9 @@ Despues de iniciar sesion, abre `/tienda/portal`. Las secciones son:
 
 - **Perfil:** nombre, descripcion, direccion, telefono, sitio web y contacto de
   WhatsApp opcional.
-- **Productos:** alta, edicion, disponibilidad, categoria, precio en colones e
-  imagen JPEG, PNG o WebP de hasta 5 MB.
+- **Productos:** alta, edicion, disponibilidad, categoria, precio en colones,
+  existencias simples e imagen JPEG, PNG o WebP de hasta 5 MB. La cantidad no
+  tiene historial de movimientos.
 - **Ordenes:** revisar solicitudes, confirmar disponibilidad, aceptar o
   rechazar, preparar y marcar entrega o retiro.
 - **Analitica:** metricas del periodo y export CSV cuando el plan lo habilita.
@@ -52,17 +58,24 @@ del alcance comercial actual hasta nueva aprobacion.
 
 ## 4. Gestion de pedidos
 
-1. Abre **Ordenes** y revisa el producto, cantidad y modalidad de
-   cumplimiento.
-2. Confirma disponibilidad y precio antes de aceptar; NALA no consulta ni reserva stock.
-3. Actualiza el estado conforme avanza la preparacion.
-4. Coordina directamente con el cliente el retiro o la entrega.
-5. Marca como entregado solo cuando la entrega haya ocurrido.
+1. Abre **Ordenes** y revisa productos, cantidades y modalidad.
+2. Antes de aceptar, confirma que el inventario y precio mostrados siguen
+  vigentes. En codigo, aceptar reserva las cantidades disponibles por 15
+  minutos; no cubre ventas presenciales que no se registren en NALA.
+3. Si el cliente reporta SINPE, comprueba el abono en el canal bancario de la
+  tienda. La accion manual de verificar pago solo registra la declaracion y
+  referencia de la tienda; no consulta ni recibe confirmacion del banco.
+4. Actualiza el estado conforme avanza la preparacion y coordina retiro/entrega
+  directamente hasta que haya integracion y reglas aprobadas.
+5. Marca como entregado solo cuando la entrega haya ocurrido. Una devolucion se
+  ejecuta fuera de PawTrack; la ruta actual solo permite registrar su referencia.
 
-PawTrack comunica la solicitud, pero no vende ni intermedia el producto, no
-cobra comision y no garantiza inventario. Cualquier pago se coordina entre
-cliente y tienda. Una referencia guardada en el pedido no confirma el pago y
-no hay integracion de pagos para pedidos de tienda.
+PawTrack comunica y administra estados tecnicos del pedido; no vende ni
+intermedia el producto, no cobra comision ni procesa el pago. El stock escalar
+y la reserva temporal no equivalen a un inventario auditable ni garantizan
+existencias en POS/produccion. La confirmacion de pago es manual por la tienda,
+no automatica por NALA. La oferta comercial y disponibilidad se rigen por
+[PRICING_AND_PLANS.md](../PRICING_AND_PLANS.md).
 
 ## 5. Buenas practicas
 

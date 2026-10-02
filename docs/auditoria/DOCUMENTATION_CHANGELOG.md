@@ -107,3 +107,9 @@ Cada afirmación nueva usa evidencia de código enlazada en su documento. Prueba
 - `AdminSubscriptionPlansTab` reemplaza `window.prompt` por el `Modal` compartido y bloquea referencias fuera del formato admitido por el dominio.
 - Verificación: integración de catálogo 3/3; pruebas Admin focales 4/4; typecheck frontend y `git diff --check` correctos. La ejecución de toda la solución no produjo un resumen final verificable en la salida disponible y no se declara aprobada.
 - La migración sigue generada/no aplicada; producción no consultada y no se cambiaron datos de base.
+
+## 2026-10-02 — Registro de devoluciones externas de reservas
+
+- Se agregó el endpoint Admin `PUT /api/admin/service-providers/payments/{paymentId}/external-refund` para registrar devoluciones SINPE ya ejecutadas fuera de PawTrack, con monto incremental, referencia, motivo, idempotencia y auditoría. La ruta rechaza pagos ligados a un `PaymentIntent`, que conservan el flujo de devolución del gateway.
+- Se actualizó [BOOKING_FLOW](../domains/BOOKING_FLOW.md) con los límites operativos: el registro no mueve fondos ni acredita la transferencia externa; el pago de reservas continúa `PARCIALMENTE_IMPLEMENTADO`.
+- Validación: compilación aislada de API; suites de pagos/cancelación 12/12 y reembolso manual 3/3. Las pruebas específicas cubren precisión monetaria, replay idempotente, conflicto de payload y exclusión de tarjeta. No se aplicaron migraciones ni se verificaron SINPE, proveedor, staging o producción.

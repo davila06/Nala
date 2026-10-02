@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.ApplicationInsights;
 using PawTrack.Application.Common;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Payments.Commands;
 using PawTrack.Domain.Audit;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Notifications;
@@ -249,7 +250,8 @@ public sealed class UpdateProviderBookingStatusCommandHandler(
     IServiceProviderRepository repository,
     IAuditLogRepository auditLog,
     IUnitOfWork unitOfWork,
-    INotificationRepository notificationRepository)
+    INotificationRepository notificationRepository,
+    ISender? refundSender = null)
     : IRequestHandler<UpdateProviderBookingStatusCommand, Result<ProviderBookingDto>>
 {
     public async Task<Result<ProviderBookingDto>> Handle(UpdateProviderBookingStatusCommand request, CancellationToken ct)
@@ -259,6 +261,29 @@ public sealed class UpdateProviderBookingStatusCommandHandler(
         var isCustomer = booking.CustomerUserId == request.ActorUserId;
         var actorProvider = await repository.GetByUserIdAsync(request.ActorUserId, ct);
         var isProvider = actorProvider?.Id == booking.ServiceProviderId;
+        if ((request.TargetStatus == ProviderBookingStatus.CancelledByCustomer && !isCustomer) ||
+            (request.TargetStatus is ProviderBookingStatus.CancelledByProvider or ProviderBookingStatus.Refunded && !isProvider))
+            return Result.Failure<ProviderBookingDto>("No tienes permiso para esta transición.");
+
+        var cancellationAt = DateTimeOffset.UtcNow;
+        if (request.TargetStatus == ProviderBookingStatus.CancelledByCustomer &&
+            !booking.IsCustomerCancellationFreeAt(cancellationAt))
+            return Result.Failure<ProviderBookingDto>("La cancelación está fuera de la ventana gratuita de la política capturada.");
+
+        if (request.TargetStatus is ProviderBookingStatus.CancelledByCustomer or ProviderBookingStatus.CancelledByProvider or ProviderBookingStatus.Refunded)
+        {
+            var refundPercentage = request.TargetStatus switch
+            {
+                ProviderBookingStatus.CancelledByCustomer => booking.CustomerRefundPercentage,
+                ProviderBookingStatus.CancelledByProvider => booking.ProviderCancellationRefundPercentage,
+                _ => 100m,
+            };
+            var refundFailure = await RefundBookingPaymentAsync(
+                booking, refundPercentage, request.Reason ?? "Cancelación de reserva", requirePaidPayment: request.TargetStatus == ProviderBookingStatus.Refunded, ct);
+            if (refundFailure is not null)
+                return Result.Failure<ProviderBookingDto>(refundFailure);
+        }
+
         try
         {
             switch (request.TargetStatus)
@@ -275,7 +300,7 @@ public sealed class UpdateProviderBookingStatusCommandHandler(
                 case ProviderBookingStatus.InProgress when isProvider: booking.Start(); break;
                 case ProviderBookingStatus.Completed when isProvider: booking.Complete(); break;
                 case ProviderBookingStatus.NoShow when isProvider: booking.MarkNoShow(); break;
-                case ProviderBookingStatus.CancelledByCustomer when isCustomer: booking.CancelByCustomer(request.Reason ?? string.Empty); break;
+                case ProviderBookingStatus.CancelledByCustomer when isCustomer: booking.CancelByCustomer(request.Reason ?? string.Empty, cancellationAt); break;
                 case ProviderBookingStatus.CancelledByProvider when isProvider: booking.CancelByProvider(request.Reason ?? string.Empty); break;
                 default: return Result.Failure<ProviderBookingDto>("No tienes permiso para esta transicion.");
             }
@@ -304,6 +329,59 @@ public sealed class UpdateProviderBookingStatusCommandHandler(
             booking.Id.ToString()), ct);
         await unitOfWork.SaveChangesAsync(ct);
         return Result.Success(CreateProviderBookingCommandHandler.ToDto(booking));
+    }
+
+    private async Task<string?> RefundBookingPaymentAsync(
+        ProviderBooking booking,
+        decimal refundPercentage,
+        string reason,
+        bool requirePaidPayment,
+        CancellationToken cancellationToken)
+    {
+        var payment = await repository.GetPaymentByBookingAsync(booking.Id, cancellationToken);
+        if (payment is null)
+            return requirePaidPayment ? "La reserva no tiene un pago confirmado para reembolsar." : null;
+
+        if (payment.Status == ProviderPaymentStatus.CardPending)
+            return "El pago con tarjeta sigue en verificación; espera el resultado antes de cancelar.";
+
+        if (payment.Status is ProviderPaymentStatus.Pending or ProviderPaymentStatus.Reported)
+        {
+            payment.Expire(reason);
+            repository.UpdatePayment(payment);
+            return requirePaidPayment ? "No hay un pago confirmado para reembolsar." : null;
+        }
+
+        if (payment.Status is not (ProviderPaymentStatus.Confirmed or ProviderPaymentStatus.Disputed or
+            ProviderPaymentStatus.PartiallyRefunded or ProviderPaymentStatus.Refunded))
+            return requirePaidPayment ? "El pago no está confirmado para reembolsar." : null;
+
+        var targetRefundAmount = decimal.Round(payment.AmountCrc * refundPercentage / 100m, 2, MidpointRounding.ToEven);
+        var additionalRefundAmount = targetRefundAmount - payment.RefundedAmountCrc;
+        if (additionalRefundAmount <= 0)
+            return null;
+
+        if (!payment.PaymentIntentId.HasValue)
+            return "Este pago SINPE debe devolverse externamente y registrarse por administración antes de cancelar.";
+        if (refundSender is null)
+            return "El servicio de reembolso no está disponible.";
+
+        var refundResult = await refundSender.Send(new RefundPaymentCommand(
+            booking.CustomerUserId,
+            payment.PaymentIntentId.Value,
+            additionalRefundAmount,
+            $"provider-booking-cancel:{booking.Id:N}"), cancellationToken);
+        if (refundResult.IsFailure)
+            return string.Join("; ", refundResult.Errors);
+
+        var operationReference = refundResult.Value!.ProviderOperationId ??
+                                 refundResult.Value.OperationId.ToString("N");
+        payment.RecordExternalRefund(
+            refundResult.Value.RefundedAmountCrc,
+            operationReference,
+            reason);
+        repository.UpdatePayment(payment);
+        return null;
     }
 
     private static string BookingStatusMessage(ProviderBooking booking, bool changedByCustomer) => booking.Status switch

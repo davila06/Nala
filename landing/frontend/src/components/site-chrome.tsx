@@ -1,8 +1,9 @@
 "use client";
 
+import type { MouseEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { getProductUrl } from "../lib/site-config";
+import { getLoginUrl, getProductUrl } from "../lib/site-config";
 
 function PawTrailMark() {
   return (
@@ -66,6 +67,13 @@ const navigationGroups = [
 export function SiteHeader() {
   const pathname = usePathname();
   const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`);
+  const closeAfterNavigation = (event: MouseEvent<HTMLAnchorElement>) => {
+    const group = event.currentTarget.closest<HTMLDetailsElement>("details");
+    if (group) group.open = false;
+
+    const mobileMenu = event.currentTarget.closest<HTMLDetailsElement>(".mobile-menu");
+    if (mobileMenu) mobileMenu.open = false;
+  };
 
   return (
     <header className="site-header">
@@ -83,6 +91,7 @@ export function SiteHeader() {
                 className="desktop-nav-group"
                 data-active={groupIsActive || undefined}
                 data-nav-group={group.id}
+                name="desktop-navigation-groups"
                 key={group.id}
               >
                 <summary>
@@ -99,7 +108,12 @@ export function SiteHeader() {
                   </p>
                   <div className="desktop-mega-links">
                     {group.links.map((link) => (
-                      <Link aria-current={isActive(link.href) ? "page" : undefined} href={link.href} key={link.href}>
+                      <Link
+                        aria-current={isActive(link.href) ? "page" : undefined}
+                        href={link.href}
+                        key={link.href}
+                        onClick={closeAfterNavigation}
+                      >
                         <span>{link.label}</span>
                         <small>{link.description}</small>
                       </Link>
@@ -113,6 +127,17 @@ export function SiteHeader() {
             Planes
           </Link>
         </nav>
+        <a
+          aria-label="Perdí una mascota: iniciar reporte"
+          className="header-lost-cta"
+          href={getLoginUrl("/lost-pets/report")}
+          title="Reportar una mascota perdida"
+        >
+          <span aria-hidden="true" className="header-lost-mark">
+            !
+          </span>
+          <span>Perdí una mascota</span>
+        </a>
         <a className="button button-small header-cta" href={getProductUrl("/login")}>
           Abrir PawTrack <span aria-hidden="true">↗</span>
         </a>
@@ -132,11 +157,21 @@ export function SiteHeader() {
               const groupIsActive = group.links.some((link) => isActive(link.href));
 
               return (
-                <details className="mobile-nav-group" data-active={groupIsActive || undefined} key={group.id}>
+                <details
+                  className="mobile-nav-group"
+                  data-active={groupIsActive || undefined}
+                  key={group.id}
+                  name="mobile-navigation-groups"
+                >
                   <summary aria-controls={`mobile-${group.id}-links`}>{group.label}</summary>
                   <div id={`mobile-${group.id}-links`}>
                     {group.links.map((link) => (
-                      <Link aria-current={isActive(link.href) ? "page" : undefined} href={link.href} key={link.href}>
+                      <Link
+                        aria-current={isActive(link.href) ? "page" : undefined}
+                        href={link.href}
+                        key={link.href}
+                        onClick={closeAfterNavigation}
+                      >
                         {link.label}
                       </Link>
                     ))}
@@ -144,10 +179,10 @@ export function SiteHeader() {
                 </details>
               );
             })}
-            <Link aria-current={isActive("/plans") ? "page" : undefined} href="/plans">
+            <Link aria-current={isActive("/plans") ? "page" : undefined} href="/plans" onClick={closeAfterNavigation}>
               Planes
             </Link>
-            <a className="mobile-cta" href={getProductUrl("/login")}>
+            <a className="mobile-cta" href={getProductUrl("/login")} onClick={closeAfterNavigation}>
               Abrir PawTrack <span aria-hidden="true">↗</span>
             </a>
           </nav>
