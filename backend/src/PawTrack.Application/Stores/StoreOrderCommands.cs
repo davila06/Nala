@@ -38,6 +38,9 @@ public sealed record StoreOrderDto(
     string? CustomerNote,
     string? StoreNote,
     bool PaymentReportedByCustomer,
+    string? PaymentVerificationReference,
+    DateTimeOffset? PaymentConfirmedAt,
+    DateTimeOffset? StockReservationExpiresAt,
     DateTimeOffset PlacedAt,
     DateTimeOffset? ConfirmedAt,
     DateTimeOffset? CompletedAt,
@@ -49,6 +52,7 @@ public sealed record StoreOrderDto(
         o.PaymentReference, o.TotalCrc,
         o.DeliveryAddress, o.CustomerNote, o.StoreNote,
         o.PaymentReportedByCustomer,
+        o.PaymentVerificationReference, o.PaymentConfirmedAt, o.StockReservationExpiresAt,
         o.PlacedAt, o.ConfirmedAt, o.CompletedAt,
         o.Items.Select(StoreOrderItemDto.FromDomain).ToList());
 }

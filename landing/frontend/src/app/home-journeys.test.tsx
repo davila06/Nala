@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.hoisted(() => {
@@ -39,6 +39,32 @@ afterEach(() => {
 });
 
 describe("home journeys", () => {
+  it("hides public prices on the plans page and directs each plan to commercial contact", async () => {
+    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.pawtrack.test");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => [
+          {
+            id: "plan-1",
+            tier: "UserPlus",
+            displayName: "Plan Plus",
+            monthlyPriceCrc: 3000,
+          },
+        ],
+      }),
+    );
+    const page = await PublicPage({ params: Promise.resolve({ slug: "plans" }) });
+    const { container } = render(page);
+
+    await waitFor(() => expect(screen.getByText("Plan Plus")).toBeTruthy());
+    expect(container.querySelector(".catalog-plan-price")).toBeNull();
+    expect(screen.getByRole("link", { name: /consultar este plan por correo/i }).getAttribute("href")).toBe(
+      "/contact?topic=Consulta+comercial&plan=Plan+Plus&tier=UserPlus",
+    );
+  });
+
   it("positions NALA as a protection network grounded in identity, recovery and care", () => {
     const { container } = render(<Home />);
 
@@ -91,6 +117,16 @@ describe("home journeys", () => {
       }
       cleanup();
     }
+  });
+
+  it("shows a descriptive image on each municipality capability card", async () => {
+    const page = await PublicPage({ params: Promise.resolve({ slug: "municipalities" }) });
+    const { container } = render(page);
+    const cards = container.querySelectorAll(".capability-card");
+    const images = Array.from(cards, (card) => card.querySelector(".capability-card-image"));
+
+    expect(images).toHaveLength(3);
+    expect(images.every((image) => image instanceof HTMLImageElement && image.alt.length > 0)).toBe(true);
   });
 
   it("describes clinic scanning, consent-gated records and plan-limited scan analytics", async () => {
@@ -298,24 +334,6 @@ describe("home journeys", () => {
     expect(within(essentials as HTMLElement).getByText(/UserPlus.*3 mascotas.*UserFamilia.*25/i)).toBeTruthy();
     expect(within(essentials as HTMLElement).getByText(/no existe un tier técnico Premium/i)).toBeTruthy();
     expect(within(essentials as HTMLElement).getByText(/checkout recurrente universal.*pago liquidado/i)).toBeTruthy();
-  });
-
-  it("summarizes feature modules with the documented implementation and operation limits", async () => {
-    const page = await PublicPage({ params: Promise.resolve({ slug: "features" }) });
-    const { container } = render(page);
-    const essentials = container.querySelector('[aria-label="Puntos importantes"]');
-    const copy = essentials?.textContent ?? "";
-
-    expect(copy).toMatch(/QR abre un perfil público/i);
-    expect(copy).toMatch(/NFC.*configuración manual.*app externa/i);
-    expect(copy).toMatch(/pérdida.*cuenta.*mascota registrada/i);
-    expect(copy).toMatch(/expediente.*recordatorios.*no diagnostica/i);
-    expect(copy).toMatch(/clínicas.*grants.*no hay consultas por video/i);
-    expect(copy).toMatch(/refugios.*adopción.*alianzas no verificadas/i);
-    expect(copy).toMatch(/municipalidades.*reportes.*sin integración oficial/i);
-    expect(copy).toMatch(/GPS.*hardware.*proveedor.*no verificados/i);
-    expect(copy).toMatch(/matching visual.*condicionado.*sin RAG/i);
-    expect(copy).toMatch(/marketplace.*reservas.*sin pagos liquidados/i);
   });
 
   it("keeps lost and found actions in a visible navigation immediately after the hero", () => {

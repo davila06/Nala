@@ -23,7 +23,7 @@ export interface CaptureContextDto {
 
 export interface ChargeCardRequest {
   amountCrc: number;
-  purpose: "Subscription" | "BundleOrder" | "Bounty";
+  purpose: "Subscription" | "BundleOrder" | "Bounty" | "ProviderBooking";
   targetEntityId?: string;
   paymentProfileId?: string;
   transientToken?: string;

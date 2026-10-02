@@ -1,6 +1,20 @@
 import Image from "next/image";
 
-type LandingAsset = "hero" | "services" | "qr" | "dogtag" | "lostPreparation" | "lostArea" | "lostContact";
+type LandingAsset =
+  | "hero"
+  | "services"
+  | "qr"
+  | "dogtag"
+  | "lostPreparation"
+  | "lostArea"
+  | "lostContact"
+  | "businessClinics"
+  | "businessShelters"
+  | "businessMunicipalities"
+  | "clinicIdentification"
+  | "clinicRecords"
+  | "clinicAppointments"
+  | "clinicScanStats";
 
 type LandingPictureProps = {
   alt: string;
@@ -37,6 +51,34 @@ const assetFiles: Record<LandingAsset, { desktop: string; mobile: string }> = {
   lostContact: {
     desktop: "lost-pet-contact-review-20261002-desktop",
     mobile: "lost-pet-contact-review-20261002-mobile",
+  },
+  businessClinics: {
+    desktop: "business-clinics-20261002-desktop",
+    mobile: "business-clinics-20261002-mobile",
+  },
+  businessShelters: {
+    desktop: "business-shelters-20261002-desktop",
+    mobile: "business-shelters-20261002-mobile",
+  },
+  businessMunicipalities: {
+    desktop: "business-municipalities-20261002-desktop",
+    mobile: "business-municipalities-20261002-mobile",
+  },
+  clinicIdentification: {
+    desktop: "clinic-identification-20261002-desktop",
+    mobile: "clinic-identification-20261002-mobile",
+  },
+  clinicRecords: {
+    desktop: "clinic-records-20261002-desktop",
+    mobile: "clinic-records-20261002-mobile",
+  },
+  clinicAppointments: {
+    desktop: "clinic-appointments-20261002-desktop",
+    mobile: "clinic-appointments-20261002-mobile",
+  },
+  clinicScanStats: {
+    desktop: "clinic-scan-stats-20261002-desktop",
+    mobile: "clinic-scan-stats-20261002-mobile",
   },
 };
 

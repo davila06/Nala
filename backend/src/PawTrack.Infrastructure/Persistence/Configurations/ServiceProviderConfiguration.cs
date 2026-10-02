@@ -163,6 +163,10 @@ public sealed class ProviderPaymentConfiguration : IEntityTypeConfiguration<Prov
         builder.Property(x => x.PaymentReference).IsRequired().HasMaxLength(50);
         builder.Property(x => x.IdempotencyKey).IsRequired().HasMaxLength(200);
         builder.Property(x => x.PaymentIntentId);
+        builder.HasOne<PawTrack.Domain.Payments.PaymentIntent>()
+            .WithMany()
+            .HasForeignKey(x => x.PaymentIntentId)
+            .OnDelete(DeleteBehavior.Restrict);
         builder.Property(x => x.Status).IsRequired().HasConversion<int>();
         builder.Property(x => x.ExternalReference).HasMaxLength(200);
         builder.Property(x => x.FailureReason).HasMaxLength(500);
@@ -172,6 +176,9 @@ public sealed class ProviderPaymentConfiguration : IEntityTypeConfiguration<Prov
 
         builder.HasIndex(x => x.BookingId).IsUnique();
         builder.HasIndex(x => x.IdempotencyKey).IsUnique();
+        builder.HasIndex(x => x.PaymentIntentId)
+            .IsUnique()
+            .HasFilter("[PaymentIntentId] IS NOT NULL");
         builder.HasIndex(x => new { x.Status, x.CreatedAt });
     }
 }

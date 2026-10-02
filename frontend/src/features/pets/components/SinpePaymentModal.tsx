@@ -395,7 +395,9 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                   type="button"
                   onClick={() => setPaymentView("qr")}
                   className={`rounded-lg py-1.5 text-xs font-bold transition-colors ${
-                    paymentView === "qr" ? "bg-surface text-sand-900 shadow-sm" : "text-copy-secondary hover:text-sand-700"
+                    paymentView === "qr"
+                      ? "bg-surface text-sand-900 shadow-sm"
+                      : "text-copy-secondary hover:text-sand-700"
                   }`}
                 >
                   📲 Escanear QR
@@ -421,7 +423,9 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
 
                     <div className="grid grid-cols-2 gap-2 pt-2 border-t border-sand-200/80 text-left">
                       <div className="rounded-xl bg-surface p-2.5 border border-sand-100">
-                        <span className="block text-[10px] uppercase font-bold text-copy-muted">Monto a transferir</span>
+                        <span className="block text-[10px] uppercase font-bold text-copy-muted">
+                          Monto a transferir
+                        </span>
                         <div className="flex items-center justify-between mt-0.5">
                           <span className="text-sm font-black text-sand-900">₡{price.toLocaleString("es-CR")}</span>
                           <button
@@ -545,7 +549,9 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
                   maxLength={64}
                   className="w-full rounded-xl border border-sand-200 bg-surface-warm px-3 py-2 text-xs text-sand-900 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors"
                 />
-                <p className="text-[10px] text-copy-muted">Ayuda a nuestro equipo a validar tu pago en pocos minutos.</p>
+                <p className="text-[10px] text-copy-muted">
+                  Ayuda a nuestro equipo a validar tu pago en pocos minutos.
+                </p>
               </div>
 
               {error && <p className="text-xs text-danger-600">{error}</p>}

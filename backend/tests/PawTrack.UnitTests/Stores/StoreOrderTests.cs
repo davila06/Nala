@@ -550,6 +550,7 @@ public sealed class StoreOrderPaymentVerificationTests
     {
         var storeOwnerId = Guid.NewGuid();
         var store = Store.Create(storeOwnerId, "Store", "Desc", "Address", 9.9m, -84m, "store@example.cr");
+        typeof(Store).GetProperty("Status")!.SetValue(store, StoreStatus.Active);
         var order = StoreOrder.Place(store.Id, Guid.NewGuid(), "SINPE123", OrderFulfillmentType.Pickup,
             null, null, [(Guid.NewGuid(), "Food", 1, 1000m)]);
         order.MarkStockReserved(DateTimeOffset.UtcNow.AddMinutes(15));
@@ -594,5 +595,51 @@ public sealed class StoreOrderPaymentVerificationTests
         result.IsFailure.Should().BeTrue();
         order.Status.Should().Be(StoreOrderStatus.AwaitingStoreAcceptance);
         await auditRepository.DidNotReceive().AddAsync(Arg.Any<AuditLogEntry>(), Arg.Any<CancellationToken>());
+    }
+}
+
+public sealed class StoreOrderReservationExpirationJobTests
+{
+    private sealed class Lease : IAsyncDisposable
+    {
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    }
+
+    [Fact]
+    public async Task RunOnce_ExpiresReturnedOrdersWhileHoldingDistributedLease()
+    {
+        var repository = Substitute.For<IStoreOrderRepository>();
+        var jobLock = Substitute.For<IDistributedJobLock>();
+        var now = DateTimeOffset.UtcNow;
+        var orderIds = new[] { Guid.NewGuid(), Guid.NewGuid() };
+        jobLock.TryAcquireAsync("StoreOrderReservationExpiration", Arg.Any<TimeSpan>(), Arg.Any<CancellationToken>())
+            .Returns(new Lease());
+        repository.GetExpiredStockReservationOrderIdsAsync(now, 100, Arg.Any<CancellationToken>())
+            .Returns(orderIds);
+        repository.ExpireStockReservationAsync(orderIds[0], now, Arg.Any<CancellationToken>()).Returns(true);
+        repository.ExpireStockReservationAsync(orderIds[1], now, Arg.Any<CancellationToken>()).Returns(true);
+
+        var job = new StoreOrderReservationExpirationJob(repository, jobLock);
+        var expired = await job.RunOnceAsync(now, CancellationToken.None);
+
+        expired.Should().Be(2);
+        await repository.Received(1).ExpireStockReservationAsync(orderIds[0], now, Arg.Any<CancellationToken>());
+        await repository.Received(1).ExpireStockReservationAsync(orderIds[1], now, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task RunOnce_DoesNothingWhenAnotherInstanceOwnsLease()
+    {
+        var repository = Substitute.For<IStoreOrderRepository>();
+        var jobLock = Substitute.For<IDistributedJobLock>();
+        jobLock.TryAcquireAsync("StoreOrderReservationExpiration", Arg.Any<TimeSpan>(), Arg.Any<CancellationToken>())
+            .Returns((IAsyncDisposable?)null);
+
+        var job = new StoreOrderReservationExpirationJob(repository, jobLock);
+        var expired = await job.RunOnceAsync(DateTimeOffset.UtcNow, CancellationToken.None);
+
+        expired.Should().Be(0);
+        await repository.DidNotReceive().GetExpiredStockReservationOrderIdsAsync(
+            Arg.Any<DateTimeOffset>(), Arg.Any<int>(), Arg.Any<CancellationToken>());
     }
 }

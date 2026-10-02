@@ -140,23 +140,20 @@ const pages: Record<string, PageDefinition> = {
   },
   features: {
     eyebrow: "CAPACIDADES PAWTRACK",
-    title: "Módulos para identificar, recuperar y organizar el cuidado.",
-    lead: "PawTrack CR reúne herramientas para hogares y organizaciones. Aquí se resume qué hace cada módulo y qué depende de configuración, permisos o servicios externos.",
+    title: "Una plataforma para identificar, recuperar y cuidar mejor.",
+    lead: "PawTrack CR reúne módulos de identidad, recuperación, salud y coordinación institucional. Cada capacidad conserva su estado real y sus límites.",
     detail:
-      "Los estados describen código y documentación; no confirman que cada módulo esté habilitado, probado de extremo a extremo o disponible en producción. La matriz oficial S01–S16 detalla alcance y evidencia.",
+      "Esta página resume módulos presentes en el código. No confirma que todas las funciones estén habilitadas, probadas de extremo a extremo o disponibles en producción.",
     points: [
-      "Identidad: el perfil QR público muestra foto, nombre, especie y raza; una pérdida activa puede añadir nombre de contacto y mensaje público.",
-      "QR y NFC: el QR abre el perfil público con conexión a internet; NFC solo tiene guía de configuración manual con una app externa. No se verifica hardware o placas físicas.",
-      "Recuperación: crear una pérdida requiere sesión y mascota registrada; PawTrack también incluye hallazgos, avistamientos y cambios de estado. La difusión externa no está garantizada.",
-      "Bienestar y comunidad: se puede registrar un caso de maltrato o riesgo, opcionalmente anónimo y con zona aproximada; no es emergencia ni denuncia oficial, y su derivación no está garantizada.",
-      "Salud: expediente, documentos, timeline y recordatorios organizan datos; requieren consentimiento de salud y no diagnostican ni indican tratamientos autónomos.",
-      "Clínicas: grants autorizados, consultas administrativas y certificados; el acceso depende de permisos. No hay telemedicina audiovisual ni disponibilidad de profesionales externos verificada.",
-      "Refugios y adopciones: perfiles, publicaciones, solicitudes y ferias; publicar requiere refugio verificado. No acredita una ONG concreta ni gestiona pagos de adopción.",
-      "Municipalidades: perfiles, capturas y reportes con acceso según rol y alcance; no se acredita integración oficial, convenio ni despliegue municipal.",
-      "GPS: la plataforma incluye registro de collares, historial y zonas; hardware, proveedor conectado, cobertura y SLA no están verificados.",
-      "IA visual: matching condicionado por configuración y Azure Vision; no equivale a RAG, agente autónomo, precisión certificada ni diagnóstico.",
-      "Servicios y tiendas: hay directorios, servicios, solicitudes, reservas y pedidos parciales; pagos, stock, comisiones y liquidación no están acreditados como operación completa.",
-      "Planes: el catálogo y algunos gates son parciales. Los tiers y límites técnicos no constituyen por sí solos una oferta comercial o disponibilidad en producción.",
+      "Identidad/QR: el perfil público puede mostrar foto, nombre, especie y raza; un reporte de pérdida puede añadir nombre de contacto y mensaje público.",
+      "Recuperación: reportes de pérdida, hallazgos, avistamientos y coordinación del caso dentro de PawTrack.",
+      "QR y NFC: el QR abre un perfil; NFC requiere configuración manual con una aplicación externa.",
+      "Salud: expediente, documentos, timeline y recordatorios; no es diagnóstico ni tratamiento autónomo.",
+      "Clínicas: grants de acceso, consultas administrativas y certificados; profesionales externos no verificados.",
+      "Refugios y adopción: perfiles aliados, publicaciones, solicitudes y ferias; alianzas reales no verificadas.",
+      "Municipalidades: perfiles, capturas y reportes institucionales; convenios oficiales no verificados.",
+      "GPS e IA visual: capacidades condicionadas por proveedor, hardware, configuración y evaluación operativa.",
+      "Marketplace y planes: directorios, reservas y catálogo aprobado; checkout universal y operación externa tienen límites.",
     ],
     primaryLabel: "Abrir PawTrack",
     primaryHref: getProductUrl("/login"),
@@ -638,7 +635,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
               ))}
             </div>
           ) : null}
-          {slug === "plans" ? <PublicPlansCatalog /> : null}
+          {slug === "plans" ? <PublicPlansCatalog showPrices={false} /> : null}
         </section>
         <section className="inner-bottom section-shell">
           <div>

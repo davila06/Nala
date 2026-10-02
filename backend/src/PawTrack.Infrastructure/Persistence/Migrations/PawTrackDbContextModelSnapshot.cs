@@ -6453,6 +6453,9 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<Guid?>("PaymentIntentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("PaymentReference")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -6481,6 +6484,10 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("IdempotencyKey")
                         .IsUnique();
+
+                    b.HasIndex("PaymentIntentId")
+                        .IsUnique()
+                        .HasFilter("[PaymentIntentId] IS NOT NULL");
 
                     b.HasIndex("Status", "CreatedAt");
 
@@ -7056,6 +7063,9 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("LocationId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTimeOffset?>("PaymentConfirmedAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("PaymentReference")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -7064,11 +7074,26 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.Property<bool>("PaymentReportedByCustomer")
                         .HasColumnType("bit");
 
+                    b.Property<string>("PaymentVerificationReference")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid?>("PaymentVerifiedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTimeOffset>("PlacedAt")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("StockReservationExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("StockReserved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<Guid>("StoreId")
                         .HasColumnType("uniqueidentifier");
@@ -7159,6 +7184,9 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
 
                     b.Property<decimal>("PriceCrc")
                         .HasColumnType("decimal(12,2)");
+
+                    b.Property<int?>("StockOnHand")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("StoreId")
                         .HasColumnType("uniqueidentifier");
@@ -7806,6 +7834,14 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("PawTrack.Domain.Payments.PaymentOperation", b =>
+                {
+                    b.HasOne("PawTrack.Domain.Payments.PaymentIntent", null)
+                        .WithMany()
+                        .HasForeignKey("PaymentIntentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("PawTrack.Domain.ServiceProviders.ProviderPayment", b =>
                 {
                     b.HasOne("PawTrack.Domain.Payments.PaymentIntent", null)
                         .WithMany()

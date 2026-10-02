@@ -6,50 +6,41 @@ import { Button } from "@/shared/ui/Button";
 import {
   useIncomingOrders,
   useConfirmOrder,
+  useVerifyStoreOrderPayment,
   useUpdateOrderStatus,
 } from "../hooks/useStoreOrders";
 import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "../api/storesApi";
 import type { StoreOrderDto, StoreOrderStatus } from "../api/storesApi";
 
-const NEXT_STATUS_DELIVERY: Partial<
-  Record<StoreOrderStatus, StoreOrderStatus>
-> = {
+const NEXT_STATUS_DELIVERY: Partial<Record<StoreOrderStatus, StoreOrderStatus>> = {
+  Paid: "Preparing",
   Confirmed: "Preparing",
   Preparing: "OutForDelivery",
   OutForDelivery: "Delivered",
 };
 
-const NEXT_STATUS_PICKUP: Partial<Record<StoreOrderStatus, StoreOrderStatus>> =
-  {
-    Confirmed: "Preparing",
-    Preparing: "ReadyForPickup",
-    ReadyForPickup: "Delivered",
-  };
+const NEXT_STATUS_PICKUP: Partial<Record<StoreOrderStatus, StoreOrderStatus>> = {
+  Paid: "Preparing",
+  Confirmed: "Preparing",
+  Preparing: "ReadyForPickup",
+  ReadyForPickup: "Delivered",
+};
 
-const CANCELLABLE: StoreOrderStatus[] = [
-  "Confirmed",
-  "Preparing",
-  "ReadyForPickup",
-  "OutForDelivery",
-];
+const CANCELLABLE: StoreOrderStatus[] = ["Paid", "Confirmed", "Preparing", "ReadyForPickup", "OutForDelivery"];
 
-const REQUEST_STATUSES: StoreOrderStatus[] = [
-  "PendingPayment",
-  "PaymentReported",
-];
+const REQUEST_STATUSES: StoreOrderStatus[] = ["AwaitingStoreAcceptance", "PendingPayment"];
 
 function getNextStatus(order: StoreOrderDto): StoreOrderStatus | undefined {
-  const map =
-    order.fulfillmentType === "Delivery"
-      ? NEXT_STATUS_DELIVERY
-      : NEXT_STATUS_PICKUP;
+  const map = order.fulfillmentType === "Delivery" ? NEXT_STATUS_DELIVERY : NEXT_STATUS_PICKUP;
   return map[order.status];
 }
 
 function OrderCard({ order }: { order: StoreOrderDto }) {
   const confirm = useConfirmOrder();
+  const verifyPayment = useVerifyStoreOrderPayment();
   const updateStatus = useUpdateOrderStatus();
   const [reason, setReason] = useState("");
+  const [bankReference, setBankReference] = useState("");
 
   const nextStatus = getNextStatus(order);
 
@@ -57,9 +48,7 @@ function OrderCard({ order }: { order: StoreOrderDto }) {
     <li className="rounded-2xl border border-sand-100 bg-surface p-4 space-y-3">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="font-semibold text-sand-900">
-            Pedido #{order.id.slice(-6).toUpperCase()}
-          </p>
+          <p className="font-semibold text-sand-900">Pedido #{order.id.slice(-6).toUpperCase()}</p>
           <p className="text-xs text-copy-secondary">
             {new Date(order.placedAt).toLocaleString("es-CR")} ·{" "}
             {order.fulfillmentType === "Pickup" ? "🏪 Retiro" : "🚚 Entrega"}
@@ -78,34 +67,38 @@ function OrderCard({ order }: { order: StoreOrderDto }) {
             <span className="text-sand-700">
               {item.productName} × {item.quantity}
             </span>
-            <span className="font-semibold text-sand-900">
-              ₡{item.subtotalCrc.toLocaleString("es-CR")}
-            </span>
+            <span className="font-semibold text-sand-900">₡{item.subtotalCrc.toLocaleString("es-CR")}</span>
           </li>
         ))}
         <li className="flex justify-between font-bold text-sm border-t border-sand-100 pt-1">
           <span>Total</span>
-          <span className="text-rescue-700">
-            ₡{order.totalCrc.toLocaleString("es-CR")}
-          </span>
+          <span className="text-rescue-700">₡{order.totalCrc.toLocaleString("es-CR")}</span>
         </li>
       </ul>
 
       {REQUEST_STATUSES.includes(order.status) && (
         <p className="rounded-xl border border-warn-200 bg-warn-50 p-3 text-xs text-warn-800">
-          Solicitud pendiente de revisión. Verifica disponibilidad y condiciones
-          antes de confirmarla.
+          Verifica la disponibilidad real y reserva inventario antes de aceptar.
+        </p>
+      )}
+      {order.status === "AwaitingPayment" && (
+        <p className="rounded-xl border border-warn-200 bg-warn-50 p-3 text-xs text-warn-800">
+          Inventario reservado. Espera la verificación del pago antes de preparar o entregar.
+          {order.stockReservationExpiresAt &&
+            ` La reserva vence ${new Date(order.stockReservationExpiresAt).toLocaleString("es-CR")}.`}
+        </p>
+      )}
+      {order.status === "PaymentReported" && (
+        <p className="rounded-xl border border-warn-200 bg-warn-50 p-3 text-xs text-warn-800">
+          El cliente informó el pago. Verifica el abono en la cuenta de la tienda; el reporte no confirma recepción.
         </p>
       )}
 
-      {order.deliveryAddress && (
-        <p className="text-xs text-copy-secondary">📍 {order.deliveryAddress}</p>
-      )}
-      {order.customerNote && (
-        <p className="text-xs text-copy-secondary">💬 "{order.customerNote}"</p>
-      )}
+      {order.deliveryAddress && <p className="text-xs text-copy-secondary">📍 {order.deliveryAddress}</p>}
+      {order.customerNote && <p className="text-xs text-copy-secondary">💬 "{order.customerNote}"</p>}
 
       {(REQUEST_STATUSES.includes(order.status) ||
+        order.status === "PaymentReported" ||
         CANCELLABLE.includes(order.status)) && (
         <label className="block text-xs font-medium text-copy-secondary">
           Motivo o nota para el cliente *
@@ -129,14 +122,45 @@ function OrderCard({ order }: { order: StoreOrderDto }) {
               confirm.mutate(
                 { orderId: order.id, note: reason.trim() || undefined },
                 {
-                  onSuccess: () => toast.success("Pedido confirmado"),
-                  onError: () => toast.error("Error al confirmar"),
+                  onSuccess: () => toast.success("Disponibilidad aceptada; inventario reservado"),
+                  onError: () => toast.error("No se pudo reservar inventario o aceptar el pedido"),
                 },
               )
             }
           >
-            ✓ Confirmar solicitud
+            ✓ Aceptar y reservar
           </Button>
+        )}
+        {order.status === "PaymentReported" && (
+          <>
+            <label className="sr-only" htmlFor={`bank-ref-${order.id}`}>
+              Referencia bancaria del pago
+            </label>
+            <input
+              id={`bank-ref-${order.id}`}
+              value={bankReference}
+              onChange={(event) => setBankReference(event.target.value)}
+              maxLength={200}
+              placeholder="Referencia bancaria verificada"
+              className="min-w-0 flex-1 rounded-xl border border-sand-200 bg-white px-3 py-2 text-xs"
+            />
+            <Button
+              size="sm"
+              loading={verifyPayment.isPending}
+              disabled={!bankReference.trim()}
+              onClick={() =>
+                verifyPayment.mutate(
+                  { orderId: order.id, bankReference: bankReference.trim(), note: reason.trim() || undefined },
+                  {
+                    onSuccess: () => toast.success("Pago verificado; pedido marcado como pagado"),
+                    onError: () => toast.error("No se pudo verificar el pago"),
+                  },
+                )
+              }
+            >
+              Verificar SINPE
+            </Button>
+          </>
         )}
         {nextStatus && !REQUEST_STATUSES.includes(order.status) && (
           <Button
@@ -211,9 +235,7 @@ export default function StoreOrdersPage() {
 
   const displayed =
     filter === "active"
-      ? orders.filter(
-          (o) => !["Delivered", "Cancelled", "Rejected"].includes(o.status),
-        )
+      ? orders.filter((o) => !["Delivered", "Cancelled", "Rejected", "Expired"].includes(o.status))
       : orders;
 
   return (
@@ -223,9 +245,7 @@ export default function StoreOrdersPage() {
       </Helmet>
 
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-xl font-bold text-sand-900">
-          Pedidos
-        </h1>
+        <h1 className="font-display text-xl font-bold text-sand-900">Pedidos</h1>
         <div className="flex gap-2">
           {(["active", "all"] as const).map((f) => (
             <button
@@ -244,9 +264,7 @@ export default function StoreOrdersPage() {
 
       {!isLoading && displayed.length === 0 && (
         <p className="py-10 text-center text-sm text-copy-muted">
-          {filter === "active"
-            ? "No hay pedidos activos."
-            : "No hay pedidos aún."}
+          {filter === "active" ? "No hay pedidos activos." : "No hay pedidos aún."}
         </p>
       )}
 

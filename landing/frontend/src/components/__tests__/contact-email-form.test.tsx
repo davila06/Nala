@@ -10,6 +10,7 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  window.history.replaceState({}, "", "/");
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
 });
@@ -26,6 +27,15 @@ describe("ContactEmailForm", () => {
     expect(screen.getByRole("link", { name: /reportar maltrato o un animal en riesgo/i }).getAttribute("href")).toBe(
       "http://localhost:5173/bienestar/reportar",
     );
+  });
+
+  it("prefills commercial contact details from a selected plan", async () => {
+    window.history.replaceState({}, "", "/contact?topic=Consulta+comercial&plan=Plan+Plus&tier=UserPlus");
+    render(<ContactEmailForm />);
+
+    await waitFor(() => expect((screen.getByLabelText("Tema") as HTMLSelectElement).value).toBe("Consulta comercial"));
+    expect((screen.getByLabelText("Mensaje") as HTMLTextAreaElement).value).toMatch(/Plan Plus \(UserPlus\)/);
+    expect((screen.getByLabelText("Mensaje") as HTMLTextAreaElement).value).toMatch(/precio, límites y condiciones/i);
   });
 
   it("submits the message to PawTrack and announces provider acceptance", async () => {

@@ -79,6 +79,34 @@ const images = [
     source: "lost-pet-contact-review-20261002.png",
     mobileHeight: 608,
   },
+  {
+    name: "business-clinics-20261002",
+    source: "business-clinics-20261002.png",
+  },
+  {
+    name: "business-shelters-20261002",
+    source: "business-shelters-20261002.png",
+  },
+  {
+    name: "business-municipalities-20261002",
+    source: "business-municipalities-20261002.png",
+  },
+  {
+    name: "clinic-identification-20261002",
+    source: "clinic-identification-20261002.png",
+  },
+  {
+    name: "clinic-records-20261002",
+    source: "clinic-records-20261002.png",
+  },
+  {
+    name: "clinic-appointments-20261002",
+    source: "clinic-appointments-20261002.png",
+  },
+  {
+    name: "clinic-scan-stats-20261002",
+    source: "clinic-scan-stats-20261002.png",
+  },
 ];
 const variants = [
   { directory: "desktop", width: 1600, height: 900, position: "centre" },

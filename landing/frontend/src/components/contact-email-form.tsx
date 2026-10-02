@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { CONTACT_SUPPORT_EMAIL, type ContactTopic } from "@/lib/contact-mailto";
 import { getProductUrl } from "@/lib/site-config";
 
@@ -10,8 +10,30 @@ export function ContactEmailForm() {
   const [submitState, setSubmitState] = useState<
     "idle" | "sending" | "accepted" | "error" | "invalid" | "rate-limited"
   >("idle");
+  const [topic, setTopic] = useState<ContactTopic>(topics[0]);
+  const [message, setMessage] = useState("");
   const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
   const apiUrl = configuredApiUrl || (process.env.NODE_ENV === "development" ? "http://localhost:5199" : "");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const planName = params
+      .get("plan")
+      ?.replace(/[\u0000-\u001f\u007f]/g, "")
+      .trim()
+      .slice(0, 100);
+    if (!planName) return;
+
+    const tier = params
+      .get("tier")
+      ?.replace(/[\u0000-\u001f\u007f]/g, "")
+      .trim()
+      .slice(0, 40);
+    setTopic("Consulta comercial");
+    setMessage(
+      `Quisiera recibir información de precio, límites y condiciones del plan ${planName}${tier ? ` (${tier})` : ""}. Por favor, indíquenme su disponibilidad vigente.`,
+    );
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -92,7 +114,12 @@ export function ContactEmailForm() {
         </div>
         <label>
           Tema
-          <select name="topic" required>
+          <select
+            name="topic"
+            onChange={(event) => setTopic(event.target.value as ContactTopic)}
+            required
+            value={topic}
+          >
             {topics.map((topic) => (
               <option key={topic} value={topic}>
                 {topic}
@@ -107,8 +134,10 @@ export function ContactEmailForm() {
           maxLength={2000}
           minLength={20}
           name="message"
+          onChange={(event) => setMessage(event.target.value)}
           required
           rows={6}
+          value={message}
         />
         <p className="contact-message-privacy" id="contact-message-privacy">
           No incluyas contraseñas, datos clínicos ni ubicación exacta.

@@ -23,7 +23,6 @@ public sealed class StoreOrder
     public Guid? PaymentVerifiedByUserId { get; private set; }
     public bool StockReserved { get; private set; }
     public DateTimeOffset? StockReservationExpiresAt { get; private set; }
-    public Guid? PaymentIntentId { get; private set; }
     public DateTimeOffset PlacedAt { get; private set; }
     public DateTimeOffset? ConfirmedAt { get; private set; }
     public DateTimeOffset? PaymentConfirmedAt { get; private set; }
@@ -84,7 +83,9 @@ public sealed class StoreOrder
             throw new InvalidOperationException("Solo se puede aceptar una solicitud nueva.");
         if (!StockReserved || StockReservationExpiresAt is null)
             throw new InvalidOperationException("El inventario debe reservarse antes de aceptar el pedido.");
-        Status = StoreOrderStatus.AwaitingPayment;
+        Status = PaymentReportedByCustomer
+            ? StoreOrderStatus.PaymentReported
+            : StoreOrderStatus.AwaitingPayment;
         StoreNote = storeNote?.Trim();
         ConfirmedAt = DateTimeOffset.UtcNow;
     }
@@ -108,23 +109,6 @@ public sealed class StoreOrder
         StoreNote = storeNote?.Trim();
         PaymentVerificationReference = bankReference.Trim();
         PaymentVerifiedByUserId = verifiedByUserId;
-        PaymentConfirmedAt = DateTimeOffset.UtcNow;
-    }
-
-    public void MarkPaidFromPaymentIntent(Guid paymentIntentId)
-    {
-        if (paymentIntentId == Guid.Empty)
-            throw new ArgumentException("Payment intent es requerido.", nameof(paymentIntentId));
-        if (Status == StoreOrderStatus.Paid && PaymentIntentId == paymentIntentId)
-            return;
-        if (Status != StoreOrderStatus.AwaitingPayment)
-            throw new InvalidOperationException("Solo un pedido pendiente de pago puede liquidarse.");
-        if (!StockReserved)
-            throw new InvalidOperationException("La reserva de inventario venció; el pedido debe revisarse.");
-        Status = StoreOrderStatus.Paid;
-        StockReserved = false;
-        StockReservationExpiresAt = null;
-        PaymentIntentId = paymentIntentId;
         PaymentConfirmedAt = DateTimeOffset.UtcNow;
     }
 

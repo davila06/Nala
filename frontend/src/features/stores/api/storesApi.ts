@@ -6,6 +6,11 @@ export type StoreStatus = "Pending" | "Active" | "Suspended";
 export type ProductCategory = "Food" | "Accessories" | "Grooming" | "Health" | "Toys" | "Clothing" | "Other";
 export type OrderFulfillmentType = "Pickup" | "Delivery";
 export type StoreOrderStatus =
+  | "AwaitingStoreAcceptance"
+  | "AwaitingPayment"
+  | "Paid"
+  | "Expired"
+  // Retained for historical orders before the payment-state migration.
   | "PendingPayment"
   | "PaymentReported"
   | "Confirmed"
@@ -70,6 +75,9 @@ export interface StoreOrderDto {
   customerNote: string | null;
   storeNote: string | null;
   paymentReportedByCustomer: boolean;
+  paymentVerificationReference: string | null;
+  paymentConfirmedAt: string | null;
+  stockReservationExpiresAt: string | null;
   placedAt: string;
   confirmedAt: string | null;
   completedAt: string | null;
@@ -89,6 +97,10 @@ export const CATEGORY_LABELS: Record<ProductCategory, string> = {
 };
 
 export const ORDER_STATUS_LABELS: Record<StoreOrderStatus, string> = {
+  AwaitingStoreAcceptance: "Solicitud recibida",
+  AwaitingPayment: "Disponibilidad confirmada · pago pendiente",
+  Paid: "Pagado · en preparación",
+  Expired: "Reserva vencida",
   PendingPayment: "Solicitud pendiente",
   PaymentReported: "Solicitud pendiente",
   Confirmed: "Confirmado",
@@ -101,6 +113,10 @@ export const ORDER_STATUS_LABELS: Record<StoreOrderStatus, string> = {
 };
 
 export const ORDER_STATUS_COLORS: Record<StoreOrderStatus, string> = {
+  AwaitingStoreAcceptance: "bg-warn-100 text-warn-700",
+  AwaitingPayment: "bg-warn-100 text-warn-700",
+  Paid: "bg-brand-100 text-brand-700",
+  Expired: "bg-danger-100 text-danger-700",
   PendingPayment: "bg-warn-100 text-warn-700",
   PaymentReported: "bg-warn-100 text-warn-700",
   Confirmed: "bg-brand-100 text-brand-700",

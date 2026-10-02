@@ -16,6 +16,7 @@ using PawTrack.Application.Common.Settings;
 using PawTrack.Application.Medical;
 using PawTrack.Application.ServiceProviders;
 using PawTrack.Application.ServiceProviders.Payments;
+using PawTrack.Application.Stores;
 using PawTrack.Application.Payments.Reconciliation;
 using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Infrastructure.AI;
@@ -137,6 +138,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ICustodyRecordRepository, CustodyRecordRepository>();
         services.AddScoped<IStoreRepository, PawTrack.Infrastructure.Stores.StoreRepository>();
         services.AddScoped<IStoreOrderRepository, PawTrack.Infrastructure.Stores.StoreOrderRepository>();
+        services.AddScoped<StoreOrderReservationExpirationJob>();
+        services.AddHostedService<PawTrack.Infrastructure.Stores.StoreOrderReservationExpirationHostedService>();
         services.AddScoped<IProductEventRepository, PawTrack.Infrastructure.ProductAnalytics.ProductEventRepository>();
         services.AddScoped<IAnonymousContactRequestRepository, PawTrack.Infrastructure.Safety.AnonymousContactRequestRepository>();
         services.AddScoped<IServiceProviderRepository, PawTrack.Infrastructure.ServiceProviders.ServiceProviderRepository>();

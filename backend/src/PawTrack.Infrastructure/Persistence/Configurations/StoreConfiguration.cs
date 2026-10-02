@@ -69,6 +69,11 @@ public sealed class StoreOrderConfiguration : IEntityTypeConfiguration<StoreOrde
         builder.Property(x => x.DeliveryAddress).HasMaxLength(300);
         builder.Property(x => x.CustomerNote).HasMaxLength(500);
         builder.Property(x => x.StoreNote).HasMaxLength(500);
+        builder.Property(x => x.PaymentVerificationReference).HasMaxLength(200);
+        builder.Property(x => x.PaymentVerifiedByUserId);
+        builder.Property(x => x.PaymentConfirmedAt);
+        builder.Property(x => x.StockReserved).IsRequired().HasDefaultValue(false);
+        builder.Property(x => x.StockReservationExpiresAt);
         builder.Property(x => x.PlacedAt).IsRequired();
 
         builder.HasMany(x => x.Items)

@@ -1,13 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  serviceProvidersApi,
-  type ServiceProviderDirectoryFilter,
-} from "../api/serviceProvidersApi";
+import { serviceProvidersApi, type ServiceProviderDirectoryFilter } from "../api/serviceProvidersApi";
 
-export function usePublicServiceProviders(
-  filter: ServiceProviderDirectoryFilter = {},
-  enabled = true,
-) {
+export function usePublicServiceProviders(filter: ServiceProviderDirectoryFilter = {}, enabled = true) {
   return useQuery({
     queryKey: ["service-providers", "public", filter],
     queryFn: () => serviceProvidersApi.getAll(filter),
@@ -77,10 +71,7 @@ export function usePublicProviderServices(providerId: string) {
   });
 }
 
-export function useProviderServiceAvailability(
-  serviceId: string,
-  date: string,
-) {
+export function useProviderServiceAvailability(serviceId: string, date: string) {
   return useQuery({
     queryKey: ["service-providers", "availability", serviceId, date],
     queryFn: () => serviceProvidersApi.getAvailability(serviceId, date),
@@ -92,8 +83,7 @@ export function useCreateProviderBooking() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: serviceProvidersApi.createBooking,
-    onSuccess: () =>
-      void queryClient.invalidateQueries({ queryKey: ["provider-bookings"] }),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["provider-bookings"] }),
   });
 }
 
@@ -101,6 +91,23 @@ export function useMyProviderBookings() {
   return useQuery({
     queryKey: ["provider-bookings", "mine"],
     queryFn: serviceProvidersApi.getMyBookings,
+    refetchInterval: 30_000,
+  });
+}
+
+export function useCreateProviderBookingPayment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: serviceProvidersApi.createBookingPayment,
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["provider-bookings"] }),
+  });
+}
+
+export function useReportProviderBookingPayment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: serviceProvidersApi.reportBookingPayment,
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["provider-bookings"] }),
   });
 }
 
@@ -123,23 +130,16 @@ export function useUpdateProviderBookingStatus() {
       status: Parameters<typeof serviceProvidersApi.updateBookingStatus>[1];
       reason?: string;
     }) => serviceProvidersApi.updateBookingStatus(bookingId, status, reason),
-    onSuccess: () =>
-      void queryClient.invalidateQueries({ queryKey: ["provider-bookings"] }),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["provider-bookings"] }),
   });
 }
 
 export function useRescheduleProviderBooking() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      bookingId,
-      startsAt,
-    }: {
-      bookingId: string;
-      startsAt: string;
-    }) => serviceProvidersApi.rescheduleBooking(bookingId, startsAt),
-    onSuccess: () =>
-      void queryClient.invalidateQueries({ queryKey: ["provider-bookings"] }),
+    mutationFn: ({ bookingId, startsAt }: { bookingId: string; startsAt: string }) =>
+      serviceProvidersApi.rescheduleBooking(bookingId, startsAt),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["provider-bookings"] }),
   });
 }
 
@@ -168,11 +168,7 @@ export function useAddServiceAvailabilityRule() {
     mutationFn: serviceProvidersApi.addAvailabilityRule,
     onSuccess: (_, variables) =>
       void queryClient.invalidateQueries({
-        queryKey: [
-          "service-providers",
-          "availability-rules",
-          variables.serviceId,
-        ],
+        queryKey: ["service-providers", "availability-rules", variables.serviceId],
       }),
   });
 }
@@ -199,13 +195,8 @@ export function useDeactivateServiceAvailabilityRule(serviceId: string) {
 export function useSetProviderServiceStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      serviceId,
-      status,
-    }: {
-      serviceId: string;
-      status: "Published" | "Paused" | "Archived";
-    }) => serviceProvidersApi.setServiceStatus(serviceId, status),
+    mutationFn: ({ serviceId, status }: { serviceId: string; status: "Published" | "Paused" | "Archived" }) =>
+      serviceProvidersApi.setServiceStatus(serviceId, status),
     onSuccess: () =>
       void queryClient.invalidateQueries({
         queryKey: ["service-providers", "mine", "services"],
@@ -241,12 +232,7 @@ export function useServiceAvailabilityBlocks(serviceId: string) {
   to.setDate(to.getDate() + 89);
   return useQuery({
     queryKey: ["service-providers", "availability-blocks", serviceId],
-    queryFn: () =>
-      serviceProvidersApi.getAvailabilityBlocks(
-        serviceId,
-        from.toISOString(),
-        to.toISOString(),
-      ),
+    queryFn: () => serviceProvidersApi.getAvailabilityBlocks(serviceId, from.toISOString(), to.toISOString()),
     enabled: !!serviceId,
   });
 }
@@ -257,11 +243,7 @@ export function useAddServiceAvailabilityBlock() {
     mutationFn: serviceProvidersApi.addAvailabilityBlock,
     onSuccess: (_, variables) =>
       void queryClient.invalidateQueries({
-        queryKey: [
-          "service-providers",
-          "availability-blocks",
-          variables.serviceId,
-        ],
+        queryKey: ["service-providers", "availability-blocks", variables.serviceId],
       }),
   });
 }

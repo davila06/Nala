@@ -25,34 +25,43 @@ export function usePlaceOrder() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: PlaceOrderPayload) => storeOrdersApi.place(payload),
-    onSuccess: () =>
-      void qc.invalidateQueries({ queryKey: ["my-store-orders"] }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["my-store-orders"] }),
+  });
+}
+
+export function useReportStoreOrderPayment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (orderId: string) => storeOrdersApi.reportPayment(orderId),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["my-store-orders"] }),
   });
 }
 
 export function useConfirmOrder() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ orderId, note }: { orderId: string; note?: string }) =>
-      storeOrdersApi.confirm(orderId, note),
-    onSuccess: () =>
-      void qc.invalidateQueries({ queryKey: ["store-incoming-orders"] }),
+    mutationFn: ({ orderId, note }: { orderId: string; note?: string }) => storeOrdersApi.confirm(orderId, note),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["store-incoming-orders"] }),
+  });
+}
+
+export function useVerifyStoreOrderPayment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ orderId, bankReference, note }: { orderId: string; bankReference: string; note?: string }) =>
+      storeOrdersApi.verifyPayment(orderId, bankReference, note),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["store-incoming-orders"] });
+      void qc.invalidateQueries({ queryKey: ["my-store-orders"] });
+    },
   });
 }
 
 export function useUpdateOrderStatus() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      orderId,
-      status,
-      note,
-    }: {
-      orderId: string;
-      status: StoreOrderStatus;
-      note?: string;
-    }) => storeOrdersApi.updateStatus(orderId, status, note),
-    onSuccess: () =>
-      void qc.invalidateQueries({ queryKey: ["store-incoming-orders"] }),
+    mutationFn: ({ orderId, status, note }: { orderId: string; status: StoreOrderStatus; note?: string }) =>
+      storeOrdersApi.updateStatus(orderId, status, note),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["store-incoming-orders"] }),
   });
 }

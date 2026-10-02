@@ -20,6 +20,7 @@ type CatalogState =
 type PublicPlansCatalogProps = {
   audience?: "all" | "household";
   variant?: "cards" | "summary";
+  showPrices?: boolean;
 };
 
 const currency = new Intl.NumberFormat("es-CR", {
@@ -34,7 +35,11 @@ function formatPrice(plan: PublicPlan): string {
   return "Precio no publicado";
 }
 
-export function PublicPlansCatalog({ audience = "all", variant = "cards" }: PublicPlansCatalogProps) {
+export function PublicPlansCatalog({
+  audience = "all",
+  variant = "cards",
+  showPrices = true,
+}: PublicPlansCatalogProps) {
   const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
   const apiUrl = configuredApiUrl || (process.env.NODE_ENV === "development" ? "http://localhost:5199" : "");
   const [state, setState] = useState<CatalogState>(() =>
@@ -128,49 +133,34 @@ export function PublicPlansCatalog({ audience = "all", variant = "cards" }: Publ
       {plans.map((plan, index) => {
         const features = plan.tier ? (planFeatures[plan.tier] ?? []) : [];
         const hasGpsAllowance = features.some((feature) => /collar(?:es)? GPS/i.test(feature));
+        const contactQuery = new URLSearchParams({
+          topic: "Consulta comercial",
+          plan: plan.displayName,
+          ...(plan.tier ? { tier: plan.tier } : {}),
+        });
 
         return (
-          <article
-            className="catalog-plan depth-surface"
-            data-3d-depth="catalog"
-            data-depth-strength="3"
-            key={`${plan.tier ?? plan.displayName}-${plan.id ?? index}`}
-            tabIndex={0}
-          >
-            <div className="catalog-plan-inner">
-              <div className="catalog-plan-face catalog-plan-front">
-                <span>{plan.tier ?? "PLAN"}</span>
-                <h3>{plan.displayName}</h3>
-                <p>{planDescriptions[plan.tier ?? ""] ?? "Capacidades disponibles en PawTrack CR."}</p>
-                {features.length > 0 ? (
-                  <ul aria-label={`Inclusiones principales de ${plan.displayName}`} className="catalog-plan-preview">
-                    {features.slice(0, 3).map((feature) => (
-                      <li key={feature}>{feature}</li>
-                    ))}
-                  </ul>
-                ) : null}
-                {hasGpsAllowance ? (
-                  <p className="catalog-plan-limit-note">
-                    La cuota GPS no incluye hardware ni garantiza un proveedor compatible.
-                  </p>
-                ) : null}
-                <strong>{formatPrice(plan)}</strong>
-                <small>Enfoca para consultar inclusiones adicionales.</small>
-              </div>
-              <div className="catalog-plan-face catalog-plan-back" aria-label={`Inclusiones de ${plan.displayName}`}>
-                <span>INCLUYE</span>
-                {features.length > 3 ? (
-                  <ul>
-                    {features.slice(3).map((feature) => (
-                      <li key={feature}>{feature}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>Estas son las inclusiones publicadas para este plan.</p>
-                )}
-                <small>Los límites dependen del catálogo y del entorno conectado.</small>
-              </div>
-            </div>
+          <article className="catalog-plan" key={`${plan.tier ?? plan.displayName}-${plan.id ?? index}`}>
+            <span>{plan.tier ?? "PLAN"}</span>
+            <h3>{plan.displayName}</h3>
+            <p>{planDescriptions[plan.tier ?? ""] ?? "Capacidades disponibles en PawTrack CR."}</p>
+            {features.length > 0 ? (
+              <ul aria-label={`Inclusiones de ${plan.displayName}`} className="catalog-plan-features">
+                {features.map((feature) => (
+                  <li key={feature}>{feature}</li>
+                ))}
+              </ul>
+            ) : null}
+            {hasGpsAllowance ? (
+              <p className="catalog-plan-limit-note">
+                La cuota GPS no incluye hardware ni garantiza un proveedor compatible.
+              </p>
+            ) : null}
+            {showPrices ? <strong className="catalog-plan-price">{formatPrice(plan)}</strong> : null}
+            <a className="catalog-plan-contact" href={`/contact?${contactQuery.toString()}`}>
+              Consultar este plan por correo <span aria-hidden="true">↗</span>
+            </a>
+            <small>Inclusiones sujetas al catálogo y al entorno conectado.</small>
           </article>
         );
       })}

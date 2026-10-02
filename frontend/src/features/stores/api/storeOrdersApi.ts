@@ -30,25 +30,21 @@ export const storeOrdersApi = {
       })
       .then((r) => r.data),
 
+  reportPayment: (orderId: string): Promise<void> =>
+    apiClient.post<void>(`/store-orders/${orderId}/report-payment`).then((r) => r.data),
+
   // Store owner
   getIncoming: (page = 1, pageSize = 20): Promise<StoreOrderDto[]> =>
-    apiClient
-      .get<
-        StoreOrderDto[]
-      >("/store-orders/incoming", { params: { page, pageSize } })
-      .then((r) => r.data),
+    apiClient.get<StoreOrderDto[]>("/store-orders/incoming", { params: { page, pageSize } }).then((r) => r.data),
 
   confirm: (orderId: string, note?: string): Promise<StoreOrderDto> =>
+    apiClient.put<StoreOrderDto>(`/store-orders/${orderId}/confirm`, { note }).then((r) => r.data),
+
+  verifyPayment: (orderId: string, bankReference: string, note?: string): Promise<StoreOrderDto> =>
     apiClient
-      .put<StoreOrderDto>(`/store-orders/${orderId}/confirm`, { note })
+      .post<StoreOrderDto>(`/store-orders/${orderId}/verify-payment`, { bankReference, note })
       .then((r) => r.data),
 
-  updateStatus: (
-    orderId: string,
-    status: StoreOrderStatus,
-    note?: string,
-  ): Promise<StoreOrderDto> =>
-    apiClient
-      .put<StoreOrderDto>(`/store-orders/${orderId}/status`, { status, note })
-      .then((r) => r.data),
+  updateStatus: (orderId: string, status: StoreOrderStatus, note?: string): Promise<StoreOrderDto> =>
+    apiClient.put<StoreOrderDto>(`/store-orders/${orderId}/status`, { status, note }).then((r) => r.data),
 };

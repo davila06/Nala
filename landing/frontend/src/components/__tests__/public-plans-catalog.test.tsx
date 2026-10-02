@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
 
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { PublicPlansCatalog } from "../public-plans-catalog";
 
 describe("public plans catalog", () => {
   afterEach(() => {
+    cleanup();
     vi.unstubAllEnvs();
     vi.unstubAllGlobals();
   });
@@ -67,11 +68,36 @@ describe("public plans catalog", () => {
 
     await waitFor(() => expect(screen.getByText("Plan Plus")).toBeTruthy());
     const card = container.querySelector(".catalog-plan");
-    const front = card?.querySelector(".catalog-plan-front");
 
-    expect(front?.textContent).toMatch(/3 mascotas/i);
-    expect(front?.textContent).toMatch(/3 casos perdidos/i);
-      expect(card?.textContent).toMatch(/no incluye hardware ni garantiza un proveedor compatible/i);
+    expect(card?.textContent).toMatch(/3 mascotas/i);
+    expect(card?.textContent).toMatch(/3 casos perdidos/i);
+    expect(card?.textContent).toMatch(/no incluye hardware ni garantiza un proveedor compatible/i);
+  });
+
+  it("hides prices and links each plan to a prefilled commercial contact", async () => {
+    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.test");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => [
+          {
+            id: "plan-1",
+            tier: "UserPlus",
+            displayName: "Plan Plus",
+            monthlyPriceCrc: 3000,
+          },
+        ],
+      }),
+    );
+    const { container } = render(<PublicPlansCatalog showPrices={false} />);
+
+    await waitFor(() => expect(screen.getByText("Plan Plus")).toBeTruthy());
+    expect(container.querySelector(".catalog-plan")?.textContent).not.toMatch(/₡3\s?000|\/ mes/i);
+    expect(container.querySelector(".catalog-plan-back")).toBeNull();
+    expect(screen.getByRole("link", { name: /consultar este plan por correo/i }).getAttribute("href")).toBe(
+      "/contact?topic=Consulta+comercial&plan=Plan+Plus&tier=UserPlus",
+    );
   });
 
   it("shows a compact household summary without listing business plans", async () => {

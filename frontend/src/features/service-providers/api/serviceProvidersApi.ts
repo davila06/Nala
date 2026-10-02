@@ -54,7 +54,10 @@ export type ProviderBookingStatus =
   | "CancelledByCustomer"
   | "CancelledByProvider"
   | "NoShow"
-  | "Expired";
+  | "Expired"
+  | "AwaitingPayment"
+  | "Disputed"
+  | "Refunded";
 
 export interface ProviderServiceAvailabilitySlotDto {
   startsAt: string;
@@ -71,8 +74,26 @@ export interface ProviderBookingDto {
   startsAt: string;
   endsAt: string;
   priceCrc: number;
+  subtotalCrc: number;
+  taxCrc: number;
+  platformFeeCrc: number;
+  totalCrc: number;
   quantity: number;
   status: ProviderBookingStatus;
+}
+
+export interface ProviderPaymentDto {
+  id: string;
+  bookingId: string;
+  amountCrc: number;
+  currency: string;
+  paymentReference: string;
+  status: string;
+  idempotencyKey: string;
+  externalReference: string | null;
+  createdAt: string;
+  confirmedAt: string | null;
+  refundedAt: string | null;
 }
 
 export interface ProviderCalendarBookingDto {
@@ -181,6 +202,14 @@ export const serviceProvidersApi = {
 
   getMyBookings: (): Promise<ProviderBookingDto[]> =>
     apiClient.get<ProviderBookingDto[]>("/provider-bookings/mine").then((response) => response.data),
+
+  createBookingPayment: (bookingId: string): Promise<ProviderPaymentDto> =>
+    apiClient.post<ProviderPaymentDto>(`/service-providers/bookings/${bookingId}/payment`, {}, {
+      headers: { "Idempotency-Key": crypto.randomUUID() },
+    }).then((response) => response.data),
+
+  reportBookingPayment: (paymentId: string): Promise<ProviderPaymentDto> =>
+    apiClient.post<ProviderPaymentDto>(`/service-providers/payments/${paymentId}/report`).then((response) => response.data),
 
   getCalendarBookings: (petId: string, from: string, to: string, page = 1): Promise<ProviderCalendarBookingDto[]> =>
     apiClient
