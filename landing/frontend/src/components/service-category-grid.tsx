@@ -39,41 +39,92 @@ const categories = [
   },
 ] as const;
 
+const serviceNotices = [
+  {
+    name: "Reservas y pagos",
+    description: "Una solicitud o reserva no prueba liquidación, inventario, payout o comisión aprobada.",
+    alt: "Una persona y una prestadora revisan una solicitud de reserva junto a un perro.",
+    image: "service-booking-request-20261001",
+  },
+  {
+    name: "Registro de prestadores",
+    description: "Para publicar como prestador, el registro y la verificación se gestionan dentro de PawTrack.",
+    alt: "Una prestadora completa la verificación de su perfil en el teléfono junto a un perro.",
+    image: "service-provider-verification-20261001",
+  },
+] as const;
+
 export function ServiceCategoryGrid() {
   return (
-    <div aria-label="Categorías de servicios para mascotas" className="service-category-gallery">
-      {categories.map((category, index) => (
-        <article className="service-category-card" key={category.name}>
-          <picture className="service-category-image">
-            <source
-              media="(max-width: 700px)"
-              srcSet={`/assets/landing/mobile/${category.image}-mobile.avif`}
-              type="image/avif"
-            />
-            <source
-              media="(max-width: 700px)"
-              srcSet={`/assets/landing/mobile/${category.image}-mobile.webp`}
-              type="image/webp"
-            />
-            <source srcSet={`/assets/landing/desktop/${category.image}-desktop.avif`} type="image/avif" />
-            <Image
-              alt={category.alt}
-              className="service-category-photo"
-              height={900}
-              loading="lazy"
-              quality={80}
-              sizes="(max-width: 700px) 45vw, (max-width: 1100px) 30vw, 400px"
-              src={`/assets/landing/desktop/${category.image}-desktop.webp`}
-              width={1600}
-            />
-          </picture>
-          <div className="service-category-copy">
-            <span>{String(index + 1).padStart(2, "0")}</span>
-            <h3>{category.name}</h3>
-            <p>{category.description}</p>
-          </div>
-        </article>
-      ))}
-    </div>
+    <>
+      <div aria-label="Categorías de servicios para mascotas" className="service-category-gallery">
+        {categories.map((category, index) => (
+          <article className="service-category-card" key={category.name}>
+            <picture className="service-category-image">
+              <source
+                media="(max-width: 700px)"
+                srcSet={`/assets/landing/mobile/${category.image}-mobile.avif`}
+                type="image/avif"
+              />
+              <source
+                media="(max-width: 700px)"
+                srcSet={`/assets/landing/mobile/${category.image}-mobile.webp`}
+                type="image/webp"
+              />
+              <source srcSet={`/assets/landing/desktop/${category.image}-desktop.avif`} type="image/avif" />
+              <Image
+                alt={category.alt}
+                className="service-category-photo"
+                height={900}
+                loading="lazy"
+                quality={80}
+                sizes="(max-width: 700px) 45vw, (max-width: 1100px) 30vw, 400px"
+                src={`/assets/landing/desktop/${category.image}-desktop.webp`}
+                width={1600}
+              />
+            </picture>
+            <div className="service-category-copy">
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <h3>{category.name}</h3>
+              <p>{category.description}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div aria-label="Información sobre reservas y registro" className="service-notice-gallery">
+        {serviceNotices.map((notice, index) => (
+          <article className="service-category-card" key={notice.name}>
+            <picture className="service-category-image">
+              <source
+                media="(max-width: 700px)"
+                srcSet={`/assets/landing/mobile/${notice.image}-mobile.avif`}
+                type="image/avif"
+              />
+              <source
+                media="(max-width: 700px)"
+                srcSet={`/assets/landing/mobile/${notice.image}-mobile.webp`}
+                type="image/webp"
+              />
+              <source srcSet={`/assets/landing/desktop/${notice.image}-desktop.avif`} type="image/avif" />
+              <Image
+                alt={notice.alt}
+                className="service-category-photo"
+                height={900}
+                loading="lazy"
+                quality={80}
+                sizes="(max-width: 700px) 100vw, 50vw"
+                src={`/assets/landing/desktop/${notice.image}-desktop.webp`}
+                width={1600}
+              />
+            </picture>
+            <div className="service-category-copy">
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <h3>{notice.name}</h3>
+              <p>{notice.description}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </>
   );
 }

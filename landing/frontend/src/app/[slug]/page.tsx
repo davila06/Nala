@@ -98,8 +98,6 @@ const pages: Record<string, PageDefinition> = {
       "Veterinarias y cuidado clínico: consulta perfiles y servicios publicados; la disponibilidad profesional depende de cada prestador.",
       "Grooming, paseos, entrenamiento y hospedaje: descubre categorías del ecosistema sin asumir cobertura o reserva confirmada.",
       "Cuidado temporal y aliados: las capacidades del producto no acreditan una organización afiliada ni un SLA operativo.",
-      "Reservas y pagos: una solicitud o reserva no prueba liquidación, inventario, payout o comisión aprobada.",
-      "Para publicar como prestador, el registro y la verificación se gestionan dentro de PawTrack.",
     ],
     primaryLabel: "Abrir buscador de servicios",
     primaryHref: getProductUrl("/servicios"),
@@ -456,14 +454,16 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
         <section className="inner-points section-shell" aria-label="Puntos importantes">
           <p className="eyebrow">LO ESENCIAL</p>
           {slug === "services" ? <ServiceCategoryGrid /> : null}
-          <div className="inner-point-grid">
-            {page.points.slice(slug === "services" ? 3 : 0).map((point, index) => (
-              <article className="depth-surface" data-3d-depth="module" data-depth-strength="2" key={point}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <p>{point}</p>
-              </article>
-            ))}
-          </div>
+          {slug !== "services" ? (
+            <div className="inner-point-grid">
+              {page.points.map((point, index) => (
+                <article className="depth-surface" data-3d-depth="module" data-depth-strength="2" key={point}>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <p>{point}</p>
+                </article>
+              ))}
+            </div>
+          ) : null}
           {slug === "plans" ? <PublicPlansCatalog /> : null}
         </section>
         <section className="inner-bottom section-shell">

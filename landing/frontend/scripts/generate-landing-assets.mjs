@@ -54,6 +54,16 @@ const images = [
     source: "service-temporary-care-20261001.png",
     mobileHeight: 608,
   },
+  {
+    name: "service-booking-request-20261001",
+    source: "service-booking-request-20261001.png",
+    mobileHeight: 608,
+  },
+  {
+    name: "service-provider-verification-20261001",
+    source: "service-provider-verification-20261001.png",
+    mobileHeight: 608,
+  },
 ];
 const variants = [
   { directory: "desktop", width: 1600, height: 900, position: "centre" },
