@@ -4,6 +4,29 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getProductUrl } from "../lib/site-config";
 
+function PawTrailMark() {
+  return (
+    <span aria-hidden="true" className="brand-mark">
+      <svg viewBox="0 0 30 30">
+        <g className="brand-pawprint">
+          <ellipse cx="8" cy="10" rx="3.2" ry="2.5" />
+          <ellipse cx="4.2" cy="5.7" rx="1.4" ry="2" transform="rotate(-24 4.2 5.7)" />
+          <ellipse cx="7.7" cy="3.9" rx="1.4" ry="2" transform="rotate(-8 7.7 3.9)" />
+          <ellipse cx="11.1" cy="4.5" rx="1.4" ry="2" transform="rotate(12 11.1 4.5)" />
+          <ellipse cx="13.4" cy="6.6" rx="1.35" ry="1.9" transform="rotate(27 13.4 6.6)" />
+        </g>
+        <g className="brand-pawprint" transform="translate(12 12) rotate(15 8 8) scale(.72)">
+          <ellipse cx="8" cy="10" rx="3.2" ry="2.5" />
+          <ellipse cx="4.2" cy="5.7" rx="1.4" ry="2" transform="rotate(-24 4.2 5.7)" />
+          <ellipse cx="7.7" cy="3.9" rx="1.4" ry="2" transform="rotate(-8 7.7 3.9)" />
+          <ellipse cx="11.1" cy="4.5" rx="1.4" ry="2" transform="rotate(12 11.1 4.5)" />
+          <ellipse cx="13.4" cy="6.6" rx="1.35" ry="1.9" transform="rotate(27 13.4 6.6)" />
+        </g>
+      </svg>
+    </span>
+  );
+}
+
 export function SiteHeader() {
   const pathname = usePathname();
   const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`);
@@ -12,9 +35,7 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="header-inner">
         <Link aria-label="PawTrack CR, Núcleo Animal de Localización y Asistencia, inicio" className="brand" href="/">
-          <span aria-hidden="true" className="brand-mark">
-            n
-          </span>
+          <PawTrailMark />
           <span>PawTrack CR</span>
         </Link>
         <nav aria-label="Navegación principal" className="desktop-nav">
@@ -107,9 +128,7 @@ export function SiteFooter() {
       <div className="footer-main">
         <div className="footer-brand-block">
           <Link aria-label="PawTrack CR, Núcleo Animal de Localización y Asistencia, inicio" className="brand" href="/">
-            <span aria-hidden="true" className="brand-mark">
-              n
-            </span>
+            <PawTrailMark />
             <span>PawTrack CR</span>
           </Link>
           <p>PawTrack CR · Núcleo Animal de Localización y Asistencia (NALA).</p>

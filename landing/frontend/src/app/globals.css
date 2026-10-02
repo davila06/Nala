@@ -103,8 +103,14 @@ img {
   border-radius: 50% 50% 50% 8px;
   background: var(--coral);
   color: var(--white);
-  font: 700 19px var(--serif);
   transform: rotate(-8deg);
+}
+.brand-mark svg {
+  display: block;
+  width: 30px;
+  height: 30px;
+  overflow: visible;
+  fill: currentColor;
 }
 .desktop-nav {
   display: flex;
