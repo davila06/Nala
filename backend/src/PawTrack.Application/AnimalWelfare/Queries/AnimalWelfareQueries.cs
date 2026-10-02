@@ -1,6 +1,12 @@
 using MediatR;
 using PawTrack.Application.AnimalWelfare.Dtos;
 using PawTrack.Application.AnimalWelfare.Interfaces;
+using PawTrack.Application.AnimalWelfare.Routing;
+using PawTrack.Application.Common;
+using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Municipalities.Interfaces;
+using PawTrack.Domain.Allies;
+using PawTrack.Domain.Municipalities;
 using PawTrack.Domain.AnimalWelfare;
 using PawTrack.Domain.Common;
 
@@ -16,6 +22,8 @@ public sealed record GetWelfareCaseQueueQuery(
 public sealed record GetAssignedWelfareCasesQuery(Guid OrganizationUserId, int Page, int PageSize) : IRequest<Result<PagedAnimalWelfareCasesDto>>;
 public sealed record GetPublicWelfareCaseStatusQuery(string PublicCode) : IRequest<Result<PublicAnimalWelfareCaseStatusDto>>;
 public sealed record GetWelfareCaseDetailQuery(Guid CaseId) : IRequest<Result<AnimalWelfareCaseDetailDto>>;
+public sealed record GetAssignedWelfareCaseDetailQuery(Guid CaseId, Guid OrganizationUserId)
+    : IRequest<Result<AssignedWelfareCaseDetailDto>>;
 
 public sealed class GetWelfareCaseQueueQueryHandler(IAnimalWelfareCaseRepository caseRepository)
     : IRequestHandler<GetWelfareCaseQueueQuery, Result<PagedAnimalWelfareCasesDto>>
@@ -29,7 +37,10 @@ public sealed class GetWelfareCaseQueueQueryHandler(IAnimalWelfareCaseRepository
     }
 }
 
-public sealed class GetAssignedWelfareCasesQueryHandler(IAnimalWelfareCaseRepository caseRepository)
+public sealed class GetAssignedWelfareCasesQueryHandler(
+    IAnimalWelfareCaseRepository caseRepository,
+    IAllyProfileRepository allyProfileRepository,
+    IMunicipalProfileRepository municipalProfileRepository)
     : IRequestHandler<GetAssignedWelfareCasesQuery, Result<PagedAnimalWelfareCasesDto>>
 {
     public async Task<Result<PagedAnimalWelfareCasesDto>> Handle(GetAssignedWelfareCasesQuery request, CancellationToken ct)
@@ -37,7 +48,59 @@ public sealed class GetAssignedWelfareCasesQueryHandler(IAnimalWelfareCaseReposi
         var page = Math.Max(1, request.Page);
         var pageSize = Math.Clamp(request.PageSize, 1, 100);
         var items = await caseRepository.GetAssignedAsync(request.OrganizationUserId, (page - 1) * pageSize, pageSize, ct);
-        return Result.Success(new PagedAnimalWelfareCasesDto(items.Select(i => i.ToSummary()).ToList(), page, pageSize));
+        var ally = await allyProfileRepository.GetVerifiedByUserIdAsync(request.OrganizationUserId, ct);
+        var municipality = await municipalProfileRepository.GetByUserIdAsync(request.OrganizationUserId, ct);
+        var visible = items.Where(welfareCase => CanAccessAssignedCase(welfareCase, request.OrganizationUserId, ally, municipality));
+        return Result.Success(new PagedAnimalWelfareCasesDto(visible.Select(i => i.ToSummary()).ToList(), page, pageSize));
+    }
+
+    private static bool CanAccessAssignedCase(
+        AnimalWelfareCase welfareCase,
+        Guid userId,
+        AllyProfile? ally,
+        MunicipalityProfile? municipality)
+    {
+        if (welfareCase.AssignedOrganizationUserId != userId) return false;
+        if (welfareCase.AssignedRole == WelfareReferralRecipientType.Ally.ToString())
+            return ally is not null && welfareCase.ApproxLat.HasValue && welfareCase.ApproxLng.HasValue &&
+                GeoHelper.DistanceMetres(welfareCase.ApproxLat.Value, welfareCase.ApproxLng.Value,
+                    ally.CoverageLat, ally.CoverageLng) <= ally.CoverageRadiusMetres;
+        if (welfareCase.AssignedRole == WelfareReferralRecipientType.Municipality.ToString())
+            return municipality is { IsActive: true, IsExpired: false } &&
+                municipality.AllCantons.Contains(welfareCase.Canton, StringComparer.OrdinalIgnoreCase);
+        return false;
+    }
+}
+
+public sealed class GetAssignedWelfareCaseDetailQueryHandler(
+    IAnimalWelfareCaseRepository caseRepository,
+    IAnimalWelfareEvidenceRepository evidenceRepository,
+    WelfareRoutingService routingService)
+    : IRequestHandler<GetAssignedWelfareCaseDetailQuery, Result<AssignedWelfareCaseDetailDto>>
+{
+    public async Task<Result<AssignedWelfareCaseDetailDto>> Handle(GetAssignedWelfareCaseDetailQuery request, CancellationToken ct)
+    {
+        var welfareCase = await caseRepository.GetByIdAsync(request.CaseId, ct);
+        if (welfareCase is null || welfareCase.AssignedOrganizationUserId != request.OrganizationUserId ||
+            !Enum.TryParse<WelfareReferralRecipientType>(welfareCase.AssignedRole, out var recipientType) ||
+            !await routingService.IsEligibleRecipientAsync(welfareCase.Canton, welfareCase.ApproxLat, welfareCase.ApproxLng,
+                request.OrganizationUserId, recipientType, ct))
+            return Result.Failure<AssignedWelfareCaseDetailDto>("Caso asignado no encontrado.");
+
+        var evidence = await evidenceRepository.GetByCaseIdAsync(welfareCase.Id, ct);
+        return Result.Success(new AssignedWelfareCaseDetailDto(
+            welfareCase.Id,
+            welfareCase.PublicCode,
+            welfareCase.Type,
+            welfareCase.Status,
+            welfareCase.Severity,
+            welfareCase.Canton,
+            welfareCase.DescriptionSanitized,
+            welfareCase.ApproxLat,
+            welfareCase.ApproxLng,
+            welfareCase.CreatedAt,
+            evidence.Select(item => new AnimalWelfareEvidenceDto(
+                item.Id, item.EvidenceKind, item.ContentType, item.FileSizeBytes, item.IsSensitive, item.UploadedAt)).ToList()));
     }
 }
 

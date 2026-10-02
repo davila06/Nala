@@ -67,7 +67,7 @@ const pages: Record<string, PageDefinition> = {
       "Si tiene una placa QR, escanéala sin divulgar sus datos públicamente.",
     ],
     primaryLabel: "Continuar en NALA",
-    primaryHref: "/found-pets/report",
+    primaryHref: getProductUrl("/encontre-mascota"),
     secondaryLabel: "Buscar mascotas perdidas en el mapa",
     secondaryHref: getProductUrl("/map"),
     note: "El reporte se completa en el portal de NALA; esta landing no recibe ubicación ni datos de contacto.",

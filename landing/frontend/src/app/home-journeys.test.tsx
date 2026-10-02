@@ -8,6 +8,7 @@ vi.hoisted(() => {
 });
 
 import Home from "./page";
+import PublicPage from "./[slug]/page";
 
 vi.mock("next/link", async () => {
   const React = await import("react");
@@ -38,6 +39,15 @@ afterEach(() => {
 });
 
 describe("home journeys", () => {
+  it("hands the found-pet guide off to PawTrack's real report form", async () => {
+    const page = await PublicPage({ params: Promise.resolve({ slug: "found-pets" }) });
+    render(page);
+
+    expect(screen.getByRole("link", { name: /continuar en nala/i }).getAttribute("href")).toBe(
+      "https://app.pawtrack.test/encontre-mascota",
+    );
+  });
+
   it("offers four clear starting paths and keeps welfare reporting separate", () => {
     const { container } = render(<Home />);
     const selector = container.querySelector(".intent-grid");
@@ -48,19 +58,26 @@ describe("home journeys", () => {
     expect(selector?.querySelector('a[href="/pet-id"]')).toBeTruthy();
     expect(selector?.querySelector('a[href="/services#provider-onboarding"]')).toBeTruthy();
     expect(
-      container.querySelector('.intent-secondary-action a[href="https://app.pawtrack.test/bienestar/reportar"]'),
+      container.querySelector('.welfare-report-section a[href="https://app.pawtrack.test/bienestar/reportar"]'),
     ).toBeTruthy();
   });
 
   it("provides a safe animal-welfare reporting path with an emergency caveat", () => {
     const { container } = render(<Home />);
-    const welfareAction = container.querySelector(".intent-secondary-action");
+    const welfareSection = container.querySelector(".welfare-report-section");
 
     expect(screen.getByRole("link", { name: /reportar un caso de bienestar/i }).getAttribute("href")).toBe(
       "https://app.pawtrack.test/bienestar/reportar",
     );
-    expect(within(welfareAction as HTMLElement).getByText(/no es un servicio de emergencia/i)).toBeTruthy();
-    expect(within(welfareAction as HTMLElement).getByText(/peligro inmediato/i)).toBeTruthy();
+    expect(welfareSection).toBeTruthy();
+    expect(welfareSection?.closest(".intent-section")).toBeNull();
+    expect(
+      within(welfareSection as HTMLElement).getByText("El formulario de bienestar no es un servicio de emergencia."),
+    ).toBeTruthy();
+    expect(within(welfareSection as HTMLElement).getByText(/peligro inmediato/i)).toBeTruthy();
+    expect(
+      within(welfareSection as HTMLElement).getByText(/ni sustituye una denuncia ante las autoridades/i),
+    ).toBeTruthy();
   });
 
   it("explains the loss-report prerequisites and offers a registration alternative", () => {
@@ -95,6 +112,7 @@ describe("home journeys", () => {
     render(<Home />);
 
     expect(screen.getByText("En el producto:")).toBeTruthy();
+    expect(screen.getByText("Parcial", { selector: ".capability-status" })).toBeTruthy();
     expect(screen.getByText("Operación externa:")).toBeTruthy();
 
     const providerLink = screen.getByRole("link", { name: /registrar servicio en pawtrack/i });
@@ -106,8 +124,10 @@ describe("home journeys", () => {
 
     const hero = container.querySelector("#home-hero");
     const quickActions = screen.getByRole("navigation", { name: "Acciones rápidas de recuperación" });
+    const boundary = quickActions.closest(".recovery-sticky-boundary");
     expect(quickActions.hasAttribute("hidden")).toBe(false);
-    expect(Boolean(hero?.compareDocumentPosition(quickActions) & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
+    expect(Boolean((hero?.compareDocumentPosition(quickActions) ?? 0) & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
+    expect(boundary?.contains(container.querySelector(".closing-cta"))).toBe(false);
     expect(within(quickActions).getByRole("link", { name: "Perdí" }).getAttribute("href")).toContain(
       "/login?return=%2Flost-pets%2Freport",
     );

@@ -464,13 +464,51 @@ h2 em {
   background: #f7eee9;
   border-color: #e7c8b8;
 }
-.intent-section-note {
-  grid-column: 1 / -1;
-  justify-self: end;
-  width: min(100%, 880px);
+.welfare-report-section {
+  margin-block: 0 96px;
+  padding: clamp(20px, 3vw, 34px);
+  border-left: 3px solid var(--coral);
+  background: #f2f5ef;
+}
+.welfare-report-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px 36px;
+}
+.welfare-report-copy .eyebrow {
+  margin-bottom: 12px;
+}
+.welfare-report-copy h2 {
+  max-width: 760px;
   margin: 0;
-  padding: 12px 16px;
-  border-left: 2px solid var(--orange);
+  color: var(--ink);
+  font: 26px/1.2 var(--serif);
+  font-weight: 500;
+}
+.welfare-report-copy > p:last-child {
+  margin: 10px 0 0;
+  color: var(--body);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.welfare-report-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.welfare-report-link span {
+  color: var(--coral);
+}
+.welfare-report-note {
+  margin: 22px 0 0;
+  padding: 14px 16px 0;
+  border-top: 1px solid var(--line);
   color: var(--body);
   font-size: 12px;
   line-height: 1.65;
@@ -525,42 +563,11 @@ h2 em {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.intent-secondary-action {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px 20px;
-  margin-top: 18px;
-  padding: 16px 18px;
-  border-left: 3px solid var(--coral);
-  background: #f2f5ef;
-}
-.intent-secondary-action strong {
-  color: var(--ink);
-  font: 17px/1.25 var(--serif);
-}
-.intent-secondary-action p {
-  margin: 4px 0 0;
-  color: var(--body);
-  font-size: 11px;
-  line-height: 1.5;
-}
-.intent-secondary-action > a {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  color: var(--ink);
-  font-size: 12px;
-  font-weight: 800;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-.intent-secondary-action .intent-emergency-note {
-  grid-column: 1 / -1;
-  margin-top: 0;
-}
 .recovery-quick-actions {
   display: none;
+}
+.recovery-sticky-boundary {
+  display: flow-root;
 }
 .benefits {
   padding-block: 120px 132px;
@@ -3336,13 +3343,23 @@ h2 em {
     display: inline-flex;
     align-items: center;
   }
-  .intent-secondary-action {
-    grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 14px;
+  .welfare-report-section {
+    margin-bottom: 72px;
+    padding: 18px;
   }
-  .intent-secondary-action .intent-emergency-note {
-    grid-column: auto;
+  .welfare-report-main {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .welfare-report-copy h2 {
+    font-size: 23px;
+  }
+  .welfare-report-link {
+    min-height: 44px;
+  }
+  .welfare-report-note {
+    margin-top: 14px;
+    padding: 12px 0 0;
   }
   .capability-status-legend {
     display: grid;

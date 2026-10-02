@@ -108,6 +108,17 @@ describe("LoginPage", () => {
     expect(screen.getByRole("link", { name: /regístrate/i })).toBeInTheDocument();
   });
 
+  it("preserves a validated return destination when opening registration", () => {
+    renderWithProviders(<LoginPage />, {
+      initialEntries: ["/login?return=%2Flost-pets%2Freport"],
+    });
+
+    expect(screen.getByRole("link", { name: /regístrate/i })).toHaveAttribute(
+      "href",
+      "/register?return=%2Flost-pets%2Freport",
+    );
+  });
+
   it("lets visitors explore the adoption directory without an account", () => {
     renderWithProviders(<LoginPage />);
 

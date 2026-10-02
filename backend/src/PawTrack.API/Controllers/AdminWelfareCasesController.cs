@@ -161,7 +161,8 @@ public sealed class AdminWelfareCasesController(ISender sender) : ControllerBase
     {
         if (!TryGetUserId(out var userId)) return Unauthorized();
         var result = await sender.Send(
-            new DownloadWelfareEvidenceQuery(evidenceId, userId, User.IsInRole("Admin")),
+            new DownloadWelfareEvidenceQuery(evidenceId, userId,
+                User.IsInRole("Admin") || User.IsInRole("Support") || User.IsInRole("SuperAdmin")),
             cancellationToken);
         return result.IsSuccess
             ? File(result.Value!.Bytes, result.Value.ContentType, result.Value.FileName)

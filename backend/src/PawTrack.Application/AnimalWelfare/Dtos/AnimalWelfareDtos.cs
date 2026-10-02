@@ -65,3 +65,16 @@ public sealed record PagedAnimalWelfareCasesDto(
     IReadOnlyList<AnimalWelfareCaseSummaryDto> Items,
     int Page,
     int PageSize);
+
+public sealed record AssignedWelfareCaseDetailDto(
+    Guid Id,
+    string PublicCode,
+    WelfareCaseType Type,
+    WelfareCaseStatus Status,
+    WelfareSeverity Severity,
+    string Canton,
+    string Description,
+    double? ApproxLat,
+    double? ApproxLng,
+    DateTimeOffset CreatedAt,
+    IReadOnlyList<AnimalWelfareEvidenceDto> Evidence);

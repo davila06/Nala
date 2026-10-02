@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
-import { useLogin, useForgotPassword, usePasskeyLogin } from "../hooks/useAuth";
+import { getSafeReturnPath, useLogin, useForgotPassword, usePasskeyLogin } from "../hooks/useAuth";
 import { useRecoveryOverview } from "@/features/lost-pets/hooks/useRecoveryStats";
 import { Button } from "@/shared/ui/Button";
 import { Input } from "@/shared/ui/Input";
@@ -199,10 +199,11 @@ function BrandPanel() {
 
 interface VerifyEmailModalProps {
   email: string;
+  registerHref: string;
   onClose: () => void;
 }
 
-function VerifyEmailModal({ email, onClose }: VerifyEmailModalProps) {
+function VerifyEmailModal({ email, registerHref, onClose }: VerifyEmailModalProps) {
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -281,7 +282,7 @@ function VerifyEmailModal({ email, onClose }: VerifyEmailModalProps) {
               Entendido
             </Button>
             <Link
-              to="/register"
+              to={registerHref}
               className="block w-full rounded-xl py-2 text-center text-sm text-copy-muted hover:text-copy-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               onClick={onClose}
             >
@@ -404,6 +405,10 @@ function InlineForgotForm({ initialEmail, onBack }: InlineForgotFormProps) {
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get("return") ?? undefined;
+  const safeReturnPath = getSafeReturnPath(returnTo);
+  const registerHref = safeReturnPath
+    ? `/register?${new URLSearchParams({ return: safeReturnPath }).toString()}`
+    : "/register";
   const justRegistered = searchParams.get("registered") === "true";
 
   const { mutate: login, isPending, error } = useLogin(returnTo);
@@ -634,7 +639,7 @@ export default function LoginPage() {
                   <p className="mt-8 text-center text-sm text-copy-secondary">
                     ¿No tienes cuenta?{" "}
                     <Link
-                      to="/register"
+                      to={registerHref}
                       className="rounded font-semibold text-copy-brand hover:underline transition-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                     >
                       Regístrate gratis
@@ -685,7 +690,13 @@ export default function LoginPage() {
 
       {/* AnimatePresence in parent so portalled modal gets exit animations */}
       <AnimatePresence>
-        {showVerifyModal && <VerifyEmailModal email={form.email} onClose={() => setShowVerifyModal(false)} />}
+        {showVerifyModal && (
+          <VerifyEmailModal
+            email={form.email}
+            registerHref={registerHref}
+            onClose={() => setShowVerifyModal(false)}
+          />
+        )}
       </AnimatePresence>
     </div>
   );

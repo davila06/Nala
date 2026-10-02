@@ -2,8 +2,11 @@ using FluentAssertions;
 using NSubstitute;
 using PawTrack.Application.AnimalWelfare.Interfaces;
 using PawTrack.Application.AnimalWelfare.Queries;
+using PawTrack.Application.AnimalWelfare.Routing;
 using PawTrack.Application.Common.Interfaces;
+using PawTrack.Application.Municipalities.Interfaces;
 using PawTrack.Domain.AnimalWelfare;
+using PawTrack.Domain.Municipalities;
 
 namespace PawTrack.UnitTests.AnimalWelfare;
 
@@ -15,6 +18,8 @@ public sealed class DownloadWelfareEvidenceQueryTests
         var evidenceRepository = Substitute.For<IAnimalWelfareEvidenceRepository>();
         var caseRepository = Substitute.For<IAnimalWelfareCaseRepository>();
         var auditRepository = Substitute.For<IAnimalWelfareAuditRepository>();
+        var allies = Substitute.For<IAllyProfileRepository>();
+        var municipalities = Substitute.For<IMunicipalProfileRepository>();
         var blobStorage = Substitute.For<IBlobStorageService>();
         var unitOfWork = Substitute.For<IUnitOfWork>();
         var actorId = Guid.NewGuid();
@@ -29,7 +34,7 @@ public sealed class DownloadWelfareEvidenceQueryTests
         evidenceRepository.GetByIdAsync(evidence.Id, Arg.Any<CancellationToken>()).Returns(evidence);
         caseRepository.GetByIdAsync(welfareCase.Id, Arg.Any<CancellationToken>()).Returns(welfareCase);
         var handler = new DownloadWelfareEvidenceQueryHandler(
-            evidenceRepository, caseRepository, auditRepository, blobStorage, unitOfWork);
+            evidenceRepository, caseRepository, auditRepository, new WelfareRoutingService(allies, municipalities), blobStorage, unitOfWork);
 
         var result = await handler.Handle(new DownloadWelfareEvidenceQuery(evidence.Id, actorId), CancellationToken.None);
 
@@ -44,6 +49,8 @@ public sealed class DownloadWelfareEvidenceQueryTests
         var evidenceRepository = Substitute.For<IAnimalWelfareEvidenceRepository>();
         var caseRepository = Substitute.For<IAnimalWelfareCaseRepository>();
         var auditRepository = Substitute.For<IAnimalWelfareAuditRepository>();
+        var allies = Substitute.For<IAllyProfileRepository>();
+        var municipalities = Substitute.For<IMunicipalProfileRepository>();
         var blobStorage = Substitute.For<IBlobStorageService>();
         var unitOfWork = Substitute.For<IUnitOfWork>();
         var actorId = Guid.NewGuid();
@@ -51,6 +58,8 @@ public sealed class DownloadWelfareEvidenceQueryTests
             WelfareCaseType.Neglect, WelfareSeverity.High, "San Jose", "Caso sanitizado",
             null, true, null, null);
         welfareCase.AssignTo(actorId, "Municipality", actorId);
+        var municipalProfile = MunicipalityProfile.Create(actorId, "San Jose", "Municipalidad de San Jose", MunicipalTier.Basica);
+        municipalities.GetAllActiveAsync(Arg.Any<CancellationToken>()).Returns(new[] { municipalProfile });
         var evidence = AnimalWelfareEvidence.Create(
             welfareCase.Id, "private/evidence.jpg", "image/jpeg", 12,
             WelfareEvidenceKind.Photo, actorId, true, null);
@@ -58,7 +67,7 @@ public sealed class DownloadWelfareEvidenceQueryTests
         caseRepository.GetByIdAsync(welfareCase.Id, Arg.Any<CancellationToken>()).Returns(welfareCase);
         blobStorage.DownloadAsync(evidence.BlobUrl, Arg.Any<CancellationToken>()).Returns([1, 2, 3]);
         var handler = new DownloadWelfareEvidenceQueryHandler(
-            evidenceRepository, caseRepository, auditRepository, blobStorage, unitOfWork);
+            evidenceRepository, caseRepository, auditRepository, new WelfareRoutingService(allies, municipalities), blobStorage, unitOfWork);
 
         var result = await handler.Handle(new DownloadWelfareEvidenceQuery(evidence.Id, actorId), CancellationToken.None);
 

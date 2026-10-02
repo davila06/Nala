@@ -23,8 +23,8 @@ public sealed class ConfirmWelfareCaseRoutingCommandHandler(
 {
     public async Task<Result<bool>> Handle(ConfirmWelfareCaseRoutingCommand request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Reason))
-            return Result.Failure<bool>("El motivo de confirmación es requerido.");
+        if (string.IsNullOrWhiteSpace(request.Reason) || request.Reason.Trim().Length > 500)
+            return Result.Failure<bool>("El motivo de confirmación es requerido y debe tener hasta 500 caracteres.");
 
         var welfareCase = await caseRepository.GetByIdAsync(request.CaseId, cancellationToken);
         if (welfareCase is null)

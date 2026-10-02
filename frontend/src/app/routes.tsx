@@ -747,7 +747,7 @@ export const router = createBrowserRouter([
 
           // ── Admin only ───────────────────────────────────────────────────────
           {
-            element: <RoleGuard roles={["Admin"]} />,
+            element: <RoleGuard roles={["Admin", "SuperAdmin"]} />,
             children: [
               {
                 path: "/admin",

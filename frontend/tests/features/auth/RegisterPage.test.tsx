@@ -4,6 +4,7 @@ import { http, HttpResponse } from "msw";
 import { afterEach, describe, expect, it } from "vitest";
 import { useLocation } from "react-router-dom";
 import RegisterPage from "@/features/auth/pages/RegisterPage";
+import { getSafeReturnPath } from "@/features/auth/hooks/useAuth";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { server } from "../../mocks/server";
 import { renderWithProviders } from "../../utils/renderWithProviders";
@@ -18,6 +19,14 @@ afterEach(() => {
 });
 
 describe("RegisterPage", () => {
+  it("accepts only local, non-login return destinations", () => {
+    expect(getSafeReturnPath("/lost-pets/report")).toBe("/lost-pets/report");
+    expect(getSafeReturnPath("//example.com")).toBeUndefined();
+    expect(getSafeReturnPath("/login?return=/lost-pets/report")).toBeUndefined();
+    expect(getSafeReturnPath("https://example.com")).toBeUndefined();
+    expect(getSafeReturnPath("/\\\\example.com")).toBeUndefined();
+  });
+
   it("offers anonymous visitors a way back to sign-in", () => {
     renderWithProviders(<RegisterPage />);
 
