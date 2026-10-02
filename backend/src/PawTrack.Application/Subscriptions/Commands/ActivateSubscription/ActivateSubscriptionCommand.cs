@@ -10,7 +10,7 @@ using PawTrack.Domain.Audit;
 
 namespace PawTrack.Application.Subscriptions.Commands.ActivateSubscription;
 
-public sealed record ActivateSubscriptionCommand(string PaymentReference) : IRequest<Result<SubscriptionDto>>;
+public sealed record ActivateSubscriptionCommand(string PaymentReference, decimal? ExpectedAmountCrc = null) : IRequest<Result<SubscriptionDto>>;
 
 public sealed class ActivateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
@@ -34,6 +34,10 @@ public sealed class ActivateSubscriptionCommandHandler(
 
         if (subscription.Status != SubscriptionStatus.PendingPayment)
             return Result.Failure<SubscriptionDto>("Subscription is not in a pending state.");
+        if (request.ExpectedAmountCrc.HasValue &&
+            decimal.Round(request.ExpectedAmountCrc.Value, 2, MidpointRounding.ToEven) !=
+            decimal.Round(subscription.AmountCrc, 2, MidpointRounding.ToEven))
+            return Result.Failure<SubscriptionDto>("Payment amount does not match the pending subscription.");
 
         var plan = await planRepository.GetByTierAsync(subscription.Tier, cancellationToken);
         if (plan is null || !plan.IsActive)

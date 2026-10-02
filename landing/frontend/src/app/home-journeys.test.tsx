@@ -60,6 +60,8 @@ describe("home journeys", () => {
 
     await waitFor(() => expect(screen.getByText("Plan Plus")).toBeTruthy());
     expect(container.querySelector(".catalog-plan-price")).toBeNull();
+    expect(container.querySelector(".inner-lead")?.textContent).toMatch(/precios no se publican en esta página/i);
+    expect(container.querySelector(".inner-lead")?.textContent).toMatch(/solicita información comercial por correo/i);
     expect(screen.getByRole("link", { name: /consultar este plan por correo/i }).getAttribute("href")).toBe(
       "/contact?topic=Consulta+comercial&plan=Plan+Plus&tier=UserPlus",
     );

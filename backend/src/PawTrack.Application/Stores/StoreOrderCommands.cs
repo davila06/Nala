@@ -40,6 +40,8 @@ public sealed record StoreOrderDto(
     bool PaymentReportedByCustomer,
     string? PaymentVerificationReference,
     DateTimeOffset? PaymentConfirmedAt,
+    string? RefundReference,
+    DateTimeOffset? RefundedAt,
     DateTimeOffset? StockReservationExpiresAt,
     DateTimeOffset PlacedAt,
     DateTimeOffset? ConfirmedAt,
@@ -52,7 +54,8 @@ public sealed record StoreOrderDto(
         o.PaymentReference, o.TotalCrc,
         o.DeliveryAddress, o.CustomerNote, o.StoreNote,
         o.PaymentReportedByCustomer,
-        o.PaymentVerificationReference, o.PaymentConfirmedAt, o.StockReservationExpiresAt,
+        o.PaymentVerificationReference, o.PaymentConfirmedAt,
+        o.RefundReference, o.RefundedAt, o.StockReservationExpiresAt,
         o.PlacedAt, o.ConfirmedAt, o.CompletedAt,
         o.Items.Select(StoreOrderItemDto.FromDomain).ToList());
 }
@@ -141,6 +144,8 @@ public sealed class PlaceStoreOrderCommandHandler(
                 || product.StoreId != store.Id
                 || !product.IsAvailable)
                 return Result.Failure<StoreOrderDto>($"Producto no disponible: {line.ProductId}");
+            if (product.StockOnHand is null || product.StockOnHand.Value < line.Quantity)
+                return Result.Failure<StoreOrderDto>($"Inventario no declarado o insuficiente para: {product.Name}");
             lines.Add((product.Id, product.Name, line.Quantity, product.PriceCrc));
         }
 
@@ -271,6 +276,52 @@ public sealed class VerifyStoreOrderPaymentCommandHandler(
         await auditLog.AddAsync(AuditLogEntry.Create(
             request.StoreOwnerUserId, AuditAction.StoreOrderPaymentVerified,
             "StoreOrder", order.Id.ToString(), request.BankReference.Trim()), ct);
+        await unitOfWork.SaveChangesAsync(ct);
+        return Result.Success(StoreOrderDto.FromDomain(order, store.Name));
+    }
+}
+
+public sealed record RecordStoreOrderRefundCommand(
+    Guid StoreOwnerUserId,
+    Guid OrderId,
+    string ExternalRefundReference,
+    string? Reason = null) : IRequest<Result<StoreOrderDto>>;
+
+public sealed class RecordStoreOrderRefundCommandValidator : AbstractValidator<RecordStoreOrderRefundCommand>
+{
+    public RecordStoreOrderRefundCommandValidator()
+    {
+        RuleFor(request => request.OrderId).NotEmpty();
+        RuleFor(request => request.ExternalRefundReference).NotEmpty().MaximumLength(200);
+        RuleFor(request => request.Reason).NotEmpty().MaximumLength(500);
+    }
+}
+
+public sealed class RecordStoreOrderRefundCommandHandler(
+    IStoreRepository storeRepo,
+    IStoreOrderRepository orderRepo,
+    IAuditLogRepository auditLog,
+    IUnitOfWork unitOfWork)
+    : IRequestHandler<RecordStoreOrderRefundCommand, Result<StoreOrderDto>>
+{
+    public async Task<Result<StoreOrderDto>> Handle(RecordStoreOrderRefundCommand request, CancellationToken ct)
+    {
+        var store = await storeRepo.GetByUserIdAsync(request.StoreOwnerUserId, ct);
+        if (store is null || store.Status != StoreStatus.Active)
+            return Result.Failure<StoreOrderDto>("Tienda no encontrada o inactiva.");
+
+        var order = await orderRepo.GetByIdAsync(request.OrderId, ct);
+        if (order is null || order.StoreId != store.Id)
+            return Result.Failure<StoreOrderDto>("Pedido no encontrado.");
+
+        try { order.RecordManualRefund(request.StoreOwnerUserId, request.ExternalRefundReference, request.Reason); }
+        catch (Exception exception) when (exception is InvalidOperationException or ArgumentException)
+        { return Result.Failure<StoreOrderDto>(exception.Message); }
+
+        orderRepo.Update(order);
+        await auditLog.AddAsync(AuditLogEntry.Create(
+            request.StoreOwnerUserId, AuditAction.StoreOrderRefundRecorded,
+            "StoreOrder", order.Id.ToString(), request.ExternalRefundReference.Trim()), ct);
         await unitOfWork.SaveChangesAsync(ct);
         return Result.Success(StoreOrderDto.FromDomain(order, store.Name));
     }

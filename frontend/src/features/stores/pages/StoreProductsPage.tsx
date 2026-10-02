@@ -40,11 +40,14 @@ function ProductForm({
   const [description, setDescription] = useState(initial?.description ?? "");
   const [category, setCategory] = useState<ProductCategory>(initial?.category ?? "Other");
   const [priceCrc, setPriceCrc] = useState(String(initial?.priceCrc ?? ""));
-  const [stockOnHand, setStockOnHand] = useState(String(initial?.stockOnHand ?? 0));
+  const [stockOnHand, setStockOnHand] = useState(
+    initial?.stockOnHand == null ? "" : String(initial.stockOnHand),
+  );
   const [isAvailable, setIsAvailable] = useState(initial?.isAvailable ?? true);
 
   const handleSubmit = () => {
-    if (!name.trim() || !priceCrc || !stockOnHand || Number(stockOnHand) < 0) {
+    const parsedStock = Number(stockOnHand);
+    if (!name.trim() || !priceCrc || !stockOnHand.trim() || !Number.isInteger(parsedStock) || parsedStock < 0) {
       toast.error("Nombre, precio y existencias válidas son requeridos.");
       return;
     }
@@ -54,7 +57,7 @@ function ProductForm({
       category,
       priceCrc: Number(priceCrc),
       isAvailable,
-      stockOnHand: Number(stockOnHand),
+      stockOnHand: parsedStock,
     });
   };
 

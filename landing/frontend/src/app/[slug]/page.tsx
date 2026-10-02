@@ -25,6 +25,10 @@ type PageDefinition = {
     statusTone: "ready" | "partial" | "unverified" | "unavailable";
     summary: string;
     limit: string;
+    image?: {
+      asset: "municipalProfiles" | "municipalReports" | "municipalDialogue";
+      alt: string;
+    };
   }[];
 };
 
@@ -105,9 +109,9 @@ const pages: Record<string, PageDefinition> = {
   plans: {
     eyebrow: "PLANES PAWTRACK",
     title: "Tiers técnicos por hogar y organización.",
-    lead: "Consulta inclusiones e importes desde el catálogo API del entorno conectado; las capacidades y límites varían según el tipo de cuenta.",
+    lead: "Explora inclusiones y límites técnicos. Los precios no se publican en esta página; solicita información comercial por correo desde el plan que te interesa.",
     detail:
-      "El catálogo muestra los planes activos y aprobados en el entorno conectado. La aprobación local en PawTrackDev no confirma precio contractual, impuestos ni disponibilidad en producción.",
+      "El catálogo muestra los planes activos y aprobados en el entorno conectado. La aprobación local en PawTrackDev no confirma contratación, impuestos ni disponibilidad en producción.",
     points: [
       "Free es el alcance base técnico: hasta 1 mascota activa, 1 persona y QR. No tiene una fila propia ni precio publicado en el catálogo local.",
       "Para hogares, UserPlus admite hasta 3 mascotas y UserFamilia hasta 25 activas y 5 integrantes; el expediente médico completo corresponde a Familia.",
@@ -361,6 +365,10 @@ const pages: Record<string, PageDefinition> = {
         statusTone: "ready",
         summary: "El módulo permite perfiles municipales y registro interno de capturas.",
         limit: "La existencia del módulo no confirma un despliegue municipal.",
+        image: {
+          asset: "municipalProfiles",
+          alt: "Personal de campo registra la atención humanitaria de un perro en un patio comunitario.",
+        },
       },
       {
         title: "Reportes institucionales",
@@ -368,6 +376,10 @@ const pages: Record<string, PageDefinition> = {
         statusTone: "ready",
         summary: "Hay herramientas para consultar y preparar reportes institucionales internos.",
         limit: "Un reporte interno no equivale a una presentación oficial ante autoridades.",
+        image: {
+          asset: "municipalReports",
+          alt: "Dos personas revisan un resumen interno de atención animal en una computadora portátil.",
+        },
       },
       {
         title: "Integración y convenios",
@@ -375,6 +387,10 @@ const pages: Record<string, PageDefinition> = {
         statusTone: "unverified",
         summary: "El código no acredita una conexión oficial con una municipalidad o autoridad nacional.",
         limit: "Convenios, interoperabilidad, cobertura y SLA no están verificados.",
+        image: {
+          asset: "municipalDialogue",
+          alt: "Una voluntaria, una residente y una persona de servicio público conversan sobre el bienestar de un perro.",
+        },
       },
     ],
     primaryLabel: "Ver capacidades del producto",
@@ -615,6 +631,9 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
             >
               {page.capabilityCards.map((card) => (
                 <article className="capability-card" key={card.title}>
+                  {card.image ? (
+                    <LandingPicture alt={card.image.alt} asset={card.image.asset} className="capability-card-image" />
+                  ) : null}
                   <span className={`capability-status status-${card.statusTone}`}>{card.status}</span>
                   <h3>{card.title}</h3>
                   <p>{card.summary}</p>

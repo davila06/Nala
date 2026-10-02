@@ -21,6 +21,9 @@ public sealed class StoreOrder
     public bool PaymentReportedByCustomer { get; private set; }
     public string? PaymentVerificationReference { get; private set; }
     public Guid? PaymentVerifiedByUserId { get; private set; }
+    public string? RefundReference { get; private set; }
+    public Guid? RefundedByUserId { get; private set; }
+    public DateTimeOffset? RefundedAt { get; private set; }
     public bool StockReserved { get; private set; }
     public DateTimeOffset? StockReservationExpiresAt { get; private set; }
     public DateTimeOffset PlacedAt { get; private set; }
@@ -79,11 +82,13 @@ public sealed class StoreOrder
 
     public void Accept(string? storeNote = null)
     {
-        if (Status != StoreOrderStatus.AwaitingStoreAcceptance)
+        if (Status is not (StoreOrderStatus.AwaitingStoreAcceptance or StoreOrderStatus.PendingPayment or StoreOrderStatus.PaymentReported))
             throw new InvalidOperationException("Solo se puede aceptar una solicitud nueva.");
         if (!StockReserved || StockReservationExpiresAt is null)
             throw new InvalidOperationException("El inventario debe reservarse antes de aceptar el pedido.");
-        Status = PaymentReportedByCustomer
+        var paymentWasReported = PaymentReportedByCustomer || Status == StoreOrderStatus.PaymentReported;
+        PaymentReportedByCustomer |= Status == StoreOrderStatus.PaymentReported;
+        Status = paymentWasReported
             ? StoreOrderStatus.PaymentReported
             : StoreOrderStatus.AwaitingPayment;
         StoreNote = storeNote?.Trim();
@@ -112,9 +117,28 @@ public sealed class StoreOrder
         PaymentConfirmedAt = DateTimeOffset.UtcNow;
     }
 
+    public void RecordManualRefund(Guid refundedByUserId, string refundReference, string? reason = null)
+    {
+        if (Status == StoreOrderStatus.Refunded && RefundedByUserId == refundedByUserId &&
+            string.Equals(RefundReference, refundReference?.Trim(), StringComparison.Ordinal))
+            return;
+        if (Status != StoreOrderStatus.Paid)
+            throw new InvalidOperationException("Solo un pedido pagado puede registrar una devolución manual.");
+        if (refundedByUserId == Guid.Empty)
+            throw new ArgumentException("El usuario que registra la devolución es requerido.", nameof(refundedByUserId));
+        if (string.IsNullOrWhiteSpace(refundReference) || refundReference.Trim().Length > 200)
+            throw new ArgumentException("La referencia de devolución es requerida y no puede superar 200 caracteres.", nameof(refundReference));
+
+        Status = StoreOrderStatus.Refunded;
+        RefundReference = refundReference.Trim();
+        RefundedByUserId = refundedByUserId;
+        RefundedAt = DateTimeOffset.UtcNow;
+        if (!string.IsNullOrWhiteSpace(reason)) StoreNote = reason.Trim();
+    }
+
     public void MarkStockReserved(DateTimeOffset expiresAt)
     {
-        if (Status != StoreOrderStatus.AwaitingStoreAcceptance)
+        if (Status is not (StoreOrderStatus.AwaitingStoreAcceptance or StoreOrderStatus.PendingPayment or StoreOrderStatus.PaymentReported))
             throw new InvalidOperationException("Solo una solicitud nueva puede reservar inventario.");
         if (StockReserved)
             throw new InvalidOperationException("El inventario del pedido ya está reservado.");
@@ -183,7 +207,6 @@ public sealed class StoreOrder
         (StoreOrderStatus.PaymentReported, StoreOrderStatus.Cancelled) => true,
         (StoreOrderStatus.Paid, StoreOrderStatus.Preparing) => true,
         (StoreOrderStatus.Confirmed, StoreOrderStatus.Preparing) => true,
-        (StoreOrderStatus.Paid, StoreOrderStatus.Cancelled) => true,
         (StoreOrderStatus.Confirmed, StoreOrderStatus.Cancelled) => true,
         (StoreOrderStatus.Preparing, StoreOrderStatus.ReadyForPickup) => true,
         (StoreOrderStatus.Preparing, StoreOrderStatus.OutForDelivery) => true,

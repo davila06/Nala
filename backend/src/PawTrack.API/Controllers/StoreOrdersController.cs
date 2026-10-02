@@ -112,6 +112,23 @@ public sealed class StoreOrdersController(ISender sender) : ControllerBase
             : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
     }
 
+    [HttpPost("{orderId:guid}/record-external-refund")]
+    [Authorize(Roles = "Store")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(1024)]
+    public async Task<IActionResult> RecordExternalRefund(
+        Guid orderId,
+        [FromBody] RecordStoreOrderRefundRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new RecordStoreOrderRefundCommand(
+            userId, orderId, request.ExternalRefundReference, request.Reason), ct);
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
     // ── PUT /api/store-orders/{id}/status — update delivery status ────────────
     [HttpPut("{orderId:guid}/status")]
     [Authorize(Roles = "Store")]
@@ -151,4 +168,5 @@ public sealed record PlaceOrderRequest(
 public sealed record OrderLineRequest(Guid ProductId, int Quantity);
 public sealed record StoreOrderNoteRequest(string? Note);
 public sealed record VerifyStoreOrderPaymentRequest(string BankReference, string? Note = null);
+public sealed record RecordStoreOrderRefundRequest(string ExternalRefundReference, string Reason);
 public sealed record UpdateOrderStatusRequest(string Status, string? Note);

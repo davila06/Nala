@@ -223,7 +223,7 @@ public sealed class ReportBundlePaymentCommandHandler(
 
 // ── Admin: confirm payment → activates 12-month Plus subscription ─────────────
 
-public sealed record ConfirmBundlePaymentCommand(Guid OrderId) : IRequest<Result<BundleOrderDto>>;
+public sealed record ConfirmBundlePaymentCommand(Guid OrderId, decimal? ExpectedAmountCrc = null) : IRequest<Result<BundleOrderDto>>;
 
 public sealed class ConfirmBundlePaymentCommandHandler(
     IBundleOrderRepository bundleRepository,
@@ -241,6 +241,10 @@ public sealed class ConfirmBundlePaymentCommandHandler(
         if (order is null) return Result.Failure<BundleOrderDto>("Pedido no encontrado.");
         if (order.Status != BundleOrderStatus.PendingPayment)
             return Result.Failure<BundleOrderDto>("El pedido ya fue procesado.");
+        if (request.ExpectedAmountCrc.HasValue &&
+            decimal.Round(request.ExpectedAmountCrc.Value, 2, MidpointRounding.ToEven) !=
+            decimal.Round(order.AmountCrc, 2, MidpointRounding.ToEven))
+            return Result.Failure<BundleOrderDto>("El monto pagado no coincide con el total del pedido.");
 
         // Create and immediately activate a 12-month UserPlus subscription
         var subRef = paymentService.GenerateReference();

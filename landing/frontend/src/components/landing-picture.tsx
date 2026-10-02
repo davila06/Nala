@@ -14,7 +14,10 @@ type LandingAsset =
   | "clinicIdentification"
   | "clinicRecords"
   | "clinicAppointments"
-  | "clinicScanStats";
+  | "clinicScanStats"
+  | "municipalProfiles"
+  | "municipalReports"
+  | "municipalDialogue";
 
 type LandingPictureProps = {
   alt: string;
@@ -79,6 +82,18 @@ const assetFiles: Record<LandingAsset, { desktop: string; mobile: string }> = {
   clinicScanStats: {
     desktop: "clinic-scan-stats-20261002-desktop",
     mobile: "clinic-scan-stats-20261002-mobile",
+  },
+  municipalProfiles: {
+    desktop: "municipal-profiles-captures-20261002-desktop",
+    mobile: "municipal-profiles-captures-20261002-mobile",
+  },
+  municipalReports: {
+    desktop: "municipal-internal-reports-20261002-desktop",
+    mobile: "municipal-internal-reports-20261002-mobile",
+  },
+  municipalDialogue: {
+    desktop: "municipal-integration-dialogue-20261002-desktop",
+    mobile: "municipal-integration-dialogue-20261002-mobile",
   },
 };
 

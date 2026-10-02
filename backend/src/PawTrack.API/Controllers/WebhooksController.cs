@@ -70,7 +70,7 @@ public sealed class WebhooksController(
 
         // 1. Try to activate a subscription matching the reference
         var subResult = await sender.Send(
-            new ActivateSubscriptionCommand(notification.Reference),
+            new ActivateSubscriptionCommand(notification.Reference, notification.AmountCrc),
             cancellationToken);
 
         if (subResult.IsSuccess && subResult.Value is not null)
@@ -108,7 +108,7 @@ public sealed class WebhooksController(
 
         // 2. Try to activate a bounty deposit
         var bountyResult = await sender.Send(
-            new ConfirmBountyDepositCommand(notification.Reference),
+            new ConfirmBountyDepositCommand(notification.Reference, ExpectedAmountCrc: notification.AmountCrc),
             cancellationToken);
 
         if (bountyResult.IsSuccess && bountyResult.Value is not null)
@@ -126,9 +126,12 @@ public sealed class WebhooksController(
 
         // 3. Try to activate a bundle order matching the reference
         var bundle = await bundleRepository.GetByPaymentReferenceAsync(notification.Reference, cancellationToken);
-        if (bundle is not null && bundle.Status == BundleOrderStatus.PendingPayment)
+        if (bundle is not null && bundle.Status == BundleOrderStatus.PendingPayment &&
+            decimal.Round(notification.AmountCrc, 2, MidpointRounding.ToEven) ==
+            decimal.Round(bundle.AmountCrc, 2, MidpointRounding.ToEven))
         {
-            var confirmResult = await sender.Send(new ConfirmBundlePaymentCommand(bundle.Id), cancellationToken);
+            var confirmResult = await sender.Send(
+                new ConfirmBundlePaymentCommand(bundle.Id, notification.AmountCrc), cancellationToken);
             if (confirmResult.IsSuccess)
             {
                 var tx = await RecordWebhookTransactionAsync(

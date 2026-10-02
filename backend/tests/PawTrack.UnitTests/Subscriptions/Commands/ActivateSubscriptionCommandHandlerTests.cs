@@ -108,4 +108,21 @@ public sealed class ActivateSubscriptionCommandHandlerTests
         subscription.Status.Should().Be(SubscriptionStatus.PendingPayment);
         _subscriptions.DidNotReceive().Update(subscription);
     }
+
+    [Fact]
+    public async Task Handle_WebhookAmountDifferentFromStoredSubscriptionDoesNotActivate()
+    {
+        var userId = Guid.NewGuid();
+        var subscription = Subscription.CreateForUser(userId, SubscriptionTier.UserPlus, "AMOUNT1", 2990m);
+        var plan = SubscriptionPlan.Create(SubscriptionTier.UserPlus, "Plus", "Plus", 2990m, null);
+        plan.ApproveForCommercialPublication(Guid.NewGuid(), "TEST-APPROVAL");
+        _subscriptions.GetByPaymentReferenceAsync("AMOUNT1", Arg.Any<CancellationToken>()).Returns(subscription);
+        _plans.GetByTierAsync(SubscriptionTier.UserPlus, Arg.Any<CancellationToken>()).Returns(plan);
+
+        var result = await BuildHandler().Handle(new ActivateSubscriptionCommand("AMOUNT1", 1m), default);
+
+        result.IsFailure.Should().BeTrue();
+        subscription.Status.Should().Be(SubscriptionStatus.PendingPayment);
+        _subscriptions.DidNotReceive().Update(subscription);
+    }
 }

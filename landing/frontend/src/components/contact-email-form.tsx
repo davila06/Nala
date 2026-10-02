@@ -29,10 +29,13 @@ export function ContactEmailForm() {
       ?.replace(/[\u0000-\u001f\u007f]/g, "")
       .trim()
       .slice(0, 40);
-    setTopic("Consulta comercial");
-    setMessage(
-      `Quisiera recibir información de precio, límites y condiciones del plan ${planName}${tier ? ` (${tier})` : ""}. Por favor, indíquenme su disponibilidad vigente.`,
-    );
+    const prefilledMessage = `Quisiera recibir información de precio, límites y condiciones del plan ${planName}${tier ? ` (${tier})` : ""}. Por favor, indíquenme su disponibilidad vigente.`;
+    const timeoutId = window.setTimeout(() => {
+      setTopic("Consulta comercial");
+      setMessage(prefilledMessage);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {

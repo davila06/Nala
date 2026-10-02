@@ -123,6 +123,38 @@ public sealed class PaymentIntentSettledDomainEventHandlerTests
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task Settled_provider_booking_with_wrong_ownerDoesNotMutateOrCreateLedger()
+    {
+        var ownerId = Guid.NewGuid();
+        var attackerId = Guid.NewGuid();
+        var intentId = Guid.NewGuid();
+        var providerId = Guid.NewGuid();
+        var booking = ProviderBooking.Request(providerId, Guid.NewGuid(), ownerId, Guid.NewGuid(), "Consulta",
+            DateTimeOffset.UtcNow.AddDays(2), 60, 20_000m, 1, null);
+        booking.MarkAwaitingPayment();
+        var payment = ProviderPayment.Create(booking.Id, ownerId, providerId, booking.TotalCrc, "CARD-BOOKING-2", "idem-booking-2");
+        payment.BeginCardPayment(intentId);
+        _providers.GetBookingByIdAsync(booking.Id, Arg.Any<CancellationToken>()).Returns(booking);
+        _providers.GetPaymentByBookingAsync(booking.Id, Arg.Any<CancellationToken>()).Returns(payment);
+        var operationId = Guid.NewGuid();
+        _ledger.ExistsByOperationIdAsync(operationId, Arg.Any<CancellationToken>()).Returns(false);
+        _ledger.AddAsync(Arg.Any<PaymentLedgerEntry>(), Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
+
+        var handler = CreateHandler();
+        await handler.Handle(new PaymentIntentSettledDomainEvent(
+            intentId, attackerId, "ProviderBooking", booking.Id, booking.TotalCrc,
+            "cybersource-other-user", operationId, "corr-forged"), CancellationToken.None);
+
+        booking.Status.Should().Be(ProviderBookingStatus.AwaitingPayment);
+        payment.Status.Should().Be(ProviderPaymentStatus.CardPending);
+        _providers.DidNotReceive().UpdateBooking(Arg.Any<ProviderBooking>());
+        _providers.DidNotReceive().UpdatePayment(Arg.Any<ProviderPayment>());
+        await _ledger.DidNotReceive().AddAsync(Arg.Any<PaymentLedgerEntry>(), Arg.Any<CancellationToken>());
+        await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
     private PaymentIntentSettledDomainEventHandler CreateHandler() =>
         new(_subscriptions, _bounties, _bundles, _providers, _ledger, _sender, _unitOfWork);
 }

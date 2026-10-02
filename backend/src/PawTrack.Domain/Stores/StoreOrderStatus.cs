@@ -15,4 +15,5 @@ public enum StoreOrderStatus
     AwaitingPayment = 10,
     Paid = 11,
     Expired = 12,
+    Refunded = 13,
 }

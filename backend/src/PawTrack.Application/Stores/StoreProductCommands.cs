@@ -84,8 +84,7 @@ public sealed class UpdateStoreProductCommandHandler(IStoreRepository repo, IUni
         if (product is null || product.StoreId != store.Id)
             return Result.Failure<StoreProductDto>("Producto no encontrado.");
 
-        product.Update(request.Name, request.Description, request.Category, request.PriceCrc);
-        product.SetStockQuantity(request.StockOnHand);
+        product.Update(request.Name, request.Description, request.Category, request.PriceCrc, request.StockOnHand);
         product.SetAvailable(request.IsAvailable);
         repo.UpdateProduct(product);
         await uow.SaveChangesAsync(ct);

@@ -175,9 +175,11 @@ public sealed class StoreOrderRepository(PawTrackDbContext db) : IStoreOrderRepo
             .Include(candidate => candidate.Items)
             .FirstOrDefaultAsync(candidate => candidate.Id == orderId && candidate.StoreId == storeId, ct);
         if (order is null) return false;
-        if (order.Status == StoreOrderStatus.AwaitingPayment && order.StockReserved)
+        if (order.StockReserved &&
+            order.Status is StoreOrderStatus.AwaitingPayment or StoreOrderStatus.PaymentReported)
             return true;
-        if (order.Status != StoreOrderStatus.AwaitingStoreAcceptance || order.Items.Count == 0)
+        if (order.Status is not (StoreOrderStatus.AwaitingStoreAcceptance or StoreOrderStatus.PendingPayment or StoreOrderStatus.PaymentReported) ||
+            order.Items.Count == 0)
             return false;
 
         var productIds = order.Items.Select(item => item.ProductId).Distinct().ToArray();

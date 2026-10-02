@@ -7,6 +7,7 @@ import {
   useIncomingOrders,
   useConfirmOrder,
   useVerifyStoreOrderPayment,
+  useRecordStoreOrderRefund,
   useUpdateOrderStatus,
 } from "../hooks/useStoreOrders";
 import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "../api/storesApi";
@@ -26,7 +27,7 @@ const NEXT_STATUS_PICKUP: Partial<Record<StoreOrderStatus, StoreOrderStatus>> = 
   ReadyForPickup: "Delivered",
 };
 
-const CANCELLABLE: StoreOrderStatus[] = ["Paid", "Confirmed", "Preparing", "ReadyForPickup", "OutForDelivery"];
+const CANCELLABLE: StoreOrderStatus[] = ["Confirmed", "Preparing", "ReadyForPickup", "OutForDelivery"];
 
 const REQUEST_STATUSES: StoreOrderStatus[] = ["AwaitingStoreAcceptance", "PendingPayment"];
 
@@ -38,9 +39,11 @@ function getNextStatus(order: StoreOrderDto): StoreOrderStatus | undefined {
 function OrderCard({ order }: { order: StoreOrderDto }) {
   const confirm = useConfirmOrder();
   const verifyPayment = useVerifyStoreOrderPayment();
+  const recordRefund = useRecordStoreOrderRefund();
   const updateStatus = useUpdateOrderStatus();
   const [reason, setReason] = useState("");
   const [bankReference, setBankReference] = useState("");
+  const [refundReference, setRefundReference] = useState("");
 
   const nextStatus = getNextStatus(order);
 
@@ -93,13 +96,18 @@ function OrderCard({ order }: { order: StoreOrderDto }) {
           El cliente informó el pago. Verifica el abono en la cuenta de la tienda; el reporte no confirma recepción.
         </p>
       )}
+      {order.status === "Paid" && (
+        <p className="rounded-xl border border-brand-200 bg-brand-50 p-3 text-xs text-brand-800">
+          Pago verificado. Preparar o entregar el pedido según lo acordado. Para una devolución, primero ejecútala fuera de PawTrack y luego registra su referencia bancaria.
+        </p>
+      )}
 
       {order.deliveryAddress && <p className="text-xs text-copy-secondary">📍 {order.deliveryAddress}</p>}
       {order.customerNote && <p className="text-xs text-copy-secondary">💬 "{order.customerNote}"</p>}
 
       {(REQUEST_STATUSES.includes(order.status) ||
         order.status === "PaymentReported" ||
-        CANCELLABLE.includes(order.status)) && (
+        CANCELLABLE.includes(order.status) || order.status === "Paid") && (
         <label className="block text-xs font-medium text-copy-secondary">
           Motivo o nota para el cliente *
           <input
@@ -223,6 +231,36 @@ function OrderCard({ order }: { order: StoreOrderDto }) {
           >
             Cancelar
           </Button>
+        )}
+        {order.status === "Paid" && (
+          <div className="w-full space-y-2 border-t border-sand-100 pt-3">
+            <label className="block text-xs font-medium text-copy-secondary" htmlFor={`refund-${order.id}`}>
+              Referencia de devolución ejecutada por la tienda
+            </label>
+            <input
+              id={`refund-${order.id}`}
+              value={refundReference}
+              onChange={(event) => setRefundReference(event.target.value)}
+              maxLength={200}
+              placeholder="Referencia bancaria de la devolución"
+              className="w-full rounded-xl border border-sand-200 bg-white px-3 py-2 text-xs"
+            />
+            <Button
+              size="sm"
+              variant="danger"
+              disabled={!refundReference.trim() || !reason.trim()}
+              loading={recordRefund.isPending}
+              onClick={() => recordRefund.mutate(
+                { orderId: order.id, externalRefundReference: refundReference.trim(), reason: reason.trim() },
+                {
+                  onSuccess: () => toast.success("Devolución externa registrada"),
+                  onError: () => toast.error("No se pudo registrar la devolución"),
+                },
+              )}
+            >
+              Registrar devolución ya ejecutada
+            </Button>
+          </div>
         )}
       </div>
     </li>

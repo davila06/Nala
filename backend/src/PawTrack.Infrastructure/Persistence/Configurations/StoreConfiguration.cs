@@ -72,6 +72,9 @@ public sealed class StoreOrderConfiguration : IEntityTypeConfiguration<StoreOrde
         builder.Property(x => x.PaymentVerificationReference).HasMaxLength(200);
         builder.Property(x => x.PaymentVerifiedByUserId);
         builder.Property(x => x.PaymentConfirmedAt);
+        builder.Property(x => x.RefundReference).HasMaxLength(200);
+        builder.Property(x => x.RefundedByUserId);
+        builder.Property(x => x.RefundedAt);
         builder.Property(x => x.StockReserved).IsRequired().HasDefaultValue(false);
         builder.Property(x => x.StockReservationExpiresAt);
         builder.Property(x => x.PlacedAt).IsRequired();

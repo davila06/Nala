@@ -107,6 +107,18 @@ const images = [
     name: "clinic-scan-stats-20261002",
     source: "clinic-scan-stats-20261002.png",
   },
+  {
+    name: "municipal-profiles-captures-20261002",
+    source: "municipal-profiles-captures-20261002.png",
+  },
+  {
+    name: "municipal-internal-reports-20261002",
+    source: "municipal-internal-reports-20261002.png",
+  },
+  {
+    name: "municipal-integration-dialogue-20261002",
+    source: "municipal-integration-dialogue-20261002.png",
+  },
 ];
 const variants = [
   { directory: "desktop", width: 1600, height: 900, position: "centre" },

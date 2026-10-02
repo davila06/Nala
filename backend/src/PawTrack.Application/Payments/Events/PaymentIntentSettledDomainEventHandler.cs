@@ -27,28 +27,12 @@ public sealed class PaymentIntentSettledDomainEventHandler(
 {
     public async Task Handle(PaymentIntentSettledDomainEvent notification, CancellationToken cancellationToken)
     {
-        var ledgerAdded = false;
-        if (notification.PaymentOperationId.HasValue &&
-            !await ledgerRepository.ExistsByOperationIdAsync(notification.PaymentOperationId.Value, cancellationToken))
-        {
-            var reference = notification.GatewayTransactionId ?? notification.PaymentIntentId.ToString("N");
-            var correlationId = notification.CorrelationId ?? notification.PaymentIntentId.ToString("N");
-            await ledgerRepository.AddAsync(PaymentLedgerEntry.Create(
-                notification.PaymentIntentId,
-                notification.PaymentOperationId.Value,
-                PaymentLedgerEntryType.Debit,
-                notification.AmountCrc,
-                "CRC",
-                reference,
-                correlationId), cancellationToken);
-            ledgerAdded = true;
-        }
+        if (notification.PaymentOperationId is { } priorOperationId &&
+            await ledgerRepository.ExistsByOperationIdAsync(priorOperationId, cancellationToken))
+            return;
 
         if (!notification.TargetEntityId.HasValue)
-        {
-            if (ledgerAdded) await unitOfWork.SaveChangesAsync(cancellationToken);
             return;
-        }
 
         if (string.Equals(notification.Purpose, "Subscription", StringComparison.OrdinalIgnoreCase))
         {
@@ -63,11 +47,9 @@ public sealed class PaymentIntentSettledDomainEventHandler(
             {
                 subscription.Activate(subscription.BillingMonths);
                 subscriptionRepository.Update(subscription);
-                ledgerAdded = true;
+                await AddLedgerAsync(notification, cancellationToken);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
             }
-
-            if (ledgerAdded) await unitOfWork.SaveChangesAsync(cancellationToken);
-
             return;
         }
 
@@ -77,10 +59,13 @@ public sealed class PaymentIntentSettledDomainEventHandler(
             if (bundle is not null && bundle.UserId == notification.UserId &&
                 bundle.Status == BundleOrderStatus.PendingPayment && bundle.AmountCrc == notification.AmountCrc)
             {
-                await sender.Send(new ConfirmBundlePaymentCommand(bundle.Id), cancellationToken);
-                ledgerAdded = true;
+                var result = await sender.Send(new ConfirmBundlePaymentCommand(bundle.Id), cancellationToken);
+                if (result.IsSuccess)
+                {
+                    await AddLedgerAsync(notification, cancellationToken);
+                    await unitOfWork.SaveChangesAsync(cancellationToken);
+                }
             }
-            if (ledgerAdded) await unitOfWork.SaveChangesAsync(cancellationToken);
             return;
         }
 
@@ -92,9 +77,9 @@ public sealed class PaymentIntentSettledDomainEventHandler(
             {
                 bounty.ConfirmDeposit();
                 bountyRepository.Update(bounty);
-                ledgerAdded = true;
+                await AddLedgerAsync(notification, cancellationToken);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
             }
-            if (ledgerAdded) await unitOfWork.SaveChangesAsync(cancellationToken);
             return;
         }
 
@@ -116,7 +101,8 @@ public sealed class PaymentIntentSettledDomainEventHandler(
                 booking.Confirm();
                 providerRepository.UpdatePayment(payment);
                 providerRepository.UpdateBooking(booking);
-                ledgerAdded = true;
+                await AddLedgerAsync(notification, cancellationToken);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
             }
             else if (purchaseMatches && payment!.Status == ProviderPaymentStatus.Confirmed &&
                      booking!.Status == ProviderBookingStatus.Confirmed &&
@@ -124,10 +110,23 @@ public sealed class PaymentIntentSettledDomainEventHandler(
             {
                 // Webhook replay: the settled payment and booking already match this transaction.
             }
-            if (ledgerAdded) await unitOfWork.SaveChangesAsync(cancellationToken);
-            return;
         }
+    }
 
-        if (ledgerAdded) await unitOfWork.SaveChangesAsync(cancellationToken);
+    private async Task AddLedgerAsync(PaymentIntentSettledDomainEvent notification, CancellationToken cancellationToken)
+    {
+        if (notification.PaymentOperationId is not { } operationId || operationId == Guid.Empty)
+            return;
+        if (await ledgerRepository.ExistsByOperationIdAsync(operationId, cancellationToken))
+            return;
+
+        await ledgerRepository.AddAsync(PaymentLedgerEntry.Create(
+            notification.PaymentIntentId,
+            operationId,
+            PaymentLedgerEntryType.Debit,
+            notification.AmountCrc,
+            "CRC",
+            notification.GatewayTransactionId ?? notification.PaymentIntentId.ToString("N"),
+            notification.CorrelationId ?? notification.PaymentIntentId.ToString("N")), cancellationToken);
     }
 }

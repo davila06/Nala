@@ -199,14 +199,17 @@ public sealed class StoreOrderStateMachineTests
     }
 
     [Fact]
-    public void Cancel_FromPaid_Transitions()
+    public void Cancel_FromPaid_RequiresRefundEvidenceFirst()
     {
         var order = MakeOrder();
         order.Accept("Disponibilidad confirmada");
         order.ReportPayment();
         order.VerifyManualPayment(Guid.NewGuid(), "BANK-CANCEL");
-        order.UpdateStatus(StoreOrderStatus.Cancelled, "Cancelado por la tienda");
-        order.Status.Should().Be(StoreOrderStatus.Cancelled);
+
+        var act = () => order.UpdateStatus(StoreOrderStatus.Cancelled, "Cancelado por la tienda");
+
+        act.Should().Throw<InvalidOperationException>();
+        order.Status.Should().Be(StoreOrderStatus.Paid);
     }
 
     [Theory]
@@ -328,9 +331,9 @@ public sealed class PlaceStoreOrderCommandHandlerTests
         _storeRepo.GetByIdAsync(StoreId, Arg.Any<CancellationToken>()).Returns(store);
     }
 
-    private void SetupAvailableProduct(decimal price = 2000m)
+    private void SetupAvailableProduct(decimal price = 2000m, int? stockOnHand = 10)
     {
-        var product = StoreProduct.Create(StoreId, "Dog Food 3kg", null, ProductCategory.Food, price);
+        var product = StoreProduct.Create(StoreId, "Dog Food 3kg", null, ProductCategory.Food, price, stockOnHand);
         typeof(StoreProduct).GetProperty("Id")!.SetValue(product, ProductId);
         _storeRepo.GetProductsByIdsAsync(
             Arg.Any<IEnumerable<Guid>>(), Arg.Any<CancellationToken>())
@@ -357,6 +360,21 @@ public sealed class PlaceStoreOrderCommandHandlerTests
         result.Value!.TotalCrc.Should().Be(4000m);
         result.Value.PaymentReference.Should().Be("SINPE001");
         await _orderRepo.Received(1).AddAsync(Arg.Any<StoreOrder>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_UnknownOrInsufficientInventory_ReturnsFailure()
+    {
+        SetupActiveStore();
+        SetupAvailableProduct(2000m, stockOnHand: 0);
+
+        var result = await _sut.Handle(new PlaceStoreOrderCommand(
+            Guid.NewGuid(), StoreId, OrderFulfillmentType.Pickup,
+            null, null, [new PlaceOrderLineInput(ProductId, 1)]), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain(error => error.Contains("inventario", StringComparison.OrdinalIgnoreCase));
+        await _orderRepo.DidNotReceive().AddAsync(Arg.Any<StoreOrder>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -641,5 +659,29 @@ public sealed class StoreOrderReservationExpirationJobTests
         expired.Should().Be(0);
         await repository.DidNotReceive().GetExpiredStockReservationOrderIdsAsync(
             Arg.Any<DateTimeOffset>(), Arg.Any<int>(), Arg.Any<CancellationToken>());
+    }
+}
+
+public sealed class StoreOrderManualRefundTests
+{
+    [Fact]
+    public void StoreRecordsExternalRefundOnceWithoutPretendingPawTrackMovedFunds()
+    {
+        var order = StoreOrder.Place(Guid.NewGuid(), Guid.NewGuid(), "REF-REFUND", OrderFulfillmentType.Pickup,
+            null, null, [(Guid.NewGuid(), "Food", 1, 1500m)]);
+        var storeOwnerId = Guid.NewGuid();
+        order.MarkStockReserved(DateTimeOffset.UtcNow.AddMinutes(15));
+        order.Accept();
+        order.ReportPayment();
+        order.VerifyManualPayment(storeOwnerId, "BANK-PAYMENT-1");
+
+        order.RecordManualRefund(storeOwnerId, "BANK-REFUND-1", "Pago devuelto por SINPE");
+        order.RecordManualRefund(storeOwnerId, "BANK-REFUND-1", "Pago devuelto por SINPE");
+
+        order.Status.ToString().Should().Be("Refunded");
+        order.RefundedByUserId.Should().Be(storeOwnerId);
+        order.RefundReference.Should().Be("BANK-REFUND-1");
+        var act = () => order.RecordManualRefund(storeOwnerId, "BANK-REFUND-2", "Reintento distinto");
+        act.Should().Throw<InvalidOperationException>();
     }
 }

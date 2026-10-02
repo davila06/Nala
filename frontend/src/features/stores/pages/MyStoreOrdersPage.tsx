@@ -6,13 +6,14 @@ import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "../api/storesApi";
 import type { StoreOrderDto, StoreOrderStatus } from "../api/storesApi";
 import { useMyOrders, useReportStoreOrderPayment } from "../hooks/useStoreOrders";
 
-const TERMINAL: StoreOrderStatus[] = ["Delivered", "Cancelled", "Rejected", "Expired"];
+const TERMINAL: StoreOrderStatus[] = ["Delivered", "Cancelled", "Rejected", "Expired", "Refunded"];
 
 const ICON: Record<StoreOrderStatus, string> = {
   AwaitingStoreAcceptance: "📨",
   AwaitingPayment: "💳",
   Paid: "✅",
   Expired: "⌛",
+  Refunded: "↩️",
   PendingPayment: "💳",
   PaymentReported: "✅",
   Confirmed: "📋",

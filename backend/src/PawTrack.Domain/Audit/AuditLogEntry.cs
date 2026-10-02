@@ -70,6 +70,7 @@ public enum AuditAction
     StoreRejected,
     StoreSuspended,
     StoreOrderPaymentVerified,
+    StoreOrderRefundRecorded,
     StoreAnalyticsExported,
     PartnerAnalyticsExported,
 

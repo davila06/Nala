@@ -10,6 +10,7 @@ export type StoreOrderStatus =
   | "AwaitingPayment"
   | "Paid"
   | "Expired"
+  | "Refunded"
   // Retained for historical orders before the payment-state migration.
   | "PendingPayment"
   | "PaymentReported"
@@ -101,6 +102,7 @@ export const ORDER_STATUS_LABELS: Record<StoreOrderStatus, string> = {
   AwaitingPayment: "Disponibilidad confirmada · pago pendiente",
   Paid: "Pagado · en preparación",
   Expired: "Reserva vencida",
+  Refunded: "Reembolso externo registrado",
   PendingPayment: "Solicitud pendiente",
   PaymentReported: "Solicitud pendiente",
   Confirmed: "Confirmado",
@@ -117,6 +119,7 @@ export const ORDER_STATUS_COLORS: Record<StoreOrderStatus, string> = {
   AwaitingPayment: "bg-warn-100 text-warn-700",
   Paid: "bg-brand-100 text-brand-700",
   Expired: "bg-danger-100 text-danger-700",
+  Refunded: "bg-sand-100 text-sand-700",
   PendingPayment: "bg-warn-100 text-warn-700",
   PaymentReported: "bg-warn-100 text-warn-700",
   Confirmed: "bg-brand-100 text-brand-700",

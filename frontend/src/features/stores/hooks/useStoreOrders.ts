@@ -57,6 +57,18 @@ export function useVerifyStoreOrderPayment() {
   });
 }
 
+export function useRecordStoreOrderRefund() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ orderId, externalRefundReference, reason }: { orderId: string; externalRefundReference: string; reason: string }) =>
+      storeOrdersApi.recordExternalRefund(orderId, externalRefundReference, reason),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["store-incoming-orders"] });
+      void qc.invalidateQueries({ queryKey: ["my-store-orders"] });
+    },
+  });
+}
+
 export function useUpdateOrderStatus() {
   const qc = useQueryClient();
   return useMutation({

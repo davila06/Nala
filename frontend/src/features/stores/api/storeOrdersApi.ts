@@ -45,6 +45,11 @@ export const storeOrdersApi = {
       .post<StoreOrderDto>(`/store-orders/${orderId}/verify-payment`, { bankReference, note })
       .then((r) => r.data),
 
+  recordExternalRefund: (orderId: string, externalRefundReference: string, reason: string): Promise<StoreOrderDto> =>
+    apiClient
+      .post<StoreOrderDto>(`/store-orders/${orderId}/record-external-refund`, { externalRefundReference, reason })
+      .then((r) => r.data),
+
   updateStatus: (orderId: string, status: StoreOrderStatus, note?: string): Promise<StoreOrderDto> =>
     apiClient.put<StoreOrderDto>(`/store-orders/${orderId}/status`, { status, note }).then((r) => r.data),
 };

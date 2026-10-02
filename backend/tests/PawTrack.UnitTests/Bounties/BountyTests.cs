@@ -211,3 +211,23 @@ public sealed class ReleaseBountyCommandHandlerTests
         result.IsFailure.Should().BeTrue();
     }
 }
+
+public sealed class ConfirmBountyDepositAmountTests
+{
+    [Fact]
+    public async Task WebhookAmountMustMatchBountyAmount()
+    {
+        var ownerId = Guid.NewGuid();
+        var bounty = Bounty.Create(Guid.NewGuid(), ownerId, 10_000m, "REF-AMOUNT");
+        var repository = Substitute.For<IBountyRepository>();
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        repository.GetByDepositReferenceAsync("REF-AMOUNT", Arg.Any<CancellationToken>()).Returns(bounty);
+        var handler = new ConfirmBountyDepositCommandHandler(repository, unitOfWork);
+
+        var result = await handler.Handle(new ConfirmBountyDepositCommand("REF-AMOUNT", ExpectedAmountCrc: 1m), default);
+
+        result.IsFailure.Should().BeTrue();
+        bounty.Status.Should().Be(BountyStatus.PendingDeposit);
+        repository.DidNotReceive().Update(bounty);
+    }
+}

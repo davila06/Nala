@@ -8,7 +8,8 @@ namespace PawTrack.Application.Bounties.Commands.ConfirmBountyDeposit;
 
 public sealed record ConfirmBountyDepositCommand(
     string DepositReference,
-    Guid?  RequestingUserId = null) : IRequest<Result<BountyDto>>;
+    Guid? RequestingUserId = null,
+    decimal? ExpectedAmountCrc = null) : IRequest<Result<BountyDto>>;
 
 public sealed class ConfirmBountyDepositCommandHandler(
     IBountyRepository bountyRepository,
@@ -27,6 +28,10 @@ public sealed class ConfirmBountyDepositCommandHandler(
         // Authenticated path: only the pet owner who created the bounty can confirm their deposit
         if (request.RequestingUserId.HasValue && bounty.OwnerId != request.RequestingUserId.Value)
             return Result.Failure<BountyDto>("Access denied.");
+        if (request.ExpectedAmountCrc.HasValue &&
+            decimal.Round(request.ExpectedAmountCrc.Value, 2, MidpointRounding.ToEven) !=
+            decimal.Round(bounty.Amount, 2, MidpointRounding.ToEven))
+            return Result.Failure<BountyDto>("Payment amount does not match the pending bounty.");
 
         bounty.ConfirmDeposit();
         bountyRepository.Update(bounty);
