@@ -302,6 +302,18 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = 0,
             }));
 
+    // ── Public contact form — limits outbound email abuse per client IP.
+    options.AddPolicy("public-contact", ctx =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: RateLimiterIpKey.Get(ctx),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = builder.Configuration.GetValue("RateLimiting:PublicContact:PermitLimit", 5),
+                Window = TimeSpan.FromSeconds(builder.Configuration.GetValue("RateLimiting:PublicContact:WindowSeconds", 600)),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0,
+            }));
+
     // ── Auth: change-password — authenticated but still sensitive; 5 attempts/min per IP
     options.AddPolicy("change-password", ctx =>
         RateLimitPartition.GetFixedWindowLimiter(

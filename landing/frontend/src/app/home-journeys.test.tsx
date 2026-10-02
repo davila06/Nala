@@ -39,6 +39,13 @@ afterEach(() => {
 });
 
 describe("home journeys", () => {
+  it("sends contact visitors directly to the form", async () => {
+    const page = await PublicPage({ params: Promise.resolve({ slug: "contact" }) });
+    render(page);
+
+    expect(screen.getByRole("link", { name: /ir al formulario/i }).getAttribute("href")).toBe("#contact-form");
+  });
+
   it("hands the found-pet guide off to PawTrack's real report form", async () => {
     const page = await PublicPage({ params: Promise.resolve({ slug: "found-pets" }) });
     render(page);

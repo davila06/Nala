@@ -244,6 +244,8 @@ public static class InfrastructureServiceCollectionExtensions
         {
             services.AddDistributedMemoryCache(); // single-instance dev fallback
         }
+        services.AddScoped<IContactEmailSender, SendGridContactEmailSender>();
+        services.AddHttpClient("ContactSendGrid", client => client.Timeout = TimeSpan.FromSeconds(15));
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddHttpClient("PushProvider")
             .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromSeconds(10))

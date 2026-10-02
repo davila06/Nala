@@ -1690,6 +1690,9 @@ h2 em {
   border-left: 2px solid var(--orange);
   font-size: 12px;
 }
+.contact-email-section {
+  scroll-margin-top: 24px;
+}
 .contact-welfare-link {
   display: inline-flex;
   align-items: center;
@@ -1731,6 +1734,35 @@ h2 em {
 .contact-email-form .button {
   justify-self: start;
   cursor: pointer;
+}
+.contact-email-form .button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+.contact-honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.contact-message-privacy,
+.contact-submit-status,
+.contact-submit-error {
+  color: var(--body);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.contact-message-privacy {
+  font-weight: 400;
+}
+.contact-submit-status,
+.contact-submit-error {
+  margin: 0;
+}
+.contact-submit-error {
+  color: #8e2d22;
 }
 .inner-points {
   padding-block: 10px 100px;

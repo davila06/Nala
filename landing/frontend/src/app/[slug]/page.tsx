@@ -290,8 +290,8 @@ const pages: Record<string, PageDefinition> = {
   },
   contact: {
     eyebrow: "CANALES DE CONTACTO",
-    title: "Prepara un correo para PawTrack.",
-    lead: "Completa el formulario y tu dispositivo abrirá una aplicación de correo con un borrador dirigido a soporte.",
+    title: "Contacta al equipo de PawTrack.",
+    lead: "Completa el formulario para enviar un mensaje al equipo de soporte desde PawTrack.",
     detail:
       "La dirección soporte@pawtrack.cr aparece documentada como contacto de soporte; esta landing no puede confirmar entrega, recepción ni tiempos de respuesta.",
     points: [
@@ -299,11 +299,11 @@ const pages: Record<string, PageDefinition> = {
       "Para maltrato o un animal en riesgo, usa el reporte de bienestar; ante peligro inmediato contacta a las autoridades locales.",
       "No incluyas contraseñas, información clínica ni ubicación exacta en el correo.",
     ],
-    primaryLabel: "Ver información para organizaciones",
-    primaryHref: "/business",
+    primaryLabel: "Ir al formulario",
+    primaryHref: "#contact-form",
     secondaryLabel: "Volver al inicio",
     secondaryHref: "/",
-    note: "Al continuar se abrirá la aplicación de correo; la landing no recibe ni almacena el contenido.",
+    note: "PawTrack solicitará el envío por correo. La aceptación del proveedor no garantiza entrega ni respuesta.",
   },
   business: {
     eyebrow: "NALA PARA ORGANIZACIONES",
