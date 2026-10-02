@@ -67,6 +67,18 @@ public sealed class StoreOrdersController(ISender sender) : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : UnprocessableEntity(result.Errors);
     }
 
+    [HttpPost("{orderId:guid}/report-payment")]
+    [Authorize(Roles = "Owner")]
+    [EnableRateLimiting("public-api")]
+    public async Task<IActionResult> ReportPayment(Guid orderId, CancellationToken ct)
+    {
+        if (!TryGetUserId(out var customerId)) return Unauthorized();
+        var result = await sender.Send(new ReportStoreOrderPaymentCommand(customerId, orderId), ct);
+        return result.IsSuccess
+            ? NoContent()
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
+    }
+
     // ── PUT /api/store-orders/{id}/confirm — store confirms availability ───────
     [HttpPut("{orderId:guid}/confirm")]
     [Authorize(Roles = "Store")]
@@ -81,6 +93,23 @@ public sealed class StoreOrdersController(ISender sender) : ControllerBase
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
         return Ok(result.Value);
+    }
+
+    [HttpPost("{orderId:guid}/verify-payment")]
+    [Authorize(Roles = "Store")]
+    [EnableRateLimiting("public-api")]
+    [RequestSizeLimit(1024)]
+    public async Task<IActionResult> VerifyPayment(
+        Guid orderId,
+        [FromBody] VerifyStoreOrderPaymentRequest request,
+        CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+        var result = await sender.Send(new VerifyStoreOrderPaymentCommand(
+            userId, orderId, request.BankReference, request.Note), ct);
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
     }
 
     // ── PUT /api/store-orders/{id}/status — update delivery status ────────────
@@ -121,4 +150,5 @@ public sealed record PlaceOrderRequest(
 
 public sealed record OrderLineRequest(Guid ProductId, int Quantity);
 public sealed record StoreOrderNoteRequest(string? Note);
+public sealed record VerifyStoreOrderPaymentRequest(string BankReference, string? Note = null);
 public sealed record UpdateOrderStatusRequest(string Status, string? Note);

@@ -43,6 +43,7 @@ public sealed class StoreProductConfiguration : IEntityTypeConfiguration<StorePr
         builder.Property(x => x.Description).HasMaxLength(500);
         builder.Property(x => x.Category).IsRequired().HasConversion<int>();
         builder.Property(x => x.PriceCrc).IsRequired().HasColumnType("decimal(12,2)");
+        builder.Property(x => x.StockOnHand);
         builder.Property(x => x.ImageUrl).HasMaxLength(500);
         builder.Property(x => x.IsAvailable).IsRequired();
         builder.Property(x => x.CreatedAt).IsRequired();

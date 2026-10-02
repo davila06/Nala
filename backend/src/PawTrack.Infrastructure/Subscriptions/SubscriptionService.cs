@@ -52,7 +52,7 @@ public sealed class SubscriptionService(
     {
         var entitlement = await GetNumericEntitlementAsync(userId, "AiMatchesPerCycle", ct);
         if (entitlement.HasValue) return (int)entitlement.Value;
-        return await IsAtLeastPlusAsync(userId, ct) ? null : 3;
+        return await IsAtLeastPlusAsync(userId, ct) ? null : 0;
     }
 
     public async Task<double> GetAlertRadiusMultiplierAsync(Guid userId, CancellationToken ct = default) =>

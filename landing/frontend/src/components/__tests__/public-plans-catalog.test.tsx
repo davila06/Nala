@@ -46,4 +46,53 @@ describe("public plans catalog", () => {
       expect.objectContaining({ headers: { Accept: "application/json" } }),
     );
   });
+
+  it("keeps plan essentials visible without hover and clarifies GPS hardware limits", async () => {
+    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.test");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => [
+          {
+            id: "plan-1",
+            tier: "UserPlus",
+            displayName: "Plan Plus",
+            monthlyPriceCrc: 3000,
+          },
+        ],
+      }),
+    );
+    const { container } = render(<PublicPlansCatalog />);
+
+    await waitFor(() => expect(screen.getByText("Plan Plus")).toBeTruthy());
+    const card = container.querySelector(".catalog-plan");
+    const front = card?.querySelector(".catalog-plan-front");
+
+    expect(front?.textContent).toMatch(/3 mascotas/i);
+    expect(front?.textContent).toMatch(/3 casos perdidos/i);
+      expect(card?.textContent).toMatch(/no incluye hardware ni garantiza un proveedor compatible/i);
+  });
+
+  it("shows a compact household summary without listing business plans", async () => {
+    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.test");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => [
+          { id: "user-plan", tier: "UserFamilia", displayName: "Plan Familia", monthlyPriceCrc: 5000 },
+          { id: "clinic-plan", tier: "ClinicPartner", displayName: "Plan Clínica", monthlyPriceCrc: 15000 },
+        ],
+      }),
+    );
+
+    const { container } = render(<PublicPlansCatalog audience="household" variant="summary" />);
+
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Plan Familia" })).toBeTruthy());
+    expect(screen.getByText(/₡5\s?000 \/ mes/i)).toBeTruthy();
+    expect(screen.getByText(/25 mascotas activas, miembros de familia/i)).toBeTruthy();
+    expect(screen.queryByText("Plan Clínica")).toBeNull();
+    expect(container.querySelectorAll(".home-plan-row")).toHaveLength(1);
+  });
 });

@@ -64,6 +64,21 @@ const images = [
     source: "service-provider-verification-20261001.png",
     mobileHeight: 608,
   },
+  {
+    name: "lost-pet-preparation-20261002",
+    source: "lost-pet-preparation-20261002.png",
+    mobileHeight: 608,
+  },
+  {
+    name: "lost-pet-approximate-area-20261002",
+    source: "lost-pet-approximate-area-20261002.png",
+    mobileHeight: 608,
+  },
+  {
+    name: "lost-pet-contact-review-20261002",
+    source: "lost-pet-contact-review-20261002.png",
+    mobileHeight: 608,
+  },
 ];
 const variants = [
   { directory: "desktop", width: 1600, height: 900, position: "centre" },

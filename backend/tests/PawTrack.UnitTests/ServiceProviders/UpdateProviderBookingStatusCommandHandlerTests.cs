@@ -35,6 +35,32 @@ public sealed class UpdateProviderBookingStatusCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_ProviderCannotConfirmBookingWhilePaymentIsUnverified()
+    {
+        var providers = Substitute.For<IServiceProviderRepository>();
+        var audit = Substitute.For<IAuditLogRepository>();
+        var notifications = Substitute.For<INotificationRepository>();
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var providerOwnerId = Guid.NewGuid();
+        var customerId = Guid.NewGuid();
+        var provider = ServiceProvider.Create(providerOwnerId, "Grooming CR", "Cuidado", ServiceProviderCategory.Groomer, "Heredia", 10m, -84m, "provider@example.cr");
+        var booking = ProviderBooking.Request(provider.Id, Guid.NewGuid(), customerId, Guid.NewGuid(), "Bano", DateTimeOffset.UtcNow.AddDays(2), 60, 20_000m, 1, null);
+        booking.MarkAwaitingPayment();
+        var payment = ProviderPayment.Create(booking.Id, customerId, provider.Id, booking.TotalCrc, "SINPE-001", "idem-001");
+        providers.GetBookingByIdAsync(booking.Id, Arg.Any<CancellationToken>()).Returns(booking);
+        providers.GetByUserIdAsync(providerOwnerId, Arg.Any<CancellationToken>()).Returns(provider);
+        providers.GetPaymentByBookingAsync(booking.Id, Arg.Any<CancellationToken>()).Returns(payment);
+
+        var handler = new UpdateProviderBookingStatusCommandHandler(providers, audit, unitOfWork, notifications);
+        var result = await handler.Handle(new UpdateProviderBookingStatusCommand(providerOwnerId, booking.Id, ProviderBookingStatus.Confirmed, null), default);
+
+        result.IsFailure.Should().BeTrue();
+        booking.Status.Should().Be(ProviderBookingStatus.AwaitingPayment);
+        providers.DidNotReceive().UpdateBooking(Arg.Any<ProviderBooking>());
+        await notifications.DidNotReceive().AddAsync(Arg.Any<Notification>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task Handle_CustomerCancelsBooking_NotifiesProvider()
     {
         var providers = Substitute.For<IServiceProviderRepository>();

@@ -66,6 +66,7 @@ export function useUpdateProduct() {
       category: string;
       priceCrc: number;
       isAvailable: boolean;
+      stockOnHand: number;
     }) => storesApi.updateProduct(id, data),
     onSuccess: () =>
       void qc.invalidateQueries({ queryKey: ["my-store-products"] }),

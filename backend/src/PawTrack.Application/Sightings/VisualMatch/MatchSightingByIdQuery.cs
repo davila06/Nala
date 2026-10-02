@@ -71,6 +71,10 @@ public sealed class MatchSightingByIdQueryHandler(
 
         if (monthlyLimit.HasValue)
         {
+            if (monthlyLimit.Value == 0)
+                return Result.Failure<IReadOnlyList<VisualMatchDto>>(
+                    "El matching visual por IA no está incluido en la versión gratuita.");
+
             var yearMonth = int.Parse(DateTimeOffset.UtcNow.ToString("yyyyMM"));
             var usage = await aiSearchUsageRepository.GetAsync(request.RequestingUserId, yearMonth, cancellationToken);
             if (usage is not null && usage.Count >= monthlyLimit.Value)

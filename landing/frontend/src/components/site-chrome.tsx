@@ -27,6 +27,42 @@ function PawTrailMark() {
   );
 }
 
+const navigationGroups = [
+  {
+    id: "pets",
+    label: "Mascotas",
+    links: [
+      { label: "Qué puedes hacer", href: "/features", description: "Identidad, recuperación y cuidado." },
+      { label: "Identidad digital", href: "/pet-id", description: "Perfil público y datos que compartes." },
+      { label: "Mascota perdida", href: "/lost-pets", description: "Requisitos y pasos para iniciar un reporte." },
+      { label: "Encontré una mascota", href: "/found-pets", description: "Cómo registrar un hallazgo." },
+      { label: "Placas QR y NFC", href: "/qr", description: "Qué hace cada tipo de identificación." },
+    ],
+  },
+  {
+    id: "ecosystem",
+    label: "Ecosistema",
+    links: [
+      { label: "Servicios para mascotas", href: "/services", description: "Directorio y servicios publicados." },
+      { label: "Clínicas", href: "/clinics", description: "Capacidades clínicas y sus permisos." },
+      { label: "Refugios y ONGs", href: "/shelters", description: "Perfiles y flujos de adopción." },
+      { label: "Municipalidades", href: "/municipalities", description: "Herramientas institucionales." },
+      { label: "Organizaciones", href: "/business", description: "Módulos, estados y límites actuales." },
+    ],
+  },
+  {
+    id: "resources",
+    label: "Recursos",
+    links: [
+      { label: "Guías NALA", href: "/blog", description: "Información práctica para familias." },
+      { label: "Quiénes somos", href: "/about", description: "Propósito y alcance de PawTrack CR." },
+      { label: "Contacto", href: "/contact", description: "Escribe al equipo de PawTrack." },
+      { label: "Privacidad", href: "/privacy", description: "Información sobre datos y límites." },
+      { label: "Accesibilidad", href: "/accessibility", description: "Alcance y estado de accesibilidad." },
+    ],
+  },
+] as const;
+
 export function SiteHeader() {
   const pathname = usePathname();
   const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`);
@@ -39,56 +75,42 @@ export function SiteHeader() {
           <span>PawTrack CR</span>
         </Link>
         <nav aria-label="Navegación principal" className="desktop-nav">
-          <Link
-            data-3d-depth="nav"
-            data-depth-strength="2"
-            aria-current={isActive("/features") ? "page" : undefined}
-            href="/features"
-          >
-            Qué puedes hacer
-          </Link>
-          <Link
-            data-3d-depth="nav"
-            data-depth-strength="2"
-            aria-current={isActive("/lost-pets") ? "page" : undefined}
-            href="/lost-pets"
-          >
-            Mascotas perdidas
-          </Link>
-          <Link
-            data-3d-depth="nav"
-            data-depth-strength="2"
-            aria-current={isActive("/found-pets") ? "page" : undefined}
-            href="/found-pets"
-          >
-            Encontré una mascota
-          </Link>
-          <Link
-            data-3d-depth="nav"
-            data-depth-strength="2"
-            aria-current={isActive("/plans") ? "page" : undefined}
-            href="/plans"
-          >
+          {navigationGroups.map((group) => {
+            const groupIsActive = group.links.some((link) => isActive(link.href));
+
+            return (
+              <details
+                className="desktop-nav-group"
+                data-active={groupIsActive || undefined}
+                data-nav-group={group.id}
+                key={group.id}
+              >
+                <summary>
+                  {group.label}
+                  <span aria-hidden="true">⌄</span>
+                </summary>
+                <div className="desktop-mega-panel">
+                  <p className="desktop-mega-label">
+                    {group.id === "pets"
+                      ? "PARA CADA ETAPA"
+                      : group.id === "ecosystem"
+                        ? "MÓDULOS Y ALIADOS"
+                        : "INFORMACIÓN"}
+                  </p>
+                  <div className="desktop-mega-links">
+                    {group.links.map((link) => (
+                      <Link aria-current={isActive(link.href) ? "page" : undefined} href={link.href} key={link.href}>
+                        <span>{link.label}</span>
+                        <small>{link.description}</small>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </details>
+            );
+          })}
+          <Link aria-current={isActive("/plans") ? "page" : undefined} href="/plans">
             Planes
-          </Link>
-          <Link
-            data-3d-depth="nav"
-            data-depth-strength="2"
-            aria-current={isActive("/services") ? "page" : undefined}
-            href="/services"
-          >
-            Servicios
-          </Link>
-          <Link
-            data-3d-depth="nav"
-            data-depth-strength="2"
-            aria-current={isActive("/business") ? "page" : undefined}
-            href="/business"
-          >
-            Organizaciones
-          </Link>
-          <Link aria-current={isActive("/contact") ? "page" : undefined} href="/contact">
-            Contacto
           </Link>
         </nav>
         <a className="button button-small header-cta" href={getProductUrl("/login")}>
@@ -97,34 +119,33 @@ export function SiteHeader() {
         <details className="mobile-menu">
           <summary
             aria-controls="mobile-navigation"
-            aria-label="Abrir menú de navegación"
+            aria-label="Menú principal"
             data-3d-depth="menu"
             data-depth-strength="2"
           >
             <span />
             <span />
+            <span />
           </summary>
           <nav aria-label="Navegación móvil" id="mobile-navigation">
-            <Link aria-current={isActive("/features") ? "page" : undefined} href="/features">
-              Qué puedes hacer
-            </Link>
-            <Link aria-current={isActive("/lost-pets") ? "page" : undefined} href="/lost-pets">
-              Mascotas perdidas
-            </Link>
-            <Link aria-current={isActive("/found-pets") ? "page" : undefined} href="/found-pets">
-              Encontré una mascota
-            </Link>
+            {navigationGroups.map((group) => {
+              const groupIsActive = group.links.some((link) => isActive(link.href));
+
+              return (
+                <details className="mobile-nav-group" data-active={groupIsActive || undefined} key={group.id}>
+                  <summary aria-controls={`mobile-${group.id}-links`}>{group.label}</summary>
+                  <div id={`mobile-${group.id}-links`}>
+                    {group.links.map((link) => (
+                      <Link aria-current={isActive(link.href) ? "page" : undefined} href={link.href} key={link.href}>
+                        {link.label}
+                      </Link>
+                    ))}
+                  </div>
+                </details>
+              );
+            })}
             <Link aria-current={isActive("/plans") ? "page" : undefined} href="/plans">
               Planes
-            </Link>
-            <Link aria-current={isActive("/services") ? "page" : undefined} href="/services">
-              Servicios
-            </Link>
-            <Link aria-current={isActive("/business") ? "page" : undefined} href="/business">
-              Organizaciones
-            </Link>
-            <Link aria-current={isActive("/contact") ? "page" : undefined} href="/contact">
-              Contacto
             </Link>
             <a className="mobile-cta" href={getProductUrl("/login")}>
               Abrir PawTrack <span aria-hidden="true">↗</span>

@@ -19,7 +19,37 @@ type PageDefinition = {
   secondaryLabel: string;
   secondaryHref: string;
   note?: string;
+  capabilityCards?: {
+    title: string;
+    status: string;
+    statusTone: "ready" | "partial" | "unverified" | "unavailable";
+    summary: string;
+    limit: string;
+  }[];
 };
+
+const lostPetSteps = [
+  {
+    title: "Prepara una descripción",
+    description: "Ten a mano una foto reciente y describe rasgos visibles que ayuden a reconocer a tu mascota.",
+    alt: "Una tutora prepara una descripción de su perro con una foto reciente.",
+    asset: "lostPreparation",
+  },
+  {
+    title: "Comparte una zona aproximada",
+    description:
+      "Anota cuándo y en qué zona la viste por última vez; evita publicar tu domicilio o coordenadas exactas.",
+    alt: "Una tutora revisa una zona aproximada en un mapa sin direcciones legibles.",
+    asset: "lostArea",
+  },
+  {
+    title: "Revisa el contacto y cuida tu privacidad",
+    description:
+      "En casos activos, cualquier cuenta autenticada puede consultar el nombre y teléfono de contacto del reporte.",
+    alt: "Una persona revisa el contacto y la privacidad de un reporte en su teléfono.",
+    asset: "lostContact",
+  },
+] as const;
 
 const pages: Record<string, PageDefinition> = {
   about: {
@@ -43,11 +73,11 @@ const pages: Record<string, PageDefinition> = {
     title: "Cuando se pierde, cada persona que sabe puede ayudar.",
     lead: "La app incluye un flujo para iniciar y organizar reportes de pérdida; el landing no recibe datos del caso.",
     detail:
-      "El reporte se inicia en la app con una cuenta y una mascota registrada. La consulta de contacto de un caso activo puede devolver nombre y teléfono a cualquier cuenta autenticada.",
+      "Para iniciar el reporte, accede a PawTrack y elige una mascota registrada. Revisa el alcance del contacto: cualquier cuenta autenticada puede consultar nombre y teléfono de un caso activo.",
     points: [
-      "Prepara una descripción que ayude a reconocer a tu mascota.",
-      "Comparte una zona aproximada, no tu domicilio.",
-      "Consulta quién puede acceder a los datos de contacto; no describimos este flujo como un relay anónimo.",
+      "Reúne una foto reciente y una descripción con rasgos visibles para ayudar a reconocer a tu mascota.",
+      "Indica cuándo y en qué zona aproximada la viste por última vez; evita publicar tu domicilio o coordenadas exactas.",
+      "Revisa el contacto del reporte: cualquier cuenta autenticada puede consultar nombre y teléfono de un caso activo.",
     ],
     primaryLabel: "Continuar en NALA",
     primaryHref: getLoginUrl("/lost-pets/report"),
@@ -73,55 +103,60 @@ const pages: Record<string, PageDefinition> = {
     note: "El reporte se completa en el portal de NALA; esta landing no recibe ubicación ni datos de contacto.",
   },
   plans: {
-    eyebrow: "PLANES NALA",
-    title: "Planes y capacidades de PawTrack.",
-    lead: "Consulta los planes publicados por PawTrack y sus capacidades en el catálogo aprobado del entorno conectado.",
+    eyebrow: "PLANES PAWTRACK",
+    title: "Tiers técnicos por hogar y organización.",
+    lead: "Consulta inclusiones e importes desde el catálogo API del entorno conectado; las capacidades y límites varían según el tipo de cuenta.",
     detail:
-      "Los planes e importes se leen del catálogo del entorno conectado. La aprobación local no confirma contratación, impuestos, soporte ni disponibilidad en producción.",
+      "El catálogo muestra los planes activos y aprobados en el entorno conectado. La aprobación local en PawTrackDev no confirma precio contractual, impuestos ni disponibilidad en producción.",
     points: [
-      "Los planes visibles deben estar activos y aprobados en el catálogo público.",
-      "Los tiers varían entre tutores y organizaciones; revisa las capacidades y límites publicados.",
-      "La disponibilidad, impuestos, contratación y soporte dependen del entorno y sus condiciones vigentes.",
+      "Free es el alcance base técnico: hasta 1 mascota activa, 1 persona y QR. No tiene una fila propia ni precio publicado en el catálogo local.",
+      "Para hogares, UserPlus admite hasta 3 mascotas y UserFamilia hasta 25 activas y 5 integrantes; el expediente médico completo corresponde a Familia.",
+      "Clínicas, tiendas, refugios y municipalidades usan tiers distintos. No existe un tier técnico Premium; los tiers municipales tienen compra y renovación incompletas.",
+      "Los límites del catálogo no garantizan enforcement en cada ruta. Las compras requieren verificación manual; no hay checkout recurrente universal, pago liquidado ni inventario garantizados.",
     ],
     primaryLabel: "Abrir PawTrack",
     primaryHref: getProductUrl("/login"),
     secondaryLabel: "Ver alcance para organizaciones",
     secondaryHref: "/business",
-    note: "La landing muestra el catálogo aprobado; la contratación se realiza en PawTrack según disponibilidad.",
+    note: "El catálogo representa el entorno consultado; límites técnicos no equivalen a oferta contractual ni disponibilidad en producción.",
   },
   services: {
     eyebrow: "SERVICIOS PARA MASCOTAS",
-    title: "Encuentra apoyo para cada etapa de su vida.",
-    lead: "PawTrack reúne un directorio público de prestadores y servicios para mascotas. Explora las opciones disponibles en el entorno conectado y revisa los detalles antes de contactar.",
+    title: "Servicios para cada etapa. Un ecosistema conectado.",
+    lead: "NALA conecta a las familias con profesionales, comercios y organizaciones que acompañan el bienestar de sus mascotas mediante directorios y solicitudes en PawTrack.",
     detail:
-      "El directorio público permite descubrir perfiles y servicios publicados. La presencia de un prestador no confirma afiliación, disponibilidad, precio, calidad ni verificación operativa.",
+      "Explora perfiles y servicios publicados. La publicación no confirma afiliación, certificación profesional, calidad, precio, cupo, horarios ni disponibilidad; verifica las condiciones directamente con cada prestador.",
     points: [
-      "Veterinarias y cuidado clínico: consulta perfiles y servicios publicados; la disponibilidad profesional depende de cada prestador.",
-      "Grooming, paseos, entrenamiento y hospedaje: descubre categorías del ecosistema sin asumir cobertura o reserva confirmada.",
-      "Cuidado temporal y aliados: las capacidades del producto no acreditan una organización afiliada ni un SLA operativo.",
+      "Profesionales: explora veterinarias, grooming, paseos, entrenamiento, hospedaje y cuidado temporal a partir de perfiles y servicios publicados.",
+      "Comercios y adopción: PawTrack cuenta con módulos de tiendas, refugios y solicitudes de adopción; su existencia no confirma organizaciones ni mascotas disponibles ahora.",
+      "Reservas: enviar una solicitud no confirma cupo ni pago liquidado; los pagos a prestadores no son automáticos.",
+      "Emergencias y novedades: este directorio no es un servicio de emergencias ni garantiza atención inmediata. La telemedicina no está implementada; seguros y transporte especializado no están verificados.",
     ],
     primaryLabel: "Abrir buscador de servicios",
     primaryHref: getProductUrl("/servicios"),
     secondaryLabel: "Ver capacidades para organizaciones",
     secondaryHref: "/business",
-    note: "Esta página explica el alcance; el directorio público y cualquier contacto se gestionan en PawTrack.",
+    note: "Esta página explica el alcance; el directorio público y las solicitudes se gestionan en PawTrack.",
   },
   features: {
     eyebrow: "CAPACIDADES PAWTRACK",
-    title: "Una plataforma para identificar, recuperar y cuidar mejor.",
-    lead: "PawTrack CR reúne módulos de identidad, recuperación, salud y coordinación institucional. Cada capacidad conserva su estado real y sus límites.",
+    title: "Módulos para identificar, recuperar y organizar el cuidado.",
+    lead: "PawTrack CR reúne herramientas para hogares y organizaciones. Aquí se resume qué hace cada módulo y qué depende de configuración, permisos o servicios externos.",
     detail:
-      "Esta página resume módulos presentes en el código. No confirma que todas las funciones estén habilitadas, probadas de extremo a extremo o disponibles en producción.",
+      "Los estados describen código y documentación; no confirman que cada módulo esté habilitado, probado de extremo a extremo o disponible en producción. La matriz oficial S01–S16 detalla alcance y evidencia.",
     points: [
-      "Identidad digital: perfil de mascota configurable, datos elegidos por el tutor y QR implementado.",
-      "Recuperación: reportes de pérdida, hallazgos, avistamientos y coordinación del caso dentro de PawTrack.",
-      "QR y NFC: el QR abre un perfil; NFC requiere configuración manual con una aplicación externa.",
-      "Salud: expediente, documentos, timeline y recordatorios; no es diagnóstico ni tratamiento autónomo.",
-      "Clínicas: grants de acceso, consultas administrativas y certificados; profesionales externos no verificados.",
-      "Refugios y adopción: perfiles aliados, publicaciones, solicitudes y ferias; alianzas reales no verificadas.",
-      "Municipalidades: perfiles, capturas y reportes institucionales; convenios oficiales no verificados.",
-      "GPS e IA visual: capacidades condicionadas por proveedor, hardware, configuración y evaluación operativa.",
-      "Marketplace y planes: directorios, reservas y catálogo aprobado; checkout universal y operación externa tienen límites.",
+      "Identidad: el perfil QR público muestra foto, nombre, especie y raza; una pérdida activa puede añadir nombre de contacto y mensaje público.",
+      "QR y NFC: el QR abre el perfil público con conexión a internet; NFC solo tiene guía de configuración manual con una app externa. No se verifica hardware o placas físicas.",
+      "Recuperación: crear una pérdida requiere sesión y mascota registrada; PawTrack también incluye hallazgos, avistamientos y cambios de estado. La difusión externa no está garantizada.",
+      "Bienestar y comunidad: se puede registrar un caso de maltrato o riesgo, opcionalmente anónimo y con zona aproximada; no es emergencia ni denuncia oficial, y su derivación no está garantizada.",
+      "Salud: expediente, documentos, timeline y recordatorios organizan datos; requieren consentimiento de salud y no diagnostican ni indican tratamientos autónomos.",
+      "Clínicas: grants autorizados, consultas administrativas y certificados; el acceso depende de permisos. No hay telemedicina audiovisual ni disponibilidad de profesionales externos verificada.",
+      "Refugios y adopciones: perfiles, publicaciones, solicitudes y ferias; publicar requiere refugio verificado. No acredita una ONG concreta ni gestiona pagos de adopción.",
+      "Municipalidades: perfiles, capturas y reportes con acceso según rol y alcance; no se acredita integración oficial, convenio ni despliegue municipal.",
+      "GPS: la plataforma incluye registro de collares, historial y zonas; hardware, proveedor conectado, cobertura y SLA no están verificados.",
+      "IA visual: matching condicionado por configuración y Azure Vision; no equivale a RAG, agente autónomo, precisión certificada ni diagnóstico.",
+      "Servicios y tiendas: hay directorios, servicios, solicitudes, reservas y pedidos parciales; pagos, stock, comisiones y liquidación no están acreditados como operación completa.",
+      "Planes: el catálogo y algunos gates son parciales. Los tiers y límites técnicos no constituyen por sí solos una oferta comercial o disponibilidad en producción.",
     ],
     primaryLabel: "Abrir PawTrack",
     primaryHref: getProductUrl("/login"),
@@ -152,7 +187,7 @@ const pages: Record<string, PageDefinition> = {
       "El QR abre el perfil público de la mascota en el navegador y requiere conexión a internet; no transmite ubicación. La disponibilidad de placas físicas no está verificada.",
     points: [
       "La persona escanea con la cámara de su teléfono.",
-      "El tutor elige qué datos de contacto se muestran.",
+      "El perfil muestra foto, nombre, especie y raza; una pérdida activa puede añadir nombre de contacto y mensaje público, no el teléfono ni correo del tutor.",
       "El perfil QR está implementado; disponibilidad de placa física, compra y entrega no está verificada.",
     ],
     primaryLabel: "Crear perfil",
@@ -226,14 +261,46 @@ const pages: Record<string, PageDefinition> = {
   },
   clinics: {
     eyebrow: "PARA CLÍNICAS VETERINARIAS",
-    title: "Módulos clínicos en el producto; disponibilidad por clínica no verificada.",
-    lead: "El código incluye expediente, permisos de acceso y funciones administrativas clínicas; no acredita una clínica afiliada ni una operación en producción.",
+    title: "Registros clínicos con permiso del tutor.",
+    lead: "PawTrack incluye escaneo QR/RFID, registros médicos con acceso autorizado y herramientas de agenda clínica. Afiliación y operación por clínica no están verificadas.",
     detail:
-      "El código incluye expediente, permisos y herramientas administrativas clínicas. No confirma centros afiliados, profesionales externos aprobados ni operación local.",
+      "Un escaneo identifica a la mascota, pero no abre su expediente. La lectura o escritura clínica requiere un grant activo aprobado por el tutor.",
     points: [
-      "El expediente puede compartir información mediante grants y permisos del producto.",
-      "El contenido clínico no equivale a diagnóstico ni a historia clínica externa integrada.",
-      "Pilotos, contratos, disponibilidad de profesionales e integraciones externas no están verificados.",
+      "La lectura y escritura del expediente requieren permisos activos aprobados por el tutor.",
+      "Las consultas y citas se registran en PawTrack; no equivalen a telemedicina audiovisual.",
+      "Afiliación, operación local e integración con sistemas externos no están verificadas.",
+    ],
+    capabilityCards: [
+      {
+        title: "Identificación por QR/RFID",
+        status: "En el producto",
+        statusTone: "ready",
+        summary: "La ruta clínica acepta una URL QR o un identificador de chip y registra el escaneo.",
+        limit: "El escaneo identifica a la mascota, pero no concede acceso a sus datos clínicos.",
+      },
+      {
+        title: "Expediente con consentimiento",
+        status: "En el producto",
+        statusTone: "ready",
+        summary:
+          "Permite registrar vacunas, desparasitación, controles, cirugías, medicación y alergias, con documentos adjuntos.",
+        limit:
+          "La lectura y escritura requieren un grant activo aprobado por el tutor; no es un EHR externo ni diagnóstico.",
+      },
+      {
+        title: "Agenda y registro de consulta",
+        status: "En el producto",
+        statusTone: "ready",
+        summary: "Incluye agenda de citas veterinarias y registro estructurado de consultas clínicas.",
+        limit: "No incluye consulta veterinaria por video ni audio.",
+      },
+      {
+        title: "Estadísticas de escaneo",
+        status: "Sujeto a plan",
+        statusTone: "partial",
+        summary: "El panel puede mostrar totales, coincidencias y desglose QR/RFID por día.",
+        limit: "Requiere ClinicPlus o superior; no ofrece reportes de vacunas próximas ni pacientes frecuentes.",
+      },
     ],
     primaryLabel: "Ver el estado para organizaciones",
     primaryHref: "/business",
@@ -251,6 +318,29 @@ const pages: Record<string, PageDefinition> = {
       "Las organizaciones reales deben revisar y autorizar los datos que publican.",
       "No hay operación, cobertura ni SLA de una ONG concreta verificados.",
     ],
+    capabilityCards: [
+      {
+        title: "Perfiles aliados",
+        status: "En el producto",
+        statusTone: "ready",
+        summary: "El producto incluye perfiles de aliados y herramientas de gestión.",
+        limit: "No confirma afiliación de una organización concreta.",
+      },
+      {
+        title: "Publicaciones y adopción",
+        status: "En el producto",
+        statusTone: "ready",
+        summary: "Hay superficies para publicar animales y gestionar solicitudes de adopción.",
+        limit: "La operación de refugios, cobertura y respuesta no está verificada.",
+      },
+      {
+        title: "Convenios y cobertura",
+        status: "No verificado",
+        statusTone: "unverified",
+        summary: "La capacidad del producto no demuestra una alianza con una ONG.",
+        limit: "No se acredita convenio, SLA ni cobertura operativa.",
+      },
+    ],
     primaryLabel: "Ver capacidades del producto",
     primaryHref: "/features",
     secondaryLabel: "Ver mascotas encontradas",
@@ -266,6 +356,29 @@ const pages: Record<string, PageDefinition> = {
       "El acceso depende de roles y alcances configurados en el producto.",
       "Los reportes internos no equivalen a una integración oficial con autoridades.",
       "No se afirma convenio, despliegue, cobertura ni SLA municipal activo.",
+    ],
+    capabilityCards: [
+      {
+        title: "Perfiles y capturas",
+        status: "En el producto",
+        statusTone: "ready",
+        summary: "El módulo permite perfiles municipales y registro interno de capturas.",
+        limit: "La existencia del módulo no confirma un despliegue municipal.",
+      },
+      {
+        title: "Reportes institucionales",
+        status: "En el producto",
+        statusTone: "ready",
+        summary: "Hay herramientas para consultar y preparar reportes institucionales internos.",
+        limit: "Un reporte interno no equivale a una presentación oficial ante autoridades.",
+      },
+      {
+        title: "Integración y convenios",
+        status: "No verificado",
+        statusTone: "unverified",
+        summary: "El código no acredita una conexión oficial con una municipalidad o autoridad nacional.",
+        limit: "Convenios, interoperabilidad, cobertura y SLA no están verificados.",
+      },
     ],
     primaryLabel: "Ver capacidades del producto",
     primaryHref: "/features",
@@ -290,8 +403,8 @@ const pages: Record<string, PageDefinition> = {
   },
   contact: {
     eyebrow: "CANALES DE CONTACTO",
-    title: "Contacta al equipo de PawTrack.",
-    lead: "Completa el formulario para enviar un mensaje al equipo de soporte desde PawTrack.",
+    title: "Prepara un correo para PawTrack.",
+    lead: "Completa el formulario y tu dispositivo abrirá una aplicación de correo con un borrador dirigido a soporte.",
     detail:
       "La dirección soporte@pawtrack.cr aparece documentada como contacto de soporte; esta landing no puede confirmar entrega, recepción ni tiempos de respuesta.",
     points: [
@@ -299,11 +412,11 @@ const pages: Record<string, PageDefinition> = {
       "Para maltrato o un animal en riesgo, usa el reporte de bienestar; ante peligro inmediato contacta a las autoridades locales.",
       "No incluyas contraseñas, información clínica ni ubicación exacta en el correo.",
     ],
-    primaryLabel: "Ir al formulario",
-    primaryHref: "#contact-form",
+    primaryLabel: "Ver información para organizaciones",
+    primaryHref: "/business",
     secondaryLabel: "Volver al inicio",
     secondaryHref: "/",
-    note: "PawTrack solicitará el envío por correo. La aceptación del proveedor no garantiza entrega ni respuesta.",
+    note: "Al continuar se abrirá la aplicación de correo; la landing no recibe ni almacena el contenido.",
   },
   business: {
     eyebrow: "NALA PARA ORGANIZACIONES",
@@ -315,6 +428,29 @@ const pages: Record<string, PageDefinition> = {
       "Clínicas: expediente y grants de acceso en código; profesionales/centros externos no verificados.",
       "Refugios: perfiles y adopciones en código; organizaciones afiliadas no verificadas.",
       "Municipalidades: captura y reportes internos; convenios e integraciones oficiales no verificados.",
+    ],
+    capabilityCards: [
+      {
+        title: "Clínicas",
+        status: "En el producto",
+        statusTone: "ready",
+        summary: "Expediente, permisos de acceso y herramientas administrativas clínicas.",
+        limit: "Sin telemedicina audiovisual ni centros afiliados verificados.",
+      },
+      {
+        title: "Refugios y adopción",
+        status: "En el producto",
+        statusTone: "ready",
+        summary: "Perfiles aliados, publicaciones y solicitudes de adopción.",
+        limit: "No acredita convenios, cobertura ni operación de una ONG concreta.",
+      },
+      {
+        title: "Municipalidades",
+        status: "En el producto",
+        statusTone: "ready",
+        summary: "Perfiles, capturas y reportes institucionales internos.",
+        limit: "Integración oficial, convenio y despliegue municipal no verificados.",
+      },
     ],
     primaryLabel: "Ver capacidades clínicas",
     primaryHref: "/clinics",
@@ -459,9 +595,40 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
         ) : null}
         {slug === "contact" ? <ContactEmailForm /> : null}
         <section className="inner-points section-shell" aria-label="Puntos importantes">
-          <p className="eyebrow">LO ESENCIAL</p>
+          <p className="eyebrow">{page.capabilityCards ? "CAPACIDADES Y LÍMITES" : "LO ESENCIAL"}</p>
           {slug === "services" ? <ServiceCategoryGrid /> : null}
-          {slug !== "services" ? (
+          {slug === "lost-pets" ? (
+            <div aria-label="Pasos para reportar una mascota perdida" className="lost-pet-step-grid">
+              {lostPetSteps.map((step, index) => (
+                <article className="lost-pet-step-card" key={step.title}>
+                  <LandingPicture alt={step.alt} asset={step.asset} className="lost-pet-step-image" />
+                  <div className="lost-pet-step-copy">
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <h3>{step.title}</h3>
+                    <p>{step.description}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : null}
+          {page.capabilityCards ? (
+            <div
+              aria-label="Capacidades por organización"
+              className={`capability-card-grid${page.capabilityCards.length === 4 ? " capability-card-grid-balanced" : ""}`}
+            >
+              {page.capabilityCards.map((card) => (
+                <article className="capability-card" key={card.title}>
+                  <span className={`capability-status status-${card.statusTone}`}>{card.status}</span>
+                  <h3>{card.title}</h3>
+                  <p>{card.summary}</p>
+                  <p className="capability-limit">
+                    <strong>Alcance:</strong> {card.limit}
+                  </p>
+                </article>
+              ))}
+            </div>
+          ) : null}
+          {slug !== "lost-pets" && !page.capabilityCards ? (
             <div className="inner-point-grid">
               {page.points.map((point, index) => (
                 <article className="depth-surface" data-3d-depth="module" data-depth-strength="2" key={point}>
@@ -476,11 +643,21 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
         <section className="inner-bottom section-shell">
           <div>
             <p className="eyebrow">CAPACIDADES PAWTRACK</p>
-            <h2>
-              Identidad clara.
-              <br />
-              <em>Acción coordinada.</em>
-            </h2>
+            {slug === "services" ? (
+              <>
+                <p className="services-closing-copy">
+                  Más que una plataforma de identificación, NALA conecta a las familias con los servicios, profesionales
+                  y organizaciones que acompañan a sus mascotas durante toda su vida.
+                </p>
+                <h2>
+                  <strong>Un perfil. Una comunidad. Un ecosistema completo.</strong>
+                </h2>
+              </>
+            ) : (
+              <h2>
+                <strong>Identidad digital. Recuperación inteligente. Ecosistema conectado.</strong>
+              </h2>
+            )}
           </div>
           {closingAction.href.startsWith("http") ? (
             <a className="button button-coral" href={closingAction.href}>

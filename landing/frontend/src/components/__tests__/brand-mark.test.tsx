@@ -47,4 +47,20 @@ describe("site navigation", () => {
 
     expect(foundPetLinks).toHaveLength(2);
   });
+
+  it("groups routes into desktop mega menus and mobile sections", () => {
+    const { container } = render(<SiteHeader />);
+    const desktopNav = container.querySelector(".desktop-nav");
+    const mobileNav = container.querySelector("#mobile-navigation");
+
+    expect(desktopNav?.querySelectorAll(".desktop-nav-group")).toHaveLength(3);
+    expect(desktopNav?.querySelector('[data-nav-group="resources"]')).toBeTruthy();
+    expect(mobileNav?.querySelectorAll(".mobile-nav-group")).toHaveLength(3);
+    expect(desktopNav?.querySelector('a[href="/plans"]')).toBeTruthy();
+    expect(desktopNav?.querySelector('a[href="/lost-pets"]')).toBeTruthy();
+    expect(desktopNav?.querySelector('a[href="/found-pets"]')).toBeTruthy();
+    expect(desktopNav?.querySelector('a[href="/clinics"]')).toBeTruthy();
+    expect(mobileNav?.querySelector('a[href="/municipalities"]')).toBeTruthy();
+    expect(mobileNav?.querySelector('a[href="/contact"]')).toBeTruthy();
+  });
 });

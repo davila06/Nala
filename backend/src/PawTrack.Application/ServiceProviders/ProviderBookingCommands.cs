@@ -263,7 +263,12 @@ public sealed class UpdateProviderBookingStatusCommandHandler(
         {
             switch (request.TargetStatus)
             {
-                case ProviderBookingStatus.Confirmed when isProvider: booking.Confirm(); break;
+                case ProviderBookingStatus.Confirmed when isProvider:
+                    var payment = await repository.GetPaymentByBookingAsync(booking.Id, ct);
+                    if (payment is not null && payment.Status != ProviderPaymentStatus.Confirmed)
+                        return Result.Failure<ProviderBookingDto>("El pago de la reserva debe verificarse antes de confirmarla.");
+                    booking.Confirm();
+                    break;
                 case ProviderBookingStatus.AwaitingPayment when isProvider || isCustomer: booking.MarkAwaitingPayment(); break;
                 case ProviderBookingStatus.Disputed when isProvider || isCustomer: booking.MarkDisputed(request.Reason ?? "Disputa abierta."); break;
                 case ProviderBookingStatus.Refunded when isProvider: booking.IssueRefund(request.Reason ?? "Reembolso por solicitud del proveedor."); break;

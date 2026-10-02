@@ -33,6 +33,41 @@ public sealed class ProviderPaymentDomainTests
     }
 
     [Fact]
+    public void CardPaymentLocksSinpeReportAndSettlementReplayIsIdempotent()
+    {
+        var intentId = Guid.NewGuid();
+        var payment = ProviderPayment.Create(
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 25_000m, "CARD-001", "idem-card-001");
+
+        payment.BeginCardPayment(intentId);
+        var reportPayment = () => payment.ReportPayment();
+        reportPayment.Should().Throw<InvalidOperationException>();
+        payment.ConfirmCardPayment(intentId, "cybersource-tx-001");
+        payment.ConfirmCardPayment(intentId, "cybersource-tx-001");
+
+        payment.Status.Should().Be(ProviderPaymentStatus.Confirmed);
+        payment.PaymentIntentId.Should().Be(intentId);
+        payment.ExternalReference.Should().Be("cybersource-tx-001");
+    }
+
+    [Fact]
+    public void DeclinedCardAttemptReturnsPendingPaymentToSinpeFlow()
+    {
+        var intentId = Guid.NewGuid();
+        var payment = ProviderPayment.Create(
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 25_000m, "CARD-002", "idem-card-002");
+        payment.BeginCardPayment(intentId);
+
+        payment.ReturnCardAttemptToPending(intentId, "Tarjeta declinada");
+
+        payment.Status.Should().Be(ProviderPaymentStatus.Pending);
+        payment.PaymentIntentId.Should().BeNull();
+        payment.FailureReason.Should().Be("Tarjeta declinada");
+        payment.ReportPayment();
+        payment.Status.Should().Be(ProviderPaymentStatus.Reported);
+    }
+
+    [Fact]
     public void Refund_RequiresConfirmedPaymentAndReason()
     {
         var payment = ProviderPayment.Create(

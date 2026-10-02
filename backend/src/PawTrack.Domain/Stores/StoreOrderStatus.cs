@@ -11,4 +11,8 @@ public enum StoreOrderStatus
     Delivered = 6, // completed
     Cancelled = 7, // cancelled by store or customer
     Rejected = 8, // rejected by the store before preparation
+    AwaitingStoreAcceptance = 9,
+    AwaitingPayment = 10,
+    Paid = 11,
+    Expired = 12,
 }

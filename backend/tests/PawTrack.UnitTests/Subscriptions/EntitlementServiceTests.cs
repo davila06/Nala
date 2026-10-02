@@ -37,6 +37,78 @@ public sealed class EntitlementServiceTests
     }
 
     [Fact]
+    public async Task Authorize_FreePlan_AllowsOneActiveLostCase()
+    {
+        var subjectId = Guid.NewGuid();
+        var caseId = Guid.NewGuid();
+        var subscriptions = Substitute.For<ISubscriptionRepository>();
+        var entitlements = Substitute.For<IEntitlementRepository>();
+        subscriptions.GetActiveForSubjectAsync(subjectId, Arg.Any<CancellationToken>())
+            .Returns((Subscription?)null);
+        entitlements.GetConsumedAsync(
+                subjectId, "MaxActiveLostCases", Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(),
+                "lost-pet-case", caseId, Arg.Any<CancellationToken>())
+            .Returns(0m);
+        var service = new EntitlementService(
+            subscriptions,
+            Substitute.For<ISubscriptionPlanRepository>(),
+            entitlements,
+            Substitute.For<PawTrack.Application.Common.Interfaces.IUnitOfWork>());
+
+        var decision = await service.AuthorizeAsync(
+            subjectId, "MaxActiveLostCases", 1m,
+            new EntitlementContext("lost-pet-case", caseId));
+
+        decision.Allowed.Should().BeTrue();
+        decision.Limit.Should().Be(1m);
+    }
+
+    [Fact]
+    public async Task Authorize_FreePlan_DeniesActiveVetReminders()
+    {
+        var subjectId = Guid.NewGuid();
+        var subscriptions = Substitute.For<ISubscriptionRepository>();
+        var entitlements = Substitute.For<IEntitlementRepository>();
+        subscriptions.GetActiveForSubjectAsync(subjectId, Arg.Any<CancellationToken>())
+            .Returns((Subscription?)null);
+        entitlements.GetConsumedAsync(
+                subjectId, "MaxActiveVetReminders", Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(),
+                "pet", Arg.Any<Guid?>(), Arg.Any<CancellationToken>())
+            .Returns(0m);
+        var service = new EntitlementService(
+            subscriptions,
+            Substitute.For<ISubscriptionPlanRepository>(),
+            entitlements,
+            Substitute.For<PawTrack.Application.Common.Interfaces.IUnitOfWork>());
+
+        var decision = await service.AuthorizeAsync(
+            subjectId, "MaxActiveVetReminders", 1m,
+            new EntitlementContext("pet", Guid.NewGuid()));
+
+        decision.Allowed.Should().BeFalse();
+        decision.Limit.Should().Be(0m);
+    }
+
+    [Fact]
+    public async Task Authorize_FreePlan_DoesNotIncludeAiMatching()
+    {
+        var subjectId = Guid.NewGuid();
+        var subscriptions = Substitute.For<ISubscriptionRepository>();
+        subscriptions.GetActiveForSubjectAsync(subjectId, Arg.Any<CancellationToken>())
+            .Returns((Subscription?)null);
+        var service = new EntitlementService(
+            subscriptions,
+            Substitute.For<ISubscriptionPlanRepository>(),
+            Substitute.For<IEntitlementRepository>(),
+            Substitute.For<PawTrack.Application.Common.Interfaces.IUnitOfWork>());
+
+        var decision = await service.AuthorizeAsync(
+            subjectId, "AiMatchesPerCycle", 1m, new EntitlementContext("visual-match"));
+
+        decision.Allowed.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task Consume_is_idempotent_for_the_same_key()
     {
         var subjectId = Guid.NewGuid();

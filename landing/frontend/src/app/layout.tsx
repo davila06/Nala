@@ -8,11 +8,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
   title: {
-    default: "PawTrack CR | NALA, identidad y cuidado animal",
+    default: "NALA | Red de protección para mascotas · PawTrack CR",
     template: "%s | PawTrack CR · NALA",
   },
   description:
-    "PawTrack CR, NALA: identidad digital, información y flujos de recuperación y cuidado animal para Costa Rica.",
+    "NALA reúne identidad digital, herramientas de recuperación y recursos para organizar el cuidado de mascotas en PawTrack CR, Costa Rica.",
   alternates: {
     canonical: "/",
   },
@@ -22,8 +22,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_CR",
     siteName: "PawTrack CR · NALA",
-    title: "PawTrack CR | NALA, identidad y cuidado animal",
-    description: "Una identidad digital para cuidar, reconocer y ayudar a que cada mascota vuelva a casa.",
+    title: "NALA | Red de protección para mascotas · PawTrack CR",
+    description:
+      "El hogar digital de tu mascota: identidad, herramientas de recuperación e información para organizar su cuidado.",
   },
   robots: {
     index: true,

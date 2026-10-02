@@ -17,6 +17,11 @@ type CatalogState =
   | { status: "unavailable"; message: string }
   | { status: "ready"; plans: PublicPlan[] };
 
+type PublicPlansCatalogProps = {
+  audience?: "all" | "household";
+  variant?: "cards" | "summary";
+};
+
 const currency = new Intl.NumberFormat("es-CR", {
   style: "currency",
   currency: "CRC",
@@ -29,7 +34,7 @@ function formatPrice(plan: PublicPlan): string {
   return "Precio no publicado";
 }
 
-export function PublicPlansCatalog() {
+export function PublicPlansCatalog({ audience = "all", variant = "cards" }: PublicPlansCatalogProps) {
   const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
   const apiUrl = configuredApiUrl || (process.env.NODE_ENV === "development" ? "http://localhost:5199" : "");
   const [state, setState] = useState<CatalogState>(() =>
@@ -69,7 +74,10 @@ export function PublicPlansCatalog() {
     );
   }
 
-  if (state.status !== "ready" || state.plans.length === 0) {
+  const plans =
+    state.status === "ready" ? state.plans.filter((plan) => audience === "all" || plan.tier?.startsWith("User")) : [];
+
+  if (state.status !== "ready" || plans.length === 0) {
     return (
       <div className="catalog-empty" role="status">
         <span className="catalog-empty-mark" aria-hidden="true">
@@ -85,40 +93,87 @@ export function PublicPlansCatalog() {
     );
   }
 
-  return (
-    <div className="catalog-grid" aria-label="Planes aprobados">
-      {state.plans.map((plan, index) => (
-        <article
-          className="catalog-plan depth-surface"
-          data-3d-depth="catalog"
-          data-depth-strength="3"
-          key={`${plan.tier ?? plan.displayName}-${plan.id ?? index}`}
-          tabIndex={0}
-        >
-          <div className="catalog-plan-inner">
-            <div className="catalog-plan-face catalog-plan-front">
-              <span>{plan.tier ?? "PLAN"}</span>
-              <h3>{plan.displayName}</h3>
-              <p>{planDescriptions[plan.tier ?? ""] ?? "Capacidades disponibles en PawTrack CR."}</p>
-              <strong>{formatPrice(plan)}</strong>
-              <small>Pasar el cursor o enfocar para ver inclusiones</small>
-            </div>
-            <div className="catalog-plan-face catalog-plan-back" aria-label={`Inclusiones de ${plan.displayName}`}>
-              <span>INCLUYE</span>
-              {plan.tier && planFeatures[plan.tier] ? (
+  if (variant === "summary") {
+    return (
+      <div className="home-plan-list" aria-label="Planes publicados para hogares">
+        {plans.map((plan) => {
+          const features = plan.tier ? (planFeatures[plan.tier] ?? []) : [];
+
+          return (
+            <article className="home-plan-row" key={`${plan.tier ?? plan.displayName}-${plan.id}`}>
+              <div className="home-plan-row-top">
+                <span>{plan.tier ?? "PLAN"}</span>
+                <strong>{formatPrice(plan)}</strong>
+              </div>
+              <h4>{plan.displayName}</h4>
+              <p>
+                {planDescriptions[plan.tier ?? ""] ?? plan.description ?? "Capacidades disponibles en PawTrack CR."}
+              </p>
+              {features.length > 0 ? (
                 <ul>
-                  {planFeatures[plan.tier].map((feature) => (
+                  {features.slice(0, 3).map((feature) => (
                     <li key={feature}>{feature}</li>
                   ))}
                 </ul>
-              ) : (
-                <p>Capacidades disponibles en PawTrack CR.</p>
-              )}
-              <small>Los límites dependen del catálogo y del entorno conectado.</small>
+              ) : null}
+            </article>
+          );
+        })}
+      </div>
+    );
+  }
+
+  return (
+    <div className="catalog-grid" aria-label="Planes aprobados">
+      {plans.map((plan, index) => {
+        const features = plan.tier ? (planFeatures[plan.tier] ?? []) : [];
+        const hasGpsAllowance = features.some((feature) => /collar(?:es)? GPS/i.test(feature));
+
+        return (
+          <article
+            className="catalog-plan depth-surface"
+            data-3d-depth="catalog"
+            data-depth-strength="3"
+            key={`${plan.tier ?? plan.displayName}-${plan.id ?? index}`}
+            tabIndex={0}
+          >
+            <div className="catalog-plan-inner">
+              <div className="catalog-plan-face catalog-plan-front">
+                <span>{plan.tier ?? "PLAN"}</span>
+                <h3>{plan.displayName}</h3>
+                <p>{planDescriptions[plan.tier ?? ""] ?? "Capacidades disponibles en PawTrack CR."}</p>
+                {features.length > 0 ? (
+                  <ul aria-label={`Inclusiones principales de ${plan.displayName}`} className="catalog-plan-preview">
+                    {features.slice(0, 3).map((feature) => (
+                      <li key={feature}>{feature}</li>
+                    ))}
+                  </ul>
+                ) : null}
+                {hasGpsAllowance ? (
+                  <p className="catalog-plan-limit-note">
+                    La cuota GPS no incluye hardware ni garantiza un proveedor compatible.
+                  </p>
+                ) : null}
+                <strong>{formatPrice(plan)}</strong>
+                <small>Enfoca para consultar inclusiones adicionales.</small>
+              </div>
+              <div className="catalog-plan-face catalog-plan-back" aria-label={`Inclusiones de ${plan.displayName}`}>
+                <span>INCLUYE</span>
+                {features.length > 3 ? (
+                  <ul>
+                    {features.slice(3).map((feature) => (
+                      <li key={feature}>{feature}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>Estas son las inclusiones publicadas para este plan.</p>
+                )}
+                <small>Los límites dependen del catálogo y del entorno conectado.</small>
+              </div>
             </div>
-          </div>
-        </article>
-      ))}
+          </article>
+        );
+      })}
     </div>
   );
 }

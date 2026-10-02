@@ -19,8 +19,14 @@ public sealed class StoreOrder
     public string? CustomerNote { get; private set; }
     public string? StoreNote { get; private set; }
     public bool PaymentReportedByCustomer { get; private set; }
+    public string? PaymentVerificationReference { get; private set; }
+    public Guid? PaymentVerifiedByUserId { get; private set; }
+    public bool StockReserved { get; private set; }
+    public DateTimeOffset? StockReservationExpiresAt { get; private set; }
+    public Guid? PaymentIntentId { get; private set; }
     public DateTimeOffset PlacedAt { get; private set; }
     public DateTimeOffset? ConfirmedAt { get; private set; }
+    public DateTimeOffset? PaymentConfirmedAt { get; private set; }
     public DateTimeOffset? CompletedAt { get; private set; }
     public DateTimeOffset? CancelledAt { get; private set; }
 
@@ -44,7 +50,7 @@ public sealed class StoreOrder
             StoreId = storeId,
             LocationId = locationId,
             CustomerId = customerId,
-            Status = StoreOrderStatus.PendingPayment,
+            Status = StoreOrderStatus.AwaitingStoreAcceptance,
             FulfillmentType = fulfillmentType,
             PaymentReference = paymentReference,
             DeliveryAddress = deliveryAddress?.Trim(),
@@ -66,24 +72,97 @@ public sealed class StoreOrder
 
     public void ReportPayment()
     {
-        if (Status != StoreOrderStatus.PendingPayment)
-            throw new InvalidOperationException("Solo se puede reportar el pago de pedidos pendientes.");
+        if (Status != StoreOrderStatus.AwaitingPayment)
+            throw new InvalidOperationException("Solo se puede reportar el pago después de que la tienda acepte el pedido.");
         PaymentReportedByCustomer = true;
         Status = StoreOrderStatus.PaymentReported;
     }
 
-    public void Confirm(string? storeNote = null)
+    public void Accept(string? storeNote = null)
     {
-        if (Status is not (StoreOrderStatus.PendingPayment or StoreOrderStatus.PaymentReported))
-            throw new InvalidOperationException("Solo se pueden confirmar solicitudes pendientes.");
-        Status = StoreOrderStatus.Confirmed;
+        if (Status != StoreOrderStatus.AwaitingStoreAcceptance)
+            throw new InvalidOperationException("Solo se puede aceptar una solicitud nueva.");
+        if (!StockReserved || StockReservationExpiresAt is null)
+            throw new InvalidOperationException("El inventario debe reservarse antes de aceptar el pedido.");
+        Status = StoreOrderStatus.AwaitingPayment;
         StoreNote = storeNote?.Trim();
         ConfirmedAt = DateTimeOffset.UtcNow;
     }
 
+    public void VerifyManualPayment(Guid verifiedByUserId, string bankReference, string? storeNote = null)
+    {
+        if (Status == StoreOrderStatus.Paid && PaymentVerifiedByUserId == verifiedByUserId &&
+            string.Equals(PaymentVerificationReference, bankReference?.Trim(), StringComparison.Ordinal))
+            return;
+        if (Status != StoreOrderStatus.PaymentReported)
+            throw new InvalidOperationException("Solo se puede verificar un pago reportado por el cliente.");
+        if (verifiedByUserId == Guid.Empty)
+            throw new ArgumentException("El usuario que verifica el pago es requerido.", nameof(verifiedByUserId));
+        if (string.IsNullOrWhiteSpace(bankReference) || bankReference.Trim().Length > 200)
+            throw new ArgumentException("La referencia bancaria es requerida y no puede superar 200 caracteres.", nameof(bankReference));
+        if (!StockReserved)
+            throw new InvalidOperationException("La reserva de inventario venció; el pedido debe revisarse.");
+        Status = StoreOrderStatus.Paid;
+        StockReserved = false;
+        StockReservationExpiresAt = null;
+        StoreNote = storeNote?.Trim();
+        PaymentVerificationReference = bankReference.Trim();
+        PaymentVerifiedByUserId = verifiedByUserId;
+        PaymentConfirmedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void MarkPaidFromPaymentIntent(Guid paymentIntentId)
+    {
+        if (paymentIntentId == Guid.Empty)
+            throw new ArgumentException("Payment intent es requerido.", nameof(paymentIntentId));
+        if (Status == StoreOrderStatus.Paid && PaymentIntentId == paymentIntentId)
+            return;
+        if (Status != StoreOrderStatus.AwaitingPayment)
+            throw new InvalidOperationException("Solo un pedido pendiente de pago puede liquidarse.");
+        if (!StockReserved)
+            throw new InvalidOperationException("La reserva de inventario venció; el pedido debe revisarse.");
+        Status = StoreOrderStatus.Paid;
+        StockReserved = false;
+        StockReservationExpiresAt = null;
+        PaymentIntentId = paymentIntentId;
+        PaymentConfirmedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void MarkStockReserved(DateTimeOffset expiresAt)
+    {
+        if (Status != StoreOrderStatus.AwaitingStoreAcceptance)
+            throw new InvalidOperationException("Solo una solicitud nueva puede reservar inventario.");
+        if (StockReserved)
+            throw new InvalidOperationException("El inventario del pedido ya está reservado.");
+        if (expiresAt <= DateTimeOffset.UtcNow)
+            throw new ArgumentOutOfRangeException(nameof(expiresAt));
+        StockReserved = true;
+        StockReservationExpiresAt = expiresAt;
+    }
+
+    public bool ReleaseStockReservation()
+    {
+        if (!StockReserved) return false;
+        StockReserved = false;
+        StockReservationExpiresAt = null;
+        return true;
+    }
+
+    public void ExpireStockReservation(DateTimeOffset now)
+    {
+        if (!StockReserved || StockReservationExpiresAt > now)
+            throw new InvalidOperationException("La reserva del pedido todavía está vigente.");
+        if (Status is not (StoreOrderStatus.AwaitingPayment or StoreOrderStatus.PaymentReported))
+            throw new InvalidOperationException("Solo un pedido pendiente de pago puede vencer.");
+        Status = StoreOrderStatus.Expired;
+        StockReserved = false;
+        StockReservationExpiresAt = null;
+        CancelledAt = now;
+    }
+
     public void Reject(string reason)
     {
-        if (Status is not (StoreOrderStatus.PendingPayment or StoreOrderStatus.PaymentReported))
+        if (Status is not (StoreOrderStatus.AwaitingStoreAcceptance or StoreOrderStatus.AwaitingPayment or StoreOrderStatus.PaymentReported))
             throw new InvalidOperationException("Solo se pueden rechazar solicitudes pendientes.");
         if (string.IsNullOrWhiteSpace(reason))
             throw new InvalidOperationException("El rechazo debe incluir un motivo.");
@@ -111,9 +190,16 @@ public sealed class StoreOrder
     /// <summary>Allowed forward-only state machine — prevents skipping steps or reversals.</summary>
     private static bool IsValidTransition(StoreOrderStatus from, StoreOrderStatus to) => (from, to) switch
     {
+        (StoreOrderStatus.AwaitingStoreAcceptance, StoreOrderStatus.Rejected) => true,
+        (StoreOrderStatus.AwaitingPayment, StoreOrderStatus.Rejected) => true,
         (StoreOrderStatus.PendingPayment, StoreOrderStatus.Rejected) => true,
         (StoreOrderStatus.PaymentReported, StoreOrderStatus.Rejected) => true,
+        (StoreOrderStatus.AwaitingStoreAcceptance, StoreOrderStatus.Cancelled) => true,
+        (StoreOrderStatus.AwaitingPayment, StoreOrderStatus.Cancelled) => true,
+        (StoreOrderStatus.PaymentReported, StoreOrderStatus.Cancelled) => true,
+        (StoreOrderStatus.Paid, StoreOrderStatus.Preparing) => true,
         (StoreOrderStatus.Confirmed, StoreOrderStatus.Preparing) => true,
+        (StoreOrderStatus.Paid, StoreOrderStatus.Cancelled) => true,
         (StoreOrderStatus.Confirmed, StoreOrderStatus.Cancelled) => true,
         (StoreOrderStatus.Preparing, StoreOrderStatus.ReadyForPickup) => true,
         (StoreOrderStatus.Preparing, StoreOrderStatus.OutForDelivery) => true,

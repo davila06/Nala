@@ -3,14 +3,7 @@ import { apiClient } from "@/shared/lib/apiClient";
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type StoreStatus = "Pending" | "Active" | "Suspended";
-export type ProductCategory =
-  | "Food"
-  | "Accessories"
-  | "Grooming"
-  | "Health"
-  | "Toys"
-  | "Clothing"
-  | "Other";
+export type ProductCategory = "Food" | "Accessories" | "Grooming" | "Health" | "Toys" | "Clothing" | "Other";
 export type OrderFulfillmentType = "Pickup" | "Delivery";
 export type StoreOrderStatus =
   | "PendingPayment"
@@ -47,6 +40,7 @@ export interface StoreProductDto {
   priceCrc: number;
   imageUrl: string | null;
   isAvailable: boolean;
+  stockOnHand: number | null;
 }
 
 export interface StoreDetailDto {
@@ -166,18 +160,13 @@ export interface StoreLocationDto {
 export const storesApi = {
   // Public
   getAll: (pageSize = 50): Promise<PublicStoreDto[]> =>
-    apiClient
-      .get<
-        PublicStoreDto[]
-      >("/public/stores", { params: { page: 1, pageSize } })
-      .then((r) => r.data),
+    apiClient.get<PublicStoreDto[]>("/public/stores", { params: { page: 1, pageSize } }).then((r) => r.data),
 
   getDetail: (id: string): Promise<StoreDetailDto> =>
     apiClient.get<StoreDetailDto>(`/public/stores/${id}`).then((r) => r.data),
 
   // Store owner
-  getMine: (): Promise<PublicStoreDto> =>
-    apiClient.get<PublicStoreDto>("/stores/mine").then((r) => r.data),
+  getMine: (): Promise<PublicStoreDto> => apiClient.get<PublicStoreDto>("/stores/mine").then((r) => r.data),
 
   updateProfile: (data: {
     name: string;
@@ -187,8 +176,7 @@ export const storesApi = {
     lng: number;
     phoneNumber?: string;
     website?: string;
-  }): Promise<PublicStoreDto> =>
-    apiClient.put<PublicStoreDto>("/stores/profile", data).then((r) => r.data),
+  }): Promise<PublicStoreDto> => apiClient.put<PublicStoreDto>("/stores/profile", data).then((r) => r.data),
 
   getProducts: (): Promise<StoreProductDto[]> =>
     apiClient.get<StoreProductDto[]>("/stores/products").then((r) => r.data),
@@ -198,10 +186,8 @@ export const storesApi = {
     description?: string;
     category: string;
     priceCrc: number;
-  }): Promise<StoreProductDto> =>
-    apiClient
-      .post<StoreProductDto>("/stores/products", data)
-      .then((r) => r.data),
+    stockOnHand?: number | null;
+  }): Promise<StoreProductDto> => apiClient.post<StoreProductDto>("/stores/products", data).then((r) => r.data),
 
   updateProduct: (
     id: string,
@@ -211,14 +197,11 @@ export const storesApi = {
       category: string;
       priceCrc: number;
       isAvailable: boolean;
+      stockOnHand?: number | null;
     },
-  ): Promise<StoreProductDto> =>
-    apiClient
-      .put<StoreProductDto>(`/stores/products/${id}`, data)
-      .then((r) => r.data),
+  ): Promise<StoreProductDto> => apiClient.put<StoreProductDto>(`/stores/products/${id}`, data).then((r) => r.data),
 
-  deleteProduct: (id: string): Promise<void> =>
-    apiClient.delete(`/stores/products/${id}`).then(() => undefined),
+  deleteProduct: (id: string): Promise<void> => apiClient.delete(`/stores/products/${id}`).then(() => undefined),
 
   // Register
   register: (data: {
@@ -229,15 +212,9 @@ export const storesApi = {
     lng: number;
     contactEmail: string;
     password: string;
-  }): Promise<PublicStoreDto> =>
-    apiClient
-      .post<PublicStoreDto>("/stores/register", data)
-      .then((r) => r.data),
+  }): Promise<PublicStoreDto> => apiClient.post<PublicStoreDto>("/stores/register", data).then((r) => r.data),
 
-  uploadProductImage: (
-    productId: string,
-    file: File,
-  ): Promise<StoreProductDto> => {
+  uploadProductImage: (productId: string, file: File): Promise<StoreProductDto> => {
     const form = new FormData();
     form.append("image", file);
     return apiClient
@@ -257,9 +234,7 @@ export const storesApi = {
 
   // Locations / sedes (StorePartner)
   getLocations: (): Promise<StoreLocationDto[]> =>
-    apiClient
-      .get<StoreLocationDto[]>("/stores/me/locations")
-      .then((r) => r.data),
+    apiClient.get<StoreLocationDto[]>("/stores/me/locations").then((r) => r.data),
 
   createLocation: (data: {
     name: string;
@@ -267,10 +242,7 @@ export const storesApi = {
     lat: number;
     lng: number;
     phoneNumber?: string;
-  }): Promise<StoreLocationDto> =>
-    apiClient
-      .post<StoreLocationDto>("/stores/me/locations", data)
-      .then((r) => r.data),
+  }): Promise<StoreLocationDto> => apiClient.post<StoreLocationDto>("/stores/me/locations", data).then((r) => r.data),
 
   updateLocation: (
     id: string,
@@ -282,12 +254,8 @@ export const storesApi = {
       phoneNumber?: string;
     },
   ): Promise<StoreLocationDto> =>
-    apiClient
-      .put<StoreLocationDto>(`/stores/me/locations/${id}`, data)
-      .then((r) => r.data),
+    apiClient.put<StoreLocationDto>(`/stores/me/locations/${id}`, data).then((r) => r.data),
 
   setLocationActive: (id: string, active: boolean): Promise<StoreLocationDto> =>
-    apiClient
-      .patch<StoreLocationDto>(`/stores/me/locations/${id}/active`, { active })
-      .then((r) => r.data),
+    apiClient.patch<StoreLocationDto>(`/stores/me/locations/${id}/active`, { active }).then((r) => r.data),
 };

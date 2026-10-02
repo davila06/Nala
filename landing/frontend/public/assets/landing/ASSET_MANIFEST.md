@@ -38,3 +38,13 @@ Generadas el **2026-10-01** con Azure AI Image Generation (`gpt-image-2.5-flare`
 | Hospedaje        | `source/service-boarding-20261001.png`       |
 | Paseos           | `source/service-walking-20261001.png`        |
 | Cuidado temporal | `source/service-temporary-care-20261001.png` |
+
+### Reporte de mascota perdida
+
+Generadas el **2026-10-02** con Azure AI Image Generation (`gpt-image-2.5-flare`). Las escenas son conceptuales y no muestran direcciones, coordenadas, contactos legibles ni casos reales. `npm run images:optimize` produce AVIF/WebP de 1600×900 en escritorio y 1080×608 en móvil.
+
+| Paso                      | Fuente PNG                                      | Brief visual                                                                |
+| ------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------- |
+| Preparar una descripción  | `source/lost-pet-preparation-20261002.png`      | Tutora revisa una foto reciente y prepara información en casa.              |
+| Compartir zona aproximada | `source/lost-pet-approximate-area-20261002.png` | Persona consulta mapa sin nombres de calles ni coordenadas legibles.        |
+| Revisar contacto          | `source/lost-pet-contact-review-20261002.png`   | Persona revisa perfil en teléfono con la pantalla intencionalmente borrosa. |

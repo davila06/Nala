@@ -77,11 +77,11 @@ no procesa pagos, escrow ni custodia financiera. Ver
 
 ## B2C
 
-| Plan        | Estado tecnico | Capacidad principal                                      |
-| ----------- | -------------- | -------------------------------------------------------- |
-| Free        | Activo         | 1 mascota; QR e IA sujetos a los gates de cada endpoint. |
-| UserPlus    | Activo         | Hasta 3 mascotas; extras sujetos a gates técnicos.       |
-| UserFamilia | Activo         | Hasta 25 mascotas activas; familia y expediente.         |
+| Plan        | Estado tecnico | Capacidad principal                                         |
+| ----------- | -------------- | ----------------------------------------------------------- |
+| Free        | Activo         | 1 mascota; QR incluido; matching visual por IA no incluido. |
+| UserPlus    | Activo         | Hasta 3 mascotas; extras sujetos a gates técnicos.          |
+| UserFamilia | Activo         | Hasta 25 mascotas activas; familia y expediente.            |
 
 Los precios B2C del catálogo deben mantenerse sincronizados con la fila activa
 `SubscriptionPlans`, probarse en el flujo de compra y aprobarse antes de

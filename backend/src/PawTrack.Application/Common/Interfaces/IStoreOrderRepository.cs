@@ -27,4 +27,10 @@ public interface IStoreOrderRepository
         Guid storeId, int year, int month, Guid? locationId = null, CancellationToken ct = default);
     Task AddAsync(StoreOrder order, CancellationToken ct = default);
     void Update(StoreOrder order);
+    Task<bool> TryAcceptAndReserveStockAsync(
+        Guid orderId, Guid storeId, string? storeNote, DateTimeOffset reservationExpiresAt, CancellationToken ct = default);
+    Task<bool> TryUpdateStatusAndReleaseStockAsync(
+        Guid orderId, Guid storeId, StoreOrderStatus newStatus, string? storeNote, CancellationToken ct = default);
+    Task<IReadOnlyList<Guid>> GetExpiredStockReservationOrderIdsAsync(DateTimeOffset now, int take, CancellationToken ct = default);
+    Task<bool> ExpireStockReservationAsync(Guid orderId, DateTimeOffset now, CancellationToken ct = default);
 }

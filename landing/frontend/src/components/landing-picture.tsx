@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-type LandingAsset = "hero" | "services" | "qr" | "dogtag";
+type LandingAsset = "hero" | "services" | "qr" | "dogtag" | "lostPreparation" | "lostArea" | "lostContact";
 
 type LandingPictureProps = {
   alt: string;
@@ -25,6 +25,18 @@ const assetFiles: Record<LandingAsset, { desktop: string; mobile: string }> = {
   dogtag: {
     desktop: "nala-qr-scan-identity-tagged-20261001-desktop",
     mobile: "nala-qr-scan-identity-tagged-20261001-mobile",
+  },
+  lostPreparation: {
+    desktop: "lost-pet-preparation-20261002-desktop",
+    mobile: "lost-pet-preparation-20261002-mobile",
+  },
+  lostArea: {
+    desktop: "lost-pet-approximate-area-20261002-desktop",
+    mobile: "lost-pet-approximate-area-20261002-mobile",
+  },
+  lostContact: {
+    desktop: "lost-pet-contact-review-20261002-desktop",
+    mobile: "lost-pet-contact-review-20261002-mobile",
   },
 };
 

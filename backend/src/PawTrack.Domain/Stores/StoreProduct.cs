@@ -11,6 +11,7 @@ public sealed class StoreProduct
     public ProductCategory Category { get; private set; }
     /// <summary>Price in CRC colones.</summary>
     public decimal PriceCrc { get; private set; }
+    public int? StockOnHand { get; private set; }
     public string? ImageUrl { get; private set; }
     public bool IsAvailable { get; private set; }
     public bool PlanRestricted { get; private set; }
@@ -21,7 +22,8 @@ public sealed class StoreProduct
         string name,
         string? description,
         ProductCategory category,
-        decimal priceCrc) => new()
+        decimal priceCrc,
+        int? stockOnHand = null) => new()
         {
             Id = Guid.CreateVersion7(),
             StoreId = storeId,
@@ -29,20 +31,44 @@ public sealed class StoreProduct
             Description = description?.Trim(),
             Category = category,
             PriceCrc = priceCrc,
+            StockOnHand = stockOnHand,
             IsAvailable = true,
             CreatedAt = DateTimeOffset.UtcNow,
         };
 
-    public void Update(string name, string? description, ProductCategory category, decimal priceCrc)
+    public void Update(string name, string? description, ProductCategory category, decimal priceCrc, int? stockOnHand = null)
     {
         Name = name.Trim();
         Description = description?.Trim();
         Category = category;
         PriceCrc = priceCrc;
+        if (stockOnHand.HasValue) SetStockQuantity(stockOnHand.Value);
     }
 
     public void SetImageUrl(string url) => ImageUrl = url;
     public void SetAvailable(bool available) => IsAvailable = available;
+    public void SetStockQuantity(int? quantity)
+    {
+        if (quantity < 0) throw new ArgumentOutOfRangeException(nameof(quantity));
+        StockOnHand = quantity;
+    }
+
+    public void ReserveStock(int quantity)
+    {
+        if (quantity <= 0) throw new ArgumentOutOfRangeException(nameof(quantity));
+        if (!IsAvailable || StockOnHand is null || StockOnHand.Value < quantity)
+            throw new InvalidOperationException("Inventario insuficiente para reservar el producto.");
+        StockOnHand -= quantity;
+    }
+
+    public void ReleaseStock(int quantity)
+    {
+        if (quantity <= 0) throw new ArgumentOutOfRangeException(nameof(quantity));
+        if (StockOnHand is null)
+            throw new InvalidOperationException("No se puede restaurar inventario que no fue registrado.");
+        StockOnHand = checked(StockOnHand.Value + quantity);
+    }
+
     public void RestrictByPlan() { IsAvailable = false; PlanRestricted = true; }
     public void RestoreFromPlan() { if (PlanRestricted) { IsAvailable = true; PlanRestricted = false; } }
 }

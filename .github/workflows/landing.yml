@@ -29,6 +29,7 @@ jobs:
     env:
       NEXT_PUBLIC_SITE_URL: https://www.example.invalid
       NEXT_PUBLIC_APP_URL: https://app.example.invalid
+      NEXT_PUBLIC_API_URL: https://api.example.invalid
 
     steps:
       - name: Checkout
@@ -60,4 +61,4 @@ jobs:
           test -f out/sitemap.xml
           test -f out/robots.txt
           test -f out/404.html
-          node -e 'const c=JSON.parse(require("node:fs").readFileSync("out/staticwebapp.config.json","utf8")); const p=c.globalHeaders["Content-Security-Policy"]; if (!/script-src[^;]*sha256-/.test(p) || /script-src[^;]*unsafe-inline/.test(p)) process.exit(1);'
+          node -e 'const c=JSON.parse(require("node:fs").readFileSync("out/staticwebapp.config.json","utf8")); const p=c.globalHeaders["Content-Security-Policy"]; if (!/script-src[^;]*sha256-/.test(p) || /script-src[^;]*unsafe-inline/.test(p) || !/connect-src[^;]*https:\/\/api\.example\.invalid/.test(p)) process.exit(1);'

@@ -212,7 +212,7 @@ public sealed class WebhooksController(
         var intent = await paymentIntentRepository.GetByMerchantReferenceAsync(orderRef, cancellationToken);
         if (intent is not null)
         {
-            ApplyCyberSourceStatus(intent, payload.Data.Status, payload.Data.Id);
+            ApplyCyberSourceStatus(intent, payload.Data.Status, payload.Data.Id, operation.Id, operation.CorrelationId);
             operation.MarkSucceeded(payload.Data.Id, NormalizeWebhook(payload));
             paymentIntentRepository.Update(intent);
             paymentOperationRepository.Update(operation);
@@ -248,7 +248,9 @@ public sealed class WebhooksController(
     private static void ApplyCyberSourceStatus(
         PaymentIntent intent,
         string? providerStatus,
-        string? gatewayTransactionId)
+        string? gatewayTransactionId,
+        Guid webhookOperationId,
+        string correlationId)
     {
         if (intent.Status is PaymentIntentStatus.Settled or
             PaymentIntentStatus.Refunded or
@@ -273,7 +275,7 @@ public sealed class WebhooksController(
             if (intent.Status == PaymentIntentStatus.Authorized)
                 intent.MarkCaptured();
             if (intent.Status == PaymentIntentStatus.Captured)
-                intent.MarkSettled();
+                intent.MarkSettled(gatewayTransactionId, webhookOperationId, correlationId);
             return;
         }
 

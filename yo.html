@@ -1,0 +1,1854 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Guía personal de PawTrack CR: producto, roles, monetización y cómo venderlo con evidencia."
+    />
+    <title>PawTrack CR — Mi guía del producto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #202822;
+        --muted: #526058;
+        --paper: #f2f4eb;
+        --surface: #fffef9;
+        --line: #cbd2c7;
+        --green: #164b3b;
+        --green-deep: #102f27;
+        --lime: #d8ec80;
+        --coral: #e7654b;
+        --gold: #e5b752;
+        --shadow: 0 22px 60px rgb(22 46 36 / 12%);
+        --sans: "DM Sans", "Aptos", sans-serif;
+        --serif: "Fraunces", "Iowan Old Style", Georgia, serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        color: var(--ink);
+        background-color: var(--paper);
+        background-image: repeating-linear-gradient(
+          0deg,
+          transparent 0,
+          transparent 31px,
+          rgb(22 75 59 / 3%) 32px
+        );
+        font: 16px/1.68 var(--sans);
+      }
+      a {
+        color: var(--green);
+        text-underline-offset: 3px;
+      }
+      a:hover {
+        color: #ad432f;
+      }
+      img {
+        display: block;
+        max-width: 100%;
+      }
+      :focus-visible {
+        outline: 3px solid var(--coral);
+        outline-offset: 3px;
+      }
+      .skip-link {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        z-index: 10;
+        padding: 10px 14px;
+        transform: translateY(-150%);
+        color: white;
+        background: var(--green-deep);
+      }
+      .skip-link:focus {
+        transform: none;
+      }
+      .masthead {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1360px;
+        margin: 0 auto;
+        padding: 20px 5vw;
+        color: var(--green-deep);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+      }
+      .masthead a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .masthead .edition {
+        color: var(--muted);
+        font-weight: 500;
+        letter-spacing: 0;
+        text-transform: none;
+      }
+      .cover {
+        position: relative;
+        overflow: hidden;
+        min-height: 520px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(330px, 0.88fr);
+        align-items: stretch;
+        max-width: 1360px;
+        margin: 0 auto;
+        color: #fffef9;
+        background: var(--green-deep);
+        box-shadow: var(--shadow);
+      }
+      .cover-copy {
+        position: relative;
+        z-index: 1;
+        padding: 72px clamp(32px, 7vw, 100px);
+        align-self: center;
+      }
+      .eyebrow {
+        margin: 0 0 18px;
+        color: var(--lime);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+      h1,
+      h2,
+      h3 {
+        margin-top: 0;
+      }
+      h1 {
+        max-width: 640px;
+        margin-bottom: 18px;
+        font: 700 62px/1.02 var(--serif);
+        letter-spacing: 0;
+      }
+      h1 span {
+        color: var(--lime);
+      }
+      .cover-copy > p:not(.eyebrow) {
+        max-width: 560px;
+        color: #e4ebe1;
+        font-size: 18px;
+      }
+      .cover-note {
+        margin-top: 38px;
+        padding-left: 15px;
+        border-left: 3px solid var(--coral);
+        color: #f5c5b6;
+        font-size: 13px;
+      }
+      .cover-image {
+        position: relative;
+        min-height: 520px;
+      }
+      .cover-image img {
+        width: 100%;
+        height: 100%;
+        min-height: 520px;
+        object-fit: cover;
+        object-position: 55% center;
+      }
+      .cover-image::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          var(--green-deep) 0%,
+          rgb(16 47 39 / 8%) 46%,
+          transparent 100%
+        );
+      }
+      .cover-image figcaption {
+        position: absolute;
+        z-index: 1;
+        right: 20px;
+        bottom: 18px;
+        color: white;
+        font-size: 11px;
+        text-shadow: 0 1px 5px #000;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 220px minmax(0, 820px);
+        gap: clamp(28px, 5vw, 76px);
+        max-width: 1180px;
+        margin: 64px auto 110px;
+        padding: 0 28px;
+        align-items: start;
+      }
+      .toc {
+        position: sticky;
+        top: 22px;
+        padding: 20px 0;
+        border-top: 3px solid var(--green);
+      }
+      .toc h2 {
+        margin: 0 0 10px;
+        font: 700 12px/1.4 var(--sans);
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+      }
+      .toc ol {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .toc li {
+        border-bottom: 1px solid var(--line);
+      }
+      .toc a {
+        display: block;
+        padding: 7px 0;
+        color: var(--muted);
+        font-size: 13px;
+        text-decoration: none;
+      }
+      .toc a:hover {
+        color: var(--coral);
+      }
+      main {
+        min-width: 0;
+      }
+      section {
+        padding: 0 0 50px;
+        margin: 0 0 48px;
+        border-bottom: 1px solid var(--line);
+        scroll-margin-top: 24px;
+      }
+      .section-no {
+        display: inline-block;
+        margin-bottom: 9px;
+        color: var(--coral);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+      }
+      h2 {
+        margin-bottom: 16px;
+        color: var(--green-deep);
+        font: 700 34px/1.12 var(--serif);
+        letter-spacing: 0;
+      }
+      h3 {
+        margin: 30px 0 9px;
+        color: var(--green);
+        font-size: 18px;
+        letter-spacing: 0;
+      }
+      p {
+        margin: 0 0 16px;
+      }
+      .standfirst {
+        color: var(--muted);
+        font-size: 18px;
+      }
+      .quote {
+        margin: 26px 0;
+        padding: 23px 26px;
+        border-left: 4px solid var(--coral);
+        background: var(--surface);
+        font: 600 20px/1.45 var(--serif);
+      }
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 0;
+        margin: 28px 0;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .flow span {
+        position: relative;
+        padding: 18px 10px 18px 0;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .flow span:not(:last-child)::after {
+        content: "→";
+        position: absolute;
+        right: 7px;
+        color: var(--coral);
+        font-size: 17px;
+      }
+      .truth-band {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        margin: 28px 0;
+        color: white;
+        background: var(--green);
+      }
+      .truth-band div {
+        padding: 20px;
+        border-right: 1px solid rgb(255 255 255 / 24%);
+      }
+      .truth-band div:last-child {
+        border: 0;
+      }
+      .truth-band strong {
+        display: block;
+        color: var(--lime);
+        font: 700 22px/1.1 var(--serif);
+      }
+      .truth-band span {
+        display: block;
+        margin-top: 7px;
+        color: #e4ebe1;
+        font-size: 12px;
+      }
+      .table-wrap {
+        overflow-x: auto;
+        margin: 22px 0;
+        border: 1px solid var(--line);
+        background: var(--surface);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 13px;
+      }
+      caption {
+        padding: 12px 14px;
+        color: var(--muted);
+        text-align: left;
+        font-size: 12px;
+      }
+      th,
+      td {
+        padding: 12px 14px;
+        vertical-align: top;
+        border-bottom: 1px solid #e1e5dc;
+      }
+      thead th {
+        color: white;
+        background: var(--green);
+        font-size: 11px;
+        letter-spacing: 0.4px;
+      }
+      tbody tr:last-child td {
+        border-bottom: 0;
+      }
+      tbody th {
+        min-width: 116px;
+        color: var(--green-deep);
+        font-weight: 700;
+      }
+      .status {
+        display: inline-block;
+        padding: 3px 7px;
+        color: var(--green-deep);
+        background: #e4edc5;
+        font-size: 10px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .status.partial {
+        background: #f6e4b9;
+      }
+      .status.proposed {
+        background: #f8d9d0;
+      }
+      .note {
+        margin: 22px 0;
+        padding: 16px 18px;
+        background: #f7e5d8;
+        border-top: 1px solid #e6b69e;
+        border-bottom: 1px solid #e6b69e;
+      }
+      .note strong {
+        color: #853e2b;
+      }
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin: 24px 0;
+      }
+      .column-rule {
+        padding-top: 14px;
+        border-top: 3px solid var(--green);
+      }
+      .column-rule h3 {
+        margin-top: 0;
+      }
+      .ranked {
+        padding-left: 23px;
+      }
+      .ranked li {
+        padding: 0 0 13px 5px;
+      }
+      .ranked li::marker {
+        color: var(--coral);
+        font-weight: 700;
+      }
+      .do-not {
+        padding: 20px 23px;
+        color: white;
+        background: var(--green-deep);
+      }
+      .do-not h3 {
+        margin-top: 0;
+        color: var(--lime);
+      }
+      .do-not li {
+        padding: 4px 0;
+        color: #e4ebe1;
+      }
+      .sales-sheet {
+        padding: 18px 20px;
+        margin: 18px 0;
+        border: 1px solid var(--line);
+        border-top: 3px solid var(--green);
+        background: var(--surface);
+      }
+      .sales-sheet h3 {
+        margin-top: 0;
+      }
+      .sales-fields {
+        display: grid;
+        grid-template-columns: 120px minmax(0, 1fr);
+        gap: 6px 14px;
+        margin: 14px 0 0;
+        font-size: 13px;
+      }
+      .sales-fields dt {
+        color: var(--green);
+        font-weight: 700;
+      }
+      .sales-fields dd {
+        margin: 0;
+      }
+      .worksheet {
+        padding: 18px 20px;
+        margin: 20px 0;
+        border-left: 4px solid var(--gold);
+        background: var(--surface);
+      }
+      .worksheet h3 {
+        margin-top: 0;
+      }
+      .print-action {
+        padding: 10px 14px;
+        border: 0;
+        color: white;
+        background: var(--green);
+        font: 700 13px var(--sans);
+        cursor: pointer;
+      }
+      .print-action:hover {
+        background: var(--green-deep);
+      }
+      .formula {
+        overflow-x: auto;
+        padding: 15px;
+        color: white;
+        background: var(--green-deep);
+        font:
+          12px/1.6 ui-monospace,
+          Consolas,
+          monospace;
+      }
+      details {
+        margin: 12px 0;
+        border-top: 1px solid var(--line);
+      }
+      summary {
+        padding: 13px 0;
+        color: var(--green);
+        cursor: pointer;
+        font-weight: 700;
+      }
+      .sources {
+        columns: 2;
+        column-gap: 36px;
+        padding-left: 19px;
+        font-size: 13px;
+      }
+      .sources li {
+        break-inside: avoid;
+        padding: 0 0 8px;
+      }
+      .footer {
+        padding: 26px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .footer strong {
+        color: var(--green);
+      }
+      @media (max-width: 850px) {
+        .cover {
+          grid-template-columns: 1fr;
+        }
+        .cover-copy {
+          padding: 56px 34px 34px;
+        }
+        h1 {
+          font-size: 48px;
+        }
+        .cover-image,
+        .cover-image img {
+          min-height: 300px;
+          max-height: 390px;
+        }
+        .cover-image::after {
+          background: linear-gradient(
+            0deg,
+            rgb(16 47 39 / 42%),
+            transparent 60%
+          );
+        }
+        .layout {
+          display: block;
+          margin-top: 30px;
+          padding: 0 22px;
+        }
+        .toc {
+          position: static;
+          padding: 12px 0 18px;
+          margin-bottom: 35px;
+        }
+        .toc ol {
+          display: flex;
+          gap: 8px;
+          overflow-x: auto;
+          padding-bottom: 8px;
+        }
+        .toc li {
+          flex: 0 0 auto;
+          border: 0;
+        }
+        .toc a {
+          padding: 7px 10px;
+          border: 1px solid var(--line);
+          background: var(--surface);
+        }
+      }
+      @media (max-width: 560px) {
+        .masthead {
+          padding: 16px 20px;
+        }
+        .masthead .edition {
+          max-width: 46%;
+          text-align: right;
+        }
+        .cover-copy {
+          padding: 42px 24px 27px;
+        }
+        h1 {
+          font-size: 42px;
+        }
+        .cover-copy > p:not(.eyebrow) {
+          font-size: 16px;
+        }
+        .layout {
+          padding: 0 17px;
+        }
+        h2 {
+          font-size: 29px;
+        }
+        .flow {
+          grid-template-columns: 1fr;
+        }
+        .flow span {
+          padding: 10px 0;
+          border-bottom: 1px solid var(--line);
+        }
+        .flow span:not(:last-child)::after {
+          content: "↓";
+          right: 5px;
+        }
+        .flow span:last-child {
+          border: 0;
+        }
+        .truth-band {
+          grid-template-columns: 1fr;
+        }
+        .truth-band div {
+          border-right: 0;
+          border-bottom: 1px solid rgb(255 255 255 / 24%);
+        }
+        .two-col {
+          grid-template-columns: 1fr;
+        }
+        .sources {
+          columns: 1;
+        }
+        .sales-fields {
+          grid-template-columns: 1fr;
+          gap: 2px;
+        }
+        .sales-fields dd {
+          margin: 0 0 9px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+      @media print {
+        body {
+          background: white;
+          font-size: 11pt;
+        }
+        .masthead,
+        .toc {
+          display: none;
+        }
+        .cover {
+          min-height: 0;
+          box-shadow: none;
+          print-color-adjust: exact;
+        }
+        .cover-copy {
+          padding: 32px;
+        }
+        .cover-image,
+        .cover-image img {
+          min-height: 270px;
+        }
+        .layout {
+          display: block;
+          max-width: none;
+          margin: 24px auto;
+          padding: 0;
+        }
+        section {
+          break-inside: avoid;
+        }
+        a {
+          color: inherit;
+        }
+        .table-wrap {
+          overflow: visible;
+        }
+        .toc {
+          display: none;
+        }
+        details {
+          break-inside: avoid;
+        }
+        details > summary {
+          display: none;
+        }
+        details:not([open]) > :not(summary) {
+          display: block !important;
+        }
+        .sales-sheet {
+          break-before: page;
+          border: 0;
+          border-top: 2px solid var(--green);
+        }
+        .print-action {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <header class="masthead">
+      <a href="#inicio">PawTrack CR / cuaderno de producto</a>
+      <span class="edition">Guía personal · 02 oct 2026</span>
+    </header>
+
+    <section class="cover" id="inicio" aria-labelledby="title">
+      <div class="cover-copy">
+        <p class="eyebrow">Mi mapa del producto</p>
+        <h1 id="title">PawTrack <span>CR</span></h1>
+        <p>
+          Identidad digital y coordinación local para mascotas, sus familias y
+          las organizaciones que las cuidan.
+        </p>
+        <p class="cover-note">
+          Basado en el repositorio local. No acredita ventas, disponibilidad de
+          producción ni acuerdos externos.
+        </p>
+      </div>
+      <figure class="cover-image">
+        <img
+          src="landing/frontend/public/assets/landing/source/PRODUCT-IDENTITY-01.png"
+          alt="Una veterinaria y una familia revisan juntas el collar identificador de su perro."
+        />
+        <figcaption>Identidad · cuidado · comunidad</figcaption>
+      </figure>
+    </section>
+
+    <div class="layout">
+      <nav class="toc" aria-label="Índice de esta guía">
+        <h2>En esta guía</h2>
+        <ol>
+          <li><a href="#producto">01 · El producto</a></li>
+          <li><a href="#roles">02 · Roles y perfiles</a></li>
+          <li><a href="#ingresos">03 · Monetización</a></li>
+          <li><a href="#venta">04 · Cómo vender</a></li>
+          <li><a href="#piloto">05 · Piloto y economía</a></li>
+          <li><a href="#glosario">06 · Glosario</a></li>
+          <li><a href="#limites">07 · Lo que no prometo</a></li>
+          <li><a href="#evidencia">08 · Evidencia</a></li>
+        </ol>
+      </nav>
+
+      <main id="contenido">
+        <section id="producto">
+          <span class="section-no">01 / PROPÓSITO</span>
+          <h2>Qué construí</h2>
+          <p class="standfirst">
+            Una PWA para enlazar la identidad digital de una mascota con un
+            flujo comunitario de recuperación.
+          </p>
+          <blockquote class="quote">
+            “PawTrack ayuda a que una mascota tenga una identidad digital y a
+            que su comunidad sepa cómo actuar si se pierde.”
+          </blockquote>
+          <div class="flow" aria-label="Ciclo principal del producto">
+            <span>Registrar</span><span>Identificar con QR</span
+            ><span>Reportar</span><span>Coordinar</span><span>Reunificar</span>
+          </div>
+          <div class="truth-band" aria-label="Tres pilares de PawTrack">
+            <div>
+              <strong>Identidad</strong
+              ><span>Perfil público mínimo y QR digital.</span>
+            </div>
+            <div>
+              <strong>Recuperación</strong
+              ><span>Caso, avistamientos y coordinación.</span>
+            </div>
+            <div>
+              <strong>Red local</strong
+              ><span>Familias, aliados e instituciones.</span>
+            </div>
+          </div>
+          <p>
+            El dueño crea un perfil y su QR; quien encuentra a la mascota puede
+            abrirlo o enviar un avistamiento; la familia coordina desde un caso
+            compartido. El sistema suma salud, clínicas, refugios, servicios y
+            municipalidades. La recuperación esencial debe seguir disponible
+            aunque el usuario no pague.
+          </p>
+          <h3>Estado de lo que existe</h3>
+          <div class="table-wrap">
+            <table>
+              <caption>
+                Estado en el repositorio; no equivale a operación de producción.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Área</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col">Lectura comercial</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">QR y recuperación</th>
+                  <td><span class="status">Implementado</span></td>
+                  <td>
+                    Perfil, reporte, avistamientos, coordinación y entrega; sin
+                    garantía de resultado.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Salud</th>
+                  <td><span class="status">Implementado</span></td>
+                  <td>
+                    Registros, recordatorios y acceso clínico condicionado por
+                    consentimiento.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">GPS</th>
+                  <td><span class="status partial">Plataforma sí</span></td>
+                  <td>Hardware, cobertura, contrato y SLA no verificados.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Adopciones / instituciones</th>
+                  <td><span class="status">Flujos implementados</span></td>
+                  <td>
+                    Alcances de refugio y municipio con gates; sin integración
+                    oficial acreditada.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Marketplace / suscripciones</th>
+                  <td><span class="status partial">Parcial</span></td>
+                  <td>
+                    Solicitudes y planes existen; pagos, operaciones y oferta no
+                    son uniformes.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">IA / telemedicina</th>
+                  <td>
+                    <span class="status proposed"
+                      >Parcial / no existe video</span
+                    >
+                  </td>
+                  <td>
+                    Matching visual condicionado; no agente ni videoconsulta.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Fuentes: <a href="docs/PRODUCT_SCOPE.md">alcance real</a>,
+            <a href="docs/FEATURES.md">matriz de características</a> y
+            <a href="docs/auditoria/FEATURE_TRACEABILITY_MATRIX.md"
+              >trazabilidad</a
+            >.
+          </p>
+        </section>
+
+        <section id="roles">
+          <span class="section-no">02 / PERSONAS Y PERMISOS</span>
+          <h2>Roles y perfiles no son lo mismo</h2>
+          <p>
+            El sistema define nueve roles globales. El rol no da acceso
+            automático a todo: también cuentan ownership, perfil, estado,
+            organización, consentimiento y plan. La matriz de permisos sigue
+            parcial.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <caption>
+                Rol, comprador o usuario y alcance principal.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Rol / perfil</th>
+                  <th scope="col">Quién es</th>
+                  <th scope="col">Alcance y límite clave</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Visitante / finder</th>
+                  <td>Público, sin rol</td>
+                  <td>
+                    Consulta QR público y participa en flujos públicos
+                    permitidos; no ve datos privados.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Owner</th>
+                  <td>Responsable de mascota</td>
+                  <td>
+                    Administra sus mascotas, casos, QR, salud, familia y
+                    solicitudes propias.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Family Member</th>
+                  <td>Miembro de hogar</td>
+                  <td>Perfil interno Owner/Member; no es UserRole global.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Ally</th>
+                  <td>Organización aliada</td>
+                  <td>
+                    Alertas y acciones de búsqueda; solo un perfil Shelter
+                    gestiona adopciones.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Clinic</th>
+                  <td>Clínica veterinaria</td>
+                  <td>
+                    Escaneo y flujos clínicos; historial solo con grant activo
+                    del responsable.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Staff de clínica</th>
+                  <td>Vet, recepción, asistente o lectura</td>
+                  <td>
+                    Subperfil con permisos específicos; no sustituye grants
+                    médicos.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Municipality</th>
+                  <td>Personal institucional</td>
+                  <td>
+                    Capturas y reportes dentro de su tenant/cantones
+                    autorizados.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Store</th>
+                  <td>Tienda de mascotas</td>
+                  <td>
+                    Catálogo y solicitudes; sin inventario, checkout ni pago
+                    gestionado.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">ServiceProvider</th>
+                  <td>Groomer, paseador, hotel, etc.</td>
+                  <td>
+                    Perfil, servicios, disponibilidad y solicitudes; no hay
+                    comisión aprobada.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Support</th>
+                  <td>Equipo interno</td>
+                  <td>
+                    Bienestar/incidentes acotados; Admin asigna el rol, sin
+                    portal público propio.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Admin / SuperAdmin</th>
+                  <td>Operación interna</td>
+                  <td>
+                    Moderación y gestión privilegiada; SuperAdmin requiere
+                    controles reforzados.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Fuentes:
+            <a href="backend/src/PawTrack.Domain/Auth/UserRole.cs"
+              >enum UserRole</a
+            >, <a href="frontend/src/app/routes.tsx">rutas protegidas</a>,
+            <a href="docs/API_AUTHORIZATION_MATRIX.md"
+              >matriz de autorización</a
+            >
+            y
+            <a href="docs/testing/NALA_ROLE_PERMISSION_MATRIX.md"
+              >cobertura de pruebas por rol</a
+            >.
+          </p>
+        </section>
+
+        <section id="ingresos">
+          <span class="section-no">03 / NEGOCIO</span>
+          <h2>Cómo podría monetizarlo</h2>
+          <p class="standfirst">
+            La plataforma tiene tiers técnicos; la tarifa de una base local no
+            equivale a precio publicado ni a venta cobrada.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <caption>
+                Importes observados en PawTrackDev el 1-oct-2026, sujetos a
+                comprobar en el entorno comercial.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Cliente</th>
+                  <th scope="col">Referencia local</th>
+                  <th scope="col">Vía a probar</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Dueño / hogar</th>
+                  <td>Plus ₡3.000/mes; Familia ₡4.990/mes</td>
+                  <td>
+                    Upgrade por capacidad e historial, nunca por emergencia.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Clínica</th>
+                  <td>Plus ₡15.000; Partner ₡35.000/mes</td>
+                  <td>
+                    Piloto por clínica con onboarding, workflow y soporte
+                    medidos.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Tienda</th>
+                  <td>Plus ₡12.000; Partner ₡25.000/mes</td>
+                  <td>
+                    Presencia/listado; no vender como pago o stock integrado.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Refugio</th>
+                  <td>ShelterPlus ₡8.000/mes</td>
+                  <td>Preferir sponsor/subsidio mientras se prueba valor.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Municipio</th>
+                  <td>₡150.000–₡500.000/año</td>
+                  <td>
+                    Piloto y cotización por alcance; compra/renovación no
+                    completas.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Proveedor</th>
+                  <td>Sin tarifa recurrente aprobada</td>
+                  <td>Medir contactos y reservas antes de cobrar.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="note">
+            <strong>Importante:</strong> los documentos difieren sobre el
+            alcance de la aprobación local. La aprobación registrada en
+            PawTrackDev no verifica producción, criterio fiscal ni ventas.
+            Confirmar precio, IVA, gates, contrato y checkout antes de cotizar.
+          </div>
+          <h3>Publicidad y collares</h3>
+          <p>
+            Las vallas in-app pueden servir para patrocinio local, pero sus
+            tarifas son propuesta: no hay checkout, ledger de cargos ni reportes
+            formales para anunciantes. Para el Jimi AL600, la guía antigua
+            propone ₡35.000 sin QR o ₡37.000 con QR; el costo estimado
+            (~US$51,50) y la cotización de lote siguen sin confirmación. No
+            anunciar hardware como inventario disponible.
+          </p>
+          <p>
+            Fuentes: <a href="docs/NALA_PLAN_MAPPING.md">planes locales</a>,
+            <a href="docs/PRICING_AND_PLANS.md">política de catálogo</a>,
+            <a href="docs/NALA_CR_PRICING.md">recomendación CR</a>,
+            <a href="docs/publicidad.md">propuesta de vallas</a>,
+            <a href="docs/collarFinal.md">guía del collar</a> y
+            <a href="docs/jimiiot.md">RFQ Jimi IoT</a>.
+          </p>
+          <h3>Quién compra, quién usa y cuándo hablar</h3>
+          <div class="table-wrap">
+            <table>
+              <caption>
+                Comprador, operador, necesidad y criterio para calificar un
+                prospecto.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Segmento</th>
+                  <th scope="col">Decisor / usuario</th>
+                  <th scope="col">Necesidad y primera conversación</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Dueño/hogar</th>
+                  <td>Responsable / responsable y cuidadores</td>
+                  <td>
+                    Identidad y coordinación. Preguntar número de mascotas,
+                    cuidadores y qué necesita organizar.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Clínica</th>
+                  <td>Propietario o director / veterinario, recepción</td>
+                  <td>
+                    Identificación y datos autorizados. Preguntar proceso,
+                    escaneos, roles y sistemas actuales.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Refugio/ONG</th>
+                  <td>Dirección o sponsor / equipo de rescate</td>
+                  <td>
+                    Alertas y adopción. Preguntar animales, revisión de
+                    solicitudes y quién financiaría operación.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Municipio</th>
+                  <td>Jefatura/compras / campo y analistas</td>
+                  <td>
+                    Capturas y reportes. Preguntar territorio, datos,
+                    procurement, responsables y soporte.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Tienda</th>
+                  <td>Dueño / personal de pedidos</td>
+                  <td>
+                    Directorio y solicitudes. Confirmar cómo gestiona stock,
+                    pago y entrega fuera de PawTrack.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Proveedor</th>
+                  <td>Profesional/negocio / quien presta servicio</td>
+                  <td>
+                    Perfil y reservas. Medir capacidad, respuesta, horarios y
+                    solicitudes atendibles.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Sponsor</th>
+                  <td>Marca o negocio / marketing</td>
+                  <td>
+                    Campaña contextual. Acordar objetivo, placement, fechas,
+                    creatividad y métrica reportable.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>Oferta que puedo presentar y condiciones</h3>
+          <div class="table-wrap">
+            <table>
+              <caption>
+                Guía comercial, no catálogo aprobado. Importes y gates deben
+                verificarse en el ambiente de venta.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Oferta</th>
+                  <th scope="col">Incluye</th>
+                  <th scope="col">No incluye</th>
+                  <th scope="col">Antes de cotizar</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Identidad/recuperación</th>
+                  <td>QR digital y búsqueda coordinada</td>
+                  <td>Rescate garantizado o placa física incluida</td>
+                  <td>Demo autorizada; recuperación esencial sin paywall</td>
+                </tr>
+                <tr>
+                  <th scope="row">Plus/Familia</th>
+                  <td>Capacidad y funciones según entitlement</td>
+                  <td>“Ilimitado”, GPS físico automático o gate no probado</td>
+                  <td>Confirmar catálogo, IVA, pago, gates y producción</td>
+                </tr>
+                <tr>
+                  <th scope="row">Clínica</th>
+                  <td>Workflow clínico con grants y permisos</td>
+                  <td>Video, multi-sede lista, aval estatal o soporte 24/7</td>
+                  <td>Contrato, grants, alcance, soporte y precio aprobado</td>
+                </tr>
+                <tr>
+                  <th scope="row">Refugio patrocinado</th>
+                  <td>Adopciones/ferias según perfil y gates</td>
+                  <td>Adopción garantizada o cargo al adoptante</td>
+                  <td>Sponsor, moderación, aprobación y medida acordada</td>
+                </tr>
+                <tr>
+                  <th scope="row">Tienda/proveedor</th>
+                  <td>Perfil, catálogo, solicitudes y reservas</td>
+                  <td>Checkout, stock reservado, payout o comisión activa</td>
+                  <td>Medir contactos; el negocio confirma pago y entrega</td>
+                </tr>
+                <tr>
+                  <th scope="row">Municipio</th>
+                  <td>Capturas/reportes dentro del alcance autorizado</td>
+                  <td>Integración oficial, alcance nacional o SLA informal</td>
+                  <td>
+                    Discovery, procurement, privacidad, soporte y contrato
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Patrocinio</th>
+                  <td>Placement, fechas y creatividad acordados</td>
+                  <td>Tarifa activa o impresiones garantizadas</td>
+                  <td>Aprobar importe y registrar manualmente la entrega</td>
+                </tr>
+                <tr>
+                  <th scope="row">Collar GPS</th>
+                  <td>Posible hardware separado</td>
+                  <td>Stock, cobertura, garantía o costo cerrado</td>
+                  <td>Cotización OEM, QA, importación, fulfillment y margen</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Importes locales:
+            <a href="docs/NALA_PLAN_MAPPING.md">mapeo de planes</a>. Los valores
+            de <a href="docs/NALA_CR_PRICING.md">precios CR</a> son
+            referencias/propuestas; no copiarlos a propuestas externas sin
+            revalidación.
+          </p>
+        </section>
+
+        <section id="venta">
+          <span class="section-no">04 / COMERCIAL</span>
+          <h2>Qué vender y a quién</h2>
+          <div class="two-col">
+            <div class="column-rule">
+              <h3>Primeros pilotos</h3>
+              <ol class="ranked">
+                <li>
+                  <strong>Dueños:</strong> demostrar QR + recuperación; luego
+                  probar Plus/Familia con gates y precio confirmados.
+                </li>
+                <li>
+                  <strong>Clínicas:</strong> piloto acotado de escaneo, grant y
+                  flujo clínico; acordar métrica y soporte por sede.
+                </li>
+                <li>
+                  <strong>Refugios:</strong> directorio/adopciones y patrocinio;
+                  no crear una barrera de pago a la participación social.
+                </li>
+                <li>
+                  <strong>Municipios:</strong> discovery de un caso concreto,
+                  alcance territorial, datos y procurement antes de precio.
+                </li>
+              </ol>
+            </div>
+            <div class="column-rule">
+              <h3>Después de validarlo</h3>
+              <ol class="ranked">
+                <li>
+                  <strong>Tiendas y prestadores:</strong> medir leads y
+                  reservas; sostener pagos directamente con el negocio.
+                </li>
+                <li>
+                  <strong>Anunciantes pet-friendly:</strong> paquete manual y
+                  reportable solo tras aprobar tarifa y entregables.
+                </li>
+                <li>
+                  <strong>GPS físico:</strong> cotización, cobertura, garantía,
+                  stock, fulfillment y costo total antes de vender.
+                </li>
+              </ol>
+            </div>
+          </div>
+          <h3>Demo de siete minutos</h3>
+          <ol class="ranked">
+            <li>Crear mascota de prueba y abrir su QR público.</li>
+            <li>Activar pérdida y recorrer la sala del caso.</li>
+            <li>Enviar un avistamiento y mostrar cómo se integra.</li>
+            <li>Enseñar chat enmascarado, coordinación y entrega segura.</li>
+            <li>
+              Para clínica, mostrar un escaneo y pedir consentimiento antes de
+              tocar el historial.
+            </li>
+            <li>
+              Cerrar con un piloto que mida uso y soporte, no con una cifra de
+              recuperación inventada.
+            </li>
+          </ol>
+          <p>
+            <strong>Posicionamiento para probar:</strong> “Identidad y red local
+            para ayudar a cuidar y recuperar mascotas”. No es un claim aprobado
+            ni una promesa de resultados.
+          </p>
+          <p>
+            Indicadores candidatos: activaciones QR, tiempo al primer
+            avistamiento, casos coordinados, reunificaciones registradas, uso
+            semanal clínico, costo de soporte y renovación. Hoy no son
+            resultados medidos.
+          </p>
+          <h3>Fichas de conversación por segmento</h3>
+          <p>
+            Imprime esta sección para preparar una reunión. Las aperturas son
+            propuestas, no claims aprobados ni evidencia de demanda.
+          </p>
+          <details class="sales-sheet" open>
+            <summary>Dueño y hogar</summary>
+            <h3>Dueño / hogar</h3>
+            <dl class="sales-fields">
+              <dt>Apertura</dt>
+              <dd>
+                “Veamos cómo el perfil y el QR ayudan a identificar a tu mascota
+                y organizar la coordinación si se pierde.”
+              </dd>
+              <dt>Preguntar</dt>
+              <dd>
+                ¿Cuántas mascotas y cuidadores? ¿Qué necesitas organizar? ¿Qué
+                debería seguir gratis?
+              </dd>
+              <dt>Demostrar</dt>
+              <dd>
+                Perfil público mínimo → pérdida → avistamiento → Case Room →
+                entrega segura.
+              </dd>
+              <dt>Oferta</dt>
+              <dd>
+                Demo gratuita; valorar Plus/Familia solo si una capacidad
+                adicional resuelve una necesidad y los gates/precio están
+                confirmados.
+              </dd>
+              <dt>Objeción</dt>
+              <dd>
+                “¿Me garantizan encontrarla?” No. La herramienta organiza
+                información y coordinación; el resultado depende de factores
+                externos.
+              </dd>
+              <dt>Siguiente paso</dt>
+              <dd>
+                Crear perfil de prueba y precisar qué función justificaría una
+                mejora.
+              </dd>
+            </dl>
+          </details>
+          <details class="sales-sheet" open>
+            <summary>Clínica veterinaria</summary>
+            <h3>Clínica veterinaria</h3>
+            <dl class="sales-fields">
+              <dt>Apertura</dt>
+              <dd>
+                “Revisemos cómo identificar una mascota y compartir datos
+                clínicos solo con autorización.”
+              </dd>
+              <dt>Preguntar</dt>
+              <dd>
+                ¿Quién escanea y registra? ¿Qué volumen, roles, datos y sistemas
+                participan?
+              </dd>
+              <dt>Demostrar</dt>
+              <dd>
+                QR/microchip → notificación → grant read/write del tutor →
+                acceso clínico autorizado.
+              </dd>
+              <dt>Oferta</dt>
+              <dd>
+                Piloto por sede; precio, duración, capacitación y soporte se
+                acuerdan antes de empezar.
+              </dd>
+              <dt>Objeción</dt>
+              <dd>
+                “¿El escaneo abre el historial?” No. Lectura/escritura necesita
+                un grant activo con permiso del responsable.
+              </dd>
+              <dt>Siguiente paso</dt>
+              <dd>
+                Nombrar decisor y operador; redactar alcance y línea base.
+              </dd>
+            </dl>
+          </details>
+          <details class="sales-sheet" open>
+            <summary>Refugio u organización</summary>
+            <h3>Refugio / ONG / aliado</h3>
+            <dl class="sales-fields">
+              <dt>Apertura</dt>
+              <dd>
+                “Veamos cómo su equipo coordina alertas y, si aplica,
+                publicaciones y solicitudes de adopción.”
+              </dd>
+              <dt>Preguntar</dt>
+              <dd>
+                ¿Quién atiende casos? ¿Cuántos animales publica? ¿Quién revisa
+                solicitudes? ¿Hay patrocinador?
+              </dd>
+              <dt>Demostrar</dt>
+              <dd>
+                Alertas por zona; para perfil Shelter, publicación, solicitud y
+                revisión.
+              </dd>
+              <dt>Oferta</dt>
+              <dd>
+                Acceso base y explorar subsidio/patrocinio sujeto a aprobación y
+                medición.
+              </dd>
+              <dt>Objeción</dt>
+              <dd>
+                “¿Hay que pagar para adoptar o colaborar en una búsqueda?” No
+                plantear una barrera de pago al flujo esencial.
+              </dd>
+              <dt>Siguiente paso</dt>
+              <dd>Validar perfil, carga del equipo y posible sponsor.</dd>
+            </dl>
+          </details>
+          <details class="sales-sheet" open>
+            <summary>Municipalidad</summary>
+            <h3>Municipalidad</h3>
+            <dl class="sales-fields">
+              <dt>Apertura</dt>
+              <dd>
+                “Primero delimitamos proceso, cantones, datos y responsables.”
+              </dd>
+              <dt>Preguntar</dt>
+              <dd>
+                ¿Qué capturan? ¿Quién autoriza? ¿Qué ruta de compra, seguridad y
+                soporte aplica?
+              </dd>
+              <dt>Demostrar</dt>
+              <dd>
+                Captura, estado y reporte dentro del ámbito institucional
+                permitido.
+              </dd>
+              <dt>Oferta</dt>
+              <dd>
+                Discovery/piloto limitado; cotizar con procurement, privacidad y
+                soporte definidos.
+              </dd>
+              <dt>Objeción</dt>
+              <dd>
+                “¿Está integrado con SENASA?” No hay evidencia de integración o
+                aprobación oficial.
+              </dd>
+              <dt>Siguiente paso</dt>
+              <dd>Minuta de requisitos y responsables institucionales.</dd>
+            </dl>
+          </details>
+          <details class="sales-sheet" open>
+            <summary>Tienda y proveedor</summary>
+            <h3>Tienda / proveedor de servicios</h3>
+            <dl class="sales-fields">
+              <dt>Apertura</dt>
+              <dd>
+                “Probemos si el perfil genera solicitudes que el negocio puede
+                atender.”
+              </dd>
+              <dt>Preguntar</dt>
+              <dd>
+                ¿Quién responde? ¿Qué capacidad/stock hay? ¿Cómo confirma
+                precio, pago, entrega y cancelación?
+              </dd>
+              <dt>Demostrar</dt>
+              <dd>
+                Perfil/catálogo de tienda o perfil/servicio/agenda y solicitud.
+              </dd>
+              <dt>Oferta</dt>
+              <dd>
+                Piloto para medir contacto y reservas; no prometer checkout o
+                comisión.
+              </dd>
+              <dt>Objeción</dt>
+              <dd>
+                “¿PawTrack procesa el pago?” No como liquidación integral del
+                marketplace; el negocio coordina externamente.
+              </dd>
+              <dt>Siguiente paso</dt>
+              <dd>
+                Definir quién atiende solicitudes y cómo se registra la
+                respuesta.
+              </dd>
+            </dl>
+          </details>
+          <details class="sales-sheet" open>
+            <summary>Marca o patrocinador</summary>
+            <h3>Marca / anunciante pet-friendly</h3>
+            <dl class="sales-fields">
+              <dt>Apertura</dt>
+              <dd>
+                “Podemos definir una campaña manual con ubicación, fechas y
+                entregables claros.”
+              </dd>
+              <dt>Preguntar</dt>
+              <dd>
+                ¿Qué objetivo, creatividad, audiencia y métrica reportable
+                necesita?
+              </dd>
+              <dt>Demostrar</dt>
+              <dd>
+                Placement disponible y vista de ejemplo; no impresiones
+                garantizadas.
+              </dd>
+              <dt>Oferta</dt>
+              <dd>
+                Campaña con tarifa aprobada y periodo documentado; tarifario
+                actual es propuesta.
+              </dd>
+              <dt>Objeción</dt>
+              <dd>
+                “¿Recibiré reporte formal de impresiones?” No está verificado
+                que exista un reporte formal al anunciante.
+              </dd>
+              <dt>Siguiente paso</dt>
+              <dd>Enviar alcance tras aprobar tarifa y registro de entrega.</dd>
+            </dl>
+          </details>
+          <h3>Respuestas que protegen credibilidad</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Pregunta</th>
+                  <th scope="col">Respuesta comprobable</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">¿Funciona GPS en todo el país?</th>
+                  <td>
+                    No puedo confirmarlo; faltan validar hardware, operador,
+                    cobertura, batería y SLA.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">¿El precio incluye IVA?</th>
+                  <td>
+                    Solo después de confirmar catálogo del entorno, aprobación y
+                    tratamiento fiscal.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">¿Qué resultados tiene?</th>
+                  <td>
+                    Mostrar métricas con definición, periodo y fuente; no
+                    inventar recuperación, CAC, churn o MRR/ARR.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <strong>Proceso:</strong> calificar decisor/necesidad → demo
+            permitida → alcance/exclusiones por escrito → aprobar precio,
+            privacidad y soporte → piloto → revisar evidencia/costos → decidir
+            continuidad.
+          </p>
+        </section>
+
+        <section id="piloto">
+          <span class="section-no">05 / VALIDACIÓN COMERCIAL</span>
+          <h2>Ficha de piloto y economía unitaria</h2>
+          <p class="standfirst">
+            Plantilla para acordar qué se prueba, cómo se mide y si el modelo
+            económico tiene sentido. Los valores empiezan pendientes.
+          </p>
+          <div class="worksheet">
+            <h3>Completar antes del inicio</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Campo</th>
+                    <th scope="col">Qué registrar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Organización/decisores</th>
+                    <td>
+                      Nombre, comprador, operador diario y responsable de datos.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Problema/hipótesis</th>
+                    <td>
+                      Proceso actual, frecuencia y cambio que se quiere evaluar;
+                      no escribirlo como resultado probado.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Alcance/exclusiones</th>
+                    <td>
+                      Roles, sedes/cantones, usuarios, flujos, datos y servicios
+                      externos incluidos/no incluidos.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Precio/financiamiento</th>
+                    <td>
+                      <code>PENDIENTE</code>: moneda, periodo, IVA,
+                      sponsor/gratuidad y aprobación registrada.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Privacidad/soporte</th>
+                    <td>
+                      Consentimientos/grants, acceso, retención, contacto de
+                      incidentes, capacitación y horario acordado.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Línea base/métricas</th>
+                    <td>
+                      Definición, fuente, periodo, responsable y valor previo al
+                      piloto.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Éxito/pausa/salida</th>
+                    <td>
+                      Umbrales antes de iniciar, criterios de seguridad, cierre
+                      y exportación.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Revisión final</th>
+                    <td>
+                      Fecha y decisión: cerrar, extender o cotizar; aprendizajes
+                      y aprobaciones pendientes.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <button class="print-action" id="print-page" type="button">
+              Imprimir o guardar como PDF
+            </button>
+          </div>
+          <h3>Variables económicas que faltan medir</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Variable</th>
+                  <th scope="col">Valor</th>
+                  <th scope="col">Evidencia requerida</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Ingreso neto cobrado</th>
+                  <td>PENDIENTE</td>
+                  <td>Pago conciliado; separar IVA recaudado.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Pasarela/transacción</th>
+                  <td>PENDIENTE</td>
+                  <td>Contrato y extracto.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Cloud/servicios externos</th>
+                  <td>PENDIENTE</td>
+                  <td>Factura y consumo atribuible por cuenta/uso.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Soporte/onboarding</th>
+                  <td>PENDIENTE</td>
+                  <td>Horas por cliente y costo cargado.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Hardware/fulfillment</th>
+                  <td>PENDIENTE</td>
+                  <td>
+                    Compra, flete, aduana, garantía, devolución y entrega.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">CAC/retención</th>
+                  <td>PENDIENTE</td>
+                  <td>
+                    Gasto por canal, cohortes, cancelaciones y renovaciones.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <pre class="formula">
+Contribución por cliente = ingreso neto cobrado menos entrega variable, comisión, soporte/onboarding, devoluciones observadas y CAC atribuible.
+Margen de contribución = contribución por cliente dividida por ingreso neto cobrado.
+Clientes para cubrir costos fijos = costos fijos del periodo divididos por contribución positiva por cliente.</pre
+          >
+          <p>
+            Separar ingresos únicos y recurrentes. No usar registros, pedidos o
+            clicks como ventas; no calcular break-even si la contribución es
+            cero o negativa.
+          </p>
+          <p class="note">
+            <strong>Privacidad:</strong> no incluir PII, expedientes clínicos ni
+            coordenadas exactas salvo necesidad, autorización y canal adecuado.
+          </p>
+        </section>
+
+        <section id="glosario">
+          <span class="section-no">06 / VOCABULARIO</span>
+          <h2>Glosario rápido</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Término</th>
+                  <th scope="col">Significado simple</th>
+                  <th scope="col">No confundir con</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">PWA</th>
+                  <td>Aplicación web progresiva en navegador.</td>
+                  <td>App nativa u operación offline completa.</td>
+                </tr>
+                <tr>
+                  <th scope="row">QR/perfil público</th>
+                  <td>Código que abre la ficha pública mínima.</td>
+                  <td>Placa física o permiso clínico.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Case Room</th>
+                  <td>Sala operativa de un reporte de pérdida.</td>
+                  <td>Garantía de rescate.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Finder</th>
+                  <td>Persona que encuentra o reporta una mascota.</td>
+                  <td>Necesariamente una cuenta registrada.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Ally</th>
+                  <td>Cuenta organizacional aprobada para colaborar.</td>
+                  <td>Que todo Ally sea refugio o comprador.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Grant clínico</th>
+                  <td>
+                    Permiso revocable para leer/escribir datos seleccionados.
+                  </td>
+                  <td>El escaneo de QR/microchip.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Rol/tier/entitlement</th>
+                  <td>Tipo de cuenta / plan / capacidad o límite.</td>
+                  <td>
+                    Conceptos intercambiables o permisos automáticos en cada
+                    ruta.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">NALA</th>
+                  <td>Nombre interno/superficie de reportes agregados.</td>
+                  <td>Un UserRole o agente autónomo.</td>
+                </tr>
+                <tr>
+                  <th scope="row">SENASA-ready</th>
+                  <td>Preparación documental/técnica condicionada.</td>
+                  <td>Certificación o aprobación oficial.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Marketplace</th>
+                  <td>Directorios, solicitudes y reservas parciales.</td>
+                  <td>Checkout, inventario, payout o comisión automática.</td>
+                </tr>
+                <tr>
+                  <th scope="row">AL600/TrackSolid</th>
+                  <td>Dispositivo/plataforma considerados para GPS.</td>
+                  <td>Hardware, cobertura o costo de lote ya validados.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Si un término comercial no coincide con código o contrato, explicar
+            el comportamiento concreto y enlazar la fuente.
+          </p>
+        </section>
+
+        <section id="limites">
+          <span class="section-no">07 / LÍMITES DE VENTA</span>
+          <h2>Lo que no debo prometer</h2>
+          <div class="do-not">
+            <h3>No vender como disponible</h3>
+            <ul>
+              <li>GPS con hardware y cobertura nacional, garantía o SLA.</li>
+              <li>Teleconsulta por video, diagnóstico o IA veterinaria.</li>
+              <li>
+                Integración, certificación o aprobación oficial de SENASA.
+              </li>
+              <li>
+                Marketplace con checkout, inventario, payout, escrow o comisión
+                liquidada.
+              </li>
+              <li>
+                Rescate garantizado, porcentaje de reunificación o atención
+                24/7.
+              </li>
+              <li>Plan Enterprise multi-tenant con SLA aprobado.</li>
+            </ul>
+          </div>
+          <h3>La regla sencilla</h3>
+          <p>
+            Vender lo demostrable, cobrar lo aprobado y medir lo que todavía es
+            hipótesis. Proteger la recuperación esencial, datos clínicos y
+            ubicación precisa.
+          </p>
+        </section>
+
+        <section id="evidencia">
+          <span class="section-no">08 / CÓMO LEER EL REPO</span>
+          <h2>Evidencia y siguiente decisión</h2>
+          <p>
+            El reporte de roles registra 1.820 pruebas backend aprobadas al
+            corte 28-sep-2026 y huecos de cobertura. En esta tarea
+            <code>dotnet test PawTrack.sln --no-build --verbosity minimal</code>
+            aprobó 1.862/1.862 pruebas usando los binarios existentes. El
+            intento con build completo no pudo copiar DLLs bloqueadas por el
+            host API local (<code>MSB3021/MSB3027</code>), así que no hay una
+            compilación fresca completa de esta revisión. No inspeccioné
+            producción. Las fuentes de visión o ventas más antiguas pueden
+            exagerar billing, bundles, GPS o integraciones; para alcance técnico
+            manda
+            <a href="docs/PRODUCT_SCOPE.md">PRODUCT_SCOPE</a>, y para
+            importes/gates manda el catálogo del entorno que se vaya a
+            comercializar.
+          </p>
+          <ol class="ranked">
+            <li>
+              Comprobar catálogo, precio, IVA, pago y gates en el ambiente
+              objetivo.
+            </li>
+            <li>
+              Definir y operar un piloto clínico acotado, con consentimiento y
+              soporte.
+            </li>
+            <li>
+              Probar patrocinio de forma manual con entregables y tarifa
+              aprobada.
+            </li>
+            <li>
+              Validar proveedores y costos reales antes de vender GPS, pagos o
+              compromisos operativos.
+            </li>
+            <li>
+              Medir pagos, uso, retención, soporte y costo antes de proyectar
+              MRR/ARR.
+            </li>
+          </ol>
+          <details>
+            <summary>Fuentes de producto y operación</summary>
+            <ul class="sources">
+              <li><a href="docs/PRODUCT_SCOPE.md">Alcance real</a></li>
+              <li><a href="docs/FEATURES.md">Features y límites</a></li>
+              <li><a href="docs/NALA_PLAN_MAPPING.md">Mapeo de planes</a></li>
+              <li>
+                <a href="docs/PRICING_AND_PLANS.md">Política de planes</a>
+              </li>
+              <li><a href="docs/NALA_CR_PRICING.md">Precios CR</a></li>
+              <li>
+                <a href="docs/strategy/REVENUE_MODEL.md">Modelo de ingresos</a>
+              </li>
+              <li>
+                <a href="docs/NALA_ROADMAP_MONETIZATION.md"
+                  >Roadmap de monetización</a
+                >
+              </li>
+              <li><a href="docs/publicidad.md">Vallas y patrocinio</a></li>
+              <li>
+                <a href="docs/API_AUTHORIZATION_MATRIX.md">Autorización</a>
+              </li>
+              <li>
+                <a href="docs/testing/NALA_USER_ROLE_VALIDATION_REPORT.md"
+                  >Validación de roles</a
+                >
+              </li>
+              <li><a href="docs/Manuales/">Manuales por perfil</a></li>
+              <li><a href="yo.md">Versión Markdown de esta guía</a></li>
+            </ul>
+          </details>
+          <p class="footer">
+            <strong>PawTrack CR</strong> · Guía personal, no pieza comercial
+            aprobada. <a href="yo.md">Abrir en Markdown</a>
+          </p>
+        </section>
+      </main>
+    </div>
+    <script>
+      document
+        .getElementById("print-page")
+        ?.addEventListener("click", () => window.print());
+    </script>
+  </body>
+</html>

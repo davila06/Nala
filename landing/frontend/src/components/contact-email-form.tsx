@@ -7,7 +7,9 @@ import { getProductUrl } from "@/lib/site-config";
 const topics: ContactTopic[] = ["Consulta general", "Problema técnico", "Consulta comercial"];
 
 export function ContactEmailForm() {
-  const [submitState, setSubmitState] = useState<"idle" | "sending" | "accepted" | "error" | "rate-limited">("idle");
+  const [submitState, setSubmitState] = useState<
+    "idle" | "sending" | "accepted" | "error" | "invalid" | "rate-limited"
+  >("idle");
   const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
   const apiUrl = configuredApiUrl || (process.env.NODE_ENV === "development" ? "http://localhost:5199" : "");
 
@@ -42,6 +44,8 @@ export function ContactEmailForm() {
 
       if (response.status === 429) {
         setSubmitState("rate-limited");
+      } else if (response.status === 422) {
+        setSubmitState("invalid");
       } else {
         setSubmitState(response.ok ? "accepted" : "error");
       }
@@ -115,7 +119,10 @@ export function ContactEmailForm() {
           type="submit"
         >
           {submitState === "sending" ? "Enviando…" : submitState === "accepted" ? "Mensaje enviado" : "Enviar mensaje"}
-          {submitState === "idle" || submitState === "error" || submitState === "rate-limited" ? (
+          {submitState === "idle" ||
+          submitState === "error" ||
+          submitState === "invalid" ||
+          submitState === "rate-limited" ? (
             <span aria-hidden="true">↗</span>
           ) : null}
         </button>
@@ -131,7 +138,12 @@ export function ContactEmailForm() {
         ) : null}
         {submitState === "error" ? (
           <p aria-live="assertive" className="contact-submit-error" role="alert">
-            No pudimos enviar el mensaje. Revisa tu conexión e inténtalo de nuevo.
+            No pudimos enviar el mensaje. Inténtalo de nuevo más tarde.
+          </p>
+        ) : null}
+        {submitState === "invalid" ? (
+          <p aria-live="assertive" className="contact-submit-error" role="alert">
+            Revisa el correo y el mensaje: debe tener al menos 20 caracteres.
           </p>
         ) : null}
       </form>

@@ -14,7 +14,8 @@ public sealed record AddStoreProductCommand(
     string Name,
     string? Description,
     ProductCategory Category,
-    decimal PriceCrc) : IRequest<Result<StoreProductDto>>;
+    decimal PriceCrc,
+    int? StockOnHand = null) : IRequest<Result<StoreProductDto>>;
 
 public sealed class AddStoreProductCommandValidator : AbstractValidator<AddStoreProductCommand>
 {
@@ -23,6 +24,7 @@ public sealed class AddStoreProductCommandValidator : AbstractValidator<AddStore
         RuleFor(x => x.Name).NotEmpty().MaximumLength(150);
         RuleFor(x => x.Description).MaximumLength(500);
         RuleFor(x => x.PriceCrc).GreaterThan(0);
+        RuleFor(x => x.StockOnHand).GreaterThanOrEqualTo(0).When(x => x.StockOnHand.HasValue);
     }
 }
 
@@ -51,10 +53,10 @@ public sealed class AddStoreProductCommandHandler(
                 return Result.Failure<StoreProductDto>("La tienda alcanzó el límite de productos activos de su plan.");
         }
 
-        var product = StoreProduct.Create(store.Id, request.Name, request.Description, request.Category, request.PriceCrc);
+        var product = StoreProduct.Create(store.Id, request.Name, request.Description, request.Category, request.PriceCrc, request.StockOnHand);
         await repo.AddProductAsync(product, ct);
         await uow.SaveChangesAsync(ct);
-        return Result.Success(StoreProductDto.FromDomain(product));
+        return Result.Success(StoreProductDto.FromDomain(product, includeInventory: true));
     }
 }
 
@@ -67,7 +69,8 @@ public sealed record UpdateStoreProductCommand(
     string? Description,
     ProductCategory Category,
     decimal PriceCrc,
-    bool IsAvailable) : IRequest<Result<StoreProductDto>>;
+    bool IsAvailable,
+    int? StockOnHand = null) : IRequest<Result<StoreProductDto>>;
 
 public sealed class UpdateStoreProductCommandHandler(IStoreRepository repo, IUnitOfWork uow)
     : IRequestHandler<UpdateStoreProductCommand, Result<StoreProductDto>>
@@ -82,10 +85,11 @@ public sealed class UpdateStoreProductCommandHandler(IStoreRepository repo, IUni
             return Result.Failure<StoreProductDto>("Producto no encontrado.");
 
         product.Update(request.Name, request.Description, request.Category, request.PriceCrc);
+        product.SetStockQuantity(request.StockOnHand);
         product.SetAvailable(request.IsAvailable);
         repo.UpdateProduct(product);
         await uow.SaveChangesAsync(ct);
-        return Result.Success(StoreProductDto.FromDomain(product));
+        return Result.Success(StoreProductDto.FromDomain(product, includeInventory: true));
     }
 }
 
@@ -124,7 +128,8 @@ public sealed class GetMyStoreProductsQueryHandler(IStoreRepository repo)
         if (store is null) return Result.Failure<IReadOnlyList<StoreProductDto>>("Tienda no encontrada.");
 
         var products = await repo.GetProductsByStoreAsync(store.Id, ct);
-        return Result.Success<IReadOnlyList<StoreProductDto>>(products.Select(StoreProductDto.FromDomain).ToList());
+        return Result.Success<IReadOnlyList<StoreProductDto>>(
+            products.Select(product => StoreProductDto.FromDomain(product, includeInventory: true)).ToList());
     }
 }
 
@@ -167,6 +172,6 @@ public sealed class UploadProductImageCommandHandler(
         product.SetImageUrl(url);
         repo.UpdateProduct(product);
         await uow.SaveChangesAsync(ct);
-        return Result.Success(StoreProductDto.FromDomain(product));
+        return Result.Success(StoreProductDto.FromDomain(product, includeInventory: true));
     }
 }

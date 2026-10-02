@@ -82,6 +82,41 @@ public sealed class ProviderPaymentCommandTests
     }
 
     [Fact]
+    public async Task CreatePayment_UsesBookingTotalIncludingTaxAndPlatformFee()
+    {
+        var repository = Substitute.For<IServiceProviderRepository>();
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var paymentService = Substitute.For<IPaymentService>();
+        var paymentGateway = Substitute.For<IProviderPaymentGateway>();
+        var customerId = Guid.NewGuid();
+        var providerId = Guid.NewGuid();
+        var booking = ProviderBooking.Request(
+            providerId, Guid.NewGuid(), customerId, Guid.NewGuid(), "Consulta",
+            DateTimeOffset.UtcNow.AddDays(2), 60, 20_000m, 2, null, taxCrc: 5200m, platformFeeCrc: 1000m);
+        repository.GetBookingByIdAsync(booking.Id, Arg.Any<CancellationToken>()).Returns(booking);
+        repository.GetPaymentByBookingAsync(booking.Id, Arg.Any<CancellationToken>()).Returns((ProviderPayment?)null);
+        paymentService.GenerateReference().Returns("PROV-001");
+        paymentGateway.CreateIntentAsync(Arg.Any<ProviderPaymentIntentRequest>(), Arg.Any<CancellationToken>())
+            .Returns(call =>
+            {
+                var request = call.Arg<ProviderPaymentIntentRequest>();
+                return new ProviderPaymentIntentResult(
+                    ProviderPaymentIntentStatus.Pending, request.AmountCrc, request.Currency,
+                    request.PaymentReference, null, null);
+            });
+
+        var handler = new CreateProviderBookingPaymentCommandHandler(repository, unitOfWork, paymentService, paymentGateway);
+        var result = await handler.Handle(
+            new CreateProviderBookingPaymentCommand(customerId, booking.Id, "idem-provider-total"), default);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.AmountCrc.Should().Be(booking.TotalCrc);
+        await paymentGateway.Received(1).CreateIntentAsync(
+            Arg.Is<ProviderPaymentIntentRequest>(request => request.AmountCrc == booking.TotalCrc),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task ReportPayment_RejectsPaymentOwnedByAnotherCustomer()
     {
         var repository = Substitute.For<IServiceProviderRepository>();

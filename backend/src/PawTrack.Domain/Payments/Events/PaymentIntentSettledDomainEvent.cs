@@ -7,4 +7,7 @@ public sealed record PaymentIntentSettledDomainEvent(
     Guid UserId,
     string Purpose,
     Guid? TargetEntityId,
-    decimal AmountCrc) : INotification;
+    decimal AmountCrc,
+    string? GatewayTransactionId = null,
+    Guid? PaymentOperationId = null,
+    string? CorrelationId = null) : INotification;

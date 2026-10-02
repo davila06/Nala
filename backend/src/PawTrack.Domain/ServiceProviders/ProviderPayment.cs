@@ -12,6 +12,7 @@ public sealed class ProviderPayment
     public string Currency { get; private set; } = "CRC";
     public string PaymentReference { get; private set; } = string.Empty;
     public string IdempotencyKey { get; private set; } = string.Empty;
+    public Guid? PaymentIntentId { get; private set; }
     public ProviderPaymentStatus Status { get; private set; }
     public string? ExternalReference { get; private set; }
     public string? FailureReason { get; private set; }
@@ -60,6 +61,42 @@ public sealed class ProviderPayment
             throw new InvalidOperationException("Solo un pago pendiente puede reportarse.");
         Status = ProviderPaymentStatus.Reported;
         ReportedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void BeginCardPayment(Guid paymentIntentId)
+    {
+        if (paymentIntentId == Guid.Empty) throw new ArgumentException("Payment intent es requerido.", nameof(paymentIntentId));
+        if (Status != ProviderPaymentStatus.Pending)
+            throw new InvalidOperationException("Solo un pago pendiente puede iniciar tarjeta.");
+        Status = ProviderPaymentStatus.CardPending;
+        PaymentIntentId = paymentIntentId;
+        FailureReason = null;
+    }
+
+    public void ReturnCardAttemptToPending(Guid paymentIntentId, string reason)
+    {
+        if (Status != ProviderPaymentStatus.CardPending || PaymentIntentId != paymentIntentId)
+            throw new InvalidOperationException("El intento de tarjeta no corresponde al pago pendiente.");
+        if (string.IsNullOrWhiteSpace(reason))
+            throw new ArgumentException("El motivo del fallo es requerido.", nameof(reason));
+        Status = ProviderPaymentStatus.Pending;
+        PaymentIntentId = null;
+        FailureReason = reason.Trim();
+    }
+
+    public void ConfirmCardPayment(Guid paymentIntentId, string gatewayTransactionId)
+    {
+        if (Status == ProviderPaymentStatus.Confirmed &&
+            PaymentIntentId == paymentIntentId &&
+            string.Equals(ExternalReference, gatewayTransactionId?.Trim(), StringComparison.Ordinal))
+            return;
+        if (Status != ProviderPaymentStatus.CardPending || PaymentIntentId != paymentIntentId)
+            throw new InvalidOperationException("El intent de tarjeta no corresponde al pago pendiente.");
+        if (string.IsNullOrWhiteSpace(gatewayTransactionId))
+            throw new ArgumentException("La referencia de transacción es requerida.", nameof(gatewayTransactionId));
+        Status = ProviderPaymentStatus.Confirmed;
+        ExternalReference = gatewayTransactionId.Trim();
+        ConfirmedAt = DateTimeOffset.UtcNow;
     }
 
     public void Confirm(string externalReference)

@@ -9,8 +9,12 @@ import { getLoginUrl, getProductUrl } from "@/lib/site-config";
 const benefits = [
   {
     number: "01",
-    title: "Que puedan identificarla",
-    text: "Un perfil pensado para reunir información útil y que puedas revisar qué compartes.",
+    title: "Compartir una identidad digital",
+    text: "El perfil público puede mostrar foto, nombre, especie y raza; revisa esa información antes de compartir el QR.",
+    facts: [
+      "El QR abre el perfil; no transmite ubicación.",
+      "Una pérdida activa puede añadir contacto y mensaje público.",
+    ],
     href: "/pet-id",
     action: "Conocer la identidad digital",
     status: "En el producto",
@@ -18,8 +22,12 @@ const benefits = [
   },
   {
     number: "02",
-    title: "Que vuelva a casa",
-    text: "Una ruta clara para reportar una pérdida o ayudar cuando encuentras una mascota.",
+    title: "Coordinar una búsqueda",
+    text: "Inicia un reporte de pérdida o comunica un hallazgo desde PawTrack. La pérdida requiere cuenta y mascota registrada.",
+    facts: [
+      "Pérdida: requiere cuenta y mascota registrada.",
+      "Hallazgo y avistamientos se reportan desde PawTrack; no se garantiza respuesta.",
+    ],
     href: "/lost-pets",
     action: "Explorar la recuperación",
     status: "En el producto",
@@ -27,12 +35,16 @@ const benefits = [
   },
   {
     number: "03",
-    title: "Que reciba mejores cuidados",
-    text: "Vacunas, documentos y recordatorios organizados en una experiencia sencilla.",
+    title: "Organizar su cuidado",
+    text: "Expediente, documentos y recordatorios organizan información veterinaria; no diagnostican ni sustituyen una consulta.",
+    facts: [
+      "Free y Plus: contador y vista previa del expediente.",
+      "Familia: registros médicos y recordatorios activos.",
+    ],
     href: "/features",
     action: "Explorar el cuidado conectado",
-    status: "Parcial",
-    statusTone: "partial",
+    status: "En el producto",
+    statusTone: "ready",
   },
 ];
 
@@ -49,7 +61,7 @@ const pathways = [
     id: "found",
     kicker: "ENCONTRÉ UNA MASCOTA",
     title: "Quiero ayudar a encontrar a su familia",
-    detail: "El reporte se completa en PawTrack; evita publicar datos personales.",
+    detail: "Reporta un hallazgo desde PawTrack; la landing no recibe la ubicación ni los datos del caso.",
     href: "/found-pets",
     action: "Ver cómo ayudar",
   },
@@ -57,7 +69,7 @@ const pathways = [
     id: "identity",
     kicker: "IDENTIDAD DIGITAL",
     title: "Quiero identificar a mi mascota",
-    detail: "Crea un perfil y decide qué información compartir.",
+    detail: "El QR abre un perfil público con datos básicos de la mascota; revísalo antes de compartirlo.",
     href: "/pet-id",
     action: "Explorar identidad",
   },
@@ -65,7 +77,7 @@ const pathways = [
     id: "provider",
     kicker: "SOY PRESTADOR",
     title: "Ofrezco servicios para mascotas",
-    detail: "La solicitud se revisa antes de aparecer en el directorio.",
+    detail: "Envía una solicitud en PawTrack; su revisión no garantiza aprobación ni publicación en el directorio.",
     href: "/services#provider-onboarding",
     action: "Ver registro y revisión",
   },
@@ -89,6 +101,46 @@ const faqs = [
   },
 ];
 
+const freeCapabilityGroups = [
+  {
+    title: "Cuenta e identidad",
+    items: [
+      "1 mascota activa y 1 persona en la cuenta.",
+      "Perfil público, 1 QR permanente y descarga del QR.",
+      "Historial de escaneos disponible por 30 días.",
+    ],
+  },
+  {
+    title: "Recuperación",
+    items: [
+      "Reportes de pérdida ilimitados, con 1 caso activo a la vez.",
+      "Case Room, avistamientos anónimos ilimitados y reportes de mascotas encontradas sin QR.",
+      "Chat enmascarado, código de entrega segura y reporte de fraude.",
+      "Notificaciones in-app y push; enlaces manuales para compartir.",
+      "1 alerta geográfica en una ubicación, con radio fijo de 3 km.",
+      "1 difusión automatizada por caso y participación en la cuadrícula de búsqueda.",
+    ],
+  },
+  {
+    title: "Cuidado y herramientas",
+    items: [
+      "Expediente médico en modo contador y vista previa.",
+      "Directorios públicos, solicitudes de adopción y reservas de servicios.",
+      "Exportación de datos personales, eliminación de cuenta y centro de ayuda.",
+    ],
+  },
+  {
+    title: "Límites de esta versión",
+    items: [
+      "No permite crear registros médicos ni recordatorios veterinarios activos; tampoco incluye exportación médica o grants clínicos.",
+      "No incluye collar GPS, zonas seguras ni historial y alertas GPS.",
+      "No admite miembros adicionales, activar o administrar la cuadrícula, ni consultar el historial completo de coordinación.",
+      "No incluye repetición programada de la difusión automatizada.",
+      "El matching visual por IA no está incluido en la versión gratuita.",
+    ],
+  },
+];
+
 export default function Home() {
   return (
     <>
@@ -97,14 +149,14 @@ export default function Home() {
         <section className="hero section-shell" id="home-hero">
           <div className="hero-copy">
             <p className="eyebrow">
-              <span /> PARA CADA ETAPA DE SU VIDA
+              <span /> RED DE PROTECCIÓN PARA MASCOTAS · COSTA RICA
             </p>
             <h1>
-              PawTrack CR <em>· NALA</em>
+              NALA, <em>una red de protección.</em>
             </h1>
             <p className="hero-intro">
-              NALA significa Núcleo Animal de Localización y Asistencia: una plataforma para identidad, recuperación y
-              cuidado animal en Costa Rica.
+              El hogar digital de tu mascota: identidad, herramientas de recuperación e información para organizar su
+              cuidado, reunidos en PawTrack CR.
             </p>
             <div className="hero-actions">
               <a
@@ -156,13 +208,13 @@ export default function Home() {
 
           <section aria-label="Principios de NALA" className="proof-ribbon">
             <div>
-              <span>01</span> Identificación que conecta
+              <span>01</span> Identidad digital
             </div>
             <div>
-              <span>02</span> Reportes con pasos claros
+              <span>02</span> Herramientas de recuperación
             </div>
             <div>
-              <span>03</span> Cuidado a lo largo de su vida
+              <span>03</span> Información para su cuidado
             </div>
           </section>
 
@@ -206,6 +258,10 @@ export default function Home() {
                 <p className="eyebrow">BIENESTAR ANIMAL</p>
                 <h2 id="welfare-report-title">¿Necesitas reportar maltrato o un animal en riesgo?</h2>
                 <p>El formulario de bienestar no es un servicio de emergencia.</p>
+                <p>
+                  Permite registrar cantón, severidad y hechos observables; el reporte puede ser anónimo y la ubicación
+                  aproximada es opcional.
+                </p>
               </div>
               <a
                 className="welfare-report-link"
@@ -224,11 +280,11 @@ export default function Home() {
 
           <section className="benefits section-shell" id="beneficios">
             <div className="section-heading">
-              <p className="eyebrow">MÁS QUE UNA PLACA</p>
+              <p className="eyebrow">UN PROPÓSITO · TRES PILARES</p>
               <h2>
-                Todo lo que importa,
+                Un hogar digital para
                 <br />
-                <em>en un mismo lugar.</em>
+                <em>cada etapa.</em>
               </h2>
               <p>Funciones en la app, límites y requisitos visibles antes de continuar.</p>
             </div>
@@ -255,6 +311,11 @@ export default function Home() {
                   <span className={`capability-status status-${benefit.statusTone}`}>{benefit.status}</span>
                   <h3>{benefit.title}</h3>
                   <p>{benefit.text}</p>
+                  <ul className="benefit-facts">
+                    {benefit.facts.map((fact) => (
+                      <li key={fact}>{fact}</li>
+                    ))}
+                  </ul>
                   <Link href={benefit.href}>
                     {benefit.action} <span aria-hidden="true">↗</span>
                   </Link>
@@ -267,21 +328,21 @@ export default function Home() {
             <div className="journey-copy">
               <p className="eyebrow">RECORRIDO DIGITAL</p>
               <h2 id="journey-title">
-                Una identidad que conecta cada <em>paso.</em>
+                Una identidad útil cuando llega el momento de <em>actuar.</em>
               </h2>
               <p>
-                El dogtag ilustrativo con QR representa una identidad organizada, información elegida por el tutor y una
-                ruta clara para coordinar ayuda.
+                La imagen usa un QR de demostración. En PawTrack, el perfil público puede mostrar datos básicos de la
+                mascota y sumar un mensaje cuando hay una pérdida activa.
               </p>
               <div className="journey-steps" aria-label="Etapas del recorrido de PawTrack">
                 <span>
                   <b>01</b> Identidad
                 </span>
                 <span>
-                  <b>02</b> Coordinación
+                  <b>02</b> Recuperación
                 </span>
                 <span>
-                  <b>03</b> Acción
+                  <b>03</b> Cuidado
                 </span>
               </div>
               <p className="prototype-note">
@@ -300,7 +361,10 @@ export default function Home() {
                     </div>
                     <div>
                       <dt>Información compartida</dt>
-                      <dd>El tutor elige qué datos mostrar en su perfil real.</dd>
+                      <dd>
+                        Un perfil real puede mostrar foto, nombre, especie y raza; una pérdida activa puede añadir
+                        contacto y mensaje público.
+                      </dd>
                     </div>
                   </dl>
                   <p>No se recopilan datos en esta demostración.</p>
@@ -326,8 +390,8 @@ export default function Home() {
                 Encuentra apoyo para cada etapa de su <em>vida.</em>
               </h2>
               <p>
-                Explora el directorio público de prestadores de PawTrack: servicios para mascotas, perfiles y detalles
-                disponibles en el entorno conectado.
+                Consulta perfiles y servicios publicados en el directorio de PawTrack; confirma condiciones y
+                disponibilidad con cada prestador.
               </p>
               <p className="prototype-note">
                 La presencia en el directorio no confirma afiliación, disponibilidad, precio, calidad ni verificación
@@ -419,8 +483,11 @@ export default function Home() {
               <article>
                 <span>01</span>
                 <div>
-                  <h3>Datos bajo tu decisión</h3>
-                  <p>El perfil público debe mostrar solo la información que el tutor elige.</p>
+                  <h3>Qué verá quien escanee</h3>
+                  <p>
+                    El perfil puede mostrar foto, nombre, especie y raza; en una pérdida activa puede incluir nombre de
+                    contacto y mensaje público, no teléfono ni correo del tutor.
+                  </p>
                 </div>
               </article>
               <article>
@@ -440,53 +507,41 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="plans-section section-shell">
-            <div className="plans-intro">
+          <section className="free-section section-shell">
+            <div className="free-intro">
               <p className="eyebrow">UN BUEN COMIENZO PARA CADA HOGAR</p>
               <h2>
-                El cuidado no debería
-                <br />
-                depender de un <em>plan.</em>
+                Lo esencial para cuidar
+                <br />y <em>proteger.</em>
               </h2>
               <p>
-                La identidad y la recuperación son el punto de partida; los planes publicados se consultan desde el
-                catálogo aprobado.
+                Conoce todo lo que puedes hacer en la versión gratuita, con sus capacidades y límites claramente
+                definidos.
               </p>
-              <Link className="text-link" data-analytics-event="pricing_viewed" href="/plans">
-                Ver el estado de planes <span aria-hidden="true">→</span>
-              </Link>
             </div>
-            <div className="plan-preview depth-surface" data-3d-depth="plan" data-depth-strength="3">
-              <div className="plan-preview-top">
-                <span>01 / PARA EMPEZAR</span>
-                <span className="plan-stamp">N</span>
+            <div className="free-scope">
+              <div className="free-scope-top">
+                <span>01 / VERSIÓN GRATUITA</span>
+                <span className="free-scope-stamp" aria-hidden="true">
+                  N
+                </span>
               </div>
-              <h3>Catálogo aprobado y consultable</h3>
-              <p>
-                Los planes e importes se consumen desde PawTrack; esta landing no mantiene una tabla duplicada de
-                precios.
+              <h3>Alcance gratuito</h3>
+              <div className="free-capability-groups">
+                {freeCapabilityGroups.map((group) => (
+                  <section className="free-capability-group" key={group.title}>
+                    <h4>{group.title}</h4>
+                    <ul>
+                      {group.items.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </section>
+                ))}
+              </div>
+              <p className="free-scope-note">
+                Alcance definido para la versión gratuita; su disponibilidad en producción no está verificada.
               </p>
-              <Link href="/plans">
-                Ver estado de planes <span aria-hidden="true">↗</span>
-              </Link>
-              <div className="plan-status-grid" aria-label="Estado del catálogo">
-                <div>
-                  <span>CAPACIDADES</span>
-                  <strong>Tiers técnicos</strong>
-                  <small>Documentados en backend</small>
-                </div>
-                <div>
-                  <span>OFERTA</span>
-                  <strong>No publicada</strong>
-                  <small>Requiere aprobación</small>
-                </div>
-                <div>
-                  <span>COMPRA</span>
-                  <strong>No disponible</strong>
-                  <small>Sin checkout aquí</small>
-                </div>
-              </div>
-              <small>La cuenta y cualquier contratación se gestionan en PawTrack según el entorno conectado.</small>
             </div>
           </section>
 
@@ -520,13 +575,12 @@ export default function Home() {
           <div>
             <p className="eyebrow eyebrow-light">NALA · COSTA RICA</p>
             <h2>
-              Para que cada
-              <br />
-              historia siga <em>junta.</em>
+              Identidad, recuperación
+              <br />y <em>cuidado.</em>
             </h2>
           </div>
           <div>
-            <p>Un perfil para reconocerla. Una comunidad para acompañarte. Una vida entera por cuidar.</p>
+            <p>Un hogar digital para su identidad y herramientas para actuar con pasos claros en PawTrack CR.</p>
             <a className="button button-light" href={getProductUrl("/login")}>
               Crear cuenta o iniciar sesión <span aria-hidden="true">↗</span>
             </a>

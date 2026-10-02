@@ -189,7 +189,7 @@ public sealed class StoresController(ISender sender) : ControllerBase
             return BadRequest(new ProblemDetails { Detail = $"Categoría inválida: {request.Category}.", Status = 400 });
 
         var result = await sender.Send(new AddStoreProductCommand(
-            userId, request.Name, request.Description, category, request.PriceCrc), ct);
+            userId, request.Name, request.Description, category, request.PriceCrc, request.StockOnHand), ct);
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
         return Created(string.Empty, result.Value);
@@ -210,7 +210,8 @@ public sealed class StoresController(ISender sender) : ControllerBase
             return BadRequest(new ProblemDetails { Detail = $"Categoría inválida: {request.Category}.", Status = 400 });
 
         var result = await sender.Send(new UpdateStoreProductCommand(
-            userId, productId, request.Name, request.Description, category, request.PriceCrc, request.IsAvailable), ct);
+            userId, productId, request.Name, request.Description, category, request.PriceCrc,
+            request.IsAvailable, request.StockOnHand), ct);
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
         return Ok(result.Value);
@@ -305,10 +306,10 @@ public sealed record UpdateStoreProfileRequest(
     string? WhatsAppNumber = null, bool IsWhatsAppContactEnabled = false);
 
 public sealed record AddProductRequest(
-    string Name, string? Description, string Category, decimal PriceCrc);
+    string Name, string? Description, string Category, decimal PriceCrc, int? StockOnHand = null);
 
 public sealed record UpdateProductRequest(
-    string Name, string? Description, string Category, decimal PriceCrc, bool IsAvailable);
+    string Name, string? Description, string Category, decimal PriceCrc, bool IsAvailable, int? StockOnHand = null);
 
 public sealed record StoreLocationRequest(
     string Name, string Address, decimal Lat, decimal Lng, string? PhoneNumber);

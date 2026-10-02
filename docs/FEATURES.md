@@ -131,8 +131,8 @@ Las cuotas definidas en este documento se consideran contractuales una vez imple
 | Notificaciones in-app              |                       Incluidas |                        Incluidas |                           Incluidas |
 | Notificaciones push                |                       Incluidas |                        Incluidas |                           Incluidas |
 | Alertas geográficas                | 1 ubicación, radio fijo de 3 km |         1 ubicación, hasta 20 km | 5 ubicaciones, hasta 30 km cada una |
-| Matching visual por IA             |      1 búsqueda por caso activo |           10 búsquedas por ciclo |     30 búsquedas por ciclo y cuenta |
-| Resultados por matching            |                    5 candidatos |                    15 candidatos |                       35 candidatos |
+| Matching visual por IA             |                     No incluido |           10 búsquedas por ciclo |     30 búsquedas por ciclo y cuenta |
+| Resultados por matching            |                       No aplica |                    15 candidatos |                       35 candidatos |
 | Enlaces manuales para compartir    |                       Incluidos |                        Incluidos |                           Incluidos |
 | Difusión automatizada              |                      1 por caso |         5 por caso cada 24 horas |           10 por caso cada 24 horas |
 | Repetición programada de difusión  |                     No incluida |                      No incluida |                            Incluida |
@@ -185,6 +185,13 @@ Las siguientes capacidades no pueden bloquearse por plan:
 - Las cuentas que representen refugios, operadores comerciales o uso institucional deben migrarse al tipo correspondiente.
 
 ### 5.4 Matching visual por IA
+
+Free no incluye matching visual por IA. La ruta normal lo deniega porque no hay
+un entitlement Free `AiMatchesPerCycle`; el fallback legado también fija la
+cuota Free en cero. La capacidad está disponible en UserPlus y UserFamilia con
+límites mensuales administrados por entitlement. El contrato actual recibe una
+foto o un avistamiento y no un caso perdido objetivo, por lo que no puede
+aplicar una cuota "por caso activo" sin cambiar el contrato.
 
 Una búsqueda se contabiliza cuando el backend acepta la imagen y ejecuta el proceso de matching. No debe cobrarse o descontarse cuota cuando:
 

@@ -70,7 +70,7 @@ public sealed class CreateProviderBookingPaymentCommandHandler(
             return Result.Success(ProviderPaymentDto.FromDomain(existingByBooking));
 
         var paymentReference = paymentService.GenerateReference();
-        var amount = booking.PriceCrc * booking.Quantity;
+        var amount = booking.TotalCrc;
         var intent = await paymentGateway.CreateIntentAsync(new ProviderPaymentIntentRequest(
             booking.Id, amount, "CRC", paymentReference, idempotencyKey), ct);
         if (intent.Status == ProviderPaymentIntentStatus.Failed)

@@ -264,7 +264,8 @@ public sealed class EntitlementService(
             ["MaxActivePromotions"] = new("MaxActivePromotions", EntitlementValueType.Numeric, 0m, null, null, "account", null, 0m),
             ["ClinicMedicalExportsPerCycle"] = new("ClinicMedicalExportsPerCycle", EntitlementValueType.Numeric, 20m, null, null, "cycle", "monthly", 0m),
             ["MaxFamilyMembers"] = new("MaxFamilyMembers", EntitlementValueType.Numeric, 1m, null, null, "account", null, 0m),
-            ["MaxActiveVetReminders"] = new("MaxActiveVetReminders", EntitlementValueType.Numeric, 50m, null, null, "account", null, 0m),
+            ["MaxActiveVetReminders"] = new("MaxActiveVetReminders", EntitlementValueType.Numeric, 0m, null, null, "account", null, 0m),
+            ["MaxActiveLostCases"] = new("MaxActiveLostCases", EntitlementValueType.Numeric, 1m, null, null, "account", null, 0m),
             ["BroadcastsPerCasePerDay"] = new("BroadcastsPerCasePerDay", EntitlementValueType.Numeric, 1m, null, null, "case", "daily", 0m),
             ["BulkUpdateLimit"] = new("BulkUpdateLimit", EntitlementValueType.Numeric, 0m, null, null, "operation", null, 0m),
         };

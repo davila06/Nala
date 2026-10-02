@@ -2,6 +2,7 @@ using FluentAssertions;
 using MediatR;
 using NSubstitute;
 using PawTrack.Application.Bounties.Interfaces;
+using PawTrack.Application.Bundles.Interfaces;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Payments.Commands.ChargeCard;
 using PawTrack.Application.Payments.Interfaces;
@@ -9,6 +10,7 @@ using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Domain.Auth;
 using PawTrack.Domain.Bounties;
 using PawTrack.Domain.Payments;
+using PawTrack.Domain.ServiceProviders;
 using PawTrack.Domain.Subscriptions;
 
 namespace PawTrack.UnitTests.Payments.Commands;
@@ -20,14 +22,17 @@ public sealed class ChargeCardCommandHandlerTests
     private readonly IPaymentIntentRepository _paymentIntentRepo = Substitute.For<IPaymentIntentRepository>();
     private readonly IPaymentGatewayService _gatewayService = Substitute.For<IPaymentGatewayService>();
     private readonly ISubscriptionRepository _subscriptionRepo = Substitute.For<ISubscriptionRepository>();
+    private readonly IBundleOrderRepository _bundleOrderRepo = Substitute.For<IBundleOrderRepository>();
     private readonly IBountyRepository _bountyRepo = Substitute.For<IBountyRepository>();
+    private readonly IServiceProviderRepository _serviceProviderRepo = Substitute.For<IServiceProviderRepository>();
     private readonly IUserRepository _userRepo = Substitute.For<IUserRepository>();
     private readonly IElectronicBillingService _billingService = Substitute.For<IElectronicBillingService>();
     private readonly ISender _sender = Substitute.For<ISender>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
 
     private ChargeCardCommandHandler CreateSut() =>
-        new(_profileRepo, _paymentIntentRepo, _gatewayService, _userRepo, _unitOfWork);
+        new(_profileRepo, _paymentIntentRepo, _gatewayService, _userRepo,
+            _subscriptionRepo, _bundleOrderRepo, _bountyRepo, _serviceProviderRepo, _unitOfWork);
 
     [Fact]
     public async Task Handle_WhenIdempotencyKeyAlreadyExists_DoesNotCallGatewayAgain()
@@ -62,6 +67,8 @@ public sealed class ChargeCardCommandHandlerTests
     {
         var (user, _) = User.Create("owner@pawtrack.cr", "hash", "Test User");
         _userRepo.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
+        var subscription = Subscription.CreateForUser(user.Id, SubscriptionTier.UserPlus, "REF-TOKEN", 2990m);
+        _subscriptionRepo.GetByIdAsync(subscription.Id, Arg.Any<CancellationToken>()).Returns(subscription);
         PaymentIntent? capturedIntent = null;
         _paymentIntentRepo.AddAsync(Arg.Do<PaymentIntent>(intent => capturedIntent = intent), Arg.Any<CancellationToken>())
             .Returns(Task.CompletedTask);
@@ -69,7 +76,8 @@ public sealed class ChargeCardCommandHandlerTests
             .Returns(new TokenizePaymentResult(false, null, null, null, null, null, null, "Token inválido"));
 
         var result = await CreateSut().Handle(
-            new ChargeCardCommand(user.Id, 2990m, "Subscription", TransientToken: "bad-token", IdempotencyKey: "idem-token-failure"),
+            new ChargeCardCommand(user.Id, 2990m, "Subscription", TargetEntityId: subscription.Id,
+                TransientToken: "bad-token", IdempotencyKey: "idem-token-failure"),
             CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
@@ -90,6 +98,62 @@ public sealed class ChargeCardCommandHandlerTests
 
         result.IsFailure.Should().BeTrue();
         result.Errors.Should().Contain("Usuario no encontrado.");
+    }
+
+    [Fact]
+    public async Task Handle_WhenChargingSubscription_RejectsClientAmountDifferentFromServerQuote()
+    {
+        var (user, _) = User.Create("owner@pawtrack.cr", "hash", "Test User");
+        _userRepo.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
+        var subscription = Subscription.CreateForUser(user.Id, SubscriptionTier.UserPlus, "REF-SERVER", 2990m);
+        _subscriptionRepo.GetByIdAsync(subscription.Id, Arg.Any<CancellationToken>()).Returns(subscription);
+        var result = await CreateSut().Handle(
+            new ChargeCardCommand(
+                UserId: user.Id,
+                AmountCrc: 1m,
+                Purpose: "Subscription",
+                TargetEntityId: subscription.Id,
+                TransientToken: "transient_jwt_123",
+                IdempotencyKey: "idem-server-quote"),
+            CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().Contain("El monto enviado no coincide con el total vigente de la compra.");
+        await _paymentIntentRepo.DidNotReceive().AddAsync(Arg.Any<PaymentIntent>(), Arg.Any<CancellationToken>());
+        await _gatewayService.DidNotReceiveWithAnyArgs().TokenizeTransientTokenAsync(default!);
+    }
+
+    [Fact]
+    public async Task Handle_WhenChargingProviderBooking_UsesBookingTotalAndLinksIntentToPendingPayment()
+    {
+        var (user, _) = User.Create("owner@pawtrack.cr", "hash", "Test User");
+        _userRepo.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
+        var providerId = Guid.NewGuid();
+        var booking = ProviderBooking.Request(providerId, Guid.NewGuid(), user.Id, Guid.NewGuid(), "Consulta",
+            DateTimeOffset.UtcNow.AddDays(2), 60, 25_000m, 1, null, taxCrc: 3_250m, platformFeeCrc: 1_000m);
+        booking.MarkAwaitingPayment();
+        var providerPayment = ProviderPayment.Create(booking.Id, user.Id, providerId, booking.TotalCrc, "CARD-BOOKING", "idem-provider-booking");
+        _serviceProviderRepo.GetBookingByIdAsync(booking.Id, Arg.Any<CancellationToken>()).Returns(booking);
+        _serviceProviderRepo.GetPaymentByBookingAsync(booking.Id, Arg.Any<CancellationToken>()).Returns(providerPayment);
+        PaymentIntent? capturedIntent = null;
+        _paymentIntentRepo.AddAsync(Arg.Do<PaymentIntent>(intent => capturedIntent = intent), Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
+        _gatewayService.TokenizeTransientTokenAsync(Arg.Any<TokenizePaymentRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new TokenizePaymentResult(true, "cust_1", "instr_1", "Visa", "4242", 12, 2029, null));
+        _gatewayService.ChargeAsync(Arg.Any<ChargePaymentRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new ChargePaymentResult(true, "CS-TXN-PROVIDER", "AUTH-PROVIDER", null, null));
+
+        var result = await CreateSut().Handle(new ChargeCardCommand(
+            user.Id, booking.TotalCrc, "ProviderBooking", booking.Id,
+            TransientToken: "transient_jwt_123", IdempotencyKey: "idem-provider-card"), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        capturedIntent.Should().NotBeNull();
+        capturedIntent!.AmountCrc.Should().Be(booking.TotalCrc);
+        providerPayment.Status.Should().Be(ProviderPaymentStatus.CardPending);
+        providerPayment.PaymentIntentId.Should().Be(capturedIntent.Id);
+        await _gatewayService.Received(1).ChargeAsync(
+            Arg.Is<ChargePaymentRequest>(request => request.AmountCrc == booking.TotalCrc), Arg.Any<CancellationToken>());
     }
 
     [Fact]

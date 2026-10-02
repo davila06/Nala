@@ -1,6 +1,9 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { createScriptHashes } from "./generate-static-csp.mjs";
+import {
+  createConnectSources,
+  createScriptHashes,
+} from "./generate-static-csp.mjs";
 
 describe("static export script hashes", () => {
   it("hashes inline scripts and ignores external script sources", () => {
@@ -18,5 +21,31 @@ describe("static export script hashes", () => {
       "<script>window.shared = true;</script><script>window.shared = true;</script>";
 
     expect(createScriptHashes(html)).toHaveLength(1);
+  });
+});
+
+describe("static export connect sources", () => {
+  it("allows only the configured API origin", () => {
+    expect(createConnectSources("https://api.pawtrack.cr/anything")).toBe(
+      "connect-src 'self' https://api.pawtrack.cr",
+    );
+  });
+
+  it("rejects insecure non-local API origins", () => {
+    expect(() => createConnectSources("http://api.pawtrack.cr")).toThrow(
+      /HTTPS/,
+    );
+  });
+
+  it("allows local HTTP for development", () => {
+    expect(createConnectSources("http://localhost:5199")).toBe(
+      "connect-src 'self' http://localhost:5199",
+    );
+  });
+
+  it("requires an API URL for the static build", () => {
+    expect(() => createConnectSources("")).toThrow(
+      /NEXT_PUBLIC_API_URL must be configured/,
+    );
   });
 });

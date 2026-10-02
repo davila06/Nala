@@ -40,11 +40,14 @@ public sealed record StoreProductDto(
     string Category,
     decimal PriceCrc,
     string? ImageUrl,
-    bool IsAvailable)
+    bool IsAvailable,
+    int? StockOnHand)
 {
-    public static StoreProductDto FromDomain(StoreProduct p) => new(
+    public static StoreProductDto FromDomain(StoreProduct p, bool includeInventory = false) => new(
         p.Id, p.StoreId, p.Name, p.Description,
-        p.Category.ToString(), p.PriceCrc, p.ImageUrl, p.IsAvailable);
+        p.Category.ToString(), p.PriceCrc, p.ImageUrl,
+        includeInventory ? p.IsAvailable : p.IsAvailable && p.StockOnHand > 0,
+        includeInventory ? p.StockOnHand : null);
 }
 
 // ── Register store ────────────────────────────────────────────────────────────
@@ -184,7 +187,7 @@ public sealed class GetStoreDetailQueryHandler(IStoreRepository repo)
         var products = await repo.GetAvailableProductsByStoreAsync(request.StoreId, ct);
         var dto = new StoreDetailDto(
             PublicStoreDto.FromDomain(store),
-            products.Select(StoreProductDto.FromDomain).ToList());
+            products.Select(product => StoreProductDto.FromDomain(product)).ToList());
         return Result.Success(dto);
     }
 }

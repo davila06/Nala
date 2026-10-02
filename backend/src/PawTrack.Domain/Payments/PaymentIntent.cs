@@ -107,12 +107,17 @@ public sealed class PaymentIntent : IHasDomainEvents
         Touch();
     }
 
-    public void MarkSettled()
+    public void MarkSettled(
+        string? gatewayTransactionId = null,
+        Guid? paymentOperationId = null,
+        string? correlationId = null)
     {
         TransitionFrom(PaymentIntentStatus.Captured);
         Status = PaymentIntentStatus.Settled;
         Touch();
-        _domainEvents.Add(new PaymentIntentSettledDomainEvent(Id, UserId, Purpose, TargetEntityId, AmountCrc));
+        _domainEvents.Add(new PaymentIntentSettledDomainEvent(
+            Id, UserId, Purpose, TargetEntityId, AmountCrc,
+            gatewayTransactionId, paymentOperationId, correlationId));
     }
 
     public void MarkFailed(string reason) => MarkTerminalFailure(PaymentIntentStatus.Failed, reason);

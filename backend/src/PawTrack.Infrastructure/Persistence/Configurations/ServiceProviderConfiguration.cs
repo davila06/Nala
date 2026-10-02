@@ -162,6 +162,7 @@ public sealed class ProviderPaymentConfiguration : IEntityTypeConfiguration<Prov
         builder.Property(x => x.Currency).IsRequired().HasMaxLength(3);
         builder.Property(x => x.PaymentReference).IsRequired().HasMaxLength(50);
         builder.Property(x => x.IdempotencyKey).IsRequired().HasMaxLength(200);
+        builder.Property(x => x.PaymentIntentId);
         builder.Property(x => x.Status).IsRequired().HasConversion<int>();
         builder.Property(x => x.ExternalReference).HasMaxLength(200);
         builder.Property(x => x.FailureReason).HasMaxLength(500);

@@ -4,7 +4,8 @@ const steps = [
   {
     number: "01",
     title: "Prepara tu perfil",
-    description: "Nombre comercial, categoría, descripción y ubicación pública del servicio.",
+    description:
+      "Completa nombre comercial, categoría, descripción, ubicación y contacto solicitados por el formulario.",
   },
   {
     number: "02",
@@ -14,7 +15,7 @@ const steps = [
   {
     number: "03",
     title: "Espera la revisión",
-    description: "PawTrack revisa cada solicitud antes de mostrarla en el directorio.",
+    description: "PawTrack revisa cada solicitud; enviarla no garantiza aprobación ni publicación en el directorio.",
   },
 ] as const;
 

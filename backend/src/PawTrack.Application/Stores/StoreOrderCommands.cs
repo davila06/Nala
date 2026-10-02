@@ -5,6 +5,7 @@ using PawTrack.Application.Common;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Application.Subscriptions.Services;
+using PawTrack.Domain.Audit;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Stores;
 
@@ -225,6 +226,52 @@ public sealed class ReportStoreOrderPaymentCommandHandler(IStoreOrderRepository 
     }
 }
 
+public sealed record VerifyStoreOrderPaymentCommand(
+    Guid StoreOwnerUserId,
+    Guid OrderId,
+    string BankReference,
+    string? Note = null) : IRequest<Result<StoreOrderDto>>;
+
+public sealed class VerifyStoreOrderPaymentCommandValidator : AbstractValidator<VerifyStoreOrderPaymentCommand>
+{
+    public VerifyStoreOrderPaymentCommandValidator()
+    {
+        RuleFor(request => request.OrderId).NotEmpty();
+        RuleFor(request => request.BankReference).NotEmpty().MaximumLength(200);
+        RuleFor(request => request.Note).MaximumLength(500);
+    }
+}
+
+public sealed class VerifyStoreOrderPaymentCommandHandler(
+    IStoreRepository storeRepo,
+    IStoreOrderRepository orderRepo,
+    IAuditLogRepository auditLog,
+    IUnitOfWork unitOfWork)
+    : IRequestHandler<VerifyStoreOrderPaymentCommand, Result<StoreOrderDto>>
+{
+    public async Task<Result<StoreOrderDto>> Handle(VerifyStoreOrderPaymentCommand request, CancellationToken ct)
+    {
+        var store = await storeRepo.GetByUserIdAsync(request.StoreOwnerUserId, ct);
+        if (store is null || store.Status != StoreStatus.Active)
+            return Result.Failure<StoreOrderDto>("Tienda no encontrada o inactiva.");
+
+        var order = await orderRepo.GetByIdAsync(request.OrderId, ct);
+        if (order is null || order.StoreId != store.Id)
+            return Result.Failure<StoreOrderDto>("Pedido no encontrado.");
+
+        try { order.VerifyManualPayment(request.StoreOwnerUserId, request.BankReference, request.Note); }
+        catch (Exception exception) when (exception is InvalidOperationException or ArgumentException)
+        { return Result.Failure<StoreOrderDto>(exception.Message); }
+
+        orderRepo.Update(order);
+        await auditLog.AddAsync(AuditLogEntry.Create(
+            request.StoreOwnerUserId, AuditAction.StoreOrderPaymentVerified,
+            "StoreOrder", order.Id.ToString(), request.BankReference.Trim()), ct);
+        await unitOfWork.SaveChangesAsync(ct);
+        return Result.Success(StoreOrderDto.FromDomain(order, store.Name));
+    }
+}
+
 // ── Confirm order (store owner) ───────────────────────────────────────────────
 
 public sealed record ConfirmStoreOrderCommand(Guid StoreOwnerUserId, Guid OrderId, string? Note) : IRequest<Result<StoreOrderDto>>;
@@ -232,7 +279,6 @@ public sealed record ConfirmStoreOrderCommand(Guid StoreOwnerUserId, Guid OrderI
 public sealed class ConfirmStoreOrderCommandHandler(
     IStoreRepository storeRepo,
     IStoreOrderRepository orderRepo,
-    IUnitOfWork uow,
     IUserRepository? userRepo = null,
     IEmailSender? emailSender = null)
     : IRequestHandler<ConfirmStoreOrderCommand, Result<StoreOrderDto>>
@@ -246,12 +292,10 @@ public sealed class ConfirmStoreOrderCommandHandler(
         if (order is null || order.StoreId != store.Id)
             return Result.Failure<StoreOrderDto>("Pedido no encontrado.");
 
-        try { order.Confirm(request.Note); }
-        catch (InvalidOperationException ex)
-        { return Result.Failure<StoreOrderDto>(ex.Message); }
-
-        orderRepo.Update(order);
-        await uow.SaveChangesAsync(ct);
+        var accepted = await orderRepo.TryAcceptAndReserveStockAsync(
+            order.Id, store.Id, request.Note, DateTimeOffset.UtcNow.AddMinutes(15), ct);
+        if (!accepted)
+            return Result.Failure<StoreOrderDto>("No se pudo aceptar el pedido: revise disponibilidad e inventario.");
 
         if (emailSender is not null)
         {
@@ -270,7 +314,10 @@ public sealed class ConfirmStoreOrderCommandHandler(
             }
         }
 
-        return Result.Success(StoreOrderDto.FromDomain(order, store.Name));
+        var acceptedOrder = await orderRepo.GetByIdAsync(order.Id, ct);
+        return acceptedOrder is null
+            ? Result.Failure<StoreOrderDto>("No se pudo recuperar el pedido aceptado.")
+            : Result.Success(StoreOrderDto.FromDomain(acceptedOrder, store.Name));
     }
 }
 
@@ -296,6 +343,18 @@ public sealed class UpdateStoreOrderStatusCommandHandler(
         var order = await orderRepo.GetByIdAsync(request.OrderId, ct);
         if (order is null || order.StoreId != store.Id)
             return Result.Failure<StoreOrderDto>("Pedido no encontrado.");
+
+        if (request.NewStatus is StoreOrderStatus.Cancelled or StoreOrderStatus.Rejected)
+        {
+            var updated = await orderRepo.TryUpdateStatusAndReleaseStockAsync(
+                order.Id, store.Id, request.NewStatus, request.Note, ct);
+            if (!updated)
+                return Result.Failure<StoreOrderDto>("No se pudo cancelar/rechazar el pedido ni liberar su inventario.");
+            var refreshedOrder = await orderRepo.GetByIdAsync(order.Id, ct);
+            return refreshedOrder is null
+                ? Result.Failure<StoreOrderDto>("Pedido no encontrado.")
+                : Result.Success(StoreOrderDto.FromDomain(refreshedOrder, store.Name));
+        }
 
         try { order.UpdateStatus(request.NewStatus, request.Note); }
         catch (InvalidOperationException ex)

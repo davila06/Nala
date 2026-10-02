@@ -28,6 +28,38 @@ export function createScriptHashes(html) {
   return [...hashes].sort();
 }
 
+export function createConnectSources(apiUrl = process.env.NEXT_PUBLIC_API_URL) {
+  if (!apiUrl) {
+    throw new Error(
+      "NEXT_PUBLIC_API_URL must be configured before generating the static site CSP.",
+    );
+  }
+
+  let apiOrigin;
+  try {
+    apiOrigin = new URL(apiUrl);
+  } catch {
+    throw new Error("NEXT_PUBLIC_API_URL must be a valid absolute URL.");
+  }
+
+  const isLocalHttp =
+    apiOrigin.protocol === "http:" &&
+    ["localhost", "127.0.0.1"].includes(apiOrigin.hostname);
+  if (
+    (apiOrigin.protocol !== "https:" && !isLocalHttp) ||
+    apiOrigin.username ||
+    apiOrigin.password ||
+    apiOrigin.search ||
+    apiOrigin.hash
+  ) {
+    throw new Error(
+      "NEXT_PUBLIC_API_URL must use HTTPS (HTTP is allowed only for localhost). ",
+    );
+  }
+
+  return `connect-src 'self' ${apiOrigin.origin}`;
+}
+
 async function listHtmlFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
   const files = [];
@@ -77,7 +109,7 @@ export async function generateStaticCsp(outputDirectory = resolve("out")) {
     `script-src 'self' ${scriptSources}`,
     "style-src 'self' 'unsafe-inline'",
     "font-src 'self' data:",
-    "connect-src 'self'",
+    createConnectSources(),
   ].join("; ");
 
   await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`);

@@ -31,21 +31,21 @@ function ProductForm({
     category: string;
     priceCrc: number;
     isAvailable: boolean;
+    stockOnHand: number;
   }) => void;
   onCancel: () => void;
   loading: boolean;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
-  const [category, setCategory] = useState<ProductCategory>(
-    initial?.category ?? "Other",
-  );
+  const [category, setCategory] = useState<ProductCategory>(initial?.category ?? "Other");
   const [priceCrc, setPriceCrc] = useState(String(initial?.priceCrc ?? ""));
+  const [stockOnHand, setStockOnHand] = useState(String(initial?.stockOnHand ?? 0));
   const [isAvailable, setIsAvailable] = useState(initial?.isAvailable ?? true);
 
   const handleSubmit = () => {
-    if (!name.trim() || !priceCrc) {
-      toast.error("Nombre y precio son requeridos.");
+    if (!name.trim() || !priceCrc || !stockOnHand || Number(stockOnHand) < 0) {
+      toast.error("Nombre, precio y existencias válidas son requeridos.");
       return;
     }
     onSave({
@@ -54,20 +54,16 @@ function ProductForm({
       category,
       priceCrc: Number(priceCrc),
       isAvailable,
+      stockOnHand: Number(stockOnHand),
     });
   };
 
   return (
     <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4 space-y-3">
-      <h3 className="text-sm font-semibold text-brand-800">
-        {initial ? "Editar producto" : "Nuevo producto"}
-      </h3>
+      <h3 className="text-sm font-semibold text-brand-800">{initial ? "Editar producto" : "Nuevo producto"}</h3>
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2">
-          <label
-            htmlFor="store-product-name"
-            className="mb-1 block text-xs font-medium text-copy-secondary"
-          >
+          <label htmlFor="store-product-name" className="mb-1 block text-xs font-medium text-copy-secondary">
             Nombre *
           </label>
           <Input
@@ -78,10 +74,7 @@ function ProductForm({
           />
         </div>
         <div>
-          <label
-            htmlFor="store-product-category"
-            className="mb-1 block text-xs font-medium text-copy-secondary"
-          >
+          <label htmlFor="store-product-category" className="mb-1 block text-xs font-medium text-copy-secondary">
             Categoría *
           </label>
           <select
@@ -98,10 +91,21 @@ function ProductForm({
           </select>
         </div>
         <div>
-          <label
-            htmlFor="store-product-price"
-            className="mb-1 block text-xs font-medium text-copy-secondary"
-          >
+          <label htmlFor="store-product-stock" className="mb-1 block text-xs font-medium text-copy-secondary">
+            Existencias disponibles *
+          </label>
+          <Input
+            id="store-product-stock"
+            type="number"
+            value={stockOnHand}
+            onChange={(e) => setStockOnHand(e.target.value)}
+            min="0"
+            step="1"
+          />
+          <p className="mt-1 text-[11px] text-copy-muted">Se reservan al aceptar una solicitud.</p>
+        </div>
+        <div>
+          <label htmlFor="store-product-price" className="mb-1 block text-xs font-medium text-copy-secondary">
             Precio ₡ *
           </label>
           <Input
@@ -114,10 +118,7 @@ function ProductForm({
           />
         </div>
         <div className="col-span-2">
-          <label
-            htmlFor="store-product-description"
-            className="mb-1 block text-xs font-medium text-copy-secondary"
-          >
+          <label htmlFor="store-product-description" className="mb-1 block text-xs font-medium text-copy-secondary">
             Descripción
           </label>
           <textarea
@@ -215,9 +216,7 @@ export default function StoreProductsPage() {
       </Helmet>
 
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-xl font-bold text-sand-900">
-          Mis productos
-        </h1>
+        <h1 className="font-display text-xl font-bold text-sand-900">Mis productos</h1>
         {!showForm && !editId && (
           <Button size="sm" onClick={() => setShowForm(true)}>
             + Agregar
@@ -242,16 +241,11 @@ export default function StoreProductsPage() {
       )}
 
       {(products ?? []).length === 0 && !showForm ? (
-        <p className="py-10 text-center text-sm text-copy-muted">
-          No tienes productos aún. Agrega el primero.
-        </p>
+        <p className="py-10 text-center text-sm text-copy-muted">No tienes productos aún. Agrega el primero.</p>
       ) : (
         <ul className="space-y-3">
           {(products ?? []).map((product) => (
-            <li
-              key={product.id}
-              className="rounded-xl border border-sand-100 bg-surface"
-            >
+            <li key={product.id} className="rounded-xl border border-sand-100 bg-surface">
               {editId === product.id ? (
                 <div className="p-4">
                   <ProductForm
@@ -282,29 +276,14 @@ export default function StoreProductsPage() {
                     className="group relative h-14 w-14 shrink-0 rounded-xl overflow-hidden border border-sand-200 bg-sand-100 flex items-center justify-center"
                   >
                     {product.imageUrl ? (
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        className="h-full w-full object-cover"
-                      />
+                      <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
                     ) : (
                       <span className="text-xl select-none">📦</span>
                     )}
                     {uploadingId === product.id ? (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                        <svg
-                          className="h-5 w-5 animate-spin text-white"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          />
+                        <svg className="h-5 w-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                           <path
                             className="opacity-75"
                             fill="currentColor"
@@ -327,21 +306,18 @@ export default function StoreProductsPage() {
                   </button>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-sand-900 truncate">
-                        {product.name}
-                      </p>
+                      <p className="font-semibold text-sand-900 truncate">{product.name}</p>
                       {!product.isAvailable && (
                         <span className="rounded-full bg-sand-200 px-2 py-0.5 text-[10px] font-semibold text-copy-secondary">
                           No disponible
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-copy-secondary">
-                      {CATEGORY_LABELS[product.category]}
-                    </p>
+                    <p className="text-xs text-copy-secondary">{CATEGORY_LABELS[product.category]}</p>
                     <p className="text-sm font-bold text-rescue-700 mt-0.5">
                       ₡{product.priceCrc.toLocaleString("es-CR")}
                     </p>
+                    <p className="text-xs text-copy-secondary">{product.stockOnHand ?? 0} en inventario</p>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <button
@@ -349,12 +325,7 @@ export default function StoreProductsPage() {
                       onClick={() => setEditId(product.id)}
                       className="rounded-lg p-2 text-copy-muted hover:bg-sand-100 hover:text-brand-600"
                     >
-                      <svg
-                        viewBox="0 0 16 16"
-                        fill="currentColor"
-                        className="h-4 w-4"
-                        aria-hidden="true"
-                      >
+                      <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                         <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61Z" />
                       </svg>
                     </button>
@@ -368,12 +339,7 @@ export default function StoreProductsPage() {
                       }
                       className="rounded-lg p-2 text-sand-300 hover:bg-danger-50 hover:text-danger-500"
                     >
-                      <svg
-                        viewBox="0 0 16 16"
-                        fill="currentColor"
-                        className="h-4 w-4"
-                        aria-hidden="true"
-                      >
+                      <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                         <path d="M11 1.75V3h2.25a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1 0-1.5H5V1.75C5 .784 5.784 0 6.75 0h2.5C10.216 0 11 .784 11 1.75ZM4.496 6.675l.66 6.6a.25.25 0 0 0 .249.225h5.19a.25.25 0 0 0 .249-.225l.66-6.6a.75.75 0 0 1 1.492.149l-.66 6.6A1.748 1.748 0 0 1 10.595 15h-5.19a1.75 1.75 0 0 1-1.741-1.575l-.66-6.6a.75.75 0 1 1 1.492-.15ZM6.5 1.75V3h3V1.75a.25.25 0 0 0-.25-.25h-2.5a.25.25 0 0 0-.25.25Z" />
                       </svg>
                     </button>

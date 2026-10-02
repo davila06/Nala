@@ -5,6 +5,7 @@ using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Stores;
 using PawTrack.Application.Subscriptions.Interfaces;
 using PawTrack.Application.Subscriptions.Services;
+using PawTrack.Domain.Audit;
 using PawTrack.Domain.Stores;
 using PawTrack.Domain.Subscriptions;
 
@@ -14,27 +15,54 @@ namespace PawTrack.UnitTests.Stores;
 
 public sealed class StoreOrderStateMachineTests
 {
-    private static StoreOrder MakeOrder(OrderFulfillmentType fulfillment = OrderFulfillmentType.Pickup)
+    private static StoreOrder MakeOrder(
+        OrderFulfillmentType fulfillment = OrderFulfillmentType.Pickup,
+        bool reserveInventory = true)
     {
         var lines = new List<(Guid, string, int, decimal)>
         {
             (Guid.NewGuid(), "Product A", 2, 1500m)
         };
-        return StoreOrder.Place(Guid.NewGuid(), Guid.NewGuid(), "REF12345",
+        var order = StoreOrder.Place(Guid.NewGuid(), Guid.NewGuid(), "REF12345",
             fulfillment, null, null, lines);
+        if (reserveInventory)
+            order.MarkStockReserved(DateTimeOffset.UtcNow.AddMinutes(15));
+        return order;
     }
 
     [Fact]
-    public void NewOrder_HasPendingPaymentStatus()
+    public void NewOrder_AwaitsStoreAcceptanceBeforePayment()
     {
-        var order = MakeOrder();
-        order.Status.Should().Be(StoreOrderStatus.PendingPayment);
+        var order = MakeOrder(reserveInventory: false);
+        order.Status.ToString().Should().Be("AwaitingStoreAcceptance");
     }
 
     [Fact]
-    public void ReportPayment_FromPendingPayment_Transitions()
+    public void StoreAcceptance_TransitionsToAwaitingPayment()
     {
         var order = MakeOrder();
+
+        order.Accept("Disponibilidad confirmada");
+
+        order.Status.ToString().Should().Be("AwaitingPayment");
+    }
+
+    [Fact]
+    public void CustomerCanReportPaymentOnlyAfterStoreAcceptance()
+    {
+        var order = MakeOrder();
+        order.Accept("Disponibilidad confirmada");
+
+        order.ReportPayment();
+
+        order.Status.Should().Be(StoreOrderStatus.PaymentReported);
+    }
+
+    [Fact]
+    public void ReportPayment_FromAwaitingPayment_Transitions()
+    {
+        var order = MakeOrder();
+        order.Accept("Disponibilidad confirmada");
         order.ReportPayment();
         order.Status.Should().Be(StoreOrderStatus.PaymentReported);
         order.PaymentReportedByCustomer.Should().BeTrue();
@@ -44,29 +72,34 @@ public sealed class StoreOrderStateMachineTests
     public void ReportPayment_WhenAlreadyReported_Throws()
     {
         var order = MakeOrder();
+        order.Accept("Disponibilidad confirmada");
         order.ReportPayment();
         var act = () => order.ReportPayment();
         act.Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
-    public void Confirm_FromPaymentReported_Transitions()
+    public void VerifyManualPayment_FromPaymentReported_RecordsVerifierAndReference()
     {
         var order = MakeOrder();
+        var verifierId = Guid.NewGuid();
+        order.Accept("Disponibilidad confirmada");
         order.ReportPayment();
-        order.Confirm("Looking good");
-        order.Status.Should().Be(StoreOrderStatus.Confirmed);
-        order.ConfirmedAt.Should().NotBeNull();
+        order.VerifyManualPayment(verifierId, "BANK-TX-1", "Looking good");
+        order.Status.Should().Be(StoreOrderStatus.Paid);
+        order.PaymentVerifiedByUserId.Should().Be(verifierId);
+        order.PaymentVerificationReference.Should().Be("BANK-TX-1");
+        order.PaymentConfirmedAt.Should().NotBeNull();
     }
 
     [Fact]
-    public void Confirm_FromInitialRequest_TransitionsWithoutPaymentReport()
+    public void Accept_FromInitialRequest_TransitionsWithoutPaymentReport()
     {
         var order = MakeOrder();
 
-        order.Confirm("Disponibilidad confirmada");
+        order.Accept("Disponibilidad confirmada");
 
-        order.Status.Should().Be(StoreOrderStatus.Confirmed);
+        order.Status.Should().Be(StoreOrderStatus.AwaitingPayment);
         order.PaymentReportedByCustomer.Should().BeFalse();
         order.StoreNote.Should().Be("Disponibilidad confirmada");
     }
@@ -96,7 +129,7 @@ public sealed class StoreOrderStateMachineTests
     public void Cancel_WithoutReason_Throws()
     {
         var order = MakeOrder();
-        order.Confirm();
+        order.Accept();
 
         var act = () => order.UpdateStatus(StoreOrderStatus.Cancelled);
 
@@ -107,7 +140,7 @@ public sealed class StoreOrderStateMachineTests
     public void Cancel_WithReason_StoresReason()
     {
         var order = MakeOrder();
-        order.Confirm();
+        order.Accept();
 
         order.UpdateStatus(StoreOrderStatus.Cancelled, "Cliente no disponible");
 
@@ -119,8 +152,9 @@ public sealed class StoreOrderStateMachineTests
     public void UpdateStatus_ValidPickupPath_Transitions()
     {
         var order = MakeOrder(OrderFulfillmentType.Pickup);
+        order.Accept("Disponibilidad confirmada");
         order.ReportPayment();
-        order.Confirm();
+        order.VerifyManualPayment(Guid.NewGuid(), "BANK-PICKUP");
         order.UpdateStatus(StoreOrderStatus.Preparing);
         order.UpdateStatus(StoreOrderStatus.ReadyForPickup);
         order.UpdateStatus(StoreOrderStatus.Delivered);
@@ -132,8 +166,9 @@ public sealed class StoreOrderStateMachineTests
     public void UpdateStatus_ValidDeliveryPath_Transitions()
     {
         var order = MakeOrder(OrderFulfillmentType.Delivery);
+        order.Accept("Disponibilidad confirmada");
         order.ReportPayment();
-        order.Confirm();
+        order.VerifyManualPayment(Guid.NewGuid(), "BANK-DELIVERY");
         order.UpdateStatus(StoreOrderStatus.Preparing);
         order.UpdateStatus(StoreOrderStatus.OutForDelivery);
         order.UpdateStatus(StoreOrderStatus.Delivered);
@@ -144,8 +179,9 @@ public sealed class StoreOrderStateMachineTests
     public void UpdateStatus_SkipStep_Throws()
     {
         var order = MakeOrder();
+        order.Accept("Disponibilidad confirmada");
         order.ReportPayment();
-        order.Confirm();
+        order.VerifyManualPayment(Guid.NewGuid(), "BANK-SKIP");
         var act = () => order.UpdateStatus(StoreOrderStatus.Delivered); // skip Preparing
         act.Should().Throw<InvalidOperationException>();
     }
@@ -154,19 +190,21 @@ public sealed class StoreOrderStateMachineTests
     public void UpdateStatus_ReverseTransition_Throws()
     {
         var order = MakeOrder();
+        order.Accept("Disponibilidad confirmada");
         order.ReportPayment();
-        order.Confirm();
+        order.VerifyManualPayment(Guid.NewGuid(), "BANK-REVERSE");
         order.UpdateStatus(StoreOrderStatus.Preparing);
         var act = () => order.UpdateStatus(StoreOrderStatus.Confirmed); // reversal
         act.Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
-    public void Cancel_FromConfirmed_Transitions()
+    public void Cancel_FromPaid_Transitions()
     {
         var order = MakeOrder();
+        order.Accept("Disponibilidad confirmada");
         order.ReportPayment();
-        order.Confirm();
+        order.VerifyManualPayment(Guid.NewGuid(), "BANK-CANCEL");
         order.UpdateStatus(StoreOrderStatus.Cancelled, "Cancelado por la tienda");
         order.Status.Should().Be(StoreOrderStatus.Cancelled);
     }
@@ -177,8 +215,9 @@ public sealed class StoreOrderStateMachineTests
     public void UpdateStatus_FromTerminalState_Throws(StoreOrderStatus from)
     {
         var order = MakeOrder();
+        order.Accept("Disponibilidad confirmada");
         order.ReportPayment();
-        order.Confirm();
+        order.VerifyManualPayment(Guid.NewGuid(), "BANK-TERMINAL");
         order.UpdateStatus(StoreOrderStatus.Preparing);
         order.UpdateStatus(from == StoreOrderStatus.Delivered
             ? StoreOrderStatus.ReadyForPickup
@@ -200,6 +239,51 @@ public sealed class StoreOrderStateMachineTests
         };
         var order = StoreOrder.Place(Guid.NewGuid(), Guid.NewGuid(), "R", OrderFulfillmentType.Pickup, null, null, lines);
         order.TotalCrc.Should().Be(5500m);
+    }
+}
+
+public sealed class StoreInventoryReservationTests
+{
+    [Fact]
+    public void ProductReservationDecrementsAvailableStockAndReleaseRestoresItOnce()
+    {
+        var product = StoreProduct.Create(Guid.NewGuid(), "Alimento", null, ProductCategory.Food, 5000m, stockOnHand: 3);
+
+        product.ReserveStock(2);
+        product.StockOnHand.Should().Be(1);
+
+        product.ReleaseStock(2);
+        product.StockOnHand.Should().Be(3);
+    }
+
+    [Fact]
+    public void ProductCannotReserveMoreThanAvailableStock()
+    {
+        var product = StoreProduct.Create(Guid.NewGuid(), "Alimento", null, ProductCategory.Food, 5000m, stockOnHand: 1);
+
+        var act = () => product.ReserveStock(2);
+
+        act.Should().Throw<InvalidOperationException>();
+        product.StockOnHand.Should().Be(1);
+    }
+
+    [Fact]
+    public void ManualPaymentVerificationConsumesReservationAndIsIdempotent()
+    {
+        var order = StoreOrder.Place(Guid.NewGuid(), Guid.NewGuid(), "REF54321", OrderFulfillmentType.Pickup,
+            null, null, [(Guid.NewGuid(), "Alimento", 1, 5000m)]);
+        order.MarkStockReserved(DateTimeOffset.UtcNow.AddMinutes(15));
+        order.Accept("Disponibilidad confirmada");
+        var verifierId = Guid.NewGuid();
+        order.ReportPayment();
+
+        order.VerifyManualPayment(verifierId, "BANK-REF-1");
+        order.VerifyManualPayment(verifierId, "BANK-REF-1");
+
+        order.Status.Should().Be(StoreOrderStatus.Paid);
+        order.PaymentVerifiedByUserId.Should().Be(verifierId);
+        order.PaymentVerificationReference.Should().Be("BANK-REF-1");
+        order.StockReserved.Should().BeFalse();
     }
 }
 
@@ -405,12 +489,36 @@ public sealed class StoreOrderAuthorizationTests
             null, null, [(Guid.NewGuid(), "Food", 1, 1000m)]);
         _storeRepo.GetByUserIdAsync(attackerId, Arg.Any<CancellationToken>()).Returns((Store?)null);
 
-        var handler = new ConfirmStoreOrderCommandHandler(_storeRepo, _orderRepo, _uow);
+        var handler = new ConfirmStoreOrderCommandHandler(_storeRepo, _orderRepo);
 
         var result = await handler.Handle(
             new ConfirmStoreOrderCommand(attackerId, order.Id, "forged"), CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
+        _orderRepo.DidNotReceive().Update(Arg.Any<StoreOrder>());
+        await _uow.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task StoreAcceptance_RequiresAtomicInventoryReservation()
+    {
+        var ownerId = Guid.NewGuid();
+        var store = Store.Create(ownerId, "Store", "Desc", "Address", 9.9m, -84m, "store@example.cr");
+        var order = StoreOrder.Place(store.Id, Guid.NewGuid(), "REF54321", OrderFulfillmentType.Pickup,
+            null, null, [(Guid.NewGuid(), "Food", 1, 1000m)]);
+        _storeRepo.GetByUserIdAsync(ownerId, Arg.Any<CancellationToken>()).Returns(store);
+        _orderRepo.GetByIdAsync(order.Id, Arg.Any<CancellationToken>()).Returns(order);
+        _orderRepo.TryAcceptAndReserveStockAsync(
+            order.Id, store.Id, "Disponibilidad confirmada", Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>())
+            .Returns(false);
+
+        var handler = new ConfirmStoreOrderCommandHandler(_storeRepo, _orderRepo);
+        var result = await handler.Handle(new ConfirmStoreOrderCommand(ownerId, order.Id, "Disponibilidad confirmada"), default);
+
+        result.IsFailure.Should().BeTrue();
+        order.Status.Should().Be(StoreOrderStatus.AwaitingStoreAcceptance);
+        await _orderRepo.Received(1).TryAcceptAndReserveStockAsync(
+            order.Id, store.Id, "Disponibilidad confirmada", Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>());
         _orderRepo.DidNotReceive().Update(Arg.Any<StoreOrder>());
         await _uow.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
     }
@@ -432,5 +540,59 @@ public sealed class StoreOrderAuthorizationTests
         result.IsSuccess.Should().BeTrue();
         result.Value!.Items.Should().NotContain(item => item.Id == foreignOrder.Id);
         await _orderRepo.Received(1).GetByCustomerPagedAsync(customerId, 0, 20, Arg.Any<CancellationToken>());
+    }
+}
+
+public sealed class StoreOrderPaymentVerificationTests
+{
+    [Fact]
+    public async Task StoreOwnerVerifiesReportedPaymentAndAuditsReference()
+    {
+        var storeOwnerId = Guid.NewGuid();
+        var store = Store.Create(storeOwnerId, "Store", "Desc", "Address", 9.9m, -84m, "store@example.cr");
+        var order = StoreOrder.Place(store.Id, Guid.NewGuid(), "SINPE123", OrderFulfillmentType.Pickup,
+            null, null, [(Guid.NewGuid(), "Food", 1, 1000m)]);
+        order.MarkStockReserved(DateTimeOffset.UtcNow.AddMinutes(15));
+        order.Accept("Disponible");
+        order.ReportPayment();
+        var storeRepository = Substitute.For<IStoreRepository>();
+        var orderRepository = Substitute.For<IStoreOrderRepository>();
+        var auditRepository = Substitute.For<IAuditLogRepository>();
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        storeRepository.GetByUserIdAsync(storeOwnerId, Arg.Any<CancellationToken>()).Returns(store);
+        orderRepository.GetByIdAsync(order.Id, Arg.Any<CancellationToken>()).Returns(order);
+        var handler = new VerifyStoreOrderPaymentCommandHandler(storeRepository, orderRepository, auditRepository, unitOfWork);
+
+        var result = await handler.Handle(
+            new VerifyStoreOrderPaymentCommand(storeOwnerId, order.Id, "BANK-REF-998", "SINPE recibido"), default);
+
+        result.IsSuccess.Should().BeTrue();
+        order.Status.Should().Be(StoreOrderStatus.Paid);
+        order.PaymentVerifiedByUserId.Should().Be(storeOwnerId);
+        order.PaymentVerificationReference.Should().Be("BANK-REF-998");
+        await auditRepository.Received(1).AddAsync(
+            Arg.Is<AuditLogEntry>(entry => entry.Action == AuditAction.StoreOrderPaymentVerified && entry.Details == "BANK-REF-998"),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task AnotherStoreCannotVerifyOrderPayment()
+    {
+        var order = StoreOrder.Place(Guid.NewGuid(), Guid.NewGuid(), "SINPE124", OrderFulfillmentType.Pickup,
+            null, null, [(Guid.NewGuid(), "Food", 1, 1000m)]);
+        var storeRepository = Substitute.For<IStoreRepository>();
+        var orderRepository = Substitute.For<IStoreOrderRepository>();
+        var auditRepository = Substitute.For<IAuditLogRepository>();
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        storeRepository.GetByUserIdAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((Store?)null);
+        orderRepository.GetByIdAsync(order.Id, Arg.Any<CancellationToken>()).Returns(order);
+        var handler = new VerifyStoreOrderPaymentCommandHandler(storeRepository, orderRepository, auditRepository, unitOfWork);
+
+        var result = await handler.Handle(
+            new VerifyStoreOrderPaymentCommand(Guid.NewGuid(), order.Id, "BANK-REF-999", null), default);
+
+        result.IsFailure.Should().BeTrue();
+        order.Status.Should().Be(StoreOrderStatus.AwaitingStoreAcceptance);
+        await auditRepository.DidNotReceive().AddAsync(Arg.Any<AuditLogEntry>(), Arg.Any<CancellationToken>());
     }
 }
