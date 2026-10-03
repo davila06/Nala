@@ -20,11 +20,12 @@ public sealed class Notification
         NotificationType type,
         string title,
         string body,
-        string? relatedEntityId = null)
+        string? relatedEntityId = null,
+        Guid? notificationId = null)
     {
         return new Notification
         {
-            Id = Guid.CreateVersion7(),
+            Id = notificationId ?? Guid.CreateVersion7(),
             UserId = userId,
             Type = type,
             Title = title.Trim(),

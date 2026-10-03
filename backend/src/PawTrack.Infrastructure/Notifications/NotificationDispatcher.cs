@@ -636,29 +636,32 @@ public sealed class NotificationDispatcher(
             cancellationToken);
     }
 
-    public async Task DispatchNewStoreOrderAsync(
-        Guid storeOwnerUserId,
-        string storeName,
-        string orderId,
-        decimal totalCrc,
+    public async Task DispatchStoreOrderLifecycleAsync(
+        Guid notificationId,
+        Guid recipientUserId,
+        Guid orderId,
+        string title,
+        string body,
+        string route,
         CancellationToken cancellationToken = default)
     {
-        // In-app notification (persisted — survives missed push)
-        var notification = Notification.Create(
-            storeOwnerUserId,
-            NotificationType.SystemMessage,
-            $"🛍️ Nuevo pedido en {storeName}",
-            $"Recibirás ₡{totalCrc:N0}. Confirma el pedido cuando verifiques el pago SINPE.",
-            relatedEntityId: orderId);
+        if (await notificationRepository.GetByIdAsync(notificationId, cancellationToken) is not null)
+            return;
 
-        await notificationRepository.AddAsync(notification, cancellationToken);
+        await notificationRepository.AddAsync(Notification.Create(
+            recipientUserId,
+            NotificationType.SystemMessage,
+            title,
+            body,
+            orderId.ToString(),
+            notificationId), cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         await TrySendPushAsync(
-            storeOwnerUserId,
-            $"🛒 Nuevo pedido en {storeName}",
-            $"Recibirás ₡{totalCrc:N0}. Confirma el pedido cuando verifiques el pago SINPE.",
-            new PushNotificationMetadata(Url: $"/tienda/portal/ordenes/{orderId}"),
+            recipientUserId,
+            title,
+            body,
+            new PushNotificationMetadata(Url: route),
             cancellationToken);
     }
 

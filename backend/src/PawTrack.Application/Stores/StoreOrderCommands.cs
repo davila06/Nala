@@ -1,6 +1,5 @@
 using FluentValidation;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using PawTrack.Application.Common;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Subscriptions.Interfaces;
@@ -110,9 +109,7 @@ public sealed class PlaceStoreOrderCommandHandler(
     IStoreOrderRepository orderRepo,
     IPaymentService paymentService,
     ISubscriptionService subscriptionService,
-    INotificationDispatcher notificationDispatcher,
     IUnitOfWork uow,
-    ILogger<PlaceStoreOrderCommandHandler> logger,
     IUserRepository? userRepo = null,
     IEmailSender? emailSender = null,
     IEntitlementService? entitlementService = null)
@@ -196,13 +193,6 @@ public sealed class PlaceStoreOrderCommandHandler(
                 return Result.Failure<StoreOrderDto>("Error al generar referencia de pago. Por favor, intenta de nuevo.");
             throw;
         }
-
-        // Fire-and-forget push notification — uses None so it outlives the request's ct
-        _ = notificationDispatcher.DispatchNewStoreOrderAsync(
-            store.UserId, store.Name, order.Id.ToString(), order.TotalCrc, CancellationToken.None)
-            .ContinueWith(t => logger.LogWarning(t.Exception,
-                "StoreOrder push notification failed for order {OrderId}", order.Id),
-                CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
 
         if (emailSender is not null)
         {

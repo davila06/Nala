@@ -1,9 +1,13 @@
+using PawTrack.Domain.Common;
+using PawTrack.Domain.Stores.Events;
+
 namespace PawTrack.Domain.Stores;
 
-public sealed class StoreOrder
+public sealed class StoreOrder : IHasDomainEvents
 {
     private StoreOrder() { }
     private readonly List<StoreOrderItem> _items = [];
+    private readonly List<object> _domainEvents = [];
 
     public Guid Id { get; private set; }
     public Guid StoreId { get; private set; }
@@ -35,6 +39,8 @@ public sealed class StoreOrder
     public DateTimeOffset? CancelledAt { get; private set; }
 
     public IReadOnlyList<StoreOrderItem> Items => _items.AsReadOnly();
+    public IReadOnlyList<object> DomainEvents => _domainEvents.AsReadOnly();
+    public void ClearDomainEvents() => _domainEvents.Clear();
 
     // ── Factory ───────────────────────────────────────────────────────────────
 
@@ -80,6 +86,7 @@ public sealed class StoreOrder
         }
 
         order.TotalCrc = order._items.Sum(i => i.SubtotalCrc);
+        order.AddLifecycleEvent();
         return order;
     }
 
@@ -91,6 +98,7 @@ public sealed class StoreOrder
             throw new InvalidOperationException("Solo se puede reportar el pago después de que la tienda acepte el pedido.");
         PaymentReportedByCustomer = true;
         Status = StoreOrderStatus.PaymentReported;
+        AddLifecycleEvent();
     }
 
     public void Accept(string? storeNote = null)
@@ -106,6 +114,7 @@ public sealed class StoreOrder
             : StoreOrderStatus.AwaitingPayment;
         StoreNote = storeNote?.Trim();
         ConfirmedAt = DateTimeOffset.UtcNow;
+        AddLifecycleEvent();
     }
 
     public void VerifyManualPayment(Guid verifiedByUserId, string bankReference, string? storeNote = null)
@@ -128,6 +137,7 @@ public sealed class StoreOrder
         PaymentVerificationReference = bankReference.Trim();
         PaymentVerifiedByUserId = verifiedByUserId;
         PaymentConfirmedAt = DateTimeOffset.UtcNow;
+        AddLifecycleEvent();
     }
 
     public void RecordManualRefund(Guid refundedByUserId, string refundReference, string? reason = null)
@@ -147,6 +157,7 @@ public sealed class StoreOrder
         RefundedByUserId = refundedByUserId;
         RefundedAt = DateTimeOffset.UtcNow;
         if (!string.IsNullOrWhiteSpace(reason)) StoreNote = reason.Trim();
+        AddLifecycleEvent();
     }
 
     public void MarkStockReserved(DateTimeOffset expiresAt)
@@ -179,6 +190,7 @@ public sealed class StoreOrder
         StockReserved = false;
         StockReservationExpiresAt = null;
         CancelledAt = now;
+        AddLifecycleEvent();
     }
 
     public void Reject(string reason)
@@ -206,6 +218,8 @@ public sealed class StoreOrder
 
         if (newStatus is StoreOrderStatus.Delivered)
             CompletedAt = DateTimeOffset.UtcNow;
+
+        AddLifecycleEvent();
     }
 
     /// <summary>Allowed forward-only state machine — prevents skipping steps, reversals, and fulfillment mismatches.</summary>
@@ -245,5 +259,9 @@ public sealed class StoreOrder
         Status = StoreOrderStatus.Cancelled;
         StoreNote = reason.Trim();
         CancelledAt = DateTimeOffset.UtcNow;
+        AddLifecycleEvent();
     }
+
+    private void AddLifecycleEvent() => _domainEvents.Add(new StoreOrderLifecycleDomainEvent(
+        Guid.CreateVersion7(), Id, StoreId, CustomerId, Status, FulfillmentType, TotalCrc, DateTimeOffset.UtcNow));
 }

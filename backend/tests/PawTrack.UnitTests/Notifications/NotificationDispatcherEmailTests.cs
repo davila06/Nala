@@ -4,6 +4,7 @@ using NSubstitute;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Auth;
+using PawTrack.Domain.Notifications;
 using PawTrack.Infrastructure.Notifications;
 
 namespace PawTrack.UnitTests.Notifications;
@@ -36,6 +37,42 @@ public sealed class NotificationDispatcherEmailTests
         _unitOfWork,
         _logger,
         _userRepository);
+
+    [Fact]
+    public async Task DispatchStoreOrderLifecycleAsync_WhenEventNotificationExists_DoesNotDuplicateIt()
+    {
+        var notificationId = Guid.NewGuid();
+        var recipientId = Guid.NewGuid();
+        var orderId = Guid.NewGuid();
+        _notificationRepository.GetByIdAsync(notificationId, Arg.Any<CancellationToken>())
+            .Returns(Notification.Create(recipientId, NotificationType.SystemMessage, "Listo", "Retira el pedido.", orderId.ToString(), notificationId));
+
+        await CreateSut().DispatchStoreOrderLifecycleAsync(
+            notificationId, recipientId, orderId, "Listo", "Retira el pedido.", "/mis-pedidos");
+
+        await _notificationRepository.DidNotReceive().AddAsync(Arg.Any<Notification>(), Arg.Any<CancellationToken>());
+        await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+        await _pushService.DidNotReceiveWithAnyArgs().SendAsync(default, default!, default!, default, default);
+    }
+
+    [Fact]
+    public async Task DispatchStoreOrderLifecycleAsync_PersistsStableNotificationId()
+    {
+        var notificationId = Guid.NewGuid();
+        var recipientId = Guid.NewGuid();
+        var orderId = Guid.NewGuid();
+
+        await CreateSut().DispatchStoreOrderLifecycleAsync(
+            notificationId, recipientId, orderId, "Listo", "Retira el pedido.", "/mis-pedidos");
+
+        await _notificationRepository.Received(1).AddAsync(
+            Arg.Is<Notification>(notification =>
+                notification.Id == notificationId &&
+                notification.UserId == recipientId &&
+                notification.RelatedEntityId == orderId.ToString()),
+            Arg.Any<CancellationToken>());
+        await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
 
     [Fact]
     public async Task DispatchCustodyStartedAsync_SendsEmailsToBothFosterAndOwner()

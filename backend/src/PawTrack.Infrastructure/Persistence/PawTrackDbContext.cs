@@ -223,7 +223,7 @@ public sealed class PawTrackDbContext(
         foreach (var evt in domainEvents)
         {
             var payload = JsonSerializer.Serialize(evt, evt.GetType());
-            OutboxMessages.Add(OutboxMessage.Create(evt.GetType().FullName ?? evt.GetType().Name, payload));
+            OutboxMessages.Add(OutboxMessage.Create(evt.GetType().AssemblyQualifiedName ?? evt.GetType().FullName ?? evt.GetType().Name, payload));
         }
 
         var result = await base.SaveChangesAsync(cancellationToken);
@@ -233,7 +233,7 @@ public sealed class PawTrackDbContext(
         // Only dispatch events that implement INotification — others are delivered exclusively via the outbox.
         if (publisher is not null)
         {
-            foreach (var evt in domainEvents.OfType<MediatR.INotification>())
+            foreach (var evt in domainEvents.OfType<MediatR.INotification>().Where(evt => evt is not IOutboxOnlyNotification))
                 await publisher.Publish(evt, cancellationToken);
         }
 
