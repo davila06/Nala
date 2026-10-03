@@ -1,7 +1,7 @@
 # Plan de implementacion: NALA como sistema diario para tiendas
 
 > Estado: modelo hibrido por etapas aprobado como direccion de producto el 2026-10-02; cada gate legal, fiscal, comercial y de produccion permanece pendiente de evidencia y aprobacion de sus responsables.
-> Corte de evidencia del codigo: 2026-10-02. La migracion nueva no se verifico aplicada.
+> Corte de evidencia del codigo: 2026-10-02. La migracion nueva se probo en LocalDB temporal desechable; no se aplico a una base persistente.
 > Alcance: tiendas de mascotas y veterinarias que venden productos al detalle. No describe la operacion clinica.
 > Este archivo es el plan canonico de implementacion; el backlog ejecutable vive en [MASTER_TODO.md](MASTER_TODO.md).
 
@@ -55,15 +55,18 @@ gates antes de cobrar, publicar claims o activar comercios.
 - Entidad `StoreLocation`, CRUD bajo gates de StorePartner y `LocationId` opcional en el pedido.
 - Analitica de pedidos entregados/cancelados, filtro tecnico por sede y exportacion StorePartner.
 - Importacion CSV/JSON asincrona basica de productos mediante `ImportJob`, con clave de idempotencia del job, limite tecnico y gate de cuota.
-- `POST /api/store-orders` requiere `Idempotency-Key`; el backend guarda una huella del payload, devuelve el pedido existente ante replay equivalente y rechaza reutilizacion con payload distinto. Checkout conserva la clave al reintentar. La unicidad esta declarada por cliente en el modelo EF; la migracion esta generada, no aplicada.
+- `POST /api/store-orders` requiere `Idempotency-Key`; el backend guarda una huella del payload, devuelve el pedido existente ante replay equivalente y devuelve 409 ante payload distinto. Checkout conserva la clave al reintentar. `StoreOrderIdempotencySqlTests` aplica la migracion en LocalDB temporal, preserva un pedido legacy y prueba la unicidad concurrente; no se aplico a una base persistente.
 - Hay pruebas unitarias de dominio/handlers de tienda; no acreditan por si solas el flujo SQL concurrente ni un E2E de venta/caja.
 
 Las migraciones `20261002193005_AddEnterpriseMarketplaceStockAndPaymentLink`,
 `20261002201408_AddStoreOrderManualRefundEvidence` y
 `20261002212937_AddStoreOrderIdempotencyAndProviderRefundAccounting`, junto con
-las rutas/jobs referidos, son evidencia de codigo/esquema en el workspace, no
-de migracion aplicada, despliegue, operacion con una tienda o pago confirmado
-por una entidad bancaria. La verificacion de esos estados es `NO_VERIFICADO`.
+las rutas/jobs referidos, son evidencia de codigo/esquema en el workspace. La
+ultima se probo en una base LocalDB temporal creada y eliminada por
+`StoreOrderIdempotencySqlTests`, desde esquema vacio y con upgrade de un pedido
+legacy. No se aplico a una base persistente ni acredita despliegue, operacion
+con una tienda o pago confirmado por una entidad bancaria; esos estados siguen
+`NO_VERIFICADO`.
 
 ### Brechas actuales para uso diario
 
@@ -73,7 +76,7 @@ por una entidad bancaria. La verificacion de esos estados es `NO_VERIFICADO`.
 - El checkout no elige sede ni envia `LocationId`; por tanto, la atribucion multi-sede no forma parte del flujo frontend actual.
 - No hay membresias de empleados de tienda ni permisos por sucursal; el agregado `Store` tiene un `UserId` propietario unico.
 - No hay venta presencial/online unificada, caja/cierre, conciliacion automatica ni factura fiscal de tienda en NALA. Reportar/verificar un pago manual o registrar un reembolso externo no procesa esos movimientos.
-- Idempotencia de `POST /api/store-orders` implementada en API, handler y checkout; falta aplicar la migracion autorizadamente y verificar colision/concurrencia/rollback en SQL Server. El snapshot de nombre/precio existe al crear la solicitud; falta reconfirmar el monto/condiciones si cambian antes de aceptar.
+- Idempotencia de `POST /api/store-orders` implementada en API, handler y checkout; migracion, upgrade legacy y colision/concurrencia probados en LocalDB temporal. Falta aplicar con autorizacion a un entorno persistente y verificar alli rollback/operacion. El snapshot de nombre/precio existe al crear la solicitud; falta reconfirmar el monto/condiciones si cambian antes de aceptar.
 - Las notificaciones actuales no usan entrega durable/outbox para todo el ciclo ni acreditan recepcion por el comprador.
 - El importador no carga SKU ni existencias y requiere UI de vista previa/progreso, errores descargables, lotes/streaming y pruebas de aislamiento y duplicados.
 - No se encontro un E2E de la jornada completa de caja/inventario. El runbook B2B existente no cubre ese flujo.
@@ -87,7 +90,7 @@ Fuentes de contraste: [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md),
 
 ## 3. Brechas confirmadas que requieren correccion
 
-1. **Idempotencia (código implementado; gate relacional pendiente):** `POST /api/store-orders` exige `Idempotency-Key`, almacena hash del payload, reproduce la respuesta solo para el mismo payload y devuelve 409 `IDEMPOTENCY_KEY_CONFLICT` si se reutiliza con otro. Usa índice único cliente/clave. Pruebas unitarias cubren retry, conflicto y colisión simulada; quedan migración aplicada autorizadamente y pruebas de concurrencia/rollback con SQL Server.
+1. **Idempotencia (código y gate SQL temporal verificados; rollout pendiente):** `POST /api/store-orders` exige `Idempotency-Key`, almacena hash del payload, reproduce la respuesta solo para el mismo payload y devuelve 409 `IDEMPOTENCY_KEY_CONFLICT` si se reutiliza con otro. Usa índice único cliente/clave. `StoreOrderIdempotencySqlTests` aplica desde cero, sube un pedido legacy y prueba concurrencia en una base LocalDB temporal; falta autorización para migrar un entorno persistente y verificar rollout/rollback allí.
 2. **Estados y evidencia de pago:** hay estados para disponibilidad, pago reportado, verificacion manual, preparacion y cumplimiento. Documentar que `verify-payment` es una atestacion de la tienda tras revisar su cuenta, no confirmacion bancaria de NALA. Acordar nombre/semantica del estado `Paid` y evitar presentar el pedido como venta liquidada por el sistema.
 3. **Transiciones de fulfillment:** probar en dominio/API que retiro y entrega no crucen estados incompatibles, que estados terminales no se muten y que cada cambio registre actor, fecha, motivo y evento inmutable.
 4. **Validacion de catalogo:** agregar validador para `UpdateStoreProductCommand` e invariantes de dominio equivalentes al alta, incluyendo nombre, precio, stock no negativo y tienda activa.
@@ -116,7 +119,7 @@ produccion.
 ### Fase 1 - Piloto hibrido e integridad minima de pedido
 
 - Ejecutar con una ubicacion, catalogo/importacion inicial y flujo de pedido de una tienda.
-- Validar en SQL Server la idempotencia de creacion ante reintentos concurrentes; completar idempotencia de transiciones y correlacion auditable antes de exponer el flujo a reintentos reales.
+- Antes de piloto, aplicar con autorización la migración probada a staging y validar rollback/observabilidad; completar idempotencia de transiciones y correlación auditable antes de exponer el flujo a reintentos reales.
 - Formalizar maquina de estados por retiro/entrega; distinguir solicitud, aceptacion con disponibilidad, pago reportado, verificacion manual, preparacion, entrega y estados terminales.
 - Mantener el snapshot actual de lineas; revalidar precio/disponibilidad en aceptacion y requerir confirmacion del comprador si cambia el monto.
 - Usar el POS externo para cobro/caja/factura. Registrar cualquier cambio presencial de stock en NALA mientras NALA sea autoridad; si el piloto no puede hacerlo, no exponer stock como real.

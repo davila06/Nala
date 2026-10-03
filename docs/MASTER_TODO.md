@@ -18,7 +18,7 @@ Una tarea no se marca como `[x]` solo porque el código exista. Requiere una
 prueba apropiada, autorización y seguridad cuando corresponda, documentación
 actualizada y evidencia fechada.
 
-> Últimas suites completas locales: backend 1920/1920 y PWA 222/222 (70 archivos). Tras el mapeo HTTP 409 se ejecutaron de nuevo los tests de controller 3/3, checkout 2/2, `npm --prefix frontend run build` y la suite landing 53/53. No se aplicó la migración nueva ni se probaron SQL Server concurrente, gateway/SINPE real, staging o producción.
+> Últimas suites completas locales: backend 1922/1922, incluido el gate SQL sobre una base temporal; PWA 222/222 (70 archivos). Tras el mapeo HTTP 409 se ejecutaron tests de controller 3/3, checkout 2/2, `npm --prefix frontend run build` y landing 53/53. La migración no se aplicó a `PawTrackDev`, staging ni producción; gateway/SINPE real siguen sin prueba.
 
 ## Prioridad inmediata
 
@@ -47,7 +47,8 @@ La direccion de producto de `ENT-STORE` es un modelo hibrido por etapas. En el
 codigo actual ya hay stock escalar, reserva/expiracion, registro manual de
 reporte/verificacion de pago externo e idempotencia de creacion de pedidos con
 `Idempotency-Key`; no equivalen a kardex, POS, pago automatizado, conciliacion
-ni despliegue. La migracion de idempotencia/reembolso esta generada, no aplicada;
+ni despliegue. La migracion de idempotencia/reembolso se probó en una base SQL
+temporal desechable, pero no se aplicó a una base persistente;
 los gates y limites estan en
 [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md). La migracion de
 stock/pago y su operacion en un entorno compartido siguen `NO_VERIFICADO`.
@@ -58,12 +59,12 @@ stock/pago y su operacion en un entorno compartido siguen `NO_VERIFICADO`.
 - [ ] Asignar propietario y fecha de expiración a cada gate y evidencia.
 - [x] Ejecutar restore reproducible de .NET con `packages.lock.json` y `--locked-mode`; verificado localmente el 2026-09-23.
 - [x] Ejecutar build Release con `--no-restore` y warnings tratados como errores; verificado localmente el 2026-09-23.
-- [x] Validar la suite backend principal de forma local con `dotnet test PawTrack.sln --no-restore --verbosity minimal -p:BaseOutputPath=backend/test-out/`; resultado: exit 0, 1920/1920 pruebas.
+- [x] Validar la suite backend principal de forma local con `dotnet test PawTrack.sln --no-restore --verbosity minimal -p:BaseOutputPath=backend/test-out/`; resultado: exit 0, 1922/1922 pruebas.
 - [x] Validar la suite frontend principal de forma local con `npm --prefix frontend test -- --run --reporter=dot`; resultado: exit 0, 222/222 pruebas en 70 archivos.
 - [ ] Ejecutar `npm ci` con versión de Node fijada y lockfile validado.
 - [ ] Ejecutar typecheck, lint, build, Vitest y Playwright en CI limpio.
 - [ ] Publicar TRX, cobertura, OpenAPI, migraciones, SBOM y reportes Playwright.
-- [ ] Validar migraciones en base vacía y upgrade incremental.
+- [x] Validar migración en base SQL temporal vacía y upgrade incremental preservando un pedido legacy; `StoreOrderIdempotencySqlTests` aplica todas las migraciones en LocalDB temporal, comprueba los campos nullable y verifica que un insert concurrente con la misma clave es rechazado. La base se elimina al final; no valida staging/producción.
 - [ ] Ejecutar el test de expand/contract de migraciones.
 - [ ] Bloquear merge si falla un gate P0.
 - [ ] Documentar excepciones de seguridad/dependencias con responsable y expiración.
@@ -216,7 +217,7 @@ cambian quedan registradas en NALA. Esta direccion no representa aprobacion
 legal/fiscal, contrato, piloto seleccionado ni despliegue.
 
 - [ ] Aprobar responsables, tienda piloto, autoridad por dato, flujo de venta presencial y politicas locales antes de habilitar stock como real.
-- [~] Implementar idempotencia de `POST /api/store-orders`: header requerido, hash de payload, replay idéntico, rechazo de payload distinto, índice único por cliente y retry frontend. La migración `AddStoreOrderIdempotencyAndProviderRefundAccounting` está generada y no aplicada; faltan pruebas con SQL Server real para concurrencia, rollback y upgrade.
+- [~] Implementar idempotencia de `POST /api/store-orders`: header requerido, hash de payload, replay idéntico, rechazo de payload distinto, índice único por cliente y retry frontend. Migración y carrera de índice probadas en LocalDB temporal; falta aplicar con aprobación a un entorno compartido y validar allí rollback/operación.
 - [ ] Cerrar transiciones por retiro/entrega, actor/motivo/historial y reconfirmacion de cambios de precio.
 - [ ] Implementar kardex y recepcion/conteo/ajuste/merma/devolucion en una sede; verificar atomicidad SQL, reservas y conciliacion de stock.
 - [ ] Definir registro operativo de ventas y cierres mientras el POS externo procesa pagos y emite comprobantes; no presentar el endpoint manual como confirmacion bancaria.
@@ -230,7 +231,7 @@ la fuente unica de tareas activas y se cerrara solo con implementacion y evidenc
 
 ## Evidencia y fuentes relacionadas
 
-- Estado técnico verificado al 2026-10-02: suites completas backend 1920/1920 y PWA 222/222; pruebas focales posteriores al último cambio: controller 3/3, checkout 2/2, landing 53/53, build PWA y typecheck correctos. Las pruebas no aplican la migración ni verifican SQL concurrente, proveedores externos o producción.
+- Estado técnico verificado al 2026-10-02: suites completas backend 1922/1922 y PWA 222/222; prueba SQL temporal de migración/idempotencia 1/1; controller 3/3, checkout 2/2, landing 53/53, build PWA y typecheck correctos. No se aplicó la migración a base persistente ni se verificaron proveedores, staging o producción.
 - Estado técnico: [STATUS.md](STATUS.md)
 - Gobierno de release: [GO_LIVE_GOVERNANCE.md](GO_LIVE_GOVERNANCE.md)
 - Autorización: [API_AUTHORIZATION_MATRIX.md](API_AUTHORIZATION_MATRIX.md)

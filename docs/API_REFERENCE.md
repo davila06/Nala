@@ -115,7 +115,7 @@ Suscripciones de usuario:
 - Al crear el pedido, el handler rechaza lineas con stock no declarado o insuficiente; no existe flujo de solicitud sin stock.
 - Al aceptar, el codigo reserva `StockOnHand` disponible y una tarea vence/libera la reserva; esto no es un ledger ni stock productivo verificado.
 - El pedido conserva snapshot de nombre/precio/cantidad al crearse; sigue pendiente reconfirmar cambios de precio antes de aceptar.
-- La migracion `AddStoreOrderIdempotencyAndProviderRefundAccounting` declara el indice unico y los campos nuevos; esta generada, no aplicada ni verificada en un entorno compartido.
+- La migracion `AddStoreOrderIdempotencyAndProviderRefundAccounting` declara el indice unico y los campos nuevos; se probo en LocalDB temporal desechable (incluye upgrade legacy/concurrencia), pero no se aplico a una base persistente ni a un entorno compartido.
 - `LocationId` es opcional en backend, pero checkout no permite seleccionar
   sede. No hay POS/caja, movimientos de inventario, compras ni pago/factura
   integrados para la tienda.

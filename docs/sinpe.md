@@ -18,6 +18,9 @@
 PawTrack genera referencias para los flujos que actualmente las exponen, como
 suscripciones, bundles o recompensas. La existencia de un campo de referencia
 en una entidad no significa que exista checkout o conciliacion para ese modulo.
+Los pasos B2C/B2B siguientes describen activacion de suscripciones; los pedidos
+de tienda tienen un flujo manual separado y la tienda, no Admin, registra su
+verificacion externa. Ver el limite de tienda al inicio de este documento.
 
 El usuario debe:
 
@@ -27,7 +30,9 @@ El usuario debe:
 4. Escribir `ABC12345` exactamente en el **asunto o descripción/mensaje de la transferencia**, según el nombre que utilice la aplicación bancaria.
 5. Regresar a PawTrack y presionar **Ya realicé el pago SINPE**.
 
-Actualmente el sistema solo registra el aviso del usuario. Un administrador revisa la cuenta bancaria y activa manualmente la suscripción o confirma el pedido.
+Para suscripciones, el sistema registra el aviso del usuario y un administrador
+revisa la cuenta bancaria para activar manualmente la suscripcion. Esto no
+describe ni confirma pagos de pedidos de tienda.
 
 ### Importante
 
