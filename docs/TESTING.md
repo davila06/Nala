@@ -1,5 +1,18 @@
 # Verificación reproducida (2026-09-28)
 
+## Revalidación focal tiendas (2026-10-02)
+
+- `dotnet test backend/tests/PawTrack.UnitTests/PawTrack.UnitTests.csproj --configuration Release --no-restore --filter "FullyQualifiedName~PawTrack.UnitTests.Stores.StoreOrder" --verbosity minimal -p:BuildProjectReferences=false`: **37/37** aprobadas; handlers, estados, idempotencia, Outbox y autorización de pedidos.
+- `StoreOrderStateMachineTests` **21/21** y `StoreOrderLifecycleDomainEventHandlerTests` **5/5** aprobadas en filtros focales; cubren cruces Pickup/Delivery, acciones Outbox y mensajes de aceptación/rechazo/retiro.
+- `DispatchStoreOrderLifecycleAsync_ReplayPersistsOneNotificationAndToleratesPushFailure`: **1/1** aprobada; verifica una sola notificación in-app por replay y que el push best-effort no haga fallar el handler.
+- `dotnet test backend/tests/PawTrack.IntegrationTests/PawTrack.IntegrationTests.csproj --configuration Release --no-restore --filter "FullyQualifiedName~StoreOrdersIdempotencyEndpointsTests" --verbosity minimal`: **1/1** aprobada en Release contra `PawTrackWebApplicationFactory` (InMemory); replay 201, conflicto 409, aceptación, pago reportado/verificado, preparación, rechazo del cruce Pickup→OutForDelivery, retiro completado y acciones Outbox persistidas.
+- `dotnet test backend/tests/PawTrack.IntegrationTests/PawTrack.IntegrationTests.csproj --configuration Release --no-restore --filter "FullyQualifiedName~StoreOrderIdempotencySqlTests" --verbosity minimal -p:BuildProjectReferences=false`: **1/1** aprobada con LocalDB temporal; upgrade de pedido legacy y colisión concurrente de `(CustomerId, IdempotencyKey)`. La base temporal se elimina al finalizar; migración no aplicada a `PawTrackDev`.
+- `npm test -- --run tests/features/stores/storeOrdersApi.idempotency.test.ts tests/features/stores/CheckoutModal.idempotency.test.tsx`: **3/3** aprobadas; header, retry con misma key y ruta de conflicto.
+- `npx playwright test e2e/b2b-security-and-export.spec.ts --project=chromium --list`: descubre 4 tests incluida la spec opt-in de pedidos. No se ejecutó contra StorePartner sembrado ni POS real.
+
+No se verificaron migración persistente/rollback, delivery del worker contra SQL,
+push/email externo, E2E completo de tienda, piloto, staging o producción.
+
 ## Revalidación P0 Familia/Clínicas/Billing (2026-09-28)
 
 - `dotnet test PawTrack.sln --no-restore --verbosity quiet`: **1.814/1.814 aprobadas** (1.645 unitarias + 169 integración), exit code 0.

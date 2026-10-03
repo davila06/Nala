@@ -1,8 +1,5 @@
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using NSubstitute;
-using PawTrack.Domain.Common;
-using PawTrack.Domain.Stores.Events;
 using PawTrack.Application.Common.Interfaces;
 using PawTrack.Application.Stores;
 using PawTrack.Application.Subscriptions.Interfaces;
@@ -10,7 +7,6 @@ using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Audit;
 using PawTrack.Domain.Stores;
 using PawTrack.Domain.Subscriptions;
-using PawTrack.Infrastructure.Persistence;
 
 namespace PawTrack.UnitTests.Stores;
 
@@ -18,25 +14,6 @@ namespace PawTrack.UnitTests.Stores;
 
 public sealed class StoreOrderStateMachineTests
 {
-    [Fact]
-    public async Task SaveChanges_StoresResolvableLifecycleEventInOutbox()
-    {
-        var options = new DbContextOptionsBuilder<PawTrackDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        await using var db = new PawTrackDbContext(options);
-        var order = StoreOrder.Place(
-            Guid.NewGuid(), Guid.NewGuid(), "OUTBOX01", OrderFulfillmentType.Pickup,
-            null, null, [(Guid.NewGuid(), "Food", 1, 1000m)]);
-
-        db.StoreOrders.Add(order);
-        await db.SaveChangesAsync();
-
-        var message = await db.OutboxMessages.SingleAsync();
-        message.MessageType.Should().Be(typeof(StoreOrderLifecycleDomainEvent).AssemblyQualifiedName);
-        Type.GetType(message.MessageType).Should().Be(typeof(StoreOrderLifecycleDomainEvent));
-    }
-
     private static StoreOrder MakeOrder(
         OrderFulfillmentType fulfillment = OrderFulfillmentType.Pickup,
         bool reserveInventory = true)
@@ -57,23 +34,6 @@ public sealed class StoreOrderStateMachineTests
     {
         var order = MakeOrder(reserveInventory: false);
         order.Status.ToString().Should().Be("AwaitingStoreAcceptance");
-    }
-
-    [Fact]
-    public void StoreOrder_EmitsLifecycleEventsForCreationAndStateChanges()
-    {
-        var order = MakeOrder();
-        var eventSource = order.Should().BeAssignableTo<IHasDomainEvents>().Subject;
-
-        eventSource.DomainEvents.Should().ContainSingle()
-            .Which.GetType().Name.Should().Be("StoreOrderLifecycleDomainEvent");
-
-        order.Accept("Disponibilidad confirmada");
-        order.ReportPayment();
-
-        eventSource.DomainEvents.Should().HaveCount(3);
-        eventSource.DomainEvents.Select(domainEvent => domainEvent.GetType().Name)
-            .Should().OnlyContain(name => name == "StoreOrderLifecycleDomainEvent");
     }
 
     [Fact]

@@ -49,20 +49,26 @@ requiere limite de tamano y content type.
 
 ### Gate E2E del piloto hibrido de tienda
 
-Hay una prueba de integración SQL que crea una base temporal, aplica la
-migración de idempotencia y fuerza colisión concurrente del índice
-`(CustomerId, IdempotencyKey)` en
-[StoreOrderIdempotencySqlTests](../backend/tests/PawTrack.IntegrationTests/Stores/StoreOrderIdempotencySqlTests.cs);
-su ejecución reciente en CI/este corte no está verificada. Antes de presentar el
-stock como confiable para el piloto, ejecutar esa prueba y agregar E2E que cubra
+La prueba [StoreOrderIdempotencySqlTests](../backend/tests/PawTrack.IntegrationTests/Stores/StoreOrderIdempotencySqlTests.cs)
+se ejecutó localmente en Windows/LocalDB y pasó 1/1: crea una base temporal,
+aplica la migración desde un pedido legacy y comprueba que una sola de dos
+inserciones concurrentes con la misma clave gana. Esto no prueba migración en
+`PawTrackDev`, staging o producción. La integración HTTP
+[StoreOrdersIdempotencyEndpointsTests](../backend/tests/PawTrack.IntegrationTests/Stores/StoreOrdersIdempotencyEndpointsTests.cs)
+pasó 1/1 contra la factory in-memory: replay 201, conflicto 409, aceptación,
+reporte/verificación manual de pago, preparación, rechazo del cruce
+Pickup→OutForDelivery, retiro completado y eventos Outbox. No prueba SQL. Antes
+de presentar el stock como confiable para el piloto, agregar E2E que cubra
 alta/ajuste de inventario, solicitud repetida con la misma `Idempotency-Key`,
 aceptación con precio/stock vigentes, reserva/liberación concurrente,
 expiración, cancelación/rechazo y dos solicitudes por las últimas unidades.
 Para el flujo híbrido probar además que el cobro sigue en POS externo,
 el reporte del cliente no se transforma en pago confirmado y la devolucion se
 registra solo despues de gestionarla fuera. Completar E2E de estados por tipo de
-entrega, notificaciones y aislamiento por tienda. Los tests existentes no
-acreditan esta jornada ni integracion POS. Ver
+entrega, notificaciones y aislamiento por tienda. Existe una spec Playwright
+opt-in para replay/conflicto contra backend con seed StorePartner, pero no se
+ejecutó; los tests existentes no acreditan la jornada completa ni integración
+POS. Ver
 [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
 
 ## Datos de prueba

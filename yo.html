@@ -679,14 +679,14 @@
 
     <section class="cover" id="inicio" aria-labelledby="title">
       <div class="cover-copy">
-        <p class="eyebrow">Mi mapa del producto</p>
+        <p class="eyebrow">Guía personal · evidencia primero</p>
         <h1 id="title">PawTrack <span>CR</span></h1>
         <p>
           Identidad digital y coordinación local para mascotas, sus familias y
           las organizaciones que las cuidan.
         </p>
         <p class="cover-note">
-          Basado en el repositorio local. No acredita ventas, disponibilidad de
+          Basado en el repositorio local. No acredita ventas, operación de
           producción ni acuerdos externos.
         </p>
       </div>
@@ -717,14 +717,29 @@
       <main id="contenido">
         <section id="producto">
           <span class="section-no">01 / PROPÓSITO</span>
-          <h2>Qué construí</h2>
+          <h2>Qué hay hoy en el producto</h2>
           <p class="standfirst">
-            Una PWA para enlazar la identidad digital de una mascota con un
-            flujo comunitario de recuperación.
+            Guía interna para explicar NALA/PawTrack con evidencia; no es un
+            brochure ni una aprobación comercial, fiscal o legal.
+          </p>
+          <p class="note">
+            <strong>Cómo debo explicártelo:</strong> separaré lo que existe en
+            código, lo que está probado, lo configurado solo localmente y lo
+            propuesto o <code>NO_VERIFICADO</code>. Esta guía no acredita
+            producción.
+          </p>
+          <p>
+            El repositorio contiene una PWA de producto, una API .NET 9 y una
+            landing independiente exportada como sitio estático. Para describir
+            el alcance real, priorizo la auditoría vigente sobre documentos
+            históricos o comerciales.
           </p>
           <blockquote class="quote">
-            “PawTrack ayuda a que una mascota tenga una identidad digital y a
-            que su comunidad sepa cómo actuar si se pierde.”
+            “PawTrack da a cada mascota una identidad digital y herramientas
+            para organizar qué hacer si se pierde. La familia puede iniciar un
+            reporte; quien la encuentra puede consultar el perfil QR o reportar
+            un avistamiento; el caso permite coordinar pasos y registrar el
+            resultado. Ningún flujo garantiza respuesta ni reunificación.”
           </blockquote>
           <div class="flow" aria-label="Ciclo principal del producto">
             <span>Registrar</span><span>Identificar con QR</span
@@ -749,7 +764,9 @@
             abrirlo o enviar un avistamiento; la familia coordina desde un caso
             compartido. El sistema suma salud, clínicas, refugios, servicios y
             municipalidades. La recuperación esencial debe seguir disponible
-            aunque el usuario no pague.
+            aunque el usuario no pague. Las herramientas de coordinación,
+            difusión y entrega dependen de permisos y configuración; su
+            existencia no acredita una red activa, cobertura ni respuesta.
           </p>
           <h3>Estado de lo que existe</h3>
           <div class="table-wrap">
@@ -795,11 +812,12 @@
                   </td>
                 </tr>
                 <tr>
-                  <th scope="row">Marketplace / suscripciones</th>
+                  <th scope="row">Marketplace / tiendas / suscripciones</th>
                   <td><span class="status partial">Parcial</span></td>
                   <td>
-                    Solicitudes y planes existen; pagos, operaciones y oferta no
-                    son uniformes.
+                    Catálogo, pedidos, reserva de stock declarado por 15 minutos
+                    y reporte/verificación manual de pago externo; no es POS ni
+                    checkout bancario.
                   </td>
                 </tr>
                 <tr>
@@ -904,8 +922,10 @@
                   <th scope="row">Store</th>
                   <td>Tienda de mascotas</td>
                   <td>
-                    Catálogo y solicitudes; sin inventario, checkout ni pago
-                    gestionado.
+                    Perfil, catálogo, pedidos y reserva de 15 minutos de stock
+                    declarado; puede registrar pago y devolución externos
+                    verificados manualmente. No es POS/ERP, no procesa fondos ni
+                    confirma pagos con el banco.
                   </td>
                 </tr>
                 <tr>
@@ -957,6 +977,13 @@
             La plataforma tiene tiers técnicos; la tarifa de una base local no
             equivale a precio publicado ni a venta cobrada.
           </p>
+          <p>
+            Mantener gratis el perfil/QR y los pasos esenciales de búsqueda y
+            recuperación. Cobrar solo por capacidad o workflows profesionales
+            adicionales cuando el límite exista en backend, sea claro antes de
+            comprar y tenga aprobación y soporte. Nunca usar la urgencia de una
+            mascota perdida como palanca de venta.
+          </p>
           <div class="table-wrap">
             <table>
               <caption>
@@ -990,7 +1017,8 @@
                   <th scope="row">Tienda</th>
                   <td>Plus ₡12.000; Partner ₡25.000/mes</td>
                   <td>
-                    Presencia/listado; no vender como pago o stock integrado.
+                    Catálogo y pedidos con reserva temporal; StorePartner es
+                    parcial. No vender como POS ni pago bancario integrado.
                   </td>
                 </tr>
                 <tr>
@@ -1015,10 +1043,12 @@
             </table>
           </div>
           <div class="note">
-            <strong>Importante:</strong> los documentos difieren sobre el
-            alcance de la aprobación local. La aprobación registrada en
-            PawTrackDev no verifica producción, criterio fiscal ni ventas.
-            Confirmar precio, IVA, gates, contrato y checkout antes de cotizar.
+            <strong>Importante:</strong> la política consolidada registra
+            aprobación administrativa local para 10 planes en PawTrackDev el
+            2026-10-01 (<code>ACTA-COM-2026-10-01</code>). Es una atestación
+            local, no aprobación fiscal/legal automática ni disponibilidad en
+            producción. Antes de cotizar, verificar catálogo y gates en el
+            entorno objetivo con el responsable comercial/fiscal.
           </div>
           <h3>Publicidad y collares</h3>
           <p>
@@ -1088,8 +1118,8 @@
                   <th scope="row">Tienda</th>
                   <td>Dueño / personal de pedidos</td>
                   <td>
-                    Directorio y solicitudes. Confirmar cómo gestiona stock,
-                    pago y entrega fuera de PawTrack.
+                    Catálogo, pedidos y stock declarado. Confirmar quién acepta,
+                    verifica pago externo y coordina entrega/devolución.
                   </td>
                 </tr>
                 <tr>
@@ -1152,10 +1182,28 @@
                   <td>Sponsor, moderación, aprobación y medida acordada</td>
                 </tr>
                 <tr>
-                  <th scope="row">Tienda/proveedor</th>
-                  <td>Perfil, catálogo, solicitudes y reservas</td>
-                  <td>Checkout, stock reservado, payout o comisión activa</td>
-                  <td>Medir contactos; el negocio confirma pago y entrega</td>
+                  <th scope="row">Tienda</th>
+                  <td>
+                    Catálogo, pedido y reserva por 15 minutos de stock
+                    declarado; reporte de pago externo y verificación manual.
+                  </td>
+                  <td>
+                    POS/kardex, conciliación bancaria, pago procesado por
+                    PawTrack, factura fiscal, payout o comisión automática.
+                  </td>
+                  <td>
+                    Piloto de una sede; negocio confirma stock, cobra y entrega
+                    fuera de PawTrack.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Proveedor</th>
+                  <td>Perfil, servicios, disponibilidad y solicitudes</td>
+                  <td>Comisión, settlement, payout o refund automatizados</td>
+                  <td>
+                    Medir contactos/reservas antes de aprobar política y
+                    contrato
+                  </td>
                 </tr>
                 <tr>
                   <th scope="row">Municipio</th>
@@ -1215,11 +1263,16 @@
               </ol>
             </div>
             <div class="column-rule">
-              <h3>Después de validarlo</h3>
+              <h3>Siguientes validaciones</h3>
               <ol class="ranked">
                 <li>
-                  <strong>Tiendas y prestadores:</strong> medir leads y
-                  reservas; sostener pagos directamente con el negocio.
+                  <strong>Tiendas:</strong> probar en una sede catálogo,
+                  pedidos, reserva temporal y verificación manual del pago
+                  externo; medir solicitudes atendidas.
+                </li>
+                <li>
+                  <strong>Prestadores:</strong> medir leads y reservas; no
+                  prometer comisión o payout.
                 </li>
                 <li>
                   <strong>Anunciantes pet-friendly:</strong> paquete manual y
@@ -1241,6 +1294,16 @@
             <li>
               Para clínica, mostrar un escaneo y pedir consentimiento antes de
               tocar el historial.
+            </li>
+            <li>
+              Para municipio, mostrar capturas/reportes solo dentro del ámbito
+              autorizado.
+            </li>
+            <li>
+              Para tienda, mostrar catálogo, solicitud, reserva de hasta 15
+              minutos y los estados “pago reportado”/“verificado manualmente”.
+              Aclarar que cobro y devolución ocurren fuera de PawTrack y que no
+              se consulta al banco.
             </li>
             <li>
               Cerrar con un piloto que mida uso y soporte, no con una cifra de
@@ -1417,17 +1480,21 @@
               </dd>
               <dt>Demostrar</dt>
               <dd>
-                Perfil/catálogo de tienda o perfil/servicio/agenda y solicitud.
+                Tienda: catálogo, pedido, reserva de 15 minutos y estados de
+                pago reportado/verificado manualmente. Proveedor: perfil,
+                servicio, disponibilidad y solicitud.
               </dd>
               <dt>Oferta</dt>
               <dd>
-                Piloto para medir contacto y reservas; no prometer checkout o
-                comisión.
+                Piloto de una sede para medir solicitudes. El cobro y la
+                devolución son externos; no hay POS, conciliación bancaria,
+                payout ni comisión automática.
               </dd>
               <dt>Objeción</dt>
               <dd>
-                “¿PawTrack procesa el pago?” No como liquidación integral del
-                marketplace; el negocio coordina externamente.
+                “¿PawTrack procesa el pago?” No. El comprador reporta el pago
+                externo y la tienda puede registrar una verificación manual;
+                PawTrack no mueve fondos ni consulta al banco.
               </dd>
               <dt>Siguiente paso</dt>
               <dd>
@@ -1491,6 +1558,14 @@
                   <td>
                     Solo después de confirmar catálogo del entorno, aprobación y
                     tratamiento fiscal.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">¿PawTrack cobra el pedido de tienda?</th>
+                  <td>
+                    No. El comprador reporta un pago externo y la tienda puede
+                    verificarlo manualmente; PawTrack no mueve fondos ni
+                    consulta al banco.
                   </td>
                 </tr>
                 <tr>
@@ -1630,11 +1705,26 @@
                   </td>
                 </tr>
                 <tr>
-                  <th scope="row">CAC/retención</th>
+                  <th scope="row">Email/push/Vision/GPS</th>
+                  <td>PENDIENTE</td>
+                  <td>Factura/proveedor por evento, cuenta o dispositivo.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Descuentos/refunds/impagos</th>
+                  <td>PENDIENTE</td>
+                  <td>Conciliación real y documentos del proveedor.</td>
+                </tr>
+                <tr>
+                  <th scope="row">CAC por canal</th>
                   <td>PENDIENTE</td>
                   <td>
-                    Gasto por canal, cohortes, cancelaciones y renovaciones.
+                    Gasto atribuible dividido por clientes nuevos pagadores.
                   </td>
+                </tr>
+                <tr>
+                  <th scope="row">Retención/churn/renovación</th>
+                  <td>PENDIENTE</td>
+                  <td>Cohortes y fechas reales de pago/cancelación.</td>
                 </tr>
               </tbody>
             </table>
@@ -1753,6 +1843,14 @@ Clientes para cubrir costos fijos = costos fijos del periodo divididos por contr
                 liquidada.
               </li>
               <li>
+                Tienda como POS/ERP: no hay kardex, conciliación bancaria,
+                factura fiscal ni stock sincronizado con ventas presenciales.
+              </li>
+              <li>
+                Decir que PawTrack procesa o confirma pagos de tienda; solo hay
+                reporte del pago externo y verificación manual de la tienda.
+              </li>
+              <li>
                 Rescate garantizado, porcentaje de reunificación o atención
                 24/7.
               </li>
@@ -1771,19 +1869,14 @@ Clientes para cubrir costos fijos = costos fijos del periodo divididos por contr
           <span class="section-no">08 / CÓMO LEER EL REPO</span>
           <h2>Evidencia y siguiente decisión</h2>
           <p>
-            El reporte de roles registra 1.820 pruebas backend aprobadas al
-            corte 28-sep-2026 y huecos de cobertura. En esta tarea
-            <code>dotnet test PawTrack.sln --no-build --verbosity minimal</code>
-            aprobó 1.862/1.862 pruebas usando los binarios existentes. El
-            intento con build completo no pudo copiar DLLs bloqueadas por el
-            host API local (<code>MSB3021/MSB3027</code>), así que no hay una
-            compilación fresca completa de esta revisión. No inspeccioné
-            producción. Las fuentes de visión o ventas más antiguas pueden
-            exagerar billing, bundles, GPS o integraciones; para alcance técnico
-            manda
-            <a href="docs/PRODUCT_SCOPE.md">PRODUCT_SCOPE</a>, y para
-            importes/gates manda el catálogo del entorno que se vaya a
-            comercializar.
+            Los conteos de pruebas son instantáneas con alcance y fecha, no un
+            número que deba repetir como vigente. Antes de citar resultados,
+            revisar <a href="docs/TESTING.md">docs/TESTING.md</a> y distinguir
+            suites filtradas, compilación fresca y binarios existentes. No
+            inspeccioné producción. Las fuentes históricas de visión o ventas
+            pueden exagerar billing, bundles, GPS o integraciones; para alcance
+            técnico manda <a href="docs/PRODUCT_SCOPE.md">PRODUCT_SCOPE</a> y
+            para importes/gates se verifica el catálogo del entorno objetivo.
           </p>
           <ol class="ranked">
             <li>
@@ -1812,6 +1905,14 @@ Clientes para cubrir costos fijos = costos fijos del periodo divididos por contr
             <ul class="sources">
               <li><a href="docs/PRODUCT_SCOPE.md">Alcance real</a></li>
               <li><a href="docs/FEATURES.md">Features y límites</a></li>
+              <li>
+                <a href="docs/KNOWN_LIMITATIONS.md">Limitaciones conocidas</a>
+              </li>
+              <li>
+                <a href="docs/auditoria/FEATURE_TRACEABILITY_MATRIX.md"
+                  >Trazabilidad de features</a
+                >
+              </li>
               <li><a href="docs/NALA_PLAN_MAPPING.md">Mapeo de planes</a></li>
               <li>
                 <a href="docs/PRICING_AND_PLANS.md">Política de planes</a>
@@ -1825,7 +1926,33 @@ Clientes para cubrir costos fijos = costos fijos del periodo divididos por contr
                   >Roadmap de monetización</a
                 >
               </li>
+              <li>
+                <a href="docs/ROADMAP_TIENDAS_USO_DIARIO.md"
+                  >Roadmap de tiendas</a
+                >
+              </li>
+              <li><a href="docs/TESTING.md">Alcance de pruebas</a></li>
+              <li>
+                <a href="backend/src/PawTrack.Domain/Stores/StoreOrder.cs"
+                  >Pedido de tienda en el dominio</a
+                >
+              </li>
+              <li>
+                <a
+                  href="backend/src/PawTrack.Application/Stores/StoreOrderCommands.cs"
+                  >Comandos de pedido/pago</a
+                >
+              </li>
+              <li>
+                <a
+                  href="backend/src/PawTrack.API/Controllers/StoreOrdersController.cs"
+                  >API de pedidos</a
+                >
+              </li>
               <li><a href="docs/publicidad.md">Vallas y patrocinio</a></li>
+              <li>
+                <a href="docs/strategy/POSITIONING.md">Posicionamiento</a>
+              </li>
               <li>
                 <a href="docs/API_AUTHORIZATION_MATRIX.md">Autorización</a>
               </li>

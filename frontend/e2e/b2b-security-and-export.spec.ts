@@ -13,21 +13,12 @@ function authHeaders(token: string) {
 }
 
 test.describe("B2B authorization and enterprise contracts", () => {
-  test("consumer cannot access Store Partner analytics or clinic API-key operations", async ({
-    request,
-  }) => {
-    const ownerToken = await apiLogin(
-      request,
-      TEST_USERS.owner.email,
-      TEST_USERS.owner.password,
-    );
+  test("consumer cannot access Store Partner analytics or clinic API-key operations", async ({ request }) => {
+    const ownerToken = await apiLogin(request, TEST_USERS.owner.email, TEST_USERS.owner.password);
 
-    const storeAnalytics = await request.get(
-      `${API_URL}/api/stores/me/analytics/export`,
-      {
-        headers: authHeaders(ownerToken),
-      },
-    );
+    const storeAnalytics = await request.get(`${API_URL}/api/stores/me/analytics/export`, {
+      headers: authHeaders(ownerToken),
+    });
     expect(storeAnalytics.status()).toBe(403);
 
     const clinicKeys = await request.get(`${API_URL}/api/clinics/me/api-keys`, {
@@ -39,40 +30,82 @@ test.describe("B2B authorization and enterprise contracts", () => {
   test("Store Partner analytics export returns CSV when the seeded enterprise account is active", async ({
     request,
   }) => {
-    test.skip(
-      !process.env.E2E_B2B_ENABLED,
-      "Requires extended B2B seed data and active StorePartner subscription.",
-    );
-    const storeToken = await apiLogin(
-      request,
-      TEST_USERS.store.email,
-      TEST_USERS.store.password,
-    );
-    const response = await request.get(
-      `${API_URL}/api/stores/me/analytics/export`,
-      {
-        headers: authHeaders(storeToken),
-      },
-    );
+    test.skip(!process.env.E2E_B2B_ENABLED, "Requires extended B2B seed data and active StorePartner subscription.");
+    const storeToken = await apiLogin(request, TEST_USERS.store.email, TEST_USERS.store.password);
+    const response = await request.get(`${API_URL}/api/stores/me/analytics/export`, {
+      headers: authHeaders(storeToken),
+    });
     expect(response.ok()).toBe(true);
     expect(response.headers()["content-type"]).toContain("text/csv");
     expect(await response.text()).toContain("total_orders");
   });
 
+  test("store order retries replay and conflicting payloads return 409", async ({ request }) => {
+    test.skip(!process.env.E2E_B2B_ENABLED, "Requires an active StorePartner seed and a verified customer account.");
+    const storeToken = await apiLogin(request, TEST_USERS.store.email, TEST_USERS.store.password);
+    const customerToken = await apiLogin(request, TEST_USERS.owner.email, TEST_USERS.owner.password);
+    const storeHeaders = authHeaders(storeToken);
+    const customerHeaders = authHeaders(customerToken);
+    const productResponse = await request.post(`${API_URL}/api/stores/products`, {
+      headers: storeHeaders,
+      data: {
+        name: `Idempotency E2E ${Date.now()}`,
+        description: "Temporary product for the store-order E2E.",
+        category: "Food",
+        priceCrc: 1250,
+        stockOnHand: 5,
+      },
+    });
+    expect(productResponse.status()).toBe(201);
+    const product = (await productResponse.json()) as { id: string; storeId: string };
+
+    try {
+      const idempotencyKey = `store-e2e-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const requestBody = {
+        storeId: product.storeId,
+        fulfillmentType: "Pickup",
+        deliveryAddress: null,
+        customerNote: "Playwright idempotency test",
+        lines: [{ productId: product.id, quantity: 1 }],
+      };
+      const firstResponse = await request.post(`${API_URL}/api/store-orders`, {
+        headers: { ...customerHeaders, "Idempotency-Key": idempotencyKey },
+        data: requestBody,
+      });
+      expect(firstResponse.status()).toBe(201);
+      const firstOrder = (await firstResponse.json()) as { id: string };
+
+      const retryResponse = await request.post(`${API_URL}/api/store-orders`, {
+        headers: { ...customerHeaders, "Idempotency-Key": idempotencyKey },
+        data: requestBody,
+      });
+      expect(retryResponse.status()).toBe(201);
+      expect(((await retryResponse.json()) as { id: string }).id).toBe(firstOrder.id);
+
+      const conflictResponse = await request.post(`${API_URL}/api/store-orders`, {
+        headers: { ...customerHeaders, "Idempotency-Key": idempotencyKey },
+        data: { ...requestBody, customerNote: "Different payload" },
+      });
+      expect(conflictResponse.status()).toBe(409);
+      expect(await conflictResponse.json()).toMatchObject({
+        extensions: { code: "IDEMPOTENCY_KEY_CONFLICT" },
+      });
+    } finally {
+      const deleteResponse = await request.delete(`${API_URL}/api/stores/products/${product.id}`, {
+        headers: storeHeaders,
+      });
+      expect(deleteResponse.status()).toBe(204);
+    }
+  });
+
   test("Clinic API key rotation revokes the old key", async ({ request }) => {
     const seed = getB2BSeedStatus();
     test.skip(!seed.enabled, seed.reason);
-    const clinicToken = await apiLogin(
-      request,
-      TEST_USERS.clinic.email,
-      TEST_USERS.clinic.password,
-    );
+    const clinicToken = await apiLogin(request, TEST_USERS.clinic.email, TEST_USERS.clinic.password);
     const original = await createClinicApiKey(request, clinicToken);
     const rotated = await rotateClinicApiKey(request, clinicToken, original.id);
     expect(rotated.key).not.toBe(original.key);
     expect(await lookupWithClinicApiKey(request, original.key)).toBe(401);
-    expect([401, 404]).toContain(
-      await lookupWithClinicApiKey(request, rotated.key),
-    );
+    expect([401, 404]).toContain(await lookupWithClinicApiKey(request, rotated.key));
   });
 });

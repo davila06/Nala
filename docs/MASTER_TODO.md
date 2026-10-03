@@ -29,19 +29,19 @@ BOLA por recurso/actor/sede, homologación fiscal, confirmación real de entrega
 de mensajes y pilotos de disposición a pagar. Los permisos de staff/finanzas
 son por clínica; pertenecer a la organización no da acceso a datos de un sitio.
 
-| ID         | Área                        | Estado | Criterio de cierre                                                                                                |
-| ---------- | --------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------- |
-| ENT-CI     | Gates de CI y release       | `[~]`  | Workflow único verde con artefactos, lockfiles, pruebas, SBOM y política de merge                                 |
-| ENT-API    | Contratos y autorización    | `[~]`  | OpenAPI versionado, matriz completa y suites BOLA/IDOR verdes                                                     |
-| ENT-FND    | Finder sin login            | `[x]`  | Reporte seguro en menos de 30 segundos, antifraude, PII y offline verificados                                     |
-| ENT-E2E    | Ciclo pérdida-reunificación | `[~]`  | E2E limpio con notificaciones, eventos de producto y proveedores controlados                                      |
-| ENT-CLINIC | Uso diario en clínicas      | `[~]`  | Agenda, consulta, inventario, caja, comunicación y analítica enterprise                                           |
-| ENT-STORE  | Uso diario en tiendas       | `[ ]`  | Piloto híbrido de una sede; pedidos idempotentes, inventario trazable, caja/fiscalidad externa y gates de rollout |
-| ENT-CLAIM  | Claims y legal              | `[~]`  | Cada claim tiene evidencia, responsable, expiración y aprobación                                                  |
-| COMP-AI    | IA-first operativa          | `[ ]`  | Copiloto/agentes con herramientas, aprobación, evaluación y Responsible AI                                        |
-| COMP-NET   | Liderazgo territorial       | `[ ]`  | 2-3 cantones con densidad, outcomes y partners verificables                                                       |
-| MKT-AZURE  | Azure Marketplace           | `[ ]`  | SaaS offer, fulfillment, tenant mapping, seguridad y private preview                                              |
-| ENT-PROV   | Proveedores externos        | `[E]`  | Contratos, secretos, smoke tests de staging y rotación aprobados                                                  |
+| ID         | Área                        | Estado | Criterio de cierre                                                                               |
+| ---------- | --------------------------- | ------ | ------------------------------------------------------------------------------------------------ |
+| ENT-CI     | Gates de CI y release       | `[~]`  | Workflow único verde con artefactos, lockfiles, pruebas, SBOM y política de merge                |
+| ENT-API    | Contratos y autorización    | `[~]`  | OpenAPI versionado, matriz completa y suites BOLA/IDOR verdes                                    |
+| ENT-FND    | Finder sin login            | `[x]`  | Reporte seguro en menos de 30 segundos, antifraude, PII y offline verificados                    |
+| ENT-E2E    | Ciclo pérdida-reunificación | `[~]`  | E2E limpio con notificaciones, eventos de producto y proveedores controlados                     |
+| ENT-CLINIC | Uso diario en clínicas      | `[~]`  | Agenda, consulta, inventario, caja, comunicación y analítica enterprise                          |
+| ENT-STORE  | Uso diario en tiendas       | `[~]`  | Piloto híbrido de una sede; inventario trazable, caja/fiscalidad externa, E2E y gates de rollout |
+| ENT-CLAIM  | Claims y legal              | `[~]`  | Cada claim tiene evidencia, responsable, expiración y aprobación                                 |
+| COMP-AI    | IA-first operativa          | `[ ]`  | Copiloto/agentes con herramientas, aprobación, evaluación y Responsible AI                       |
+| COMP-NET   | Liderazgo territorial       | `[ ]`  | 2-3 cantones con densidad, outcomes y partners verificables                                      |
+| MKT-AZURE  | Azure Marketplace           | `[ ]`  | SaaS offer, fulfillment, tenant mapping, seguridad y private preview                             |
+| ENT-PROV   | Proveedores externos        | `[E]`  | Contratos, secretos, smoke tests de staging y rotación aprobados                                 |
 
 La direccion de producto de `ENT-STORE` es un modelo hibrido por etapas. En el
 codigo actual ya hay stock escalar, reserva/expiracion, registro manual de
@@ -217,14 +217,14 @@ cambian quedan registradas en NALA. Esta direccion no representa aprobacion
 legal/fiscal, contrato, piloto seleccionado ni despliegue.
 
 - [ ] Aprobar responsables, tienda piloto, autoridad por dato, flujo de venta presencial y politicas locales antes de habilitar stock como real.
-- [~] Implementar idempotencia de `POST /api/store-orders`: header requerido, hash de payload, replay idéntico, rechazo de payload distinto, índice único por cliente y retry frontend. Migración y carrera de índice probadas en LocalDB temporal; falta aplicar con aprobación a un entorno compartido y validar allí rollback/operación.
-- [ ] Cerrar transiciones por retiro/entrega, actor/motivo/historial y reconfirmacion de cambios de precio.
+- [x] Implementar idempotencia de `POST /api/store-orders`: header requerido, hash de payload, replay idéntico, rechazo de payload distinto, índice único por cliente y retry frontend. Pruebas unitarias, HTTP y SQL temporal pasaron; migración persistente/rollout siguen pendientes.
+- [~] Cerrar transiciones por retiro/entrega, actor/motivo/historial y reconfirmacion de cambios de precio. Dominio ya bloquea cruces Pickup/Delivery; falta cobertura HTTP/auditoría del actor y UAT.
 - [ ] Implementar kardex y recepcion/conteo/ajuste/merma/devolucion en una sede; verificar atomicidad SQL, reservas y conciliacion de stock.
 - [ ] Definir registro operativo de ventas y cierres mientras el POS externo procesa pagos y emite comprobantes; no presentar el endpoint manual como confirmacion bancaria.
 - [ ] Fortalecer importacion CSV/JSON con SKU/stock, vista previa, progreso, errores descargables, lotes y pruebas de tenant/duplicados.
-- [ ] Entregar notificaciones durables de pedidos/estados, dashboard diario, alertas, runbooks y observabilidad sin PII.
+- [~] Entregar notificaciones de pedidos/estados, dashboard diario, alertas, runbooks y observabilidad sin PII. Eventos de ciclo de vida ya quedan en Outbox e in-app es idempotente; push best-effort y entrega/errores E2E siguen pendientes.
 - [ ] Agregar roles de empleados y sucursales solo despues del gate de una sede; crear autorizacion BOLA tienda x sede y pruebas.
-- [ ] Pasar pruebas de concurrencia SQL, HTTP, seguridad, E2E del comprador/tienda y UAT piloto; probar migracion/rollback y feature flag antes del rollout.
+- [~] Validar migración/idempotencia en SQL temporal (aprobado), API replay/conflict (aprobado), unitarias de estado/Outbox y frontend retry (aprobadas). E2E Playwright de tienda existe opt-in y no se ejecutó; siguen pendientes concurrencia de stock, seguridad integral, UAT, migración/rollback persistente y feature flag.
 
 El detalle, dependencias y gates de salida estan en el roadmap; este checklist es
 la fuente unica de tareas activas y se cerrara solo con implementacion y evidencia.

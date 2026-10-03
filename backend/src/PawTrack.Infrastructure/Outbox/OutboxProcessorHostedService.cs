@@ -75,7 +75,7 @@ public sealed class OutboxProcessorHostedService(
         {
             try
             {
-                var type = OutboxMessageTypeResolver.Resolve(msg.MessageType);
+                var type = ResolveMessageType(msg.MessageType);
                 if (type is null)
                 {
                     msg.MarkFailed($"Type not found: {msg.MessageType}");
@@ -107,4 +107,17 @@ public sealed class OutboxProcessorHostedService(
         logger.LogDebug("OutboxProcessor: batch done — {Processed} delivered", messages.Count(m => m.Status == OutboxMessageStatus.Processed));
     }
 
+    private static Type? ResolveMessageType(string messageType)
+    {
+        var type = Type.GetType(messageType, throwOnError: false);
+        if (type is not null) return type;
+
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            type = assembly.GetType(messageType, throwOnError: false, ignoreCase: false);
+            if (type is not null) return type;
+        }
+
+        return null;
+    }
 }

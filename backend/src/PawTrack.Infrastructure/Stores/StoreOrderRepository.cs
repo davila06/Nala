@@ -134,11 +134,11 @@ public sealed class StoreOrderRepository(PawTrackDbContext db) : IStoreOrderRepo
         Dictionary<Guid, StoreProduct>? products = null;
         if (order.StockReserved)
         {
-            var productIds = order.Items.Select(item => item.ProductId).Distinct().ToArray();
+            var productIds = order.Items.Select(item => item.ProductId).Distinct().ToList();
             products = await db.StoreProducts.AsTracking()
                 .Where(product => product.StoreId == storeId && productIds.Contains(product.Id))
                 .ToDictionaryAsync(product => product.Id, ct);
-            if (products.Count != productIds.Length) return false;
+            if (products.Count != productIds.Count) return false;
         }
 
         try { order.UpdateStatus(newStatus, storeNote); }
@@ -188,11 +188,11 @@ public sealed class StoreOrderRepository(PawTrackDbContext db) : IStoreOrderRepo
             order.Items.Count == 0)
             return false;
 
-        var productIds = order.Items.Select(item => item.ProductId).Distinct().ToArray();
+        var productIds = order.Items.Select(item => item.ProductId).Distinct().ToList();
         var products = await db.StoreProducts.AsTracking()
             .Where(product => product.StoreId == storeId && productIds.Contains(product.Id))
             .ToDictionaryAsync(product => product.Id, ct);
-        if (products.Count != productIds.Length ||
+        if (products.Count != productIds.Count ||
             order.Items.Any(item => !products.TryGetValue(item.ProductId, out var product) ||
                                     !product.IsAvailable || product.StockOnHand is null ||
                                     product.StockOnHand.Value < item.Quantity))
@@ -245,11 +245,11 @@ public sealed class StoreOrderRepository(PawTrackDbContext db) : IStoreOrderRepo
         if (order is null || !order.StockReserved || order.StockReservationExpiresAt > now)
             return false;
 
-        var productIds = order.Items.Select(item => item.ProductId).Distinct().ToArray();
+        var productIds = order.Items.Select(item => item.ProductId).Distinct().ToList();
         var products = await db.StoreProducts.AsTracking()
             .Where(product => product.StoreId == order.StoreId && productIds.Contains(product.Id))
             .ToDictionaryAsync(product => product.Id, ct);
-        if (products.Count != productIds.Length) return false;
+        if (products.Count != productIds.Count) return false;
 
         order.ExpireStockReservation(now);
         foreach (var item in order.Items)

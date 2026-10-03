@@ -18,7 +18,8 @@ public sealed class StoreOrderLifecycleDomainEventHandlerTests
         var dispatcher = Substitute.For<INotificationDispatcher>();
         var handler = new StoreOrderLifecycleDomainEventHandler(storeRepository, dispatcher);
         var domainEvent = new StoreOrderLifecycleDomainEvent(
-            Guid.NewGuid(), Guid.NewGuid(), store.Id, Guid.NewGuid(), StoreOrderStatus.PaymentReported,
+            Guid.NewGuid(), Guid.NewGuid(), store.Id, Guid.NewGuid(), StoreOrderLifecycleAction.PaymentReported,
+            StoreOrderStatus.PaymentReported,
             OrderFulfillmentType.Pickup, 3500m, DateTimeOffset.UtcNow);
 
         await handler.Handle(domainEvent, CancellationToken.None);
@@ -34,6 +35,31 @@ public sealed class StoreOrderLifecycleDomainEventHandlerTests
     }
 
     [Fact]
+    public async Task AcceptedOrderWithExistingPaymentReport_NotifiesCustomerThatAvailabilityWasAccepted()
+    {
+        var store = Store.Create(Guid.NewGuid(), "La Huella", "Tienda", "San Jose", 9.9m, -84m, "store@example.test");
+        var storeRepository = Substitute.For<IStoreRepository>();
+        storeRepository.GetByIdAsync(store.Id, Arg.Any<CancellationToken>()).Returns(store);
+        var dispatcher = Substitute.For<INotificationDispatcher>();
+        var handler = new StoreOrderLifecycleDomainEventHandler(storeRepository, dispatcher);
+        var customerId = Guid.NewGuid();
+        var domainEvent = new StoreOrderLifecycleDomainEvent(
+            Guid.NewGuid(), Guid.NewGuid(), store.Id, customerId, StoreOrderLifecycleAction.OrderAccepted,
+            StoreOrderStatus.PaymentReported, OrderFulfillmentType.Pickup, 3500m, DateTimeOffset.UtcNow);
+
+        await handler.Handle(domainEvent, CancellationToken.None);
+
+        await dispatcher.Received(1).DispatchStoreOrderLifecycleAsync(
+            domainEvent.EventId,
+            customerId,
+            domainEvent.OrderId,
+            Arg.Is<string>(title => title.Contains("aceptó", StringComparison.OrdinalIgnoreCase)),
+            Arg.Is<string>(body => body.Contains("externo", StringComparison.OrdinalIgnoreCase)),
+            "/mis-pedidos",
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task ReadyForPickup_NotifiesCustomer()
     {
         var store = Store.Create(Guid.NewGuid(), "La Huella", "Tienda", "San Jose", 9.9m, -84m, "store@example.test");
@@ -43,7 +69,8 @@ public sealed class StoreOrderLifecycleDomainEventHandlerTests
         var handler = new StoreOrderLifecycleDomainEventHandler(storeRepository, dispatcher);
         var customerId = Guid.NewGuid();
         var domainEvent = new StoreOrderLifecycleDomainEvent(
-            Guid.NewGuid(), Guid.NewGuid(), store.Id, customerId, StoreOrderStatus.ReadyForPickup,
+            Guid.NewGuid(), Guid.NewGuid(), store.Id, customerId, StoreOrderLifecycleAction.StatusChanged,
+            StoreOrderStatus.ReadyForPickup,
             OrderFulfillmentType.Pickup, 3500m, DateTimeOffset.UtcNow);
 
         await handler.Handle(domainEvent, CancellationToken.None);
@@ -59,13 +86,39 @@ public sealed class StoreOrderLifecycleDomainEventHandlerTests
     }
 
     [Fact]
+    public async Task StatusChangedToRejected_NotifiesCustomerWithRejectionMessage()
+    {
+        var store = Store.Create(Guid.NewGuid(), "La Huella", "Tienda", "San Jose", 9.9m, -84m, "store@example.test");
+        var storeRepository = Substitute.For<IStoreRepository>();
+        storeRepository.GetByIdAsync(store.Id, Arg.Any<CancellationToken>()).Returns(store);
+        var dispatcher = Substitute.For<INotificationDispatcher>();
+        var handler = new StoreOrderLifecycleDomainEventHandler(storeRepository, dispatcher);
+        var customerId = Guid.NewGuid();
+        var domainEvent = new StoreOrderLifecycleDomainEvent(
+            Guid.NewGuid(), Guid.NewGuid(), store.Id, customerId, StoreOrderLifecycleAction.StatusChanged,
+            StoreOrderStatus.Rejected, OrderFulfillmentType.Pickup, 3500m, DateTimeOffset.UtcNow);
+
+        await handler.Handle(domainEvent, CancellationToken.None);
+
+        await dispatcher.Received(1).DispatchStoreOrderLifecycleAsync(
+            domainEvent.EventId,
+            customerId,
+            domainEvent.OrderId,
+            Arg.Is<string>(title => title.Contains("rechazó", StringComparison.OrdinalIgnoreCase)),
+            Arg.Is<string>(body => body.Contains("rechazada", StringComparison.OrdinalIgnoreCase)),
+            "/mis-pedidos",
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task MissingStore_DoesNotDispatchNotification()
     {
         var storeRepository = Substitute.For<IStoreRepository>();
         var dispatcher = Substitute.For<INotificationDispatcher>();
         var handler = new StoreOrderLifecycleDomainEventHandler(storeRepository, dispatcher);
         var domainEvent = new StoreOrderLifecycleDomainEvent(
-            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), StoreOrderStatus.PaymentReported,
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), StoreOrderLifecycleAction.PaymentReported,
+            StoreOrderStatus.PaymentReported,
             OrderFulfillmentType.Pickup, 3500m, DateTimeOffset.UtcNow);
 
         await handler.Handle(domainEvent, CancellationToken.None);

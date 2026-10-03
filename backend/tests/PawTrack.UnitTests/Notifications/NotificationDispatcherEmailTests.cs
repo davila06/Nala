@@ -39,42 +39,6 @@ public sealed class NotificationDispatcherEmailTests
         _userRepository);
 
     [Fact]
-    public async Task DispatchStoreOrderLifecycleAsync_WhenEventNotificationExists_DoesNotDuplicateIt()
-    {
-        var notificationId = Guid.NewGuid();
-        var recipientId = Guid.NewGuid();
-        var orderId = Guid.NewGuid();
-        _notificationRepository.GetByIdAsync(notificationId, Arg.Any<CancellationToken>())
-            .Returns(Notification.Create(recipientId, NotificationType.SystemMessage, "Listo", "Retira el pedido.", orderId.ToString(), notificationId));
-
-        await CreateSut().DispatchStoreOrderLifecycleAsync(
-            notificationId, recipientId, orderId, "Listo", "Retira el pedido.", "/mis-pedidos");
-
-        await _notificationRepository.DidNotReceive().AddAsync(Arg.Any<Notification>(), Arg.Any<CancellationToken>());
-        await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
-        await _pushService.DidNotReceiveWithAnyArgs().SendAsync(default, default!, default!, default, default);
-    }
-
-    [Fact]
-    public async Task DispatchStoreOrderLifecycleAsync_PersistsStableNotificationId()
-    {
-        var notificationId = Guid.NewGuid();
-        var recipientId = Guid.NewGuid();
-        var orderId = Guid.NewGuid();
-
-        await CreateSut().DispatchStoreOrderLifecycleAsync(
-            notificationId, recipientId, orderId, "Listo", "Retira el pedido.", "/mis-pedidos");
-
-        await _notificationRepository.Received(1).AddAsync(
-            Arg.Is<Notification>(notification =>
-                notification.Id == notificationId &&
-                notification.UserId == recipientId &&
-                notification.RelatedEntityId == orderId.ToString()),
-            Arg.Any<CancellationToken>());
-        await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
     public async Task DispatchCustodyStartedAsync_SendsEmailsToBothFosterAndOwner()
     {
         var sut = CreateSut();
@@ -157,5 +121,40 @@ public sealed class NotificationDispatcherEmailTests
 
         await _emailSender.Received(1).SendAdoptionRejectedAsync(
             "applicant@test.cr", "Carlos", "Max", Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task DispatchStoreOrderLifecycleAsync_ReplayPersistsOneNotificationAndToleratesPushFailure()
+    {
+        var notificationId = Guid.NewGuid();
+        var recipientId = Guid.NewGuid();
+        var orderId = Guid.NewGuid();
+        Notification? persistedNotification = null;
+        _notificationRepository.GetByIdAsync(notificationId, Arg.Any<CancellationToken>())
+            .Returns(_ => Task.FromResult(persistedNotification));
+        _notificationRepository.AddAsync(
+                Arg.Do<Notification>(notification => persistedNotification = notification),
+                Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
+        _unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
+        _pushService.SendAsync(
+                recipientId, Arg.Any<string>(), Arg.Any<string>(), Arg.Any<PushNotificationMetadata>(),
+                Arg.Any<CancellationToken>())
+            .Returns(Task.FromException(new InvalidOperationException("push unavailable")));
+        var sut = CreateSut();
+
+        await sut.DispatchStoreOrderLifecycleAsync(
+            notificationId, recipientId, orderId, "Pedido listo", "Puedes retirar", "/mis-pedidos");
+        await sut.DispatchStoreOrderLifecycleAsync(
+            notificationId, recipientId, orderId, "Pedido listo", "Puedes retirar", "/mis-pedidos");
+
+        persistedNotification.Should().NotBeNull();
+        persistedNotification!.Id.Should().Be(notificationId);
+        persistedNotification.RelatedEntityId.Should().Be(orderId.ToString());
+        await _notificationRepository.Received(1).AddAsync(Arg.Any<Notification>(), Arg.Any<CancellationToken>());
+        await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+        await _pushService.Received(1).SendAsync(
+            recipientId, "Pedido listo", "Puedes retirar", Arg.Any<PushNotificationMetadata>(),
+            Arg.Any<CancellationToken>());
     }
 }

@@ -51,12 +51,13 @@ gates antes de cobrar, publicar claims o activar comercios.
 - Pedido con lineas que guardan nombre y precio unitario al crear la solicitud.
 - Al aceptar, el backend intenta reservar la cantidad en `StockOnHand` en transaccion relacional `Serializable`; reserva con vencimiento de 15 minutos y job para vencer/liberar reservas.
 - Rutas para que el cliente reporte un pago externo, la tienda registre verificacion manual y la tienda registre la referencia de una devolucion externa ya ejecutada.
+- Eventos de ciclo de vida de StoreOrder se agregan al Outbox en el mismo SaveChanges; un handler crea notificacion in-app idempotente por EventId y el push es best-effort. Esto acredita camino de codigo, no entrega externa observada.
 - Confirmacion, rechazo y avance de estado por el propietario de la tienda; historial paginado para comprador y tienda.
 - Entidad `StoreLocation`, CRUD bajo gates de StorePartner y `LocationId` opcional en el pedido.
 - Analitica de pedidos entregados/cancelados, filtro tecnico por sede y exportacion StorePartner.
 - Importacion CSV/JSON asincrona basica de productos mediante `ImportJob`, con clave de idempotencia del job, limite tecnico y gate de cuota.
 - `POST /api/store-orders` requiere `Idempotency-Key`; el backend guarda una huella del payload, devuelve el pedido existente ante replay equivalente y devuelve 409 ante payload distinto. Checkout conserva la clave al reintentar. `StoreOrderIdempotencySqlTests` aplica la migracion en LocalDB temporal, preserva un pedido legacy y prueba la unicidad concurrente; no se aplico a una base persistente.
-- Hay pruebas unitarias de dominio/handlers de tienda; no acreditan por si solas el flujo SQL concurrente ni un E2E de venta/caja.
+- Hay pruebas unitarias y una integración HTTP del ciclo Pickup; no acreditan por sí solas concurrencia de reservas de stock ni un E2E de venta/caja.
 
 Las migraciones `20261002193005_AddEnterpriseMarketplaceStockAndPaymentLink`,
 `20261002201408_AddStoreOrderManualRefundEvidence` y
@@ -77,7 +78,7 @@ con una tienda o pago confirmado por una entidad bancaria; esos estados siguen
 - No hay membresias de empleados de tienda ni permisos por sucursal; el agregado `Store` tiene un `UserId` propietario unico.
 - No hay venta presencial/online unificada, caja/cierre, conciliacion automatica ni factura fiscal de tienda en NALA. Reportar/verificar un pago manual o registrar un reembolso externo no procesa esos movimientos.
 - Idempotencia de `POST /api/store-orders` implementada en API, handler y checkout; migracion, upgrade legacy y colision/concurrencia probados en LocalDB temporal. Falta aplicar con autorizacion a un entorno persistente y verificar alli rollback/operacion. El snapshot de nombre/precio existe al crear la solicitud; falta reconfirmar el monto/condiciones si cambian antes de aceptar.
-- Las notificaciones actuales no usan entrega durable/outbox para todo el ciclo ni acreditan recepcion por el comprador.
+- Las notificaciones in-app de ciclo de pedido ya salen por Outbox y deduplican por accion/EventId; push es best-effort. Los correos de creacion/aceptacion siguen en el request con errores absorbidos y sin retry durable. Falta tracking de entrega/fallos y prueba del worker/outbox contra SQL.
 - El importador no carga SKU ni existencias y requiere UI de vista previa/progreso, errores descargables, lotes/streaming y pruebas de aislamiento y duplicados.
 - No se encontro un E2E de la jornada completa de caja/inventario. El runbook B2B existente no cubre ese flujo.
 
@@ -92,10 +93,10 @@ Fuentes de contraste: [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md),
 
 1. **Idempotencia (código y gate SQL temporal verificados; rollout pendiente):** `POST /api/store-orders` exige `Idempotency-Key`, almacena hash del payload, reproduce la respuesta solo para el mismo payload y devuelve 409 `IDEMPOTENCY_KEY_CONFLICT` si se reutiliza con otro. Usa índice único cliente/clave. `StoreOrderIdempotencySqlTests` aplica desde cero, sube un pedido legacy y prueba concurrencia en una base LocalDB temporal; falta autorización para migrar un entorno persistente y verificar rollout/rollback allí.
 2. **Estados y evidencia de pago:** hay estados para disponibilidad, pago reportado, verificacion manual, preparacion y cumplimiento. Documentar que `verify-payment` es una atestacion de la tienda tras revisar su cuenta, no confirmacion bancaria de NALA. Acordar nombre/semantica del estado `Paid` y evitar presentar el pedido como venta liquidada por el sistema.
-3. **Transiciones de fulfillment:** probar en dominio/API que retiro y entrega no crucen estados incompatibles, que estados terminales no se muten y que cada cambio registre actor, fecha, motivo y evento inmutable.
+3. **Transiciones de fulfillment:** dominio y API ya prueban que retiro y entrega no crucen estados incompatibles; completar cobertura de estados terminales, actor/fecha/motivo en auditoría y eventos inmutables.
 4. **Validacion de catalogo:** agregar validador para `UpdateStoreProductCommand` e invariantes de dominio equivalentes al alta, incluyendo nombre, precio, stock no negativo y tienda activa.
 5. **Monto acordado:** el pedido ya conserva snapshot de nombre, precio unitario, cantidad y total al crearse. Revalidar disponibilidad y precio al aceptar; si hay cambios, exigir confirmacion del cliente y persistir tambien moneda, impuestos y entrega cuando se definan.
-6. **Notificaciones:** reemplazar efectos fire-and-forget por outbox/worker idempotente. Notificar al cliente las transiciones y persistir estado de entrega/error sin perder el pedido.
+6. **Notificaciones:** Outbox y notificaciones in-app idempotentes por accion/EventId para ciclo de StoreOrder ya existen en codigo. Falta cobertura SQL del worker/reintentos, estado de entrega observable, retry confiable de push/email y prueba E2E sin duplicar notificaciones.
 7. **Reportes:** agregar SQL por periodo con `America/Costa_Rica`, distinguir pedido, venta, pago externo reportado/verificado manualmente, devolucion externa y reembolso integrado (si algun dia se implementa).
 8. **Pruebas:** agregar pruebas HTTP, SQL concurrente, reintentos, cambio de precio/stock, flujo de comprador/tienda y aislamiento por cuenta/sede. Las unitarias existentes no cierran estos gates.
 

@@ -16,63 +16,86 @@ public sealed class StoreOrderLifecycleDomainEventHandler(
         if (store is null) return;
 
         var orderCode = notification.OrderId.ToString("N")[..8].ToUpperInvariant();
-        var (recipientUserId, title, body, route) = notification.Status switch
+        var (recipientUserId, title, body, route) = notification.Action switch
         {
-            StoreOrderStatus.AwaitingStoreAcceptance => (
+            StoreOrderLifecycleAction.OrderPlaced => (
                 store.UserId,
                 $"Nuevo pedido en {store.Name}",
                 $"El pedido #{orderCode} por ₡{notification.TotalCrc:N0} requiere revisar disponibilidad.",
                 "/tienda/portal/ordenes"),
-            StoreOrderStatus.PaymentReported => (
+            StoreOrderLifecycleAction.OrderAccepted => (
+                notification.CustomerId,
+                "La tienda aceptó tu pedido",
+                $"La disponibilidad del pedido #{orderCode} fue aceptada. Coordina cualquier pago externo con la tienda.",
+                "/mis-pedidos"),
+            StoreOrderLifecycleAction.PaymentReported => (
                 store.UserId,
                 $"Pago reportado para #{orderCode}",
                 "El cliente reportó un pago. Verifica el abono fuera de PawTrack antes de continuar.",
                 "/tienda/portal/ordenes"),
-            StoreOrderStatus.AwaitingPayment or StoreOrderStatus.PendingPayment => (
-                notification.CustomerId,
-                "La tienda aceptó tu pedido",
-                $"La disponibilidad fue aceptada. Coordina el pago externo del pedido #{orderCode} con la tienda.",
-                "/mis-pedidos"),
-            StoreOrderStatus.Paid => (
+            StoreOrderLifecycleAction.PaymentVerified => (
                 notification.CustomerId,
                 "La tienda registró la verificación del pago",
                 $"La tienda indicó que verificó el pago del pedido #{orderCode}. PawTrack no consultó al banco.",
                 "/mis-pedidos"),
-            StoreOrderStatus.ReadyForPickup => (
-                notification.CustomerId,
-                "Tu pedido está listo para retirar",
-                $"El pedido #{orderCode} está listo para retirar en la tienda.",
-                "/mis-pedidos"),
-            StoreOrderStatus.OutForDelivery => (
-                notification.CustomerId,
-                "Tu pedido está en camino",
-                $"El pedido #{orderCode} salió para entrega.",
-                "/mis-pedidos"),
-            StoreOrderStatus.Delivered => (
-                notification.CustomerId,
-                "Pedido entregado",
-                $"El pedido #{orderCode} fue marcado como entregado por la tienda.",
-                "/mis-pedidos"),
-            StoreOrderStatus.Rejected => (
-                notification.CustomerId,
-                "La tienda rechazó tu solicitud",
-                $"La solicitud de pedido #{orderCode} fue rechazada. Revisa el motivo en tus pedidos.",
-                "/mis-pedidos"),
-            StoreOrderStatus.Cancelled => (
-                notification.CustomerId,
-                "Pedido cancelado",
-                $"El pedido #{orderCode} fue cancelado. Coordina cualquier pago o devolución directamente con la tienda.",
-                "/mis-pedidos"),
-            StoreOrderStatus.Expired => (
-                notification.CustomerId,
-                "Venció la reserva temporal",
-                $"La reserva temporal del pedido #{orderCode} venció; verifica la disponibilidad antes de volver a pedir.",
-                "/mis-pedidos"),
-            StoreOrderStatus.Refunded => (
+            StoreOrderLifecycleAction.ExternalRefundRecorded => (
                 notification.CustomerId,
                 "La tienda registró una devolución externa",
                 $"La tienda registró una referencia de devolución para el pedido #{orderCode}. PawTrack no envió fondos.",
                 "/mis-pedidos"),
+            StoreOrderLifecycleAction.OrderRejected => (
+                notification.CustomerId,
+                "La tienda rechazó tu solicitud",
+                $"La solicitud de pedido #{orderCode} fue rechazada. Revisa el motivo en tus pedidos.",
+                "/mis-pedidos"),
+            StoreOrderLifecycleAction.ReservationExpired => (
+                notification.CustomerId,
+                "Venció la reserva temporal",
+                $"La reserva temporal del pedido #{orderCode} venció; verifica la disponibilidad antes de volver a pedir.",
+                "/mis-pedidos"),
+            StoreOrderLifecycleAction.StatusChanged => notification.Status switch
+            {
+                StoreOrderStatus.ReadyForPickup => (
+                notification.CustomerId,
+                "Tu pedido está listo para retirar",
+                $"El pedido #{orderCode} está listo para retirar en la tienda.",
+                "/mis-pedidos"),
+                StoreOrderStatus.OutForDelivery => (
+                    notification.CustomerId,
+                    "Tu pedido está en camino",
+                    $"El pedido #{orderCode} salió para entrega.",
+                    "/mis-pedidos"),
+                StoreOrderStatus.Rejected => (
+                    notification.CustomerId,
+                    "La tienda rechazó tu solicitud",
+                    $"La solicitud de pedido #{orderCode} fue rechazada. Revisa el motivo en tus pedidos.",
+                    "/mis-pedidos"),
+                StoreOrderStatus.Delivered => (
+                    notification.CustomerId,
+                    "Pedido entregado",
+                    $"El pedido #{orderCode} fue marcado como entregado por la tienda.",
+                    "/mis-pedidos"),
+                StoreOrderStatus.Cancelled => (
+                    notification.CustomerId,
+                    "Pedido cancelado",
+                    $"El pedido #{orderCode} fue cancelado. Coordina cualquier pago o devolución directamente con la tienda.",
+                    "/mis-pedidos"),
+                StoreOrderStatus.Expired => (
+                    notification.CustomerId,
+                    "Venció la reserva temporal",
+                    $"La reserva temporal del pedido #{orderCode} venció; verifica la disponibilidad antes de volver a pedir.",
+                    "/mis-pedidos"),
+                StoreOrderStatus.Refunded => (
+                    notification.CustomerId,
+                    "La tienda registró una devolución externa",
+                    $"La tienda registró una referencia de devolución para el pedido #{orderCode}. PawTrack no envió fondos.",
+                    "/mis-pedidos"),
+                _ => (
+                    notification.CustomerId,
+                    "Actualización de pedido",
+                    $"El pedido #{orderCode} cambió a {notification.Status}.",
+                    "/mis-pedidos"),
+            },
             _ => (
                 notification.CustomerId,
                 "Actualización de pedido",

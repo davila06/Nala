@@ -86,7 +86,7 @@ public sealed class StoreOrder : IHasDomainEvents
         }
 
         order.TotalCrc = order._items.Sum(i => i.SubtotalCrc);
-        order.AddLifecycleEvent();
+        order.AddLifecycleEvent(StoreOrderLifecycleAction.OrderPlaced);
         return order;
     }
 
@@ -98,7 +98,7 @@ public sealed class StoreOrder : IHasDomainEvents
             throw new InvalidOperationException("Solo se puede reportar el pago después de que la tienda acepte el pedido.");
         PaymentReportedByCustomer = true;
         Status = StoreOrderStatus.PaymentReported;
-        AddLifecycleEvent();
+        AddLifecycleEvent(StoreOrderLifecycleAction.PaymentReported);
     }
 
     public void Accept(string? storeNote = null)
@@ -114,7 +114,7 @@ public sealed class StoreOrder : IHasDomainEvents
             : StoreOrderStatus.AwaitingPayment;
         StoreNote = storeNote?.Trim();
         ConfirmedAt = DateTimeOffset.UtcNow;
-        AddLifecycleEvent();
+        AddLifecycleEvent(StoreOrderLifecycleAction.OrderAccepted);
     }
 
     public void VerifyManualPayment(Guid verifiedByUserId, string bankReference, string? storeNote = null)
@@ -137,7 +137,7 @@ public sealed class StoreOrder : IHasDomainEvents
         PaymentVerificationReference = bankReference.Trim();
         PaymentVerifiedByUserId = verifiedByUserId;
         PaymentConfirmedAt = DateTimeOffset.UtcNow;
-        AddLifecycleEvent();
+        AddLifecycleEvent(StoreOrderLifecycleAction.PaymentVerified);
     }
 
     public void RecordManualRefund(Guid refundedByUserId, string refundReference, string? reason = null)
@@ -157,7 +157,7 @@ public sealed class StoreOrder : IHasDomainEvents
         RefundedByUserId = refundedByUserId;
         RefundedAt = DateTimeOffset.UtcNow;
         if (!string.IsNullOrWhiteSpace(reason)) StoreNote = reason.Trim();
-        AddLifecycleEvent();
+        AddLifecycleEvent(StoreOrderLifecycleAction.ExternalRefundRecorded);
     }
 
     public void MarkStockReserved(DateTimeOffset expiresAt)
@@ -190,7 +190,7 @@ public sealed class StoreOrder : IHasDomainEvents
         StockReserved = false;
         StockReservationExpiresAt = null;
         CancelledAt = now;
-        AddLifecycleEvent();
+        AddLifecycleEvent(StoreOrderLifecycleAction.ReservationExpired);
     }
 
     public void Reject(string reason)
@@ -203,6 +203,7 @@ public sealed class StoreOrder : IHasDomainEvents
         Status = StoreOrderStatus.Rejected;
         StoreNote = reason.Trim();
         CancelledAt = DateTimeOffset.UtcNow;
+        AddLifecycleEvent(StoreOrderLifecycleAction.OrderRejected);
     }
 
     public void UpdateStatus(StoreOrderStatus newStatus, string? storeNote = null)
@@ -219,7 +220,7 @@ public sealed class StoreOrder : IHasDomainEvents
         if (newStatus is StoreOrderStatus.Delivered)
             CompletedAt = DateTimeOffset.UtcNow;
 
-        AddLifecycleEvent();
+        AddLifecycleEvent(StoreOrderLifecycleAction.StatusChanged);
     }
 
     /// <summary>Allowed forward-only state machine — prevents skipping steps, reversals, and fulfillment mismatches.</summary>
@@ -259,9 +260,9 @@ public sealed class StoreOrder : IHasDomainEvents
         Status = StoreOrderStatus.Cancelled;
         StoreNote = reason.Trim();
         CancelledAt = DateTimeOffset.UtcNow;
-        AddLifecycleEvent();
+        AddLifecycleEvent(StoreOrderLifecycleAction.StatusChanged);
     }
 
-    private void AddLifecycleEvent() => _domainEvents.Add(new StoreOrderLifecycleDomainEvent(
-        Guid.CreateVersion7(), Id, StoreId, CustomerId, Status, FulfillmentType, TotalCrc, DateTimeOffset.UtcNow));
+    private void AddLifecycleEvent(StoreOrderLifecycleAction action) => _domainEvents.Add(new StoreOrderLifecycleDomainEvent(
+        Guid.CreateVersion7(), Id, StoreId, CustomerId, action, Status, FulfillmentType, TotalCrc, DateTimeOffset.UtcNow));
 }
