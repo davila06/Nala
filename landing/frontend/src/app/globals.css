@@ -667,7 +667,7 @@ h2 em {
 }
 .capability-card picture {
   display: block;
-  height: 156px;
+  height: 200px;
   margin: -22px -22px 18px;
   overflow: hidden;
 }
@@ -3221,6 +3221,10 @@ h2 em {
   .capability-card {
     min-height: 0;
     padding: 18px;
+  }
+  .capability-card picture {
+    height: 230px;
+    margin: -18px -18px 18px;
   }
   .lost-pet-step-grid {
     grid-template-columns: 1fr;

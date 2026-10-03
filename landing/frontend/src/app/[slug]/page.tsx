@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { ContactEmailForm } from "@/components/contact-email-form";
-import { LandingPicture } from "@/components/landing-picture";
+import { LandingPicture, type LandingAsset } from "@/components/landing-picture";
 import { ServiceCategoryGrid } from "@/components/service-category-grid";
 import { getLoginUrl, getProductUrl } from "@/lib/site-config";
 import { PublicPlansCatalog } from "@/components/public-plans-catalog";
@@ -26,7 +26,7 @@ type PageDefinition = {
     summary: string;
     limit: string;
     image?: {
-      asset: "municipalProfiles" | "municipalReports" | "municipalDialogue";
+      asset: LandingAsset;
       alt: string;
     };
   }[];
@@ -278,6 +278,10 @@ const pages: Record<string, PageDefinition> = {
         statusTone: "ready",
         summary: "La ruta clínica acepta una URL QR o un identificador de chip y registra el escaneo.",
         limit: "El escaneo identifica a la mascota, pero no concede acceso a sus datos clínicos.",
+        image: {
+          asset: "clinicIdentification",
+          alt: "Una veterinaria escanea la identificación del collar de un perro con su teléfono.",
+        },
       },
       {
         title: "Expediente con consentimiento",
@@ -287,6 +291,10 @@ const pages: Record<string, PageDefinition> = {
           "Permite registrar vacunas, desparasitación, controles, cirugías, medicación y alergias, con documentos adjuntos.",
         limit:
           "La lectura y escritura requieren un grant activo aprobado por el tutor; no es un EHR externo ni diagnóstico.",
+        image: {
+          asset: "clinicRecords",
+          alt: "Una veterinaria y la tutora de un perro revisan información clínica en una tableta.",
+        },
       },
       {
         title: "Agenda y registro de consulta",
@@ -294,6 +302,10 @@ const pages: Record<string, PageDefinition> = {
         statusTone: "ready",
         summary: "Incluye agenda de citas veterinarias y registro estructurado de consultas clínicas.",
         limit: "No incluye consulta veterinaria por video ni audio.",
+        image: {
+          asset: "clinicAppointments",
+          alt: "Una veterinaria realiza una consulta presencial mientras otra persona registra la atención.",
+        },
       },
       {
         title: "Estadísticas de escaneo",
@@ -301,6 +313,10 @@ const pages: Record<string, PageDefinition> = {
         statusTone: "partial",
         summary: "El panel puede mostrar totales, coincidencias y desglose QR/RFID por día.",
         limit: "Requiere ClinicPlus o superior; no ofrece reportes de vacunas próximas ni pacientes frecuentes.",
+        image: {
+          asset: "clinicScanStats",
+          alt: "Un equipo veterinario revisa en una computadora gráficos de estadísticas de escaneo.",
+        },
       },
     ],
     primaryLabel: "Ver el estado para organizaciones",
@@ -326,6 +342,10 @@ const pages: Record<string, PageDefinition> = {
         statusTone: "ready",
         summary: "El producto incluye perfiles de aliados y herramientas de gestión.",
         limit: "No confirma afiliación de una organización concreta.",
+        image: {
+          asset: "shelterProfiles",
+          alt: "Una voluntaria revisa en una tableta el perfil de un perro rescatado.",
+        },
       },
       {
         title: "Publicaciones y adopción",
@@ -333,6 +353,10 @@ const pages: Record<string, PageDefinition> = {
         statusTone: "ready",
         summary: "Hay superficies para publicar animales y gestionar solicitudes de adopción.",
         limit: "La operación de refugios, cobertura y respuesta no está verificada.",
+        image: {
+          asset: "shelterAdoptions",
+          alt: "Una persona conoce a un perro rescatado junto a una voluntaria del refugio.",
+        },
       },
       {
         title: "Convenios y cobertura",
@@ -340,6 +364,10 @@ const pages: Record<string, PageDefinition> = {
         statusTone: "unverified",
         summary: "La capacidad del producto no demuestra una alianza con una ONG.",
         limit: "No se acredita convenio, SLA ni cobertura operativa.",
+        image: {
+          asset: "shelterPartnerships",
+          alt: "Dos coordinadoras conversan sobre una posible colaboración en un refugio.",
+        },
       },
     ],
     primaryLabel: "Ver capacidades del producto",

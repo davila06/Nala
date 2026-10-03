@@ -42,7 +42,7 @@ export function AnimalCard({ animal }: AnimalCardProps) {
           </span>
         )}
         {animal.status === "Adopted" && (
-          <span className="absolute top-2 left-2 bg-sand-400 text-white text-[10px] font-bold rounded-full px-2 py-0.5">
+          <span className="absolute top-2 left-2 bg-sand-400 text-sand-900 text-[10px] font-bold rounded-full px-2 py-0.5">
             Adoptado ✓
           </span>
         )}

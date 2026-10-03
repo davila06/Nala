@@ -2,6 +2,8 @@
 
 **Corte:** 2026-09-28. Orden preliminar por impacto en tarea, negocio, urgencia y esfuerzo; la matriz de factores está en [UIUX_OPPORTUNITY_MATRIX.md](UIUX_OPPORTUNITY_MATRIX.md). `[C]` = problema confirmado por código/token/test; `[V]` = validar en navegador/usuarios antes de declarar defecto; `[P]` = propuesta de producto.
 
+**Revalidación focal:** 2026-10-02. Las etiquetas `[C]`/`[V]`/`[P]` describen evidencia/clase del ítem, no su estado de resolución. El estado actualizado de hallazgos revisados está en [UIUX_BACKLOG.md](UIUX_BACKLOG.md). Axe ya está integrado en Playwright; 4/4 menús móviles (Owner, Clinic, Store, ServiceProvider) pasaron a 390×844. WCAG global, roles no cubiertos, lector de pantalla y sesiones con usuarios permanecen `NO_VERIFICADO`.
+
 <!-- markdownlint-disable MD029 -->
 
 ## Seguridad, WCAG y tareas críticas (1-20)
@@ -123,6 +125,6 @@
 97. `[V]` Verificar reduced-motion real en Framer Motion y animaciones CSS; no basta el override global.
 98. `[V]` Añadir objetivos de rendimiento UX: LCP/INP/CLS para rutas más usadas, con móvil de gama media.
 99. `[V]` Revisar productos de terceros/analytics/cookies con consentimiento y feedback comprensible.
-100.  `[V]` Ejecutar prueba moderada trimestral por perfil y actualizar el backlog con evidencia, tasa de éxito y severidad.
+100. `[V]` Ejecutar prueba moderada trimestral por perfil y actualizar el backlog con evidencia, tasa de éxito y severidad.
 
 <!-- markdownlint-enable MD029 -->

@@ -88,6 +88,21 @@ const images = [
     source: "business-shelters-20261002.png",
   },
   {
+    name: "shelter-profiles-20261002",
+    source: "shelter-profiles-20261002.png",
+    mobileHeight: 608,
+  },
+  {
+    name: "shelter-adoptions-20261002",
+    source: "shelter-adoptions-20261002.png",
+    mobileHeight: 608,
+  },
+  {
+    name: "shelter-partnerships-20261002",
+    source: "shelter-partnerships-20261002.png",
+    mobileHeight: 608,
+  },
+  {
     name: "business-municipalities-20261002",
     source: "business-municipalities-20261002.png",
   },

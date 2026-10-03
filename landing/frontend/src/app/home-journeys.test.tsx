@@ -148,6 +148,26 @@ describe("home journeys", () => {
     expect(within(cards[3] as HTMLElement).getByText(/no ofrece reportes de vacunas/i)).toBeTruthy();
   });
 
+  it("shows an accessible image for each clinic capability and its limits", async () => {
+    const page = await PublicPage({ params: Promise.resolve({ slug: "clinics" }) });
+    const { container } = render(page);
+    const cards = container.querySelectorAll(".capability-card");
+    const images = Array.from(cards, (card) => card.querySelector(".capability-card-image"));
+
+    expect(images).toHaveLength(4);
+    expect(images.every((image) => image instanceof HTMLImageElement && image.alt.length > 0)).toBe(true);
+  });
+
+  it("shows an accessible image for each shelter capability and its limits", async () => {
+    const page = await PublicPage({ params: Promise.resolve({ slug: "shelters" }) });
+    const { container } = render(page);
+    const cards = container.querySelectorAll(".capability-card");
+    const images = Array.from(cards, (card) => card.querySelector(".capability-card-image"));
+
+    expect(images).toHaveLength(3);
+    expect(images.every((image) => image instanceof HTMLImageElement && image.alt.length > 0)).toBe(true);
+  });
+
   it("hands the found-pet guide off to PawTrack's real report form", async () => {
     const page = await PublicPage({ params: Promise.resolve({ slug: "found-pets" }) });
     render(page);

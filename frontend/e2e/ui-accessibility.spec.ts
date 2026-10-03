@@ -8,14 +8,14 @@ async function expectAxeClean(page: import("@playwright/test").Page, include?: s
   let builder = new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]);
   if (include) builder = builder.include(include);
   const results = await builder.analyze();
-    expect(
-      results.violations.map(({ id, impact, help, nodes }) => ({
-        id,
-        impact,
-        help,
-        nodes: nodes.map((node) => ({ target: node.target, html: node.html, failureSummary: node.failureSummary })),
-      })),
-    ).toEqual([]);
+  expect(
+    results.violations.map(({ id, impact, help, nodes }) => ({
+      id,
+      impact,
+      help,
+      nodes: nodes.map((node) => ({ target: node.target, html: node.html, failureSummary: node.failureSummary })),
+    })),
+  ).toEqual([]);
 }
 
 test.describe("UI accessibility foundations", () => {
@@ -136,7 +136,7 @@ test.describe("UI accessibility foundations", () => {
       const menu = page.getByRole("navigation", { name: "Navegación móvil" });
       await expect(menu.getByRole("link", { name: label })).toHaveAttribute("href", route);
       await page.keyboard.press("Tab");
-      await expect(menu.getByRole("link", { name: "Mascota" })).toBeFocused();
+      await expect(menu.getByRole("link", { name: "Mascota", exact: true })).toBeFocused();
       await expectAxeClean(page, "nav[aria-label='Navegación móvil']");
     });
   }

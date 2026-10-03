@@ -1,6 +1,6 @@
 # Matriz de Oportunidades UX/UI
 
-**Corte:** 2026-09-28. Priorización inicial, no estimación financiera. No existen en esta auditoría datos de funnel, satisfacción, soporte ni revenue para calcular ROI real.
+**Auditoría base:** 2026-09-28. **Revalidación focal:** 2026-10-02. Priorización inicial, no estimación financiera. No existen datos de funnel, satisfacción, soporte ni revenue para calcular ROI real.
 
 ## Método de prioridad
 
@@ -66,4 +66,4 @@ Escala 1-5. `IU` impacto usuario, `IB` impacto negocio, `U` urgencia, `E` esfuer
 
 ## Riesgo residual
 
-La matriz no incluye mediciones de conversión ni impacto monetario real porque no hay baseline y no se revisaron datos de producción. No se ejecutó un browser visual por falta de runtime de API/DB configurado para esta auditoría; los valores de contraste son cálculos de tokens/pares muestreados, no un crawl completo de estilos computados.
+La matriz no incluye mediciones de conversión ni impacto monetario real porque no hay baseline y no se revisaron datos de producción. El 2026-10-02 se ejecutaron cuatro recorridos Playwright autenticados de navegación móvil (390×844) con Axe en el menú; no fue un crawl visual ni una revisión de todas las rutas. Los valores de contraste son cálculos/pares muestreados, no un crawl completo de estilos computados. La paridad de tareas por rol, WCAG global, uso con lector y pruebas con personas siguen `NO_VERIFICADO`; los scores son prioridad, no estado de implementación.

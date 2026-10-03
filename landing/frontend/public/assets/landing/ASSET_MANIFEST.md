@@ -48,3 +48,13 @@ Generadas el **2026-10-02** con Azure AI Image Generation (`gpt-image-2.5-flare`
 | Preparar una descripción  | `source/lost-pet-preparation-20261002.png`      | Tutora revisa una foto reciente y prepara información en casa.              |
 | Compartir zona aproximada | `source/lost-pet-approximate-area-20261002.png` | Persona consulta mapa sin nombres de calles ni coordenadas legibles.        |
 | Revisar contacto          | `source/lost-pet-contact-review-20261002.png`   | Persona revisa perfil en teléfono con la pantalla intencionalmente borrosa. |
+
+### Capacidades de refugios
+
+Generadas el **2026-10-02** con Azure AI Image Generation (`gpt-image-2.5-flare`). Son escenas ilustrativas y no prueban afiliación, adopciones completadas, convenios, SLA ni cobertura operativa. `npm run images:optimize` produce AVIF/WebP de 1600×900 en escritorio y 1080×608 en móvil.
+
+| Capacidad                | Fuente PNG                                 | Brief visual                                                                        |
+| ------------------------ | ------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Perfiles aliados         | `source/shelter-profiles-20261002.png`     | Voluntaria revisa el perfil de un perro; no identifica a una organización real.     |
+| Publicaciones y adopción | `source/shelter-adoptions-20261002.png`    | Primer encuentro entre persona, perro y voluntaria; no representa adopción cerrada. |
+| Convenios y cobertura    | `source/shelter-partnerships-20261002.png` | Conversación exploratoria sin documentos firmados ni señales de acuerdo formal.     |

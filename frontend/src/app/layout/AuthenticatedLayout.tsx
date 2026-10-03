@@ -183,7 +183,7 @@ const ROLE_BADGE: Record<string, { label: string; cls: string }> = {
   SuperAdmin: { label: "SuperAdmin", cls: "bg-red-100 text-red-800" },
 };
 
-const AVATAR_COLORS = ["bg-brand-500", "bg-blue-500", "bg-rescue-500", "bg-warn-500", "bg-sand-600", "bg-purple-500"];
+const AVATAR_COLORS = ["bg-brand-500", "bg-blue-700", "bg-rescue-700", "bg-warn-800", "bg-sand-600", "bg-purple-700"];
 
 function getInitials(name = ""): string {
   const parts = name.trim().split(/\s+/);

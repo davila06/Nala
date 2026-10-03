@@ -1,6 +1,7 @@
 # Auditoría UX/UI Enterprise de NALA
 
-**Corte:** 2026-09-28  
+**Auditoría base:** 2026-09-28
+**Revalidación focal:** 2026-10-02
 **Fuente de verdad:** `frontend/src`, router React, estilos, componentes compartidos, tests y configuración. La documentación previa se usó solo como contexto, nunca para declarar una pantalla implementada.  
 **Tipo de revisión:** inventario estático completo del router y de los módulos; revisión de profundidad de flujos de alto riesgo. No es certificación WCAG ni inspección visual en navegador.
 
@@ -15,49 +16,50 @@ El frontend es una aplicación React PWA amplia y funcional, con rutas públicas
 - Router: 80 declaraciones `path` en `frontend/src/app/routes.tsx`, incluidas rutas comodín y parámetros dinámicos; 77 archivos `*Page.tsx` en `frontend/src/features`.
 - Fuente: 355 archivos TS/TSX bajo `frontend/src`; 36 usos de `<form>` detectados en páginas/features.
 - Presentación: `globals.css`, Tailwind 4 y tokens `@theme`; 19 componentes compartidos en `frontend/src/shared/ui`.
-- Pruebas: 54 archivos Vitest y 156 tests pasaron en esta ejecución. 12 specs Playwright existen; `ui-accessibility.spec.ts` contiene solo 2 pruebas de skip link y CTA. No se encontró integración `axe` ejecutada.
+- Pruebas: la auditoría base del 28-sep-2026 registró conteos incompatibles entre documentos; no se deben citar como total vigente. Al 02-oct-2026, `ui-accessibility.spec.ts` integra Axe y contiene escenarios de shell, onboarding, reporte, QR, mapa y navegación móvil. La cobertura no equivale a un análisis completo.
 - Roles/superficies: Owner, Clinic, Store, ServiceProvider, Ally, Municipality, Admin y SuperAdmin.
 
 **Rutas agrupadas:** autenticación y alta (`/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email`, `/registro-negocio`); perfil/mascotas/salud (`/dashboard`, `/pets/new`, `/pets/:id`, `/pets/:id/edit`, `/salud`, `/perfil`, `/red`); recuperación (`/pets/:id/report-lost`, `/pets/:id/lost-confirmed`, `/lost/:id/case`, `/lost/:lostEventId/busqueda`, `/map`, `/map/match`, `/p/:id`, `/p/:id/report-sighting`, `/encontre`, `/encontre-mascota`, `/encontre-mascota/resultados`, `/notifications`, `/chat/*`); B2B (`/clinicas`, `/clinicas/:clinicId`, `/clinica/*`, `/tiendas`, `/tienda/*`, `/servicios`, `/servicios/:id`, `/servicio/*`, `/mis-reservas`, `/mis-pedidos`); adopción/social (`/adopciones/*`, `/shelter/*`, `/allies/panel`, `/bienestar/reportar`, `/campanas-castracion*`); institucional (`/municipalidad*`, `/reportes-institucionales`, `/nala`, `/admin`, `/super-admin`, `/estadisticas`); verificación pública (`/verificar/:code`, `/verificar/pasaporte/:code`). El inventario literal está en `src/app/routes.tsx`.
 
-## Hallazgos Prioritarios
+## Hallazgos revalidados (2026-10-02)
 
-| Prioridad | Hallazgo verificable                                                                                                                                                                                                              | Impacto                                              |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| P0        | Tokens de texto presentan contrastes insuficientes en pares de uso representativos: `sand-400` sobre blanco ≈2.00:1, `sand-500` ≈2.98:1, `brand-500` ≈3.71:1. Hay usos pequeños (10-12px) en navegación, metadatos y botones.     | WCAG 2.2 AA, legibilidad móvil y confianza           |
-| P0        | El reporte de pérdida es un flujo de 3 pasos, pero el stepper no expone `aria-current`/progreso; “Siguiente” cambia de paso sin validación local y el contenido anterior se desmonta.                                             | Flujo de emergencia y usuarios de lector de pantalla |
-| P1        | `OnboardingWizard` se declara modal, pero no implementa trapping/restauración de foco ni cierre Escape; el componente compartido Modal sí implementa esas funciones.                                                              | Bloqueo de teclado/lector de pantalla al primer uso  |
-| P1        | `QRFlipCard` usa `role="button"` con click y `Enter`, sin Space ni semántica de botón; el gesto swipe es alternativo, pero la tarjeta captura clicks que podrían proceder de controles descendientes.                             | Descubribilidad, teclado y uso de QR                 |
-| P1        | NFC se presenta como “configurar chip” pero el flujo es tutorial externo para escribir una URL con NFC Tools, condicionado a pedido `NfcQrCombo` entregado; no valida escritura ni lectura dentro de NALA.                        | Expectativa de producto y soporte                    |
-| P1        | La navegación móvil inferior solo ofrece Mascota, Encontrar, Salud y Red; accesos de rol a portales están en la navegación desktop “Más” y la experiencia móvil no tiene una navegación equivalente evidente.                     | Tareas B2B en móvil y descubribilidad                |
-| P1        | El CTA global para reportar pérdida en `AuthenticatedLayout` está `hidden md:flex`; la ruta de dashboard tiene selección contextual, pero el CTA de emergencia del header desaparece en viewport móvil.                           | Tiempo a acción en el flujo crítico                  |
-| P1        | El onboarding dice que IA reconocerá la mascota y la guía de collar afirma capacidades de placa/QR; la UI debe explicar límites, disponibilidad por plan y dependencia de servicios sin prometer éxito de reconocimiento/entrega. | Conversión de confianza, claims y soporte            |
-| P2        | Accesibilidad E2E cubre 2 aserciones sobre el shell, no formularios/dialogs/mapas por rol ni WCAG automatizado; no hay `axe` integrado en la suite.                                                                               | Riesgo de regresión y evidencia insuficiente         |
-| P2        | Existe un UI kit, pero `Modal` y `Drawer` duplican implementación; hay formularios que usan `Input` compartido y otros `<input>`/errores/toasts ad hoc.                                                                           | Consistencia, velocidad de cambio y deuda QA         |
-| P2        | Los estados de error de alta y transacciones recurren a mensajes genéricos/toasts; falta un patrón uniforme de error por campo, recuperación, foco y preservación de valores.                                                     | Conversión y abandono de formularios                 |
+| Prioridad | Hallazgo revalidado                                                                                                                                            | Impacto                                      |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| P0        | Se corrigieron badge Adoptado y colores de avatar detectados por Axe; falta auditar globalmente tokens y pares de texto pequeños.                              | WCAG 2.2 AA, legibilidad móvil y confianza   |
+| P0        | El reporte ya anuncia paso, expone `aria-current` y valida/focaliza la fecha antes de avanzar. No se ha probado con lector de pantalla real.                   | Flujo de emergencia y tecnología asistiva    |
+| P1        | Onboarding comparte el manejo de foco del modal; Escape/retorno se probaron unitariamente. Anuncio de pasos con lector real sigue sin verificar.               | Accesibilidad del primer uso                 |
+| P1        | QRFlipCard usa botones nativos; Enter/Espacio pasan prueba unitaria y Axe en E2E. Falta dispositivo/usuario real.                                              | Descubribilidad, teclado y uso de QR         |
+| P1        | NFC se describe como escritura manual con app externa; compatibilidad por dispositivo y operación real no están verificadas.                                   | Expectativa de producto y soporte            |
+| P1        | El menú móvil muestra enlaces de rol. Playwright pasó Owner, Clinic, Store y ServiceProvider; Ally, Municipality, Admin y tareas observadas siguen pendientes. | Descubribilidad B2B móvil                    |
+| P1        | El CTA de pérdida está en navegación inferior móvil y pasó el recorrido Owner de Playwright. La facilidad en una emergencia requiere prueba con usuarios.      | Tiempo a acción en el flujo crítico          |
+| P1        | Copy de onboarding limita resultados de IA/QR; disponibilidad por plan y claims de GPS requieren revisión de todas las superficies.                            | Conversión de confianza, claims y soporte    |
+| P2        | Axe está integrado en Playwright/CI con cobertura selectiva; no es auditoría WCAG integral ni certifica conformidad.                                           | Riesgo de regresión y evidencia insuficiente |
+| P2        | `Modal` y `Drawer` comparten hook de foco, pero siguen siendo primitives distintas; formularios/errores también varían por módulo.                             | Consistencia, velocidad de cambio y deuda QA |
+| P2        | La consistencia de errores y recuperación de formularios sigue pendiente de validar por página/flujo.                                                          | Conversión y abandono de formularios         |
 
 ## Evaluación por Dimensión
 
-| Dimensión                             | Evaluación                                                                                                                                                                                  | Confianza                               |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| UX / arquitectura de información      | Funcionalidad amplia, pero los portales por rol y destinos de alto valor compiten por navegación. Hay que validar descubribilidad con tareas observadas.                                    | Media                                   |
-| UI / design system                    | Paleta, tipografías Fraunces/Plus Jakarta Sans, escalas y componentes compartidos presentes. Se observa variación en radios, colores, toasts y formularios por módulo.                      | Alta en tokens; media en cobertura real |
-| WCAG 2.2                              | Hay skip link, landmarks, foco global, reduced-motion, labels, nombres ARIA y progreso en algunos flujos. Persisten riesgos de contraste, stepper, diálogos, keyboard parity y target size. | Media-baja; sin axe/lector de pantalla  |
-| Responsive / Mobile First             | Diseño adaptable con bottom nav, `dvh`, safe area y grids Tailwind; no se ejecutó inspección en viewports. Menú por rol y flujo de emergencia requieren prueba móvil.                       | Media-baja                              |
-| Onboarding                            | Wizard para Owner sin mascota y onboarding de páginas de alta; claims de IA/QR y modal incompleto en teclado. No hay evidencia de experimentos/cohortes.                                    | Media                                   |
-| Conversión / PLG                      | CTA contextual, gates y upsell visible; no hay datos de funnel/retención en la auditoría que permitan probar conversión. Evitar upsell durante una crisis de mascota perdida.               | Baja para impacto cuantitativo          |
-| Design System                         | Tokens y shared UI existen; falta contrato de componentes, auditoría de contraste y matriz de estados/targets.                                                                              | Alta                                    |
-| Telemedicina                          | No existe flujo de vídeo/voz; no debe evaluarse como experiencia disponible. UI clínica actual cubre operación/consulta registrada.                                                         | Alta                                    |
-| QR/NFC                                | QR visible en perfil, descarga y componente flip; NFC es onboarding a herramienta externa, no integración.                                                                                  | Alta                                    |
-| Veterinarias/refugios/municipalidades | Portales ejecutables por rol, agenda/expediente/adopción/capturas; revisión estática, sin pruebas moderadas con personal real ni end-to-end de tareas completas.                            | Media                                   |
+| Dimensión                             | Evaluación                                                                                                                                                                    | Confianza                               |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| UX / arquitectura de información      | Funcionalidad amplia, pero los portales por rol y destinos de alto valor compiten por navegación. Hay que validar descubribilidad con tareas observadas.                      | Media                                   |
+| UI / design system                    | Paleta, tipografías Fraunces/Plus Jakarta Sans, escalas y componentes compartidos presentes. Se observa variación en radios, colores, toasts y formularios por módulo.        | Alta en tokens; media en cobertura real |
+| WCAG 2.2                              | Axe se ejecutó en journeys seleccionados. Persisten riesgos de contraste y falta teclado/lector real, targets y validación de estados/rutas no cubiertos.                     | NO_VERIFICADO como conformidad global   |
+| Responsive / Mobile First             | Playwright pasó 4 menús por rol a 390×844; no se ejecutó la matriz visual completa ni todas las rutas.                                                                        | NO_VERIFICADO fuera de esa muestra      |
+| Onboarding                            | Se comprobaron Escape/retorno de foco por unit test y Axe en el diálogo; lector real, uso observado y experimentos/cohortes siguen pendientes.                                | Parcial                                 |
+| Conversión / PLG                      | CTA contextual, gates y upsell visible; no hay datos de funnel/retención en la auditoría que permitan probar conversión. Evitar upsell durante una crisis de mascota perdida. | Baja para impacto cuantitativo          |
+| Design System                         | Tokens y shared UI existen; falta contrato de componentes, auditoría de contraste y matriz de estados/targets.                                                                | Alta                                    |
+| Telemedicina                          | No existe flujo de vídeo/voz; no debe evaluarse como experiencia disponible. UI clínica actual cubre operación/consulta registrada.                                           | Alta                                    |
+| QR/NFC                                | QR visible en perfil, descarga y componente flip; NFC es onboarding a herramienta externa, no integración.                                                                    | Alta                                    |
+| Veterinarias/refugios/municipalidades | Portales ejecutables por rol, agenda/expediente/adopción/capturas; revisión estática, sin pruebas moderadas con personal real ni end-to-end de tareas completas.              | Media                                   |
 
-## Verificación Ejecutada
+## Verificación Ejecutada (2026-10-02)
 
-- `npm run typecheck`: pasó.
-- `npm test -- --run --reporter=dot --pool=threads --maxWorkers=1`: 54 archivos, 156 tests aprobados.
-- `npm run lint`: falló con 3 errores en `tests/features/clinics/ClinicOperationsPanel.test.tsx` (2 `no-unsafe-assignment`, 1 `no-unnecessary-type-assertion`). No son evidencia de problemas de UI de producción, pero dejan lint rojo.
-- Playwright visual/WCAG no ejecutado: requiere runtime API/DB/Azurite configurados y usuarios de prueba. E2E actual configura solo Chromium desktop por defecto.
+- `npm --prefix frontend run test:e2e -- --grep "mobile menu reaches"`: 4/4 pasaron en Chromium a 390×844 para Owner, Clinic, Store y ServiceProvider. La prueba verifica acceso por teclado, `href` esperado y Axe en la navegación móvil; no completa tareas del portal.
+- Pruebas unitarias focalizadas de accesibilidad: 7/7 pasaron. `AnimalCard.test.tsx`: 3/3 pasaron.
+- Axe detectó inicialmente contraste de 3.26:1 (`rescue-500`) y 4.12:1 (`purple-500`) en avatares con texto blanco. Se oscureció la paleta y los cuatro recorridos pasaron al repetir la prueba.
+- El workflow `.github/workflows/e2e.yml` ejecuta Playwright. No se consultó el resultado de la última corrida CI; tampoco se ejecutaron la suite completa frontend ni todo E2E en esta revalidación.
+- No hubo sesiones con usuarios, lector de pantalla real ni auditoría WCAG completa. Esos resultados y el cumplimiento global permanecen `NO_VERIFICADO`.
 
 ## Decisión
 
-Tratar esta entrega como auditoría estática de frontend. Resolver primero contraste, teclado/semántica en wizard/QR y acceso móvil de portales; añadir axe/Playwright con datos semilla y pruebas manuales WCAG 2.2 AA antes de declarar cumplimiento enterprise. El backlog, Top 100, quick wins y matriz de oportunidades están en los documentos hermanos `UIUX_BACKLOG.md`, `UIUX_TOP_100_IMPROVEMENTS.md`, `UIUX_QUICK_WINS.md` y `UIUX_OPPORTUNITY_MATRIX.md`.
+Tratar esta entrega como revalidación focal, no certificación. La navegación móvil de cuatro roles pasó, pero WCAG global, lector de pantalla y facilidad de encontrar tareas con personas siguen `NO_VERIFICADO`. El estado por hallazgo está en `UIUX_BACKLOG.md`; completar los perfiles y pruebas indicados antes de declarar cumplimiento enterprise.

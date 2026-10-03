@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-type LandingAsset =
+export type LandingAsset =
   | "hero"
   | "services"
   | "qr"
@@ -11,6 +11,9 @@ type LandingAsset =
   | "businessClinics"
   | "businessShelters"
   | "businessMunicipalities"
+  | "shelterProfiles"
+  | "shelterAdoptions"
+  | "shelterPartnerships"
   | "clinicIdentification"
   | "clinicRecords"
   | "clinicAppointments"
@@ -62,6 +65,18 @@ const assetFiles: Record<LandingAsset, { desktop: string; mobile: string }> = {
   businessShelters: {
     desktop: "business-shelters-20261002-desktop",
     mobile: "business-shelters-20261002-mobile",
+  },
+  shelterProfiles: {
+    desktop: "shelter-profiles-20261002-desktop",
+    mobile: "shelter-profiles-20261002-mobile",
+  },
+  shelterAdoptions: {
+    desktop: "shelter-adoptions-20261002-desktop",
+    mobile: "shelter-adoptions-20261002-mobile",
+  },
+  shelterPartnerships: {
+    desktop: "shelter-partnerships-20261002-desktop",
+    mobile: "shelter-partnerships-20261002-mobile",
   },
   businessMunicipalities: {
     desktop: "business-municipalities-20261002-desktop",
