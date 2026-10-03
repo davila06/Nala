@@ -175,6 +175,25 @@ public sealed class StoreOrderStateMachineTests
         order.Status.Should().Be(StoreOrderStatus.Delivered);
     }
 
+    [Theory]
+    [InlineData(OrderFulfillmentType.Pickup, StoreOrderStatus.OutForDelivery)]
+    [InlineData(OrderFulfillmentType.Delivery, StoreOrderStatus.ReadyForPickup)]
+    public void UpdateStatus_RejectsTransitionForDifferentFulfillment(
+        OrderFulfillmentType fulfillment,
+        StoreOrderStatus invalidNextStatus)
+    {
+        var order = MakeOrder(fulfillment);
+        order.Accept("Disponibilidad confirmada");
+        order.ReportPayment();
+        order.VerifyManualPayment(Guid.NewGuid(), "BANK-FULFILLMENT");
+        order.UpdateStatus(StoreOrderStatus.Preparing);
+
+        var act = () => order.UpdateStatus(invalidNextStatus);
+
+        act.Should().Throw<InvalidOperationException>();
+        order.Status.Should().Be(StoreOrderStatus.Preparing);
+    }
+
     [Fact]
     public void UpdateStatus_SkipStep_Throws()
     {

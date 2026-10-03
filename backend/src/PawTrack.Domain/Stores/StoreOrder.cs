@@ -208,8 +208,8 @@ public sealed class StoreOrder
             CompletedAt = DateTimeOffset.UtcNow;
     }
 
-    /// <summary>Allowed forward-only state machine — prevents skipping steps or reversals.</summary>
-    private static bool IsValidTransition(StoreOrderStatus from, StoreOrderStatus to) => (from, to) switch
+    /// <summary>Allowed forward-only state machine — prevents skipping steps, reversals, and fulfillment mismatches.</summary>
+    private bool IsValidTransition(StoreOrderStatus from, StoreOrderStatus to) => (from, to) switch
     {
         (StoreOrderStatus.AwaitingStoreAcceptance, StoreOrderStatus.Rejected) => true,
         (StoreOrderStatus.AwaitingPayment, StoreOrderStatus.Rejected) => true,
@@ -221,13 +221,19 @@ public sealed class StoreOrder
         (StoreOrderStatus.Paid, StoreOrderStatus.Preparing) => true,
         (StoreOrderStatus.Confirmed, StoreOrderStatus.Preparing) => true,
         (StoreOrderStatus.Confirmed, StoreOrderStatus.Cancelled) => true,
-        (StoreOrderStatus.Preparing, StoreOrderStatus.ReadyForPickup) => true,
-        (StoreOrderStatus.Preparing, StoreOrderStatus.OutForDelivery) => true,
+        (StoreOrderStatus.Preparing, StoreOrderStatus.ReadyForPickup)
+            when FulfillmentType == OrderFulfillmentType.Pickup => true,
+        (StoreOrderStatus.Preparing, StoreOrderStatus.OutForDelivery)
+            when FulfillmentType == OrderFulfillmentType.Delivery => true,
         (StoreOrderStatus.Preparing, StoreOrderStatus.Cancelled) => true,
-        (StoreOrderStatus.ReadyForPickup, StoreOrderStatus.Delivered) => true,
-        (StoreOrderStatus.ReadyForPickup, StoreOrderStatus.Cancelled) => true,
-        (StoreOrderStatus.OutForDelivery, StoreOrderStatus.Delivered) => true,
-        (StoreOrderStatus.OutForDelivery, StoreOrderStatus.Cancelled) => true,
+        (StoreOrderStatus.ReadyForPickup, StoreOrderStatus.Delivered)
+            when FulfillmentType == OrderFulfillmentType.Pickup => true,
+        (StoreOrderStatus.ReadyForPickup, StoreOrderStatus.Cancelled)
+            when FulfillmentType == OrderFulfillmentType.Pickup => true,
+        (StoreOrderStatus.OutForDelivery, StoreOrderStatus.Delivered)
+            when FulfillmentType == OrderFulfillmentType.Delivery => true,
+        (StoreOrderStatus.OutForDelivery, StoreOrderStatus.Cancelled)
+            when FulfillmentType == OrderFulfillmentType.Delivery => true,
         _ => false,
     };
 

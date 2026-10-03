@@ -18,7 +18,7 @@ Una tarea no se marca como `[x]` solo porque el código exista. Requiere una
 prueba apropiada, autorización y seguridad cuando corresponda, documentación
 actualizada y evidencia fechada.
 
-> Últimas suites completas locales: backend 1922/1922, incluido el gate SQL sobre una base temporal; PWA 222/222 (70 archivos). Tras el mapeo HTTP 409 se ejecutaron tests de controller 3/3, checkout 2/2, `npm --prefix frontend run build` y landing 53/53. La migración no se aplicó a `PawTrackDev`, staging ni producción; gateway/SINPE real siguen sin prueba.
+> Últimas suites completas locales: backend 1922/1922, incluido el gate SQL sobre una base temporal; PWA 223/223 (70 archivos, exit 0; Vitest reportó timeout terminando el worker de `PublicPetProfilePage.test.tsx`). Tras el mapeo HTTP 409 se ejecutaron tests de controller 3/3, checkout 2/2, build PWA y landing 53/53. La migración no se aplicó a `PawTrackDev`, staging ni producción; gateway/SINPE real siguen sin prueba.
 
 ## Prioridad inmediata
 
@@ -60,7 +60,7 @@ stock/pago y su operacion en un entorno compartido siguen `NO_VERIFICADO`.
 - [x] Ejecutar restore reproducible de .NET con `packages.lock.json` y `--locked-mode`; verificado localmente el 2026-09-23.
 - [x] Ejecutar build Release con `--no-restore` y warnings tratados como errores; verificado localmente el 2026-09-23.
 - [x] Validar la suite backend principal de forma local con `dotnet test PawTrack.sln --no-restore --verbosity minimal -p:BaseOutputPath=backend/test-out/`; resultado: exit 0, 1922/1922 pruebas.
-- [x] Validar la suite frontend principal de forma local con `npm --prefix frontend test -- --run --reporter=dot`; resultado: exit 0, 222/222 pruebas en 70 archivos.
+- [x] Validar la suite frontend principal de forma local con `npm --prefix frontend test -- --run --reporter=dot`; resultado: exit 0, 223/223 pruebas en 70 archivos. La salida reportó timeout terminando el worker de `PublicPetProfilePage.test.tsx`; el comando finalizó exit 0.
 - [ ] Ejecutar `npm ci` con versión de Node fijada y lockfile validado.
 - [ ] Ejecutar typecheck, lint, build, Vitest y Playwright en CI limpio.
 - [ ] Publicar TRX, cobertura, OpenAPI, migraciones, SBOM y reportes Playwright.
@@ -231,7 +231,7 @@ la fuente unica de tareas activas y se cerrara solo con implementacion y evidenc
 
 ## Evidencia y fuentes relacionadas
 
-- Estado técnico verificado al 2026-10-02: suites completas backend 1922/1922 y PWA 222/222; prueba SQL temporal de migración/idempotencia 1/1; controller 3/3, checkout 2/2, landing 53/53, build PWA y typecheck correctos. No se aplicó la migración a base persistente ni se verificaron proveedores, staging o producción.
+- Estado técnico verificado al 2026-10-02: suites completas backend 1922/1922 y PWA 223/223 (con aviso de worker timeout, exit 0); prueba SQL temporal de migración/idempotencia incluida; controller 3/3, checkout 2/2, landing 53/53, build PWA y typecheck correctos. No se aplicó la migración a base persistente ni se verificaron proveedores, staging o producción.
 - Estado técnico: [STATUS.md](STATUS.md)
 - Gobierno de release: [GO_LIVE_GOVERNANCE.md](GO_LIVE_GOVERNANCE.md)
 - Autorización: [API_AUTHORIZATION_MATRIX.md](API_AUTHORIZATION_MATRIX.md)

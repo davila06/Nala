@@ -84,9 +84,13 @@ observabilidad de negocio y validacion operativa.
   configured development public key is available.
 - Integracion real de pagos: no forma parte del alcance de tiendas actual.
 - Tiendas (revalidacion focal 2026-10-02): el codigo del workspace incluye
-  `StockOnHand`, reserva temporal al aceptar y liberacion por expiracion; la
-  migracion de stock/pago no se verifico aplicada. No hay kardex ni stock por
-  sede y el checkout no envia `LocationId`.
+  `StockOnHand`, reserva temporal al aceptar y liberacion por expiracion. Las
+  migraciones de stock/pago/idempotencia se probaron en LocalDB temporal desde
+  esquema vacio y upgrade legacy; no se aplicaron a una base persistente. No hay
+  kardex ni stock por sede y el checkout no envia `LocationId`.
+- Tiendas: `POST /api/store-orders` exige `Idempotency-Key`, reproduce pedidos
+  equivalentes y devuelve 409 ante payload distinto; el índice único y los
+  reintentos concurrentes se probaron en la base temporal desechable.
 - Tiendas: hay rutas de reporte de pago externo por cliente, verificacion manual
   por tienda y registro de referencia de una devolucion externa. PawTrack no
   procesa ni confirma fondos por integracion bancaria; la operacion real del
