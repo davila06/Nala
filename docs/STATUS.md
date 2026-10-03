@@ -3,6 +3,9 @@
 > Corte: 2026-09-23. Este documento es el estado operativo actual, no una
 > promesa comercial.
 >
+> Revalidación focal tiendas 2026-10-02: se actualizó abajo el estado del
+> workspace; no se verificaron migración aplicada, piloto ni producción.
+>
 > Actualización parcial 2026-09-27: los conteos de pruebas debajo son del corte
 > 2026-09-23 y **no** describen el resultado actual. Ver [TESTING](TESTING.md):
 > backend 1621/1621 unitarias y frontend 142/143 (un fallo). El pedido de tienda
@@ -80,12 +83,18 @@ observabilidad de negocio y validacion operativa.
   verification now validates the detached PDF signature when Key Vault or a
   configured development public key is available.
 - Integracion real de pagos: no forma parte del alcance de tiendas actual.
-- Tiendas: pedidos comunicados por PawTrack; la tienda controla disponibilidad,
-  aceptacion, rechazo, entrega y estados.
-- Tiendas: `StoreProduct` no mantiene existencias; `StoreLocation` no es un
-  limite de inventario/autorizacion por sede. El checkout no envia `LocationId`.
-- Tiendas: `PaymentReference` no confirma un deposito y no hay endpoint de
-  reporte de pago para pedidos. Los pedidos no son ventas ni reservas de stock.
+- Tiendas (revalidacion focal 2026-10-02): el codigo del workspace incluye
+  `StockOnHand`, reserva temporal al aceptar y liberacion por expiracion; la
+  migracion de stock/pago no se verifico aplicada. No hay kardex ni stock por
+  sede y el checkout no envia `LocationId`.
+- Tiendas: hay rutas de reporte de pago externo por cliente, verificacion manual
+  por tienda y registro de referencia de una devolucion externa. PawTrack no
+  procesa ni confirma fondos por integracion bancaria; la operacion real del
+  flujo sigue `NO_VERIFICADO`.
+- Tiendas: siguen pendientes POS/caja, conciliacion y factura fiscal; pedidos,
+  reservas tecnicas y registros manuales no acreditan ventas liquidadas. El
+  modelo hibrido y los gates del piloto estan en
+  [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
 - Tiendas: el estado de preparacion para uso diario y los gates pendientes se
   consolidan en [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
 

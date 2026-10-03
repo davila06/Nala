@@ -3,7 +3,8 @@
 **Producto:** NALA / PawTrack CR  
 **Estado:** Catálogo histórico/comercial; el alcance vigente está en [PRODUCT_SCOPE.md](PRODUCT_SCOPE.md) y en la [matriz de trazabilidad](auditoria/FEATURE_TRACEABILITY_MATRIX.md).
 **Versión:** 1.0  
-**Fecha:** 2026-09-21  
+**Fecha:** 2026-10-02 (revalidación focal de tiendas; matriz general 2026-09-28)
+
 **Audiencia:** Producto, Backend, Frontend, QA, DevOps, Soporte, Ventas y Operaciones
 
 Actualizacion 2026-09-28: la sección de alcance real al final de este encabezado
@@ -11,26 +12,30 @@ se contrastó con código, configuración, migraciones y pruebas. Las tablas de
 planes que siguen describen contrato objetivo o límites comerciales y no deben
 leerse como funcionalidades actualmente disponibles sin evidencia en la matriz.
 
+Revalidacion focal 2026-10-02: el marketplace de tiendas tiene stock escalar,
+reserva temporal y registro manual externo en codigo; no se verifico migracion,
+rollout ni operacion productiva.
+
 ## Estado real de las capacidades solicitadas (2026-09-28)
 
-| Capacidad                    | Estado                                                                                        | Evidencia ejecutable                                                                         | Exclusión o límite                                                      |
-| ---------------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Identificación QR            | `IMPLEMENTADO_Y_VERIFICADO`                                                                   | `PetsController`, `GetPetQrCodeQuery`, `QrCodeService`, `QrCodeDisplay`                      | No acredita QR físico ni Blob operativo                                 |
-| NFC                          | `PARCIALMENTE_IMPLEMENTADO` para configuración manual; NFC nativo `DECLARADO_NO_IMPLEMENTADO` | [NfcSetupGuide](../frontend/src/features/bundles/components/NfcSetupGuide.tsx), `NfcQrCombo` | Sin pairing/lector nativo; hardware, venta y fulfillment no verificados |
-| GPS                          | `IMPLEMENTADO_Y_VERIFICADO` en plataforma; proveedor/hardware `NO_VERIFICADO`                 | módulo `Collars`, `TrackSolidService`, polling y pruebas                                     | Sin SLA, cobertura ni dispositivo real                                  |
-| Telemedicina                 | `DECLARADO_NO_IMPLEMENTADO` para video/audio                                                  | `ClinicalConsultation` solo registra consulta                                                | Sin sala remota ni ACS                                                  |
-| Expediente veterinario       | `IMPLEMENTADO_Y_VERIFICADO`                                                                   | `MedicalController`, timeline, adjuntos, PDF/export y pruebas                                | No es EHR externo ni diagnóstico                                        |
-| Recordatorios de salud       | `IMPLEMENTADO_Y_VERIFICADO`                                                                   | `VetReminder`, `HealthAlertHostedService`, protocolos y pruebas                              | No prescribe ni trata automáticamente                                   |
-| Suscripciones                | `PARCIALMENTE_IMPLEMENTADO`                                                                   | `SubscriptionsController`, `EntitlementService`, migraciones y pruebas                       | Entitlements/cuotas y oferta comercial incompletos                      |
-| Marketplace                  | `PARCIALMENTE_IMPLEMENTADO`                                                                   | tiendas, proveedores, reservas y pedidos con pruebas                                         | Pagos liquidado e inventario transaccional no implementados             |
-| IA                           | `PARCIALMENTE_IMPLEMENTADO`                                                                   | Azure Vision/matching visual condicionado                                                    | Sin RAG, copiloto, agente o diagnóstico                                 |
-| Municipalidades              | `IMPLEMENTADO_Y_VERIFICADO`                                                                   | perfiles, capturas y reportes institucionales                                                | Sin interoperabilidad oficial acreditada                                |
-| Refugios                     | `IMPLEMENTADO_Y_VERIFICADO`                                                                   | aliados, adopciones y solicitudes                                                            | Sin operación/SLA de refugio real                                       |
-| Veterinarias                 | `IMPLEMENTADO_Y_VERIFICADO`                                                                   | módulo clínico, expedientes, grants, certificados y pruebas                                  | Sin telemedicina audiovisual ni fiscalidad externa verificada           |
-| Integraciones Azure          | `IMPLEMENTADO_SIN_PRUEBAS`                                                                    | adaptadores Blob/SQL/Key Vault/App Insights/Maps/Vision/infra                                | Configuración e IaC no prueban despliegue                               |
-| Azure Communication Services | `DECLARADO_NO_IMPLEMENTADO`                                                                   | No existen SDK, cliente, configuración ni rutas ACS                                          | No confundir con actividad CRM `CallClient`                             |
-| Dynamics 365                 | `DECLARADO_NO_IMPLEMENTADO`                                                                   | No existen SDK, conector ni configuración                                                    | CRM interno no es Dynamics 365                                          |
-| Power Platform               | `DECLARADO_NO_IMPLEMENTADO`                                                                   | No existen Dataverse, Power Automate ni conectores                                           | Jobs .NET propios no son Power Platform                                 |
+| Capacidad                    | Estado                                                                                        | Evidencia ejecutable                                                                                                                         | Exclusión o límite                                                                                      |
+| ---------------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Identificación QR            | `IMPLEMENTADO_Y_VERIFICADO`                                                                   | `PetsController`, `GetPetQrCodeQuery`, `QrCodeService`, `QrCodeDisplay`                                                                      | No acredita QR físico ni Blob operativo                                                                 |
+| NFC                          | `PARCIALMENTE_IMPLEMENTADO` para configuración manual; NFC nativo `DECLARADO_NO_IMPLEMENTADO` | [NfcSetupGuide](../frontend/src/features/bundles/components/NfcSetupGuide.tsx), `NfcQrCombo`                                                 | Sin pairing/lector nativo; hardware, venta y fulfillment no verificados                                 |
+| GPS                          | `IMPLEMENTADO_Y_VERIFICADO` en plataforma; proveedor/hardware `NO_VERIFICADO`                 | módulo `Collars`, `TrackSolidService`, polling y pruebas                                                                                     | Sin SLA, cobertura ni dispositivo real                                                                  |
+| Telemedicina                 | `DECLARADO_NO_IMPLEMENTADO` para video/audio                                                  | `ClinicalConsultation` solo registra consulta                                                                                                | Sin sala remota ni ACS                                                                                  |
+| Expediente veterinario       | `IMPLEMENTADO_Y_VERIFICADO`                                                                   | `MedicalController`, timeline, adjuntos, PDF/export y pruebas                                                                                | No es EHR externo ni diagnóstico                                                                        |
+| Recordatorios de salud       | `IMPLEMENTADO_Y_VERIFICADO`                                                                   | `VetReminder`, `HealthAlertHostedService`, protocolos y pruebas                                                                              | No prescribe ni trata automáticamente                                                                   |
+| Suscripciones                | `PARCIALMENTE_IMPLEMENTADO`                                                                   | `SubscriptionsController`, `EntitlementService`, migraciones y pruebas                                                                       | Entitlements/cuotas y oferta comercial incompletos                                                      |
+| Marketplace                  | `PARCIALMENTE_IMPLEMENTADO`                                                                   | Directorios, reservas de servicios y pedidos; tiendas tienen stock escalar, reserva temporal y reporte/verificacion manual externa en codigo | No hay kardex, venta/caja POS, pago liquidado, conciliacion bancaria ni operacion productiva acreditada |
+| IA                           | `PARCIALMENTE_IMPLEMENTADO`                                                                   | Azure Vision/matching visual condicionado                                                                                                    | Sin RAG, copiloto, agente o diagnóstico                                                                 |
+| Municipalidades              | `IMPLEMENTADO_Y_VERIFICADO`                                                                   | perfiles, capturas y reportes institucionales                                                                                                | Sin interoperabilidad oficial acreditada                                                                |
+| Refugios                     | `IMPLEMENTADO_Y_VERIFICADO`                                                                   | aliados, adopciones y solicitudes                                                                                                            | Sin operación/SLA de refugio real                                                                       |
+| Veterinarias                 | `IMPLEMENTADO_Y_VERIFICADO`                                                                   | módulo clínico, expedientes, grants, certificados y pruebas                                                                                  | Sin telemedicina audiovisual ni fiscalidad externa verificada                                           |
+| Integraciones Azure          | `IMPLEMENTADO_SIN_PRUEBAS`                                                                    | adaptadores Blob/SQL/Key Vault/App Insights/Maps/Vision/infra                                                                                | Configuración e IaC no prueban despliegue                                                               |
+| Azure Communication Services | `DECLARADO_NO_IMPLEMENTADO`                                                                   | No existen SDK, cliente, configuración ni rutas ACS                                                                                          | No confundir con actividad CRM `CallClient`                                                             |
+| Dynamics 365                 | `DECLARADO_NO_IMPLEMENTADO`                                                                   | No existen SDK, conector ni configuración                                                                                                    | CRM interno no es Dynamics 365                                                                          |
+| Power Platform               | `DECLARADO_NO_IMPLEMENTADO`                                                                   | No existen Dataverse, Power Automate ni conectores                                                                                           | Jobs .NET propios no son Power Platform                                                                 |
 
 Para el detalle de rutas y pruebas, consultar [PRODUCT_SCOPE.md](PRODUCT_SCOPE.md)
 y [FEATURE_TRACEABILITY_MATRIX.md](auditoria/FEATURE_TRACEABILITY_MATRIX.md).
@@ -236,23 +241,23 @@ Esta tabla reemplaza las cuotas comerciales historicas que no tienen evidencia
 vigente en el modelo de autorizacion. Los tiers tecnicos no implican que una
 oferta este aprobada para venta; consultar [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md).
 
-| Capacidad                             | StoreBasic/estado base        | StorePlus      | StorePartner      | Limite verificado                                               |
-| ------------------------------------- | ----------------------------- | -------------- | ----------------- | --------------------------------------------------------------- |
-| Perfil, directorio y catalogo publico | Disponible para tienda activa | Disponible     | Disponible        | No representa inventario                                        |
-| Crear solicitudes de pedido           | No                            | Si             | Si                | El pedido no reserva unidades ni procesa pago                   |
-| Estado del pedido                     | No                            | Si             | Si                | La tienda opera la solicitud; el pago se coordina fuera de NALA |
-| Analitica                             | No                            | Resumen basico | Desglose avanzado | Segun gates actuales                                            |
-| Exportacion CSV de analitica          | No                            | No             | Si                | Cuota tecnica de 20 exportaciones/mes                           |
-| CRUD de sedes                         | No                            | No             | Si                | No hay stock, personal ni permisos por sede                     |
-| Inventario transaccional              | No                            | No             | No                | No implementado en tiendas                                      |
-| Procesamiento/conciliacion de pagos   | No                            | No             | No                | No implementado para pedidos de tienda                          |
-| Usuarios operadores por tienda        | No                            | No             | No                | Solo existe la cuenta propietaria `Store.UserId`                |
+| Capacidad                             | StoreBasic/estado base        | StorePlus      | StorePartner      | Limite verificado                                                 |
+| ------------------------------------- | ----------------------------- | -------------- | ----------------- | ----------------------------------------------------------------- |
+| Perfil, directorio y catalogo publico | Disponible para tienda activa | Disponible     | Disponible        | `StockOnHand` escalar opcional en codigo; no sustituye POS/kardex |
+| Crear solicitudes de pedido           | No                            | Si             | Si                | Codigo reserva stock escalar al aceptar; sin ledger ni POS        |
+| Estado del pedido                     | No                            | Si             | Si                | Reporte/verificacion manual externa; sin procesamiento bancario   |
+| Analitica                             | No                            | Resumen basico | Desglose avanzado | Segun gates actuales                                              |
+| Exportacion CSV de analitica          | No                            | No             | Si                | Cuota tecnica de 20 exportaciones/mes                             |
+| CRUD de sedes                         | No                            | No             | Si                | No hay stock, personal ni permisos por sede                       |
+| Inventario con movimientos (kardex)   | No                            | No             | No                | Stock escalar y reserva existen en codigo; no ledger/recepcion    |
+| Procesamiento/conciliacion de pagos   | No                            | No             | No                | Tienda registra verificacion externa manual; no hay integracion   |
+| Usuarios operadores por tienda        | No                            | No             | No                | Solo existe la cuenta propietaria `Store.UserId`                  |
 
 ### 6.2 Reglas operativas de tiendas
 
-- NALA comunica solicitudes, pero no mantiene inventario ni garantiza existencias.
-- La tienda debe confirmar disponibilidad antes de aceptar.
-- El pago se coordina directamente entre cliente y tienda; el campo de referencia del pedido no acredita una transferencia.
+- El codigo de tienda tiene stock escalar y reserva temporal al aceptar; no hay kardex, ventas presenciales sincronizadas ni garantia de existencias en POS/produccion.
+- La tienda debe confirmar disponibilidad y el precio final antes de aceptar; aceptar puede reservar el saldo NALA durante un plazo tecnico.
+- El pago se coordina directamente entre cliente y tienda. El cliente puede reportarlo y la tienda registrar verificacion manual; no acredita confirmacion bancaria de PawTrack.
 - NALA no cobra comisión ni liquida fondos.
 - No debe publicarse “SINPE integrado” como beneficio del plan.
 - No se deben publicar limites de usuarios, cantidades por tier, SLA ni cuotas que no esten aprobados y verificados contra el backend.

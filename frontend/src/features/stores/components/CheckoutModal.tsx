@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { isAxiosError } from "axios";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button, Input } from "@/shared/ui";
 import { toast } from "@/shared/lib/toast";
@@ -16,9 +17,8 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
   const { items, storeId, totalCrc, clear } = useCartStore();
   const placeOrder = usePlaceOrder();
   const [step, setStep] = useState<Step>("form");
-  const [fulfillment, setFulfillment] = useState<"Pickup" | "Delivery">(
-    "Pickup",
-  );
+  const [fulfillment, setFulfillment] = useState<"Pickup" | "Delivery">("Pickup");
+  const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [note, setNote] = useState("");
 
@@ -30,32 +30,42 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
     }
     placeOrder.mutate(
       {
-        storeId,
-        fulfillmentType: fulfillment,
-        deliveryAddress:
-          fulfillment === "Delivery" ? deliveryAddress.trim() : undefined,
-        customerNote: note.trim() || undefined,
-        lines: items.map((i) => ({
-          productId: i.product.id,
-          quantity: i.quantity,
-        })),
+        payload: {
+          storeId,
+          fulfillmentType: fulfillment,
+          deliveryAddress: fulfillment === "Delivery" ? deliveryAddress.trim() : undefined,
+          customerNote: note.trim() || undefined,
+          lines: items.map((i) => ({
+            productId: i.product.id,
+            quantity: i.quantity,
+          })),
+        },
+        idempotencyKey,
       },
       {
         onSuccess: () => {
           setStep("done");
           clear();
         },
-        onError: () =>
-          toast.error("No se pudo crear el pedido. Intenta de nuevo."),
+        onError: (error) => {
+          if (isAxiosError(error) && error.response?.status === 409) {
+            toast.error("Esta solicitud ya está asociada a un pedido. Revisa Mis pedidos antes de crear otra.");
+            return;
+          }
+          toast.error("No se pudo crear el pedido. Intenta de nuevo.");
+        },
       },
     );
   };
 
   const handleClose = () => {
     setStep("form");
-    setFulfillment("Pickup");
-    setDeliveryAddress("");
-    setNote("");
+    if (step === "done") {
+      setFulfillment("Pickup");
+      setDeliveryAddress("");
+      setNote("");
+      setIdempotencyKey(crypto.randomUUID());
+    }
     onClose();
   };
 
@@ -89,12 +99,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                 aria-label="Cerrar"
                 className="flex h-8 w-8 items-center justify-center rounded-full text-copy-muted hover:bg-sand-100"
               >
-                <svg
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="h-4 w-4"
-                  aria-hidden="true"
-                >
+                <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                   <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z" />
                 </svg>
               </button>
@@ -107,34 +112,24 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                   {/* Order summary */}
                   <div className="rounded-xl border border-sand-100 bg-sand-50 p-4 space-y-2">
                     {items.map((i) => (
-                      <div
-                        key={i.product.id}
-                        className="flex items-center justify-between text-sm"
-                      >
+                      <div key={i.product.id} className="flex items-center justify-between text-sm">
                         <span className="text-sand-700">
                           {i.product.name} × {i.quantity}
                         </span>
                         <span className="font-semibold text-sand-900">
-                          ₡
-                          {(i.product.priceCrc * i.quantity).toLocaleString(
-                            "es-CR",
-                          )}
+                          ₡{(i.product.priceCrc * i.quantity).toLocaleString("es-CR")}
                         </span>
                       </div>
                     ))}
                     <div className="flex items-center justify-between font-bold border-t border-sand-200 pt-2 text-sm">
                       <span>Total</span>
-                      <span className="text-rescue-700">
-                        ₡{totalCrc().toLocaleString("es-CR")}
-                      </span>
+                      <span className="text-rescue-700">₡{totalCrc().toLocaleString("es-CR")}</span>
                     </div>
                   </div>
 
                   {/* Fulfillment type */}
                   <div>
-                    <p className="mb-2 text-xs font-medium text-copy-secondary">
-                      Tipo de entrega
-                    </p>
+                    <p className="mb-2 text-xs font-medium text-copy-secondary">Tipo de entrega</p>
                     <div className="grid grid-cols-2 gap-2">
                       {(["Pickup", "Delivery"] as const).map((f) => (
                         <button
@@ -143,9 +138,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                           onClick={() => setFulfillment(f)}
                           className={`rounded-xl border-2 py-3 text-sm font-semibold transition-all ${fulfillment === f ? "border-brand-500 bg-brand-50 text-brand-800" : "border-sand-200 bg-white text-sand-700 hover:border-sand-300"}`}
                         >
-                          {f === "Pickup"
-                            ? "🏪 Retiro en tienda"
-                            : "🚚 Entrega a domicilio"}
+                          {f === "Pickup" ? "🏪 Retiro en tienda" : "🚚 Entrega a domicilio"}
                         </button>
                       ))}
                     </div>
@@ -169,10 +162,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                   )}
 
                   <div>
-                    <label
-                      htmlFor="checkout-store-note"
-                      className="mb-1 block text-xs font-medium text-copy-secondary"
-                    >
+                    <label htmlFor="checkout-store-note" className="mb-1 block text-xs font-medium text-copy-secondary">
                       Nota para la tienda (opcional)
                     </label>
                     <Input
@@ -183,11 +173,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                     />
                   </div>
 
-                  <Button
-                    fullWidth
-                    onClick={handlePlaceOrder}
-                    loading={placeOrder.isPending}
-                  >
+                  <Button fullWidth onClick={handlePlaceOrder} loading={placeOrder.isPending}>
                     Hacer pedido
                   </Button>
                 </>
@@ -199,13 +185,10 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                   <p className="text-5xl" aria-hidden="true">
                     🎉
                   </p>
-                  <h3 className="font-display text-xl font-bold text-sand-900">
-                    ¡Solicitud enviada!
-                  </h3>
+                  <h3 className="font-display text-xl font-bold text-sand-900">¡Solicitud enviada!</h3>
                   <p className="text-sm text-copy-secondary">
-                    La tienda revisará la disponibilidad y confirmará el pedido.
-                    PawTrack no procesa pagos ni garantiza la existencia del
-                    producto.
+                    La tienda revisará la disponibilidad y confirmará el pedido. PawTrack no procesa pagos ni garantiza
+                    la existencia del producto.
                   </p>
                   <Button fullWidth variant="secondary" onClick={handleClose}>
                     Cerrar

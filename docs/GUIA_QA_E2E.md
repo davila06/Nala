@@ -31,8 +31,11 @@
 - coordinación: dos participantes autorizados, consentimiento explícito,
   sharing aproximado por defecto, roster de destinatarios y stop-sharing;
 - clinica: scan, grant medico y certificado;
-- tienda: catalogo y pedido de una tienda. El flujo actual no debe probarse ni
-  describirse como POS: no procesa pagos ni reserva inventario;
+- tienda: catalogo, pedido, reserva temporal al aceptar y reporte/verificacion
+  manual de pago externo estan presentes en codigo. El flujo no debe describirse
+  como POS: no procesa ni liquida fondos, no sincroniza ventas presenciales y no
+  ofrece kardex/caja/factura fiscal. Migracion aplicada y despliegue
+  `NO_VERIFICADO`;
 - proveedor: servicio, agenda y reserva;
 - municipalidad: captura, estados y reportes;
 - Admin/Support: aprobaciones, bienestar e incidentes.
@@ -44,14 +47,18 @@ requiere prueba con suscripcion activa, vencida y ausente. Cada cambio de
 migracion requiere base vacia o upgrade incremental. Cada endpoint de archivo
 requiere limite de tamano y content type.
 
-### Gate E2E de tienda diaria
+### Gate E2E del piloto hibrido de tienda
 
-Antes de habilitar inventario/caja para tiendas, agregar un E2E con SQL real que
-cubra solicitud repetida con la misma `Idempotency-Key`, validacion de precio y
-stock en checkout, reserva/liberacion concurrente, transiciones por tipo de
-entrega, notificacion al comprador, cancelacion/devolucion e aislamiento por
-tienda y sede. Los casos de hoy no cubren ese ciclo completo; el alcance objetivo
-esta en [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
+Antes de presentar el stock como confiable para el piloto, agregar pruebas con
+SQL real que cubran alta/ajuste de inventario, solicitud repetida con la misma
+`Idempotency-Key`, aceptacion con precio/stock vigentes, reserva/liberacion
+concurrente, expiracion, cancelacion/rechazo y dos solicitudes por las ultimas
+unidades. Para el flujo hibrido probar ademas que el cobro sigue en POS externo,
+el reporte del cliente no se transforma en pago confirmado y la devolucion se
+registra solo despues de gestionarla fuera. Completar E2E de estados por tipo de
+entrega, notificaciones y aislamiento por tienda. Los tests existentes no
+acreditan esta jornada ni integracion POS. Ver
+[ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
 
 ## Datos de prueba
 

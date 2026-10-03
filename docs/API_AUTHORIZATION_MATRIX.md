@@ -51,9 +51,18 @@
 El ownership actual se aplica por tienda y propietario/cuenta; `StoreLocation`
 no tiene membresias ni permisos propios. El `LocationId` opcional de un pedido
 valida que la sede pertenezca a la tienda y este activa, pero no concede ni
-restringe acceso de personal por sede. No afirmar aislamiento multi-sede hasta
-implementar una matriz actor x tienda x sede y sus pruebas. Ver
+restringe acceso de personal por sede. Las rutas de reporte/verificacion de
+pago y registro de devolucion resuelven pedido por customer owner o store owner;
+la verificacion y devolucion son atestaciones manuales, no acciones de proveedor
+bancario. No afirmar aislamiento multi-sede hasta implementar una matriz actor
+x tienda x sede y sus pruebas. Ver
 [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
+
+La creación de pedido requiere `Idempotency-Key`, limitada al customer
+autenticado; una clave no permite consultar ni reproducir el pedido de otra
+cuenta. El modelo incluye índice único filtrado por customer/clave y el handler
+compara la huella del payload. La migración correspondiente sigue generada y no
+aplicada.
 
 ## Reglas obligatorias
 

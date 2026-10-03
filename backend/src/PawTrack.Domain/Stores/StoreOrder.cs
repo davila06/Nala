@@ -10,6 +10,8 @@ public sealed class StoreOrder
     /// <summary>Optional branch/sede this order is attributed to. Null when the store has no locations.</summary>
     public Guid? LocationId { get; private set; }
     public Guid CustomerId { get; private set; }
+    public string? IdempotencyKey { get; private set; }
+    public string? RequestHash { get; private set; }
     public StoreOrderStatus Status { get; private set; }
     public OrderFulfillmentType FulfillmentType { get; private set; }
     /// <summary>8-char SINPE Móvil reference.</summary>
@@ -44,14 +46,25 @@ public sealed class StoreOrder
         string? deliveryAddress,
         string? customerNote,
         IReadOnlyList<(Guid ProductId, string ProductName, int Qty, decimal UnitPrice)> lines,
-        Guid? locationId = null)
+        Guid? locationId = null,
+        string? idempotencyKey = null,
+        string? requestHash = null)
     {
+        if ((idempotencyKey is null) != (requestHash is null))
+            throw new ArgumentException("La clave y la huella de idempotencia deben proporcionarse juntas.");
+        if (idempotencyKey is not null && (string.IsNullOrWhiteSpace(idempotencyKey) || idempotencyKey.Trim().Length > 200))
+            throw new ArgumentException("La clave de idempotencia es requerida y no puede superar 200 caracteres.", nameof(idempotencyKey));
+        if (requestHash is not null && requestHash.Length != 64)
+            throw new ArgumentException("La huella de idempotencia no tiene un formato válido.", nameof(requestHash));
+
         var order = new StoreOrder
         {
             Id = Guid.CreateVersion7(),
             StoreId = storeId,
             LocationId = locationId,
             CustomerId = customerId,
+            IdempotencyKey = idempotencyKey?.Trim(),
+            RequestHash = requestHash,
             Status = StoreOrderStatus.AwaitingStoreAcceptance,
             FulfillmentType = fulfillmentType,
             PaymentReference = paymentReference,

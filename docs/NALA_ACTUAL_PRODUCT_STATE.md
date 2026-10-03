@@ -1,6 +1,7 @@
 # NALA: estado real del producto
 
-**Corte:** 2026-09-28  
+**Corte general:** 2026-09-28
+**Revalidación focal de tiendas:** 2026-10-02
 **Fuente primaria:** código, configuración, migraciones y pruebas del repositorio.  
 **Alcance:** auditoría documental; no certifica producción, contratos ni proveedores externos.
 
@@ -12,16 +13,16 @@ La capacidad más sólida es el núcleo de identidad y recuperación: mascotas, 
 
 ## Composición técnica observada
 
-| Superficie | Realidad verificable | Evidencia |
-| --- | --- | --- |
-| Solución backend | API, Application, Domain, Infrastructure y dos proyectos de pruebas; `HashGen` existe fuera de la solución | [PawTrack.sln](../PawTrack.sln), proyectos en [backend](../backend) |
-| API | Controllers ASP.NET Core, autorización, rate limits, Problem Details/middleware y CQRS/MediatR | [PawTrack.API](../backend/src/PawTrack.API), [Program.cs](../backend/src/PawTrack.API/Program.cs) |
-| Aplicación | Commands, queries, handlers, validadores y servicios por dominio | [Application](../backend/src/PawTrack.Application) |
-| Dominio | Entidades, invariantes, eventos y estados de negocio | [Domain](../backend/src/PawTrack.Domain) |
-| Persistencia | Un `PawTrackDbContext`, repositorios, configuraciones EF y migraciones en dos carpetas históricas | [PawTrackDbContext.cs](../backend/src/PawTrack.Infrastructure/Persistence/PawTrackDbContext.cs) |
-| Frontend | React/TypeScript PWA, rutas por feature, React Query/Zustand y service worker | [routes.tsx](../frontend/src/app/routes.tsx), [frontend/src](../frontend/src) |
-| Infraestructura | Bicep para SQL, Storage, Key Vault, Container Apps, Front Door, red y observabilidad | [main.bicep](../infra/main.bicep) |
-| Pruebas | Unitarias e integración; la ejecución registrada en este corte alcanzó 1,803 pruebas backend aprobadas | [TESTING.md](TESTING.md) |
+| Superficie       | Realidad verificable                                                                                       | Evidencia                                                                                         |
+| ---------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Solución backend | API, Application, Domain, Infrastructure y dos proyectos de pruebas; `HashGen` existe fuera de la solución | [PawTrack.sln](../PawTrack.sln), proyectos en [backend](../backend)                               |
+| API              | Controllers ASP.NET Core, autorización, rate limits, Problem Details/middleware y CQRS/MediatR             | [PawTrack.API](../backend/src/PawTrack.API), [Program.cs](../backend/src/PawTrack.API/Program.cs) |
+| Aplicación       | Commands, queries, handlers, validadores y servicios por dominio                                           | [Application](../backend/src/PawTrack.Application)                                                |
+| Dominio          | Entidades, invariantes, eventos y estados de negocio                                                       | [Domain](../backend/src/PawTrack.Domain)                                                          |
+| Persistencia     | Un `PawTrackDbContext`, repositorios, configuraciones EF y migraciones en dos carpetas históricas          | [PawTrackDbContext.cs](../backend/src/PawTrack.Infrastructure/Persistence/PawTrackDbContext.cs)   |
+| Frontend         | React/TypeScript PWA, rutas por feature, React Query/Zustand y service worker                              | [routes.tsx](../frontend/src/app/routes.tsx), [frontend/src](../frontend/src)                     |
+| Infraestructura  | Bicep para SQL, Storage, Key Vault, Container Apps, Front Door, red y observabilidad                       | [main.bicep](../infra/main.bicep)                                                                 |
+| Pruebas          | Unitarias e integración; la ejecución registrada en este corte alcanzó 1,803 pruebas backend aprobadas     | [TESTING.md](TESTING.md)                                                                          |
 
 ## Capacidades actuales
 
@@ -46,7 +47,7 @@ Evidencia: [MedicalController.cs](../backend/src/PawTrack.API/Controllers/Medica
 
 ### Comunidad, servicios y comercio
 
-Adopciones, ferias, aliados, refugios, foster/custodia, proveedores, disponibilidad, reservas, tiendas, productos, pedidos, bundles y campañas existen como superficies de código. El estado comercial no es equivalente a marketplace liquidado: el gateway de pagos de reservas es manual, las comisiones/payouts no están aprobadas y no se demuestra checkout recurrente universal.
+Adopciones, ferias, aliados, refugios, foster/custodia, proveedores, disponibilidad, reservas, tiendas, productos, pedidos, bundles y campañas existen como superficies de código. En tiendas hay stock escalar, reservas temporales y registro manual de reporte/verificacion de pago externo; no equivalen a kardex, POS, conciliacion bancaria ni marketplace liquidado. Comisiones/payouts no están aprobadas y no se demuestra checkout recurrente universal.
 
 Evidencia: [AdoptionsController.cs](../backend/src/PawTrack.API/Controllers/AdoptionsController.cs), [ServiceProvidersController.cs](../backend/src/PawTrack.API/Controllers/ServiceProvidersController.cs), [StoreOrdersController.cs](../backend/src/PawTrack.API/Controllers/StoreOrdersController.cs), [ManualProviderPaymentGateway.cs](../backend/src/PawTrack.Application/ServiceProviders/Payments/ManualProviderPaymentGateway.cs).
 

@@ -3,3 +3,9 @@
 La [API](../backend/src/PawTrack.API/Program.cs) registra controllers y hubs de chat/búsqueda; OpenAPI se expone únicamente en Development/Local. Este documento complementa la [referencia anterior](API_REFERENCE.md), que debe contrastarse con el código antes de usarse como contrato público. El [catálogo](api/ENDPOINT_CATALOG.md) enumera flujos muestreados; [autorización](api/AUTHORIZATION_MATRIX.md) y [errores](api/ERROR_CATALOG.md) registran límites comprobables. No se ha ejecutado el servidor ni generado un OpenAPI actualizado en este corte.
 
 El [middleware de excepciones](../backend/src/PawTrack.API/Middleware/ExceptionHandlingMiddleware.cs) usa Problem Details para excepciones, pero algunos controllers devuelven resultados diferentes (por ejemplo [SubscriptionsController](../backend/src/PawTrack.API/Controllers/SubscriptionsController.cs)); no prometas un esquema uniforme para todas las respuestas. Las rutas clínicas incluyen alias versionados [ClinicsController](../backend/src/PawTrack.API/Controllers/ClinicsController.cs), pero ello no versiona automáticamente todo el API.
+
+Para tiendas, la referencia focal de rutas de pedidos, reporte/verificacion
+manual de pagos externos, registro externo de devolucion y sus limites esta en
+[API_REFERENCE.md](API_REFERENCE.md). No son endpoints de procesamiento ni
+conciliacion bancaria; la migracion y su disponibilidad por entorno siguen
+`NO_VERIFICADO`.

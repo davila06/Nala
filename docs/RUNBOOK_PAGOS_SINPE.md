@@ -2,13 +2,18 @@
 
 **Estado:** activo con alcance limitado  
 **Audiencia:** Admin y soporte comercial  
-**Corte:** 2026-09-09
+**Corte:** 2026-10-02
 
 ## Alcance actual
 
 PawTrack soporta reportes y activaciones manuales de suscripciones mediante
 referencia SINPE. No debe describirse como procesador de pagos automatico.
-Tiendas y proveedores no tienen checkout o liquidacion automatica aprobada.
+Para tiendas, el codigo actual tiene un flujo separado y manual: el cliente
+puede reportar un pago externo; la tienda registra que lo verifico por su
+propio canal y puede guardar la referencia de una devolucion externa. No hay
+conector bancario, captura, webhook, conciliacion ni liquidacion para pedidos de
+tienda. Su migracion y despliegue `NO_VERIFICADO`; activar solo dentro del piloto
+hibrido aprobado y tras el gate legal/comercial.
 
 ## Flujo B2C/B2B habilitado
 
@@ -41,3 +46,17 @@ Tiendas y proveedores no tienen checkout o liquidacion automatica aprobada.
 
 La fuente de tiers es [PRICING_AND_PLANS.md](PRICING_AND_PLANS.md). Nunca usar
 `planes.md`, `precios.md` o `pricing.md` para activar un plan.
+
+## Tiendas: registro manual externo (no es procesamiento)
+
+1. Cliente y tienda acuerdan el metodo; el cliente transfiere por fuera de NALA.
+2. El cliente puede registrar que reporto el pago en PawTrack.
+3. La tienda revisa la cuenta bancaria por su propio canal y, si corresponde,
+   registra manualmente su verificacion y referencia.
+4. Para devolver fondos, la tienda ejecuta la devolucion fuera de PawTrack y
+   despues puede registrar la referencia externa.
+
+La accion de la tienda es una atestacion del actor; no existe confirmacion de
+banco desde la aplicacion. No almacenar credenciales, comprobantes con PII ni
+datos bancarios fuera de los sistemas autorizados. Este flujo no prueba pago
+liquidado ni habilita claims de SINPE integrado.

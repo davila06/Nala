@@ -1,23 +1,27 @@
 # Registro de Revisión Legal — PawTrack CR
 
-> Corte técnico: 23 de septiembre de 2026. Este registro no es una opinión
+> Corte técnico general: 23 de septiembre de 2026; revalidación focal de tiendas: 2 de octubre de 2026. Este registro no es una opinión
 > legal ni certifica cumplimiento. Impide publicar un borrador como contrato
 > final sin revisión profesional en Costa Rica.
 
 ## Estado de las superficies
 
-| Superficie          | Documento                                                                            | Estado             | Bloqueador                                                                  |
-| ------------------- | ------------------------------------------------------------------------------------ | ------------------ | --------------------------------------------------------------------------- |
-| Uso general         | [TERMINOS_DE_USO.md](TERMINOS_DE_USO.md)                                             | `draft`            | Identidad jurídica, aceptación/versionado y aprobación local                |
-| Datos personales    | [POLITICA_DE_PRIVACIDAD.md](POLITICA_DE_PRIVACIDAD.md)                               | `draft`            | Responsable formal, encargados/DPA y revisión Ley 8968                      |
-| Tiendas/marketplace | [legal.md](legal.md)                                                                 | `draft`            | Consumidor, fiscalidad, cancelaciones, pagos y responsabilidad              |
-| Castración          | [castracion-enterprise-todolist.md](castracion-enterprise-todolist.md)               | `pending`          | Consentimiento informado, cancelación, no-show y revisión veterinaria/legal |
-| Proveedores B2B     | [SERVICE_PROVIDERS_ENTERPRISE_TODOLIST.md](SERVICE_PROVIDERS_ENTERPRISE_TODOLIST.md) | `pending`          | Pagos, reembolsos, SLA, firma y disputas                                    |
-| Proveedores cloud   | [EXTERNAL_PROVIDER_VALIDATION.md](EXTERNAL_PROVIDER_VALIDATION.md)                   | `blocked-external` | Contratos, DPA, regiones, cuentas y evidencia de staging                    |
-| SENASA-ready        | [senasa.md](senasa.md)                                                               | `draft`            | No es certificación ni integración oficial; revisión de claims pendiente    |
-| Publicidad          | [VALLAS_COMERCIALES.md](VALLAS_COMERCIALES.md)                                       | `draft`            | Orden de compra, claims, cancelación, creativos y responsabilidad           |
+| Superficie          | Documento                                                                            | Estado             | Bloqueador                                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------ | ------------------ | --------------------------------------------------------------------------------------------------------- |
+| Uso general         | [TERMINOS_DE_USO.md](TERMINOS_DE_USO.md)                                             | `draft`            | Identidad jurídica, aceptación/versionado y aprobación local                                              |
+| Datos personales    | [POLITICA_DE_PRIVACIDAD.md](POLITICA_DE_PRIVACIDAD.md)                               | `draft`            | Responsable formal, encargados/DPA y revisión Ley 8968                                                    |
+| Tiendas/marketplace | [legal.md](legal.md)                                                                 | `draft`            | Modelo híbrido piloto, consumidor, autoridad POS/NALA, fiscalidad, cancelaciones, pagos y responsabilidad |
+| Castración          | [castracion-enterprise-todolist.md](castracion-enterprise-todolist.md)               | `pending`          | Consentimiento informado, cancelación, no-show y revisión veterinaria/legal                               |
+| Proveedores B2B     | [SERVICE_PROVIDERS_ENTERPRISE_TODOLIST.md](SERVICE_PROVIDERS_ENTERPRISE_TODOLIST.md) | `pending`          | Pagos, reembolsos, SLA, firma y disputas                                                                  |
+| Proveedores cloud   | [EXTERNAL_PROVIDER_VALIDATION.md](EXTERNAL_PROVIDER_VALIDATION.md)                   | `blocked-external` | Contratos, DPA, regiones, cuentas y evidencia de staging                                                  |
+| SENASA-ready        | [senasa.md](senasa.md)                                                               | `draft`            | No es certificación ni integración oficial; revisión de claims pendiente                                  |
+| Publicidad          | [VALLAS_COMERCIALES.md](VALLAS_COMERCIALES.md)                                       | `draft`            | Orden de compra, claims, cancelación, creativos y responsabilidad                                         |
 
 ## Hallazgos corregidos
+
+- Producto aprobó como dirección el piloto híbrido de una tienda/sede; esto no
+  selecciona comercio, aprueba contrato, fiscalidad o claims ni verifica
+  despliegue. El documento legal de tiendas sigue `draft`.
 
 - Términos y Privacidad fueron actualizados al 23 de septiembre de 2026 y
   marcados como `draft` hasta aprobación.

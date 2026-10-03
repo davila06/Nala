@@ -4,14 +4,18 @@
 > **No constituye asesoramiento juridico ni reemplaza la revision de un abogado
 > en Costa Rica.**
 >
-> **Version:** 0.2
-> **Fecha:** 2026-09-26
+> **Version:** 0.3
+> **Fecha:** 2026-10-02
 > **Alcance:** tiendas de mascotas, catalogo, solicitudes de pedido, entrega,
 > retiro y comunicaciones entre cliente y tienda.
 
 ---
 
-## 1. Decisiones de alcance aprobadas para revision
+## 1. Direccion de producto y decisiones pendientes de revision
+
+El 2026-10-02 se aprobo como direccion de producto un modelo hibrido por etapas
+que inicia con un piloto de una tienda y una sede. Esta direccion no es
+aprobacion legal, fiscal, contractual ni una declaracion de disponibilidad.
 
 1. PawTrack funciona como plataforma de comunicacion de pedidos.
 2. PawTrack no compra, vende, revende ni intermedia los productos de la tienda.
@@ -22,27 +26,31 @@
 7. La entrega y el retiro dependen completamente de la tienda.
 8. La tienda es responsable de aceptar, rechazar, preparar, entregar, cancelar
    y cerrar sus pedidos.
-9. PawTrack no maneja inventario ni garantiza la existencia de un producto.
-10. Crear un pedido representa una solicitud y no una reserva automatica de
-    unidades, precio, entrega o retiro.
-11. Los pagos, si existen, se acuerdan y gestionan manualmente entre cliente y
-    tienda fuera de PawTrack.
-12. No se implementan por ahora comisiones, payouts, conciliacion bancaria,
-    reembolsos, multi-tienda, multi-sede ni permisos por sede.
+9. El codigo actual tiene `StockOnHand` y reserva temporal al aceptar; no hay
+   ledger de movimientos, compra/recepcion, stock por sede ni existencia
+   productiva verificada. No garantiza unidades disponibles en otro POS.
+10. Crear un pedido inicia una solicitud. La tienda la acepta y el codigo puede
+    reservar el saldo NALA; precio/cambios, entrega y retiro deben comunicarse y
+    aceptarse por ambas partes conforme a terminos aun pendientes.
+11. El cliente puede reportar pago externo y la tienda registrar una verificacion
+    manual. NALA no procesa el pago ni consulta el banco; una devolucion se
+    ejecuta fuera y su referencia puede registrarse en el pedido.
+12. No hay comision, payout, conciliacion bancaria automatica, POS/caja,
+    factura fiscal de tienda, multi-sede operativa ni permisos por sede.
 
 Estas decisiones deben quedar aprobadas por escrito antes del lanzamiento
 comercial.
 
-### Aclaracion de estado tecnico (2026-09-26)
+### Aclaracion de estado tecnico (2026-10-02)
 
-Este borrador describe el alcance legal propuesto, no una declaracion de que
-todas las funciones esten implementadas o aprobadas. El codigo permite CRUD
-tecnico de `StoreLocation` para StorePartner y pedidos con `LocationId`
-opcional, pero no hay inventario ni permisos por sede; el checkout no envia una
-sede. `PaymentReference` es un campo heredado del pedido: no existe ruta de
-reporte de pago de tienda ni confirmacion bancaria en NALA. No anunciar
-multi-sede operativo, SINPE integrado, pago confirmado, factura de la tienda ni
-stock reservado.
+Este borrador no es asesoramiento legal ni acredita que la migracion de tienda
+este aplicada o que la funcionalidad opere en un entorno compartido. El codigo
+revisado incluye stock escalar, reserva con expiracion, reporte del cliente,
+verificacion manual por la tienda y registro de referencia de reembolso externo.
+No incluye ledger, consulta bancaria, procesamiento de fondos, caja, proveedor
+fiscal ni permisos por sede; checkout no envia `LocationId`. No anunciar pago
+verificado por NALA, SINPE integrado, factura fiscal de tienda, inventario
+auditable ni despliegue multi-sede.
 
 La evolucion hacia operacion diaria esta condicionada al roadmap
 [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md). Las decisiones
@@ -110,21 +118,29 @@ confirmada. La solicitud queda sujeta a la revision de la tienda, incluyendo:
 La interfaz debe mostrar esta condicion de forma visible antes y despues de
 crear el pedido.
 
-### 3.2 Recomendacion sobre la reserva sin inventario
+### 3.2 Reserva en el piloto hibrido
 
-Como PawTrack no manejara inventario, se recomienda el siguiente criterio:
+El codigo actual exige stock NALA declarado y suficiente para crear un pedido,
+y reserva temporalmente unidades cuando la tienda lo acepta. Esta cantidad no
+es todavía un kardex ni se sincroniza con POS. Para el piloto:
 
-1. El cliente crea una **solicitud de pedido**.
-2. La tienda revisa manualmente disponibilidad y condiciones.
-3. La tienda cambia el pedido a **confirmado** solo si puede atenderlo.
-4. La tienda puede apartar fisicamente el producto bajo su propia operacion.
-5. La tienda informa al cliente el plazo de retiro o entrega y cualquier
-   condicion de vencimiento del apartado.
-6. Si no puede atenderlo, la tienda lo rechaza o cancela con motivo.
+1. Definir por escrito si NALA o el POS es autoridad de existencias.
+2. Si NALA es autoridad, registrar también en NALA todas las ventas
+   presenciales, recepciones, ajustes, mermas y devoluciones que cambien el
+   saldo; el primer piloto requiere una sede.
+3. Si el POS es autoridad, usar un conector unidireccional probado antes de
+   mostrar el saldo como disponible. No permitir que ambos sistemas editen el
+   stock independientemente.
+4. El cliente crea una **solicitud de pedido**; la tienda revisa disponibilidad,
+   precio y condiciones antes de aceptar. La reserva del código expira y no
+   cubre movimientos que ocurran fuera de la fuente de verdad acordada.
+5. Comunicar plazo de retiro/entrega y motivos de rechazo/cancelación.
 
-El apartado fisico, su duracion, perdida, sustitucion o liberacion son
-responsabilidad exclusiva de la tienda. PawTrack no debe denominar el pedido
-como "reserva garantizada" mientras no exista inventario transaccional.
+Si no puede mantenerse una fuente de verdad confiable, no habilitar pedidos
+online con saldo NALA como garantía. La ruta actual rechaza stock no declarado o
+insuficiente; habilitar solicitudes sin stock requiere un cambio aprobado de
+producto. No denominar esta reserva técnica como inventario o reserva garantizada
+hasta contar con ledger, pruebas concurrentes y UAT.
 
 ### 3.3 Estados recomendados
 
@@ -224,19 +240,23 @@ casos urgentes de seguridad o cumplimiento.
 
 ## 6. Pagos y ausencia de intermediacion
 
-En esta fase:
+En el modelo hibrido propuesto:
 
 - PawTrack no solicita ni almacena credenciales bancarias.
 - PawTrack no procesa transferencias ni tarjetas.
-- PawTrack no verifica que una transferencia haya ocurrido.
+- PawTrack no verifica por integracion que una transferencia haya ocurrido. La
+  tienda puede registrar manualmente que reviso su cuenta; esa atestacion no es
+  evidencia bancaria generada por PawTrack.
 - Los flujos de recompensa, escrow, payout o liberación automática no están
   activos. Cualquier propuesta de monetización de recompensas requiere revisión
   legal, tributaria, KYC y de proveedor de pagos antes de publicarse.
 - Los certificados y reportes `SENASA-ready` no son aprobación, certificación ni
   integración oficial con SENASA sin convenio formal.
-- PawTrack no confirma pagos en nombre de la tienda.
+- PawTrack no confirma pagos en nombre de la tienda. El endpoint de tienda
+  registra una confirmacion manual del actor autenticado.
 - PawTrack no administra saldos, comisiones, liquidaciones ni payouts.
-- PawTrack no promete reembolsos.
+- PawTrack no procesa ni promete reembolsos; el codigo solo puede guardar la
+  referencia que la tienda entrega despues de gestionar la devolucion fuera.
 - Cualquier disputa de pago se resuelve entre cliente y tienda.
 
 Los textos de la aplicacion deben evitar frases como "PawTrack recibio tu pago",

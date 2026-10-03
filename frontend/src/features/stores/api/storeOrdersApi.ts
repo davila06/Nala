@@ -20,8 +20,10 @@ export interface PagedStoreOrders {
 }
 
 export const storeOrdersApi = {
-  place: (payload: PlaceOrderPayload): Promise<StoreOrderDto> =>
-    apiClient.post<StoreOrderDto>("/store-orders", payload).then((r) => r.data),
+  place: (payload: PlaceOrderPayload, idempotencyKey: string): Promise<StoreOrderDto> =>
+    apiClient
+      .post<StoreOrderDto>("/store-orders", payload, { headers: { "Idempotency-Key": idempotencyKey } })
+      .then((r) => r.data),
 
   getMine: (page = 1, pageSize = 20): Promise<PagedStoreOrders> =>
     apiClient

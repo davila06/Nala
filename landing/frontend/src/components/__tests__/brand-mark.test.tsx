@@ -54,6 +54,7 @@ describe("site navigation", () => {
     const openPawTrack = container.querySelector<HTMLAnchorElement>(".header-cta");
 
     expect(lostPetAction?.textContent).toMatch(/Perdí una mascota/i);
+    expect(lostPetAction?.textContent).toMatch(/Perdí/);
     expect(lostPetAction?.href).toBe("http://localhost:5173/login?return=%2Flost-pets%2Freport");
     expect(openPawTrack?.textContent).toMatch(/Abrir PawTrack/i);
     expect(openPawTrack?.classList.contains("header-cta-primary")).toBe(true);

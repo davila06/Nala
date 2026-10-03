@@ -155,6 +155,58 @@ img {
   color: var(--white);
   box-shadow: 0 3px 0 #84320f;
 }
+.header-cta-primary {
+  min-height: 46px;
+  padding-inline: 20px;
+  background: var(--coral);
+  box-shadow: 0 4px 0 #8b3826;
+  font-size: 13px;
+}
+.header-cta-primary:hover {
+  background: #b54e39;
+  box-shadow: 0 5px 0 #8b3826;
+}
+.header-lost-cta {
+  min-height: 42px;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 9px;
+  padding: 0 13px;
+  border: 1px solid var(--coral);
+  border-radius: 3px;
+  background: var(--white);
+  color: var(--coral);
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.header-lost-cta:hover,
+.header-lost-cta:focus-visible {
+  background: #f7eee9;
+  color: #8e382b;
+  box-shadow: 0 3px 0 #e8c5b7;
+}
+.header-lost-mark {
+  width: 20px;
+  height: 20px;
+  display: inline-grid;
+  flex: 0 0 20px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--coral);
+  color: var(--white);
+  font-size: 13px;
+  line-height: 1;
+}
+.header-lost-label-short {
+  display: none;
+}
 .header-cta:hover {
   background: #a83e0f;
   color: var(--white);
@@ -2589,6 +2641,31 @@ h2 em {
   .brand-mark {
     width: 28px;
     height: 28px;
+  }
+  .header-lost-cta {
+    width: auto;
+    min-width: 72px;
+    min-height: 44px;
+    justify-content: center;
+    gap: 6px;
+    padding-inline: 9px;
+    background: var(--coral);
+    color: var(--white);
+  }
+  .header-lost-mark {
+    width: 18px;
+    height: 18px;
+    flex-basis: 18px;
+    background: var(--white);
+    color: var(--coral);
+  }
+  .header-lost-label {
+    display: none;
+  }
+  .header-lost-label-short {
+    display: inline;
+    font-size: 11px;
+    font-weight: 800;
   }
   .desktop-nav {
     display: none;

@@ -1,6 +1,6 @@
 # PawTrack CR - Backlog Maestro Enterprise
 
-> **Fuente única de pendientes activos.** Corte: 2026-09-23.
+> **Fuente única de pendientes activos.** Corte: 2026-10-02.
 >
 > Este documento reemplaza las listas históricas de TODOs, errores y gates
 > P0. El código y `STATUS.md` siguen siendo la autoridad sobre lo que ya está
@@ -18,7 +18,7 @@ Una tarea no se marca como `[x]` solo porque el código exista. Requiere una
 prueba apropiada, autorización y seguridad cuando corresponda, documentación
 actualizada y evidencia fechada.
 
-> Estado verificado local 2026-09-23: `dotnet test PawTrack.sln` finalizó con éxito (1536 unitarios + 114 de integración), y `npm test -- --run --reporter=dot` finalizó con éxito (114/114). El error real de concurrencia del collar se corrigió y el backend quedó verde.
+> Últimas suites completas locales: backend 1920/1920 y PWA 222/222 (70 archivos). Tras el mapeo HTTP 409 se ejecutaron de nuevo los tests de controller 3/3, checkout 2/2, `npm --prefix frontend run build` y la suite landing 53/53. No se aplicó la migración nueva ni se probaron SQL Server concurrente, gateway/SINPE real, staging o producción.
 
 ## Prioridad inmediata
 
@@ -44,9 +44,11 @@ son por clínica; pertenecer a la organización no da acceso a datos de un sitio
 | ENT-PROV   | Proveedores externos        | `[E]`  | Contratos, secretos, smoke tests de staging y rotación aprobados                                                  |
 
 La direccion de producto de `ENT-STORE` es un modelo hibrido por etapas. En el
-codigo actual ya hay stock escalar, reserva/expiracion y registro manual de
-reporte/verificacion de pago externo; no equivalen a kardex, POS, pago
-automatizado, conciliacion ni despliegue. Los gates y limites estan en
+codigo actual ya hay stock escalar, reserva/expiracion, registro manual de
+reporte/verificacion de pago externo e idempotencia de creacion de pedidos con
+`Idempotency-Key`; no equivalen a kardex, POS, pago automatizado, conciliacion
+ni despliegue. La migracion de idempotencia/reembolso esta generada, no aplicada;
+los gates y limites estan en
 [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md). La migracion de
 stock/pago y su operacion en un entorno compartido siguen `NO_VERIFICADO`.
 
@@ -56,8 +58,8 @@ stock/pago y su operacion en un entorno compartido siguen `NO_VERIFICADO`.
 - [ ] Asignar propietario y fecha de expiración a cada gate y evidencia.
 - [x] Ejecutar restore reproducible de .NET con `packages.lock.json` y `--locked-mode`; verificado localmente el 2026-09-23.
 - [x] Ejecutar build Release con `--no-restore` y warnings tratados como errores; verificado localmente el 2026-09-23.
-- [x] Validar la suite backend principal de forma local con `dotnet test PawTrack.sln`; resultado: exit 0, 1536 pruebas correctas en unitarias + 114 en integración.
-- [x] Validar la suite frontend principal de forma local con `npm test -- --run --reporter=dot`; resultado: exit 0, 114/114 pruebas correctas.
+- [x] Validar la suite backend principal de forma local con `dotnet test PawTrack.sln --no-restore --verbosity minimal -p:BaseOutputPath=backend/test-out/`; resultado: exit 0, 1920/1920 pruebas.
+- [x] Validar la suite frontend principal de forma local con `npm --prefix frontend test -- --run --reporter=dot`; resultado: exit 0, 222/222 pruebas en 70 archivos.
 - [ ] Ejecutar `npm ci` con versión de Node fijada y lockfile validado.
 - [ ] Ejecutar typecheck, lint, build, Vitest y Playwright en CI limpio.
 - [ ] Publicar TRX, cobertura, OpenAPI, migraciones, SBOM y reportes Playwright.
@@ -214,7 +216,8 @@ cambian quedan registradas en NALA. Esta direccion no representa aprobacion
 legal/fiscal, contrato, piloto seleccionado ni despliegue.
 
 - [ ] Aprobar responsables, tienda piloto, autoridad por dato, flujo de venta presencial y politicas locales antes de habilitar stock como real.
-- [ ] Cerrar integridad de pedidos: Idempotency-Key, transiciones por retiro/entrega, actor/motivo/historial y reconfirmacion de cambios de precio.
+- [~] Implementar idempotencia de `POST /api/store-orders`: header requerido, hash de payload, replay idéntico, rechazo de payload distinto, índice único por cliente y retry frontend. La migración `AddStoreOrderIdempotencyAndProviderRefundAccounting` está generada y no aplicada; faltan pruebas con SQL Server real para concurrencia, rollback y upgrade.
+- [ ] Cerrar transiciones por retiro/entrega, actor/motivo/historial y reconfirmacion de cambios de precio.
 - [ ] Implementar kardex y recepcion/conteo/ajuste/merma/devolucion en una sede; verificar atomicidad SQL, reservas y conciliacion de stock.
 - [ ] Definir registro operativo de ventas y cierres mientras el POS externo procesa pagos y emite comprobantes; no presentar el endpoint manual como confirmacion bancaria.
 - [ ] Fortalecer importacion CSV/JSON con SKU/stock, vista previa, progreso, errores descargables, lotes y pruebas de tenant/duplicados.
@@ -227,7 +230,7 @@ la fuente unica de tareas activas y se cerrara solo con implementacion y evidenc
 
 ## Evidencia y fuentes relacionadas
 
-- Estado técnico verificado: `dotnet test PawTrack.sln` exit 0 con 1536 pruebas correctas y `npm test -- --run --reporter=dot` exit 0 con 114/114 tests correctos.
+- Estado técnico verificado al 2026-10-02: suites completas backend 1920/1920 y PWA 222/222; pruebas focales posteriores al último cambio: controller 3/3, checkout 2/2, landing 53/53, build PWA y typecheck correctos. Las pruebas no aplican la migración ni verifican SQL concurrente, proveedores externos o producción.
 - Estado técnico: [STATUS.md](STATUS.md)
 - Gobierno de release: [GO_LIVE_GOVERNANCE.md](GO_LIVE_GOVERNANCE.md)
 - Autorización: [API_AUTHORIZATION_MATRIX.md](API_AUTHORIZATION_MATRIX.md)

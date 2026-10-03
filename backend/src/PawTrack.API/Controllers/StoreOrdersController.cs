@@ -18,12 +18,21 @@ public sealed class StoreOrdersController(ISender sender) : ControllerBase
     [EnableRateLimiting("public-api")]
     [RequestSizeLimit(4096)]
     [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> PlaceOrder(
         [FromBody] PlaceOrderRequest request,
         CancellationToken ct)
     {
         if (!TryGetUserId(out var customerId)) return Unauthorized();
+        var idempotencyKey = Request.Headers["Idempotency-Key"].ToString();
+        if (string.IsNullOrWhiteSpace(idempotencyKey) || idempotencyKey.Length > 200)
+            return BadRequest(new ProblemDetails
+            {
+                Detail = "El header Idempotency-Key es obligatorio y no puede superar 200 caracteres.",
+                Status = StatusCodes.Status400BadRequest,
+            });
+
         if (!Enum.TryParse<OrderFulfillmentType>(request.FulfillmentType, ignoreCase: true, out var fulfillment))
             return BadRequest(new ProblemDetails { Detail = $"Tipo de entrega inválido: {request.FulfillmentType}.", Status = 400 });
 
@@ -33,8 +42,16 @@ public sealed class StoreOrdersController(ISender sender) : ControllerBase
 
         var result = await sender.Send(new PlaceStoreOrderCommand(
             customerId, request.StoreId, fulfillment,
-            request.DeliveryAddress, request.CustomerNote, lines, request.LocationId), ct);
+            request.DeliveryAddress, request.CustomerNote, lines, request.LocationId, idempotencyKey), ct);
 
+        if (result.IsFailure && result.Errors.Contains(StoreOrderErrors.IdempotencyKeyConflict))
+            return Conflict(new ProblemDetails
+            {
+                Title = "Conflicto de idempotencia",
+                Detail = "Esta clave ya está asociada a otro payload. Revisa tus pedidos antes de crear otra solicitud.",
+                Status = StatusCodes.Status409Conflict,
+                Extensions = { ["code"] = StoreOrderErrors.IdempotencyKeyConflict },
+            });
         if (result.IsFailure)
             return UnprocessableEntity(new ProblemDetails { Detail = string.Join("; ", result.Errors), Status = 422 });
         return Created(string.Empty, result.Value);

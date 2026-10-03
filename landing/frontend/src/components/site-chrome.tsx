@@ -136,9 +136,10 @@ export function SiteHeader() {
           <span aria-hidden="true" className="header-lost-mark">
             !
           </span>
-          <span>Perdí una mascota</span>
+          <span className="header-lost-label">Perdí una mascota</span>
+          <span className="header-lost-label-short">Perdí</span>
         </a>
-        <a className="button button-small header-cta" href={getProductUrl("/login")}>
+        <a className="button button-small header-cta header-cta-primary" href={getProductUrl("/login")}>
           Abrir PawTrack <span aria-hidden="true">↗</span>
         </a>
         <details className="mobile-menu">

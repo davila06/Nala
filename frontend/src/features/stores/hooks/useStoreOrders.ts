@@ -24,7 +24,8 @@ export function useIncomingOrders() {
 export function usePlaceOrder() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: PlaceOrderPayload) => storeOrdersApi.place(payload),
+    mutationFn: ({ payload, idempotencyKey }: { payload: PlaceOrderPayload; idempotencyKey: string }) =>
+      storeOrdersApi.place(payload, idempotencyKey),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["my-store-orders"] }),
   });
 }
@@ -60,8 +61,15 @@ export function useVerifyStoreOrderPayment() {
 export function useRecordStoreOrderRefund() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ orderId, externalRefundReference, reason }: { orderId: string; externalRefundReference: string; reason: string }) =>
-      storeOrdersApi.recordExternalRefund(orderId, externalRefundReference, reason),
+    mutationFn: ({
+      orderId,
+      externalRefundReference,
+      reason,
+    }: {
+      orderId: string;
+      externalRefundReference: string;
+      reason: string;
+    }) => storeOrdersApi.recordExternalRefund(orderId, externalRefundReference, reason),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["store-incoming-orders"] });
       void qc.invalidateQueries({ queryKey: ["my-store-orders"] });

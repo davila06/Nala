@@ -13,6 +13,11 @@
   en Azure, credenciales, despliegue y SLA son `NO_VERIFICADO`.
 - Suscripciones y marketplace tienen flujo parcial: no equivalen a aprobación
   comercial, pagos liquidados, inventario transaccional ni todas las cuotas.
+- Tiendas: el workspace tiene stock escalar y reserva temporal por pedido,
+  además de reporte/verificación manual externa. No hay kardex, ventas
+  presenciales sincronizadas, POS/caja, conciliación bancaria ni factura fiscal
+  de tienda. La migración y operación por entorno son `NO_VERIFICADO`; consultar
+  [plan híbrido](ROADMAP_TIENDAS_USO_DIARIO.md).
 
 1. Integraciones externas no comprobadas: [Vision](../backend/src/PawTrack.Infrastructure/AI/AzureVisionEmbeddingService.cs), [TrackSolid](../backend/src/PawTrack.Infrastructure/Collars/TrackSolidService.cs), [pagos](../backend/src/PawTrack.Infrastructure/InfrastructureServiceCollectionExtensions.cs). Sin prueba con proveedor no se puede afirmar disponibilidad o SLA.
 2. [Proveedor de pagos manual](../backend/src/PawTrack.Application/ServiceProviders/Payments/ManualProviderPaymentGateway.cs) y [gateway regulatorio NoOp](../backend/src/PawTrack.Application/Regulatory/Gateways/NoOpRegulatorySubmissionGateway.cs) no son procesamiento/entrega externos.

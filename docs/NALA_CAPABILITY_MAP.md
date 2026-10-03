@@ -1,6 +1,6 @@
 # Mapa de capacidades de NALA
 
-**Corte general:** 2026-09-28. **Revalidación focal de NFC y contacto:** 2026-10-01. Clasificación basada en código y pruebas del repositorio. `IMPLEMENTADO_Y_VERIFICADO` significa que existe flujo pertinente y pruebas ejecutadas en el corte; no significa producción.
+**Corte general:** 2026-09-28. **Revalidaciones focales:** NFC/contacto 2026-10-01; tiendas 2026-10-02. Clasificación basada en código y pruebas del repositorio. `IMPLEMENTADO_Y_VERIFICADO` significa que existe flujo pertinente y pruebas ejecutadas en el corte; no significa producción.
 
 ## Identificación y recuperación
 
@@ -35,14 +35,14 @@
 
 ## Comunidad y ecosistema
 
-| Capacidad                                     | Estado                      | Evidencia y límite                                                                                                                                                                                                            |
-| --------------------------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Refugios, aliados y adopciones                | `IMPLEMENTADO_Y_VERIFICADO` | [AlliesController.cs](../backend/src/PawTrack.API/Controllers/AlliesController.cs), [AdoptionsController.cs](../backend/src/PawTrack.API/Controllers/AdoptionsController.cs); no acredita ONG real                            |
-| Veterinarias y organizaciones multi-sede      | `IMPLEMENTADO_Y_VERIFICADO` | [ClinicsController.cs](../backend/src/PawTrack.API/Controllers/ClinicsController.cs), módulos Clinic; aprobaciones externas pendientes                                                                                        |
-| Proveedores: catálogo/disponibilidad/reservas | `IMPLEMENTADO_Y_VERIFICADO` | [ServiceProvidersController.cs](../backend/src/PawTrack.API/Controllers/ServiceProvidersController.cs); pagos y payout parciales                                                                                              |
-| Tiendas, productos y pedidos                  | `PARCIALMENTE_IMPLEMENTADO` | [StoresController.cs](../backend/src/PawTrack.API/Controllers/StoresController.cs), [StoreOrdersController.cs](../backend/src/PawTrack.API/Controllers/StoreOrdersController.cs); no inventario/checkout operativo demostrado |
-| Municipalidades y reportes                    | `IMPLEMENTADO_SIN_PRUEBAS`  | [MunicipalController.cs](../backend/src/PawTrack.API/Controllers/MunicipalController.cs); no integración oficial acreditada                                                                                                   |
-| Bienestar animal                              | `IMPLEMENTADO_Y_VERIFICADO` | Controllers de welfare, evidencia y administración; operación institucional no verificada                                                                                                                                     |
+| Capacidad                                     | Estado                      | Evidencia y límite                                                                                                                                                                                                                                                                     |
+| --------------------------------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Refugios, aliados y adopciones                | `IMPLEMENTADO_Y_VERIFICADO` | [AlliesController.cs](../backend/src/PawTrack.API/Controllers/AlliesController.cs), [AdoptionsController.cs](../backend/src/PawTrack.API/Controllers/AdoptionsController.cs); no acredita ONG real                                                                                     |
+| Veterinarias y organizaciones multi-sede      | `IMPLEMENTADO_Y_VERIFICADO` | [ClinicsController.cs](../backend/src/PawTrack.API/Controllers/ClinicsController.cs), módulos Clinic; aprobaciones externas pendientes                                                                                                                                                 |
+| Proveedores: catálogo/disponibilidad/reservas | `IMPLEMENTADO_Y_VERIFICADO` | [ServiceProvidersController.cs](../backend/src/PawTrack.API/Controllers/ServiceProvidersController.cs); pagos y payout parciales                                                                                                                                                       |
+| Tiendas, productos y pedidos                  | `PARCIALMENTE_IMPLEMENTADO` | [StoresController.cs](../backend/src/PawTrack.API/Controllers/StoresController.cs), [StoreOrdersController.cs](../backend/src/PawTrack.API/Controllers/StoreOrdersController.cs), reserva de `StockOnHand` y pago externo manual; sin kardex/POS, liquidacion ni despliegue demostrado |
+| Municipalidades y reportes                    | `IMPLEMENTADO_SIN_PRUEBAS`  | [MunicipalController.cs](../backend/src/PawTrack.API/Controllers/MunicipalController.cs); no integración oficial acreditada                                                                                                                                                            |
+| Bienestar animal                              | `IMPLEMENTADO_Y_VERIFICADO` | Controllers de welfare, evidencia y administración; operación institucional no verificada                                                                                                                                                                                              |
 
 ## Monetización
 

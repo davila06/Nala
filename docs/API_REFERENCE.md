@@ -1,7 +1,7 @@
 # PawTrack CR - Referencia API
 
 **Estado:** activo  
-**Corte general:** 2026-09-22; seccion de tiendas revisada contra controllers: 2026-09-26.
+**Corte general:** 2026-09-22; revalidacion focal de tiendas: 2026-10-02.
 **Contrato:** OpenAPI `1.0`
 
 ## Fuentes
@@ -59,7 +59,9 @@ Suscripciones de usuario:
   `ExpiresAt`.
 - `POST /subscriptions/{id}/downgrade` programa `UserFamilia` a `UserPlus` en
   el vencimiento actual; requiere `targetTier: "UserPlus"`.
-- `PUT /subscriptions/{id}/report-payment` informa el pago del plan pendiente.
+- `PUT /subscriptions/{id}/report-payment` informa el pago del plan pendiente;
+  solo registra el aviso y no activa el plan. En tarjeta, la autorización no
+  activa la suscripción hasta que se confirme el settlement.
 
 ### Recuperacion
 
@@ -106,9 +108,17 @@ Suscripciones de usuario:
 
 - `POST /store-orders`, `GET /store-orders/mine`, `GET /store-orders/incoming`
 - `PUT /store-orders/{id}/confirm`, `PUT /store-orders/{id}/status`
-- El pedido es una solicitud; no reserva stock ni confirma pagos.
+- `POST /store-orders/{id}/report-payment` permite al cliente reportar un pago externo.
+- `POST /store-orders/{id}/verify-payment` permite a la tienda registrar verificacion manual; no llama al banco ni procesa el pago.
+- `POST /store-orders/{id}/record-external-refund` registra referencia de una devolucion ya ejecutada externamente; no envia fondos.
+- `POST /store-orders` requiere el header `Idempotency-Key` (1-200 caracteres; ausente/inválido: 400). La misma clave y el mismo payload reproducen el pedido; la misma clave con payload distinto devuelve 409 `IDEMPOTENCY_KEY_CONFLICT`. La clave no va en el JSON del pedido.
+- Al crear el pedido, el handler rechaza lineas con stock no declarado o insuficiente; no existe flujo de solicitud sin stock.
+- Al aceptar, el codigo reserva `StockOnHand` disponible y una tarea vence/libera la reserva; esto no es un ledger ni stock productivo verificado.
+- El pedido conserva snapshot de nombre/precio/cantidad al crearse; sigue pendiente reconfirmar cambios de precio antes de aceptar.
+- La migracion `AddStoreOrderIdempotencyAndProviderRefundAccounting` declara el indice unico y los campos nuevos; esta generada, no aplicada ni verificada en un entorno compartido.
 - `LocationId` es opcional en backend, pero checkout no permite seleccionar
-  sede. No hay endpoints de inventario/POS ni de reporte de pago de tienda.
+  sede. No hay POS/caja, movimientos de inventario, compras ni pago/factura
+  integrados para la tienda.
 
 Roadmap: [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
 
@@ -116,6 +126,7 @@ Roadmap: [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
 
 - `/admin/allies`, `/admin/clinics`, `/admin/stores`
 - `/admin/service-providers`, `/admin/subscription-plans`
+- `PUT /admin/service-providers/payments/{paymentId}/external-refund` registra una devolución SINPE ya ejecutada fuera de PawTrack; es Admin-only, idempotente y auditable, pero no transfiere fondos. Pagos ligados a `PaymentIntent` usan el gateway.
 - `/admin/collar-tags`, `/admin/promotions`, `/admin/billboards`
 - `/admin/welfare-cases`, `/admin/audit`, `/admin/product-analytics`
 

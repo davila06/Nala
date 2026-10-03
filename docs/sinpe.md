@@ -1,19 +1,19 @@
 # Automatización de pagos SINPE Móvil — PawTrack CR
 
-**Estado actual:** conciliación manual para flujos habilitados; pedidos de tienda excluidos
-**Fecha:** 2026-09-26
+**Estado actual:** conciliación manual para flujos habilitados; tiendas solo tienen reporte/verificación externa manual en código, sin integración bancaria
+**Fecha:** 2026-10-02
 **Objetivo futuro:** verificar automáticamente las transferencias SINPE y activar el producto correcto sin intervención manual, con trazabilidad financiera y controles antifraude de nivel enterprise.
 
 ---
 
 ## 1. Estado actual del flujo
 
-> **Limite importante para tiendas:** este documento no describe un flujo
-> SINPE operativo para pedidos de tienda. El checkout crea una solicitud; no
-> muestra un proceso de pago verificado y `StoreOrdersController` no expone una
-> ruta para reportar pago. El campo heredado `StoreOrder.PaymentReference` no
-> demuestra deposito. Para tiendas, usar [RUNBOOK_PAGOS_SINPE.md](RUNBOOK_PAGOS_SINPE.md)
-> y [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
+> **Limite importante para tiendas:** el codigo tiene rutas para que el cliente
+> reporte pago externo y la tienda registre verificacion manual; una referencia
+> no prueba deposito y NALA no consulta el banco, procesa fondos ni concilia.
+> Migracion aplicada y uso productivo `NO_VERIFICADO`. Para tiendas, usar
+> [RUNBOOK_PAGOS_SINPE.md](RUNBOOK_PAGOS_SINPE.md) y
+> [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
 
 PawTrack genera referencias para los flujos que actualmente las exponen, como
 suscripciones, bundles o recompensas. La existencia de un campo de referencia
@@ -295,13 +295,15 @@ Al confirmar el pago:
 
 ### Pedidos de tienda
 
-El pedido ya contiene `PaymentReference`, pero debe evolucionar a `PaymentIntentId`. El total debe quedar congelado en el pedido y no recalcularse desde el catálogo después de la compra.
-
-Al confirmar:
-
-- `PaymentIntent = Confirmed`.
-- Pedido pasa de `PaymentReported` a `Confirmed`.
-- La tienda recibe notificación.
+El codigo actual permite `POST /api/store-orders/{id}/report-payment`,
+`/verify-payment` y `/record-external-refund`. La tienda revisa su cuenta por
+fuera y puede registrar su atestacion y referencia; NALA no valida el deposito.
+`StoreOrder` conserva snapshot de precio/nombre/cantidad al crear la solicitud y
+puede reservar `StockOnHand` al aceptar, sujeto a los limites del
+[roadmap hibrido](ROADMAP_TIENDAS_USO_DIARIO.md). No hay `PaymentIntent`, caja,
+conciliacion bancaria, payout ni factura fiscal de tienda. Cualquier futura
+integracion debe definirse aparte y no reutilizar una atestacion manual como
+settlement.
 
 ### Bundles
 

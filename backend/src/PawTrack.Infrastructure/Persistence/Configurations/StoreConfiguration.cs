@@ -62,6 +62,8 @@ public sealed class StoreOrderConfiguration : IEntityTypeConfiguration<StoreOrde
         builder.Property(x => x.StoreId).IsRequired();
         builder.Property(x => x.LocationId);
         builder.Property(x => x.CustomerId).IsRequired();
+        builder.Property(x => x.IdempotencyKey).HasMaxLength(200);
+        builder.Property(x => x.RequestHash).HasMaxLength(64);
         builder.Property(x => x.Status).IsRequired().HasConversion<int>();
         builder.Property(x => x.FulfillmentType).IsRequired().HasConversion<int>();
         builder.Property(x => x.PaymentReference).IsRequired().HasMaxLength(20);
@@ -90,6 +92,9 @@ public sealed class StoreOrderConfiguration : IEntityTypeConfiguration<StoreOrde
                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasIndex(x => x.PaymentReference).IsUnique();
+        builder.HasIndex(x => new { x.CustomerId, x.IdempotencyKey })
+            .IsUnique()
+            .HasFilter("[IdempotencyKey] IS NOT NULL");
         builder.HasIndex(x => new { x.StoreId, x.PlacedAt });
         builder.HasIndex(x => new { x.CustomerId, x.PlacedAt });
         builder.HasIndex(x => x.LocationId);

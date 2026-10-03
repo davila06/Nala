@@ -21,6 +21,12 @@ public sealed class StoreOrderRepository(PawTrackDbContext db) : IStoreOrderRepo
             .Include(o => o.Items)
             .FirstOrDefaultAsync(o => o.PaymentReference == reference, ct);
 
+    public Task<StoreOrder?> GetByCustomerAndIdempotencyKeyAsync(
+        Guid customerId, string idempotencyKey, CancellationToken ct = default) =>
+        db.StoreOrders.AsNoTracking()
+            .Include(order => order.Items)
+            .FirstOrDefaultAsync(order => order.CustomerId == customerId && order.IdempotencyKey == idempotencyKey, ct);
+
     public async Task<IReadOnlyList<StoreOrder>> GetByCustomerPagedAsync(
         Guid customerId, int skip, int take, CancellationToken ct = default) =>
         await db.StoreOrders.AsNoTracking()

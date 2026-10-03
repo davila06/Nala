@@ -8,6 +8,9 @@ using PawTrack.Application.Subscriptions.Services;
 using PawTrack.Domain.Audit;
 using PawTrack.Domain.Common;
 using PawTrack.Domain.Stores;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 
 namespace PawTrack.Application.Stores;
 
@@ -64,6 +67,11 @@ public sealed record StoreOrderDto(
 
 public sealed record PlaceOrderLineInput(Guid ProductId, int Quantity);
 
+public static class StoreOrderErrors
+{
+    public const string IdempotencyKeyConflict = "IDEMPOTENCY_KEY_CONFLICT";
+}
+
 public sealed record PlaceStoreOrderCommand(
     Guid CustomerId,
     Guid StoreId,
@@ -71,7 +79,8 @@ public sealed record PlaceStoreOrderCommand(
     string? DeliveryAddress,
     string? CustomerNote,
     IReadOnlyList<PlaceOrderLineInput> Lines,
-    Guid? LocationId = null) : IRequest<Result<StoreOrderDto>>;
+    Guid? LocationId = null,
+    string? IdempotencyKey = null) : IRequest<Result<StoreOrderDto>>;
 
 public sealed class PlaceStoreOrderCommandValidator : AbstractValidator<PlaceStoreOrderCommand>
 {
@@ -79,6 +88,7 @@ public sealed class PlaceStoreOrderCommandValidator : AbstractValidator<PlaceSto
     {
         RuleFor(x => x.StoreId).NotEmpty();
         RuleFor(x => x.CustomerId).NotEmpty();
+        RuleFor(x => x.IdempotencyKey).NotEmpty().MaximumLength(200);
         RuleFor(x => x.Lines).NotEmpty().WithMessage("El pedido debe tener al menos un producto.")
             .Must(l => l.Count <= 20).WithMessage("Un pedido puede tener máximo 20 líneas.")
             .Must(l => l.Select(x => x.ProductId).Distinct().Count() == l.Count)
@@ -110,6 +120,15 @@ public sealed class PlaceStoreOrderCommandHandler(
 {
     public async Task<Result<StoreOrderDto>> Handle(PlaceStoreOrderCommand request, CancellationToken ct)
     {
+        if (string.IsNullOrWhiteSpace(request.IdempotencyKey) || request.IdempotencyKey.Trim().Length > 200)
+            return Result.Failure<StoreOrderDto>("Idempotency-Key es obligatorio y no puede superar 200 caracteres.");
+
+        var idempotencyKey = request.IdempotencyKey.Trim();
+        var requestHash = ComputeRequestHash(request);
+        var existingOrder = await orderRepo.GetByCustomerAndIdempotencyKeyAsync(request.CustomerId, idempotencyKey, ct);
+        if (existingOrder is not null)
+            return ReplayOrReject(existingOrder, requestHash);
+
         var store = await storeRepo.GetByIdAsync(request.StoreId, ct);
         if (store is null || store.Status != StoreStatus.Active)
             return Result.Failure<StoreOrderDto>("Tienda no disponible.");
@@ -161,18 +180,21 @@ public sealed class PlaceStoreOrderCommandHandler(
         var order = StoreOrder.Place(
             store.Id, request.CustomerId, reference,
             request.FulfillmentType, request.DeliveryAddress,
-            request.CustomerNote, lines, request.LocationId);
+            request.CustomerNote, lines, request.LocationId, idempotencyKey, requestHash);
 
         await orderRepo.AddAsync(order, ct);
 
         try { await uow.SaveChangesAsync(ct); }
-        catch (Exception ex)
-            when (ex.Message.Contains("PaymentReference", StringComparison.OrdinalIgnoreCase)
-               || (ex.InnerException?.Message.Contains("UNIQUE", StringComparison.OrdinalIgnoreCase) == true
-                   && ex.InnerException?.Message.Contains("PaymentReference", StringComparison.OrdinalIgnoreCase) == true))
+        catch (Exception exception) when (exception is not OperationCanceledException)
         {
+            var concurrentOrder = await orderRepo.GetByCustomerAndIdempotencyKeyAsync(request.CustomerId, idempotencyKey, ct);
+            if (concurrentOrder is not null)
+                return ReplayOrReject(concurrentOrder, requestHash);
+
             // Extremely rare: two concurrent orders generated the same 8-char reference
-            return Result.Failure<StoreOrderDto>("Error al generar referencia de pago. Por favor, intenta de nuevo.");
+            if (exception.ToString().Contains("PaymentReference", StringComparison.OrdinalIgnoreCase))
+                return Result.Failure<StoreOrderDto>("Error al generar referencia de pago. Por favor, intenta de nuevo.");
+            throw;
         }
 
         // Fire-and-forget push notification — uses None so it outlives the request's ct
@@ -209,6 +231,30 @@ public sealed class PlaceStoreOrderCommandHandler(
         }
 
         return Result.Success(StoreOrderDto.FromDomain(order));
+    }
+
+    private static Result<StoreOrderDto> ReplayOrReject(StoreOrder order, string requestHash) =>
+        string.Equals(order.RequestHash, requestHash, StringComparison.Ordinal)
+            ? Result.Success(StoreOrderDto.FromDomain(order))
+            : Result.Failure<StoreOrderDto>(StoreOrderErrors.IdempotencyKeyConflict);
+
+    private static string ComputeRequestHash(PlaceStoreOrderCommand request)
+    {
+        var canonicalRequest = new
+        {
+            request.CustomerId,
+            request.StoreId,
+            FulfillmentType = request.FulfillmentType.ToString(),
+            DeliveryAddress = request.DeliveryAddress?.Trim(),
+            CustomerNote = request.CustomerNote?.Trim(),
+            request.LocationId,
+            Lines = request.Lines
+                .OrderBy(line => line.ProductId)
+                .Select(line => new { line.ProductId, line.Quantity })
+                .ToArray(),
+        };
+        var json = JsonSerializer.Serialize(canonicalRequest);
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(json)));
     }
 }
 

@@ -163,6 +163,8 @@ public sealed class ProviderPaymentConfiguration : IEntityTypeConfiguration<Prov
         builder.Property(x => x.PaymentReference).IsRequired().HasMaxLength(50);
         builder.Property(x => x.IdempotencyKey).IsRequired().HasMaxLength(200);
         builder.Property(x => x.PaymentIntentId);
+        builder.Property(x => x.RefundedAmountCrc).IsRequired().HasColumnType("decimal(12,2)");
+        builder.Property(x => x.RefundReference).HasMaxLength(200);
         builder.HasOne<PawTrack.Domain.Payments.PaymentIntent>()
             .WithMany()
             .HasForeignKey(x => x.PaymentIntentId)

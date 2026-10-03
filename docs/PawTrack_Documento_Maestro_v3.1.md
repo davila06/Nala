@@ -189,34 +189,38 @@ Avistamientos anónimos con PiiScrubber, foto, GPS; visual match por IA.
 
 ### 5.5 Stores (`/api/stores`, `/api/store-orders`, `/api/admin/stores`)
 
-| Endpoint                                        | Auth  | Descripción                          |
-| ----------------------------------------------- | ----- | ------------------------------------ |
-| `GET /api/public/stores`                        | —     | Directorio activo; paginado          |
-| `GET /api/public/stores/{id}`                   | —     | Detalle + productos disponibles      |
-| `POST /api/stores/register`                     | —     | Registro tienda; anti-enumeración    |
-| `GET /api/stores/mine`                          | Store | Mi tienda                            |
-| `PUT /api/stores/profile`                       | Store | Actualizar perfil                    |
-| `GET /api/stores/products`                      | Store | Mis productos                        |
-| `POST /api/stores/products`                     | Store | Agregar producto                     |
-| `PUT /api/stores/products/{id}`                 | Store | Actualizar producto                  |
-| `DELETE /api/stores/products/{id}`              | Store | Eliminar producto                    |
-| `POST /api/stores/products/{id}/image`          | Store | Subir imagen 5MB; resize 800px       |
-| `GET/POST/PUT/PATCH /api/stores/me/locations/*` | Store | CRUD de sedes con gate StorePartner  |
-| `GET /api/stores/me/analytics` / `.../export`   | Store | Analitica; export con gate/cuota     |
-| `POST /api/store-orders`                        | JWT   | Colocar pedido; plan gate StorePlus+ |
-| `GET /api/store-orders/mine`                    | JWT   | Mis pedidos (paginado)               |
-| `GET /api/store-orders/incoming`                | Store | Pedidos entrantes (paginado)         |
-| `PUT /api/store-orders/{id}/confirm`            | Store | Confirmar pedido                     |
-| `PUT /api/store-orders/{id}/status`             | Store | Avanzar estado (state machine)       |
-| `GET /api/admin/stores/pending`                 | Admin | Lista pendientes                     |
-| `PUT /api/admin/stores/{id}/review`             | Admin | Aprobar/rechazar tienda              |
+| Endpoint                                             | Auth  | Descripción                                         |
+| ---------------------------------------------------- | ----- | --------------------------------------------------- |
+| `GET /api/public/stores`                             | —     | Directorio activo; paginado                         |
+| `GET /api/public/stores/{id}`                        | —     | Detalle + productos disponibles                     |
+| `POST /api/stores/register`                          | —     | Registro tienda; anti-enumeración                   |
+| `GET /api/stores/mine`                               | Store | Mi tienda                                           |
+| `PUT /api/stores/profile`                            | Store | Actualizar perfil                                   |
+| `GET /api/stores/products`                           | Store | Mis productos                                       |
+| `POST /api/stores/products`                          | Store | Agregar producto                                    |
+| `PUT /api/stores/products/{id}`                      | Store | Actualizar producto                                 |
+| `DELETE /api/stores/products/{id}`                   | Store | Eliminar producto                                   |
+| `POST /api/stores/products/{id}/image`               | Store | Subir imagen 5MB; resize 800px                      |
+| `GET/POST/PUT/PATCH /api/stores/me/locations/*`      | Store | CRUD de sedes con gate StorePartner                 |
+| `GET /api/stores/me/analytics` / `.../export`        | Store | Analitica; export con gate/cuota                    |
+| `POST /api/store-orders`                             | JWT   | Colocar pedido; plan gate StorePlus+                |
+| `GET /api/store-orders/mine`                         | JWT   | Mis pedidos (paginado)                              |
+| `GET /api/store-orders/incoming`                     | Store | Pedidos entrantes (paginado)                        |
+| `PUT /api/store-orders/{id}/confirm`                 | Store | Confirmar pedido                                    |
+| `PUT /api/store-orders/{id}/status`                  | Store | Avanzar estado (state machine)                      |
+| `POST /api/store-orders/{id}/report-payment`         | Owner | Reportar pago externo; no valida banco              |
+| `POST /api/store-orders/{id}/verify-payment`         | Store | Registrar verificacion manual externa               |
+| `POST /api/store-orders/{id}/record-external-refund` | Store | Guardar referencia de devolucion ya ejecutada fuera |
+| `GET /api/admin/stores/pending`                      | Admin | Lista pendientes                                    |
+| `PUT /api/admin/stores/{id}/review`                  | Admin | Aprobar/rechazar tienda                             |
 
 #### Estado máquina de pedidos
 
-Nota: `PaymentReported` existe en el dominio, pero no hay endpoint actual para
-que el cliente lo active. La referencia guardada no confirma un deposito y el
-pedido representa una solicitud, no una venta pagada. Ver
-[API_REFERENCE.md](API_REFERENCE.md) y
+Nota de revalidacion 2026-10-02: el cliente puede activar `PaymentReported` por
+`report-payment`; la tienda puede registrar verificacion manual. Ninguna ruta
+confirma un deposito con el banco ni procesa un reembolso. `StockOnHand` y la
+reserva temporal existen en codigo, pero no kardex/POS ni migracion aplicada
+verificada. Ver [API_REFERENCE.md](API_REFERENCE.md) y
 [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
 
 ```text

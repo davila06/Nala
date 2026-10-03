@@ -6465,6 +6465,13 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<string>("RefundReference")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal>("RefundedAmountCrc")
+                        .HasColumnType("decimal(12,2)");
+
                     b.Property<DateTimeOffset?>("RefundedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -7060,6 +7067,10 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.Property<int>("FulfillmentType")
                         .HasColumnType("int");
 
+                    b.Property<string>("IdempotencyKey")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<Guid?>("LocationId")
                         .HasColumnType("uniqueidentifier");
 
@@ -7094,6 +7105,10 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("RefundedByUserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("RequestHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -7121,6 +7136,10 @@ namespace PawTrack.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("PaymentReference")
                         .IsUnique();
+
+                    b.HasIndex("CustomerId", "IdempotencyKey")
+                        .IsUnique()
+                        .HasFilter("[IdempotencyKey] IS NOT NULL");
 
                     b.HasIndex("CustomerId", "PlacedAt");
 

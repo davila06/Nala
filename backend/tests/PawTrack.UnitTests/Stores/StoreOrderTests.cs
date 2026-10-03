@@ -352,7 +352,8 @@ public sealed class PlaceStoreOrderCommandHandlerTests
             FulfillmentType: OrderFulfillmentType.Pickup,
             DeliveryAddress: null,
             CustomerNote: null,
-            Lines: [new PlaceOrderLineInput(ProductId, 2)]);
+            Lines: [new PlaceOrderLineInput(ProductId, 2)],
+            IdempotencyKey: "valid-order");
 
         var result = await _sut.Handle(cmd, CancellationToken.None);
 
@@ -363,6 +364,87 @@ public sealed class PlaceStoreOrderCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_RetryWithSameIdempotencyKey_ReplaysExistingOrder()
+    {
+        SetupActiveStore();
+        SetupAvailableProduct(2000m);
+        StoreOrder? persistedOrder = null;
+        _orderRepo.GetByCustomerAndIdempotencyKeyAsync(
+            Arg.Any<Guid>(), "store-order-attempt-1", Arg.Any<CancellationToken>())
+            .Returns(_ => Task.FromResult(persistedOrder));
+        _orderRepo.AddAsync(
+            Arg.Do<StoreOrder>(order => persistedOrder = order), Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
+        var command = new PlaceStoreOrderCommand(
+            Guid.NewGuid(), StoreId, OrderFulfillmentType.Pickup,
+            null, null, [new PlaceOrderLineInput(ProductId, 1)], IdempotencyKey: "store-order-attempt-1");
+
+        var first = await _sut.Handle(command, CancellationToken.None);
+        var retry = await _sut.Handle(command, CancellationToken.None);
+
+        first.IsSuccess.Should().BeTrue();
+        retry.IsSuccess.Should().BeTrue();
+        retry.Value!.Id.Should().Be(first.Value!.Id);
+        await _orderRepo.Received(1).AddAsync(Arg.Any<StoreOrder>(), Arg.Any<CancellationToken>());
+        await _uow.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_ReusedIdempotencyKeyWithDifferentPayload_ReturnsFailure()
+    {
+        SetupActiveStore();
+        SetupAvailableProduct(2000m);
+        StoreOrder? persistedOrder = null;
+        _orderRepo.GetByCustomerAndIdempotencyKeyAsync(
+            Arg.Any<Guid>(), "store-order-attempt-2", Arg.Any<CancellationToken>())
+            .Returns(_ => Task.FromResult(persistedOrder));
+        _orderRepo.AddAsync(
+            Arg.Do<StoreOrder>(order => persistedOrder = order), Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
+        var command = new PlaceStoreOrderCommand(
+            Guid.NewGuid(), StoreId, OrderFulfillmentType.Pickup,
+            null, null, [new PlaceOrderLineInput(ProductId, 1)], IdempotencyKey: "store-order-attempt-2");
+
+        var first = await _sut.Handle(command, CancellationToken.None);
+        var conflicting = await _sut.Handle(command with
+        {
+            Lines = [new PlaceOrderLineInput(ProductId, 2)],
+        }, CancellationToken.None);
+
+        first.IsSuccess.Should().BeTrue();
+        conflicting.IsFailure.Should().BeTrue();
+        await _orderRepo.Received(1).AddAsync(Arg.Any<StoreOrder>(), Arg.Any<CancellationToken>());
+        await _uow.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_ConcurrentUniqueKeyCollision_ReplaysMatchingOrder()
+    {
+        SetupActiveStore();
+        SetupAvailableProduct(2000m);
+        StoreOrder? concurrentOrder = null;
+        var lookupCount = 0;
+        _orderRepo.GetByCustomerAndIdempotencyKeyAsync(
+            Arg.Any<Guid>(), "store-order-race", Arg.Any<CancellationToken>())
+            .Returns(_ => Task.FromResult(++lookupCount == 1 ? null : concurrentOrder));
+        _orderRepo.AddAsync(
+            Arg.Do<StoreOrder>(order => concurrentOrder = order), Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
+        _uow.SaveChangesAsync(Arg.Any<CancellationToken>())
+            .Returns(_ => Task.FromException<int>(new InvalidOperationException("unique key collision")));
+        var command = new PlaceStoreOrderCommand(
+            Guid.NewGuid(), StoreId, OrderFulfillmentType.Pickup,
+            null, null, [new PlaceOrderLineInput(ProductId, 1)], IdempotencyKey: "store-order-race");
+
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.Id.Should().Be(concurrentOrder!.Id);
+        await _orderRepo.Received(1).AddAsync(Arg.Any<StoreOrder>(), Arg.Any<CancellationToken>());
+        await _uow.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task Handle_UnknownOrInsufficientInventory_ReturnsFailure()
     {
         SetupActiveStore();
@@ -370,7 +452,7 @@ public sealed class PlaceStoreOrderCommandHandlerTests
 
         var result = await _sut.Handle(new PlaceStoreOrderCommand(
             Guid.NewGuid(), StoreId, OrderFulfillmentType.Pickup,
-            null, null, [new PlaceOrderLineInput(ProductId, 1)]), CancellationToken.None);
+            null, null, [new PlaceOrderLineInput(ProductId, 1)], IdempotencyKey: "inventory-order"), CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
         result.Errors.Should().Contain(error => error.Contains("inventario", StringComparison.OrdinalIgnoreCase));
@@ -393,7 +475,8 @@ public sealed class PlaceStoreOrderCommandHandlerTests
             DeliveryAddress: null,
             CustomerNote: null,
             Lines: [new PlaceOrderLineInput(ProductId, 1)],
-            LocationId: foreignLocation.Id);
+            LocationId: foreignLocation.Id,
+            IdempotencyKey: "foreign-location-order");
 
         var result = await _sut.Handle(cmd, CancellationToken.None);
 
@@ -417,7 +500,8 @@ public sealed class PlaceStoreOrderCommandHandlerTests
             DeliveryAddress: null,
             CustomerNote: null,
             Lines: [new PlaceOrderLineInput(ProductId, 1)],
-            LocationId: location.Id);
+            LocationId: location.Id,
+            IdempotencyKey: "active-location-order");
 
         var result = await _sut.Handle(cmd, CancellationToken.None);
 
@@ -432,7 +516,7 @@ public sealed class PlaceStoreOrderCommandHandlerTests
         _storeRepo.GetByIdAsync(StoreId, Arg.Any<CancellationToken>()).Returns((Store?)null);
 
         var cmd = new PlaceStoreOrderCommand(Guid.NewGuid(), StoreId, OrderFulfillmentType.Pickup,
-            null, null, [new PlaceOrderLineInput(ProductId, 1)]);
+            null, null, [new PlaceOrderLineInput(ProductId, 1)], IdempotencyKey: "missing-store-order");
 
         var result = await _sut.Handle(cmd, CancellationToken.None);
         result.IsFailure.Should().BeTrue();
@@ -446,7 +530,7 @@ public sealed class PlaceStoreOrderCommandHandlerTests
              .Returns(SubscriptionTier.StoreBasic);
 
         var cmd = new PlaceStoreOrderCommand(Guid.NewGuid(), StoreId, OrderFulfillmentType.Pickup,
-            null, null, [new PlaceOrderLineInput(ProductId, 1)]);
+            null, null, [new PlaceOrderLineInput(ProductId, 1)], IdempotencyKey: "plan-gated-order");
 
         var result = await _sut.Handle(cmd, CancellationToken.None);
         result.IsFailure.Should().BeTrue();
@@ -488,6 +572,19 @@ public sealed class PlaceStoreOrderCommandHandlerTests
 
         var result = await validator.ValidateAsync(cmd);
         result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Handle_MissingIdempotencyKey_ValidationFails()
+    {
+        var validator = new PlaceStoreOrderCommandValidator();
+        var cmd = new PlaceStoreOrderCommand(Guid.NewGuid(), StoreId, OrderFulfillmentType.Pickup,
+            null, null, [new PlaceOrderLineInput(ProductId, 1)]);
+
+        var result = await validator.ValidateAsync(cmd);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(error => error.PropertyName == "IdempotencyKey");
     }
 }
 

@@ -29,12 +29,14 @@ consultar entidades de `backend/src/PawTrack.Domain` y el modelo EF.
 
 ### Tiendas
 
-El agregado `Store` actualmente posee productos con nombre, categoria, precio y
-disponibilidad, mas pedidos con snapshot de nombre/precio y lineas. `StoreOrder`
-acepta un `LocationId` nullable; `StoreLocation` es tecnico y no implica stock,
-caja, membresias ni autorizacion por sede. No hay movimientos de inventario,
-proveedores de mercaderia ni agregado de pago de pedido de tienda. Estas son
-brechas de producto, no entidades omitidas de esta referencia. Ver
+El agregado `Store` posee productos con nombre, categoria, precio,
+disponibilidad y `StockOnHand` nullable; `StoreOrder` conserva snapshot de
+nombre/precio por linea, reserva y vencimiento de reserva, y evidencia manual
+de pago/devolucion externa. Una migracion con estos campos existe en el
+workspace, pero su aplicacion por entorno no esta verificada. `StoreOrder`
+acepta `LocationId` nullable; `StoreLocation` no implica kardex, compras,
+ventas/caja, stock por sede, membresias ni autorizacion por sede. No existen
+movimientos de inventario ni agregados de venta/factura de tienda. Ver
 [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
 
 - IDs de dominio: `Guid` v7; respuestas API exponen strings.

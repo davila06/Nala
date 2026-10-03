@@ -398,7 +398,7 @@ revalidación. Solo se modificarán documentos bajo `docs/`.
 | Alta      | Roadmap, estado B2B, manual, API, `STATUS`, `FEATURES`, QA, modelo de datos y documentos comerciales afirmaban que no había stock ni reserva de existencias. | Código actual incorpora `StockOnHand`, reserva al aceptar y expiración/liberación; migración `20261002193005_AddEnterpriseMarketplaceStockAndPaymentLink`. Actualizar a capacidad técnica parcial; no afirmar kardex, ventas presenciales, despliegue de migración ni stock productivo. |
 | Alta      | Referencias B2B/API/legal/manual/runbook afirmaban que no existía reporte o verificación de pago de tienda.                                                  | El controller expone reporte del cliente, verificación manual por la tienda y registro de una devolución externa. No hay proveedor bancario conectado ni procesamiento automático; los documentos deben distinguir atestación manual de confirmación bancaria.                          |
 | Media     | El roadmap describía como ausente el snapshot de precios de línea.                                                                                           | `StoreOrder.Place` conserva nombre/precio unitario y total al crear el pedido. Sigue pendiente reconfirmar discrepancias antes de aceptar, además de impuestos/entrega.                                                                                                                 |
-| Alta      | `pendientesTiendas.md` se declara explícitamente histórico/sustituido, pero sigue enlazado desde docs activos e históricos.                                  | Eliminar el backlog duplicado, enlazar al roadmap/backlog vigentes y dejar constancia de la sustitución en README y changelog. Conservar otros documentos históricos que tengan valor probatorio; no borrarlos por antigüedad.                                                          |
+| Alta      | En el inventario inicial, `pendientesTiendas.md` seguía enlazado desde docs activos e históricos aunque estaba declarado sustituido.                         | Las referencias activas se redirigieron y el duplicado se eliminó; quedan menciones narrativas en auditorías/changelog que describen su retiro, no enlaces al archivo. Otros documentos históricos se conservaron.                                                                      |
 
 ### Documentos a actualizar
 
@@ -410,7 +410,10 @@ aprobado por producto (sin elevar aprobación legal ni disponibilidad); después
 `RUNBOOK_PAGOS_SINPE.md`, `GUIA_QA_E2E.md`, `DICCIONARIO_DATOS.md`,
 `domains/MARKETPLACE.md`, `domains/MARKETPLACE_LIMITATIONS.md`,
 `KNOWN_LIMITATIONS.md`, `auditoria/FEATURE_TRACEABILITY_MATRIX.md`,
-`auditoria/DOCUMENTATION_GAP_REPORT.md`, `PRICING_AND_PLANS.md` y
+`auditoria/DOCUMENTATION_GAP_REPORT.md`, `PRICING_AND_PLANS.md`, `sinpe.md`,
+`PawTrack_Documento_Maestro_v3.1.md`, `NALA_CAPABILITY_MAP.md`,
+`NALA_ACTUAL_PRODUCT_STATE.md`, `LEGAL_REVIEW_REGISTER.md`,
+`api/ENDPOINT_CATALOG.md`, `api/AUTHORIZATION_MATRIX.md`, `consolidado.md` y
 `auditoria/DOCUMENTATION_CHANGELOG.md`. Actualizar backlinks históricos a la
 fuente canónica sin reescribir sus afirmaciones históricas. Eliminar
 `docs/pendientesTiendas.md` después de retirar sus referencias activas.
@@ -431,3 +434,21 @@ No se ejecutarán build, migraciones, llamadas a proveedores ni tests de product
 para este cambio documental. Ningún E2E de operación diaria de tienda, piloto,
 aprobación legal/fiscal, migración aplicada, sincronización POS o despliegue fue
 verificado en este corte.
+
+### Resultado de ejecución (2026-10-02)
+
+- Plan documentado antes de modificar otras fuentes. Reescritos los gates del
+  roadmap hacia el piloto híbrido y añadida `ENT-STORE` como checklist activo en
+  `MASTER_TODO.md`.
+- Actualizados README, estado B2B/STATUS, PRODUCT_SCOPE, FEATURES, API/API
+  reference/catalog/auth matrix, manual, borrador legal y registro legal,
+  runbook SINPE y `sinpe.md`, QA, diccionario de datos, pricing, consolidado,
+  especificación maestra, mapas de capacidades/estado, limitaciones, matriz de
+  trazabilidad y reportes de brechas/changelog.
+- Eliminado `docs/pendientesTiendas.md`; el índice y documentos de soporte
+  apuntan al roadmap y backlog únicos.
+- `git diff --check` pasó en los grupos documentales revisados. La búsqueda
+  focal ya no encuentra claims activos que nieguen reservas o reporte manual de
+  pago. No se ejecutaron build, tests, migraciones ni integración externa.
+- No se revisó semánticamente cada archivo de `docs/`; esta entrega es una
+  revalidación focal del dominio tiendas, no una auditoría integral.

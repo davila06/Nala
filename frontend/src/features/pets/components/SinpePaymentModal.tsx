@@ -74,6 +74,8 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
       query.state.data?.id === subscriptionId && query.state.data.status === "Active" ? false : 2_000,
     refetchIntervalInBackground: false,
   });
+  const subscriptionIsActive =
+    settlementSubscription?.id === subscriptionId && settlementSubscription.status === "Active";
 
   const [requiresInvoice, setRequiresInvoice] = useState(false);
 
@@ -181,7 +183,6 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
       setCardAuthCode(result.authorizationCode);
       setStep("card_success");
       success();
-      onSuccess?.();
     } catch {
       setError("Error de comunicación al procesar el pago con tarjeta. Intenta de nuevo.");
       warning();
@@ -199,7 +200,6 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
       });
       setStep("reported");
       success();
-      onSuccess?.();
     } catch {
       setError("No se pudo registrar tu aviso. Intenta de nuevo.");
       setStep("payment");
@@ -618,18 +618,23 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
           {step === "card_success" && (
             <div className="flex flex-col items-center gap-4 py-4 text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-warn-100 text-4xl">
-                {settlementSubscription?.id === subscriptionId && settlementSubscription.status === "Active" ? "✓" : "⏳"}
+                {subscriptionIsActive ? "✓" : "⏳"}
               </div>
               <div>
                 <h3 className="text-xl font-black text-sand-900">
-                  {settlementSubscription?.id === subscriptionId && settlementSubscription.status === "Active"
-                    ? "¡Plan activado!"
-                    : "Autorización recibida"}
+                  {subscriptionIsActive ? "¡Plan activado!" : "Autorización recibida"}
                 </h3>
                 <p className="mt-1 text-sm text-copy-secondary">
-                  {settlementSubscription?.id === subscriptionId && settlementSubscription.status === "Active"
-                    ? <>Tu suscripción <strong>{label}</strong> está activa.</>
-                    : <>La tarjeta fue autorizada. Activaremos <strong>{label}</strong> cuando la pasarela confirme la liquidación; el estado se actualizará aquí.</>}
+                  {subscriptionIsActive ? (
+                    <>
+                      Tu suscripción <strong>{label}</strong> está activa.
+                    </>
+                  ) : (
+                    <>
+                      La tarjeta fue autorizada. Activaremos <strong>{label}</strong> cuando la pasarela confirme la
+                      liquidación; el estado se actualizará aquí.
+                    </>
+                  )}
                 </p>
               </div>
 
@@ -640,19 +645,20 @@ export function SinpePaymentModal({ tier, clinicId, onClose, onSuccess }: SinpeP
               )}
 
               <p className="text-xs text-copy-muted">
-                {settlementSubscription?.id === subscriptionId && settlementSubscription.status === "Active"
+                {subscriptionIsActive
                   ? "La suscripción quedó activa tras confirmar la liquidación."
                   : "No vuelvas a enviar el pago mientras verificamos la liquidación."}
               </p>
 
               <button
                 type="button"
-                onClick={onClose}
+                onClick={() => {
+                  if (subscriptionIsActive) onSuccess?.();
+                  onClose();
+                }}
                 className="mt-2 w-full rounded-2xl bg-brand-600 py-3 text-sm font-bold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring shadow-sm"
               >
-                {settlementSubscription?.id === subscriptionId && settlementSubscription.status === "Active"
-                  ? `Comenzar a disfrutar de ${label} →`
-                  : "Cerrar mientras confirmamos"}
+                {subscriptionIsActive ? `Comenzar a disfrutar de ${label} →` : "Cerrar mientras confirmamos"}
               </button>
             </div>
           )}

@@ -77,9 +77,11 @@ ownership, tenant, suscripción, verificación, grant o scope de API.
 | `Admin`               | `/admin`, `/estadisticas`, `/nala`, reportes                                    | Aprobaciones, planes, usuarios, moderación, auditoría, inventario y métricas | Rol privilegiado, MFA/políticas según entorno              |
 | `Support`             | Colas autorizadas de bienestar e incidentes                                     | Triage, incidentes y resoluciones operativas                                 | Asignación manual por Admin; sin portal independiente      |
 
-La superficie `Store` cubre catalogo, solicitudes de pedido, analitica y CRUD
-tecnico de sedes. No es POS: no mantiene inventario, procesa pagos ni aplica
-permisos por sucursal. Ver [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md) y
+La superficie `Store` cubre catalogo, pedidos, analitica y CRUD tecnico de
+sedes. El codigo agrega stock escalar, reserva temporal y reporte/verificacion
+manual de pagos externos; no es POS, no procesa ni concilia pagos, no tiene
+kardex ni permisos por sucursal. Migracion/rollout `NO_VERIFICADO`. Ver
+[B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md) y
 [ROADMAP_TIENDAS_USO_DIARIO.md](ROADMAP_TIENDAS_USO_DIARIO.md).
 
 ### 2.1 Rutas públicas importantes
@@ -493,4 +495,3 @@ Actualizar mensualmente: MRR, ARR, ARPU, CAC, LTV, churn, conversión Free a
 pagado, MAU, costo por caso, costo de soporte, ingreso por B2B, ocupación de
 proveedores y margen por segmento. Estas cifras son planificación, no utilidad
 neta ni garantía para inversionistas.
-

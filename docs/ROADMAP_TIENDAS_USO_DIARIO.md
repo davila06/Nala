@@ -21,10 +21,16 @@ Para el piloto, la autoridad se define por dato:
 - No hay doble escritura ni sincronizacion bidireccional implicita de precios o
   stock. Para tiendas con POS, se registra por dato si la autoridad es NALA o el
   POS y como se sincroniza.
-- Si no existe una integracion confiable y el comercio no puede registrar en
-  NALA cada venta presencial y ajuste, NALA no presenta su stock como
-  disponibilidad real ni habilita reservas basadas en ese saldo. El piloto puede
-  mantenerse en catalogo/solicitudes con confirmacion manual de disponibilidad.
+- La ruta actual de pedido rechaza productos con `StockOnHand` nulo o inferior a
+  la cantidad solicitada. Por eso el piloto con pedidos online requiere stock
+  declarado en NALA; una tienda debe registrar tambien sus ventas presenciales
+  y ajustes si NALA es la autoridad. Si no puede, se requiere conector
+  POS-authoritative o cambio de producto a solicitudes sin stock antes de usar
+  pedidos; no existe hoy un fallback stockless.
+- Sin integracion confiable ni registro de todas las operaciones presenciales,
+  NALA no presenta su stock como disponibilidad real ni habilita reservas como
+  garantia. Se puede mostrar catalogo, pero el flujo de pedido actual no acepta
+  inventario ausente/insuficiente.
 - NALA no procesa ni liquida el pago. El codigo actual permite que el cliente
   reporte un pago externo y que la tienda registre manualmente una verificacion
   y la referencia de una devolucion ejecutada fuera de NALA. Esto es una
@@ -48,22 +54,26 @@ gates antes de cobrar, publicar claims o activar comercios.
 - Confirmacion, rechazo y avance de estado por el propietario de la tienda; historial paginado para comprador y tienda.
 - Entidad `StoreLocation`, CRUD bajo gates de StorePartner y `LocationId` opcional en el pedido.
 - Analitica de pedidos entregados/cancelados, filtro tecnico por sede y exportacion StorePartner.
-- Importacion CSV/JSON asincrona basica de productos mediante `ImportJob`, con clave de idempotencia del job, limite tecnico y gate de cuota. La clave del import no hace idempotente `POST /api/store-orders`.
+- Importacion CSV/JSON asincrona basica de productos mediante `ImportJob`, con clave de idempotencia del job, limite tecnico y gate de cuota.
+- `POST /api/store-orders` requiere `Idempotency-Key`; el backend guarda una huella del payload, devuelve el pedido existente ante replay equivalente y rechaza reutilizacion con payload distinto. Checkout conserva la clave al reintentar. La unicidad esta declarada por cliente en el modelo EF; la migracion esta generada, no aplicada.
 - Hay pruebas unitarias de dominio/handlers de tienda; no acreditan por si solas el flujo SQL concurrente ni un E2E de venta/caja.
 
-La migracion `20261002193005_AddEnterpriseMarketplaceStockAndPaymentLink` y las
-rutas/jobs referidos son evidencia de codigo/esquema en el workspace, no de
-migracion aplicada, despliegue, operacion con una tienda o pago confirmado por
-una entidad bancaria. La verificacion de esos estados es `NO_VERIFICADO`.
+Las migraciones `20261002193005_AddEnterpriseMarketplaceStockAndPaymentLink`,
+`20261002201408_AddStoreOrderManualRefundEvidence` y
+`20261002212937_AddStoreOrderIdempotencyAndProviderRefundAccounting`, junto con
+las rutas/jobs referidos, son evidencia de codigo/esquema en el workspace, no
+de migracion aplicada, despliegue, operacion con una tienda o pago confirmado
+por una entidad bancaria. La verificacion de esos estados es `NO_VERIFICADO`.
 
 ### Brechas actuales para uso diario
 
 - El stock actual es una cantidad editable, no un kardex inmutable. No hay movimientos de apertura/recepcion/venta/merma/ajuste/devolucion, compras, conteo fisico, SKU/codigo de barras, costo, proveedor, variantes ni stock por sede.
+- La ruta `POST /api/store-orders` exige `StockOnHand` declarado y suficiente para cada linea antes de crear el pedido; no existe hoy una modalidad de solicitud sin stock. Esto debe resolverse por la fuente de verdad del piloto o mediante cambio de producto.
 - La reserva al aceptar ya existe en codigo, pero requiere pruebas SQL de concurrencia, idempotencia y recuperacion ante fallos antes de usarse como garantia operativa.
 - El checkout no elige sede ni envia `LocationId`; por tanto, la atribucion multi-sede no forma parte del flujo frontend actual.
 - No hay membresias de empleados de tienda ni permisos por sucursal; el agregado `Store` tiene un `UserId` propietario unico.
 - No hay venta presencial/online unificada, caja/cierre, conciliacion automatica ni factura fiscal de tienda en NALA. Reportar/verificar un pago manual o registrar un reembolso externo no procesa esos movimientos.
-- `POST /api/store-orders` no usa idempotency key. El snapshot de nombre/precio existe al crear la solicitud; falta el proceso de reconfirmar el monto/condiciones si cambian antes de aceptar.
+- Idempotencia de `POST /api/store-orders` implementada en API, handler y checkout; falta aplicar la migracion autorizadamente y verificar colision/concurrencia/rollback en SQL Server. El snapshot de nombre/precio existe al crear la solicitud; falta reconfirmar el monto/condiciones si cambian antes de aceptar.
 - Las notificaciones actuales no usan entrega durable/outbox para todo el ciclo ni acreditan recepcion por el comprador.
 - El importador no carga SKU ni existencias y requiere UI de vista previa/progreso, errores descargables, lotes/streaming y pruebas de aislamiento y duplicados.
 - No se encontro un E2E de la jornada completa de caja/inventario. El runbook B2B existente no cubre ese flujo.
@@ -77,7 +87,7 @@ Fuentes de contraste: [B2B_ESTADO_ACTUAL.md](B2B_ESTADO_ACTUAL.md),
 
 ## 3. Brechas confirmadas que requieren correccion
 
-1. **Idempotencia:** `POST /api/store-orders` no usa clave idempotente, aunque la importacion de catalogo si tiene clave de job. Reintentos por timeout pueden duplicar pedidos; agregar unicidad por cliente/operacion y replay de la respuesta.
+1. **Idempotencia (código implementado; gate relacional pendiente):** `POST /api/store-orders` exige `Idempotency-Key`, almacena hash del payload, reproduce la respuesta solo para el mismo payload y devuelve 409 `IDEMPOTENCY_KEY_CONFLICT` si se reutiliza con otro. Usa índice único cliente/clave. Pruebas unitarias cubren retry, conflicto y colisión simulada; quedan migración aplicada autorizadamente y pruebas de concurrencia/rollback con SQL Server.
 2. **Estados y evidencia de pago:** hay estados para disponibilidad, pago reportado, verificacion manual, preparacion y cumplimiento. Documentar que `verify-payment` es una atestacion de la tienda tras revisar su cuenta, no confirmacion bancaria de NALA. Acordar nombre/semantica del estado `Paid` y evitar presentar el pedido como venta liquidada por el sistema.
 3. **Transiciones de fulfillment:** probar en dominio/API que retiro y entrega no crucen estados incompatibles, que estados terminales no se muten y que cada cambio registre actor, fecha, motivo y evento inmutable.
 4. **Validacion de catalogo:** agregar validador para `UpdateStoreProductCommand` e invariantes de dominio equivalentes al alta, incluyendo nombre, precio, stock no negativo y tienda activa.
@@ -106,7 +116,7 @@ produccion.
 ### Fase 1 - Piloto hibrido e integridad minima de pedido
 
 - Ejecutar con una ubicacion, catalogo/importacion inicial y flujo de pedido de una tienda.
-- Agregar idempotencia a creacion/transiciones y correlacion auditable antes de exponer el flujo a reintentos reales.
+- Validar en SQL Server la idempotencia de creacion ante reintentos concurrentes; completar idempotencia de transiciones y correlacion auditable antes de exponer el flujo a reintentos reales.
 - Formalizar maquina de estados por retiro/entrega; distinguir solicitud, aceptacion con disponibilidad, pago reportado, verificacion manual, preparacion, entrega y estados terminales.
 - Mantener el snapshot actual de lineas; revalidar precio/disponibilidad en aceptacion y requerir confirmacion del comprador si cambia el monto.
 - Usar el POS externo para cobro/caja/factura. Registrar cualquier cambio presencial de stock en NALA mientras NALA sea autoridad; si el piloto no puede hacerlo, no exponer stock como real.
