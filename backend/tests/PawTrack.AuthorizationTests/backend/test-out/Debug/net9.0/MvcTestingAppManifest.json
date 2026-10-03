@@ -1,0 +1,6 @@
+{
+  "PawTrack.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\Nala\\backend\\src\\PawTrack.API",
+  "PawTrack.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\Nala\\backend\\src\\PawTrack.Application",
+  "PawTrack.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\Nala\\backend\\src\\PawTrack.Domain",
+  "PawTrack.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\Nala\\backend\\src\\PawTrack.Infrastructure"
+}

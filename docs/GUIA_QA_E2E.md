@@ -49,11 +49,16 @@ requiere limite de tamano y content type.
 
 ### Gate E2E del piloto hibrido de tienda
 
-Antes de presentar el stock como confiable para el piloto, agregar pruebas con
-SQL real que cubran alta/ajuste de inventario, solicitud repetida con la misma
-`Idempotency-Key`, aceptacion con precio/stock vigentes, reserva/liberacion
-concurrente, expiracion, cancelacion/rechazo y dos solicitudes por las ultimas
-unidades. Para el flujo hibrido probar ademas que el cobro sigue en POS externo,
+Hay una prueba de integración SQL que crea una base temporal, aplica la
+migración de idempotencia y fuerza colisión concurrente del índice
+`(CustomerId, IdempotencyKey)` en
+[StoreOrderIdempotencySqlTests](../backend/tests/PawTrack.IntegrationTests/Stores/StoreOrderIdempotencySqlTests.cs);
+su ejecución reciente en CI/este corte no está verificada. Antes de presentar el
+stock como confiable para el piloto, ejecutar esa prueba y agregar E2E que cubra
+alta/ajuste de inventario, solicitud repetida con la misma `Idempotency-Key`,
+aceptación con precio/stock vigentes, reserva/liberación concurrente,
+expiración, cancelación/rechazo y dos solicitudes por las últimas unidades.
+Para el flujo híbrido probar además que el cobro sigue en POS externo,
 el reporte del cliente no se transforma en pago confirmado y la devolucion se
 registra solo despues de gestionarla fuera. Completar E2E de estados por tipo de
 entrega, notificaciones y aislamiento por tienda. Los tests existentes no
